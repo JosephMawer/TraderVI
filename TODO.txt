@@ -1,0 +1,28 @@
+TODO:
+1) add retries on 'Unable to parse out price for 'x'' comment
+	- ruggadize the whole parsing of the html stuff
+	- add retry attempts
+
+
+2) figure out the object null reference exception when parsing intraday stocks
+	- something to do with running async concurrently,sigh...
+
+
+3) start writing some calculations on the data collected
+	- advance-decline line as shown in Granvilles book
+	- calcualte top gainers for dollar, percentage, etc. as well as top losers, etc.
+
+4) start calculating granvilles indicators
+
+5) side off --- based on Granville's numeric weighting system can we calculate the optimal values?  and then compare the optimal to our results
+that we get from analyzing current day to day stock information.  The closer we are to the optimal value the high chance of success the stock has
+
+6) In the data layer (StocksDB) is it possible to create a generic reader so that I can just pass have a single method call, i.e. FetchData<T>()
+   so that I can avoid having to write out the same ado.net code every method...
+
+
+7) We need a way to validate the success/failure of the system by logging the daily market forecast each day and then checking how
+accurate that forecast was the following day, i.e. did the market rise like it was supposed to?, did it fall like it was supposed to? etc.
+
+
+8) Create a worker service (daemon) that sits in background executing tasks at predefined intervals

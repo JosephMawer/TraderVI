@@ -1,0 +1,13 @@
+http://www.eoddata.com/
+
+
+// what is an indice
+https://www.investopedia.com/terms/i/index.asp
+
+
+// Timers - executing code at a specified time i.e. good for the worker serveice implementation
+https://docs.microsoft.com/en-us/dotnet/standard/threading/timers
+
+
+// Setting up alerts & triggers
+https://www.stockdisciplines.com/stock-alerts#alerts
