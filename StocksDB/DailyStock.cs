@@ -43,6 +43,21 @@ namespace StocksDB
         }
 
         /// <summary>
+        /// Queries the database for 52 week high of a particular stock
+        /// </summary>
+        /// <param name="ticker">The ticker symbol to query for</param>
+        /// <returns>The 52 week high (based on closing price)</returns>
+        public async Task<int> Get52WeekHigh(string ticker)
+        {
+            var currentDate = DateTime.Today.ToShortDateString();
+            var query = $@"select max([Close]) 
+                          from (select [Close] from [StocksDB].[dbo].[DailyStock]
+                                where [Ticker] = '{ticker}' and [Date] >=dateadd(week,-52, '{currentDate}') and [Date] < '{currentDate}') as d";
+
+            return await base.ExecuteScalarAsync<int>(query, null);
+        }
+
+        /// <summary>
         /// basically does a select * for the ticker (parameter)
         /// </summary>
         /// <param name="ticker"></param>
