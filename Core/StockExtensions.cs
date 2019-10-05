@@ -25,6 +25,15 @@ namespace Core
             
         }
 
+        /// <summary>
+        /// Gets the 52 week high for a stock
+        /// </summary>
+        /// <param name="stockInfo"></param>
+        /// <returns>The highest closing price of the past 52 weeks</returns>
+        public static decimal Calculate52WeekHigh(this List<IStockInfo> stockInfo)
+            => stockInfo.Where(d => DateTime.Parse(d.TimeOfRequest) >= DateTime.Now.Date.AddDays(-364))
+                        .Max(s => s.Close);
+        
 
         public static List<OBV> CalculateOBV(this List<IStockInfo> stockInfo, int period)
         {
