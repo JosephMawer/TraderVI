@@ -134,19 +134,14 @@ namespace StocksDB
         /// </summary>
         /// <param name="query">The query string</param>
         /// <param name="parameters">Parameters as a list of <see cref="SqlParameter"/></param>
-        /// <returns>Returns the first column of the first row, typically the primary key</returns>
-        private async Task<int?> ExecuteScalar(string query, List<SqlParameter> parameters)
+        /// <returns>Returns the first column of the first row</returns>
+        public async Task<T> ExecuteScalarAsync<T>(string query)
         {
             using (var con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (var cmd = new SqlCommand(query, con))
-                {
-                    if (parameters != null)
-                        cmd.Parameters.AddRange(parameters.ToArray());
-
-                    var res = (int)await cmd.ExecuteScalarAsync();
-                    return res;
+                using (var cmd = new SqlCommand(query, con)) {
+                    return (T)await cmd.ExecuteScalarAsync();
                 }
             }
         }
