@@ -16,16 +16,13 @@ namespace Core
         /// <param name="stockInfo"></param>
         /// <param name="period">The period of time to calculate the SMA for</param>
         /// <returns>A list of <see cref="SMA"/></returns>
-        public static List<SMA> CalculateSMA(this List<IStockInfo> stockInfo, int period)
+        public static IEnumerable<SMA> CalculateSMA(this List<IStockInfo> stockInfo, int period)
         {
             if (stockInfo.Count < period) throw new Exception("Not enough data to calculate SMA for " + period + " days");
-            var sma = new List<SMA>();
-            for (int i = 0; i < stockInfo.Count - period + 1; i++) {
-                var x = new SMA(stockInfo.Skip(i).Take(period).Average(stock => stock.Close), 
+            for (int i = 0; i < stockInfo.Count - period + 1; i++) 
+                yield return new SMA(stockInfo.Skip(i).Take(period).Average(stock => stock.Close), 
                     DateTime.Parse(stockInfo[i].TimeOfRequest));
-                sma.Add(x);
-            }
-            return sma;
+            
         }
 
 
