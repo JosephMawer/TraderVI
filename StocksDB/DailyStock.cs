@@ -52,9 +52,19 @@ namespace StocksDB
             var currentDate = DateTime.Today.ToShortDateString();
             var query = $@"select max([Close]) 
                           from (select [Close] from [StocksDB].[dbo].[DailyStock]
-                                where [Ticker] = '{ticker}' and [Date] >=dateadd(week,-52, '{currentDate}') and [Date] < '{currentDate}') as d";
+                                where [Ticker] = '{ticker}' and [Date] >=dateadd(week,-52, '{currentDate}') and [Date] <= '{currentDate}') as d";
 
             return await base.ExecuteScalarAsync<decimal>(query);
+        }
+
+        public async Task<List<IStockInfo>> GetTopMoversByVolume(int count, DateTime date)
+        {
+            var query = $@"select top({count}) stock.[Date],stock.[Ticker],stock.[Open],stock.[Close],
+				           stock.[Volume],stock.[High],stock.[Low],symbol.[Name] from DailyStock as stock
+	                       inner join Symbols as symbol on stock.Ticker = symbol.Symbol
+                           where [Date] >= '{date.ToShortDateString()}'
+                           order by Volume desc";
+            return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
         /// <summary>
@@ -65,6 +75,13 @@ namespace StocksDB
         public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker)
         {
             var query = $"select {Fields} from {Schema} where [Ticker] = '{ticker}'";
+            return await SomethingThatConvertsSQLIntoStockInfo(query);
+        }
+
+        // this assumes the query (columns) is in the correct order!!!!!!!!!
+        // also, makes the assumption that the current price = the closing price!!!!!
+        public async Task<List<IStockInfo>> SomethingThatConvertsSQLIntoStockInfo(string query)
+        {
             var retLst = new List<IStockInfo>();
             using (SqlConnection con = new SqlConnection(ConnectionString))
             {
@@ -80,9 +97,17 @@ namespace StocksDB
                             info.Ticker = reader.GetString(1);
                             info.Open = reader.GetDecimal(2);
                             info.Close = reader.GetDecimal(3);
+                            info.Price = info.Close;
                             info.Volume = reader.GetInt64(4);
                             info.High = reader.GetDecimal(5);
                             info.Low = reader.GetDecimal(6);
+                            try
+                            {
+                                // todo - implement try-getstring as extension method
+                                info.Name = reader.GetString(7);
+                            }
+                            catch { }
+                            //info.Name = reader.GetString(7);
                             retLst.Add(info);
                         }
                     }
@@ -90,6 +115,7 @@ namespace StocksDB
             }
             return retLst;
         }
+
 
         // one off method i was using for importing historical stock data to ensure
         // i was adding duplicates
