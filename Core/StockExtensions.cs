@@ -39,39 +39,65 @@ namespace Core
             bool firstPass = true;
 
             #region original version
-            //foreach (var stock in Enumerable.Reverse(range))    // reverse date as it is from newest to oldest
-            //{
-            //    var previousEMA = (firstPass) ?
-            //        CalculateSMA(stockInfo, 50).ToList()[period + 1].Price :
-            //        emaList[count - 1].Price;
-
-            //    firstPass = false;
-
-            //    var priceToday = stock.Close;
-            //    var price = priceToday * alpha + previousEMA * (1 - alpha);
-            //    var ema = new EMA(price, DateTime.Parse(stock.TimeOfRequest));
-            //    emaList.Add(ema);
-            //    count++;
-            //}
-            #endregion
-
-            // linq version!!
-            foreach (var (stock, previousEMA) in from stock in Enumerable.Reverse(range)// reverse date as it is from newest to oldest
-                                                 let previousEMA = (firstPass) ?
-                                                                     CalculateSMA(stockInfo, 50).ToList()[period + 1].Price :
-                                                                     emaList[count - 1].Price
-                                                 select (stock, previousEMA))
+            foreach (var stock in Enumerable.Reverse(stockInfo))    // reverse date as it is from newest to oldest
             {
+                var previousEMA = (firstPass) ?
+                    CalculateSMA(stockInfo, 50).ToList()[period + 1].Price :
+                    emaList[count - 1].Price;
+
                 firstPass = false;
+
                 var priceToday = stock.Close;
                 var price = priceToday * alpha + previousEMA * (1 - alpha);
                 var ema = new EMA(price, DateTime.Parse(stock.TimeOfRequest));
                 emaList.Add(ema);
                 count++;
             }
+            #endregion
+
+            //// linq version!!
+            //foreach (var (stock, previousEMA) in from stock in Enumerable.Reverse(range)// reverse date as it is from newest to oldest
+            //                                     let previousEMA = (firstPass) ?
+            //                                                         CalculateSMA(stockInfo, 50).ToList()[period + 1].Price :
+            //                                                         emaList[count - 1].Price
+            //                                     select (stock, previousEMA))
+            //{
+            //    firstPass = false;
+            //    var priceToday = stock.Close;
+            //    var price = priceToday * alpha + previousEMA * (1 - alpha);
+            //    var ema = new EMA(price, DateTime.Parse(stock.TimeOfRequest));
+            //    emaList.Add(ema);
+            //    count++;
+            //}
 
             return emaList;
         }
+
+        /// <summary>
+        /// The MACD is calculated by subtracting the 26-period Exponential Moving Average (EMA) 
+        /// from the 12-period EMA. The result of that calculation is the MACD line.
+        /// </summary>
+        /// <param name="stockInfo"></param>
+        /// <param name="periodOne"></param>
+        /// <param name="periodTwo"></param>
+        /// <returns></returns>
+        public static IEnumerable<decimal> CalculateMACD(
+            this List<IStockInfo> stockInfo,
+            int periodOne,
+            int periodTwo)
+        {
+
+            var p1 = stockInfo.CalculateEMA(periodOne).ToList();
+            var p2 = stockInfo.CalculateEMA(periodTwo).ToList();
+            var retLst = new List<decimal>();
+            for (int i = 0; i < 10; i++)
+            {
+                var x = p1[i].Price - p2[i].Price;
+                retLst.Add(x);
+            }
+            return retLst;
+        }
+
 
         /// <summary>
         /// Gets the 52 week high for a stock
