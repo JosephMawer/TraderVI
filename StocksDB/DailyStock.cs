@@ -59,13 +59,13 @@ namespace StocksDB
 
         public async Task<List<IStockInfo>> GetTopMoversByVolume(int count, DateTime date)
         {
-            var query = $@"select top({count}) stock.[Date],stock.[Ticker],stock.[Open],stock.[Close],
-				           stock.[Volume],stock.[High],stock.[Low],symbol.[Name] from DailyStock as stock
+            var query = $@"select top({count}) {fullyQualifiedFields} from DailyStock as stock
 	                       inner join Symbols as symbol on stock.Ticker = symbol.Symbol
                            where [Date] >= '{date.ToShortDateString()}'
                            order by Volume desc";
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
+        private string fullyQualifiedFields => "stock.[Date],stock.[Ticker],stock.[Open],stock.[Close],stock.[Volume],stock.[High],stock.[Low],symbol.[Name]";
 
         /// <summary>
         /// basically does a select * for the ticker (parameter)
@@ -74,7 +74,9 @@ namespace StocksDB
         /// <returns>a list of <see cref="IStockInfo"/></returns>
         public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker)
         {
-            var query = $"select {Fields} from {Schema} where [Ticker] = '{ticker}'";
+            var query = $@"select {fullyQualifiedFields} from {Schema} as stock
+                           inner join Symbols as symbol on stock.Ticker = symbol.Symbol
+                           where [Ticker] = '{ticker}' order by [Date] desc";
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
@@ -101,13 +103,8 @@ namespace StocksDB
                             info.Volume = reader.GetInt64(4);
                             info.High = reader.GetDecimal(5);
                             info.Low = reader.GetDecimal(6);
-                            try
-                            {
-                                // todo - implement try-getstring as extension method
-                                info.Name = reader.GetString(7);
-                            }
-                            catch { }
-                            //info.Name = reader.GetString(7);
+                            info.Name = reader.SafeGetString(7);
+                       
                             retLst.Add(info);
                         }
                     }
