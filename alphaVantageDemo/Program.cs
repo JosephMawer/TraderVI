@@ -45,7 +45,7 @@ namespace alphaVantageDemo
         public static async Task<List<IStockInfo>> GetRequestTimeSeriesData(string ticker)
         {
             var stockData = new List<IStockInfo>();
-            StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"TSX:{ticker}", TimeSeriesSize.Full, adjusted: false);
+            StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Full, adjusted: false);
             var points = stockTimeSeries.DataPoints;
             foreach (var point in points.Take(500))
             {
@@ -67,6 +67,7 @@ namespace alphaVantageDemo
 
         public static async Task Main(string[] args)
         {
+            var weed = await GetRequestTimeSeriesData("WEED");
             var db = new StocksDB.DailyStock();
             var db1 = new StocksDB.Constituents();
             var constituents = await db1.GetConstituents(); // get full list
@@ -86,7 +87,7 @@ namespace alphaVantageDemo
                     {
                         Debug.WriteLine("Download symbol info for: " + symbol);
                         var data = await GetRequestTimeSeriesData(symbol);
-                        await db.InsertDailyStockList(data.Skip(2));
+                        await db.InsertDailyStockList(data.Skip(3));
                         Debug.WriteLine("Successfully downloaded data at " + DateTime.Now);
                         await Task.Delay(20000);    // wait 20 seconds
 
