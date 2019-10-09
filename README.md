@@ -1,5 +1,15 @@
 
 
+High level parts of the system
+
+ - TMX: the web scraper, gathers daily financial info 
+ - Daily trader: monitors stocks I am actually invested in to ensure 
+ - Alert System: this system scans stocks (from db) daily to check for emerging patterns
+ - Watch List: 
+ - Watcher:	monitors intraday activity for stocks on the watch list for triggers/buy signals
+ - Funds:	monitors the amount of money I have made from investments (kind of like pennywise)
+ - StocksDB: the data layer; deals directly with the database
+
 Alerts vs Triggers
 
 Alert: indicates it is time to watch a stock, i.e. add it to the watchlist

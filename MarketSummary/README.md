@@ -1,9 +1,20 @@
-﻿Returns market data from the TMX website
+﻿About the Toronto Stock Exchange (TSX)
+The S&P/TSX Composite Index (INDEXTSI:OSPTX) is the principal market measure for the Canadian equities market, 
+and is calculated and managed by S&P Dow Jones Indices.
+
+The index, which was launched in 1977, includes both common stocks and income trust units.
+
+Markets Include:
+TSX, TSXV, DOW, S&P 500, NASDAQ, NYSE, AMEX, ASX
+
+
+
+Returns market data from the TMX website
 https://web.tmxmoney.com/marketsca.php
 
 
 
-The initial goal of this library is to assist in the daily generation of a table of advances and declines.
+The initial goal of this library is to assist in the daily gathering of stock and market data	//generation of a table of advances and declines.
 
 
 
