@@ -69,10 +69,10 @@ namespace StocksDB
             }
         }
 
-        public async Task<List<ConstituentInfo>> GetConstituents()
+        public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
         {
-
-            string query = $"SELECT [Constituent_Name],[Symbol] FROM [StocksDB].[dbo].[TSX_Constituents_09212019]";
+            var sql = (count != null) ? $"TOP({count})" : "";
+            string query = $"SELECT {sql} [Constituent_Name],[Symbol] FROM [StocksDB].[dbo].[TSX_Constituents_09212019]";
 
             var lst = new List<ConstituentInfo>();
             using (SqlConnection con = new SqlConnection(ConnectionString))
