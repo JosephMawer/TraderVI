@@ -80,6 +80,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj">
+      <Project>{d177d12c-9073-4cc6-ad88-f2c8f52b138a}</Project>
+      <Name>AlphaVantage.Net.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj">
+      <Project>{d5f839db-750d-4728-997f-c82946bb8b75}</Project>
+      <Name>AlphaVantage.Net.Stocks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StocksDB\StocksDB.csproj">
       <Project>{b1abe1e5-2c30-4342-8c67-ea0cc8df0d30}</Project>
       <Name>StocksDB</Name>
