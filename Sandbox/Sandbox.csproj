@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
-    <ProjectReference Include="..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
     <ProjectReference Include="..\GranvilleIndicator\GranvilleIndicator.csproj" />
     <ProjectReference Include="..\MarketSummary\Market.csproj" />
     <ProjectReference Include="..\StocksDB\StocksDB.csproj" />

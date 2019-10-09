@@ -20,11 +20,22 @@ using TMX.Market;
 
 namespace Sandbox
 {
+    static class GrottyHacks
+    {
+        internal static T Cast<T>(object target, T example)
+        {
+            return (T)target;
+        }
+    }
+
     class Program
     {
         private const string apiKey = "6IQSWE3D7UZHLKTB";
         private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
-     
+
+
+
+
         /// <summary>
         /// The main entry point for the program
         /// </summary>
@@ -32,6 +43,59 @@ namespace Sandbox
         /// <returns></returns>
         static async Task Main(string[] args)
         {
+            await DoSomeSortingOnEntireData();
+
+            #region table for showing EMA data
+            //var path = @"C:\src\#Projects\TraderVI\tmp\CSV_FILES\ema-are.csv";
+            //try
+            //{
+            //    var db = new StocksDB.DailyStock();
+            //    //var high52 = await db.Get52WeekHigh("ARE");
+            //    List<IStockInfo> stock = await db.GetAllStockDataFor("ARE");
+            //    var hmm = stock.Calculate52WeekHigh();
+
+
+            //    var ema9 = stock.CalculateEMA(9);
+            //    var ema22 = stock.CalculateEMA(22);
+
+            //    var joined = from f in stock
+            //                 join r in ema22
+            //                 on f.TimeOfRequest equals r.Date.ToShortDateString()
+            //                 into joinResult
+            //                 from r in joinResult.DefaultIfEmpty()
+            //                 select new
+            //                 {
+            //                     Date = f.TimeOfRequest,
+            //                     Symbol = f.Ticker,
+            //                     f.Close,
+            //                     EMA = r.Price
+            //                 };
+
+            //    var joined2 = from f in joined
+            //                  join r in ema9
+            //                  on f.Date equals r.Date.ToShortDateString()
+            //                  into joinResult
+            //                  from r in joinResult.DefaultIfEmpty()
+            //                  select new
+            //                  {
+            //                      f.Date,
+            //                      f.Symbol,
+            //                      f.Close,
+            //                      EMA22 = f.EMA,
+            //                      EMA9 = r.Price
+            //                  };
+
+            //    ConsoleTable.From(joined2).Write();
+            //    //foreach (var value in joined2)
+            //    //    File.AppendAllText(path, $"{value.Date},{value.Symbol},{value.Close},{value.EMA22},{value.EMA9}{Environment.NewLine}");
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    var msg = ex.Message;
+            //}
+            #endregion
+
             #region Command Line Utils "DREAM"
             // todo - command line utils to run this tool daily, manually
 
@@ -48,8 +112,8 @@ namespace Sandbox
             // -ad  --advance-decline   :: gets the advance decline line
             #endregion
 
-            var saveToDatabase = true; // set this to true to save to database
-            //await GetTheAdvanceDeclineLine();
+            var saveToDatabase = false; // set this to true to save to database
+                                       //await GetTheAdvanceDeclineLine();
 
             //var granville = new Granville();
             //var points = await granville.GetDailyMarketForecast();
@@ -59,21 +123,23 @@ namespace Sandbox
             //}
 
             //await Utils.DownloadHTMLPage("https://web.tmxmoney.com/marketsca.php", @"C:\src\#Projects\alphaVantageDemo\tmp\html\markets_dump.html");
-    
+
+
+            // TODO: make sure constituents is up to date
             var db1 = new StocksDB.Constituents();
             var constituents = await db1.GetConstituents(); // get full list
-            //var constituents = new List<ConstituentInfo>()    // get single/specified stock
-            //{
-            //    new ConstituentInfo() { Name = "B2Gold Corp.", Symbol = "BTO"}
-            //};
+                                                            //var constituents = new List<ConstituentInfo>()    // get single/specified stock
+                                                            //{
+                                                            //    new ConstituentInfo() { Name = "B2Gold Corp.", Symbol = "BTO"}
+                                                            //};
 
-            
+
             await GetDailyIndiceAverages(saveToDatabase);
             await GetDailyMarketSummary(saveToDatabase);
             await GetDailyStockInfo(constituents, saveToDatabase);
 
             // Once the data gathering/import is done, we can start to scan the data for alerts
-            await CheckForAlerts(constituents);
+            //await CheckForAlerts(constituents);
 
 
             #region initial code
@@ -89,6 +155,59 @@ namespace Sandbox
             //PrintTimeSeriesData(ticker);
             //DoPatternStuffOverStocks();
             #endregion
+        }
+        struct topPercentage
+        {
+            public string Ticker { get; set; }
+            public string Name { get; set; }
+            public decimal Close { get; set; }
+            public decimal PriceIncrease { get; set; }
+        }
+        static async Task DoSomeSortingOnEntireData()
+        {
+            var db1 = new StocksDB.Constituents();
+            var constituents = await db1.GetConstituents(); // get full list
+            var db = new StocksDB.DailyStock();
+
+            var stockData = new List<List<IStockInfo>>(constituents.Count);
+            foreach (var constituent in constituents)
+                stockData.Add(await db.GetAllStockDataFor(constituent.Symbol));
+            List<topPercentage> table = new List<topPercentage>();
+            // get top x in percentage for today
+            WriteToConsole("Top 10 movers in price", ConsoleColor.Yellow);
+            foreach (var stock in stockData)
+            {
+                var priceToday = stock[0].Close;
+                var priceYesterday = stock[1].Close;
+                var priceIncrease = priceToday - priceYesterday;
+                var percentageIncrease = priceIncrease / 100m;
+                //var ie2 = ie.Select(x => new { x.Foo, x.Bar, Sum = x.Abc + x.Def });
+                var ret = stock.Select(x => new topPercentage 
+                                                { Ticker = x.Ticker, Name = x.Name, Close = x.Close, PriceIncrease = priceIncrease })
+                               .First();
+                table.Add(ret);
+            }
+            var topTen = table.Where(c => c.Close < 10).OrderByDescending(f => f.PriceIncrease).Take(10);
+            ConsoleTable.From(topTen).Write();
+
+
+            // get top x in volume for today
+            var topMovers = await db.GetTopMoversByVolume(10, DateTime.Today);
+            ConsoleTable.From(topMovers).Write();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadLine();
+        }
+
+        public enum Colors
+        {
+            Default
+        }
+        static void WriteToConsole(string msg, ConsoleColor? color = null)
+        {
+            var original = Console.ForegroundColor;    // get the current console color
+            Console.ForegroundColor = color ?? original;
+            Console.WriteLine(msg);
+            Console.ForegroundColor = original;
         }
 
         static async Task CheckForAlerts(IList<ConstituentInfo> constituents)
@@ -120,14 +239,10 @@ namespace Sandbox
         static async Task GetTheAdvanceDeclineLine()
         {
             var adLine = await Granville.GetAdvanceDeclineLine();
-            ConsoleTable.From(adLine.OrderByDescending(k => k.Date)).Write();
-
-            #region ConsoleColor
-            var color = Console.ForegroundColor;    // get the current console color
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(" The purpose of the advance -decline line is to inform you in the broadest sense whether the market as a whole is actually gaining or losing strength");
-            Console.ForegroundColor = color;        // restore to previous console color
-            #endregion
+            ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write();
+            var msg = " The purpose of the advance -decline line is to inform you in the broadest sense whether the market as a whole is actually gaining or losing strength";
+            WriteToConsole(msg, ConsoleColor.Yellow);
+            
         }
 
         /// <summary>
