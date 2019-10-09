@@ -72,10 +72,12 @@ namespace TMX.Market
             {
                 stock.TimeOfRequest = DateTime.Now.ToShortDateString();  //.GetFormmatedDateTime();
                 stock.Price = GetPrice(Ticker);
-                TimeSpan marketClose = TimeSpan.Parse("16:00"); // 4 PM
-                if (DateTime.Parse(stock.TimeOfRequest).TimeOfDay >= marketClose)
-                    stock.Close = stock.Price;  // if the market has closed we can set the close price
-                else stock.Close = default;
+                stock.Close = stock.Price;
+                // -- don't need this code since I will ensure the program always runs after 4pm
+                //TimeSpan marketClose = TimeSpan.Parse("16:00"); // 4 PM
+                //if (DateTime.Parse(stock.TimeOfRequest).TimeOfDay >= marketClose)
+                //    stock.Close = stock.Price;  // if the market has closed we can set the close price
+                //else stock.Close = default;
 
 
                 stock.Open = GetOpen(Ticker);
