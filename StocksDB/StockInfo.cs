@@ -40,7 +40,7 @@ namespace StocksDB
 
     public class Constituents : SQLBase
     {
-        public Constituents() : base("[StocksDB].[dbo].[TSX_Constituents_09212019]", "[Constituent_Name],[Symbol]") { }
+        public Constituents() : base("[StocksDB].[dbo].[TSX_Constituents_10142019]", "[Constituent_Name],[Symbol]") { }
 
         /// <summary>
         /// Inserts a symbol into the Symbols table
