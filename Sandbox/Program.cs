@@ -38,7 +38,7 @@ namespace Sandbox
         static async Task Main(string[] args)
         {
             // Import all data from db into memory...  todo - see how much memory this actually uses.
-            StockData = await GetListOfStockData();
+            StockData = await DailyStock.GetListOfStockData();
 
 
             
@@ -180,22 +180,6 @@ namespace Sandbox
             return date.ToShortDateString();
         }
 
-        /// <summary>
-        /// Helper method to pull all stock data into memory
-        /// </summary>
-        /// <returns>A list of stock data for each ticker</returns>
-        static async Task<List<List<IStockInfo>>> GetListOfStockData()
-        {
-            var db = new Constituents();
-            var constituents = await db.GetConstituents();
-
-            var stockDb = new DailyStock();
-            StockData = new List<List<IStockInfo>>(constituents.Count);
-            foreach (var constituent in constituents)
-                StockData.Add(await stockDb.GetAllStockDataFor(constituent.Symbol));
-
-            return StockData;
-        }
 
         private struct DifferenceTable
         {

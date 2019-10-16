@@ -17,6 +17,29 @@ namespace StocksDB
         public DailyStock() : base("[StocksDB].[dbo].[DailyStock]",
             "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low]") { }
 
+
+
+        // TODO - maybe I should have a high level Db class that is full of static methods
+        // that can do static functions like 'GetListOfStockData' below... thoughts?
+
+        /// <summary>
+        /// Helper method to pull all stock data into memory
+        /// </summary>
+        /// <returns>A list of stock data for each ticker</returns>
+        public static async Task<List<List<IStockInfo>>> GetListOfStockData()
+        {
+            var db = new Constituents();
+            var constituents = await db.GetConstituents();
+
+            var stockDb = new DailyStock();
+            var stockData = new List<List<IStockInfo>>(constituents.Count);
+            foreach (var constituent in constituents)
+                stockData.Add(await stockDb.GetAllStockDataFor(constituent.Symbol));
+
+            return stockData;
+        }
+
+
         /// <summary>
         /// Inserts a list <see cref="IStockInfo"/> into the StocksDB database
         /// </summary>
