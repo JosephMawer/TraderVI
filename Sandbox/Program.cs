@@ -54,7 +54,7 @@ namespace Sandbox
 
             // Get top 10 movers by volume; note the default value is 10, pass an integer to specify more constituents
             await PrintTopMoversByVolume();
-            await DoSomeSortingOnEntireData();
+            CalculateTop10MoversInPrice();
             await GetTheAdvanceDeclineLine();
 
             #region table for showing EMA data
@@ -161,10 +161,23 @@ namespace Sandbox
             #endregion
         }
 
-
+        /// <summary>
+        /// Gets the date 'x' amount of days ago (adjusts for weekends)
+        /// </summary>
+        /// <param name="previousDays"></param>
+        /// <returns>A short date string</returns>
         static string GetPastDate(int previousDays)
         {
-            return DateTime.Today.AddDays(previousDays).ToShortDateString();
+            var date = DateTime.Today.AddDays(previousDays);
+            
+            // If the request falls on a weekend, adjust date accordingly
+            DayOfWeek day = date.DayOfWeek;
+            if (day == DayOfWeek.Saturday)
+                _ = date.AddDays(-1);
+            else if (day == DayOfWeek.Sunday)
+                _ = date.AddDays(-2);
+
+            return date.ToShortDateString();
         }
 
         /// <summary>
@@ -229,6 +242,7 @@ namespace Sandbox
             ConsoleTable.From(topLst).Write();
         }
 
+
         struct topPercentage
         {
             public string Ticker { get; set; }
@@ -236,20 +250,11 @@ namespace Sandbox
             public decimal Close { get; set; }
             public decimal PriceIncrease { get; set; }
         }
-        static async Task DoSomeSortingOnEntireData()
+        static IEnumerable<topPercentage> CalculateTop10MoversInPrice()
         {
-            var db1 = new StocksDB.Constituents();
-            var constituents = await db1.GetConstituents(); // get full list
-            var db = new StocksDB.DailyStock();
-
-            var stockData = new List<List<IStockInfo>>(constituents.Count);
-            foreach (var constituent in constituents)
-                stockData.Add(await db.GetAllStockDataFor(constituent.Symbol));
-
-
             List<topPercentage> table = new List<topPercentage>();
             WriteToConsole("Top 10 movers in price", ConsoleColor.Yellow);
-            foreach (var stock in stockData)
+            foreach (var stock in StockData)
             {
                 var priceToday = stock[0].Close;
                 var priceYesterday = stock[1].Close;
@@ -261,9 +266,11 @@ namespace Sandbox
                                .First();
                 table.Add(ret);
             }
+
             //var topTen = table.Where(c => c.Close < 10).OrderByDescending(f => f.PriceIncrease).Take(10);
             var topTen = table.OrderByDescending(f => f.PriceIncrease).Take(30);
             ConsoleTable.From(topTen).Write();
+            return topTen;
         }
 
         /// <summary>
@@ -271,17 +278,15 @@ namespace Sandbox
         /// </summary>
         /// <param name="count">The number of constituents to display</param>
         /// <returns>A task</returns>
-        static async Task PrintTopMoversByVolume(int count = 10)
+        static async Task<List<IStockInfo>> PrintTopMoversByVolume(int count = 10)
         {
-            // 
-            var db = new StocksDB.DailyStock();
+            var db = new DailyStock();
 
             // get top x in volume for today
             var topMovers = await db.GetTopMoversByVolume(count, DateTime.Today);
             ConsoleTable.From(topMovers).Write();
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadLine();
+            return topMovers;
         }
      
         static void WriteToConsole(string msg, ConsoleColor? color = null)
