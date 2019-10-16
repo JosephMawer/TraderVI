@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "alphaVantageDemo", "alphaVantageDemo\alphaVantageDemo.csproj", "{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StocksDB", "StocksDB\StocksDB.csproj", "{B1ABE1E5-2C30-4342-8C67-EA0CC8DF0D30}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DailyPrice", "DailyPrice\DailyPrice.csproj", "{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GranvillesGame", "GranvillesGame\GranvillesGame.csproj", "{71999B17-9642-423C-AD29-784084B8B549}"
@@ -24,10 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{0190B9F4-990C-433A-863D-7CAACDD5DCD2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TMX", "TMX", "{D9332B3D-4514-4A5E-9E28-6DD1F516B14F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Market", "MarketSummary\Market.csproj", "{CC54BDD6-655C-408C-89DE-F0003F53292E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Granville's Strategy", "Granville's Strategy", "{FBCBB814-59CD-4FFC-91FC-D57764AD8F49}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{8C91C691-58B2-40F9-B17E-E37354283B1D}"
@@ -40,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantage.Net.Core", "..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantage.Net.Stocks", "..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj", "{D5F839DB-750D-4728-997F-C82946BB8B75}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DailyStockCollector", "DailyStockCollector\DailyStockCollector.csproj", "{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,10 +46,6 @@ Global
 		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1ABE1E5-2C30-4342-8C67-EA0CC8DF0D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1ABE1E5-2C30-4342-8C67-EA0CC8DF0D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1ABE1E5-2C30-4342-8C67-EA0CC8DF0D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1ABE1E5-2C30-4342-8C67-EA0CC8DF0D30}.Release|Any CPU.Build.0 = Release|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,10 +62,6 @@ Global
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CC54BDD6-655C-408C-89DE-F0003F53292E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC54BDD6-655C-408C-89DE-F0003F53292E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC54BDD6-655C-408C-89DE-F0003F53292E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC54BDD6-655C-408C-89DE-F0003F53292E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8C91C691-58B2-40F9-B17E-E37354283B1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8C91C691-58B2-40F9-B17E-E37354283B1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C91C691-58B2-40F9-B17E-E37354283B1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -90,13 +78,16 @@ Global
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A54BC644-0F1C-4A60-8279-7467ACD37843} = {3DED4FD6-F227-4EE6-8BEC-6A3EAE99205F}
-		{CC54BDD6-655C-408C-89DE-F0003F53292E} = {D9332B3D-4514-4A5E-9E28-6DD1F516B14F}
 		{B2CEDA52-8161-4A2B-AFF2-7F32A0DC3B9A} = {FBCBB814-59CD-4FFC-91FC-D57764AD8F49}
 		{D177D12C-9073-4CC6-AD88-F2C8F52B138A} = {39A8832C-0E7F-4BE1-B343-1F2891462905}
 		{D5F839DB-750D-4728-997F-C82946BB8B75} = {39A8832C-0E7F-4BE1-B343-1F2891462905}

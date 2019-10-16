@@ -1,40 +1,34 @@
 ﻿using AlphaVantage.Net.Stocks;
 using AlphaVantage.Net.Stocks.TimeSeries;
-using AngleSharp;
 using ConsoleTables;
 using Core;
+using Core.Math;
+
 using GranvilleIndicator;
 using StocksDB;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using TMX.Market;
+
 
 namespace Sandbox
 {
-    static class GrottyHacks
+    public static class DateTimeExtensions
     {
-        internal static T Cast<T>(object target, T example)
+        public static string Something(this DateTime date, int PreviousDays)
         {
-            return (T)target;
+            return DateTime.Today.AddDays(-15).ToShortDateString();
         }
     }
-
     class Program
     {
+        // Global/Static list of stock data used for performaning analysis on in memory
+        private static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
+        
         private const string apiKey = "6IQSWE3D7UZHLKTB";
         private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
-
-
-
 
         /// <summary>
         /// The main entry point for the program
@@ -43,7 +37,25 @@ namespace Sandbox
         /// <returns></returns>
         static async Task Main(string[] args)
         {
+            // Import all data from db into memory...  todo - see how much memory this actually uses.
+            StockData = await GetListOfStockData();
+
+
+            
+            var today = DateTime.Today.ToShortDateString();
+            GetDifference(today, GetPastDate(-60));
+            GetDifference(today, GetPastDate(-40));
+            GetDifference(today, GetPastDate(-20));
+            GetDifference(today, GetPastDate(-12));
+            GetDifference(today, GetPastDate(-8));
+            GetDifference(today, GetPastDate(-4));
+
+
+
+            // Get top 10 movers by volume; note the default value is 10, pass an integer to specify more constituents
+            await PrintTopMoversByVolume();
             await DoSomeSortingOnEntireData();
+            await GetTheAdvanceDeclineLine();
 
             #region table for showing EMA data
             //var path = @"C:\src\#Projects\TraderVI\tmp\CSV_FILES\ema-are.csv";
@@ -112,8 +124,8 @@ namespace Sandbox
             // -ad  --advance-decline   :: gets the advance decline line
             #endregion
 
-            var saveToDatabase = false; // set this to true to save to database
-                                       //await GetTheAdvanceDeclineLine();
+
+
 
             //var granville = new Granville();
             //var points = await granville.GetDailyMarketForecast();
@@ -125,18 +137,10 @@ namespace Sandbox
             //await Utils.DownloadHTMLPage("https://web.tmxmoney.com/marketsca.php", @"C:\src\#Projects\alphaVantageDemo\tmp\html\markets_dump.html");
 
 
-            // TODO: make sure constituents is up to date
-            var db1 = new StocksDB.Constituents();
-            var constituents = await db1.GetConstituents(); // get full list
-                                                            //var constituents = new List<ConstituentInfo>()    // get single/specified stock
-                                                            //{
-                                                            //    new ConstituentInfo() { Name = "B2Gold Corp.", Symbol = "BTO"}
-                                                            //};
 
 
-            await GetDailyIndiceAverages(saveToDatabase);
-            await GetDailyMarketSummary(saveToDatabase);
-            await GetDailyStockInfo(constituents, saveToDatabase);
+
+
 
             // Once the data gathering/import is done, we can start to scan the data for alerts
             //await CheckForAlerts(constituents);
@@ -156,6 +160,75 @@ namespace Sandbox
             //DoPatternStuffOverStocks();
             #endregion
         }
+
+
+        static string GetPastDate(int previousDays)
+        {
+            return DateTime.Today.AddDays(previousDays).ToShortDateString();
+        }
+
+        /// <summary>
+        /// Helper method to pull all stock data into memory
+        /// </summary>
+        /// <returns>A list of stock data for each ticker</returns>
+        static async Task<List<List<IStockInfo>>> GetListOfStockData()
+        {
+            var db = new Constituents();
+            var constituents = await db.GetConstituents();
+
+            var stockDb = new DailyStock();
+            StockData = new List<List<IStockInfo>>(constituents.Count);
+            foreach (var constituent in constituents)
+                StockData.Add(await stockDb.GetAllStockDataFor(constituent.Symbol));
+
+            return StockData;
+        }
+
+        private struct DifferenceTable
+        {
+            public string StartDate { get; set; }
+            public string EndDate { get; set; }
+            public string Symbol { get; set; }
+            public decimal Close { get; set; }
+            public decimal Max { get; set; }
+            public string Difference { get; set; }
+        }
+        static void GetDifference(string StartDate, string EndDate)
+        {
+            List<DifferenceTable> lst = new List<DifferenceTable>();
+            var days = (DateTime.Parse(StartDate).Subtract(DateTime.Parse(EndDate))).TotalDays;
+            foreach (var stock in StockData)
+            {
+                if (stock.Count > days)
+                {
+                    var diff = stock.CalculateDifference(StartDate, EndDate);
+                    var max = stock.Where(x => DateTime.Parse(x.TimeOfRequest) >= DateTime.Parse(EndDate) &&
+                                               DateTime.Parse(x.TimeOfRequest) <= DateTime.Parse(StartDate))
+                                   .Max(f => f.Close);
+                    var joined = (from f in stock
+                                 select new DifferenceTable
+                                 {
+                                     StartDate = EndDate,
+                                     EndDate = StartDate,
+                                     Symbol = f.Ticker,
+                                     Close = f.Close,
+                                     Max = max,
+                                     Difference = diff.ToString("P")
+                                 }).First();
+                    lst.Add(joined);
+                    //Console.WriteLine($"{stock.First().Ticker} price change:p {diff:P}");
+                }
+                // create anonymous types that can be inserted into consoletables
+                // todo - provide better support for anonymous types in consoletables
+            }
+            var topLst = lst.Where(p => p.Close > 1 && p.Close < 15)
+                            .OrderByDescending(x => decimal.Parse(x.Difference.Replace("%","")))
+                            .Take(10);
+
+            Console.WriteLine($"stock data for the past {days} days");
+            ConsoleTable.From(topLst).Write();
+        }
+
         struct topPercentage
         {
             public string Ticker { get; set; }
@@ -172,8 +245,9 @@ namespace Sandbox
             var stockData = new List<List<IStockInfo>>(constituents.Count);
             foreach (var constituent in constituents)
                 stockData.Add(await db.GetAllStockDataFor(constituent.Symbol));
+
+
             List<topPercentage> table = new List<topPercentage>();
-            // get top x in percentage for today
             WriteToConsole("Top 10 movers in price", ConsoleColor.Yellow);
             foreach (var stock in stockData)
             {
@@ -183,25 +257,33 @@ namespace Sandbox
                 var percentageIncrease = priceIncrease / 100m;
                 //var ie2 = ie.Select(x => new { x.Foo, x.Bar, Sum = x.Abc + x.Def });
                 var ret = stock.Select(x => new topPercentage 
-                                                { Ticker = x.Ticker, Name = x.Name, Close = x.Close, PriceIncrease = priceIncrease })
+                               { Ticker = x.Ticker, Name = x.Name, Close = x.Close, PriceIncrease = priceIncrease })
                                .First();
                 table.Add(ret);
             }
-            var topTen = table.Where(c => c.Close < 10).OrderByDescending(f => f.PriceIncrease).Take(10);
+            //var topTen = table.Where(c => c.Close < 10).OrderByDescending(f => f.PriceIncrease).Take(10);
+            var topTen = table.OrderByDescending(f => f.PriceIncrease).Take(30);
             ConsoleTable.From(topTen).Write();
+        }
 
+        /// <summary>
+        /// Gets the top volume movers
+        /// </summary>
+        /// <param name="count">The number of constituents to display</param>
+        /// <returns>A task</returns>
+        static async Task PrintTopMoversByVolume(int count = 10)
+        {
+            // 
+            var db = new StocksDB.DailyStock();
 
             // get top x in volume for today
-            var topMovers = await db.GetTopMoversByVolume(10, DateTime.Today);
+            var topMovers = await db.GetTopMoversByVolume(count, DateTime.Today);
             ConsoleTable.From(topMovers).Write();
+
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
         }
-
-        public enum Colors
-        {
-            Default
-        }
+     
         static void WriteToConsole(string msg, ConsoleColor? color = null)
         {
             var original = Console.ForegroundColor;    // get the current console color
@@ -236,184 +318,17 @@ namespace Sandbox
             }
         }
 
+        /// <summary>
+        /// The purpose of the advance -decline line is to inform you in the broadest sense whether the market as a whole is actually gaining or losing strength
+        /// </summary>
+        /// <returns></returns>
         static async Task GetTheAdvanceDeclineLine()
         {
             var adLine = await Granville.GetAdvanceDeclineLine();
-            ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write();
-            var msg = " The purpose of the advance -decline line is to inform you in the broadest sense whether the market as a whole is actually gaining or losing strength";
-            WriteToConsole(msg, ConsoleColor.Yellow);
-            
+            ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write(); 
         }
-
-        /// <summary>
-        /// Retreives market indices; stores values in database and prints to console
-        /// </summary>
-        static async Task GetDailyIndiceAverages(bool SaveToDatabase = false)
-        {
-            var market = new TMX.Market.Market();
-
-            // Get daily summary of market indices
-            var indice = await market.GetMarketIndices();
-
-            // Write to console
-            ConsoleTable.From(indice).Write();
-
-            if (SaveToDatabase)
-            {
-                // Insert Index summary info to database
-                var indexDb = new StocksDB.IndiceSummary();
-                await indexDb.InsertIndiceSummary(indice);
-            }
-            
-        }
-
-        /// <summary>
-        /// Retrieves the daily market summary for TSX, TSX Venture, Alpha
-        /// </summary>
-        static async Task GetDailyMarketSummary(bool saveToDatabase = false)
-        {
-            var market = new TMX.Market.Market();
-
-            // Get daily market summary
-            var summary = await market.GetMarketSummary();
-
-            // Write to console
-            ConsoleTable.From(summary).Write();
-
-            //var tsx = summary.Single(i => i.Name == "Toronto Stock Exchange");   // throws if empty/not found, throws if duplicate exists
-            //if (tsx == null) throw new NullReferenceException("Market Summary");
-            if (saveToDatabase)
-            {
-                var db = new StocksDB.MarketSummary();
-                await db.InsertMarketSummary(summary);
-            }
-        }
-
-
-
-        static List<IStockInfo> dailyStats = new List<IStockInfo>();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="constituents"></param>
-        /// <returns></returns>
-        private static async Task GetDailyStockInfo(IList<StocksDB.ConstituentInfo> constituents, bool saveToDatabase = false)
-        {
-            // async patterns
-            // https://markheath.net/post/constraining-concurrent-threads-csharp
-
-
-            //var dailyStats = new List<TMX.Market.StockInfo>();
-            //var tmx = new TMX.Market.Stocks();
-            //Console.WriteLine("Beginning data collection...");
-            //var maxThreads = 10;
-            //Console.WriteLine("Max number of concurrent threads: " + maxThreads);
-            //var q = new ConcurrentQueue<ConstituentInfo>(constituents);
-            //var tasks = new List<Task>();
-            //for (int n = 0; n < maxThreads; n++)
-            //{
-            //    tasks.Add(Task.Run(async () =>
-            //    {
-            //        while (q.TryDequeue(out ConstituentInfo constituent))
-            //        {
-            //            var stockInfo = await tmx.RequestTickerInfo(constituent.Symbol, constituent.Name);
-            //            dailyStats.Add(stockInfo);
-            //        }
-            //    }));
-            //}
-            //await Task.WhenAll(tasks);
-
-            #region attempt 2
-
-            //var count = constituents.Count;
-            ////var stock = new TMX.Market.Stocks();
-
-
-            //Console.WriteLine("Gathering tasks...");
-            //var tasks = new Task<TMX.Market.StockInfo>[count];
-            //for (int i = 0; i < count; i++) {
-            //    tasks[i] = TMX.Market.Stocks.RequestTickerInfo(constituents[i].Symbol, constituents[i].Name);
-            //}
-
-            ////Console.WriteLine("Waiting for 15 seconds..");
-            ////await Task.Delay(15000);
-
-            //var processingTasks = tasks.Select(async t =>
-            //{
-            //    var success = false;
-            //    var retries = 0;
-            //    while (!success && retries < 3)
-            //    {
-            //        StockInfo info;
-            //        try
-            //        {
-            //            info = await t;
-            //            dailyStats.Add(info);
-            //            success = true;
-            //            await Task.Delay(200);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Console.WriteLine(ex.Message + "retry #" + retries);
-            //            retries++;
-            //        }
-
-
-            //    }
-
-            //}).ToArray();
-
-
-            //Console.WriteLine("Starting to process tasks");
-            //await Task.WhenAll(processingTasks);
-
-            #endregion
-
-            #region attempt 1
-            //////////////////////////////////////////////////////////////////
-
-            // Get a list of all the stocks from database and randomely send
-            // requests for ticker information for each stock over the duration of
-            // some time period... say 10 min ?
-            var retries = 0;
-            var stock = new TMX.Market.Stocks();
-            for (int i = 0; i < constituents.Count; i++)
-            {
-                try
-                {
-                    var s = await stock.RequestTickerInfo(constituents[i].Symbol, constituents[i].Name);
-                    dailyStats.Add(s);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Exception occured while requesting " + constituents[i].Name + ":" + constituents[i].Symbol);
-                    Console.WriteLine(ex.Message);
-                    if (retries < 2)
-                    {
-                        i--;
-                        retries++;
-                        Console.WriteLine("Retry attempt: " + retries);
-                    }
-                    else
-                    {
-                        retries = 0;
-                    }
-                }
-            }
-
-            #endregion
-
-            ConsoleTable.From(dailyStats).Write();
-
-            if (saveToDatabase)
-            {
-                Console.WriteLine("Saving daily stock info to database....");
-                var db = new StocksDB.DailyStock();
-                await db.InsertDailyStockList(dailyStats);
-            }
-
-        }
+        
+        
 
         #region AlphaVantage stuff...
 
@@ -481,7 +396,7 @@ namespace Sandbox
         /// <param name="v2">Second point</param>
         /// <returns>A string formatted as a percentage</returns>
         private static string PrintPercentageDifference(StockDataPoint v1, StockDataPoint v2)
-            => $"{GetDifference(v1.ClosingPrice, v2.ClosingPrice).ToString("P", CultureInfo.InvariantCulture)}";
+            => $"{MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice).ToString("P", CultureInfo.InvariantCulture)}";
 
         private static void PrintPercentageDifference(string ticker, DateTime startDate, TimeSeriesSize size = TimeSeriesSize.Compact)
         {
@@ -493,7 +408,7 @@ namespace Sandbox
             var v2 = data.Where(x => x.Time == startDate).First();
 
             // Calculate the percentage difference between the two points
-            var diff = GetDifference(v1.ClosingPrice, v2.ClosingPrice);
+            var diff = MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice);
 
             // Print info
             Console.WriteLine($"Price at {v1.Time.ToShortDateString()}: {v1.ClosingPrice}");
@@ -501,21 +416,7 @@ namespace Sandbox
             Console.WriteLine($"Percentage Difference: {diff.ToString("P", CultureInfo.InvariantCulture)}");
         }
 
-        public static decimal GetDifference(decimal v1, decimal v2)
-        {
-            /*   Formula
-             *   
-             *   |V1 - V2|
-             *   ---------
-             * [(V1 + V2) / 2] 
-             * 
-             */
-            var delta = v1 - v2;
-            var sum = v1 + v2;
-            sum /= 2;
-            var diff = delta / sum;
-            return diff;
-        }
+        
         #endregion
 
         public static void ImportCSV(string path)
@@ -524,58 +425,6 @@ namespace Sandbox
             Utils.Import_CSV_Symbols(path).Wait();
             Console.WriteLine("Import successful");
             Console.ReadLine();
-        }
-
-    }
-
-
-
-    public static class Utils
-    {
-        public static async Task DownloadHTMLPage(string url, string pathToSaveFile)
-        {
-            var config = Configuration.Default.WithDefaultLoader();
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(url);  //https://web.tmxmoney.com/marketsca.php
-            File.WriteAllText(pathToSaveFile, document.ToHtml());
-        }
-        public static async Task Import_CSV_Constituents(string pathToCSV)
-        {
-            // just importing some tsx data.. so some values will be hardcoded here ... don't need this function
-            // to be general purpose yet
-
-
-            var lines = File.ReadAllLines(pathToCSV);
-            StocksDB.Constituents _symbol = new StocksDB.Constituents();
-            foreach (var line in lines) // skip the header
-            {
-                var info = line.Split("\t");    
-                await _symbol.InsertConstituent(info[0], info[1]);
-            }
-        }
-        public static async Task Import_CSV_Symbols(string pathToCSV)
-        {
-            // just importing some tsx data.. so some values will be hardcoded here ... don't need this function
-            // to be general purpose yet
-
-            
-            var lines = File.ReadAllLines(pathToCSV);
-            StocksDB.Symbols _symbol = new StocksDB.Symbols();
-            foreach (var line in lines.Skip(1)) // skip the header
-            {
-                var info = line.Split("\t");    //imported data from http://www.eoddata.com/, which was a tab separated text file
-                await _symbol.InsertSymbol(info[0], info[1], "TSX");
-            }
-
-        }
-
-        public static async Task ExportToCSV(string path, string name, ICollection<StockDataPoint> data)
-        {
-            var sb = new StringBuilder();
-            foreach (var p in data) {
-                sb.Append($"{p.Time.ToShortDateString()},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}{Environment.NewLine}");
-            }
-            File.WriteAllText(Path.Combine(path, name), sb.ToString());
         }
     }
 }

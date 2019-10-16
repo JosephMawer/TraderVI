@@ -6,7 +6,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
-using StocksDB;
 using Abot.Crawler;
 using Abot.Poco;
 using System.Text.RegularExpressions;
@@ -14,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using HtmlAgilityPack;
 using System.Web;
+using StocksDB;
 
 namespace DailyPrice
 {

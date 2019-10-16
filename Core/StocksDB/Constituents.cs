@@ -36,6 +36,11 @@ namespace StocksDB
             }
         }
 
+        /// <summary>
+        /// Returns a list of constituents from TSX
+        /// </summary>
+        /// <param name="count">Optional: the number of constituents to return</param>
+        /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
         public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
         {
             var sql = (count != null) ? $"TOP({count})" : "";

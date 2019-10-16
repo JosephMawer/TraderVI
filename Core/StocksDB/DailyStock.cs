@@ -49,10 +49,10 @@ namespace StocksDB
         /// <returns>The 52 week high (based on closing price)</returns>
         public async Task<decimal> Get52WeekHigh(string ticker)
         {
-            var currentDate = DateTime.Today.ToShortDateString();
+            var today = DateTime.Today.ToShortDateString();
             var query = $@"select max([Close]) 
-                          from (select [Close] from [StocksDB].[dbo].[DailyStock]
-                                where [Ticker] = '{ticker}' and [Date] >=dateadd(week,-52, '{currentDate}') and [Date] <= '{currentDate}') as d";
+                           from (select [Close] from [StocksDB].[dbo].[DailyStock]
+                                where [Ticker] = '{ticker}' and [Date] >= dateadd(week,-52, '{today}') and [Date] <= '{today}') as d";
 
             return await base.ExecuteScalarAsync<decimal>(query);
         }
@@ -65,6 +65,7 @@ namespace StocksDB
                            order by Volume desc";
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
+
         private string fullyQualifiedFields => "stock.[Date],stock.[Ticker],stock.[Open],stock.[Close],stock.[Volume],stock.[High],stock.[Low],symbol.[Name]";
 
         /// <summary>

@@ -88,10 +88,6 @@
       <Project>{d5f839db-750d-4728-997f-c82946bb8b75}</Project>
       <Name>AlphaVantage.Net.Stocks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StocksDB\StocksDB.csproj">
-      <Project>{b1abe1e5-2c30-4342-8c67-ea0cc8df0d30}</Project>
-      <Name>StocksDB</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

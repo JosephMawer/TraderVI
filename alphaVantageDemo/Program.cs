@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using StocksDB;
 using System.IO;
 using System.Data.SqlClient;
-using Core;
 using System.Diagnostics;
+using Core;
 
 namespace alphaVantageDemo
 {

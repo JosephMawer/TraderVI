@@ -8,15 +8,13 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.13.0" />
     <PackageReference Include="ConsoleTables" Version="2.3.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.7.0-rc1.19456.4" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
     <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
     <ProjectReference Include="..\GranvilleIndicator\GranvilleIndicator.csproj" />
-    <ProjectReference Include="..\MarketSummary\Market.csproj" />
-    <ProjectReference Include="..\StocksDB\StocksDB.csproj" />
   </ItemGroup>
 
 </Project>

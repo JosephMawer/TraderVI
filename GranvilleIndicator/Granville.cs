@@ -140,7 +140,7 @@ namespace GranvilleIndicator
 
             // right now, the crude implementation is to just look for noticeable gains in the indices
 
-            var market = new TMX.Market.Market();
+            var market = new Core.TMX.Market();
 
             // Get daily summary of market indices
             var indice = await market.GetMarketIndices();
