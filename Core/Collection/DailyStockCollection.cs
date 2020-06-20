@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Collection
+namespace Collection
 {
     public class DailyStockCollection
     {
-        private readonly TMX.Market _market;
+        private readonly Core.TMX.Market _market;
         public DailyStockCollection()
         {
-            _market = new TMX.Market();
+            _market = new Core.TMX.Market();
         }
 
         /// <summary>

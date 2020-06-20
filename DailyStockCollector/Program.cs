@@ -18,7 +18,7 @@ namespace DailyStockCollector
 
             // The stock collection class may be pointless? why not just have all operations performed
             // directly in this program
-            var collector = new Core.Collection.DailyStockCollection();
+            var collector = new Collection.DailyStockCollection();
 
             var saveToDatabase = true;
 

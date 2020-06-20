@@ -15,6 +15,7 @@ using HtmlAgilityPack;
 using System.Web;
 using StocksDB;
 using System.Data.SQLite;
+using Core;
 
 namespace DailyPrice
 {
@@ -28,8 +29,8 @@ namespace DailyPrice
         private static IWebCrawler crawler;
 
         // alpha vantage API key
-        private const string apiKey = "6IQSWE3D7UZHLKTB";
-        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
+        
+        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
         private static bool CrawlComplete = false;
         static List<SymbolInfo> tickers = new List<SymbolInfo>();
         public static async Task Main(string[] args)
@@ -123,7 +124,7 @@ namespace DailyPrice
             }
         }
 
-        private static void CalculateTotalPercentageGain(List<StockInfo> lst)
+        private static void CalculateTotalPercentageGain(List<StocksDB.StockInfo> lst)
         {
             var first = lst[lst.Count - 1];
             var last = lst[0];
@@ -139,12 +140,12 @@ namespace DailyPrice
         /// Gets a list of tickers 
         /// </summary>
         /// <returns></returns>
-        private static async Task<List<StockInfo>> GetStockData()
+        private static async Task<List<StocksDB.StockInfo>> GetStockData()
         {
             var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Daily);
             var symbols = new Symbols();
             var SymbolList = await symbols.GetSymbolsList("where [Exchange]='TSX'");
-            List<StockInfo> stocks = new List<StockInfo>();
+            List<StocksDB.StockInfo> stocks = new List<StocksDB.StockInfo>();
             foreach (var symbol in SymbolList)
             {
                 var stockList = await stockDb.GetListOfStockInfo(symbol.Symbol, Table.TimeSeries_Daily);
@@ -211,7 +212,7 @@ namespace DailyPrice
             }
 
             Console.ReadLine();
-            var stockInfo = new StockInfo();
+            var stockInfo = new Core.StockInfo();
             foreach (var detail in quoteDetails)
             {
                 var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
@@ -241,7 +242,7 @@ namespace DailyPrice
                 .Where(node => node.GetAttributeValue("class", "")
                 .Equals("quote-details")).ToList();
 
-            var stockInfo = new StockInfo();
+            var stockInfo = new StocksDB.StockInfo();
             foreach (var detail in quoteDetails)
             {
                 var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
@@ -272,8 +273,8 @@ namespace DailyPrice
         static decimal highestPrice = 0;
         static decimal trailingStop = 0;
         static decimal minLoss = 0.01m; // 0.4%
-        static StockInfo prevStock = null;
-        public static async Task StockStreamer(StockInfo stock)
+        static StocksDB.StockInfo prevStock = null;
+        public static async Task StockStreamer(StocksDB.StockInfo stock)
         {
             var currentStockPrice = stock.Close;
 
@@ -333,12 +334,12 @@ namespace DailyPrice
             // Previous stock is always one element behind
             prevStock = stock;
         }
-        public static async Task StockWatcher(List<StockInfo> stockList)
+        public static async Task StockWatcher(List<StocksDB.StockInfo> stockList)
         {
             decimal highestPrice = 0;
             decimal traillingExit = 0;
             decimal newProfit = 0;
-            StockInfo prevStock = null;
+            StocksDB.StockInfo prevStock = null;
             stockList.Reverse();
             int counter = 0;
             foreach (var stock in stockList)
