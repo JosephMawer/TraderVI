@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -83,9 +84,9 @@ namespace Core.Db
         /// <returns>A short date string</returns>
         private async Task<string> GetLastImportDate()
         {
-            var query = "select top (1) [Date] from DailyStock order by [Date] desc";
-            var date = await base.ExecuteScalarAsync<DateTime>(query);
-            return date.ToShortDateString();
+            var query = "select [Date] from DailyStock order by [Date] desc limit 1";
+            var date = await base.ExecuteScalarAsync<string>(query);
+            return DateTime.Parse(date).ToShortDateString();
         }
 
         public async Task<List<IStockInfo>> GetTopMoversByVolume(int count)//, DateTime date)
@@ -93,14 +94,18 @@ namespace Core.Db
             // We don't always have the current days data, so first we will get the last imported date
             var lastDate = await GetLastImportDate();
 
-            var query = $@"select top({count}) {fullyQualifiedFields} from DailyStock as stock
-	                       inner join Symbols as symbol on stock.Ticker = symbol.Symbol
-                           where [Date] >= '{lastDate}'
-                           order by Volume desc";
+            var query = $@"select {fullyQualifiedFields} from DailyStock
+	                       inner join Constituents on DailyStock.Ticker = Constituents.Symbol
+                           where [Date] >= '{DateTimeSQLite(DateTime.Parse(lastDate))}'
+                           order by Volume desc
+                           limit {count}";
+
+            Debug.WriteLine(query);
+            
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
-        private string fullyQualifiedFields => "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],symbol.[Name]";
+        private string fullyQualifiedFields => "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.[Name]";
 
         /// <summary>
         /// basically does a select * for the ticker (parameter)
@@ -109,7 +114,7 @@ namespace Core.Db
         /// <returns>a list of <see cref="IStockInfo"/></returns>
         public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker)
         {
-            var query = $@"select[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.Name
+            var query = $@"select [Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.Name
                            from[DailyStock]
                            inner join Constituents on DailyStock.Ticker = Constituents.Symbol
                            where [Ticker] = '{ticker}' order by [Date] desc";
