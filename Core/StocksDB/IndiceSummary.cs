@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
 {
-    
+
     /// <summary>
     /// Represents information about a single index for a given day
     /// </summary>
@@ -35,7 +35,7 @@ namespace StocksDB
         Telecom,
         Utilities,
     }
-    public class IndiceSummary : SQLBase
+    public class IndiceSummary : SQLiteBase
     {
         #region Inserts
         /// <summary>
@@ -47,13 +47,13 @@ namespace StocksDB
         {
             var sqlQueryStatement = $"insert into [StocksDB].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             await base.Insert(sqlQueryStatement,
-                new List<SqlParameter>()
+                new List<SQLiteParameter>()
                 {
-                    new SqlParameter() { ParameterName = "@date", SqlDbType = SqlDbType.DateTime2, Value=index.Date},
-                    new SqlParameter() { ParameterName = "@name", SqlDbType = SqlDbType.VarChar, Size = 25, Value = index.Name},
-                    new SqlParameter() { ParameterName = "@last", SqlDbType = SqlDbType.Float, Value = index.Last},
-                    new SqlParameter() { ParameterName = "@changed", SqlDbType = SqlDbType.Float, Value = index.Change},
-                    new SqlParameter() { ParameterName = "@percentchanged", SqlDbType = SqlDbType.Float, Value = index.PercentChange}
+                    new SQLiteParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
+                    new SQLiteParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
+                    new SQLiteParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
+                    new SQLiteParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
+                    new SQLiteParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
                 });
         }
 
@@ -69,13 +69,13 @@ namespace StocksDB
             foreach (var index in indexList)
             {
                 await base.Insert(sqlQueryStatement,
-                    new List<SqlParameter>()
+                    new List<SQLiteParameter>()
                     {
-                        new SqlParameter() { ParameterName = "@date", SqlDbType = SqlDbType.DateTime2, Value=index.Date},
-                        new SqlParameter() { ParameterName = "@name", SqlDbType = SqlDbType.VarChar, Size = 25, Value = index.Name},
-                        new SqlParameter() { ParameterName = "@last", SqlDbType = SqlDbType.Float, Value = index.Last},
-                        new SqlParameter() { ParameterName = "@changed", SqlDbType = SqlDbType.Float, Value = index.Change},
-                        new SqlParameter() { ParameterName = "@percentchanged", SqlDbType = SqlDbType.Float, Value = index.PercentChange}
+                        new SQLiteParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
+                        new SQLiteParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
+                        new SQLiteParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
+                        new SQLiteParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
+                        new SQLiteParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
                     });
             }
         }
@@ -96,14 +96,14 @@ namespace StocksDB
                            $"AND [Date] >= '" + date.ToShortDateString() + "' AND [Date] < '" + date.AddDays(1).ToShortDateString() + "'";
 
 
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (var cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             try
                             {
@@ -142,14 +142,14 @@ namespace StocksDB
                            $"Order By[Date] DESC";
 
 
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {

@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
@@ -26,7 +24,7 @@ namespace StocksDB
         public int Unchanged { get; set; }
         public int Declined { get; set; }
     }
-    public class MarketSummary : SQLBase
+    public class MarketSummary : SQLiteBase
     {
         public MarketSummary() : base("[StocksDB].[dbo].[MarketSummary]",
             "[Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]") { }
@@ -38,16 +36,16 @@ namespace StocksDB
             foreach (var tsx in tsxList)
             {
                await base.Insert(sqlQueryStatement,
-                   new List<SqlParameter>()
+                   new List<SQLiteParameter>()
                    {
-                        new SqlParameter() {ParameterName = "@date", SqlDbType = SqlDbType.DateTime2, Value=tsx.Date},
-                        new SqlParameter() {ParameterName = "@name", SqlDbType = SqlDbType.VarChar, Size=50, Value=tsx.Name},
-                        new SqlParameter() {ParameterName = "@volume", SqlDbType = SqlDbType.BigInt, Value = tsx.Volume},
-                        new SqlParameter() {ParameterName = "@value", SqlDbType = SqlDbType.BigInt, Value = tsx.Value},
-                        new SqlParameter() {ParameterName = "@traded", SqlDbType = SqlDbType.Int, Value = tsx.IssuesTraded},
-                        new SqlParameter() {ParameterName = "@advancers", SqlDbType = SqlDbType.Int, Value = tsx.Advancers},
-                        new SqlParameter() {ParameterName = "@unchanged", SqlDbType = SqlDbType.Int, Value = tsx.Unchanged},
-                        new SqlParameter() {ParameterName = "@decliners", SqlDbType = SqlDbType.Int, Value = tsx.Decliners},
+                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
+                        new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
+                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
+                        new SQLiteParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
+                        new SQLiteParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
+                        new SQLiteParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
+                        new SQLiteParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
+                        new SQLiteParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
                    });
             }
         }
@@ -56,16 +54,16 @@ namespace StocksDB
             var sqlQueryStatement = $"insert into [StocksDB].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
 
             await base.Insert(sqlQueryStatement,
-               new List<SqlParameter>()
+               new List<SQLiteParameter>()
                {
-                    new SqlParameter() {ParameterName = "@date", SqlDbType = SqlDbType.DateTime2, Value=tsx.Date},
-                    new SqlParameter() {ParameterName = "@name", SqlDbType = SqlDbType.VarChar, Size=50, Value=tsx.Name},
-                    new SqlParameter() {ParameterName = "@volume", SqlDbType = SqlDbType.BigInt, Value = tsx.Volume},
-                    new SqlParameter() {ParameterName = "@value", SqlDbType = SqlDbType.BigInt, Value = tsx.Value},
-                    new SqlParameter() {ParameterName = "@traded", SqlDbType = SqlDbType.Int, Value = tsx.IssuesTraded},
-                    new SqlParameter() {ParameterName = "@advancers", SqlDbType = SqlDbType.Int, Value = tsx.Advancers},
-                    new SqlParameter() {ParameterName = "@unchanged", SqlDbType = SqlDbType.Int, Value = tsx.Unchanged},
-                    new SqlParameter() {ParameterName = "@decliners", SqlDbType = SqlDbType.Int, Value = tsx.Decliners},
+                    new SQLiteParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
+                    new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
+                    new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
+                    new SQLiteParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
+                    new SQLiteParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
+                    new SQLiteParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
+                    new SQLiteParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
+                    new SQLiteParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
                });
         }
 
@@ -77,14 +75,14 @@ namespace StocksDB
                     $" ORDER BY [Date]";
 
             var lst = new List<MarketValues>();
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {
@@ -119,14 +117,14 @@ namespace StocksDB
                     $" ORDER BY [Date] DESC";
 
 
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {

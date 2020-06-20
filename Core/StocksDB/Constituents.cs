@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
 {
-    public class Constituents : SQLBase
+    public class Constituents : SQLiteBase
     {
         public Constituents() : base("[StocksDB].[dbo].[TSX_Constituents_10142019]", "[Constituent_Name],[Symbol]") { }
 
@@ -19,12 +19,12 @@ namespace StocksDB
         public async Task InsertConstituent(string name, string symbol)
         {
             var query = $"INSERT INTO {Schema} VALUES ('{name.Replace("'", "''")}','{symbol.Replace("'", "''")}')";
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -47,14 +47,14 @@ namespace StocksDB
             string query = $"SELECT {sql} [Constituent_Name],[Symbol] FROM {Schema}";
 
             var lst = new List<ConstituentInfo>();
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {
@@ -77,7 +77,5 @@ namespace StocksDB
 
             return lst;
         }
-
-
     }
 }

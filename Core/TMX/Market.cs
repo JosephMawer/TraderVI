@@ -98,19 +98,26 @@ namespace Core.TMX
                                     .ToArray();
 
             var dtos = new List<IMarketSummaryInfo>();
-            for (int i = 0; i < chunks.Length; i++)
+            foreach (var block in chunks)
             {
-                dtos.Add(new MarketSummaryInfo
+                try
                 {
-                    Date = timeOfRequest,
-                    Name = chunks[i][0],
-                    Volume = long.Parse(chunks[i][1].Replace(",", "")),
-                    Value = long.Parse(chunks[i][2].Replace(",", "")),
-                    IssuesTraded = int.Parse(chunks[i][3].Replace(",", "")),
-                    Advancers = int.Parse(chunks[i][4].Replace(",", "")),
-                    Unchanged = int.Parse(chunks[i][5].Replace(",", "")),
-                    Decliners = int.Parse(chunks[i][6].Replace(",", ""))
-                });
+                    dtos.Add(new MarketSummaryInfo
+                    {
+                        Date = timeOfRequest,
+                        Name = block[0],
+                        Volume = long.Parse(block[1].Replace(",", "")),
+                        Value = long.Parse(block[2].Replace(",", "")),
+                        IssuesTraded = int.Parse(block[3].Replace(",", "")),
+                        Advancers = int.Parse(block[4].Replace(",", "")),
+                        Unchanged = int.Parse(block[5].Replace(",", "")),
+                        Decliners = int.Parse(block[6].Replace(",", ""))
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error while parsing market summary" + ex.Message);
+                }
             }
 
             return dtos;

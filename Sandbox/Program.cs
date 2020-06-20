@@ -3,7 +3,7 @@ using AlphaVantage.Net.Stocks.TimeSeries;
 using ConsoleTables;
 using Core;
 using Core.Math;
-
+using Core.Utilities;
 using GranvilleIndicator;
 using StocksDB;
 using System;
@@ -25,10 +25,10 @@ namespace Sandbox
     class Program
     {
         // Global/Static list of stock data used for performaning analysis on in memory
-        private static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
+        static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
         
-        private const string apiKey = "6IQSWE3D7UZHLKTB";
-        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
+        const string apiKey = "6IQSWE3D7UZHLKTB";
+        static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
 
         /// <summary>
         /// The main entry point for the program
@@ -40,15 +40,14 @@ namespace Sandbox
             // Import all data from db into memory...  todo - see how much memory this actually uses.
             StockData = await DailyStock.GetListOfStockData();
 
-
             
-            var today = DateTime.Today.ToShortDateString();
-            GetDifference(today, GetPastDate(-60));
-            GetDifference(today, GetPastDate(-40));
-            GetDifference(today, GetPastDate(-20));
-            GetDifference(today, GetPastDate(-12));
-            GetDifference(today, GetPastDate(-8));
-            GetDifference(today, GetPastDate(-4));
+            //var today = DateTime.Today.ToShortDateString();
+            //GetDifference(today, Utils.GetPastDate(-60));
+            //GetDifference(today, Utils.GetPastDate(-40));
+            //GetDifference(today, Utils.GetPastDate(-20));
+            //GetDifference(today, Utils.GetPastDate(-12));
+            //GetDifference(today, Utils.GetPastDate(-8));
+            //GetDifference(today, Utils.GetPastDate(-4));
 
 
 
@@ -161,24 +160,7 @@ namespace Sandbox
             #endregion
         }
 
-        /// <summary>
-        /// Gets the date 'x' amount of days ago (adjusts for weekends)
-        /// </summary>
-        /// <param name="previousDays"></param>
-        /// <returns>A short date string</returns>
-        static string GetPastDate(int previousDays)
-        {
-            var date = DateTime.Today.AddDays(previousDays);
-            
-            // If the request falls on a weekend, adjust date accordingly
-            DayOfWeek day = date.DayOfWeek;
-            if (day == DayOfWeek.Saturday)
-                _ = date.AddDays(-1);
-            else if (day == DayOfWeek.Sunday)
-                _ = date.AddDays(-2);
-
-            return date.ToShortDateString();
-        }
+       
 
 
         private struct DifferenceTable
@@ -190,6 +172,11 @@ namespace Sandbox
             public decimal Max { get; set; }
             public string Difference { get; set; }
         }
+        /// <summary>
+        /// Get's the difference between two dates
+        /// </summary>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
         static void GetDifference(string StartDate, string EndDate)
         {
             List<DifferenceTable> lst = new List<DifferenceTable>();
@@ -227,17 +214,17 @@ namespace Sandbox
         }
 
 
-        struct topPercentage
+        struct TopPercentage
         {
             public string Ticker { get; set; }
             public string Name { get; set; }
             public decimal Close { get; set; }
             public decimal PriceIncrease { get; set; }
         }
-        static IEnumerable<topPercentage> CalculateTop10MoversInPrice()
+        static IEnumerable<TopPercentage> CalculateTop10MoversInPrice()
         {
-            List<topPercentage> table = new List<topPercentage>();
-            WriteToConsole("Top 10 movers in price", ConsoleColor.Yellow);
+            List<TopPercentage> table = new List<TopPercentage>();
+            WriteToConsole(" Top 10 movers in price", ConsoleColor.Yellow);
             foreach (var stock in StockData)
             {
                 var priceToday = stock[0].Close;
@@ -245,7 +232,7 @@ namespace Sandbox
                 var priceIncrease = priceToday - priceYesterday;
                 var percentageIncrease = priceIncrease / 100m;
                 //var ie2 = ie.Select(x => new { x.Foo, x.Bar, Sum = x.Abc + x.Def });
-                var ret = stock.Select(x => new topPercentage 
+                var ret = stock.Select(x => new TopPercentage 
                                { Ticker = x.Ticker, Name = x.Name, Close = x.Close, PriceIncrease = priceIncrease })
                                .First();
                 table.Add(ret);
@@ -267,7 +254,7 @@ namespace Sandbox
             var db = new DailyStock();
 
             // get top x in volume for today
-            var topMovers = await db.GetTopMoversByVolume(count, DateTime.Today);
+            var topMovers = await db.GetTopMoversByVolume(count);
             ConsoleTable.From(topMovers).Write();
 
             return topMovers;
@@ -408,12 +395,12 @@ namespace Sandbox
         
         #endregion
 
-        public static void ImportCSV(string path)
-        {
-            //string path = @"C:\Users\joseph.mawer.IDEA\Downloads\TSX.txt";
-            Utils.Import_CSV_Symbols(path).Wait();
-            Console.WriteLine("Import successful");
-            Console.ReadLine();
-        }
+        //public static void ImportCSV(string path)
+        //{
+        //    //string path = @"C:\Users\joseph.mawer.IDEA\Downloads\TSX.txt";
+        //    Utils.Import_CSV_Symbols(path).Wait();
+        //    Console.WriteLine("Import successful");
+        //    Console.ReadLine();
+        //}
     }
 }

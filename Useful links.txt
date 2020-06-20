@@ -1,3 +1,9 @@
+//[Presentation] Brief description of the structure and common elements of a trading system. 
+  ( original source, Inside The Black Box by Rishi Narang)
+https://prezi.com/view/r1oCKvJ1E8jr2G4shWvS/
+
+
+
 http://www.eoddata.com/
 
 

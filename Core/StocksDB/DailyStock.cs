@@ -2,14 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
 {
-    public class DailyStock : SQLBase
+    public class DailyStock : SQLiteBase
     {
         /// <summary>
         /// Default constructor
@@ -51,16 +49,16 @@ namespace StocksDB
             foreach (var stock in stocks)
             {
                 await base.Insert(sqlQueryStatement,
-                    new List<SqlParameter>()
+                    new List<SQLiteParameter>()
                     {
-                        new SqlParameter() {ParameterName = "@date", SqlDbType = SqlDbType.Date, Value=stock.TimeOfRequest},
-                        new SqlParameter() {ParameterName = "@ticker", SqlDbType = SqlDbType.VarChar, Size=12, Value=stock.Ticker},
-                        //new SqlParameter() {ParameterName = "@price", SqlDbType = SqlDbType.Decimal, Value = stock.Price},
-                        new SqlParameter() {ParameterName = "@open", SqlDbType = SqlDbType.Decimal, Value = stock.Open},
-                        new SqlParameter() {ParameterName = "@close", SqlDbType = SqlDbType.Decimal, Value = stock.Close},
-                        new SqlParameter() {ParameterName = "@volume", SqlDbType = SqlDbType.BigInt, Value = stock.Volume},
-                        new SqlParameter() {ParameterName = "@high", SqlDbType = SqlDbType.Decimal, Value = stock.High},
-                        new SqlParameter() {ParameterName = "@low", SqlDbType = SqlDbType.Decimal, Value = stock.Low},
+                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.Date, Value=stock.TimeOfRequest},
+                        new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
+                        //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
+                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Decimal, Value = stock.Open},
+                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Decimal, Value = stock.Close},
+                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
+                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Decimal, Value = stock.High},
+                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Decimal, Value = stock.Low},
                     });
             }
         }
@@ -80,11 +78,25 @@ namespace StocksDB
             return await base.ExecuteScalarAsync<decimal>(query);
         }
 
-        public async Task<List<IStockInfo>> GetTopMoversByVolume(int count, DateTime date)
+        /// <summary>
+        /// Get the date of the latest import of stock data (daily)
+        /// </summary>
+        /// <returns>A short date string</returns>
+        private async Task<string> GetLastImportDate()
         {
+            var query = "select top (1) [Date] from DailyStock order by [Date] desc";
+            var date = await base.ExecuteScalarAsync<DateTime>(query);
+            return date.ToShortDateString();
+        }
+
+        public async Task<List<IStockInfo>> GetTopMoversByVolume(int count)//, DateTime date)
+        {
+            // We don't always have the current days data, so first we will get the last imported date
+            var lastDate = await GetLastImportDate();
+
             var query = $@"select top({count}) {fullyQualifiedFields} from DailyStock as stock
 	                       inner join Symbols as symbol on stock.Ticker = symbol.Symbol
-                           where [Date] >= '{date.ToShortDateString()}'
+                           where [Date] >= '{lastDate}'
                            order by Volume desc";
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
@@ -109,12 +121,12 @@ namespace StocksDB
         public async Task<List<IStockInfo>> SomethingThatConvertsSQLIntoStockInfo(string query)
         {
             var retLst = new List<IStockInfo>();
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                 {
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
@@ -143,10 +155,10 @@ namespace StocksDB
         public async Task<int> GetRecordCount(string ticker)
         {
             var query = $"select count([Ticker]) from [StocksDB].[dbo].[DailyStock] where [Ticker] = '{ticker}'";
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                 {
                     var rows = (int) await cmd.ExecuteScalarAsync();
                     return rows;

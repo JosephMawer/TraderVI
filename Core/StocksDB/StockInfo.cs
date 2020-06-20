@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
 {
-    public class StockInfo : SQLBase
+    public class StockInfo : SQLiteBase
     {
         public StockInfo() { }
 
@@ -36,14 +36,14 @@ namespace StocksDB
 
             query += " ORDER BY [Time] DESC";
             var lst = new List<StockInfo>();
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                     {
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {
@@ -75,16 +75,16 @@ namespace StocksDB
        
         public async Task Insert(string Exchange, string Ticker, DateTime Time, long Volume, decimal Open, decimal Close, decimal High, decimal Low)
             => await base.Insert($"INSERT INTO {Schema} ({Fields}) VALUES (@exchange,@ticker,@time,@volume,@open,@close,@high,@low)",
-                    new List<SqlParameter>()
+                    new List<SQLiteParameter>()
                          {
-                                new SqlParameter() {ParameterName = "@exchange", SqlDbType = SqlDbType.VarChar, Size=10, Value=Exchange},
-                                new SqlParameter() {ParameterName = "@ticker", SqlDbType = SqlDbType.VarChar, Size=7, Value=Ticker},
-                                new SqlParameter() {ParameterName = "@time", SqlDbType = SqlDbType.DateTime2, Value=Time},
-                                new SqlParameter() {ParameterName = "@volume", SqlDbType = SqlDbType.BigInt, Value=Volume},
-                                new SqlParameter() {ParameterName = "@open", SqlDbType = SqlDbType.Decimal, Value=Open},
-                                new SqlParameter() {ParameterName = "@close", SqlDbType = SqlDbType.Decimal, Value=Close},
-                                new SqlParameter() {ParameterName = "@high", SqlDbType = SqlDbType.Decimal, Value=High},
-                                new SqlParameter() {ParameterName = "@low", SqlDbType = SqlDbType.Decimal, Value=Low},
+                                new SQLiteParameter() {ParameterName = "@exchange", DbType = DbType.String, Size=10, Value=Exchange},
+                                new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=7, Value=Ticker},
+                                new SQLiteParameter() {ParameterName = "@time", DbType = DbType.DateTime2, Value=Time},
+                                new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value=Volume},
+                                new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Decimal, Value=Open},
+                                new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Decimal, Value=Close},
+                                new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Decimal, Value=High},
+                                new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Decimal, Value=Low},
                          });
     }
 }

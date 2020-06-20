@@ -1,15 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GranvillesGame
+namespace Core.Utilities
 {
     public static class Utils
     {
+
+        /// <summary>
+        /// Gets the date from a specified amount of days (adjusts for weekends)
+        /// </summary>
+        /// <param name="previousDays"></param>
+        /// <returns>A short date string</returns>
+        public static string GetPastDate(int previousDays)
+        {
+            var date = DateTime.Today.AddDays(previousDays);
+
+            // If the request falls on a weekend, adjust date accordingly
+            DayOfWeek day = date.DayOfWeek;
+            if (day == DayOfWeek.Saturday)
+                _ = date.AddDays(-1);
+            else if (day == DayOfWeek.Sunday)
+                _ = date.AddDays(-2);
+
+            return date.ToShortDateString();
+        }
+
+
 
         /// <summary>
         /// This was a little helper method I used to import all the stocks that compose the S&P/TSX Composite index
@@ -23,10 +40,10 @@ namespace GranvillesGame
                 var i = line.Split(',');
                 var query = $@"insert into TSXCompositeIndex values ('{i[0].Replace("'", "''")}','{i[1].Replace("'", "''")}','{i[2].Replace("'", "''")}','{i[3].Replace("'", "''")}')";
 
-                using (var con = new SqlConnection("Data Source=.;Initial Catalog=StocksDB;Integrated Security=True;"))
+                using (var con = new SQLiteConnection("Data Source=.;Initial Catalog=StocksDB;Integrated Security=True;"))
                 {
                     con.Open();
-                    using (var cmd = new SqlCommand(query, con))
+                    using (var cmd = new SQLiteCommand(query, con))
                     {
                         cmd.ExecuteNonQueryAsync();
                     }

@@ -64,9 +64,19 @@ namespace alphaVantageDemo
             return stockData;
         }
 
+
+        // sometimes we use tsx:symbol
+        // sometimes we use symbol.TO, ex. CPG.TO, K.TO, 
         public static async Task Main(string[] args)
         {
-            var weed = await GetRequestTimeSeriesData("WEED");
+            //var quote = await GetRealTimePriceVolume("CPG.TO");
+            //var weed = await GetRequestTimeSeriesData("K.TO");
+
+            StockTimeSeries meg = await client.RequestIntradayTimeSeriesAsync($"K.TO", IntradayInterval.OneMin, TimeSeriesSize.Compact);
+            var points = meg.DataPoints;
+            ConsoleTables.ConsoleTable.From(points).Write();
+
+
             var db = new StocksDB.DailyStock();
             var db1 = new StocksDB.Constituents();
             var constituents = await db1.GetConstituents(); // get full list

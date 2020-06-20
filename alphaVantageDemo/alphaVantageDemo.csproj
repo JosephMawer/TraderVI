@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AlphaVantage.Net.Stocks" Version="1.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace StocksDB
 {
-    public class Symbols : SQLBase
+    public class Symbols : SQLiteBase
     {
         public Symbols() : base("[StocksDB].[dbo].[Symbols]", "[Symbol],[Name],[Exchange]") { }
 
@@ -25,18 +24,19 @@ namespace StocksDB
 
             var lst = new List<SymbolInfo>();
 
+            throw new NotImplementedException("need to implement reader for sqlite.");
             // todo - could use a data reader object here instead
-            var table = await base.GetDataTableFromSQL(sql);
-            foreach (DataRow row in table.Rows)
-            {
-                var si = new SymbolInfo
-                {
-                    Symbol = row[0].ToString(),
-                    Name = row[1].ToString(),
-                    Exchange = row[2].ToString()
-                };
-                lst.Add(si);
-            }
+            //var table = await base.GetDataTableFromSQL(sql);
+            //foreach (DataRow row in table.Rows)
+            //{
+            //    var si = new SymbolInfo
+            //    {
+            //        Symbol = row[0].ToString(),
+            //        Name = row[1].ToString(),
+            //        Exchange = row[2].ToString()
+            //    };
+            //    lst.Add(si);
+            //}
             return lst;
         }
 
@@ -51,11 +51,11 @@ namespace StocksDB
         public async Task InsertSymbol(string symbol, string name, string exchange)
         {
             var query = $"INSERT INTO {Schema} VALUES ('{symbol.Replace("'", "''")}','{name.Replace("'", "''")}','{exchange}')";
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 try {
                     await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con)) {
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con)) {
                         await cmd.ExecuteNonQueryAsync();
                     }
                 }

@@ -60,7 +60,7 @@ namespace Core.TMX
             // Send web request and receive html document
             //Console.WriteLine("Sending request for " + Ticker);
             var cts = new CancellationTokenSource();
-            cts.CancelAfter(1000);
+            cts.CancelAfter(3500);
             htmlDocument = await context.OpenAsync(SearchURL + Ticker, cts.Token);
 
             cts.Dispose();

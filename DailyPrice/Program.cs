@@ -14,6 +14,7 @@ using System.Threading;
 using HtmlAgilityPack;
 using System.Web;
 using StocksDB;
+using System.Data.SQLite;
 
 namespace DailyPrice
 {
@@ -470,7 +471,7 @@ namespace DailyPrice
         // todo - create a general work project,  migrate this method to utilities class
         private static async Task ImportSymbols()
         {
-            var db = new StocksDB.SQLBase("dbo.Symbols", "[Symbol],[Name],[Exchange]");
+            var db = new StocksDB.SQLiteBase("dbo.Symbols", "[Symbol],[Name],[Exchange]");
             var nyse = "nyse_symbol_list.txt";
             var nasdaq = "nasdaq_symbol_list.txt";
             var tsx = "TSX.txt";
@@ -479,11 +480,11 @@ namespace DailyPrice
             {
                 var l = line.Split('\t');
                 await db.Insert("insert into dbo.Symbols values(@symbol,@name,@exchange)",
-                    new List<SqlParameter>()
+                    new List<SQLiteParameter>()
                      {
-                            new SqlParameter() {ParameterName = "@symbol", SqlDbType = SqlDbType.VarChar, Size=10, Value=l[0]},
-                            new SqlParameter() {ParameterName = "@name", SqlDbType = SqlDbType.VarChar, Size=75, Value=l[1]},
-                            new SqlParameter() {ParameterName = "@exchange", SqlDbType = SqlDbType.VarChar, Size=10, Value="TSX"},                     
+                            new SQLiteParameter() {ParameterName = "@symbol", DbType = DbType.String, Size=10, Value=l[0]},
+                            new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=75, Value=l[1]},
+                            new SQLiteParameter() {ParameterName = "@exchange", DbType = DbType.String, Size=10, Value="TSX"},                     
                      });
             }
         }

@@ -22,8 +22,8 @@ namespace DailyStockCollector
 
             var saveToDatabase = true;
 
-            var indiceSummary = await collector.GetDailyIndiceAverages(saveToDatabase);
-            ConsoleTable.From(indiceSummary).Write();
+            //var indiceSummary = await collector.GetDailyIndiceAverages(saveToDatabase);
+            //ConsoleTable.From(indiceSummary).Write();
 
             var marketSummary = await collector.GetDailyMarketSummary(saveToDatabase);
             ConsoleTable.From(marketSummary).Write();
