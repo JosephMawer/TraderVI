@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "alphaVantageDemo", "alphaVantageDemo\alphaVantageDemo.csproj", "{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DailyPrice", "DailyPrice\DailyPrice.csproj", "{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GranvillesGame", "GranvillesGame\GranvillesGame.csproj", "{71999B17-9642-423C-AD29-784084B8B549}"
@@ -42,10 +40,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{347BC639-BB9F-4D8C-AA9F-8EE571B34E5B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{384FAE56-CADB-4934-B8AD-BDD3A1A0A8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
