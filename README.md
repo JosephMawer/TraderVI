@@ -1,7 +1,13 @@
 This project has mostly started for me to work with TSX market data, though I am sure it can be used
 with other markets as it relies on a forked version of AlphaVantage
 
+The library uses alpha vantage stuff mostly just to pull in lots of stock data into a local database, at
+which point you can run all sorts of analysis on the data.
 
+It uses a TMX library, which is basically a web scraper to grab real time data from tmxmoney.com, a website
+that provides real time stock market data for TSX..
+
+GUI stuff is still yet to come.. might go with UWP?? might go web..
 
 High level parts of the system
 
