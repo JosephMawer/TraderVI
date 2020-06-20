@@ -28,7 +28,7 @@ namespace Sandbox
 
 
     //        var lines = File.ReadAllLines(pathToCSV);
-    //        StocksDB.Constituents _symbol = new StocksDB.Constituents();
+    //        Db.Constituents _symbol = new Db.Constituents();
     //        foreach (var line in lines) // skip the header
     //        {
     //            var info = line.Split("\t");    
@@ -42,7 +42,7 @@ namespace Sandbox
 
             
     //        var lines = File.ReadAllLines(pathToCSV);
-    //        StocksDB.Symbols _symbol = new StocksDB.Symbols();
+    //        Db.Symbols _symbol = new Db.Symbols();
     //        foreach (var line in lines.Skip(1)) // skip the header
     //        {
     //            var info = line.Split("\t");    //imported data from http://www.eoddata.com/, which was a tab separated text file

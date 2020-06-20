@@ -1,3 +1,6 @@
+This project has mostly started for me to work with TSX market data, though I am sure it can be used
+with other markets as it relies on a forked version of AlphaVantage
+
 
 
 High level parts of the system
@@ -8,7 +11,7 @@ High level parts of the system
  - Watch List: 
  - Watcher:	monitors intraday activity for stocks on the watch list for triggers/buy signals
  - Funds:	monitors the amount of money I have made from investments (kind of like pennywise)
- - StocksDB: the data layer; deals directly with the database
+ - Db: the data layer; deals directly with the database
 
 Alerts vs Triggers
 

@@ -1,4 +1,4 @@
-﻿namespace StocksDB
+﻿namespace Core.Db
 {
     public enum Table
     {

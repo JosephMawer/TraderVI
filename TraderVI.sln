@@ -32,8 +32,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantage.Net.Core", "..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantage.Net.Stocks", "..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj", "{D5F839DB-750D-4728-997F-C82946BB8B75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DailyStockCollector", "DailyStockCollector\DailyStockCollector.csproj", "{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,10 +70,6 @@ Global
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5F839DB-750D-4728-997F-C82946BB8B75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5731CDD6-03EB-4E4A-9F07-2F6DEF0943C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

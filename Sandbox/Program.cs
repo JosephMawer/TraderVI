@@ -5,7 +5,6 @@ using Core;
 using Core.Math;
 using Core.Utilities;
 using GranvilleIndicator;
-using StocksDB;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -38,7 +37,7 @@ namespace Sandbox
         static async Task Main(string[] args)
         {
             // Import all data from db into memory...  todo - see how much memory this actually uses.
-            StockData = await DailyStock.GetListOfStockData();
+            StockData = await Core.Db.DailyTimeSeries.GetListOfStockData();
 
             
             //var today = DateTime.Today.ToShortDateString();
@@ -60,7 +59,7 @@ namespace Sandbox
             //var path = @"C:\src\#Projects\TraderVI\tmp\CSV_FILES\ema-are.csv";
             //try
             //{
-            //    var db = new StocksDB.DailyStock();
+            //    var db = new Db.DailyStock();
             //    //var high52 = await db.Get52WeekHigh("ARE");
             //    List<IStockInfo> stock = await db.GetAllStockDataFor("ARE");
             //    var hmm = stock.Calculate52WeekHigh();
@@ -251,7 +250,7 @@ namespace Sandbox
         /// <returns>A task</returns>
         static async Task<List<IStockInfo>> PrintTopMoversByVolume(int count = 10)
         {
-            var db = new DailyStock();
+            var db = new Core.Db.DailyTimeSeries();
 
             // get top x in volume for today
             var topMovers = await db.GetTopMoversByVolume(count);
@@ -268,9 +267,9 @@ namespace Sandbox
             Console.ForegroundColor = original;
         }
 
-        static async Task CheckForAlerts(IList<ConstituentInfo> constituents)
+        static async Task CheckForAlerts(IList<Core.Db.ConstituentInfo> constituents)
         {
-            var db = new DailyStock();  
+            var db = new Core.Db.DailyTimeSeries();  
             foreach (var constituent in constituents)
             {
                 Console.WriteLine("Currently checking alerts for " + constituent.Symbol + "    " + constituent.Name);

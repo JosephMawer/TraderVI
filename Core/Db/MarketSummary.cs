@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
     public enum Markets
     {
@@ -26,13 +26,13 @@ namespace StocksDB
     }
     public class MarketSummary : SQLiteBase
     {
-        public MarketSummary() : base("[StocksDB].[dbo].[MarketSummary]",
+        public MarketSummary() : base("[Db].[dbo].[MarketSummary]",
             "[Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]") { }
 
 
         public async Task InsertMarketSummary(IList<IMarketSummaryInfo> tsxList)
         {
-            var sqlQueryStatement = $"insert into [StocksDB].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
+            var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
             foreach (var tsx in tsxList)
             {
                await base.Insert(sqlQueryStatement,
@@ -51,7 +51,7 @@ namespace StocksDB
         }
         public async Task InsertMarketSummary(IMarketSummaryInfo tsx)
         {
-            var sqlQueryStatement = $"insert into [StocksDB].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
+            var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
 
             await base.Insert(sqlQueryStatement,
                new List<SQLiteParameter>()
@@ -70,7 +70,7 @@ namespace StocksDB
         public async Task<List<MarketValues>> GetFullMarketSummary(Markets market = Markets.TSX)
         {
             string query = $"SELECT [Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]" +
-                    $" FROM [StocksDB].[dbo].[MarketSummary]" +
+                    $" FROM [Db].[dbo].[MarketSummary]" +
                     $" WHERE [Name] = '" + EnumToString(market) + "'" +
                     $" ORDER BY [Date]";
 
@@ -112,7 +112,7 @@ namespace StocksDB
         public async Task<MarketValues> GetDailyMarketSummary(Markets market)
         {
             string query = $"SELECT TOP(1) [Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]" +
-                    $" FROM [StocksDB].[dbo].[MarketSummary]" +
+                    $" FROM [Db].[dbo].[MarketSummary]" +
                     $" WHERE [Name] = '" + EnumToString(market) + "'" +
                     $" ORDER BY [Date] DESC";
 

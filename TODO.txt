@@ -17,7 +17,7 @@ TODO:
 5) side off --- based on Granville's numeric weighting system can we calculate the optimal values?  and then compare the optimal to our results
 that we get from analyzing current day to day stock information.  The closer we are to the optimal value the high chance of success the stock has
 
-6) In the data layer (StocksDB) is it possible to create a generic reader so that I can just pass have a single method call, i.e. FetchData<T>()
+6) In the data layer (Db) is it possible to create a generic reader so that I can just pass have a single method call, i.e. FetchData<T>()
    so that I can avoid having to write out the same ado.net code every method...
 
 

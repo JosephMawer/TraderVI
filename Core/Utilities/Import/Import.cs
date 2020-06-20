@@ -19,7 +19,7 @@ namespace Utilities.Import
             var points = stockTimeSeries.DataPoints;
             foreach (var point in points.Take(1000))
             {
-                var s = new Core.StockInfo()
+                var s = new Core.Models.StockQuote()
                 {
                     TimeOfRequest = point.Time.ToShortDateString(),
                     Volume = (int)point.Volume,
@@ -53,8 +53,8 @@ namespace Utilities.Import
         {
             var client = new AlphaVantageStocksClient(Constants.apiKey);
 
-            var db = new StocksDB.DailyStock();
-            var db1 = new StocksDB.Constituents();
+            var db = new Core.Db.DailyTimeSeries();
+            var db1 = new Core.Db.Constituents();
             var constituents = await db1.GetConstituents(); // get full list
 
             // list of tickers that don't work with alpha vantage

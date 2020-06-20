@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
     public class StockInfo : SQLiteBase
     {
@@ -13,7 +13,7 @@ namespace StocksDB
         /// <summary>
         /// default constructor
         /// </summary>
-        public StockInfo(Table Table) : base($"[StocksDB].[dbo].[{Table.ToString()}]","[Exchange],[Ticker],[Time],[Volume],[Open],[Close],[High],[Low]") { }
+        public StockInfo(Table Table) : base($"[Db].[dbo].[{Table.ToString()}]","[Exchange],[Ticker],[Time],[Volume],[Open],[Close],[High],[Low]") { }
 
         #region Properties
         public int ID { get; set; }
@@ -29,7 +29,7 @@ namespace StocksDB
         public async Task<List<StockInfo>> GetListOfStockInfo(string Ticker, Table Table, string Filter = "")
         {
 
-            string query = $"SELECT [ID],[Ticker],[Time],[Volume],[Open],[Close],[High],[Low] FROM [StocksDB].[dbo].[{Table}] WHERE [Ticker] = '{Ticker}'";
+            string query = $"SELECT [ID],[Ticker],[Time],[Volume],[Open],[Close],[High],[Low] FROM [Db].[dbo].[{Table}] WHERE [Ticker] = '{Ticker}'";
 
             if (!string.IsNullOrEmpty(Filter))
                 query += $" AND {Filter}";

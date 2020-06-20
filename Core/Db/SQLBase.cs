@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
     /// <summary>
     /// Asynchronous data access base class that only supports parameterized queries
@@ -16,7 +16,7 @@ namespace StocksDB
         /// <summary>
         /// The connection string for an instance
         /// </summary>
-        internal string ConnectionString = @"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=StocksDB;Integrated Security=True;";
+        internal string ConnectionString = @"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
         /// <summary>
         /// Default constructor
@@ -210,7 +210,7 @@ namespace StocksDB
     //    /// <summary>
     //    /// The connection string for an instance
     //    /// </summary>
-    //    internal string ConnectionString = "Data Source=.;Initial Catalog=StocksDB;Integrated Security=True;";
+    //    internal string ConnectionString = "Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
     //    /// <summary>
     //    /// Default constructor

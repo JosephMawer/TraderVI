@@ -1,10 +1,8 @@
-﻿using Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Collection
+namespace Core
 {
     public class DailyStockCollection
     {
@@ -25,7 +23,7 @@ namespace Collection
             if (SaveToDatabase)
             {
                 // Insert Index summary info to database
-                var indexDb = new StocksDB.IndiceSummary();
+                var indexDb = new Db.IndiceSummary();
                 await indexDb.InsertIndiceSummary(indice);
             }
 
@@ -42,7 +40,7 @@ namespace Collection
 
             if (saveToDatabase)
             {
-                var db = new StocksDB.MarketSummary();
+                var db = new Db.MarketSummary();
                 await db.InsertMarketSummary(summary);
             }
 
@@ -54,7 +52,7 @@ namespace Collection
         /// </summary>
         /// <param name="constituents"></param>
         /// <returns></returns>
-        public async Task<List<IStockInfo>> GetDailyStockInfo(IList<StocksDB.ConstituentInfo> constituents, bool saveToDatabase = false)
+        public async Task<List<IStockInfo>> GetDailyStockInfo(IList<Db.ConstituentInfo> constituents, bool saveToDatabase = false)
         {
             var dailyStats = new List<IStockInfo>();
             // async patterns
@@ -161,7 +159,7 @@ namespace Collection
             if (saveToDatabase)
             {
                 Console.WriteLine("Saving daily stock info to database....");
-                var db = new StocksDB.DailyStock();
+                var db = new Db.DailyTimeSeries();
                 await db.InsertDailyStockList(dailyStats);
             }
 

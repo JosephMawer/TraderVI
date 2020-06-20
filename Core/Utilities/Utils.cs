@@ -40,7 +40,7 @@ namespace Core.Utilities
                 var i = line.Split(',');
                 var query = $@"insert into TSXCompositeIndex values ('{i[0].Replace("'", "''")}','{i[1].Replace("'", "''")}','{i[2].Replace("'", "''")}','{i[3].Replace("'", "''")}')";
 
-                using (var con = new SQLiteConnection("Data Source=.;Initial Catalog=StocksDB;Integrated Security=True;"))
+                using (var con = new SQLiteConnection("Data Source=.;Initial Catalog=Db;Integrated Security=True;"))
                 {
                     con.Open();
                     using (var cmd = new SQLiteCommand(query, con))

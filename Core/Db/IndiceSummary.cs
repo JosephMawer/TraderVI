@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace StocksDB
         /// <returns></returns>
         public async Task InsertIndiceSummary(IIndexSummary index)
         {
-            var sqlQueryStatement = $"insert into [StocksDB].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
+            var sqlQueryStatement = $"insert into [Db].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             await base.Insert(sqlQueryStatement,
                 new List<SQLiteParameter>()
                 {
@@ -65,7 +65,7 @@ namespace StocksDB
         /// <returns></returns>
         public async Task InsertIndiceSummary(IList<IIndexSummary> indexList)
         {
-            var sqlQueryStatement = $"insert into [StocksDB].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
+            var sqlQueryStatement = $"insert into [Db].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             foreach (var index in indexList)
             {
                 await base.Insert(sqlQueryStatement,
@@ -91,7 +91,7 @@ namespace StocksDB
         public async Task<decimal> GetDailyAverage(Indices indice, DateTime date)
         {
             string query = $"SELECT [Last] " +
-                           $"FROM [StocksDB].[dbo].[IndiceSummary] " +
+                           $"FROM [Db].[dbo].[IndiceSummary] " +
                            $"WHERE [Name] = '{EnumToString(indice)}' " +
                            $"AND [Date] >= '" + date.ToShortDateString() + "' AND [Date] < '" + date.AddDays(1).ToShortDateString() + "'";
 
@@ -137,7 +137,7 @@ namespace StocksDB
         public async Task<IndiceValue> GetDailyMarketAverage(Indices indice)
         {
             string query = $"SELECT TOP(1) [Date],[Name],[Last],[Change],[PercentChange] " +
-                           $"FROM[StocksDB].[dbo].[IndiceSummary] " +
+                           $"FROM[Db].[dbo].[IndiceSummary] " +
                            $"where [Name] = '{EnumToString(indice)}' " +
                            $"Order By[Date] DESC";
 

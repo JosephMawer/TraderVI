@@ -7,7 +7,7 @@ namespace Core
     /// <summary>
     /// A collection of extension methods which extend <see cref="IStockInfo"/>
     /// </summary>
-    public static class StockExtensions
+    public static class Indicators
     {
 
         /// <summary>

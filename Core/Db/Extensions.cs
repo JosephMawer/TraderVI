@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 
-namespace StocksDB
+namespace Core.Db
 {
     public static class Extensions
     {

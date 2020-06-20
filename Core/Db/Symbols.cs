@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
     public class Symbols : SQLiteBase
     {
-        public Symbols() : base("[StocksDB].[dbo].[Symbols]", "[Symbol],[Name],[Exchange]") { }
+        public Symbols() : base("[Db].[dbo].[Symbols]", "[Symbol],[Name],[Exchange]") { }
 
         /// <summary>
         /// Gets a list of symbols

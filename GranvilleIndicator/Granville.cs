@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -77,13 +78,13 @@ namespace GranvilleIndicator
         public static async Task<List<ADLine>> GetAdvanceDeclineLine()
         {
             // Check advancers vs. decliners
-            var market = new StocksDB.MarketSummary();
-            var indices = new StocksDB.IndiceSummary();
+            var market = new Core.Db.MarketSummary();
+            var indices = new Core.Db.IndiceSummary();
             var summary = await market.GetFullMarketSummary();  // by default, retrieves market info from tsx
 
             // start generating the Advance-decline list/line thingy...
             var adLst = new List<ADLine>(); // list of Advance-Decline (ADLine) objects
-            StocksDB.MarketValues prevAvg = new StocksDB.MarketValues();
+            Core.Db.MarketValues prevAvg = new Core.Db.MarketValues();
             var firstIteration = true;
             var cumulativeAdvancesRunningTotal = 0;
             var cumulativeDeclinesRunningTotal = 0;
@@ -93,7 +94,7 @@ namespace GranvilleIndicator
                 ad.Date = s.Date;
                 ad.Advances = s.Advanced;
                 ad.Declines = s.Declined;
-                ad.TSXAverage = await indices.GetDailyAverage(StocksDB.Indices.TSX, ad.Date);
+                ad.TSXAverage = await indices.GetDailyAverage(Core.Db.Indices.TSX, ad.Date);
 
 
                 if (firstIteration)
@@ -166,12 +167,12 @@ namespace GranvilleIndicator
             point.Name = "Plurality";
 
             // Check advancers vs. decliners
-            var market = new StocksDB.MarketSummary();
-            var summary = await market.GetDailyMarketSummary(StocksDB.Markets.TSX);
+            var market = new Core.Db.MarketSummary();
+            var summary = await market.GetDailyMarketSummary(Core.Db.Markets.TSX);
 
             // Check TSX Average
-            var indice = new StocksDB.IndiceSummary();
-            var index = await indice.GetDailyMarketAverage(StocksDB.Indices.TSX);   // gets the daily average for the specified index
+            var indice = new Core.Db.IndiceSummary();
+            var index = await indice.GetDailyMarketAverage(Core.Db.Indices.TSX);   // gets the daily average for the specified index
 
             if (summary.Declined > summary.Advanced &&
                 index.Change > 0)

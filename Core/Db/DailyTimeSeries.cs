@@ -1,18 +1,17 @@
-﻿using Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Threading.Tasks;
 
-namespace StocksDB
+namespace Core.Db
 {
-    public class DailyStock : SQLiteBase
+    public class DailyTimeSeries : SQLiteBase
     {
         /// <summary>
         /// Default constructor
         /// </summary>
-        public DailyStock() : base("[DailyStock]",
+        public DailyTimeSeries() : base("[DailyStock]",
             "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low]") { }
 
 
@@ -29,7 +28,7 @@ namespace StocksDB
             var db = new Constituents();
             var constituents = await db.GetConstituents();
 
-            var stockDb = new DailyStock();
+            var stockDb = new DailyTimeSeries();
             var stockData = new List<List<IStockInfo>>(constituents.Count);
             foreach (var constituent in constituents)
                 stockData.Add(await stockDb.GetAllStockDataFor(constituent.Symbol));
@@ -39,7 +38,7 @@ namespace StocksDB
 
 
         /// <summary>
-        /// Inserts a list <see cref="IStockInfo"/> into the StocksDB database
+        /// Inserts a list <see cref="IStockInfo"/> into the Db database
         /// </summary>
         /// <param name="stocks"></param>
         /// <returns></returns>
@@ -72,7 +71,7 @@ namespace StocksDB
         {
             var today = DateTime.Today.ToShortDateString();
             var query = $@"select max([Close]) 
-                           from (select [Close] from [StocksDB].[dbo].[DailyStock]
+                           from (select [Close] from [Db].[dbo].[DailyStock]
                                 where [Ticker] = '{ticker}' and [Date] >= dateadd(week,-52, '{today}') and [Date] <= '{today}') as d";
 
             return await base.ExecuteScalarAsync<decimal>(query);
@@ -101,7 +100,7 @@ namespace StocksDB
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
-        private string fullyQualifiedFields => "stock.[Date],stock.[Ticker],stock.[Open],stock.[Close],stock.[Volume],stock.[High],stock.[Low],symbol.[Name]";
+        private string fullyQualifiedFields => "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],symbol.[Name]";
 
         /// <summary>
         /// basically does a select * for the ticker (parameter)
@@ -110,9 +109,11 @@ namespace StocksDB
         /// <returns>a list of <see cref="IStockInfo"/></returns>
         public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker)
         {
-            var query = $@"select {fullyQualifiedFields} from {Schema} as stock
-                           inner join Symbols as symbol on stock.Ticker = symbol.Symbol
+            var query = $@"select[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.Name
+                           from[DailyStock]
+                           inner join Constituents on DailyStock.Ticker = Constituents.Symbol
                            where [Ticker] = '{ticker}' order by [Date] desc";
+
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
@@ -130,7 +131,7 @@ namespace StocksDB
                     {
                         while (await reader.ReadAsync())
                         {
-                            var info = new Core.StockInfo();
+                            var info = new Core.Models.StockQuote();
                             info.TimeOfRequest = reader.GetDateTime(0).ToShortDateString();
                             info.Ticker = reader.GetString(1);
                             info.Open = reader.GetDecimal(2);

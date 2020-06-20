@@ -13,9 +13,10 @@ using System.Linq;
 using System.Threading;
 using HtmlAgilityPack;
 using System.Web;
-using StocksDB;
+
 using System.Data.SQLite;
 using Core;
+using Core.Db;
 
 namespace DailyPrice
 {
@@ -97,7 +98,7 @@ namespace DailyPrice
             //    await Task.Delay(12000);
             //}
             // Load all symbols
-            //var sym = new StocksDB.Symbols();
+            //var sym = new Db.Symbols();
             //tickers = await sym.GetSymbolsList();
 
             //await CollectMonthlyAdjustedTimeSeries();
@@ -124,7 +125,7 @@ namespace DailyPrice
             }
         }
 
-        private static void CalculateTotalPercentageGain(List<StocksDB.StockInfo> lst)
+        private static void CalculateTotalPercentageGain(List<Core.Db.StockInfo> lst)
         {
             var first = lst[lst.Count - 1];
             var last = lst[0];
@@ -140,12 +141,12 @@ namespace DailyPrice
         /// Gets a list of tickers 
         /// </summary>
         /// <returns></returns>
-        private static async Task<List<StocksDB.StockInfo>> GetStockData()
+        private static async Task<List<Core.Db.StockInfo>> GetStockData()
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Daily);
+            var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Daily);
             var symbols = new Symbols();
             var SymbolList = await symbols.GetSymbolsList("where [Exchange]='TSX'");
-            List<StocksDB.StockInfo> stocks = new List<StocksDB.StockInfo>();
+            List<Core.Db.StockInfo> stocks = new List<Core.Db.StockInfo>();
             foreach (var symbol in SymbolList)
             {
                 var stockList = await stockDb.GetListOfStockInfo(symbol.Symbol, Table.TimeSeries_Daily);
@@ -212,7 +213,7 @@ namespace DailyPrice
             }
 
             Console.ReadLine();
-            var stockInfo = new Core.StockInfo();
+            var stockInfo = new Core.Models.StockQuote();
             foreach (var detail in quoteDetails)
             {
                 var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
@@ -242,7 +243,7 @@ namespace DailyPrice
                 .Where(node => node.GetAttributeValue("class", "")
                 .Equals("quote-details")).ToList();
 
-            var stockInfo = new StocksDB.StockInfo();
+            var stockInfo = new Core.Db.StockInfo();
             foreach (var detail in quoteDetails)
             {
                 var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
@@ -273,8 +274,8 @@ namespace DailyPrice
         static decimal highestPrice = 0;
         static decimal trailingStop = 0;
         static decimal minLoss = 0.01m; // 0.4%
-        static StocksDB.StockInfo prevStock = null;
-        public static async Task StockStreamer(StocksDB.StockInfo stock)
+        static Core.Db.StockInfo prevStock = null;
+        public static async Task StockStreamer(Core.Db.StockInfo stock)
         {
             var currentStockPrice = stock.Close;
 
@@ -334,12 +335,12 @@ namespace DailyPrice
             // Previous stock is always one element behind
             prevStock = stock;
         }
-        public static async Task StockWatcher(List<StocksDB.StockInfo> stockList)
+        public static async Task StockWatcher(List<Core.Db.StockInfo> stockList)
         {
             decimal highestPrice = 0;
             decimal traillingExit = 0;
             decimal newProfit = 0;
-            StocksDB.StockInfo prevStock = null;
+            Core.Db.StockInfo prevStock = null;
             stockList.Reverse();
             int counter = 0;
             foreach (var stock in stockList)
@@ -395,7 +396,7 @@ namespace DailyPrice
 
         private static async Task CollectIntradayTimeSeries(string Exchange, string Ticker)
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Intraday);
+            var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Intraday);
             // retrieve the last timestamp for monthly adjusted and make sure we're not overwriting old data
 
 
@@ -413,7 +414,7 @@ namespace DailyPrice
         }
         private static async Task CollectDailyTimeSeries(string Exchange, string Ticker)
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Daily);
+            var stockDb = new Core.Db.StockInfo(Table.TimeSeries_Daily);
             // retrieve the last timestamp for monthly adjusted and make sure we're not overwriting old data
 
             
@@ -435,7 +436,7 @@ namespace DailyPrice
         // let's me pull all categories (daily, weekly, monthly, etc) for up to 71 stocks
         private static async Task CollectMonthlyAdjustedTimeSeries()
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_MonthlyAdjusted);
+            var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_MonthlyAdjusted);
             // retrieve the last timestamp for monthly adjusted and make sure we're not overwriting old data
 
             foreach (var ticker in tickers)
@@ -472,7 +473,7 @@ namespace DailyPrice
         // todo - create a general work project,  migrate this method to utilities class
         private static async Task ImportSymbols()
         {
-            var db = new StocksDB.SQLiteBase("dbo.Symbols", "[Symbol],[Name],[Exchange]");
+            var db = new Core.Db.SQLiteBase("Symbols", "[Symbol],[Name],[Exchange]");
             var nyse = "nyse_symbol_list.txt";
             var nasdaq = "nasdaq_symbol_list.txt";
             var tsx = "TSX.txt";
@@ -493,7 +494,7 @@ namespace DailyPrice
 
         private static async Task ImportDailyTimeSeries()
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Daily);
+            var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Daily);
             var tsx = "tickers.txt";
             var lines = File.ReadAllLines($@"C:\Users\sesa345094\Desktop\{tsx}");
             foreach (var ticker in lines)
@@ -516,7 +517,7 @@ namespace DailyPrice
         }
         private static async Task GetDailyTimeSeriesFromScreener()
         {
-            var stockDb = new StocksDB.StockInfo(StocksDB.Table.TimeSeries_Daily);
+            var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Daily);
             // retrieve the last timestamp for monthly adjusted and make sure we're not overwriting old data
             var symbols = new Symbols();
             var SymbolList = await symbols.GetSymbolsList("where [Exchange]='TSX'");

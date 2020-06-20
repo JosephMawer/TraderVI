@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Core.StocksDB
+namespace Core.Db
 {
     public class Scripts
     {

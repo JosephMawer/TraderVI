@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace Core.TMX
         {
             _ticker = Ticker;
         }
-        public async Task<StockInfo> RequestTickerInfo(string Ticker, string Name = "")
+        public async Task<StockQuote> RequestTickerInfo(string Ticker, string Name = "")
         {
 
 
@@ -65,7 +66,7 @@ namespace Core.TMX
 
             cts.Dispose();
 
-            var stock = new StockInfo();
+            var stock = new StockQuote();
             if (!string.IsNullOrEmpty(Name))
                 stock.Name = Name;
             stock.Ticker = Ticker;
