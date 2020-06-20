@@ -7,7 +7,7 @@ namespace StocksDB
 {
     public class Constituents : SQLiteBase
     {
-        public Constituents() : base("[StocksDB].[dbo].[TSX_Constituents_10142019]", "[Constituent_Name],[Symbol]") { }
+        public Constituents() : base("[Constituents]", "[Name],[Symbol]") { }
 
         /// <summary>
         /// Inserts a symbol into the Symbols table
@@ -44,7 +44,7 @@ namespace StocksDB
         public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
         {
             var sql = (count != null) ? $"TOP({count})" : "";
-            string query = $"SELECT {sql} [Constituent_Name],[Symbol] FROM {Schema}";
+            string query = $"SELECT {sql} Name,Symbol FROM {Schema}";
 
             var lst = new List<ConstituentInfo>();
             using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
