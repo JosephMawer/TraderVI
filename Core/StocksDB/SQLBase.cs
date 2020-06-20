@@ -43,6 +43,12 @@ namespace StocksDB
             Projection = $"SELECT {this.Fields} FROM {this.Schema}";
         }
 
+        public static string DateTimeSQLite(DateTime datetime)
+        {
+            const string dateTimeFormat = "{0}-{1}-{2} {3}:{4}:{5}";
+            return string.Format(dateTimeFormat, datetime.Year, datetime.Month.ToString("D2"), datetime.Day.ToString("D2"), "00", "00", "00");
+        }
+
         /// <summary>
         /// The database schema  
         /// </summary>
