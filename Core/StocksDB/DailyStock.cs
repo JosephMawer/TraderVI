@@ -12,7 +12,7 @@ namespace StocksDB
         /// <summary>
         /// Default constructor
         /// </summary>
-        public DailyStock() : base("[StocksDB].[dbo].[DailyStock]",
+        public DailyStock() : base("[DailyStock]",
             "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low]") { }
 
 
@@ -51,14 +51,14 @@ namespace StocksDB
                 await base.Insert(sqlQueryStatement,
                     new List<SQLiteParameter>()
                     {
-                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.Date, Value=stock.TimeOfRequest},
+                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(DateTime.Parse(stock.TimeOfRequest))},
                         new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
                         //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
-                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Decimal, Value = stock.Open},
-                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Decimal, Value = stock.Close},
+                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
+                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
                         new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
-                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Decimal, Value = stock.High},
-                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Decimal, Value = stock.Low},
+                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
+                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
                     });
             }
         }
@@ -152,15 +152,15 @@ namespace StocksDB
 
         // one off method i was using for importing historical stock data to ensure
         // i was adding duplicates
-        public async Task<int> GetRecordCount(string ticker)
+        public async Task<long> GetRecordCount(string ticker)
         {
-            var query = $"select count([Ticker]) from [StocksDB].[dbo].[DailyStock] where [Ticker] = '{ticker}'";
+            var query = $"select count([Ticker]) from [DailyStock] where [Ticker] = '{ticker}'";
             using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
             {
                 await con.OpenAsync();
                 using (SQLiteCommand cmd = new SQLiteCommand(query, con))
                 {
-                    var rows = (int) await cmd.ExecuteScalarAsync();
+                    var rows = (long) await cmd.ExecuteScalarAsync();
                     return rows;
                 }
             }
