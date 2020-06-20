@@ -32,6 +32,9 @@ We need a way to input data (i.e. feed/stream data into our program)
 
 
 
+	ALso.. along with some of the other points above/below... this library aims
+	to assist in ad hoc data analysis/exploration of stock data...  I know.. R is way better
+	at this... but I don't know R...
 
 
 Ultimately, I would like to feed in a bunch of tickers: lun, eca, appl, etc.
