@@ -41,13 +41,13 @@ namespace Core.Db
         /// </summary>
         /// <param name="count">Optional: the number of constituents to return</param>
         /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
-        public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
+        public static async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
         {
             var sql = (count != null) ? $"TOP({count})" : "";
-            string query = $"SELECT {sql} Name,Symbol FROM {Schema}";
+            string query = $"SELECT {sql} Name,Symbol FROM [Constituents]";
 
             var lst = new List<ConstituentInfo>();
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection con = new SQLiteConnection(Database))
             {
                 try
                 {

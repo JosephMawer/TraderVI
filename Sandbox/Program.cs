@@ -2,32 +2,31 @@
 using AlphaVantage.Net.Stocks.TimeSeries;
 using ConsoleTables;
 using Core;
+using Core.Db;
+using Core.Indicators;
+using Core.Indicators.Models;
 using Core.Math;
 using Core.Utilities;
 using GranvilleIndicator;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Indicators.PricePatterns;
 
 
 namespace Sandbox
 {
-    public static class DateTimeExtensions
+    partial class Program
     {
-        public static string Something(this DateTime date, int PreviousDays)
-        {
-            return DateTime.Today.AddDays(-15).ToShortDateString();
-        }
-    }
-    class Program
-    {
-        // Global/Static list of stock data used for performaning analysis on in memory
+        // initialize members
         static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
-        
-        const string apiKey = "6IQSWE3D7UZHLKTB";
-        static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
+        private static List<ConstituentInfo> Constituents;
+        private static DailyTimeSeries TimeSeries = new DailyTimeSeries();
+        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
+        private static DateTime Today = DateTime.Today;
 
         /// <summary>
         /// The main entry point for the program
@@ -36,23 +35,63 @@ namespace Sandbox
         /// <returns></returns>
         static async Task Main(string[] args)
         {
-            // Import all data from db into memory...  todo - see how much memory this actually uses.
-            StockData = await Core.Db.DailyTimeSeries.GetListOfStockData();
-
-            
-            //var today = DateTime.Today.ToShortDateString();
-            //GetDifference(today, Utils.GetPastDate(-60));
-            //GetDifference(today, Utils.GetPastDate(-40));
-            //GetDifference(today, Utils.GetPastDate(-20));
-            //GetDifference(today, Utils.GetPastDate(-12));
-            //GetDifference(today, Utils.GetPastDate(-8));
-            //GetDifference(today, Utils.GetPastDate(-4));
+            // this shows how to download historical stock data into a local sqlite database which
+            // can then be used for further analysis with the library. This would typically be the first
+            // thing you run when you initially try to set up this library.
+            // await Core.Utilities.Import.Import.ImportStockData();
 
 
+            // load all constituents into memory
+            Constituents = await Core.Db.Constituents.GetConstituents();
+
+
+            // searching all stocks for the head and shoulders pattern using various input
+            // parameters to define the size and sample frequency of how often we look for the pattern
+            foreach (var constituent in Constituents)
+            {
+                Console.WriteLine($"{constituent.Symbol} : Searching for {constituent.Name}...");
+                var stocks = await TimeSeries.GetAllStockDataFor(constituent.Symbol);
+
+                Console.WriteLine("Searching for pattern: Head And Shoulders");
+                var result = stocks.RunWindowBasedSampling(SearchPatterns.HeadAndShoulders, windowSize: 7);
+                if (result != null)
+                {
+                    ConsoleTable.From(result).Write();
+                }
+ 
+                Console.ReadLine();
+                Console.Clear();
+            }
+         
+
+            // Import all data from db into memory (yea.. that's probably a lot) using the static
+            // helper method in the TimeSeries (db) class
+            StockData = await DailyTimeSeries.GetAllStocks();
+
+            // shows how to calculate percentage gains table on the entire stock data collection
+            StockData.GetPercentageGain(new DateRange(Today, daysAgo: 30), new PriceRange(low: 1, high: 10), take: 3, printTable: true);
+
+            // shows how to calculate percentage gains for individual stocks
+            foreach (var stock in StockData)
+            {
+                if (stock.Count > 0)
+                {
+                    Console.WriteLine($"Collecting percentage gains for: {stock[0].Ticker}");
+                    stock.GetPercentageGain(new DateRange(Today, daysAgo: 60), printTable: true);
+                    stock.GetPercentageGain(new DateRange(Today, daysAgo: 30), printTable: true);
+                    stock.GetPercentageGain(new DateRange(Today, daysAgo: 10), printTable: true);
+                    stock.GetPercentageGain(new DateRange(Today, daysAgo: 5),  printTable: true);
+                }
+            }
+
+            // shows how to print/get a list of the top X movers in terms of price
+            StockData.GetTopPriceMovers(take: 10, printTable: true);
+
+           
 
             // Get top 10 movers by volume; note the default value is 10, pass an integer to specify more constituents
             await PrintTopMoversByVolume();
-            CalculateTop10MoversInPrice();
+            //CalculateTop10MoversInPrice();
             await GetTheAdvanceDeclineLine();
 
             #region table for showing EMA data
@@ -159,89 +198,9 @@ namespace Sandbox
             #endregion
         }
 
-       
 
 
-        private struct DifferenceTable
-        {
-            public string StartDate { get; set; }
-            public string EndDate { get; set; }
-            public string Symbol { get; set; }
-            public decimal Close { get; set; }
-            public decimal Max { get; set; }
-            public string Difference { get; set; }
-        }
-        /// <summary>
-        /// Get's the difference between two dates
-        /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        static void GetDifference(string StartDate, string EndDate)
-        {
-            List<DifferenceTable> lst = new List<DifferenceTable>();
-            var days = (DateTime.Parse(StartDate).Subtract(DateTime.Parse(EndDate))).TotalDays;
-            foreach (var stock in StockData)
-            {
-                if (stock.Count > days)
-                {
-                    var diff = stock.CalculateDifference(StartDate, EndDate);
-                    var max = stock.Where(x => DateTime.Parse(x.TimeOfRequest) >= DateTime.Parse(EndDate) &&
-                                               DateTime.Parse(x.TimeOfRequest) <= DateTime.Parse(StartDate))
-                                   .Max(f => f.Close);
-                    var joined = (from f in stock
-                                 select new DifferenceTable
-                                 {
-                                     StartDate = EndDate,
-                                     EndDate = StartDate,
-                                     Symbol = f.Ticker,
-                                     Close = f.Close,
-                                     Max = max,
-                                     Difference = diff.ToString("P")
-                                 }).First();
-                    lst.Add(joined);
-                    //Console.WriteLine($"{stock.First().Ticker} price change:p {diff:P}");
-                }
-                // create anonymous types that can be inserted into consoletables
-                // todo - provide better support for anonymous types in consoletables
-            }
-            var topLst = lst.Where(p => p.Close > 1 && p.Close < 15)
-                            .OrderByDescending(x => decimal.Parse(x.Difference.Replace("%","")))
-                            .Take(10);
-
-            Console.WriteLine($"stock data for the past {days} days");
-            ConsoleTable.From(topLst).Write();
-        }
-
-
-        struct TopPercentage
-        {
-            public string Ticker { get; set; }
-            public string Name { get; set; }
-            public decimal Close { get; set; }
-            public decimal PriceIncrease { get; set; }
-        }
-        static IEnumerable<TopPercentage> CalculateTop10MoversInPrice()
-        {
-            List<TopPercentage> table = new List<TopPercentage>();
-            WriteToConsole(" Top 10 movers in price", ConsoleColor.Yellow);
-            foreach (var stock in StockData)
-            {
-                var priceToday = stock[0].Close;
-                var priceYesterday = stock[1].Close;
-                var priceIncrease = priceToday - priceYesterday;
-                var percentageIncrease = priceIncrease / 100m;
-                //var ie2 = ie.Select(x => new { x.Foo, x.Bar, Sum = x.Abc + x.Def });
-                var ret = stock.Select(x => new TopPercentage 
-                               { Ticker = x.Ticker, Name = x.Name, Close = x.Close, PriceIncrease = priceIncrease })
-                               .First();
-                table.Add(ret);
-            }
-
-            //var topTen = table.Where(c => c.Close < 10).OrderByDescending(f => f.PriceIncrease).Take(10);
-            var topTen = table.OrderByDescending(f => f.PriceIncrease).Take(30);
-            ConsoleTable.From(topTen).Write();
-            return topTen;
-        }
+        
 
         /// <summary>
         /// Gets the top volume movers

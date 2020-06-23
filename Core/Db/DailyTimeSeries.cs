@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Indicators.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -16,23 +17,19 @@ namespace Core.Db
             "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low]") { }
 
 
-
-        // TODO - maybe I should have a high level Db class that is full of static methods
-        // that can do static functions like 'GetListOfStockData' below... thoughts?
+        private string fullyQualifiedFields => "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.[Name]";
 
         /// <summary>
-        /// Helper method to pull all stock data into memory
+        /// Pull all stock data into memory
         /// </summary>
         /// <returns>A list of stock data for each ticker</returns>
-        public static async Task<List<List<IStockInfo>>> GetListOfStockData()
+        public static async Task<List<List<IStockInfo>>> GetAllStocks()
         {
-            var db = new Constituents();
-            var constituents = await db.GetConstituents();
-
-            var stockDb = new DailyTimeSeries();
-            var stockData = new List<List<IStockInfo>>(constituents.Count);
+            var constituents = await Constituents.GetConstituents();
+            var db = new DailyTimeSeries();
+            var stockData = new List<List<IStockInfo>>(constituents.Count);  
             foreach (var constituent in constituents)
-                stockData.Add(await stockDb.GetAllStockDataFor(constituent.Symbol));
+                stockData.Add(await db.GetAllStockDataFor(constituent.Symbol));
 
             return stockData;
         }
@@ -94,30 +91,41 @@ namespace Core.Db
             // We don't always have the current days data, so first we will get the last imported date
             var lastDate = await GetLastImportDate();
 
+            var date = DateTimeSQLite(DateTime.Parse(lastDate));
+
             var query = $@"select {fullyQualifiedFields} from DailyStock
 	                       inner join Constituents on DailyStock.Ticker = Constituents.Symbol
-                           where [Date] >= '{DateTimeSQLite(DateTime.Parse(lastDate))}'
+                           where [Date] >= '{date}'
                            order by Volume desc
                            limit {count}";
 
-            Debug.WriteLine(query);
+            Debug.WriteLine(nameof(GetTopMoversByVolume) + Environment.NewLine + query);
             
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }
 
-        private string fullyQualifiedFields => "[Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.[Name]";
-
+      
         /// <summary>
         /// basically does a select * for the ticker (parameter)
         /// </summary>
         /// <param name="ticker"></param>
         /// <returns>a list of <see cref="IStockInfo"/></returns>
-        public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker)
+        public async Task<List<IStockInfo>> GetAllStockDataFor(string ticker, DateRange range = null)
         {
             var query = $@"select [Date],[Ticker],[Open],[Close],[Volume],[High],[Low],Constituents.Name
                            from[DailyStock]
                            inner join Constituents on DailyStock.Ticker = Constituents.Symbol
-                           where [Ticker] = '{ticker}' order by [Date] desc";
+                           where [Ticker] = '{ticker}' ";
+            
+            if (range != null)
+            {
+                var start = DateTimeSQLite(range.StartDate);
+                var end = DateTimeSQLite(range.EndDate);
+
+                query += $" and Date between '{start}' and '{end}'";
+            }
+
+            query += " order by [Date] desc";
 
             return await SomethingThatConvertsSQLIntoStockInfo(query);
         }

@@ -18,6 +18,8 @@ namespace Core.Db
         /// </summary>
         internal string ConnectionString = @"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
+        public static string Database = @"Data Source=c:\noso\stocks.db;Version=3;";
+
         /// <summary>
         /// Default constructor
         /// </summary>
