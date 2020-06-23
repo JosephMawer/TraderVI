@@ -1,11 +1,11 @@
-﻿using Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GranvilleIndicator
+namespace Core.Indicators
 {
+
     public static class Enums
     {
         public static IEnumerable<T> Get<T>()
@@ -108,7 +108,7 @@ namespace GranvilleIndicator
                 }
                 else
                 {
-                    
+
                     cumulativeAdvancesRunningTotal += s.Advanced;
                     cumulativeDeclinesRunningTotal += s.Declined;
                     var differential = cumulativeAdvancesRunningTotal - cumulativeDeclinesRunningTotal;
@@ -149,7 +149,7 @@ namespace GranvilleIndicator
             // ask: see what was larger: the total increase or total decrease
             foreach (var x in indice)
             {
-                
+
             }
         }
         #endregion
@@ -208,5 +208,5 @@ namespace GranvilleIndicator
             }
         }
     }
-
+    
 }

@@ -5,16 +5,13 @@ using Core;
 using Core.Db;
 using Core.Indicators;
 using Core.Indicators.Models;
+using Core.Indicators.PricePatterns;
 using Core.Math;
-using Core.Utilities;
-using GranvilleIndicator;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.Indicators.PricePatterns;
 
 
 namespace Sandbox
