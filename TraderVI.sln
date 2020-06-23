@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backfitting", "Backfitting", "{3DED4FD6-F227-4EE6-8BEC-6A3EAE99205F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backfitter", "Backfitter\Backfitter.csproj", "{A54BC644-0F1C-4A60-8279-7467ACD37843}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{716B9312-C9DB-4FB1-8A8A-9A85E23963F5}"
 	ProjectSection(SolutionItems) = preProject
 		readme.md = readme.md
@@ -34,10 +30,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A54BC644-0F1C-4A60-8279-7467ACD37843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A54BC644-0F1C-4A60-8279-7467ACD37843}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A54BC644-0F1C-4A60-8279-7467ACD37843}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A54BC644-0F1C-4A60-8279-7467ACD37843}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,7 +55,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A54BC644-0F1C-4A60-8279-7467ACD37843} = {3DED4FD6-F227-4EE6-8BEC-6A3EAE99205F}
 		{B2CEDA52-8161-4A2B-AFF2-7F32A0DC3B9A} = {FBCBB814-59CD-4FFC-91FC-D57764AD8F49}
 		{D177D12C-9073-4CC6-AD88-F2C8F52B138A} = {39A8832C-0E7F-4BE1-B343-1F2891462905}
 		{D5F839DB-750D-4728-997F-C82946BB8B75} = {39A8832C-0E7F-4BE1-B343-1F2891462905}
