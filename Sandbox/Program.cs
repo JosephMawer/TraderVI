@@ -7,8 +7,11 @@ using Core.Indicators;
 using Core.Indicators.Models;
 using Core.Indicators.PricePatterns;
 using Core.Math;
+using Core.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,10 +35,17 @@ namespace Sandbox
         /// <returns></returns>
         static async Task Main(string[] args)
         {
+
+            //Core.TMX.Stocks tmx = new Core.TMX.Stocks();
+            //var cve = await tmx.RequestTickerInfo("CVE");
+            //await DailyPrice.DailyPriceMain(null);
+
             // this shows how to download historical stock data into a local sqlite database which
             // can then be used for further analysis with the library. This would typically be the first
             // thing you run when you initially try to set up this library.
-            // await Core.Utilities.Import.Import.ImportStockData();
+            //var request = Core.Utilities.Import.TimeSeries.Daily;
+            //await Core.Utilities.Import.Import.ImportStockData(request);
+
 
 
             // load all constituents into memory
@@ -44,21 +54,21 @@ namespace Sandbox
 
             // searching all stocks for the head and shoulders pattern using various input
             // parameters to define the size and sample frequency of how often we look for the pattern
-            foreach (var constituent in Constituents)
-            {
-                Console.WriteLine($"{constituent.Symbol} : Searching for {constituent.Name}...");
-                var stocks = await TimeSeries.GetAllStockDataFor(constituent.Symbol);
+            //foreach (var constituent in Constituents)
+            //{
+            //    Console.WriteLine($"{constituent.Symbol} : Searching for {constituent.Name}...");
+            //    var stocks = await TimeSeries.GetAllStockDataFor(constituent.Symbol);
 
-                Console.WriteLine("Searching for pattern: Head And Shoulders");
-                var result = stocks.RunWindowBasedSampling(SearchPatterns.HeadAndShoulders, windowSize: 7);
-                if (result != null)
-                {
-                    ConsoleTable.From(result).Write();
-                }
+            //    Console.WriteLine("Searching for pattern: Head And Shoulders");
+            //    var result = stocks.RunWindowBasedSampling(SearchPatterns.HeadAndShoulders, windowSize: 7);
+            //    if (result != null)
+            //    {
+            //        ConsoleTable.From(result).Write();
+            //    }
  
-                Console.ReadLine();
-                Console.Clear();
-            }
+            //    Console.ReadLine();
+            //    Console.Clear();
+            //}
          
 
             // Import all data from db into memory (yea.. that's probably a lot) using the static
@@ -66,13 +76,34 @@ namespace Sandbox
             StockData = await DailyTimeSeries.GetAllStocks();
 
             // shows how to calculate percentage gains table on the entire stock data collection
-            StockData.GetPercentageGain(new DateRange(Today, daysAgo: 30), new PriceRange(low: 1, high: 10), take: 3, printTable: true);
+            //StockData.GetPercentageGain(new DateRange(Today, daysAgo: 30), new PriceRange(low: 1, high: 10), take: 3, printTable: true);
 
             // shows how to calculate percentage gains for individual stocks
             foreach (var stock in StockData)
             {
                 if (stock.Count > 0)
                 {
+                    Console.WriteLine($"looking for support line for: {stock[0].Ticker}");
+                    
+       
+                    for (int i = 1; i < 100; i++)
+                    {
+                        var startingDate = Utils.GetBusinessDay(Today.AddDays(-i));
+                        for (int endDate = 2; endDate < 100; endDate++)
+                        {
+                            // checks if a support level exists between two points by forming a straight line
+                            // between the two points and checking if it forms a support
+                            var support = stock.GetSupportLevel(startingDate, endDate);
+                            if (support.SupportLineFound)
+                                ConsoleTable.From(support.DataPoint).Write();
+                        }
+                    }
+                    
+
+                    
+
+                    //Console.WriteLine($"Support level at {x.Support} between {x.Range.StartDate.ToShortDateString()} and {x.Range.EndDate.ToShortDateString()});
+                    // percentage 
                     Console.WriteLine($"Collecting percentage gains for: {stock[0].Ticker}");
                     stock.GetPercentageGain(new DateRange(Today, daysAgo: 60), printTable: true);
                     stock.GetPercentageGain(new DateRange(Today, daysAgo: 30), printTable: true);

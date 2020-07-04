@@ -1,4 +1,6 @@
-﻿namespace Core.Models
+﻿using System;
+
+namespace Core.Models
 {
     /// <summary>
     /// Represents information about a stock, such as the symbol, current price, current volume,
@@ -9,7 +11,7 @@
         /// <summary>
         /// The time the stock info was requested
         /// </summary>
-        public string TimeOfRequest { get; set; }
+        public DateTime TimeOfRequest { get; set; }
 
         /// <summary>
         /// The stock ticker, aka symbol

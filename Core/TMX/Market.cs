@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using AngleSharp.Html.Dom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,11 +66,8 @@ namespace Core.TMX
         /// <param name="printToConsole"></param>
         /// <param name="saveToFile"></param>
         /// <returns></returns>
-        public async Task<List<IMarketSummaryInfo>> GetMarketSummary()
+        public List<IMarketSummaryInfo> GetMarketSummary(IHtmlDocument document)
         {
-            // Send web request and receive html document
-            var document = await context.OpenAsync(TMX_MARKETS);  //https://web.tmxmoney.com/marketsca.php
-
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 
@@ -97,12 +95,12 @@ namespace Core.TMX
                                     .Select(grp => grp.Select(x => x.Value).ToArray())
                                     .ToArray();
 
-            var dtos = new List<IMarketSummaryInfo>();
+            var marketSummary = new List<IMarketSummaryInfo>();
             foreach (var block in chunks)
             {
                 try
                 {
-                    dtos.Add(new MarketSummaryInfo
+                    marketSummary.Add(new MarketSummaryInfo
                     {
                         Date = timeOfRequest,
                         Name = block[0],
@@ -120,18 +118,15 @@ namespace Core.TMX
                 }
             }
 
-            return dtos;
+            return marketSummary;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<List<IIndexSummary>> GetMarketIndices()
+        public List<IIndexSummary> GetMarketIndices(IHtmlDocument document)
         {
-            // Send web request and receive html document
-            var document = await context.OpenAsync(TMX_MARKETS);  //https://web.tmxmoney.com/marketsca.php
-
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 

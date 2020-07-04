@@ -48,7 +48,32 @@ namespace Core.Db
                 await base.Insert(sqlQueryStatement,
                     new List<SQLiteParameter>()
                     {
-                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(DateTime.Parse(stock.TimeOfRequest))},
+                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
+                        new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
+                        //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
+                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
+                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
+                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
+                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
+                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Inserts a list <see cref="IStockInfo"/> into the Db database
+        /// </summary>
+        /// <param name="stocks"></param>
+        /// <returns></returns>
+        public async Task InsertIntradayStocks(IEnumerable<IStockInfo> stocks)
+        {
+            var sqlQueryStatement = $"insert into Intraday values (@date,@ticker,@open,@close,@volume,@high,@low)";
+            foreach (var stock in stocks)
+            {
+                await base.Insert(sqlQueryStatement,
+                    new List<SQLiteParameter>()
+                    {
+                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
                         new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
                         //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
                         new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
@@ -145,7 +170,7 @@ namespace Core.Db
                         while (await reader.ReadAsync())
                         {
                             var info = new Core.Models.StockQuote();
-                            info.TimeOfRequest = reader.GetDateTime(0).ToShortDateString();
+                            info.TimeOfRequest = reader.GetDateTime(0);//.ToShortDateString();
                             info.Ticker = reader.GetString(1);
                             info.Open = reader.GetDecimal(2);
                             info.Close = reader.GetDecimal(3);

@@ -143,14 +143,14 @@ namespace Core.Indicators
 
             var market = new Core.TMX.Market();
 
-            // Get daily summary of market indices
-            var indice = await market.GetMarketIndices();
+            //// Get daily summary of market indices
+            //var indice = await market.GetMarketIndices();
 
-            // ask: see what was larger: the total increase or total decrease
-            foreach (var x in indice)
-            {
+            //// ask: see what was larger: the total increase or total decrease
+            //foreach (var x in indice)
+            //{
 
-            }
+            //}
         }
         #endregion
     }

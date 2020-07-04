@@ -2,6 +2,7 @@
 using AlphaVantage.Net.Stocks.TimeSeries;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,18 +10,33 @@ using System.Threading.Tasks;
 
 namespace Core.Utilities.Import
 {
+    public enum TimeSeries
+    {
+        Daily,
+        Intraday
+    }
     public class Import
     {
-        private static async Task<List<IStockInfo>> GetDailyTimeSeriesData(AlphaVantageStocksClient client, string ticker)
+        private static async Task<List<IStockInfo>> GetDailyTimeSeriesData(AlphaVantageStocksClient client, string ticker, TimeSeries timeSeries)
         {
             var stockData = new List<IStockInfo>();
-            StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Full, adjusted: false);
+
+            StockTimeSeries stockTimeSeries;
+            
+            if (timeSeries == TimeSeries.Daily)
+            {
+                stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Full, adjusted: false);
+            }
+            else
+            {
+                stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
+            }
             var points = stockTimeSeries.DataPoints;
             foreach (var point in points.Take(500))
             {
                 var s = new Core.Models.StockQuote()
                 {
-                    TimeOfRequest = point.Time.ToShortDateString(),
+                    TimeOfRequest = point.Time,
                     Volume = (int)point.Volume,
                     Open = point.OpeningPrice,
                     Close = point.ClosingPrice,
@@ -48,7 +64,7 @@ namespace Core.Utilities.Import
         /// between each request. It will only import the data to sqlite if there is not any data already existing 
         /// in the database. So consider using this the first time you want to download data and initialize db with data.
         /// </summary>
-        public static async Task ImportStockData()
+        public static async Task ImportStockData(TimeSeries timeSeries)
         {
             var client = new AlphaVantageStocksClient(Constants.apiKey);
 
@@ -67,8 +83,15 @@ namespace Core.Utilities.Import
                     try
                     {
                         Debug.WriteLine("Download symbol info for: " + symbol);
-                        var data = await GetDailyTimeSeriesData(client, symbol + ".TO");
-                        await db.InsertDailyStockList(data);
+                        var data = await GetDailyTimeSeriesData(client, symbol + ".TO", timeSeries);
+                        if (timeSeries == TimeSeries.Daily)
+                        {
+                            await db.InsertDailyStockList(data);
+                        }
+                        else
+                        {
+                            await db.InsertIntradayStocks(data);
+                        }
                         Debug.WriteLine("Successfully downloaded data at " + DateTime.Now);
                         await Task.Delay(45000);    // wait 20 seconds
                     }

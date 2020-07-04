@@ -47,24 +47,27 @@ namespace Core.Indicators.PricePatterns
             // convert the 'windowSize' into a a section of data between two dates that is 
             // the size of the asked window.
             DateTime start, end;
-            start = DateTime.Parse(stock.Last().TimeOfRequest);
+            start = stock.Last().TimeOfRequest;
             end = start.AddDays(windowSize);
 
             for (int i = 0; i < numberOfSamples; i++)
             {
                 // gets a window of data from the entire stock collection
-                var window = stock.Where(x => DateTime.Parse(x.TimeOfRequest) >= start && DateTime.Parse(x.TimeOfRequest) <= end);
+                var window = stock.Where(x =>x.TimeOfRequest >= start && x.TimeOfRequest <= end);
 
                 // guard clause: make sure our query actually returned some data
                 if (window.Count() == 0) continue;
 
-
-                if (searchPattern == SearchPatterns.HeadAndShoulders)
+                switch (searchPattern)
                 {
-                    // run the head and shoulders pattern match algorithm on the current window
-                    if (window.FindHeadAndShoulders()) return window;
+                    case SearchPatterns.HeadAndShoulders:
+                        // run the head and shoulders pattern match algorithm on the current window
+                        if (window.FindHeadAndShoulders()) return window;
+                        break;
+                    default:
+                        return default;
                 }
-
+                
                 // move the sampe range ahead x number of days
                 start = start.AddDays(shiftRate);
                 end = start.AddDays(windowSize);
@@ -75,8 +78,7 @@ namespace Core.Indicators.PricePatterns
         }
 
         /// <summary>
-        /// Iterates over a collection of stock data by taking a windows of <see cref="IStockInfo"/> of a 
-        /// specified size, using a specified shiftRate (default is 1 day) and checks if the shape of the data
+        /// Takes a window of <see cref="IStockInfo"/> and checks if the shape of the data
         /// matches an expected head and shoulders pattern.
         /// </summary>
         /// <param name="window">Some window of data; a section of the time series;</param>
@@ -103,6 +105,7 @@ namespace Core.Indicators.PricePatterns
             // pattern match: check for the head and shoulders 'shape'
             // [A] [B] [C] [D] [E] [F] [G]
             // [0] [1] [2] [3] [4] [5] [6]
+
             var A = dataPoints.ElementAt(0).Close;
             var B = dataPoints.ElementAt(1).Close;
             var C = dataPoints.ElementAt(2).Close;
@@ -110,15 +113,25 @@ namespace Core.Indicators.PricePatterns
             var E = dataPoints.ElementAt(4).Close;
             var F = dataPoints.ElementAt(5).Close;
             var G = dataPoints.ElementAt(6).Close;
-            if (B > A &&
-                B > C &&
-                D > C &&
-                D > E &&
-                F > E &&
-                F > G)
+
+            var vA = dataPoints.ElementAt(0).Volume;
+            var vB = dataPoints.ElementAt(1).Volume;
+            var vC = dataPoints.ElementAt(2).Volume;
+            var vD = dataPoints.ElementAt(3).Volume;
+            var vE = dataPoints.ElementAt(4).Volume;
+            var vF = dataPoints.ElementAt(5).Volume;
+            var vG = dataPoints.ElementAt(6).Volume;
+
+
+            // first, confirm the price trend matches head and shoulders
+            if (B > A && B > C &&
+                D > C && D > E &&
+                F > E && F > G)
             {
-                // todo: 
-                // 1) confirm that volume pattern matches the above price pattern
+                // seond: confirm that volume pattern matches the above price pattern
+
+
+
                 // 2) get the trend line and return the value at which the reversal/continuation will
                 // manifest itself.
 

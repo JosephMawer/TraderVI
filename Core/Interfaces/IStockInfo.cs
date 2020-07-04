@@ -4,7 +4,7 @@ namespace Core
 {
     public interface IStockInfo
     {
-        string TimeOfRequest { get; set; }
+        DateTime TimeOfRequest { get; set; }
         string Name { get; set; }
 
         string Ticker { get; set; }

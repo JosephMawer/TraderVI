@@ -17,17 +17,18 @@ namespace Core
         /// </summary>
         public async Task<List<IIndexSummary>> GetDailyIndiceAverages(bool SaveToDatabase = false)
         {
-            // Get daily summary of market indices
-            var indice = await _market.GetMarketIndices();
+            throw new Exception();
+            //// Get daily summary of market indices
+            //var indice = await _market.GetMarketIndices();
 
-            if (SaveToDatabase)
-            {
-                // Insert Index summary info to database
-                var indexDb = new Db.IndiceSummary();
-                await indexDb.InsertIndiceSummary(indice);
-            }
+            //if (SaveToDatabase)
+            //{
+            //    // Insert Index summary info to database
+            //    var indexDb = new Db.IndiceSummary();
+            //    await indexDb.InsertIndiceSummary(indice);
+            //}
 
-            return indice;
+            //return indice;
         }
 
         /// <summary>
@@ -35,16 +36,17 @@ namespace Core
         /// </summary>
         public  async Task<List<IMarketSummaryInfo>> GetDailyMarketSummary(bool saveToDatabase = false)
         {
+            throw new NotImplementedException();
             // Get daily market summary
-            var summary = await _market.GetMarketSummary();
+            //var summary = await _market.GetMarketSummary();
 
-            if (saveToDatabase)
-            {
-                var db = new Db.MarketSummary();
-                await db.InsertMarketSummary(summary);
-            }
+            //if (saveToDatabase)
+            //{
+            //    var db = new Db.MarketSummary();
+            //    await db.InsertMarketSummary(summary);
+            //}
 
-            return summary;
+            //return summary;
         }
 
         /// <summary>

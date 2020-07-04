@@ -72,7 +72,7 @@ namespace Core.TMX
             stock.Ticker = Ticker;
             try
             {
-                stock.TimeOfRequest = DateTime.Now.ToShortDateString();  //.GetFormmatedDateTime();
+                stock.TimeOfRequest = DateTime.Now;  //.GetFormmatedDateTime();
                 stock.Price = GetPrice(Ticker);
                 stock.Close = stock.Price;
                 // -- don't need this code since I will ensure the program always runs after 4pm

@@ -46,6 +46,25 @@ namespace Core.Utilities
             return _date;
         }
 
+        /// <summary>
+        /// Ensures the date falls on a business day and not a weekend. This is useful for doing
+        /// research on the weeknd and avoiding errors when using 'DateTime.Today'.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static DateTime GetBusinessDay(string date)
+        {
+            var _date = DateTime.Parse(date);
+
+            // If the request falls on a weekend, adjust date accordingly
+            DayOfWeek day = _date.DayOfWeek;
+            if (day == DayOfWeek.Saturday)
+                _date = _date.AddDays(-1);
+            else if (day == DayOfWeek.Sunday)
+                _date = _date.AddDays(-2);
+
+            return _date;
+        }
 
 
         /// <summary>
