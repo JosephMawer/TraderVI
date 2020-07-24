@@ -1,5 +1,31 @@
-This project has mostly started for me to work with TSX market data, though I am sure it can be used
-with other markets as it relies on a forked version of AlphaVantage
+# TraderVI
+
+This project started when I found out that wealthsimple is offering no commission stock trading.
+https://www.wealthsimple.com/en-ca/product/trade/
+
+I leveraged alpha vantage's free stock market API's and built on top of that.
+https://www.alphavantage.co/
+
+As a bonus point, wealthsimple is now offering commission free bit coin trading, and alpha vantage has
+API's that support bitcoin/cryptocurrency.
+please sign up using my referal link: https://www.wealthsimple.com/en-ca/product/crypto?r=UrKDi
+
+## Goals and Intentions
+
+* TMX - Real Time Market Data
+  * Currently I am only trading using TSX (Toronto Stock Exchange) so I don't have to pay exchange rates for NYSE
+  * I have a web scrapper that parses the tmxmoney.ca website (this site offers free, real time data)
+  * This is the library would be used to monitor live data to assist with executing trades (assuming you want to do intraday trading)
+
+* Support Ad-hoc analytics and testing of algorithms/indicators
+  + This gives us the ability to test algorithms and indicators on historical data and see how well they perform
+
+- Use indicators in
+
+
+## Birds Eye View Of The System
+
+
 
 The library uses alpha vantage stuff mostly just to pull in lots of stock data into a local database, at
 which point you can run all sorts of analysis on the data.
