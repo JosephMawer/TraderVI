@@ -1,34 +1,41 @@
 # TraderVI
 
+## Resources To Get You Started  
+
 This project started when I found out that wealthsimple is offering zero commission stock trading.  
-https://www.wealthsimple.com/en-ca/product/trade/
+https://www.wealthsimple.com/en-ca/product/trade/  
 _note that I typically only use the android app and have not checked out if this works on laptop as well._  
+_also, if you haven't checked out wealthsimple, I highly recommend them_
 
 I leveraged alpha vantage's free stock market API's and built on top of that.  
-https://www.alphavantage.co/
+https://www.alphavantage.co/  
+_and by built I mean forked existing code that built on top of that and started from there_
+there are other APIs worth looking into as well, that I have not yet used, such as:  
+https://alpaca.markets/
 
-As a bonus point, wealthsimple is now offering commission free bit coin trading, and alpha vantage has API's that support bitcoin/cryptocurrency.  
-please sign up using my referal link: https://www.wealthsimple.com/en-ca/product/crypto?r=UrKDi
+As a bonus point, wealthsimple is now offering commission free bit coin trading, and alpha vantage has API's that support bitcoin/cryptocurrency. please sign up using my referal link:  
+https://www.wealthsimple.com/en-ca/product/crypto?r=UrKDi
+_I fully expect to get into this in this library and add support for cypto trading_  
+
+Another exceptional resource has been tmx money which offers free real time stock data, (for Toronto Stock Exchange).  
+https://tmxmoney.com/en/index.html  
+_This is the site I 'scrap' to grab real time data for free_
 
 ## Goals and Intentions
 
-* TMX - Real Time Market Data
-  * Currently I am only trading using TSX (Toronto Stock Exchange) so I don't have to pay exchange rates for NYSE
-  * I have a web scrapper that parses the tmxmoney.ca website (this site offers free, real time data)
-  * This is the library would be used to monitor live data to assist with executing trades (assuming you want to do intraday trading)
-
-* Support Ad-hoc analytics and testing of algorithms/indicators
-  + This gives us the ability to test algorithms and indicators on historical data and see how well they perform
-
-- Use indicators in
-
+* Learn cool algoritms for time series data
+* Back test our algorithms to prove they work  
+  * _In the context of time-series forecasting, the notion of backtesting refers to the process of assessing the accuracy of a forecasting method using existing historical data. The process is typically iterative and repeated over multiple dates present in the historical data._
+* Make money
+* Build a system that supports ad hoc data analysis, both historical and real time (streamed data), using a fluent system.
+* Build a system that
 
 ## Birds Eye View Of The System
 
-
-
 The library uses alpha vantage stuff mostly just to pull in lots of stock data into a local database, at
-which point you can run all sorts of analysis on the data.
+which point you can run all sorts of analysis on the data. Because I only have a free API key I have limitations imposed on how often I can run queries, I think it's 5 API requests per minute.  
+To get around this limitation, I think I will set up some sort of Azure Function that runs at specified times, and during the night, will download
+the days stock data for each constituent in TSX.
 
 It uses a TMX library, which is basically a web scraper to grab real time data from tmxmoney.com, a website
 that provides real time stock market data for TSX..
