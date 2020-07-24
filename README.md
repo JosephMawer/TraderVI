@@ -49,16 +49,13 @@ There are a couple of moving parts to this system as it needs to do a few differ
   * Currently, I have only really be interested in trading on TSX because they are companies I know and understand, no exchange fees, and
   tmx site offers free real time data.
 * **ALGORITHMS**
-  * These will be domain specific algorithms that operate on time series data, you will need to become accustom to technical indicators such as:
-    * Support And Resistance Trendlines
-	* Reversal Patterns
-	* Head And Shoulders
-	* Moving Averages
-	* Volume
-	* Trailing Stop Losses
+  * These will be domain specific algorithms that operate on time series data, you will need to become accustom to technical indicators such as
+    * Support And Resistance, Trendlines, Reversal Patterns, Head And Shoulders, Moving Averages, Volume, Trailing Stop Losses
+  * **I think** these algorithms will need to be implemented twice, once to operate on historical data from the database, and once to operate on real time, live streamed data.
 * **AD HOC ANALYSIS**
-  * Okay, so to build up our indicators we need to be able to run what I call 'ad hoc analysis', actually I think that's probably a common term.
-  * Query
+  * Okay, so to build up our indicators we need to be able to run ad hoc analysis.
+  * Two approaches, I use both, is to load the data into memory and run the analysis, or just run the analysis on data while it's in the database and just get the result.. I generally opt for whatever seems easier at the time.
+
 
 
 
@@ -76,8 +73,10 @@ var request = Core.Utilities.Import.TimeSeries.Daily;
 await Core.Utilities.Import.Import.ImportStockData(request);
 ```
 
-Load all the constituents into memory
+Load all the constituents into memory  
 _constituents mean the stocks that make up the indice, in this case, TSX_
+
+todo: before you make this call you must load the constituents csv file into the sqlite table, show example of how to do this, plus add that file to src.
 
 ```csharp
 var constituents = await Core.Db.Constituents.GetConstituents();
@@ -90,18 +89,15 @@ Let's start doing some ad-hoc analysis
 // parameters to define the size and sample frequency of how often we look for the pattern
 foreach (var constituent in constituents)
 {
-   Console.WriteLine($"{constituent.Symbol} : Searching for {constituent.Name}...");
+   // load all the historical data for the current stock, i.e. constituent
    var stocks = await TimeSeries.GetAllStockDataFor(constituent.Symbol);
 
-   Console.WriteLine("Searching for pattern: Head And Shoulders");
+   // Searching for pattern 'Head And Shoulders' using a window of 7 days
    var result = stocks.RunWindowBasedSampling(SearchPatterns.HeadAndShoulders, windowSize: 7);
    if (result != null)
    {
        ConsoleTable.From(result).Write();
    }
-
-   Console.ReadLine();
-   Console.Clear();
 }
 ```
 
