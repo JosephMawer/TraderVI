@@ -4,17 +4,16 @@
 
 This project started when I found out that wealthsimple is offering zero commission stock trading.  
 https://www.wealthsimple.com/en-ca/product/trade/  
-_note that I typically only use the android app and have not checked out if this works on laptop as well._  
-_also, if you haven't checked out wealthsimple, I highly recommend them_
+ _If you haven't checked out wealthsimple, I highly recommend them_  
 
-I leveraged alpha vantage's free stock market API's and built on top of that.  
+I leveraged alpha vantage's free stock market API's and built on top of that (by forking someone elses work).  
 https://www.alphavantage.co/  
-_and by built I mean forked existing code that built on top of that and started from there_
-there are other APIs worth looking into as well, that I have not yet used, such as:  
-https://alpaca.markets/
+
+There are other APIs worth looking into as well, that I have not yet used, such as:  
+https://alpaca.markets/  
 
 As a bonus point, wealthsimple is now offering commission free bit coin trading, and alpha vantage has API's that support bitcoin/cryptocurrency. please sign up using my referal link:  
-https://www.wealthsimple.com/en-ca/product/crypto?r=UrKDi
+https://www.wealthsimple.com/en-ca/product/crypto?r=UrKDi  
 _I fully expect to get into this in this library and add support for cypto trading_  
 
 Another exceptional resource has been tmx money which offers free real time stock data, (for Toronto Stock Exchange).  
@@ -23,7 +22,7 @@ _This is the site I 'scrap' to grab real time data for free_
 
 ## Goals and Intentions
 
-* Learn cool algoritms for time series data
+* Learn and implement algoritms for time series data
 * Back test our algorithms to prove they work  
   * _In the context of time-series forecasting, the notion of backtesting refers to the process of assessing the accuracy of a forecasting method using existing historical data. The process is typically iterative and repeated over multiple dates present in the historical data._
 * Make money
@@ -31,6 +30,37 @@ _This is the site I 'scrap' to grab real time data for free_
 * Build a system that
 
 ## Birds Eye View Of The System
+
+There are a couple of moving parts to this system as it needs to do a few different things
+
+* **THE DATABASE**
+  * Each night we need gather 'daily' stock data by using the Alpha Vantage API  
+  * Remember, this can only run 5 request per min on the free version, and there are over 200 constituents on the TSX market
+  * I am thinking of having this implemented as an **Azure function** and have the database live in the cloud; cosmos db?
+  * Why store all this data in a database? to support the ad hoc data analysis required to build systems of indicators, the free API key just won't cut it.
+    * yes, I could pay for the Alpha Vantage API keys that allow me to query... but, I'm cheap... or poor, or don't really have the code to support paying for that, yet.
+  * There will be another table stored for 'intraday' stock data.  This will requested every minute by scraping the tmx money site
+    * intraday data is useful to run our algorithms/indicators on short term data to see if the patterns still apply
+* **TMX**
+  * This is a folder in 'core' that basically scrapes the tmx money site to gather intraday data and store it in our database
+  * It will also be used to run algorithms/indicators/systems on live data
+  * We will need other methods for collecting real time data on different stock markets, perhaps this is when we justify paying for
+  Alpha Vantage API key, or finding a new API, such as Alpaca?
+  * Currently, I have only really be interested in trading on TSX because they are companies I know and understand, no exchange fees, and
+  tmx site offers free real time data.
+* **ALGORITHMS**
+  * These will be domain specific algorithms that operate on time series data, you will need to become accustom to technical indicators such as:
+    * Support And Resistance Trendlines
+	* Reversal Patterns
+	* Head And Shoulders
+	* Moving Averages
+	* Volume
+	* Trailing Stop Losses
+* **AD HOC ANALYSIS**
+  * Okay, so to build up our indicators we need to be able to run what I call 'ad hoc analysis', actually I think that's probably a common term.
+  * Query
+
+
 
 The library uses alpha vantage stuff mostly just to pull in lots of stock data into a local database, at
 which point you can run all sorts of analysis on the data. Because I only have a free API key I have limitations imposed on how often I can run queries, I think it's 5 API requests per minute.  
