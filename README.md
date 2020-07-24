@@ -62,6 +62,57 @@ There are a couple of moving parts to this system as it needs to do a few differ
 
 
 
+
+
+## Show Me Some Code
+
+Get Started by importing stock data into a local sqlite database so you can perform ad hoc analysis
+
+```csharp
+// this shows how to download historical stock data into a local sqlite database which
+// can then be used for further analysis with the library. This would typically be the first
+// thing you run when you initially try to set up this library.
+var request = Core.Utilities.Import.TimeSeries.Daily;
+await Core.Utilities.Import.Import.ImportStockData(request);
+```
+
+Load all the constituents into memory
+_constituents mean the stocks that make up the indice, in this case, TSX_
+
+```csharp
+var constituents = await Core.Db.Constituents.GetConstituents();
+```
+
+Let's start doing some ad-hoc analysis
+
+```csharp
+ // searching all stocks for the head and shoulders pattern using various input
+// parameters to define the size and sample frequency of how often we look for the pattern
+foreach (var constituent in constituents)
+{
+   Console.WriteLine($"{constituent.Symbol} : Searching for {constituent.Name}...");
+   var stocks = await TimeSeries.GetAllStockDataFor(constituent.Symbol);
+
+   Console.WriteLine("Searching for pattern: Head And Shoulders");
+   var result = stocks.RunWindowBasedSampling(SearchPatterns.HeadAndShoulders, windowSize: 7);
+   if (result != null)
+   {
+       ConsoleTable.From(result).Write();
+   }
+
+   Console.ReadLine();
+   Console.Clear();
+}
+```
+
+
+
+
+
+
+
+
+
 The library uses alpha vantage stuff mostly just to pull in lots of stock data into a local database, at
 which point you can run all sorts of analysis on the data. Because I only have a free API key I have limitations imposed on how often I can run queries, I think it's 5 API requests per minute.  
 To get around this limitation, I think I will set up some sort of Azure Function that runs at specified times, and during the night, will download
