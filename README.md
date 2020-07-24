@@ -1,9 +1,10 @@
 # TraderVI
 
-This project started when I found out that wealthsimple is offering no commission stock trading.
+This project started when I found out that wealthsimple is offering zero commission stock trading.
 https://www.wealthsimple.com/en-ca/product/trade/
+* note that I typically only use the android app and have not checked out if this works on laptop as well.
 
-I leveraged alpha vantage's free stock market API's and built on top of that.
+I leveraged alpha vantage's free stock market API's and built on top of that.[EOF]
 https://www.alphavantage.co/
 
 As a bonus point, wealthsimple is now offering commission free bit coin trading, and alpha vantage has
