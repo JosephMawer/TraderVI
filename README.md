@@ -25,7 +25,6 @@ _This is the site I 'scrap' to grab real time data for free_
 * Learn and implement algoritms for time series data
 * Back test our algorithms to prove they work  
   * _In the context of time-series forecasting, the notion of backtesting refers to the process of assessing the accuracy of a forecasting method using existing historical data. The process is typically iterative and repeated over multiple dates present in the historical data._
-* Make money
 * Build a system that supports ad hoc data analysis, both historical and real time (streamed data), using a fluent system.
 * Build a system that
 
