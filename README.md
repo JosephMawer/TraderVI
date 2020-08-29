@@ -37,7 +37,7 @@ There are a couple of moving parts to this system as it needs to do a few differ
   * Remember, this can only run 5 request per min on the free version, and there are over 200 constituents on the TSX market
   * I am thinking of having this implemented as an **Azure function** and have the database live in the cloud; cosmos db?
   * Why store all this data in a database? to support the ad hoc data analysis required to build systems of indicators, the free API key just won't cut it.
-    * yes, I could pay for the Alpha Vantage API keys that allow me to query... but, I'm cheap... or poor, or don't really have the code to support paying for that, yet.
+    * yes, I could pay for the Alpha Vantage API keys that allow me to query, but I don't really have the code to support paying for that, yet.
   * There will be another table stored for 'intraday' stock data.  This will requested every minute by scraping the tmx money site
     * intraday data is useful to run our algorithms/indicators on short term data to see if the patterns still apply
 * **TMX**
