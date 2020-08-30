@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using db = Core.Db.DailyTimeSeries;
 
 namespace Core.Db
 {
@@ -34,6 +35,16 @@ namespace Core.Db
             return stockData;
         }
 
+        // yea. this exposes a static api/method .. cause sometimes
+        // I prefer thinking of the database in a singleton type of fashion,
+        // just a single static unit.. update, delete, get stuff, etc.
+        // exposing this static interface lets me to use the same object in
+        // both a static and instance way.. whether or not this is a good idea
+        // is debatable.
+        public static async Task Insert(IEnumerable<IStockInfo> stocks)
+        {
+            await new db().InsertDailyStockList(stocks);
+        }
 
         /// <summary>
         /// Inserts a list <see cref="IStockInfo"/> into the Db database
