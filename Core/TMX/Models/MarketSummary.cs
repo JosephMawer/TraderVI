@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Core.TMX
+namespace Core.TMX.Models
 {
-    public class MarketSummaryInfo : IMarketSummaryInfo
+    public struct MarketSummary
     {
         /// <summary>
         /// The date at which the market summary request was sent to and parsed from

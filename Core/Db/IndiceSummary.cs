@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.TMX.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -42,7 +43,7 @@ namespace Core.Db
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public async Task InsertIndiceSummary(IIndexSummary index)
+        public async Task InsertIndiceSummary(MarketIndices index)
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             await base.Insert(sqlQueryStatement,
@@ -62,7 +63,7 @@ namespace Core.Db
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public async Task InsertIndiceSummary(IList<IIndexSummary> indexList)
+        public async Task InsertIndiceSummary(IList<MarketIndices> indexList)
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             foreach (var index in indexList)

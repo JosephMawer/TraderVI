@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Core.TMX;
+using Core.TMX.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,7 +17,7 @@ namespace Core
         /// <summary>
         /// Retreives market indices; stores values in database and prints to console
         /// </summary>
-        public async Task<List<IIndexSummary>> GetDailyIndiceAverages(bool SaveToDatabase = false)
+        public async Task<List<MarketIndices>> GetDailyIndiceAverages(bool SaveToDatabase = false)
         {
             throw new Exception();
             //// Get daily summary of market indices
@@ -34,7 +36,7 @@ namespace Core
         /// <summary>
         /// Retrieves the daily market summary for TSX, TSX Venture, Alpha
         /// </summary>
-        public  async Task<List<IMarketSummaryInfo>> GetDailyMarketSummary(bool saveToDatabase = false)
+        public  async Task<List<MarketSummary>> GetDailyMarketSummary(bool saveToDatabase = false)
         {
             throw new NotImplementedException();
             // Get daily market summary

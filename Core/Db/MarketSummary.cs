@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.TMX.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -29,7 +30,7 @@ namespace Core.Db
             "[Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]") { }
 
 
-        public async Task InsertMarketSummary(IList<IMarketSummaryInfo> tsxList)
+        public async Task InsertMarketSummary(IList<TMX.Models.MarketSummary> tsxList)
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
             foreach (var tsx in tsxList)
@@ -48,7 +49,7 @@ namespace Core.Db
                    });
             }
         }
-        public async Task InsertMarketSummary(IMarketSummaryInfo tsx)
+        public async Task InsertMarketSummary(TMX.Models.MarketSummary tsx)
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
 

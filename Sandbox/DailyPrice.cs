@@ -21,8 +21,7 @@ namespace Sandbox
 {
     public class DailyPrice
     {
-        // https://www.tmxmoney.com/sitemap.xml
-        // https://www.tmxmoney.com/robots.txt
+        
 
 
         // Abot web crawler
@@ -164,7 +163,6 @@ namespace Sandbox
         #endregion
 
 
-
         private static async Task GetDailyPercentGainers()
         {
             var uri = "https://web.tmxmoney.com/marketsca.php?qm_page=99935";
@@ -179,6 +177,7 @@ namespace Sandbox
             var result = await crawler.CrawlAsync(uriToCrawl);
         }
 
+
         /// <summary>
         /// Gets real-time info of daily percent gainers
         /// </summary>
@@ -189,10 +188,10 @@ namespace Sandbox
             //Console.WriteLine(e.CrawledPage.Content.Text);
             var h = e.CrawledPage.AngleSharpHtmlDocument;
             var tmx = new Core.TMX.Market();
-            var summary = tmx.GetMarketSummary(h);
-            var indices = tmx.GetMarketIndices(h);
-            ConsoleTable.From(summary).Write();
-            ConsoleTable.From(indices).Write();
+            //var summary = tmx.GetMarketSummary(h);
+            //var indices = tmx.GetMarketIndices(h);
+            //ConsoleTable.From(summary).Write();
+            //ConsoleTable.From(indices).Write();
           
 
 
@@ -257,7 +256,7 @@ namespace Sandbox
 
         private static void crawler_PageLinksCrawlDisallowed(object sender, PageLinksCrawlDisallowedArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
         private static void crawler_PageCrawlDisallowed(object sender, PageCrawlDisallowedArgs e)

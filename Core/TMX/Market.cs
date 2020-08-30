@@ -1,5 +1,9 @@
-﻿using AngleSharp;
+﻿using Abot2.Crawler;
+using Abot2.Poco;
+using AngleSharp;
 using AngleSharp.Html.Dom;
+using ConsoleTables;
+using Core.TMX.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +16,7 @@ namespace Core.TMX
     /// <summary>
     /// 
     /// </summary>
-    public partial class Market
+    public class Market : TMXBase
     {
         private readonly IConfiguration config;
         private readonly IBrowsingContext context;
@@ -20,6 +24,7 @@ namespace Core.TMX
         private const string TMX_CONSTITUENTS = "https://web.tmxmoney.com/index_constituents.php?qm_symbol=^TSX";
         private const string TMX_MARKETS = "https://web.tmxmoney.com/marketsca.php";
 
+  
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -66,15 +71,20 @@ namespace Core.TMX
         /// <param name="printToConsole"></param>
         /// <param name="saveToFile"></param>
         /// <returns></returns>
-        public List<IMarketSummaryInfo> GetMarketSummary(IHtmlDocument document)
+        public async Task<List<MarketSummary>> GetMarketSummary(bool print = false)
         {
+            Uri uriToCrawl = new Uri("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+         
+            var result = await crawler.CrawlAsync(uriToCrawl);
+
+
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 
             // Parse out the specific grid (market summary) that I am looking for.
             // div.col-12 td means get all divs with a css class of col-12 and then all td's in it.
             // The syntax for query selectors is basically the CSS Selector syntax: https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors
-            var tdata = document.QuerySelectorAll("div.col-12 td");
+            var tdata = HtmlDocument.QuerySelectorAll("div.col-12 td");
 
             // There should be 7 columns
             if (tdata.Length % 7 != 0)
@@ -95,12 +105,12 @@ namespace Core.TMX
                                     .Select(grp => grp.Select(x => x.Value).ToArray())
                                     .ToArray();
 
-            var marketSummary = new List<IMarketSummaryInfo>();
+            var marketSummary = new List<MarketSummary>();
             foreach (var block in chunks)
             {
                 try
                 {
-                    marketSummary.Add(new MarketSummaryInfo
+                    marketSummary.Add(new MarketSummary
                     {
                         Date = timeOfRequest,
                         Name = block[0],
@@ -112,28 +122,35 @@ namespace Core.TMX
                         Decliners = int.Parse(block[6].Replace(",", ""))
                     });
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     Console.WriteLine("Error while parsing market summary" + ex.Message);
                 }
             }
 
+            if (print) ConsoleTable.From(marketSummary).Write();
+
             return marketSummary;
         }
+
+        
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<IIndexSummary> GetMarketIndices(IHtmlDocument document)
+        public async Task<List<MarketIndices>> GetMarketIndices(bool print = false)
         {
+            Uri uriToCrawl = new Uri("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+
+            var result = await crawler.CrawlAsync(uriToCrawl);
+
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 
             // Parse out the specific grid (market summary) that I am looking for.
             // div.col-12 td means get all divs with a css class of col-12 and then all td's in it.
             // The syntax for query selectors is basically the CSS Selector syntax: https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors
-            var tdata = document.QuerySelectorAll("div.col-lg-4 td");
+            var tdata = HtmlDocument.QuerySelectorAll("div.col-lg-4 td");
 
 
 
@@ -146,10 +163,10 @@ namespace Core.TMX
                                     .Select(grp => grp.Select(x => x.Value).ToArray())
                                     .ToArray();
 
-            var dtos = new List<IIndexSummary>();
+            var indiceSummary = new List<MarketIndices>();
             for (int i = 0; i < chunks.Length; i++)
             {
-                dtos.Add(new IndiceSummary
+                indiceSummary.Add(new MarketIndices
                 {
                     Date = timeOfRequest,
                     // The name of the symbol, ex. TSX, ENERGY, FINANCIALS
@@ -161,8 +178,12 @@ namespace Core.TMX
                     PercentChange = float.Parse(chunks[i][3].Replace("%", ""))
                 });
             }
-            return dtos;
+
+            if (print) ConsoleTable.From(indiceSummary).Write();
+
+            return indiceSummary;
         }
+        
         public async Task<List<int>> GetCumulativeDifferential()
         {
             throw new NotImplementedException();

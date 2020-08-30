@@ -7,6 +7,7 @@ using Core.Indicators;
 using Core.Indicators.Models;
 using Core.Indicators.PricePatterns;
 using Core.Math;
+using Core.TMX;
 using Core.Utilities;
 using System;
 using System.Collections.Generic;
@@ -35,10 +36,13 @@ namespace Sandbox
         /// <returns></returns>
         static async Task Main(string[] args)
         {
+            var tmx = new Market();
+            await tmx.GetMarketSummary(print: true);
+
 
             //Core.TMX.Stocks tmx = new Core.TMX.Stocks();
             //var cve = await tmx.RequestTickerInfo("CVE");
-            //await DailyPrice.DailyPriceMain(null);
+            await DailyPrice.DailyPriceMain(null);
 
             // this shows how to download historical stock data into a local sqlite database which
             // can then be used for further analysis with the library. This would typically be the first
@@ -173,7 +177,7 @@ namespace Sandbox
             //}
             #endregion
 
-            #region Command Line Utils "DREAM"
+            #region Command Line Utils DREAM
             // todo - command line utils to run this tool daily, manually
 
             // dotnet run program -c
