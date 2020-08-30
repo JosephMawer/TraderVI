@@ -24,10 +24,6 @@ namespace Core.TMX
         private readonly string TMX_CONSTITUENTS = "https://web.tmxmoney.com/index_constituents.php?qm_symbol=^TSX";
         private readonly string TMX_MARKETS = "https://web.tmxmoney.com/marketsca.php";
 
-  
-        /// <summary>
-        /// Default constructor
-        /// </summary>
         public Market() { }
 
 
