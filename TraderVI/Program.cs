@@ -11,26 +11,21 @@ namespace TraderVI
         {
             Console.WriteLine("Choose an option:");
             Console.WriteLine("1. Import stock data to TraderVI");
-            Console.WriteLine("2. Ad-Hoc Analysis");
+            Console.WriteLine("2. Ad-Hoc Analysis (on local database)");
 
        
-            var market = new Market();
-            Stopwatch sw = Stopwatch.StartNew();
+            
             var tasks = new Task[]
             {
-                new Market().GetMarketSummary(),
-                new Market().GetMarketIndices(),
-                new Market().GetConstituents()
+                new Market().GetMarketSummary(true),
+                new Market().GetMarketIndices(true),
+                new Market().GetConstituents(true)
             };
             Task.WaitAll(tasks);
-            Console.WriteLine(sw.ElapsedMilliseconds);
-
-            sw = Stopwatch.StartNew();
-            
-            await market.GetMarketSummary(print: false);
-            await market.GetMarketIndices(print: false);
-            await market.GetConstituents(print: false);
-            Console.WriteLine(sw.ElapsedMilliseconds);
+            //var market = new Market();
+            //await market.GetMarketSummary(true);
+            //await market.GetMarketIndices(true);
+            //await market.GetConstituents(true);
 
             Console.ReadLine();
         }

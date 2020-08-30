@@ -1,21 +1,8 @@
 ﻿using Abot2.Crawler;
 using Abot2.Poco;
-using AlphaVantage.Net.Stocks;
-using AlphaVantage.Net.Stocks.TimeSeries;
-using Core;
-using Core.Db;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-using AngleSharp.Dom;
-using ConsoleTables;
 using AngleSharp.Html.Dom;
+using System;
+using System.Threading.Tasks;
 
 namespace Core.TMX
 {
@@ -29,10 +16,7 @@ namespace Core.TMX
 
         protected IHtmlDocument HtmlDocument { get; set; }
 
-        public TMXBase()
-        {
-           
-        }
+        public TMXBase() { }
 
 
         protected async Task Crawler(string url)

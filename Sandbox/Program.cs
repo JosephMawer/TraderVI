@@ -52,7 +52,7 @@ namespace Sandbox
 
 
 
-            // load all constituents into memory
+            // load all constituents into memory from local database
             Constituents = await Core.Db.Constituents.GetConstituents();
 
 
@@ -177,21 +177,7 @@ namespace Sandbox
             //}
             #endregion
 
-            #region Command Line Utils DREAM
-            // todo - command line utils to run this tool daily, manually
-
-            // dotnet run program -c
-
-            // -c = complete scan
-            // -s --save, args: true/false      :: by default, save is set to false, you have to specify if you want it to save
-            // dotnet run program -c --save true 
-
-            // dotnet run program -a
-            // -a --alert   :: checks for alerts (returns a list of stocks on the alert list)
-
-            // dotnet run program -ad
-            // -ad  --advance-decline   :: gets the advance decline line
-            #endregion
+       
 
 
 

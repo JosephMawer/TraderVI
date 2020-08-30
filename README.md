@@ -230,3 +230,23 @@ Price | Volume | OBV | RSI | EMA | SMA
 
  simple backfitting test
  read in stock data for 
+
+
+
+
+Would be cool to have command line arguments ... still not sure on what parts of the system
+will be console, GUI, background service, web service, etc.
+            // todo - command line utils to run this tool daily, manually
+
+            // dotnet run program -c
+
+            // -c = complete scan
+            // -s --save, args: true/false      :: by default, save is set to false, you have to specify if you want it to save
+            // dotnet run program -c --save true 
+
+            // dotnet run program -a
+            // -a --alert   :: checks for alerts (returns a list of stocks on the alert list)
+
+            // dotnet run program -ad
+            // -ad  --advance-decline   :: gets the advance decline line
+           

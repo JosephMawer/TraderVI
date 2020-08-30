@@ -21,19 +21,14 @@ namespace Core.TMX
         private readonly IConfiguration config;
         private readonly IBrowsingContext context;
 
-        private const string TMX_CONSTITUENTS = "https://web.tmxmoney.com/index_constituents.php?qm_symbol=^TSX";
-        private const string TMX_MARKETS = "https://web.tmxmoney.com/marketsca.php";
+        private readonly string TMX_CONSTITUENTS = "https://web.tmxmoney.com/index_constituents.php?qm_symbol=^TSX";
+        private readonly string TMX_MARKETS = "https://web.tmxmoney.com/marketsca.php";
 
   
         /// <summary>
         /// Default constructor
         /// </summary>
-        public Market()
-        {
-            config = Configuration.Default.WithDefaultLoader();
-            context = BrowsingContext.New(config);
-            
-        }
+        public Market() { }
 
 
         /// <summary>
@@ -83,10 +78,10 @@ namespace Core.TMX
         /// <param name="printToConsole"></param>
         /// <param name="saveToFile"></param>
         /// <returns></returns>
-        public async Task<List<TMX.Models.MarketSummary>> GetMarketSummary(bool print = false)
+        public async Task<List<Models.MarketSummary>> GetMarketSummary(bool print = false)
         {
-            await Crawler("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
-            
+            await Crawler(TMX_MARKETS);//("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+
 
 
             // Record the time the request was sent/received (approximate is fine)
@@ -151,8 +146,8 @@ namespace Core.TMX
         /// <returns></returns>
         public async Task<List<MarketIndices>> GetMarketIndices(bool print = false)
         {
-            await Crawler("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
-   
+            await Crawler(TMX_MARKETS);//("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 
