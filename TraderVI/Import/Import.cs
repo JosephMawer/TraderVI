@@ -8,7 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.SQLite;
-using db = Core.Db.DailyTimeSeries;
+using dts = Core.Db.DailyTimeSeries;
+using cts = Core.Db.Constituents;
 using Core.Db;
 
 namespace TraderVI.Import
@@ -79,15 +80,15 @@ namespace TraderVI.Import
         private static async Task AddStockDataToDatabase(ConstituentInfo constituent)
         {
             var symbol = constituent.Symbol;
+            
             if (!BlackList.Contains(symbol))
             {
                 try
                 {
-                    Debug.WriteLine("Download symbol info for: " + symbol);
                     var data = await GetDailyTimeSeriesData(symbol + ".TO");
-                    await db.Insert(data);
-
-                    Debug.WriteLine("Successfully downloaded data at " + DateTime.Now);
+                    await dts.Insert(data);
+                    
+                    Debug.WriteLine($"{DateTime.Now} - Imported {symbol}");
                         
                     // we need to wait between each request because we are using the 
                     // free version of alpha vantage... experimenting with how long..
@@ -99,6 +100,8 @@ namespace TraderVI.Import
             }
         }
 
+        
+
         private static async Task LoadAllConstituents()
         {
             // load the most recent market constituents from tmx site.
@@ -107,21 +110,21 @@ namespace TraderVI.Import
             var constituents = await market.GetConstituents();
 
             // create local database
-            Scripts.EnsureDbExists(overwrite: true);
+            Scripts.CreateDatabase();
 
             // check for tickers that don't work with alpha vantage
             foreach (var constituent in constituents)
-                EnsureRequestIsValid(constituent);
-
-           
+                if (EnsureRequestIsValid(constituent))
+                    await cts.Insert(constituent.Name, constituent.Symbol); 
         }
 
-        private static void EnsureRequestIsValid(ConstituentInfo constituent)
+        private static bool EnsureRequestIsValid(ConstituentInfo constituent)
         {
             // todo: make an alpha vantage call here to ensure the ticker is 
             // working as expected.. i.e. 200 status code is returned.  
 
             // In some cases, the calls would fail.
+            return true;
         }
 
 

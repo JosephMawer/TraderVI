@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading.Tasks;
@@ -16,9 +17,9 @@ namespace Core.Db
         /// <summary>
         /// The connection string for an instance
         /// </summary>
-        internal string ConnectionString = @"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
+        internal string ConnectionString = Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
-        public static string Database = @"Data Source=c:\noso\stocks.db;Version=3;";
+        public static string Database = Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";
 
         /// <summary>
         /// Default constructor

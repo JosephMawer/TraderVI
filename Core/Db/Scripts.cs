@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Core.Utilities;
 using System.Data.SQLite;
-using System.Text;
 
 namespace Core.Db
 {
     // scripts... for lack of a better name. wow.
     public static class Scripts
     {
-        public static void EnsureDbExists(bool overwrite = false)
+        private static readonly string[] Tables =
         {
-            // run the setup scripts to create and initialize the db
-            using var con = new SQLiteConnection($"Data Source=.;Initial Catalog=Db;Integrated Security=True;");
-            con.Open();
-            var query = "";
-            using var cmd = new SQLiteCommand(query, con);
-            cmd.ExecuteNonQueryAsync();
-        }
+            "CREATE TABLE `Constituents` (`Name` TEXT,`Symbol` TEXT)",
+            "CREATE TABLE `DailyStock` (`Date` TEXT,`Ticker` TEXT,`Open`	REAL,`Close` REAL,`Volume` NUMERIC,`High` REAL,`Low` REAL)"
+        };
 
-//        public string DailyStock = "CREATE TABLE "DailyStock" (
-//	"Date"	TEXT,
-//	"Ticker"	INTEGER,
-//	"Open"	REAL,
-//	"Close"	REAL,
-//	"Volume"	NUMERIC,
-//	"High"	REAL,
-//	"Low"	REAL
-//);"
+        public static void CreateDatabase()
+        {
+            using var con = new SQLiteConnection(Utils.GetConnectionString);
+            con.Open();
+            foreach (var query in Tables)
+            {
+                using var cmd = new SQLiteCommand(query, con);
+                cmd.ExecuteNonQuery();
+            }
+        }
 	}
 }

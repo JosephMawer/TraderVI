@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading.Tasks;
-
+using db = Core.Db.Constituents;
 namespace Core.Db
 {
     public class Constituents : SQLiteBase
     {
         public Constituents() : base("[Constituents]", "[Name],[Symbol]") { }
+
+        // expose static api over this class
+        public static async Task Insert(string name, string symbol)
+            => await new db().InsertConstituent(name, symbol);
 
         /// <summary>
         /// Inserts a symbol into the Symbols table

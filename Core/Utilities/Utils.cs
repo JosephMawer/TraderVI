@@ -1,12 +1,21 @@
 ﻿using System;
-using System.Data.SQLite;
 using System.IO;
 
 namespace Core.Utilities
 {
     public static class Utils
     {
-
+        public static string GetConnectionString
+        {
+            get
+            {
+                // todo: cache this value to avoid using reflection all the time..
+                var path = AppDomain.CurrentDomain.BaseDirectory;
+                var fullPath = Path.Combine(path, "TraderVI.db");   // todo: move TraderVI.db into constants file
+                var connectionString = $"Data Source={fullPath}";
+                return connectionString;
+            }
+        }
         /// <summary>
         /// Gets the date from a specified amount of days (adjusts for weekends)
         /// </summary>
@@ -65,9 +74,5 @@ namespace Core.Utilities
 
             return _date;
         }
-
-
-     
-
     }
 }
