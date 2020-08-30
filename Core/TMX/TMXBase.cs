@@ -25,11 +25,17 @@ namespace Core.TMX
     public abstract class TMXBase
     {
         // Abot web crawler
-        protected static IWebCrawler crawler;
+        protected IWebCrawler crawler;
 
         protected IHtmlDocument HtmlDocument { get; set; }
 
         public TMXBase()
+        {
+           
+        }
+
+
+        protected async Task Crawler(string url)
         {
             var config = new CrawlConfiguration
             {
@@ -38,6 +44,9 @@ namespace Core.TMX
             };
             crawler = new PoliteWebCrawler(config);
             crawler.PageCrawlCompleted += PageCrawlCompleted;
+            Uri uriToCrawl = new Uri(url);
+
+            var result = await crawler.CrawlAsync(uriToCrawl);
         }
 
         /// <summary>

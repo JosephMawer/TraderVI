@@ -1,5 +1,6 @@
 ﻿using Core.TMX;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace TraderVI
@@ -12,12 +13,24 @@ namespace TraderVI
             Console.WriteLine("1. Import stock data to TraderVI");
             Console.WriteLine("2. Ad-Hoc Analysis");
 
-
+       
             var market = new Market();
-            await market.GetMarketSummary(print: true);
-            await market.GetMarketIndices(print: true);
+            Stopwatch sw = Stopwatch.StartNew();
+            var tasks = new Task[]
+            {
+                new Market().GetMarketSummary(),
+                new Market().GetMarketIndices(),
+                new Market().GetConstituents()
+            };
+            Task.WaitAll(tasks);
+            Console.WriteLine(sw.ElapsedMilliseconds);
 
-
+            sw = Stopwatch.StartNew();
+            
+            await market.GetMarketSummary(print: false);
+            await market.GetMarketIndices(print: false);
+            await market.GetConstituents(print: false);
+            Console.WriteLine(sw.ElapsedMilliseconds);
 
             Console.ReadLine();
         }

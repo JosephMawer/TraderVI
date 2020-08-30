@@ -29,6 +29,7 @@ _This is the site I 'scrap' to grab real time data for free_
 * Build a system that allows the continuous running of ad hoc analysis, and chaining together of these analysis
 * Build a rules system that allows for setting up certain rules/conditions to check for on
   chaining together technical analysis/indicators.  (or find an open source project for this)
+* Trend discovery/analysis
 
 ## Birds Eye View Of The System
 
@@ -44,7 +45,7 @@ There are a couple of moving parts to this system as it needs to do a few differ
     * intraday data is useful to run our algorithms/indicators on short term data to see if the patterns still apply
 * **TMX**
   * This is a folder in 'core' that basically scrapes the tmx money site to gather intraday data and store it in our database
-  * It will also be used to run algorithms/indicators/systems on live data
+  *** It will also be used to run algorithms/indicators/systems on live data
   * We will need other methods for collecting real time data on different stock markets, perhaps this is when we justify paying for
   Alpha Vantage API key, or finding a new API, such as Alpaca?
   * Currently, I have only really be interested in trading on TSX because they are companies I know and understand, no exchange fees, and

@@ -18,15 +18,24 @@ namespace Core.TMX.Models
         /// </summary>
         public long Volume { get; set; }
         /// <summary>
-        /// 
+        /// The current monetary value of the indice.
         /// </summary>
         public long Value { get; set; }
+        /// <summary>
+        /// The total number of issues traded for the given indice.
+        /// </summary>
         public int IssuesTraded { get; set; }
         /// <summary>
-        /// The number of stocks that have advanced at time of request
+        /// The number of stocks that have increased price action.
         /// </summary>
         public int Advancers { get; set; }
+        /// <summary>
+        /// The number of stocks that have no price action.
+        /// </summary>
         public int Unchanged { get; set; }
+        /// <summary>
+        /// The number of stocks that have declined price action.
+        /// </summary>
         public int Decliners { get; set; }
     }
 }

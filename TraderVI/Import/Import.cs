@@ -1,28 +1,33 @@
 ﻿using AlphaVantage.Net.Stocks;
 using AlphaVantage.Net.Stocks.TimeSeries;
+using Core;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Core.Utilities.Import
+namespace TraderVI.Import
 {
     public enum TimeSeries
     {
         Daily,
         Intraday
     }
-    public class Import
+
+    /// <summary>
+    /// helper class for getting set up locally with a database of historical data.
+    /// Note: it takes a while to import all stock data.
+    /// </summary>
+    public static class Import
     {
         private static async Task<List<IStockInfo>> GetDailyTimeSeriesData(AlphaVantageStocksClient client, string ticker, TimeSeries timeSeries)
         {
             var stockData = new List<IStockInfo>();
 
             StockTimeSeries stockTimeSeries;
-            
+
             if (timeSeries == TimeSeries.Daily)
             {
                 stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Full, adjusted: false);
@@ -51,25 +56,35 @@ namespace Core.Utilities.Import
         }
         private static List<string> GetBlackListedConstituents()
         {
-            var blackList = new List<string>();
-            var path = @"C:\Users\joseph.mawer.IDEA\Desktop\blacklist.txt";
-            var blackListeSymbols = File.ReadAllLines(path);
-            blackList.AddRange(blackListeSymbols);
-            return blackList;
+            // todo: run test to verify if the ticker request fails or not, via http
+
+            #region old code
+            //var blackList = new List<string>();
+            //var path = @"C:\Users\joseph.mawer.IDEA\Desktop\blacklist.txt";
+            //var blackListeSymbols = File.ReadAllLines(path);
+            //blackList.AddRange(blackListeSymbols);
+            //return blackList;
+            #endregion
+
+            return default;
         }
 
         /// <summary>
         /// Use this method to download stock data using alpha vantage API and import it into the sqlite database 
         /// this takes quite a while because we have the 'free' version / api key, so we have to wait 20+ seconds 
-        /// between each request. It will only import the data to sqlite if there is not any data already existing 
-        /// in the database. So consider using this the first time you want to download data and initialize db with data.
+        /// between each request. 
+        /// 
+        /// It will only import the data to sqlite if there is not any data already existing 
+        /// in the database. 
+        /// 
+        /// Consider using this the first time you want to download data and initialize db with data.
         /// </summary>
         public static async Task ImportStockData(TimeSeries timeSeries)
         {
             var client = new AlphaVantageStocksClient(Constants.apiKey);
 
             var db = new Core.Db.DailyTimeSeries();
-            var constituents = await Db.Constituents.GetConstituents(); // get full list
+            var constituents = await Core.Db.Constituents.GetConstituents(); // get full list
 
             // list of tickers that don't work with alpha vantage
             var blackList = GetBlackListedConstituents();

@@ -1,11 +1,10 @@
-﻿using Abot2.Crawler;
-using Abot2.Poco;
-using AngleSharp;
-using AngleSharp.Html.Dom;
+﻿using AngleSharp;
 using ConsoleTables;
+using Core.Db;
 using Core.TMX.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,7 +13,8 @@ using System.Threading.Tasks;
 namespace Core.TMX
 {
     /// <summary>
-    /// 
+    /// Gets high level information about the canadian market from the
+    /// tmx website.
     /// </summary>
     public class Market : TMXBase
     {
@@ -32,6 +32,7 @@ namespace Core.TMX
         {
             config = Configuration.Default.WithDefaultLoader();
             context = BrowsingContext.New(config);
+            
         }
 
 
@@ -41,13 +42,11 @@ namespace Core.TMX
         /// all constituents are used to calculate the value of the index.
         /// </summary>
         /// <returns></returns>
-        private async Task GetConstituents()
+        public async Task<List<ConstituentInfo>> GetConstituents(bool print = false)
         {
-            var document = await context.OpenAsync(TMX_CONSTITUENTS);
-
-            // the html defines a table that holds all constituents with class name:
-            // table-responsive contituents-table 
-            var constituents = document.All.Where(m => m.ClassName == "table-responsive contituents-table");
+            await Crawler(TMX_CONSTITUENTS);
+            
+            var constituents = HtmlDocument.QuerySelectorAll("div.col-lg-10 td");
 
             // we now have an html table with each table row looking like this:
             //<tr>
@@ -55,14 +54,27 @@ namespace Core.TMX
             //  <td style="text-align:right;"><a href="quote.php?qm_symbol=RY">RY</a></td>
             //</tr>
 
-            var sb = new StringBuilder();
-            foreach (var c in constituents)
-            {
-                sb.Append(c.TextContent);
-                sb.Append(Environment.NewLine);
-            }
-            //File.WriteAllText(@"C:\src\#Projects\alphaVantageDemo\tmp\html\constituents.html", sb.ToString());
 
+            var constituentInfo = new List<ConstituentInfo>();
+
+            var total = constituents.Length;
+            var currentCount = 0;
+            while (currentCount < total)
+            {
+                var tableData = constituents.Skip(currentCount).Take(2);
+                var cf = new ConstituentInfo
+                {
+                    Name = tableData.ElementAt(0).TextContent,
+                    Symbol = tableData.ElementAt(1).TextContent
+                };
+
+                constituentInfo.Add(cf);
+                currentCount += 2;
+            }
+            
+            if (print) ConsoleTable.From(constituentInfo).Write();
+
+            return constituentInfo;
         }
 
         /// <summary>
@@ -71,11 +83,10 @@ namespace Core.TMX
         /// <param name="printToConsole"></param>
         /// <param name="saveToFile"></param>
         /// <returns></returns>
-        public async Task<List<MarketSummary>> GetMarketSummary(bool print = false)
+        public async Task<List<TMX.Models.MarketSummary>> GetMarketSummary(bool print = false)
         {
-            Uri uriToCrawl = new Uri("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
-         
-            var result = await crawler.CrawlAsync(uriToCrawl);
+            await Crawler("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+            
 
 
             // Record the time the request was sent/received (approximate is fine)
@@ -105,12 +116,12 @@ namespace Core.TMX
                                     .Select(grp => grp.Select(x => x.Value).ToArray())
                                     .ToArray();
 
-            var marketSummary = new List<MarketSummary>();
+            var marketSummary = new List<TMX.Models.MarketSummary>();
             foreach (var block in chunks)
             {
                 try
                 {
-                    marketSummary.Add(new MarketSummary
+                    marketSummary.Add(new TMX.Models.MarketSummary
                     {
                         Date = timeOfRequest,
                         Name = block[0],
@@ -140,10 +151,8 @@ namespace Core.TMX
         /// <returns></returns>
         public async Task<List<MarketIndices>> GetMarketIndices(bool print = false)
         {
-            Uri uriToCrawl = new Uri("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
-
-            var result = await crawler.CrawlAsync(uriToCrawl);
-
+            await Crawler("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
+   
             // Record the time the request was sent/received (approximate is fine)
             var timeOfRequest = DateTime.Now;
 
