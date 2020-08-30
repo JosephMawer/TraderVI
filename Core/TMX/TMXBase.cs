@@ -13,18 +13,17 @@ namespace Core.TMX
     {
         // Abot web crawler
         protected IWebCrawler crawler;
-
         protected IHtmlDocument HtmlDocument { get; set; }
 
         public TMXBase() { }
 
-
         protected async Task Crawler(string url)
         {
+            // not the best use case for this crawler... since I am not really crawling,
+            // just simply reading an html page...
             var config = new CrawlConfiguration
             {
-                MaxPagesToCrawl = 1, //Only crawl 10 pages
-                MinCrawlDelayPerDomainMilliSeconds = 3000 //Wait this many millisecs between requests
+                MaxPagesToCrawl = 1,
             };
             crawler = new PoliteWebCrawler(config);
             crawler.PageCrawlCompleted += PageCrawlCompleted;
@@ -40,8 +39,6 @@ namespace Core.TMX
         /// <param name="sender"></param>
         /// <param name="e"></param>
         protected void PageCrawlCompleted(object sender, PageCrawlCompletedArgs e)
-        {
-            HtmlDocument = e.CrawledPage.AngleSharpHtmlDocument;
-        }
+            => HtmlDocument = e.CrawledPage.AngleSharpHtmlDocument;
     }
 }
