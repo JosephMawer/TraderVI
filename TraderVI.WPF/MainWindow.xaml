@@ -1,0 +1,486 @@
+﻿<Window x:Class="TraderVI.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TraderVI.WPF"
+        xmlns:repository="clr-namespace:TraderVI.Core.Repositories;assembly=Core"
+          xmlns:converters="clr-namespace:TraderVI.WPF.Converters"
+        mc:Ignorable="d"
+        Background="#252525"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+     TextElement.FontWeight="Regular"
+     TextElement.FontSize="13"
+     TextOptions.TextFormattingMode="Ideal"
+     TextOptions.TextRenderingMode="Auto"
+     FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="Trader Vi" Height="650" Width="1040">
+
+
+    <Window.Resources>
+        <converters:NullToBooleanConverter x:Key="nullToBooleanConverter"/>
+        <converters:ValueToForegroundColorConverter x:Key="valueToForegourndColorConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+
+
+
+                <!-- Header -->
+            <Border BorderBrush="Yellow" BorderThickness="0 0 0 1" Margin="5 0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="130"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Market Info -->
+                    <StackPanel>
+                        <TextBlock x:Name="txtTSX" Text="TSX" Foreground="#ebebeb" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontSize="20" Margin="0 5 0 0"/>
+                        <TextBlock x:Name="txtTSXPrice" Text="18,060.26" Foreground="#ebebeb" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontSize="18" Margin="0 5 0 0"/>
+                        <TextBlock x:Name="txtTSXDirection" Text="163.28 (0.896%)" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontSize="14" Margin="0 5 0 0"/>
+                    </StackPanel>
+
+                    <!-- Account Info -->
+                    <Grid Grid.Column="2" Margin="50 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Available to trade: " Foreground="#ebebeb" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtAvailableToTrade" Grid.Column="1" Text="$199.05" Foreground="#ebebeb" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock x:Name="txtMarketHours" Text="" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                       Foreground="#f03434" FontSize="19"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Login Group-->
+                    <Grid Grid.Column="3" Margin="10 0 0 0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                            <Border x:Name="loginborder" BorderBrush="Green" BorderThickness="1" Margin="10">
+
+                                <TextBlock Grid.Column="2" Text="WS TRADE" Foreground="#ebebeb"
+                           FontWeight="SemiBold" Margin="3"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <materialDesign:PopupBox StaysOpen="True" IsEnabled="True">
+                                <Grid Width="300" Margin="8,8,8,8">
+                                    <Grid.Resources>
+
+                                        <Style TargetType="TextBox"
+                                            BasedOn="{StaticResource MaterialDesignTextBox}">
+                                            <Setter Property="materialDesign:HintAssist.IsFloating"
+                                                Value="True" />
+                                            <Setter Property="Margin"
+                                                Value="8,8,8,8" />
+                                        </Style>
+                                    </Grid.Resources>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition
+          Height="*" />
+                                        <RowDefinition
+          Height="*" />
+                                        <RowDefinition
+          Height="*" />
+                                        <RowDefinition
+          Height="*" />
+                                        <RowDefinition
+          Height="*" />
+                                        <RowDefinition
+          Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                        Grid.Row="0"
+                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                        Margin="8,8,8,16"
+                                        Text="LOGIN" />
+                                    <TextBox x:Name="txtLoginEmail"
+                                             Grid.Column="0"
+                                             Grid.Row="1"
+                                             materialDesign:HintAssist.Hint="Email" />
+                                    <TextBox x:Name="txtLoginPassword"
+                                            Grid.Column="0"
+                                            Grid.Row="2"
+                                            materialDesign:HintAssist.Hint="Password" />
+                                    <TextBox x:Name="txtLoginOtp"
+                                            Grid.Column="0"
+                                            Grid.Row="3"
+                                            materialDesign:HintAssist.Hint="OTP" />
+
+
+                                    <StackPanel
+                                            Grid.Row="5"
+                                            Grid.ColumnSpan="2"
+                                            Orientation="Horizontal"
+                                            HorizontalAlignment="Right">
+                                        <Button
+                                            Content="_Save"
+                                            Click="loginSubmitClick"
+                                            Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}" />
+                                        <Button
+                                            Content="_Cancel"
+                                            Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}">
+                                            <Button.Style>
+                                                <Style
+              TargetType="Button"
+      >
+                                                    <Setter
+                Property="Foreground"
+                Value="Red" />
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </materialDesign:PopupBox>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+
+            <Grid Grid.Row="1">
+                <TabControl TabStripPlacement="Top" Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
+  materialDesign:ColorZoneAssist.Mode="Dark">
+                    <TabItem Header="Overview" Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="350"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Margin="10 12 15 5">
+                                <TextBlock Text="Currently trading..." FontSize="24"/>
+                                <!-- piece together your own items control to create some nice stuff that will make everyone think you are cool. and rightly so, because you are cool.  you might even be a hipster for all I know -->
+                                <ItemsControl ItemsSource="{Binding ActiveTrades}"
+                                              Grid.IsSharedSizeScope="True">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type repository:Trade}">
+                                            <materialDesign:Card Padding="5" Margin="0 15 0 2">
+                                                <!-- Ticker Info -->
+                                                <Grid Margin="0 0 0 0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <WrapPanel>
+                                                        <TextBlock Text="{Binding Symbol}" Margin="0 5 0 0"  FontSize="20" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Price,StringFormat='{}{0:c}'}" Foreground="Green" FontSize="18" Margin="5 0 0 2"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                                                    </WrapPanel>
+
+
+                                                    <!--<Button Grid.Column="1"  Click="QuickOrderSellButotnClick"  Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                               Width="60" HorizontalAlignment="Right"
+                                                ToolTip="Quick buy always places a limit order a few cents above the asking price">
+                                                        Sell
+                                                    </Button>-->
+
+                                                    <StackPanel Grid.Row="2">
+                                                        <TextBlock x:Name="txtCurrentlyTradingName" Grid.Row="1" Text="West port fuel systems"/>
+                                             
+                                                        <WrapPanel Grid.Row="3">
+                                                            <TextBlock Text="Trailing Stop: " HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                            <TextBlock  Text="{Binding StopLimit,StringFormat='{}{0:c}'}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                        </WrapPanel>
+                                                        <WrapPanel Grid.Row="3">
+                                                            <TextBlock Text="Profits locked in: " HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                            <TextBlock Text="{Binding TotalProfit,StringFormat='{}{0:c}'}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                        </WrapPanel>
+                                                    </StackPanel>
+
+                                                </Grid>
+
+                                            </materialDesign:Card>
+                                            <!--<DataTemplate.Triggers>
+                                                <DataTrigger
+          Binding="{Binding IsSelected}"
+          Value="True">
+                                                    <Setter
+            TargetName="Border"
+            Property="Background"
+            Value="{DynamicResource MaterialDesignSelection}" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>-->
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <!--<materialDesign:Card Padding="5" Margin="0 15 0 2">
+                                    --><!-- Ticker Info --><!--
+                                    <Grid Margin="0 0 0 0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <WrapPanel>
+                                            <TextBlock x:Name="txtTicker" Text="WPRT" Margin="0 5 0 0"
+                                                FontSize="20" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="txtTickerPrice" Text="$7.89" Foreground="Green"
+                                                       FontSize="18" Margin="5 0 0 2"
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                                        </WrapPanel>
+                                  
+
+                                        <Button Grid.Column="1"  Click="QuickOrderSellButotnClick"  Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                               Width="60" HorizontalAlignment="Right"
+                                                ToolTip="Quick buy always places a limit order a few cents above the asking price">
+                                            Sell
+                                        </Button>
+
+                                        <StackPanel Grid.Row="2">
+                                            <TextBlock x:Name="txtCurrentlyTradingName" Grid.Row="1" Text="West port fuel systems"/>
+                                            --><!--<WrapPanel Grid.Row="2">
+                                                <TextBlock Text="Current Price: "
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                <TextBlock x:Name="txtTickerPrice" Text="$7.89" Foreground="Green"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            </WrapPanel>--><!--
+                                            <WrapPanel Grid.Row="3">
+                                                <TextBlock Text="Trailing Stop: "
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                <TextBlock x:Name="txtStopLimit" Text="$7.43"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            </WrapPanel>
+                                            <WrapPanel Grid.Row="3">
+                                                <TextBlock Text="Profits locked in: "
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                                <TextBlock x:Name="txtProfit"  Text="$2.32"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+
+                                    </Grid>
+
+                                </materialDesign:Card>-->
+
+                   
+
+                          
+                            </StackPanel>
+                            
+                            <!-- Watch list --> 
+                            <StackPanel Grid.Column="1" Margin="5" HorizontalAlignment="Center">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Watch List" VerticalAlignment="Center"  Style="{StaticResource MaterialDesignHeadline5TextBlock}"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                       
+                                        <TextBox x:Name="txtSymbolForWatchList" Grid.Column="1"
+                                                 Width="200"
+                                                materialDesign:TextFieldAssist.HasClearButton="True"
+                                                  materialDesign:HintAssist.Hint="Add Symbol"
+                                                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                  VerticalAlignment="Center" Margin="0 0 10 0"/>
+                                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="MaterialDesignIconButton"
+                                                Click="addSymbolToWatchListClick"
+                                            Background="{DynamicResource MaterialDesignTextFieldBoxBackground}">
+                                            <materialDesign:PackIcon Kind="Plus" />
+                                        </Button>
+                                    </StackPanel>
+
+                                </Grid>
+                                <Grid IsEnabled="{Binding WatchListSelectedItem, Converter={StaticResource nullToBooleanConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock x:Name="txtSelectedWatchListItemSymbol" Text="WPRT"/>
+                                        <TextBlock x:Name="txtSelectedWatchListItemDescription" Grid.Row="1" Text="West port fuel systems"/>
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Click="QuickOrderButtonClick"
+                                                Margin="20 0 20 0"
+                                                 materialDesign:ButtonProgressAssist.Value="-1"
+                                                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsDeletingFromWatchlist}"
+                                                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsDeletingFromWatchlist}"
+                                                  Style="{StaticResource MaterialDesignFlatDarkBgButton}"
+                                            IsEnabled="{Binding WatchListSelectedItem, Converter={StaticResource nullToBooleanConverter}}"
+                                                  Content="Buy" />
+
+                                        <Button x:Name="btnSell" Grid.Column="1"  Click="QuickOrderSellButotnClick" Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                               Width="60" Margin="20 0 20 0" HorizontalAlignment="Right">
+                                            Sell
+                                        </Button>
+
+                                        <Button Click="DeleteWatchListItemClick"
+                                                Margin="0 0 0 0"
+                                                 materialDesign:ButtonProgressAssist.Value="-1"
+                                                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsDeletingFromWatchlist}"
+                                                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsDeletingFromWatchlist}"
+                                                  Style="{StaticResource MaterialDesignFlatDarkBgButton}"
+                                                  ToolTip="MaterialDesignFlatDarkButton"
+                                            IsEnabled="{Binding WatchListSelectedItem, Converter={StaticResource nullToBooleanConverter}}"
+                                                  Content="Remove" />
+                                    </StackPanel>
+                                </Grid>
+                                
+                                <ListView x:Name="lstWatchList" Grid.Row="1" ItemsSource="{Binding WatchList}" SelectedItem="{Binding WatchListSelectedItem}">
+                                    <ListView.View>
+                            
+                                            <GridView>
+                                            
+                                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}"
+                                                    Header="Symbol" Width="120"/>
+                                            <GridViewColumn DisplayMemberBinding="{Binding Price,StringFormat='{}{0:c}'}"
+                                                    Header="Price"/>
+                                            <GridViewColumn DisplayMemberBinding="{Binding PriceChange}"
+                                                    Header="PriceChange" >
+                                                <!--<GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <GridViewRowPresenter>
+                                                            <GridViewRowPresenter.Effect>
+                                                                
+                                                            </GridViewRowPresenter.Effect>
+                                                            <TextBlock x:Name="Txt" Text="{Binding PriceChange}" Foreground="{Binding PriceChange, Converter={StaticResource valueToForegourndColorConverter}}"  />
+                                                        </GridViewRowPresenter>
+                                                        
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>-->
+                                            </GridViewColumn>
+                                            <GridViewColumn DisplayMemberBinding="{Binding PercentChange}"
+                                                    Header="Percent Change" />
+                                            <GridViewColumn DisplayMemberBinding="{Binding Volume}"
+                                                        Header="Volume" />
+                                            <!--<GridViewColumn DisplayMemberBinding="{Binding TradeVolume}"
+                                                        Header="Trade Volume" />-->
+                                 
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Market"  Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                        <TextBlock>
+                              <Run
+                                Text="tab 1 content. Default look and behaviors." />
+                              <LineBreak />
+                              <LineBreak />
+                              <Run
+                                FontStyle="Italic">
+                              Add TSX content here
+                            </Run>
+                        </TextBlock>
+                    </TabItem>
+
+                    <TabItem Header="Rules"  Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                        <TextBlock>
+                          <Run
+                            Text="tab 3 content. Default look and right aligned. " />
+                          <LineBreak />
+                          <LineBreak />
+                          <Run
+                            FontStyle="Italic">
+                          Use this tab to define custom rules and behaviours that can be attached to (open) orders.
+                        </Run>
+                        </TextBlock>
+                    </TabItem>
+                    <TabItem Header="Orders" Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Margin="0 10 0 0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Button Width="100" Margin="2" Click="searchOrdersClick" HorizontalAlignment="Left">Refresh</Button>
+                                <!--<CheckBox Grid.Row="1" Content="Auto Refresh"/>-->
+
+                                <StackPanel Grid.RowSpan="2" Grid.Column="1">
+                                    <CheckBox x:Name="chkShowCancelled" Content="Show Cancelled"/>
+                                    <CheckBox x:Name="chkShowRejected" Content="Show Rejected"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Grid.RowSpan="2" Orientation="Horizontal" Margin="10 3">
+                                    <TextBlock Text="Total Earnings: "/>
+                                    <TextBlock x:Name="txtTotalEarnings" Text="$0.00"/>
+                                </StackPanel>
+                            </Grid>
+                            <ListView x:Name="lstOrders" Grid.Row="1" ItemsSource="{Binding OrdersViewModel}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Symbol}"
+                                                    Header="Symbol" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Type}"
+                                                    Header="Type" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Qty}"
+                                                    Header="Qty" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Amount, StringFormat='{}{0:c}'}"
+                                                    Header="Amount" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Total, StringFormat='{}{0:c}'}"
+                                                        Header="Total" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Status}"
+                                                        Header="Status" Width="100"/>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Date}"
+                                                    Header="Date" />
+  
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Grid Grid.Row="2">
+                                <WrapPanel  Margin="10">
+                                    <TextBlock Text="Display Count: "/>
+                                    <TextBox x:Name="txtDisplayCount" Width="20" Height="Auto" />
+                                </WrapPanel>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+            </Grid>
+        </Grid>
+     
+      
+    </Grid>
+</Window>

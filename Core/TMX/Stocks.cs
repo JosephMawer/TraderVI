@@ -1,5 +1,8 @@
 ﻿using AngleSharp;
 using Core.Models;
+using GraphQL;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +40,7 @@ namespace Core.TMX
         private readonly IBrowsingContext context;
 
         //private const string LegacySearchURL = "https://web.tmxmoney.com/legacy-charting.php?qm_page=72328&qm_symbol=";
-        private const string SearchURL = "https://web.tmxmoney.com/quote.php?qm_symbol=";
+        private const string SearchURL = "https://money.tmx.com/en/quote/";//"https://web.tmxmoney.com/quote.php?qm_symbol=";
         private string _ticker;
         private static AngleSharp.Dom.IDocument htmlDocument = null;
 
@@ -54,6 +57,36 @@ namespace Core.TMX
         {
             _ticker = Ticker;
         }
+
+        public async Task<GetQuoteBySymbol> GetTMXQuote(string ticker)
+        {
+            try
+            {
+                var stockTickerRequest = new GraphQLRequest
+                {
+                    Query = @"query getQuoteBySymbol($symbol: String, $locale: String) {getQuoteBySymbol(symbol: $symbol, locale: $locale) {   symbol    name    price    priceChange    percentChange    exchangeName    exShortName    exchangeCode    marketPlace    sector    industry    volume    openPrice   dayHigh    dayLow    MarketCap   MarketCapAllClasses   peRatio    prevClose    dividendFrequency    dividendYield    dividendAmount    dividendCurrency    beta    eps    exDividendDate    shortDescription    longDescription   website  email    phoneNumber    fullAddress    employees    shareOutStanding    totalDebtToEquity   totalSharesOutStanding    sharesESCROW    vwap    dividendPayDate    weeks52high    weeks52low    alpha   averageVolume10D    averageVolume30D    averageVolume50D   priceToBook    priceToCashFlow    returnOnEquity    returnOnAssets    day21MovingAvg    day50MovingAvg    day200MovingAvg    dividend3Years    dividend5Years    datatype    __typename  }}",
+                    OperationName = "getQuoteBySymbol",
+                    Variables = new
+                    {
+                        symbol = $"{ticker}",
+                        locale = "en"
+                    }
+                };
+
+                // To use NewtonsoftJsonSerializer, add a reference to NuGet package GraphQL.Client.Serializer.Newtonsoft
+                var client = new GraphQLHttpClient("https://app-money.tmx.com/graphql", new NewtonsoftJsonSerializer());
+                var response = await client.SendQueryAsync<Data>(stockTickerRequest);
+
+                return response.Data.getQuoteBySymbol;
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
+
+            return default;
+        }
+
         public async Task<StockQuote> RequestTickerInfo(string Ticker, string Name = "")
         {
 

@@ -373,7 +373,7 @@ namespace Sandbox
 
         //public static void ImportCSV(string path)
         //{
-        //    //string path = @"C:\Users\joseph.mawer.IDEA\Downloads\TSX.txt";
+        //    //string path = @"C:\Users\****\Downloads\TSX.txt";
         //    Utils.Import_CSV_Symbols(path).Wait();
         //    Console.WriteLine("Import successful");
         //    Console.ReadLine();

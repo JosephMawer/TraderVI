@@ -2,6 +2,9 @@
 using ConsoleTables;
 using Core.Db;
 using Core.TMX.Models;
+using GraphQL;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +15,79 @@ using System.Threading.Tasks;
 
 namespace Core.TMX
 {
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+    public class GetQuoteBySymbol
+    {
+        public string symbol { get; set; }
+        public string name { get; set; }
+        public double price { get; set; }
+        public double? priceChange { get; set; }
+        public double? percentChange { get; set; }
+        public string exchangeName { get; set; }
+        public string exShortName { get; set; }
+        public string exchangeCode { get; set; }
+        public object marketPlace { get; set; }
+        public string sector { get; set; }
+        public string industry { get; set; }
+        public long volume { get; set; }
+        public double? openPrice { get; set; }
+        public double? dayHigh { get; set; }
+        public double? dayLow { get; set; }
+        public long? MarketCap { get; set; }
+        public long? MarketCapAllClasses { get; set; }
+        public double? peRatio { get; set; }
+        public double? prevClose { get; set; }
+        public object dividendFrequency { get; set; }
+        public object dividendYield { get; set; }
+        public object dividendAmount { get; set; }
+        public object dividendCurrency { get; set; }
+        public double? beta { get; set; }
+        public double? eps { get; set; }
+        public string exDividendDate { get; set; }
+        public string shortDescription { get; set; }
+        public string longDescription { get; set; }
+        public string website { get; set; }
+        public string email { get; set; }
+        public string phoneNumber { get; set; }
+        public string fullAddress { get; set; }
+        public string employees { get; set; }
+        public long? shareOutStanding { get; set; }
+        public double? totalDebtToEquity { get; set; }
+        public long? totalSharesOutStanding { get; set; }
+        public object sharesESCROW { get; set; }
+        public double? vwap { get; set; }
+        public object dividendPayDate { get; set; }
+        public double? weeks52high { get; set; }
+        public double? weeks52low { get; set; }
+        public double? alpha { get; set; }
+        public long? averageVolume10D { get; set; }
+        public long? averageVolume30D { get; set; }
+        public long? averageVolume50D { get; set; }
+        public double? priceToBook { get; set; }
+        public string priceToCashFlow { get; set; }
+        public double? returnOnEquity { get; set; }
+        public double? returnOnAssets { get; set; }
+        public double? day21MovingAvg { get; set; }
+        public double? day50MovingAvg { get; set; }
+        public double? day200MovingAvg { get; set; }
+        public string dividend3Years { get; set; }
+        public string dividend5Years { get; set; }
+        public string datatype { get; set; }
+        public string __typename { get; set; }
+    }
+
+    public class Data
+    {
+        public GetQuoteBySymbol getQuoteBySymbol { get; set; }
+    }
+
+    public class Root
+    {
+        public Data data { get; set; }
+    }
+
+
+
     /// <summary>
     /// Gets high level information about the canadian market from the
     /// tmx website.
@@ -22,11 +98,41 @@ namespace Core.TMX
         private readonly IBrowsingContext context;
 
         private readonly string TMX_CONSTITUENTS = "https://web.tmxmoney.com/index_constituents.php?qm_symbol=^TSX";
-        private readonly string TMX_MARKETS = "https://web.tmxmoney.com/marketsca.php";
+        private readonly string TMX_MARKETS = "https://money.tmx.com/en/canadian-markets";//"https://web.tmxmoney.com/marketsca.php";
 
         public Market() { }
 
+        private void GetPageSource()
+        {
+            //var options = new ChromeOptions();
+            
+            //using (var driver = new ChromeDriver(@"C:\Users\***username***\Downloads\chromedriver_win32"))
+            //{
+                // Go to the home page
+                //driver.Navigate().GoToUrl("https://money.tmx.com/en/canadian-markets");
+                //return driver.PageSource;
 
+
+                // Get the page elements
+                //var userNameField = driver.FindElementById("usr");
+                //var userPasswordField = driver.FindElementById("pwd");
+                //var loginButton = driver.FindElementByXPath("//input[@value='Login']");
+
+                // Type user name and password
+                //userNameField.SendKeys("admin");
+                //userPasswordField.SendKeys("12345");
+
+                // and click the login button
+                //loginButton.Click();
+
+                // Extract the text and save it into result.txt
+                //var result = driver.FindElementByXPath("//div[@id='case_login']/h3").Text;
+                //File.WriteAllText("result.txt", result);
+
+                // Take a screenshot and save it into screen.png
+                //driver.GetScreenshot().SaveAsFile(@"screen.png", ImageFormat.Png);
+            //}
+        }
         /// <summary>
         /// A constituent is a company with shares that are part of an index like the S&P 500 or Dow Jones 
         /// Industrial Average. It is a component or a member of the index. The aggregate of the shares of 
@@ -76,6 +182,11 @@ namespace Core.TMX
         /// <returns></returns>
         public async Task<List<Models.MarketSummary>> GetMarketSummary(bool print = false)
         {
+
+            
+
+            //var doc = new HtmlDocument();
+            //doc.LoadHtml(html);
             await Crawler(TMX_MARKETS);//("https://web.tmxmoney.com/marketsca.php?qm_page=99935");
 
 
@@ -107,12 +218,12 @@ namespace Core.TMX
                                     .Select(grp => grp.Select(x => x.Value).ToArray())
                                     .ToArray();
 
-            var marketSummary = new List<TMX.Models.MarketSummary>();
+            var marketSummary = new List<Models.MarketSummary>();
             foreach (var block in chunks)
             {
                 try
                 {
-                    marketSummary.Add(new TMX.Models.MarketSummary
+                    marketSummary.Add(new Models.MarketSummary
                     {
                         Date = timeOfRequest,
                         Name = block[0],

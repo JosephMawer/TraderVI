@@ -33,21 +33,21 @@ namespace TraderVI.Import
             stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Full, adjusted: false);
            
             var points = stockTimeSeries.DataPoints;
-            foreach (var point in points.Take(500))
-            {
-                var s = new Core.Models.StockQuote()
-                {
-                    TimeOfRequest = point.Time,
-                    Volume = (int)point.Volume,
-                    Open = point.OpeningPrice,
-                    Close = point.ClosingPrice,
-                    Ticker = ticker.Replace(".TO", ""),
-                    High = point.HighestPrice,
-                    Low = point.LowestPrice,
-                    Price = point.ClosingPrice
-                };
-                stockData.Add(s);
-            }
+            //foreach (var point in points.Take(500))
+            //{
+            //    var s = new Core.Models.StockQuote()
+            //    {
+            //        TimeOfRequest = point.Time,
+            //        Volume = (int)point.Volume,
+            //        Open = point.OpeningPrice,
+            //        Close = point.ClosingPrice,
+            //        Ticker = ticker.Replace(".TO", ""),
+            //        High = point.HighestPrice,
+            //        Low = point.LowestPrice,
+            //        Price = point.ClosingPrice
+            //    };
+            //    stockData.Add(s);
+            //}
             return stockData;
         }
   
@@ -69,12 +69,12 @@ namespace TraderVI.Import
             // now import stock data using recently imported constituents..
             // I don't need to do this (i.e. read from database) since I already have the
             // list of constituents... but.. it feels like this is okay.
-            var constituents = await Core.Db.Constituents.GetConstituents(); // get full list
+            //var constituents = await Core.Db.Constituents.GetConstituents(); // get full list
 
-            foreach (var constituent in constituents)
-            {
-                await AddStockDataToDatabase(constituent);
-            }
+            //foreach (var constituent in constituents)
+            //{
+            //    await AddStockDataToDatabase(constituent);
+            //}
         
         }
         private static async Task AddStockDataToDatabase(ConstituentInfo constituent)
@@ -106,16 +106,16 @@ namespace TraderVI.Import
         {
             // load the most recent market constituents from tmx site.
             // note: constituents are regularly updated, every 3-4 months?
-            var market = new Core.TMX.Market();
-            var constituents = await market.GetConstituents();
+            //var market = new Core.TMX.Market();
+            //var constituents = await market.GetConstituents();
 
-            // create local database
-            Scripts.CreateDatabase();
+            //// create local database
+            //Scripts.CreateDatabase();
 
-            // check for tickers that don't work with alpha vantage
-            foreach (var constituent in constituents)
-                if (EnsureRequestIsValid(constituent))
-                    await cts.Insert(constituent.Name, constituent.Symbol); 
+            //// check for tickers that don't work with alpha vantage
+            //foreach (var constituent in constituents)
+            //    if (EnsureRequestIsValid(constituent))
+            //        await cts.Insert(constituent.Name, constituent.Symbol); 
         }
 
         private static bool EnsureRequestIsValid(ConstituentInfo constituent)
