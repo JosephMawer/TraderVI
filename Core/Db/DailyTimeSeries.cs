@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using db = Core.Db.DailyTimeSeries;
@@ -57,16 +57,16 @@ namespace Core.Db
             foreach (var stock in stocks)
             {
                 await base.Insert(sqlQueryStatement,
-                    new List<SQLiteParameter>()
+                    new List<SqlParameter>()
                     {
-                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
-                        new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
-                        //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
-                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
-                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
-                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
-                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
-                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
+                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
+                        new SqlParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
+                        //new SqlParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
+                        new SqlParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
+                        new SqlParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
+                        new SqlParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
+                        new SqlParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
+                        new SqlParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
                     });
             }
         }
@@ -82,16 +82,16 @@ namespace Core.Db
             foreach (var stock in stocks)
             {
                 await base.Insert(sqlQueryStatement,
-                    new List<SQLiteParameter>()
+                    new List<SqlParameter>()
                     {
-                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
-                        new SQLiteParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
-                        //new SQLiteParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
-                        new SQLiteParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
-                        new SQLiteParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
-                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
-                        new SQLiteParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
-                        new SQLiteParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
+                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
+                        new SqlParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
+                        //new SqlParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
+                        new SqlParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
+                        new SqlParameter() {ParameterName = "@close", DbType = DbType.Single, Value = stock.Close},
+                        new SqlParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = stock.Volume},
+                        new SqlParameter() {ParameterName = "@high", DbType = DbType.Single, Value = stock.High},
+                        new SqlParameter() {ParameterName = "@low", DbType = DbType.Single, Value = stock.Low},
                     });
             }
         }
@@ -171,10 +171,10 @@ namespace Core.Db
         public async Task<List<IStockInfo>> SomethingThatConvertsSQLIntoStockInfo(string query)
         {
             var retLst = new List<IStockInfo>();
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -205,10 +205,10 @@ namespace Core.Db
         public async Task<long> GetRecordCount(string ticker)
         {
             var query = $"select count([Ticker]) from [DailyStock] where [Ticker] = '{ticker}'";
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     var rows = (long) await cmd.ExecuteScalarAsync();
                     return rows;

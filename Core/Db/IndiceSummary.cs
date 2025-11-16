@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
+
+//using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -47,13 +49,13 @@ namespace Core.Db
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[IndiceSummary] values (@date,@name,@last,@changed,@percentchanged)";
             await base.Insert(sqlQueryStatement,
-                new List<SQLiteParameter>()
+                new List<SqlParameter>()
                 {
-                    new SQLiteParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
-                    new SQLiteParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
-                    new SQLiteParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
-                    new SQLiteParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
-                    new SQLiteParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
+                    new SqlParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
+                    new SqlParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
+                    new SqlParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
+                    new SqlParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
+                    new SqlParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
                 });
         }
 
@@ -69,13 +71,13 @@ namespace Core.Db
             foreach (var index in indexList)
             {
                 await base.Insert(sqlQueryStatement,
-                    new List<SQLiteParameter>()
+                    new List<SqlParameter>()
                     {
-                        new SQLiteParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
-                        new SQLiteParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
-                        new SQLiteParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
-                        new SQLiteParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
-                        new SQLiteParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
+                        new SqlParameter() { ParameterName = "@date", DbType = DbType.DateTime2, Value=index.Date},
+                        new SqlParameter() { ParameterName = "@name", DbType = DbType.String, Size = 25, Value = index.Name},
+                        new SqlParameter() { ParameterName = "@last", DbType = DbType.Single, Value = index.Last},
+                        new SqlParameter() { ParameterName = "@changed", DbType = DbType.Single, Value = index.Change},
+                        new SqlParameter() { ParameterName = "@percentchanged", DbType = DbType.Single, Value = index.PercentChange}
                     });
             }
         }
@@ -96,12 +98,12 @@ namespace Core.Db
                            $"AND [Date] >= '" + date.ToShortDateString() + "' AND [Date] < '" + date.AddDays(1).ToShortDateString() + "'";
 
 
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (var cmd = new SQLiteCommand(query, con))
+                    using (var cmd = new SqlCommand(query, con))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -142,12 +144,12 @@ namespace Core.Db
                            $"Order By[Date] DESC";
 
 
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {

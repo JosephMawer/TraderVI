@@ -1,4 +1,4 @@
-﻿using ConsoleTables;
+﻿//using ConsoleTables;
 using Core.Indicators.Models;
 using Core.Math;
 using System;
@@ -151,7 +151,7 @@ namespace Core.Indicators
                     {
                         joined
                     };
-                    ConsoleTable.From(data).Write();
+  //                  ConsoleTable.From(data).Write();
                 }
 
                 return joined;
@@ -359,7 +359,7 @@ namespace Core.Indicators
             if (printTable)
             {
                 Console.WriteLine($"stock data for the past {range.DifferenceInDays} days");
-                ConsoleTable.From(topLst).Write();
+    //            ConsoleTable.From(topLst).Write();
             }
         }
 
@@ -391,7 +391,7 @@ namespace Core.Indicators
             var topTen = table.OrderByDescending(f => f.PriceIncrease).Take(take);
             if (printTable)
             {
-                ConsoleTable.From(topTen).Write();
+      //          ConsoleTable.From(topTen).Write();
             }
 
             return topTen;

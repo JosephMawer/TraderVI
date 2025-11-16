@@ -1,7 +1,9 @@
 ﻿using Core.Utilities;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+//using Microsoft.Data.SqlClient;
+//using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -17,9 +19,12 @@ namespace Core.Db
         /// <summary>
         /// The connection string for an instance
         /// </summary>
-        internal string ConnectionString = Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
+        internal string ConnectionString = "Server=localhost;Database=TraderDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
-        public static string Database = Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";
+
+        public static string Database = "Server=localhost;Database=MyDatabase;Trusted_Connection=True;";
+            //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";
 
         /// <summary>
         /// Default constructor
@@ -74,12 +79,12 @@ namespace Core.Db
         /// <param name="query"></param>
         /// <param name="parameters">A list of parameters</param>
         /// <returns>True if there is exactly one unique record, otherwise returns false</returns>
-        protected async Task<bool> FindRecordAsync(string query, List<SQLiteParameter> parameters)
+        protected async Task<bool> FindRecordAsync(string query, List<SqlParameter> parameters)
         {
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     if (parameters != null)
                         cmd.Parameters.AddRange(parameters.ToArray());
@@ -97,10 +102,10 @@ namespace Core.Db
         //protected async Task<DataTable> GetSafeDataTable(string query)
         //{
         //    var dt = new DataTable();
-        //    using (SqliteConnection con = new SqliteConnection(ConnectionString))
+        //    using (SqlConnection con = new SqlConnection(ConnectionString))
         //    {
         //        await con.OpenAsync();
-        //        using (SqliteCommand cmd = new SqliteCommand(query, con))
+        //        using (SqlCommand cmd = new SqlCommand(query, con))
         //        {
         //            using (var ds = new SqlDataAdapter(cmd))
         //            {
@@ -118,7 +123,7 @@ namespace Core.Db
         /// <param name="query">The query string</param>
         /// <param name="parameters">Parameters as a list of <see cref="SqlParameter"/></param>
         /// <returns>The ID of the row inserted</returns>
-        public async Task Insert(string query, List<SQLiteParameter> parameters)
+        public async Task Insert(string query, List<SqlParameter> parameters)
             => await ExecuteNonQueryAsync(query, parameters);
 
         /// <summary>
@@ -127,7 +132,7 @@ namespace Core.Db
         /// <param name="qeury">The query string</param>
         /// <param name="parameters">Parameters as a list of <see cref="SqlParameter"/></param>
         /// <returns></returns>
-        protected async Task Update(string qeury, List<SQLiteParameter> parameters)
+        protected async Task Update(string qeury, List<SqlParameter> parameters)
             => await ExecuteNonQueryAsync(qeury, parameters);
 
         /// <summary>
@@ -136,7 +141,7 @@ namespace Core.Db
         /// <param name="query">The query string</param>
         /// <param name="parameters">Parameters as a list of <see cref="SqlParameter"/></param>
         /// <returns></returns>
-        protected async Task Delete(string query, List<SQLiteParameter> parameters)
+        protected async Task Delete(string query, List<SqlParameter> parameters)
             => await ExecuteNonQueryAsync(query, parameters);
 
         /// <summary>
@@ -147,10 +152,10 @@ namespace Core.Db
         /// <returns>Returns the first column of the first row</returns>
         public async Task<T> ExecuteScalarAsync<T>(string query)
         {
-            using (var con = new SQLiteConnection(ConnectionString))
+            using (var con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (var cmd = new SQLiteCommand(query, con))
+                using (var cmd = new SqlCommand(query, con))
                 {
                     return (T)await cmd.ExecuteScalarAsync();
                 }
@@ -164,12 +169,12 @@ namespace Core.Db
         /// <param name="query">The query string</param>
         /// <param name="parameters">Parameters as a list of <see cref="SqlParameter"/></param>
         /// <returns>Returns the first column of the first row, typically the primary key</returns>
-        private async Task ExecuteNonQueryAsync(string query, List<SQLiteParameter> parameters)
+        private async Task ExecuteNonQueryAsync(string query, List<SqlParameter> parameters)
         {
-            using (var con = new SQLiteConnection(ConnectionString))
+            using (var con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (var cmd = new SQLiteCommand(query, con))
+                using (var cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters?.AddRange(parameters.ToArray());
 
@@ -186,10 +191,10 @@ namespace Core.Db
         //public async Task<DataTable> GetDataTableFromSQL(string sql)
         //{
         //    DataTable dt = new DataTable();
-        //    using (var con = new SqliteConnection(ConnectionString))
+        //    using (var con = new SqlConnection(ConnectionString))
         //    {
         //        await con.OpenAsync();
-        //        using (var cmd = new SqliteCommand(sql, con))
+        //        using (var cmd = new SqlCommand(sql, con))
         //        {
         //            using (var adapter = new sqlitea(cmd))
         //            {

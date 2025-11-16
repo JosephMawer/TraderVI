@@ -1,5 +1,6 @@
 ﻿using Core.Rules;
 using Core.TMX;
+using Core.TMX.Models;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
@@ -41,8 +42,8 @@ namespace TraderVI.WPF
 
         private readonly WSTrade wstrade;
         private readonly TMX tmx;
-        private readonly string token_path = @"C:\noso\temp\ws_tokens.txt";
-        private readonly string watchlistPath = @"C:\noso\temp\watchlist.txt";
+        private readonly string token_path = @"C:\src\ws_tokens.txt";
+        private readonly string watchlistPath = @"C:\src\watchlist.txt";
         private List<Account> accountsList;
         private List<Order> ordersList;
         private Account selectedAccount;
@@ -50,6 +51,13 @@ namespace TraderVI.WPF
         private readonly ITradesRepository tradesRepository;// = new TradesFlatFileRepository();
 
         #region View Bindings (Properties)
+        private ObservableCollection<MarketMoverItem> _marketMoversList;
+        public ObservableCollection<MarketMoverItem> MarketMoversList
+        {
+            get => _marketMoversList;
+            set { _marketMoversList = value; OnPropertyRaised(nameof(MarketMoversList)); }
+        }
+
         private ObservableCollection<WatchListViewModel> _watchList;
         public ObservableCollection<WatchListViewModel> WatchList
         {
@@ -115,7 +123,7 @@ namespace TraderVI.WPF
             WatchList = new AsyncObservableCollection<WatchListViewModel>();
             wstrade = new WSTrade();
             tmx = new TMX();
-            SetDefaults();
+            SetGUIDefaults();
 
             // kick off the long running background processing thread
             Task.Factory.StartNew(() => BackgroundPolling(), TaskCreationOptions.LongRunning).Await();
@@ -127,14 +135,14 @@ namespace TraderVI.WPF
                 Initialize().Await();
             }
 
-           
+         
 
             tradesRepository = new TradesFlatFileRepository();
             ActiveTrades = tradesRepository.Get();
         }
 
         // sets the GUI defaults
-        private void SetDefaults()
+        private void SetGUIDefaults()
         {
             //https://stackoverflow.com/questions/979876/set-background-color-of-wpf-textbox-in-c-sharp-code
             loginborder.BorderBrush = Brushes.Red;
@@ -195,7 +203,7 @@ namespace TraderVI.WPF
                 var security = await wstrade.GetSecurity(symbol);
                 var securityId = security.id;
 
-                var stock = await tmx.GetStockQuote(symbol);
+                var stock = await tmx.GetQuoteBySymbol(symbol);
 
                 // todo: use the account object to request if we have available funds...avoid accessing the GUI objects 
                 var availableAccountFunds = double.Parse(txtAvailableToTrade.Text[1..]);
@@ -262,7 +270,7 @@ namespace TraderVI.WPF
                 var symbol = position.stock.symbol;
                 var quantity = position.quantity; // or, sellable_quantity?
 
-                var stock = await tmx.GetStockQuote(symbol);
+                var stock = await tmx.GetQuoteBySymbol(symbol);
 
                 var limitOrder = new LimitOrder(OrderSubType.sell_quantity, stock.price, quantity, securityId);
                 wstrade.PlaceOrder(limitOrder);
@@ -392,6 +400,10 @@ namespace TraderVI.WPF
             {
                 try
                 {
+                    var tmx = new Market();
+                    var marketMovers = await tmx.GetMarketSummary(print: false);
+                    MarketMoversList = new ObservableCollection<MarketMoverItem>(marketMovers);
+
                     //var refreshTokenTask = RefreshTokens();
                     var watchListTask = UpdateWatchList();
                     var activeTradesTask = UpdateActiveTrades();
@@ -420,9 +432,10 @@ namespace TraderVI.WPF
 
         private async Task UpdateActiveTrades()
         {
+            if (ActiveTrades is null) return;
             foreach (var trade in ActiveTrades)
             {
-                var quote = await tmx.GetStockQuote(trade.Symbol);
+                var quote = await tmx.GetQuoteBySymbol(trade.Symbol);
                 if (quote is null) continue;
                 trade.Price = quote.price;
                 if (trade.Sell)
@@ -449,12 +462,13 @@ namespace TraderVI.WPF
    
         private async Task UpdateWatchList()
         {
+            if (!File.Exists(watchlistPath)) return;
             var tickers = File.ReadAllLines(watchlistPath);
             var tmx = new TMX();
             var tasks = new List<Task<GetQuoteBySymbol>>();
             foreach (var ticker in tickers)
             {
-                var task = tmx.GetStockQuote(ticker);
+                var task = tmx.GetQuoteBySymbol(ticker);
                 tasks.Add(task);
             }
 
@@ -512,7 +526,7 @@ namespace TraderVI.WPF
 
             // update the collection
             var tmx = new TMX();
-            var quote = await tmx.GetStockQuote(symbol);
+            var quote = await tmx.GetQuoteBySymbol(symbol);
             WatchList.Add(new WatchListViewModel()
             {
                 Symbol = quote.symbol,

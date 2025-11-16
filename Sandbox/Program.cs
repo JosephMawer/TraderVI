@@ -1,6 +1,6 @@
 ﻿using AlphaVantage.Net.Stocks;
 using AlphaVantage.Net.Stocks.TimeSeries;
-using ConsoleTables;
+
 using Core;
 using Core.Db;
 using Core.Indicators;
@@ -8,7 +8,11 @@ using Core.Indicators.Models;
 using Core.Indicators.PricePatterns;
 using Core.Math;
 using Core.TMX;
+using Core.TMX.Models;
 using Core.Utilities;
+using GraphQL;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -20,24 +24,50 @@ using System.Threading.Tasks;
 
 namespace Sandbox
 {
+   
     partial class Program
     {
         // initialize members
         static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
         private static List<ConstituentInfo> Constituents;
         private static DailyTimeSeries TimeSeries = new DailyTimeSeries();
-        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
         private static DateTime Today = DateTime.Today;
+        private static TMX tmx;
 
-        /// <summary>
-        /// The main entry point for the program
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
+
         static async Task Main(string[] args)
         {
-            var tmx = new Market();
+            var cs = Core.Utilities.Utils.GetConnectionString;
+          
+            tmx = new TMX();
+
+            await PrintStockQuoteDetails("CEU");
+          
+            // 1) Intraday: last 1 day of 5-minute bars
+            var intraday = await tmx.GetIntradayTimeSeriesData(
+                symbol: "CEU",//"BCE",
+                freq: "minute",
+                interval: 15,
+                startDateTime: DateTime.Today,//.Now.AddDays(-4),//DateTime.UtcNow.AddDays(-1),
+                endDateTime: null//DateTime.UtcNow
+            );
+            //ConsoleTable.From(intraday).Write();
+
+            //Console.WriteLine($"Intraday bars: {intraday[0].close}");
+
+            // 2) Historical: weekly bars for 2015–2020
+            var historical = await tmx.getTimeSeriesData(
+                symbol: "BCE:US",
+                freq: "week",
+                startDate: new DateTime(2015, 10, 25).ToShortDateString(),
+                endDate: new DateTime(2020, 10, 25).ToShortDateString()
+            );
+            Console.WriteLine($"Historical bars: {historical[0].open}");
+
+
+            await tmx.GetQuoteBySymbolsAsync(print: true);
             await tmx.GetMarketSummary(print: true);
+            await tmx.GetMarketMovers(print: true);
 
 
             //Core.TMX.Stocks tmx = new Core.TMX.Stocks();
@@ -98,8 +128,8 @@ namespace Sandbox
                             // checks if a support level exists between two points by forming a straight line
                             // between the two points and checking if it forms a support
                             var support = stock.GetSupportLevel(startingDate, endDate);
-                            if (support.SupportLineFound)
-                                ConsoleTable.From(support.DataPoint).Write();
+                            //if (support.SupportLineFound)
+                            //    ConsoleTable.From(support.DataPoint).Write();
                         }
                     }
                     
@@ -218,7 +248,24 @@ namespace Sandbox
 
 
 
-        
+        private static async Task PrintStockQuoteDetails(string symbol)
+        {
+            var quote = await tmx.GetQuoteBySymbol("CEU");
+
+            // After you fetched the GraphQL data:
+            var dto = quote.ToUiDto(); // defaults to en-CA, "$"
+
+            // Print a compact summary to console:
+            Console.WriteLine($"{dto.Symbol} — {dto.Name}");
+            Console.WriteLine($"{dto.PriceDisplay}  {dto.ChangeDisplay}");
+            Console.WriteLine($"Day:  {dto.DayRangeDisplay}   Prev Close: {dto.PEDisplay}");
+            Console.WriteLine($"52W:  {dto.Range52WDisplay}   Vol: {dto.VolumeDisplay}   MktCap: {dto.MarketCapDisplay}");
+            Console.WriteLine($"Div:  {dto.DividendDisplay}   PE: {dto.PEDisplay}");
+            Console.WriteLine($"{dto.Exchange} | {dto.Sector} / {dto.Industry}");
+            Console.WriteLine(dto.Website);
+
+        }
+
 
         /// <summary>
         /// Gets the top volume movers
@@ -231,7 +278,7 @@ namespace Sandbox
 
             // get top x in volume for today
             var topMovers = await db.GetTopMoversByVolume(count);
-            ConsoleTable.From(topMovers).Write();
+            //ConsoleTable.From(topMovers).Write();
 
             return topMovers;
         }
@@ -277,106 +324,106 @@ namespace Sandbox
         static async Task GetTheAdvanceDeclineLine()
         {
             var adLine = await Granville.GetAdvanceDeclineLine();
-            ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write(); 
+            //ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write(); 
         }
         
         
 
         #region AlphaVantage stuff...
 
-        /// <summary>
-        /// Requests the daily time series for a given stock which includes: date, volume, open, close, high, low
-        /// </summary>
-        /// <param name="ticker"></param>
-        /// <param name="size"></param>
-        /// <returns>A collection of <see cref="StockDataPoint"/></returns>
-        private static async Task<ICollection<StockDataPoint>> GetStockDataPoints(string ticker, TimeSeriesSize size = TimeSeriesSize.Compact)
-            => (await client.RequestDailyTimeSeriesAsync($"{ticker}", size)).DataPoints;
+        ///// <summary>
+        ///// Requests the daily time series for a given stock which includes: date, volume, open, close, high, low
+        ///// </summary>
+        ///// <param name="ticker"></param>
+        ///// <param name="size"></param>
+        ///// <returns>A collection of <see cref="StockDataPoint"/></returns>
+        //private static async Task<ICollection<StockDataPoint>> GetStockDataPoints(string ticker, TimeSeriesSize size = TimeSeriesSize.Compact)
+        //    => (await client.RequestDailyTimeSeriesAsync($"{ticker}", size)).DataPoints;
 
-        /// <summary>
-        /// Writes time series data to console for a specified ticker
-        /// </summary>
-        /// <param name="ticker">The ticker for the stock</param>
-        /// <param name="size">Compact or full</param>
-        private static void PrintTimeSeriesData(string ticker, TimeSeriesSize size = TimeSeriesSize.Compact)
-        {
-            // Request the time series data (compact returns 100 records)
-            var stock = client.RequestDailyTimeSeriesAsync($"{ticker}", size).Result;
-            var dataPoints = stock.DataPoints;
+        ///// <summary>
+        ///// Writes time series data to console for a specified ticker
+        ///// </summary>
+        ///// <param name="ticker">The ticker for the stock</param>
+        ///// <param name="size">Compact or full</param>
+        //private static void PrintTimeSeriesData(string ticker, TimeSeriesSize size = TimeSeriesSize.Compact)
+        //{
+        //    // Request the time series data (compact returns 100 records)
+        //    var stock = client.RequestDailyTimeSeriesAsync($"{ticker}", size).Result;
+        //    var dataPoints = stock.DataPoints;
 
-            // Column headings
-            var c = new[] { "Time", "Volume", "Opening", "Closing", "High", "Low", "% Diff" };
+        //    // Column headings
+        //    var c = new[] { "Time", "Volume", "Opening", "Closing", "High", "Low", "% Diff" };
 
-            // Space between each column
-            const int a = -14;
+        //    // Space between each column
+        //    const int a = -14;
 
-            // Write the headings using the specified alignment
-            Console.WriteLine($"{c[0],a}|{c[1],a}|{c[2],a}|{c[3],a}|{c[4],a}|{c[5],a}|{c[6],a}");
-            Console.WriteLine("-------------------------------------------------------------------------------------------------");
+        //    // Write the headings using the specified alignment
+        //    Console.WriteLine($"{c[0],a}|{c[1],a}|{c[2],a}|{c[3],a}|{c[4],a}|{c[5],a}|{c[6],a}");
+        //    Console.WriteLine("-------------------------------------------------------------------------------------------------");
 
-            // Set up some variables we need
-            StockDataPoint previousPoint = null;
-            List<string> dataList = new List<string>();
+        //    // Set up some variables we need
+        //    StockDataPoint previousPoint = null;
+        //    List<string> dataList = new List<string>();
 
-            // Initially we iterate over the list in reverse order to easily calculate percentage difference 
-            // using the previous point.  
-            foreach (var p in dataPoints.Reverse())
-            {
-                // Calculate percentage difference
-                var diff = (previousPoint == null) ? "" : PrintPercentageDifference(p, previousPoint);
-                // Add formatted line item to list
-                dataList.Add($"{p.Time.ToShortDateString(),a}|{p.Volume,a}|{p.OpeningPrice,a}|{p.ClosingPrice,a}|{p.HighestPrice,a}|{p.LowestPrice,a}|{diff}");
-                // Set the previous point 
-                previousPoint = p;
-            }
+        //    // Initially we iterate over the list in reverse order to easily calculate percentage difference 
+        //    // using the previous point.  
+        //    foreach (var p in dataPoints.Reverse())
+        //    {
+        //        // Calculate percentage difference
+        //        var diff = (previousPoint == null) ? "" : PrintPercentageDifference(p, previousPoint);
+        //        // Add formatted line item to list
+        //        dataList.Add($"{p.Time.ToShortDateString(),a}|{p.Volume,a}|{p.OpeningPrice,a}|{p.ClosingPrice,a}|{p.HighestPrice,a}|{p.LowestPrice,a}|{diff}");
+        //        // Set the previous point 
+        //        previousPoint = p;
+        //    }
 
-            // Reverse the list once more, so we are back to iterating from newest to oldest
-            foreach (var item in Enumerable.Reverse(dataList))
-                Console.WriteLine(item);
+        //    // Reverse the list once more, so we are back to iterating from newest to oldest
+        //    foreach (var item in Enumerable.Reverse(dataList))
+        //        Console.WriteLine(item);
 
-            // Let user read the output before continuing
-            Console.WriteLine("Press any key to continuee...");
-            Console.ReadLine();
-        }
+        //    // Let user read the output before continuing
+        //    Console.WriteLine("Press any key to continuee...");
+        //    Console.ReadLine();
+        //}
 
         
 
-        /// <summary>
-        /// Calculates the percentage difference between two <see cref="StockDataPoint"/> using the closing price
-        /// </summary>
-        /// <param name="v1">First point</param>
-        /// <param name="v2">Second point</param>
-        /// <returns>A string formatted as a percentage</returns>
-        private static string PrintPercentageDifference(StockDataPoint v1, StockDataPoint v2)
-            => $"{MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice).ToString("P", CultureInfo.InvariantCulture)}";
+        ///// <summary>
+        ///// Calculates the percentage difference between two <see cref="StockDataPoint"/> using the closing price
+        ///// </summary>
+        ///// <param name="v1">First point</param>
+        ///// <param name="v2">Second point</param>
+        ///// <returns>A string formatted as a percentage</returns>
+        //private static string PrintPercentageDifference(StockDataPoint v1, StockDataPoint v2)
+        //    => $"{MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice).ToString("P", CultureInfo.InvariantCulture)}";
 
-        private static void PrintPercentageDifference(string ticker, DateTime startDate, TimeSeriesSize size = TimeSeriesSize.Compact)
-        {
-            var stock = client.RequestDailyTimeSeriesAsync($"{ticker}", size).Result;
-            var data = stock.DataPoints as List<StockDataPoint>;    // convert to a list 
+        //private static void PrintPercentageDifference(string ticker, DateTime startDate, TimeSeriesSize size = TimeSeriesSize.Compact)
+        //{
+        //    var stock = client.RequestDailyTimeSeriesAsync($"{ticker}", size).Result;
+        //    var data = stock.DataPoints as List<StockDataPoint>;    // convert to a list 
 
-            // Select two points (v1 and v2)
-            var v1 = data.Where(x => x.Time >= DateTime.Today).First();
-            var v2 = data.Where(x => x.Time == startDate).First();
+        //    // Select two points (v1 and v2)
+        //    var v1 = data.Where(x => x.Time >= DateTime.Today).First();
+        //    var v2 = data.Where(x => x.Time == startDate).First();
 
-            // Calculate the percentage difference between the two points
-            var diff = MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice);
+        //    // Calculate the percentage difference between the two points
+        //    var diff = MathHelpers.GetDifference(v1.ClosingPrice, v2.ClosingPrice);
 
-            // Print info
-            Console.WriteLine($"Price at {v1.Time.ToShortDateString()}: {v1.ClosingPrice}");
-            Console.WriteLine($"Price at {v2.Time.ToShortDateString()}: {v2.ClosingPrice}");
-            Console.WriteLine($"Percentage Difference: {diff.ToString("P", CultureInfo.InvariantCulture)}");
-        }
+        //    // Print info
+        //    Console.WriteLine($"Price at {v1.Time.ToShortDateString()}: {v1.ClosingPrice}");
+        //    Console.WriteLine($"Price at {v2.Time.ToShortDateString()}: {v2.ClosingPrice}");
+        //    Console.WriteLine($"Percentage Difference: {diff.ToString("P", CultureInfo.InvariantCulture)}");
+        //}
 
         
         #endregion
 
-        //public static void ImportCSV(string path)
-        //{
-        //    //string path = @"C:\Users\****\Downloads\TSX.txt";
-        //    Utils.Import_CSV_Symbols(path).Wait();
-        //    Console.WriteLine("Import successful");
-        //    Console.ReadLine();
-        //}
+        ////public static void ImportCSV(string path)
+        ////{
+        ////    //string path = @"C:\Users\****\Downloads\TSX.txt";
+        ////    Utils.Import_CSV_Symbols(path).Wait();
+        ////    Console.WriteLine("Import successful");
+        ////    Console.ReadLine();
+        ////}
     }
 }

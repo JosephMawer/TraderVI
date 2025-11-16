@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -30,41 +30,43 @@ namespace Core.Db
             "[Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]") { }
 
 
-        public async Task InsertMarketSummary(IList<TMX.Models.MarketSummary> tsxList)
+        public async Task InsertMarketSummary(IList<TMX.Models.MarketMoverItem> tsxList)
         {
-            var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
+            var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] " +
+                $"values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
             foreach (var tsx in tsxList)
             {
-               await base.Insert(sqlQueryStatement,
-                   new List<SQLiteParameter>()
-                   {
-                        new SQLiteParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
-                        new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
-                        new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
-                        new SQLiteParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
-                        new SQLiteParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
-                        new SQLiteParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
-                        new SQLiteParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
-                        new SQLiteParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
-                   });
+                throw new Exception("todo - update db to match new DTO, aka marketmover");
+               //await base.Insert(sqlQueryStatement,
+               //    new List<SqlParameter>()
+               //    {
+               //         new SqlParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
+               //         new SqlParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
+               //         new SqlParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
+               //         new SqlParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
+               //         new SqlParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
+               //         new SqlParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
+               //         new SqlParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
+               //         new SqlParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
+               //    });
             }
         }
-        public async Task InsertMarketSummary(TMX.Models.MarketSummary tsx)
+        public async Task InsertMarketSummary(TMX.Models.MarketMoverItem tsx)
         {
             var sqlQueryStatement = $"insert into [Db].[dbo].[MarketSummary] values (@date,@name,@volume,@value,@traded,@advancers,@unchanged,@decliners)";
-
-            await base.Insert(sqlQueryStatement,
-               new List<SQLiteParameter>()
-               {
-                    new SQLiteParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
-                    new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
-                    new SQLiteParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
-                    new SQLiteParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
-                    new SQLiteParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
-                    new SQLiteParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
-                    new SQLiteParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
-                    new SQLiteParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
-               });
+            throw new Exception("todo - update db to match new DTO, aka marketmover");
+            //await base.Insert(sqlQueryStatement,
+            //   new List<SqlParameter>()
+            //   {
+            //        new SqlParameter() {ParameterName = "@date", DbType = DbType.DateTime2, Value=tsx.Date},
+            //        new SqlParameter() {ParameterName = "@name", DbType = DbType.String, Size=50, Value=tsx.Name},
+            //        new SqlParameter() {ParameterName = "@volume", DbType = DbType.Int64, Value = tsx.Volume},
+            //        new SqlParameter() {ParameterName = "@value", DbType = DbType.Int64, Value = tsx.Value},
+            //        new SqlParameter() {ParameterName = "@traded", DbType = DbType.Int32, Value = tsx.IssuesTraded},
+            //        new SqlParameter() {ParameterName = "@advancers", DbType = DbType.Int32, Value = tsx.Advancers},
+            //        new SqlParameter() {ParameterName = "@unchanged", DbType = DbType.Int32, Value = tsx.Unchanged},
+            //        new SqlParameter() {ParameterName = "@decliners", DbType = DbType.Int32, Value = tsx.Decliners},
+            //   });
         }
 
         public async Task<List<MarketValues>> GetFullMarketSummary(Markets market = Markets.TSX)
@@ -75,12 +77,12 @@ namespace Core.Db
                     $" ORDER BY [Date]";
 
             var lst = new List<MarketValues>();
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -117,12 +119,12 @@ namespace Core.Db
                     $" ORDER BY [Date] DESC";
 
 
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {

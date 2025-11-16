@@ -1,5 +1,5 @@
-﻿using Abot2.Crawler;
-using Abot2.Poco;
+﻿//using Abot2.Crawler;
+//using Abot2.Poco;
 using AlphaVantage.Net.Stocks;
 using AlphaVantage.Net.Stocks.TimeSeries;
 using Core;
@@ -7,15 +7,15 @@ using Core.Db;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using HtmlAgilityPack;
-using AngleSharp.Dom;
-using ConsoleTables;
+//using AngleSharp.Dom;
+//using ConsoleTables;
 
 namespace Sandbox
 {
@@ -25,17 +25,16 @@ namespace Sandbox
 
 
         // Abot web crawler
-        private static IWebCrawler crawler;
+        //private static IWebCrawler crawler;
 
         // alpha vantage API key
 
         private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
         private static bool CrawlComplete = false;
-        static List<SymbolInfo> tickers = new List<SymbolInfo>();
+        static List<TickerInfo> tickers = new List<TickerInfo>();
         public static async Task DailyPriceMain(string[] args)
         {
-            await GetDailyPercentGainers();
-
+          
 
             string Ticker = "";
             StockTimeSeries stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(Ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
@@ -145,8 +144,8 @@ namespace Sandbox
         private static async Task<List<Core.Db.StockInfo>> GetStockData()
         {
             var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Daily);
-            var symbols = new Symbols();
-            var SymbolList = await symbols.GetSymbolsList("where [Exchange]='TSX'");
+            var symbols = new QuoteRepository();
+            var SymbolList = await symbols.GetSymbols("where [Exchange]='TSX'");
             List<Core.Db.StockInfo> stocks = new List<Core.Db.StockInfo>();
             foreach (var symbol in SymbolList)
             {
@@ -163,146 +162,24 @@ namespace Sandbox
         #endregion
 
 
-        private static async Task GetDailyPercentGainers()
-        {
-            var uri = "https://web.tmxmoney.com/marketsca.php?qm_page=99935";
-            Uri uriToCrawl = new Uri(uri);
-            var config = new CrawlConfiguration
-            {
-                MaxPagesToCrawl = 1, //Only crawl 10 pages
-                MinCrawlDelayPerDomainMilliSeconds = 3000 //Wait this many millisecs between requests
-            };
-            crawler = new PoliteWebCrawler(config);
-            crawler.PageCrawlCompleted += crawler_dailyPercentGainers;
-            var result = await crawler.CrawlAsync(uriToCrawl);
-        }
+        //private static async Task GetDailyPercentGainers()
+        //{
+        //    var uri = "https://web.tmxmoney.com/marketsca.php?qm_page=99935";
+        //    Uri uriToCrawl = new Uri(uri);
+        //    var config = new CrawlConfiguration
+        //    {
+        //        MaxPagesToCrawl = 1, //Only crawl 10 pages
+        //        MinCrawlDelayPerDomainMilliSeconds = 3000 //Wait this many millisecs between requests
+        //    };
+        //    crawler = new PoliteWebCrawler(config);
+        //    crawler.PageCrawlCompleted += crawler_dailyPercentGainers;
+        //    var result = await crawler.CrawlAsync(uriToCrawl);
+        //}
 
 
-        /// <summary>
-        /// Gets real-time info of daily percent gainers
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static async void crawler_dailyPercentGainers(object sender, PageCrawlCompletedArgs e)
-        {
-            //Console.WriteLine(e.CrawledPage.Content.Text);
-            var h = e.CrawledPage.AngleSharpHtmlDocument;
-            var tmx = new Core.TMX.Market();
-            //var summary = tmx.GetMarketSummary(h);
-            //var indices = tmx.GetMarketIndices(h);
-            //ConsoleTable.From(summary).Write();
-            //ConsoleTable.From(indices).Write();
-          
+       
 
 
-            var content = h.GetElementsByClassName("row");
-            var marketSummary = content.Where(x => x.InnerHtml.Contains("Market Summary"));
-            foreach (var s in marketSummary)
-            {
-                if (s.TextContent.Contains("Canadian Market Summary")) continue;
-                Console.WriteLine(s.TextContent);
-            }
-            
-
-
-
-
-            //HtmlAgilityPack.HtmlDocument doc = new HtmlDocument();
-            //var html = e.CrawledPage.Content.Text;
-            //doc.LoadHtml(html);
-            //Console.WriteLine(doc.ParsedText);
-            //var quoteDetails = doc.DocumentNode.Descendants("table")
-            //    .Where(node => node.GetAttributeValue("id", "")
-            //    .Equals("qmmt_scalingMarketStatsTable")).ToList();
-
-
-            //foreach (HtmlNode table in e.CrawledPage.HtmlDocument.DocumentNode.SelectNodes(@"/html/body/div[2]/div[3]/div/div[5]/table[2]/tbody/tr[2]/td/table/tbody/tr/td/table/tbody"))
-            //{
-            //    Console.WriteLine("Found: " + table.Id);
-            //    foreach (HtmlNode row in table.SelectNodes("tr"))
-            //    {
-            //        Console.WriteLine("row");
-            //        foreach (HtmlNode cell in row.SelectNodes("th|td"))
-            //        {
-            //            Console.WriteLine("cell: " + cell.InnerText);
-            //        }
-            //    }
-            //}
-            //List<List<string>> table = doc.DocumentNode.SelectNodes("/html/body/div[2]/div[3]/div/div[5]/table[2]/tbody/tr[2]/td/table/tbody/tr/td/table/tbody")
-            //.Descendants("tr")
-            ////.Skip(1)
-            //.Where(tr => tr.Elements("td").Count() > 1)
-            //.Select(tr => tr.Elements("td").Select(td => td.InnerText.Trim()).ToList())
-            //.ToList();
-
-            //foreach (var column in table)
-            //{
-            //    if (column.Count > 1) Console.Write($"{column[0],-12}");
-            //    if (column.Count > 2) Console.Write($"{column[1],-12}");
-            //    if (column.Count > 3) Console.Write($"{column[2],-12}");
-            //    if (column.Count > 4) Console.Write($"{column[3],-12}");
-            //    Console.WriteLine();
-            //}
-
-            //Console.ReadLine();
-            //var stockInfo = new Core.Models.StockQuote();
-            //foreach (var detail in quoteDetails)
-            //{
-            //    var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
-            //    var name = Regex.Replace(quoteName[0].InnerText, @"\s+", string.Empty);
-
-            //}
-        }
-
-        private static void crawler_PageLinksCrawlDisallowed(object sender, PageLinksCrawlDisallowedArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void crawler_PageCrawlDisallowed(object sender, PageCrawlDisallowedArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static async void crawler_ProcessPageCrawlCompleted(object sender, PageCrawlCompletedArgs e)
-        {
-            throw new NotImplementedException("fix issues with abot");
-            //if (CrawlComplete)
-            //    return;
-
-            //CrawlComplete = true;
-
-            //var quoteDetails = e.CrawledPage.HtmlDocument.DocumentNode.Descendants("Div")
-            //    .Where(node => node.GetAttributeValue("class", "")
-            //    .Equals("quote-details")).ToList();
-
-            //var stockInfo = new Core.Db.StockInfo();
-            //foreach (var detail in quoteDetails)
-            //{
-            //    var quoteName = detail.SelectNodes("//*[contains(@class,'quote-name')]");
-            //    var name = Regex.Replace(quoteName[0].InnerText, @"\s+", string.Empty);
-
-            //    var tickerNode = detail.SelectNodes("//*[contains(@class,'quote-ticker tickerLarge')]");
-            //    var ticker = Regex.Replace(tickerNode[0].InnerText, @"\s+", string.Empty);
-            //    stockInfo.Ticker = ticker;
-
-            //    var currentPrice = e.CrawledPage.HtmlDocument.DocumentNode.SelectNodes("//*[contains(@class,'quote-price priceLarge')]");
-            //    var price = Regex.Replace(currentPrice[0].InnerText, @"\s+", string.Empty);
-            //    stockInfo.Close = decimal.Parse(price.Replace("$", ""));
-
-            //    var currentVolume = e.CrawledPage.HtmlDocument.DocumentNode.SelectNodes("//*[contains(@class,'quote-volume volumeLarge')]");
-            //    var volume = Regex.Replace(currentVolume[0].InnerText, @"\s+", string.Empty);
-
-            //    stockInfo.Volume = long.Parse(volume.Replace("Volume:", "").Replace(",", ""));
-            //    stockInfo.Time = DateTime.Now;
-            //    await StockStreamer(stockInfo);
-            //}
-        }
-
-        private static void crawler_ProcessPageCrawlStarting(object sender, PageCrawlStartingArgs e)
-        {
-
-        }
 
         static decimal highestPrice = 0;
         static decimal trailingStop = 0;
@@ -515,11 +392,11 @@ namespace Sandbox
             {
                 var l = line.Split('\t');
                 await db.Insert("insert into dbo.Symbols values(@symbol,@name,@exchange)",
-                    new List<SQLiteParameter>()
+                    new List<SqlParameter>()
                      {
-                            new SQLiteParameter() {ParameterName = "@symbol", DbType = DbType.String, Size=10, Value=l[0]},
-                            new SQLiteParameter() {ParameterName = "@name", DbType = DbType.String, Size=75, Value=l[1]},
-                            new SQLiteParameter() {ParameterName = "@exchange", DbType = DbType.String, Size=10, Value="TSX"},
+                            new SqlParameter() {ParameterName = "@symbol", DbType = DbType.String, Size=10, Value=l[0]},
+                            new SqlParameter() {ParameterName = "@name", DbType = DbType.String, Size=75, Value=l[1]},
+                            new SqlParameter() {ParameterName = "@exchange", DbType = DbType.String, Size=10, Value="TSX"},
                      });
             }
         }
@@ -552,8 +429,8 @@ namespace Sandbox
         {
             var stockDb = new Core.Db.StockInfo(Core.Db.Table.TimeSeries_Daily);
             // retrieve the last timestamp for monthly adjusted and make sure we're not overwriting old data
-            var symbols = new Symbols();
-            var SymbolList = await symbols.GetSymbolsList("where [Exchange]='TSX'");
+            var symbols = new QuoteRepository();
+            var SymbolList = await symbols.GetSymbols("where [Exchange]='TSX'");
             foreach (var symbol in SymbolList)
             {
                 Console.WriteLine($"Collecting daily data for: TSX:{symbol.Symbol}");

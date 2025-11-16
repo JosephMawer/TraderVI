@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using db = Core.Db.Constituents;
 namespace Core.Db
@@ -23,12 +23,12 @@ namespace Core.Db
         public async Task InsertConstituent(string name, string symbol)
         {
             var query = $"INSERT INTO {Schema} VALUES ('{name.Replace("'", "''")}','{symbol.Replace("'", "''")}')";
-            using (SQLiteConnection con = new SQLiteConnection(ConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -51,12 +51,12 @@ namespace Core.Db
             string query = $"SELECT {sql} Name,Symbol FROM [Constituents]";
 
             var lst = new List<ConstituentInfo>();
-            using (SQLiteConnection con = new SQLiteConnection(Database))
+            using (SqlConnection con = new SqlConnection(Database))
             {
                 try
                 {
                     await con.OpenAsync();
-                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {

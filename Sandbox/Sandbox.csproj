@@ -2,17 +2,21 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+    <!--<PackageReference Include="AngleSharp" Version="1.3.0" />-->
+    <PackageReference Include="GraphQL" Version="8.7.0" />
+    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="6.1.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\alphavantage\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
-    <ProjectReference Include="..\..\alphavantage\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Core\AlphaVantage.Net.Core.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 

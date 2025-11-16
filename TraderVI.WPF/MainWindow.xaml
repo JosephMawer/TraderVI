@@ -392,7 +392,7 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Market"  Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">
-                        <TextBlock>
+                        <!--<TextBlock>
                               <Run
                                 Text="tab 1 content. Default look and behaviors." />
                               <LineBreak />
@@ -401,7 +401,53 @@
                                 FontStyle="Italic">
                               Add TSX content here
                             </Run>
-                        </TextBlock>
+                        </TextBlock>-->
+
+                        <!--public string Company { get; set; }
+ public long Price { get; set; }
+ public long Change { get; set; }
+ public long ChangeInPercent { get; set; }
+ public long Open {  get; set; }
+ public long High { get; set; }
+ public long Low { get; set; }
+ public long Volume { get; set; }
+ public string Range52Week { get; set; }-->
+
+                        <ListView x:Name="lstMarketMoversList" Grid.Row="1" ItemsSource="{Binding MarketMoversList}">
+                            <ListView.View>
+
+                                <GridView>
+
+                                    <GridViewColumn DisplayMemberBinding="{Binding Symbol}"
+                    Header="Symbol" Width="120"/>
+                                    <GridViewColumn DisplayMemberBinding="{Binding Price,StringFormat='{}{0:c}'}"
+                    Header="Price"/>
+                                    <GridViewColumn DisplayMemberBinding="{Binding ChangeInPercent}"
+                    Header="PriceChange" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Open}"
+Header="Open" >
+                                            <!--<GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                        <GridViewRowPresenter>
+                            <GridViewRowPresenter.Effect>
+                                
+                            </GridViewRowPresenter.Effect>
+                            <TextBlock x:Name="Txt" Text="{Binding PriceChange}" Foreground="{Binding PriceChange, Converter={StaticResource valueToForegourndColorConverter}}"  />
+                        </GridViewRowPresenter>
+                        
+                    </DataTemplate>
+                </GridViewColumn.CellTemplate>-->
+                                    </GridViewColumn>
+                                    <GridViewColumn DisplayMemberBinding="{Binding PercentChange}"
+                    Header="Percent Change" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Volume}"
+                        Header="Volume" />
+                                    <!--<GridViewColumn DisplayMemberBinding="{Binding TradeVolume}"
+                        Header="Trade Volume" />-->
+
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
                     </TabItem>
 
                     <TabItem Header="Rules"  Width="100" Style="{StaticResource MaterialDesignNavigationRailTabItem}">

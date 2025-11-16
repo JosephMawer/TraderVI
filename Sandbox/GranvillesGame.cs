@@ -216,42 +216,42 @@ namespace Sandbox
                     //    AddField("SMA200", s);
                     //}
 
-                    StockIndicator sma50 = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.SMA, $"{ticker}", IndicatorSize.Daily, 50, IndicatorSeriesType.Close);
-                    foreach (var s in sma50.DataPoints)
-                    {
-                        AddField("SMA50", s);
-                    }
+                    //StockIndicator sma50 = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.SMA, $"{ticker}", IndicatorSize.Daily, 50, IndicatorSeriesType.Close);
+                    //foreach (var s in sma50.DataPoints)
+                    //{
+                    //    AddField("SMA50", s);
+                    //}
 
-                    StockIndicator sma9 = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.SMA, $"{ticker}", IndicatorSize.Daily, 9, IndicatorSeriesType.Close);
-                    foreach (var s in sma9.DataPoints)
-                    {
-                        AddField("SMA9", s);
-                    }
+                    //StockIndicator sma9 = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.SMA, $"{ticker}", IndicatorSize.Daily, 9, IndicatorSeriesType.Close);
+                    //foreach (var s in sma9.DataPoints)
+                    //{
+                    //    AddField("SMA9", s);
+                    //}
 
 
-                    StockIndicator rsi = await indicator.RequestTechnicalIndicatorAsync(
-                        ApiFunction.RSI, $"{ticker}", IndicatorSize.Daily, 14, IndicatorSeriesType.Close);
+                    //StockIndicator rsi = await indicator.RequestTechnicalIndicatorAsync(
+                    //    ApiFunction.RSI, $"{ticker}", IndicatorSize.Daily, 14, IndicatorSeriesType.Close);
 
-                    foreach (var s in rsi.DataPoints)
-                    {
-                        AddField("RSI", s);
-                    }
+                    //foreach (var s in rsi.DataPoints)
+                    //{
+                    //    AddField("RSI", s);
+                    //}
 
-                    StockIndicator obv = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.OBV, $"{ticker}", IndicatorSize.Daily, 200, IndicatorSeriesType.Close);
-                    foreach (var s in obv.DataPoints)
-                    {
-                        AddField("OBV", s);
-                    }
+                    //StockIndicator obv = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.OBV, $"{ticker}", IndicatorSize.Daily, 200, IndicatorSeriesType.Close);
+                    //foreach (var s in obv.DataPoints)
+                    //{
+                    //    AddField("OBV", s);
+                    //}
 
-                    StockIndicator ema = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.EMA, $"{ticker}", IndicatorSize.Daily, 9, IndicatorSeriesType.Close);
-                    foreach (var s in ema.DataPoints)
-                    {
-                        AddField("EMA", s);
-                    }
+                    //StockIndicator ema = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.EMA, $"{ticker}", IndicatorSize.Daily, 9, IndicatorSeriesType.Close);
+                    //foreach (var s in ema.DataPoints)
+                    //{
+                    //    AddField("EMA", s);
+                    //}
 
-                    var results = FindCrossOver(sma9.DataPoints.ToArray(), sma50.DataPoints.ToArray()).Take(1);
-                    foreach (var result in results)
-                        WriteLine(result);
+                    //var results = FindCrossOver(sma9.DataPoints.ToArray(), sma50.DataPoints.ToArray()).Take(1);
+                    //foreach (var result in results)
+                    //    WriteLine(result);
                 }
                 catch (Exception ex)
                 {

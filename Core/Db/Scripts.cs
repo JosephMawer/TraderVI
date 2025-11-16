@@ -1,5 +1,5 @@
 ﻿using Core.Utilities;
-using System.Data.SQLite;
+using Microsoft.Data.SqlClient;
 
 namespace Core.Db
 {
@@ -14,11 +14,11 @@ namespace Core.Db
 
         public static void CreateDatabase()
         {
-            using var con = new SQLiteConnection(Utils.GetConnectionString);
+            using var con = new SqlConnection(Utils.GetConnectionString);
             con.Open();
             foreach (var query in Tables)
             {
-                using var cmd = new SQLiteCommand(query, con);
+                using var cmd = new SqlCommand(query, con);
                 cmd.ExecuteNonQuery();
             }
         }

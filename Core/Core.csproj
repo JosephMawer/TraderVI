@@ -1,20 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abot" Version="2.0.62" />
-    <PackageReference Include="AbotX" Version="2.1.8" />
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
-    <PackageReference Include="ConsoleTables" Version="2.4.1" />
-    <PackageReference Include="GraphQL.Client" Version="3.2.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="RestSharp" Version="106.11.7" />
-    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.1" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
-    <PackageReference Include="System.IO" Version="4.3.0" />
+    <!--<PackageReference Include="Abot" Version="2.0.70" />
+    <PackageReference Include="AbotX" Version="2.1.12" />-->
+    <!--<PackageReference Include="AngleSharp" Version="1.3.0" />-->
+    <!--<PackageReference Include="ConsoleTables" Version="2.7.0" />-->
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="GraphQL.Client" Version="6.1.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+    <PackageReference Include="Microsoft.ML" Version="5.0.0" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="5.0.0" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="5.0.0" />
+    <PackageReference Include="Microsoft.ML.TimeSeries" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="6.1.0" />
+    <!--<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />-->
+    <!--<PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />-->
+    <!--<PackageReference Include="System.IO" Version="4.3.0" />-->
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\alphavantage\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
+    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
   </ItemGroup>
 
 </Project>

@@ -209,13 +209,16 @@ namespace wstrade
 
             var objAsJson = JsonConvert.SerializeObject(order);
             var client = new RestClient("https://trade-service.wealthsimple.com/orders");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.POST);
-            request.AddHeader("Authorization", $"Bearer {access_token}");
-            request.AddHeader("Content-Type", "application/json");
-            //request.AddHeader("Cookie", "__cfduid=dcd3acd17a07f4c403768b6c81db8be311613975886; __cfruid=3e49986012264fd0b90c5fd589652e207800de99-1614363696; wssdi=6140a52756d635bbee98b4019a4431b1");
-            request.AddParameter("application/json", jsonBody, ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
+            
+            // 2025 Oct 31 - temporarily commented this out
+            
+            //client.Timeout = -1;
+            //var request = new RestRequest(Method.POST);
+            //request.AddHeader("Authorization", $"Bearer {access_token}");
+            //request.AddHeader("Content-Type", "application/json");
+            ////request.AddHeader("Cookie", "__cfduid=dcd3acd17a07f4c403768b6c81db8be311613975886; __cfruid=3e49986012264fd0b90c5fd589652e207800de99-1614363696; wssdi=6140a52756d635bbee98b4019a4431b1");
+            //request.AddParameter("application/json", jsonBody, ParameterType.RequestBody);
+            //IRestResponse response = client.Execute(request);
 
 
             return;
