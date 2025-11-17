@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Core.ML.Classifiers
+namespace Core.ML.Engine.Training.Classifiers
 {
-    public static class HeadAndShoulders
+    internal static class HeadAndShoulders
     {
         public static PatternPredictionResult TrainClassifier(
             List<DailyBar> bars,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Core.ML.Classifiers
+namespace Core.ML.Engine.Training.Classifiers
 {
     public static class ClassificationUtilities
     {

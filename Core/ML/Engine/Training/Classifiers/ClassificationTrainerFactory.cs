@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace Core.ML.Classifiers
+namespace Core.ML.Engine.Training.Classifiers
 {
-
-    public enum ClassificationPattern
-    {
-        HeadAndShoulders
-    }
 
     public record ClassificationTrainerOptions(List<DailyBar> DailyBars, Dictionary<DateTime, bool> Labels, int LookBackWindow);
 

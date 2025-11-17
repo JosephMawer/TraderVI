@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Core.ML.Classifiers
+namespace Core.ML.Engine.Training.Classifiers
 {
 
     //public class PatternWindow
