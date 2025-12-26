@@ -26,8 +26,8 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="ML\Engine\Prediction\" />
     <Folder Include="ML\Engine\Training\Regressors\" />
+    <Folder Include="Rules\" />
     <Folder Include="WSTrade\" />
   </ItemGroup>
 

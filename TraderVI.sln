@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermes", "Hermes\Hermes.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Train", "ML.Train\ML.Train.csproj", "{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Delphi", "Delphi\Delphi.csproj", "{A76FEDC7-D959-4A63-8461-FD2969906C4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -226,6 +228,26 @@ Global
 		{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}.Release|x64.Build.0 = Release|Any CPU
 		{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}.Release|x86.ActiveCfg = Release|Any CPU
 		{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}.Release|x86.Build.0 = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|x64.Build.0 = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Debug|x86.Build.0 = Debug|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|ARM.Build.0 = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|ARM64.Build.0 = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x64.ActiveCfg = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x64.Build.0 = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x86.ActiveCfg = Release|Any CPU
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

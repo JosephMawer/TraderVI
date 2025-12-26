@@ -1,4 +1,5 @@
 ﻿using Core.Db;
+using Core.ML.Engine.Training.Classifiers;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
@@ -319,6 +320,36 @@ namespace Core.ML
 
             return rows;
         }
+
+        public static PatternWindow BuildLiveWindow(List<DailyBar> last30Bars)
+        {
+            int lookback = last30Bars.Count;
+            var priceNorm = new float[lookback];
+            var volNorm = new float[lookback];
+
+            float firstClose = (float)last30Bars[0].Close;
+            if (firstClose == 0) firstClose = 1f;
+
+            float avgVol = (float)last30Bars.Average(b => (double)b.Volume);
+            if (avgVol == 0) avgVol = 1f;
+
+            for (int i = 0; i < lookback; i++)
+            {
+                priceNorm[i] = (float)last30Bars[i].Close / firstClose;
+                volNorm[i] = (float)last30Bars[i].Volume / avgVol;
+            }
+
+            return new PatternWindow
+            {
+                PriceNorm = priceNorm,
+                VolumeNorm = volNorm,
+
+                // Label is unknown in real time – not used for prediction
+                HasHeadAndShoulders = false
+            };
+        }
+
+
 
         //At the end you’ve got a List<FeatureRow> where each row:
         //Uses only info up to time t

@@ -45,6 +45,10 @@ namespace Core.ML.Engine.Training.Classifiers
                 // 5. Save model
                 mlContext.Model.Save(model, trainData.Schema, "hs_classifier.zip");
 
+
+                // todo: save the current version to db to look up later
+                // e.g. db.save(DateTime.Now, HeadAndShoulders, hs_classifier_{datestring}.zip, active = 1, etc)
+
                 // 6. Example: classify the latest window
                 var engine = mlContext.Model.CreatePredictionEngine<PatternWindow, PatternPredictionResult>(model);
 

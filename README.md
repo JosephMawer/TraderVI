@@ -33,6 +33,42 @@ _This is the site I 'scrap' to grab real time data for free_
 
 ## Birds Eye View Of The System
 
+[V1] goals
+ - Support historical (offline) analysis only   *(real time analysis for intraday trading can come later)
+
+
+[V2] goals
+ - support real time stock collection and prediction/analysis
+
+Database
+
+ML.Prediction   - is trained to look for various patterns, signals, confirmations, etc. on time series data
+TMX             - pulls in historical daily stock quotes
+
+
+TradeAnalysisEngine - aka the brain - combines all the above libraries to pull in historical and realtime data
+    and run it through prediction algorithms that have been trained to detect various patterns 
+
+GUI             - Optional
+Wealthsimple    - interfaces with wealthsimple for buy and sell
+
+[Offline]
+ML.Train
+Hermes - collects stock data;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 There are a couple of moving parts to this system as it needs to do a few different things
 
 * **THE DATABASE**

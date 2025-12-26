@@ -1,4 +1,5 @@
-﻿using Core.ML.Engine.Training.Classifiers;
+﻿using Core.ML;
+using Core.ML.Engine.Training.Classifiers;
 using System;
 using System.Collections.Generic;
 
