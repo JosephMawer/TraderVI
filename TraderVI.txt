@@ -1,0 +1,4 @@
+An end-to-end quantitative trading platform: ingest market data, build time-series 
+features, train ML models (pattern classifiers and price/return regressors), 
+run those models in production to generate signals, and feed signals into a 
+trade decision / trade management layer (with an eventual execution component).

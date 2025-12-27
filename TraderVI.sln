@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Constituents.csv = Constituents.csv
 		readme.md = readme.md
 		TODO.txt = TODO.txt
+		TraderVI.txt = TraderVI.txt
 		Useful links.txt = Useful links.txt
 	EndProjectSection
 EndProject
