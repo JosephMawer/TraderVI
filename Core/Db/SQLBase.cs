@@ -23,7 +23,7 @@ namespace Core.Db
             //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
 
-        public static string Database = "Server=localhost;Database=MyDatabase;Trusted_Connection=True;";
+        public static string Database = "Server=localhost;Database=MyDatabase;Trusted_Connection=True;TrustServerCertificate=True;";
             //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";
 
         /// <summary>
