@@ -9,7 +9,7 @@ using db = Core.Db.DailyTimeSeries;
 
 namespace Core.Db
 {
-    public class DailyTimeSeries : SQLiteBase
+    public class DailyTimeSeries : SQLBase
     {
         /// <summary>
         /// Default constructor
@@ -59,7 +59,7 @@ namespace Core.Db
                 await base.Insert(sqlQueryStatement,
                     new List<SqlParameter>()
                     {
-                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
+                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLBase.DateTimeSQLite(stock.TimeOfRequest)},
                         new SqlParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
                         //new SqlParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
                         new SqlParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},
@@ -84,7 +84,7 @@ namespace Core.Db
                 await base.Insert(sqlQueryStatement,
                     new List<SqlParameter>()
                     {
-                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLiteBase.DateTimeSQLite(stock.TimeOfRequest)},
+                        new SqlParameter() {ParameterName = "@date", DbType = DbType.String, Value=SQLBase.DateTimeSQLite(stock.TimeOfRequest)},
                         new SqlParameter() {ParameterName = "@ticker", DbType = DbType.String, Size=12, Value=stock.Ticker},
                         //new SqlParameter() {ParameterName = "@price", DbType = DbType.Decimal, Value = stock.Price},
                         new SqlParameter() {ParameterName = "@open", DbType = DbType.Single, Value = stock.Open},

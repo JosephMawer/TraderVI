@@ -67,10 +67,10 @@ namespace Core.Trader
                 double strategyReturn = position * realizedReturn;
 
                 equity *= 1 + strategyReturn;
-                peakEquity = Math.Max(peakEquity, equity);
+                peakEquity = System.Math.Max(peakEquity, equity);
 
                 double drawdown = peakEquity <= 0 ? 0.0 : (peakEquity - equity) / peakEquity;
-                maxDrawdown = Math.Max(maxDrawdown, drawdown);
+                maxDrawdown = System.Math.Max(maxDrawdown, drawdown);
 
                 diagnostics.Add(new BacktestBarDiagnostics(
                     bar.Date,

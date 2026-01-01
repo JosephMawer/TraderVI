@@ -123,27 +123,32 @@ using System.Threading.Tasks;
 // Run this once per day (e.g., via Windows Task Scheduler at 5pm ET).
 Console.WriteLine("=== Hermes: Market Data Collector ===\n");
 
-var mode = args.Length > 0 ? args[0] : "daily";
+//var mode = args.Length > 0 ? args[0] : "daily";
 
-if (mode == "backfill")
-{
-    Console.WriteLine("[Backfill Mode] Downloading historical data...");
-    await RunBackfillAsync();
-}
-else if (mode == "daily")
-{
-    Console.WriteLine("[Daily Mode] Collecting today's end-of-day data...");
-    await RunDailyBatchCollection();
-}
-else if (mode == "live")
-{
-    Console.WriteLine("[Live Mode] Monitoring intraday quotes...");
-    await RunLiveMonitoring();
-}
+//if (mode == "backfill")
+//{
+//    Console.WriteLine("[Backfill Mode] Downloading historical data...");
+//    await RunBackfillAsync();
+//}
+//else if (mode == "daily")
+//{
+//    Console.WriteLine("[Daily Mode] Collecting today's end-of-day data...");
+//    await RunDailyBatchCollection();
+//}
+//else if (mode == "live")
+//{
+//    Console.WriteLine("[Live Mode] Monitoring intraday quotes...");
+//    await RunLiveMonitoring();
+//}
+
+
+Console.WriteLine("[Backfill Mode] Downloading historical data...");
+await RunBackfillAsync();
+
 
 static async Task RunBackfillAsync()
 {
-    var tmx = new TMX();
+    var tmx = new TmxClient();
     var repository = new QuoteRepository();
 
     // Backfill parameters
@@ -170,12 +175,18 @@ static async Task RunBackfillAsync()
             Console.Write($"[{processed + 1}/{constituents.Count}] {constituent.Symbol,-10} ");
 
             // Fetch historical daily data via TMX GraphQL
-            var dailyBars = await tmx.getTimeSeriesData(
+            var dailyBars = await tmx.GetHistoricalTimeSeriesAsync(
                 symbol: constituent.Symbol,
                 freq: "day",
                 startDate: startDate.ToString("yyyy-MM-dd"),
                 endDate: endDate.ToString("yyyy-MM-dd")
             );
+            //var dailyBars = await tmx.getTimeSeriesData(
+            //    symbol: constituent.Symbol,
+            //    freq: "day",
+            //    startDate: startDate.ToString("yyyy-MM-dd"),
+            //    endDate: endDate.ToString("yyyy-MM-dd")
+            //);
 
             if (dailyBars == null || dailyBars.Count == 0)
             {
@@ -210,7 +221,7 @@ static async Task RunBackfillAsync()
 
 static async Task RunDailyBatchCollection()
 {
-    var tmx = new TMX();
+    var tmx = new TmxClient();
     var repository = new QuoteRepository();
 
     var constituents = await Constituents.GetConstituents();
@@ -229,7 +240,7 @@ static async Task RunDailyBatchCollection()
             Console.Write($"[{processed + 1}/{constituents.Count}] {constituent.Symbol}... ");
 
             // Get just yesterday's bar (or today if after market close)
-            var dailyBars = await tmx.getTimeSeriesData(
+            var dailyBars = await tmx.GetHistoricalTimeSeriesAsync(
                 symbol: constituent.Symbol,
                 freq: "day",
                 startDate: yesterday.ToString("yyyy-MM-dd"),

@@ -1,5 +1,7 @@
 ﻿using Core.ML;
 using Core.TMX.Models;
+using Core.TMX.Models.Domain;
+using Core.TMX.Models.Dto;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -18,7 +21,7 @@ namespace Core.Db
         public string Name { get; set; }
         public string Exchange { get; set; }
     }
-    public class QuoteRepository : SQLiteBase
+    public class QuoteRepository : SQLBase
     {
         public QuoteRepository() : base("[dbo].[Ticker]", "[Ticker],[Name],[Exchange]") { }
 
@@ -90,7 +93,7 @@ namespace Core.Db
             var et = TimeZoneInfo.ConvertTimeToUtc(unspecified, est);
             return et; // UTC
         }
-        public async Task InsertDailyAsync(string symbol, List<TimeSeriesPointItem> points)
+        public async Task InsertDailyAsync(string symbol, List<TmxTimeSeriesPointDto> points)
         {
             using var conn = new SqlConnection(base.ConnectionString);
             await conn.OpenAsync();
@@ -175,49 +178,49 @@ namespace Core.Db
                 // For idempotent loads, you can ignore or switch to MERGE-per-row if you need updates.
             }
         }
-        public async Task SaveDailyBarAsync(string symbol, DailyQuote quote)
-        {
-            const string sql = @"
-        INSERT OR REPLACE INTO DailyBars (Symbol, Date, Open, High, Low, Close, Volume)
-        VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
+        //public async Task SaveDailyBarAsync(string symbol, DailyQuote quote)
+        //{
+        //    const string sql = @"
+        //INSERT OR REPLACE INTO DailyBars (Symbol, Date, Open, High, Low, Close, Volume)
+        //VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
 
-            await _connection.ExecuteAsync(sql, new
-            {
-                Symbol = symbol,
-                Date = quote.Date.ToString("yyyy-MM-dd"),
-                quote.Open,
-                quote.High,
-                quote.Low,
-                quote.Close,
-                quote.Volume
-            });
-        }
+        //    await _connection.ExecuteAsync(sql, new
+        //    {
+        //        Symbol = symbol,
+        //        Date = quote.Date.ToString("yyyy-MM-dd"),
+        //        quote.Open,
+        //        quote.High,
+        //        quote.Low,
+        //        quote.Close,
+        //        quote.Volume
+        //    });
+        //}
 
-        public async Task<List<DailyBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
-        {
-            var sql = "SELECT * FROM DailyBars WHERE Symbol = @Symbol";
+        //public async Task<List<DailyBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
+        //{
+        //    var sql = "SELECT * FROM DailyBars WHERE Symbol = @Symbol";
 
-            if (startDate.HasValue)
-                sql += " AND Date >= @StartDate";
+        //    if (startDate.HasValue)
+        //        sql += " AND Date >= @StartDate";
 
-            sql += " ORDER BY Date ASC";
+        //    sql += " ORDER BY Date ASC";
 
-            var rows = await _connection.QueryAsync(sql, new { Symbol = symbol, StartDate = startDate?.ToString("yyyy-MM-dd") });
+        //    var rows = await _connection.QueryAsync(sql, new { Symbol = symbol, StartDate = startDate?.ToString("yyyy-MM-dd") });
 
-            // Explicitly cast rows to IEnumerable<dynamic> to resolve CS0411
-            return ((IEnumerable<dynamic>)rows).Select(r => new DailyBar
-            {
-                Date = DateTime.Parse(r.Date),
-                Open = r.Open,
-                High = r.High,
-                Low = r.Low,
-                Close = r.Close,
-                Volume = r.Volume
-            }).ToList();
-        }
+        //    // Explicitly cast rows to IEnumerable<dynamic> to resolve CS0411
+        //    return ((IEnumerable<dynamic>)rows).Select(r => new DailyBar
+        //    {
+        //        Date = DateTime.Parse(r.Date),
+        //        Open = r.Open,
+        //        High = r.High,
+        //        Low = r.Low,
+        //        Close = r.Close,
+        //        Volume = r.Volume
+        //    }).ToList();
+        //}
 
 
-        public async Task InsertDailyBarsAsync(string symbol, List<TimeSeriesPointItem> bars)
+        public async Task InsertDailyBarsAsync(string symbol, List<OhlcvBar> bars)
         {
             const string sql = @"
             INSERT OR REPLACE INTO DailyBars 
@@ -227,15 +230,15 @@ namespace Core.Db
             var parameters = bars.Select(bar => new
             {
                 Symbol = symbol,
-                Date = DateTime.Parse(bar.dateTime).ToString("yyyy-MM-dd"),
-                Open = bar.open,
-                High = bar.high,
-                Low = bar.low,
-                Close = bar.close,
-                Volume = bar.volume
+                Date = bar.TimestampUtc.ToString("yyyy-MM-dd"),
+                bar.Open,
+                bar.High,
+                bar.Low,
+                bar.Close,
+                bar.Volume
             });
 
-            await _connection.ExecuteAsync(sql, parameters);
+            //await _connection.ExecuteAsync(sql, parameters);
         }
     }
 }

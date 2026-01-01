@@ -24,7 +24,7 @@ namespace Core.Db
         public int Unchanged { get; set; }
         public int Declined { get; set; }
     }
-    public class MarketSummary : SQLiteBase
+    public class MarketSummary : SQLBase
     {
         public MarketSummary() : base("[Db].[dbo].[MarketSummary]",
             "[Date],[Name],[Total Volume],[Total Value],[Issues Traded],[Advancers],[Unchanged],[Decliners]") { }

@@ -37,7 +37,7 @@ namespace Core.Db
         Telecom,
         Utilities,
     }
-    public class IndiceSummary : SQLiteBase
+    public class IndiceSummary : SQLBase
     {
         #region Inserts
         /// <summary>

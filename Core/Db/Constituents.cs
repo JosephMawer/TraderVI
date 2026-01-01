@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using db = Core.Db.Constituents;
 namespace Core.Db
 {
-    public class Constituents : SQLiteBase
+    public class Constituents : SQLBase
     {
         public Constituents() : base("[Constituents]", "[Name],[Symbol]") { }
 

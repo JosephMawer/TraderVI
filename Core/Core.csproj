@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!--<PackageReference Include="Abot" Version="2.0.70" />
     <PackageReference Include="AbotX" Version="2.1.12" />-->
     <!--<PackageReference Include="AngleSharp" Version="1.3.0" />-->
@@ -25,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
     <Folder Include="ML\Engine\Training\Regressors\" />
     <Folder Include="WSTrade\" />
   </ItemGroup>

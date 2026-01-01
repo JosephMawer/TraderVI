@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Db
 {
-    public class StockInfo : SQLiteBase
+    public class StockInfo : SQLBase
     {
         public StockInfo() { }
 

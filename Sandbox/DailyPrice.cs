@@ -383,7 +383,7 @@ namespace Sandbox
         // todo - create a general work project,  migrate this method to utilities class
         private static async Task ImportSymbols()
         {
-            var db = new Core.Db.SQLiteBase("Symbols", "[Symbol],[Name],[Exchange]");
+            var db = new Core.Db.SQLBase("Symbols", "[Symbol],[Name],[Exchange]");
             var nyse = "nyse_symbol_list.txt";
             var nasdaq = "nasdaq_symbol_list.txt";
             var tsx = "TSX.txt";

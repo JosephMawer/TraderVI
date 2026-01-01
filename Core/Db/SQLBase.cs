@@ -11,7 +11,7 @@ namespace Core.Db
     /// <summary>
     /// Asynchronous data access base class that only supports parameterized queries
     /// </summary>
-    public class SQLiteBase
+    public class SQLBase
     {
 
         //Server=localhost;Database=master;Trusted_Connection=True;
@@ -30,7 +30,7 @@ namespace Core.Db
         /// Default constructor
         /// </summary>
         /// <param name="ConnectionString"></param>
-        public SQLiteBase()
+        public SQLBase()
         {
 
         }
@@ -44,7 +44,7 @@ namespace Core.Db
             throw new NotImplementedException();
         }
 
-        public SQLiteBase(string Schema, string Fields)
+        public SQLBase(string Schema, string Fields)
         {
             this.Schema = Schema;
             this.Fields = Fields;
