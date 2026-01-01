@@ -1,8 +1,10 @@
-﻿using Core.TMX.Models;
+﻿using Core.ML;
+using Core.TMX.Models;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -62,17 +64,18 @@ namespace Core.Db
         public async Task InsertSymbol(string symbol, string name, string exchange)
         {
             var query = $"INSERT INTO {Schema} VALUES ('{symbol.Replace("'", "''")}','{name.Replace("'", "''")}','{exchange}')";
-            using (SqlConnection con = new SqlConnection(ConnectionString))
+            using SqlConnection con = new SqlConnection(ConnectionString);
+            try
             {
-                try {
-                    await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con)) {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
+                await con.OpenAsync();
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    await cmd.ExecuteNonQueryAsync();
                 }
-                catch (Exception ex) {
-                    var msg = ex.Message;
-                }
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
             }
         }
 
@@ -172,6 +175,67 @@ namespace Core.Db
                 // For idempotent loads, you can ignore or switch to MERGE-per-row if you need updates.
             }
         }
+        public async Task SaveDailyBarAsync(string symbol, DailyQuote quote)
+        {
+            const string sql = @"
+        INSERT OR REPLACE INTO DailyBars (Symbol, Date, Open, High, Low, Close, Volume)
+        VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
 
+            await _connection.ExecuteAsync(sql, new
+            {
+                Symbol = symbol,
+                Date = quote.Date.ToString("yyyy-MM-dd"),
+                quote.Open,
+                quote.High,
+                quote.Low,
+                quote.Close,
+                quote.Volume
+            });
+        }
+
+        public async Task<List<DailyBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
+        {
+            var sql = "SELECT * FROM DailyBars WHERE Symbol = @Symbol";
+
+            if (startDate.HasValue)
+                sql += " AND Date >= @StartDate";
+
+            sql += " ORDER BY Date ASC";
+
+            var rows = await _connection.QueryAsync(sql, new { Symbol = symbol, StartDate = startDate?.ToString("yyyy-MM-dd") });
+
+            // Explicitly cast rows to IEnumerable<dynamic> to resolve CS0411
+            return ((IEnumerable<dynamic>)rows).Select(r => new DailyBar
+            {
+                Date = DateTime.Parse(r.Date),
+                Open = r.Open,
+                High = r.High,
+                Low = r.Low,
+                Close = r.Close,
+                Volume = r.Volume
+            }).ToList();
+        }
+
+
+        public async Task InsertDailyBarsAsync(string symbol, List<TimeSeriesPointItem> bars)
+        {
+            const string sql = @"
+            INSERT OR REPLACE INTO DailyBars 
+            (Symbol, Date, Open, High, Low, Close, Volume)
+            VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
+
+            var parameters = bars.Select(bar => new
+            {
+                Symbol = symbol,
+                Date = DateTime.Parse(bar.dateTime).ToString("yyyy-MM-dd"),
+                Open = bar.open,
+                High = bar.high,
+                Low = bar.low,
+                Close = bar.close,
+                Volume = bar.volume
+            });
+
+            await _connection.ExecuteAsync(sql, parameters);
+        }
     }
 }

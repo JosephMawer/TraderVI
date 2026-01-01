@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Train", "ML.Train\ML.Tra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Delphi", "Delphi\Delphi.csproj", "{A76FEDC7-D959-4A63-8461-FD2969906C4A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{41685814-8E63-4A11-9064-2A7449DAC076}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -256,6 +258,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{B7311372-6020-478A-9B13-2F01A9F1839D} = {39A8832C-0E7F-4BE1-B343-1F2891462905}
 		{F51B87C9-1C02-4D53-881D-FE60B3930DD6} = {39A8832C-0E7F-4BE1-B343-1F2891462905}
+		{A76FEDC7-D959-4A63-8461-FD2969906C4A} = {41685814-8E63-4A11-9064-2A7449DAC076}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CF9035F-94B4-4E7F-A819-1150E19A7499}

@@ -16,6 +16,18 @@ https://web.tmxmoney.com/marketsca.php
 
 The initial goal of this library is to assist in the daily gathering of stock and market data	//generation of a table of advances and declines.
 
+TMX's GraphQL API uses session-based authentication via HTTP cookies. Your implementation correctly handles this:
+ Automatic Cookie Persistence
+•	TMX sets cookies (like session tokens) on first request
+•	CookieContainer automatically attaches them to subsequent requests
+•	No manual header management needed
+ Mimics Browser Behavior
+TMX expects clients to:
+1.	Receive Set-Cookie headers
+2.	Send those cookies back on future requests
+This is exactly how browsers work, making your client less detectable as automated.
+
+
 
 
 - Notes taken from: Granville's New Strategy of Daily Market Timing for Maximum Profit

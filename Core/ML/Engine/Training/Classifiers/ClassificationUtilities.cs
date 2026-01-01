@@ -11,9 +11,9 @@ namespace Core.ML.Engine.Training.Classifiers
         // todo: could leave this as general use for all patterns..
         // or, might be better to contain this logic in each pattern class itself?
         public static List<PatternWindow> BuildPatternDataset(
-    List<DailyBar> bars,
-    Dictionary<DateTime, bool> labels,
-    int lookback)
+            List<DailyBar> bars,
+            Dictionary<DateTime, bool> labels,
+            int lookback)
         {
             var result = new List<PatternWindow>();
 

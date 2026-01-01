@@ -80,13 +80,7 @@ namespace Core.TMX
         public void Dispose()
         {
             _graphClient?.Dispose();
-
-
-            //if (_disposed) return;
-            //_disposed = true;
-            //_gql?.Dispose();
-            //_http?.Dispose();
-
+            // Missing: Dispose of HttpClient/HttpClientHandler
         }
 
         //public async Task<QuoteResponse> GetQuoteBySymbolsAsync(string[] symbols)
@@ -206,6 +200,92 @@ namespace Core.TMX
                 throw new Exception("GraphQL: " + string.Join(" | ", Array.ConvertAll(final.Errors, e => e.Message)));
             return final.Data?.marketActivity ?? new List<Quote>();
         }
+
+        public async Task<QuoteDetailItem> GetQuoteBySymbol(string symbol)
+        {
+
+            // --- Build request ---
+            var request = new GraphQLRequest
+            {
+                OperationName = "getQuoteBySymbol",
+                Query = @"
+            query getQuoteBySymbol($symbol: String, $locale: String) {
+                getQuoteBySymbol(symbol: $symbol, locale: $locale) {
+                symbol
+                name
+                price
+                priceChange
+                percentChange
+                exchangeName
+                exShortName
+                exchangeCode
+                marketPlace
+                sector
+                industry
+                volume
+                openPrice
+                dayHigh
+                dayLow
+                MarketCap
+                MarketCapAllClasses
+                peRatio
+                prevClose
+                dividendFrequency
+                dividendYield
+                dividendAmount
+                dividendCurrency
+                beta
+                eps
+                exDividendDate
+                longDescription
+                fulldescription
+                website
+                email
+                phoneNumber
+                fullAddress
+                employees
+                shareOutStanding
+                totalDebtToEquity
+                totalSharesOutStanding
+                sharesESCROW
+                vwap
+                dividendPayDate
+                weeks52high
+                weeks52low
+                alpha
+                averageVolume10D
+                averageVolume20D
+                averageVolume30D
+                averageVolume50D
+                priceToBook
+                priceToCashFlow
+                returnOnEquity
+                returnOnAssets
+                day21MovingAvg
+                day50MovingAvg
+                day200MovingAvg
+                dividend3Years
+                dividend5Years
+                datatype
+                issueType
+                secType
+                close
+                qmdescription
+                }
+            }",
+                Variables = new { symbol = $"{symbol}", locale = "en" }
+            };
+
+            var response = await _graphClient.SendQueryAsync<QuoteBySymbolResponse>(request);
+
+            if (response.Errors?.Length > 0)
+            {
+                throw new Exception($"GraphQL Errors: {string.Join(", ", response.Errors.Select(e => e.Message))}");
+            }
+
+            return response.Data.getQuoteBySymbol;
+        }
+
         public async Task<MarketMoverItem[]> GetMarketMovers(bool print = false)
         {
             // --- Build GraphQL request ---
@@ -426,90 +506,7 @@ namespace Core.TMX
             throw new NotImplementedException();
         }
 
-        public async Task<QuoteDetailItem> GetQuoteBySymbol(string symbol)
-        {
-            
-            // --- Build request ---
-            var request = new GraphQLRequest
-            {
-                OperationName = "getQuoteBySymbol",
-                Query = @"
-            query getQuoteBySymbol($symbol: String, $locale: String) {
-                getQuoteBySymbol(symbol: $symbol, locale: $locale) {
-                symbol
-                name
-                price
-                priceChange
-                percentChange
-                exchangeName
-                exShortName
-                exchangeCode
-                marketPlace
-                sector
-                industry
-                volume
-                openPrice
-                dayHigh
-                dayLow
-                MarketCap
-                MarketCapAllClasses
-                peRatio
-                prevClose
-                dividendFrequency
-                dividendYield
-                dividendAmount
-                dividendCurrency
-                beta
-                eps
-                exDividendDate
-                longDescription
-                fulldescription
-                website
-                email
-                phoneNumber
-                fullAddress
-                employees
-                shareOutStanding
-                totalDebtToEquity
-                totalSharesOutStanding
-                sharesESCROW
-                vwap
-                dividendPayDate
-                weeks52high
-                weeks52low
-                alpha
-                averageVolume10D
-                averageVolume20D
-                averageVolume30D
-                averageVolume50D
-                priceToBook
-                priceToCashFlow
-                returnOnEquity
-                returnOnAssets
-                day21MovingAvg
-                day50MovingAvg
-                day200MovingAvg
-                dividend3Years
-                dividend5Years
-                datatype
-                issueType
-                secType
-                close
-                qmdescription
-                }
-            }",
-                Variables = new { symbol = $"{symbol}", locale = "en" }
-            };
-   
-            var response = await _graphClient.SendQueryAsync<QuoteBySymbolResponse>(request);
-
-            if (response.Errors?.Length > 0)
-            {
-                throw new Exception($"GraphQL Errors: {string.Join(", ", response.Errors.Select(e => e.Message))}");
-            }
-         
-            return response.Data.getQuoteBySymbol;                  
-        }
+     
 
 
         /// <summary>

@@ -5,6 +5,7 @@ Console.WriteLine("The Oracle Of Delphi");
 
 // Use this app to load historical data and get a prediction
 
+HeadAndShouldersTrainer.TrainOnSampleData();
 
 
 // load our stock data
