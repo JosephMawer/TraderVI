@@ -74,7 +74,7 @@ namespace Core.Db
         }
        
         public async Task Insert(string Exchange, string Ticker, DateTime Time, long Volume, decimal Open, decimal Close, decimal High, decimal Low)
-            => await base.Insert($"INSERT INTO {Schema} ({Fields}) VALUES (@exchange,@ticker,@time,@volume,@open,@close,@high,@low)",
+            => await base.Insert($"INSERT INTO {DbName} ({Fields}) VALUES (@exchange,@ticker,@time,@volume,@open,@close,@high,@low)",
                     new List<SqlParameter>()
                          {
                                 new SqlParameter() {ParameterName = "@exchange", DbType = DbType.String, Size=10, Value=Exchange},

@@ -156,7 +156,8 @@ static async Task RunBackfillAsync()
     var endDate = DateTime.Today.AddDays(-1);   // Up to yesterday
 
     // Get all TSX constituents
-    var constituents = await Constituents.GetConstituents();
+    var db = new Constituents();
+    var constituents = await db.GetConstituents();
 
     // Optional: Filter to top liquid stocks for testing
     // constituents = constituents.Take(10).ToList();
@@ -224,7 +225,7 @@ static async Task RunDailyBatchCollection()
     var tmx = new TmxClient();
     var repository = new QuoteRepository();
 
-    var constituents = await Constituents.GetConstituents();
+    var constituents = await new Constituents().GetConstituents();
     Console.WriteLine($"Collecting today's data for {constituents.Count} constituents\n");
 
     var today = DateTime.Today;

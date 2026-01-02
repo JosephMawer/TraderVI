@@ -23,7 +23,7 @@ namespace Core.Db
             //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";//"Data Source=.;Initial Catalog=Db;Integrated Security=True;";
 
 
-        public static string Database = "Server=localhost;Database=MyDatabase;Trusted_Connection=True;TrustServerCertificate=True;";
+        public static string Database = "Server=localhost;Database=TraderDB;Trusted_Connection=True;TrustServerCertificate=True;";
             //Utils.GetConnectionString;//@"Data Source=c:\noso\stocks.db;Version=3;";
 
         /// <summary>
@@ -44,11 +44,11 @@ namespace Core.Db
             throw new NotImplementedException();
         }
 
-        public SQLBase(string Schema, string Fields)
+        public SQLBase(string dbName, string Fields)
         {
-            this.Schema = Schema;
+            this.DbName = dbName;
             this.Fields = Fields;
-            Projection = $"SELECT {this.Fields} FROM {this.Schema}";
+            Projection = $"SELECT {this.Fields} FROM {this.DbName}";
         }
 
         public static string DateTimeSQLite(DateTime datetime)
@@ -60,7 +60,7 @@ namespace Core.Db
         /// <summary>
         /// The database schema  
         /// </summary>
-        private protected readonly string Schema;
+        private protected readonly string DbName;
 
         /// <summary>
         /// A list of fields that matches the SoftwareCode table
@@ -204,6 +204,54 @@ namespace Core.Db
         //        }
         //    }
         //}
+
+
+
+        /// <summary>
+        /// Executes a query and maps results using a custom reader function
+        /// </summary>
+        /// <typeparam name="T">The type to return</typeparam>
+        /// <param name="query">The SQL query string</param>
+        /// <param name="parameters">Optional parameters as a list of <see cref="SqlParameter"/></param>
+        /// <param name="mapFunction">Function to map SqlDataReader to type T</param>
+        /// <returns>A list of mapped results</returns>
+        protected async Task<List<T>> ExecuteReaderAsync<T>(string query, List<SqlParameter> parameters, Func<SqlDataReader, T> mapFunction)
+        {
+            var results = new List<T>();
+
+            using (var con = new SqlConnection(ConnectionString))
+            {
+                await con.OpenAsync();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    if (parameters != null)
+                        cmd.Parameters.AddRange(parameters.ToArray());
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            results.Add(mapFunction(reader));
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Executes a query and maps results using a custom reader function (no parameters overload)
+        /// </summary>
+        /// <typeparam name="T">The type to return</typeparam>
+        /// <param name="query">The SQL query string</param>
+        /// <param name="mapFunction">Function to map SqlDataReader to type T</param>
+        /// <returns>A list of mapped results</returns>
+        protected async Task<List<T>> ExecuteReaderAsync<T>(string query, Func<SqlDataReader, T> mapFunction)
+        {
+            return await ExecuteReaderAsync(query, null, mapFunction);
+        }
+
     }
 
 

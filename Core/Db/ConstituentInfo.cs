@@ -1,8 +1,8 @@
 ﻿namespace Core.Db
 {
-    public struct ConstituentInfo
+    public class ConstituentInfo
     {
-        public string Name { get; set; }
+        public string? ShortName { get; set; }
         public string Symbol { get; set; }
     }
 }

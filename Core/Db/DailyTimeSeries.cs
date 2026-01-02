@@ -26,7 +26,7 @@ namespace Core.Db
         /// <returns>A list of stock data for each ticker</returns>
         public static async Task<List<List<IStockInfo>>> GetAllStocks()
         {
-            var constituents = await Constituents.GetConstituents();
+            var constituents = await new Constituents().GetConstituents();
             var db = new DailyTimeSeries();
             var stockData = new List<List<IStockInfo>>(constituents.Count);  
             foreach (var constituent in constituents)
@@ -53,7 +53,7 @@ namespace Core.Db
         /// <returns></returns>
         public async Task InsertDailyStockList(IEnumerable<IStockInfo> stocks)
         {
-            var sqlQueryStatement = $"insert into {Schema} values (@date,@ticker,@open,@close,@volume,@high,@low)";
+            var sqlQueryStatement = $"insert into {DbName} values (@date,@ticker,@open,@close,@volume,@high,@low)";
             foreach (var stock in stocks)
             {
                 await base.Insert(sqlQueryStatement,

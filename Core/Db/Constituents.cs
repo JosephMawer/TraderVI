@@ -1,43 +1,23 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data;
 using System.Threading.Tasks;
-using db = Core.Db.Constituents;
+
 namespace Core.Db
 {
     public class Constituents : SQLBase
     {
-        public Constituents() : base("[Constituents]", "[Name],[Symbol]") { }
+        public Constituents() : base("[Symbols]", "[Symbol]") { }
 
-        // expose static api over this class
-        public static async Task Insert(string name, string symbol)
-            => await new db().InsertConstituent(name, symbol);
-
-        /// <summary>
-        /// Inserts a symbol into the Symbols table
-        /// </summary>
-        /// <param name="symbol">The stock symbol, aka ticker</param>
-        /// <param name="name">Name or description of stock</param>
-        /// <param name="exchange">The exchange to which the stock belongs</param>
-        /// <returns></returns>
         public async Task InsertConstituent(string name, string symbol)
         {
-            var query = $"INSERT INTO {Schema} VALUES ('{name.Replace("'", "''")}','{symbol.Replace("'", "''")}')";
-            using (SqlConnection con = new SqlConnection(ConnectionString))
-            {
-                try
-                {
-                    await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    var msg = ex.Message;
-                }
-            }
+            var query = $"INSERT INTO {DbName} ({Fields}) VALUES (@name, @symbol)";
+            await Insert(query,
+             [
+                new SqlParameter("@name", SqlDbType.NVarChar, 100) { Value = name },
+                new SqlParameter("@symbol", SqlDbType.VarChar, 10) { Value = symbol }
+             ]);
         }
 
         /// <summary>
@@ -45,41 +25,16 @@ namespace Core.Db
         /// </summary>
         /// <param name="count">Optional: the number of constituents to return</param>
         /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
-        public static async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
+        public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
         {
-            var sql = (count != null) ? $"TOP({count})" : "";
-            string query = $"SELECT {sql} Name,Symbol FROM [Constituents]";
+            var topClause = count.HasValue ? $"TOP({count.Value})" : "";
+            string query = $"SELECT {topClause} {Fields} FROM {DbName}";
 
-            var lst = new List<ConstituentInfo>();
-            using (SqlConnection con = new SqlConnection(Database))
+            return await ExecuteReaderAsync(query, reader => new ConstituentInfo
             {
-                try
-                {
-                    await con.OpenAsync();
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                var s = new ConstituentInfo()
-                                {
-                                    Name = reader.GetString(0),
-                                    Symbol = reader.GetString(1)
-                                };
-                                lst.Add(s);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    var msg = ex.Message;
-                }
-
-            }
-
-            return lst;
+                //ShortName = reader.GetString(0),
+                Symbol = reader.GetString(0)
+            });
         }
     }
 }

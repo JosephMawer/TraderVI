@@ -28,5 +28,8 @@ namespace Core.ML.Engine.Training.Classifiers
 
         // Label: 1 = head-and-shoulders present in this window (according to you)
         public bool HasHeadAndShoulders { get; set; }
+
+        // New: label for 30-bar trend direction task
+        public bool IsTrendUp { get; set; }
     }
 }

@@ -296,7 +296,7 @@ namespace Sandbox
             var db = new Core.Db.DailyTimeSeries();  
             foreach (var constituent in constituents)
             {
-                Console.WriteLine("Currently checking alerts for " + constituent.Symbol + "    " + constituent.Name);
+                Console.WriteLine("Currently checking alerts for " + constituent.Symbol + "    " + constituent.ShortName);
                 List<IStockInfo> stock = await db.GetAllStockDataFor(constituent.Symbol);
 
                 // Set of base extension methods can perform technical operations

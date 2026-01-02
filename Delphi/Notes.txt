@@ -1,0 +1,52 @@
+﻿Perfect — we’ll treat those as your two “authoritative” references for (a) what signals/patterns to care about and (b) how to translate them into features + model inputs inside Delphi.
+
+Here’s how I’d map them into your architecture:
+
+How they plug into Delphi
+Edwards & Magee → the “pattern + structure” layer
+
+Great for:
+
+trendlines + breaks
+
+support/resistance
+
+classical patterns (H&S, double tops/bottoms, triangles, flags/pennants, etc.)
+
+In Delphi terms:
+
+Your existing PatternWindow classifiers fit here (H&S now; more later).
+
+Also a set of rule-derived features (distance to support, slope of trendline, breakout flag, etc.) that feed the regression model.
+
+Granville → the “volume confirms price” layer
+
+Great for:
+
+volume/price relationships (accumulation vs distribution style logic)
+
+volume thrust / climactic volume ideas
+
+indicators derived from volume behavior (often used as confirmation/early warning)
+
+In Delphi terms:
+
+Add volume-centric features to FeatureRow (you already started: volume MAs, ratios).
+
+Optionally add a few dedicated IStockSignalModels that output a directional score based on volume/price behavior, which the TradeDecisionEngine can weight alongside ML outputs.
+
+Practical next step I recommend
+
+Create a small “book-backed signals” module in code:
+
+Delphi.Signals.ClassicalPatterns (Edwards & Magee inspired)
+
+Delphi.Signals.VolumePrice (Granville inspired)
+
+Even if the final decision is ML-driven, these signals become:
+
+extra features for the regressor, and/or
+
+independent models in the aggregator (rule score + ML score together).
+
+If you want, I’ll draft the concrete C# skeleton for those two namespaces (interfaces, a couple first signals, and how they feed FeatureRow + TradeDecisionEngine) so we can start implementing immediately.

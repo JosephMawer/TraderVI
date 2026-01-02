@@ -6,11 +6,7 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -21,6 +17,7 @@ namespace Core.Db
         public string Name { get; set; }
         public string Exchange { get; set; }
     }
+
     public class QuoteRepository : SQLBase
     {
         public QuoteRepository() : base("[dbo].[Ticker]", "[Ticker],[Name],[Exchange]") { }
@@ -28,35 +25,40 @@ namespace Core.Db
         /// <summary>
         /// Gets a list of symbols
         /// </summary>
-        /// <param name="Filter"></param>
+        /// <param name="Filter">Optional WHERE clause filter (e.g., "WHERE Exchange = 'TSX'")</param>
         /// <returns>An ordered list of <see cref="TickerInfo"/></returns>
-        public async Task<List<TickerInfo>> GetSymbols(string Filter)
+        public async Task<List<TickerInfo>> GetSymbols(string Filter = null)
         {
-            var sql = $"select {Fields} from {Schema}";
+            var sql = $"SELECT {Fields} FROM {DbName}";
             if (!string.IsNullOrEmpty(Filter))
                 sql += $" {Filter}";
-            sql += $" order by [Symbol]";
-
+            sql += " ORDER BY [Symbol]";
 
             var lst = new List<TickerInfo>();
 
-            throw new NotImplementedException("need to implement reader for sqlite.");
-            // todo - could use a data reader object here instead
-            //var table = await base.GetDataTableFromSQL(sql);
-            //foreach (DataRow row in table.Rows)
-            //{
-            //    var si = new SymbolInfo
-            //    {
-            //        Symbol = row[0].ToString(),
-            //        Name = row[1].ToString(),
-            //        Exchange = row[2].ToString()
-            //    };
-            //    lst.Add(si);
-            //}
+            using (var con = new SqlConnection(ConnectionString))
+            {
+                await con.OpenAsync();
+                using (var cmd = new SqlCommand(sql, con))
+                {
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            lst.Add(new TickerInfo
+                            {
+                                Symbol = reader.GetString(0),
+                                Name = reader.GetString(1),
+                                Exchange = reader.GetString(2)
+                            });
+                        }
+                    }
+                }
+            }
+
             return lst;
         }
 
-     
         /// <summary>
         /// Inserts a symbol into the Symbols table
         /// </summary>
@@ -66,24 +68,24 @@ namespace Core.Db
         /// <returns></returns>
         public async Task InsertSymbol(string symbol, string name, string exchange)
         {
-            var query = $"INSERT INTO {Schema} VALUES ('{symbol.Replace("'", "''")}','{name.Replace("'", "''")}','{exchange}')";
-            using SqlConnection con = new SqlConnection(ConnectionString);
-            try
+            var query = $"INSERT INTO {DbName} VALUES (@Symbol, @Name, @Exchange)";
+            using (var con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                using (var cmd = new SqlCommand(query, con))
                 {
+                    cmd.Parameters.AddWithValue("@Symbol", symbol);
+                    cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@Exchange", exchange);
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
-            }
         }
 
-        // Convert TMX local string to UTC DateTime (assumes Toronto exchange time)
-        private  DateTime ToUtcFromTmxLocal(string s)
+        /// <summary>
+        /// Convert TMX local string to UTC DateTime (assumes Toronto exchange time)
+        /// </summary>
+        private DateTime ToUtcFromTmxLocal(string s)
         {
             // Try parse with invariant culture (handles "2025-10-24 3:55:00 PM")
             if (!DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var local))
@@ -93,23 +95,27 @@ namespace Core.Db
             var et = TimeZoneInfo.ConvertTimeToUtc(unspecified, est);
             return et; // UTC
         }
+
+        /// <summary>
+        /// Inserts TMX time series data into dbo.Quotes table
+        /// </summary>
         public async Task InsertDailyAsync(string symbol, List<TmxTimeSeriesPointDto> points)
         {
             using var conn = new SqlConnection(base.ConnectionString);
             await conn.OpenAsync();
 
-            // Ensure the symbol exists in Market.Symbols
+            // Ensure the symbol exists in dbo.Symbols
             using (var upsertSymbol = new SqlCommand(
                 @"MERGE dbo.Symbols AS T
-              USING (SELECT @Symbol AS Symbol) AS S
-              ON T.Symbol = S.Symbol
-              WHEN NOT MATCHED THEN INSERT (Symbol) VALUES (S.Symbol);", conn))
+                  USING (SELECT @Symbol AS Symbol) AS S
+                  ON T.Symbol = S.Symbol
+                  WHEN NOT MATCHED THEN INSERT (Symbol) VALUES (S.Symbol);", conn))
             {
                 upsertSymbol.Parameters.AddWithValue("@Symbol", symbol);
                 await upsertSymbol.ExecuteNonQueryAsync();
             }
 
-            // Bulk insert into Market.Quotes using a DataTable (fast, PK prevents dupes)
+            // Bulk insert into dbo.Quotes using a DataTable (fast, PK prevents dupes)
             var dt = new DataTable();
             dt.Columns.Add("Symbol", typeof(string));
             dt.Columns.Add("CreatedUtc", typeof(DateTime));
@@ -178,67 +184,101 @@ namespace Core.Db
                 // For idempotent loads, you can ignore or switch to MERGE-per-row if you need updates.
             }
         }
-        //public async Task SaveDailyBarAsync(string symbol, DailyQuote quote)
-        //{
-        //    const string sql = @"
-        //INSERT OR REPLACE INTO DailyBars (Symbol, Date, Open, High, Low, Close, Volume)
-        //VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
 
-        //    await _connection.ExecuteAsync(sql, new
-        //    {
-        //        Symbol = symbol,
-        //        Date = quote.Date.ToString("yyyy-MM-dd"),
-        //        quote.Open,
-        //        quote.High,
-        //        quote.Low,
-        //        quote.Close,
-        //        quote.Volume
-        //    });
-        //}
-
-        //public async Task<List<DailyBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
-        //{
-        //    var sql = "SELECT * FROM DailyBars WHERE Symbol = @Symbol";
-
-        //    if (startDate.HasValue)
-        //        sql += " AND Date >= @StartDate";
-
-        //    sql += " ORDER BY Date ASC";
-
-        //    var rows = await _connection.QueryAsync(sql, new { Symbol = symbol, StartDate = startDate?.ToString("yyyy-MM-dd") });
-
-        //    // Explicitly cast rows to IEnumerable<dynamic> to resolve CS0411
-        //    return ((IEnumerable<dynamic>)rows).Select(r => new DailyBar
-        //    {
-        //        Date = DateTime.Parse(r.Date),
-        //        Open = r.Open,
-        //        High = r.High,
-        //        Low = r.Low,
-        //        Close = r.Close,
-        //        Volume = r.Volume
-        //    }).ToList();
-        //}
-
-
+        /// <summary>
+        /// Inserts daily OHLCV bars into dbo.DailyBars table using MERGE for idempotent upsert
+        /// </summary>
         public async Task InsertDailyBarsAsync(string symbol, List<OhlcvBar> bars)
         {
-            const string sql = @"
-            INSERT OR REPLACE INTO DailyBars 
-            (Symbol, Date, Open, High, Low, Close, Volume)
-            VALUES (@Symbol, @Date, @Open, @High, @Low, @Close, @Volume)";
+            if (bars == null || bars.Count == 0)
+                return;
 
-            var parameters = bars.Select(bar => new
+            using var conn = new SqlConnection(base.ConnectionString);
+            await conn.OpenAsync();
+
+            // Use MERGE for upsert behavior (SQL Server equivalent of INSERT OR REPLACE)
+            const string mergeSql = @"
+                MERGE dbo.DailyBars AS target
+                USING (SELECT @Symbol AS Symbol, @Date AS Date, @Open AS [Open], 
+                              @High AS High, @Low AS Low, @Close AS [Close], @Volume AS Volume) AS source
+                ON (target.Symbol = source.Symbol AND target.Date = source.Date)
+                WHEN MATCHED THEN 
+                    UPDATE SET [Open] = source.[Open], High = source.High, Low = source.Low, 
+                               [Close] = source.[Close], Volume = source.Volume
+                WHEN NOT MATCHED THEN
+                    INSERT (Symbol, Date, [Open], High, Low, [Close], Volume)
+                    VALUES (source.Symbol, source.Date, source.[Open], source.High, source.Low, source.[Close], source.Volume);";
+
+            using (var cmd = new SqlCommand(mergeSql, conn))
             {
-                Symbol = symbol,
-                Date = bar.TimestampUtc.ToString("yyyy-MM-dd"),
-                bar.Open,
-                bar.High,
-                bar.Low,
-                bar.Close,
-                bar.Volume
-            });
+                // Prepare parameters once, reuse for each bar
+                cmd.Parameters.Add("@Symbol", SqlDbType.VarChar, 10);
+                cmd.Parameters.Add("@Date", SqlDbType.Date);
+                cmd.Parameters.Add("@Open", SqlDbType.Real);
+                cmd.Parameters.Add("@High", SqlDbType.Real);
+                cmd.Parameters.Add("@Low", SqlDbType.Real);
+                cmd.Parameters.Add("@Close", SqlDbType.Real);
+                cmd.Parameters.Add("@Volume", SqlDbType.BigInt);
 
-            //await _connection.ExecuteAsync(sql, parameters);
+                foreach (var bar in bars)
+                {
+                    cmd.Parameters["@Symbol"].Value = symbol;
+                    cmd.Parameters["@Date"].Value = bar.TimestampUtc.Date;
+                    cmd.Parameters["@Open"].Value = bar.Open;
+                    cmd.Parameters["@High"].Value = bar.High;
+                    cmd.Parameters["@Low"].Value = bar.Low;
+                    cmd.Parameters["@Close"].Value = bar.Close;
+                    cmd.Parameters["@Volume"].Value = bar.Volume;
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves daily bars for a specific symbol, optionally filtered by start date
+        /// </summary>
+        public async Task<List<OhlcvBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
+        {
+            var sql = @"SELECT Date, [Open], High, Low, [Close], Volume 
+                       FROM dbo.DailyBars 
+                       WHERE Symbol = @Symbol";
+
+            if (startDate.HasValue)
+                sql += " AND Date >= @StartDate";
+
+            sql += " ORDER BY Date ASC";
+
+            var bars = new List<OhlcvBar>();
+
+            using (var conn = new SqlConnection(base.ConnectionString))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Symbol", symbol);
+                    if (startDate.HasValue)
+                        cmd.Parameters.AddWithValue("@StartDate", startDate.Value.Date);
+
+                    //using (var reader = await cmd.ExecuteReaderAsync())
+                    //{
+                    //    while (await reader.ReadAsync())
+                    //    {
+                    //        bars.Add(new OhlcvBar
+                    //        {
+                    //            TimestampUtc = reader.GetDateTime(0),
+                    //            Open = reader.GetFloat(1),
+                    //            High = reader.GetFloat(2),
+                    //            Low = reader.GetFloat(3),
+                    //            Close = reader.GetFloat(4),
+                    //            Volume = reader.GetInt64(5)
+                    //        });
+                    //    }
+                    //}
+                }
+            }
+
+            return bars;
         }
     }
 }
