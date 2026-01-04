@@ -236,49 +236,38 @@ namespace Core.Db
         }
 
         /// <summary>
-        /// Retrieves daily bars for a specific symbol, optionally filtered by start date
+        /// Retrieves daily bars for a specific symbol, optionally filtered by start date.
         /// </summary>
-        public async Task<List<OhlcvBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
+        public async Task<List<DailyBar>> GetDailyBarsAsync(string symbol, DateTime? startDate = null)
         {
-            var sql = @"SELECT Date, [Open], High, Low, [Close], Volume 
-                       FROM dbo.DailyBars 
-                       WHERE Symbol = @Symbol";
+            var sql = @"
+SELECT [Date], [Open], High, Low, [Close], Volume
+FROM [dbo].[DailyBars]
+WHERE [Symbol] = @Symbol";
+
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Symbol", SqlDbType.VarChar, 10) { Value = symbol }
+            };
 
             if (startDate.HasValue)
-                sql += " AND Date >= @StartDate";
-
-            sql += " ORDER BY Date ASC";
-
-            var bars = new List<OhlcvBar>();
-
-            using (var conn = new SqlConnection(base.ConnectionString))
             {
-                await conn.OpenAsync();
-                using (var cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Symbol", symbol);
-                    if (startDate.HasValue)
-                        cmd.Parameters.AddWithValue("@StartDate", startDate.Value.Date);
-
-                    //using (var reader = await cmd.ExecuteReaderAsync())
-                    //{
-                    //    while (await reader.ReadAsync())
-                    //    {
-                    //        bars.Add(new OhlcvBar
-                    //        {
-                    //            TimestampUtc = reader.GetDateTime(0),
-                    //            Open = reader.GetFloat(1),
-                    //            High = reader.GetFloat(2),
-                    //            Low = reader.GetFloat(3),
-                    //            Close = reader.GetFloat(4),
-                    //            Volume = reader.GetInt64(5)
-                    //        });
-                    //    }
-                    //}
-                }
+                sql += " AND [Date] >= @StartDate";
+                parameters.Add(new SqlParameter("@StartDate", SqlDbType.Date) { Value = startDate.Value.Date });
             }
 
-            return bars;
+            sql += " ORDER BY [Date] ASC";
+
+            return await ExecuteReaderAsync(sql, parameters, reader => new DailyBar
+            {
+                Date = reader.GetDateTime(0),
+                Open = reader.GetFloat(1),
+                High = reader.GetFloat(2),
+                Low = reader.GetFloat(3),
+                Close = reader.GetFloat(4),
+                Volume = reader.GetInt64(5)
+            });
         }
+
     }
 }

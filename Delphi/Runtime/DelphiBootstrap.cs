@@ -3,7 +3,6 @@ using Core.Trader;
 using Delphi.Signals.Structure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Delphi.Runtime
@@ -19,12 +18,9 @@ namespace Delphi.Runtime
 
             foreach (var m in models)
             {
-                // Minimal mapping: only wire up Trend30 for now.
-                // Add more cases as you add more tasks.
-                if (string.Equals(m.TaskType, "Trend30dDirection", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(m.TaskType, "Trend30", StringComparison.OrdinalIgnoreCase))
                 {
                     signalModels.Add(new Trend30ContextSignalModel(m.ZipPath));
-                    continue;
                 }
             }
 
