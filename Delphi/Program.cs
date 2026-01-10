@@ -1,33 +1,33 @@
-﻿using Core.ML;
+﻿using Core.Db;
+using Core.ML;
 using Delphi.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 Console.WriteLine("The Oracle Of Delphi");
 
-
 var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry();
-//•	then feed it per-ticker List<DailyBar> history and call engine.Evaluate(history).
 
+const string symbol = "CEU";
 
-var history = new List<DailyBar>();
+// Load enough daily bars so Trend30 can evaluate (needs 30)
+var history = await new QuoteRepository().GetDailyBarsAsync(symbol);
 
+if (history.Count < 30)
+{
+    Console.WriteLine($"Not enough history for {symbol}. Bars loaded: {history.Count}");
+    return;
+}
 
+var result = engine.Evaluate(history);
 
-engine.Evaluate(history);
+Console.WriteLine();
+Console.WriteLine($"Ticker: {symbol}");
+Console.WriteLine($"Final Direction: {result.Direction}");
+Console.WriteLine("Signals:");
 
-//// Use this app to load historical data and get a prediction
-
-//HeadAndShouldersTrainer.TrainOnSampleData();
-
-
-//// load our stock data
-//// Called when you have the latest 30 bars (e.g., at end of day or intraday)
-
-
-//var last30Bars = GetLast30BarsForSymbol("AAPL"); // your code
-//var liveWindow = BuildLiveWindow(last30Bars);
-
-//var pred = HsClassifierRuntime.Predict(liveWindow);
-
-//Console.WriteLine($"Head-and-shoulders? {pred.PredictedLabel}, Prob={pred.Probability:0.###}");
+foreach (var s in result.Signals)
+{
+    Console.WriteLine($"- {s.Name}: Score={s.Score:0.###}, Hint={s.Hint}, Notes={s.Notes}");
+}
