@@ -83,6 +83,28 @@ namespace Core.Db
         }
 
         /// <summary>
+        /// Returns the latest stored daily bar date for a symbol (dbo.DailyBars), or null if none exist.
+        /// </summary>
+        public async Task<DateTime?> GetLatestDailyBarDateAsync(string symbol)
+        {
+            const string sql = @"
+SELECT MAX([Date])
+FROM [dbo].[DailyBars]
+WHERE [Symbol] = @Symbol;";
+
+            using var con = new SqlConnection(ConnectionString);
+            await con.OpenAsync();
+            using var cmd = new SqlCommand(sql, con);
+            cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.VarChar, 10) { Value = symbol });
+
+            var value = await cmd.ExecuteScalarAsync();
+            if (value == null || value == DBNull.Value)
+                return null;
+
+            return (DateTime)value;
+        }
+
+        /// <summary>
         /// Convert TMX local string to UTC DateTime (assumes Toronto exchange time)
         /// </summary>
         private DateTime ToUtcFromTmxLocal(string s)
@@ -268,6 +290,5 @@ WHERE [Symbol] = @Symbol";
                 Volume = reader.GetInt64(5)
             });
         }
-
     }
 }
