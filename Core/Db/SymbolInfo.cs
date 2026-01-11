@@ -1,6 +1,6 @@
 ﻿namespace Core.Db
 {
-    public class ConstituentInfo
+    public class SymbolInfo
     {
         public string? ShortName { get; set; }
         public string Symbol { get; set; }

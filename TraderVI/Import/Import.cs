@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using dts = Core.Db.DailyTimeSeries;
-using cts = Core.Db.Constituents;
+using cts = Core.Db.SymbolsRepository;
 using Core.Db;
 
 namespace TraderVI.Import
@@ -77,7 +77,7 @@ namespace TraderVI.Import
             //}
         
         }
-        private static async Task AddStockDataToDatabase(ConstituentInfo constituent)
+        private static async Task AddStockDataToDatabase(SymbolInfo constituent)
         {
             var symbol = constituent.Symbol;
             
@@ -118,7 +118,7 @@ namespace TraderVI.Import
             //        await cts.Insert(constituent.Name, constituent.Symbol); 
         }
 
-        private static bool EnsureRequestIsValid(ConstituentInfo constituent)
+        private static bool EnsureRequestIsValid(SymbolInfo constituent)
         {
             // todo: make an alpha vantage call here to ensure the ticker is 
             // working as expected.. i.e. 200 status code is returned.  

@@ -28,19 +28,19 @@ namespace TraderVI
             // start off with our ticker
 
             var symbol = "CEU";
-            var tmx = new TMX();
+            var tmx = new TmxClient();
             var tradeManager = new TradeManager(ghost: true);
             
             
-            var quote = await tmx.GetQuoteBySymbol(symbol);
-            decimal previousClose = quote.prevClose.Value;
+            //var quote = await tmx.GetQuoteBySymbol(symbol);
+            //decimal previousClose = quote.prevClose.Value;
 
 
 
             while (true)
             {
                 // really this should be running in background task that pulses in stock data for 'Active Trades'
-                var stockQuote = await tmx.GetIntradayTimeSeriesData(symbol, "minute", 5, DateTime.Now);
+                //var stockQuote = await tmx.GetIntradayTimeSeriesData(symbol, "minute", 5, DateTime.Now);
                 
 
                 // this loop should really just be waiting for 'Alerts' from various channels that are doing the processing
@@ -80,7 +80,7 @@ namespace TraderVI
             //await market.GetMarketIndices(print: true);
             //await market.GetConstituents(print: true);
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
 

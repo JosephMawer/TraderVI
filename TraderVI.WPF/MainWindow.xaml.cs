@@ -1,5 +1,4 @@
-﻿using Core.Rules;
-using Core.TMX;
+﻿using Core.TMX;
 using Core.TMX.Models;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -21,7 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using TraderVI.Core.Repositories;
+//using TraderVI.Core.Repositories;
 using TraderVI.Extensions;
 using TraderVI.WPF.Helpers;
 using TraderVI.WPF.Viewmodels;
@@ -41,14 +40,14 @@ namespace TraderVI.WPF
     {
 
         private readonly WSTrade wstrade;
-        private readonly TMX tmx;
+        private readonly TmxClient tmx;
         private readonly string token_path = @"C:\src\ws_tokens.txt";
         private readonly string watchlistPath = @"C:\src\watchlist.txt";
         private List<Account> accountsList;
         private List<Order> ordersList;
         private Account selectedAccount;
         private List<OrdersViewModel> ordersTable;
-        private readonly ITradesRepository tradesRepository;// = new TradesFlatFileRepository();
+        //private readonly ITradesRepository tradesRepository;// = new TradesFlatFileRepository();
 
         #region View Bindings (Properties)
         private ObservableCollection<MarketMoverItem> _marketMoversList;
@@ -65,12 +64,12 @@ namespace TraderVI.WPF
             set { _watchList = value; OnPropertyRaised(nameof(WatchList)); }
         }
 
-        private ObservableCollection<Trade> _activeTrades;
-        public ObservableCollection<Trade> ActiveTrades
-        {
-            get => _activeTrades;
-            set { _activeTrades = value; OnPropertyRaised(nameof(ActiveTrades)); }
-        }
+        //private ObservableCollection<Trade> _activeTrades;
+        //public ObservableCollection<Trade> ActiveTrades
+        //{
+        //    get => _activeTrades;
+        //    set { _activeTrades = value; OnPropertyRaised(nameof(ActiveTrades)); }
+        //}
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyRaised(string propertyname)
@@ -105,9 +104,9 @@ namespace TraderVI.WPF
                 {
                     txtSelectedWatchListItemSymbol.Text = WatchListSelectedItem.Symbol;
                     txtSelectedWatchListItemDescription.Text = WatchListSelectedItem.Name;
-                    if (ActiveTrades.Any(x => x.Symbol == txtSelectedWatchListItemSymbol.Text))
-                        btnSell.IsEnabled = true;
-                    else btnSell.IsEnabled = false;
+                    //if (ActiveTrades.Any(x => x.Symbol == txtSelectedWatchListItemSymbol.Text))
+                    //    btnSell.IsEnabled = true;
+                    //else btnSell.IsEnabled = false;
                 }
                 OnPropertyRaised(nameof(WatchListSelectedItem));
             }
@@ -122,7 +121,7 @@ namespace TraderVI.WPF
 
             WatchList = new AsyncObservableCollection<WatchListViewModel>();
             wstrade = new WSTrade();
-            tmx = new TMX();
+            tmx = new TmxClient();
             SetGUIDefaults();
 
             // kick off the long running background processing thread
@@ -137,8 +136,8 @@ namespace TraderVI.WPF
 
          
 
-            tradesRepository = new TradesFlatFileRepository();
-            ActiveTrades = tradesRepository.Get();
+            //tradesRepository = new TradesFlatFileRepository();
+            //ActiveTrades = tradesRepository.Get();
         }
 
         // sets the GUI defaults
@@ -203,22 +202,22 @@ namespace TraderVI.WPF
                 var security = await wstrade.GetSecurity(symbol);
                 var securityId = security.id;
 
-                var stock = await tmx.GetQuoteBySymbol(symbol);
+               // var stock = await tmx.GetQuoteBySymbol(symbol);
 
                 // todo: use the account object to request if we have available funds...avoid accessing the GUI objects 
                 var availableAccountFunds = double.Parse(txtAvailableToTrade.Text[1..]);
 
                 var quantity = trade.Quantity;  //10;   //int.Parse(txtQuickOrderQty.Text);
-                var requiredAmount = stock.price * quantity;
-                if (requiredAmount > availableAccountFunds)
-                {
-                    MessageBox.Show("You do not have enough funds to purchase the default quantity (10) of stocks for this company");
-                    return;
-                }
+                //var requiredAmount = stock.price * quantity;
+                //if (requiredAmount > availableAccountFunds)
+                //{
+                //    MessageBox.Show("You do not have enough funds to purchase the default quantity (10) of stocks for this company");
+                //    return;
+                //}
 
                 // place the order
-                var limitOrder = new LimitOrder(OrderSubType.buy_quantity, stock.price, quantity, securityId);
-                wstrade.PlaceOrder(limitOrder);
+                //var limitOrder = new LimitOrder(OrderSubType.buy_quantity, stock.price, quantity, securityId);
+                //wstrade.PlaceOrder(limitOrder);
 
                 // start polling for the order status
                 bool orderComplete = false;
@@ -230,7 +229,7 @@ namespace TraderVI.WPF
                     if (currentOrder.status == "posted" || currentOrder.status == "filled")
                     {
                         var amount = currentOrder.limit_price.amount;
-                        ActiveTrades = tradesRepository.Add(symbol, amount, quantity, (DateTime)currentOrder.filled_at);
+                        //ActiveTrades = tradesRepository.Add(symbol, amount, quantity, (DateTime)currentOrder.filled_at);
                         orderComplete = true;
                     }
 
@@ -270,12 +269,12 @@ namespace TraderVI.WPF
                 var symbol = position.stock.symbol;
                 var quantity = position.quantity; // or, sellable_quantity?
 
-                var stock = await tmx.GetQuoteBySymbol(symbol);
+                //var stock = await tmx.GetQuoteBySymbol(symbol);
 
-                var limitOrder = new LimitOrder(OrderSubType.sell_quantity, stock.price, quantity, securityId);
-                wstrade.PlaceOrder(limitOrder);
+               // var limitOrder = new LimitOrder(OrderSubType.sell_quantity, stock.price, quantity, securityId);
+                //wstrade.PlaceOrder(limitOrder);
 
-                ActiveTrades = tradesRepository.Remove(symbol);
+                //ActiveTrades = tradesRepository.Remove(symbol);
             }
             catch (Exception ex)
             {
@@ -400,15 +399,15 @@ namespace TraderVI.WPF
             {
                 try
                 {
-                    var tmx = new Market();
-                    var marketMovers = await tmx.GetMarketSummary(print: false);
-                    MarketMoversList = new ObservableCollection<MarketMoverItem>(marketMovers);
+                    //var tmx = new Market();
+                    //var marketMovers = await tmx.GetMarketSummary(print: false);
+                    //MarketMoversList = new ObservableCollection<MarketMoverItem>(marketMovers);
 
-                    //var refreshTokenTask = RefreshTokens();
-                    var watchListTask = UpdateWatchList();
-                    var activeTradesTask = UpdateActiveTrades();
-                    var marketActivityTrask = UpdateMarketData();
-                    await Task.WhenAll(new[] { watchListTask, activeTradesTask, marketActivityTrask });
+                    ////var refreshTokenTask = RefreshTokens();
+                    //var watchListTask = UpdateWatchList();
+                    //var activeTradesTask = UpdateActiveTrades();
+                    //var marketActivityTrask = UpdateMarketData();
+                    //await Task.WhenAll(new[] { watchListTask, activeTradesTask, marketActivityTrask });
                 }
                 catch (Exception ex)
                 {
@@ -432,31 +431,31 @@ namespace TraderVI.WPF
 
         private async Task UpdateActiveTrades()
         {
-            if (ActiveTrades is null) return;
-            foreach (var trade in ActiveTrades)
-            {
-                var quote = await tmx.GetQuoteBySymbol(trade.Symbol);
-                if (quote is null) continue;
-                trade.Price = quote.price;
-                if (trade.Sell)
-                {
-                    SystemSounds.Beep.Play();
-                    await Sell(new SellTransaction() { Symbol = trade.Symbol });
-                }
-            }
+            //if (ActiveTrades is null) return;
+            //foreach (var trade in ActiveTrades)
+            //{
+            //    var quote = await tmx.GetQuoteBySymbol(trade.Symbol);
+            //    if (quote is null) continue;
+            //    trade.Price = quote.price;
+            //    if (trade.Sell)
+            //    {
+            //        SystemSounds.Beep.Play();
+            //        await Sell(new SellTransaction() { Symbol = trade.Symbol });
+            //    }
+            //}
         }
         private async Task UpdateMarketData()
         {
-            var marketData = await tmx.GetMarketQuote();
-            var tsxMarket = marketData.Single(x => x.symbol.Contains("^TSX"));
+            //var marketData = await tmx.GetMarketQuote();
+            //var tsxMarket = marketData.Single(x => x.symbol.Contains("^TSX"));
 
-            Dispatcher.Invoke(() =>
-            {
-                txtTSX.Text = tsxMarket.longname.Substring(0, 7);
-                txtTSXPrice.Text = tsxMarket.price.ToString();
-                txtTSXDirection.Text = $"{tsxMarket.priceChange} ({tsxMarket.percentChange})";
-                txtTSXDirection.Foreground = (tsxMarket.priceChange < 0) ? Brushes.Red : Brushes.Green;
-            });
+            //Dispatcher.Invoke(() =>
+            //{
+            //    txtTSX.Text = tsxMarket.longname.Substring(0, 7);
+            //    txtTSXPrice.Text = tsxMarket.price.ToString();
+            //    txtTSXDirection.Text = $"{tsxMarket.priceChange} ({tsxMarket.percentChange})";
+            //    txtTSXDirection.Foreground = (tsxMarket.priceChange < 0) ? Brushes.Red : Brushes.Green;
+            //});
         }
         #region Watch List
    
@@ -464,46 +463,46 @@ namespace TraderVI.WPF
         {
             if (!File.Exists(watchlistPath)) return;
             var tickers = File.ReadAllLines(watchlistPath);
-            var tmx = new TMX();
-            var tasks = new List<Task<GetQuoteBySymbol>>();
-            foreach (var ticker in tickers)
-            {
-                var task = tmx.GetQuoteBySymbol(ticker);
-                tasks.Add(task);
-            }
+            var tmx = new TmxClient();
+            //var tasks = new List<Task<GetQuoteBySymbol>>();
+            //foreach (var ticker in tickers)
+            //{
+            //    var task = tmx.GetQuoteBySymbol(ticker);
+            //    tasks.Add(task);
+            //}
 
-            var quotes = (await Task.WhenAll(tasks.AsEnumerable())).ToList();
+            //var quotes = (await Task.WhenAll(tasks.AsEnumerable())).ToList();
 
-            // initialize collection for the first time
-            if (WatchList == null || WatchList.Count == 0) 
-            {
-                var tmp = new AsyncObservableCollection<WatchListViewModel>();
-                quotes.ForEach(x => tmp.Add(new WatchListViewModel()
-                {
-                    Symbol = x.symbol,
-                    Price = x.price.ToString("C"),
-                    PriceChange = x.priceChange?.ToString("C"),
-                    PercentChange = x.percentChange.ToString(),
-                    Volume = x.volume.ToString(),
-                    Name = x.name
-                }));
+            //// initialize collection for the first time
+            //if (WatchList == null || WatchList.Count == 0) 
+            //{
+            //    var tmp = new AsyncObservableCollection<WatchListViewModel>();
+            //    quotes.ForEach(x => tmp.Add(new WatchListViewModel()
+            //    {
+            //        Symbol = x.symbol,
+            //        Price = x.price.ToString("C"),
+            //        PriceChange = x.priceChange?.ToString("C"),
+            //        PercentChange = x.percentChange.ToString(),
+            //        Volume = x.volume.ToString(),
+            //        Name = x.name
+            //    }));
 
-                WatchList = new AsyncObservableCollection<WatchListViewModel>(tmp);
-            }
-            else // update the collection
-            {
-                foreach (var quote in quotes)
-                {
-                    if (quote is null) continue;
-                    var item = WatchList.Single(x => x.Symbol == quote.symbol);
-                    item.Symbol = quote.symbol;
-                    item.Price = quote.price.ToString();
-                    item.PriceChange = quote.priceChange.ToString();
-                    item.PercentChange = quote.percentChange.ToString();
-                    item.Volume = quote.volume.ToString();
-                    item.Name = quote.name;
-                }
-            }
+            //    WatchList = new AsyncObservableCollection<WatchListViewModel>(tmp);
+            //}
+            //else // update the collection
+            //{
+            //    foreach (var quote in quotes)
+            //    {
+            //        if (quote is null) continue;
+            //        var item = WatchList.Single(x => x.Symbol == quote.symbol);
+            //        item.Symbol = quote.symbol;
+            //        item.Price = quote.price.ToString();
+            //        item.PriceChange = quote.priceChange.ToString();
+            //        item.PercentChange = quote.percentChange.ToString();
+            //        item.Volume = quote.volume.ToString();
+            //        item.Name = quote.name;
+            //    }
+            //}
         }
 
         private async void addSymbolToWatchListClick(object sender, RoutedEventArgs e)
@@ -525,17 +524,17 @@ namespace TraderVI.WPF
             }
 
             // update the collection
-            var tmx = new TMX();
-            var quote = await tmx.GetQuoteBySymbol(symbol);
-            WatchList.Add(new WatchListViewModel()
-            {
-                Symbol = quote.symbol,
-                Price = quote.price.ToString("C"),
-                PriceChange = quote.priceChange?.ToString("C"),
-                PercentChange = quote.percentChange.ToString(),
-                Volume = quote.volume.ToString(),
-                Name = quote.name
-            });
+            var tmx = new TmxClient();
+            //var quote = await tmx.GetQuoteBySymbol(symbol);
+            //WatchList.Add(new WatchListViewModel()
+            //{
+            //    Symbol = quote.symbol,
+            //    Price = quote.price.ToString("C"),
+            //    PriceChange = quote.priceChange?.ToString("C"),
+            //    PercentChange = quote.percentChange.ToString(),
+            //    Volume = quote.volume.ToString(),
+            //    Name = quote.name
+            //});
         }
 
         private void DeleteWatchListItemClick(object sender, RoutedEventArgs e)

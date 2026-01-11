@@ -26,7 +26,7 @@ namespace Core.Db
         /// <returns>A list of stock data for each ticker</returns>
         public static async Task<List<List<IStockInfo>>> GetAllStocks()
         {
-            var constituents = await new Constituents().GetConstituents();
+            var constituents = await new SymbolsRepository().GetSymbols();
             var db = new DailyTimeSeries();
             var stockData = new List<List<IStockInfo>>(constituents.Count);  
             foreach (var constituent in constituents)

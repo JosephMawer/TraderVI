@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TraderVI.WPF"
-        xmlns:repository="clr-namespace:TraderVI.Core.Repositories;assembly=Core"
+        
           xmlns:converters="clr-namespace:TraderVI.WPF.Converters"
         mc:Ignorable="d"
         Background="#252525"
@@ -18,10 +18,10 @@
         Title="Trader Vi" Height="650" Width="1040">
 
 
-    <Window.Resources>
+    <!--<Window.Resources>
         <converters:NullToBooleanConverter x:Key="nullToBooleanConverter"/>
         <converters:ValueToForegroundColorConverter x:Key="valueToForegourndColorConverter"/>
-    </Window.Resources>
+    </Window.Resources>-->
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -168,12 +168,12 @@
                             <StackPanel Margin="10 12 15 5">
                                 <TextBlock Text="Currently trading..." FontSize="24"/>
                                 <!-- piece together your own items control to create some nice stuff that will make everyone think you are cool. and rightly so, because you are cool.  you might even be a hipster for all I know -->
-                                <ItemsControl ItemsSource="{Binding ActiveTrades}"
+                                <!--<ItemsControl ItemsSource="{Binding ActiveTrades}"
                                               Grid.IsSharedSizeScope="True">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type repository:Trade}">
                                             <materialDesign:Card Padding="5" Margin="0 15 0 2">
-                                                <!-- Ticker Info -->
+                                                --><!-- Ticker Info --><!--
                                                 <Grid Margin="0 0 0 0">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
@@ -194,11 +194,11 @@
                                                     </WrapPanel>
 
 
-                                                    <!--<Button Grid.Column="1"  Click="QuickOrderSellButotnClick"  Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                                    --><!--<Button Grid.Column="1"  Click="QuickOrderSellButotnClick"  Style="{StaticResource MaterialDesignRaisedLightButton}"
                                                Width="60" HorizontalAlignment="Right"
                                                 ToolTip="Quick buy always places a limit order a few cents above the asking price">
                                                         Sell
-                                                    </Button>-->
+                                                    </Button>--><!--
 
                                                     <StackPanel Grid.Row="2">
                                                         <TextBlock x:Name="txtCurrentlyTradingName" Grid.Row="1" Text="West port fuel systems"/>
@@ -216,7 +216,7 @@
                                                 </Grid>
 
                                             </materialDesign:Card>
-                                            <!--<DataTemplate.Triggers>
+                                            --><!--<DataTemplate.Triggers>
                                                 <DataTrigger
           Binding="{Binding IsSelected}"
           Value="True">
@@ -225,10 +225,10 @@
             Property="Background"
             Value="{DynamicResource MaterialDesignSelection}" />
                                                 </DataTrigger>
-                                            </DataTemplate.Triggers>-->
+                                            </DataTemplate.Triggers>--><!--
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                </ItemsControl>-->
                                 <!--<materialDesign:Card Padding="5" Margin="0 15 0 2">
                                     --><!-- Ticker Info --><!--
                                     <Grid Margin="0 0 0 0">

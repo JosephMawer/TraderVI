@@ -29,45 +29,45 @@ namespace Sandbox
     {
         // initialize members
         static List<List<IStockInfo>> StockData = new List<List<IStockInfo>>();
-        private static List<ConstituentInfo> Constituents;
+        private static List<SymbolInfo> _symbols;
         private static DailyTimeSeries TimeSeries = new DailyTimeSeries();
         private static DateTime Today = DateTime.Today;
-        private static TMX tmx;
+        private static TmxClient tmx;
 
 
         static async Task Main(string[] args)
         {
             var cs = Core.Utilities.Utils.GetConnectionString;
           
-            tmx = new TMX();
+            tmx = new TmxClient();
 
             await PrintStockQuoteDetails("CEU");
           
             // 1) Intraday: last 1 day of 5-minute bars
-            var intraday = await tmx.GetIntradayTimeSeriesData(
-                symbol: "CEU",//"BCE",
-                freq: "minute",
-                interval: 15,
-                startDateTime: DateTime.Today,//.Now.AddDays(-4),//DateTime.UtcNow.AddDays(-1),
-                endDateTime: null//DateTime.UtcNow
-            );
+            //var intraday = await tmx.GetIntradayTimeSeriesData(
+            //    symbol: "CEU",//"BCE",
+            //    freq: "minute",
+            //    interval: 15,
+            //    startDateTime: DateTime.Today,//.Now.AddDays(-4),//DateTime.UtcNow.AddDays(-1),
+            //    endDateTime: null//DateTime.UtcNow
+            //);
             //ConsoleTable.From(intraday).Write();
 
             //Console.WriteLine($"Intraday bars: {intraday[0].close}");
 
             // 2) Historical: weekly bars for 2015–2020
-            var historical = await tmx.getTimeSeriesData(
+            var historical = await tmx.GetHistoricalTimeSeriesAsync(
                 symbol: "BCE:US",
                 freq: "week",
                 startDate: new DateTime(2015, 10, 25).ToShortDateString(),
                 endDate: new DateTime(2020, 10, 25).ToShortDateString()
             );
-            Console.WriteLine($"Historical bars: {historical[0].open}");
+            Console.WriteLine($"Historical bars: {historical[0].Open}");
 
 
-            await tmx.GetQuoteBySymbolsAsync(print: true);
-            await tmx.GetMarketSummary(print: true);
-            await tmx.GetMarketMovers(print: true);
+            //await tmx.GetQuoteBySymbolsAsync(print: true);
+            //await tmx.GetMarketSummary();
+            //await tmx.GetMarketMovers();
 
 
             //Core.TMX.Stocks tmx = new Core.TMX.Stocks();
@@ -83,7 +83,7 @@ namespace Sandbox
 
 
             // load all constituents into memory from local database
-            Constituents = await Core.Db.Constituents.GetConstituents();
+            //_symbols = await new SymbolsRepository.GetSymbols();
 
 
             // searching all stocks for the head and shoulders pattern using various input
@@ -250,19 +250,19 @@ namespace Sandbox
 
         private static async Task PrintStockQuoteDetails(string symbol)
         {
-            var quote = await tmx.GetQuoteBySymbol("CEU");
+            //var quote = await tmx.GetQuoteBySymbol("CEU");
 
-            // After you fetched the GraphQL data:
-            var dto = quote.ToUiDto(); // defaults to en-CA, "$"
+            //// After you fetched the GraphQL data:
+            //var dto = quote.ToUiDto(); // defaults to en-CA, "$"
 
-            // Print a compact summary to console:
-            Console.WriteLine($"{dto.Symbol} — {dto.Name}");
-            Console.WriteLine($"{dto.PriceDisplay}  {dto.ChangeDisplay}");
-            Console.WriteLine($"Day:  {dto.DayRangeDisplay}   Prev Close: {dto.PEDisplay}");
-            Console.WriteLine($"52W:  {dto.Range52WDisplay}   Vol: {dto.VolumeDisplay}   MktCap: {dto.MarketCapDisplay}");
-            Console.WriteLine($"Div:  {dto.DividendDisplay}   PE: {dto.PEDisplay}");
-            Console.WriteLine($"{dto.Exchange} | {dto.Sector} / {dto.Industry}");
-            Console.WriteLine(dto.Website);
+            //// Print a compact summary to console:
+            //Console.WriteLine($"{dto.Symbol} — {dto.Name}");
+            //Console.WriteLine($"{dto.PriceDisplay}  {dto.ChangeDisplay}");
+            //Console.WriteLine($"Day:  {dto.DayRangeDisplay}   Prev Close: {dto.PEDisplay}");
+            //Console.WriteLine($"52W:  {dto.Range52WDisplay}   Vol: {dto.VolumeDisplay}   MktCap: {dto.MarketCapDisplay}");
+            //Console.WriteLine($"Div:  {dto.DividendDisplay}   PE: {dto.PEDisplay}");
+            //Console.WriteLine($"{dto.Exchange} | {dto.Sector} / {dto.Industry}");
+            //Console.WriteLine(dto.Website);
 
         }
 
@@ -291,7 +291,7 @@ namespace Sandbox
             Console.ForegroundColor = original;
         }
 
-        static async Task CheckForAlerts(IList<Core.Db.ConstituentInfo> constituents)
+        static async Task CheckForAlerts(IList<Core.Db.SymbolInfo> constituents)
         {
             var db = new Core.Db.DailyTimeSeries();  
             foreach (var constituent in constituents)

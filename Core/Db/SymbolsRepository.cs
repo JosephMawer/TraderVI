@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Core.Db
 {
-    public class Constituents : SQLBase
+    public class SymbolsRepository : SQLBase
     {
-        public Constituents() : base("[Symbols]", "[Symbol]") { }
+        public SymbolsRepository() : base("[Symbols]", "[Symbol]") { }
 
-        public async Task InsertConstituent(string name, string symbol)
+        public async Task AddSymbol(string name, string symbol)
         {
             var query = $"INSERT INTO {DbName} ({Fields}) VALUES (@name, @symbol)";
             await Insert(query,
@@ -25,12 +25,11 @@ namespace Core.Db
         /// </summary>
         /// <param name="count">Optional: the number of constituents to return</param>
         /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
-        public async Task<List<ConstituentInfo>> GetConstituents(int? count = null)
-        {
-            var topClause = count.HasValue ? $"TOP({count.Value})" : "";
-            string query = $"SELECT {topClause} {Fields} FROM {DbName}";
+        public async Task<List<SymbolInfo>> GetSymbols()
+        {            
+            string query = $"SELECT {Fields} FROM {DbName}";
 
-            return await ExecuteReaderAsync(query, reader => new ConstituentInfo
+            return await ExecuteReaderAsync(query, reader => new SymbolInfo
             {
                 //ShortName = reader.GetString(0),
                 Symbol = reader.GetString(0)

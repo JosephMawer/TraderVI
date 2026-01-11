@@ -18,8 +18,8 @@ static async Task RunBackfillAsync()
     var endDate = DateTime.Today.AddDays(-1);        // Up to yesterday
 
     // Get all TSX constituents
-    var db = new Constituents();
-    var constituents = await db.GetConstituents();
+    var db = new SymbolsRepository();
+    var constituents = await db.GetSymbols();
 
     Console.WriteLine($"Backfilling {constituents.Count} symbols up to {endDate:yyyy-MM-dd}");
     Console.WriteLine($"Estimated time: ~{constituents.Count * 0.5 / 60:F1} minutes\n");
@@ -89,7 +89,7 @@ static async Task RunDailyBatchCollection()
     var tmx = new TmxClient();
     var repository = new QuoteRepository();
 
-    var constituents = await new Constituents().GetConstituents();
+    var constituents = await new SymbolsRepository().GetSymbols();
     Console.WriteLine($"Collecting today's data for {constituents.Count} constituents\n");
 
     var today = DateTime.Today;
