@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantage.Net.Stocks", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermes", "Hermes\Hermes.csproj", "{3E18DB1C-7F54-4012-8CEF-89193D40DCD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Train", "ML.Train\ML.Train.csproj", "{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hercules", "ML.Train\Hercules.csproj", "{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Delphi", "Delphi\Delphi.csproj", "{A76FEDC7-D959-4A63-8461-FD2969906C4A}"
 EndProject
