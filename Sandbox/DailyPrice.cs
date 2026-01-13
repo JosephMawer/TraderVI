@@ -1,7 +1,7 @@
 ﻿//using Abot2.Crawler;
 //using Abot2.Poco;
-using AlphaVantage.Net.Stocks;
-using AlphaVantage.Net.Stocks.TimeSeries;
+//using AlphaVantage.Net.Stocks;
+//using AlphaVantage.Net.Stocks.TimeSeries;
 using Core;
 using Core.Db;
 using System;
@@ -29,7 +29,7 @@ namespace Sandbox
 
         // alpha vantage API key
 
-        private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
+        //private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(Constants.apiKey);
         private static bool CrawlComplete = false;
         static List<TickerInfo> tickers = new List<TickerInfo>();
         public static async Task DailyPriceMain(string[] args)
@@ -37,8 +37,8 @@ namespace Sandbox
           
 
             string Ticker = "";
-            StockTimeSeries stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(Ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
-            var c = await client.RequestBatchQuotesAsync(new[] { Ticker });
+            //StockTimeSeries stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(Ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
+            //var c = await client.RequestBatchQuotesAsync(new[] { Ticker });
 
             await BeginAnalysis();
             //await ImportDailyTimeSeries();
@@ -311,12 +311,12 @@ namespace Sandbox
 
 
             Console.WriteLine($"Collecting intraday data for: {Ticker}");
-            StockTimeSeries stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(Ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
-            foreach (var p in stockTimeSeries.DataPoints)
-            {
-                Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
-                await stockDb.Insert(Exchange, Ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
-            }
+            //StockTimeSeries stockTimeSeries = await client.RequestIntradayTimeSeriesAsync(Ticker, IntradayInterval.OneMin, TimeSeriesSize.Full);
+            //foreach (var p in stockTimeSeries.DataPoints)
+            //{
+            //    Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
+            //    await stockDb.Insert(Exchange, Ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
+            //}
             await Task.Delay(500);
 
             Console.WriteLine($"Successfully retrieved daily time series for {Ticker}");
@@ -329,12 +329,12 @@ namespace Sandbox
 
 
             Console.WriteLine($"Collecting daily data for: {Ticker}");
-            StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync(Ticker, TimeSeriesSize.Full, false);
-            foreach (var p in stockTimeSeries.DataPoints)
-            {
-                Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
-                await stockDb.Insert(Exchange, Ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
-            }
+            //StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync(Ticker, TimeSeriesSize.Full, false);
+            //foreach (var p in stockTimeSeries.DataPoints)
+            //{
+            //    Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
+            //    await stockDb.Insert(Exchange, Ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
+            //}
             await Task.Delay(500);
 
             Console.WriteLine($"Successfully retrieved daily time series for {Ticker}");
@@ -352,13 +352,13 @@ namespace Sandbox
             foreach (var ticker in tickers)
             {
                 Console.WriteLine($"Collecting monthly adjusted data for: {ticker.Symbol}   -- {ticker.Name}");
-                StockTimeSeries stockTimeSeries = await client.RequestMonthlyTimeSeriesAsync(ticker.Symbol, true);
-                var points = stockTimeSeries.DataPoints;
-                foreach (var p in points)
-                {
-                    //Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
-                    await stockDb.Insert(ticker.Exchange, ticker.Symbol, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
-                }
+                //StockTimeSeries stockTimeSeries = await client.RequestMonthlyTimeSeriesAsync(ticker.Symbol, true);
+                //var points = stockTimeSeries.DataPoints;
+                //foreach (var p in points)
+                //{
+                //    //Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
+                //    await stockDb.Insert(ticker.Exchange, ticker.Symbol, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
+                //}
                 await Task.Delay(500);
             }
             Console.WriteLine("Successfully inserted all data");
@@ -367,11 +367,11 @@ namespace Sandbox
 
         private static async Task GetCurrentStockPrice(string Ticker)
         {
-            var currentQuote = await client.RequestBatchQuotesAsync(new string[] { Ticker });
-            foreach (var info in currentQuote)
-            {
-                Console.WriteLine($"Current Price of {Ticker} is: {info.Price},\t{info.Volume}");
-            }
+            //var currentQuote = await client.RequestBatchQuotesAsync(new string[] { Ticker });
+            //foreach (var info in currentQuote)
+            //{
+            //    Console.WriteLine($"Current Price of {Ticker} is: {info.Price},\t{info.Volume}");
+            //}
         }
         public static void WriteToConsole(string text, ConsoleColor color = ConsoleColor.White)
         {
@@ -410,12 +410,12 @@ namespace Sandbox
             foreach (var ticker in lines)
             {
                 Console.WriteLine($"Collecting daily data for: TSX:{ticker}");
-                StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"TSX:{ticker}", TimeSeriesSize.Compact);
-                foreach (var p in stockTimeSeries.DataPoints)
-                {
-                    Console.WriteLine($@"{p.Time,-5},{p.Volume,-5},{p.OpeningPrice,-5},{p.ClosingPrice,-5},{p.HighestPrice,-5},{p.LowestPrice,-5}");
-                    await stockDb.Insert("TSX", ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
-                }
+                //StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"TSX:{ticker}", TimeSeriesSize.Compact);
+                //foreach (var p in stockTimeSeries.DataPoints)
+                //{
+                //    Console.WriteLine($@"{p.Time,-5},{p.Volume,-5},{p.OpeningPrice,-5},{p.ClosingPrice,-5},{p.HighestPrice,-5},{p.LowestPrice,-5}");
+                //    await stockDb.Insert("TSX", ticker, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
+                //}
 
                 Console.WriteLine($"Successfully retrieved daily time series for {ticker}");
                 await Task.Delay(12000);
@@ -434,12 +434,12 @@ namespace Sandbox
             foreach (var symbol in SymbolList)
             {
                 Console.WriteLine($"Collecting daily data for: TSX:{symbol.Symbol}");
-                StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"TSX:{symbol.Symbol}", TimeSeriesSize.Compact);
-                foreach (var p in stockTimeSeries.DataPoints)
-                {
-                    //Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
-                    await stockDb.Insert("TSX", symbol.Symbol, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
-                }
+                //StockTimeSeries stockTimeSeries = await client.RequestDailyTimeSeriesAsync($"TSX:{symbol.Symbol}", TimeSeriesSize.Compact);
+                //foreach (var p in stockTimeSeries.DataPoints)
+                //{
+                //    //Console.WriteLine($@"{p.Time},{p.Volume},{p.OpeningPrice},{p.ClosingPrice},{p.HighestPrice},{p.LowestPrice}");
+                //    await stockDb.Insert("TSX", symbol.Symbol, p.Time, p.Volume, p.OpeningPrice, p.ClosingPrice, p.HighestPrice, p.LowestPrice);
+                //}
 
                 Console.WriteLine($"Successfully retrieved daily time series for {symbol.Symbol}");
 

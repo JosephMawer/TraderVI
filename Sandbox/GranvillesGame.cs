@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using AlphaVantage.Net.Core;
-using AlphaVantage.Net.Stocks;
-using AlphaVantage.Net.Stocks.Indicators;
-using AlphaVantage.Net.Stocks.TimeSeries;
+//using AlphaVantage.Net.Core;
+//using AlphaVantage.Net.Stocks;
+//using AlphaVantage.Net.Stocks.Indicators;
+//using AlphaVantage.Net.Stocks.TimeSeries;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,8 +23,8 @@ namespace Sandbox
     {
             private static DataTable dt;
             private const string apiKey = "6IQSWE3D7UZHLKTB";
-            private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
-            private static readonly AlphaVantageIndicatorClient indicator = new AlphaVantageIndicatorClient(apiKey);
+            //private static readonly AlphaVantageStocksClient client = new AlphaVantageStocksClient(apiKey);
+            //private static readonly AlphaVantageIndicatorClient indicator = new AlphaVantageIndicatorClient(apiKey);
             private static readonly string OutputFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             #region Helper methods
@@ -164,12 +164,12 @@ namespace Sandbox
             /// </summary>
             /// <param name="colName"></param>
             /// <param name="s"></param>
-            private static void AddField(string colName, IndicatorPoint s)
-            {
-                var row = dt.Rows.Find(((DateTime)s.Time).ToShortDateString());
-                if (row == null) return;
-                row[colName] = s.Value;
-            }
+            //private static void AddField(string colName, IndicatorPoint s)
+            //{
+            //    var row = dt.Rows.Find(((DateTime)s.Time).ToShortDateString());
+            //    if (row == null) return;
+            //    row[colName] = s.Value;
+            //}
 
             /// <summary>
             /// Helper method that writes the data table to the console
@@ -200,14 +200,14 @@ namespace Sandbox
                 WriteLine($"Collecting time-series information for: {ticker}{Environment.NewLine}");
                 dt = MakeParentTable();
 
-                var prices = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Compact);
-                foreach (var currentStock in prices.DataPoints)
-                {
-                    DataRow row = dt.NewRow();
-                    row["Date"] = currentStock.Time.ToShortDateString();
-                    row["Close"] = currentStock.ClosingPrice.ToString();
-                    dt.Rows.Add(row);
-                }
+                //var prices = await client.RequestDailyTimeSeriesAsync($"{ticker}", TimeSeriesSize.Compact);
+                //foreach (var currentStock in prices.DataPoints)
+                //{
+                //    DataRow row = dt.NewRow();
+                //    row["Date"] = currentStock.Time.ToShortDateString();
+                //    row["Close"] = currentStock.ClosingPrice.ToString();
+                //    dt.Rows.Add(row);
+                //}
                 try
                 {
                     //StockIndicator sma200 = await indicator.RequestTechnicalIndicatorAsync(ApiFunction.SMA, $"{ticker}", IndicatorSize.Daily, 200, IndicatorSeriesType.Close);
@@ -281,27 +281,27 @@ namespace Sandbox
 
 
 
-            static StockDataPoint previous = null;
-            private static long GetOnBalanceVolume(StockDataPoint current)
-            {
-                if (previous == null) return 0;
+            //static StockDataPoint previous = null;
+            //private static long GetOnBalanceVolume(StockDataPoint current)
+            //{
+            //    if (previous == null) return 0;
 
-                if (current.ClosingPrice > previous.ClosingPrice)
-                {
-                    // total daily volume is added to a cumulative total whenever the stock price closes higher than the day before
-                    return current.Volume + previous.Volume;
-                }
-                else if (current.ClosingPrice < previous.ClosingPrice)
-                {
-                    //                ... is subtracted whenever stock price closes lower than day before
-                    return current.Volume - previous.Volume;
-                }
-                else
-                {
-                    // If the 
-                    return current.Volume;
-                }
-            }
+            //    if (current.ClosingPrice > previous.ClosingPrice)
+            //    {
+            //        // total daily volume is added to a cumulative total whenever the stock price closes higher than the day before
+            //        return current.Volume + previous.Volume;
+            //    }
+            //    else if (current.ClosingPrice < previous.ClosingPrice)
+            //    {
+            //        //                ... is subtracted whenever stock price closes lower than day before
+            //        return current.Volume - previous.Volume;
+            //    }
+            //    else
+            //    {
+            //        // If the 
+            //        return current.Volume;
+            //    }
+            //}
 
             private struct XOver
             {
@@ -324,44 +324,44 @@ namespace Sandbox
             /// <param name="sma1"></param>
             /// <param name="sma2"></param>
             /// <returns></returns>
-            private static string[] FindCrossOver(IndicatorPoint[] sma1, IndicatorPoint[] sma2)
-            {
-                // some considerations
-                // 1) we need to traverse the time series in the correct order, i.e. ensuring we go from the oldest to the newest
-                // 2) we need to consider what type of crossover we're looking for, i.e. is sma1 a, ex. 9 day moving average, and we are watching to see when this crosses over sma2? or vise versa
-                // 3) space/time complexity = O(n)  
-                // 4) ideally, this will work with a stream of data and constantly be able ot update itself as new data comes in
+            //private static string[] FindCrossOver(IndicatorPoint[] sma1, IndicatorPoint[] sma2)
+            //{
+            //    // some considerations
+            //    // 1) we need to traverse the time series in the correct order, i.e. ensuring we go from the oldest to the newest
+            //    // 2) we need to consider what type of crossover we're looking for, i.e. is sma1 a, ex. 9 day moving average, and we are watching to see when this crosses over sma2? or vise versa
+            //    // 3) space/time complexity = O(n)  
+            //    // 4) ideally, this will work with a stream of data and constantly be able ot update itself as new data comes in
 
-                List<string> results = new List<string>();
-                // take the smaller of the two lengths
-                int length = (sma1.Length > sma2.Length) ? sma2.Length : sma1.Length;
+            //    List<string> results = new List<string>();
+            //    // take the smaller of the two lengths
+            //    int length = (sma1.Length > sma2.Length) ? sma2.Length : sma1.Length;
 
-                // step 1 - determine if the short term indicator is currently lower or higher
-                bool isBelow = !(sma1[0].Value > sma2[0].Value);
-                for (int i = 0; i < length; i++)
-                {
-                    if (isBelow)
-                    {
-                        // if the short term indicator is lower than long term, we're only need to check when it increases past the sma2
-                        if (sma1[i].Value > sma2[i].Value)
-                        {
-                            results.Add($"SMA9 crossed the SMA50 at {((DateTime)sma1[i].Time).ToShortDateString()}, {(int)DateTime.Now.Subtract(((DateTime)sma1[i].Time)).TotalDays} ago, going down!");
-                            isBelow = false;
-                        }
-                    }
-                    else
-                    {
-                        // look for when it crosses below
-                        if (sma1[i].Value < sma2[i].Value)
-                        {
-                            results.Add($"SMA9 crossed the SMA50 at {((DateTime)sma1[i].Time).ToShortDateString()}, {(int)DateTime.Now.Subtract(((DateTime)sma1[i].Time)).TotalDays} ago,  going up!");
-                            isBelow = true;
-                        }
-                    }
-                }
+            //    // step 1 - determine if the short term indicator is currently lower or higher
+            //    bool isBelow = !(sma1[0].Value > sma2[0].Value);
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        if (isBelow)
+            //        {
+            //            // if the short term indicator is lower than long term, we're only need to check when it increases past the sma2
+            //            if (sma1[i].Value > sma2[i].Value)
+            //            {
+            //                results.Add($"SMA9 crossed the SMA50 at {((DateTime)sma1[i].Time).ToShortDateString()}, {(int)DateTime.Now.Subtract(((DateTime)sma1[i].Time)).TotalDays} ago, going down!");
+            //                isBelow = false;
+            //            }
+            //        }
+            //        else
+            //        {
+            //            // look for when it crosses below
+            //            if (sma1[i].Value < sma2[i].Value)
+            //            {
+            //                results.Add($"SMA9 crossed the SMA50 at {((DateTime)sma1[i].Time).ToShortDateString()}, {(int)DateTime.Now.Subtract(((DateTime)sma1[i].Time)).TotalDays} ago,  going up!");
+            //                isBelow = true;
+            //            }
+            //        }
+            //    }
 
-                return results.ToArray();
-            }
+            //    return results.ToArray();
+            //}
 
 
             /// <summary>
@@ -384,29 +384,29 @@ namespace Sandbox
                 return "";
             }
 
-            public static void GetSMA()
-            {
-                // this is the old way of getting the SMA...
+            //public static void GetSMA()
+            //{
+            //    // this is the old way of getting the SMA...
 
 
-                var coreClient = new AlphaVantageCoreClient();
+            //    var coreClient = new AlphaVantageCoreClient();
 
-                string key = apiKey;
+            //    string key = apiKey;
 
-                // retrieve stocks batch quoutes of Apple Inc. and Facebook Inc.:
-                var query = new Dictionary<string, string>()
-            {
-                { "symbol", "MSFT" },
-                { "interval", "weekly" },
-                { "time_period", "10" },
-                { "series_type", "open" }
-            };
-                var deserialisedResponse = coreClient.RequestApiAsync(key, ApiFunction.SMA, query).Result;
-                foreach (var obj in deserialisedResponse)
-                {
-                    Console.WriteLine($"{obj.Key} - {obj.Value}");
-                }
-            }
+            //    // retrieve stocks batch quoutes of Apple Inc. and Facebook Inc.:
+            //    var query = new Dictionary<string, string>()
+            //    {
+            //        { "symbol", "MSFT" },
+            //        { "interval", "weekly" },
+            //        { "time_period", "10" },
+            //        { "series_type", "open" }
+            //    };
+            //    var deserialisedResponse = coreClient.RequestApiAsync(key, ApiFunction.SMA, query).Result;
+            //    foreach (var obj in deserialisedResponse)
+            //    {
+            //        Console.WriteLine($"{obj.Key} - {obj.Value}");
+            //    }
+            //}
 
             public static void GetIndicesAverages()
             {
