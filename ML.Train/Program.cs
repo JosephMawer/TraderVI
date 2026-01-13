@@ -21,10 +21,10 @@ var registry = new ModelRegistryRepository();
 // ═══════════════════════════════════════════════════════════════════
 // Train Trend30 (medium-term trend)
 // ═══════════════════════════════════════════════════════════════════
-await TrainTrendModel<TrendWindow30>(
-    bars, lookback: 30, symbol, modelsRoot, registry,
-    taskType: TaskTypes.Trend30,
-    modelName: "Trend30 (Daily) - v1");
+//await TrainTrendModel<TrendWindow30>(
+//    bars, lookback: 30, symbol, modelsRoot, registry,
+//    taskType: TaskTypes.Trend30,
+//    modelName: "Trend30 (Daily) - v1");
 
 // ═══════════════════════════════════════════════════════════════════
 // Train Trend10 (short-term momentum)

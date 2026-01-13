@@ -6,22 +6,22 @@ using System.Linq;
 
 namespace Core.Trader.Signals.Structure;
 
-public class Trend10ContextSignalModel : IStockSignalModel
+public class Trend30ContextSignalModel : IStockSignalModel
 {
-    public string Name => "Trend10Context";
+    public string Name => "Trend30Context";
 
     private readonly string _modelZipPath;
 
-    public Trend10ContextSignalModel(string modelZipPath)
+    public Trend30ContextSignalModel(string modelZipPath)
     {
         _modelZipPath = modelZipPath;
     }
 
     public SignalResult Evaluate(IReadOnlyList<DailyBar> history)
     {
-        const int lookback = 10;
+        const int lookback = 30;
         if (history.Count < lookback)
-            return new SignalResult(Name, 0, TradeDirection.Hold, "Insufficient history (need 10 bars)");
+            return new SignalResult(Name, 0, TradeDirection.Hold, "Insufficient history (need 30 bars)");
 
         var windowBars = history.Skip(history.Count - lookback).Take(lookback).ToList();
 
@@ -31,13 +31,13 @@ public class Trend10ContextSignalModel : IStockSignalModel
         float avgVol = (float)windowBars.Average(b => (double)b.Volume);
         if (avgVol == 0) avgVol = 1f;
 
-        var input = new TrendWindow10
+        var input = new TrendWindow30
         {
             PriceNorm = windowBars.Select(b => (float)b.Close / firstClose).ToArray(),
             VolumeNorm = windowBars.Select(b => (float)b.Volume / avgVol).ToArray()
         };
 
-        var pred = TrendPrediction.PredictTrend10(input, _modelZipPath);
+        var pred = TrendPrediction.PredictTrend30(input, _modelZipPath);
 
         var hint =
             pred.Probability > 0.60f ? TradeDirection.Buy :
