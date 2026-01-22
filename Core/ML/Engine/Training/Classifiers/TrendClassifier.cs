@@ -22,13 +22,34 @@ public static class TrendClassifier
 
         var allWindows = datasetBuilder(bars, lookback);
 
-        int n = allWindows.Count;
+        TrainFromWindowsInternal(allWindows, lookback, modelPath, mlContext);
+    }
+
+    public static void TrainFromWindows<TWindow>(
+        IReadOnlyList<TWindow> windows,
+        int lookback,
+        string modelPath)
+        where TWindow : class, ITrendPatternWindow
+    {
+        var mlContext = new MLContext(seed: 123);
+
+        TrainFromWindowsInternal(windows, lookback, modelPath, mlContext);
+    }
+
+    private static void TrainFromWindowsInternal<TWindow>(
+        IReadOnlyList<TWindow> windows,
+        int lookback,
+        string modelPath,
+        MLContext mlContext)
+        where TWindow : class, ITrendPatternWindow
+    {
+        int n = windows.Count;
         if (n < 200)
             Console.WriteLine($"[WARN] Trend{lookback} dataset is small (n={n}). Results may be unstable.");
 
         int split = (int)(n * 0.8);
-        var trainList = allWindows.Take(split).ToList();
-        var testList = allWindows.Skip(split).ToList();
+        var trainList = windows.Take(split).ToList();
+        var testList = windows.Skip(split).ToList();
 
         IDataView trainData = mlContext.Data.LoadFromEnumerable(trainList);
         IDataView testData = mlContext.Data.LoadFromEnumerable(testList);
