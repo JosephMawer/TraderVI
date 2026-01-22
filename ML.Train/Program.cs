@@ -1,6 +1,6 @@
 ﻿using Core.Db;
-using Core.ML.Engine;
-using Core.ML.Engine.Training.Classifiers;
+using Core.ML;
+using Core.ML.Engine.Patterns;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,74 +12,63 @@ Console.WriteLine("=== ML Training Pipeline (Hercules) ===\n");
 var modelsRoot = @"C:\Users\joseph.mawer\OneDrive\Joseph\Programming\ML\_models";
 Directory.CreateDirectory(modelsRoot);
 
-const int lookback = 10;
-const int maxSymbols = 200; // keep runs bounded while iterating
-const int minBarsRequired = lookback + 5;
+const int maxSymbols = 200;
 
 var quoteRepo = new QuoteRepository();
 var registry = new ModelRegistryRepository();
 
-var symbols = await new SymbolsRepository().GetSymbols();
-var symbolList = symbols
+// ═══════════════════════════════════════════════════════════════════
+// Load symbol universe
+// ═══════════════════════════════════════════════════════════════════
+var symbols = (await new SymbolsRepository().GetSymbols())
     .Select(s => s.Symbol)
     .Where(s => !string.IsNullOrWhiteSpace(s))
     .Take(maxSymbols)
     .ToList();
 
-Console.WriteLine($"Loading daily bars for {symbolList.Count} tickers...\n");
+Console.WriteLine($"Loading bars for {symbols.Count} symbols...\n");
 
-var allWindows = new List<TrendWindow10>();
-int loadedSymbols = 0;
-int skippedSymbols = 0;
-
-foreach (var sym in symbolList)
+var barsBySymbol = new Dictionary<string, List<DailyBar>>();
+foreach (var sym in symbols)
 {
     var bars = await quoteRepo.GetDailyBarsAsync(sym);
-
-    if (bars.Count < minBarsRequired)
-    {
-        skippedSymbols++;
-        continue;
-    }
-
-    loadedSymbols++;
-
-    var windows = TrendDatasetBuilder.Build<TrendWindow10>(bars, lookback);
-    allWindows.AddRange(windows);
+    if (bars.Count > 0)
+        barsBySymbol[sym] = bars;
 }
 
-Console.WriteLine($"Symbols loaded: {loadedSymbols}, skipped: {skippedSymbols}");
-Console.WriteLine($"Total Trend{lookback} windows: {allWindows.Count:N0}\n");
+Console.WriteLine($"Loaded {barsBySymbol.Count} symbols with data.\n");
+Console.WriteLine(new string('═', 60));
 
-if (allWindows.Count < 200)
+// ═══════════════════════════════════════════════════════════════════
+// Train all registered patterns
+// ═══════════════════════════════════════════════════════════════════
+foreach (var pattern in PatternRegistry.All)
 {
-    Console.WriteLine("[SKIP] Not enough total windows to train a stable model.");
-    return;
+    var modelPath = Path.Combine(modelsRoot, $"{pattern.TaskType.ToLower()}_classifier.zip");
+
+    var result = UnifiedPatternTrainer.Train(pattern, barsBySymbol, modelPath);
+
+    if (result.Success)
+    {
+        await registry.InsertModel(
+            name: $"{pattern.TaskType} (Daily)",
+            taskType: pattern.TaskType,
+            modelKind: "BinaryClassification",
+            family: pattern.Category,
+            timeFrame: "Daily",
+            lookbackBars: pattern.Lookback,
+            horizonBars: 0,
+            inputSchema: $"{pattern.TaskType}_unified",
+            featureSet: pattern.FeatureBuilder.Name,
+            zipPath: modelPath,
+            thresholdBuy: 0.60,
+            thresholdSell: 0.40,
+            isEnabled: true,
+            trainedFromUtc: null,
+            trainedToUtc: null,
+            notes: $"Trained on {result.SymbolsUsed} symbols. Accuracy={result.Accuracy:0.####}, AUC={result.Auc:0.####}");
+    }
 }
 
-var modelPath = Path.Combine(modelsRoot, $"{TaskTypes.Trend10.ToLower()}_classifier.zip");
-
-TrendClassifier.TrainFromWindows(
-    allWindows,
-    lookback,
-    modelPath);
-
-await registry.InsertModel(
-    name: "Trend10 (Daily) - v2 (multi-symbol)",
-    taskType: TaskTypes.Trend10,
-    modelKind: "BinaryClassification",
-    family: "Structure",
-    timeFrame: "Daily",
-    lookbackBars: lookback,
-    horizonBars: 0,
-    inputSchema: $"TrendWindow{lookback}_v1",
-    featureSet: null,
-    zipPath: modelPath,
-    thresholdBuy: 0.60,
-    thresholdSell: 0.40,
-    isEnabled: true,
-    trainedFromUtc: null,
-    trainedToUtc: null,
-    notes: $"Trend direction (slope > 0) over {lookback}-day window. Trained on {loadedSymbols} symbols.");
-
-Console.WriteLine("\n=== Training Complete ===");
+Console.WriteLine(new string('═', 60));
+Console.WriteLine("=== Training Complete ===");
