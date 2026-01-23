@@ -1,4 +1,4 @@
-﻿using Core.ML.Engine.Patterns.Detectors;
+using Core.ML.Engine.Patterns.Detectors;
 using Core.ML.Engine.Patterns.Features;
 using System.Collections.Generic;
 using System.Linq;
