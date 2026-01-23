@@ -1,46 +1,53 @@
-﻿using Core.ML.Engine.Patterns.Detectors;
+using Core.ML.Engine.Patterns.Detectors;
 using Core.ML.Engine.Patterns.Features;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Core.ML.Engine.Patterns;
 
-/// <summary>
-/// Central registry of all trainable patterns.
-/// Add new patterns here to include them in training and runtime prediction.
-/// </summary>
 public static class PatternRegistry
 {
     public static IReadOnlyList<PatternDefinition> All { get; } =
     [
-        // ═══════════════════════════════════════════════════════════
-        // Trend Patterns
-        // ═══════════════════════════════════════════════════════════
         new PatternDefinition(
             TaskType: "Trend10",
             Lookback: 10,
             Detector: new TrendUpDetector(10),
             FeatureBuilder: new PriceVolumeFeatureBuilder(),
-            Category: "Trend"),
+            Category: "Trend",
+            Semantics: SignalSemantics.BullishWhenTrue),
 
         new PatternDefinition(
             TaskType: "Trend30",
             Lookback: 30,
             Detector: new TrendUpDetector(30),
             FeatureBuilder: new PriceVolumeFeatureBuilder(),
-            Category: "Trend"),
+            Category: "Trend",
+            Semantics: SignalSemantics.BullishWhenTrue),
 
-        // ═══════════════════════════════════════════════════════════
-        // Reversal Patterns (add these later)
-        // ═══════════════════════════════════════════════════════════
-        // new PatternDefinition("HeadAndShoulders", 30, new HeadAndShouldersDetector(), new OhlcFeatureBuilder(), "Reversal"),
-        // new PatternDefinition("DoubleTop", 20, new DoubleTopDetector(), new OhlcFeatureBuilder(), "Reversal"),
+        new PatternDefinition(
+            TaskType: "MaCrossover",
+            Lookback: 35,
+            Detector: new MaCrossoverDetector(shortPeriod: 10, longPeriod: 30),
+            FeatureBuilder: new PriceWithMaFeatureBuilder(shortMaPeriod: 10, longMaPeriod: 30),
+            Category: "Trend",
+            Semantics: SignalSemantics.BullishWhenTrue),
 
-        // ═══════════════════════════════════════════════════════════
-        // Continuation Patterns (add these later)
-        // ═══════════════════════════════════════════════════════════
-        // new PatternDefinition("Flag", 15, new FlagDetector(), new PriceVolumeFeatureBuilder(), "Continuation"),
-        // new PatternDefinition("Triangle", 20, new TriangleDetector(), new PriceVolumeFeatureBuilder(), "Continuation"),
+        new PatternDefinition(
+            TaskType: "RsiOversold",
+            Lookback: 20,
+            Detector: new RsiOversoldDetector(lookback: 20, rsiPeriod: 14, oversoldThreshold: 30),
+            FeatureBuilder: new PriceVolumeFeatureBuilder(),
+            Category: "Momentum",
+            Semantics: SignalSemantics.BullishWhenTrue),
+
+        new PatternDefinition(
+            TaskType: "RsiOverbought",
+            Lookback: 20,
+            Detector: new RsiOverboughtDetector(lookback: 20, rsiPeriod: 14, overboughtThreshold: 70),
+            FeatureBuilder: new PriceVolumeFeatureBuilder(),
+            Category: "Momentum",
+            Semantics: SignalSemantics.BearishWhenTrue),
     ];
 
     public static PatternDefinition? GetByTaskType(string taskType)
