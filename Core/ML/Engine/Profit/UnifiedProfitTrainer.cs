@@ -1,0 +1,209 @@
+﻿using Core.ML.Engine.Patterns;
+using Microsoft.ML;
+using Microsoft.ML.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Core.ML.Engine.Profit;
+
+public static class UnifiedProfitTrainer
+{
+    public static ProfitTrainingResult Train(
+        ProfitModelDefinition model,
+        Dictionary<string, List<DailyBar>> barsBySymbol,
+        string modelPath,
+        double trainFraction = 0.8)
+    {
+        var trainWindows = new List<ProfitWindow>();
+        var testWindows = new List<ProfitWindow>();
+
+        int lookback = model.Lookback;
+        int horizon = model.HorizonBars;
+        int symbolsUsed = 0;
+
+        foreach (var (symbol, bars) in barsBySymbol)
+        {
+            if (bars.Count < lookback + horizon + 5)
+                continue;
+
+            var windows = BuildProfitWindows(bars, lookback, horizon, model.FeatureBuilder, model.Labeler);
+            if (windows.Count < 10)
+                continue;
+
+            int split = (int)(windows.Count * trainFraction);
+            if (split <= 0 || split >= windows.Count)
+                continue;
+
+            trainWindows.AddRange(windows.Take(split));
+            testWindows.AddRange(windows.Skip(split));
+            symbolsUsed++;
+        }
+
+        if (trainWindows.Count < 200 || testWindows.Count < 50)
+        {
+            Console.WriteLine($"[SKIP] {model.TaskType}: insufficient windows (train={trainWindows.Count}, test={testWindows.Count})");
+            return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+        }
+
+        // Print class balance for 3-way
+        if (model.ModelKind == ProfitModelKind.ThreeWayClassification)
+        {
+            var buys = trainWindows.Count(w => w.ThreeWayLabel == 2);
+            var holds = trainWindows.Count(w => w.ThreeWayLabel == 1);
+            var sells = trainWindows.Count(w => w.ThreeWayLabel == 0);
+            Console.WriteLine($"  Class balance - Buy: {buys}, Hold: {holds}, Sell: {sells}");
+        }
+
+        return model.ModelKind switch
+        {
+            ProfitModelKind.Regression => TrainRegression(model, trainWindows, testWindows, modelPath, symbolsUsed),
+            ProfitModelKind.ThreeWayClassification => TrainThreeWay(model, trainWindows, testWindows, modelPath, symbolsUsed),
+            _ => new ProfitTrainingResult(false, 0, 0, 0, 0, 0)
+        };
+    }
+
+    private static ProfitTrainingResult TrainRegression(
+        ProfitModelDefinition model,
+        List<ProfitWindow> trainWindows,
+        List<ProfitWindow> testWindows,
+        string modelPath,
+        int symbolsUsed)
+    {
+        var mlContext = new MLContext(seed: 123);
+
+        int featureCount = trainWindows[0].Features.Length;
+        var schemaDefinition = SchemaDefinition.Create(typeof(ProfitWindow));
+        schemaDefinition[nameof(ProfitWindow.Features)].ColumnType =
+            new VectorDataViewType(NumberDataViewType.Single, featureCount);
+
+        IDataView trainData = mlContext.Data.LoadFromEnumerable(trainWindows, schemaDefinition);
+        IDataView testData = mlContext.Data.LoadFromEnumerable(testWindows, schemaDefinition);
+
+        var pipeline = mlContext.Transforms
+            .CopyColumns("Label", nameof(ProfitWindow.ForwardReturn))
+            .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
+            .Append(mlContext.Regression.Trainers.LightGbm(
+                labelColumnName: "Label",
+                featureColumnName: nameof(ProfitWindow.Features)));
+
+        Console.WriteLine($"Training {model.TaskType} (Regression, lookback={model.Lookback}, horizon={model.HorizonBars})...");
+        Console.WriteLine($"  Train: {trainWindows.Count:N0}, Test: {testWindows.Count:N0}, Features: {featureCount}");
+
+        var trainedModel = pipeline.Fit(trainData);
+
+        var predictions = trainedModel.Transform(testData);
+        var metrics = mlContext.Regression.Evaluate(predictions, labelColumnName: "Label");
+
+        Console.WriteLine($"  RMSE: {metrics.RootMeanSquaredError:0.####}");
+        Console.WriteLine($"  MAE:  {metrics.MeanAbsoluteError:0.####}");
+        Console.WriteLine($"  R²:   {metrics.RSquared:0.####}");
+
+        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        Console.WriteLine($"  Model saved: {modelPath}\n");
+
+        return new ProfitTrainingResult(
+            Success: true,
+            SymbolsUsed: symbolsUsed,
+            TrainWindows: trainWindows.Count,
+            TestWindows: testWindows.Count,
+            PrimaryMetric: metrics.RSquared,
+            SecondaryMetric: metrics.RootMeanSquaredError);
+    }
+
+    private static ProfitTrainingResult TrainThreeWay(
+        ProfitModelDefinition model,
+        List<ProfitWindow> trainWindows,
+        List<ProfitWindow> testWindows,
+        string modelPath,
+        int symbolsUsed)
+    {
+        var mlContext = new MLContext(seed: 123);
+
+        int featureCount = trainWindows[0].Features.Length;
+        var schemaDefinition = SchemaDefinition.Create(typeof(ProfitWindow));
+        schemaDefinition[nameof(ProfitWindow.Features)].ColumnType =
+            new VectorDataViewType(NumberDataViewType.Single, featureCount);
+
+        IDataView trainData = mlContext.Data.LoadFromEnumerable(trainWindows, schemaDefinition);
+        IDataView testData = mlContext.Data.LoadFromEnumerable(testWindows, schemaDefinition);
+
+        var pipeline = mlContext.Transforms
+            .Conversion.MapValueToKey("Label", nameof(ProfitWindow.ThreeWayLabel))
+            .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
+            .Append(mlContext.MulticlassClassification.Trainers.LightGbm(
+                labelColumnName: "Label",
+                featureColumnName: nameof(ProfitWindow.Features)))
+            .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+
+        Console.WriteLine($"Training {model.TaskType} (3-Way, lookback={model.Lookback}, horizon={model.HorizonBars})...");
+        Console.WriteLine($"  Train: {trainWindows.Count:N0}, Test: {testWindows.Count:N0}, Features: {featureCount}");
+
+        var trainedModel = pipeline.Fit(trainData);
+
+        var predictions = trainedModel.Transform(testData);
+        var metrics = mlContext.MulticlassClassification.Evaluate(predictions, labelColumnName: "Label");
+
+        Console.WriteLine($"  MacroAccuracy: {metrics.MacroAccuracy:0.####}");
+        Console.WriteLine($"  MicroAccuracy: {metrics.MicroAccuracy:0.####}");
+        Console.WriteLine($"  LogLoss:       {metrics.LogLoss:0.####}");
+
+        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        Console.WriteLine($"  Model saved: {modelPath}\n");
+
+        return new ProfitTrainingResult(
+            Success: true,
+            SymbolsUsed: symbolsUsed,
+            TrainWindows: trainWindows.Count,
+            TestWindows: testWindows.Count,
+            PrimaryMetric: metrics.MacroAccuracy,
+            SecondaryMetric: metrics.MicroAccuracy);
+    }
+
+    private static List<ProfitWindow> BuildProfitWindows(
+        List<DailyBar> bars,
+        int lookback,
+        int horizon,
+        IFeatureBuilder featureBuilder,
+        ILabeler labeler)
+    {
+        var result = new List<ProfitWindow>();
+
+        // Need enough bars for window + horizon
+        for (int windowEnd = lookback - 1; windowEnd < bars.Count - horizon; windowEnd++)
+        {
+            var windowBars = bars.GetRange(windowEnd - lookback + 1, lookback);
+            var futureBars = bars.GetRange(windowEnd + 1, horizon);
+
+            var label = labeler.ComputeLabel(windowBars, futureBars);
+            if (!label.IsValid)
+                continue;
+
+            // Map ThreeWayLabel to uint: Sell=0, Hold=1, Buy=2 (for ML.NET multiclass)
+            uint threeWayEncoded = label.ThreeWayClass switch
+            {
+                ThreeWayLabel.Sell => 0,
+                ThreeWayLabel.Hold => 1,
+                ThreeWayLabel.Buy => 2,
+                _ => 1
+            };
+
+            result.Add(new ProfitWindow
+            {
+                Features = featureBuilder.Build(windowBars),
+                ForwardReturn = label.ForwardReturn,
+                ThreeWayLabel = threeWayEncoded
+            });
+        }
+
+        return result;
+    }
+}
+
+public record ProfitTrainingResult(
+    bool Success,
+    int SymbolsUsed,
+    int TrainWindows,
+    int TestWindows,
+    double PrimaryMetric,
+    double SecondaryMetric);

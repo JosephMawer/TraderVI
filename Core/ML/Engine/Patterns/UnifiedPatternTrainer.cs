@@ -1,4 +1,5 @@
 ﻿using Microsoft.ML;
+using Microsoft.ML.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,8 +51,16 @@ public static class UnifiedPatternTrainer
 
         var mlContext = new MLContext(seed: 123);
 
-        IDataView trainData = mlContext.Data.LoadFromEnumerable(trainWindows);
-        IDataView testData = mlContext.Data.LoadFromEnumerable(testWindows);
+        // Determine feature vector size from the first window
+        int featureCount = trainWindows[0].Features.Length;
+
+        // Create schema with explicit vector size (required by ML.NET)
+        var schemaDefinition = SchemaDefinition.Create(typeof(PatternWindow));
+        schemaDefinition[nameof(PatternWindow.Features)].ColumnType =
+            new VectorDataViewType(NumberDataViewType.Single, featureCount);
+
+        IDataView trainData = mlContext.Data.LoadFromEnumerable(trainWindows, schemaDefinition);
+        IDataView testData = mlContext.Data.LoadFromEnumerable(testWindows, schemaDefinition);
 
         var pipeline = mlContext.Transforms
             .CopyColumns("Label", nameof(PatternWindow.Label))
@@ -61,7 +70,7 @@ public static class UnifiedPatternTrainer
                 featureColumnName: nameof(PatternWindow.Features)));
 
         Console.WriteLine($"Training {pattern.TaskType} (lookback={lookback}, category={pattern.Category})...");
-        Console.WriteLine($"  Train windows: {trainWindows.Count:N0}, Test windows: {testWindows.Count:N0}");
+        Console.WriteLine($"  Train windows: {trainWindows.Count:N0}, Test windows: {testWindows.Count:N0}, Features: {featureCount}");
 
         var model = pipeline.Fit(trainData);
 

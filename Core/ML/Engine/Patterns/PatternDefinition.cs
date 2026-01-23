@@ -11,4 +11,5 @@ public record PatternDefinition(
     int Lookback,
     IPatternDetector Detector,
     IFeatureBuilder FeatureBuilder,
-    string Category = "Uncategorized");
+    string Category = "Uncategorized",
+    SignalSemantics Semantics = SignalSemantics.BullishWhenTrue);
