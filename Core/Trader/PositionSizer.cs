@@ -4,117 +4,100 @@ using System.Linq;
 
 namespace Core.Trader;
 
+public enum AllocationStrategy
+{
+    Portfolio,
+    SinglePositionAllIn
+}
+
 /// <summary>
-/// Calculates position sizes based on expected return, confidence, and risk parameters.
+/// Calculates position sizes based on expected return and confidence.
+/// Supports both diversified (portfolio) and aggressive single-position rotation.
 /// </summary>
 public class PositionSizer
 {
-    /// <summary>
-    /// Total available capital for trading.
-    /// </summary>
     public decimal AvailableCapital { get; set; }
 
-    /// <summary>
-    /// Maximum percentage of capital to allocate to a single position (default 20%).
-    /// </summary>
-    public decimal MaxPositionPercent { get; set; } = 0.20m;
+    public AllocationStrategy Strategy { get; set; } = AllocationStrategy.SinglePositionAllIn;
 
     /// <summary>
-    /// Minimum position size in dollars (below this, don't trade).
+    /// Keep a small cash buffer (e.g., fees/slippage). For all-in, set 0.
     /// </summary>
-    public decimal MinPositionSize { get; set; } = 50m;
+    public decimal ReserveCashPercent { get; set; } = 0.00m;
 
     /// <summary>
-    /// Minimum expected return threshold to consider a trade (default 1%).
+    /// Minimum dollars to allocate; if below => no trade.
+    /// </summary>
+    public decimal MinPositionSize { get; set; } = 25m;
+
+    /// <summary>
+    /// Minimum expected return to consider (e.g., 0.01 = 1%).
     /// </summary>
     public double MinExpectedReturn { get; set; } = 0.01;
 
     /// <summary>
-    /// Minimum confidence threshold to consider a trade (default 50%).
+    /// Minimum confidence to consider (0..1).
     /// </summary>
-    public double MinConfidence { get; set; } = 0.50;
+    public double MinConfidence { get; set; } = 0.55;
 
     /// <summary>
-    /// Scaling factor for Kelly-inspired sizing (default 0.5 = half-Kelly for safety).
+    /// Optional extra gate: require both high expected return and confidence.
     /// </summary>
-    public double KellyFraction { get; set; } = 0.5;
+    public bool RequireBothSignals { get; set; } = true;
 
     public PositionSizer(decimal availableCapital)
     {
         AvailableCapital = availableCapital;
     }
 
-    /// <summary>
-    /// Calculates suggested position size for a single trade.
-    /// </summary>
-    public PositionSizeResult Calculate(
-        TradeDirection direction,
-        double expectedReturn,
-        double confidence)
+    public PositionSizeResult SizeSingleBestPick(RankedPick pick)
     {
-        // Only size Buy positions (can extend to Sell for shorting later)
-        if (direction != TradeDirection.Buy)
+        if (pick.Direction != TradeDirection.Buy)
         {
             return new PositionSizeResult(
                 SuggestedSize: 0,
                 AllocationPercent: 0,
-                Reason: "Not a Buy signal");
+                Reason: "Top pick is not a Buy");
         }
 
-        // Check minimum thresholds
-        if (expectedReturn < MinExpectedReturn)
+        if (RequireBothSignals)
+        {
+            if (pick.ExpectedReturn < MinExpectedReturn)
+            {
+                return new PositionSizeResult(
+                    SuggestedSize: 0,
+                    AllocationPercent: 0,
+                    Reason: $"Expected return {pick.ExpectedReturn:P2} below minimum {MinExpectedReturn:P2}");
+            }
+
+            if (pick.Confidence < MinConfidence)
+            {
+                return new PositionSizeResult(
+                    SuggestedSize: 0,
+                    AllocationPercent: 0,
+                    Reason: $"Confidence {pick.Confidence:P1} below minimum {MinConfidence:P1}");
+            }
+        }
+
+        var deployable = AvailableCapital * (1 - ReserveCashPercent);
+
+        if (deployable < MinPositionSize)
         {
             return new PositionSizeResult(
                 SuggestedSize: 0,
                 AllocationPercent: 0,
-                Reason: $"Expected return {expectedReturn:P2} below minimum {MinExpectedReturn:P2}");
+                Reason: $"Deployable capital ${deployable:N2} below minimum ${MinPositionSize:N2}");
         }
-
-        if (confidence < MinConfidence)
-        {
-            return new PositionSizeResult(
-                SuggestedSize: 0,
-                AllocationPercent: 0,
-                Reason: $"Confidence {confidence:P1} below minimum {MinConfidence:P1}");
-        }
-
-        // ─────────────────────────────────────────────────────────────
-        // Kelly-inspired position sizing:
-        // Base allocation = expectedReturn * confidence * kellyFraction
-        // This naturally scales with both conviction and edge size
-        // ─────────────────────────────────────────────────────────────
-
-        double baseAllocation = expectedReturn * confidence * KellyFraction;
-
-        // Clamp to max position percent
-        double allocationPercent = System.Math.Min(baseAllocation, (double)MaxPositionPercent);
-
-        // Calculate dollar amount
-        decimal suggestedSize = AvailableCapital * (decimal)allocationPercent;
-
-        // Apply minimum position size
-        if (suggestedSize < MinPositionSize)
-        {
-            return new PositionSizeResult(
-                SuggestedSize: 0,
-                AllocationPercent: 0,
-                Reason: $"Position size ${suggestedSize:F2} below minimum ${MinPositionSize:F2}");
-        }
-
-        // Round to nearest dollar
-        suggestedSize = System.Math.Round(suggestedSize, 2);
 
         return new PositionSizeResult(
-            SuggestedSize: suggestedSize,
-            AllocationPercent: allocationPercent,
-            Reason: $"Kelly-based sizing (f={KellyFraction}, er={expectedReturn:P2}, conf={confidence:P1})");
+            SuggestedSize: System.Math.Round(deployable, 2),
+            AllocationPercent: (double)(deployable / AvailableCapital),
+            Reason: $"Single-position all-in (reserve={ReserveCashPercent:P0})");
     }
 
-    /// <summary>
-    /// Sizes multiple picks, ensuring total allocation doesn't exceed available capital.
-    /// </summary>
     public List<SizedPick> SizePortfolio(IReadOnlyList<RankedPick> picks, int maxPositions = 5)
     {
+        // Keep your original diversified behavior if you still want it later.
         var sized = new List<SizedPick>();
         decimal remainingCapital = AvailableCapital;
 
@@ -123,27 +106,33 @@ public class PositionSizer
             if (remainingCapital <= MinPositionSize)
                 break;
 
-            // Temporarily set available capital to remaining
-            var originalCapital = AvailableCapital;
-            AvailableCapital = remainingCapital;
+            if (pick.Direction != TradeDirection.Buy)
+                continue;
 
-            var sizeResult = Calculate(pick.Direction, pick.ExpectedReturn, pick.Confidence);
+            if (pick.ExpectedReturn < MinExpectedReturn)
+                continue;
 
-            AvailableCapital = originalCapital;
+            if (pick.Confidence < MinConfidence)
+                continue;
 
-            if (sizeResult.SuggestedSize > 0)
-            {
-                sized.Add(new SizedPick(
-                    Symbol: pick.Symbol,
-                    Direction: pick.Direction,
-                    ExpectedReturn: pick.ExpectedReturn,
-                    Confidence: pick.Confidence,
-                    PositionSize: sizeResult.SuggestedSize,
-                    AllocationPercent: sizeResult.AllocationPercent,
-                    Signals: pick.Signals));
+            // Simple proportional sizing for portfolio mode (can be replaced later)
+            var allocationPercent = System.Math.Min(0.20, pick.ExpectedReturn * pick.Confidence);
+            var dollars = remainingCapital * (decimal)allocationPercent;
 
-                remainingCapital -= sizeResult.SuggestedSize;
-            }
+            if (dollars < MinPositionSize)
+                continue;
+
+            dollars = System.Math.Round(dollars, 2);
+            remainingCapital -= dollars;
+
+            sized.Add(new SizedPick(
+                Symbol: pick.Symbol,
+                Direction: pick.Direction,
+                ExpectedReturn: pick.ExpectedReturn,
+                Confidence: pick.Confidence,
+                PositionSize: dollars,
+                AllocationPercent: allocationPercent,
+                Signals: pick.Signals));
         }
 
         return sized;
