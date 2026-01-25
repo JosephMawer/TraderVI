@@ -46,6 +46,26 @@ public class TradeDecisionEngine
         _profitModels = profitModels.ToList();
     }
 
+    public (RankedPick? Pick, PositionSizeResult? Size) EvaluateBestPickAllIn(
+    Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
+    decimal availableCapital)
+    {
+        var ranked = EvaluateAndRank(symbolBars, topN: 25);
+
+        if (ranked.Count == 0)
+            return (null, null);
+
+        // Choose the best Buy if possible, else best overall
+        var best = ranked.FirstOrDefault(p => p.Direction == TradeDirection.Buy) ?? ranked[0];
+
+        var sizer = Sizer ?? new PositionSizer(availableCapital);
+        sizer.AvailableCapital = availableCapital;
+
+        var size = sizer.SizeSingleBestPick(best);
+
+        return (best, size);
+    }
+
     public TradeDecisionResult Evaluate(IReadOnlyList<DailyBar> history)
     {
         // 1. Evaluate pattern signals
@@ -85,10 +105,10 @@ public class TradeDecisionEngine
 
         // 8. Calculate position size if sizer is configured
         PositionSizeResult? positionSize = null;
-        if (Sizer != null)
-        {
-            positionSize = Sizer.Calculate(finalDirection, expectedReturn, confidence);
-        }
+        //if (Sizer != null)
+        //{
+        //    positionSize = Sizer.Calculate(finalDirection, expectedReturn, confidence);
+        //}
 
         var allSignals = patternSignals.Concat(profitSignals).ToList();
 
