@@ -46,14 +46,22 @@ public static class UnifiedProfitTrainer
             return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
         }
 
-        // Print class balance for 3-way
+        // ─────────────────────────────────────────────────────────────
+        // Logging improvements: labeler info + class balance + return stats
+        // ─────────────────────────────────────────────────────────────
+        Console.WriteLine($"Labeler: {model.Labeler.Name}");
+        Console.WriteLine($"FeatureSet: {model.FeatureBuilder.Name}");
+
+        PrintReturnStats("Train", trainWindows);
+        PrintReturnStats("Test ", testWindows);
+
         if (model.ModelKind == ProfitModelKind.ThreeWayClassification)
         {
-            var buys = trainWindows.Count(w => w.ThreeWayLabel == 2);
-            var holds = trainWindows.Count(w => w.ThreeWayLabel == 1);
-            var sells = trainWindows.Count(w => w.ThreeWayLabel == 0);
-            Console.WriteLine($"  Class balance - Buy: {buys}, Hold: {holds}, Sell: {sells}");
+            PrintClassBalance("Train", trainWindows);
+            PrintClassBalance("Test ", testWindows);
         }
+
+        Console.WriteLine();
 
         return model.ModelKind switch
         {
@@ -61,6 +69,45 @@ public static class UnifiedProfitTrainer
             ProfitModelKind.ThreeWayClassification => TrainThreeWay(model, trainWindows, testWindows, modelPath, symbolsUsed),
             _ => new ProfitTrainingResult(false, 0, 0, 0, 0, 0)
         };
+    }
+
+    private static void PrintClassBalance(string name, List<ProfitWindow> windows)
+    {
+        int total = windows.Count;
+        int buys = windows.Count(w => w.ThreeWayLabel == 2);
+        int holds = windows.Count(w => w.ThreeWayLabel == 1);
+        int sells = windows.Count(w => w.ThreeWayLabel == 0);
+
+        double pBuy = total == 0 ? 0 : (double)buys / total;
+        double pHold = total == 0 ? 0 : (double)holds / total;
+        double pSell = total == 0 ? 0 : (double)sells / total;
+
+        Console.WriteLine($"  {name} class balance: Buy={buys} ({pBuy:P1}), Hold={holds} ({pHold:P1}), Sell={sells} ({pSell:P1})");
+    }
+
+    private static void PrintReturnStats(string name, List<ProfitWindow> windows)
+    {
+        if (windows.Count == 0)
+        {
+            Console.WriteLine($"  {name} return stats: n=0");
+            return;
+        }
+
+        var r = windows.Select(w => (double)w.ForwardReturn).ToArray();
+        double mean = r.Average();
+        double min = r.Min();
+        double max = r.Max();
+        double std = StdDev(r);
+
+        Console.WriteLine($"  {name} return stats: n={windows.Count:N0}, mean={mean:P2}, std={std:P2}, min={min:P2}, max={max:P2}");
+    }
+
+    private static double StdDev(double[] values)
+    {
+        if (values.Length <= 1) return 0;
+        double mean = values.Average();
+        double variance = values.Sum(v => (v - mean) * (v - mean)) / (values.Length - 1);
+        return System.Math.Sqrt(variance);
     }
 
     private static ProfitTrainingResult TrainRegression(

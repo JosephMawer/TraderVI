@@ -19,4 +19,5 @@ public record ProfitModelDefinition(
     ILabeler Labeler,
     ProfitModelKind ModelKind,
     float BuyThresholdPercent = 2.0f,
-    float SellThresholdPercent = -2.0f);
+    float SellThresholdPercent = -2.0f,
+    float? RegressionReturnClamp = 0.25f);

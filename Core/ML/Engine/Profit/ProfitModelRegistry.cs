@@ -5,38 +5,27 @@ using System.Linq;
 
 namespace Core.ML.Engine.Profit;
 
-/// <summary>
-/// Registry of all profit prediction models.
-/// </summary>
 public static class ProfitModelRegistry
 {
     public static IReadOnlyList<ProfitModelDefinition> All { get; } =
     [
-        // ═══════════════════════════════════════════════════════════
-        // Regression: predict expected return over 10 days
-        // ═══════════════════════════════════════════════════════════
         new ProfitModelDefinition(
             TaskType: "ExpectedReturn10",
             Lookback: 30,
             HorizonBars: 10,
-            FeatureBuilder: new PriceVolumeFeatureBuilder(),
+            FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
             Labeler: new ForwardReturnLabeler(horizonBars: 10, buyThresholdPercent: 2.0f, sellThresholdPercent: -2.0f),
             ModelKind: ProfitModelKind.Regression),
 
-        // ═══════════════════════════════════════════════════════════
-        // 3-Way Classification: Buy/Hold/Sell over 10 days
-        // ═══════════════════════════════════════════════════════════
         new ProfitModelDefinition(
             TaskType: "Direction10",
             Lookback: 30,
             HorizonBars: 10,
-            FeatureBuilder: new PriceVolumeFeatureBuilder(),
+            FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
             Labeler: new ForwardReturnLabeler(horizonBars: 10, buyThresholdPercent: 2.0f, sellThresholdPercent: -2.0f),
             ModelKind: ProfitModelKind.ThreeWayClassification),
 
-        // ═══════════════════════════════════════════════════════════
-        // Shorter horizon (5 days) for faster signals
-        // ═══════════════════════════════════════════════════════════
+        // keep 5-day models as-is for now (or switch them too if you want)
         new ProfitModelDefinition(
             TaskType: "ExpectedReturn5",
             Lookback: 20,
