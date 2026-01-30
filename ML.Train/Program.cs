@@ -13,7 +13,8 @@ Console.WriteLine("=== ML Training Pipeline (Hercules) ===\n");
 var modelsRoot = @"C:\Users\joseph.mawer\OneDrive\Joseph\Programming\ML\_models";
 Directory.CreateDirectory(modelsRoot);
 
-const int maxSymbols = 200;
+const int maxSymbols = 100; // <-- iterate fast
+// const int maxSymbols = 494; // <-- full training run
 
 var quoteRepo = new QuoteRepository();
 var registry = new ModelRegistryRepository();

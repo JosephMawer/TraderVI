@@ -27,7 +27,14 @@ public static class UnifiedProfitTrainer
             if (bars.Count < lookback + horizon + 5)
                 continue;
 
-            var windows = BuildProfitWindows(bars, lookback, horizon, model.FeatureBuilder, model.Labeler);
+            var windows = BuildProfitWindows(
+                bars,
+                lookback,
+                horizon,
+                model.FeatureBuilder,
+                model.Labeler,
+                model.ModelKind,
+                model.RegressionReturnClamp);
             if (windows.Count < 10)
                 continue;
 
@@ -208,15 +215,16 @@ public static class UnifiedProfitTrainer
     }
 
     private static List<ProfitWindow> BuildProfitWindows(
-        List<DailyBar> bars,
-        int lookback,
-        int horizon,
-        IFeatureBuilder featureBuilder,
-        ILabeler labeler)
+    List<DailyBar> bars,
+    int lookback,
+    int horizon,
+    IFeatureBuilder featureBuilder,
+    ILabeler labeler,
+    ProfitModelKind modelKind,
+    float? regressionReturnClamp)
     {
         var result = new List<ProfitWindow>();
 
-        // Need enough bars for window + horizon
         for (int windowEnd = lookback - 1; windowEnd < bars.Count - horizon; windowEnd++)
         {
             var windowBars = bars.GetRange(windowEnd - lookback + 1, lookback);
@@ -226,7 +234,14 @@ public static class UnifiedProfitTrainer
             if (!label.IsValid)
                 continue;
 
-            // Map ThreeWayLabel to uint: Sell=0, Hold=1, Buy=2 (for ML.NET multiclass)
+            float forwardReturn = label.ForwardReturn;
+
+            if (modelKind == ProfitModelKind.Regression && regressionReturnClamp.HasValue)
+            {
+                float c = regressionReturnClamp.Value;
+                forwardReturn = System.Math.Clamp(forwardReturn, -c, c);
+            }
+
             uint threeWayEncoded = label.ThreeWayClass switch
             {
                 ThreeWayLabel.Sell => 0,
@@ -238,7 +253,7 @@ public static class UnifiedProfitTrainer
             result.Add(new ProfitWindow
             {
                 Features = featureBuilder.Build(windowBars),
-                ForwardReturn = label.ForwardReturn,
+                ForwardReturn = forwardReturn,
                 ThreeWayLabel = threeWayEncoded
             });
         }
