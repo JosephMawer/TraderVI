@@ -96,6 +96,11 @@ TraderVI is a daily-stock trading system that:
   - Prefer per-symbol time splits for realistic evaluation.
 - Data access guarantee: `QuoteRepository.GetDailyBarsAsync` orders daily bars by Date ASC (chronological) for downstream windowing/training.
 
+## Documentation Guidelines
+
+- Keep `.github/copilot-instructions.md` as engineering/iteration rules (system-alignment constraints).
+- Add separate repository documentation (README + docs/*) for user-facing architecture and usage (TSX-only for now; advisory now, automated later via Wealthsimple).
+
 ## Coding Conventions
 
 - Target: **.NET 10**, C# 14.

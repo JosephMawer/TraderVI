@@ -8,7 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		blacklist.txt = blacklist.txt
 		Constituents.csv = Constituents.csv
 		readme.md = readme.md
-		TODO.txt = TODO.txt
 		TraderVI.txt = TraderVI.txt
 		Useful links.txt = Useful links.txt
 	EndProjectSection
@@ -30,6 +29,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Delphi", "Delphi\Delphi.csproj", "{A76FEDC7-D959-4A63-8461-FD2969906C4A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{41685814-8E63-4A11-9064-2A7449DAC076}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{5F9CFB41-C0A4-4EBA-93D3-8C8323C91B70}"
+	ProjectSection(SolutionItems) = preProject
+		architecture.md = architecture.md
+		glossary.md = glossary.md
+		models.md = models.md
+		running.md = running.md
+		strategy.md = strategy.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
