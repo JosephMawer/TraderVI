@@ -94,6 +94,7 @@ TraderVI is a daily-stock trading system that:
 - Training must:
   - Avoid cross-ticker window contamination (never concatenate bar series across symbols).
   - Prefer per-symbol time splits for realistic evaluation.
+- Data access guarantee: `QuoteRepository.GetDailyBarsAsync` orders daily bars by Date ASC (chronological) for downstream windowing/training.
 
 ## Coding Conventions
 
