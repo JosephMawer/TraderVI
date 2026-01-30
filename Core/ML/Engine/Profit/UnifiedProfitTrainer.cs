@@ -9,6 +9,8 @@ namespace Core.ML.Engine.Profit;
 
 public static class UnifiedProfitTrainer
 {
+    private const float MaxAbsForwardReturn = 0.50f;
+
     public static ProfitTrainingResult Train(
         ProfitModelDefinition model,
         Dictionary<string, List<DailyBar>> barsBySymbol,
@@ -35,6 +37,7 @@ public static class UnifiedProfitTrainer
                 model.Labeler,
                 model.ModelKind,
                 model.RegressionReturnClamp);
+
             if (windows.Count < 10)
                 continue;
 
@@ -53,9 +56,6 @@ public static class UnifiedProfitTrainer
             return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // Logging improvements: labeler info + class balance + return stats
-        // ─────────────────────────────────────────────────────────────
         Console.WriteLine($"Labeler: {model.Labeler.Name}");
         Console.WriteLine($"FeatureSet: {model.FeatureBuilder.Name}");
 
@@ -153,6 +153,8 @@ public static class UnifiedProfitTrainer
         Console.WriteLine($"  MAE:  {metrics.MeanAbsoluteError:0.####}");
         Console.WriteLine($"  R²:   {metrics.RSquared:0.####}");
 
+        PrintRegressionRankingMetrics(mlContext, predictions);
+
         mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
@@ -163,6 +165,111 @@ public static class UnifiedProfitTrainer
             TestWindows: testWindows.Count,
             PrimaryMetric: metrics.RSquared,
             SecondaryMetric: metrics.RootMeanSquaredError);
+    }
+
+    private static void PrintRegressionRankingMetrics(MLContext mlContext, IDataView predictions)
+    {
+        var rows = mlContext.Data.CreateEnumerable<RegressionEvalRow>(predictions, reuseRowObject: false).ToList();
+
+        if (rows.Count == 0)
+        {
+            Console.WriteLine("  Ranking: n=0");
+            return;
+        }
+
+        double avgLabel = rows.Average(r => (double)r.Label);
+        double avgPred = rows.Average(r => (double)r.Score);
+
+        double dirAcc = rows.Count(r => System.Math.Sign(r.Score) == System.Math.Sign(r.Label)) / (double)rows.Count;
+
+        double spearman = SpearmanCorrelation(
+            rows.Select(r => (double)r.Score).ToArray(),
+            rows.Select(r => (double)r.Label).ToArray());
+
+        int top10N = System.Math.Max(1, rows.Count / 10);
+        var top10 = rows.OrderByDescending(r => r.Score).Take(top10N).ToList();
+        double top10Mean = top10.Average(r => (double)r.Label);
+
+        int top5N = System.Math.Max(1, rows.Count / 20);
+        int top1N = System.Math.Max(1, rows.Count / 100);
+
+        double top5Mean = rows.OrderByDescending(r => r.Score).Take(top5N).Average(r => (double)r.Label);
+        double top1Mean = rows.OrderByDescending(r => r.Score).Take(top1N).Average(r => (double)r.Label);
+
+        double hitRate2Pct = top10.Count == 0
+            ? 0
+            : top10.Count(r => r.Label >= 0.02f) / (double)top10.Count;
+
+        Console.WriteLine($"  Ranking (Test): avgLabel={avgLabel:P2}, avgPred={avgPred:P2}");
+        Console.WriteLine($"  Ranking (Test): directionalAcc={dirAcc:P1}, spearman={spearman:0.###}");
+        Console.WriteLine($"  Ranking (Test): top10% realized mean={top10Mean:P2}, hitRate(Label>=+2%)={hitRate2Pct:P1} (n={top10N})");
+        Console.WriteLine($"  Ranking (Test): top5% realized mean={top5Mean:P2} (n={top5N})");
+        Console.WriteLine($"  Ranking (Test): top1% realized mean={top1Mean:P2} (n={top1N})");
+    }
+
+    private static double SpearmanCorrelation(double[] x, double[] y)
+    {
+        if (x.Length != y.Length || x.Length < 2)
+            return 0;
+
+        var rx = Rank(x);
+        var ry = Rank(y);
+
+        return PearsonCorrelation(rx, ry);
+    }
+
+    private static double[] Rank(double[] values)
+    {
+        var indexed = values.Select((v, i) => (Value: v, Index: i))
+            .OrderBy(t => t.Value)
+            .ToArray();
+
+        var ranks = new double[values.Length];
+
+        int i = 0;
+        while (i < indexed.Length)
+        {
+            int j = i;
+            while (j < indexed.Length && indexed[j].Value.Equals(indexed[i].Value))
+                j++;
+
+            double avgRank = (i + 1 + j) / 2.0;
+
+            for (int k = i; k < j; k++)
+                ranks[indexed[k].Index] = avgRank;
+
+            i = j;
+        }
+
+        return ranks;
+    }
+
+    private static double PearsonCorrelation(double[] x, double[] y)
+    {
+        int n = x.Length;
+        if (n < 2) return 0;
+
+        double mx = x.Average();
+        double my = y.Average();
+
+        double cov = 0, vx = 0, vy = 0;
+        for (int i = 0; i < n; i++)
+        {
+            double dx = x[i] - mx;
+            double dy = y[i] - my;
+            cov += dx * dy;
+            vx += dx * dx;
+            vy += dy * dy;
+        }
+
+        double denom = System.Math.Sqrt(vx * vy);
+        return denom == 0 ? 0 : cov / denom;
+    }
+
+    private sealed class RegressionEvalRow
+    {
+        public float Label { get; set; }
+        public float Score { get; set; }
     }
 
     private static ProfitTrainingResult TrainThreeWay(
@@ -202,6 +309,8 @@ public static class UnifiedProfitTrainer
         Console.WriteLine($"  MicroAccuracy: {metrics.MicroAccuracy:0.####}");
         Console.WriteLine($"  LogLoss:       {metrics.LogLoss:0.####}");
 
+        PrintConfusionMatrix(metrics);
+
         mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
@@ -214,14 +323,49 @@ public static class UnifiedProfitTrainer
             SecondaryMetric: metrics.MicroAccuracy);
     }
 
+    private static void PrintConfusionMatrix(MulticlassClassificationMetrics metrics)
+    {
+        var counts = metrics.ConfusionMatrix.Counts;
+
+        if (counts.Count != 3 || counts.Any(r => r.Count != 3))
+        {
+            Console.WriteLine("  ConfusionMatrix: (unexpected size)");
+            return;
+        }
+
+        Console.WriteLine("  ConfusionMatrix (Actual x Pred):");
+        Console.WriteLine("               PredSell  PredHold  PredBuy");
+        Console.WriteLine($"    ActSell   {counts[0][0],8:0} {counts[0][1],9:0} {counts[0][2],8:0}");
+        Console.WriteLine($"    ActHold   {counts[1][0],8:0} {counts[1][1],9:0} {counts[1][2],8:0}");
+        Console.WriteLine($"    ActBuy    {counts[2][0],8:0} {counts[2][1],9:0} {counts[2][2],8:0}");
+
+        var labels = new[] { "Sell", "Hold", "Buy" };
+
+        for (int c = 0; c < 3; c++)
+        {
+            double tp = counts[c][c];
+            double fn = counts[c].Sum() - tp;
+
+            double fp = 0;
+            for (int r = 0; r < 3; r++)
+                fp += counts[r][c];
+            fp -= tp;
+
+            double precision = (tp + fp) == 0 ? 0 : tp / (tp + fp);
+            double recall = (tp + fn) == 0 ? 0 : tp / (tp + fn);
+
+            Console.WriteLine($"  {labels[c],4}: precision={precision:P1}, recall={recall:P1}");
+        }
+    }
+
     private static List<ProfitWindow> BuildProfitWindows(
-    List<DailyBar> bars,
-    int lookback,
-    int horizon,
-    IFeatureBuilder featureBuilder,
-    ILabeler labeler,
-    ProfitModelKind modelKind,
-    float? regressionReturnClamp)
+        List<DailyBar> bars,
+        int lookback,
+        int horizon,
+        IFeatureBuilder featureBuilder,
+        ILabeler labeler,
+        ProfitModelKind modelKind,
+        float? regressionReturnClamp)
     {
         var result = new List<ProfitWindow>();
 
@@ -232,6 +376,9 @@ public static class UnifiedProfitTrainer
 
             var label = labeler.ComputeLabel(windowBars, futureBars);
             if (!label.IsValid)
+                continue;
+
+            if (System.Math.Abs(label.ForwardReturn) > MaxAbsForwardReturn)
                 continue;
 
             float forwardReturn = label.ForwardReturn;
@@ -261,11 +408,3 @@ public static class UnifiedProfitTrainer
         return result;
     }
 }
-
-public record ProfitTrainingResult(
-    bool Success,
-    int SymbolsUsed,
-    int TrainWindows,
-    int TestWindows,
-    double PrimaryMetric,
-    double SecondaryMetric);

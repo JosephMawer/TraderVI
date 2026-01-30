@@ -27,7 +27,7 @@ namespace Core.Db
         /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
         public async Task<List<SymbolInfo>> GetSymbols()
         {            
-            string query = $"SELECT {Fields} FROM {DbName}";
+            string query = $"SELECT {Fields} FROM {DbName} WHERE [IsActive] = 1";
 
             return await ExecuteReaderAsync(query, reader => new SymbolInfo
             {
