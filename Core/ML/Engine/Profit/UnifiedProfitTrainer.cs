@@ -401,10 +401,19 @@ public static class UnifiedProfitTrainer
             {
                 Features = featureBuilder.Build(windowBars),
                 ForwardReturn = forwardReturn,
-                ThreeWayLabel = threeWayEncoded
+                ThreeWayLabel = threeWayEncoded,
+                IsEvent = label.ThreeWayClass == ThreeWayLabel.Buy
             });
         }
 
         return result;
     }
 }
+
+public record ProfitTrainingResult(
+    bool Success,
+    int SymbolsUsed,
+    int TrainWindows,
+    int TestWindows,
+    double PrimaryMetric,
+    double SecondaryMetric);
