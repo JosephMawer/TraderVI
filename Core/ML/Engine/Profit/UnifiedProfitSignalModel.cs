@@ -10,15 +10,17 @@ namespace Core.ML.Engine.Profit;
 
 /// <summary>
 /// Runtime signal model for profit predictions.
-/// Handles both regression and 3-way classification.
+/// Handles regression, 3-way classification, and binary event models.
 /// </summary>
 public class UnifiedProfitSignalModel : IStockSignalModel
 {
     private static readonly MLContext MlContext = new();
 
     private readonly ProfitModelDefinition _model;
+
     private readonly PredictionEngine<ProfitWindow, RegressionPrediction>? _regressionEngine;
     private readonly PredictionEngine<ProfitWindow, ThreeWayPrediction>? _threeWayEngine;
+    private readonly PredictionEngine<ProfitWindow, BinaryPrediction>? _binaryEngine;
 
     public string Name => _model.TaskType;
     public ProfitModelKind ModelKind => _model.ModelKind;
@@ -34,16 +36,17 @@ public class UnifiedProfitSignalModel : IStockSignalModel
         schemaDefinition[nameof(ProfitWindow.Features)].ColumnType =
             new VectorDataViewType(NumberDataViewType.Single, featureCount);
 
-        if (model.ModelKind == ProfitModelKind.Regression)
-        {
-            _regressionEngine = MlContext.Model.CreatePredictionEngine<ProfitWindow, RegressionPrediction>(
-                loadedModel, inputSchemaDefinition: schemaDefinition);
-        }
-        else
-        {
-            _threeWayEngine = MlContext.Model.CreatePredictionEngine<ProfitWindow, ThreeWayPrediction>(
-                loadedModel, inputSchemaDefinition: schemaDefinition);
-        }
+        _regressionEngine = model.ModelKind == ProfitModelKind.Regression
+            ? MlContext.Model.CreatePredictionEngine<ProfitWindow, RegressionPrediction>(loadedModel, inputSchemaDefinition: schemaDefinition)
+            : null;
+
+        _threeWayEngine = model.ModelKind == ProfitModelKind.ThreeWayClassification
+            ? MlContext.Model.CreatePredictionEngine<ProfitWindow, ThreeWayPrediction>(loadedModel, inputSchemaDefinition: schemaDefinition)
+            : null;
+
+        _binaryEngine = model.ModelKind == ProfitModelKind.BinaryClassification
+            ? MlContext.Model.CreatePredictionEngine<ProfitWindow, BinaryPrediction>(loadedModel, inputSchemaDefinition: schemaDefinition)
+            : null;
     }
 
     public SignalResult Evaluate(IReadOnlyList<DailyBar> history)
@@ -64,23 +67,21 @@ public class UnifiedProfitSignalModel : IStockSignalModel
             .Take(lookback)
             .ToList();
 
-        var features = _model.FeatureBuilder.Build(windowBars);
-
         var input = new ProfitWindow
         {
-            Features = features,
+            Features = _model.FeatureBuilder.Build(windowBars),
             ForwardReturn = 0,
-            ThreeWayLabel = 1
+            ThreeWayLabel = 1,
+            IsEvent = false
         };
 
-        if (_model.ModelKind == ProfitModelKind.Regression)
+        return _model.ModelKind switch
         {
-            return EvaluateRegression(input);
-        }
-        else
-        {
-            return EvaluateThreeWay(input);
-        }
+            ProfitModelKind.Regression => EvaluateRegression(input),
+            ProfitModelKind.ThreeWayClassification => EvaluateThreeWay(input),
+            ProfitModelKind.BinaryClassification => EvaluateBinary(input),
+            _ => new SignalResult(Name, 0, TradeDirection.Hold, "Unsupported model kind")
+        };
     }
 
     private SignalResult EvaluateRegression(ProfitWindow input)
@@ -88,7 +89,6 @@ public class UnifiedProfitSignalModel : IStockSignalModel
         var prediction = _regressionEngine!.Predict(input);
         float expectedReturn = prediction.Score;
 
-        // Convert expected return to hint (using labeler thresholds)
         var buyThreshold = _model.BuyThresholdPercent / 100f;
         var sellThreshold = _model.SellThresholdPercent / 100f;
 
@@ -107,7 +107,6 @@ public class UnifiedProfitSignalModel : IStockSignalModel
     {
         var prediction = _threeWayEngine!.Predict(input);
 
-        // PredictedLabel: 0=Sell, 1=Hold, 2=Buy (as trained)
         var hint = prediction.PredictedLabel switch
         {
             0 => TradeDirection.Sell,
@@ -115,7 +114,6 @@ public class UnifiedProfitSignalModel : IStockSignalModel
             _ => TradeDirection.Hold
         };
 
-        // Score = confidence in predicted class
         float confidence = prediction.Score?.Length > 0
             ? prediction.Score.Max()
             : 0f;
@@ -125,6 +123,23 @@ public class UnifiedProfitSignalModel : IStockSignalModel
             Score: confidence,
             Hint: hint,
             Notes: $"Class={hint}, Confidence={confidence:P1}, Horizon={_model.HorizonBars}d");
+    }
+
+    private SignalResult EvaluateBinary(ProfitWindow input)
+    {
+        var prediction = _binaryEngine!.Predict(input);
+
+        // Score is the probability of the "true" class (event occurred).
+        float p = prediction.Probability;
+
+        // Use Buy as the "event happened / bullish event" hint, else Hold.
+        var hint = p >= 0.50f ? TradeDirection.Buy : TradeDirection.Hold;
+
+        return new SignalResult(
+            Name,
+            Score: p,
+            Hint: hint,
+            Notes: $"EventProbability={p:P1}, Horizon={_model.HorizonBars}d");
     }
 
     public static UnifiedProfitSignalModel? FromRegistryInfo(ModelRegistryInfo info)
