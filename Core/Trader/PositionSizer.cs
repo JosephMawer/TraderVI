@@ -32,6 +32,8 @@ public class PositionSizer
 
     /// <summary>
     /// Minimum expected return to consider (e.g., 0.01 = 1%).
+    /// Note: expected return is now treated as a "ranking hint", so this gate
+    /// can optionally be satisfied by strong event probabilities (see below).
     /// </summary>
     public double MinExpectedReturn { get; set; } = 0.01;
 
@@ -44,6 +46,12 @@ public class PositionSizer
     /// Optional extra gate: require both high expected return and confidence.
     /// </summary>
     public bool RequireBothSignals { get; set; } = true;
+
+    /// <summary>
+    /// Allow a strong breakout probability ("hint") to qualify a trade even when
+    /// expected return regression is conservative/under-calibrated.
+    /// </summary>
+    public double MinBreakoutPriorHighProb { get; set; } = 0.60;
 
     public PositionSizer(decimal availableCapital)
     {
@@ -60,22 +68,32 @@ public class PositionSizer
                 Reason: "Top pick is not a Buy");
         }
 
+        double breakoutPriorHighProb = pick.Signals
+            .FirstOrDefault(s => string.Equals(s.Name, "BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
         if (RequireBothSignals)
         {
-            if (pick.ExpectedReturn < MinExpectedReturn)
-            {
-                return new PositionSizeResult(
-                    SuggestedSize: 0,
-                    AllocationPercent: 0,
-                    Reason: $"Expected return {pick.ExpectedReturn:P2} below minimum {MinExpectedReturn:P2}");
-            }
-
+            // Confidence remains a hard gate.
             if (pick.Confidence < MinConfidence)
             {
                 return new PositionSizeResult(
                     SuggestedSize: 0,
                     AllocationPercent: 0,
                     Reason: $"Confidence {pick.Confidence:P1} below minimum {MinConfidence:P1}");
+            }
+
+            // Expected return is treated as a ranking hint; allow a strong breakout probability to qualify the trade.
+            bool passesReturnOrHint =
+                pick.ExpectedReturn >= MinExpectedReturn ||
+                breakoutPriorHighProb >= MinBreakoutPriorHighProb;
+
+            if (!passesReturnOrHint)
+            {
+                return new PositionSizeResult(
+                    SuggestedSize: 0,
+                    AllocationPercent: 0,
+                    Reason: $"Expected return {pick.ExpectedReturn:P2} < {MinExpectedReturn:P2} and BreakoutPriorHigh10 {breakoutPriorHighProb:P1} < {MinBreakoutPriorHighProb:P1}");
             }
         }
 
