@@ -84,7 +84,14 @@ Console.WriteLine(new string('═', 60) + "\n");
 
 foreach (var profitModel in ProfitModelRegistry.All)
 {
-    var suffix = profitModel.ModelKind == ProfitModelKind.Regression ? "regression" : "3way";
+    var suffix = profitModel.ModelKind switch
+    {
+        ProfitModelKind.Regression => "regression",
+        ProfitModelKind.ThreeWayClassification => "3way",
+        ProfitModelKind.BinaryClassification => "binary",
+        _ => "model"
+    };
+
     var modelPath = Path.Combine(modelsRoot, $"{profitModel.TaskType.ToLower()}_{suffix}.zip");
 
     var result = UnifiedProfitTrainer.Train(profitModel, barsBySymbol, modelPath);
