@@ -2,12 +2,6 @@
 
 namespace Core.ML.Engine.Profit;
 
-public enum ProfitModelKind
-{
-    Regression,
-    ThreeWayClassification
-}
-
 /// <summary>
 /// Defines a profit prediction model.
 /// </summary>
