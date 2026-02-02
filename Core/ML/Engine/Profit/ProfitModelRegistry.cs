@@ -1,5 +1,4 @@
-﻿using Core.ML.Engine.Patterns;
-using Core.ML.Engine.Patterns.Features;
+﻿using Core.ML.Engine.Patterns.Features;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,8 +7,12 @@ namespace Core.ML.Engine.Profit;
 public static class ProfitModelRegistry
 {
     // Toggle flags (edit these during iteration)
-    private const bool EnableExpectedReturn10 = true;
-    private const bool EnableDirection10 = true;
+    private const bool EnableExpectedReturn10 = true;           // ranking hint
+    private const bool EnableDirection10 = true;               // primary signal
+
+    private const bool EnableBreakoutPriorHigh10 = true;
+    private const bool EnableBreakoutAtr10 = true;
+    private const bool EnableVolatilityExpansion10 = true;
 
     private const bool EnableExpectedReturn5 = false;
     private const bool EnableDirection5 = false;
@@ -40,6 +43,39 @@ public static class ProfitModelRegistry
                 FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
                 Labeler: new ForwardReturnLabeler(horizonBars: 10, buyThresholdPercent: 2.0f, sellThresholdPercent: -2.0f),
                 ModelKind: ProfitModelKind.ThreeWayClassification));
+        }
+
+        if (EnableBreakoutPriorHigh10)
+        {
+            models.Add(new ProfitModelDefinition(
+                TaskType: "BreakoutPriorHigh10",
+                Lookback: 30,
+                HorizonBars: 10,
+                FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
+                Labeler: new BreakoutAbovePriorHighLabeler(horizonBars: 10, priorHighLookback: 20, breakoutPercent: 1.0f),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        if (EnableBreakoutAtr10)
+        {
+            models.Add(new ProfitModelDefinition(
+                TaskType: "BreakoutAtr10",
+                Lookback: 30,
+                HorizonBars: 10,
+                FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
+                Labeler: new BreakoutAtrMultipleLabeler(horizonBars: 10, atrPeriod: 14, atrMultiple: 1.5f),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        if (EnableVolatilityExpansion10)
+        {
+            models.Add(new ProfitModelDefinition(
+                TaskType: "VolatilityExpansion10",
+                Lookback: 30,
+                HorizonBars: 10,
+                FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
+                Labeler: new VolatilityExpansionLabeler(horizonBars: 10, expansionMultiple: 1.5f),
+                ModelKind: ProfitModelKind.BinaryClassification));
         }
 
         if (EnableExpectedReturn5)
