@@ -1,6 +1,6 @@
 # Models (Pattern vs Profit)
 
-This repo trains two distinct families of models, aligned to the trading strategy.
+This repo trains two distinct families of models aligned to the trading strategy.
 
 Glossary: `docs/glossary.md`
 
@@ -18,7 +18,6 @@ Examples:
 
 ### How they are labeled
 Pattern labels are derived from **rule-based detectors**:
-
 - `IPatternDetector.Detect(windowBars)` produces a boolean label for each window.
 
 ### How they are trained / used
@@ -27,60 +26,50 @@ Pattern labels are derived from **rule-based detectors**:
 - Runtime: `UnifiedPatternSignalModel`
 
 ### Semantics (important)
-Pattern presence is not always symmetric.
-
-Example:
+Pattern presence is not always symmetric. Example:
 - `RsiOversold` being false should typically mean **Hold**, not Sell.
 
 This is handled by:
 - `SignalSemantics` on `PatternDefinition`
 - mapping in `UnifiedPatternSignalModel`
 
-Pattern models usually serve as:
+Pattern models are typically used for:
 - explanation/context (“why is this stock a candidate?”)
 - confirmation filters
-- potential future features for profit models
+- features that may later be fed into profit/outcome models
 
-## Profit Models
+## Profit Models (Forward Outcome Models)
 
-### What they predict
-Profit models answer:
+Profit models answer forward-looking questions:
 
 > “What is likely to happen after the lookback window?”
 
-They are forward-outcome models and are the primary drivers for ranking and rotation decisions.
+Model types:
 
-### Labeling: horizons and thresholds
-Profit labels use:
-- `HorizonBars` (e.g., 5 or 10)
-- threshold bands to generate 3-way labels (Buy/Hold/Sell)
+1) Direction models (3-way)
+- Predict Buy/Hold/Sell + confidence (primary decision input)
 
-Implementation:
-- `ILabeler` (e.g., `ForwardReturnLabeler`)
+2) Event probability models (binary)
+- Predict probability of discrete events within the horizon:
+  - breakout vs prior-high
+  - breakout vs ATR multiple
+  - volatility expansion
 
-### Two profit model kinds
-1) **Regression**
-- Task examples: `ExpectedReturn5`, `ExpectedReturn10`
-- Output: predicted forward return (ExpectedReturn)
-- Used for: ranking, rotation comparisons, (later) sizing
+3) Expected return regression (ranking hint)
+- Still supported, but treated as a “ranking hint” rather than the single source of truth.
 
-2) **3-way classification**
-- Task examples: `Direction5`, `Direction10`
-- Output: Buy/Hold/Sell + confidence (probability-like)
-- Used for: confirmation and reducing false positives
-
-### Training / runtime
-- Registry: `ProfitModelDefinition` and `ProfitModelRegistry`
-- Trainer: `UnifiedProfitTrainer`
-- Runtime: `UnifiedProfitSignalModel`
+### Labeling
+Profit labels are generated from future bars using `ILabeler`.
+Unlike pattern detectors (which label the current window), labelers use:
+- `windowBars` (inputs/features)
+- `futureBars` (outcomes/targets)
 
 ### Outlier handling (recommended)
-Forward returns can include extreme tail events (splits, crashes, spikes).
-For stabilization, regression labels can optionally be clipped (winsorized), e.g. ±25%, while leaving 3-way thresholding intact.
+Returns can include extreme tail events (splits, bad data, spikes).
+For stability:
+- regression labels may be clipped (e.g., ±25%)
+- samples with absurd forward returns may be filtered out (e.g., > ±50% is skipped)
 
-## Why profit models drive selection (strategy-aligned)
-Given the system’s current strategy (aggressive single-position rotation), the decision engine needs:
-- a comparable score across the universe (**ExpectedReturn**) for ranking and rotation thresholds
-- a confirmation score (**Confidence**) to avoid churn and low-quality trades
-
-Pattern models support interpretability and confirmation but do not replace outcome prediction.
+## Training output metrics
+How to read Hercules training output (RMSE/R², Spearman, confusion matrix, event precision/recall):
+- `docs/training-metrics.md`
