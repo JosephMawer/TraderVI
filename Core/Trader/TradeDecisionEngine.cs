@@ -47,8 +47,8 @@ public class TradeDecisionEngine
     }
 
     public (RankedPick? Pick, PositionSizeResult? Size) EvaluateBestPickAllIn(
-    Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
-    decimal availableCapital)
+        Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
+        decimal availableCapital)
     {
         var ranked = EvaluateAndRank(symbolBars, topN: 25);
 
@@ -90,20 +90,26 @@ public class TradeDecisionEngine
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 5. Compute aggregated decision
-        var finalDirection = AggregateAllSignals(patternSignals, regressionSignals, threeWaySignals);
+        // 5. Get binary event predictions (probabilities)
+        var binarySignals = _profitModels
+            .Where(m => m.ModelKind == ProfitModelKind.BinaryClassification)
+            .Select(m => m.Evaluate(history))
+            .ToList();
 
-        // 6. Compute expected return (from regression models)
+        // 6. Compute aggregated decision
+        var finalDirection = AggregateAllSignals(patternSignals, regressionSignals, threeWaySignals, binarySignals);
+
+        // 7. Aggregate expected return (regression hint)
         double expectedReturn = regressionSignals.Any()
             ? regressionSignals.Average(s => s.Score)
             : 0;
 
-        // 7. Compute confidence (from 3-way classifiers)
+        // 8. Aggregate confidence (3-way confidence)
         double confidence = threeWaySignals.Any()
             ? threeWaySignals.Average(s => s.Score)
             : 0;
 
-        // 8. Calculate position size if sizer is configured
+        // 9. Calculate position size if sizer is configured
         PositionSizeResult? positionSize = null;
         //if (Sizer != null)
         //{
@@ -123,14 +129,22 @@ public class TradeDecisionEngine
     private TradeDirection AggregateAllSignals(
         IReadOnlyList<SignalResult> patternSignals,
         IReadOnlyList<SignalResult> regressionSignals,
-        IReadOnlyList<SignalResult> threeWaySignals)
+        IReadOnlyList<SignalResult> threeWaySignals,
+        IReadOnlyList<SignalResult> binarySignals)
     {
-        // Get average expected return from regression
+        // Strategy constants (start conservative; tune with Delphi output)
+        const double minDirectionBuyConfidence = 0.50;
+
+        const double weightBreakoutPriorHigh = 1.00;
+        const double weightExpectedReturn = 0.30;
+        const double weightBreakoutAtr = 0.10; // currently weak; keep low
+
+        // --- Regression (ranking hint) ---
         double avgExpectedReturn = regressionSignals.Any()
             ? regressionSignals.Average(s => s.Score)
             : 0;
 
-        // Get dominant 3-way direction
+        // --- 3-way direction consensus + confidence ---
         var threeWayHints = threeWaySignals
             .Where(s => s.Hint.HasValue)
             .Select(s => s.Hint!.Value)
@@ -139,11 +153,21 @@ public class TradeDecisionEngine
         TradeDirection? threeWayConsensus = null;
         if (threeWayHints.Count > 0)
         {
-            var counts = threeWayHints.GroupBy(h => h).ToDictionary(g => g.Key, g => g.Count());
-            threeWayConsensus = counts.OrderByDescending(kv => kv.Value).First().Key;
+            var counts = threeWayHints
+                .GroupBy(h => h)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            threeWayConsensus = counts
+                .OrderByDescending(kv => kv.Value)
+                .First()
+                .Key;
         }
 
-        // Get pattern consensus
+        double threeWayConfidence = threeWaySignals.Any()
+            ? threeWaySignals.Average(s => s.Score)
+            : 0;
+
+        // --- Patterns (light confirmation only) ---
         var patternHints = patternSignals
             .Where(s => s.Hint.HasValue && s.Hint != TradeDirection.Hold)
             .Select(s => s.Hint!.Value)
@@ -152,31 +176,47 @@ public class TradeDecisionEngine
         int patternBuys = patternHints.Count(h => h == TradeDirection.Buy);
         int patternSells = patternHints.Count(h => h == TradeDirection.Sell);
 
-        // ─────────────────────────────────────────────────────────────
-        // Decision logic
-        // ─────────────────────────────────────────────────────────────
+        // --- Binary event hints ---
+        double breakoutPriorHighProb = binarySignals
+            .FirstOrDefault(s => string.Equals(s.Name, "BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
 
-        // Strong sell: 3-way says sell AND expected return is negative
+        double breakoutAtrProb = binarySignals
+            .FirstOrDefault(s => string.Equals(s.Name, "BreakoutAtr10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        // --- Decision logic ---
+
+        // Strong sell: 3-way says sell AND expected return hint is negative
         if (threeWayConsensus == TradeDirection.Sell && avgExpectedReturn < 0)
             return TradeDirection.Sell;
 
-        // Strong buy: 3-way says buy AND expected return is positive AND patterns mostly bullish
-        if (threeWayConsensus == TradeDirection.Buy &&
-            avgExpectedReturn > 0.01 &&
-            patternBuys >= patternSells)
+        // Hard gate for buy: direction model must be Buy with enough confidence.
+        // (This reduces churn + avoids buying into low-quality setups.)
+        if (threeWayConsensus != TradeDirection.Buy || threeWayConfidence < minDirectionBuyConfidence)
+            return TradeDirection.Hold;
+
+        // Weighted score for buy-eligible candidates.
+        // Note: expected return is mapped to [0..1] using a simple clamp so it can combine with probabilities.
+        double expectedReturnHint01 = Clamp01((avgExpectedReturn - 0.00) / 0.10); // 0%->0, 10%->1 cap
+
+        double buyScore =
+            (weightBreakoutPriorHigh * breakoutPriorHighProb) +
+            (weightExpectedReturn * expectedReturnHint01) +
+            (weightBreakoutAtr * breakoutAtrProb);
+
+        bool patternsNotBearish = patternSells <= patternBuys;
+
+        // Require non-bearish patterns and a small minimum score to call it a Buy.
+        // The score threshold is intentionally low to start; refine after Delphi runs.
+        if (patternsNotBearish && buyScore >= 0.60)
             return TradeDirection.Buy;
 
-        // Moderate buy: expected return strongly positive, patterns bullish
-        if (avgExpectedReturn > 0.02 && patternBuys > patternSells)
-            return TradeDirection.Buy;
-
-        // Moderate sell: expected return strongly negative, patterns bearish
-        if (avgExpectedReturn < -0.02 && patternSells > patternBuys)
-            return TradeDirection.Sell;
-
-        // Default: Hold
         return TradeDirection.Hold;
     }
+
+    private static double Clamp01(double value)
+        => value <= 0 ? 0 : value >= 1 ? 1 : value;
 
     /// <summary>
     /// Evaluates multiple symbols and returns ranked picks.
@@ -199,7 +239,7 @@ public class TradeDecisionEngine
                 Signals: result.Signals));
         }
 
-        // Rank by: direction preference (Buy > Hold > Sell), then expected return
+        // Rank by: direction preference (Buy > Hold > Sell), then expected return, then confidence
         return picks
             .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 2 : p.Direction == TradeDirection.Hold ? 1 : 0)
             .ThenByDescending(p => p.ExpectedReturn)
