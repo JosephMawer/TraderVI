@@ -16,7 +16,7 @@ decimal availableCapital = 500.00m;   // total capital available
 int minBarsRequired = 35;             // must satisfy max lookback (e.g., 35 for MA crossover lookback)
 decimal reserveCashPercent = 0.02m;   // keep 2% cash; set 0.00m for true all-in
 double minExpectedReturn = 0.01;      // require >= 1% expected return
-double minConfidence = 0.55;          // require >= 55% confidence
+double minConfidence = 0.50;          // require >= 50% confidence
 int maxSymbolsToScan = 500;           // safety limit
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
@@ -94,20 +94,7 @@ Console.WriteLine(new string('═', 70));
 Console.WriteLine("BEST PICK (SINGLE-POSITION MODE)");
 Console.WriteLine(new string('═', 70));
 
-if (bestPick == null || size == null || size.SuggestedSize <= 0)
-{
-    Console.WriteLine("No qualifying trade found (did not pass expected return / confidence gates).");
-    return;
-}
-
-Console.WriteLine($"Symbol:          {bestPick.Symbol}");
-Console.WriteLine($"Direction:       {bestPick.Direction}");
-Console.WriteLine($"Expected Return: {bestPick.ExpectedReturn:P2}");
-Console.WriteLine($"Confidence:      {bestPick.Confidence:P1}");
-Console.WriteLine($"Allocate:        {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
-Console.WriteLine($"Reason:          {size.Reason}");
-
-// Optional: show a short ranked list for transparency
+// Always show a short ranked list for transparency (even when no trade qualifies)
 Console.WriteLine("\nTop Ranked Candidates:");
 var top = engine.EvaluateAndRank(allBars, topN: 10);
 
@@ -120,6 +107,20 @@ foreach (var p in top)
     Console.WriteLine($"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.ExpectedReturn,10:P2} {p.Confidence,8:P1}");
     rank++;
 }
+
+if (bestPick == null || size == null || size.SuggestedSize <= 0)
+{
+    var reason = size?.Reason ?? "Unknown (size is null)";
+    Console.WriteLine($"\nNo qualifying trade found. Reason: {reason}");
+    return;
+}
+
+Console.WriteLine($"\nSymbol:          {bestPick.Symbol}");
+Console.WriteLine($"Direction:       {bestPick.Direction}");
+Console.WriteLine($"Expected Return: {bestPick.ExpectedReturn:P2}");
+Console.WriteLine($"Confidence:      {bestPick.Confidence:P1}");
+Console.WriteLine($"Allocate:        {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
+Console.WriteLine($"Reason:          {size.Reason}");
 
 // Detailed signals for the best pick
 Console.WriteLine("\nSignals (best pick):");
