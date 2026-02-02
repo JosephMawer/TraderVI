@@ -62,7 +62,7 @@ public static class UnifiedProfitTrainer
         PrintReturnStats("Train", trainWindows);
         PrintReturnStats("Test ", testWindows);
 
-        if (model.ModelKind == ProfitModelKind.ThreeWayClassification)
+        if (model.ModelKind is ProfitModelKind.ThreeWayClassification or ProfitModelKind.BinaryClassification)
         {
             PrintClassBalance("Train", trainWindows);
             PrintClassBalance("Test ", testWindows);
@@ -74,12 +74,14 @@ public static class UnifiedProfitTrainer
         {
             ProfitModelKind.Regression => TrainRegression(model, trainWindows, testWindows, modelPath, symbolsUsed),
             ProfitModelKind.ThreeWayClassification => TrainThreeWay(model, trainWindows, testWindows, modelPath, symbolsUsed),
+            ProfitModelKind.BinaryClassification => TrainBinary(model, trainWindows, testWindows, modelPath, symbolsUsed),
             _ => new ProfitTrainingResult(false, 0, 0, 0, 0, 0)
         };
     }
 
     private static void PrintClassBalance(string name, List<ProfitWindow> windows)
     {
+        // Uses ThreeWayLabel encoding: 0=Sell, 1=Hold, 2=Buy
         int total = windows.Count;
         int buys = windows.Count(w => w.ThreeWayLabel == 2);
         int holds = windows.Count(w => w.ThreeWayLabel == 1);
@@ -220,7 +222,9 @@ public static class UnifiedProfitTrainer
 
     private static double[] Rank(double[] values)
     {
-        var indexed = values.Select((v, i) => (Value: v, Index: i))
+        // Average ranks for ties
+        var indexed = values
+            .Select((v, i) => (Value: v, Index: i))
             .OrderBy(t => t.Value)
             .ToArray();
 
@@ -233,6 +237,7 @@ public static class UnifiedProfitTrainer
             while (j < indexed.Length && indexed[j].Value.Equals(indexed[i].Value))
                 j++;
 
+            // rank positions are 1..n
             double avgRank = (i + 1 + j) / 2.0;
 
             for (int k = i; k < j; k++)
@@ -325,6 +330,7 @@ public static class UnifiedProfitTrainer
 
     private static void PrintConfusionMatrix(MulticlassClassificationMetrics metrics)
     {
+        // Label indices: 0=Sell, 1=Hold, 2=Buy
         var counts = metrics.ConfusionMatrix.Counts;
 
         if (counts.Count != 3 || counts.Any(r => r.Count != 3))
@@ -358,6 +364,89 @@ public static class UnifiedProfitTrainer
         }
     }
 
+    private static ProfitTrainingResult TrainBinary(
+        ProfitModelDefinition model,
+        List<ProfitWindow> trainWindows,
+        List<ProfitWindow> testWindows,
+        string modelPath,
+        int symbolsUsed)
+    {
+        var mlContext = new MLContext(seed: 123);
+
+        int featureCount = trainWindows[0].Features.Length;
+        var schemaDefinition = SchemaDefinition.Create(typeof(ProfitWindow));
+        schemaDefinition[nameof(ProfitWindow.Features)].ColumnType =
+            new VectorDataViewType(NumberDataViewType.Single, featureCount);
+
+        IDataView trainData = mlContext.Data.LoadFromEnumerable(trainWindows, schemaDefinition);
+        IDataView testData = mlContext.Data.LoadFromEnumerable(testWindows, schemaDefinition);
+
+        var pipeline = mlContext.Transforms
+            .CopyColumns("Label", nameof(ProfitWindow.IsEvent))
+            .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
+            .Append(mlContext.BinaryClassification.Trainers.LightGbm(
+                labelColumnName: "Label",
+                featureColumnName: nameof(ProfitWindow.Features)));
+
+        Console.WriteLine($"Training {model.TaskType} (Binary, lookback={model.Lookback}, horizon={model.HorizonBars})...");
+        Console.WriteLine($"  Train: {trainWindows.Count:N0}, Test: {testWindows.Count:N0}, Features: {featureCount}");
+
+        var trainedModel = pipeline.Fit(trainData);
+
+        var predictions = trainedModel.Transform(testData);
+        var metrics = mlContext.BinaryClassification.Evaluate(predictions, labelColumnName: "Label");
+
+        Console.WriteLine($"  Accuracy: {metrics.Accuracy:0.####}");
+        Console.WriteLine($"  AUC:      {metrics.AreaUnderRocCurve:0.####}");
+        Console.WriteLine($"  F1:       {metrics.F1Score:0.####}");
+
+        PrintBinaryPositiveStats(mlContext, predictions);
+
+        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        Console.WriteLine($"  Model saved: {modelPath}\n");
+
+        return new ProfitTrainingResult(
+            Success: true,
+            SymbolsUsed: symbolsUsed,
+            TrainWindows: trainWindows.Count,
+            TestWindows: testWindows.Count,
+            PrimaryMetric: metrics.AreaUnderRocCurve,
+            SecondaryMetric: metrics.F1Score);
+    }
+
+    private static void PrintBinaryPositiveStats(MLContext mlContext, IDataView predictions)
+    {
+        var rows = mlContext.Data.CreateEnumerable<BinaryEvalRow>(predictions, reuseRowObject: false).ToList();
+        if (rows.Count == 0)
+        {
+            Console.WriteLine("  PosClass: n=0");
+            return;
+        }
+
+        int tp = rows.Count(r => r.Label && r.PredictedLabel);
+        int fp = rows.Count(r => !r.Label && r.PredictedLabel);
+        int fn = rows.Count(r => r.Label && !r.PredictedLabel);
+        int tn = rows.Count - tp - fp - fn;
+
+        double precision = (tp + fp) == 0 ? 0 : tp / (double)(tp + fp);
+        double recall = (tp + fn) == 0 ? 0 : tp / (double)(tp + fn);
+
+        double actualPosRate = rows.Count(r => r.Label) / (double)rows.Count;
+        double predictedPosRate = rows.Count(r => r.PredictedLabel) / (double)rows.Count;
+
+        Console.WriteLine($"  PosClass (Test): precision={precision:P1}, recall={recall:P1}");
+        Console.WriteLine($"  PosClass (Test): actualPosRate={actualPosRate:P1}, predictedPosRate={predictedPosRate:P1}");
+        Console.WriteLine($"  PosClass (Test): TP={tp}, FP={fp}, FN={fn}, TN={tn}");
+    }
+
+    private sealed class BinaryEvalRow
+    {
+        public bool Label { get; set; }
+        public bool PredictedLabel { get; set; }
+        public float Probability { get; set; }
+        public float Score { get; set; }
+    }
+
     private static List<ProfitWindow> BuildProfitWindows(
         List<DailyBar> bars,
         int lookback,
@@ -378,7 +467,8 @@ public static class UnifiedProfitTrainer
             if (!label.IsValid)
                 continue;
 
-            if (System.Math.Abs(label.ForwardReturn) > MaxAbsForwardReturn)
+            // Only applies to forward-return models. Event labelers generally return ForwardReturn=0.
+            if (label.ForwardReturn != 0 && System.Math.Abs(label.ForwardReturn) > MaxAbsForwardReturn)
                 continue;
 
             float forwardReturn = label.ForwardReturn;
