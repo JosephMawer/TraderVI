@@ -135,9 +135,9 @@ public class TradeDecisionEngine
         // Strategy constants (start conservative; tune with Delphi output)
         const double minDirectionBuyConfidence = 0.50;
 
-        const double weightBreakoutPriorHigh = 1.00;
-        const double weightExpectedReturn = 0.30;
-        const double weightBreakoutAtr = 0.10; // currently weak; keep low
+        const double weightBreakoutPriorHigh = 1.50;   // increase (AUC 0.81)
+        const double weightExpectedReturn = 0.20;      // decrease (R² negative)
+        const double weightBreakoutAtr = 0.00;         // disable
 
         // --- Regression (ranking hint) ---
         double avgExpectedReturn = regressionSignals.Any()

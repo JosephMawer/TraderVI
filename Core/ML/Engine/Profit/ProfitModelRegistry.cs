@@ -11,8 +11,8 @@ public static class ProfitModelRegistry
     private const bool EnableDirection10 = true;               // primary signal
 
     private const bool EnableBreakoutPriorHigh10 = true;
-    private const bool EnableBreakoutAtr10 = true;
-    private const bool EnableVolatilityExpansion10 = true;
+    private const bool EnableBreakoutAtr10 = false;      // AUC 0.55 - too weak
+    private const bool EnableVolatilityExpansion10 = false; // F1 0.03 - unusable
 
     private const bool EnableExpectedReturn5 = false;
     private const bool EnableDirection5 = false;

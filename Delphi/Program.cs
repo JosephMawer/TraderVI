@@ -16,7 +16,7 @@ decimal availableCapital = 500.00m;   // total capital available
 int minBarsRequired = 35;             // must satisfy max lookback (e.g., 35 for MA crossover lookback)
 decimal reserveCashPercent = 0.02m;   // keep 2% cash; set 0.00m for true all-in
 double minExpectedReturn = 0.01;      // require >= 1% expected return
-double minConfidence = 0.50;          // require >= 50% confidence
+double minConfidence = 0.45;  // Direction10 accuracy is ~40%; 50% gate is too strict
 int maxSymbolsToScan = 500;           // safety limit
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
