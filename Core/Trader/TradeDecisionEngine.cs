@@ -110,7 +110,7 @@ public class TradeDecisionEngine
             : 0;
 
         // 8. Get composite breakdown for transparency
-        var (composite, directionProb, breakoutProb, volProb) = GetCompositeScoreWithBreakdown(binarySignals);
+        var (composite, directionProb, breakoutProb, volExpansionProb) = GetCompositeScoreWithBreakdown(binarySignals);
 
         // Fallback confidence to 3-way if no binary signals
         double confidence = composite > 0 ? composite
@@ -139,58 +139,66 @@ public class TradeDecisionEngine
         if (!binarySignals.Any())
             return (0, 0, 0, 0);
 
-        // Primary: BreakoutPriorHigh10 (AUC 0.81) - most reliable event signal
+        // Primary: Breakout signal - prefer Enhanced (AUC 0.81), fallback to PriorHigh10
         double breakoutProb = binarySignals
-            .FirstOrDefault(s => s.Name.Equals("BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault(s => s.Name.Equals("BreakoutEnhanced", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        // Direction: Prefer 4% (AUC 0.70), then 3% (0.67)
-        double binaryUp4 = binarySignals
-            .FirstOrDefault(s => s.Name.Contains("4pct", StringComparison.OrdinalIgnoreCase))
+        // Fallback to legacy model name
+        if (breakoutProb == 0)
+        {
+            breakoutProb = binarySignals
+                .FirstOrDefault(s => s.Name.Equals("BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
+                ?.Score ?? 0;
+        }
+
+        // Direction: BinaryUp10 (consolidated model, AUC 0.70)
+        // Fallback to legacy 4pct/3pct names if BinaryUp10 not found
+        double directionProb = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("BinaryUp10", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        double binaryUp3 = binarySignals
-            .FirstOrDefault(s => s.Name.Contains("3pct", StringComparison.OrdinalIgnoreCase))
-            ?.Score ?? 0;
+        // Fallback for legacy model names (4pct, 3pct)
+        if (directionProb == 0)
+        {
+            double binaryUp4 = binarySignals
+                .FirstOrDefault(s => s.Name.Contains("4pct", StringComparison.OrdinalIgnoreCase))
+                ?.Score ?? 0;
 
-        // Use best available direction signal
-        double directionProb = binaryUp4 > 0 ? binaryUp4
-                             : binaryUp3 > 0 ? binaryUp3
-                             : 0;
+            double binaryUp3 = binarySignals
+                .FirstOrDefault(s => s.Name.Contains("3pct", StringComparison.OrdinalIgnoreCase))
+                ?.Score ?? 0;
+
+            directionProb = binaryUp4 > 0 ? binaryUp4 : binaryUp3;
+        }
 
         // Volatility expansion (AUC 0.66) - big move expected
         double volExpansionProb = binarySignals
             .FirstOrDefault(s => s.Name.Contains("VolExpansion", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
+        // Relative strength continuation (AUC 0.65)
         double relStrengthProb = binarySignals
             .FirstOrDefault(s => s.Name.Contains("RelStrength", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        //// Weighted composite based on AUC strength
-        //// Total weights = 0.45 + 0.30 + 0.15 + 0.10 = 1.0
-        //double composite =
-        //    (breakoutProb * 0.45) +         // AUC 0.81 - highest weight
-        //    (directionProb * 0.30) +        // AUC 0.70 (4pct)
-        //    (volExpansionProb * 0.15) +     // AUC 0.66
-        //    (binarySignals.Average(s => s.Score) * 0.10);  // ensemble fallback
-
-        // Revised weights (total = 1.0):
+        // Weighted composite based on AUC strength (total = 1.0)
         double composite =
             (breakoutProb * 0.45) +         // AUC 0.81
             (directionProb * 0.25) +        // AUC 0.70
             (volExpansionProb * 0.12) +     // AUC 0.66
-            (relStrengthProb * 0.08) +      // AUC 0.65 (new)
-            (binarySignals.Average(s => s.Score) * 0.10);
+            (relStrengthProb * 0.08) +      // AUC 0.65
+            (binarySignals.Average(s => s.Score) * 0.10);  // ensemble fallback
 
         return (composite, directionProb, breakoutProb, volExpansionProb);
     }
-
     /// <summary>
     /// Legacy method for backward compatibility.
     /// </summary>
     private static double GetCompositeScore(IReadOnlyList<SignalResult> binarySignals)
         => GetCompositeScoreWithBreakdown(binarySignals).Composite;
+
+    // Replace AggregateAllSignals with this updated version:
 
     private TradeDirection AggregateAllSignals(
         IReadOnlyList<SignalResult> patternSignals,
@@ -204,13 +212,33 @@ public class TradeDecisionEngine
         const double minCompositeScore = 0.35;       // Minimum composite to consider Buy
         const double strongBuyThreshold = 0.50;      // Strong buy composite
         const double minDirectionProb = 0.25;        // Direction gate: must believe "up" is likely
-        const double regressionVetoThreshold = -0.03; // Veto buy if regression says <-3%
+
+        // Risk-adjusted probability gates (replaces regression veto)
+        const double minUpProb = 0.40;               // Require P(up) >= 40% for buys
+        const double maxDownProb = 0.45;             // Veto buy if P(down) >= 45%
+        const double strongUpDownSpread = 0.15;      // For strong buy: P(up) - P(down) >= 15%
+
+        // Legacy regression veto (only if risk models not available)
+        const double regressionVetoThreshold = -0.02; // Tightened from -0.03
 
         // Get composite breakdown
         var (compositeScore, directionProb, breakoutProb, volExpansionProb) =
             GetCompositeScoreWithBreakdown(binarySignals);
 
-        // --- Regression (ranking hint + veto) ---
+        // ─────────────────────────────────────────────────────────────────
+        // Get risk-adjusted probabilities (new veto signals)
+        // ─────────────────────────────────────────────────────────────────
+        double pUp = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("RiskAdjUp10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? -1; // -1 means model not available
+
+        double pDown = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("RiskAdjDown10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? -1;
+
+        bool hasRiskModels = pUp >= 0 && pDown >= 0;
+
+        // --- Regression (legacy fallback) ---
         double avgExpectedReturn = regressionSignals.Any()
             ? regressionSignals.Average(s => s.Score)
             : 0;
@@ -248,53 +276,75 @@ public class TradeDecisionEngine
         // Decision logic
         // ═══════════════════════════════════════════════════════════════
 
-        // Strong sell: 3-way says sell AND expected return is clearly negative
-        if (threeWayConsensus == TradeDirection.Sell && avgExpectedReturn < -0.02)
-            return TradeDirection.Sell;
+        // Strong sell: 3-way says sell AND (risk model says high down prob OR regression negative)
+        if (threeWayConsensus == TradeDirection.Sell)
+        {
+            if ((hasRiskModels && pDown >= 0.55) || avgExpectedReturn < -0.02)
+                return TradeDirection.Sell;
+        }
 
         // ─────────────────────────────────────────────────────────────────
         // Direction gate: require meaningful upward probability
-        // Prevents buying high-vol/breakout setups without directional confirmation
         // ─────────────────────────────────────────────────────────────────
         bool hasDirectionConfirmation = directionProb >= minDirectionProb;
 
         // ─────────────────────────────────────────────────────────────────
-        // Regression veto: block buy if regression is strongly negative
+        // Risk-adjusted veto (preferred) OR legacy regression veto
         // ─────────────────────────────────────────────────────────────────
-        bool regressionVeto = avgExpectedReturn < regressionVetoThreshold;
+        bool riskVeto;
+        if (hasRiskModels)
+        {
+            // New: probability-based veto
+            // Block if: P(down) too high OR P(up) too low
+            riskVeto = pDown >= maxDownProb || pUp < minUpProb;
+        }
+        else
+        {
+            // Legacy: regression-based veto
+            riskVeto = avgExpectedReturn < regressionVetoThreshold;
+        }
 
-        if (regressionVeto)
+        if (riskVeto)
             return TradeDirection.Hold;
 
         // ─────────────────────────────────────────────────────────────────
         // Primary buy gates
         // ─────────────────────────────────────────────────────────────────
 
-        // Strong buy: high composite + direction confirmed + patterns not bearish
+        // Strong buy: high composite + direction confirmed + patterns not bearish + good risk spread
         if (compositeScore >= strongBuyThreshold &&
             hasDirectionConfirmation &&
             patternsNotBearish)
         {
-            return TradeDirection.Buy;
+            // If risk models available, also check spread
+            if (!hasRiskModels || (pUp - pDown >= strongUpDownSpread))
+            {
+                return TradeDirection.Buy;
+            }
         }
 
-        // Standard buy: moderate composite + direction confirmed + non-negative regression
+        // Standard buy: moderate composite + direction confirmed + non-bearish + acceptable risk
         if (compositeScore >= minCompositeScore &&
             hasDirectionConfirmation &&
-            patternsNotBearish &&
-            avgExpectedReturn >= 0)
+            patternsNotBearish)
         {
-            return TradeDirection.Buy;
+            // If risk models available, require positive spread
+            if (!hasRiskModels || (pUp > pDown))
+            {
+                return TradeDirection.Buy;
+            }
         }
 
-        // Fallback buy: very strong breakout signal alone (BreakoutPriorHigh is directional by nature)
-        // Only if breakout is very high AND direction is at least somewhat positive
+        // Fallback buy: very strong breakout signal alone
         if (breakoutProb >= 0.70 &&
             directionProb >= 0.20 &&
-            patternsNotBearish &&
-            avgExpectedReturn >= -0.01)
+            patternsNotBearish)
         {
-            return TradeDirection.Buy;
+            // If risk models available, don't allow if down risk is elevated
+            if (!hasRiskModels || (pDown < 0.40 && pUp >= 0.35))
+            {
+                return TradeDirection.Buy;
+            }
         }
 
         return TradeDirection.Hold;

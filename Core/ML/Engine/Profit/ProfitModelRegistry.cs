@@ -7,10 +7,10 @@ namespace Core.ML.Engine.Profit;
 public static class ProfitModelRegistry
 {
     // Toggle flags (edit these during iteration)
-    private const bool EnableExpectedReturn10 = true;           // ranking hint (weak, but keep for now)
+    private const bool EnableExpectedReturn10 = false;          // DISABLED: replaced by risk-adjusted
     private const bool EnableDirection10 = false;               // DISABLED: 3-way is weak (40% accuracy)
 
-    private const bool EnableBreakoutPriorHigh10 = true;        // AUC 0.81 - best signal
+    private const bool EnableBreakoutPriorHigh10 = false;       // DISABLED: replaced by BreakoutEnhanced
     private const bool EnableBreakoutAtr10 = false;             // AUC 0.55 - too weak
     private const bool EnableVolatilityExpansion10 = false;     // Old labeler - unusable
 
@@ -21,12 +21,22 @@ public static class ProfitModelRegistry
     private const bool EnableRelStrengthCont10_1pct = false;    // AUC 0.60 - too weak
     private const bool EnableRelStrengthCont10_2pct = true;     // AUC 0.65 - keep as confirmation
 
-    // Direction model (single model; replaces BinaryUp10_*pct variants)
-    private const bool EnableBinaryUp10 = true;                 // Single direction score model (recommended)
+    // Direction model (single model)
+    private const bool EnableBinaryUp10 = true;                 // AUC 0.70 - keep
     private const bool EnableBinaryUp10Market = false;          // AUC 0.64 - market context didn't help much
 
     // Volatility expansion (redefined) - NOW WORKING!
     private const bool EnableVolExpansionRelative10 = true;     // AUC 0.66 ✅
+
+    // Enhanced models (starter pack features)
+    private const bool EnableBinaryUp10Enhanced = false;        // No improvement - disabled
+    private const bool EnableBreakoutEnhanced = true;           // AUC 0.814 - best breakout model ✓
+
+    // ════════════════════════════════════════════════════════════════
+    // NEW: Risk-adjusted move models (replaces regression veto)
+    // ════════════════════════════════════════════════════════════════
+    private const bool EnableRiskAdjustedUp10 = true;           // P(up move >= 0.75 ATR)
+    private const bool EnableRiskAdjustedDown10 = true;         // P(down move >= 0.75 ATR) - veto signal
 
     public static IReadOnlyList<ProfitModelDefinition> All { get; } = BuildAll();
 
@@ -89,12 +99,9 @@ public static class ProfitModelRegistry
                 ModelKind: ProfitModelKind.BinaryClassification));
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // Direction model (single)
-        // ════════════════════════════════════════════════════════════════
+        // Direction model
         if (EnableBinaryUp10)
         {
-            // Keep the “4% in 10d” label because it was the most separable direction target (AUC ~0.70).
             models.Add(new ProfitModelDefinition(
                 TaskType: "BinaryUp10",
                 Lookback: 30,
@@ -115,9 +122,7 @@ public static class ProfitModelRegistry
                 ModelKind: ProfitModelKind.BinaryClassification));
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // Volatility expansion (relative to own trailing ATR)
-        // ════════════════════════════════════════════════════════════════
+        // Volatility expansion
         if (EnableVolExpansionRelative10)
         {
             models.Add(new ProfitModelDefinition(
@@ -151,9 +156,7 @@ public static class ProfitModelRegistry
                 ModelKind: ProfitModelKind.ThreeWayClassification));
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // Relative strength continuation (market-relative outperformance)
-        // ════════════════════════════════════════════════════════════════
+        // Relative strength continuation
         if (EnableRelStrengthCont10_1pct)
         {
             models.Add(new ProfitModelDefinition(
@@ -173,6 +176,58 @@ public static class ProfitModelRegistry
                 HorizonBars: 10,
                 FeatureBuilder: new MarketContextFeatureBuilder(),
                 Labeler: new RelativeStrengthContinuationLabeler(horizonBars: 10, outperformThresholdPercent: 2.0f),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        // Enhanced models (starter pack features)
+        if (EnableBinaryUp10Enhanced)
+        {
+            models.Add(new ProfitModelDefinition(
+                TaskType: "BinaryUp10Enhanced",
+                Lookback: 55,
+                HorizonBars: 10,
+                FeatureBuilder: new EnhancedFeatureBuilder(),
+                Labeler: new BinaryUpLabeler(horizonBars: 10, upThresholdPercent: 4.0f),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        if (EnableBreakoutEnhanced)
+        {
+            models.Add(new ProfitModelDefinition(
+                TaskType: "BreakoutEnhanced",
+                Lookback: 55,
+                HorizonBars: 10,
+                FeatureBuilder: new EnhancedFeatureBuilder(),
+                Labeler: new BreakoutAbovePriorHighLabeler(horizonBars: 10, priorHighLookback: 20, breakoutPercent: 1.0f),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // RISK-ADJUSTED MOVE MODELS (replaces regression veto)
+        // ════════════════════════════════════════════════════════════════
+
+        if (EnableRiskAdjustedUp10)
+        {
+            // P(up move >= 0.75 ATR in next 10 days)
+            // Use enhanced features for best signal
+            models.Add(new ProfitModelDefinition(
+                TaskType: "RiskAdjUp10",
+                Lookback: 55,
+                HorizonBars: 10,
+                FeatureBuilder: new EnhancedFeatureBuilder(),
+                Labeler: new RiskAdjustedUpLabeler(horizonBars: 10, atrThreshold: 0.75f, atrPeriod: 14),
+                ModelKind: ProfitModelKind.BinaryClassification));
+        }
+
+        if (EnableRiskAdjustedDown10)
+        {
+            // P(down move >= 0.75 ATR in next 10 days) - VETO SIGNAL
+            models.Add(new ProfitModelDefinition(
+                TaskType: "RiskAdjDown10",
+                Lookback: 55,
+                HorizonBars: 10,
+                FeatureBuilder: new EnhancedFeatureBuilder(),
+                Labeler: new RiskAdjustedDownLabeler(horizonBars: 10, atrThreshold: 0.75f, atrPeriod: 14),
                 ModelKind: ProfitModelKind.BinaryClassification));
         }
 

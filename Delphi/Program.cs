@@ -133,9 +133,17 @@ static double GetProbContains(RankedPick pick, string nameContains) =>
         .FirstOrDefault(s => s.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase))
         ?.Score ?? 0;
 
+static double GetBreakoutProb(RankedPick pick)
+{
+    double enhanced = GetProb(pick, "BreakoutEnhanced");
+    if (enhanced > 0) return enhanced;
+
+    return GetProb(pick, "BreakoutPriorHigh10");
+}
+
 static double GetDirectionProb(RankedPick pick)
 {
-    // First try BinaryUp10, then fall back to 4pct/3pct
+    // Prefer BinaryUp10, else legacy 4pct/3pct
     double binaryUp = GetProb(pick, "BinaryUp10");
     if (binaryUp > 0) return binaryUp;
 
@@ -148,19 +156,25 @@ static double GetDirectionProb(RankedPick pick)
     return 0;
 }
 
+static double GetRiskAdjUpProb(RankedPick pick) => GetProb(pick, "RiskAdjUp10");
+static double GetRiskAdjDownProb(RankedPick pick) => GetProb(pick, "RiskAdjDown10");
+
 Console.WriteLine(
-    $"{"#",-3} {"Symbol",-10} {"Action",-6} {"Composite",10} {"Break",8} {"Vol",8} {"Dir",8} {"ExpRet",10}");
-Console.WriteLine(new string('─', 74));
+    $"{"#",-3} {"Symbol",-10} {"Action",-6} {"Comp",7} {"Break",7} {"Vol",6} {"Dir",6} {"P↑",6} {"P↓",6} {"Δ",6}");
+Console.WriteLine(new string('─', 80));
 
 int rank = 1;
 foreach (var p in top)
 {
-    double breakout = GetProb(p, "BreakoutPriorHigh10");
+    double breakout = GetBreakoutProb(p);
     double volExp = GetProbContains(p, "VolExpansion");
     double dirProb = GetDirectionProb(p);
+    double pUp = GetRiskAdjUpProb(p);
+    double pDown = GetRiskAdjDownProb(p);
+    double spread = pUp - pDown;
 
     Console.WriteLine(
-        $"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.CompositeScore,10:P1} {breakout,8:P1} {volExp,8:P1} {dirProb,8:P1} {p.ExpectedReturn,10:P2}");
+        $"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.CompositeScore,7:P0} {breakout,7:P0} {volExp,6:P0} {dirProb,6:P0} {pUp,6:P0} {pDown,6:P0} {spread,6:P0}");
     rank++;
 }
 
@@ -180,7 +194,7 @@ if (saveToDB && top.Count > 0)
     int savedRank = 1;
     foreach (var p in top)
     {
-        double breakout = GetProb(p, "BreakoutPriorHigh10");
+        double breakout = GetBreakoutProb(p);
         double volExp = GetProbContains(p, "VolExpansion");
         double dirProb = GetDirectionProb(p);
         double relStrength = GetProbContains(p, "RelStrength");
@@ -217,7 +231,7 @@ if (bestPick == null || size == null || size.SuggestedSize <= 0)
     return;
 }
 
-double bestBreakout = GetProb(bestPick, "BreakoutPriorHigh10");
+double bestBreakout = GetBreakoutProb(bestPick);
 double bestVolExp = GetProbContains(bestPick, "VolExpansion");
 double bestDirProb = GetDirectionProb(bestPick);
 double bestRelStrength = GetProbContains(bestPick, "RelStrength");

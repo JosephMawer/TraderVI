@@ -141,6 +141,19 @@ foreach (var profitModel in ProfitModelRegistry.All)
         Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context ({marketBars.Count} bars)");
     }
 
+    // After the MarketContextFeatureBuilder injection, add:
+    if (profitModel.FeatureBuilder is EnhancedFeatureBuilder efb && marketBars != null)
+    {
+        efb.MarketBars = marketBars;
+        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context into EnhancedFeatureBuilder");
+    }
+
+    if (profitModel.FeatureBuilder is TrendMomentumFeatureBuilder tmfb && marketBars != null)
+    {
+        tmfb.MarketBars = marketBars;
+        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context into TrendMomentumFeatureBuilder");
+    }
+
     // Inject market context into labeler if it supports it
     if (profitModel.Labeler is RelativeStrengthContinuationLabeler rsLabeler && marketBars != null)
     {

@@ -6,6 +6,127 @@ using System.Threading.Tasks;
 
 namespace Core.Db;
 
+public class ModelExperimentRepository : SQLBase
+{
+    public ModelExperimentRepository() : base("[dbo].[ModelExperiment]",
+        "[ExperimentId],[TaskType],[ExperimentName],[LabelDefinition],[FeatureSet],[FeatureCount]," +
+        "[TrainWindows],[TestWindows],[AUC],[Accuracy],[F1AtDefault],[F1AtOptimal],[OptimalThreshold]," +
+        "[PrecisionAtOpt],[RecallAtOpt],[RMSE],[MAE],[RSquared],[Spearman],[Hypothesis],[Outcome]," +
+        "[Decision],[CreatedUtc],[Notes]")
+    { }
+
+    public async Task<Guid> InsertExperiment(
+        string taskType,
+        string experimentName,
+        string? labelDefinition = null,
+        string? featureSet = null,
+        int? featureCount = null,
+        int? trainWindows = null,
+        int? testWindows = null,
+        double? auc = null,
+        double? accuracy = null,
+        double? f1AtDefault = null,
+        double? f1AtOptimal = null,
+        double? optimalThreshold = null,
+        double? precisionAtOpt = null,
+        double? recallAtOpt = null,
+        double? rmse = null,
+        double? mae = null,
+        double? rSquared = null,
+        double? spearman = null,
+        string? hypothesis = null,
+        string? outcome = null,
+        string? decision = null,
+        string? notes = null)
+    {
+        var experimentId = Guid.NewGuid();
+
+        var query = $@"
+INSERT INTO {DbName}
+([ExperimentId],[TaskType],[ExperimentName],[LabelDefinition],[FeatureSet],[FeatureCount],
+ [TrainWindows],[TestWindows],[AUC],[Accuracy],[F1AtDefault],[F1AtOptimal],[OptimalThreshold],
+ [PrecisionAtOpt],[RecallAtOpt],[RMSE],[MAE],[RSquared],[Spearman],[Hypothesis],[Outcome],
+ [Decision],[Notes])
+VALUES
+(@ExperimentId,@TaskType,@ExperimentName,@LabelDefinition,@FeatureSet,@FeatureCount,
+ @TrainWindows,@TestWindows,@AUC,@Accuracy,@F1AtDefault,@F1AtOptimal,@OptimalThreshold,
+ @PrecisionAtOpt,@RecallAtOpt,@RMSE,@MAE,@RSquared,@Spearman,@Hypothesis,@Outcome,
+ @Decision,@Notes);";
+
+        await Insert(query,
+        [
+            new SqlParameter("@ExperimentId", SqlDbType.UniqueIdentifier) { Value = experimentId },
+            new SqlParameter("@TaskType", SqlDbType.NVarChar, 64) { Value = taskType },
+            new SqlParameter("@ExperimentName", SqlDbType.NVarChar, 128) { Value = experimentName },
+            new SqlParameter("@LabelDefinition", SqlDbType.NVarChar, 256) { Value = (object?)labelDefinition ?? DBNull.Value },
+            new SqlParameter("@FeatureSet", SqlDbType.NVarChar, 64) { Value = (object?)featureSet ?? DBNull.Value },
+            new SqlParameter("@FeatureCount", SqlDbType.Int) { Value = (object?)featureCount ?? DBNull.Value },
+            new SqlParameter("@TrainWindows", SqlDbType.Int) { Value = (object?)trainWindows ?? DBNull.Value },
+            new SqlParameter("@TestWindows", SqlDbType.Int) { Value = (object?)testWindows ?? DBNull.Value },
+            new SqlParameter("@AUC", SqlDbType.Float) { Value = (object?)auc ?? DBNull.Value },
+            new SqlParameter("@Accuracy", SqlDbType.Float) { Value = (object?)accuracy ?? DBNull.Value },
+            new SqlParameter("@F1AtDefault", SqlDbType.Float) { Value = (object?)f1AtDefault ?? DBNull.Value },
+            new SqlParameter("@F1AtOptimal", SqlDbType.Float) { Value = (object?)f1AtOptimal ?? DBNull.Value },
+            new SqlParameter("@OptimalThreshold", SqlDbType.Float) { Value = (object?)optimalThreshold ?? DBNull.Value },
+            new SqlParameter("@PrecisionAtOpt", SqlDbType.Float) { Value = (object?)precisionAtOpt ?? DBNull.Value },
+            new SqlParameter("@RecallAtOpt", SqlDbType.Float) { Value = (object?)recallAtOpt ?? DBNull.Value },
+            new SqlParameter("@RMSE", SqlDbType.Float) { Value = (object?)rmse ?? DBNull.Value },
+            new SqlParameter("@MAE", SqlDbType.Float) { Value = (object?)mae ?? DBNull.Value },
+            new SqlParameter("@RSquared", SqlDbType.Float) { Value = (object?)rSquared ?? DBNull.Value },
+            new SqlParameter("@Spearman", SqlDbType.Float) { Value = (object?)spearman ?? DBNull.Value },
+            new SqlParameter("@Hypothesis", SqlDbType.NVarChar, 512) { Value = (object?)hypothesis ?? DBNull.Value },
+            new SqlParameter("@Outcome", SqlDbType.NVarChar, 512) { Value = (object?)outcome ?? DBNull.Value },
+            new SqlParameter("@Decision", SqlDbType.NVarChar, 64) { Value = (object?)decision ?? DBNull.Value },
+            new SqlParameter("@Notes", SqlDbType.NVarChar, -1) { Value = (object?)notes ?? DBNull.Value }
+        ]);
+
+        return experimentId;
+    }
+
+    public async Task<List<ModelExperimentInfo>> GetExperimentsByTaskType(string taskType)
+    {
+        var query = $"SELECT {Fields} FROM {DbName} WHERE [TaskType] = @TaskType ORDER BY [CreatedUtc] DESC";
+
+        return await ExecuteReaderAsync(query,
+            [new SqlParameter("@TaskType", SqlDbType.NVarChar, 64) { Value = taskType }],
+            MapExperiment);
+    }
+
+    public async Task<List<ModelExperimentInfo>> GetRecentExperiments(int count = 50)
+    {
+        var query = $"SELECT TOP {count} {Fields} FROM {DbName} ORDER BY [CreatedUtc] DESC";
+        return await ExecuteReaderAsync(query, MapExperiment);
+    }
+
+    private static ModelExperimentInfo MapExperiment(SqlDataReader reader) => new()
+    {
+        ExperimentId = reader.GetGuid(0),
+        TaskType = reader.GetString(1),
+        ExperimentName = reader.GetString(2),
+        LabelDefinition = reader.IsDBNull(3) ? null : reader.GetString(3),
+        FeatureSet = reader.IsDBNull(4) ? null : reader.GetString(4),
+        FeatureCount = reader.IsDBNull(5) ? null : reader.GetInt32(5),
+        TrainWindows = reader.IsDBNull(6) ? null : reader.GetInt32(6),
+        TestWindows = reader.IsDBNull(7) ? null : reader.GetInt32(7),
+        AUC = reader.IsDBNull(8) ? null : reader.GetDouble(8),
+        Accuracy = reader.IsDBNull(9) ? null : reader.GetDouble(9),
+        F1AtDefault = reader.IsDBNull(10) ? null : reader.GetDouble(10),
+        F1AtOptimal = reader.IsDBNull(11) ? null : reader.GetDouble(11),
+        OptimalThreshold = reader.IsDBNull(12) ? null : reader.GetDouble(12),
+        PrecisionAtOpt = reader.IsDBNull(13) ? null : reader.GetDouble(13),
+        RecallAtOpt = reader.IsDBNull(14) ? null : reader.GetDouble(14),
+        RMSE = reader.IsDBNull(15) ? null : reader.GetDouble(15),
+        MAE = reader.IsDBNull(16) ? null : reader.GetDouble(16),
+        RSquared = reader.IsDBNull(17) ? null : reader.GetDouble(17),
+        Spearman = reader.IsDBNull(18) ? null : reader.GetDouble(18),
+        Hypothesis = reader.IsDBNull(19) ? null : reader.GetString(19),
+        Outcome = reader.IsDBNull(20) ? null : reader.GetString(20),
+        Decision = reader.IsDBNull(21) ? null : reader.GetString(21),
+        CreatedUtc = reader.GetDateTime(22),
+        Notes = reader.IsDBNull(23) ? null : reader.GetString(23)
+    };
+}
+
 public class TradeLogRepository : SQLBase
 {
     public TradeLogRepository() : base("[dbo].[TradeLog]",

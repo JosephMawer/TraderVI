@@ -57,6 +57,54 @@ public static class UnifiedProfitTrainer
             return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
         }
 
+        if (model.ModelKind == ProfitModelKind.BinaryClassification)
+        {
+            int testPositives = testWindows.Count(w => w.IsEvent);
+            int testNegatives = testWindows.Count - testPositives;
+            
+            if (testPositives == 0 || testNegatives == 0)
+            {
+                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
+                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+            }
+        }
+
+        if (model.ModelKind == ProfitModelKind.BinaryClassification)
+        {
+            int testPositives = testWindows.Count(w => w.IsEvent);
+            int testNegatives = testWindows.Count - testPositives;
+            
+            if (testPositives == 0 || testNegatives == 0)
+            {
+                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
+                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+            }
+        }
+
+        if (model.ModelKind == ProfitModelKind.BinaryClassification)
+        {
+            int testPositives = testWindows.Count(w => w.IsEvent);
+            int testNegatives = testWindows.Count - testPositives;
+            
+            if (testPositives == 0 || testNegatives == 0)
+            {
+                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
+                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+            }
+        }
+
+        if (model.ModelKind == ProfitModelKind.BinaryClassification)
+        {
+            int testPositives = testWindows.Count(w => w.IsEvent);
+            int testNegatives = testWindows.Count - testPositives;
+            
+            if (testPositives == 0 || testNegatives == 0)
+            {
+                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
+                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+            }
+        }
+
         Console.WriteLine($"Labeler: {model.Labeler.Name}");
         Console.WriteLine($"FeatureSet: {model.FeatureBuilder.Name}");
 
