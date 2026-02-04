@@ -22,12 +22,23 @@ public class UnifiedProfitSignalModel : IStockSignalModel
     private readonly PredictionEngine<ProfitWindow, ThreeWayPrediction>? _threeWayEngine;
     private readonly PredictionEngine<ProfitWindow, BinaryPrediction>? _binaryEngine;
 
+    private readonly float _thresholdBuy;
+    private readonly float _thresholdSell;
+
     public string Name => _model.TaskType;
     public ProfitModelKind ModelKind => _model.ModelKind;
 
-    public UnifiedProfitSignalModel(ProfitModelDefinition model, string modelZipPath)
+    public UnifiedProfitSignalModel(
+        ProfitModelDefinition model,
+        string modelZipPath,
+        float? thresholdBuy = null,
+        float? thresholdSell = null)
     {
         _model = model;
+
+        // Use registry thresholds if provided, otherwise fall back to model definition defaults.
+        _thresholdBuy = thresholdBuy ?? (model.BuyThresholdPercent / 100f);
+        _thresholdSell = thresholdSell ?? (model.SellThresholdPercent / 100f);
 
         var loadedModel = MlContext.Model.Load(modelZipPath, out _);
 
@@ -89,11 +100,8 @@ public class UnifiedProfitSignalModel : IStockSignalModel
         var prediction = _regressionEngine!.Predict(input);
         float expectedReturn = prediction.Score;
 
-        var buyThreshold = _model.BuyThresholdPercent / 100f;
-        var sellThreshold = _model.SellThresholdPercent / 100f;
-
-        var hint = expectedReturn >= buyThreshold ? TradeDirection.Buy
-                 : expectedReturn <= sellThreshold ? TradeDirection.Sell
+        var hint = expectedReturn >= _thresholdBuy ? TradeDirection.Buy
+                 : expectedReturn <= _thresholdSell ? TradeDirection.Sell
                  : TradeDirection.Hold;
 
         return new SignalResult(
@@ -132,14 +140,14 @@ public class UnifiedProfitSignalModel : IStockSignalModel
         // Score is the probability of the "true" class (event occurred).
         float p = prediction.Probability;
 
-        // Use Buy as the "event happened / bullish event" hint, else Hold.
-        var hint = p >= 0.50f ? TradeDirection.Buy : TradeDirection.Hold;
+        // Use registry-provided threshold instead of hardcoded 0.50.
+        var hint = p >= _thresholdBuy ? TradeDirection.Buy : TradeDirection.Hold;
 
         return new SignalResult(
             Name,
             Score: p,
             Hint: hint,
-            Notes: $"EventProbability={p:P1}, Horizon={_model.HorizonBars}d");
+            Notes: $"EventProbability={p:P1}, ThresholdBuy={_thresholdBuy:P1}, Horizon={_model.HorizonBars}d");
     }
 
     public static UnifiedProfitSignalModel? FromRegistryInfo(ModelRegistryInfo info)
@@ -148,6 +156,10 @@ public class UnifiedProfitSignalModel : IStockSignalModel
         if (model == null)
             return null;
 
-        return new UnifiedProfitSignalModel(model, info.ZipPath);
+        return new UnifiedProfitSignalModel(
+            model,
+            info.ZipPath,
+            thresholdBuy: (float)info.ThresholdBuy,
+            thresholdSell: (float)info.ThresholdSell);
     }
 }

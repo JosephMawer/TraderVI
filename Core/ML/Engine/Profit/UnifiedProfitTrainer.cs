@@ -1,4 +1,5 @@
 ﻿using Core.ML.Engine.Patterns;
+using Core.ML.Engine.Patterns.Features;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
@@ -77,6 +78,27 @@ public static class UnifiedProfitTrainer
             ProfitModelKind.BinaryClassification => TrainBinary(model, trainWindows, testWindows, modelPath, symbolsUsed),
             _ => new ProfitTrainingResult(false, 0, 0, 0, 0, 0)
         };
+    }
+
+    // Add this method after the existing Train method (around line 80)
+
+    /// <summary>
+    /// Train with market context (passes XIU bars to MarketContextFeatureBuilder).
+    /// </summary>
+    public static ProfitTrainingResult TrainWithMarketContext(
+        ProfitModelDefinition model,
+        Dictionary<string, List<DailyBar>> barsBySymbol,
+        List<DailyBar> marketBars,
+        string modelPath,
+        double trainFraction = 0.8)
+    {
+        // Inject market bars into feature builder if it supports it
+        if (model.FeatureBuilder is MarketContextFeatureBuilder mcfb)
+        {
+            mcfb.MarketBars = marketBars;
+        }
+
+        return Train(model, barsBySymbol, modelPath, trainFraction);
     }
 
     private static void PrintClassBalance(string name, List<ProfitWindow> windows)
@@ -364,6 +386,8 @@ public static class UnifiedProfitTrainer
         }
     }
 
+    // Replace the TrainBinary method (starting around line 389) with this:
+
     private static ProfitTrainingResult TrainBinary(
         ProfitModelDefinition model,
         List<ProfitWindow> trainWindows,
@@ -398,9 +422,28 @@ public static class UnifiedProfitTrainer
 
         Console.WriteLine($"  Accuracy: {metrics.Accuracy:0.####}");
         Console.WriteLine($"  AUC:      {metrics.AreaUnderRocCurve:0.####}");
-        Console.WriteLine($"  F1:       {metrics.F1Score:0.####}");
+        Console.WriteLine($"  F1:       {metrics.F1Score:0.####} (at default threshold=0.5)");
 
-        PrintBinaryPositiveStats(mlContext, predictions);
+        // Get rows with probabilities for threshold sweep
+        var rows = mlContext.Data.CreateEnumerable<BinaryEvalRow>(predictions, reuseRowObject: false).ToList();
+
+        PrintBinaryPositiveStats(rows);
+
+        // Threshold sweep to find optimal operating point
+        var (optimalThreshold, optPrecision, optRecall, optF1) = FindOptimalThreshold(rows);
+
+        Console.WriteLine($"  ─────────────────────────────────────────");
+        Console.WriteLine($"  Threshold Sweep Results:");
+        Console.WriteLine($"    Optimal threshold: {optimalThreshold:0.###}");
+        Console.WriteLine($"    F1 at optimal:     {optF1:P1}");
+        Console.WriteLine($"    Precision:         {optPrecision:P1}");
+        Console.WriteLine($"    Recall:            {optRecall:P1}");
+
+        // Also show what happens at a few fixed thresholds
+        PrintThresholdStats(rows, 0.30, "0.30 (aggressive)");
+        PrintThresholdStats(rows, 0.40, "0.40");
+        PrintThresholdStats(rows, 0.50, "0.50 (default)");
+        PrintThresholdStats(rows, 0.60, "0.60 (conservative)");
 
         mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
@@ -411,7 +454,82 @@ public static class UnifiedProfitTrainer
             TrainWindows: trainWindows.Count,
             TestWindows: testWindows.Count,
             PrimaryMetric: metrics.AreaUnderRocCurve,
-            SecondaryMetric: metrics.F1Score);
+            SecondaryMetric: metrics.F1Score,
+            OptimalThreshold: optimalThreshold,
+            PrecisionAtOptimal: optPrecision,
+            RecallAtOptimal: optRecall,
+            F1AtOptimal: optF1);
+    }
+
+    private static (double threshold, double precision, double recall, double f1) FindOptimalThreshold(List<BinaryEvalRow> rows)
+    {
+        if (rows.Count == 0)
+            return (0.5, 0, 0, 0);
+
+        double bestF1 = 0;
+        double bestThreshold = 0.5;
+        double bestPrecision = 0;
+        double bestRecall = 0;
+
+        // Sweep thresholds from 0.1 to 0.9 in 0.01 increments
+        for (double t = 0.10; t <= 0.90; t += 0.01)
+        {
+            int tp = rows.Count(r => r.Label && r.Probability >= t);
+            int fp = rows.Count(r => !r.Label && r.Probability >= t);
+            int fn = rows.Count(r => r.Label && r.Probability < t);
+
+            double precision = (tp + fp) == 0 ? 0 : tp / (double)(tp + fp);
+            double recall = (tp + fn) == 0 ? 0 : tp / (double)(tp + fn);
+            double f1 = (precision + recall) == 0 ? 0 : 2 * precision * recall / (precision + recall);
+
+            if (f1 > bestF1)
+            {
+                bestF1 = f1;
+                bestThreshold = t;
+                bestPrecision = precision;
+                bestRecall = recall;
+            }
+        }
+
+        return (bestThreshold, bestPrecision, bestRecall, bestF1);
+    }
+
+    private static void PrintThresholdStats(List<BinaryEvalRow> rows, double threshold, string label)
+    {
+        int tp = rows.Count(r => r.Label && r.Probability >= threshold);
+        int fp = rows.Count(r => !r.Label && r.Probability >= threshold);
+        int fn = rows.Count(r => r.Label && r.Probability < threshold);
+
+        double precision = (tp + fp) == 0 ? 0 : tp / (double)(tp + fp);
+        double recall = (tp + fn) == 0 ? 0 : tp / (double)(tp + fn);
+        double f1 = (precision + recall) == 0 ? 0 : 2 * precision * recall / (precision + recall);
+        double predictedPosRate = (tp + fp) / (double)rows.Count;
+
+        Console.WriteLine($"    @{label}: F1={f1:P1}, prec={precision:P1}, rec={recall:P1}, predPosRate={predictedPosRate:P1}");
+    }
+
+    private static void PrintBinaryPositiveStats(List<BinaryEvalRow> rows)
+    {
+        if (rows.Count == 0)
+        {
+            Console.WriteLine("  PosClass: n=0");
+            return;
+        }
+
+        int tp = rows.Count(r => r.Label && r.PredictedLabel);
+        int fp = rows.Count(r => !r.Label && r.PredictedLabel);
+        int fn = rows.Count(r => r.Label && !r.PredictedLabel);
+        int tn = rows.Count - tp - fp - fn;
+
+        double precision = (tp + fp) == 0 ? 0 : tp / (double)(tp + fp);
+        double recall = (tp + fn) == 0 ? 0 : tp / (double)(tp + fn);
+
+        double actualPosRate = rows.Count(r => r.Label) / (double)rows.Count;
+        double predictedPosRate = rows.Count(r => r.PredictedLabel) / (double)rows.Count;
+
+        Console.WriteLine($"  PosClass (Test): precision={precision:P1}, recall={recall:P1}");
+        Console.WriteLine($"  PosClass (Test): actualPosRate={actualPosRate:P1}, predictedPosRate={predictedPosRate:P1}");
+        Console.WriteLine($"  PosClass (Test): TP={tp}, FP={fp}, FN={fn}, TN={tn}");
     }
 
     private static void PrintBinaryPositiveStats(MLContext mlContext, IDataView predictions)
@@ -500,10 +618,3 @@ public static class UnifiedProfitTrainer
     }
 }
 
-public record ProfitTrainingResult(
-    bool Success,
-    int SymbolsUsed,
-    int TrainWindows,
-    int TestWindows,
-    double PrimaryMetric,
-    double SecondaryMetric);

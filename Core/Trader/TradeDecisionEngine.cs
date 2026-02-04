@@ -33,6 +33,11 @@ public class TradeDecisionEngine
 
     public PositionSizer? Sizer { get; set; }
 
+    /// <summary>
+    /// Ranking mode: Probability (recommended) or ExpectedReturn (legacy).
+    /// </summary>
+    public RankingMode RankingMode { get; set; } = RankingMode.Probability;
+
     public TradeDecisionEngine(IEnumerable<IStockSignalModel> patternModels)
         : this(patternModels, Enumerable.Empty<UnifiedProfitSignalModel>())
     {
@@ -104,17 +109,13 @@ public class TradeDecisionEngine
             ? regressionSignals.Average(s => s.Score)
             : 0;
 
-        // 8. Aggregate confidence (3-way confidence)
-        double confidence = threeWaySignals.Any()
-            ? threeWaySignals.Average(s => s.Score)
-            : 0;
+        // 8. Get composite breakdown for transparency
+        var (composite, directionProb, breakoutProb, volProb) = GetCompositeScoreWithBreakdown(binarySignals);
 
-        // 9. Calculate position size if sizer is configured
-        PositionSizeResult? positionSize = null;
-        //if (Sizer != null)
-        //{
-        //    positionSize = Sizer.Calculate(finalDirection, expectedReturn, confidence);
-        //}
+        // Fallback confidence to 3-way if no binary signals
+        double confidence = composite > 0 ? composite
+            : threeWaySignals.Any() ? threeWaySignals.Average(s => s.Score)
+            : 0;
 
         var allSignals = patternSignals.Concat(profitSignals).ToList();
 
@@ -122,9 +123,74 @@ public class TradeDecisionEngine
             Direction: finalDirection,
             ExpectedReturn: expectedReturn,
             Confidence: confidence,
-            PositionSize: positionSize,
+            CompositeScore: composite,
+            DirectionProbability: directionProb,
+            PositionSize: null,
             Signals: allSignals);
     }
+
+    /// <summary>
+    /// Computes composite probability score from binary signals for ranking.
+    /// Returns breakdown for transparency and gating.
+    /// </summary>
+    private static (double Composite, double DirectionProb, double BreakoutProb, double VolExpansionProb)
+        GetCompositeScoreWithBreakdown(IReadOnlyList<SignalResult> binarySignals)
+    {
+        if (!binarySignals.Any())
+            return (0, 0, 0, 0);
+
+        // Primary: BreakoutPriorHigh10 (AUC 0.81) - most reliable event signal
+        double breakoutProb = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        // Direction: Prefer 4% (AUC 0.70), then 3% (0.67)
+        double binaryUp4 = binarySignals
+            .FirstOrDefault(s => s.Name.Contains("4pct", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        double binaryUp3 = binarySignals
+            .FirstOrDefault(s => s.Name.Contains("3pct", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        // Use best available direction signal
+        double directionProb = binaryUp4 > 0 ? binaryUp4
+                             : binaryUp3 > 0 ? binaryUp3
+                             : 0;
+
+        // Volatility expansion (AUC 0.66) - big move expected
+        double volExpansionProb = binarySignals
+            .FirstOrDefault(s => s.Name.Contains("VolExpansion", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        double relStrengthProb = binarySignals
+            .FirstOrDefault(s => s.Name.Contains("RelStrength", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        //// Weighted composite based on AUC strength
+        //// Total weights = 0.45 + 0.30 + 0.15 + 0.10 = 1.0
+        //double composite =
+        //    (breakoutProb * 0.45) +         // AUC 0.81 - highest weight
+        //    (directionProb * 0.30) +        // AUC 0.70 (4pct)
+        //    (volExpansionProb * 0.15) +     // AUC 0.66
+        //    (binarySignals.Average(s => s.Score) * 0.10);  // ensemble fallback
+
+        // Revised weights (total = 1.0):
+        double composite =
+            (breakoutProb * 0.45) +         // AUC 0.81
+            (directionProb * 0.25) +        // AUC 0.70
+            (volExpansionProb * 0.12) +     // AUC 0.66
+            (relStrengthProb * 0.08) +      // AUC 0.65 (new)
+            (binarySignals.Average(s => s.Score) * 0.10);
+
+        return (composite, directionProb, breakoutProb, volExpansionProb);
+    }
+
+    /// <summary>
+    /// Legacy method for backward compatibility.
+    /// </summary>
+    private static double GetCompositeScore(IReadOnlyList<SignalResult> binarySignals)
+        => GetCompositeScoreWithBreakdown(binarySignals).Composite;
 
     private TradeDirection AggregateAllSignals(
         IReadOnlyList<SignalResult> patternSignals,
@@ -132,19 +198,24 @@ public class TradeDecisionEngine
         IReadOnlyList<SignalResult> threeWaySignals,
         IReadOnlyList<SignalResult> binarySignals)
     {
-        // Strategy constants (start conservative; tune with Delphi output)
-        const double minDirectionBuyConfidence = 0.50;
+        // ═══════════════════════════════════════════════════════════════
+        // Strategy constants
+        // ═══════════════════════════════════════════════════════════════
+        const double minCompositeScore = 0.35;       // Minimum composite to consider Buy
+        const double strongBuyThreshold = 0.50;      // Strong buy composite
+        const double minDirectionProb = 0.25;        // Direction gate: must believe "up" is likely
+        const double regressionVetoThreshold = -0.03; // Veto buy if regression says <-3%
 
-        const double weightBreakoutPriorHigh = 1.50;   // increase (AUC 0.81)
-        const double weightExpectedReturn = 0.20;      // decrease (R² negative)
-        const double weightBreakoutAtr = 0.00;         // disable
+        // Get composite breakdown
+        var (compositeScore, directionProb, breakoutProb, volExpansionProb) =
+            GetCompositeScoreWithBreakdown(binarySignals);
 
-        // --- Regression (ranking hint) ---
+        // --- Regression (ranking hint + veto) ---
         double avgExpectedReturn = regressionSignals.Any()
             ? regressionSignals.Average(s => s.Score)
             : 0;
 
-        // --- 3-way direction consensus + confidence ---
+        // --- 3-way direction (fallback) ---
         var threeWayHints = threeWaySignals
             .Where(s => s.Hint.HasValue)
             .Select(s => s.Hint!.Value)
@@ -163,10 +234,6 @@ public class TradeDecisionEngine
                 .Key;
         }
 
-        double threeWayConfidence = threeWaySignals.Any()
-            ? threeWaySignals.Average(s => s.Score)
-            : 0;
-
         // --- Patterns (light confirmation only) ---
         var patternHints = patternSignals
             .Where(s => s.Hint.HasValue && s.Hint != TradeDirection.Hold)
@@ -175,42 +242,60 @@ public class TradeDecisionEngine
 
         int patternBuys = patternHints.Count(h => h == TradeDirection.Buy);
         int patternSells = patternHints.Count(h => h == TradeDirection.Sell);
-
-        // --- Binary event hints ---
-        double breakoutPriorHighProb = binarySignals
-            .FirstOrDefault(s => string.Equals(s.Name, "BreakoutPriorHigh10", StringComparison.OrdinalIgnoreCase))
-            ?.Score ?? 0;
-
-        double breakoutAtrProb = binarySignals
-            .FirstOrDefault(s => string.Equals(s.Name, "BreakoutAtr10", StringComparison.OrdinalIgnoreCase))
-            ?.Score ?? 0;
-
-        // --- Decision logic ---
-
-        // Strong sell: 3-way says sell AND expected return hint is negative
-        if (threeWayConsensus == TradeDirection.Sell && avgExpectedReturn < 0)
-            return TradeDirection.Sell;
-
-        // Hard gate for buy: direction model must be Buy with enough confidence.
-        // (This reduces churn + avoids buying into low-quality setups.)
-        if (threeWayConsensus != TradeDirection.Buy || threeWayConfidence < minDirectionBuyConfidence)
-            return TradeDirection.Hold;
-
-        // Weighted score for buy-eligible candidates.
-        // Note: expected return is mapped to [0..1] using a simple clamp so it can combine with probabilities.
-        double expectedReturnHint01 = Clamp01((avgExpectedReturn - 0.00) / 0.10); // 0%->0, 10%->1 cap
-
-        double buyScore =
-            (weightBreakoutPriorHigh * breakoutPriorHighProb) +
-            (weightExpectedReturn * expectedReturnHint01) +
-            (weightBreakoutAtr * breakoutAtrProb);
-
         bool patternsNotBearish = patternSells <= patternBuys;
 
-        // Require non-bearish patterns and a small minimum score to call it a Buy.
-        // The score threshold is intentionally low to start; refine after Delphi runs.
-        if (patternsNotBearish && buyScore >= 0.60)
+        // ═══════════════════════════════════════════════════════════════
+        // Decision logic
+        // ═══════════════════════════════════════════════════════════════
+
+        // Strong sell: 3-way says sell AND expected return is clearly negative
+        if (threeWayConsensus == TradeDirection.Sell && avgExpectedReturn < -0.02)
+            return TradeDirection.Sell;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Direction gate: require meaningful upward probability
+        // Prevents buying high-vol/breakout setups without directional confirmation
+        // ─────────────────────────────────────────────────────────────────
+        bool hasDirectionConfirmation = directionProb >= minDirectionProb;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Regression veto: block buy if regression is strongly negative
+        // ─────────────────────────────────────────────────────────────────
+        bool regressionVeto = avgExpectedReturn < regressionVetoThreshold;
+
+        if (regressionVeto)
+            return TradeDirection.Hold;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Primary buy gates
+        // ─────────────────────────────────────────────────────────────────
+
+        // Strong buy: high composite + direction confirmed + patterns not bearish
+        if (compositeScore >= strongBuyThreshold &&
+            hasDirectionConfirmation &&
+            patternsNotBearish)
+        {
             return TradeDirection.Buy;
+        }
+
+        // Standard buy: moderate composite + direction confirmed + non-negative regression
+        if (compositeScore >= minCompositeScore &&
+            hasDirectionConfirmation &&
+            patternsNotBearish &&
+            avgExpectedReturn >= 0)
+        {
+            return TradeDirection.Buy;
+        }
+
+        // Fallback buy: very strong breakout signal alone (BreakoutPriorHigh is directional by nature)
+        // Only if breakout is very high AND direction is at least somewhat positive
+        if (breakoutProb >= 0.70 &&
+            directionProb >= 0.20 &&
+            patternsNotBearish &&
+            avgExpectedReturn >= -0.01)
+        {
+            return TradeDirection.Buy;
+        }
 
         return TradeDirection.Hold;
     }
@@ -236,16 +321,31 @@ public class TradeDecisionEngine
                 Direction: result.Direction,
                 ExpectedReturn: result.ExpectedReturn,
                 Confidence: result.Confidence,
+                CompositeScore: result.CompositeScore,
+                DirectionProbability: result.DirectionProbability,
                 Signals: result.Signals));
         }
 
-        // Rank by: direction preference (Buy > Hold > Sell), then expected return, then confidence
-        return picks
-            .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 2 : p.Direction == TradeDirection.Hold ? 1 : 0)
-            .ThenByDescending(p => p.ExpectedReturn)
-            .ThenByDescending(p => p.Confidence)
-            .Take(topN)
-            .ToList();
+        // Rank based on RankingMode
+        return RankingMode switch
+        {
+            RankingMode.Probability => picks
+                .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
+                .ThenByDescending(p => p.CompositeScore)
+                .ThenByDescending(p => p.DirectionProbability)
+                .ThenByDescending(p => p.ExpectedReturn)
+                .Take(topN)
+                .ToList(),
+
+            RankingMode.ExpectedReturn => picks
+                .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 2 : p.Direction == TradeDirection.Hold ? 1 : 0)
+                .ThenByDescending(p => p.ExpectedReturn)
+                .ThenByDescending(p => p.Confidence)
+                .Take(topN)
+                .ToList(),
+
+            _ => picks.Take(topN).ToList()
+        };
     }
 
     /// <summary>
@@ -265,10 +365,27 @@ public class TradeDecisionEngine
     }
 }
 
+public enum RankingMode
+{
+    /// <summary>
+    /// Rank by composite probability score (recommended).
+    /// Uses weighted average of binary model probabilities.
+    /// </summary>
+    Probability,
+
+    /// <summary>
+    /// Rank by expected return from regression (legacy).
+    /// Note: regression R² is negative, so this provides weak signal.
+    /// </summary>
+    ExpectedReturn
+}
+
 public record TradeDecisionResult(
     TradeDirection Direction,
     double ExpectedReturn,
     double Confidence,
+    double CompositeScore,
+    double DirectionProbability,
     PositionSizeResult? PositionSize,
     IReadOnlyList<SignalResult> Signals
 );
@@ -278,5 +395,7 @@ public record RankedPick(
     TradeDirection Direction,
     double ExpectedReturn,
     double Confidence,
+    double CompositeScore,
+    double DirectionProbability,
     IReadOnlyList<SignalResult> Signals
 );

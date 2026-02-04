@@ -12,23 +12,26 @@ Console.WriteLine("=== The Oracle Of Delphi ===\n");
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION (aggressive single-position rotation)
 // ═══════════════════════════════════════════════════════════════════
-decimal availableCapital = 500.00m;   // total capital available
-int minBarsRequired = 35;             // must satisfy max lookback (e.g., 35 for MA crossover lookback)
-decimal reserveCashPercent = 0.02m;   // keep 2% cash; set 0.00m for true all-in
-double minExpectedReturn = 0.01;      // require >= 1% expected return
-double minConfidence = 0.45;  // Direction10 accuracy is ~40%; 50% gate is too strict
-int maxSymbolsToScan = 500;           // safety limit
+decimal availableCapital = 500.00m;
+int minBarsRequired = 35;
+decimal reserveCashPercent = 0.02m;
+double minExpectedReturn = 0.00;      // Lowered: we now rank by probability
+double minConfidence = 0.35;          // Minimum composite score
+int maxSymbolsToScan = 500;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
-Console.WriteLine($"Min Exp Return:    {minExpectedReturn:P2}");
-Console.WriteLine($"Min Confidence:    {minConfidence:P0}");
+Console.WriteLine($"Min Composite:     {minConfidence:P0}");
+Console.WriteLine($"Ranking Mode:      Probability-based");
 Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
 // BOOTSTRAP ENGINE (loads enabled models from registry)
 // ═══════════════════════════════════════════════════════════════════
 var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry();
+
+// Use probability-based ranking (new default)
+engine.RankingMode = RankingMode.Probability;
 
 // Configure aggressive sizing behavior (single-position)
 engine.Sizer = new PositionSizer(availableCapital)
@@ -38,7 +41,7 @@ engine.Sizer = new PositionSizer(availableCapital)
     MinPositionSize = 25m,
     MinExpectedReturn = minExpectedReturn,
     MinConfidence = minConfidence,
-    RequireBothSignals = true
+    RequireBothSignals = false  // Changed: rely on composite score
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -91,20 +94,50 @@ if (allBars.Count == 0)
 var (bestPick, size) = engine.EvaluateBestPickAllIn(allBars, availableCapital);
 
 Console.WriteLine(new string('═', 70));
-Console.WriteLine("BEST PICK (SINGLE-POSITION MODE)");
+Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - PROBABILITY RANKING");
 Console.WriteLine(new string('═', 70));
 
 // Always show a short ranked list for transparency (even when no trade qualifies)
 Console.WriteLine("\nTop Ranked Candidates:");
 var top = engine.EvaluateAndRank(allBars, topN: 10);
 
-Console.WriteLine($"{"#",-3} {"Symbol",-10} {"Action",-6} {"ExpRet",10} {"Conf",8}");
-Console.WriteLine(new string('─', 45));
+// Helper to fetch individual probabilities from a pick's signals.
+// NOTE: This mirrors the logic in TradeDecisionEngine's composite breakdown.
+static double GetProb(RankedPick pick, string nameEquals) =>
+    pick.Signals
+        .FirstOrDefault(s => string.Equals(s.Name, nameEquals, StringComparison.OrdinalIgnoreCase))
+        ?.Score ?? 0;
+
+static double GetProbContains(RankedPick pick, string nameContains) =>
+    pick.Signals
+        .FirstOrDefault(s => s.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase))
+        ?.Score ?? 0;
+
+static double GetDirectionProb(RankedPick pick)
+{
+    // Prefer 4pct, else 3pct, else 0
+    double up4 = GetProbContains(pick, "4pct");
+    if (up4 > 0) return up4;
+
+    double up3 = GetProbContains(pick, "3pct");
+    if (up3 > 0) return up3;
+
+    return 0;
+}
+
+Console.WriteLine(
+    $"{"#",-3} {"Symbol",-10} {"Action",-6} {"Composite",10} {"Break",8} {"Vol",8} {"Dir",8} {"ExpRet",10}");
+Console.WriteLine(new string('─', 74));
 
 int rank = 1;
 foreach (var p in top)
 {
-    Console.WriteLine($"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.ExpectedReturn,10:P2} {p.Confidence,8:P1}");
+    double breakout = GetProb(p, "BreakoutPriorHigh10");
+    double volExp = GetProbContains(p, "VolExpansion");
+    double dirProb = GetDirectionProb(p);
+
+    Console.WriteLine(
+        $"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.CompositeScore,10:P1} {breakout,8:P1} {volExp,8:P1} {dirProb,8:P1} {p.ExpectedReturn,10:P2}");
     rank++;
 }
 
@@ -115,10 +148,17 @@ if (bestPick == null || size == null || size.SuggestedSize <= 0)
     return;
 }
 
+double bestBreakout = GetProb(bestPick, "BreakoutPriorHigh10");
+double bestVolExp = GetProbContains(bestPick, "VolExpansion");
+double bestDirProb = GetDirectionProb(bestPick);
+
 Console.WriteLine($"\nSymbol:          {bestPick.Symbol}");
 Console.WriteLine($"Direction:       {bestPick.Direction}");
+Console.WriteLine($"Composite Score: {bestPick.CompositeScore:P1}");
+Console.WriteLine($"Breakout Prob:   {bestBreakout:P1}");
+Console.WriteLine($"Vol Exp Prob:    {bestVolExp:P1}");
+Console.WriteLine($"Direction Prob:  {bestDirProb:P1}");
 Console.WriteLine($"Expected Return: {bestPick.ExpectedReturn:P2}");
-Console.WriteLine($"Confidence:      {bestPick.Confidence:P1}");
 Console.WriteLine($"Allocate:        {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
 Console.WriteLine($"Reason:          {size.Reason}");
 
@@ -126,7 +166,7 @@ Console.WriteLine($"Reason:          {size.Reason}");
 Console.WriteLine("\nSignals (best pick):");
 foreach (var s in bestPick.Signals)
 {
-    Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-20} Score={s.Score:0.###} {s.Notes}");
+    Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
 }
 
 Console.WriteLine("\n=== Done ===");

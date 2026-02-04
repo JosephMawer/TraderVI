@@ -5,6 +5,7 @@ using Core.Trader;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Core.Runtime;
@@ -16,6 +17,16 @@ public static class DelphiBootstrap
         var repo = new ModelRegistryRepository();
         var enabledModels = await repo.GetEnabledModels();
 
+        // Only allow models that exist in the current registries.
+        // This implicitly enforces "toggle flags" because registry "All" lists only include enabled definitions.
+        var allowedPatternTaskTypes = PatternRegistry.All
+            .Select(p => p.TaskType)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var allowedProfitTaskTypes = ProfitModelRegistry.All
+            .Select(p => p.TaskType)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         var patternModels = new List<IStockSignalModel>();
         var profitModels = new List<UnifiedProfitSignalModel>();
 
@@ -23,33 +34,62 @@ public static class DelphiBootstrap
         var loadedProfit = new List<string>();
         var skipped = new List<string>();
 
+        // Avoid double-loading same TaskType (DB can contain multiple enabled rows if previous runs left data behind).
+        var loadedTaskTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var modelInfo in enabledModels)
         {
+            // Skip enabled DB rows that are not currently enabled by our code registries (toggle flags).
+            bool isAllowedPattern = allowedPatternTaskTypes.Contains(modelInfo.TaskType);
+            bool isAllowedProfit = allowedProfitTaskTypes.Contains(modelInfo.TaskType);
+
+            if (!isAllowedPattern && !isAllowedProfit)
+            {
+                skipped.Add($"{modelInfo.TaskType} (enabled in DB, but disabled in code registry)");
+                continue;
+            }
+
             if (!File.Exists(modelInfo.ZipPath))
             {
                 skipped.Add($"{modelInfo.TaskType} (file not found)");
                 continue;
             }
 
-            // Try pattern model first
-            var patternModel = UnifiedPatternSignalModel.FromRegistryInfo(modelInfo);
-            if (patternModel != null)
+            if (!loadedTaskTypes.Add(modelInfo.TaskType))
             {
-                patternModels.Add(patternModel);
-                loadedPatterns.Add(modelInfo.TaskType);
+                skipped.Add($"{modelInfo.TaskType} (duplicate enabled row)");
                 continue;
             }
 
-            // Try profit model
-            var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
-            if (profitModel != null)
+            // If task type is allowed as pattern, only try pattern loading.
+            if (isAllowedPattern)
             {
-                profitModels.Add(profitModel);
-                loadedProfit.Add(modelInfo.TaskType);
+                var patternModel = UnifiedPatternSignalModel.FromRegistryInfo(modelInfo);
+                if (patternModel != null)
+                {
+                    patternModels.Add(patternModel);
+                    loadedPatterns.Add(modelInfo.TaskType);
+                    continue;
+                }
+
+                skipped.Add($"{modelInfo.TaskType} (allowed pattern, but failed to load)");
                 continue;
             }
 
-            skipped.Add($"{modelInfo.TaskType} (not in any registry)");
+            // If task type is allowed as profit, only try profit loading.
+            if (isAllowedProfit)
+            {
+                var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
+                if (profitModel != null)
+                {
+                    profitModels.Add(profitModel);
+                    loadedProfit.Add(modelInfo.TaskType);
+                    continue;
+                }
+
+                skipped.Add($"{modelInfo.TaskType} (allowed profit, but failed to load)");
+                continue;
+            }
         }
 
         if (loadedPatterns.Count > 0)
