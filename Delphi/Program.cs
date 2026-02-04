@@ -18,12 +18,33 @@ decimal reserveCashPercent = 0.02m;
 double minExpectedReturn = 0.00;      // Lowered: we now rank by probability
 double minConfidence = 0.35;          // Minimum composite score
 int maxSymbolsToScan = 500;
+int topPicksToSave = 10;              // Save top N picks to database
+bool saveToDB = true;                 // Toggle DB persistence
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
 Console.WriteLine($"Min Composite:     {minConfidence:P0}");
 Console.WriteLine($"Ranking Mode:      Probability-based");
+Console.WriteLine($"Save to DB:        {saveToDB}");
 Console.WriteLine();
+
+// ═══════════════════════════════════════════════════════════════════
+// LOAD ACTIVE STRATEGY VERSION (for parameters + tracking)
+// ═══════════════════════════════════════════════════════════════════
+var strategyRepo = new StrategyVersionRepository();
+var activeStrategy = await strategyRepo.GetActiveVersion();
+
+Guid? strategyVersionId = activeStrategy?.VersionId;
+if (activeStrategy != null)
+{
+    Console.WriteLine($"Strategy Version:  {activeStrategy.VersionName}");
+    Console.WriteLine($"Description:       {activeStrategy.Description}");
+    Console.WriteLine();
+}
+else
+{
+    Console.WriteLine("⚠️  No active strategy version found. Using defaults.\n");
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // BOOTSTRAP ENGINE (loads enabled models from registry)
@@ -41,7 +62,7 @@ engine.Sizer = new PositionSizer(availableCapital)
     MinPositionSize = 25m,
     MinExpectedReturn = minExpectedReturn,
     MinConfidence = minConfidence,
-    RequireBothSignals = false  // Changed: rely on composite score
+    RequireBothSignals = false
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -99,10 +120,9 @@ Console.WriteLine(new string('═', 70));
 
 // Always show a short ranked list for transparency (even when no trade qualifies)
 Console.WriteLine("\nTop Ranked Candidates:");
-var top = engine.EvaluateAndRank(allBars, topN: 10);
+var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
 
-// Helper to fetch individual probabilities from a pick's signals.
-// NOTE: This mirrors the logic in TradeDecisionEngine's composite breakdown.
+// Helper to fetch individual probabilities from a pick's signals
 static double GetProb(RankedPick pick, string nameEquals) =>
     pick.Signals
         .FirstOrDefault(s => string.Equals(s.Name, nameEquals, StringComparison.OrdinalIgnoreCase))
@@ -115,7 +135,10 @@ static double GetProbContains(RankedPick pick, string nameContains) =>
 
 static double GetDirectionProb(RankedPick pick)
 {
-    // Prefer 4pct, else 3pct, else 0
+    // First try BinaryUp10, then fall back to 4pct/3pct
+    double binaryUp = GetProb(pick, "BinaryUp10");
+    if (binaryUp > 0) return binaryUp;
+
     double up4 = GetProbContains(pick, "4pct");
     if (up4 > 0) return up4;
 
@@ -141,6 +164,52 @@ foreach (var p in top)
     rank++;
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// SAVE DAILY PICKS TO DATABASE
+// ═══════════════════════════════════════════════════════════════════
+if (saveToDB && top.Count > 0)
+{
+    var pickDate = DateTime.Today;
+    var pickRepo = new DailyPickRepository();
+
+    // Delete any existing picks for today (in case of re-run)
+    await pickRepo.DeletePicksByDate(pickDate);
+
+    Console.WriteLine($"\nSaving {top.Count} picks to database...");
+
+    int savedRank = 1;
+    foreach (var p in top)
+    {
+        double breakout = GetProb(p, "BreakoutPriorHigh10");
+        double volExp = GetProbContains(p, "VolExpansion");
+        double dirProb = GetDirectionProb(p);
+        double relStrength = GetProbContains(p, "RelStrength");
+
+        await pickRepo.InsertPick(
+            pickDate: pickDate,
+            symbol: p.Symbol,
+            rank: savedRank,
+            direction: p.Direction.ToString(),
+            compositeScore: p.CompositeScore,
+            breakoutProb: breakout,
+            directionProb: dirProb,
+            volExpansionProb: volExp,
+            relStrengthProb: relStrength > 0 ? relStrength : null,
+            expectedReturn: p.ExpectedReturn,
+            suggestedSize: savedRank == 1 && size != null ? size.SuggestedSize : null,
+            allocationPercent: savedRank == 1 && size != null ? (double)size.AllocationPercent : null,
+            strategyVersionId: strategyVersionId,
+            notes: savedRank == 1 ? "Top pick" : null);
+
+        savedRank++;
+    }
+
+    Console.WriteLine($"✓ Saved {top.Count} picks to [dbo].[DailyPick] for {pickDate:yyyy-MM-dd}");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DISPLAY BEST PICK DETAILS
+// ═══════════════════════════════════════════════════════════════════
 if (bestPick == null || size == null || size.SuggestedSize <= 0)
 {
     var reason = size?.Reason ?? "Unknown (size is null)";
@@ -151,13 +220,19 @@ if (bestPick == null || size == null || size.SuggestedSize <= 0)
 double bestBreakout = GetProb(bestPick, "BreakoutPriorHigh10");
 double bestVolExp = GetProbContains(bestPick, "VolExpansion");
 double bestDirProb = GetDirectionProb(bestPick);
+double bestRelStrength = GetProbContains(bestPick, "RelStrength");
 
-Console.WriteLine($"\nSymbol:          {bestPick.Symbol}");
+Console.WriteLine($"\n{"═",-70}");
+Console.WriteLine("RECOMMENDATION");
+Console.WriteLine($"{"═",-70}");
+Console.WriteLine($"Symbol:          {bestPick.Symbol}");
 Console.WriteLine($"Direction:       {bestPick.Direction}");
 Console.WriteLine($"Composite Score: {bestPick.CompositeScore:P1}");
 Console.WriteLine($"Breakout Prob:   {bestBreakout:P1}");
 Console.WriteLine($"Vol Exp Prob:    {bestVolExp:P1}");
 Console.WriteLine($"Direction Prob:  {bestDirProb:P1}");
+if (bestRelStrength > 0)
+    Console.WriteLine($"Rel Strength:    {bestRelStrength:P1}");
 Console.WriteLine($"Expected Return: {bestPick.ExpectedReturn:P2}");
 Console.WriteLine($"Allocate:        {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
 Console.WriteLine($"Reason:          {size.Reason}");

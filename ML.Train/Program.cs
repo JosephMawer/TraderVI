@@ -22,6 +22,7 @@ const string MarketBenchmarkSymbol = "XIU";
 
 var quoteRepo = new QuoteRepository();
 var registry = new ModelRegistryRepository();
+var experimentRepo = new ModelExperimentRepository();
 
 // ═══════════════════════════════════════════════════════════════════
 // Load symbol universe
@@ -60,7 +61,7 @@ else
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// PART 1: Train Pattern Models (existing)
+// PART 1: Train Pattern Models
 // ═══════════════════════════════════════════════════════════════════
 Console.WriteLine(new string('═', 60));
 Console.WriteLine("PATTERN DETECTION MODELS");
@@ -71,6 +72,20 @@ foreach (var pattern in PatternRegistry.All)
     var modelPath = Path.Combine(modelsRoot, $"{pattern.TaskType.ToLower()}_classifier.zip");
 
     var result = UnifiedPatternTrainer.Train(pattern, barsBySymbol, modelPath);
+
+    // Log experiment to DB (even if failed)
+    await experimentRepo.InsertExperiment(
+        taskType: pattern.TaskType,
+        experimentName: $"{pattern.TaskType} Pattern Detection",
+        labelDefinition: $"Pattern: {pattern.Detector.PatternName}",
+        featureSet: pattern.FeatureBuilder.Name,
+        featureCount: pattern.FeatureBuilder.FeatureCount(pattern.Lookback),
+        trainWindows: result.TrainWindows,
+        testWindows: result.TestWindows,
+        auc: result.Auc,
+        accuracy: result.Accuracy,
+        decision: result.Success ? "Keep" : "Skip",
+        notes: $"Lookback={pattern.Lookback}. Category={pattern.Category}. Semantics={pattern.Semantics}");
 
     if (result.Success)
     {
@@ -91,6 +106,12 @@ foreach (var pattern in PatternRegistry.All)
             trainedFromUtc: null,
             trainedToUtc: null,
             notes: $"Pattern detection. Trained on {result.SymbolsUsed} symbols. Acc={result.Accuracy:0.####}");
+
+        Console.WriteLine($"  ✓ Logged experiment and model for {pattern.TaskType}\n");
+    }
+    else
+    {
+        Console.WriteLine($"  ✗ Logged failed experiment for {pattern.TaskType}\n");
     }
 }
 
@@ -129,6 +150,31 @@ foreach (var profitModel in ProfitModelRegistry.All)
 
     var result = UnifiedProfitTrainer.Train(profitModel, barsBySymbol, modelPath);
 
+    // Determine metrics based on model kind
+    double? auc = profitModel.ModelKind == ProfitModelKind.BinaryClassification ? result.PrimaryMetric : null;
+    double? rmse = profitModel.ModelKind == ProfitModelKind.Regression ? result.PrimaryMetric : null;
+    double? mae = profitModel.ModelKind == ProfitModelKind.Regression ? result.SecondaryMetric : null;
+
+    // Log experiment to DB (even if failed)
+    await experimentRepo.InsertExperiment(
+        taskType: profitModel.TaskType,
+        experimentName: $"{profitModel.TaskType} ({profitModel.ModelKind})",
+        labelDefinition: profitModel.Labeler.Name,
+        featureSet: profitModel.FeatureBuilder.Name,
+        featureCount: profitModel.FeatureBuilder.FeatureCount(profitModel.Lookback),
+        trainWindows: result.TrainWindows,
+        testWindows: result.TestWindows,
+        auc: auc,
+        f1AtDefault: profitModel.ModelKind == ProfitModelKind.BinaryClassification ? result.SecondaryMetric : null,
+        f1AtOptimal: result.F1AtOptimal,
+        optimalThreshold: result.OptimalThreshold,
+        precisionAtOpt: result.PrecisionAtOptimal,
+        recallAtOpt: result.RecallAtOptimal,
+        rmse: rmse,
+        mae: mae,
+        decision: result.Success ? "Keep" : "Skip",
+        notes: $"Lookback={profitModel.Lookback}. Horizon={profitModel.HorizonBars}d. Symbols={result.SymbolsUsed}");
+
     if (result.Success)
     {
         // Use optimal threshold if available (binary models), else fall back to configured threshold.
@@ -155,14 +201,22 @@ foreach (var profitModel in ProfitModelRegistry.All)
             inputSchema: $"{profitModel.TaskType}_profit",
             featureSet: profitModel.FeatureBuilder.Name,
             zipPath: modelPath,
-            thresholdBuy: thresholdBuy, // <-- uses OptimalThreshold when available
+            thresholdBuy: thresholdBuy,
             thresholdSell: thresholdSell,
             isEnabled: true,
             trainedFromUtc: null,
             trainedToUtc: null,
             notes: notes);
+
+        Console.WriteLine($"  ✓ Logged experiment and model for {profitModel.TaskType}\n");
+    }
+    else
+    {
+        Console.WriteLine($"  ✗ Logged failed experiment for {profitModel.TaskType}\n");
     }
 }
 
 Console.WriteLine(new string('═', 60));
 Console.WriteLine("=== Training Complete ===");
+Console.WriteLine($"All experiments logged to [dbo].[ModelExperiment]");
+Console.WriteLine($"All models registered to [dbo].[ModelRegistry]");
