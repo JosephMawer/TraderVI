@@ -128,8 +128,6 @@ public static class UnifiedProfitTrainer
         };
     }
 
-    // Add this method after the existing Train method (around line 80)
-
     /// <summary>
     /// Train with market context (passes XIU bars to MarketContextFeatureBuilder).
     /// </summary>
@@ -434,8 +432,6 @@ public static class UnifiedProfitTrainer
         }
     }
 
-    // Replace the TrainBinary method (starting around line 389) with this:
-
     private static ProfitTrainingResult TrainBinary(
         ProfitModelDefinition model,
         List<ProfitWindow> trainWindows,
@@ -493,6 +489,8 @@ public static class UnifiedProfitTrainer
         PrintThresholdStats(rows, 0.50, "0.50 (default)");
         PrintThresholdStats(rows, 0.60, "0.60 (conservative)");
 
+        PrintTopDecileLift(rows);
+
         mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
@@ -507,6 +505,47 @@ public static class UnifiedProfitTrainer
             PrecisionAtOptimal: optPrecision,
             RecallAtOptimal: optRecall,
             F1AtOptimal: optF1);
+    }
+
+    private static void PrintTopDecileLift(List<BinaryEvalRow> rows)
+    {
+        if (rows.Count < 100) return;
+
+        double baselineRate = rows.Count(r => r.Label) / (double)rows.Count;
+
+        // Sort by predicted probability descending
+        var sorted = rows.OrderByDescending(r => r.Probability).ToList();
+
+        int decileSize = rows.Count / 10;
+
+        Console.WriteLine($"  ─────────────────────────────────────────");
+        Console.WriteLine($"  Decile Lift Analysis (baseline={baselineRate:P1}):");
+
+        for (int d = 0; d < 10; d++)
+        {
+            var decile = sorted.Skip(d * decileSize).Take(decileSize).ToList();
+            double decileRate = decile.Count(r => r.Label) / (double)decile.Count;
+            double lift = baselineRate > 0 ? decileRate / baselineRate : 0;
+            double minProb = decile.Min(r => r.Probability);
+            double maxProb = decile.Max(r => r.Probability);
+
+            string marker = d == 0 ? " ← TOP" : (d == 9 ? " ← BOTTOM" : "");
+            Console.WriteLine($"    D{d + 1}: rate={decileRate:P1}, lift={lift:0.00}x, prob=[{minProb:0.##}-{maxProb:0.##}]{marker}");
+        }
+
+        // Specifically call out top decile
+        var topDecile = sorted.Take(decileSize).ToList();
+        double topRate = topDecile.Count(r => r.Label) / (double)topDecile.Count;
+        double topLift = baselineRate > 0 ? topRate / baselineRate : 0;
+
+        Console.WriteLine($"  Top-decile: {topRate:P1} vs baseline {baselineRate:P1} → lift={topLift:0.00}x");
+
+        if (topLift >= 1.3)
+            Console.WriteLine($"  ✓ Usable as gate (30%+ lift in top decile)");
+        else if (topLift >= 1.15)
+            Console.WriteLine($"  ? Marginal signal (15-30% lift)");
+        else
+            Console.WriteLine($"  ✗ No actionable signal (lift < 15%)");
     }
 
     private static (double threshold, double precision, double recall, double f1) FindOptimalThreshold(List<BinaryEvalRow> rows)

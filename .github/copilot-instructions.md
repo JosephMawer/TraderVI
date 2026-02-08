@@ -10,6 +10,14 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 - **Capital preservation first**: Stop-loss rules override all model predictions.
 - **Iterative improvement**: Track experiments, version strategies, measure everything.
 
+## Strategy Logic
+- Keep **BreakoutEnhanced** as a setup filter.
+- Determine direction using **BinaryUp10** and **BinaryDown10** with **DirectionEdge = P(up) - P(down)**.
+- Optionally add **DirUp5** as a smoother "base drift" signal: **Edge = 0.3×P(dir) + 0.5×P(up) - 0.5×P(down)**.
+- Apply down-probability veto for longs.
+- Implement a market regime filter requiring benchmark (XIU) uptrend/positive return.
+- Rank candidates by **DirectionEdge** then composite.
+
 ## Architecture
 
 ### Programs
@@ -23,3 +31,6 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 | **TraderVI** (later) | Automated order execution via Wealthsimple API | Event-driven |
 
 ### Data Flow
+
+## Decision Thresholds
+- Document decision thresholds as initial defaults intended to be tuned based on Hercules training outputs (AUC, optimal threshold, decile lift), rather than fixed constants.

@@ -26,17 +26,35 @@ public interface IStockSignalModel
     SignalResult Evaluate(IReadOnlyList<DailyBar> history);
 }
 
+/// <summary>
+/// Market regime information for filtering trades.
+/// </summary>
+public record MarketRegime(
+    bool IsBenchmarkUptrend,        // XIU MA50 > MA200
+    bool IsBenchmark20dPositive,    // XIU 20-day return > 0
+    bool IsVolatilityNormal,        // Not in a vol spike
+    double BenchmarkReturn20d,
+    double BenchmarkMA50,
+    double BenchmarkMA200
+);
+
 public class TradeDecisionEngine
 {
     private readonly IReadOnlyList<IStockSignalModel> _patternModels;
     private readonly IReadOnlyList<UnifiedProfitSignalModel> _profitModels;
 
     public PositionSizer? Sizer { get; set; }
+    public RankingMode RankingMode { get; set; } = RankingMode.Probability;
 
     /// <summary>
-    /// Ranking mode: Probability (recommended) or ExpectedReturn (legacy).
+    /// Market regime for filtering. Set before evaluation.
     /// </summary>
-    public RankingMode RankingMode { get; set; } = RankingMode.Probability;
+    public MarketRegime? CurrentRegime { get; set; }
+
+    /// <summary>
+    /// If true, require benchmark uptrend to take longs.
+    /// </summary>
+    public bool RequireBenchmarkUptrend { get; set; } = true;
 
     public TradeDecisionEngine(IEnumerable<IStockSignalModel> patternModels)
         : this(patternModels, Enumerable.Empty<UnifiedProfitSignalModel>())
@@ -60,7 +78,6 @@ public class TradeDecisionEngine
         if (ranked.Count == 0)
             return (null, null);
 
-        // Choose the best Buy if possible, else best overall
         var best = ranked.FirstOrDefault(p => p.Direction == TradeDirection.Buy) ?? ranked[0];
 
         var sizer = Sizer ?? new PositionSizer(availableCapital);
@@ -73,46 +90,39 @@ public class TradeDecisionEngine
 
     public TradeDecisionResult Evaluate(IReadOnlyList<DailyBar> history)
     {
-        // 1. Evaluate pattern signals
         var patternSignals = _patternModels
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 2. Evaluate profit signals
         var profitSignals = _profitModels
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 3. Get regression predictions (expected return)
         var regressionSignals = _profitModels
             .Where(m => m.ModelKind == ProfitModelKind.Regression)
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 4. Get 3-way classification predictions
         var threeWaySignals = _profitModels
             .Where(m => m.ModelKind == ProfitModelKind.ThreeWayClassification)
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 5. Get binary event predictions (probabilities)
         var binarySignals = _profitModels
             .Where(m => m.ModelKind == ProfitModelKind.BinaryClassification)
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // 6. Compute aggregated decision
         var finalDirection = AggregateAllSignals(patternSignals, regressionSignals, threeWaySignals, binarySignals);
 
-        // 7. Aggregate expected return (regression hint)
         double expectedReturn = regressionSignals.Any()
             ? regressionSignals.Average(s => s.Score)
             : 0;
 
-        // 8. Get composite breakdown for transparency
-        var (composite, directionProb, breakoutProb, volExpansionProb) = GetCompositeScoreWithBreakdown(binarySignals);
+        // FIX: Added dirProb (7th element) to match the updated tuple
+        var (composite, directionProb, breakoutProb, volProb, downProb, directionEdge, dirProb) =
+            GetCompositeScoreWithBreakdown(binarySignals);
 
-        // Fallback confidence to 3-way if no binary signals
         double confidence = composite > 0 ? composite
             : threeWaySignals.Any() ? threeWaySignals.Average(s => s.Score)
             : 0;
@@ -125,26 +135,27 @@ public class TradeDecisionEngine
             Confidence: confidence,
             CompositeScore: composite,
             DirectionProbability: directionProb,
+            DownProbability: downProb,
+            DirectionEdge: directionEdge,
             PositionSize: null,
             Signals: allSignals);
     }
 
     /// <summary>
     /// Computes composite probability score from binary signals for ranking.
-    /// Returns breakdown for transparency and gating.
+    /// Now includes BinaryDown10 for directional spread.
     /// </summary>
-    private static (double Composite, double DirectionProb, double BreakoutProb, double VolExpansionProb)
+    private static (double Composite, double DirectionProb, double BreakoutProb, double VolExpansionProb, double DownProb, double DirectionEdge, double DirDrift)
         GetCompositeScoreWithBreakdown(IReadOnlyList<SignalResult> binarySignals)
     {
         if (!binarySignals.Any())
-            return (0, 0, 0, 0);
+            return (0, 0, 0, 0, 0, 0, 0);
 
-        // Primary: Breakout signal - prefer Enhanced (AUC 0.81), fallback to PriorHigh10
+        // Breakout signal (AUC 0.81)
         double breakoutProb = binarySignals
             .FirstOrDefault(s => s.Name.Equals("BreakoutEnhanced", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        // Fallback to legacy model name
         if (breakoutProb == 0)
         {
             breakoutProb = binarySignals
@@ -152,53 +163,60 @@ public class TradeDecisionEngine
                 ?.Score ?? 0;
         }
 
-        // Direction: BinaryUp10 (consolidated model, AUC 0.70)
-        // Fallback to legacy 4pct/3pct names if BinaryUp10 not found
-        double directionProb = binarySignals
+        // Up probability (AUC 0.70)
+        double upProb = binarySignals
             .FirstOrDefault(s => s.Name.Equals("BinaryUp10", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        // Fallback for legacy model names (4pct, 3pct)
-        if (directionProb == 0)
+        // Down probability (NEW - veto signal)
+        double downProb = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("BinaryDown10", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        // Setup-conditional direction (NEW - trained only on breakout bars)
+        double dirProb = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("SetupDirUp5", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        double dirDownProb = binarySignals
+            .FirstOrDefault(s => s.Name.Equals("SetupDirDown5", StringComparison.OrdinalIgnoreCase))
+            ?.Score ?? 0;
+
+        // Fallback to legacy if setup models not available
+        if (dirProb == 0)
         {
-            double binaryUp4 = binarySignals
-                .FirstOrDefault(s => s.Name.Contains("4pct", StringComparison.OrdinalIgnoreCase))
+            dirProb = binarySignals
+                .FirstOrDefault(s => s.Name.StartsWith("BandedDirUp", StringComparison.OrdinalIgnoreCase))
                 ?.Score ?? 0;
-
-            double binaryUp3 = binarySignals
-                .FirstOrDefault(s => s.Name.Contains("3pct", StringComparison.OrdinalIgnoreCase))
-                ?.Score ?? 0;
-
-            directionProb = binaryUp4 > 0 ? binaryUp4 : binaryUp3;
         }
 
-        // Volatility expansion (AUC 0.66) - big move expected
+        // Direction edge: combine all signals
+        // Setup direction models are more reliable when available
+        double directionEdge = (dirProb > 0 || dirDownProb > 0)
+            ? (0.3 * dirProb) - (0.3 * dirDownProb) + (0.4 * upProb) - (0.4 * downProb)
+            : upProb - downProb;  // Tail-only fallback
+
+        // Volatility expansion (AUC 0.66)
         double volExpansionProb = binarySignals
             .FirstOrDefault(s => s.Name.Contains("VolExpansion", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        // Relative strength continuation (AUC 0.65)
+        // Relative strength (AUC 0.65)
         double relStrengthProb = binarySignals
             .FirstOrDefault(s => s.Name.Contains("RelStrength", StringComparison.OrdinalIgnoreCase))
             ?.Score ?? 0;
 
-        // Weighted composite based on AUC strength (total = 1.0)
+        // Weighted composite (breakout-heavy, but penalized by down risk)
+        // Note: downProb doesn't add to composite, it subtracts via directionEdge consideration
         double composite =
-            (breakoutProb * 0.45) +         // AUC 0.81
-            (directionProb * 0.25) +        // AUC 0.70
-            (volExpansionProb * 0.12) +     // AUC 0.66
-            (relStrengthProb * 0.08) +      // AUC 0.65
-            (binarySignals.Average(s => s.Score) * 0.10);  // ensemble fallback
+            (breakoutProb * 0.40) +         // AUC 0.81 - primary setup
+            (upProb * 0.25) +               // AUC 0.70 - direction
+            (volExpansionProb * 0.15) +     // AUC 0.66 - vol regime
+            (relStrengthProb * 0.10) +      // AUC 0.65 - cross-sectional
+            (binarySignals.Average(s => s.Score) * 0.10);  // ensemble
 
-        return (composite, directionProb, breakoutProb, volExpansionProb);
+        return (composite, upProb, breakoutProb, volExpansionProb, downProb, directionEdge, dirProb);
     }
-    /// <summary>
-    /// Legacy method for backward compatibility.
-    /// </summary>
-    private static double GetCompositeScore(IReadOnlyList<SignalResult> binarySignals)
-        => GetCompositeScoreWithBreakdown(binarySignals).Composite;
-
-    // Replace AggregateAllSignals with this updated version:
 
     private TradeDirection AggregateAllSignals(
         IReadOnlyList<SignalResult> patternSignals,
@@ -211,55 +229,25 @@ public class TradeDecisionEngine
         // ═══════════════════════════════════════════════════════════════
         const double minCompositeScore = 0.35;       // Minimum composite to consider Buy
         const double strongBuyThreshold = 0.50;      // Strong buy composite
-        const double minDirectionProb = 0.25;        // Direction gate: must believe "up" is likely
+        const double minBreakoutProb = 0.30;         // Setup filter: require breakout signal
+        const double minUpProb = 0.25;               // Minimum P(up) for direction
+        const double maxDownProb = 0.20;             // Veto if P(down) >= 20% (was 25%)
+        const double minDirectionEdge = 0.05;        // Require Up - Down >= 5%
 
-        // Risk-adjusted probability gates (replaces regression veto)
-        const double minUpProb = 0.40;               // Require P(up) >= 40% for buys
-        const double maxDownProb = 0.45;             // Veto buy if P(down) >= 45%
-        const double strongUpDownSpread = 0.15;      // For strong buy: P(up) - P(down) >= 15%
-
-        // Legacy regression veto (only if risk models not available)
-        const double regressionVetoThreshold = -0.02; // Tightened from -0.03
-
-        // Get composite breakdown
-        var (compositeScore, directionProb, breakoutProb, volExpansionProb) =
+        // Get composite breakdown with direction edge
+        var (compositeScore, upProb, breakoutProb, volExpansionProb, downProb, directionEdge, dirProb) =
             GetCompositeScoreWithBreakdown(binarySignals);
 
         // ─────────────────────────────────────────────────────────────────
-        // Get risk-adjusted probabilities (new veto signals)
+        // REGIME FILTER: Don't take longs if benchmark is in downtrend
         // ─────────────────────────────────────────────────────────────────
-        double pUp = binarySignals
-            .FirstOrDefault(s => s.Name.Equals("RiskAdjUp10", StringComparison.OrdinalIgnoreCase))
-            ?.Score ?? -1; // -1 means model not available
-
-        double pDown = binarySignals
-            .FirstOrDefault(s => s.Name.Equals("RiskAdjDown10", StringComparison.OrdinalIgnoreCase))
-            ?.Score ?? -1;
-
-        bool hasRiskModels = pUp >= 0 && pDown >= 0;
-
-        // --- Regression (legacy fallback) ---
-        double avgExpectedReturn = regressionSignals.Any()
-            ? regressionSignals.Average(s => s.Score)
-            : 0;
-
-        // --- 3-way direction (fallback) ---
-        var threeWayHints = threeWaySignals
-            .Where(s => s.Hint.HasValue)
-            .Select(s => s.Hint!.Value)
-            .ToList();
-
-        TradeDirection? threeWayConsensus = null;
-        if (threeWayHints.Count > 0)
+        if (RequireBenchmarkUptrend && CurrentRegime != null)
         {
-            var counts = threeWayHints
-                .GroupBy(h => h)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            threeWayConsensus = counts
-                .OrderByDescending(kv => kv.Value)
-                .First()
-                .Key;
+            if (!CurrentRegime.IsBenchmarkUptrend && !CurrentRegime.IsBenchmark20dPositive)
+            {
+                // Bearish market regime → Hold
+                return TradeDirection.Hold;
+            }
         }
 
         // --- Patterns (light confirmation only) ---
@@ -273,89 +261,63 @@ public class TradeDecisionEngine
         bool patternsNotBearish = patternSells <= patternBuys;
 
         // ═══════════════════════════════════════════════════════════════
-        // Decision logic
+        // Decision logic (new: direction edge based)
         // ═══════════════════════════════════════════════════════════════
 
-        // Strong sell: 3-way says sell AND (risk model says high down prob OR regression negative)
-        if (threeWayConsensus == TradeDirection.Sell)
+        // ─────────────────────────────────────────────────────────────────
+        // VETO: High down probability → skip even if setup looks good
+        // ─────────────────────────────────────────────────────────────────
+        if (downProb >= maxDownProb)
         {
-            if ((hasRiskModels && pDown >= 0.55) || avgExpectedReturn < -0.02)
-                return TradeDirection.Sell;
-        }
-
-        // ─────────────────────────────────────────────────────────────────
-        // Direction gate: require meaningful upward probability
-        // ─────────────────────────────────────────────────────────────────
-        bool hasDirectionConfirmation = directionProb >= minDirectionProb;
-
-        // ─────────────────────────────────────────────────────────────────
-        // Risk-adjusted veto (preferred) OR legacy regression veto
-        // ─────────────────────────────────────────────────────────────────
-        bool riskVeto;
-        if (hasRiskModels)
-        {
-            // New: probability-based veto
-            // Block if: P(down) too high OR P(up) too low
-            riskVeto = pDown >= maxDownProb || pUp < minUpProb;
-        }
-        else
-        {
-            // Legacy: regression-based veto
-            riskVeto = avgExpectedReturn < regressionVetoThreshold;
-        }
-
-        if (riskVeto)
             return TradeDirection.Hold;
+        }
 
         // ─────────────────────────────────────────────────────────────────
-        // Primary buy gates
+        // SETUP FILTER: Require meaningful breakout signal
+        // ─────────────────────────────────────────────────────────────────
+        bool hasSetup = breakoutProb >= minBreakoutProb;
+
+        // ─────────────────────────────────────────────────────────────────
+        // DIRECTION FILTER: Use spread (Up - Down) not just Up alone
+        // ─────────────────────────────────────────────────────────────────
+        bool hasDirectionEdge = directionEdge >= minDirectionEdge;
+        bool hasUpConfirmation = upProb >= minUpProb;
+
+        // ─────────────────────────────────────────────────────────────────
+        // BUY CONDITIONS
         // ─────────────────────────────────────────────────────────────────
 
-        // Strong buy: high composite + direction confirmed + patterns not bearish + good risk spread
+        // Strong buy: high composite + setup + positive edge + patterns ok
         if (compositeScore >= strongBuyThreshold &&
-            hasDirectionConfirmation &&
+            hasSetup &&
+            hasDirectionEdge &&
             patternsNotBearish)
         {
-            // If risk models available, also check spread
-            if (!hasRiskModels || (pUp - pDown >= strongUpDownSpread))
-            {
-                return TradeDirection.Buy;
-            }
+            return TradeDirection.Buy;
         }
 
-        // Standard buy: moderate composite + direction confirmed + non-bearish + acceptable risk
+        // Standard buy: moderate composite + setup + direction confirmation
         if (compositeScore >= minCompositeScore &&
-            hasDirectionConfirmation &&
+            hasSetup &&
+            hasUpConfirmation &&
+            hasDirectionEdge &&
             patternsNotBearish)
         {
-            // If risk models available, require positive spread
-            if (!hasRiskModels || (pUp > pDown))
-            {
-                return TradeDirection.Buy;
-            }
+            return TradeDirection.Buy;
         }
 
-        // Fallback buy: very strong breakout signal alone
-        if (breakoutProb >= 0.70 &&
-            directionProb >= 0.20 &&
+        // Fallback buy: very strong breakout + clear direction edge
+        if (breakoutProb >= 0.60 &&
+            directionEdge >= 0.10 &&
+            downProb < 0.20 &&
             patternsNotBearish)
         {
-            // If risk models available, don't allow if down risk is elevated
-            if (!hasRiskModels || (pDown < 0.40 && pUp >= 0.35))
-            {
-                return TradeDirection.Buy;
-            }
+            return TradeDirection.Buy;
         }
 
         return TradeDirection.Hold;
     }
 
-    private static double Clamp01(double value)
-        => value <= 0 ? 0 : value >= 1 ? 1 : value;
-
-    /// <summary>
-    /// Evaluates multiple symbols and returns ranked picks.
-    /// </summary>
     public List<RankedPick> EvaluateAndRank(
         Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
         int topN = 10)
@@ -373,17 +335,18 @@ public class TradeDecisionEngine
                 Confidence: result.Confidence,
                 CompositeScore: result.CompositeScore,
                 DirectionProbability: result.DirectionProbability,
+                DownProbability: result.DownProbability,
+                DirectionEdge: result.DirectionEdge,
                 Signals: result.Signals));
         }
 
-        // Rank based on RankingMode
+        // Rank by direction edge within buys, then composite
         return RankingMode switch
         {
             RankingMode.Probability => picks
                 .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
+                .ThenByDescending(p => p.DirectionEdge)  // NEW: rank by edge
                 .ThenByDescending(p => p.CompositeScore)
-                .ThenByDescending(p => p.DirectionProbability)
-                .ThenByDescending(p => p.ExpectedReturn)
                 .Take(topN)
                 .ToList(),
 
@@ -398,9 +361,6 @@ public class TradeDecisionEngine
         };
     }
 
-    /// <summary>
-    /// Evaluates multiple symbols, ranks them, and calculates position sizes.
-    /// </summary>
     public List<SizedPick> EvaluateRankAndSize(
         Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
         decimal availableCapital,
@@ -413,20 +373,69 @@ public class TradeDecisionEngine
 
         return sizer.SizePortfolio(rankedPicks, maxPositions);
     }
+
+    /// <summary>
+    /// Computes market regime from benchmark bars.
+    /// </summary>
+    public static MarketRegime ComputeRegime(IReadOnlyList<DailyBar> benchmarkBars)
+    {
+        if (benchmarkBars.Count < 200)
+        {
+            return new MarketRegime(
+                IsBenchmarkUptrend: true,
+                IsBenchmark20dPositive: true,
+                IsVolatilityNormal: true,
+                BenchmarkReturn20d: 0,
+                BenchmarkMA50: 0,
+                BenchmarkMA200: 0);
+        }
+
+        // MA calculations
+        double ma50 = benchmarkBars.TakeLast(50).Average(b => (double)b.Close);
+        double ma200 = benchmarkBars.TakeLast(200).Average(b => (double)b.Close);
+
+        // 20-day return
+        double price20Ago = benchmarkBars[^21].Close;
+        double currentPrice = benchmarkBars[^1].Close;
+        double return20d = (currentPrice - price20Ago) / price20Ago;
+
+        // Volatility check (ATR spike)
+        double atr14 = CalculateAtrPercent(benchmarkBars.TakeLast(15).ToList());
+        double atr60 = CalculateAtrPercent(benchmarkBars.TakeLast(61).ToList());
+        bool isVolNormal = atr14 < atr60 * 1.5; // Not in vol spike
+
+        return new MarketRegime(
+            IsBenchmarkUptrend: ma50 > ma200,
+            IsBenchmark20dPositive: return20d > 0,
+            IsVolatilityNormal: isVolNormal,
+            BenchmarkReturn20d: return20d,
+            BenchmarkMA50: ma50,
+            BenchmarkMA200: ma200);
+    }
+
+    private static double CalculateAtrPercent(IReadOnlyList<DailyBar> bars)
+    {
+        if (bars.Count < 2) return 0;
+
+        double sum = 0;
+        for (int i = 1; i < bars.Count; i++)
+        {
+            var cur = bars[i];
+            var prev = bars[i - 1];
+            double prevClose = prev.Close == 0 ? 1 : prev.Close;
+            double tr = System.Math.Max(cur.High - cur.Low,
+                        System.Math.Max(System.Math.Abs(cur.High - prevClose),
+                                 System.Math.Abs(cur.Low - prevClose)));
+            sum += tr / prevClose;
+        }
+
+        return sum / (bars.Count - 1);
+    }
 }
 
 public enum RankingMode
 {
-    /// <summary>
-    /// Rank by composite probability score (recommended).
-    /// Uses weighted average of binary model probabilities.
-    /// </summary>
     Probability,
-
-    /// <summary>
-    /// Rank by expected return from regression (legacy).
-    /// Note: regression R² is negative, so this provides weak signal.
-    /// </summary>
     ExpectedReturn
 }
 
@@ -436,6 +445,8 @@ public record TradeDecisionResult(
     double Confidence,
     double CompositeScore,
     double DirectionProbability,
+    double DownProbability,
+    double DirectionEdge,
     PositionSizeResult? PositionSize,
     IReadOnlyList<SignalResult> Signals
 );
@@ -447,5 +458,7 @@ public record RankedPick(
     double Confidence,
     double CompositeScore,
     double DirectionProbability,
+    double DownProbability,
+    double DirectionEdge,
     IReadOnlyList<SignalResult> Signals
 );

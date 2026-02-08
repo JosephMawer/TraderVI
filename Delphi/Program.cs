@@ -13,18 +13,18 @@ Console.WriteLine("=== The Oracle Of Delphi ===\n");
 // CONFIGURATION (aggressive single-position rotation)
 // ═══════════════════════════════════════════════════════════════════
 decimal availableCapital = 500.00m;
-int minBarsRequired = 35;
+int minBarsRequired = 55;              // Increased for enhanced features
 decimal reserveCashPercent = 0.02m;
-double minExpectedReturn = 0.00;      // Lowered: we now rank by probability
-double minConfidence = 0.35;          // Minimum composite score
+double minExpectedReturn = 0.00;
+double minConfidence = 0.35;
 int maxSymbolsToScan = 500;
-int topPicksToSave = 10;              // Save top N picks to database
-bool saveToDB = true;                 // Toggle DB persistence
+int topPicksToSave = 10;
+bool saveToDB = true;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
 Console.WriteLine($"Min Composite:     {minConfidence:P0}");
-Console.WriteLine($"Ranking Mode:      Probability-based");
+Console.WriteLine($"Ranking Mode:      DirectionEdge-based");
 Console.WriteLine($"Save to DB:        {saveToDB}");
 Console.WriteLine();
 
@@ -50,11 +50,8 @@ else
 // BOOTSTRAP ENGINE (loads enabled models from registry)
 // ═══════════════════════════════════════════════════════════════════
 var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry();
-
-// Use probability-based ranking (new default)
 engine.RankingMode = RankingMode.Probability;
 
-// Configure aggressive sizing behavior (single-position)
 engine.Sizer = new PositionSizer(availableCapital)
 {
     Strategy = AllocationStrategy.SinglePositionAllIn,
@@ -64,6 +61,38 @@ engine.Sizer = new PositionSizer(availableCapital)
     MinConfidence = minConfidence,
     RequireBothSignals = false
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// COMPUTE MARKET REGIME FROM XIU BENCHMARK
+// ═══════════════════════════════════════════════════════════════════
+var quoteRepo = new QuoteRepository();
+var xiuBars = await quoteRepo.GetDailyBarsAsync("XIU");
+
+MarketRegime? regime = null;
+if (xiuBars.Count >= 200)
+{
+    regime = TradeDecisionEngine.ComputeRegime(xiuBars);
+
+    Console.WriteLine("Market Regime (XIU):");
+    Console.WriteLine($"  Uptrend (MA50>MA200): {(regime.IsBenchmarkUptrend ? "✓ Yes" : "✗ No")}");
+    Console.WriteLine($"  20d Return:           {regime.BenchmarkReturn20d:P2} {(regime.IsBenchmark20dPositive ? "✓" : "✗")}");
+    Console.WriteLine($"  Volatility:           {(regime.IsVolatilityNormal ? "Normal" : "⚠️ Elevated")}");
+    Console.WriteLine();
+
+    // Warn if regime is bearish
+    if (!regime.IsBenchmarkUptrend && !regime.IsBenchmark20dPositive)
+    {
+        Console.WriteLine("⚠️  BEARISH REGIME: Long trades may be filtered out.\n");
+    }
+}
+else
+{
+    Console.WriteLine("⚠️  Insufficient XIU data for regime calculation.\n");
+}
+
+// Inject regime into engine
+engine.CurrentRegime = regime;
+engine.RequireBenchmarkUptrend = true;
 
 // ═══════════════════════════════════════════════════════════════════
 // LOAD ALL SYMBOLS FROM DATABASE
@@ -80,7 +109,6 @@ var symbols = constituents
 
 Console.WriteLine($"Scanning symbols: {symbols.Count:N0}\n");
 
-var quoteRepo = new QuoteRepository();
 var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.OrdinalIgnoreCase);
 
 int loaded = 0;
@@ -110,19 +138,20 @@ if (allBars.Count == 0)
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// EVALUATE + PICK BEST SINGLE TRADE + SIZE IT (mostly/all-in)
+// EVALUATE + PICK BEST SINGLE TRADE + SIZE IT
 // ═══════════════════════════════════════════════════════════════════
 var (bestPick, size) = engine.EvaluateBestPickAllIn(allBars, availableCapital);
 
-Console.WriteLine(new string('═', 70));
-Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - PROBABILITY RANKING");
-Console.WriteLine(new string('═', 70));
+Console.WriteLine(new string('═', 80));
+Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - DIRECTION EDGE RANKING");
+Console.WriteLine(new string('═', 80));
 
-// Always show a short ranked list for transparency (even when no trade qualifies)
 Console.WriteLine("\nTop Ranked Candidates:");
 var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
 
-// Helper to fetch individual probabilities from a pick's signals
+// ═══════════════════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
 static double GetProb(RankedPick pick, string nameEquals) =>
     pick.Signals
         .FirstOrDefault(s => string.Equals(s.Name, nameEquals, StringComparison.OrdinalIgnoreCase))
@@ -137,44 +166,33 @@ static double GetBreakoutProb(RankedPick pick)
 {
     double enhanced = GetProb(pick, "BreakoutEnhanced");
     if (enhanced > 0) return enhanced;
-
     return GetProb(pick, "BreakoutPriorHigh10");
 }
 
-static double GetDirectionProb(RankedPick pick)
-{
-    // Prefer BinaryUp10, else legacy 4pct/3pct
-    double binaryUp = GetProb(pick, "BinaryUp10");
-    if (binaryUp > 0) return binaryUp;
+static double GetUpProb(RankedPick pick) => GetProb(pick, "BinaryUp10");
+static double GetDownProb(RankedPick pick) => GetProb(pick, "BinaryDown10");
 
-    double up4 = GetProbContains(pick, "4pct");
-    if (up4 > 0) return up4;
-
-    double up3 = GetProbContains(pick, "3pct");
-    if (up3 > 0) return up3;
-
-    return 0;
-}
-
-static double GetRiskAdjUpProb(RankedPick pick) => GetProb(pick, "RiskAdjUp10");
-static double GetRiskAdjDownProb(RankedPick pick) => GetProb(pick, "RiskAdjDown10");
-
+// ═══════════════════════════════════════════════════════════════════
+// DISPLAY RANKED CANDIDATES
+// ═══════════════════════════════════════════════════════════════════
 Console.WriteLine(
-    $"{"#",-3} {"Symbol",-10} {"Action",-6} {"Comp",7} {"Break",7} {"Vol",6} {"Dir",6} {"P↑",6} {"P↓",6} {"Δ",6}");
+    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5}");
 Console.WriteLine(new string('─', 80));
 
 int rank = 1;
 foreach (var p in top)
 {
     double breakout = GetBreakoutProb(p);
+    double pUp = GetUpProb(p);
+    double pDown = GetDownProb(p);
+    double edge = pUp - pDown;
     double volExp = GetProbContains(p, "VolExpansion");
-    double dirProb = GetDirectionProb(p);
-    double pUp = GetRiskAdjUpProb(p);
-    double pDown = GetRiskAdjDownProb(p);
-    double spread = pUp - pDown;
+    double relStr = GetProbContains(p, "RelStrength");
+
+    string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
 
     Console.WriteLine(
-        $"{rank,-3} {p.Symbol,-10} {p.Direction,-6} {p.CompositeScore,7:P0} {breakout,7:P0} {volExp,6:P0} {dirProb,6:P0} {pUp,6:P0} {pDown,6:P0} {spread,6:P0}");
+        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0}");
     rank++;
 }
 
@@ -186,7 +204,6 @@ if (saveToDB && top.Count > 0)
     var pickDate = DateTime.Today;
     var pickRepo = new DailyPickRepository();
 
-    // Delete any existing picks for today (in case of re-run)
     await pickRepo.DeletePicksByDate(pickDate);
 
     Console.WriteLine($"\nSaving {top.Count} picks to database...");
@@ -195,8 +212,9 @@ if (saveToDB && top.Count > 0)
     foreach (var p in top)
     {
         double breakout = GetBreakoutProb(p);
+        double pUp = GetUpProb(p);
+        double pDown = GetDownProb(p);
         double volExp = GetProbContains(p, "VolExpansion");
-        double dirProb = GetDirectionProb(p);
         double relStrength = GetProbContains(p, "RelStrength");
 
         await pickRepo.InsertPick(
@@ -206,14 +224,14 @@ if (saveToDB && top.Count > 0)
             direction: p.Direction.ToString(),
             compositeScore: p.CompositeScore,
             breakoutProb: breakout,
-            directionProb: dirProb,
+            directionProb: pUp,
             volExpansionProb: volExp,
             relStrengthProb: relStrength > 0 ? relStrength : null,
             expectedReturn: p.ExpectedReturn,
             suggestedSize: savedRank == 1 && size != null ? size.SuggestedSize : null,
             allocationPercent: savedRank == 1 && size != null ? (double)size.AllocationPercent : null,
             strategyVersionId: strategyVersionId,
-            notes: savedRank == 1 ? "Top pick" : null);
+            notes: savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null);
 
         savedRank++;
     }
@@ -232,27 +250,37 @@ if (bestPick == null || size == null || size.SuggestedSize <= 0)
 }
 
 double bestBreakout = GetBreakoutProb(bestPick);
+double bestUp = GetUpProb(bestPick);
+double bestDown = GetDownProb(bestPick);
+double bestEdge = bestUp - bestDown;
 double bestVolExp = GetProbContains(bestPick, "VolExpansion");
-double bestDirProb = GetDirectionProb(bestPick);
 double bestRelStrength = GetProbContains(bestPick, "RelStrength");
 
-Console.WriteLine($"\n{"═",-70}");
+Console.WriteLine($"\n{"═",-80}");
 Console.WriteLine("RECOMMENDATION");
-Console.WriteLine($"{"═",-70}");
+Console.WriteLine($"{"═",-80}");
 Console.WriteLine($"Symbol:          {bestPick.Symbol}");
 Console.WriteLine($"Direction:       {bestPick.Direction}");
 Console.WriteLine($"Composite Score: {bestPick.CompositeScore:P1}");
-Console.WriteLine($"Breakout Prob:   {bestBreakout:P1}");
-Console.WriteLine($"Vol Exp Prob:    {bestVolExp:P1}");
-Console.WriteLine($"Direction Prob:  {bestDirProb:P1}");
+Console.WriteLine();
+Console.WriteLine($"Setup Signal:");
+Console.WriteLine($"  Breakout Prob: {bestBreakout:P1}");
+Console.WriteLine();
+Console.WriteLine($"Direction Signals:");
+Console.WriteLine($"  P(Up +4%):     {bestUp:P1}");
+Console.WriteLine($"  P(Down -4%):   {bestDown:P1}");
+Console.WriteLine($"  Direction Edge:{bestEdge:+0.0%;-0.0%} {(bestEdge > 0 ? "✓ Bullish" : "✗ Bearish")}");
+Console.WriteLine();
+Console.WriteLine($"Confirmation Signals:");
+Console.WriteLine($"  Vol Expansion: {bestVolExp:P1}");
 if (bestRelStrength > 0)
-    Console.WriteLine($"Rel Strength:    {bestRelStrength:P1}");
-Console.WriteLine($"Expected Return: {bestPick.ExpectedReturn:P2}");
-Console.WriteLine($"Allocate:        {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
-Console.WriteLine($"Reason:          {size.Reason}");
+    Console.WriteLine($"  Rel Strength:  {bestRelStrength:P1}");
+Console.WriteLine();
+Console.WriteLine($"Position:");
+Console.WriteLine($"  Allocate:      {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
+Console.WriteLine($"  Reason:        {size.Reason}");
 
-// Detailed signals for the best pick
-Console.WriteLine("\nSignals (best pick):");
+Console.WriteLine("\nAll Signals (best pick):");
 foreach (var s in bestPick.Signals)
 {
     Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
