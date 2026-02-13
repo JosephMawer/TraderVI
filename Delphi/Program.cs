@@ -1,4 +1,5 @@
 ﻿using Core.Db;
+using Core.Indicators;
 using Core.ML;
 using Core.Runtime;
 using Core.Trader;
@@ -148,6 +149,17 @@ Console.WriteLine(new string('═', 80));
 
 Console.WriteLine("\nTop Ranked Candidates:");
 var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
+
+// Load A/D Line breadth confirmation
+var adRepo = new AdvanceDeclineRepository();
+var adLine = await adRepo.GetRecentAsync(200);
+double breadthScore = AdvanceDeclineCalculator.BreadthScore(adLine);
+bool bearishDivergence = AdvanceDeclineCalculator.HasBearishDivergence(adLine);
+
+Console.WriteLine($"A/D Line Breadth Score: {breadthScore:+0.00;-0.00}");
+Console.WriteLine($"  Slope (20d):         {AdvanceDeclineCalculator.Slope(adLine):+0.0;-0.0}");
+Console.WriteLine($"  Above SMA(50):       {(AdvanceDeclineCalculator.IsAboveSma(adLine) ? "✓" : "✗")}");
+Console.WriteLine($"  Bearish Divergence:  {(bearishDivergence ? "⚠️ YES" : "No")}");
 
 // ═══════════════════════════════════════════════════════════════════
 // HELPER FUNCTIONS
