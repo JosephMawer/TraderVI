@@ -17,6 +17,7 @@ namespace Core.TMX
 
         /// <summary>
         /// Converts TMX time-series point (DTO) → canonical OhlcvBar (UTC timestamp).
+        /// Caller must ensure <see cref="TmxTimeSeriesPointDto.IsComplete"/> is true before calling.
         /// </summary>
         public static OhlcvBar ToOhlcvBar(TmxTimeSeriesPointDto dto)
         {
@@ -28,7 +29,7 @@ namespace Core.TMX
             var unspecified = DateTime.SpecifyKind(localDt, DateTimeKind.Unspecified);
             var utc = TimeZoneInfo.ConvertTimeToUtc(unspecified, EasternTimeZone);
 
-            return new OhlcvBar(utc, dto.open, dto.high, dto.low, dto.close, dto.volume);
+            return new OhlcvBar(utc, dto.open!.Value, dto.high!.Value, dto.low!.Value, dto.close!.Value, dto.volume!.Value);
         }
 
         /// <summary>

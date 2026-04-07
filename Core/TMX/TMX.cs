@@ -120,8 +120,9 @@ namespace Core.TMX
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
 
-            // Map DTO → Domain
+            // Map DTO → Domain — skip bars with null OHLCV (halted/suspended days)
             return response.Data?.getTimeSeriesData
+                .Where(p => p.IsComplete)
                 .Select(TmxMapper.ToOhlcvBar)
                 .ToList()
                 ?? new List<OhlcvBar>();
@@ -174,7 +175,9 @@ namespace Core.TMX
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
 
+            // Map DTO → Domain — skip bars with null OHLCV (halted/suspended days)
             return response.Data?.getTimeSeriesData
+                .Where(p => p.IsComplete)
                 .Select(TmxMapper.ToOhlcvBar)
                 .ToList()
                 ?? new List<OhlcvBar>();
