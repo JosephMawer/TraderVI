@@ -27,13 +27,13 @@ var experimentRepo = new ModelExperimentRepository();
 // ═══════════════════════════════════════════════════════════════════
 // Load symbol universe
 // ═══════════════════════════════════════════════════════════════════
-var symbols = (await new SymbolsRepository().GetSymbols())
+var symbols = (await new SymbolsRepository().GetEquitiesAsync())
     .Select(s => s.Symbol)
     .Where(s => !string.IsNullOrWhiteSpace(s))
     .Take(maxSymbols)
     .ToList();
 
-Console.WriteLine($"Loading bars for {symbols.Count} symbols...\n");
+Console.WriteLine($"Loading bars for {symbols.Count} symbols (equities only)...\n");
 
 var barsBySymbol = new Dictionary<string, List<DailyBar>>();
 foreach (var sym in symbols)

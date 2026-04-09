@@ -17,6 +17,7 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 - Apply down-probability veto for longs.
 - Implement a market regime filter requiring benchmark (XIU) uptrend/positive return.
 - Rank candidates by **DirectionEdge** then composite.
+- Maintain the **Advance-Decline Line** as a rule-based market breadth/regime indicator, not a direct ML feature, unless explicitly revisited.
 
 ## Architecture
 

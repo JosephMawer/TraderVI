@@ -99,7 +99,7 @@ engine.RequireBenchmarkUptrend = true;
 // LOAD ALL SYMBOLS FROM DATABASE
 // ═══════════════════════════════════════════════════════════════════
 var db = new SymbolsRepository();
-var constituents = await db.GetSymbols();
+var constituents = await db.GetEquitiesAsync();
 
 var symbols = constituents
     .Select(c => c.Symbol)
@@ -108,7 +108,7 @@ var symbols = constituents
     .Take(maxSymbolsToScan)
     .ToList();
 
-Console.WriteLine($"Scanning symbols: {symbols.Count:N0}\n");
+Console.WriteLine($"Scanning symbols: {symbols.Count:N0} (equities only)\n");
 
 var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.OrdinalIgnoreCase);
 
