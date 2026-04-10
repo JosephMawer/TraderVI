@@ -35,3 +35,7 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 
 ## Decision Thresholds
 - Document decision thresholds as initial defaults intended to be tuned based on Hercules training outputs (AUC, optimal threshold, decile lift), rather than fixed constants.
+
+## Reference Documents
+- **`docs/design-rules.md`** — Authoritative rules for what is rule-based vs ML-based, active/rejected models, feature builders, decision flow, and thresholds. Copilot should consult this before generating model or decision-engine code.
+- **`docs/system-design.md`** — Human-readable system reference with full context on architecture, experiments, and future direction.
