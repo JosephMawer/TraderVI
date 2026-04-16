@@ -636,7 +636,6 @@ public sealed class ModelExperimentInfo
     public string? Notes { get; init; }
 }
 
-
 public sealed class StrategyVersionInfo
 {
     public Guid VersionId { get; init; }
@@ -649,8 +648,38 @@ public sealed class StrategyVersionInfo
     public double? StopLossPercent { get; init; }
     public double? WarningPercent { get; init; }
     public int? MaxPositions { get; init; }
+    // New gate thresholds (nullable — null means "use default")
+    public double? MinBreakoutProb { get; init; }
+    public double? MinDirectionEdge { get; init; }
+    public double? MaxDownProb { get; init; }
+    public double? BreadthVetoThreshold { get; init; }
+    public double? StrongBreakoutOverride { get; init; }
+    public double? StrongEdgeOverride { get; init; }
     public DateTime CreatedUtc { get; init; }
     public string? Notes { get; init; }
+
+    /// <summary>
+    /// Converts to a runtime StrategyConfig, using stored values where available
+    /// and falling back to defaults for any nulls.
+    /// </summary>
+    public Core.Trader.StrategyConfig ToConfig()
+    {
+        var d = Core.Trader.StrategyConfig.Default;
+        return new Core.Trader.StrategyConfig
+        {
+            MinCompositeScore = MinCompositeScore ?? d.MinCompositeScore,
+            MinUpProb = MinDirectionProb ?? d.MinUpProb,
+            MinBreakoutProb = MinBreakoutProb ?? d.MinBreakoutProb,
+            MinDirectionEdge = MinDirectionEdge ?? d.MinDirectionEdge,
+            MaxDownProb = MaxDownProb ?? d.MaxDownProb,
+            BreadthVetoThreshold = BreadthVetoThreshold ?? d.BreadthVetoThreshold,
+            StrongBreakoutOverride = StrongBreakoutOverride ?? d.StrongBreakoutOverride,
+            StrongEdgeOverride = StrongEdgeOverride ?? d.StrongEdgeOverride,
+            StopLossPercent = StopLossPercent ?? d.StopLossPercent,
+            WarningPercent = WarningPercent ?? d.WarningPercent,
+            MaxPositions = MaxPositions ?? d.MaxPositions,
+        };
+    }
 }
 
 public sealed class DailyPickInfo
