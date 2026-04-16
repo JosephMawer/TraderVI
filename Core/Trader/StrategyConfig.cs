@@ -19,7 +19,7 @@ public sealed record StrategyConfig
     public double MinBreakoutProb { get; init; } = 0.30;
 
     // ── Down probability gate ──
-    public double MaxDownProb { get; init; } = 0.20;
+    public double MaxDownProb { get; init; } = 0.35;
 
     // ── Breadth gate ──
     public double BreadthVetoThreshold { get; init; } = -0.30;

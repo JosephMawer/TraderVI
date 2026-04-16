@@ -12,7 +12,7 @@ public static class ProfitModelRegistry
     private const bool EnableBinaryUp10 = true;                 // AUC 0.70, Lift 1.64x ✓
     private const bool EnableBinaryDown10 = true;               // NEW: down-tail veto signal
     private const bool EnableVolExpansionRelative10 = true;     // AUC 0.66, Lift 1.61x ✓
-    private const bool EnableRelStrengthCont10_2pct = true;     // AUC 0.65, Lift 1.49x ✓
+    private const bool EnableRelStrengthCont10_2pct = false;    // AUC 0.65, flat output, removed v3.0
     private const bool EnableBreakoutEnhanced = true;           // AUC 0.81, Lift 2.20x ✓
                                                                 // All direction models disabled:
     private const bool EnableDirUp5 = false;                    // AUC 0.54 - random

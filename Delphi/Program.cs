@@ -24,7 +24,6 @@ bool saveToDB = true;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
-Console.WriteLine($"Ranking Mode:      DirectionEdge-based");
 Console.WriteLine($"Save to DB:        {saveToDB}");
 Console.WriteLine();
 
@@ -71,6 +70,8 @@ engine.Sizer = new PositionSizer(availableCapital)
     MinConfidence = config.MinCompositeScore,
     RequireBothSignals = false
 };
+
+Console.WriteLine($"[DelphiBootstrap] Ranking mode:    {engine.RankingMode}");
 
 // ═══════════════════════════════════════════════════════════════════
 // COMPUTE MARKET REGIME FROM XIU + SPY BENCHMARKS
@@ -155,11 +156,11 @@ int loaded = 0;
 int skipped = 0;
 int skippedPrice = 0;
 
-// Max price to guarantee at least 1 round lot (100 shares) from deployable capital
+// Minimum price: must be able to afford at least 10 shares from deployable capital
 decimal deployableCapital = availableCapital * (1 - reserveCashPercent);
-decimal maxPriceForRoundLot = Math.Floor(deployableCapital / 100m);
+decimal maxPriceForMinLot = deployableCapital / 10m;
 
-Console.WriteLine($"Round-lot filter: max price ${maxPriceForRoundLot:N2} (100 shares × price ≤ ${deployableCapital:N2} deployable)\n");
+Console.WriteLine($"Affordability filter: max price ${maxPriceForMinLot:N2} (must afford >= 10 shares from ${deployableCapital:N2} deployable)\n");
 
 foreach (var symbol in symbols)
 {
@@ -171,9 +172,9 @@ foreach (var symbol in symbols)
         continue;
     }
 
-    // Filter out stocks we can't buy in round lots
-    var lastClose = bars[^1].Close;
-    if ((decimal)lastClose > maxPriceForRoundLot)
+    // Filter out stocks we can't afford at least 10 shares of
+    var lastClose = (decimal)bars[^1].Close;
+    if (lastClose > maxPriceForMinLot)
     {
         skippedPrice++;
         continue;
@@ -183,7 +184,17 @@ foreach (var symbol in symbols)
     loaded++;
 }
 
-Console.WriteLine($"Loaded: {loaded} symbols, Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForRoundLot:N2})\n");
+// Sort by average 20-day volume descending — prefer highly liquid stocks
+allBars = allBars
+    .OrderByDescending(kvp =>
+    {
+        var vol = kvp.Value.TakeLast(20).Average(b => (double)b.Volume);
+        return vol;
+    })
+    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+
+Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForMinLot:N2})");
+Console.WriteLine($"Sorted by: avg 20-day volume (most liquid first)\n");
 
 if (allBars.Count == 0)
 {
@@ -223,39 +234,73 @@ static double GetDownProb(RankedPick pick) => GetProb(pick, "BinaryDown10");
 // ═══════════════════════════════════════════════════════════════════
 // DISPLAY RANKED CANDIDATES
 // ═══════════════════════════════════════════════════════════════════
+
+// Helper: get pattern signal hint (Buy = Y, anything else = N)
+static string PatternFlag(RankedPick pick, string name) =>
+    pick.Signals.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase))
+        ?.Hint == TradeDirection.Buy ? "Y" : "N";
+
+// Row 1: model/group labels
+// Row 2: column names aligned to data
+Console.WriteLine();
 Console.WriteLine(
-    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Price",7} {"Shares",6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5} {"Gate",14}");
-Console.WriteLine(new string('─', 105));
+    $"{"",3}  {"",8}  {"",6}  {"",7} {"",10}" +
+    $"  {"",6}" +
+    $"  {"BreakoutEnhanced",12}" +
+    $"  {"BinaryUp10  BinaryDown10",23}" +
+    $"  {"VolExp10",8} {"RelStr10",8}" +
+    $"  {"MaCross Trnd30 Trnd10",21}" +
+    $"  {"",14}");
+Console.WriteLine(
+    $"{"#",-3}  {"Symbol",-8}  {"Action",-6}  {"Price",7} {"Shrs",5} {"Vol20d",8}" +
+    $"  {"Comp",6}" +
+    $"  {"Brk%",6} {"BrkRaw",7}" +
+    $"  {"P(Up)",6} {"P(Dn)",6} {"Edge",6}" +
+    $"  {"Vol%",6} {"RS%",6}" +
+    $"  {"MA",3} {"T30",4} {"T10",4}" +
+    $"  {"Gate",18}");
+Console.WriteLine(new string('─', 138));
 
 int rank = 1;
 foreach (var p in top)
 {
     double breakout = GetBreakoutProb(p);
-    double pUp = GetUpProb(p);
-    double pDown = GetDownProb(p);
-    double edge = pUp - pDown;
-    double volExp = GetProbContains(p, "VolExpansion");
-    double relStr = GetProbContains(p, "RelStrength");
+    double pUp      = GetUpProb(p);
+    double pDown    = GetDownProb(p);
+    double edge     = pUp - pDown;
+    double volExp   = GetProbContains(p, "VolExpansion");
+    double relStr   = GetProbContains(p, "RelStrength");
 
     string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
 
-    // Current price + how many round-lot shares we can buy
     decimal lastPrice = allBars.TryGetValue(p.Symbol, out var bars) ? (decimal)bars[^1].Close : 0m;
-    int roundLotShares = lastPrice > 0
-        ? (int)(Math.Floor(deployableCapital / lastPrice / 100m) * 100)
+    long avgVolume = allBars.TryGetValue(p.Symbol, out var volBars)
+        ? (long)volBars.TakeLast(20).Average(b => (double)b.Volume)
         : 0;
+    int affordableShares = lastPrice > 0 ? (int)(deployableCapital / lastPrice) : 0;
 
-    // Show which gate blocked (if any)
-    string gateStatus = "✓ All";
+    // Pattern model results
+    string maCross = PatternFlag(p, "MaCrossover");
+    string trend30 = PatternFlag(p, "Trend30");
+    string trend10 = PatternFlag(p, "Trend10");
+
+    // Gate result — show first blocking gate name
+    string gateStatus = "Pass (all gates)";
     if (p.GateTrace != null)
     {
         var blocked = p.GateTrace.FirstOrDefault(g => !g.Passed);
         if (blocked.Reason != null)
-            gateStatus = $"✗ {blocked.GateName}";
+            gateStatus = $"Fail: {blocked.GateName}";
     }
 
     Console.WriteLine(
-        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {lastPrice,7:C2} {roundLotShares,6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0} {gateStatus,14}");
+        $"{rank,-3}  {p.Symbol,-8}  {p.Direction,-6}  {lastPrice,7:C2} {affordableShares,5} {avgVolume,8:N0}" +
+        $"  {p.CompositeScore,6:P0}" +
+        $"  {breakout,6:P0} {breakout,7:P1}" +
+        $"  {pUp,6:P0} {pDown,6:P0} {edgeStr,6}" +
+        $"  {volExp,6:P0} {relStr,6:P0}" +
+        $"  {maCross,3} {trend30,4} {trend10,4}" +
+        $"  {gateStatus,-18}");
     rank++;
 }
 

@@ -74,3 +74,38 @@ These components act as **gates or modifiers** on the ML-driven ranking. They ar
 8. **Sizing**: SinglePositionAllIn with reserve cash
 
 ## Composite Formula
+
+## Delphi Output Chart Legend
+
+Each row in the "Top Ranked Candidates" table corresponds to one evaluated symbol.
+Columns map directly to ML models and derived values as follows:
+
+| Column      | Source                     | Role        | What it means                                          |
+|-------------|----------------------------|-------------|--------------------------------------------------------|
+| `Price`     | `DailyBar.Close` (latest)  | Data        | Last closing price                                     |
+| `Shrs`      | Derived from capital/price | Data        | Max shares buyable in round lots (multiples of 100)    |
+| `Comp`      | Weighted model ensemble    | Composite   | Final composite score (higher = stronger conviction)   |
+| `Brk%`      | `BreakoutEnhanced`         | Setup       | Probability of breakout above prior 20-bar high        |
+| `BrkRaw`    | `BreakoutEnhanced`         | Setup       | Same as Brk%, full decimal precision                   |
+| `P(Up)`     | `BinaryUp10`               | Direction   | P(price up >= +4% in 10 bars)                          |
+| `P(Dn)`     | `BinaryDown10`             | Veto        | P(price down <= -4% in 10 bars)                        |
+| `Edge`      | `P(Up) - P(Dn)`            | Direction   | Net directional advantage (primary ranking key)        |
+| `Vol%`      | `VolExpansionRelative10`   | Confirmation| P(relative volatility expansion, 80th pct, 10 bars)    |
+| `RS%`       | `RelStrengthCont10_2pct`   | Momentum    | P(outperform market by >= 2% in 10 bars)               |
+| `MA`        | `MaCrossover`              | Pattern     | Y = 10-MA above 30-MA (bullish crossover)              |
+| `T30`       | `Trend30`                  | Pattern     | Y = uptrend confirmed over 30 bars                     |
+| `T10`       | `Trend10`                  | Pattern     | Y = uptrend confirmed over 10 bars                     |
+| `Gate`      | Pipeline gate result       | Decision    | Which gate blocked the trade, or "Pass (all gates)"    |
+
+### Composite weights (from `ProfitModelRegistry`)
+
+| Model                   | Role         | Weight  |
+|-------------------------|--------------|---------|
+| `BreakoutEnhanced`      | Setup        | +0.40   |
+| `BinaryUp10`            | DirectionUp  | +0.25   |
+| `VolExpansionRelative10`| Confirmation | +0.15   |
+| `RelStrengthCont10_2pct`| Momentum     | +0.10   |
+| `BinaryDown10`          | Veto         | -0.20   |
+
+Positive weights add to the composite. `BinaryDown10` is negative — it penalises the composite
+continuously, and also acts as a hard veto gate when `P(Dn) >= MaxDownProb`.
