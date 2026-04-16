@@ -27,6 +27,8 @@ public class UnifiedProfitSignalModel : IStockSignalModel
 
     public string Name => _model.TaskType;
     public ProfitModelKind ModelKind => _model.ModelKind;
+    public SignalRole Role => _model.Role;
+    public float CompositeWeight => _model.CompositeWeight;
 
     public UnifiedProfitSignalModel(
         ProfitModelDefinition model,

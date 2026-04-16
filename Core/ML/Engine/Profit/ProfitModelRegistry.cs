@@ -19,7 +19,7 @@ public static class ProfitModelRegistry
     private const bool EnableBandedDirUp5 = false;              // No negatives
     private const bool EnableSetupBandedDirUp5 = false;         // AUC 0.52 - random
     private const bool EnableSetupBandedDirDown5 = false;       // AUC 0.53 - random
-    private const bool EnableDirUp5_Band = false;           // Optional: with small band (reduces noise)
+    private const bool EnableDirUp5_Band = false;               // Optional: with small band (reduces noise)
 
     // ════════════════════════════════════════════════════════════════
     // DISABLED MODELS (failed experiments)
@@ -48,105 +48,107 @@ public static class ProfitModelRegistry
         var models = new List<ProfitModelDefinition>();
 
         // ════════════════════════════════════════════════════════════════
-        // WORKING MODELS
+        // WORKING MODELS — each tagged with its semantic role + weight
         // ════════════════════════════════════════════════════════════════
 
         if (EnableBinaryUp10)
         {
-            // Up-tail detector: P(return >= +4% in 10 days)
-            // AUC 0.70, Lift 1.64x - used for direction confirmation
             models.Add(new ProfitModelDefinition(
                 TaskType: "BinaryUp10",
                 Lookback: 30,
                 HorizonBars: 10,
                 FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
                 Labeler: new BinaryUpLabeler(horizonBars: 10, upThresholdPercent: 4.0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.DirectionUp,
+                CompositeWeight: 0.25f));
         }
 
         if (EnableBinaryDown10)
         {
-            // Down-tail detector: P(return <= -4% in 10 days)
-            // Used as VETO signal - skip longs if P(down) is elevated
-            // DirectionEdge = P(up) - P(down) provides regime-adaptive direction
             models.Add(new ProfitModelDefinition(
                 TaskType: "BinaryDown10",
                 Lookback: 30,
                 HorizonBars: 10,
                 FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
                 Labeler: new BinaryDownLabeler(horizonBars: 10, downThresholdPercent: 4.0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.Veto,
+                CompositeWeight: -0.20f));  // negative = penalty
         }
 
         if (EnableVolExpansionRelative10)
         {
-            // Volatility expansion detector
-            // AUC 0.66, Lift 1.61x - confirms big move expected
             models.Add(new ProfitModelDefinition(
                 TaskType: "VolExpansionRelative10",
                 Lookback: 30,
                 HorizonBars: 10,
                 FeatureBuilder: new AtrVolatilityBreakoutFeatureBuilder(),
                 Labeler: new RelativeVolatilityExpansionLabeler(horizonBars: 10, percentileThreshold: 80),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.Confirmation,
+                CompositeWeight: 0.15f));
         }
 
         if (EnableRelStrengthCont10_2pct)
         {
-            // Relative strength continuation (vs XIU benchmark)
-            // AUC 0.65, Lift 1.49x - cross-sectional momentum
             models.Add(new ProfitModelDefinition(
                 TaskType: "RelStrengthCont10_2pct",
                 Lookback: 30,
                 HorizonBars: 10,
                 FeatureBuilder: new MarketContextFeatureBuilder(),
                 Labeler: new RelativeStrengthContinuationLabeler(horizonBars: 10, outperformThresholdPercent: 2.0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.Momentum,
+                CompositeWeight: 0.10f));
         }
 
         if (EnableBreakoutEnhanced)
         {
-            // Primary setup detector: breakout above prior 20-day high
-            // AUC 0.81, Lift 2.20x - best signal, used as setup filter
             models.Add(new ProfitModelDefinition(
                 TaskType: "BreakoutEnhanced",
                 Lookback: 55,
                 HorizonBars: 10,
                 FeatureBuilder: new EnhancedFeatureBuilder(),
                 Labeler: new BreakoutAbovePriorHighLabeler(horizonBars: 10, priorHighLookback: 20, breakoutPercent: 1.0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.Setup,
+                CompositeWeight: 0.40f));
         }
+
+        // ════════════════════════════════════════════════════════════════
+        // DISABLED MODELS (kept for reference / future experiments)
+        // All disabled models below keep Role: Confirmation as a safe default.
+        // ════════════════════════════════════════════════════════════════
 
         if (EnableDirUp5)
         {
-            // General direction model: P(5-day return > 0)
-            // Smoother signal than tail models, used for "base drift" in edge calculation
             models.Add(new ProfitModelDefinition(
                 TaskType: "DirUp5",
                 Lookback: 50,
                 HorizonBars: 5,
                 FeatureBuilder: new DirectionFeatureBuilder(),
                 Labeler: new DirectionUpLabeler(horizonBars: 5, bandPercent: 0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.DirectionUp,
+                CompositeWeight: 0f));
         }
 
         if (EnableBandedDirUp5)
         {
-            // Banded direction: only label "meaningful moves" (> 0.5 ATR)
-            // Filters out normal wiggle, should be more predictable
             models.Add(new ProfitModelDefinition(
                 TaskType: "BandedDirUp5",
                 Lookback: 50,
                 HorizonBars: 5,
                 FeatureBuilder: new DirectionFeatureBuilder(),
                 Labeler: new BandedDirectionUpLabeler(horizonBars: 5, bandAtrMultiple: 0.5f, atrPeriod: 14),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.DirectionUp,
+                CompositeWeight: 0f));
         }
 
         if (EnableSetupBandedDirUp5)
         {
-            // Follow-through UP direction, ONLY when breakout setup is present
-            // This answers: "Given a tradable setup, is the drift up?"
             models.Add(new ProfitModelDefinition(
                 TaskType: "SetupDirUp5",
                 Lookback: 50,
@@ -156,13 +158,13 @@ public static class ProfitModelRegistry
                     innerLabeler: new BandedDirectionUpLabeler(horizonBars: 5, bandAtrMultiple: 0.5f),
                     priorHighLookback: 20,
                     breakoutPercent: 0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.DirectionUp,
+                CompositeWeight: 0f));
         }
 
         if (EnableSetupBandedDirDown5)
         {
-            // Follow-through DOWN direction, ONLY when breakout setup is present
-            // This answers: "Given a tradable setup, is it a trap/reversal?"
             models.Add(new ProfitModelDefinition(
                 TaskType: "SetupDirDown5",
                 Lookback: 50,
@@ -172,12 +174,10 @@ public static class ProfitModelRegistry
                     innerLabeler: new BandedDirectionDownLabeler(horizonBars: 5, bandAtrMultiple: 0.5f),
                     priorHighLookback: 20,
                     breakoutPercent: 0f),
-                ModelKind: ProfitModelKind.BinaryClassification));
+                ModelKind: ProfitModelKind.BinaryClassification,
+                Role: SignalRole.Veto,
+                CompositeWeight: 0f));
         }
-
-        // ════════════════════════════════════════════════════════════════
-        // DISABLED MODELS (kept for reference / future experiments)
-        // ════════════════════════════════════════════════════════════════
 
         if (EnableBreakoutMeta15)
         {

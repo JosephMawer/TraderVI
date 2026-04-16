@@ -12,6 +12,8 @@ public record ProfitModelDefinition(
     IFeatureBuilder FeatureBuilder,
     ILabeler Labeler,
     ProfitModelKind ModelKind,
+    SignalRole Role = SignalRole.Confirmation,
+    float CompositeWeight = 0.10f,
     float BuyThresholdPercent = 2.0f,
     float SellThresholdPercent = -2.0f,
     float? RegressionReturnClamp = 0.25f);
