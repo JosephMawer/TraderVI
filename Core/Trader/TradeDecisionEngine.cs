@@ -1,5 +1,7 @@
 ﻿using Core.ML;
 using Core.ML.Engine.Profit;
+using Core.Indicators;
+using Core.Trader.Gates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -448,7 +450,8 @@ public record TradeDecisionResult(
     double DownProbability,
     double DirectionEdge,
     PositionSizeResult? PositionSize,
-    IReadOnlyList<SignalResult> Signals
+    IReadOnlyList<SignalResult> Signals,
+    IReadOnlyList<GateTraceEntry>? GateTrace = null
 );
 
 public record RankedPick(
@@ -460,5 +463,6 @@ public record RankedPick(
     double DirectionProbability,
     double DownProbability,
     double DirectionEdge,
-    IReadOnlyList<SignalResult> Signals
+    IReadOnlyList<SignalResult> Signals,
+    IReadOnlyList<GateTraceEntry>? GateTrace = null
 );
