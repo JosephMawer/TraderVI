@@ -1,4 +1,4 @@
-using Core.Db;
+﻿using Core.Db;
 using Core.ML.Engine.Patterns;
 using Core.ML.Engine.Profit;
 using Core.Trader;
@@ -18,7 +18,6 @@ public static class DelphiBootstrap
         var repo = new ModelRegistryRepository();
         var enabledModels = await repo.GetEnabledModels();
 
-        // Only allow models that exist in the current registries.
         var allowedPatternTaskTypes = PatternRegistry.All
             .Select(p => p.TaskType)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -32,7 +31,6 @@ public static class DelphiBootstrap
 
         var loadedPatterns = new List<string>();
         var loadedProfit = new List<string>();
-        var skipped = new List<string>();
 
         var loadedTaskTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -41,23 +39,19 @@ public static class DelphiBootstrap
             bool isAllowedPattern = allowedPatternTaskTypes.Contains(modelInfo.TaskType);
             bool isAllowedProfit = allowedProfitTaskTypes.Contains(modelInfo.TaskType);
 
+            // Silently skip DB rows for models disabled in the code registry
             if (!isAllowedPattern && !isAllowedProfit)
-            {
-                skipped.Add($"{modelInfo.TaskType} (enabled in DB, but disabled in code registry)");
                 continue;
-            }
 
             if (!File.Exists(modelInfo.ZipPath))
             {
-                skipped.Add($"{modelInfo.TaskType} (file not found)");
+                // File missing is actionable — warn but don't crash
+                Console.WriteLine($"[DelphiBootstrap] ⚠️  Model file not found, skipping: {modelInfo.TaskType}");
                 continue;
             }
 
             if (!loadedTaskTypes.Add(modelInfo.TaskType))
-            {
-                skipped.Add($"{modelInfo.TaskType} (duplicate enabled row)");
                 continue;
-            }
 
             if (isAllowedPattern)
             {
@@ -66,10 +60,7 @@ public static class DelphiBootstrap
                 {
                     patternModels.Add(patternModel);
                     loadedPatterns.Add(modelInfo.TaskType);
-                    continue;
                 }
-
-                skipped.Add($"{modelInfo.TaskType} (allowed pattern, but failed to load)");
                 continue;
             }
 
@@ -80,22 +71,13 @@ public static class DelphiBootstrap
                 {
                     profitModels.Add(profitModel);
                     loadedProfit.Add(modelInfo.TaskType);
-                    continue;
                 }
-
-                skipped.Add($"{modelInfo.TaskType} (allowed profit, but failed to load)");
                 continue;
             }
         }
 
-        if (loadedPatterns.Count > 0)
-            Console.WriteLine($"[DelphiBootstrap] Pattern models: {string.Join(", ", loadedPatterns)}");
-
-        if (loadedProfit.Count > 0)
-            Console.WriteLine($"[DelphiBootstrap] Profit models: {string.Join(", ", loadedProfit)}");
-
-        if (skipped.Count > 0)
-            Console.WriteLine($"[DelphiBootstrap] Skipped: {string.Join(", ", skipped)}");
+        Console.WriteLine($"[DelphiBootstrap] Pattern models: {string.Join(", ", loadedPatterns)}");
+        Console.WriteLine($"[DelphiBootstrap] Profit models:  {string.Join(", ", loadedProfit)}");
 
         return new TradeDecisionEngine(patternModels, profitModels, config);
     }

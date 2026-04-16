@@ -14,9 +14,9 @@ Console.WriteLine("=== The Oracle Of Delphi ===\n");
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION (aggressive single-position rotation)
 // ═══════════════════════════════════════════════════════════════════
-decimal availableCapital = 500.00m;
+decimal availableCapital = 700.00m;
 int minBarsRequired = 55;              // Increased for enhanced features
-decimal reserveCashPercent = 0.02m;
+decimal reserveCashPercent = 0m;//0.02m;
 double minExpectedReturn = 0.00;
 int maxSymbolsToScan = 500;
 int topPicksToSave = 10;
@@ -153,23 +153,37 @@ var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.Ord
 
 int loaded = 0;
 int skipped = 0;
+int skippedPrice = 0;
+
+// Max price to guarantee at least 1 round lot (100 shares) from deployable capital
+decimal deployableCapital = availableCapital * (1 - reserveCashPercent);
+decimal maxPriceForRoundLot = Math.Floor(deployableCapital / 100m);
+
+Console.WriteLine($"Round-lot filter: max price ${maxPriceForRoundLot:N2} (100 shares × price ≤ ${deployableCapital:N2} deployable)\n");
 
 foreach (var symbol in symbols)
 {
     var bars = await quoteRepo.GetDailyBarsAsync(symbol);
 
-    if (bars.Count >= minBarsRequired)
-    {
-        allBars[symbol] = bars;
-        loaded++;
-    }
-    else
+    if (bars.Count < minBarsRequired)
     {
         skipped++;
+        continue;
     }
+
+    // Filter out stocks we can't buy in round lots
+    var lastClose = bars[^1].Close;
+    if ((decimal)lastClose > maxPriceForRoundLot)
+    {
+        skippedPrice++;
+        continue;
+    }
+
+    allBars[symbol] = bars;
+    loaded++;
 }
 
-Console.WriteLine($"Loaded: {loaded} symbols, Skipped: {skipped} (insufficient history)\n");
+Console.WriteLine($"Loaded: {loaded} symbols, Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForRoundLot:N2})\n");
 
 if (allBars.Count == 0)
 {
@@ -210,8 +224,8 @@ static double GetDownProb(RankedPick pick) => GetProb(pick, "BinaryDown10");
 // DISPLAY RANKED CANDIDATES
 // ═══════════════════════════════════════════════════════════════════
 Console.WriteLine(
-    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5} {"Gate",12}");
-Console.WriteLine(new string('─', 90));
+    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Price",7} {"Shares",6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5} {"Gate",14}");
+Console.WriteLine(new string('─', 105));
 
 int rank = 1;
 foreach (var p in top)
@@ -225,6 +239,12 @@ foreach (var p in top)
 
     string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
 
+    // Current price + how many round-lot shares we can buy
+    decimal lastPrice = allBars.TryGetValue(p.Symbol, out var bars) ? (decimal)bars[^1].Close : 0m;
+    int roundLotShares = lastPrice > 0
+        ? (int)(Math.Floor(deployableCapital / lastPrice / 100m) * 100)
+        : 0;
+
     // Show which gate blocked (if any)
     string gateStatus = "✓ All";
     if (p.GateTrace != null)
@@ -235,7 +255,7 @@ foreach (var p in top)
     }
 
     Console.WriteLine(
-        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0} {gateStatus,12}");
+        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {lastPrice,7:C2} {roundLotShares,6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0} {gateStatus,14}");
     rank++;
 }
 
