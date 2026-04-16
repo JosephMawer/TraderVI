@@ -10,12 +10,14 @@
 | Component | Purpose | Where |
 |-----------|---------|-------|
 | **Advance-Decline Line** | Market breadth / regime gate | `AdvanceDeclineCalculator` → `BreadthScore` |
-| **XIU Regime Filter** | Benchmark uptrend / 20d return gate | `TradeDecisionEngine.ComputeRegime` |
+| **XIU Regime Filter** | TSX benchmark uptrend / 20d return gate | `TradeDecisionEngine.ComputeRegime` |
+| **SPY Regime Filter** | S&P 500 cross-market confirmation | `TradeDecisionEngine.ComputeRegime` |
 | **Stop-Loss (-10%)** | Hard exit override | `TradeDecisionEngine` / Sentinel (planned) |
 | **Drawdown Warning (-5%)** | Alert / tighter monitoring | Sentinel (planned) |
 | **Down-Probability Veto** | Block longs when P(down) ≥ 20% | `AggregateAllSignals` |
+| **Down-Probability Penalty** | P(down) reduces composite score continuously | `GetCompositeScoreWithBreakdown` |
 | **Rotation Threshold** | Prevent churn; require sufficient edge delta | `PositionSizer` / future Sentinel |
-| **Pattern Confirmation** | Light check: patternSells ≤ patternBuys | `AggregateAllSignals` |
+| **Pattern Confirmation** | Require at least 1 pattern Buy when patterns exist | `AggregateAllSignals` |
 
 These components act as **gates or modifiers** on the ML-driven ranking. They are never encoded as ML features unless explicitly revisited.
 
@@ -25,10 +27,10 @@ These components act as **gates or modifiers** on the ML-driven ranking. They ar
 |-------------------|------|-----|--------|------|
 | `BreakoutEnhanced` | Binary | 0.81 | ✅ Active | Primary setup filter |
 | `BinaryUp10` | Binary | 0.70 | ✅ Active | P(up ≥ +4% in 10d) — direction |
-| `BinaryDown10` | Binary | — | ✅ Active | P(down ≤ -4% in 10d) — veto signal |
+| `BinaryDown10` | Binary | — | ✅ Active | P(down ≤ -4% in 10d) — veto + penalty signal |
 | `VolExpansionRelative10` | Binary | 0.66 | ✅ Active | Vol expansion confirmation |
 | `RelStrengthCont10_2pct` | Binary | 0.65 | ✅ Active | Cross-sectional momentum |
-| `Trend10`, `Trend30`, `MaCrossover` | Pattern | — | ✅ Active | Light confirmation only |
+| `Trend10`, `Trend30`, `MaCrossover` | Pattern | — | ✅ Active | Confirmation only (require ≥1 Buy) |
 
 ### Rejected / Disabled Models (do not re-enable without new evidence)
 
@@ -53,45 +55,22 @@ These components act as **gates or modifiers** on the ML-driven ranking. They ar
 
 | Builder | Features | Used By |
 |---------|----------|---------|
-| `AtrVolatilityBreakoutFeatureBuilder` | Price/vol sequence + ATR + breakout dist + momentum + SMA | BinaryUp10, BinaryDown10, VolExpansion, RelStrength base |
+| `AtrVolatilityBreakoutFeatureBuilder` | Price/vol sequence + ATR + breakout dist + momentum + SMA | BinaryUp10, BinaryDown10, VolExpansion base |
 | `EnhancedFeatureBuilder` | AtrVolBreakout + TrendMomentum (26 extra) | BreakoutEnhanced |
 | `MarketContextFeatureBuilder` | XIU momentum/vol/beta/relative strength (20 features) | RelStrengthCont10_2pct |
-| `DirectionFeatureBuilder` | Direction-specific features | DirUp5 variants (all disabled) |
 | `TrendMomentumFeatureBuilder` | RSI, MACD, Bollinger, OBV, relative strength vs XIU | Part of EnhancedFeatureBuilder |
 | `PriceVolumeFeatureBuilder` | Simple price/volume sequence | Pattern models |
 | `PriceWithMaFeatureBuilder` | Price + MA crossover features | MaCrossover pattern |
 
 ## Decision Flow (order matters)
 
-1. **Regime gate**: XIU uptrend OR 20d positive — else Hold
-2. **Breadth gate**: A/D BreadthScore — warn/block if strongly negative
+1. **Regime gate**: XIU OR SPY uptrend — block only if BOTH bearish
+2. **Breadth gate**: A/D BreadthScore ≤ -0.3 → Hold
 3. **Down-probability veto**: P(down) ≥ 20% → Hold
 4. **Setup filter**: BreakoutEnhanced ≥ 30%
 5. **Direction filter**: DirectionEdge (P(up) − P(down)) ≥ 5%
-6. **Buy conditions**: composite thresholds + pattern confirmation
+6. **Buy conditions**: composite thresholds + pattern confirmation (≥1 pattern Buy)
 7. **Ranking**: DirectionEdge → Composite → topN
 8. **Sizing**: SinglePositionAllIn with reserve cash
 
-## Thresholds
-
-All decision thresholds are **initial defaults** intended to be tuned based on Hercules training outputs (AUC, optimal threshold, decile lift). They are not permanent constants.
-
-| Threshold | Current Value | Location |
-|-----------|---------------|----------|
-| `minCompositeScore` | 0.35 | `AggregateAllSignals` |
-| `strongBuyThreshold` | 0.50 | `AggregateAllSignals` |
-| `minBreakoutProb` | 0.30 | `AggregateAllSignals` |
-| `minUpProb` | 0.25 | `AggregateAllSignals` |
-| `maxDownProb` | 0.20 | `AggregateAllSignals` |
-| `minDirectionEdge` | 0.05 | `AggregateAllSignals` |
-| `stopLoss` | -10% | Risk rules (not yet wired) |
-| `warningDrawdown` | -5% | Risk rules (not yet wired) |
-| `breadthVetoThreshold` | -0.3 (proposed) | `TradeDecisionEngine` |
-
-## Key Design Decisions
-
-1. **A/D Line is rule-based, not an ML feature.** It serves as a market breadth regime indicator. Do not add it to feature builders unless explicitly revisited.
-2. **Ensemble of diverse signals, not redundant models.** Each active model answers a different question (setup? direction? vol regime? relative strength?).
-3. **Stop-loss overrides everything.** No ML prediction can override the -10% hard exit.
-4. **Regression is a ranking hint only.** Do not use regression output as a primary buy/sell signal.
-5. **Pattern models are confirmation only.** They cannot generate Buy on their own.
+## Composite Formula
