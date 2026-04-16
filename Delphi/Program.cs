@@ -3,6 +3,7 @@ using Core.Indicators;
 using Core.ML;
 using Core.Runtime;
 using Core.Trader;
+using Core.Trader.Gates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,29 +18,37 @@ decimal availableCapital = 500.00m;
 int minBarsRequired = 55;              // Increased for enhanced features
 decimal reserveCashPercent = 0.02m;
 double minExpectedReturn = 0.00;
-double minConfidence = 0.35;
 int maxSymbolsToScan = 500;
 int topPicksToSave = 10;
 bool saveToDB = true;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
-Console.WriteLine($"Min Composite:     {minConfidence:P0}");
 Console.WriteLine($"Ranking Mode:      DirectionEdge-based");
 Console.WriteLine($"Save to DB:        {saveToDB}");
 Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
-// LOAD ACTIVE STRATEGY VERSION (for parameters + tracking)
+// LOAD ACTIVE STRATEGY VERSION → DERIVE RUNTIME CONFIG
 // ═══════════════════════════════════════════════════════════════════
 var strategyRepo = new StrategyVersionRepository();
 var activeStrategy = await strategyRepo.GetActiveVersion();
 
 Guid? strategyVersionId = activeStrategy?.VersionId;
+StrategyConfig config = activeStrategy?.ToConfig() ?? StrategyConfig.Default;
+
 if (activeStrategy != null)
 {
     Console.WriteLine($"Strategy Version:  {activeStrategy.VersionName}");
     Console.WriteLine($"Description:       {activeStrategy.Description}");
+    Console.WriteLine($"  MinComposite:    {config.MinCompositeScore:P0}");
+    Console.WriteLine($"  MinUpProb:       {config.MinUpProb:P0}");
+    Console.WriteLine($"  MinBreakout:     {config.MinBreakoutProb:P0}");
+    Console.WriteLine($"  MaxDownProb:     {config.MaxDownProb:P0}");
+    Console.WriteLine($"  MinDirEdge:      {config.MinDirectionEdge:P0}");
+    Console.WriteLine($"  BreadthVeto:     {config.BreadthVetoThreshold:0.00;-0.00}");
+    Console.WriteLine($"  StopLoss:        {config.StopLossPercent:P0}");
+    Console.WriteLine($"  MaxPositions:    {config.MaxPositions}");
     Console.WriteLine();
 }
 else
@@ -48,9 +57,9 @@ else
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// BOOTSTRAP ENGINE (loads enabled models from registry)
+// BOOTSTRAP ENGINE (loads enabled models from registry + strategy config)
 // ═══════════════════════════════════════════════════════════════════
-var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry();
+var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry(config);
 engine.RankingMode = RankingMode.Probability;
 
 engine.Sizer = new PositionSizer(availableCapital)
@@ -59,31 +68,38 @@ engine.Sizer = new PositionSizer(availableCapital)
     ReserveCashPercent = reserveCashPercent,
     MinPositionSize = 25m,
     MinExpectedReturn = minExpectedReturn,
-    MinConfidence = minConfidence,
+    MinConfidence = config.MinCompositeScore,
     RequireBothSignals = false
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// COMPUTE MARKET REGIME FROM XIU BENCHMARK
+// COMPUTE MARKET REGIME FROM XIU + SPY BENCHMARKS
 // ═══════════════════════════════════════════════════════════════════
 var quoteRepo = new QuoteRepository();
 var xiuBars = await quoteRepo.GetDailyBarsAsync("XIU");
+var spyBars = await quoteRepo.GetDailyBarsAsync("SPY");
 
 MarketRegime? regime = null;
 if (xiuBars.Count >= 200)
 {
-    regime = TradeDecisionEngine.ComputeRegime(xiuBars);
+    regime = TradeDecisionEngine.ComputeRegime(xiuBars, spyBars.Count >= 200 ? spyBars : null);
 
-    Console.WriteLine("Market Regime (XIU):");
-    Console.WriteLine($"  Uptrend (MA50>MA200): {(regime.IsBenchmarkUptrend ? "✓ Yes" : "✗ No")}");
-    Console.WriteLine($"  20d Return:           {regime.BenchmarkReturn20d:P2} {(regime.IsBenchmark20dPositive ? "✓" : "✗")}");
-    Console.WriteLine($"  Volatility:           {(regime.IsVolatilityNormal ? "Normal" : "⚠️ Elevated")}");
+    Console.WriteLine("Market Regime:");
+    Console.WriteLine($"  XIU Uptrend (MA50>MA200): {(regime.IsBenchmarkUptrend ? "✓ Yes" : "✗ No")}");
+    Console.WriteLine($"  XIU 20d Return:           {regime.BenchmarkReturn20d:P2} {(regime.IsBenchmark20dPositive ? "✓" : "✗")}");
+    Console.WriteLine($"  XIU Volatility:           {(regime.IsVolatilityNormal ? "Normal" : "⚠️ Elevated")}");
+    Console.WriteLine($"  SPY Uptrend (MA50>MA200): {(regime.IsSpyUptrend ? "✓ Yes" : "✗ No")}");
+    Console.WriteLine($"  SPY 20d Positive:         {(regime.IsSpy20dPositive ? "✓ Yes" : "✗ No")}");
+    Console.WriteLine($"  Any Benchmark Uptrend:    {(regime.IsAnyBenchmarkUptrend ? "✓ Yes" : "✗ No")}");
     Console.WriteLine();
 
-    // Warn if regime is bearish
-    if (!regime.IsBenchmarkUptrend && !regime.IsBenchmark20dPositive)
+    if (regime.IsBothBearish)
     {
-        Console.WriteLine("⚠️  BEARISH REGIME: Long trades may be filtered out.\n");
+        Console.WriteLine("⚠️  BEARISH REGIME: Both XIU and SPY are bearish. Long trades will be filtered out.\n");
+    }
+    else if (!regime.IsBenchmarkUptrend && !regime.IsBenchmark20dPositive)
+    {
+        Console.WriteLine("⚠️  XIU BEARISH but SPY positive — proceeding with caution.\n");
     }
 }
 else
@@ -91,9 +107,32 @@ else
     Console.WriteLine("⚠️  Insufficient XIU data for regime calculation.\n");
 }
 
-// Inject regime into engine
+// Inject regime into engine (thresholds already set via StrategyConfig)
 engine.CurrentRegime = regime;
-engine.RequireBenchmarkUptrend = true;
+
+
+// ═══════════════════════════════════════════════════════════════════
+// LOAD A/D LINE BREADTH — WIRE IN BEFORE EVALUATION
+// ═══════════════════════════════════════════════════════════════════
+var adRepo = new AdvanceDeclineRepository();
+var adLine = await adRepo.GetRecentAsync(200);
+double breadthScore = AdvanceDeclineCalculator.BreadthScore(adLine);
+bool bearishDivergence = AdvanceDeclineCalculator.HasBearishDivergence(adLine);
+
+// Inject breadth into engine BEFORE evaluation
+engine.BreadthScore = breadthScore;
+
+Console.WriteLine($"A/D Line Breadth Score: {breadthScore:+0.00;-0.00}");
+Console.WriteLine($"  Slope (20d):         {AdvanceDeclineCalculator.Slope(adLine):+0.0;-0.0}");
+Console.WriteLine($"  Above SMA(50):       {(AdvanceDeclineCalculator.IsAboveSma(adLine) ? "✓" : "✗")}");
+Console.WriteLine($"  Bearish Divergence:  {(bearishDivergence ? "⚠️ YES" : "No")}");
+
+if (breadthScore <= engine.BreadthVetoThreshold)
+{
+    Console.WriteLine($"  ⚠️  BREADTH VETO ACTIVE (score {breadthScore:+0.00} ≤ {engine.BreadthVetoThreshold:+0.00})");
+}
+
+Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
 // LOAD ALL SYMBOLS FROM DATABASE
@@ -139,27 +178,16 @@ if (allBars.Count == 0)
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// EVALUATE + PICK BEST SINGLE TRADE + SIZE IT
+// EVALUATE + RANK (SINGLE PASS) + PICK BEST + SIZE IT
 // ═══════════════════════════════════════════════════════════════════
-var (bestPick, size) = engine.EvaluateBestPickAllIn(allBars, availableCapital);
+var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
+var (bestPick, size) = engine.EvaluateBestPickAllIn(top, availableCapital);
 
 Console.WriteLine(new string('═', 80));
 Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - DIRECTION EDGE RANKING");
 Console.WriteLine(new string('═', 80));
 
 Console.WriteLine("\nTop Ranked Candidates:");
-var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
-
-// Load A/D Line breadth confirmation
-var adRepo = new AdvanceDeclineRepository();
-var adLine = await adRepo.GetRecentAsync(200);
-double breadthScore = AdvanceDeclineCalculator.BreadthScore(adLine);
-bool bearishDivergence = AdvanceDeclineCalculator.HasBearishDivergence(adLine);
-
-Console.WriteLine($"A/D Line Breadth Score: {breadthScore:+0.00;-0.00}");
-Console.WriteLine($"  Slope (20d):         {AdvanceDeclineCalculator.Slope(adLine):+0.0;-0.0}");
-Console.WriteLine($"  Above SMA(50):       {(AdvanceDeclineCalculator.IsAboveSma(adLine) ? "✓" : "✗")}");
-Console.WriteLine($"  Bearish Divergence:  {(bearishDivergence ? "⚠️ YES" : "No")}");
 
 // ═══════════════════════════════════════════════════════════════════
 // HELPER FUNCTIONS
@@ -174,13 +202,7 @@ static double GetProbContains(RankedPick pick, string nameContains) =>
         .FirstOrDefault(s => s.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase))
         ?.Score ?? 0;
 
-static double GetBreakoutProb(RankedPick pick)
-{
-    double enhanced = GetProb(pick, "BreakoutEnhanced");
-    if (enhanced > 0) return enhanced;
-    return GetProb(pick, "BreakoutPriorHigh10");
-}
-
+static double GetBreakoutProb(RankedPick pick) => GetProb(pick, "BreakoutEnhanced");
 static double GetUpProb(RankedPick pick) => GetProb(pick, "BinaryUp10");
 static double GetDownProb(RankedPick pick) => GetProb(pick, "BinaryDown10");
 
@@ -188,8 +210,8 @@ static double GetDownProb(RankedPick pick) => GetProb(pick, "BinaryDown10");
 // DISPLAY RANKED CANDIDATES
 // ═══════════════════════════════════════════════════════════════════
 Console.WriteLine(
-    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5}");
-Console.WriteLine(new string('─', 80));
+    $"{"#",-3} {"Symbol",-8} {"Action",-6} {"Comp",6} {"Break",6} {"P↑",5} {"P↓",5} {"Edge",6} {"Vol",5} {"RelS",5} {"Gate",12}");
+Console.WriteLine(new string('─', 90));
 
 int rank = 1;
 foreach (var p in top)
@@ -203,8 +225,17 @@ foreach (var p in top)
 
     string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
 
+    // Show which gate blocked (if any)
+    string gateStatus = "✓ All";
+    if (p.GateTrace != null)
+    {
+        var blocked = p.GateTrace.FirstOrDefault(g => !g.Passed);
+        if (blocked.Reason != null)
+            gateStatus = $"✗ {blocked.GateName}";
+    }
+
     Console.WriteLine(
-        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0}");
+        $"{rank,-3} {p.Symbol,-8} {p.Direction,-6} {p.CompositeScore,6:P0} {breakout,6:P0} {pUp,5:P0} {pDown,5:P0} {edgeStr,6} {volExp,5:P0} {relStr,5:P0} {gateStatus,12}");
     rank++;
 }
 
@@ -292,10 +323,19 @@ Console.WriteLine($"Position:");
 Console.WriteLine($"  Allocate:      {size.SuggestedSize:C2} ({size.AllocationPercent:P1})");
 Console.WriteLine($"  Reason:        {size.Reason}");
 
+Console.WriteLine("\nGate Pipeline (best pick):");
+if (bestPick.GateTrace != null)
+{
+    foreach (var g in bestPick.GateTrace)
+    {
+        string icon = g.Passed ? "✓" : "✗";
+        string reason = g.Reason ?? "Passed";
+        Console.WriteLine($"  {icon} {g.GateName,-18} {reason}");
+    }
+}
+
 Console.WriteLine("\nAll Signals (best pick):");
 foreach (var s in bestPick.Signals)
 {
     Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
 }
-
-Console.WriteLine("\n=== Done ===");
