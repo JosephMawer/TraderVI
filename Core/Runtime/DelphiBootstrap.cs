@@ -12,13 +12,13 @@ namespace Core.Runtime;
 
 public static class DelphiBootstrap
 {
-    public static async Task<TradeDecisionEngine> BuildTradeDecisionEngineFromRegistry()
+    public static async Task<TradeDecisionEngine> BuildTradeDecisionEngineFromRegistry(
+        StrategyConfig? config = null)
     {
         var repo = new ModelRegistryRepository();
         var enabledModels = await repo.GetEnabledModels();
 
         // Only allow models that exist in the current registries.
-        // This implicitly enforces "toggle flags" because registry "All" lists only include enabled definitions.
         var allowedPatternTaskTypes = PatternRegistry.All
             .Select(p => p.TaskType)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -34,12 +34,10 @@ public static class DelphiBootstrap
         var loadedProfit = new List<string>();
         var skipped = new List<string>();
 
-        // Avoid double-loading same TaskType (DB can contain multiple enabled rows if previous runs left data behind).
         var loadedTaskTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var modelInfo in enabledModels)
         {
-            // Skip enabled DB rows that are not currently enabled by our code registries (toggle flags).
             bool isAllowedPattern = allowedPatternTaskTypes.Contains(modelInfo.TaskType);
             bool isAllowedProfit = allowedProfitTaskTypes.Contains(modelInfo.TaskType);
 
@@ -61,7 +59,6 @@ public static class DelphiBootstrap
                 continue;
             }
 
-            // If task type is allowed as pattern, only try pattern loading.
             if (isAllowedPattern)
             {
                 var patternModel = UnifiedPatternSignalModel.FromRegistryInfo(modelInfo);
@@ -76,7 +73,6 @@ public static class DelphiBootstrap
                 continue;
             }
 
-            // If task type is allowed as profit, only try profit loading.
             if (isAllowedProfit)
             {
                 var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
@@ -101,6 +97,6 @@ public static class DelphiBootstrap
         if (skipped.Count > 0)
             Console.WriteLine($"[DelphiBootstrap] Skipped: {string.Join(", ", skipped)}");
 
-        return new TradeDecisionEngine(patternModels, profitModels);
+        return new TradeDecisionEngine(patternModels, profitModels, config);
     }
 }
