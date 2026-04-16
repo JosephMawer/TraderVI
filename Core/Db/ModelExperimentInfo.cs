@@ -515,7 +515,9 @@ public class StrategyVersionRepository : SQLBase
 {
     public StrategyVersionRepository() : base("[dbo].[StrategyVersion]",
         "[VersionId],[VersionName],[Description],[IsActive],[MinCompositeScore],[MinDirectionProb]," +
-        "[RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions],[CreatedUtc],[Notes]")
+        "[RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions]," +
+        "[MinBreakoutProb],[MinDirectionEdge],[MaxDownProb],[BreadthVetoThreshold]," +
+        "[StrongBreakoutOverride],[StrongEdgeOverride],[CreatedUtc],[Notes]")
     { }
 
     public async Task<StrategyVersionInfo?> GetActiveVersion()
@@ -542,7 +544,6 @@ public class StrategyVersionRepository : SQLBase
 
     public async Task SetActiveVersion(string versionName)
     {
-        // Deactivate all, then activate the specified one
         var query = @"
 UPDATE [dbo].[StrategyVersion] SET [IsActive] = 0;
 UPDATE [dbo].[StrategyVersion] SET [IsActive] = 1 WHERE [VersionName] = @VersionName;";
@@ -561,6 +562,12 @@ UPDATE [dbo].[StrategyVersion] SET [IsActive] = 1 WHERE [VersionName] = @Version
         double? stopLossPercent = -0.10,
         double? warningPercent = -0.05,
         int? maxPositions = 1,
+        double? minBreakoutProb = 0.30,
+        double? minDirectionEdge = 0.05,
+        double? maxDownProb = 0.20,
+        double? breadthVetoThreshold = -0.30,
+        double? strongBreakoutOverride = 0.60,
+        double? strongEdgeOverride = 0.10,
         string? notes = null)
     {
         var versionId = Guid.NewGuid();
@@ -568,10 +575,14 @@ UPDATE [dbo].[StrategyVersion] SET [IsActive] = 1 WHERE [VersionName] = @Version
         var query = $@"
 INSERT INTO {DbName}
 ([VersionId],[VersionName],[Description],[IsActive],[MinCompositeScore],[MinDirectionProb],
- [RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions],[Notes])
+ [RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions],
+ [MinBreakoutProb],[MinDirectionEdge],[MaxDownProb],[BreadthVetoThreshold],
+ [StrongBreakoutOverride],[StrongEdgeOverride],[Notes])
 VALUES
 (@VersionId,@VersionName,@Description,@IsActive,@MinCompositeScore,@MinDirectionProb,
- @RegressionVeto,@StopLossPercent,@WarningPercent,@MaxPositions,@Notes);";
+ @RegressionVeto,@StopLossPercent,@WarningPercent,@MaxPositions,
+ @MinBreakoutProb,@MinDirectionEdge,@MaxDownProb,@BreadthVetoThreshold,
+ @StrongBreakoutOverride,@StrongEdgeOverride,@Notes);";
 
         await Insert(query,
         [
@@ -585,6 +596,12 @@ VALUES
             new SqlParameter("@StopLossPercent", SqlDbType.Float) { Value = (object?)stopLossPercent ?? DBNull.Value },
             new SqlParameter("@WarningPercent", SqlDbType.Float) { Value = (object?)warningPercent ?? DBNull.Value },
             new SqlParameter("@MaxPositions", SqlDbType.Int) { Value = (object?)maxPositions ?? DBNull.Value },
+            new SqlParameter("@MinBreakoutProb", SqlDbType.Float) { Value = (object?)minBreakoutProb ?? DBNull.Value },
+            new SqlParameter("@MinDirectionEdge", SqlDbType.Float) { Value = (object?)minDirectionEdge ?? DBNull.Value },
+            new SqlParameter("@MaxDownProb", SqlDbType.Float) { Value = (object?)maxDownProb ?? DBNull.Value },
+            new SqlParameter("@BreadthVetoThreshold", SqlDbType.Float) { Value = (object?)breadthVetoThreshold ?? DBNull.Value },
+            new SqlParameter("@StrongBreakoutOverride", SqlDbType.Float) { Value = (object?)strongBreakoutOverride ?? DBNull.Value },
+            new SqlParameter("@StrongEdgeOverride", SqlDbType.Float) { Value = (object?)strongEdgeOverride ?? DBNull.Value },
             new SqlParameter("@Notes", SqlDbType.NVarChar, -1) { Value = (object?)notes ?? DBNull.Value }
         ]);
 
@@ -603,8 +620,14 @@ VALUES
         StopLossPercent = reader.IsDBNull(7) ? null : reader.GetDouble(7),
         WarningPercent = reader.IsDBNull(8) ? null : reader.GetDouble(8),
         MaxPositions = reader.IsDBNull(9) ? null : reader.GetInt32(9),
-        CreatedUtc = reader.GetDateTime(10),
-        Notes = reader.IsDBNull(11) ? null : reader.GetString(11)
+        MinBreakoutProb = reader.IsDBNull(10) ? null : reader.GetDouble(10),
+        MinDirectionEdge = reader.IsDBNull(11) ? null : reader.GetDouble(11),
+        MaxDownProb = reader.IsDBNull(12) ? null : reader.GetDouble(12),
+        BreadthVetoThreshold = reader.IsDBNull(13) ? null : reader.GetDouble(13),
+        StrongBreakoutOverride = reader.IsDBNull(14) ? null : reader.GetDouble(14),
+        StrongEdgeOverride = reader.IsDBNull(15) ? null : reader.GetDouble(15),
+        CreatedUtc = reader.GetDateTime(16),
+        Notes = reader.IsDBNull(17) ? null : reader.GetString(17)
     };
 }
 
