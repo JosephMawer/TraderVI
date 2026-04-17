@@ -117,8 +117,65 @@ XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based)        ←
 
 | Program | Runs | Reads | Writes |
 |---------|------|-------|--------|
-| **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]` |
+| **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
-| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]` | `[DailyPick]`, console output |
+| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, console output |
 | **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
 | **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |
+
+## Granville Market Timing Layer
+
+TraderVI is incrementally implementing Granville's day-to-day market indicators as a **rule-based**
+overlay on top of the ML ranking stack.
+
+### Active Granville groups
+
+- **Plurality (#1–#4)** — based on advance/decline breadth vs `XIU`
+- **Disparity (#5–#6)** — TSX-adapted real-economy divergence signal
+
+### Disparity adaptation for TSX
+
+Granville's original Disparity concept used **Dow Transports vs Dow Industrials**.
+On the TSX, that exact structure does not exist, so TraderVI uses a modernized equivalent:
+
+- **Cyclical basket**: `Energy + Industrials + Materials`
+- **Benchmark**: `XIU`
+- **Timeframes**:
+  - 1-day percent change
+  - 5-day rolling return
+
+Interpretation:
+- cyclical basket weaker than `XIU` → short-term bearish divergence
+- cyclical basket stronger than `XIU` → short-term bullish confirmation
+
+`XIU` is intentionally used for now because it is already available in the breadth/Granville pipeline.
+A future revision could swap this to the raw TSX 60 index symbol if needed.
+
+## TSX Sector Map
+
+TraderVI now maintains its own stock → sector-index mapping rather than depending on TMX to expose
+direct index membership.
+
+### How it works
+
+For each active TSX stock:
+1. Hermes calls `TmxClient.GetQuoteDetailAsync(symbol)`
+2. Reads TMX `sector` and `industry`
+3. Normalizes the sector using `TsxSectorMap`
+4. Stores:
+   - stock symbol
+   - sector
+   - industry
+   - mapped TSX sector index symbol
+   - last refresh timestamp
+
+### Why this exists
+
+This gives TraderVI a stable internal lookup it controls and enables:
+- sector-relative ranking
+- sector concentration/risk checks
+- future sector leadership analysis
+- resilience if TMX naming/schema changes
+
+The stock-sector map is refreshed by Hermes only when stale (currently **7 days**), since sector
+metadata changes far less often than daily prices.
