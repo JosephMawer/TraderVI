@@ -9,19 +9,14 @@ namespace Core.TMX;
 ///
 /// NOTE: The ^TT* symbol set was discovered empirically. TMX does not publish
 /// an official directory. If a symbol stops resolving, check TMX Money for updates.
-///
-/// Known gap: Energy does not have a confirmed ^TT* sub-index symbol.
-/// We use the S&P/TSX Capped Energy ETF (XEG) as a proxy until confirmed.
-/// TODO: Verify the real TMX Energy sub-index symbol via manual GraphQL probing
-/// (try ^TTEG, ^TTEN with sector context, ^TTCE, etc.).
 /// </summary>
 public static class TsxSectorSymbols
 {
     public static readonly IReadOnlyDictionary<string, string> All = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
-        ["^TTEN"] = "S&P/TSX 60",
+        ["^TTEN"] = "Energy",              // S&P/TSX Capped Energy Index — confirmed via TMX Money
         ["^TTFS"] = "Financials",
-        ["^TTHC"] = "Health Care",        // Fixed: was incorrectly labelled "Energy"
+        ["^TTHC"] = "Health Care",         // S&P/TSX Capped Health Care Index
         ["^TTIN"] = "Industrials",
         ["^TTTK"] = "Technology",
         ["^TTUT"] = "Utilities",
@@ -39,13 +34,8 @@ public static class TsxSectorSymbols
     ///
     /// NOTE: Currently equal-weighted. May move to market-cap weighting in the future
     /// if sector sizes diverge significantly enough to distort the signal.
-    ///
-    /// NOTE: Energy was removed from the cyclical basket because there is no confirmed
-    /// ^TT* Energy sub-index symbol. Once the real symbol is discovered and verified,
-    /// add it back here. In the meantime, Industrials + Materials still represent
-    /// the core "real economy" signal on the TSX.
     /// </summary>
-    public static readonly IReadOnlyList<string> CyclicalBasket = ["^TTIN", "^TTMT"];
+    public static readonly IReadOnlyList<string> CyclicalBasket = ["^TTEN", "^TTIN", "^TTMT"];
 
     public static string[] AllSymbols => [.. All.Keys];
 

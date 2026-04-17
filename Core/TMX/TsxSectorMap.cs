@@ -35,15 +35,12 @@ public static class TsxSectorMap
         ["insurance"]             = "^TTFS",
         ["diversified financials"] = "^TTFS",
 
-        // ── Energy ──
-        // No confirmed ^TT* Energy sub-index symbol yet.
-        // Mapped to null until we discover the real symbol.
-        // TODO: Probe TMX GraphQL with ^TTEG, ^TTEN (in sector context), ^TTCE, etc.
-        // Once confirmed, update this and re-add Energy to CyclicalBasket.
-        ["energy"]                = null,
-        ["oil & gas"]             = null,
-        ["oil and gas"]           = null,
-        ["pipelines"]             = null,
+        // ── Energy (^TTEN) ──
+        // S&P/TSX Capped Energy Index — confirmed via TMX Money quote page.
+        ["energy"]                = "^TTEN",
+        ["oil & gas"]             = "^TTEN",
+        ["oil and gas"]           = "^TTEN",
+        ["pipelines"]             = "^TTEN",
 
         // ── Industrials (^TTIN) ──
         ["industrials"]           = "^TTIN",
@@ -67,7 +64,6 @@ public static class TsxSectorMap
         ["basic materials"]       = "^TTMT",
 
         // ── Health Care (^TTHC) ──
-        // TMX returns "Healthcare" (one word) — was previously unmapped.
         ["health care"]           = "^TTHC",
         ["healthcare"]            = "^TTHC",
 
@@ -106,8 +102,6 @@ public static class TsxSectorMap
         return false;
     }
 
-    /// <summary>
-    /// Returns all known TMX sector strings (for diagnostic / coverage reporting).
-    /// </summary>
+    /// <summary>All known sector strings (for diagnostics / coverage checks).</summary>
     public static IReadOnlyCollection<string> KnownSectors => SectorToIndex.Keys;
 }
