@@ -1,6 +1,7 @@
 ﻿using Core.ML;
 using Core.ML.Engine.Profit;
 using Core.Indicators;
+using Core.Indicators.Granville;
 using Core.Trader.Gates;
 using System;
 using System.Collections.Generic;
@@ -75,6 +76,13 @@ public class TradeDecisionEngine
     public double? BreadthScore { get; set; }
     public double BreadthVetoThreshold => Config.BreadthVetoThreshold;
 
+    /// <summary>
+    /// Granville's daily indicator forecast. Market-level — set once before evaluation.
+    /// When set, the composite adjustment is applied to every symbol's score and
+    /// the GranvilleGate in the pipeline uses the forecast for gating decisions.
+    /// </summary>
+    public GranvilleDailyForecast? GranvilleForecast { get; set; }
+
     public TradeDecisionEngine(IEnumerable<IStockSignalModel> patternModels)
         : this(patternModels, Enumerable.Empty<UnifiedProfitSignalModel>())
     {
@@ -127,6 +135,12 @@ public class TradeDecisionEngine
         var (composite, breakoutProb, upProb, downProb, directionEdge) =
             ComputeCompositeFromRoles(taggedSignals);
 
+        // Apply Granville composite adjustment (market-level, same for all symbols)
+        if (GranvilleForecast is not null)
+        {
+            composite = System.Math.Max(0, composite + GranvilleForecast.CompositeAdjustment);
+        }
+
         // Build gate context
         var patternHints = patternSignals
             .Where(s => s.Hint.HasValue && s.Hint != TradeDirection.Hold)
@@ -143,6 +157,7 @@ public class TradeDecisionEngine
             BreadthScore = BreadthScore,
             BreadthVetoThreshold = Config.BreadthVetoThreshold,
             RequireBenchmarkUptrend = Config.RequireBenchmarkUptrend,
+            GranvilleForecast = GranvilleForecast,
             BreakoutProb = breakoutProb,
             UpProb = upProb,
             DownProb = downProb,

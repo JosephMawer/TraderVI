@@ -28,6 +28,7 @@ public sealed class TradePipeline
     [
         new RegimeGate(),
         new BreadthGate(),
+        new GranvilleGate(),
         new DownProbabilityGate(config.MaxDownProb),
         new SetupGate(config.MinBreakoutProb),
         new DirectionGate(config.MinDirectionEdge, config.MinUpProb),

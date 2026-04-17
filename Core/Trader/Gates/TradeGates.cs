@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Indicators.Granville;
 
 namespace Core.Trader.Gates;
 
@@ -39,6 +40,12 @@ public sealed class GateContext
     public double? BreadthScore { get; init; }
     public double BreadthVetoThreshold { get; init; } = -0.3;
     public bool RequireBenchmarkUptrend { get; init; } = true;
+
+    /// <summary>
+    /// Granville's daily indicator forecast (market-level, same for all symbols in a run).
+    /// Null if Granville indicators were not computed (e.g., insufficient A/D data).
+    /// </summary>
+    public GranvilleDailyForecast? GranvilleForecast { get; init; }
 
     // ── Symbol-level (computed per symbol) ──
     public string Symbol { get; init; } = string.Empty;
