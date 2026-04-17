@@ -1,9 +1,11 @@
 ﻿using Core.Db;
 using Core.Indicators;
+using Core.Indicators.Granville;
 using Core.ML;
 using Core.Runtime;
 using Core.Trader;
 using Core.Trader.Gates;
+using Core.TMX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +21,8 @@ int minBarsRequired = 55;              // Increased for enhanced features
 decimal reserveCashPercent = 0m;//0.02m;
 double minExpectedReturn = 0.00;
 int maxSymbolsToScan = 500;
-int topPicksToSave = 10;
-bool saveToDB = true;
+int topPicksToSave = 25;
+bool saveToDB = false;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
@@ -134,6 +136,100 @@ if (breadthScore <= engine.BreadthVetoThreshold)
 }
 
 Console.WriteLine();
+
+// ═══════════════════════════════════════════════════════════════════
+// GRANVILLE'S 56 DAY-TO-DAY INDICATORS
+// ═══════════════════════════════════════════════════════════════════
+GranvilleDailyForecast? granvilleForecast = null;
+
+if (adLine.Count >= 2)
+{
+    var sectorIndexRepo = new SectorIndexRepository();
+    var stockSectorRepo = new StockSectorRepository();
+
+    // Load the cyclical basket sector snapshots required by Disparity.
+    // We pull a small recent window so 1-day and 5-day comparisons have enough history.
+    var sectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.CyclicalBasket, days: 10);
+
+    // Load the full stock → sector map now so future Granville groups can consume it
+    // without changing Delphi wiring again. Current Disparity logic does not use this yet.
+    var stockSectorMappings = await stockSectorRepo.GetAllAsync();
+
+    var granvilleContext = new GranvilleMarketContext
+    {
+        Today = adLine[^1],
+        Yesterday = adLine[^2],
+        RecentHistory = adLine,
+        SectorSnapshots = sectorSnapshots,
+        StockSectorMappings = stockSectorMappings
+    };
+
+    var granville = new GranvilleComposite();
+    granvilleForecast = granville.Evaluate(granvilleContext);
+
+    // Inject into engine BEFORE symbol evaluation
+    engine.GranvilleForecast = granvilleForecast;
+
+    // ── Display Granville original scoring ──
+    Console.WriteLine("Granville Day-to-Day Indicators:");
+    Console.WriteLine($"  Date:               {adLine[^1].Date:yyyy-MM-dd}");
+    Console.WriteLine($"  Advancers:          {adLine[^1].Advancers}");
+    Console.WriteLine($"  Decliners:          {adLine[^1].Decliners}");
+    Console.WriteLine($"  Daily Plurality:    {adLine[^1].DailyPlurality:+0;-0}");
+    Console.WriteLine($"  XIU Close:          {adLine[^1].XiuClose:F2} (prev: {adLine[^2].XiuClose:F2})");
+    Console.WriteLine($"  Sector snapshots:   {sectorSnapshots.Count}");
+    Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
+
+    if (sectorSnapshots.Count == 0)
+    {
+        Console.WriteLine("  ⚠️  No sector index snapshots loaded — Disparity will degrade to neutral/no-data.");
+    }
+
+    if (stockSectorMappings.Count == 0)
+    {
+        Console.WriteLine("  ⚠️  No stock-sector mappings loaded — future sector-aware Granville groups will be unavailable.");
+    }
+
+    Console.WriteLine();
+
+    foreach (var result in granvilleForecast.Results)
+    {
+        string icon = result.Signal switch
+        {
+            IndicatorSignal.Bullish => "📈",
+            IndicatorSignal.StrongBullish => "🚀",
+            IndicatorSignal.Bearish => "📉",
+            IndicatorSignal.StrongBearish => "🔻",
+            _ => "➖"
+        };
+        Console.WriteLine($"  {icon} [{result.IndicatorNumber:D2}] {result.Name}");
+        Console.WriteLine($"       Points: {result.GranvillePoints:+0;-0}  Signal: {result.Signal}");
+        Console.WriteLine($"       {result.Description}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine($"  Granville Summary:");
+    Console.WriteLine($"    Bullish signals:      {granvilleForecast.BullishCount}");
+    Console.WriteLine($"    Bearish signals:      {granvilleForecast.BearishCount}");
+    Console.WriteLine($"    Net Points:           {granvilleForecast.NetPoints:+0;-0}");
+    Console.WriteLine($"    Composite Adjustment: {granvilleForecast.CompositeAdjustment:+0.000;-0.000}");
+    Console.WriteLine();
+
+    // ── Log to database ──
+    if (saveToDB)
+    {
+        var granvilleLog = new GranvilleIndicatorLogRepository();
+        var evalDate = DateTime.Today;
+        await granvilleLog.DeleteByDateAsync(evalDate);
+        await granvilleLog.LogForecastAsync(evalDate, granvilleForecast);
+        Console.WriteLine($"  ✓ Granville indicators logged to [dbo].[GranvilleIndicatorLog] for {evalDate:yyyy-MM-dd}");
+        Console.WriteLine();
+    }
+}
+else
+{
+    Console.WriteLine("⚠️  Insufficient A/D line data for Granville indicators (need >= 2 entries).\n");
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // LOAD ALL SYMBOLS FROM DATABASE
@@ -370,6 +466,13 @@ Console.WriteLine($"{"═",-80}");
 Console.WriteLine($"Symbol:          {bestPick.Symbol}");
 Console.WriteLine($"Direction:       {bestPick.Direction}");
 Console.WriteLine($"Composite Score: {bestPick.CompositeScore:P1}");
+
+// Show Granville influence on composite
+if (granvilleForecast is not null)
+{
+    Console.WriteLine($"  (includes Granville adj: {granvilleForecast.CompositeAdjustment:+0.000;-0.000})");
+}
+
 Console.WriteLine();
 Console.WriteLine($"Setup Signal:");
 Console.WriteLine($"  Breakout Prob: {bestBreakout:P1}");

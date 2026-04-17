@@ -2,6 +2,7 @@
 using Core.Indicators;
 using Core.ML;
 using Core.TMX;
+using Core.TMX.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,6 +95,16 @@ static async Task RunBackfillAsync()
     // UPDATE ADVANCE-DECLINE LINE
     // ═══════════════════════════════════════════════════════════════════
     await UpdateAdvanceDeclineLineAsync(repository, constituents);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // UPDATE SECTOR INDICES
+    // ═══════════════════════════════════════════════════════════════════
+    await UpdateSectorIndicesAsync(tmx);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // REFRESH STOCK → SECTOR MAP (weekly staleness check)
+    // ═══════════════════════════════════════════════════════════════════
+    await RefreshStockSectorMapIfStaleAsync(tmx, TimeSpan.FromDays(7));
 }
 
 static async Task UpdateAdvanceDeclineLineAsync(
@@ -286,4 +297,169 @@ static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
     Console.WriteLine($"  Final value:  {last.CumulativeDifferential:+#,0;-#,0;0}");
     Console.WriteLine($"  Last XIU:     {(last.XiuClose.HasValue ? $"{last.XiuClose.Value:F2}" : "N/A")}");
     Console.WriteLine($"{'=',-62}");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SECTOR INDICES
+// ═══════════════════════════════════════════════════════════════════
+
+static async Task UpdateSectorIndicesAsync(TmxClient tmx)
+{
+    Console.WriteLine("\n── Sector Index Update ──\n");
+
+    var repo = new SectorIndexRepository();
+    var lastDate = await repo.GetLatestDateAsync();
+
+    if (lastDate.HasValue)
+        Console.WriteLine($"Last stored sector data: {lastDate.Value:yyyy-MM-dd}");
+    else
+        Console.WriteLine("No existing sector index data.");
+
+    // Skip if already collected today
+    if (lastDate.HasValue && lastDate.Value.Date >= DateTime.Today)
+    {
+        Console.WriteLine("Sector indices already up-to-date for today. ✓\n");
+        return;
+    }
+
+    try
+    {
+        var snapshots = await tmx.GetSectorIndicesAsync();
+
+        if (snapshots.Count == 0)
+        {
+            Console.WriteLine("⚠️  No sector index data returned from TMX.\n");
+            return;
+        }
+
+        Console.WriteLine($"{"Sector",-16} {"Symbol",-8} {"Price",10} {"Change",8} {"%Change",8}");
+        Console.WriteLine(new string('─', 54));
+        foreach (var s in snapshots)
+        {
+            Console.WriteLine($"{s.SectorName,-16} {s.Symbol,-8} {s.Price,10:F2} {s.PriceChange,8:+0.00;-0.00} {s.PercentChange,7:+0.00;-0.00}%");
+        }
+
+        await repo.UpsertAsync(snapshots);
+        Console.WriteLine($"\nSector indices stored: {snapshots.Count} entries for {DateTime.Today:yyyy-MM-dd} ✓\n");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"✗ Sector index collection failed: {ex.Message}\n");
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Call from RunBackfillAsync() — run weekly or on-demand since
+// sector metadata rarely changes:
+//   await RefreshStockSectorMapAsync(tmx);
+// ═══════════════════════════════════════════════════════════════════
+
+static async Task RefreshStockSectorMapAsync(TmxClient tmx)
+{
+    Console.WriteLine("\n── Stock → Sector Map Refresh ──\n");
+
+    var symbolsDb = new SymbolsRepository();
+    var sectorRepo = new StockSectorRepository();
+    var constituents = await symbolsDb.GetEquitiesAsync();
+
+    Console.WriteLine($"Refreshing sector metadata for {constituents.Count} equities...\n");
+
+    var mappings = new List<StockSectorMapping>();
+    int processed = 0;
+    int failed = 0;
+    int unmapped = 0;
+
+    foreach (var stock in constituents)
+    {
+        try
+        {
+            Console.Write($"[{processed + 1}/{constituents.Count}] {stock.Symbol,-10} ");
+
+            var detail = await tmx.GetQuoteDetailAsync(stock.Symbol);
+            var sector = detail.sector?.Trim() ?? "";
+            var industry = detail.industry?.Trim();
+
+            TsxSectorMap.TryGetSectorIndex(sector, out var sectorIndexSymbol);
+
+            mappings.Add(new StockSectorMapping(
+                Symbol: stock.Symbol,
+                Sector: string.IsNullOrEmpty(sector) ? "Unknown" : sector,
+                Industry: string.IsNullOrEmpty(industry) ? null : industry,
+                SectorIndexSymbol: sectorIndexSymbol,
+                LastUpdated: DateTime.UtcNow));
+
+            if (sectorIndexSymbol == null)
+            {
+                Console.WriteLine($"⚠️  {sector,-25} → (unmapped)");
+                unmapped++;
+            }
+            else
+            {
+                Console.WriteLine($"✓ {sector,-25} → {sectorIndexSymbol}");
+            }
+
+            processed++;
+            await Task.Delay(500); // respect rate limits
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"✗ {ex.Message}");
+            failed++;
+        }
+    }
+
+    if (mappings.Count > 0)
+        await sectorRepo.UpsertAsync(mappings);
+
+    Console.WriteLine($"\n{'=',-60}");
+    Console.WriteLine("Sector Map Refresh Complete:");
+    Console.WriteLine($"  Processed: {processed}");
+    Console.WriteLine($"  Mapped:    {processed - unmapped - failed}");
+    Console.WriteLine($"  Unmapped:  {unmapped} (sectors with no TSX index)");
+    Console.WriteLine($"  Failed:    {failed}");
+    Console.WriteLine($"{'=',-60}\n");
+
+    // Report unmapped sectors for manual review
+    if (unmapped > 0)
+    {
+        var unmappedSectors = mappings
+            .Where(m => m.SectorIndexSymbol == null)
+            .Select(m => m.Sector)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(s => s);
+
+        Console.WriteLine("Unmapped sectors (add to TsxSectorMap if an index exists):");
+        foreach (var s in unmappedSectors)
+            Console.WriteLine($"  • {s}");
+        Console.WriteLine();
+    }
+}
+
+static async Task RefreshStockSectorMapIfStaleAsync(TmxClient tmx, TimeSpan maxAge)
+{
+    Console.WriteLine("\n── Stock → Sector Map Staleness Check ──\n");
+
+    var sectorRepo = new StockSectorRepository();
+    var lastRefresh = await sectorRepo.GetLatestRefreshDateAsync();
+
+    if (!lastRefresh.HasValue)
+    {
+        Console.WriteLine("No existing stock-sector map found. Running full refresh.\n");
+        await RefreshStockSectorMapAsync(tmx);
+        return;
+    }
+
+    var age = DateTime.UtcNow - lastRefresh.Value;
+
+    Console.WriteLine($"Last stock-sector refresh: {lastRefresh.Value:yyyy-MM-dd HH:mm:ss} UTC");
+    Console.WriteLine($"Age: {age.TotalDays:F1} days");
+
+    if (age < maxAge)
+    {
+        Console.WriteLine($"Stock-sector map is fresh (< {maxAge.TotalDays:0} days). Skipping refresh. ✓\n");
+        return;
+    }
+
+    Console.WriteLine($"Stock-sector map is stale (>= {maxAge.TotalDays:0} days). Refreshing...\n");
+    await RefreshStockSectorMapAsync(tmx);
 }
