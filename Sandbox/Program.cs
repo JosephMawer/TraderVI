@@ -323,7 +323,7 @@ namespace Sandbox
         /// <returns></returns>
         static async Task GetTheAdvanceDeclineLine()
         {
-            var adLine = await Granville.GetAdvanceDeclineLine();
+            var adLine = await GranvilleLegacy.GetAdvanceDeclineLine();
             //ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write(); 
         }
         
