@@ -1,88 +1,29 @@
 ﻿using Core.Db;
-using Core.TMX;
+using Core.Runtime;
 using Core.Trader;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace TraderVI
+namespace TraderVI;
+
+internal class Program
 {
-
-    // todo: use 'Channels' to communicate between services locally
-
-
-    class Program
+    private static async Task Main(string[] args)
     {
-        /// <summary>
-        /// The main entry point for TraderVI.
-        /// Manages active trades via channels to stock alerts
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        static async Task Main(string[] args)
+        var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry();
+
+        var quoteRepo = new QuoteRepository();
+        var symbols = await new SymbolsRepository().GetSymbols();
+
+        foreach (var sym in symbols)
         {
+            var bars = await quoteRepo.GetDailyBarsAsync(sym.Symbol);
+            if (bars.Count < 30) continue;
 
-            var symbolRepository = new QuoteRepository();
-            await symbolRepository.InsertSymbol("CEU", "Test", "TSX");
+            var decision = engine.Evaluate(bars);
 
-            // start off with our ticker
-
-            var symbol = "CEU";
-            var tmx = new TmxClient();
-            var tradeManager = new TradeManager(ghost: true);
-            
-            
-            //var quote = await tmx.GetQuoteBySymbol(symbol);
-            //decimal previousClose = quote.prevClose.Value;
-
-
-
-            while (true)
-            {
-                // really this should be running in background task that pulses in stock data for 'Active Trades'
-                //var stockQuote = await tmx.GetIntradayTimeSeriesData(symbol, "minute", 5, DateTime.Now);
-                
-
-                // this loop should really just be waiting for 'Alerts' from various channels that are doing the processing
-
-
-
-            
-            }
-
-            //var option = DisplayOptions();
-            
-            //switch (option)
-            //{
-            //    case 1:
-            //        // initializes local machine with stock data to run ad hoc analysis on
-            //        Console.Clear();
-            //        Console.WriteLine("Initializing new local workspace.");
-            //        Console.WriteLine("This may take a while.");
-            //        await Import.Import.InitializeLocalWorkspace();
-            //        Console.Clear();
-            //        Console.WriteLine("Initialization was successful");
-            //        break;
-
-            //    default: 
-            //        break;
-            //}
-            
-            //var tasks = new Task[]
-            //{
-            //    new Market().GetMarketSummary(print: true),
-            //    new Market().GetMarketIndices(print: true),
-            //    new Market().GetConstituents(print: true)
-            //};
-            //Task.WaitAll(tasks);
-            //var market = new Market();
-            //await market.GetMarketSummary(print: true);
-            //await market.GetMarketIndices(print: true);
-            //await market.GetConstituents(print: true);
-
-            //Console.ReadLine();
+            if (decision.Direction != TradeDirection.Hold)
+                Console.WriteLine($"{sym.Symbol}: {decision.Direction}");
         }
-
-
     }
 }

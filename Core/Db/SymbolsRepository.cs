@@ -21,19 +21,62 @@ namespace Core.Db
         }
 
         /// <summary>
-        /// Returns a list of constituents from TSX
+        /// Returns all active symbols (stocks + ETFs).
+        /// Use <see cref="GetEquitiesAsync"/> for the stock-only trading universe.
         /// </summary>
-        /// <param name="count">Optional: the number of constituents to return</param>
-        /// <returns>The full list of constituents, if a count is provided it will return count many constituents</returns>
         public async Task<List<SymbolInfo>> GetSymbols()
-        {            
-            string query = $"SELECT {Fields} FROM {DbName}";
+        {
+            string query = $"SELECT [Symbol], [SecurityType] FROM {DbName} WHERE [IsActive] = 1";
 
             return await ExecuteReaderAsync(query, reader => new SymbolInfo
             {
-                //ShortName = reader.GetString(0),
-                Symbol = reader.GetString(0)
+                Symbol = reader.GetString(0),
+                SecurityType = reader.GetString(1)
             });
+        }
+
+        /// <summary>
+        /// Returns only active equities (excludes ETFs).
+        /// Use this for Delphi pick universe and ML training.
+        /// </summary>
+        public async Task<List<SymbolInfo>> GetEquitiesAsync()
+        {
+            string query = $"SELECT [Symbol], [SecurityType] FROM {DbName} WHERE [IsActive] = 1 AND [SecurityType] = 'Stock'";
+
+            return await ExecuteReaderAsync(query, reader => new SymbolInfo
+            {
+                Symbol = reader.GetString(0),
+                SecurityType = reader.GetString(1)
+            });
+        }
+
+        /// <summary>
+        /// Returns active symbols filtered by security type.
+        /// </summary>
+        public async Task<List<SymbolInfo>> GetBySecurityTypeAsync(string securityType)
+        {
+            string query = $"SELECT [Symbol], [SecurityType] FROM {DbName} WHERE [IsActive] = 1 AND [SecurityType] = @type";
+
+            return await ExecuteReaderAsync(query,
+                [new SqlParameter("@type", SqlDbType.NVarChar, 20) { Value = securityType }],
+                reader => new SymbolInfo
+                {
+                    Symbol = reader.GetString(0),
+                    SecurityType = reader.GetString(1)
+                });
+        }
+
+        /// <summary>
+        /// Updates the security type for a symbol (e.g. 'Stock' → 'ETF').
+        /// </summary>
+        public async Task SetSecurityTypeAsync(string symbol, string securityType)
+        {
+            string query = $"UPDATE {DbName} SET [SecurityType] = @type WHERE [Symbol] = @symbol";
+            await Update(query,
+            [
+                new SqlParameter("@type", SqlDbType.NVarChar, 20) { Value = securityType },
+                new SqlParameter("@symbol", SqlDbType.VarChar, 10) { Value = symbol }
+            ]);
         }
     }
 }

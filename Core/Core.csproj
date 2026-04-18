@@ -31,12 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Db\Scripts\" />
     <Folder Include="ML\Engine\Training\Regressors\" />
+    <Folder Include="Trader\Signals\Structure\" />
     <Folder Include="WSTrade\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\AlphaVantage.Net\AlphaVantage.Net\src\AlphaVantage.Net.Stocks\AlphaVantage.Net.Stocks.csproj" />
   </ItemGroup>
 
 </Project>

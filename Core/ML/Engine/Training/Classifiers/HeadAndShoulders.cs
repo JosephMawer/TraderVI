@@ -52,8 +52,8 @@ namespace Core.ML.Engine.Training.Classifiers
                 // 6. Example: classify the latest window
                 var engine = mlContext.Model.CreatePredictionEngine<PatternWindow, PatternPredictionResult>(model);
 
-                var latestDataset = ClassificationUtilities.BuildPatternDataset(bars, labels: new Dictionary<DateTime, bool>(), lookback);
-                var latestWindow = latestDataset.Last(); // or build specifically for last 30 days
+                var latestBars = bars.TakeLast(lookback).ToList();
+                var latestWindow = TimeSeriesUtils.BuildLiveWindow(latestBars);
 
                 var pred = engine.Predict(latestWindow);
                 Console.WriteLine($"Head-and-shoulders? {pred.PredictedLabel}, " +
@@ -62,45 +62,56 @@ namespace Core.ML.Engine.Training.Classifiers
                 return pred;
             }
 
-
         private static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
         {
             var pipeline =
-                // 1. Create a Label column from HasHeadAndShoulders
-                // mlContext.Transforms is a TransformsCatalog.
-
                 mlContext.Transforms
-
-                // CopyColumns(...) returns a ColumnCopyingEstimator (an estimator chain), not a TransformsCatalog.
-                .CopyColumns("Label", nameof(PatternWindow.HasHeadAndShoulders))
-
-                // 2. Append concatenation of your two window vectors into Features
-                .Append(mlContext.Transforms.Concatenate(
-                    "Features",
-                    nameof(PatternWindow.PriceNorm),
-                    nameof(PatternWindow.VolumeNorm)))
-
-                // 3. Optional normalization
-                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-
-                // 4. LightGBM binary classifier
-                .Append(mlContext.BinaryClassification.Trainers.LightGbm(
-                    labelColumnName: "Label",
-                    featureColumnName: "Features"));
-
-                // Mental model for ML.NET pipelines
-                // mlContext.Transforms.Something(...)
-                // → starts a transform chain(returns an estimator).
-                // After that, you always use:
-                // .Append(mlContext.Transforms.OtherThing(...))
-                // .Append(trainer)
-
-                // to keep adding steps.
-                // If you later bump into a similar error on your regression pipeline, the exact same pattern applies: first transform via mlContext.Transforms.X, then.Append(...) for all subsequent ones.
+                    .CopyColumns("Label", nameof(PatternWindow.HasHeadAndShoulders))
+                    .Append(mlContext.Transforms.NormalizeMinMax(nameof(PatternWindow.WindowPrices)))
+                    .Append(mlContext.BinaryClassification.Trainers.LightGbm(
+                        labelColumnName: "Label",
+                        featureColumnName: nameof(PatternWindow.WindowPrices)));
 
             return pipeline;
-
         }
+        //private static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
+        //{
+        //    var pipeline =
+        //        // 1. Create a Label column from HasHeadAndShoulders
+        //        // mlContext.Transforms is a TransformsCatalog.
+
+        //        mlContext.Transforms
+
+        //        // CopyColumns(...) returns a ColumnCopyingEstimator (an estimator chain), not a TransformsCatalog.
+        //        .CopyColumns("Label", nameof(PatternWindow.HasHeadAndShoulders))
+
+        //        // 2. Append concatenation of your two window vectors into Features
+        //        .Append(mlContext.Transforms.Concatenate(
+        //            "Features",
+        //            nameof(PatternWindow.PriceNorm),
+        //            nameof(PatternWindow.VolumeNorm)))
+
+        //        // 3. Optional normalization
+        //        .Append(mlContext.Transforms.NormalizeMinMax("Features"))
+
+        //        // 4. LightGBM binary classifier
+        //        .Append(mlContext.BinaryClassification.Trainers.LightGbm(
+        //            labelColumnName: "Label",
+        //            featureColumnName: "Features"));
+
+        //        // Mental model for ML.NET pipelines
+        //        // mlContext.Transforms.Something(...)
+        //        // → starts a transform chain(returns an estimator).
+        //        // After that, you always use:
+        //        // .Append(mlContext.Transforms.OtherThing(...))
+        //        // .Append(trainer)
+
+        //        // to keep adding steps.
+        //        // If you later bump into a similar error on your regression pipeline, the exact same pattern applies: first transform via mlContext.Transforms.X, then.Append(...) for all subsequent ones.
+
+        //    return pipeline;
+
+        //}
 
         /// <summary>
         /// What this classifier is doing:

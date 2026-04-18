@@ -1,5 +1,5 @@
-﻿using AlphaVantage.Net.Stocks;
-using AlphaVantage.Net.Stocks.TimeSeries;
+﻿//using AlphaVantage.Net.Stocks;
+//using AlphaVantage.Net.Stocks.TimeSeries;
 
 using Core;
 using Core.Db;
@@ -323,7 +323,7 @@ namespace Sandbox
         /// <returns></returns>
         static async Task GetTheAdvanceDeclineLine()
         {
-            var adLine = await Granville.GetAdvanceDeclineLine();
+            var adLine = await GranvilleLegacy.GetAdvanceDeclineLine();
             //ConsoleTable.From(adLine.OrderByDescending(orderBy => orderBy.Date)).Write(); 
         }
         

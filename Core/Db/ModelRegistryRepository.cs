@@ -43,6 +43,19 @@ namespace Core.Db
                 });
         }
 
+        public async Task DisableEnabledModelsForTaskType(string taskType)
+        {
+            var query = $@"
+UPDATE {DbName}
+SET [IsEnabled] = 0
+WHERE [TaskType] = @TaskType AND [IsEnabled] = 1;";
+
+            await Insert(query,
+            [
+                new SqlParameter("@TaskType", SqlDbType.NVarChar, 64) { Value = taskType }
+            ]);
+        }
+
         public async Task InsertModel(
             string name,
             string taskType,
@@ -61,6 +74,10 @@ namespace Core.Db
             DateTime? trainedToUtc,
             string? notes)
         {
+            // Ensure only one enabled model per TaskType
+            if (isEnabled)
+                await DisableEnabledModelsForTaskType(taskType);
+
             var query = $@"
 INSERT INTO {DbName}
 (
