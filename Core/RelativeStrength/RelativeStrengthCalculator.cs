@@ -33,7 +33,7 @@ public static class RelativeStrengthCalculator
         string sectorIndexSymbol,
         int zWindow = 20)
     {
-        int n = stockCloses.Count;
+        int n = System.Math.Min(stockCloses.Count, System.Math.Min(sectorCloses.Count, marketCloses.Count));
 
         // Compute return differences per horizon
         double? svs5 = ReturnDiff(stockCloses, sectorCloses, n, 5);

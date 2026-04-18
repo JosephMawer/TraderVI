@@ -99,24 +99,97 @@ Each ML model uses a **feature builder** to convert a window of daily bars into 
 ## Current Decision Flow
 XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based) ↓ pass Granville Composite (rule-based, ±0.10 adjustment) ↓ always (modifies score) Down-Probability Veto (ML P(down)) ↓ pass Setup Filter (ML BreakoutEnhanced ≥ 30%) ↓ pass Direction Filter (ML DirectionEdge ≥ 5%) ↓ pass Buy Conditions (composite thresholds + pattern check) ↓ pass Rank by DirectionEdge → RS Composite → Composite ↓ Size: SinglePositionAllIn
 
-## Future Direction
+## Granville Market Timing Layer
 
-### Near-Term (Planned)
-- **Wire A/D BreadthScore** into `TradeDecisionEngine` as a regime gate
-- **Sentinel**: Intraday monitoring with stop-loss execution and rotation triggers
-- **Backtest harness**: Walk-forward simulation using historical picks vs actual outcomes
+TraderVI is incrementally implementing Granville's day-to-day market indicators as a **rule-based**
+overlay on top of the ML ranking stack.
 
-### Medium-Term
-- **TraderVI execution**: Automated order placement via Wealthsimple API
-- **Strategy versioning**: Compare strategy versions via `[dbo].[StrategyVersions]`
-- **Threshold tuning**: Use Hercules AUC/lift outputs to set optimal thresholds per model
+### Active Granville groups
 
-### Exploratory (Not Committed)
-- Sector rotation signals (group by TSX sector, rotate into strongest)
-- Intraday features from TMX time series (requires Sentinel)
-- Earnings/event calendar integration
-- Revisit A/D line as ML feature (only if rule-based gate proves insufficient)
-- Ensemble stacking (use model outputs as features for a meta-model)
+- **Plurality (#1–#4)** — based on advance/decline breadth vs `XIU`
+- **Disparity (#5–#6)** — TSX-adapted real-economy divergence signal
+- **Leadership (#7–#10)** — market leadership quality vs directional state
+
+### Disparity adaptation for TSX
+
+Granville's original Disparity concept used **Dow Transports vs Dow Industrials**.
+On the TSX, that exact structure does not exist, so TraderVI uses a modernized equivalent:
+
+- **Cyclical basket**: `Energy + Industrials + Materials`
+- **Benchmark**: `XIU`
+- **Timeframes**:
+  - 1-day percent change
+  - 5-day rolling return
+
+Interpretation:
+- cyclical basket weaker than `XIU` → short-term bearish divergence
+- cyclical basket stronger than `XIU` → short-term bullish confirmation
+
+`XIU` is intentionally used for now because it is already available in the breadth/Granville pipeline.
+A future revision could swap this to the raw TSX 60 index symbol if needed.
+
+### Leadership adaptation for TSX
+
+Granville's Leadership concept asks: **are the most influential stocks still outperforming, or is the
+market advance (or decline) being driven by a narrowing base?** In cap-weighted indexes like the TSX,
+a few large names can sustain the index while internal participation deteriorates.
+
+TraderVI defines leadership through three complementary layers:
+
+**Layer 1 — New-High/New-Low Breadth** (`NHNL_10`):
+Are actual winners still being produced? Computed from stored OHLCV data using a 252-trading-day
+lookback via `NewHighLowCalculator`. A healthy advance shows expanding or stable new highs with
+contained new lows. Smoothed with EMA-10 to reduce daily noise.
+
+**Layer 2 — Active-Stock Breadth** (`ActiveBreadth_10`):
+Where is the urgent capital going? Top-50 stocks by **dollar volume** (price × shares, a better
+proxy for capital flow than raw share count) are fetched daily via `GetMarketMoversAsync("dollarvolume")`.
+The ratio of advancers to decliners in this basket is smoothed with EMA-10.
+
+**Layer 3 — Large-Cap Relative Strength** (`LargeCapRS_20`):
+Are the biggest names outperforming or underperforming the broad market? Measured as the 20-day
+return of XIU (TSX 60 proxy) minus the 20-day return of `^TXCE` (S&P/TSX Composite Equal Weight
+Index). Strong leaders are fine; **isolated** leaders (TSX 60 up, equal-weight down) are a warning.
+
+**Important**: `^TXCE` is the Composite Equal Weight Index, not `^TXEW` (which is TSX 60 Equal Weight).
+Both are defined in `TsxBenchmarkSymbols.cs`.
+
+**State determination** (upswing/downswing):
+These are not single up/down days. They represent directional legs defined by the composite
+leadership series:
+- **Upswing**: ≥ 2 of 3 series rising, none deeply negative (threshold: −0.10)
+- **Downswing**: ≥ 2 of 3 series falling, NHNL_10 < 0
+- **Indeterminate**: mixed or insufficient data
+
+**Quality determination** (improving/deteriorating):
+The 3-point slope consistency of NHNL_10 and ActiveBreadth_10 determines whether leadership
+quality is trending up or down.
+
+**Indicator signals**:
+
+| # | Condition | Signal | Interpretation |
+|---|-----------|--------|----------------|
+| **7** | Quality deteriorates + upswing | Bearish (−1) | Near-term decline likely |
+| **8** | Quality deteriorates + downswing | Bullish (+2) | Near-term advance likely (exhaustion) |
+| **9** | Quality improves + downswing | StrongBearish (−1) | Decline likely to continue |
+| **10** | Quality improves + upswing | StrongBullish (+2) | Advance likely to continue |
+
+**Data pipeline**:
+- Hermes stores daily `LeadershipSnapshot` to `[dbo].[LeadershipData]`
+- Delphi loads 50-day history → `LeadershipCalculator` → `LeadershipIndicators`
+- Graceful degradation: neutral signal if < 12 days of history available
+
+### Composite point range
+
+The `GranvilleComposite` normalizes net Granville points to a `CompositeAdjustment` in
+[−0.10, +0.10]. The theoretical raw point range across all active groups:
+
+| Group | Max Bullish | Max Bearish |
+|-------|------------|------------|
+| Plurality (#1–#4) | +4 | −2 |
+| Disparity (#5–#6) | +2 | −2 |
+| Leadership (#7–#10) | +4 | −2 |
+| **Total** | **+10** | **−6** |
 
 ## Relative Strength Layer
 
@@ -148,34 +221,6 @@ Weights are initial defaults, intended to be tuned via Hercules feature importan
 - Stock vs XIU features are available from 2020 (full DailyBars history)
 - Stock vs Sector features are only available from sector collection start date
 - Delphi gracefully degrades: if no sector data, falls back to XIU (making RS_StockVsSector ≈ 0)
-
-## Granville Market Timing Layer
-
-TraderVI is incrementally implementing Granville's day-to-day market indicators as a **rule-based**
-overlay on top of the ML ranking stack.
-
-### Active Granville groups
-
-- **Plurality (#1–#4)** — based on advance/decline breadth vs `XIU`
-- **Disparity (#5–#6)** — TSX-adapted real-economy divergence signal
-
-### Disparity adaptation for TSX
-
-Granville's original Disparity concept used **Dow Transports vs Dow Industrials**.
-On the TSX, that exact structure does not exist, so TraderVI uses a modernized equivalent:
-
-- **Cyclical basket**: `Energy + Industrials + Materials`
-- **Benchmark**: `XIU`
-- **Timeframes**:
-  - 1-day percent change
-  - 5-day rolling return
-
-Interpretation:
-- cyclical basket weaker than `XIU` → short-term bearish divergence
-- cyclical basket stronger than `XIU` → short-term bullish confirmation
-
-`XIU` is intentionally used for now because it is already available in the breadth/Granville pipeline.
-A future revision could swap this to the raw TSX 60 index symbol if needed.
 
 ## TSX Sector Map
 
@@ -211,6 +256,19 @@ For each active TSX stock:
 | `^TTRE` | Real Estate | ⚠️ Verify |
 | `^TTTS` | Communication Services | ⚠️ Verify |
 
+### Benchmark index symbols
+
+| Symbol | Index | Usage |
+|--------|-------|-------|
+| `^GSPTSE` | S&P/TSX Composite | Broad-market benchmark |
+| `^TX60` | S&P/TSX 60 | Large-cap leadership proxy |
+| `^TXCE` | S&P/TSX Composite Equal Weight | Breadth comparison for Leadership indicators |
+| `XIU` | iShares S&P/TSX 60 ETF | Tradable TSX 60 proxy (used throughout system) |
+
+**Important**: `^TXCE` ≠ `^TXEW`. TXCE is the **Composite** equal-weight; TXEW is the **TSX 60** equal-weight. For leadership analysis, the Composite equal-weight is correct because we want to compare cap-weighted leadership against the full breadth of the Composite universe.
+
+Defined in `Core/TMX/TsxBenchmarkSymbols.cs`.
+
 ### Why this exists
 
 This gives TraderVI a stable internal lookup it controls and enables:
@@ -227,7 +285,7 @@ metadata changes far less often than daily prices.
 ### Near-Term (Active)
 - **RS backfill** for Hercules training (stock-vs-XIU first)
 - **Hercules RS features** — retrain models with RS columns
-- **Granville Leadership (#7–#8)** — next indicator group
+- **Granville Features (#11+)** — next indicator group
 
 ### Medium-Term (Planned)
 - **Sentinel**: Intraday monitoring with stop-loss execution and rotation triggers
@@ -248,8 +306,7 @@ metadata changes far less often than daily prices.
 
 | Program | Runs | Reads | Writes |
 |---------|------|-------|--------|
-| **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[RelativeStrengthFeatures]` (planned) |
+| **Hermes** | Daily (post-close) | TMX API, `[DailyBars]` | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]`, `[RelativeStrengthFeatures]` (planned) |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
-| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, console output |
+| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, console output |
 | **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
-| **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |

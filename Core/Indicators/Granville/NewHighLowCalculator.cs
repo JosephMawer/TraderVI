@@ -77,7 +77,7 @@ public static class NewHighLowCalculator
 
                 issuesTraded++;
 
-                int lookbackStart = Math.Max(0, todayIdx - LookbackDays);
+                int lookbackStart = System.Math.Max(0, todayIdx - LookbackDays);
                 float priorHigh = float.MinValue;
                 float priorLow = float.MaxValue;
 

@@ -409,20 +409,18 @@ Console.WriteLine(
     $"  {"",6}" +
     $"  {"BreakoutEnhanced",12}" +
     $"  {"BinaryUp10  BinaryDown10",23}" +
-    $"  {"VolExp10",8} {"RelStr10",8}" +
+    $"  {"VolExp10",8} {"RS",9}" +
     $"  {"MaCross Trnd30 Trnd10",21}" +
-    $"  {"",14}" +
-    $"  {"RS",7}");
+    $"  {"",18}");
 Console.WriteLine(
     $"{"#",-3}  {"Symbol",-8}  {"Action",-6}  {"Price",7} {"Shrs",5} {"Vol20d",8}" +
     $"  {"Comp",6}" +
     $"  {"Brk%",6} {"BrkRaw",7}" +
     $"  {"P(Up)",6} {"P(Dn)",6} {"Edge",6}" +
-    $"  {"Vol%",6} {"RS%",6}" +
+    $"  {"Vol%",6} {"RScomp",9}" +
     $"  {"MA",3} {"T30",4} {"T10",4}" +
-    $"  {"Gate",18}" +
-    $"  {"RScomp",7}");
-Console.WriteLine(new string('─', 148));
+    $"  {"Gate",18}");
+Console.WriteLine(new string('─', 140));
 
 int rank = 1;
 foreach (var p in top)
@@ -432,7 +430,6 @@ foreach (var p in top)
     double pDown = GetDownProb(p);
     double edge = pUp - pDown;
     double volExp = GetProbContains(p, "VolExpansion");
-    double relStr = GetProbContains(p, "RelStrength");
 
     double rsComposite = rsScores.TryGetValue(p.Symbol, out var rsRow) && rsRow.CompositeScore.HasValue
         ? rsRow.CompositeScore.Value
@@ -465,10 +462,9 @@ foreach (var p in top)
         $"  {p.CompositeScore,6:P0}" +
         $"  {breakout,6:P0} {breakout,7:P1}" +
         $"  {pUp,6:P0} {pDown,6:P0} {edgeStr,6}" +
-        $"  {volExp,6:P0} {relStr,6:P0}" +
+        $"  {volExp,6:P0} {rsComposite,9:+0.000;-0.000}" +
         $"  {maCross,3} {trend30,4} {trend10,4}" +
-        $"  {gateStatus,-18}" +
-        $"  {rsComposite,7:+0.000;-0.000}");
+        $"  {gateStatus,-18}");
     rank++;
 }
 
@@ -577,7 +573,6 @@ if (bestPick.GateTrace != null)
         string icon = g.Passed ? "✓" : "✗";
         string reason = g.Reason ?? "Passed";
         Console.WriteLine($"  {icon} {g.GateName,-18} {reason}");
-    }
 }
 
 Console.WriteLine("\nAll Signals (best pick):");
