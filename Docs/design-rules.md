@@ -22,6 +22,14 @@
 
 These components act as **gates or modifiers** on the ML-driven ranking. They are never encoded as ML features unless explicitly revisited.
 
+### Hybrid Components (Rule-Based + ML)
+
+| Component | Rule-Based Usage | ML Usage | Where |
+|-----------|-----------------|----------|-------|
+| **Relative Strength** | Ranking signal via `CompositeScore`; future gating (deferred) | Feature columns for LightGBM training (planned) | `Core.RelativeStrength.*` |
+
+RS is explicitly designed to serve both roles. The rule-based ranking is active now; ML integration requires Hercules retraining after historical backfill.
+
 ### Granville's 56 Day-to-Day Indicators
 
 Market-level rule-based indicators from Granville's "A Strategy of Daily Stock Market Timing."
@@ -90,6 +98,29 @@ This mapping is authoritative for app logic such as:
 - fallback sector aggregation if TMX index symbols change
 
 Hermes refreshes the stock-sector map on a **staleness schedule** rather than every daily run.
+
+### Relative Strength rules
+
+RS features are computed from three axes:
+- **Stock vs Sector** — stock return minus sector index return
+- **Stock vs Market** — stock return minus XIU return
+- **Sector vs Market** — sector index return minus XIU return
+
+Across horizons: **5d, 10d, 20d, 60d**
+
+Plus volatility-normalized Z-scores: `RS_Z = (RS_today - mean(RS_20d)) / std(RS_20d)`
+
+**Lifecycle**:
+- **Delphi** computes live for today's inference (does NOT read from DB)
+- **Hermes** backfills historical values to `[dbo].[RelativeStrengthFeatures]` for Hercules training
+- **Hercules** pulls from DB and includes as LightGBM feature columns (planned)
+
+**Composite score**: `0.5 × RS_StockVsMarket_10d + 0.3 × RS_StockVsSector_10d + 0.2 × RS_SectorVsMarket_10d`
+- Weights are initial defaults, intended to be tuned via Hercules feature importance analysis.
+
+**Backfill note**: Stock-vs-market RS is fully backfillable (XIU history exists since 2020). Stock-vs-sector RS is only backfillable from when Hermes started collecting `[SectorIndices]`.
+
+### Composite score formula
 
 Where Granville_adjustment ∈ [−0.10, +0.10], derived from net Granville points normalized
 across all implemented indicator groups. Currently **Plurality (#1–#4) and Disparity (#5–#6)** contribute.
