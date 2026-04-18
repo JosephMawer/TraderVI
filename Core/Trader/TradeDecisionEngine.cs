@@ -83,6 +83,13 @@ public class TradeDecisionEngine
     /// </summary>
     public GranvilleDailyForecast? GranvilleForecast { get; set; }
 
+    /// <summary>
+    /// Live-computed relative strength scores, keyed by symbol.
+    /// Set by Delphi before calling EvaluateAndRank.
+    /// Used as a secondary ranking signal alongside DirectionEdge.
+    /// </summary>
+    public Dictionary<string, double>? RsCompositeScores { get; set; }
+
     public TradeDecisionEngine(IEnumerable<IStockSignalModel> patternModels)
         : this(patternModels, Enumerable.Empty<UnifiedProfitSignalModel>())
     {
@@ -283,6 +290,7 @@ public class TradeDecisionEngine
             RankingMode.Probability => picks
                 .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
                 .ThenByDescending(p => p.DirectionEdge)
+                .ThenByDescending(p => RsCompositeScores?.GetValueOrDefault(p.Symbol, 0) ?? 0)
                 .ThenByDescending(p => p.CompositeScore)
                 .Take(topN)
                 .ToList(),
