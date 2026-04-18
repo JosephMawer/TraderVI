@@ -37,6 +37,16 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyList<StockSectorMapping>? StockSectorMappings { get; init; }
 
+    // ── Leadership data (for Leadership indicators #7–#10) ──
+
+    /// <summary>
+    /// Recent leadership snapshots (up to ~50 trading days, ascending by date).
+    /// Used by <see cref="LeadershipIndicators"/> to compute smoothed series and
+    /// determine leadership state (upswing/downswing) and quality (improving/deteriorating).
+    /// Null if leadership data is not yet available (graceful degradation).
+    /// </summary>
+    public IReadOnlyList<LeadershipSnapshot>? LeadershipHistory { get; init; }
+
     // ── Future data sources will be added here as we implement more groups ──
     // e.g., gold prices, odd-lot data, volume breakdowns, etc.
 }

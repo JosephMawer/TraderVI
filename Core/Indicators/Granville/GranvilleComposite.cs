@@ -31,8 +31,7 @@ public sealed class GranvilleComposite
         [
             new PluralityIndicators(),
             new DisparityIndicators(),
-            // future: new LeadershipIndicators(),
-            // etc.
+            new LeadershipIndicators(),
         ];
     }
 
@@ -59,9 +58,6 @@ public sealed class GranvilleComposite
         int netPoints = allResults.Sum(r => r.GranvillePoints);
 
         // Normalize to a composite adjustment in [-MaxCompositeAdjustment, +MaxCompositeAdjustment].
-        // Current max raw points from plurality alone: +4 (two bullish indicators at +2 each)
-        // or -2 (two bearish at -1 each). As more groups come online, this denominator
-        // should be updated to reflect the total possible point range.
         int totalIndicatorsImplemented = allResults.Count(r => r.Signal != IndicatorSignal.Neutral);
         double adjustment = totalIndicatorsImplemented > 0
             ? System.Math.Clamp((double)netPoints / MaxRawPointRange(), -MaxCompositeAdjustment, MaxCompositeAdjustment)
@@ -81,13 +77,11 @@ public sealed class GranvilleComposite
     /// </summary>
     private static double MaxRawPointRange()
     {
-        // Plurality: max bullish = +4 (indicators #2 and #4), max bearish = -2 (indicators #1 and #3)
-        // Disparity: max bullish = +2 (indicators #6 × 2 timeframes), max bearish = -2 (indicators #5 × 2 timeframes)
-        // Combined theoretical range: [-4, +6]
+        // Plurality:   max bullish = +4 (#2 and #4), max bearish = -2 (#1 and #3)
+        // Disparity:   max bullish = +2 (#6 × 2 timeframes), max bearish = -2 (#5 × 2 timeframes)
+        // Leadership:  max bullish = +4 (#8 and #10), max bearish = -2 (#7 and #9)
+        // Combined theoretical range: [-6, +10]
         // Use the wider absolute value for normalization headroom.
-        return 6.0;
-
-        // TODO: Update when adding more groups. Example:
-        // Plurality(4) + Disparity(4) + Leadership(?) + ... = total range
+        return 10.0;
     }
 }
