@@ -31,6 +31,12 @@ These are hand-coded logic gates that override or modulate the ML signals:
 
 **Key decision**: The A/D Line is maintained as a **rule-based regime indicator**, not a direct ML feature. This was explicitly decided because breadth is best used as a binary/graded gate, not a noisy input to gradient boosting.
 
+### Hybrid Components
+
+| Component | Rule-Based | ML | Status |
+|-----------|-----------|-----|--------|
+| **Relative Strength** | Ranking signal + future gating | LightGBM feature columns | Ranking active; ML planned after backfill |
+
 ### ML Components
 
 These are trained models that produce probability scores:
@@ -51,7 +57,7 @@ These are trained models that produce probability scores:
 
 **How they combine:**
 - `DirectionEdge = P(up) - P(down)` — primary ranking metric
-- `Composite = 0.40×Breakout + 0.25×Up + 0.15×VolExp + 0.10×RelStr + 0.10×ensemble avg`
+- `Composite = 0.40×Breakout + 0.25×Up + 0.15×VolExp + 0.10×RelStr + 0.10×ensemble avg + Granville adj`
 - Breakout is the "setup filter" (gate), direction edge is the "conviction meter"
 
 ## Feature Builders
@@ -91,8 +97,7 @@ Each ML model uses a **feature builder** to convert a window of daily bars into 
 - Tail-event models (≥ +4%, ≤ -4%) work better than direction (> 0) models
 
 ## Current Decision Flow
-XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based)        ← being wired in ↓ pass Down-Probability Veto (ML P(down)) ↓ pass Setup Filter (ML BreakoutEnhanced ≥ 30%) ↓ pass Direction Filter (ML DirectionEdge ≥ 5%) ↓ pass Buy Conditions (composite thresholds + pattern check) ↓ pass Rank by DirectionEdge → Composite ↓ Size: SinglePositionAllIn
-
+XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based) ↓ pass Granville Composite (rule-based, ±0.10 adjustment) ↓ always (modifies score) Down-Probability Veto (ML P(down)) ↓ pass Setup Filter (ML BreakoutEnhanced ≥ 30%) ↓ pass Direction Filter (ML DirectionEdge ≥ 5%) ↓ pass Buy Conditions (composite thresholds + pattern check) ↓ pass Rank by DirectionEdge → RS Composite → Composite ↓ Size: SinglePositionAllIn
 
 ## Future Direction
 
@@ -113,15 +118,36 @@ XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based)        ←
 - Revisit A/D line as ML feature (only if rule-based gate proves insufficient)
 - Ensemble stacking (use model outputs as features for a meta-model)
 
-## Data Flow
+## Relative Strength Layer
 
-| Program | Runs | Reads | Writes |
-|---------|------|-------|--------|
-| **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` |
-| **Hercules** | Weekly / on-demand | `[DailyBars]`, `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
-| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, console output |
-| **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
-| **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |
+### Design
+
+RS measures how a stock performs relative to its sector and the market across multiple horizons:
+
+| Feature | Formula |
+|---------|---------|
+| `RS_StockVsSector_{h}d` | `Return(stock, h) - Return(sector_index, h)` |
+| `RS_StockVsMarket_{h}d` | `Return(stock, h) - Return(XIU, h)` |
+| `RS_SectorVsMarket_{h}d` | `Return(sector_index, h) - Return(XIU, h)` |
+| `RS_Z_*` | `(RS_today - mean(RS_20d)) / std(RS_20d)` |
+
+Horizons: 5d, 10d, 20d, 60d.
+
+### Composite Score
+`0.5 × RS_StockVsMarket_10d + 0.3 × RS_StockVsSector_10d + 0.2 × RS_SectorVsMarket_10d`
+
+Weights are initial defaults, intended to be tuned via Hercules feature importance.
+
+### Lifecycle
+- **Delphi**: computes live from in-memory price arrays (does not read DB)
+- **Hermes**: backfills historical to `[dbo].[RelativeStrengthFeatures]` (planned — stock-vs-XIU is fully backfillable from 2020; stock-vs-sector only from when sector collection started)
+- **Hercules**: reads from DB, includes RS columns as LightGBM features (planned)
+
+### Sector data limitation
+`[SectorIndices]` only has data from when Hermes started collecting. For historical backfill:
+- Stock vs XIU features are available from 2020 (full DailyBars history)
+- Stock vs Sector features are only available from sector collection start date
+- Delphi gracefully degrades: if no sector data, falls back to XIU (making RS_StockVsSector ≈ 0)
 
 ## Granville Market Timing Layer
 
@@ -169,13 +195,61 @@ For each active TSX stock:
    - mapped TSX sector index symbol
    - last refresh timestamp
 
+### Sector symbols
+
+| Symbol | Sector | Confirmed |
+|--------|--------|-----------|
+| `^TTEN` | Energy | ✅ TMX Money |
+| `^TTFS` | Financials | ✅ |
+| `^TTHC` | Health Care | ✅ TMX Money |
+| `^TTIN` | Industrials | ✅ |
+| `^TTTK` | Technology | ✅ |
+| `^TTUT` | Utilities | ✅ |
+| `^TTMT` | Materials | ✅ |
+| `^TTCD` | Consumer Discretionary | ⚠️ Verify |
+| `^TTCS` | Consumer Staples | ⚠️ Verify |
+| `^TTRE` | Real Estate | ⚠️ Verify |
+| `^TTTS` | Communication Services | ⚠️ Verify |
+
 ### Why this exists
 
 This gives TraderVI a stable internal lookup it controls and enables:
-- sector-relative ranking
+- sector-relative strength
 - sector concentration/risk checks
-- future sector leadership analysis
+- future Granville leadership/weighting work
 - resilience if TMX naming/schema changes
 
 The stock-sector map is refreshed by Hermes only when stale (currently **7 days**), since sector
 metadata changes far less often than daily prices.
+
+## Future Direction
+
+### Near-Term (Active)
+- **RS backfill** for Hercules training (stock-vs-XIU first)
+- **Hercules RS features** — retrain models with RS columns
+- **Granville Leadership (#7–#8)** — next indicator group
+
+### Medium-Term (Planned)
+- **Sentinel**: Intraday monitoring with stop-loss execution and rotation triggers
+- **RS gating**: Block trades with extreme negative RS Z-scores
+- **Backtest harness**: Walk-forward simulation using historical picks vs actual outcomes
+- **Strategy versioning**: Compare strategy versions via `[dbo].[StrategyVersions]`
+- **Threshold tuning**: Use Hercules AUC/lift outputs to set optimal thresholds per model
+
+### Long-Term (Exploratory)
+- **TraderVI execution**: Automated order placement via Wealthsimple API
+- Sector rotation signals (group by TSX sector, rotate into strongest)
+- Intraday features from TMX time series (requires Sentinel)
+- Earnings/event calendar integration
+- Revisit A/D line as ML feature (only if rule-based gate proves insufficient)
+- Ensemble stacking (use model outputs as features for a meta-model)
+
+## Data Flow
+
+| Program | Runs | Reads | Writes |
+|---------|------|-------|--------|
+| **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[RelativeStrengthFeatures]` (planned) |
+| **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
+| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, console output |
+| **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
+| **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |
