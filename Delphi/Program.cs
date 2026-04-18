@@ -142,25 +142,24 @@ Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 GranvilleDailyForecast? granvilleForecast = null;
 
+var sectorIndexRepo = new SectorIndexRepository();
+var stockSectorRepo = new StockSectorRepository();
+
+// Load once — reused by both Granville and RS sections
+var stockSectorMappings = await stockSectorRepo.GetAllAsync();
+
 if (adLine.Count >= 2)
 {
-    var sectorIndexRepo = new SectorIndexRepository();
-    var stockSectorRepo = new StockSectorRepository();
-
     // Load the cyclical basket sector snapshots required by Disparity.
     // We pull a small recent window so 1-day and 5-day comparisons have enough history.
-    var sectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.CyclicalBasket, days: 10);
-
-    // Load the full stock → sector map now so future Granville groups can consume it
-    // without changing Delphi wiring again. Current Disparity logic does not use this yet.
-    var stockSectorMappings = await stockSectorRepo.GetAllAsync();
+    var granvilleSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.CyclicalBasket, days: 10);
 
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
         Yesterday = adLine[^2],
         RecentHistory = adLine,
-        SectorSnapshots = sectorSnapshots,
+        SectorSnapshots = granvilleSectorSnapshots,
         StockSectorMappings = stockSectorMappings
     };
 
@@ -177,10 +176,10 @@ if (adLine.Count >= 2)
     Console.WriteLine($"  Decliners:          {adLine[^1].Decliners}");
     Console.WriteLine($"  Daily Plurality:    {adLine[^1].DailyPlurality:+0;-0}");
     Console.WriteLine($"  XIU Close:          {adLine[^1].XiuClose:F2} (prev: {adLine[^2].XiuClose:F2})");
-    Console.WriteLine($"  Sector snapshots:   {sectorSnapshots.Count}");
+    Console.WriteLine($"  Sector snapshots:   {granvilleSectorSnapshots.Count}");
     Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
 
-    if (sectorSnapshots.Count == 0)
+    if (granvilleSectorSnapshots.Count == 0)
     {
         Console.WriteLine("  ⚠️  No sector index snapshots loaded — Disparity will degrade to neutral/no-data.");
     }
@@ -297,6 +296,60 @@ if (allBars.Count == 0)
     Console.WriteLine("No symbols with sufficient data to evaluate.");
     return;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// COMPUTE LIVE RELATIVE STRENGTH (per-stock, before ranking)
+// ═══════════════════════════════════════════════════════════════════
+var stockSectorMap = stockSectorMappings
+    .ToDictionary(m => m.Symbol, m => m.SectorIndexSymbol, StringComparer.OrdinalIgnoreCase);
+
+// XIU closes (already loaded above for regime)
+var xiuCloses = xiuBars.Select(b => (double)b.Close).ToList();
+
+// Sector index closes keyed by sector symbol — wider window for RS horizons (60d + 20d Z)
+var rsSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 80);
+
+var sectorClosesBySector = rsSectorSnapshots
+    .GroupBy(s => s.Symbol, StringComparer.OrdinalIgnoreCase)
+    .ToDictionary(
+        g => g.Key,
+        g => g.OrderBy(s => s.Date).Select(s => (double)s.Price).ToList(),
+        StringComparer.OrdinalIgnoreCase);
+
+var rsScores = new Dictionary<string, Core.RelativeStrength.RelativeStrengthRow>(StringComparer.OrdinalIgnoreCase);
+
+foreach (var (symbol, bars) in allBars)
+{
+    var stockCloses = bars.Select(b => (double)b.Close).ToList();
+
+    // Determine this stock's sector index
+    string? sectorSymbol = stockSectorMap.TryGetValue(symbol, out var sec) ? sec : null;
+
+    List<double>? sectorCloses = null;
+    if (sectorSymbol != null)
+        sectorClosesBySector.TryGetValue(sectorSymbol, out sectorCloses);
+
+    // Compute RS — stock vs market always works; stock vs sector only if we have sector data.
+    // For missing sector data, use XIU as a fallback (RS_StockVsSector ≈ 0).
+    var rs = Core.RelativeStrength.RelativeStrengthCalculator.Compute(
+        stockCloses: stockCloses,
+        sectorCloses: sectorCloses ?? xiuCloses,
+        marketCloses: xiuCloses,
+        symbol: symbol,
+        date: DateOnly.FromDateTime(DateTime.Today),
+        sectorIndexSymbol: sectorSymbol ?? "XIU");
+
+    rsScores[symbol] = rs;
+}
+
+// Inject RS scores into engine before evaluation
+engine.RsCompositeScores = rsScores
+    .Where(kvp => kvp.Value.CompositeScore.HasValue)
+    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.CompositeScore!.Value, StringComparer.OrdinalIgnoreCase);
+
+Console.WriteLine($"Relative Strength: computed for {rsScores.Count} symbols ({sectorClosesBySector.Count} sectors loaded)");
+int withSector = rsScores.Count(kvp => stockSectorMap.ContainsKey(kvp.Key));
+Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsScores.Count - withSector}\n");
 
 // ═══════════════════════════════════════════════════════════════════
 // EVALUATE + RANK (SINGLE PASS) + PICK BEST + SIZE IT
