@@ -118,27 +118,29 @@ public sealed class RelativeStrengthRepository : SQLBase
 
     private static RelativeStrength.RelativeStrengthRow MapRow(SqlDataReader r)
     {
+        double? Get(string col) => r.IsDBNull(r.GetOrdinal(col)) ? null : r.GetDouble(r.GetOrdinal(col));
+
         return new RelativeStrength.RelativeStrengthRow
         {
             Symbol = r.GetString(r.GetOrdinal("Symbol")),
             Date = DateOnly.FromDateTime(r.GetDateTime(r.GetOrdinal("Date"))),
             SectorIndexSymbol = r.GetString(r.GetOrdinal("SectorIndexSymbol")),
-            RS_StockVsSector_5d = r.IsDBNull(r.GetOrdinal("RS_StockVsSector_5d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsSector_5d")),
-            RS_StockVsSector_10d = r.IsDBNull(r.GetOrdinal("RS_StockVsSector_10d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsSector_10d")),
-            RS_StockVsSector_20d = r.IsDBNull(r.GetOrdinal("RS_StockVsSector_20d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsSector_20d")),
-            RS_StockVsSector_60d = r.IsDBNull(r.GetOrdinal("RS_StockVsSector_60d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsSector_60d")),
-            RS_StockVsMarket_5d = r.IsDBNull(r.GetOrdinal("RS_StockVsMarket_5d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsMarket_5d")),
-            RS_StockVsMarket_10d = r.IsDBNull(r.GetOrdinal("RS_StockVsMarket_10d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsMarket_10d")),
-            RS_StockVsMarket_20d = r.IsDBNull(r.GetOrdinal("RS_StockVsMarket_20d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsMarket_20d")),
-            RS_StockVsMarket_60d = r.IsDBNull(r.GetOrdinal("RS_StockVsMarket_60d")) ? null : r.GetDouble(r.GetOrdinal("RS_StockVsMarket_60d")),
-            RS_SectorVsMarket_5d = r.IsDBNull(r.GetOrdinal("RS_SectorVsMarket_5d")) ? null : r.GetDouble(r.GetOrdinal("RS_SectorVsMarket_5d")),
-            RS_SectorVsMarket_10d = r.IsDBNull(r.GetOrdinal("RS_SectorVsMarket_10d")) ? null : r.GetDouble(r.GetOrdinal("RS_SectorVsMarket_10d")),
-            RS_SectorVsMarket_20d = r.IsDBNull(r.GetOrdinal("RS_SectorVsMarket_20d")) ? null : r.GetDouble(r.GetOrdinal("RS_SectorVsMarket_20d")),
-            RS_SectorVsMarket_60d = r.IsDBNull(r.GetOrdinal("RS_SectorVsMarket_60d")) ? null : r.GetDouble(r.GetOrdinal("RS_SectorVsMarket_60d")),
-            RS_Z_StockVsSector = r.IsDBNull(r.GetOrdinal("RS_Z_StockVsSector")) ? null : r.GetDouble(r.GetOrdinal("RS_Z_StockVsSector")),
-            RS_Z_StockVsMarket = r.IsDBNull(r.GetOrdinal("RS_Z_StockVsMarket")) ? null : r.GetDouble(r.GetOrdinal("RS_Z_StockVsMarket")),
-            RS_Z_SectorVsMarket = r.IsDBNull(r.GetOrdinal("RS_Z_SectorVsMarket")) ? null : r.GetDouble(r.GetOrdinal("RS_Z_SectorVsMarket")),
-            CompositeScore = r.IsDBNull(r.GetOrdinal("CompositeScore")) ? null : r.GetDouble(r.GetOrdinal("CompositeScore")),
+            RS_StockVsSector_5d = Get("RS_StockVsSector_5d"),
+            RS_StockVsSector_10d = Get("RS_StockVsSector_10d"),
+            RS_StockVsSector_20d = Get("RS_StockVsSector_20d"),
+            RS_StockVsSector_60d = Get("RS_StockVsSector_60d"),
+            RS_StockVsMarket_5d = Get("RS_StockVsMarket_5d"),
+            RS_StockVsMarket_10d = Get("RS_StockVsMarket_10d"),
+            RS_StockVsMarket_20d = Get("RS_StockVsMarket_20d"),
+            RS_StockVsMarket_60d = Get("RS_StockVsMarket_60d"),
+            RS_SectorVsMarket_5d = Get("RS_SectorVsMarket_5d"),
+            RS_SectorVsMarket_10d = Get("RS_SectorVsMarket_10d"),
+            RS_SectorVsMarket_20d = Get("RS_SectorVsMarket_20d"),
+            RS_SectorVsMarket_60d = Get("RS_SectorVsMarket_60d"),
+            RS_Z_StockVsSector = Get("RS_Z_StockVsSector"),
+            RS_Z_StockVsMarket = Get("RS_Z_StockVsMarket"),
+            RS_Z_SectorVsMarket = Get("RS_Z_SectorVsMarket"),
+            CompositeScore = Get("CompositeScore"),
         };
     }
 }
