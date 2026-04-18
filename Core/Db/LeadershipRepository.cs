@@ -96,6 +96,21 @@ WHEN NOT MATCHED THEN
         }
     }
 
+    /// <summary>
+    /// Gets the date of the most recent stored leadership snapshot.
+    /// </summary>
+    public async Task<DateTime?> GetLatestDateAsync()
+    {
+        const string sql = "SELECT MAX([Date]) FROM [dbo].[LeadershipData]";
+
+        using var con = new SqlConnection(ConnectionString);
+        await con.OpenAsync();
+        using var cmd = new SqlCommand(sql, con);
+        var result = await cmd.ExecuteScalarAsync();
+
+        return result is DateTime dt ? dt : null;
+    }
+
     private static LeadershipSnapshot MapEntry(SqlDataReader reader) => new()
     {
         Date = reader.GetDateTime(0),

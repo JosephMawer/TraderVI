@@ -154,13 +154,19 @@ if (adLine.Count >= 2)
     // We pull a small recent window so 1-day and 5-day comparisons have enough history.
     var granvilleSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.CyclicalBasket, days: 10);
 
+    // Load leadership history for Leadership indicators (#7–#10).
+    // Need ~50 days for EMA-10 smoothing + 20-day large-cap RS lookback.
+    var leadershipRepo = new LeadershipRepository();
+    var leadershipHistory = await leadershipRepo.GetRecentAsync(50);
+
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
         Yesterday = adLine[^2],
         RecentHistory = adLine,
         SectorSnapshots = granvilleSectorSnapshots,
-        StockSectorMappings = stockSectorMappings
+        StockSectorMappings = stockSectorMappings,
+        LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null
     };
 
     var granville = new GranvilleComposite();
@@ -178,6 +184,7 @@ if (adLine.Count >= 2)
     Console.WriteLine($"  XIU Close:          {adLine[^1].XiuClose:F2} (prev: {adLine[^2].XiuClose:F2})");
     Console.WriteLine($"  Sector snapshots:   {granvilleSectorSnapshots.Count}");
     Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
+    Console.WriteLine($"  Leadership history: {leadershipHistory.Count} days");
 
     if (granvilleSectorSnapshots.Count == 0)
     {
@@ -187,6 +194,11 @@ if (adLine.Count >= 2)
     if (stockSectorMappings.Count == 0)
     {
         Console.WriteLine("  ⚠️  No stock-sector mappings loaded — future sector-aware Granville groups will be unavailable.");
+    }
+
+    if (leadershipHistory.Count < 12)
+    {
+        Console.WriteLine("  ⚠️  Insufficient leadership history (< 12 days) — Leadership indicators will degrade to neutral.");
     }
 
     Console.WriteLine();

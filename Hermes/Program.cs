@@ -1,5 +1,6 @@
 ﻿using Core.Db;
 using Core.Indicators;
+using Core.Indicators.Granville;
 using Core.ML;
 using Core.TMX;
 using Core.TMX.Models.Domain;
@@ -105,6 +106,11 @@ static async Task RunBackfillAsync()
     // REFRESH STOCK → SECTOR MAP (weekly staleness check)
     // ═══════════════════════════════════════════════════════════════════
     await RefreshStockSectorMapIfStaleAsync(tmx, TimeSpan.FromDays(7));
+
+    // ═══════════════════════════════════════════════════════════════════
+    // UPDATE LEADERSHIP DATA (Granville #7–#10)
+    // ═══════════════════════════════════════════════════════════════════
+    await UpdateLeadershipDataAsync(tmx, repository, constituents);
 }
 
 static async Task UpdateAdvanceDeclineLineAsync(
@@ -462,4 +468,182 @@ static async Task RefreshStockSectorMapIfStaleAsync(TmxClient tmx, TimeSpan maxA
 
     Console.WriteLine($"Stock-sector map is stale (>= {maxAge.TotalDays:0} days). Refreshing...\n");
     await RefreshStockSectorMapAsync(tmx);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LEADERSHIP DATA (Granville #7–#10)
+// ═══════════════════════════════════════════════════════════════════
+
+static async Task UpdateLeadershipDataAsync(
+    TmxClient tmx,
+    QuoteRepository repository,
+    List<SymbolInfo> constituents)
+{
+    Console.WriteLine("\n── Leadership Data Update ──\n");
+
+    var leadershipRepo = new LeadershipRepository();
+
+    // ─── Layer 1: New Highs / New Lows from stored OHLCV ───
+
+    // We need 252+ trading days of lookback per symbol.
+    // Load bars from ~14 months ago to cover the 252-day window
+    // plus a few recent days to compute.
+    var dataLoadStart = DateTime.Today.AddMonths(-14);
+
+    Console.WriteLine($"Loading bars from {dataLoadStart:yyyy-MM-dd} for 52-week high/low calculation...");
+
+    var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.OrdinalIgnoreCase);
+    int loaded = 0;
+
+    foreach (var constituent in constituents)
+    {
+        var bars = await repository.GetDailyBarsAsync(constituent.Symbol, dataLoadStart);
+        if (bars.Count >= NewHighLowCalculator.LookbackDays + 1)
+        {
+            allBars[constituent.Symbol] = bars;
+            loaded++;
+        }
+    }
+
+    Console.WriteLine($"Symbols with sufficient history (≥ {NewHighLowCalculator.LookbackDays + 1} bars): {loaded}");
+
+    if (loaded == 0)
+    {
+        Console.WriteLine("⚠️  No symbols have enough history for 52-week high/low. Skipping leadership update.\n");
+        return;
+    }
+
+    // Only compute new-high/low counts for recent dates we don't already have
+    var lastStored = await leadershipRepo.GetLatestDateAsync();
+    var computeFrom = lastStored.HasValue
+        ? lastStored.Value.AddDays(1)
+        : DateTime.Today.AddDays(-30); // first run: seed last 30 days
+
+    if (computeFrom > DateTime.Today.AddDays(-1))
+    {
+        Console.WriteLine("Leadership data is already up-to-date. ✓\n");
+        return;
+    }
+
+    Console.WriteLine($"Computing new highs/lows from {computeFrom:yyyy-MM-dd}...");
+
+    var highLowCounts = NewHighLowCalculator.Compute(allBars, computeFrom);
+    Console.WriteLine($"Computed {highLowCounts.Count} trading days of new-high/new-low data");
+
+    if (highLowCounts.Count == 0)
+    {
+        Console.WriteLine("No new trading days to process. ✓\n");
+        return;
+    }
+
+    // ─── Layer 2: Active-stock breadth (top-N by dollar volume) ───
+
+    Console.WriteLine("Fetching top-50 most active by dollar volume...");
+
+    int activeAdvancers = 0;
+    int activeDecliners = 0;
+    int activeN = 0;
+
+    try
+    {
+        var movers = await tmx.GetMarketMoversAsync(
+            sortOrder: "dollarvolume",
+            statExchange: "tsx",
+            limit: 50);
+
+        activeN = movers.Length;
+        activeAdvancers = movers.Count(m => m.priceChange > 0);
+        activeDecliners = movers.Count(m => m.priceChange < 0);
+
+        Console.WriteLine($"  Active stocks: {activeN} (↑ {activeAdvancers}, ↓ {activeDecliners}, → {activeN - activeAdvancers - activeDecliners})");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"  ⚠️  Market movers fetch failed: {ex.Message}");
+        Console.WriteLine("  Using zero for active breadth (will be updated on next run).");
+    }
+
+    // ─── Layer 3: Benchmark index closes (XIU = TSX 60, ^TXCE = Composite Equal Weight) ───
+
+    Console.WriteLine("Fetching benchmark index quotes (XIU, ^TXCE)...");
+
+    decimal? tsx60Close = null;
+    decimal? equalWeightClose = null;
+
+    // XIU close from stored bars (already backfilled)
+    var xiuBars = await repository.GetDailyBarsAsync(TsxBenchmarkSymbols.Xiu, DateTime.Today.AddDays(-5));
+    if (xiuBars.Count > 0)
+    {
+        tsx60Close = (decimal)xiuBars[^1].Close;
+        Console.WriteLine($"  XIU (TSX 60 proxy):    {tsx60Close:F2}");
+    }
+    else
+    {
+        Console.WriteLine("  ⚠️  No recent XIU data.");
+    }
+
+    // ^TXCE from TMX API
+    try
+    {
+        var benchmarks = await tmx.GetBenchmarkIndicesAsync();
+        var txce = benchmarks.FirstOrDefault(b =>
+            b.Symbol.Equals(TsxBenchmarkSymbols.TsxCompositeEqualWeight, StringComparison.OrdinalIgnoreCase));
+
+        if (txce != null)
+        {
+            equalWeightClose = txce.Price;
+            Console.WriteLine($"  ^TXCE (Composite EW):  {equalWeightClose:F2}");
+        }
+        else
+        {
+            Console.WriteLine("  ⚠️  ^TXCE not found in benchmark response.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"  ⚠️  Benchmark index fetch failed: {ex.Message}");
+    }
+
+    // ─── Build LeadershipSnapshot entries ───
+    //
+    // New-high/new-low data is per-day (historical), but active breadth and
+    // benchmark closes are real-time (today only). For historical backfill days,
+    // we store the NHNL data with zero active breadth and null benchmark closes.
+    // Hermes will fill in today's active breadth and closes on each daily run,
+    // building up the series over time.
+
+    var snapshots = new List<LeadershipSnapshot>(highLowCounts.Count);
+
+    foreach (var hlc in highLowCounts)
+    {
+        bool isToday = hlc.Date.Date >= DateTime.Today.AddDays(-1); // yesterday or today (market close)
+
+        snapshots.Add(new LeadershipSnapshot
+        {
+            Date = hlc.Date,
+            NewHighs = hlc.NewHighs,
+            NewLows = hlc.NewLows,
+            IssuesTraded = hlc.IssuesTraded,
+            ActiveAdvancers = isToday ? activeAdvancers : 0,
+            ActiveDecliners = isToday ? activeDecliners : 0,
+            ActiveN = isToday ? activeN : 0,
+            Tsx60Close = isToday ? tsx60Close : null,
+            EqualWeightClose = isToday ? equalWeightClose : null,
+        });
+    }
+
+    // Preview
+    Console.WriteLine($"\n{"Date",-12} {"NH",4} {"NL",4} {"Issues",7} {"ActAdv",7} {"ActDec",7} {"XIU",9} {"TXCE",9}");
+    Console.WriteLine(new string('─', 65));
+    foreach (var s in snapshots.TakeLast(10))
+    {
+        Console.WriteLine(
+            $"{s.Date:yyyy-MM-dd}  {s.NewHighs,4} {s.NewLows,4} {s.IssuesTraded,7} " +
+            $"{s.ActiveAdvancers,7} {s.ActiveDecliners,7} " +
+            $"{(s.Tsx60Close.HasValue ? $"{s.Tsx60Close.Value,9:F2}" : "      N/A")} " +
+            $"{(s.EqualWeightClose.HasValue ? $"{s.EqualWeightClose.Value,9:F2}" : "      N/A")}");
+    }
+
+    await leadershipRepo.UpsertAsync(snapshots);
+    Console.WriteLine($"\nLeadership data stored: {snapshots.Count} entries ✓\n");
 }

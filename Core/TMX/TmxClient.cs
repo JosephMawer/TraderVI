@@ -491,6 +491,21 @@ namespace Core.TMX
                 ?? [];
         }
 
+
+        // ═══════════════════════════════════════════════════════════════════
+        // BENCHMARK INDICES
+        // ═══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Gets current-day snapshots for benchmark indices (TSX Composite, TSX 60, TXCE).
+        /// Reuses the same <c>getQuoteForSymbols</c> query used for sector indices.
+        /// </summary>
+        public async Task<List<Models.Domain.SectorIndexSnapshot>> GetBenchmarkIndicesAsync(
+            CancellationToken ct = default)
+        {
+            return await GetSectorIndicesAsync(TsxBenchmarkSymbols.AllIndexSymbols.ToArray(), ct);
+        }
+
         // ═══════════════════════════════════════════════════════════════════
         // UTILITIES
         // ═══════════════════════════════════════════════════════════════════
