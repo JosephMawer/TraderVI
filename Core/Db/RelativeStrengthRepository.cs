@@ -10,8 +10,13 @@ namespace Core.Db;
 /// Used by Hermes for backfill and by Hercules for training data retrieval.
 /// Delphi computes live and does not read from this table.
 /// </summary>
-public sealed class RelativeStrengthRepository(string connectionString) : SQLBase(connectionString)
+public sealed class RelativeStrengthRepository : SQLBase
 {
+    public RelativeStrengthRepository(string connectionString)
+    {
+        ConnectionString = connectionString;
+    }
+
     public async Task UpsertAsync(RelativeStrength.RelativeStrengthRow row)
     {
         const string sql = """
@@ -43,7 +48,7 @@ public sealed class RelativeStrengthRepository(string connectionString) : SQLBas
             );
             """;
 
-        await using var conn = CreateConnection();
+        await using var conn = new SqlConnection(ConnectionString);
         await conn.OpenAsync();
         await using var cmd = new SqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("@Symbol", row.Symbol);
@@ -86,7 +91,7 @@ public sealed class RelativeStrengthRepository(string connectionString) : SQLBas
             ORDER BY Date, Symbol
             """;
 
-        await using var conn = CreateConnection();
+        await using var conn = new SqlConnection(ConnectionString);
         await conn.OpenAsync();
         await using var cmd = new SqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("@From", from.ToDateTime(TimeOnly.MinValue));
@@ -95,17 +100,16 @@ public sealed class RelativeStrengthRepository(string connectionString) : SQLBas
         var results = new List<RelativeStrength.RelativeStrengthRow>();
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
-        {
             results.Add(MapRow(reader));
-        }
+
         return results;
     }
 
-    /// <summary>Latest date with RS data (for incremental backfill).</summary>
+    /// <summary>Latest date with RS data (for incremental Hermes backfill).</summary>
     public async Task<DateOnly?> GetLatestDateAsync()
     {
         const string sql = "SELECT MAX(Date) FROM [dbo].[RelativeStrengthFeatures]";
-        await using var conn = CreateConnection();
+        await using var conn = new SqlConnection(ConnectionString);
         await conn.OpenAsync();
         await using var cmd = new SqlCommand(sql, conn);
         var result = await cmd.ExecuteScalarAsync();
