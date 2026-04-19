@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3
 		Docs\training-metrics.md = Docs\training-metrics.md
 	EndProjectSection
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "TraderDB", "TraderDB\TraderDB.sqlproj", "{39F432D2-1167-40EB-96BB-C16DEE71B549}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +218,36 @@ Global
 		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x64.Build.0 = Release|Any CPU
 		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x86.ActiveCfg = Release|Any CPU
 		{A76FEDC7-D959-4A63-8461-FD2969906C4A}.Release|x86.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM.Build.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM.Deploy.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|ARM64.Deploy.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x64.Build.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x86.Build.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM.ActiveCfg = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM.Deploy.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM64.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|ARM64.Deploy.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x64.ActiveCfg = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x64.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x64.Deploy.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x86.ActiveCfg = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x86.Build.0 = Release|Any CPU
+		{39F432D2-1167-40EB-96BB-C16DEE71B549}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
