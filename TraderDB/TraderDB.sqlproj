@@ -56,23 +56,25 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="ActivePosition.sql" />
-    <Build Include="DailyBars.sql" />
-    <Build Include="ModelRegistry.sql" />
-    <Build Include="LeadershipData.sql" />
-    <Build Include="DailyPick.sql" />
-    <Build Include="SectorIndices.sql" />
-    <Build Include="AdvanceDeclineLine.sql" />
-    <Build Include="ModelExperiment.sql" />
-    <Build Include="RelativeStrengthFeatures.sql" />
-    <Build Include="StockSectorMap.sql" />
-    <Build Include="StrategyVersionModel.sql" />
-    <Build Include="Quotes.sql" />
-    <Build Include="GranvilleIndicatorLog.sql" />
-    <Build Include="Symbols.sql" />
-    <Build Include="StrategyVersion.sql" />
-    <Build Include="TradeLog.sql" />
+    <Build Include="dbo/Tables/ActivePosition.sql" />
+    <Build Include="dbo/Tables/DailyBars.sql" />
+    <Build Include="dbo/Tables/ModelRegistry.sql" />
+    <Build Include="dbo/Tables/LeadershipData.sql" />
+    <Build Include="dbo/Tables/DailyPick.sql" />
+    <Build Include="dbo/Tables/SectorIndices.sql" />
+    <Build Include="dbo/Tables/AdvanceDeclineLine.sql" />
+    <Build Include="dbo/Tables/ModelExperiment.sql" />
+    <Build Include="dbo/Tables/RelativeStrengthFeatures.sql" />
+    <Build Include="dbo/Tables/StockSectorMap.sql" />
+    <Build Include="dbo/Tables/StrategyVersionModel.sql" />
+    <Build Include="dbo/Tables/Quotes.sql" />
+    <Build Include="dbo/Tables/GranvilleIndicatorLog.sql" />
+    <Build Include="dbo/Tables/Symbols.sql" />
+    <Build Include="dbo/Tables/StrategyVersion.sql" />
+    <Build Include="dbo/Tables/TradeLog.sql" />
   </ItemGroup>
 </Project>
