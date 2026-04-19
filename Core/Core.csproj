@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Db\Scripts\" />
     <Folder Include="ML\Engine\Training\Regressors\" />
     <Folder Include="Trader\Signals\Structure\" />
     <Folder Include="WSTrade\" />
