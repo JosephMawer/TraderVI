@@ -173,3 +173,20 @@ Plus volatility-normalized Z-scores: `RS_Z = (RS_today - mean(RS_20d)) / std(RS_
 
 Where Granville_adjustment ∈ [−0.10, +0.10], derived from net Granville points normalized
 across all implemented indicator groups. Currently **Plurality (#1–#4) and Disparity (#5–#6)** contribute.
+
+### Delphi reporting rules
+
+Delphi outputs two structured reports via `Core.Runtime.DelphiReportBuilder`:
+
+| Report | Method | Audience | Content |
+|--------|--------|----------|---------|
+| **Diagnostic** | `BuildDiagnostic()` | Copilot / developer log analysis | Raw values for every data source: regime flags, A/D line stats, sector index table, Granville per-indicator breakdown, universe stats, per-pick signals + gate traces |
+| **Summary** | `BuildSummary()` | Human operator (pre-market review) | Regime label, breadth interpretation, sector leaders/laggards, Granville net signal, final recommendation with composite/edge/allocation |
+
+**Mandatory update rule**: Any new signal, gate, indicator, or data source added to Delphi's evaluation pipeline **must** be reflected in both `BuildDiagnostic()` and `BuildSummary()`. This includes:
+- New ML models (add probabilities to diagnostic picks table + summary recommendation)
+- New rule-based gates (add to diagnostic gate trace + summary if blocking)
+- New market-level indicators (add raw values to diagnostic + interpretation to summary)
+- New data sources consumed by the engine (add to diagnostic universe stats)
+
+The `DelphiReportBuilder` properties should mirror what `Delphi/Program.cs` computes — do not duplicate computation logic in the report builder; it only formats data it receives.

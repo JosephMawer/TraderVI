@@ -31,6 +31,13 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 | **Sentinel** (planned) | Intraday monitoring, stop-loss execution, rotation triggers | Continuous (market hours) |
 | **TraderVI** (later) | Automated order execution via Wealthsimple API | Event-driven |
 
+#### Delphi: Reporting & Pipeline Requirements
+- When adding any new signal, gate, indicator, or data source to Delphi's evaluation pipeline, update Core.Runtime.DelphiReportBuilder to include the new data:
+  - Add the new property/data to BuildDiagnostic() for detailed, machine-parseable output.
+  - Add the new property/data to BuildSummary() for human-readable summaries.
+- Wire the new property where the report builder is constructed in Delphi/Program.cs so the builder receives the new data during evaluation.
+- Keep diagnostics concise, consistent, and machine-friendly (typed fields, stable keys) to support downstream analysis and automated testing.
+
 ### Data Flow
 
 ## Decision Thresholds
