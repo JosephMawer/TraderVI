@@ -7,9 +7,9 @@
 public enum IndicatorCategory
 {
     Plurality,          // Indicators 1–4
-    Disparity,          // future
-    Leadership,         // future
-    Features,           // future
+    Disparity,          // Indicators 5–6
+    Leadership,         // Indicators 7–10
+    Features,           // Indicators 11–14: most-active stock gains/losses vs. benchmark
     Weighting,          // future
     Genuity,            // future
     Dullness,           // future

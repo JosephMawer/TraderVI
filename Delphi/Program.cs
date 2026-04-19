@@ -159,6 +159,10 @@ if (adLine.Count >= 2)
     var leadershipRepo = new LeadershipRepository();
     var leadershipHistory = await leadershipRepo.GetRecentAsync(50);
 
+    // Load the 15 most active stocks by volume for today (Features indicators #11–#14).
+    var mostActiveRepo = new MostActiveStocksRepository();
+    var mostActiveStocks = await mostActiveRepo.GetTopByVolumeAsync(adLine[^1].Date, count: 15);
+
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
@@ -166,7 +170,8 @@ if (adLine.Count >= 2)
         RecentHistory = adLine,
         SectorSnapshots = granvilleSectorSnapshots,
         StockSectorMappings = stockSectorMappings,
-        LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null
+        LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null,
+        MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null
     };
 
     var granville = new GranvilleComposite();
@@ -185,6 +190,12 @@ if (adLine.Count >= 2)
     Console.WriteLine($"  Sector snapshots:   {granvilleSectorSnapshots.Count}");
     Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
     Console.WriteLine($"  Leadership history: {leadershipHistory.Count} days");
+    Console.WriteLine($"  Most active stocks: {mostActiveStocks.Count}");
+
+    if (mostActiveStocks.Count < 8)
+    {
+        Console.WriteLine("  ⚠️  Insufficient most-active data (< 8 stocks) — Features indicators #11–#14 will degrade to neutral.");
+    }
 
     if (granvilleSectorSnapshots.Count == 0)
     {

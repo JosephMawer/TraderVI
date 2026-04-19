@@ -47,6 +47,16 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyList<LeadershipSnapshot>? LeadershipHistory { get; init; }
 
+    // ── Most Active data (for Features/Most Active indicators #11–#14) ──
+
+    /// <summary>
+    /// The top-N most active stocks by volume for today's date.
+    /// Used by <see cref="MostActiveIndicators"/> to determine whether gains or losses
+    /// predominate among the most-traded issues.
+    /// Null if data is not yet available (graceful degradation).
+    /// </summary>
+    public IReadOnlyList<MostActiveSnapshot>? MostActiveStocks { get; init; }
+
     // ── Future data sources will be added here as we implement more groups ──
     // e.g., gold prices, odd-lot data, volume breakdowns, etc.
 }

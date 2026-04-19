@@ -32,6 +32,7 @@ public sealed class GranvilleComposite
             new PluralityIndicators(),
             new DisparityIndicators(),
             new LeadershipIndicators(),
+            new MostActiveIndicators(),
         ];
     }
 
@@ -77,11 +78,12 @@ public sealed class GranvilleComposite
     /// </summary>
     private static double MaxRawPointRange()
     {
-        // Plurality:   max bullish = +4 (#2 and #4), max bearish = -2 (#1 and #3)
-        // Disparity:   max bullish = +2 (#6 × 2 timeframes), max bearish = -2 (#5 × 2 timeframes)
-        // Leadership:  max bullish = +4 (#8 and #10), max bearish = -2 (#7 and #9)
-        // Combined theoretical range: [-6, +10]
+        // Plurality:    max bullish = +4 (#2 and #4),   max bearish = -2 (#1 and #3)
+        // Disparity:    max bullish = +2 (#6 × 2),      max bearish = -2 (#5 × 2)
+        // Leadership:   max bullish = +4 (#8 and #10),  max bearish = -2 (#7 and #9)
+        // Most Active:  max bullish = +3 (#12 and #14), max bearish = -3 (#11 and #13)
+        // Combined theoretical range: bearish [-9, +13] bullish
         // Use the wider absolute value for normalization headroom.
-        return 10.0;
+        return 13.0;
     }
 }
