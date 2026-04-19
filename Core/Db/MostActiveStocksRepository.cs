@@ -15,7 +15,7 @@ namespace Core.Db;
 public sealed class MostActiveStocksRepository : SQLBase
 {
     public MostActiveStocksRepository()
-        : base("[dbo].[DailyStock]", "[Date],[Ticker],[Open],[Close],[Volume]")
+        : base("[dbo].[DailyBars]", "[Date],[Symbol],[Open],[Close],[Volume]")
     { }
 
     /// <summary>
@@ -25,9 +25,9 @@ public sealed class MostActiveStocksRepository : SQLBase
     public async Task<List<MostActiveSnapshot>> GetTopByVolumeAsync(DateTime date, int count = 15)
     {
         const string sql = @"
-SELECT TOP (@Count) [Ticker], [Open], [Close], [Volume]
-FROM   [dbo].[DailyStock]
-WHERE  CAST([Date] AS DATE) = CAST(@Date AS DATE)
+SELECT TOP (@Count) [Symbol], [Open], [Close], [Volume]
+FROM   [dbo].[DailyBars]
+WHERE  [Date] = @Date
   AND  [Open]  > 0
   AND  [Close] > 0
 ORDER  BY [Volume] DESC";
@@ -42,8 +42,8 @@ ORDER  BY [Volume] DESC";
             },
             static r => new MostActiveSnapshot(
                 Ticker: r.GetString(0),
-                Open:   r.GetDecimal(1),
-                Close:  r.GetDecimal(2),
+                Open:   (decimal)r.GetFloat(1),
+                Close:  (decimal)r.GetFloat(2),
                 Volume: r.GetInt64(3)));
     }
 }

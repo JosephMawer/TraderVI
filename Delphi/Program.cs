@@ -584,6 +584,9 @@ if (bestPick.GateTrace != null)
         string icon = g.Passed ? "✓" : "✗";
         string reason = g.Reason ?? "Passed";
         Console.WriteLine($"  {icon} {g.GateName,-18} {reason}");
+    }
+
+ 
 }
 
 Console.WriteLine("\nAll Signals (best pick):");
