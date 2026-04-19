@@ -321,16 +321,22 @@ static async Task UpdateSectorIndicesAsync(TmxClient tmx)
     else
         Console.WriteLine("No existing sector index data.");
 
-    // Skip if already collected today
-    if (lastDate.HasValue && lastDate.Value.Date >= DateTime.Today)
+    // Determine trading date from the latest bar in the quote DB
+    // (the backfill just ran, so this reflects the most recent trading day)
+    var quoteRepo = new QuoteRepository();
+    var latestBarDate = await quoteRepo.GetLatestDailyBarDateAsync("XIU");
+    var tradingDate = latestBarDate ?? DateTime.Today;
+
+    // Skip if already collected for this trading date
+    if (lastDate.HasValue && lastDate.Value.Date >= tradingDate.Date)
     {
-        Console.WriteLine("Sector indices already up-to-date for today. ✓\n");
+        Console.WriteLine($"Sector indices already up-to-date for {tradingDate:yyyy-MM-dd}. ✓\n");
         return;
     }
 
     try
     {
-        var snapshots = await tmx.GetSectorIndicesAsync();
+        var snapshots = await tmx.GetSectorIndicesAsync(tradingDate: tradingDate);
 
         if (snapshots.Count == 0)
         {
@@ -346,7 +352,7 @@ static async Task UpdateSectorIndicesAsync(TmxClient tmx)
         }
 
         await repo.UpsertAsync(snapshots);
-        Console.WriteLine($"\nSector indices stored: {snapshots.Count} entries for {DateTime.Today:yyyy-MM-dd} ✓\n");
+        Console.WriteLine($"\nSector indices stored: {snapshots.Count} entries for {tradingDate:yyyy-MM-dd} ✓\n");
     }
     catch (Exception ex)
     {

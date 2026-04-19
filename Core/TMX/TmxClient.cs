@@ -438,13 +438,12 @@ namespace Core.TMX
 
         /// <summary>
         /// Gets current-day snapshots for all TSX sector sub-indices.
-        /// Reuses <c>getQuoteForSymbols</c> — TMX treats indices as regular symbols
-        /// differentiated by the <c>^</c> prefix.
         /// </summary>
         public async Task<List<Models.Domain.SectorIndexSnapshot>> GetSectorIndicesAsync(
+            DateTime? tradingDate = null,
             CancellationToken ct = default)
         {
-            return await GetSectorIndicesAsync(TsxSectorSymbols.AllSymbols, ct);
+            return await GetSectorIndicesAsync(TsxSectorSymbols.AllSymbols, tradingDate, ct);
         }
 
         /// <summary>
@@ -452,6 +451,7 @@ namespace Core.TMX
         /// </summary>
         public async Task<List<Models.Domain.SectorIndexSnapshot>> GetSectorIndicesAsync(
             string[] symbols,
+            DateTime? tradingDate = null,
             CancellationToken ct = default)
         {
             var request = new GraphQLRequest
@@ -476,7 +476,7 @@ namespace Core.TMX
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
 
-            var today = DateTime.Today;
+            var date = tradingDate ?? DateTime.Today;
 
             return response.Data?.marketActivity
                 .Where(q => q.symbol != null)
@@ -486,7 +486,7 @@ namespace Core.TMX
                     Price: q.price ?? 0m,
                     PriceChange: q.priceChange ?? 0m,
                     PercentChange: q.percentChange ?? 0m,
-                    Date: today))
+                    Date: date))
                 .ToList()
                 ?? [];
         }
@@ -501,9 +501,10 @@ namespace Core.TMX
         /// Reuses the same <c>getQuoteForSymbols</c> query used for sector indices.
         /// </summary>
         public async Task<List<Models.Domain.SectorIndexSnapshot>> GetBenchmarkIndicesAsync(
+            DateTime? tradingDate = null,
             CancellationToken ct = default)
         {
-            return await GetSectorIndicesAsync(TsxBenchmarkSymbols.AllIndexSymbols.ToArray(), ct);
+            return await GetSectorIndicesAsync(TsxBenchmarkSymbols.AllIndexSymbols.ToArray(), tradingDate, ct);
         }
 
         // ═══════════════════════════════════════════════════════════════════

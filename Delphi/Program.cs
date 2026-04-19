@@ -594,3 +594,36 @@ foreach (var s in bestPick.Signals)
 {
     Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// STRUCTURED REPORTS (Diagnostic + Summary)
+// ═══════════════════════════════════════════════════════════════════
+
+// Load latest sector snapshots for report
+var reportSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 1);
+var latestSectorDate = reportSectorSnapshots.Count > 0 ? reportSectorSnapshots.Max(s => s.Date) : (DateTime?)null;
+var todaySectorSnapshots = latestSectorDate.HasValue
+    ? reportSectorSnapshots.Where(s => s.Date.Date == latestSectorDate.Value.Date).ToList()
+    : [];
+
+var report = new DelphiReportBuilder
+{
+    Regime = regime,
+    AdLine = adLine,
+    BreadthScore = breadthScore,
+    BearishDivergence = bearishDivergence,
+    Granville = granvilleForecast,
+    SectorSnapshots = todaySectorSnapshots,
+    TopPicks = top,
+    BestPick = bestPick,
+    Size = size,
+    RsScores = rsScores,
+    AllBars = allBars,
+    LoadedSymbols = loaded,
+    SkippedHistory = skipped,
+    SkippedPrice = skippedPrice,
+    DeployableCapital = deployableCapital
+};
+
+Console.WriteLine(report.BuildDiagnostic());
+Console.WriteLine(report.BuildSummary());
