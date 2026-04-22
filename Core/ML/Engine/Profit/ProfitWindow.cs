@@ -1,4 +1,5 @@
-﻿using Microsoft.ML.Data;
+﻿using System;
+using Microsoft.ML.Data;
 
 namespace Core.ML.Engine.Profit;
 
@@ -21,6 +22,12 @@ public class ProfitWindow
     /// Binary label for event-based models (e.g., breakout, volatility expansion).
     /// </summary>
     public bool IsEvent { get; set; }
+
+    /// <summary>
+    /// Calendar date of the last bar in the feature window. Used by the trainer
+    /// to perform a global time-based train/test split (never referenced inside the pipeline).
+    /// </summary>
+    public DateTime Date { get; set; }
 }
 
 /// <summary>

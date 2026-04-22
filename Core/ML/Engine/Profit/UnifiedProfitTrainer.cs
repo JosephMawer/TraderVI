@@ -2,6 +2,7 @@
 using Core.ML.Engine.Patterns.Features;
 using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.ML.Trainers.LightGbm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +13,37 @@ public static class UnifiedProfitTrainer
 {
     private const float MaxAbsForwardReturn = 0.50f;
 
+    /// <summary>
+    /// LightGBM early-stopping patience (rounds without validation-metric improvement).
+    /// </summary>
+    private const int DefaultEarlyStoppingRound = 50;
+
+    /// <summary>
+    /// Minimum samples per leaf. Higher = less overfitting on noisy stock data.
+    /// </summary>
+    private const int DefaultMinExamplesPerLeaf = 100;
+
+    /// <summary>
+    /// L2 leaf-value regularization for the gradient booster.
+    /// </summary>
+    private const double DefaultL2Regularization = 1.0;
+
     public static ProfitTrainingResult Train(
         ProfitModelDefinition model,
         Dictionary<string, List<DailyBar>> barsBySymbol,
         string modelPath,
         double trainFraction = 0.8)
     {
-        var trainWindows = new List<ProfitWindow>();
-        var testWindows = new List<ProfitWindow>();
-
         int lookback = model.Lookback;
         int horizon = model.HorizonBars;
         int symbolsUsed = 0;
+
+        // ─────────────────────────────────────────────────────────────
+        // Step 1: Build ALL windows across ALL symbols (no split yet).
+        //         Each window carries its own calendar Date so we can
+        //         apply a single global time-based split later.
+        // ─────────────────────────────────────────────────────────────
+        var allWindows = new List<ProfitWindow>();
 
         foreach (var (symbol, bars) in barsBySymbol)
         {
@@ -42,18 +62,49 @@ public static class UnifiedProfitTrainer
             if (windows.Count < 10)
                 continue;
 
-            int split = (int)(windows.Count * trainFraction);
-            if (split <= 0 || split >= windows.Count)
-                continue;
-
-            trainWindows.AddRange(windows.Take(split));
-            testWindows.AddRange(windows.Skip(split));
+            allWindows.AddRange(windows);
             symbolsUsed++;
         }
 
+        if (allWindows.Count == 0)
+        {
+            Console.WriteLine($"[SKIP] {model.TaskType}: no valid windows across {barsBySymbol.Count} symbols");
+            return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // Step 2: Global calendar-date split with embargo.
+        //
+        //   train:     Date <  cutoff - embargo
+        //   [gap]:     cutoff - embargo <= Date < cutoff   (dropped)
+        //   test:      Date >= cutoff
+        //
+        // Embargo prevents label leakage: a training window whose label
+        // uses future bars up to (windowEndDate + horizon) could overlap
+        // with the feature bars of early test windows.
+        // ─────────────────────────────────────────────────────────────
+        allWindows.Sort((a, b) => a.Date.CompareTo(b.Date));
+
+        int cutoffIndex = System.Math.Clamp((int)(allWindows.Count * trainFraction), 1, allWindows.Count - 1);
+        DateTime cutoffDate = allWindows[cutoffIndex].Date;
+
+        // Use 2× horizon calendar days to safely cover weekends/holidays for a horizon
+        // expressed in trading bars. Tune down to 1.5× if bar density warrants.
+        int embargoDays = System.Math.Max(horizon, 1) * 2;
+        DateTime embargoStart = cutoffDate.AddDays(-embargoDays);
+
+        var trainWindows = allWindows.Where(w => w.Date < embargoStart).ToList();
+        var testWindows = allWindows.Where(w => w.Date >= cutoffDate).ToList();
+        int droppedByEmbargo = allWindows.Count - trainWindows.Count - testWindows.Count;
+
+        Console.WriteLine(
+            $"Global time split: cutoff={cutoffDate:yyyy-MM-dd}, embargo={embargoDays}d " +
+            $"→ train={trainWindows.Count:N0}, test={testWindows.Count:N0}, dropped={droppedByEmbargo:N0}");
+
         if (trainWindows.Count < 200 || testWindows.Count < 50)
         {
-            Console.WriteLine($"[SKIP] {model.TaskType}: insufficient windows (train={trainWindows.Count}, test={testWindows.Count})");
+            Console.WriteLine($"[SKIP] {model.TaskType}: insufficient windows after split " +
+                              $"(train={trainWindows.Count}, test={testWindows.Count})");
             return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
         }
 
@@ -61,46 +112,11 @@ public static class UnifiedProfitTrainer
         {
             int testPositives = testWindows.Count(w => w.IsEvent);
             int testNegatives = testWindows.Count - testPositives;
-            
-            if (testPositives == 0 || testNegatives == 0)
-            {
-                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
-                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
-            }
-        }
 
-        if (model.ModelKind == ProfitModelKind.BinaryClassification)
-        {
-            int testPositives = testWindows.Count(w => w.IsEvent);
-            int testNegatives = testWindows.Count - testPositives;
-            
             if (testPositives == 0 || testNegatives == 0)
             {
-                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
-                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
-            }
-        }
-
-        if (model.ModelKind == ProfitModelKind.BinaryClassification)
-        {
-            int testPositives = testWindows.Count(w => w.IsEvent);
-            int testNegatives = testWindows.Count - testPositives;
-            
-            if (testPositives == 0 || testNegatives == 0)
-            {
-                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
-                return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
-            }
-        }
-
-        if (model.ModelKind == ProfitModelKind.BinaryClassification)
-        {
-            int testPositives = testWindows.Count(w => w.IsEvent);
-            int testNegatives = testWindows.Count - testPositives;
-            
-            if (testPositives == 0 || testNegatives == 0)
-            {
-                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity (positives={testPositives}, negatives={testNegatives})");
+                Console.WriteLine($"[SKIP] {model.TaskType}: test set lacks class diversity " +
+                                  $"(positives={testPositives}, negatives={testNegatives})");
                 return new ProfitTrainingResult(false, 0, 0, 0, 0, 0);
             }
         }
@@ -138,7 +154,6 @@ public static class UnifiedProfitTrainer
         string modelPath,
         double trainFraction = 0.8)
     {
-        // Inject market bars into feature builder if it supports it
         if (model.FeatureBuilder is MarketContextFeatureBuilder mcfb)
         {
             mcfb.MarketBars = marketBars;
@@ -207,9 +222,7 @@ public static class UnifiedProfitTrainer
         var pipeline = mlContext.Transforms
             .CopyColumns("Label", nameof(ProfitWindow.ForwardReturn))
             .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
-            .Append(mlContext.Regression.Trainers.LightGbm(
-                labelColumnName: "Label",
-                featureColumnName: nameof(ProfitWindow.Features)));
+            .Append(mlContext.Regression.Trainers.LightGbm(BuildRegressionLgbmOptions()));
 
         Console.WriteLine($"Training {model.TaskType} (Regression, lookback={model.Lookback}, horizon={model.HorizonBars})...");
         Console.WriteLine($"  Train: {trainWindows.Count:N0}, Test: {testWindows.Count:N0}, Features: {featureCount}");
@@ -365,9 +378,7 @@ public static class UnifiedProfitTrainer
         var pipeline = mlContext.Transforms
             .Conversion.MapValueToKey("Label", nameof(ProfitWindow.ThreeWayLabel))
             .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
-            .Append(mlContext.MulticlassClassification.Trainers.LightGbm(
-                labelColumnName: "Label",
-                featureColumnName: nameof(ProfitWindow.Features)))
+            .Append(mlContext.MulticlassClassification.Trainers.LightGbm(BuildMulticlassLgbmOptions()))
             .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
 
         Console.WriteLine($"Training {model.TaskType} (3-Way, lookback={model.Lookback}, horizon={model.HorizonBars})...");
@@ -452,9 +463,7 @@ public static class UnifiedProfitTrainer
         var pipeline = mlContext.Transforms
             .CopyColumns("Label", nameof(ProfitWindow.IsEvent))
             .Append(mlContext.Transforms.NormalizeMinMax(nameof(ProfitWindow.Features)))
-            .Append(mlContext.BinaryClassification.Trainers.LightGbm(
-                labelColumnName: "Label",
-                featureColumnName: nameof(ProfitWindow.Features)));
+            .Append(mlContext.BinaryClassification.Trainers.LightGbm(BuildBinaryLgbmOptions()));
 
         Console.WriteLine($"Training {model.TaskType} (Binary, lookback={model.Lookback}, horizon={model.HorizonBars})...");
         Console.WriteLine($"  Train: {trainWindows.Count:N0}, Test: {testWindows.Count:N0}, Features: {featureCount}");
@@ -619,31 +628,6 @@ public static class UnifiedProfitTrainer
         Console.WriteLine($"  PosClass (Test): TP={tp}, FP={fp}, FN={fn}, TN={tn}");
     }
 
-    private static void PrintBinaryPositiveStats(MLContext mlContext, IDataView predictions)
-    {
-        var rows = mlContext.Data.CreateEnumerable<BinaryEvalRow>(predictions, reuseRowObject: false).ToList();
-        if (rows.Count == 0)
-        {
-            Console.WriteLine("  PosClass: n=0");
-            return;
-        }
-
-        int tp = rows.Count(r => r.Label && r.PredictedLabel);
-        int fp = rows.Count(r => !r.Label && r.PredictedLabel);
-        int fn = rows.Count(r => r.Label && !r.PredictedLabel);
-        int tn = rows.Count - tp - fp - fn;
-
-        double precision = (tp + fp) == 0 ? 0 : tp / (double)(tp + fp);
-        double recall = (tp + fn) == 0 ? 0 : tp / (double)(tp + fn);
-
-        double actualPosRate = rows.Count(r => r.Label) / (double)rows.Count;
-        double predictedPosRate = rows.Count(r => r.PredictedLabel) / (double)rows.Count;
-
-        Console.WriteLine($"  PosClass (Test): precision={precision:P1}, recall={recall:P1}");
-        Console.WriteLine($"  PosClass (Test): actualPosRate={actualPosRate:P1}, predictedPosRate={predictedPosRate:P1}");
-        Console.WriteLine($"  PosClass (Test): TP={tp}, FP={fp}, FN={fn}, TN={tn}");
-    }
-
     private sealed class BinaryEvalRow
     {
         public bool Label { get; set; }
@@ -697,11 +681,69 @@ public static class UnifiedProfitTrainer
                 Features = featureBuilder.Build(windowBars),
                 ForwardReturn = forwardReturn,
                 ThreeWayLabel = threeWayEncoded,
-                IsEvent = label.ThreeWayClass == ThreeWayLabel.Buy
+                IsEvent = label.ThreeWayClass == ThreeWayLabel.Buy,
+                Date = bars[windowEnd].Date,  // feature-window end date; used for global time split
             });
         }
 
         return result;
     }
-}
 
+    // ─────────────────────────────────────────────────────────────
+    // Shared LightGBM option builders.
+    // Central place to tune regularization & early stopping for all
+    // profit models. Keep these conservative — daily stock returns
+    // are overwhelmingly noise; we want the learner to stop early
+    // and prefer shallow trees.
+    // ─────────────────────────────────────────────────────────────
+    private static LightGbmRegressionTrainer.Options BuildRegressionLgbmOptions()
+        => new()
+        {
+            LabelColumnName = "Label",
+            FeatureColumnName = nameof(ProfitWindow.Features),
+            NumberOfIterations = 2000,
+            LearningRate = 0.05,
+            NumberOfLeaves = 31,
+            MinimumExampleCountPerLeaf = DefaultMinExamplesPerLeaf,
+            EarlyStoppingRound = DefaultEarlyStoppingRound,
+            Booster = new GradientBooster.Options
+            {
+                L2Regularization = DefaultL2Regularization,
+                L1Regularization = 0.0,
+            },
+        };
+
+    private static LightGbmBinaryTrainer.Options BuildBinaryLgbmOptions()
+        => new()
+        {
+            LabelColumnName = "Label",
+            FeatureColumnName = nameof(ProfitWindow.Features),
+            NumberOfIterations = 2000,
+            LearningRate = 0.05,
+            NumberOfLeaves = 31,
+            MinimumExampleCountPerLeaf = DefaultMinExamplesPerLeaf,
+            EarlyStoppingRound = DefaultEarlyStoppingRound,
+            Booster = new GradientBooster.Options
+            {
+                L2Regularization = DefaultL2Regularization,
+                L1Regularization = 0.0,
+            },
+        };
+
+    private static LightGbmMulticlassTrainer.Options BuildMulticlassLgbmOptions()
+        => new()
+        {
+            LabelColumnName = "Label",
+            FeatureColumnName = nameof(ProfitWindow.Features),
+            NumberOfIterations = 2000,
+            LearningRate = 0.05,
+            NumberOfLeaves = 31,
+            MinimumExampleCountPerLeaf = DefaultMinExamplesPerLeaf,
+            EarlyStoppingRound = DefaultEarlyStoppingRound,
+            Booster = new GradientBooster.Options
+            {
+                L2Regularization = DefaultL2Regularization,
+                L1Regularization = 0.0,
+            },
+        };
+}
