@@ -114,7 +114,8 @@ namespace Core.ML
             Console.WriteLine();
             Console.WriteLine($"Best Spearman = {bestScore:0.###}");
             Console.WriteLine($"  lr={bestOptions.LearningRate}, leaves={bestOptions.NumberOfLeaves}, " +
-                              $"minLeaf={bestOptions.MinimumExampleCountPerLeaf}, l2={bestOptions.L2CategoricalRegularization}");
+                              $"minLeaf={bestOptions.MinimumExampleCountPerLeaf}, " +
+                              $"l2={((GradientBooster.Options)bestOptions.Booster).L2Regularization}");
 
             // Refit on train+valid (respecting embargo before test).
             var trainPlusValidList = allRows.Take(validEnd - EmbargoBars).ToList();
