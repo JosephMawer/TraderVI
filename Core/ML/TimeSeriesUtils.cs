@@ -2,18 +2,10 @@
 using Core.ML.Engine.Training.Classifiers;
 using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.ML.Trainers.LightGbm;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using wstrade.Models;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Core.ML
 {
@@ -23,6 +15,7 @@ namespace Core.ML
         [ColumnName("Score")]
         public float Score { get; set; }   // predicted TargetRet1d
     }
+
     public class DailyBar
     {
         public DateTime Date { get; set; }
@@ -33,279 +26,236 @@ namespace Core.ML
         public long Volume { get; set; }
     }
 
+    /// <summary>
+    /// Scale-invariant feature row for a single bar.
+    /// All features are either returns, ratios, or z-scored — no raw prices or raw volumes —
+    /// so models generalize across price regimes (e.g. 2015 @ $20 vs 2026 @ $80).
+    /// </summary>
     public class FeatureRow
     {
         public DateTime Date { get; set; }
 
-        // Target: next-day return
+        // Target: next-day return, winsorized in BuildFeatures.
         public float TargetRet1d { get; set; }
 
-        // Lags
-        public float LagClose1 { get; set; }
-        public float LagClose2 { get; set; }
-        public float LagClose5 { get; set; }
+        // --- Lagged RETURNS (not prices). "Lag1" means "return from t-2 to t-1".
+        public float RetLag1 { get; set; }
+        public float RetLag2 { get; set; }
+        public float RetLag5 { get; set; }
 
-        // Returns & momentum
-        public float Ret1d { get; set; }
-        public float Ret5d { get; set; }
+        // --- Momentum (cumulative returns).
+        public float Ret1d { get; set; }   // today's return (t-1 -> t)
+        public float Ret5d { get; set; }   // 5-day return
 
-        // Rolling stats
-        public float Ma5 { get; set; }
-        public float Ma20 { get; set; }
+        // --- Scale-invariant ratios vs moving averages.
+        public float CloseOverMa5 { get; set; }   // close[t]/ma5 - 1
+        public float CloseOverMa20 { get; set; }  // close[t]/ma20 - 1
+        public float Ma5OverMa20 { get; set; }    // ma5/ma20 - 1
+
+        // --- Volatility (already scale-invariant because computed from returns).
         public float Vol5 { get; set; }
         public float Vol20 { get; set; }
-        public float PriceOverMa20 { get; set; }
 
-        // Volume
-        public float Vol { get; set; }
-        public float VolMa5 { get; set; }
-        public float VolRatio5 { get; set; }
+        // --- Volume ratios (scale-invariant).
+        public float VolRatio5 { get; set; }    // volume[t]/volMa5
+        public float VolRatio20 { get; set; }   // volume[t]/volMa20
 
-        // Intraday
-        public float RangePct { get; set; }
-        public float CloseToOpen { get; set; }
+        // --- Intraday ratios.
+        public float RangePct { get; set; }     // (high-low)/close
+        public float CloseToOpen { get; set; }  // (close-open)/open
 
-        // Calendar
+        // --- Calendar (categorical — encoded via OneHotEncoding in the pipeline).
         public float DayOfWeek { get; set; }
         public float Month { get; set; }
         public float IsMonthEnd { get; set; }
-        //public DateTime Date { get; set; }
-
-        //// Target: next-day return
-        //public double TargetRet1d { get; set; }
-
-        //// Lags
-        //public double LagClose1 { get; set; }
-        //public double LagClose2 { get; set; }
-        //public double LagClose5 { get; set; }
-
-        //// Returns & momentum
-        //public double Ret1d { get; set; }
-        //public double Ret5d { get; set; }
-
-        //// Rolling stats
-        //public double Ma5 { get; set; }
-        //public double Ma20 { get; set; }
-        //public double Vol5 { get; set; }
-        //public double Vol20 { get; set; }
-        //public double PriceOverMa20 { get; set; }
-
-        //// Volume
-        //public double Vol { get; set; }
-        //public double VolMa5 { get; set; }
-        //public double VolRatio5 { get; set; }
-
-        //// Intraday
-        //public double RangePct { get; set; }
-        //public double CloseToOpen { get; set; }
-
-        //// Calendar
-        //public int DayOfWeek { get; set; }
-        //public int Month { get; set; }
-        //public int IsMonthEnd { get; set; }
     }
 
     public static class TimeSeriesUtils
     {
+        /// <summary>
+        /// Max absolute daily return allowed for the training label. Defends against
+        /// bad ticks / unadjusted splits that would otherwise dominate squared-error loss.
+        /// </summary>
+        public const float TargetWinsorizeAbs = 0.20f;
 
         /// <summary>
-        /// 4. A couple of important practical notes
-
-        /// 1. No shuffling for time series
-        /// We did an 80/20 split by date.
-        /// Do not use random train/test splits for time series; that leaks future info into training.
-        /// 
-        /// 2. Consider walk-forward validation later
-        /// Once the basic pipeline works, you can:
-        /// Train on [start … t], test on [t+1 … t+k]
-        /// Slide forward in time (walk-forward) to get more realistic performance estimates.
-        /// 
-        /// 3. Treat this as a signal strength estimator, not a magic oracle
-        /// The raw R² on daily stock returns will often be tiny (market is noisy).
-        /// What you care about is whether the model lets you:
-        /// Rank days by expected return,
-        /// Or improve your long/flat/short decisions vs baseline.
+        /// Legacy single-split prototype. Kept for reference; production training goes through
+        /// <c>UnifiedProfitTrainer</c>. See <c>docs/ml-pipeline.md</c>.
         /// </summary>
-        /// <param name="stockData"></param>
+        [Obsolete("Prototype. Use UnifiedProfitTrainer for production training; use WalkForwardEvaluator for validation.")]
         public static void RunSignalStrengthEstimator(List<DailyBar> stockData)
         {
-            // 1. Create MLContext
             var mlContext = new MLContext(seed: 123);
 
-            // 2. Build your feature rows from raw DailyBar data
-            // (Use your existing BuildFeatures(bars) method, then convert to float.)
-            List<FeatureRow> allRows = BuildFeatures(stockData);  // <-- implement this
-
-            // Ensure sorted by Date ascending
+            List<FeatureRow> allRows = BuildFeatures(stockData);
             allRows = allRows.OrderBy(r => r.Date).ToList();
 
-            // 3. Time-based train/test split (e.g., last 20% as test)
             int n = allRows.Count;
+            if (n < 100)
+            {
+                Console.WriteLine("Not enough data.");
+                return;
+            }
+
+            // Time-based 80/20 split with 1-day embargo (horizon=1).
+            const int embargo = 1;
             int splitIndex = (int)(n * 0.8);
 
-            var trainDataList = allRows.Take(splitIndex).ToList();
-            var testDataList = allRows.Skip(splitIndex).ToList();
+            var trainList = allRows.Take(splitIndex - embargo).ToList();
+            var testList = allRows.Skip(splitIndex).ToList();
 
-            Console.WriteLine($"Train rows: {trainDataList.Count}, Test rows: {testDataList.Count}");
+            Console.WriteLine($"Train rows: {trainList.Count}, Test rows: {testList.Count} (embargo={embargo})");
 
-            // 4. Load into IDataView
-            IDataView trainData = mlContext.Data.LoadFromEnumerable(trainDataList);
-            IDataView testData = mlContext.Data.LoadFromEnumerable(testDataList);
+            IDataView trainData = mlContext.Data.LoadFromEnumerable(trainList);
+            IDataView testData = mlContext.Data.LoadFromEnumerable(testList);
 
-            // 5. Define feature column names (all except Date + Target)
-            string[] featureColumns = new[]
+            var pipeline = BuildPipeline(mlContext, new LightGbmRegressionTrainer.Options
             {
-            nameof(FeatureRow.LagClose1),
-            nameof(FeatureRow.LagClose2),
-            nameof(FeatureRow.LagClose5),
-            nameof(FeatureRow.Ret1d),
-            nameof(FeatureRow.Ret5d),
-            nameof(FeatureRow.Ma5),
-            nameof(FeatureRow.Ma20),
-            nameof(FeatureRow.Vol5),
-            nameof(FeatureRow.Vol20),
-            nameof(FeatureRow.PriceOverMa20),
-            nameof(FeatureRow.Vol),
-            nameof(FeatureRow.VolMa5),
-            nameof(FeatureRow.VolRatio5),
-            nameof(FeatureRow.RangePct),
-            nameof(FeatureRow.CloseToOpen),
-            nameof(FeatureRow.DayOfWeek),
-            nameof(FeatureRow.Month),
-            nameof(FeatureRow.IsMonthEnd)
-        };
+                LabelColumnName = nameof(FeatureRow.TargetRet1d),
+                FeatureColumnName = "Features",
+                LearningRate = 0.05,
+                NumberOfLeaves = 31,
+                NumberOfIterations = 1000,
+                MinimumExampleCountPerLeaf = 100,
+                L2CategoricalRegularization = 1.0,
+                EarlyStoppingRound = 50,
+            });
 
-            // 6. Build the pipeline
-            var pipeline = mlContext.Transforms
-                // a) Concatenate into a single Features vector
-                .Concatenate("Features", featureColumns)
-                // b) Optional: normalize features
-                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-                // c) Choose the trainer (LightGBM regression here)
-                .Append(mlContext.Regression.Trainers.LightGbm(
-                    labelColumnName: nameof(FeatureRow.TargetRet1d),
-                    featureColumnName: "Features"));
-
-            // If you want FastTree instead:
-            // .Append(mlContext.Regression.Trainers.FastTree(
-            //     labelColumnName: nameof(FeatureRow.TargetRet1d),
-            //     featureColumnName: "Features"));
-
-            // 7. Train the model
             Console.WriteLine("Training model...");
             var model = pipeline.Fit(trainData);
 
-            // 8. Evaluate on test set
-            Console.WriteLine("Evaluating on test set...");
             var predictions = model.Transform(testData);
             var metrics = mlContext.Regression.Evaluate(
                 data: predictions,
                 labelColumnName: nameof(FeatureRow.TargetRet1d),
                 scoreColumnName: "Score");
 
-            Console.WriteLine($"R^2: {metrics.RSquared:0.####}");
+            Console.WriteLine($"R^2:  {metrics.RSquared:0.####}");
             Console.WriteLine($"RMSE: {metrics.RootMeanSquaredError:0.####}");
 
-            // 9. Save model to disk
             string modelPath = "stock_model_lightgbm.zip";
             mlContext.Model.Save(model, trainData.Schema, modelPath);
             Console.WriteLine($"Model saved to: {modelPath}");
-
-            // 10. Example: use model for single prediction
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<FeatureRow, PredictionOutput>(model);
-
-            var latestRow = allRows.Last();  // last available day (t)
-            var prediction = predictionEngine.Predict(latestRow);  // predicts return for t+1
-
-            Console.WriteLine($"Predicted next-day return: {prediction.Score:0.#####}");
         }
+
+        /// <summary>
+        /// Builds the standard pipeline: one-hot calendar fields, concatenate, (optional) normalize, LightGBM.
+        /// MinMax normalization is unnecessary for tree models but kept harmless for consistency with older callers.
+        /// </summary>
+        internal static IEstimator<ITransformer> BuildPipeline(
+            MLContext mlContext,
+            LightGbmRegressionTrainer.Options options)
+        {
+            string[] numericFeatures = GetNumericFeatureColumns();
+
+            return mlContext.Transforms.Categorical
+                .OneHotEncoding("DayOfWeekEnc", nameof(FeatureRow.DayOfWeek))
+                .Append(mlContext.Transforms.Categorical.OneHotEncoding("MonthEnc", nameof(FeatureRow.Month)))
+                .Append(mlContext.Transforms.Concatenate(
+                    "Features",
+                    numericFeatures.Concat(new[] { "DayOfWeekEnc", "MonthEnc" }).ToArray()))
+                .Append(mlContext.Regression.Trainers.LightGbm(options));
+        }
+
+        internal static string[] GetNumericFeatureColumns() => new[]
+        {
+            nameof(FeatureRow.RetLag1),
+            nameof(FeatureRow.RetLag2),
+            nameof(FeatureRow.RetLag5),
+            nameof(FeatureRow.Ret1d),
+            nameof(FeatureRow.Ret5d),
+            nameof(FeatureRow.CloseOverMa5),
+            nameof(FeatureRow.CloseOverMa20),
+            nameof(FeatureRow.Ma5OverMa20),
+            nameof(FeatureRow.Vol5),
+            nameof(FeatureRow.Vol20),
+            nameof(FeatureRow.VolRatio5),
+            nameof(FeatureRow.VolRatio20),
+            nameof(FeatureRow.RangePct),
+            nameof(FeatureRow.CloseToOpen),
+            nameof(FeatureRow.IsMonthEnd),
+        };
 
         public static List<FeatureRow> BuildFeatures(List<DailyBar> bars)
         {
-            // Ensure sorted by date
             var sorted = bars.OrderBy(b => b.Date).ToList();
             int n = sorted.Count;
 
-            // Convert to double arrays for convenience
-            var close = sorted.Select(b => (float)b.Close).ToList();
+            var close = sorted.Select(b => b.Close).ToList();
             var volume = sorted.Select(b => (float)b.Volume).ToList();
 
-            // 1-day returns (undefined for i=0; we'll start later anyway)
+            // 1-day simple returns. ret1d[0] is undefined; start loop past maxLag so it's never consumed.
             var ret1d = new float[n];
-            ret1d[0] = 0.0f;
             for (int i = 1; i < n; i++)
             {
-                if (close[i - 1] == 0)
-                    ret1d[i] = 0.0f;
-                else
-                    ret1d[i] = (close[i] - close[i - 1]) / close[i - 1];
+                ret1d[i] = close[i - 1] == 0 ? 0f : (close[i] - close[i - 1]) / close[i - 1];
             }
 
-            int maxLag = 20;  // because of MA20 & Vol20
-            var rows = new List<FeatureRow>();
+            const int maxLag = 21; // need 20 prior bars for MA20/Vol20 + 1 for a clean lag
+            var rows = new List<FeatureRow>(System.Math.Max(0, n - maxLag - 1));
 
-            // We go up to n-2 because we need Close[i+1] for the target
             for (int i = maxLag; i < n - 1; i++)
             {
                 var bar = sorted[i];
-                var nextBar = sorted[i + 1];
 
-                // Target = next-day return
-                float targetRet1d = (close[i + 1] - close[i]) / close[i];
+                // --- Target: next-day return, winsorized.
+                float rawTarget = close[i] == 0 ? 0f : (close[i + 1] - close[i]) / close[i];
+                float target = System.Math.Clamp(rawTarget, -TargetWinsorizeAbs, TargetWinsorizeAbs);
 
-                // Returns
-                float ret1dToday = ret1d[i];
-                float ret5d = (close[i] - close[i - 5]) / close[i - 5];
+                // --- Lagged returns (all past-only).
+                float retLag1 = ret1d[i];       // return from t-1 -> t (known at EOD t, used to predict t+1)
+                float retLag2 = ret1d[i - 1];
+                float retLag5 = ret1d[i - 4];
 
-                // Moving averages
-                float ma5 = TimeSeriesUtils.RollingMean(close, i, 5);
-                float ma20 = TimeSeriesUtils.RollingMean(close, i, 20);
+                // --- Momentum.
+                float ret5d = close[i - 5] == 0 ? 0f : (close[i] - close[i - 5]) / close[i - 5];
 
-                // Volatility
-                float vol5 = TimeSeriesUtils.RollingStd(ret1d, i, 5);
-                float vol20 = TimeSeriesUtils.RollingStd(ret1d, i, 20);
+                // --- Moving averages -> ratios.
+                float ma5 = RollingMean(close, i, 5);
+                float ma20 = RollingMean(close, i, 20);
+                float closeOverMa5 = ma5 == 0 ? 0f : close[i] / ma5 - 1f;
+                float closeOverMa20 = ma20 == 0 ? 0f : close[i] / ma20 - 1f;
+                float ma5OverMa20 = ma20 == 0 ? 0f : ma5 / ma20 - 1f;
 
-                // Volume stats
-                float volToday = volume[i];
-                float volMa5 = TimeSeriesUtils.RollingMean(volume, i, 5);
-                float volRatio5 = volMa5 == 0 ? 0.0f : volToday / volMa5;
+                // --- Volatility (sample std for consistency).
+                float vol5 = RollingStd(ret1d, i, 5);
+                float vol20 = RollingStd(ret1d, i, 20);
 
-                // Intraday
-                float rangePct = bar.Close == 0
-                    ? 0.0f
-                    : (float)((bar.High - bar.Low) / bar.Close);
+                // --- Volume ratios.
+                float volMa5 = RollingMean(volume, i, 5);
+                float volMa20 = RollingMean(volume, i, 20);
+                float volRatio5 = volMa5 == 0 ? 0f : volume[i] / volMa5;
+                float volRatio20 = volMa20 == 0 ? 0f : volume[i] / volMa20;
 
-                float closeToOpen = bar.Open == 0
-                    ? 0.0f
-                    : (float)((bar.Close - bar.Open) / bar.Open);
+                // --- Intraday ratios.
+                float rangePct = bar.Close == 0 ? 0f : (bar.High - bar.Low) / bar.Close;
+                float closeToOpen = bar.Open == 0 ? 0f : (bar.Close - bar.Open) / bar.Open;
 
-                // Calendar
+                // --- Calendar.
                 int dow = (int)bar.Date.DayOfWeek;
                 int month = bar.Date.Month;
                 int isMonthEnd = (bar.Date.AddDays(1).Month != bar.Date.Month) ? 1 : 0;
 
-                // Assemble feature row
-                var row = new FeatureRow
+                rows.Add(new FeatureRow
                 {
                     Date = bar.Date,
-                    TargetRet1d = targetRet1d,
+                    TargetRet1d = target,
 
-                    LagClose1 = close[i],
-                    LagClose2 = close[i - 1],
-                    LagClose5 = close[i - 4],
-
-                    Ret1d = ret1dToday,
+                    RetLag1 = retLag1,
+                    RetLag2 = retLag2,
+                    RetLag5 = retLag5,
+                    Ret1d = retLag1,
                     Ret5d = ret5d,
 
-                    Ma5 = ma5,
-                    Ma20 = ma20,
+                    CloseOverMa5 = closeOverMa5,
+                    CloseOverMa20 = closeOverMa20,
+                    Ma5OverMa20 = ma5OverMa20,
+
                     Vol5 = vol5,
                     Vol20 = vol20,
-                    PriceOverMa20 = ma20 == 0 ? 0.0f : close[i] / ma20 - 1.0f,
 
-                    Vol = volToday,
-                    VolMa5 = volMa5,
                     VolRatio5 = volRatio5,
+                    VolRatio20 = volRatio20,
 
                     RangePct = rangePct,
                     CloseToOpen = closeToOpen,
@@ -313,9 +263,7 @@ namespace Core.ML
                     DayOfWeek = dow,
                     Month = month,
                     IsMonthEnd = isMonthEnd
-                };
-
-                rows.Add(row);
+                });
             }
 
             return rows;
@@ -326,53 +274,36 @@ namespace Core.ML
             int lookback = last30Bars.Count;
             var pricesNorm = new float[lookback];
 
-            float firstClose = (float)last30Bars[0].Close;
+            float firstClose = last30Bars[0].Close;
             if (firstClose == 0) firstClose = 1f;
 
             for (int i = 0; i < lookback; i++)
-                pricesNorm[i] = (float)last30Bars[i].Close / firstClose;
+                pricesNorm[i] = last30Bars[i].Close / firstClose;
 
             return new PatternWindow
             {
                 WindowPrices = pricesNorm,
-
-                // Label is unknown in real time – not used for prediction
                 HasHeadAndShoulders = false
             };
         }
 
-        //At the end you’ve got a List<FeatureRow> where each row:
-        //Uses only info up to time t
-        //Has a target = return at t+1
-        //You can then map this to whatever your model expects:
-
-        // Example of turning into X (features) and y (targets)
-        //double[][] X = rows.Select(r => new[]
-        //{
-        //    r.LagClose1, r.LagClose2, r.LagClose5,
-        //    r.Ret1d, r.Ret5d,
-        //    r.Ma5, r.Ma20, r.Vol5, r.Vol20, r.PriceOverMa20,
-        //    r.Vol, r.VolMa5, r.VolRatio5,
-        //    r.RangePct, r.CloseToOpen,
-        //    r.DayOfWeek, r.Month, r.IsMonthEnd
-        //}).ToArray();
-
-        //double[] y = rows.Select(r => r.TargetRet1d).ToArray();
-
         public static float RollingMean(IList<float> series, int endIndexInclusive, int window)
         {
             int start = endIndexInclusive - window + 1;
-            float sum = 0.0f;
+            float sum = 0f;
             for (int i = start; i <= endIndexInclusive; i++)
                 sum += series[i];
             return sum / window;
         }
 
+        /// <summary>Sample standard deviation (N-1).</summary>
         public static float RollingStd(IList<float> series, int endIndexInclusive, int window)
         {
+            if (window <= 1) return 0f;
+
             int start = endIndexInclusive - window + 1;
             float mean = RollingMean(series, endIndexInclusive, window);
-            float sumSq = 0.0f;
+            float sumSq = 0f;
 
             for (int i = start; i <= endIndexInclusive; i++)
             {
@@ -380,16 +311,8 @@ namespace Core.ML
                 sumSq += diff * diff;
             }
 
-            // sample std (N-1) or population (N)? choose one; here population:
-            float variance = sumSq / window;
+            float variance = sumSq / (window - 1);
             return (float)System.Math.Sqrt(variance);
         }
-
-
- 
-
-        
-
     }
-
 }

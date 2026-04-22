@@ -1,175 +1,127 @@
 ﻿using Microsoft.ML;
 using Microsoft.ML.Trainers.LightGbm;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Core.ML
 {
-
-    // train
-    // test
-    // use
-
-
-
+    /// <summary>
+    /// Legacy single-series tuning prototype. Retained for reference only.
+    /// Production training lives in <c>Core.ML.Engine.Profit.UnifiedProfitTrainer</c>.
+    /// See <c>docs/ml-pipeline.md</c>.
+    /// </summary>
+    [Obsolete("Prototype. Use UnifiedProfitTrainer for production training.")]
     public static class Trainer
     {
+        /// <summary>
+        /// Embargo (in bars) between train/val and val/test to prevent label leakage
+        /// across the boundary when the target uses future bars.
+        /// </summary>
+        private const int EmbargoBars = 1;
 
-        public static void Entry()
-        {
-            //Train a “head - and - shoulders present ?” classifier, and
-            //Later plug its output into your price/return prediction model as a feature.
-
-
-            // todo
-            //If you’d like, I can next show a tiny example of how to pipe the classifier into the regression feature
-            //builder so it all runs in one C# pipeline (classifier → features → regression).
-
-
-            // Now your regression model can learn things like:
-            // “When head-and - shoulders probability is high, expected next-day return tends to be X…”
-            // instead of relying on a brittle yes / no rule.
-
-
-        }
+        public static void Entry() { /* no-op placeholder */ }
 
         /// <summary>
-        /// How to tweak / extend this
-        /// Change the grid size
-        ///     Start small(like above). If training is quick, widen:
-        ///         More learningRates(e.g. 0.005, 0.02, 0.03…)
-        ///         More NumberOfLeaves(15, 31, 63, 127, 255)
-        ///         More NumberOfIterations(100–1000+)
-        /// Switch metric
-        ///     If you care more about minimizing error, use if (metrics.RootMeanSquaredError<bestRmse).
-        ///     For ranking decisions(long/short), you might later build a custom metric.
-        /// Avoid leakage
-        ///     The important bit is: all splits are by date order, no shuffling.
-        /// Add more options
-        ///     You can also grid search over MinimumExampleCountPerLeaf, L2Regularization, etc. once this is working.
+        /// Time-based 60/20/20 split with embargo + LightGBM hyperparameter search
+        /// selected by Spearman rank correlation on the validation slice.
         /// </summary>
-        /// <param name="data"></param>
-        static void TrainData(List<DailyBar> data)
+        public static void TrainData(List<DailyBar> data)
         {
             var mlContext = new MLContext(seed: 123);
 
-            // 1. Load your fully-prepared FeatureRow list (with TargetRet1d etc.)
             List<FeatureRow> allRows = TimeSeriesUtils.BuildFeatures(data);
             allRows = allRows.OrderBy(r => r.Date).ToList();
 
             int n = allRows.Count;
-            if (n < 100)
+            if (n < 200)
             {
                 Console.WriteLine("Not enough data for train/val/test split.");
                 return;
             }
 
-            // 2. Time-based splits: 60% train, 20% val, 20% test
             int trainEnd = (int)(n * 0.6);
             int validEnd = (int)(n * 0.8);
 
-            var trainList = allRows.Take(trainEnd).ToList();
-            var validList = allRows.Skip(trainEnd).Take(validEnd - trainEnd).ToList();
+            // Apply embargo at each boundary so the trained model never sees labels
+            // whose forward window overlaps with validation/test features.
+            var trainList = allRows.Take(trainEnd - EmbargoBars).ToList();
+            var validList = allRows.Skip(trainEnd).Take(validEnd - trainEnd - EmbargoBars).ToList();
             var testList = allRows.Skip(validEnd).ToList();
+
+            Console.WriteLine($"Train={trainList.Count}, Val={validList.Count}, Test={testList.Count}, embargo={EmbargoBars}");
 
             IDataView trainData = mlContext.Data.LoadFromEnumerable(trainList);
             IDataView validData = mlContext.Data.LoadFromEnumerable(validList);
             IDataView testData = mlContext.Data.LoadFromEnumerable(testList);
 
-            // 3. Feature columns (same as before)
-            string[] featureColumns = GetFeatureColumns();
+            // Shrunk grid — early stopping handles iteration count.
+            var learningRates = new[] { 0.02, 0.05 };
+            var numLeaves = new[] { 15, 31 };
+            var minPerLeaf = new[] { 50, 100 };
+            var l2 = new[] { 0.5, 1.0 };
 
-            // 4. Hyperparameter grids
-            var learningRates = new[] { 0.01f, 0.05f, 0.1f };
-            var numLeaves = new[] { 31, 63, 127 };
-            var numIterations = new[] { 200, 400, 800 };
+            double bestScore = double.NegativeInfinity;
+            LightGbmRegressionTrainer.Options bestOptions = null!;
 
-            double bestR2 = double.NegativeInfinity;
-            LightGbmRegressionTrainer.Options bestOptions = null;
-            ITransformer bestModel = null;
-
-            Console.WriteLine("Starting hyperparameter search...");
+            Console.WriteLine("Starting hyperparameter search (ranked by Spearman on validation)...");
 
             foreach (var lr in learningRates)
+            foreach (var leaves in numLeaves)
+            foreach (var mpl in minPerLeaf)
+            foreach (var l2reg in l2)
             {
-                foreach (var leaves in numLeaves)
+                var options = new LightGbmRegressionTrainer.Options
                 {
-                    foreach (var iters in numIterations)
-                    {
-                        var options = new LightGbmRegressionTrainer.Options
-                        {
-                            LabelColumnName = nameof(FeatureRow.TargetRet1d),
-                            FeatureColumnName = "Features",
+                    LabelColumnName = nameof(FeatureRow.TargetRet1d),
+                    FeatureColumnName = "Features",
+                    LearningRate = lr,
+                    NumberOfLeaves = leaves,
+                    NumberOfIterations = 2000,
+                    MinimumExampleCountPerLeaf = mpl,
+                    L2CategoricalRegularization = l2reg,
+                    //L2Regularization = l2reg,
+                    EarlyStoppingRound = 50,
+                };
 
-                            LearningRate = lr,
-                            NumberOfLeaves = leaves,
-                            NumberOfIterations = iters,
+                var pipeline = TimeSeriesUtils.BuildPipeline(mlContext, options);
+                var model = pipeline.Fit(trainData);
 
-                            // Some sensible defaults you can tweak later:
-                            MinimumExampleCountPerLeaf = 20,
-                            UseCategoricalSplit = false
-                            
-                            //UseHybridPreciseL1Threshold = false,
-                            //L2Regularization = 0.0,
-                            //L1Regularization = 0.0,
-                        };
+                var validPred = model.Transform(validData);
+                var metrics = mlContext.Regression.Evaluate(
+                    data: validPred,
+                    labelColumnName: nameof(FeatureRow.TargetRet1d),
+                    scoreColumnName: "Score");
 
-                        // 5. Build pipeline for this configuration
-                        var pipeline = mlContext.Transforms
-                            .Concatenate("Features", featureColumns)
-                            .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-                            .Append(mlContext.Regression.Trainers.LightGbm(options));
+                double spearman = SpearmanOnPredictions(mlContext, validPred);
+                double dirAcc = DirectionalAccuracy(mlContext, validPred);
 
-                        // 6. Train on TRAIN portion only
-                        var model = pipeline.Fit(trainData);
+                Console.WriteLine(
+                    $"lr={lr}, leaves={leaves}, minLeaf={mpl}, l2={l2reg} => " +
+                    $"spearman={spearman:0.###}, dirAcc={dirAcc:P1}, " +
+                    $"R^2={metrics.RSquared:0.####}, RMSE={metrics.RootMeanSquaredError:0.####}");
 
-                        // 7. Evaluate on VALIDATION portion
-                        var validPred = model.Transform(validData);
-                        var metrics = mlContext.Regression.Evaluate(
-                            data: validPred,
-                            labelColumnName: nameof(FeatureRow.TargetRet1d),
-                            scoreColumnName: "Score");
-
-                        Console.WriteLine($"lr={lr}, leaves={leaves}, iters={iters} => " +
-                                          $"R^2={metrics.RSquared:0.####}, RMSE={metrics.RootMeanSquaredError:0.####}");
-
-                        // 8. Track best by R^2 (you could flip to RMSE if you prefer)
-                        if (metrics.RSquared > bestR2)
-                        {
-                            bestR2 = metrics.RSquared;
-                            bestOptions = options;
-                            bestModel = model;
-                        }
-                    }
+                if (spearman > bestScore)
+                {
+                    bestScore = spearman;
+                    bestOptions = options;
                 }
             }
 
             Console.WriteLine();
-            Console.WriteLine("Best config found:");
-            Console.WriteLine($"R^2={bestR2:0.####}");
-            Console.WriteLine($"LearningRate={bestOptions.LearningRate}, " +
-                              $"NumberOfLeaves={bestOptions.NumberOfLeaves}, " +
-                              $"NumberOfIterations={bestOptions.NumberOfIterations}");
+            Console.WriteLine($"Best Spearman = {bestScore:0.###}");
+            Console.WriteLine($"  lr={bestOptions.LearningRate}, leaves={bestOptions.NumberOfLeaves}, " +
+                              $"minLeaf={bestOptions.MinimumExampleCountPerLeaf}, l2={bestOptions.L2CategoricalRegularization}");
 
-            // 9. Retrain best config on TRAIN+VALID (all data up to test period)
-            var trainPlusValidList = allRows.Take(validEnd).ToList();
+            // Refit on train+valid (respecting embargo before test).
+            var trainPlusValidList = allRows.Take(validEnd - EmbargoBars).ToList();
             var trainPlusValidData = mlContext.Data.LoadFromEnumerable(trainPlusValidList);
 
-            var finalPipeline = mlContext.Transforms
-                .Concatenate("Features", featureColumns)
-                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-                .Append(mlContext.Regression.Trainers.LightGbm(bestOptions));
+            var finalPipeline = TimeSeriesUtils.BuildPipeline(mlContext, bestOptions);
 
             Console.WriteLine("Training final model on Train+Validation...");
             var finalModel = finalPipeline.Fit(trainPlusValidData);
 
-            // 10. Final evaluation on TEST
             Console.WriteLine("Evaluating final model on Test set...");
             var testPred = finalModel.Transform(testData);
             var finalMetrics = mlContext.Regression.Evaluate(
@@ -177,40 +129,74 @@ namespace Core.ML
                 labelColumnName: nameof(FeatureRow.TargetRet1d),
                 scoreColumnName: "Score");
 
-            Console.WriteLine($"TEST R^2 = {finalMetrics.RSquared:0.####}");
-            Console.WriteLine($"TEST RMSE = {finalMetrics.RootMeanSquaredError:0.####}");
+            double testSpearman = SpearmanOnPredictions(mlContext, testPred);
+            double testDirAcc = DirectionalAccuracy(mlContext, testPred);
 
-            // 11. Save the final model
+            Console.WriteLine($"TEST R^2      = {finalMetrics.RSquared:0.####}");
+            Console.WriteLine($"TEST RMSE     = {finalMetrics.RootMeanSquaredError:0.####}");
+            Console.WriteLine($"TEST Spearman = {testSpearman:0.###}");
+            Console.WriteLine($"TEST DirAcc   = {testDirAcc:P1}");
+
             string modelPath = "stock_lightgbm_tuned.zip";
             mlContext.Model.Save(finalModel, trainPlusValidData.Schema, modelPath);
             Console.WriteLine($"Final model saved to: {modelPath}");
         }
 
-        private static string[] GetFeatureColumns()
+        // --- helpers ---
+
+        private sealed class EvalRow
         {
-            string[] featureColumns = new[]
-          {
-            nameof(FeatureRow.LagClose1),
-            nameof(FeatureRow.LagClose2),
-            nameof(FeatureRow.LagClose5),
-            nameof(FeatureRow.Ret1d),
-            nameof(FeatureRow.Ret5d),
-            nameof(FeatureRow.Ma5),
-            nameof(FeatureRow.Ma20),
-            nameof(FeatureRow.Vol5),
-            nameof(FeatureRow.Vol20),
-            nameof(FeatureRow.PriceOverMa20),
-            nameof(FeatureRow.Vol),
-            nameof(FeatureRow.VolMa5),
-            nameof(FeatureRow.VolRatio5),
-            nameof(FeatureRow.RangePct),
-            nameof(FeatureRow.CloseToOpen),
-            nameof(FeatureRow.DayOfWeek),
-            nameof(FeatureRow.Month),
-            nameof(FeatureRow.IsMonthEnd)
-            };
-            return featureColumns;
+            public float TargetRet1d { get; set; }
+            public float Score { get; set; }
         }
 
+        private static double SpearmanOnPredictions(MLContext mlContext, IDataView predictions)
+        {
+            var rows = mlContext.Data.CreateEnumerable<EvalRow>(predictions, reuseRowObject: false).ToList();
+            if (rows.Count < 2) return 0;
+
+            var x = rows.Select(r => (double)r.Score).ToArray();
+            var y = rows.Select(r => (double)r.TargetRet1d).ToArray();
+            return Correlation(Rank(x), Rank(y));
+        }
+
+        private static double DirectionalAccuracy(MLContext mlContext, IDataView predictions)
+        {
+            var rows = mlContext.Data.CreateEnumerable<EvalRow>(predictions, reuseRowObject: false).ToList();
+            if (rows.Count == 0) return 0;
+            return rows.Count(r => System.Math.Sign(r.Score) == System.Math.Sign(r.TargetRet1d)) / (double)rows.Count;
+        }
+
+        private static double[] Rank(double[] values)
+        {
+            var indexed = values.Select((v, i) => (Value: v, Index: i))
+                                .OrderBy(t => t.Value).ToArray();
+            var ranks = new double[values.Length];
+            int i = 0;
+            while (i < indexed.Length)
+            {
+                int j = i;
+                while (j < indexed.Length && indexed[j].Value.Equals(indexed[i].Value)) j++;
+                double avgRank = (i + 1 + j) / 2.0;
+                for (int k = i; k < j; k++) ranks[indexed[k].Index] = avgRank;
+                i = j;
+            }
+            return ranks;
+        }
+
+        private static double Correlation(double[] x, double[] y)
+        {
+            int n = x.Length;
+            if (n < 2) return 0;
+            double mx = x.Average(), my = y.Average();
+            double cov = 0, vx = 0, vy = 0;
+            for (int i = 0; i < n; i++)
+            {
+                double dx = x[i] - mx, dy = y[i] - my;
+                cov += dx * dy; vx += dx * dx; vy += dy * dy;
+            }
+            double denom = System.Math.Sqrt(vx * vy);
+            return denom == 0 ? 0 : cov / denom;
+        }
     }
 }
