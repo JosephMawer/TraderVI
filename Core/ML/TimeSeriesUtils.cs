@@ -117,8 +117,12 @@ namespace Core.ML
                 NumberOfLeaves = 31,
                 NumberOfIterations = 1000,
                 MinimumExampleCountPerLeaf = 100,
-                L2CategoricalRegularization = 1.0,
                 EarlyStoppingRound = 50,
+                Booster = new GradientBooster.Options
+                {
+                    L2Regularization = 1.0,
+                    L1Regularization = 0.0,
+                },
             });
 
             Console.WriteLine("Training model...");

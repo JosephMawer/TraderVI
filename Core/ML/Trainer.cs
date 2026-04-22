@@ -79,9 +79,12 @@ namespace Core.ML
                     NumberOfLeaves = leaves,
                     NumberOfIterations = 2000,
                     MinimumExampleCountPerLeaf = mpl,
-                    L2CategoricalRegularization = l2reg,
-                    //L2Regularization = l2reg,
                     EarlyStoppingRound = 50,
+                    Booster = new GradientBooster.Options
+                    {
+                        L2Regularization = l2reg,
+                        L1Regularization = 0.0,
+                    },
                 };
 
                 var pipeline = TimeSeriesUtils.BuildPipeline(mlContext, options);
