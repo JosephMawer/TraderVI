@@ -78,3 +78,22 @@
 ## Gate Pipeline
 - **Gate**: A sequential pass/fail check in `TradePipeline`. Each gate examines `GateContext` and can block a trade.
 - **GateTrace**: Diagnostic log of which gates passed/failed for a given stock evaluation.
+
+## Backtest and P&L Metrics
+- **P&L (Profit and Loss)**: The net financial outcome of a strategy over a period. `EndingEquity − StartingEquity`, expressed in dollars or as a percentage. In TraderVI's backtests, P&L is computed from the simulated equity curve (entries, exits, slippage, commission applied).
+- **Equity curve**: Time series of total account value over the backtest, one point per trading day. The primary visual artifact of a backtest run.
+- **Total Return**: `(FinalEquity − InitialEquity) / InitialEquity`. The headline P&L number for a run.
+- **CAGR (Compound Annual Growth Rate)**: Annualized total return. `(FinalEquity / InitialEquity)^(1 / Years) − 1`.
+- **Drawdown**: Percent decline from a prior equity peak. Computed bar-by-bar against the running peak.
+- **Max Drawdown**: The worst (largest) drawdown observed in the run. Primary risk metric.
+- **Sharpe Ratio**: Risk-adjusted return. `mean(daily strategy returns) / std(daily strategy returns) × sqrt(252)`. Risk-free rate assumed 0 unless stated otherwise.
+- **Sortino Ratio**: Like Sharpe but only penalizes downside volatility. Uses `std(negative daily returns)` in the denominator.
+- **Hit Rate**: Fraction of closed trades with `RealizedReturn > 0`.
+- **Average Winner / Average Loser**: Mean realized return of profitable trades and losing trades respectively. Ratio (`AvgWin / |AvgLoss|`) is the payoff ratio.
+- **Exposure %**: Fraction of trading days the strategy held a position. `DaysInMarket / TotalDays`.
+- **Benchmark**: Buy-and-hold reference. TraderVI uses **XIU** (iShares S&P/TSX 60 ETF) as the default benchmark for backtest comparison.
+- **Walk-forward backtest**: Replay of a strategy through historical time where, on each date `T`, only data with date `< T − embargo` is used for any model or feature. Models are retrained periodically through the replay rather than once at the end.
+- **Point-in-time correctness**: Invariant that no decision on date `T` may use information from any bar dated after `T − embargo`. The fundamental honesty constraint of a backtest.
+- **As-of universe**: The set of symbols actually tradable on a given historical date `T` — excludes symbols that hadn't listed yet and (correctly) includes symbols that later delisted, up to their last bar.
+- **Retrain cadence**: Backtest config controlling how often models are refreshed during the historical replay (e.g., every 1 month). Distinct from live ops cadence.
+- **BacktestRunId**: Unique identifier tagging all artifacts (picks, equity, retrained model zips) from a single backtest invocation. Enables comparing multiple runs.

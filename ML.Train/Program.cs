@@ -61,59 +61,39 @@ else
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// PART 1: Train Pattern Models
+// PART 1: Rule-Based Pattern Presence Report (informational only)
+//
+// Patterns are deterministic detectors — they are NOT trained. This section
+// just reports how often each pattern fires across the universe so we can
+// sanity-check detector logic without committing anything to the registry.
+// See docs/design-rules.md → "Rule-Based Pattern Signals".
 // ═══════════════════════════════════════════════════════════════════
 Console.WriteLine(new string('═', 60));
-Console.WriteLine("PATTERN DETECTION MODELS");
+Console.WriteLine("RULE-BASED PATTERN PRESENCE REPORT (no training)");
 Console.WriteLine(new string('═', 60) + "\n");
 
 foreach (var pattern in PatternRegistry.All)
 {
-    var modelPath = Path.Combine(modelsRoot, $"{pattern.TaskType.ToLower()}_classifier.zip");
+    int windowsEvaluated = 0;
+    int windowsPositive = 0;
 
-    var result = UnifiedPatternTrainer.Train(pattern, barsBySymbol, modelPath);
-
-    // Log experiment to DB (even if failed)
-    await experimentRepo.InsertExperiment(
-        taskType: pattern.TaskType,
-        experimentName: $"{pattern.TaskType} Pattern Detection",
-        labelDefinition: $"Pattern: {pattern.Detector.PatternName}",
-        featureSet: pattern.FeatureBuilder.Name,
-        featureCount: pattern.FeatureBuilder.FeatureCount(pattern.Lookback),
-        trainWindows: result.TrainWindows,
-        testWindows: result.TestWindows,
-        auc: result.Auc,
-        accuracy: result.Accuracy,
-        decision: result.Success ? "Keep" : "Skip",
-        notes: $"Lookback={pattern.Lookback}. Category={pattern.Category}. Semantics={pattern.Semantics}");
-
-    if (result.Success)
+    foreach (var (sym, bars) in barsBySymbol)
     {
-        await registry.InsertModel(
-            name: $"{pattern.TaskType} (Pattern)",
-            taskType: pattern.TaskType,
-            modelKind: "BinaryClassification",
-            family: pattern.Category,
-            timeFrame: "Daily",
-            lookbackBars: pattern.Lookback,
-            horizonBars: 0,
-            inputSchema: $"{pattern.TaskType}_unified",
-            featureSet: pattern.FeatureBuilder.Name,
-            zipPath: modelPath,
-            thresholdBuy: 0.60,
-            thresholdSell: 0.40,
-            isEnabled: true,
-            trainedFromUtc: null,
-            trainedToUtc: null,
-            notes: $"Pattern detection. Trained on {result.SymbolsUsed} symbols. Acc={result.Accuracy:0.####}");
+        if (bars.Count < pattern.Lookback) continue;
 
-        Console.WriteLine($"  ✓ Logged experiment and model for {pattern.TaskType}\n");
+        for (int end = pattern.Lookback; end <= bars.Count; end++)
+        {
+            var window = bars.GetRange(end - pattern.Lookback, pattern.Lookback);
+            if (pattern.Detector.Detect(window))
+                windowsPositive++;
+            windowsEvaluated++;
+        }
     }
-    else
-    {
-        Console.WriteLine($"  ✗ Logged failed experiment for {pattern.TaskType}\n");
-    }
+
+    double rate = windowsEvaluated > 0 ? (double)windowsPositive / windowsEvaluated : 0;
+    Console.WriteLine($"  [{pattern.TaskType,-14}] lookback={pattern.Lookback,3}  windows={windowsEvaluated,8:N0}  present={windowsPositive,8:N0}  rate={rate:P2}  semantics={pattern.Semantics}");
 }
+Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
 // PART 2: Train Profit Prediction Models
@@ -141,7 +121,6 @@ foreach (var profitModel in ProfitModelRegistry.All)
         Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context ({marketBars.Count} bars)");
     }
 
-    // After the MarketContextFeatureBuilder injection, add:
     if (profitModel.FeatureBuilder is EnhancedFeatureBuilder efb && marketBars != null)
     {
         efb.MarketBars = marketBars;

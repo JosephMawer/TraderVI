@@ -18,34 +18,39 @@ public static class DelphiBootstrap
         var repo = new ModelRegistryRepository();
         var enabledModels = await repo.GetEnabledModels();
 
-        var allowedPatternTaskTypes = PatternRegistry.All
-            .Select(p => p.TaskType)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         var allowedProfitTaskTypes = ProfitModelRegistry.All
             .Select(p => p.TaskType)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var patternModels = new List<IStockSignalModel>();
+        // A2 refactor: pattern task types are rule-based and no longer read from ModelRegistry.
+        // If a DB row for a pattern task type still exists (legacy), it is silently ignored here.
+        var patternTaskTypesInCode = PatternRegistry.All
+            .Select(p => p.TaskType)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // ── Pattern models: built directly from the code registry (no DB, no ML.NET) ─────
+        var patternModels = PatternRegistry.All
+            .Select(p => (IStockSignalModel)new RulePatternSignalModel(p))
+            .ToList();
+
+        var loadedPatterns = PatternRegistry.All.Select(p => p.TaskType).ToList();
+
+        // ── Profit models: still registry-driven ──────────────────────────────────────────
         var profitModels = new List<UnifiedProfitSignalModel>();
-
-        var loadedPatterns = new List<string>();
         var loadedProfit = new List<string>();
-
         var loadedTaskTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var modelInfo in enabledModels)
         {
-            bool isAllowedPattern = allowedPatternTaskTypes.Contains(modelInfo.TaskType);
-            bool isAllowedProfit = allowedProfitTaskTypes.Contains(modelInfo.TaskType);
-
-            // Silently skip DB rows for models disabled in the code registry
-            if (!isAllowedPattern && !isAllowedProfit)
+            // Silently skip any legacy pattern rows still marked IsEnabled in the DB.
+            if (patternTaskTypesInCode.Contains(modelInfo.TaskType))
                 continue;
+
+            if (!allowedProfitTaskTypes.Contains(modelInfo.TaskType))
+                continue; // disabled in code registry
 
             if (!File.Exists(modelInfo.ZipPath))
             {
-                // File missing is actionable — warn but don't crash
                 Console.WriteLine($"[DelphiBootstrap] ⚠️  Model file not found, skipping: {modelInfo.TaskType}");
                 continue;
             }
@@ -53,31 +58,16 @@ public static class DelphiBootstrap
             if (!loadedTaskTypes.Add(modelInfo.TaskType))
                 continue;
 
-            if (isAllowedPattern)
+            var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
+            if (profitModel != null)
             {
-                var patternModel = UnifiedPatternSignalModel.FromRegistryInfo(modelInfo);
-                if (patternModel != null)
-                {
-                    patternModels.Add(patternModel);
-                    loadedPatterns.Add(modelInfo.TaskType);
-                }
-                continue;
-            }
-
-            if (isAllowedProfit)
-            {
-                var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
-                if (profitModel != null)
-                {
-                    profitModels.Add(profitModel);
-                    loadedProfit.Add(modelInfo.TaskType);
-                }
-                continue;
+                profitModels.Add(profitModel);
+                loadedProfit.Add(modelInfo.TaskType);
             }
         }
 
-        Console.WriteLine($"[DelphiBootstrap] Pattern models: {string.Join(", ", loadedPatterns)}");
-        Console.WriteLine($"[DelphiBootstrap] Profit models:  {string.Join(", ", loadedProfit)}");
+        Console.WriteLine($"[DelphiBootstrap] Pattern signals (rule-based): {string.Join(", ", loadedPatterns)}");
+        Console.WriteLine($"[DelphiBootstrap] Profit models (ML):          {string.Join(", ", loadedProfit)}");
 
         return new TradeDecisionEngine(patternModels, profitModels, config);
     }

@@ -41,7 +41,7 @@ These are hand-coded logic gates that override or modulate the ML signals:
 
 These are trained models that produce probability scores:
 
-**Active Models (5 profit + 3 pattern):**
+**Active Models (5 profit):**
 
 1. **BreakoutEnhanced** (AUC 0.81) — "Is a breakout above the 20-day high happening?" — Primary **setup filter**. If this doesn't fire, we don't trade.
 

@@ -190,3 +190,34 @@ Delphi outputs two structured reports via `Core.Runtime.DelphiReportBuilder`:
 - New data sources consumed by the engine (add to diagnostic universe stats)
 
 The `DelphiReportBuilder` properties should mirror what `Delphi/Program.cs` computes — do not duplicate computation logic in the report builder; it only formats data it receives.
+
+### Rule-Based Pattern Signals (A2 refactor)
+
+Pattern detectors (`Trend10`, `Trend30`, `MaCrossover`, and any detector listed in
+`PatternRegistry.All`) are **deterministic rule-based checks**, not ML models.
+
+**Why not ML:**
+- The label (`detector.Detect(window)`) is a pure function of the same bars used to build
+  the feature vector. An ML model trained this way just approximates the rule it was given.
+- Near-perfect training AUC (~0.99–1.00) is expected and uninformative — it does not mean
+  the pattern predicts forward returns.
+- Forward-return prediction is handled by the **profit models** (`BinaryUp10`,
+  `BinaryDown10`, `BreakoutEnhanced`, `VolExpansionRelative10`, `RelStrengthCont10_2pct`).
+
+**Implementation rules:**
+- Pattern detectors are authored as `IPatternDetector` implementations under
+  `Core/ML/Engine/Patterns/Detectors/`. (Namespace predates this refactor; future cleanup.)
+- At runtime they are wrapped by `RulePatternSignalModel` and evaluated directly —
+  no ML.NET, no `.zip` files, no `ModelRegistry` rows.
+- `PatternRegistry.All` is the **single source of truth** for which patterns are active;
+  toggles live in code (`EnableTrend10`, etc.), not in the database.
+- `SignalResult.Score` is binary: `1.0` when present, `0.0` when absent.
+- `DelphiBootstrap` silently ignores any legacy `[ModelRegistry]` rows whose `TaskType`
+  matches a code-registered pattern, so stale DB rows are harmless.
+- `ML.Train` does **not** train pattern models. Hercules emits a "Pattern Presence Report"
+  showing the firing rate per pattern across the universe for sanity checking only.
+
+**Do NOT:**
+- Add pattern task types to `ProfitModelRegistry`.
+- Re-introduce a trainer for any `IPatternDetector`.
+- Write pattern `.zip` files to disk or `[ModelRegistry]` rows to the DB.
