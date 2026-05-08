@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11123.170
@@ -43,6 +43,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "TraderDB", "TraderDB\TraderDB.sqlproj", "{39F432D2-1167-40EB-96BB-C16DEE71B549}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA5-4502-B18F-4A52ED8BF43E}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\adr\README.md = Docs\adr\README.md
+		Docs\adr\by-domain.md = Docs\adr\by-domain.md
+		Docs\adr\0001-granville-plugin-architecture.md = Docs\adr\0001-granville-plugin-architecture.md
+		Docs\adr\0002-xiu-as-benchmark-index.md = Docs\adr\0002-xiu-as-benchmark-index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65EEFD96-834F-498F-8DB4-D1237BE733DC}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\concepts\README.md = Docs\concepts\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviews", "reviews", "{FDB8BD6D-3759-4919-8CF9-4286F5EDCBFE}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\reviews\flashcards.md = Docs\reviews\flashcards.md
+		Docs\reviews\review-log.md = Docs\reviews\review-log.md
+		Docs\reviews\open-questions.md = Docs\reviews\open-questions.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -258,6 +278,9 @@ Global
 		{3E18DB1C-7F54-4012-8CEF-89193D40DCD9} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{A76FEDC7-D959-4A63-8461-FD2969906C4A} = {41685814-8E63-4A11-9064-2A7449DAC076}
+		{2E2EB6BD-EDA5-4502-B18F-4A52ED8BF43E} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
+		{65EEFD96-834F-498F-8DB4-D1237BE733DC} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
+		{FDB8BD6D-3759-4919-8CF9-4286F5EDCBFE} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CF9035F-94B4-4E7F-A819-1150E19A7499}
