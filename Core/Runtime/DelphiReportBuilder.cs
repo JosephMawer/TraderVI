@@ -24,6 +24,7 @@ public sealed class DelphiReportBuilder
     public double BreadthScore { get; set; }
     public bool BearishDivergence { get; set; }
     public GranvilleDailyForecast? Granville { get; set; }
+    public WeightingSnapshot? Weighting { get; set; }
     public IReadOnlyList<SectorIndexSnapshot> SectorSnapshots { get; set; } = [];
     public IReadOnlyList<RankedPick> TopPicks { get; set; } = [];
     public RankedPick? BestPick { get; set; }
@@ -101,6 +102,32 @@ public sealed class DelphiReportBuilder
                 sb.AppendLine($"       {r.Description}");
             }
             sb.AppendLine($"  Net Points: {Granville.NetPoints:+0;-0}  Bullish: {Granville.BullishCount}  Bearish: {Granville.BearishCount}  Adj: {Granville.CompositeAdjustment:+0.000;-0.000}");
+        }
+
+        // ── Weighting (Granville #15/#16) ──
+        if (Weighting != null)
+        {
+            sb.AppendLine("\n── Weighting (Granville #15/#16) ──");
+            if (Weighting.Degraded)
+            {
+                sb.AppendLine($"  Coverage:       {Weighting.ConstituentsObserved}/{Weighting.ConstituentsRequired} (degraded — no scoring)");
+            }
+            else
+            {
+                sb.AppendLine($"  Coverage:       {Weighting.ConstituentsObserved}/60");
+                sb.AppendLine($"  XIU Return:     {Weighting.XiuReturn:+0.0000;-0.0000}");
+                sb.AppendLine($"  ScoreB:         {Weighting.ScoreB:F3}  (threshold {WeightingCalculator.ScoreBThreshold:F2})");
+                sb.AppendLine($"  ScoreC:         {Weighting.ScoreC:F3}  (threshold {WeightingCalculator.ScoreCThreshold:F2})");
+                sb.AppendLine($"  Triggered:      {Weighting.Triggered}");
+                if (Weighting.TopContributors.Count > 0)
+                {
+                    sb.AppendLine($"  Top contributors (with-index):");
+                    foreach (var c in Weighting.TopContributors)
+                    {
+                        sb.AppendLine($"    {c.Symbol,-8} w={c.Weight:F4} ret={c.Return:+0.0000;-0.0000} contrib={c.Contribution:+0.000000;-0.000000}");
+                    }
+                }
+            }
         }
 
         // ── Universe Stats ──
@@ -207,6 +234,22 @@ public sealed class DelphiReportBuilder
         {
             string gLabel = Granville.NetPoints > 0 ? "📈 Bullish" : Granville.NetPoints < 0 ? "📉 Bearish" : "➖ Neutral";
             sb.AppendLine($"\nGranville: {gLabel} (net {Granville.NetPoints:+0;-0} pts, {Granville.BullishCount} bull / {Granville.BearishCount} bear)");
+        }
+
+        // ── Weighting summary line ──
+        if (Weighting != null && !Weighting.Degraded)
+        {
+            if (Weighting.Triggered)
+            {
+                string topSyms = Weighting.TopContributors.Count > 0
+                    ? string.Join(", ", Weighting.TopContributors.Select(c => c.Symbol))
+                    : "—";
+                sb.AppendLine($"  ⚠️ Narrow advance: ScoreB={Weighting.ScoreB:F2}, ScoreC={Weighting.ScoreC:F2}, top: {topSyms}");
+            }
+            else
+            {
+                sb.AppendLine($"  Weighting: ScoreB={Weighting.ScoreB:F2}, ScoreC={Weighting.ScoreC:F2} (no trigger)");
+            }
         }
 
         // ── Recommendation ──

@@ -1,6 +1,7 @@
 ﻿using Core.Db;
 using Core.Indicators;
 using Core.Indicators.Granville;
+using Core.Config;
 using Core.ML;
 using Core.Runtime;
 using Core.Trader;
@@ -141,6 +142,7 @@ Console.WriteLine();
 // GRANVILLE'S 56 DAY-TO-DAY INDICATORS
 // ═══════════════════════════════════════════════════════════════════
 GranvilleDailyForecast? granvilleForecast = null;
+WeightingSnapshot? weightingSnapshot = null;
 
 var sectorIndexRepo = new SectorIndexRepository();
 var stockSectorRepo = new StockSectorRepository();
@@ -163,6 +165,24 @@ if (adLine.Count >= 2)
     var mostActiveRepo = new MostActiveStocksRepository();
     var mostActiveStocks = await mostActiveRepo.GetTopByVolumeAsync(adLine[^1].Date, count: 15);
 
+    // Load XIU constituent closes for Weighting indicator (#15/#16 — see ADR-0003).
+    // Only the two most recent sessions per symbol are needed. Pull a small recent
+    // window to absorb stale bars / weekends and reduce per-symbol payload.
+    DateTime evalDateForWeighting = adLine[^1].Date;
+    DateTime weightingFrom = evalDateForWeighting.AddDays(-10);
+    var xiuConstituentBars = new List<XiuConstituentBar>(Xiu60Constituents.Symbols.Count);
+    foreach (var symbol in Xiu60Constituents.Symbols)
+    {
+        var bars = await quoteRepo.GetDailyBarsAsync(symbol, weightingFrom);
+        if (bars.Count < 2) continue;
+        var todayBar = bars[^1];
+        var prevBar = bars[^2];
+        xiuConstituentBars.Add(new XiuConstituentBar(
+            Symbol: symbol,
+            TodayClose: todayBar.Close,
+            YesterdayClose: prevBar.Close));
+    }
+
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
@@ -171,11 +191,20 @@ if (adLine.Count >= 2)
         SectorSnapshots = granvilleSectorSnapshots,
         StockSectorMappings = stockSectorMappings,
         LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null,
-        MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null
+        MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null,
+        XiuConstituentBars = xiuConstituentBars
     };
 
     var granville = new GranvilleComposite();
     granvilleForecast = granville.Evaluate(granvilleContext);
+
+    // Compute Weighting snapshot separately for typed surfacing in the report builder.
+    double xiuRetForWeighting = 0.0;
+    if (adLine[^1].XiuClose is float todayXiu && adLine[^2].XiuClose is float yestXiu && yestXiu > 0f)
+    {
+        xiuRetForWeighting = (todayXiu / (double)yestXiu) - 1.0;
+    }
+    weightingSnapshot = WeightingCalculator.Compute(xiuConstituentBars, xiuRetForWeighting);
 
     // Inject into engine BEFORE symbol evaluation
     engine.GranvilleForecast = granvilleForecast;
@@ -613,6 +642,7 @@ var report = new DelphiReportBuilder
     BreadthScore = breadthScore,
     BearishDivergence = bearishDivergence,
     Granville = granvilleForecast,
+    Weighting = weightingSnapshot,
     SectorSnapshots = todaySectorSnapshots,
     TopPicks = top,
     BestPick = bestPick,

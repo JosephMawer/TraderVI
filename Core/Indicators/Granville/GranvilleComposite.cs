@@ -33,6 +33,7 @@ public sealed class GranvilleComposite
             new DisparityIndicators(),
             new LeadershipIndicators(),
             new MostActiveIndicators(),
+            new WeightingIndicators(),
         ];
     }
 
@@ -82,7 +83,8 @@ public sealed class GranvilleComposite
         // Disparity:    max bullish = +2 (#6 × 2),      max bearish = -2 (#5 × 2)
         // Leadership:   max bullish = +4 (#8 and #10),  max bearish = -2 (#7 and #9)
         // Most Active:  max bullish = +3 (#12 and #14), max bearish = -3 (#11 and #13)
-        // Combined theoretical range: bearish [-9, +13] bullish
+        // Weighting:    max bullish =  0,               max bearish = -1 (#15/#16 narrow advance)
+        // Combined theoretical range: bearish [-10, +13] bullish
         // Use the wider absolute value for normalization headroom.
         return 13.0;
     }

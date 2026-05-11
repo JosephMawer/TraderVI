@@ -57,6 +57,16 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyList<MostActiveSnapshot>? MostActiveStocks { get; init; }
 
+    // ── XIU constituents (for Weighting indicators #15/#16) ──
+
+    /// <summary>
+    /// Today's and yesterday's closes for each S&amp;P/TSX 60 (XIU) constituent.
+    /// Used by <see cref="WeightingIndicators"/> to compute the price-weighted
+    /// contribution proxy described in ADR-0003.
+    /// Null or sparse coverage triggers graceful degradation (Neutral).
+    /// </summary>
+    public IReadOnlyList<XiuConstituentBar>? XiuConstituentBars { get; init; }
+
     // ── Future data sources will be added here as we implement more groups ──
     // e.g., gold prices, odd-lot data, volume breakdowns, etc.
 }
