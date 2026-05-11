@@ -54,6 +54,8 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 
 ## Decision-Making & Learning Methodology
 
+Every substantive reply must re-ground the conversation and define jargon inline: at the start of the reply, briefly restate the immediate problem, its parent problem, and the root goal of the chain; define technical/jargon terms inline (≤1 sentence) on first use per reply.
+
 The user is using TraderVI as a vehicle for learning across several domains
 (ML, time-series, technical analysis, finance, etc.). The following rules
 apply to **every** non-trivial design conversation, not just the first one.
@@ -66,6 +68,28 @@ apply to **every** non-trivial design conversation, not just the first one.
   it's being asked, not just what's being asked.
 - **Always provide a recommended answer** with reasoning, so the user can
   push back rather than guess what you'd prefer.
+
+### Continuous re-grounding (every substantive reply)
+- At the **start of every substantive reply**, briefly restate:
+  1. The **immediate problem** being worked on.
+  2. Its **parent problem** (the larger task this is nested inside).
+  3. The **root goal** of the chain (e.g., "ship Granville indicator #15/#16",
+     "calibrate ScoreB/ScoreC thresholds", etc.).
+- Keep this re-grounding to 2–4 short bullet lines. Skip it only for trivial
+  clarifications or one-line answers where context is unambiguous.
+
+### Define jargon inline
+- The user is learning across ML, time-series, technical analysis, and
+  finance simultaneously. **Whenever a technical term, acronym, library
+  name, or domain-specific concept first appears in a reply**, append a
+  short parenthetical or follow-up definition (≤ 1 sentence).
+- Define terms on first use in each substantive reply (do not assume prior definitions carry across replies).
+- Examples: "ScoreB (top-K concentration of with-index contribution)",
+  "AUC (area under the ROC curve — 0.5 = random, 1.0 = perfect)",
+  "TFM (Target Framework Moniker — the .NET version a project compiles for)".  
+- Don't re-define a term repeatedly within the same reply, but re-define
+  on its first reuse in a *new* reply if the gap suggests the user may
+  have lost context.
 
 ### Rephrasing as a learning checkpoint
 - Before locking in any non-trivial decision, periodically ask the user to
