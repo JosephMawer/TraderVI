@@ -53,7 +53,14 @@ public static class DossierPromptBuilder
         "6. Output plain text. No markdown headers, no JSON.\n" +
         "7. Focus on what makes THIS pick distinct. If a signal is listed under SHARED_TODAY in the user message,\n" +
         "   it applies to most/all picks today — do NOT restate it unless this pick is materially stronger or\n" +
-        "   weaker than the shared baseline on that dimension.\n";
+        "   weaker than the shared baseline on that dimension. SHARED_TODAY covers BOTH shared warnings AND\n" +
+        "   shared confirmations (e.g. trend/MA-crossover signals that fired on every pick).\n" +
+        "8. QUANTIFICATION: When you use a qualitative adjective about a signal — weak / strong / modest / soft /\n" +
+        "   high / low / mixed / supportive / lagging — you MUST cite the field value in parentheses immediately\n" +
+        "   after the adjective, e.g. 'relative strength is weak (RelativeStrength.CompositeScore=-0.42)'. If you\n" +
+        "   cannot cite a concrete value, do not use the adjective.\n" +
+        "9. Cite each dossier path exactly as it appears in the JSON (e.g. Decision.DirectionEdge, not\n" +
+        "   MlSignals.DirectionEdge). Do not invent alternative parent objects for a field.\n";
 
     /// <summary>
     /// Per-pick critique. <paramref name="shared"/> lets the model skip redundant
@@ -77,18 +84,25 @@ public static class DossierPromptBuilder
         sb.AppendLine($"Schema:      v{dossier.SchemaVersion}");
         sb.AppendLine();
 
-        if (shared is { SharedGranvilleWarnings.Count: > 0 } sg)
+        if (shared is not null && (shared.SharedGranvilleWarnings.Count > 0
+                                   || shared.SharedGranvilleConfirmations.Count > 0
+                                   || shared.SharedMlConfirmations.Count > 0))
         {
-            sb.AppendLine("SHARED_TODAY (applies to most/all picks — do not restate unless this pick is an outlier):");
-            foreach (var w in sg.SharedGranvilleWarnings)
-                sb.AppendLine($"- Granville: {w}");
+            sb.AppendLine("SHARED_TODAY (applies to most/all picks — do NOT restate unless this pick is an outlier):");
+            foreach (var w in shared.SharedGranvilleWarnings)
+                sb.AppendLine($"- Granville warning: {w}");
+            foreach (var c in shared.SharedGranvilleConfirmations)
+                sb.AppendLine($"- Granville confirmation: {c}");
+            foreach (var m in shared.SharedMlConfirmations)
+                sb.AppendLine($"- ML/Rule confirmation: {m}");
             sb.AppendLine();
         }
 
         sb.AppendLine("Tasks:");
         sb.AppendLine("- In 3-5 short bullets, summarize WHY this pick was selected, citing dossier fields by name.");
+        sb.AppendLine("  Lead with what is DISTINCTIVE about this pick relative to SHARED_TODAY (e.g. unusually");
+        sb.AppendLine("  strong RelativeStrength, an extra confirmation other picks lack, a tighter gate margin).");
         sb.AppendLine("- In 2-3 bullets, list the strongest dissenting signals or risks visible in the dossier.");
-        sb.AppendLine("- In one sentence, name the gate(s) that came closest to blocking this pick.");
         sb.AppendLine();
         sb.AppendLine("Dossier JSON (the only source of facts; null/zero-default fields are intentionally omitted):");
         sb.AppendLine(json);
@@ -153,33 +167,70 @@ public static class DossierPromptBuilder
 
     /// <summary>
     /// Pre-computes signals that fire on a strong majority (&gt;= 70%) of today's
-    /// picks, so per-pick prompts can suppress them.
+    /// picks, so per-pick prompts can suppress them. Covers:
+    /// - Granville indicators with negative points (shared warnings)
+    /// - Granville indicators with positive points (shared confirmations)
+    /// - ML / rule signals where Hint is Buy/Sell on the same direction
+    ///   (shared confirmations like "Trend10=Buy", "MaCrossover=Buy", "BreakoutEnhanced=Buy")
     /// </summary>
     public static MarketSharedContext ComputeSharedContext(IReadOnlyList<DecisionDossier> dossiers)
     {
         if (dossiers.Count == 0)
-            return new MarketSharedContext(Array.Empty<string>(), 0, 0);
+            return new MarketSharedContext(
+                Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>(), 0, 0);
 
         const double threshold = 0.7;
+        int minCount = (int)System.Math.Ceiling(dossiers.Count * threshold);
 
-        var perPickWarnings = dossiers.Select(d =>
+        // ── Granville warnings (negative points) ──
+        var granvilleWarningSets = dossiers.Select(d =>
             (d.Granville?.Indicators ?? Array.Empty<GranvilleIndicatorRecord>())
             .Where(i => i.GranvillePoints < 0)
             .Select(i => i.Name)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToHashSet(StringComparer.OrdinalIgnoreCase))
             .ToList();
+        var sharedWarnings = SelectShared(granvilleWarningSets, minCount);
 
-        var allWarningNames = perPickWarnings
+        // ── Granville confirmations (positive points) ──
+        var granvilleConfirmSets = dossiers.Select(d =>
+            (d.Granville?.Indicators ?? Array.Empty<GranvilleIndicatorRecord>())
+            .Where(i => i.GranvillePoints > 0)
+            .Select(i => i.Name)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase))
+            .ToList();
+        var sharedGranvilleConfirms = SelectShared(granvilleConfirmSets, minCount);
+
+        // ── ML / rule confirmations: "<SignalName>=<Hint>" keys ──
+        var mlConfirmSets = dossiers.Select(d =>
+            (d.MlSignals?.Signals ?? Array.Empty<SignalContribution>())
+            .Where(s => !string.IsNullOrWhiteSpace(s.Name)
+                        && !string.IsNullOrWhiteSpace(s.Hint)
+                        && !string.Equals(s.Hint, "Hold", StringComparison.OrdinalIgnoreCase))
+            .Select(s => $"{s.Name}={s.Hint}")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase))
+            .ToList();
+        var sharedMlConfirms = SelectShared(mlConfirmSets, minCount);
+
+        return new MarketSharedContext(
+            SharedGranvilleWarnings: sharedWarnings,
+            SharedGranvilleConfirmations: sharedGranvilleConfirms,
+            SharedMlConfirmations: sharedMlConfirms,
+            PickCount: dossiers.Count,
+            Threshold: threshold);
+    }
+
+    private static IReadOnlyList<string> SelectShared(
+        IReadOnlyList<HashSet<string>> perPickSets, int minCount)
+    {
+        return perPickSets
             .SelectMany(set => set)
-            .Distinct(StringComparer.OrdinalIgnoreCase);
-
-        var shared = allWarningNames
-            .Where(name => perPickWarnings.Count(set => set.Contains(name)) >= dossiers.Count * threshold)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(name => perPickSets.Count(set => set.Contains(name)) >= minCount)
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
-
-        return new MarketSharedContext(shared, dossiers.Count, threshold);
     }
 
     /// <summary>
@@ -208,13 +259,30 @@ public static class DossierPromptBuilder
         if (System.Math.Abs(dec.ExpectedReturn) > 1e-9)
             decision["ExpectedReturn"] = dec.ExpectedReturn;
 
+        // MlSignals view: DirectionEdge is the canonical Decision.DirectionEdge
+        // field — drop the duplicate copy here so the model has exactly one path
+        // to cite (avoids "MlSignals.DirectionEdge" hallucinated citations).
+        object? mlView = null;
+        if (d.MlSignals is { } ml)
+        {
+            mlView = new Dictionary<string, object?>
+            {
+                ["BreakoutProb"] = ml.BreakoutProb,
+                ["UpProb"] = ml.UpProb,
+                ["DownProb"] = ml.DownProb,
+                ["VolExpansionProb"] = ml.VolExpansionProb,
+                ["RelStrengthProb"] = ml.RelStrengthProb,
+                ["Signals"] = ml.Signals
+            };
+        }
+
         return new
         {
             d.Symbol,
             d.Rank,
             Decision = decision,
             Market = d.Market,
-            MlSignals = d.MlSignals,
+            MlSignals = mlView,
             Granville = d.Granville,
             RelativeStrength = d.RelativeStrength,
             Sizing = d.Sizing,
@@ -255,13 +323,18 @@ public sealed record LlmPrompt(string SystemPrompt, string UserPrompt);
 
 /// <summary>
 /// Cross-pick context — signals that fired on a strong majority of today's
-/// picks. Per-pick prompts use this to suppress repetitive callouts.
+/// picks. Per-pick prompts use this to suppress repetitive callouts so the
+/// model focuses on what makes each pick distinctive.
 /// </summary>
-/// <param name="SharedGranvilleWarnings">Granville indicator names with negative points present in ≥ Threshold of picks.</param>
+/// <param name="SharedGranvilleWarnings">Granville indicators with negative points present in ≥ Threshold of picks.</param>
+/// <param name="SharedGranvilleConfirmations">Granville indicators with positive points present in ≥ Threshold of picks.</param>
+/// <param name="SharedMlConfirmations">"&lt;SignalName&gt;=&lt;Hint&gt;" pairs (e.g. "Trend10=Buy") present in ≥ Threshold of picks.</param>
 /// <param name="PickCount">Total picks evaluated.</param>
 /// <param name="Threshold">Fraction (0–1) used to qualify as "shared".</param>
 public sealed record MarketSharedContext(
     IReadOnlyList<string> SharedGranvilleWarnings,
+    IReadOnlyList<string> SharedGranvilleConfirmations,
+    IReadOnlyList<string> SharedMlConfirmations,
     int PickCount,
     double Threshold);
 

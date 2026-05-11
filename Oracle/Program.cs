@@ -76,8 +76,18 @@ internal static class Program
             var sharedContext = DossierPromptBuilder.ComputeSharedContext(dossiers);
             if (sharedContext.SharedGranvilleWarnings.Count > 0)
             {
-                Console.WriteLine($"[Oracle] Shared-today warnings ({sharedContext.SharedGranvilleWarnings.Count}): " +
+                Console.WriteLine($"[Oracle] Shared warnings ({sharedContext.SharedGranvilleWarnings.Count}): " +
                                   string.Join(", ", sharedContext.SharedGranvilleWarnings));
+            }
+            if (sharedContext.SharedGranvilleConfirmations.Count > 0)
+            {
+                Console.WriteLine($"[Oracle] Shared Granville confirmations ({sharedContext.SharedGranvilleConfirmations.Count}): " +
+                                  string.Join(", ", sharedContext.SharedGranvilleConfirmations));
+            }
+            if (sharedContext.SharedMlConfirmations.Count > 0)
+            {
+                Console.WriteLine($"[Oracle] Shared ML/rule confirmations ({sharedContext.SharedMlConfirmations.Count}): " +
+                                  string.Join(", ", sharedContext.SharedMlConfirmations));
             }
 
             // Per-pick critiques.
