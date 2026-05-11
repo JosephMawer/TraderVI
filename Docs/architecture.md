@@ -6,6 +6,8 @@
 - Strategy: `docs/strategy.md`
 - Design Rules: `docs/design-rules.md`
 - System Design: `docs/system-design.md`
+- Oracle (LLM layer) Rules: `docs/oracle-rules.md`
+- Oracle (LLM layer) Phases: `docs/oracle-phases.md`
 
 ## Components
 
@@ -65,6 +67,13 @@ Rule:
 - `SectorIndexRepository` — daily sector index close prices
 - `StockSectorRepository` — stock → sector index mapping
 
+### Oracle (LLM Layer — Phase 1)
+- Strictly downstream narration/critique layer over `TradeDecisionEngine`. Never feeds back into scoring (see `docs/oracle-rules.md`).
+- `Core.Oracle.DecisionDossier` — structured, JSON-serializable audit unit per pick (decision summary, ML breakdown, Granville, RS, market context, gate trace, strategy ref). `SchemaVersion` field per Rule R8.
+- `Core.Oracle.DecisionDossierBuilder` — pure builder from a `RankedPick` + market context.
+- `DecisionDossierRepository` — persists/reads `[dbo].[DecisionDossier]`.
+- Delphi emits a dossier alongside every saved pick. LLM clients arrive in Phase 2.
+
 ## Database Tables
 
 | Table | Purpose | Written By | Read By |
@@ -78,6 +87,7 @@ Rule:
 | `[StrategyVersions]` | Strategy config versioning | Manual | Delphi |
 | `[GranvilleIndicatorLog]` | Granville indicator history | Delphi | Analysis |
 | `[RelativeStrengthFeatures]` | RS feature history | Hermes (planned) | Hercules (planned) |
+| `[DecisionDossier]` | Structured per-pick audit unit for LLM layer | Delphi | Oracle (planned) |
 
 ## Data Flow
 
@@ -85,6 +95,6 @@ Rule:
 |---------|------|-------|--------|
 | **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
-| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, console output |
+| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
 | **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
 | **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |

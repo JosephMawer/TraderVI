@@ -515,12 +515,19 @@ if (saveToDB && top.Count > 0)
 {
     var pickDate = DateTime.Today;
     var pickRepo = new DailyPickRepository();
+    var dossierRepo = new DecisionDossierRepository();
 
     await pickRepo.DeletePicksByDate(pickDate);
+    await dossierRepo.DeleteByDateAsync(pickDate);
 
     Console.WriteLine($"\nSaving {top.Count} picks to database...");
 
+    var strategyRef = activeStrategy is not null
+        ? new Core.Oracle.StrategyVersionRef(activeStrategy.VersionId, activeStrategy.VersionName)
+        : null;
+
     int savedRank = 1;
+    int dossiersSaved = 0;
     foreach (var p in top)
     {
         double breakout = GetBreakoutProb(p);
@@ -529,7 +536,7 @@ if (saveToDB && top.Count > 0)
         double volExp = GetProbContains(p, "VolExpansion");
         double relStrength = GetProbContains(p, "RelStrength");
 
-        await pickRepo.InsertPick(
+        var pickId = await pickRepo.InsertPick(
             pickDate: pickDate,
             symbol: p.Symbol,
             rank: savedRank,
@@ -545,10 +552,52 @@ if (saveToDB && top.Count > 0)
             strategyVersionId: strategyVersionId,
             notes: savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null);
 
+        // ── Phase 1 of the Oracle layer: emit a DecisionDossier per pick.
+        // The dossier is the audit unit fed to the downstream LLM layer
+        // (see Docs/oracle-rules.md and Docs/oracle-phases.md). It MUST
+        // remain strictly downstream of TradeDecisionEngine — no value
+        // computed here flows back into scoring.
+        decimal lastPriceForDossier = allBars.TryGetValue(p.Symbol, out var priceBarsDossier)
+            ? (decimal)priceBarsDossier[^1].Close
+            : 0m;
+
+        rsScores.TryGetValue(p.Symbol, out var rsRowForDossier);
+
+        Core.Oracle.SizingSnapshot? sizingForDossier = null;
+        if (savedRank == 1 && size != null)
+        {
+            int shares = lastPriceForDossier > 0
+                ? (int)(size.SuggestedSize / lastPriceForDossier)
+                : 0;
+            sizingForDossier = new Core.Oracle.SizingSnapshot(
+                SuggestedSize: size.SuggestedSize,
+                AllocationPercent: (double)size.AllocationPercent,
+                Shares: shares,
+                Reason: size.Reason);
+        }
+
+        var dossier = Core.Oracle.DecisionDossierBuilder.Build(
+            pickDate: pickDate,
+            pickId: pickId,
+            rank: savedRank,
+            pick: p,
+            lastPrice: lastPriceForDossier,
+            regime: regime,
+            breadthScore: breadthScore,
+            breadthVetoThreshold: config.BreadthVetoThreshold,
+            granville: granvilleForecast,
+            rs: rsRowForDossier,
+            sizing: sizingForDossier,
+            strategy: strategyRef);
+
+        await dossierRepo.InsertAsync(dossier);
+        dossiersSaved++;
+
         savedRank++;
     }
 
     Console.WriteLine($"✓ Saved {top.Count} picks to [dbo].[DailyPick] for {pickDate:yyyy-MM-dd}");
+    Console.WriteLine($"✓ Saved {dossiersSaved} dossiers to [dbo].[DecisionDossier]");
 }
 
 // ═══════════════════════════════════════════════════════════════════
