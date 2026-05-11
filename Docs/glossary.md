@@ -97,3 +97,31 @@
 - **As-of universe**: The set of symbols actually tradable on a given historical date `T` — excludes symbols that hadn't listed yet and (correctly) includes symbols that later delisted, up to their last bar.
 - **Retrain cadence**: Backtest config controlling how often models are refreshed during the historical replay (e.g., every 1 month). Distinct from live ops cadence.
 - **BacktestRunId**: Unique identifier tagging all artifacts (picks, equity, retrained model zips) from a single backtest invocation. Enables comparing multiple runs.
+
+## Calibration & Statistical Jargon
+- **Baseline**: The reference distribution we compare a triggered subset against. For a long-side signal, the natural baseline is "all up-days" (not "all days"), because the signal can only fire on up-days. Comparing to the wrong baseline manufactures fake edge.
+- **Trigger**: The set of historical days where a rule's conditions are all true. "v1 trigger" = days where `ScoreB ≥ 0.50 AND ScoreC ≥ 0.60 AND XiuReturn > 0`.
+- **Trigger rate**: `Triggers / Eligible days`. A trigger rate of 1.9% on 1,557 days means ~13 historical triggers — small N, treat conclusions as provisional.
+- **∩ (intersection)**: Set-theory "AND". `v1 ∩ up-days` = days that are *both* in the v1 trigger set *and* are up-days for XIU. We use this notation in tables because it makes the slicing explicit.
+- **Forward return**: Return measured *after* the signal date — what would have happened if you'd acted on the signal. `1d forward return on date T` = `(Close[T+1] − Close[T]) / Close[T]`. Distinct from the *signal-date* return that the rule fires on.
+- **Hit rate (calibration sense)**: Fraction of triggered days whose forward return matches the rule's directional prediction. A bearish rule has a "hit" when forward return is negative. Distinct from the *trade* hit rate in the backtest metrics section above.
+- **Sub-period split / robustness check**: Splitting the sample at a median date (e.g., 2023-03-03) and recomputing the result in each half. If a finding only holds in one half, it's regime-dependent — not a stable edge.
+- **Regime-dependent**: A pattern that holds in some market environments (bull / bear / high-vol / low-vol) but not others. Multi-day signals in our Weighting backtest were regime-dependent; the 1-day reversal was not.
+- **Curve-fit / overfit**: A rule that looks predictive on the data it was tuned on but fails out-of-sample, usually because the parameters were chosen to maximize an in-sample metric. Sub-period splits are our cheapest defense.
+- **Empirical threshold vs. structural threshold**: An *empirical* threshold (e.g., `ScoreB ≥ 0.50`) was picked from the data's distribution and forward-return behavior. A *structural* threshold (e.g., `XiuReturn > 0` for a long-side warning) was picked from the indicator's intended role, not from data.
+- **Graceful degradation**: When required input data is incomplete, the indicator returns a Neutral result instead of crashing or guessing. Example: Weighting requires ≥ 50 of 60 constituents present today; below that, it emits Neutral.
+
+## Granville Architecture Terms
+- **`IGranvilleIndicatorGroup`**: The plug-in contract every Granville category implements. Single method: `Evaluate(GranvilleMarketContext) → IReadOnlyList<GranvilleResult>`. See [ADR-0001](adr/0001-granville-plugin-architecture.md).
+- **`GranvilleResult`**: Output record from one indicator firing. Fields: `IndicatorNumber`, `Category`, `Name`, `Signal` (Bullish/Bearish/StrongBullish/StrongBearish/Neutral), `GranvillePoints` (the book's even-bullish / odd-bearish weighting), `Description`.
+- **`GranvilleComposite`**: The aggregator that runs every registered group and produces a `GranvilleDailyForecast` with `BullishCount`, `BearishCount`, `NetPoints`, and a normalized `CompositeAdjustment` capped at ±0.10.
+- **`MaxCompositeAdjustment`**: The hard cap (currently 0.10) on how much *all* Granville rule signals combined can move the composite score. Prevents the rule-based layer from drowning out ML signals.
+- **`MaxRawPointRange`**: The theoretical max absolute Granville-point value across all *currently registered* groups. Used as the normalizer in `CompositeAdjustment`. Must be updated whenever a new group is registered.
+
+## Granville Weighting Specifics ([ADR-0003](adr/0003-weighting-indicator-narrow-advance.md))
+- **XIU constituents**: The ~60 stocks underlying the iShares S&P/TSX 60 ETF (XIU). Source for v1 is the static list in `Core/Config/Xiu60Constituents.cs`.
+- **Price-weighted contribution proxy**: `weight_i = price_i / Σ price_j`, then `contribution_i = weight_i × return_i`. A *deliberate* Dow-style proxy applied on a cap-weighted basket — see [concepts/price-weighted-contribution.md](concepts/price-weighted-contribution.md). Not used to predict XIU return; only to make narrowness visible.
+- **ScoreB (concentration)**: Of the constituents moving *same direction as XIU*, the share of total `|contribution|` captured by the top K = 3 names. Range 0–1. Median ~0.54. High ScoreB = "a few names did most of the lifting."
+- **ScoreC (narrowness)**: Of the constituents that moved at all today, the fraction moving *against* XIU's direction. Range 0–1. Median ~0.34. High ScoreC = "few names actually participated with the index."
+- **Narrow advance**: A day where XIU rose but ScoreB and ScoreC both signal a thin, concentrated move. Granville's hypothesis: such moves stall.
+- **Long-side warning gate**: An indicator that fires only on up-days, only to *caution* against new longs — not to suggest shorts. Weighting #15/#16 is one. Contrast with directional Plurality #1–#4 which fire bullish or bearish symmetrically.
