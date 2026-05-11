@@ -45,6 +45,10 @@ public static class ProfitModelRegistry
 
     private static IReadOnlyList<ProfitModelDefinition> BuildAll()
     {
+        // Enable* flags above are intentionally `const bool = false` kill-switches
+        // for retired/experimental models. Suppress CS0162 (unreachable code) so
+        // toggling a flag back to true is a one-line edit with no warning churn.
+#pragma warning disable CS0162
         var models = new List<ProfitModelDefinition>();
 
         // ════════════════════════════════════════════════════════════════
@@ -366,6 +370,7 @@ public static class ProfitModelRegistry
         }
 
         return models;
+#pragma warning restore CS0162
     }
 
     public static ProfitModelDefinition? GetByTaskType(string taskType)

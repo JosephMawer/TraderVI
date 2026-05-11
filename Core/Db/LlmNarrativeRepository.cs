@@ -93,6 +93,47 @@ VALUES
             Map);
     }
 
+    /// <summary>
+    /// Looks up a single cached narrative for a given (date, scope, symbol). Returns null if none.
+    /// Used by Oracle to skip API calls when the dossier has not changed.
+    /// </summary>
+    public async Task<LlmNarrativeRow?> GetOneAsync(DateTime pickDate, string scope, string? symbol)
+    {
+        var symbolPredicate = symbol is null ? "[Symbol] IS NULL" : "[Symbol] = @Symbol";
+        var query = $"SELECT TOP 1 {Fields} FROM {DbName} " +
+                    $"WHERE [PickDate] = @PickDate AND [Scope] = @Scope AND {symbolPredicate} " +
+                    $"ORDER BY [CreatedUtc] DESC";
+
+        var parameters = new List<SqlParameter>
+        {
+            new("@PickDate", SqlDbType.Date) { Value = pickDate.Date },
+            new("@Scope", SqlDbType.NVarChar, 16) { Value = scope }
+        };
+        if (symbol is not null)
+            parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol });
+
+        var rows = await ExecuteReaderAsync(query, parameters, Map);
+        return rows.Count == 0 ? null : rows[0];
+    }
+
+    /// <summary>Removes a single narrative row (for re-generation when prompt hash changed).</summary>
+    public async Task DeleteOneAsync(DateTime pickDate, string scope, string? symbol)
+    {
+        var symbolPredicate = symbol is null ? "[Symbol] IS NULL" : "[Symbol] = @Symbol";
+        var sql = $"DELETE FROM {DbName} " +
+                  $"WHERE [PickDate] = @PickDate AND [Scope] = @Scope AND {symbolPredicate}";
+
+        var parameters = new List<SqlParameter>
+        {
+            new("@PickDate", SqlDbType.Date) { Value = pickDate.Date },
+            new("@Scope", SqlDbType.NVarChar, 16) { Value = scope }
+        };
+        if (symbol is not null)
+            parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol });
+
+        await Delete(sql, parameters);
+    }
+
     private static LlmNarrativeRow Map(SqlDataReader r) => new()
     {
         NarrativeId  = r.GetGuid(0),

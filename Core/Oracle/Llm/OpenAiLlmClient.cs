@@ -53,11 +53,18 @@ public sealed class OpenAiLlmClient : ILlmClient
     {
         var sw = Stopwatch.StartNew();
 
+        // GPT-5 family quirks (as of 2025):
+        //   - `temperature` only accepts the default (1); sending any other value 400s.
+        //   - `max_tokens` was renamed to `max_completion_tokens`.
+        // Detect the family and shape the request accordingly.
+        bool isGpt5Family = _model.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase);
+
         var body = new ChatRequest
         {
             Model = _model,
-            Temperature = request.Temperature,
-            MaxTokens = request.MaxOutputTokens,
+            Temperature = isGpt5Family ? null : request.Temperature,
+            MaxTokens = isGpt5Family ? null : request.MaxOutputTokens,
+            MaxCompletionTokens = isGpt5Family ? request.MaxOutputTokens : null,
             Seed = request.Seed,
             Messages = new[]
             {
@@ -110,8 +117,9 @@ public sealed class OpenAiLlmClient : ILlmClient
     {
         public string Model { get; set; } = string.Empty;
         public ChatMessage[] Messages { get; set; } = Array.Empty<ChatMessage>();
-        public double Temperature { get; set; } = 0.2;
+        public double? Temperature { get; set; }
         public int? MaxTokens { get; set; }
+        public int? MaxCompletionTokens { get; set; }
         public int? Seed { get; set; }
     }
 

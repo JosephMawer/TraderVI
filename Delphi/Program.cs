@@ -22,8 +22,8 @@ int minBarsRequired = 55;              // Increased for enhanced features
 decimal reserveCashPercent = 0m;//0.02m;
 double minExpectedReturn = 0.00;
 int maxSymbolsToScan = 500;
-int topPicksToSave = 25;
-bool saveToDB = false;
+int topPicksToSave = 7;
+bool saveToDB = true;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
@@ -516,9 +516,13 @@ if (saveToDB && top.Count > 0)
     var pickDate = DateTime.Today;
     var pickRepo = new DailyPickRepository();
     var dossierRepo = new DecisionDossierRepository();
+    var narrativeRepo = new Core.Db.LlmNarrativeRepository();
 
-    await pickRepo.DeletePicksByDate(pickDate);
+    // Delete child→parent to respect FKs:
+    //   LlmNarrative → DecisionDossier → DailyPick
+    await narrativeRepo.DeleteByDateAsync(pickDate);
     await dossierRepo.DeleteByDateAsync(pickDate);
+    await pickRepo.DeletePicksByDate(pickDate);
 
     Console.WriteLine($"\nSaving {top.Count} picks to database...");
 
