@@ -93,6 +93,18 @@ Rule:
 | `[DecisionDossier]` | Structured per-pick audit unit for LLM layer | Delphi | Oracle |
 | `[LlmNarrative]` | Per-pick and market-wide LLM narratives (prompt + response + cost) | Oracle | Analysis, future debate loop |
 
+### Operational gotchas
+
+- **Delete order for date-scoped reruns:** the FK chain is
+  `LlmNarrative` → `DecisionDossier` → `DailyPick`. Always delete
+  child-first; reverse order trips `FK_DecisionDossier_DailyPick`.
+  Encoded in `Delphi/Program.cs`; mirror it anywhere else that deletes
+  by `PickDate`.
+- **OpenAI `gpt-5*` request shape:** `temperature` is locked to `1` and
+  must be omitted; `max_tokens` was renamed to `max_completion_tokens`.
+  Handled in `Core/Oracle/Llm/OpenAiLlmClient.cs`. Practical default for
+  Oracle is `gpt-5-mini` (no org verification required).
+
 ## Data Flow
 
 | Program | Runs | Reads | Writes |

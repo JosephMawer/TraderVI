@@ -5,6 +5,30 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Oracle (LLM layer) — follow-ups deferred during Phase 2 pause
+- **Q:** Should narrative quality have an automated lint pass
+  (e.g., regex that flags adjectives without an adjacent `(Field=value)`
+  citation)? Currently Rule #8 of the system prompt asks the model to
+  quantify, but we don't enforce it. Cheap Phase-3 add.
+- **Q:** Pre-compute deterministic qualitative buckets in C#
+  (`RelativeStrength.CompositeScoreBucket = weak|neutral|strong` from
+  empirical quantiles) and have prompts parrot them rather than coining
+  freeform adjectives?
+- **Q:** Add a real `ClosestGate` field to `DecisionDossier` (the gate with
+  the narrowest pass margin) so the model can answer "what nearly killed
+  this pick?" without guessing. The previous freeform version of the
+  question was dropped because the model always answered "Granville".
+- **Q:** Phase 3 debate-loop schema: should `[LlmConversation]` reference
+  `DossierId` directly, or go through a new `[OracleSession]` parent so a
+  single session can span multiple dossiers (e.g., "why these 7 picks and
+  not those 7?")? Decide before writing the table.
+- **Q:** Per-dossier token-budget enforcement (Rule R4) is not yet
+  implemented — currently the only guard is the implicit prompt size. Add
+  before Phase 4 (news context) since that's where prompts will balloon.
+- **Q:** Regression eval set (Rule R6) — we have no canned dossiers +
+  expected key points yet. Build before Phase 3 ships so prompt edits can
+  be evaluated objectively.
+
 ### Weighting category (Granville #15–#16) — follow-ups after ADR-0003
 - **Q:** Re-validate `ScoreB ≥ 0.50` / `ScoreC ≥ 0.60` thresholds after
   N ≥ 30 live triggers or 12 months in production (whichever first).

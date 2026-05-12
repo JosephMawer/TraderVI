@@ -7,7 +7,7 @@ to compute or override it. See `oracle-rules.md` for the binding rules.
 
 ---
 
-## Phase 1 — Dossier Emission *(this phase)*
+## Phase 1 — Dossier Emission ✅ *(done — 2026-05)*
 
 **Goal:** make every Delphi decision auditable as a single structured row.
 No LLM dependency yet.
@@ -24,24 +24,52 @@ No LLM dependency yet.
 `[DailyPick]` has a matching `[DecisionDossier]` row whose JSON round-trips
 back into the C# record types.
 
-## Phase 2 — Narration
+## Phase 2 — Narration ✅ *(done — 2026-05)*
 
 **Goal:** generate a human-readable summary per pick + a market-wide summary.
 
-- Add `Oracle/` console app (sibling to Delphi).
-- Add `Core/Oracle/Llm/ILlmClient.cs` with `DotLlmClient` and
-  `OpenAiLlmClient` implementations selected by config.
-- Add `[LlmNarrative]` table: `(NarrativeId, DossierId, ModelName, ProviderName,
-  PromptHash, PromptText, ResponseText, Temperature, TokenInput, TokenOutput,
-  CostUsd, LatencyMs, SchemaVersion, CreatedUtc)`.
-- Prompt template: stuff the dossier JSON into a system message, instruct the
-  model to cite fields by name, forbid arithmetic.
-- Nightly: read today's dossiers → produce per-pick narrative + a
-  market-wide summary.
+- Added `Oracle/` console app (sibling to Delphi).
+- Added `Core/Oracle/Llm/ILlmClient.cs` with `MockLlmClient`, `OpenAiLlmClient`,
+  and `DotLlmClient` (Phase 5 stub) selected via `LlmClientFactory.FromConfiguration(...)`.
+- Added `[LlmNarrative]` table: `(NarrativeId, DossierId, PickDate, Scope, Symbol,
+  PromptHash, PromptText, ResponseText, Provider, ModelName, Temperature,
+  InputTokens, OutputTokens, CostUsd, LatencyMs, SchemaVersion, CreatedUtc)`.
+- `DossierPromptBuilder` generates per-pick critique + market-wide summary
+  prompts. SHA-256 prompt hash drives an **incremental cache**: identical prompts
+  reuse persisted narratives without an API call.
+- `Oracle/Program.cs` supports `--print`, `--markdown`, `--dry-run`, `--force`
+  and prints `[cache]` vs `[api]` per row.
+- Config moved to **user-secrets** (`UserSecretsId` in `Oracle.csproj`) with
+  env-var fallback. Keys: `Oracle:Llm:Provider`, `Oracle:Llm:Model`,
+  `Oracle:OpenAi:ApiKey`, optional `Oracle:OpenAi:InputPer1KUsd` /
+  `OutputPer1KUsd`.
 
-**Done when:** running Oracle after Delphi produces one narrative row per
-dossier; narratives reference dossier fields by name and don't introduce
-numbers absent from the dossier.
+**Prompt-tightening pass shipped on top of Phase 2** (see
+`concepts/oracle-prompt-tightening.md`):
+- System prompt forbids invented fields, restates null-vs-zero rule,
+  requires field-cited quantification for every adjective.
+- `MarketSharedContext` pre-computes signals fired by ≥ 70% of picks (warnings,
+  Granville confirmations, ML/rule confirmations) and instructs the per-pick
+  prompt to suppress those callouts.
+- Per-pick JSON view strips defaults (`ExpectedReturn=0`), duplicates
+  (`Confidence` when it equals `CompositeScore`), and alternate citation paths
+  (`MlSignals.DirectionEdge` removed; `Decision.DirectionEdge` is canonical).
+
+**Done — validated:** running Oracle after Delphi produces one narrative row
+per dossier + one market summary; narratives cite dossier fields by name;
+caching reuses identical-prompt rows; `gpt-5` and `gpt-5-mini` both supported
+(the OpenAI client handles `max_completion_tokens` and the locked `temperature=1`
+quirk for the GPT-5 family).
+
+### Phase 2 pause-point snapshot *(2026-05)*
+
+- Last successful run: `dotnet run --project Oracle -- 2026-05-10 --print --markdown`
+  on 7 picks, model `gpt-5`, total cost ~$0.0015.
+- Quality review noted in `concepts/oracle-prompt-tightening.md`: per-pick output
+  is auditable and de-duplicated; remaining weakness is qualitative adjectives
+  without numeric backing — partially addressed by Rule #8 (quantification).
+- Phases 3-5 deferred — pick up by re-reading `oracle-rules.md` first, then
+  this file, then the prompt-tightening concept doc.
 
 ## Phase 3 — Debate Loop
 

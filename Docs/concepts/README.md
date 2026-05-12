@@ -18,8 +18,9 @@ many ADRs.
 
 ## Index
 
-*(none yet — first concept entries will land alongside the Weighting work:*
-*`price-weighted-vs-cap-weighted-indices.md` and `narrow-leadership.md`.)*
+- `price-weighted-contribution.md` — proxy used by the Granville Weighting group.
+- `oracle-prompt-tightening.md` — lessons from the Oracle Phase 2 prompt pass
+  (shared-context suppression, curated JSON view, GPT-5 API quirks).
 
 ## Concept template
 

@@ -68,3 +68,82 @@ XIU's actual cap-weighted return. We use the proxy only to derive ScoreB
 and ScoreC — structural descriptors of the day's move — not to predict
 returns. The proxy preserves the Granville-style narrowness signal that
 cap weights would smooth away.
+
+### Q: What is Oracle and what can/can't it do?
+- **Domains:** architecture, oracle
+- **Source:** oracle-rules.md, oracle-phases.md
+
+**A:** Oracle is a strictly *downstream* LLM narration/critique/Q&A layer
+over `TradeDecisionEngine`. It reads persisted `DecisionDossier` rows and
+writes `LlmNarrative` rows. It must never influence scoring, ranking,
+sizing, or gates (Rule R1) and must never compute numbers — only cite
+dossier fields by name (Rule R2).
+
+### Q: Why is the `DecisionDossier` the audit unit, not the live runtime state?
+- **Domains:** oracle, architecture
+- **Source:** oracle-rules.md (R3, R9)
+
+**A:** Reproducibility. "The LLM said X yesterday" is only falsifiable if
+the exact inputs (dossier JSON), exact prompt text, model, provider, and
+temperature are all persisted. The dossier is the contract; if a fact
+matters to the reasoning it belongs in the dossier, never smuggled in via
+globals or live reads.
+
+### Q: Why does Oracle cache narratives by SHA-256 of the prompt?
+- **Domains:** oracle, infrastructure
+- **Source:** concepts/oracle-prompt-tightening.md
+
+**A:** Two reasons. (1) Cost — re-running Oracle for the same date with an
+unchanged prompt should not hit the API. (2) Iteration — when we tweak the
+prompt template, *only* dossiers whose prompt actually changed regenerate;
+everything else replays from the cache. The hash is stored in
+`[LlmNarrative].PromptHash`.
+
+### Q: What is `MarketSharedContext` and what problem does it solve?
+- **Domains:** oracle
+- **Source:** concepts/oracle-prompt-tightening.md
+
+**A:** A per-batch struct listing every signal that fired on ≥ 70% of
+today's picks (Granville warnings, Granville confirmations, ML/rule
+confirmations). Each per-pick prompt is told to *not* restate those — only
+deviations or outliers. Without this, every pick's narrative says the same
+thing about Trend10/Trend30/MACrossover firing.
+
+### Q: Why strip `Confidence` and `ExpectedReturn=0` from the dossier JSON sent to the model?
+- **Domains:** oracle
+- **Source:** concepts/oracle-prompt-tightening.md
+
+**A:** Two distinct failure modes. `Confidence` often equals
+`CompositeScore`, so the model double-cites the same number under two
+names. `ExpectedReturn=0` is read literally as *"no anticipated profit"*
+when it really means *"unset"*. `DossierPromptBuilder.ProjectPerPickView`
+removes both before serialization.
+
+### Q: What GPT-5-family API differences did Oracle have to handle?
+- **Domains:** oracle, integration
+- **Source:** concepts/oracle-prompt-tightening.md
+
+**A:** Two: `temperature` is locked to 1 (must be omitted), and `max_tokens`
+was renamed to `max_completion_tokens`. `OpenAiLlmClient` branches on
+`model.StartsWith("gpt-5")`. Also: the full `gpt-5` requires OpenAI org
+verification; `gpt-5-mini` does not, and is the practical default for
+Oracle's structured-data workload.
+
+### Q: What is the FK delete order when rerunning Delphi for a date?
+- **Domains:** infrastructure, database
+- **Source:** concepts/oracle-prompt-tightening.md
+
+**A:** Child-first: `LlmNarrative` → `DecisionDossier` → `DailyPick`.
+Reverse order trips `FK_DecisionDossier_DailyPick`. `Delphi/Program.cs`
+encodes this; anything else that deletes by date must mirror it.
+
+### Q: Why is news/fundamentals deferred to Phase 4 rather than added now?
+- **Domains:** oracle, roadmap
+- **Source:** oracle-rules.md (R5), oracle-phases.md
+
+**A:** Each Oracle phase is intentionally standalone and valuable on its
+own — Phase 1 is a useful audit log even without an LLM; Phase 2 narration
+works on existing structured signals. News brings new problems (dedupe,
+provenance, rate limits, schema-version bump) that would delay the
+highest-value lowest-risk slice — so we ship the narration loop first and
+add context later.
