@@ -111,6 +111,69 @@ static async Task RunBackfillAsync()
     // UPDATE LEADERSHIP DATA (Granville #7–#10)
     // ═══════════════════════════════════════════════════════════════════
     await UpdateLeadershipDataAsync(tmx, repository, constituents);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // UPDATE US INDEX BARS (Granville #17–#20 Genuity)
+    // ═══════════════════════════════════════════════════════════════════
+    // Sourced from Yahoo Finance's chart endpoint (see ADR-0004). TMX does
+    // not return OHLC for ^GSPC:US / ^NYA:US despite recognizing the symbols.
+    await UpdateUsIndexBarsAsync(backfillYearsIfEmpty: 10);
+}
+
+static async Task UpdateUsIndexBarsAsync(int backfillYearsIfEmpty)
+{
+    Console.WriteLine("\n── US Index Bars Update (Genuity #17–#20) ──\n");
+
+    var repo = new UsIndexBarsRepository();
+    using var source = new YahooChartUsIndexDataSource();
+
+    var endDate = DateTime.Today;
+
+    foreach (var symbol in UsIndexSymbols.AllSymbols)
+    {
+        try
+        {
+            var latest = await repo.GetLatestBarDateAsync(symbol);
+
+            DateTime startDate = latest.HasValue
+                ? latest.Value.Date.AddDays(1)
+                : endDate.AddYears(-backfillYearsIfEmpty);
+
+            if (startDate > endDate)
+            {
+                Console.WriteLine($"  {symbol,-8} ✓ Up-to-date (latest {latest:yyyy-MM-dd})");
+                continue;
+            }
+
+            var bars = await source.GetDailyBarsAsync(symbol, startDate, endDate);
+
+            // Defensive: don't insert bars older than `startDate` (Yahoo can return a
+            // wider window than asked for); also filter same-day intraday previews.
+            var clean = bars
+                .Where(b => b.Date >= startDate && b.Date <= endDate)
+                .ToList();
+
+            if (clean.Count == 0)
+            {
+                Console.WriteLine($"  {symbol,-8} ⚠️  No new bars ({startDate:yyyy-MM-dd}..{endDate:yyyy-MM-dd})");
+                continue;
+            }
+
+            await repo.UpsertBarsAsync(clean);
+
+            var last = clean[^1];
+            string scope = latest.HasValue ? "incremental" : $"{backfillYearsIfEmpty}y backfill";
+            Console.WriteLine(
+                $"  {symbol,-8} ✓ {clean.Count,4} bars [{scope}] " +
+                $"({clean[0].Date:yyyy-MM-dd}..{last.Date:yyyy-MM-dd}, close={last.Close:F2})");
+
+            await Task.Delay(300); // be polite to Yahoo
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"  {symbol,-8} ✗ {ex.Message}");
+        }
+    }
 }
 
 static async Task UpdateAdvanceDeclineLineAsync(
