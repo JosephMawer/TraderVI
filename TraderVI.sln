@@ -48,12 +48,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0001-granville-plugin-architecture.md = Docs\adr\0001-granville-plugin-architecture.md
 		Docs\adr\0002-xiu-as-benchmark-index.md = Docs\adr\0002-xiu-as-benchmark-index.md
 		Docs\adr\0003-weighting-indicator-narrow-advance.md = Docs\adr\0003-weighting-indicator-narrow-advance.md
+		Docs\adr\0004-genuity-us-confirming-indices.md = Docs\adr\0004-genuity-us-confirming-indices.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65EEFD96-834F-498F-8DB4-D1237BE733DC}"
 	ProjectSection(SolutionItems) = preProject
+		Docs\concepts\oracle-prompt-tightening.md = Docs\concepts\oracle-prompt-tightening.md
 		Docs\concepts\price-weighted-contribution.md = Docs\concepts\price-weighted-contribution.md
 		Docs\concepts\README.md = Docs\concepts\README.md
 	EndProjectSection
