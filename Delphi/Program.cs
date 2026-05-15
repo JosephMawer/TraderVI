@@ -22,7 +22,7 @@ int minBarsRequired = 55;              // Increased for enhanced features
 decimal reserveCashPercent = 0m;//0.02m;
 double minExpectedReturn = 0.00;
 int maxSymbolsToScan = 500;
-int topPicksToSave = 7;
+int topPicksToSave = 25;
 bool saveToDB = true;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
