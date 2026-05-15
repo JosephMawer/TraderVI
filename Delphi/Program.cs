@@ -143,6 +143,7 @@ Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 GranvilleDailyForecast? granvilleForecast = null;
 WeightingSnapshot? weightingSnapshot = null;
+var usIndexBars = new Dictionary<string, IReadOnlyList<Core.Indicators.Granville.UsIndexBar>>(StringComparer.OrdinalIgnoreCase);
 
 var sectorIndexRepo = new SectorIndexRepository();
 var stockSectorRepo = new StockSectorRepository();
@@ -183,6 +184,17 @@ if (adLine.Count >= 2)
             YesterdayClose: prevBar.Close));
     }
 
+    // Load US confirming-index bars for Genuity indicators (#17–#20 — see ADR-0004).
+    // Need at least ~6 trading bars for the 5-day trend check (#20); pull a small
+    // calendar window to absorb US-vs-CA holiday offsets and weekends.
+    DateTime usIndexFrom = adLine[^1].Date.AddDays(-30);
+    var usIndexBarsRepo = new UsIndexBarsRepository();
+    foreach (var usSymbol in Core.TMX.UsIndexSymbols.AllSymbols)
+    {
+        var bars = await usIndexBarsRepo.GetBarsAsync(usSymbol, usIndexFrom);
+        if (bars.Count > 0) usIndexBars[usSymbol] = bars;
+    }
+
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
@@ -192,7 +204,8 @@ if (adLine.Count >= 2)
         StockSectorMappings = stockSectorMappings,
         LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null,
         MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null,
-        XiuConstituentBars = xiuConstituentBars
+        XiuConstituentBars = xiuConstituentBars,
+        UsIndexBars = usIndexBars.Count > 0 ? usIndexBars : null
     };
 
     var granville = new GranvilleComposite();
@@ -220,6 +233,7 @@ if (adLine.Count >= 2)
     Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
     Console.WriteLine($"  Leadership history: {leadershipHistory.Count} days");
     Console.WriteLine($"  Most active stocks: {mostActiveStocks.Count}");
+    Console.WriteLine($"  US index symbols:   {usIndexBars.Count} (Genuity inputs)");
 
     if (mostActiveStocks.Count < 8)
     {
