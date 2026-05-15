@@ -10,8 +10,8 @@ public enum IndicatorCategory
     Disparity,          // Indicators 5–6
     Leadership,         // Indicators 7–10
     Features,           // Indicators 11–14: most-active stock gains/losses vs. benchmark
-    Weighting,          // future
-    Genuity,            // future
+    Weighting,          // Indicators 15–16: narrow-advance warning gate (ADR-0003)
+    Genuity,            // Indicators 17–20: US confirming-index validation (ADR-0004)
     Dullness,           // future
     Overdueness,        // future
     LightVolume,        // future
