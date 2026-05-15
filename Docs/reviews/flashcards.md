@@ -147,3 +147,27 @@ works on existing structured signals. News brings new problems (dedupe,
 provenance, rate limits, schema-version bump) that would delay the
 highest-value lowest-risk slice — so we ship the narration loop first and
 add context later.
+
+### Q: Why use US indices (^GSPC, ^NYA) to confirm XIU's daily move?
+- **Domains:** technical-indicators, finance-fundamentals
+- **Source:** ADR-0004
+
+**A:** XIU and the TSX Composite are dominated by the same large-cap basket, so they're too autocorrelated to confirm each other. TSX large-caps are macro-correlated to US large-caps on a daily horizon, so US broad indices are an independent surface: when XIU moves without the US, the move is locally driven and less likely to persist.
+
+### Q: Why does Genuity short-circuit when US bars trail XIU by more than one day?
+- **Domains:** technical-indicators, data-sources
+- **Source:** ADR-0004
+
+**A:** Cross-border confirmation only means something when the bars compared belong to the same trading session. A 1-day tolerance covers the common 'Canadian close published before US bar appears' race; anything wider would falsely report confirmation or divergence on stale data, so Genuity emits a single Neutral 'Stale US data' result instead.
+
+### Q: Why Yahoo's chart endpoint and not TMX or Stooq for US index data?
+- **Domains:** data-sources, architecture
+- **Source:** ADR-0004
+
+**A:** TMX recognized the US symbols but returned empty OHLC; Stooq's free CSV download is gated by a captcha/API-key page. Yahoo's chart endpoint returns daily OHLC with no key/cookie/crumb (browser UA required). It's wrapped behind IUsIndexDataSource so it can be swapped without touching Genuity logic if Yahoo ever changes.
+
+### Q: Why do Genuity #17/#18/#19 short-circuit on flat XIU days?
+- **Domains:** technical-indicators, decision-engine
+- **Source:** ADR-0004 (Magnitude floor)
+
+**A:** Below ~10 bps, `sign(return)` is dominated by noise (one-cent tick on a $50 bar is ~2 bps), so 'confirming' a near-zero XIU move tells us nothing about whether the day's tape is genuine. Same-day Genuity indicators require both `|XIU return|` and `|US return|` to clear the 10 bps floor; #20 is unaffected because it operates on the 5-day return.
