@@ -711,6 +711,7 @@ var report = new DelphiReportBuilder
     Granville = granvilleForecast,
     Weighting = weightingSnapshot,
     SectorSnapshots = todaySectorSnapshots,
+    UsIndexBars = usIndexBars,
     TopPicks = top,
     BestPick = bestPick,
     Size = size,

@@ -26,6 +26,7 @@ public sealed class DelphiReportBuilder
     public GranvilleDailyForecast? Granville { get; set; }
     public WeightingSnapshot? Weighting { get; set; }
     public IReadOnlyList<SectorIndexSnapshot> SectorSnapshots { get; set; } = [];
+    public IReadOnlyDictionary<string, IReadOnlyList<UsIndexBar>> UsIndexBars { get; set; } = new Dictionary<string, IReadOnlyList<UsIndexBar>>(StringComparer.OrdinalIgnoreCase);
     public IReadOnlyList<RankedPick> TopPicks { get; set; } = [];
     public RankedPick? BestPick { get; set; }
     public PositionSizeResult? Size { get; set; }
@@ -90,6 +91,29 @@ public sealed class DelphiReportBuilder
             {
                 sb.AppendLine($"  {s.SectorName,-28} {s.Symbol,-8} {s.Price,10:F2} {s.PriceChange,8:+0.00;-0.00} {s.PercentChange,7:+0.00;-0.00}%");
             }
+        }
+
+        // ── US Confirming Indices (Genuity #17–#20) ──
+        sb.AppendLine("\n── US Confirming Indices (Genuity) ──");
+        if (UsIndexBars.Count > 0)
+        {
+            sb.AppendLine($"  {"Symbol",-8} {"LatestDate",-12} {"Close",10} {"1dRet",8} {"5dRet",8} {"Bars",5}");
+            sb.AppendLine($"  {new string('─', 56)}");
+            foreach (var kvp in UsIndexBars.OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                var bars = kvp.Value;
+                if (bars.Count == 0) continue;
+                var last = bars[^1];
+                double r1 = bars.Count >= 2 && bars[^2].Close > 0
+                    ? (last.Close / bars[^2].Close) - 1.0 : 0;
+                double r5 = bars.Count >= 6 && bars[^6].Close > 0
+                    ? (last.Close / bars[^6].Close) - 1.0 : 0;
+                sb.AppendLine($"  {kvp.Key,-8} {last.Date,-12:yyyy-MM-dd} {last.Close,10:F2} {r1,7:+0.00%;-0.00%;0.00%} {r5,7:+0.00%;-0.00%;0.00%} {bars.Count,5}");
+            }
+        }
+        else
+        {
+            sb.AppendLine("  [No US index data]");
         }
 
         // ── Granville ──
@@ -234,6 +258,18 @@ public sealed class DelphiReportBuilder
         {
             string gLabel = Granville.NetPoints > 0 ? "📈 Bullish" : Granville.NetPoints < 0 ? "📉 Bearish" : "➖ Neutral";
             sb.AppendLine($"\nGranville: {gLabel} (net {Granville.NetPoints:+0;-0} pts, {Granville.BullishCount} bull / {Granville.BearishCount} bear)");
+
+            // Genuity (#17–#20) line — cross-border (US) confirmation of XIU's move.
+            var genuity = Granville.Results.Where(r => r.Category == Core.Indicators.Granville.IndicatorCategory.Genuity).ToList();
+            if (genuity.Count > 0)
+            {
+                int gBull = genuity.Count(r => r.Signal is Core.Indicators.Granville.IndicatorSignal.Bullish or Core.Indicators.Granville.IndicatorSignal.StrongBullish);
+                int gBear = genuity.Count(r => r.Signal is Core.Indicators.Granville.IndicatorSignal.Bearish or Core.Indicators.Granville.IndicatorSignal.StrongBearish);
+                int gNeutral = genuity.Count - gBull - gBear;
+                bool stale = genuity.Any(r => r.Name.Contains("Stale", StringComparison.OrdinalIgnoreCase));
+                string label = stale ? "⚠️ stale US data" : (gBull > gBear ? "confirmed" : gBear > gBull ? "non-confirmation" : "mixed");
+                sb.AppendLine($"  Genuity (US confirm): {label} ({gBull} confirm / {gBear} divergent / {gNeutral} neutral)");
+            }
         }
 
         // ── Weighting summary line ──
