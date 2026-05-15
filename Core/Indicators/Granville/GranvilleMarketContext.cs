@@ -67,6 +67,19 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyList<XiuConstituentBar>? XiuConstituentBars { get; init; }
 
+    // ── US index data (for Genuity indicators #17–#20) ──
+
+    /// <summary>
+    /// Recent daily bars for US-listed confirming indices (S&amp;P 500, NYSE Composite),
+    /// keyed by canonical symbol (e.g., "^GSPC", "^NYA"). Each list is ordered ascending
+    /// by date and should cover enough history for the Genuity comparison window
+    /// (the calling layer typically loads ~30 trading days).
+    /// Used by <see cref="GenuityIndicators"/> to verify whether XIU's daily move is
+    /// confirmed by a broad US index move of comparable direction/magnitude.
+    /// Null or missing keys trigger graceful degradation (Neutral, stale-data diag).
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<UsIndexBar>>? UsIndexBars { get; init; }
+
     // ── Future data sources will be added here as we implement more groups ──
     // e.g., gold prices, odd-lot data, volume breakdowns, etc.
 }
