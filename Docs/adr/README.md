@@ -40,6 +40,8 @@ architecture documentation.
 | [0001](0001-granville-plugin-architecture.md) | Granville indicator plug-in architecture | Accepted | architecture, technical-indicators |
 | [0002](0002-xiu-as-benchmark-index.md) | XIU as the system benchmark index | Accepted | finance-fundamentals, decision-engine |
 | [0003](0003-weighting-indicator-narrow-advance.md) | Weighting indicator (Granville #15–#16) — narrow-advance warning gate | Accepted | technical-indicators, decision-engine, math-statistics, finance-fundamentals |
+| [0004](0004-genuity-us-confirming-indices.md) | Genuity indicators (Granville #17–#20) — US confirming-index source & staleness gate | Accepted | technical-indicators, decision-engine, data-sources, finance-fundamentals |
+| [0005](0005-defer-granville-dullness-21-22.md) | Defer Granville Dullness indicators (#21 and #22) | Accepted | technical-indicators, decision-engine, data-pipeline, math-statistics |
 
 See also: [by-domain index](by-domain.md).
 

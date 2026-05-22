@@ -166,6 +166,18 @@ add context later.
 
 **A:** TMX recognized the US symbols but returned empty OHLC; Stooq's free CSV download is gated by a captcha/API-key page. Yahoo's chart endpoint returns daily OHLC with no key/cookie/crumb (browser UA required). It's wrapped behind IUsIndexDataSource so it can be swapped without touching Genuity logic if Yahoo ever changes.
 
+### Q: Why were Granville Dullness indicators #21 and #22 deferred instead of shipped?
+- **Domains:** technical-indicators, decision-engine, math-statistics
+- **Source:** ADR-0005
+
+**A:** Calibrating Option C (volume + range + close-change all subdued) on XIU 2020-2026 fired ~2.72% of days but #21's h=5 hit rate was 32-34% — anti-predictive. A sensitivity sweep over D1/D2/D3 kept #21 stuck below 50% at every horizon, and tightening the prior-trend classifier from 5-day return sign to 20-day extreme-proximity didn't help. #22's bucket was n=3-12, too small to claim an edge. The most likely explanation is regime: 2020-2026 XIU is a bull run with one short correction, so quiet days after advances are pauses-before-continuation, not exhaustion. Revisit after backfilling 2001-2019 or moving to a different universe.
+
+### Q: Why didn't tightening Dullness's prior-trend classifier (Path A → Path B) rescue Granville #21?
+- **Domains:** technical-indicators, math-statistics
+- **Source:** ADR-0005
+
+**A:** Path A used the 5-day return sign; Path B used proximity to the 20-day high/low. Both produced #21 hit rates in the 32-34% band at h=5 — well below 50%. That ruled out hypothesis #2 ("the classifier was too crude") and elevated hypothesis #1 ("the rule is regime-dependent and 2020-2026 is the wrong regime"). No threshold combination over D1/D2/D3 flipped #21 above random, which is the signature of a sample/regime problem rather than a calibration problem.
+
 ### Q: Why do Genuity #17/#18/#19 short-circuit on flat XIU days?
 - **Domains:** technical-indicators, decision-engine
 - **Source:** ADR-0004 (Magnitude floor)

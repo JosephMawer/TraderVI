@@ -43,7 +43,7 @@ Each category is implemented as an `IGranvilleIndicatorGroup` in `Core/Indicator
 | Features | — | 🔲 Planned | — |
 | Weighting | — | 🔲 Planned | — |
 | Genuity | — | 🔲 Planned | — |
-| Dullness | — | 🔲 Planned | — |
+| Dullness (#21, #22) | — | ⏸ Deferred ([ADR-0005](adr/0005-defer-granville-dullness-21-22.md)) | Calibration showed #21 anti-predictive and #22 sample too small on 2020-2026 XIU; revisit with longer history or different universe |
 | Overdueness | — | 🔲 Planned | — |
 | Light Volume | — | 🔲 Planned | — |
 | Heavy Volume | — | 🔲 Planned | — |

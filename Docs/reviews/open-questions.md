@@ -48,6 +48,18 @@ Things we punted on and need to revisit. Cleared as decisions are made
   the universe — still deferred; runtime ≥ 50/60 graceful-degradation
   guard remains the contract.
 
+### Granville Dullness (#21, #22) — deferred per ADR-0005
+- **Q:** When (not if) we backfill XIU to 2001, rerun `dullness-calibrate`
+  and check whether #21 / #22 hit-rates clear 55% at h ∈ {5, 10} with
+  n ≥ 25 per bucket. If so, supersede ADR-0005 with an implementation ADR.
+- **Q:** Is there a different universe (sector indices, individual stocks,
+  or a non-TSX benchmark) where post-decline dull days are frequent enough
+  to make #22 testable *now*, without waiting for a TSX backfill?
+- **Q:** The positive mean forward return after #21 fires suggests Dullness
+  may act as a *continuation* signal in a momentum regime. Should we
+  re-derive Dullness as a continuation indicator under a new ADR rather
+  than revive Granville's literal bearish framing?
+
 ## Resolved
 
 - **ScoreB/ScoreC threshold defaults (`ScoreB ≥ 0.50`, `ScoreC ≥ 0.60`,

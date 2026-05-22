@@ -51,6 +51,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0002-xiu-as-benchmark-index.md = Docs\adr\0002-xiu-as-benchmark-index.md
 		Docs\adr\0003-weighting-indicator-narrow-advance.md = Docs\adr\0003-weighting-indicator-narrow-advance.md
 		Docs\adr\0004-genuity-us-confirming-indices.md = Docs\adr\0004-genuity-us-confirming-indices.md
+		Docs\adr\0005-defer-granville-dullness-21-22.md = Docs\adr\0005-defer-granville-dullness-21-22.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -70,6 +71,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviews", "reviews", "{FDB8
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oracle", "Oracle\Oracle.csproj", "{DC222DB1-9AF0-4670-B9EA-FB7FFDA8FB12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prompts", "prompts", "{9D0A7F7D-1D02-45CA-A074-D73CFEC445B3}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\prompts\end-of-thread-doc-update.md = Docs\prompts\end-of-thread-doc-update.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -309,6 +315,7 @@ Global
 		{65EEFD96-834F-498F-8DB4-D1237BE733DC} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 		{FDB8BD6D-3759-4919-8CF9-4286F5EDCBFE} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 		{DC222DB1-9AF0-4670-B9EA-FB7FFDA8FB12} = {41685814-8E63-4A11-9064-2A7449DAC076}
+		{9D0A7F7D-1D02-45CA-A074-D73CFEC445B3} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CF9035F-94B4-4E7F-A819-1150E19A7499}
