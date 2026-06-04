@@ -84,9 +84,12 @@ public class TradeDecisionEngine
     public GranvilleDailyForecast? GranvilleForecast { get; set; }
 
     /// <summary>
-    /// Live-computed relative strength scores, keyed by symbol.
+    /// Live-computed relative strength scores (raw RScomp), keyed by symbol.
     /// Set by Delphi before calling EvaluateAndRank.
-    /// Used as a secondary ranking signal alongside DirectionEdge.
+    /// Combined additively with DirectionEdge at equal weight to form the primary
+    /// ranking key (ADR-0011). Both signals live on roughly the same scale
+    /// (~±0.2 in normal conditions), so a plain sum approximates equal influence
+    /// without re-scaling. Missing scores default to 0.
     /// </summary>
     public Dictionary<string, double>? RsCompositeScores { get; set; }
 
@@ -124,6 +127,15 @@ public class TradeDecisionEngine
     }
 
     public TradeDecisionResult Evaluate(IReadOnlyList<DailyBar> history)
+        => Evaluate(history, _pipeline);
+
+    /// <summary>
+    /// Evaluates a symbol against a specific gate <paramref name="pipeline"/>.
+    /// Per-symbol scoring (composite, probabilities, edge) is identical across
+    /// lenses; only the gate stack — and therefore the resulting Buy/Hold and
+    /// gate trace — differs. See ADR-0013.
+    /// </summary>
+    public TradeDecisionResult Evaluate(IReadOnlyList<DailyBar> history, TradePipeline pipeline)
     {
         var patternSignals = _patternModels
             .Select(m => m.Evaluate(history))
@@ -158,6 +170,15 @@ public class TradeDecisionEngine
         double volExpansionProb = taggedSignals
             .FirstOrDefault(s => s.Role == SignalRole.Confirmation)?.Score ?? 0;
 
+        // Trend-confirmation flags for the Continuations lens (ADR-0014).
+        // Pattern signals are named by TaskType; Hint == Buy when the pattern is present.
+        bool trend30Confirmed = patternSignals
+            .Any(s => string.Equals(s.Name, "Trend30", StringComparison.OrdinalIgnoreCase)
+                      && s.Hint == TradeDirection.Buy);
+        bool maCrossoverConfirmed = patternSignals
+            .Any(s => string.Equals(s.Name, "MaCrossover", StringComparison.OrdinalIgnoreCase)
+                      && s.Hint == TradeDirection.Buy);
+
         var gateContext = new GateContext
         {
             Regime = CurrentRegime,
@@ -172,10 +193,12 @@ public class TradeDecisionEngine
             CompositeScore = composite,
             VolExpansionProb = volExpansionProb,
             PatternBuys = patternHints.Count(h => h == TradeDirection.Buy),
-            PatternCount = patternSignals.Count
+            PatternCount = patternSignals.Count,
+            Trend30Confirmed = trend30Confirmed,
+            MaCrossoverConfirmed = maCrossoverConfirmed
         };
 
-        var direction = _pipeline.Evaluate(gateContext);
+        var direction = pipeline.Evaluate(gateContext);
 
         var allSignals = patternSignals.Concat(profitSignals).ToList();
 
@@ -265,12 +288,24 @@ public class TradeDecisionEngine
     public List<RankedPick> EvaluateAndRank(
         Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
         int topN = 10)
+        => EvaluateAndRank(LensCatalog.Breakout(Config), symbolBars, topN);
+
+    /// <summary>
+    /// Evaluates every symbol through the given <paramref name="lens"/>'s gate stack
+    /// and ranks the survivors by the lens's primary key, then DirectionEdge, then
+    /// CompositeScore. Buy candidates always sort ahead of Hold. The lens is the unit
+    /// of "how do we view the universe" — see ADR-0013/0014.
+    /// </summary>
+    public List<RankedPick> EvaluateAndRank(
+        LensDefinition lens,
+        Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
+        int topN = 10)
     {
         var picks = new List<RankedPick>();
 
         foreach (var (symbol, history) in symbolBars)
         {
-            var result = Evaluate(history);
+            var result = Evaluate(history, lens.Pipeline);
 
             picks.Add(new RankedPick(
                 Symbol: symbol,
@@ -285,25 +320,13 @@ public class TradeDecisionEngine
                 GateTrace: result.GateTrace));
         }
 
-        return RankingMode switch
-        {
-            RankingMode.Probability => picks
-                .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
-                .ThenByDescending(p => p.DirectionEdge)
-                .ThenByDescending(p => RsCompositeScores?.GetValueOrDefault(p.Symbol, 0) ?? 0)
-                .ThenByDescending(p => p.CompositeScore)
-                .Take(topN)
-                .ToList(),
-
-            RankingMode.ExpectedReturn => picks
-                .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 2 : p.Direction == TradeDirection.Hold ? 1 : 0)
-                .ThenByDescending(p => p.ExpectedReturn)
-                .ThenByDescending(p => p.Confidence)
-                .Take(topN)
-                .ToList(),
-
-            _ => picks.Take(topN).ToList()
-        };
+        return picks
+            .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
+            .ThenByDescending(p => lens.PrimaryKey(p, RsCompositeScores?.GetValueOrDefault(p.Symbol, 0) ?? 0))
+            .ThenByDescending(p => p.DirectionEdge)
+            .ThenByDescending(p => p.CompositeScore)
+            .Take(topN)
+            .ToList();
     }
 
     public List<SizedPick> EvaluateRankAndSize(
