@@ -36,17 +36,26 @@ namespace Core.Db
         }
 
         /// <summary>
-        /// Returns only active equities (excludes ETFs).
+        /// Returns only active equities (excludes ETFs and leveraged/inverse ETPs).
         /// Use this for Delphi pick universe and ML training.
+        ///
+        /// Leveraged/inverse ETPs (BetaPro 2x/-2x, MegaLong/MegaShort 3x,
+        /// SavvyLong/SavvyShort, LFG Daily 2x, etc.) are explicitly excluded
+        /// via the <c>IsLeveragedOrInverseEtp</c> flag — many are misclassified
+        /// in source data as <c>SecurityType = 'Stock'</c>, yet their daily-reset
+        /// path dependency makes them structurally unsuitable for single-name
+        /// momentum ranking (see ADR-0009).
         /// </summary>
         public async Task<List<SymbolInfo>> GetEquitiesAsync()
         {
-            string query = $"SELECT [Symbol], [SecurityType] FROM {DbName} WHERE [IsActive] = 1 AND [SecurityType] = 'Stock'";
+            string query = $"SELECT [Symbol], [SecurityType], [ShortName], [IsLeveragedOrInverseEtp] FROM {DbName} WHERE [IsActive] = 1 AND [SecurityType] = 'Stock' AND [IsLeveragedOrInverseEtp] = 0";
 
             return await ExecuteReaderAsync(query, reader => new SymbolInfo
             {
                 Symbol = reader.GetString(0),
-                SecurityType = reader.GetString(1)
+                SecurityType = reader.GetString(1),
+                ShortName = reader.IsDBNull(2) ? null : reader.GetString(2),
+                IsLeveragedOrInverseEtp = reader.GetBoolean(3)
             });
         }
 
