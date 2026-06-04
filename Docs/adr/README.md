@@ -42,8 +42,18 @@ architecture documentation.
 | [0003](0003-weighting-indicator-narrow-advance.md) | Weighting indicator (Granville #15–#16) — narrow-advance warning gate | Accepted | technical-indicators, decision-engine, math-statistics, finance-fundamentals |
 | [0004](0004-genuity-us-confirming-indices.md) | Genuity indicators (Granville #17–#20) — US confirming-index source & staleness gate | Accepted | technical-indicators, decision-engine, data-sources, finance-fundamentals |
 | [0005](0005-defer-granville-dullness-21-22.md) | Defer Granville Dullness indicators (#21 and #22) | Accepted | technical-indicators, decision-engine, data-pipeline, math-statistics |
+| [0006](0006-granville-light-volume-25-28.md) | Granville Light Volume indicators (#25–#28) — tape × leadership-quality | Accepted | technical-indicators, decision-engine, market-microstructure |
+| [0007](0007-liquidity-floor-universe-filter.md) | Liquidity floor on Delphi's universe filter (price ≥ $1, 20d vol ≥ 50k) | Accepted | decision-engine, market-microstructure, risk-management, data-pipeline |
+| [0008](0008-genuity-19-magnitude-tolerance-band.md) | Genuity #19 magnitude-ratio ±5% tolerance buffer (refines ADR-0004) | Accepted | technical-indicators, decision-engine, math-statistics |
+| [0009](0009-exclude-leveraged-inverse-etps-from-delphi-universe.md) | Exclude leveraged/inverse ETPs from Delphi's ranking universe | Accepted | decision-engine, data-pipeline, risk-management, market-microstructure |
+| [0010](0010-rs-z-score-composite-additive.md) | RS Z-score composite (`CompositeScoreZ`) — additive only, no ranking change | Accepted | technical-indicators, decision-engine, math-statistics |
+| [0011](0011-rs-equal-weighted-with-direction-edge-in-ranking.md) | RS equal-weighted with `DirectionEdge` in Delphi pick ranking | Accepted (scoped to Breakouts lens by ADR-0013/0014) | decision-engine, technical-indicators, math-statistics |
+| [0012](0012-sector-index-historical-backfill.md) | Sector-index historical backfill from TMX `getTimeSeriesData` | Accepted | data-pipeline, technical-indicators, decision-engine |
+| [0013](0013-multi-lens-decision-architecture.md) | Multi-lens decision architecture (lens = thesis × gate stack × ranking key) | Accepted | architecture, decision-engine |
+| [0014](0014-continuations-lens-trend-confirmation.md) | Continuations lens — trend-confirmation gate + RS-primary ranking (executed) | Accepted | decision-engine, technical-indicators, risk-management |
+| [0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) | Manual trade logging with ghost execution and position lifecycle | Accepted | architecture, risk-management, market-microstructure |
 
-See also: [by-domain index](by-domain.md).
+See also:
 
 ---
 
