@@ -35,6 +35,7 @@ public sealed class GranvilleComposite
             new MostActiveIndicators(),
             new WeightingIndicators(),
             new GenuityIndicators(),
+            new LightVolumeIndicators(),
         ];
     }
 
@@ -86,8 +87,9 @@ public sealed class GranvilleComposite
         // Most Active:  max bullish = +3 (#12 and #14), max bearish = -3 (#11 and #13)
         // Weighting:    max bullish =  0,               max bearish = -1 (#15/#16 narrow advance)
         // Genuity:      max bullish = +4 (#17–#20 all confirm), max bearish = -4 (all disagree)
-        // Combined theoretical range: bearish [-14, +17] bullish
+        // LightVolume:  max bullish = +2 (#28 only fires once/day), max bearish = -1 (#25 or #27 only fires once/day)
+        // Combined theoretical range: bearish [-15, +19] bullish
         // Use the wider absolute value for normalization headroom.
-        return 17.0;
+        return 19.0;
     }
 }

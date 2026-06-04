@@ -80,6 +80,15 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyDictionary<string, IReadOnlyList<UsIndexBar>>? UsIndexBars { get; init; }
 
+    // ── Market tape (for Light Volume indicators #25–#28) ──
+
+    /// <summary>
+    /// Today's XIU tape facts (1-day return and relative-volume ratio) used by
+    /// <see cref="LightVolumeIndicators"/>. Null triggers graceful degradation
+    /// (Neutral / no-data) for the Light Volume group.
+    /// </summary>
+    public MarketTapeContext? MarketTape { get; init; }
+
     // ── Future data sources will be added here as we implement more groups ──
     // e.g., gold prices, odd-lot data, volume breakdowns, etc.
 }

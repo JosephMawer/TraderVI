@@ -14,7 +14,7 @@ public enum IndicatorCategory
     Genuity,            // Indicators 17–20: US confirming-index validation (ADR-0004)
     Dullness,           // future
     Overdueness,        // future
-    LightVolume,        // future
+    LightVolume,        // Indicators 25–28: light-volume tape × leadership quality (ADR-0006)
     HeavyVolume,        // future
     Reversals,          // future
     GoldIndicator,      // future
