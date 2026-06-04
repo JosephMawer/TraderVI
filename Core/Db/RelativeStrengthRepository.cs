@@ -32,19 +32,20 @@ public sealed class RelativeStrengthRepository : SQLBase
                 RS_SectorVsMarket_5d = @SecM5, RS_SectorVsMarket_10d = @SecM10,
                 RS_SectorVsMarket_20d = @SecM20, RS_SectorVsMarket_60d = @SecM60,
                 RS_Z_StockVsSector = @ZSvS, RS_Z_StockVsMarket = @ZSvM,
-                RS_Z_SectorVsMarket = @ZSecM, CompositeScore = @Composite
+                RS_Z_SectorVsMarket = @ZSecM, CompositeScore = @Composite,
+                CompositeScoreZ = @CompositeZ
             WHEN NOT MATCHED THEN INSERT (
                 Symbol, Date, SectorIndexSymbol,
                 RS_StockVsSector_5d, RS_StockVsSector_10d, RS_StockVsSector_20d, RS_StockVsSector_60d,
                 RS_StockVsMarket_5d, RS_StockVsMarket_10d, RS_StockVsMarket_20d, RS_StockVsMarket_60d,
                 RS_SectorVsMarket_5d, RS_SectorVsMarket_10d, RS_SectorVsMarket_20d, RS_SectorVsMarket_60d,
-                RS_Z_StockVsSector, RS_Z_StockVsMarket, RS_Z_SectorVsMarket, CompositeScore
+                RS_Z_StockVsSector, RS_Z_StockVsMarket, RS_Z_SectorVsMarket, CompositeScore, CompositeScoreZ
             ) VALUES (
                 @Symbol, @Date, @SectorIndexSymbol,
                 @SvS5, @SvS10, @SvS20, @SvS60,
                 @SvM5, @SvM10, @SvM20, @SvM60,
                 @SecM5, @SecM10, @SecM20, @SecM60,
-                @ZSvS, @ZSvM, @ZSecM, @Composite
+                @ZSvS, @ZSvM, @ZSecM, @Composite, @CompositeZ
             );
             """;
 
@@ -70,6 +71,7 @@ public sealed class RelativeStrengthRepository : SQLBase
         cmd.Parameters.AddWithValue("@ZSvM", (object?)row.RS_Z_StockVsMarket ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@ZSecM", (object?)row.RS_Z_SectorVsMarket ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@Composite", (object?)row.CompositeScore ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@CompositeZ", (object?)row.CompositeScoreZ ?? DBNull.Value);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -141,6 +143,7 @@ public sealed class RelativeStrengthRepository : SQLBase
             RS_Z_StockVsMarket = Get("RS_Z_StockVsMarket"),
             RS_Z_SectorVsMarket = Get("RS_Z_SectorVsMarket"),
             CompositeScore = Get("CompositeScore"),
+            CompositeScoreZ = Get("CompositeScoreZ"),
         };
     }
 }

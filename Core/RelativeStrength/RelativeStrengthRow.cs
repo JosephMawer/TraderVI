@@ -52,4 +52,14 @@ public sealed record RelativeStrengthRow
     /// Weights are initial defaults, intended to be tuned via Hercules feature importance.
     /// </summary>
     public double? CompositeScore { get; init; }
+
+    /// <summary>
+    /// Volatility-normalized composite (ADR-0010). Same weights as <see cref="CompositeScore"/>
+    /// but blended over the Z-score variants:
+    /// 0.5 * RS_Z_StockVsMarket + 0.3 * RS_Z_StockVsSector + 0.2 * RS_Z_SectorVsMarket.
+    /// Typically lives in roughly +/- 2 standard deviations, giving real separation between
+    /// candidates whose raw RS clusters within +/- 0.5% on a 10d window. Additive only in v1:
+    /// not yet consumed by Delphi ranking - reserved for IC measurement and tiebreaker evaluation.
+    /// </summary>
+    public double? CompositeScoreZ { get; init; }
 }

@@ -19,6 +19,9 @@ CREATE TABLE [dbo].[RelativeStrengthFeatures]
 	[RS_Z_StockVsMarket]    FLOAT        NULL,
 	[RS_Z_SectorVsMarket]   FLOAT        NULL,
 	[CompositeScore]        FLOAT        NULL,
+	-- Volatility-normalized composite (ADR-0010): same weights as CompositeScore but
+	-- blended over the RS_Z_* variants. Additive only in v1 - not yet consumed by Delphi ranking.
+	[CompositeScoreZ]       FLOAT        NULL,
 
 	CONSTRAINT [PK_RelativeStrengthFeatures] PRIMARY KEY CLUSTERED ([Symbol], [Date])
 );
