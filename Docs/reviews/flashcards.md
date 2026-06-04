@@ -183,3 +183,89 @@ add context later.
 - **Source:** ADR-0004 (Magnitude floor)
 
 **A:** Below ~10 bps, `sign(return)` is dominated by noise (one-cent tick on a $50 bar is ~2 bps), so 'confirming' a near-zero XIU move tells us nothing about whether the day's tape is genuine. Same-day Genuity indicators require both `|XIU return|` and `|US return|` to clear the 10 bps floor; #20 is unaffected because it operates on the 5-day return.
+
+### Q: After ADR-0011, what is the primary ranking key Delphi uses to pick the leader?
+- **Domains:** decision-engine, technical-indicators
+- **Source:** ADR-0011
+
+**A:** `DirectionEdge + RScomp` — the raw relative-strength composite is added at equal weight to the model-implied `P(up10) − P(down10)`. `DirectionEdge` alone is the secondary tiebreaker, and the engine `CompositeScore` is the final fallback. Missing RS values default to 0.
+
+### Q: Why does ADR-0011 use raw `RScomp` instead of the volatility-normalized `CompZ` for the additive ranking?
+- **Domains:** decision-engine, math-statistics
+- **Source:** ADR-0011
+
+**A:** `RScomp` and `DirectionEdge` already share a comparable scale (~±0.2 typical), so a plain sum approximates equal influence without re-scaling. `CompZ` is in units of σ (~±2), so adding it directly would silently over-weight RS by ~10× and break the "equal weight" intent.
+
+### Q: Why did the first sector-index backfill attempt skip every symbol despite finding no historical bars?
+- **Domains:** data-pipeline, decision-engine
+- **Source:** ADR-0012
+
+**A:** It used `MAX([Date]) WHERE Symbol = …` as the resume cursor, but Hermes's daily snapshot path had already seeded yesterday's date for each `^TT*` symbol. The cursor reported "up-to-date" and the multi-year gap before the earliest stored bar stayed invisible. The fix is coverage-shape gating: trigger `[FULL]` when `count < 100` or `earliest > start + 30d`.
+
+### Q: What latent SQL bug in `SectorIndexRepository.UpsertAsync` did the backfill work expose?
+- **Domains:** data-pipeline
+- **Source:** ADR-0012
+
+**A:** The `SqlDbType.Decimal` parameters for `Price`, `PriceChange`, and `PercentChange` were created without `Precision`/`Scale`, which defaults to `(18, 0)`. Values were being truncated to integers despite the column being `DECIMAL(18, 4)`. Fixed by explicitly setting `Precision = 18, Scale = 4` on all three parameters.
+
+### Q: In TraderVI, what is a "lens" and what three things define it?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0013
+
+**A:** A lens is a self-contained way of viewing the universe, expressed as a `(thesis → gate stack → ranking key)` triple. Two lenses can share market-level inputs and per-symbol scoring yet produce different shortlists because they gate and rank differently.
+
+### Q: In the multi-lens architecture, what is computed once and shared, versus what may differ per lens?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0013
+
+**A:** Per-symbol scoring (composite, probabilities, `DirectionEdge`) and all market-level inputs (regime, breadth, Granville, RS) are computed once and shared. Only the gate stack (`TradePipeline`) and the ranking key (`PrimaryKey`) differ per lens.
+
+### Q: Which lens drives the executed pick, which is journaled, and how are they distinguished in the DB?
+- **Domains:** decision-engine, architecture
+- **Source:** ADR-0013
+
+**A:** Continuations is executed (B1) and emits dossiers/sizing; Breakouts is journaled only (B3) and writes picks without dossiers. They are distinguished by the `[Lens]` column on `dbo.DailyPick` (`'Continuation'` vs `'Breakout'`); read APIs default to `'Continuation'`.
+
+### Q: Why was "one shared pipeline with a mode flag" rejected for serving breakout vs continuation theses?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0013
+
+**A:** It re-creates the "tune one gate to do two jobs" anti-pattern, branches scoring/ranking with conditionals, and loses per-thesis attribution. A future third view would need another branch instead of just a new `LensDefinition`.
+
+### Q: Which two patterns must both fire for `TrendConfirmationGate` to pass, and why is `Trend10` excluded?
+- **Domains:** decision-engine, technical-indicators
+- **Source:** ADR-0014
+
+**A:** `Trend30` (multi-week uptrend) and `MaCrossover` (10/30 MA cross) must both be present. `Trend10` is excluded because it flips on routine pullbacks even while a name is still leading, so requiring it would reject healthy continuation candidates.
+
+### Q: How does the Continuations ranking key differ from the Breakouts (ADR-0011) key, and why?
+- **Domains:** decision-engine, technical-indicators
+- **Source:** ADR-0014
+
+**A:** Breakouts ranks by `DirectionEdge + RScomp` (equal-weight sum). Continuations ranks RS-first (`primaryKey = RScomp`) with `DirectionEdge` as confirmation, because the continuation thesis is *about* realized leadership, so RS should lead rather than be averaged 1:1 with forward probability.
+
+### Q: In the Continuations lens, what role does breakout probability still play?
+- **Domains:** decision-engine
+- **Source:** ADR-0014
+
+**A:** It is demoted to a soft composite input only — it no longer gates. The setup gate for this lens is `TrendConfirmationGate`, not the breakout `SetupGate`.
+
+
+
+### Q: What two database rows does a single `buy` in TradeManager create, and what does each capture?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0015
+
+**A:** A `TradeLog` row (the fill: symbol, BUY, shares, price, amount, commission 0) and an `ActivePosition` row (open risk: entry price, cost basis, `StopLossPrice` = entry x 0.90, `WarningPrice` = entry x 0.92). The sell side later realizes P&L on the position and closes it.
+
+### Q: Why is live Wealthsimple routing not wired, and what runs instead in ghost mode?
+- **Domains:** market-microstructure, architecture
+- **Source:** ADR-0015
+
+**A:** `WSTrade.PlaceOrder` needs a Wealthsimple `security_id`, which cannot yet be resolved from a ticker. Ghost mode (the default) prints a `[GHOST] Simulated Wealthsimple ...` line and only writes the database; non-ghost mode warns and still logs so the book stays accurate.
+
+### Q: Which Delphi-linkage fields does ADR-0015 leave null, and what does that postpone?
+- **Domains:** decision-engine, architecture
+- **Source:** ADR-0015
+
+**A:** `EntryComposite`, `StrategyVersionId`, and `OriginalPickId` are left null (manual entry only). That postpones model-vs-discretion attribution - comparing actual fills against Delphi's hypothetical pick for the same day.
