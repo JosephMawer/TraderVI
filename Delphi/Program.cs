@@ -143,6 +143,7 @@ Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 GranvilleDailyForecast? granvilleForecast = null;
 WeightingSnapshot? weightingSnapshot = null;
+MarketTapeContext? marketTape = null;
 var usIndexBars = new Dictionary<string, IReadOnlyList<Core.Indicators.Granville.UsIndexBar>>(StringComparer.OrdinalIgnoreCase);
 
 var sectorIndexRepo = new SectorIndexRepository();
@@ -195,6 +196,11 @@ if (adLine.Count >= 2)
         if (bars.Count > 0) usIndexBars[usSymbol] = bars;
     }
 
+    // Load XIU bars for the Market Tape (Light Volume indicators #25–#28 — see ADR-0006).
+    // Reuses the full XIU history already loaded above for regime computation;
+    // MarketTapeCalculator only inspects the trailing 21 sessions.
+    marketTape = MarketTapeCalculator.Build(xiuBars);
+
     var granvilleContext = new GranvilleMarketContext
     {
         Today = adLine[^1],
@@ -205,7 +211,8 @@ if (adLine.Count >= 2)
         LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null,
         MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null,
         XiuConstituentBars = xiuConstituentBars,
-        UsIndexBars = usIndexBars.Count > 0 ? usIndexBars : null
+        UsIndexBars = usIndexBars.Count > 0 ? usIndexBars : null,
+        MarketTape = marketTape
     };
 
     var granville = new GranvilleComposite();
@@ -234,6 +241,14 @@ if (adLine.Count >= 2)
     Console.WriteLine($"  Leadership history: {leadershipHistory.Count} days");
     Console.WriteLine($"  Most active stocks: {mostActiveStocks.Count}");
     Console.WriteLine($"  US index symbols:   {usIndexBars.Count} (Genuity inputs)");
+    if (marketTape is { XiuVolumeRatio20: decimal vr, XiuReturn1d: decimal r1 })
+    {
+        Console.WriteLine($"  Market tape:        XIU ret={r1:+0.00%;-0.00%}, vol ratio={vr:F2} ({(vr < 0.85m ? "light" : "normal")})");
+    }
+    else
+    {
+        Console.WriteLine("  Market tape:        unavailable (need ≥ 21 XIU sessions)");
+    }
 
     if (mostActiveStocks.Count < 8)
     {
@@ -253,6 +268,11 @@ if (adLine.Count >= 2)
     if (leadershipHistory.Count < 12)
     {
         Console.WriteLine("  ⚠️  Insufficient leadership history (< 12 days) — Leadership indicators will degrade to neutral.");
+    }
+
+    if (marketTape is null || marketTape.XiuVolumeRatio20 is null || marketTape.XiuReturn1d is null)
+    {
+        Console.WriteLine("  ⚠️  Market tape unavailable — Light Volume indicators (#25–#28) will degrade to neutral.");
     }
 
     Console.WriteLine();
@@ -302,7 +322,52 @@ else
 var db = new SymbolsRepository();
 var constituents = await db.GetEquitiesAsync();
 
-var symbols = constituents
+// ── Defense-in-depth: leveraged/inverse ETP keyword guard (ADR-0009) ──
+// Primary exclusion is the IsLeveragedOrInverseEtp flag in dbo.Symbols
+// (GetEquitiesAsync already filters those out). This is a safety net for
+// future imports that arrive un-flagged: catch obvious leveraged/inverse
+// product names by their ShortName before they reach the ranking universe.
+static bool IsLeveragedOrInverseByName(string? shortName)
+{
+    if (string.IsNullOrWhiteSpace(shortName)) return false;
+    string n = shortName;
+    string[] markers =
+    [
+        "2x", "3x", "-2x", "-3x", "(2X)", "(3X)",
+        "BetaPro", "BtaPro", "MegaLong", "MegaShort",
+        "SavvyLong", "SavvyShort", "SavvyLg", "SavvyLng", "SavvyShrt",
+        "LFG Daily", "Inverse", "Invrs", "Leveraged",
+        "DlyBl", "DlyBr", "DailyInvrs"
+    ];
+    foreach (var m in markers)
+    {
+        if (n.Contains(m, StringComparison.OrdinalIgnoreCase)) return true;
+    }
+    return false;
+}
+
+int skippedLeveraged = 0;
+var leveragedExclusions = new List<string>();
+var stockOnly = new List<SymbolInfo>(constituents.Count);
+foreach (var c in constituents)
+{
+    if (IsLeveragedOrInverseByName(c.ShortName))
+    {
+        skippedLeveraged++;
+        leveragedExclusions.Add($"{c.Symbol} ({c.ShortName})");
+        continue;
+    }
+    stockOnly.Add(c);
+}
+
+if (skippedLeveraged > 0)
+{
+    Console.WriteLine($"Defense-in-depth: excluded {skippedLeveraged} un-flagged leveraged/inverse ETP(s) by ShortName (ADR-0009)");
+    foreach (var s in leveragedExclusions.Take(10))
+        Console.WriteLine($"  ! {s}");
+}
+
+var symbols = stockOnly
     .Select(c => c.Symbol)
     .Where(s => !string.IsNullOrWhiteSpace(s))
     .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -316,12 +381,22 @@ var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.Ord
 int loaded = 0;
 int skipped = 0;
 int skippedPrice = 0;
+int skippedLowPrice = 0;
+int skippedLowVolume = 0;
 
 // Minimum price: must be able to afford at least 10 shares from deployable capital
 decimal deployableCapital = availableCapital * (1 - reserveCashPercent);
 decimal maxPriceForMinLot = deployableCapital / 10m;
 
-Console.WriteLine($"Affordability filter: max price ${maxPriceForMinLot:N2} (must afford >= 10 shares from ${deployableCapital:N2} deployable)\n");
+// ── Liquidity floor (ADR-0007) ──
+// Initial defaults — tunable. Goal: avoid signal/order-execution rot on sub-dollar
+// or thinly-traded names where ML probabilities and RS are trained out-of-distribution
+// and where any market order will move the tape against us.
+decimal minPriceFloor = 1.00m;
+long minVolume20d = 50_000;
+
+Console.WriteLine($"Affordability filter: max price ${maxPriceForMinLot:N2} (must afford >= 10 shares from ${deployableCapital:N2} deployable)");
+Console.WriteLine($"Liquidity floor:      min price ${minPriceFloor:N2}, min 20d avg volume {minVolume20d:N0} shares (ADR-0007)\n");
 
 foreach (var symbol in symbols)
 {
@@ -341,6 +416,21 @@ foreach (var symbol in symbols)
         continue;
     }
 
+    // Liquidity floor — price (penny-stock cutoff)
+    if (lastClose < minPriceFloor)
+    {
+        skippedLowPrice++;
+        continue;
+    }
+
+    // Liquidity floor — 20d average volume (thin-tape cutoff)
+    var avgVolume20d = bars.TakeLast(20).Average(b => (double)b.Volume);
+    if (avgVolume20d < minVolume20d)
+    {
+        skippedLowVolume++;
+        continue;
+    }
+
     allBars[symbol] = bars;
     loaded++;
 }
@@ -354,7 +444,7 @@ allBars = allBars
     })
     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
 
-Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForMinLot:N2})");
+Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForMinLot:N2}), {skippedLowPrice} (price < ${minPriceFloor:N2}), {skippedLowVolume} (20d vol < {minVolume20d:N0}), {skippedLeveraged} (lev/inv ETP)");
 Console.WriteLine($"Sorted by: avg 20-day volume (most liquid first)\n");
 
 if (allBars.Count == 0)
@@ -384,6 +474,18 @@ var sectorClosesBySector = rsSectorSnapshots
 
 var rsScores = new Dictionary<string, Core.RelativeStrength.RelativeStrengthRow>(StringComparer.OrdinalIgnoreCase);
 
+// RS coverage counters — surface degenerate/missing RS instead of silently emitting null.
+int rsFallbackToXiu = 0;
+int rsCompositeNull = 0;
+int rsBarsRequired = 80; // max horizon (60d) + Z window (20d) in RelativeStrengthCalculator
+
+int rsMinSectorBars = sectorClosesBySector.Count > 0
+    ? sectorClosesBySector.Values.Min(v => v.Count)
+    : 0;
+int rsMaxSectorBars = sectorClosesBySector.Count > 0
+    ? sectorClosesBySector.Values.Max(v => v.Count)
+    : 0;
+
 foreach (var (symbol, bars) in allBars)
 {
     var stockCloses = bars.Select(b => (double)b.Close).ToList();
@@ -395,6 +497,9 @@ foreach (var (symbol, bars) in allBars)
     if (sectorSymbol != null)
         sectorClosesBySector.TryGetValue(sectorSymbol, out sectorCloses);
 
+    bool usedFallback = sectorCloses == null;
+    if (usedFallback) rsFallbackToXiu++;
+
     // Compute RS — stock vs market always works; stock vs sector only if we have sector data.
     // For missing sector data, use XIU as a fallback (RS_StockVsSector ≈ 0).
     var rs = Core.RelativeStrength.RelativeStrengthCalculator.Compute(
@@ -404,6 +509,8 @@ foreach (var (symbol, bars) in allBars)
         symbol: symbol,
         date: DateOnly.FromDateTime(DateTime.Today),
         sectorIndexSymbol: sectorSymbol ?? "XIU");
+
+    if (!rs.CompositeScore.HasValue) rsCompositeNull++;
 
     rsScores[symbol] = rs;
 }
@@ -415,16 +522,33 @@ engine.RsCompositeScores = rsScores
 
 Console.WriteLine($"Relative Strength: computed for {rsScores.Count} symbols ({sectorClosesBySector.Count} sectors loaded)");
 int withSector = rsScores.Count(kvp => stockSectorMap.ContainsKey(kvp.Key));
-Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsScores.Count - withSector}\n");
+Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsScores.Count - withSector}");
+Console.WriteLine($"  Sector bars (min/max): {rsMinSectorBars} / {rsMaxSectorBars} (required >= {rsBarsRequired} for full composite)");
+Console.WriteLine($"  Composite null:        {rsCompositeNull} (insufficient bars for 10d/60d horizons or 20d Z window)");
+if (rsMinSectorBars > 0 && rsMinSectorBars < rsBarsRequired)
+{
+    Console.WriteLine($"  ⚠ Sector index history too short ({rsMinSectorBars} < {rsBarsRequired} bars).");
+    Console.WriteLine($"    RS composite will be null for sector-mapped symbols — top-pick RScomp/CompZ/RS10d columns will display 'null'.");
+    Console.WriteLine($"    Action: backfill TraderDB.dbo.SectorIndices to >= {rsBarsRequired} trading days of history.");
+}
+Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
 // EVALUATE + RANK (SINGLE PASS) + PICK BEST + SIZE IT
 // ═══════════════════════════════════════════════════════════════════
-var top = engine.EvaluateAndRank(allBars, topN: topPicksToSave);
+var continuationLens = Core.Trader.LensCatalog.Continuation(config);
+var breakoutLens = Core.Trader.LensCatalog.Breakout(config);
+
+// Two independent lenses (ADR-0013): each is a (thesis -> gate stack -> ranking key)
+// triple. The Continuations lens (RS-primary, trend-confirmation gate) DRIVES the
+// executed recommendation (B1). The Breakouts lens (edge+RS, breakout setup gate)
+// is computed for supplemental awareness and JOURNALED only (B3) -- never executed.
+var top = engine.EvaluateAndRank(continuationLens, allBars, topN: topPicksToSave);
+var breakoutTop = engine.EvaluateAndRank(breakoutLens, allBars, topN: topPicksToSave);
 var (bestPick, size) = engine.EvaluateBestPickAllIn(top, availableCapital);
 
 Console.WriteLine(new string('═', 80));
-Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - DIRECTION EDGE RANKING");
+Console.WriteLine("BEST PICK (SINGLE-POSITION MODE) - CONTINUATIONS LENS (RS-PRIMARY)");
 Console.WriteLine(new string('═', 80));
 
 Console.WriteLine("\nTop Ranked Candidates:");
@@ -471,7 +595,7 @@ Console.WriteLine(
     $"  {"Comp",6}" +
     $"  {"Brk%",6} {"BrkRaw",7}" +
     $"  {"P(Up)",6} {"P(Dn)",6} {"Edge",6}" +
-    $"  {"Vol%",6} {"RScomp",9}" +
+    $"  {"Vol%",6} {"RScomp",10} {"CompZ",8} {"RS10d",9}" +
     $"  {"MA",3} {"T30",4} {"T10",4}" +
     $"  {"Gate",18}");
 Console.WriteLine(new string('─', 140));
@@ -485,9 +609,13 @@ foreach (var p in top)
     double edge = pUp - pDown;
     double volExp = GetProbContains(p, "VolExpansion");
 
-    double rsComposite = rsScores.TryGetValue(p.Symbol, out var rsRow) && rsRow.CompositeScore.HasValue
-        ? rsRow.CompositeScore.Value
-        : 0;
+    rsScores.TryGetValue(p.Symbol, out var rsRow);
+    // Note: raw 10d return differences are small (most stocks ±0.5% vs sector/market on a 10d window),
+    // so we display 4 decimals to avoid silent rounding to 0.000. Nulls (insufficient history)
+    // are rendered as "null" rather than coerced to 0 — see ADR follow-up on Z-score composite.
+    string rsCompStr = rsRow?.CompositeScore is double rsC ? rsC.ToString("+0.0000;-0.0000;0.0000") : "null";
+    string rsCompZStr = rsRow?.CompositeScoreZ is double rsCz ? rsCz.ToString("+0.00;-0.00;0.00") : "null";
+    string rs10dStr = rsRow?.RS_StockVsMarket_10d is double rs10 ? rs10.ToString("+0.000;-0.000;0.000") : "null";
 
     string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
 
@@ -516,12 +644,52 @@ foreach (var p in top)
         $"  {p.CompositeScore,6:P0}" +
         $"  {breakout,6:P0} {breakout,7:P1}" +
         $"  {pUp,6:P0} {pDown,6:P0} {edgeStr,6}" +
-        $"  {volExp,6:P0} {rsComposite,9:+0.000;-0.000}" +
+        $"  {volExp,6:P0} {rsCompStr,10} {rsCompZStr,8} {rs10dStr,9}" +
         $"  {maCross,3} {trend30,4} {trend10,4}" +
         $"  {gateStatus,-18}");
     rank++;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// SUPPLEMENTAL LENS: BREAKOUTS (journaled, not executed — ADR-0013)
+// ═══════════════════════════════════════════════════════════════════════════════
+// Shown for situational awareness and as a continuity baseline against the
+// Continuations lens. The executed recommendation always comes from Continuations.
+Console.WriteLine();
+Console.WriteLine(new string('─', 80));
+Console.WriteLine("SUPPLEMENTAL: BREAKOUTS LENS (Edge+RScomp ranking — journaled, NOT executed)");
+Console.WriteLine(new string('─', 80));
+Console.WriteLine(
+    $"{"#",-3}  {"Symbol",-8}  {"Action",-6}  {"P(Up)",6} {"P(Dn)",6} {"Edge",6}" +
+    $"  {"Brk%",6}  {"RScomp",10}  {"Gate",-18}");
+Console.WriteLine(new string('─', 80));
+
+int brRank = 1;
+foreach (var p in breakoutTop)
+{
+    double pUp = GetUpProb(p);
+    double pDown = GetDownProb(p);
+    double edge = pUp - pDown;
+    double breakout = GetBreakoutProb(p);
+    string edgeStr = edge >= 0 ? $"+{edge:P0}" : $"{edge:P0}";
+
+    rsScores.TryGetValue(p.Symbol, out var rsRowB);
+    string rsCompStr = rsRowB?.CompositeScore is double rsCb ? rsCb.ToString("+0.0000;-0.0000;0.0000") : "null";
+
+    string gateStatus = "Pass (all gates)";
+    if (p.GateTrace != null)
+    {
+        var blocked = p.GateTrace.FirstOrDefault(g => !g.Passed);
+        if (blocked.Reason != null)
+            gateStatus = $"Fail: {blocked.GateName}";
+    }
+
+    Console.WriteLine(
+        $"{brRank,-3}  {p.Symbol,-8}  {p.Direction,-6}  {pUp,6:P0} {pDown,6:P0} {edgeStr,6}" +
+        $"  {breakout,6:P0}  {rsCompStr,10}  {gateStatus,-18}");
+    brRank++;
+}
+Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 // SAVE DAILY PICKS TO DATABASE
 // ═══════════════════════════════════════════════════════════════════
@@ -568,7 +736,8 @@ if (saveToDB && top.Count > 0)
             suggestedSize: savedRank == 1 && size != null ? size.SuggestedSize : null,
             allocationPercent: savedRank == 1 && size != null ? (double)size.AllocationPercent : null,
             strategyVersionId: strategyVersionId,
-            notes: savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null);
+            notes: savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null,
+            lens: "Continuation");
 
         // ── Phase 1 of the Oracle layer: emit a DecisionDossier per pick.
         // The dossier is the audit unit fed to the downstream LLM layer
@@ -614,8 +783,38 @@ if (saveToDB && top.Count > 0)
         savedRank++;
     }
 
-    Console.WriteLine($"✓ Saved {top.Count} picks to [dbo].[DailyPick] for {pickDate:yyyy-MM-dd}");
+    Console.WriteLine($"✓ Saved {top.Count} Continuation picks to [dbo].[DailyPick] for {pickDate:yyyy-MM-dd}");
     Console.WriteLine($"✓ Saved {dossiersSaved} dossiers to [dbo].[DecisionDossier]");
+
+    // ── Journal the Breakouts lens (B3): picks only, no dossiers/sizing.
+    // These are never executed; they exist so the two theses' outcomes can be
+    // compared later via the [Lens] discriminator (ADR-0013).
+    int breakoutRank = 1;
+    foreach (var p in breakoutTop)
+    {
+        double brBreakout = GetBreakoutProb(p);
+        double brUp = GetUpProb(p);
+        double brVolExp = GetProbContains(p, "VolExpansion");
+        double brRelStrength = GetProbContains(p, "RelStrength");
+
+        await pickRepo.InsertPick(
+            pickDate: pickDate,
+            symbol: p.Symbol,
+            rank: breakoutRank,
+            direction: p.Direction.ToString(),
+            compositeScore: p.CompositeScore,
+            breakoutProb: brBreakout,
+            directionProb: brUp,
+            volExpansionProb: brVolExp,
+            relStrengthProb: brRelStrength > 0 ? brRelStrength : null,
+            expectedReturn: p.ExpectedReturn,
+            strategyVersionId: strategyVersionId,
+            notes: breakoutRank == 1 ? "Breakouts lens top pick (journaled, not executed)" : null,
+            lens: "Breakout");
+        breakoutRank++;
+    }
+
+    Console.WriteLine($"✓ Journaled {breakoutTop.Count} Breakout picks to [dbo].[DailyPick] (lens='Breakout', not executed)");
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -710,6 +909,7 @@ var report = new DelphiReportBuilder
     BearishDivergence = bearishDivergence,
     Granville = granvilleForecast,
     Weighting = weightingSnapshot,
+    MarketTape = marketTape,
     SectorSnapshots = todaySectorSnapshots,
     UsIndexBars = usIndexBars,
     TopPicks = top,
@@ -720,7 +920,17 @@ var report = new DelphiReportBuilder
     LoadedSymbols = loaded,
     SkippedHistory = skipped,
     SkippedPrice = skippedPrice,
-    DeployableCapital = deployableCapital
+    SkippedLowPrice = skippedLowPrice,
+    SkippedLowVolume = skippedLowVolume,
+    SkippedLeveragedEtp = skippedLeveraged,
+    MinPriceFloor = minPriceFloor,
+    MinVolume20d = minVolume20d,
+    DeployableCapital = deployableCapital,
+    RsFallbackToXiuCount = rsFallbackToXiu,
+    RsCompositeNullCount = rsCompositeNull,
+    RsMinSectorBars = rsMinSectorBars,
+    RsMaxSectorBars = rsMaxSectorBars,
+    RsBarsRequired = rsBarsRequired
 };
 
 Console.WriteLine(report.BuildDiagnostic());
