@@ -129,4 +129,73 @@ public sealed class SectorIndexRepository : SQLBase
         var result = await cmd.ExecuteScalarAsync();
         return result is DateTime dt ? dt : null;
     }
+
+    /// <summary>
+    /// Gets the latest stored date for a specific sector symbol, or null if none.
+    /// Used by the historical backfill to resume from where a previous run stopped.
+    /// </summary>
+    public async Task<DateTime?> GetLatestDateForSymbolAsync(string symbol)
+    {
+        const string sql = "SELECT MAX([Date]) FROM [dbo].[SectorIndices] WHERE [Symbol] = @Symbol";
+
+        await using var conn = new SqlConnection(ConnectionString);
+        await conn.OpenAsync();
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 10) { Value = symbol });
+        var result = await cmd.ExecuteScalarAsync();
+        return result is DateTime dt ? dt : null;
+    }
+
+    /// <summary>
+    /// Gets the most recent close for a sector symbol with [Date] strictly less than
+    /// <paramref name="beforeDate"/>, used to seed PriceChange/PercentChange when
+    /// backfilling historical bars incrementally.
+    /// </summary>
+    public async Task<decimal?> GetLatestCloseBeforeAsync(string symbol, DateTime beforeDate)
+    {
+        const string sql = """
+            SELECT TOP 1 [Price]
+            FROM [dbo].[SectorIndices]
+            WHERE [Symbol] = @Symbol AND [Date] < @Date
+            ORDER BY [Date] DESC
+            """;
+
+        await using var conn = new SqlConnection(ConnectionString);
+        await conn.OpenAsync();
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 10) { Value = symbol });
+        cmd.Parameters.Add(new SqlParameter("@Date", SqlDbType.Date) { Value = beforeDate.Date });
+        var result = await cmd.ExecuteScalarAsync();
+        return result is decimal d ? d : null;
+    }
+
+    /// <summary>
+    /// Returns (rowCount, earliestDate, latestDate) for a sector symbol.
+    /// Used by the historical backfill to detect coverage gaps — e.g., when a daily
+    /// snapshot updater has seeded recent rows but no historical depth exists yet.
+    /// </summary>
+    public async Task<(int Count, DateTime? Earliest, DateTime? Latest)> GetCoverageAsync(string symbol)
+    {
+        const string sql = """
+            SELECT COUNT(*), MIN([Date]), MAX([Date])
+            FROM [dbo].[SectorIndices]
+            WHERE [Symbol] = @Symbol
+            """;
+
+        await using var conn = new SqlConnection(ConnectionString);
+        await conn.OpenAsync();
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 10) { Value = symbol });
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (!await reader.ReadAsync()) return (0, null, null);
+
+        int count = reader.IsDBNull(0) ? 0 : reader.GetInt32(0);
+        DateTime? earliest = reader.IsDBNull(1) ? null : reader.GetDateTime(1);
+        DateTime? latest = reader.IsDBNull(2) ? null : reader.GetDateTime(2);
+        return (count, earliest, latest);
+    }
 }
