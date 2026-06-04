@@ -58,9 +58,9 @@ public sealed class SectorIndexRepository : SQLBase
             cmd.Parameters.Add(new SqlParameter("@Date", SqlDbType.Date) { Value = s.Date });
             cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 10) { Value = s.Symbol });
             cmd.Parameters.Add(new SqlParameter("@SectorName", SqlDbType.NVarChar, 50) { Value = s.SectorName });
-            cmd.Parameters.Add(new SqlParameter("@Price", SqlDbType.Decimal) { Value = s.Price });
-            cmd.Parameters.Add(new SqlParameter("@PriceChange", SqlDbType.Decimal) { Value = s.PriceChange });
-            cmd.Parameters.Add(new SqlParameter("@PercentChange", SqlDbType.Decimal) { Value = s.PercentChange });
+            cmd.Parameters.Add(new SqlParameter("@Price", SqlDbType.Decimal) { Precision = 18, Scale = 4, Value = s.Price });
+            cmd.Parameters.Add(new SqlParameter("@PriceChange", SqlDbType.Decimal) { Precision = 18, Scale = 4, Value = s.PriceChange });
+            cmd.Parameters.Add(new SqlParameter("@PercentChange", SqlDbType.Decimal) { Precision = 18, Scale = 4, Value = s.PercentChange });
             await cmd.ExecuteNonQueryAsync();
         }
     }
