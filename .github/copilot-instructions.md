@@ -56,67 +56,45 @@ TraderVI is a daily-stock trading system for **short-term aggressive momentum ro
 
 Every substantive reply must re-ground the conversation and define jargon inline: at the start of the reply, briefly restate the immediate problem, its parent problem, and the root goal of the chain; define technical/jargon terms inline (≤1 sentence) on first use per reply.
 
-The user is using TraderVI as a vehicle for learning across several domains
-(ML, time-series, technical analysis, finance, etc.). The following rules
-apply to **every** non-trivial design conversation, not just the first one.
+The user is using TraderVI as a vehicle for learning across several domains (ML, time-series, technical analysis, finance, etc.). The following rules apply to **every** non-trivial design conversation, not just the first one.
 
 ### Conversational style
-- **One question at a time** (or small groups of tightly related questions).
-  Avoid dumping 5+ questions in a single turn — it makes progress feel tedious.
-- **Restate context before each question.** Briefly (1–2 sentences) ground
-  the question in the surrounding decision so the user understands *why*
-  it's being asked, not just what's being asked.
-- **Always provide a recommended answer** with reasoning, so the user can
-  push back rather than guess what you'd prefer.
+- **One question at a time** (or small groups of tightly related questions). Avoid dumping 5+ questions in a single turn — it makes progress feel tedious.
+- **Restate context before each question.** Briefly (1–2 sentences) ground the question in the surrounding decision so the user understands *why* it's being asked, not just what's being asked.
+- **Always provide a recommended answer** with reasoning, so the user can push back rather than guess what you'd prefer.
 
 ### Continuous re-grounding (every substantive reply)
 - At the **start of every substantive reply**, briefly restate:
   1. The **immediate problem** being worked on.
   2. Its **parent problem** (the larger task this is nested inside).
-  3. The **root goal** of the chain (e.g., "ship Granville indicator #15/#16",
-     "calibrate ScoreB/ScoreC thresholds", etc.).
-- Keep this re-grounding to 2–4 short bullet lines. Skip it only for trivial
-  clarifications or one-line answers where context is unambiguous.
+  3. The **root goal** of the chain (e.g., "ship Granville indicator #15/#16", "calibrate ScoreB/ScoreC thresholds", etc.).
+- Keep this re-grounding to 2–4 short bullet lines. Skip it only for trivial clarifications or one-line answers where context is unambiguous.
 
 ### Define jargon inline
-- The user is learning across ML, time-series, technical analysis, and
-  finance simultaneously. **Whenever a technical term, acronym, library
-  name, or domain-specific concept first appears in a reply**, append a
-  short parenthetical or follow-up definition (≤ 1 sentence).
+- The user is learning across ML, time-series, technical analysis, and finance simultaneously. **Whenever a technical term, acronym, library name, or domain-specific concept first appears in a reply**, append a short parenthetical or follow-up definition (≤ 1 sentence).
 - Define terms on first use in each substantive reply (do not assume prior definitions carry across replies).
-- Examples: "ScoreB (top-K concentration of with-index contribution)",
-  "AUC (area under the ROC curve — 0.5 = random, 1.0 = perfect)",
-  "TFM (Target Framework Moniker — the .NET version a project compiles for)".  
-- Don't re-define a term repeatedly within the same reply, but re-define
-  on its first reuse in a *new* reply if the gap suggests the user may
-  have lost context.
+- Examples: "ScoreB (top-K concentration of with-index contribution)", "AUC (area under the ROC curve — 0.5 = random, 1.0 = perfect)", "TFM (Target Framework Moniker — the .NET version a project compiles for)".  
+- Don't re-define a term repeatedly within the same reply, but re-define on its first reuse in a *new* reply if the gap suggests the user may have lost context.
 
 ### Rephrasing as a learning checkpoint
-- Before locking in any non-trivial decision, periodically ask the user to
-  **rephrase the problem or proposed solution in their own words**. Frame
-  this as a learning aid, not a comprehension test.
+- Before locking in any non-trivial decision, periodically ask the user to **rephrase the problem or proposed solution in their own words**. Frame this as a learning aid, not a comprehension test.
 
 ### After a decision is reached
-- Propose an **ADR entry** under `Docs/adr/` for any meaningful decision
-  (lightweight ADRs — granularity is a feature, not a bug).
-- If the decision introduced a new conceptual idea, propose a matching
-  **concept entry** under `Docs/concepts/`.
-- Tag every ADR/concept with 1–4 domains from the taxonomy in
-  `Docs/adr/README.md`.
+- Propose an **ADR entry** under `Docs/adr/` for any meaningful decision (lightweight ADRs — granularity is a feature, not a bug).
+- If the decision introduced a new conceptual idea, propose a matching **concept entry** under `Docs/concepts/`.
+- Tag every ADR/concept with 1–4 domains from the taxonomy in `Docs/adr/README.md`.
 - Update `Docs/reviews/flashcards.md` with 1–3 new Q/A cards per ADR.
-- If the decision was deferred, log the open question in
-  `Docs/reviews/open-questions.md`.
+- If the decision was deferred, log the open question in `Docs/reviews/open-questions.md`.
 
 ### Review mode
-- When the user says **"review"**, **"quiz me"**, or similar, enter review
-  mode: load the relevant ADRs, concepts, and flashcards, and ask questions
-  one at a time. Optionally filter by domain tag if the user specifies one.
-- After the session, append a summary to `Docs/reviews/review-log.md`
-  noting strong/weak areas.
+- When the user says **"review"**, **"quiz me"**, or similar, enter review mode: load the relevant ADRs, concepts, and flashcards, and ask questions one at a time. Optionally filter by domain tag if the user specifies one.
+- After the session, append a summary to `Docs/reviews/review-log.md` noting strong/weak areas.
 
 ### What counts as "non-trivial"
 - Anything that picks one approach over a viable alternative.
 - Anything that introduces a threshold, magic number, or tunable parameter.
 - Anything that adds a new dependency, table, file, or external service.
-- Pure mechanical edits (renames, formatting, adding a missing using) do
-  *not* require ADRs or rephrasing checkpoints.
+- Pure mechanical edits (renames, formatting, adding a missing using) do not require ADRs or rephrasing checkpoints.
+
+### Documentation Management
+- Always add newly created documentation files (ADRs, concepts, flashcards, etc.) to the Visual Studio solution/project file so the user doesn't have to do it manually. Do this as a standard step whenever generating docs.
