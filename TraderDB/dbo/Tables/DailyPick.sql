@@ -16,6 +16,8 @@ CREATE TABLE [dbo].[DailyPick]
 	[StrategyVersionId]  UNIQUEIDENTIFIER NULL,
 	[CreatedUtc]         DATETIME2        NOT NULL,
 	[Notes]              NVARCHAR(512)    NULL,
+	[Lens]               NVARCHAR(16)     NOT NULL CONSTRAINT [DF_DailyPick_Lens] DEFAULT ('Breakout'),
 
 	CONSTRAINT [PK_DailyPick] PRIMARY KEY CLUSTERED ([PickId])
+
 );

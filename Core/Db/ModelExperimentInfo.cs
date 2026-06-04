@@ -723,6 +723,12 @@ public sealed class DailyPickInfo
     public Guid? StrategyVersionId { get; init; }
     public DateTime CreatedUtc { get; init; }
     public string? Notes { get; init; }
+
+    /// <summary>
+    /// Which ranking lens produced this pick ("Continuation" = executed,
+    /// "Breakout" = journaled). Lets the two theses' outcomes be compared. ADR-0013.
+    /// </summary>
+    public string Lens { get; init; } = "Breakout";
 }
 
 public sealed class ActivePositionInfo

@@ -79,5 +79,6 @@
     <Build Include="dbo/Tables/DecisionDossier.sql" />
     <Build Include="dbo/Tables/LlmNarrative.sql" />
     <Build Include="UsIndexBars.sql" />
+    <Build Include="IX_DailyPick_DateSymbol.sql" />
   </ItemGroup>
 </Project>
