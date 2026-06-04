@@ -98,7 +98,15 @@ static async Task RunBackfillAsync()
     await UpdateAdvanceDeclineLineAsync(repository, constituents);
 
     // ═══════════════════════════════════════════════════════════════════
-    // UPDATE SECTOR INDICES
+    // BACKFILL SECTOR INDEX HISTORY (TMX getTimeSeriesData)
+    // Fills dbo.SectorIndices with multi-year daily history per ^TT* symbol
+    // so Delphi RS composites (60d + 20d Z window) have enough bars to compute.
+    // Safe to run daily — resumes from each symbol's last stored date.
+    // ═══════════════════════════════════════════════════════════════════
+    await BackfillSectorIndexHistoryAsync(tmx);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // UPDATE SECTOR INDICES (today's snapshot)
     // ═══════════════════════════════════════════════════════════════════
     await UpdateSectorIndicesAsync(tmx);
 
@@ -371,6 +379,116 @@ static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
 // ═══════════════════════════════════════════════════════════════════
 // SECTOR INDICES
 // ═══════════════════════════════════════════════════════════════════
+
+static async Task BackfillSectorIndexHistoryAsync(TmxClient tmx)
+{
+    Console.WriteLine("\n── Sector Index Historical Backfill ──\n");
+
+    var repo = new SectorIndexRepository();
+
+    // TMX getTimeSeriesData has been validated (Sandbox probe `tmx-sector-history`)
+    // to return ~754 daily bars over a 3y window for all 11 ^TT* sector symbols.
+    var defaultStartDate = new DateTime(2020, 1, 1);
+    var endDate = DateTime.Today.AddDays(-1);
+
+    int totalInserted = 0;
+    int symbolsProcessed = 0;
+    int symbolsFailed = 0;
+
+    foreach (var kvp in TsxSectorSymbols.All)
+    {
+        var symbol = kvp.Key;
+        var sectorName = kvp.Value;
+
+        try
+        {
+            var (count, earliest, latest) = await repo.GetCoverageAsync(symbol);
+
+            // Decide between full backfill and incremental resume.
+            //  - Full backfill: < 100 stored bars OR earliest is later than defaultStartDate + 30d
+            //    (covers the case where a daily snapshot updater seeded only recent rows).
+            //  - Incremental:   resume from latest + 1.
+            bool needsFullBackfill =
+                count < 100 ||
+                !earliest.HasValue ||
+                earliest.Value.Date > defaultStartDate.AddDays(30);
+
+            DateTime startDate;
+            if (needsFullBackfill)
+            {
+                startDate = defaultStartDate;
+            }
+            else
+            {
+                startDate = latest!.Value.Date.AddDays(1);
+                if (startDate > endDate)
+                {
+                    Console.WriteLine($"  {symbol,-6} {sectorName,-24} ✓ Up-to-date ({latest:yyyy-MM-dd}, {count} bars)");
+                    symbolsProcessed++;
+                    continue;
+                }
+            }
+
+            var bars = await tmx.GetHistoricalTimeSeriesAsync(
+                symbol: symbol,
+                freq: "day",
+                startDate: startDate.ToString("yyyy-MM-dd"),
+                endDate: endDate.ToString("yyyy-MM-dd"));
+
+            if (bars == null || bars.Count == 0)
+            {
+                Console.WriteLine($"  {symbol,-6} {sectorName,-24} ⚠️  No bars returned (start={startDate:yyyy-MM-dd})");
+                symbolsProcessed++;
+                continue;
+            }
+
+            // Sort ascending and seed previous-close from DB to compute change/%change
+            // continuously across the splice point.
+            var ordered = bars.OrderBy(b => b.TimestampUtc).ToList();
+            var prevClose = await repo.GetLatestCloseBeforeAsync(symbol, ordered[0].TimestampUtc);
+
+            var snapshots = new List<SectorIndexSnapshot>(ordered.Count);
+            foreach (var b in ordered)
+            {
+                var close = b.Close;
+                decimal priceChange = prevClose.HasValue ? close - prevClose.Value : 0m;
+                decimal percentChange = prevClose is { } p && p != 0m
+                    ? (close - p) / p * 100m
+                    : 0m;
+
+                snapshots.Add(new SectorIndexSnapshot(
+                    Symbol: symbol,
+                    SectorName: sectorName,
+                    Price: close,
+                    PriceChange: priceChange,
+                    PercentChange: percentChange,
+                    Date: b.TimestampUtc.Date));
+
+                prevClose = close;
+            }
+
+            await repo.UpsertAsync(snapshots);
+            totalInserted += snapshots.Count;
+            symbolsProcessed++;
+
+            var mode = needsFullBackfill ? "FULL" : "incr";
+            Console.WriteLine(
+                $"  {symbol,-6} {sectorName,-24} ✓ {snapshots.Count,4} bars [{mode}] " +
+                $"({ordered[0].TimestampUtc:yyyy-MM-dd}..{ordered[^1].TimestampUtc:yyyy-MM-dd})");
+
+            await Task.Delay(500); // ~2 req/sec, matches constituent backfill
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"  {symbol,-6} {sectorName,-24} ✗ {ex.Message}");
+            symbolsFailed++;
+        }
+    }
+
+    Console.WriteLine();
+    Console.WriteLine($"Sector backfill: {symbolsProcessed}/{TsxSectorSymbols.All.Count} symbols, " +
+                      $"{totalInserted:N0} bars inserted/updated, {symbolsFailed} failed.\n");
+}
 
 static async Task UpdateSectorIndicesAsync(TmxClient tmx)
 {

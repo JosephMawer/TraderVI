@@ -23,6 +23,7 @@ internal static class Program
         new YahooChartProbe(),
         new StooqProbe(),
         new TmxUsIndicesProbe(),
+        new TmxSectorHistoryProbe(),
         new DullnessCalibrationProbe(),
     ];
 
