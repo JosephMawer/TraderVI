@@ -403,7 +403,7 @@ public class DailyPickRepository : SQLBase
     public DailyPickRepository() : base("[dbo].[DailyPick]",
         "[PickId],[PickDate],[Symbol],[Rank],[Direction],[CompositeScore],[BreakoutProb]," +
         "[DirectionProb],[VolExpansionProb],[RelStrengthProb],[ExpectedReturn],[SuggestedSize]," +
-        "[AllocationPercent],[StrategyVersionId],[CreatedUtc],[Notes]")
+        "[AllocationPercent],[StrategyVersionId],[CreatedUtc],[Notes],[Lens]")
     { }
 
     public async Task<Guid> InsertPick(
@@ -420,7 +420,8 @@ public class DailyPickRepository : SQLBase
         decimal? suggestedSize = null,
         double? allocationPercent = null,
         Guid? strategyVersionId = null,
-        string? notes = null)
+        string? notes = null,
+        string lens = "Breakout")
     {
         var pickId = Guid.NewGuid();
 
@@ -428,11 +429,11 @@ public class DailyPickRepository : SQLBase
 INSERT INTO {DbName}
 ([PickId],[PickDate],[Symbol],[Rank],[Direction],[CompositeScore],[BreakoutProb],
  [DirectionProb],[VolExpansionProb],[RelStrengthProb],[ExpectedReturn],[SuggestedSize],
- [AllocationPercent],[StrategyVersionId],[Notes])
+ [AllocationPercent],[StrategyVersionId],[Notes],[Lens])
 VALUES
 (@PickId,@PickDate,@Symbol,@Rank,@Direction,@CompositeScore,@BreakoutProb,
  @DirectionProb,@VolExpansionProb,@RelStrengthProb,@ExpectedReturn,@SuggestedSize,
- @AllocationPercent,@StrategyVersionId,@Notes);";
+ @AllocationPercent,@StrategyVersionId,@Notes,@Lens);";
 
         await Insert(query,
         [
@@ -450,35 +451,43 @@ VALUES
             new SqlParameter("@SuggestedSize", SqlDbType.Decimal) { Value = (object?)suggestedSize ?? DBNull.Value },
             new SqlParameter("@AllocationPercent", SqlDbType.Float) { Value = (object?)allocationPercent ?? DBNull.Value },
             new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier) { Value = (object?)strategyVersionId ?? DBNull.Value },
-            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value }
+            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value },
+            new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
         ]);
 
         return pickId;
     }
 
-    public async Task<List<DailyPickInfo>> GetPicksByDate(DateTime pickDate)
+    public async Task<List<DailyPickInfo>> GetPicksByDate(DateTime pickDate, string lens = "Continuation")
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [PickDate] = @PickDate ORDER BY [Rank]";
+        var query = $"SELECT {Fields} FROM {DbName} WHERE [PickDate] = @PickDate AND [Lens] = @Lens ORDER BY [Rank]";
         return await ExecuteReaderAsync(query,
-            [new SqlParameter("@PickDate", SqlDbType.Date) { Value = pickDate }],
+            [
+                new SqlParameter("@PickDate", SqlDbType.Date) { Value = pickDate },
+                new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
+            ],
             MapPick);
     }
 
-    public async Task<List<DailyPickInfo>> GetTopPicksByDate(DateTime pickDate, int topN = 10)
+    public async Task<List<DailyPickInfo>> GetTopPicksByDate(DateTime pickDate, int topN = 10, string lens = "Continuation")
     {
-        var query = $"SELECT TOP {topN} {Fields} FROM {DbName} WHERE [PickDate] = @PickDate ORDER BY [Rank]";
+        var query = $"SELECT TOP {topN} {Fields} FROM {DbName} WHERE [PickDate] = @PickDate AND [Lens] = @Lens ORDER BY [Rank]";
         return await ExecuteReaderAsync(query,
-            [new SqlParameter("@PickDate", SqlDbType.Date) { Value = pickDate }],
+            [
+                new SqlParameter("@PickDate", SqlDbType.Date) { Value = pickDate },
+                new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
+            ],
             MapPick);
     }
 
-    public async Task<DailyPickInfo?> GetPickByDateAndSymbol(DateTime pickDate, string symbol)
+    public async Task<DailyPickInfo?> GetPickByDateAndSymbol(DateTime pickDate, string symbol, string lens = "Continuation")
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [PickDate] = @PickDate AND [Symbol] = @Symbol";
+        var query = $"SELECT {Fields} FROM {DbName} WHERE [PickDate] = @PickDate AND [Symbol] = @Symbol AND [Lens] = @Lens";
         var results = await ExecuteReaderAsync(query,
         [
             new SqlParameter("@PickDate", SqlDbType.Date) { Value = pickDate },
-            new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol }
+            new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol },
+            new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
         ], MapPick);
         return results.Count > 0 ? results[0] : null;
     }
@@ -507,7 +516,8 @@ VALUES
         AllocationPercent = reader.IsDBNull(12) ? null : reader.GetDouble(12),
         StrategyVersionId = reader.IsDBNull(13) ? null : reader.GetGuid(13),
         CreatedUtc = reader.GetDateTime(14),
-        Notes = reader.IsDBNull(15) ? null : reader.GetString(15)
+        Notes = reader.IsDBNull(15) ? null : reader.GetString(15),
+        Lens = reader.IsDBNull(16) ? "Breakout" : reader.GetString(16)
     };
 }
 
