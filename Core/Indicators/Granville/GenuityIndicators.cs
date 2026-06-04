@@ -197,7 +197,33 @@ public sealed class GenuityIndicators : IGranvilleIndicatorGroup
         const double upperBound = 3.0;
         const double lowerBound = 1.0 / 3.0;
 
-        if (ratio > upperBound || ratio < lowerBound)
+        // ±5% tolerance buffer around each hard boundary (ADR-0008). Ratios that
+        // are disproportionate but only barely so (e.g. 0.32 vs a 0.33 floor)
+        // abstain rather than fire a full bearish signal at the cliff edge.
+        // GranvilleResult.GranvillePoints is int in v1, so true half-point
+        // damping isn't representable — abstain-in-buffer is the v1 equivalent.
+        const double toleranceFraction = 0.05;
+        double upperBufferEdge = upperBound * (1.0 - toleranceFraction);   // 2.85
+        double lowerBufferEdge = lowerBound * (1.0 + toleranceFraction);   // ≈ 0.35
+
+        bool outsideHardBand  = ratio > upperBound || ratio < lowerBound;
+        bool insideBufferOnly = !outsideHardBand && (ratio > upperBufferEdge || ratio < lowerBufferEdge);
+
+        if (insideBufferOnly)
+        {
+            return new GranvilleResult(
+                IndicatorNumber: 19,
+                Category: IndicatorCategory.Genuity,
+                Name: "Genuity #19: Magnitude borderline",
+                Signal: IndicatorSignal.Neutral,
+                GranvillePoints: 0,
+                Description:
+                    $"XIU/^GSPC magnitude ratio={ratio.ToString("F2", CultureInfo.InvariantCulture)} " +
+                    $"within ±{toleranceFraction:P0} buffer of [{lowerBound:F2},{upperBound:F2}] " +
+                    $"(buffer edges {lowerBufferEdge:F2}/{upperBufferEdge:F2}) — borderline, abstained (ADR-0008). " + diag);
+        }
+
+        if (outsideHardBand)
         {
             // Disproportionate move in the same direction — invert XIU's directional implication.
             bool xiuBullish = xiuReturn > 0;
@@ -209,7 +235,7 @@ public sealed class GenuityIndicators : IGranvilleIndicatorGroup
                 GranvillePoints: xiuBullish ? -1 : +1,
                 Description:
                     $"XIU/^GSPC magnitude ratio={ratio.ToString("F2", CultureInfo.InvariantCulture)} " +
-                    $"outside [{lowerBound:F2},{upperBound:F2}] — directional move not proportionate. " + diag);
+                    $"outside [{lowerBound:F2},{upperBound:F2}] (with ±{toleranceFraction:P0} buffer) — directional move not proportionate. " + diag);
         }
 
         return new GranvilleResult(
@@ -220,7 +246,7 @@ public sealed class GenuityIndicators : IGranvilleIndicatorGroup
             GranvillePoints: 0,
             Description:
                 $"XIU/^GSPC magnitude ratio={ratio.ToString("F2", CultureInfo.InvariantCulture)} " +
-                $"within [{lowerBound:F2},{upperBound:F2}]. " + diag);
+                $"within core band [{lowerBufferEdge:F2},{upperBufferEdge:F2}]. " + diag);
     }
 
     /// <summary>
