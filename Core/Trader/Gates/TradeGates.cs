@@ -62,6 +62,18 @@ public sealed class GateContext
     public int PatternCount { get; init; }
 
     /// <summary>
+    /// True when the Trend30 rule pattern is present (multi-week uptrend).
+    /// Consumed by <see cref="TrendConfirmationGate"/> (Continuations lens).
+    /// </summary>
+    public bool Trend30Confirmed { get; init; }
+
+    /// <summary>
+    /// True when the 10/30 moving-average crossover rule pattern is present.
+    /// Consumed by <see cref="TrendConfirmationGate"/> (Continuations lens).
+    /// </summary>
+    public bool MaCrossoverConfirmed { get; init; }
+
+    /// <summary>
     /// Trace of gate evaluations for diagnostics.
     /// </summary>
     public List<GateTraceEntry> Trace { get; } = [];
