@@ -64,6 +64,15 @@ public static class RelativeStrengthCalculator
             _ => null
         };
 
+        // Composite Z-score blend (ADR-0010): same weights, applied to volatility-normalized variants.
+        // Lives in roughly +/- 2 std-devs; provides real separation when raw composite is sub-resolution.
+        double? compositeZ = (zSvm, zSvs, zSecvm) switch
+        {
+            (not null, not null, not null) =>
+                0.5 * zSvm.Value + 0.3 * zSvs.Value + 0.2 * zSecvm.Value,
+            _ => null
+        };
+
         return new RelativeStrengthRow
         {
             Symbol = symbol,
@@ -85,6 +94,7 @@ public static class RelativeStrengthCalculator
             RS_Z_StockVsMarket = zSvm,
             RS_Z_SectorVsMarket = zSecvm,
             CompositeScore = composite,
+            CompositeScoreZ = compositeZ,
         };
     }
 
