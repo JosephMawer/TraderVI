@@ -52,6 +52,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0003-weighting-indicator-narrow-advance.md = Docs\adr\0003-weighting-indicator-narrow-advance.md
 		Docs\adr\0004-genuity-us-confirming-indices.md = Docs\adr\0004-genuity-us-confirming-indices.md
 		Docs\adr\0005-defer-granville-dullness-21-22.md = Docs\adr\0005-defer-granville-dullness-21-22.md
+		Docs\adr\0006-granville-light-volume-25-28.md = Docs\adr\0006-granville-light-volume-25-28.md
+		Docs\adr\0007-liquidity-floor-universe-filter.md = Docs\adr\0007-liquidity-floor-universe-filter.md
+		Docs\adr\0008-genuity-19-magnitude-tolerance-band.md = Docs\adr\0008-genuity-19-magnitude-tolerance-band.md
+		Docs\adr\0009-exclude-leveraged-inverse-etps-from-delphi-universe.md = Docs\adr\0009-exclude-leveraged-inverse-etps-from-delphi-universe.md
+		Docs\adr\0010-rs-z-score-composite-additive.md = Docs\adr\0010-rs-z-score-composite-additive.md
+		Docs\adr\0011-rs-equal-weighted-with-direction-edge-in-ranking.md = Docs\adr\0011-rs-equal-weighted-with-direction-edge-in-ranking.md
+		Docs\adr\0012-sector-index-historical-backfill.md = Docs\adr\0012-sector-index-historical-backfill.md
+		Docs\adr\0013-multi-lens-decision-architecture.md = Docs\adr\0013-multi-lens-decision-architecture.md
+		Docs\adr\0014-continuations-lens-trend-confirmation.md = Docs\adr\0014-continuations-lens-trend-confirmation.md
+		Docs\adr\0015-trade-logging-ghost-execution-and-position-lifecycle.md = Docs\adr\0015-trade-logging-ghost-execution-and-position-lifecycle.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -60,6 +70,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 	ProjectSection(SolutionItems) = preProject
 		Docs\concepts\oracle-prompt-tightening.md = Docs\concepts\oracle-prompt-tightening.md
 		Docs\concepts\price-weighted-contribution.md = Docs\concepts\price-weighted-contribution.md
+		Docs\concepts\ranking-lenses.md = Docs\concepts\ranking-lenses.md
 		Docs\concepts\README.md = Docs\concepts\README.md
 	EndProjectSection
 EndProject

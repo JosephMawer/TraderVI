@@ -21,6 +21,8 @@ many ADRs.
 - `price-weighted-contribution.md` — proxy used by the Granville Weighting group.
 - `oracle-prompt-tightening.md` — lessons from the Oracle Phase 2 prompt pass
   (shared-context suppression, curated JSON view, GPT-5 API quirks).
+- `ranking-lenses.md` — multi-lens evaluation (lens = thesis × gate stack ×
+  ranking key); Continuations executed, Breakouts journaled.
 
 ## Concept template
 
