@@ -1,9 +1,11 @@
 ﻿using Core.Db;
 using Core.Indicators;
 using Core.Indicators.Granville;
+using Core.Indicators.Models;
 using Core.ML;
 using Core.TMX;
 using Core.TMX.Models.Domain;
+using Core.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,6 +98,19 @@ static async Task RunBackfillAsync()
     // UPDATE ADVANCE-DECLINE LINE
     // ═══════════════════════════════════════════════════════════════════
     await UpdateAdvanceDeclineLineAsync(repository, constituents);
+
+    // ──────────────────────────────────────────────────────────────────
+    // UPDATE PER-SYMBOL ON-BALANCE VOLUME (OBV) — Granville field trend
+    // Incremental + gap-safe; prunes to the rolling retention window.
+    // Foundation for the upcoming market-wide Climax indicator.
+    // ──────────────────────────────────────────────────────────────────
+    await UpdateObvAsync(repository, constituents);
+
+    // UPDATE MARKET CLIMAX (CLX) -- Granville's market-wide net OBV-breakout tally.
+    // Sibling to the A/D Line: counts UP vs DOWN OBV designations across the XIU-60 leaders.
+    // Diagnostic-only (v1): persists CLX + XIU close so Delphi can report confirmation/divergence.
+    // Runs after OBV so every name's latest designation is already up to date.
+    await UpdateMarketClimaxAsync(repository);
 
     // ═══════════════════════════════════════════════════════════════════
     // BACKFILL SECTOR INDEX HISTORY (TMX getTimeSeriesData)
@@ -269,6 +284,129 @@ static async Task UpdateAdvanceDeclineLineAsync(
 
     var last = newEntries[^1];
     Console.WriteLine($"\nA/D Line updated: +{newEntries.Count} entries → {last.Date:yyyy-MM-dd} (cumulative: {last.CumulativeDifferential:+#,0;-#,0;0}) ✓\n");
+}
+
+static async Task UpdateObvAsync(
+    QuoteRepository repository,
+    List<SymbolInfo> constituents)
+{
+    Console.WriteLine("\n── On-Balance Volume (OBV) Update ──\n");
+
+    var obvRepo = new SymbolObvRepository();
+    var retentionCutoff = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+
+    int updated = 0;
+    int pointsAdded = 0;
+    int skipped = 0;
+
+    foreach (var constituent in constituents)
+    {
+        var symbol = constituent.Symbol;
+        var (lastDate, lastObv) = await obvRepo.GetLatestAsync(symbol);
+
+        List<OBV> newPoints;
+
+        if (lastDate.HasValue)
+        {
+            // Incremental: load from the last stored date inclusive so its close
+            // seeds the comparison, then extend the cumulative over every newer
+            // session (this fills multi-day gaps in a single pass).
+            var bars = await repository.GetDailyBarsAsync(symbol, lastDate.Value);
+            var newBars = bars.Where(b => b.Date.Date > lastDate.Value.Date).ToList();
+            if (newBars.Count == 0)
+            {
+                skipped++;
+                continue;
+            }
+
+            var seedBar = bars.FirstOrDefault(b => b.Date.Date == lastDate.Value.Date);
+            decimal? seedPrevClose = seedBar is null ? null : (decimal)seedBar.Close;
+
+            newPoints = newBars.CalculateOBV(seedObv: lastObv, seedPrevClose: seedPrevClose);
+        }
+        else
+        {
+            // Fresh: build a new chain over the retention window from a 0 anchor.
+            var bars = await repository.GetDailyBarsAsync(symbol, retentionCutoff);
+            if (bars.Count == 0)
+            {
+                skipped++;
+                continue;
+            }
+            newPoints = bars.CalculateOBV();
+        }
+
+        if (newPoints.Count == 0)
+        {
+            skipped++;
+            continue;
+        }
+
+        await obvRepo.UpsertAsync(symbol, newPoints);
+        updated++;
+        pointsAdded += newPoints.Count;
+    }
+
+    // Enforce the rolling retention window. Safe because the running cumulative is
+    // already baked into the retained rows — pruning the tail never alters the head.
+    int pruned = await obvRepo.PruneOlderThanAsync(retentionCutoff);
+
+    Console.WriteLine(
+        $"OBV updated: {updated} symbols (+{pointsAdded:N0} points), {skipped} up-to-date/empty, " +
+        $"pruned {pruned:N0} rows older than {retentionCutoff:yyyy-MM-dd}. ✓\n");
+}
+
+static async Task UpdateMarketClimaxAsync(QuoteRepository repository)
+{
+    Console.WriteLine("\n-- Market Climax (CLX) Update --\n");
+
+    var climaxRepo = new MarketClimaxRepository();
+    var obvRepo = new SymbolObvRepository();
+
+    // CLX reads each XIU-60 leader's stored OBV series (maintained by UpdateObvAsync above)
+    // and tallies UP vs DOWN field-trend designations. We only need the OBV retention window.
+    var seriesStart = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+
+    var seriesBySymbol = new Dictionary<string, IReadOnlyList<OBV>>(StringComparer.OrdinalIgnoreCase);
+    DateTime? clxDate = null;
+
+    foreach (var symbol in Xiu60Constituents.Symbols)
+    {
+        var series = await obvRepo.GetSeriesFromDateAsync(symbol, seriesStart);
+        if (series.Count == 0) continue;
+
+        seriesBySymbol[symbol] = series;
+
+        var last = series[^1].Date;
+        if (clxDate is null || last > clxDate.Value)
+            clxDate = last;
+    }
+
+    if (seriesBySymbol.Count < Core.Constants.ClimaxMinConstituents)
+    {
+        Console.WriteLine(
+            $"Only {seriesBySymbol.Count} XIU-60 names have OBV series (need >= {Core.Constants.ClimaxMinConstituents}). " +
+            "Skipping CLX update -- run OBV backfill first.\n");
+        return;
+    }
+
+    var asOf = clxDate!.Value;
+
+    // XIU benchmark close on (or just before) the CLX date, for divergence analysis.
+    var xiuBars = await repository.GetDailyBarsAsync("XIU", seriesStart);
+    var xiuBar = xiuBars.LastOrDefault(b => b.Date.Date <= asOf.Date);
+    float? xiuClose = xiuBar is null ? null : (float)xiuBar.Close;
+
+    var entry = MarketClimaxCalculator.ComputeForDate(
+        seriesBySymbol, asOf, Core.Constants.ClimaxBreakoutWindow, xiuClose);
+
+    await climaxRepo.UpsertAsync([entry]);
+
+    Console.WriteLine(
+        $"CLX {asOf:yyyy-MM-dd}: {entry.Clx:+0;-0;0} " +
+        $"({entry.UpBreakouts} up / {entry.DownBreakouts} down, covered {entry.Covered}/{entry.BasketSize}), " +
+        $"fresh +{entry.FreshUp}/-{entry.FreshDown}" +
+        $"{(xiuClose.HasValue ? $", XIU {xiuClose.Value:F2}" : "")}.\n");
 }
 
 static async Task BackfillAdvanceDeclineLineAsync(int months = 6)
