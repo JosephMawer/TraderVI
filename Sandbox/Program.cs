@@ -25,6 +25,8 @@ internal static class Program
         new TmxUsIndicesProbe(),
         new TmxSectorHistoryProbe(),
         new DullnessCalibrationProbe(),
+        new ObvBackfillProbe(),
+        new ClimaxBackfillProbe(),
     ];
 
     private static async Task<int> Main(string[] args)
