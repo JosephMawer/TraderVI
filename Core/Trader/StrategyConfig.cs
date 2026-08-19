@@ -139,6 +139,50 @@ public sealed record StrategyConfig
     /// </summary>
     public bool RequireBenchmarkUptrend { get; init; } = true;
 
+    // ── On-Balance Volume (OBV) field trend ──
+
+    /// <summary>
+    /// Rolling lookback (sessions) a stock's OBV must exceed (new high) or break below
+    /// (new low) to register an UP / DOWN breakout designation. These designations drive
+    /// the per-symbol field-trend classification (rising / doubtful / falling) and will
+    /// also feed the upcoming market-wide Climax indicator, which tallies UP vs DOWN
+    /// breakouts across the universe — so this single window is shared by both.
+    /// Larger = fewer, more significant breakouts; smaller = more sensitive/noisier.
+    /// Default: 20
+    /// </summary>
+    public int ObvBreakoutWindow { get; init; } = 20;
+
+    /// <summary>
+    /// Weight of the OBV field-trend soft signal in the composite score. A rising field
+    /// trend nudges the composite up, a falling one nudges it down; doubtful/indeterminate
+    /// contributes nothing. Intentionally small — OBV field trend is a confirming signal,
+    /// not a primary model (the Climax indicator is expected to carry the heavier weight
+    /// once implemented). Set to 0 to disable the tilt without removing the diagnostics.
+    /// Default: 0.10
+    /// </summary>
+    public double ObvSignalWeight { get; init; } = 0.10;
+
+    // ── Market Climax (CLX) ──
+
+    /// <summary>
+    /// Lookback (sessions) over which the market-wide Climax (CLX — net count of UP vs DOWN
+    /// OBV breakouts across the XIU-60 leaders) is compared against the XIU benchmark to read
+    /// confirmation vs divergence. A shorter window reacts faster but is noisier. v1 is
+    /// diagnostic-only (no gate/ranking effect); this dial drives the reported regime verdict.
+    /// Initial default intended to be calibrated from live divergence hit-rate.
+    /// Default: 5
+    /// </summary>
+    public int ClimaxDivergenceWindow { get; init; } = 5;
+
+    /// <summary>
+    /// Minimum magnitude of CLX change over <see cref="ClimaxDivergenceWindow"/> sessions
+    /// required to flag a divergence against XIU (e.g. XIU up while CLX falls by ≥ this many
+    /// net breakouts ⇒ bearish divergence). Larger = only stark breadth disagreements register;
+    /// smaller = more sensitive. Diagnostic-only in v1. Initial default, tunable after calibration.
+    /// Default: 3
+    /// </summary>
+    public int ClimaxDivergenceThreshold { get; init; } = 3;
+
     /// <summary>
     /// Default configuration when no strategy version is active.
     /// </summary>

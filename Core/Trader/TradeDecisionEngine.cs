@@ -93,6 +93,16 @@ public class TradeDecisionEngine
     /// </summary>
     public Dictionary<string, double>? RsCompositeScores { get; set; }
 
+    /// <summary>
+    /// Per-symbol On-Balance Volume (OBV) field-trend tilt, keyed by symbol.
+    /// Set by Delphi before calling EvaluateAndRank. A small soft signal added into
+    /// each lens's ranking key alongside RS: +ObvSignalWeight when OBV confirms a long
+    /// (rising field trend / fresh UP designation), −ObvSignalWeight when it contradicts
+    /// (falling / DOWN), 0 when doubtful or unavailable. It nudges ordering only — it is
+    /// never a gate, so it cannot block a candidate. Missing scores default to 0.
+    /// </summary>
+    public Dictionary<string, double>? ObvTilts { get; set; }
+
     public TradeDecisionEngine(IEnumerable<IStockSignalModel> patternModels)
         : this(patternModels, Enumerable.Empty<UnifiedProfitSignalModel>())
     {
@@ -322,7 +332,10 @@ public class TradeDecisionEngine
 
         return picks
             .OrderByDescending(p => p.Direction == TradeDirection.Buy ? 1 : 0)
-            .ThenByDescending(p => lens.PrimaryKey(p, RsCompositeScores?.GetValueOrDefault(p.Symbol, 0) ?? 0))
+            .ThenByDescending(p => lens.PrimaryKey(
+                p,
+                RsCompositeScores?.GetValueOrDefault(p.Symbol, 0) ?? 0,
+                ObvTilts?.GetValueOrDefault(p.Symbol, 0) ?? 0))
             .ThenByDescending(p => p.DirectionEdge)
             .ThenByDescending(p => p.CompositeScore)
             .Take(topN)

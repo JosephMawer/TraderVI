@@ -13,6 +13,7 @@ namespace Core.Trader;
 /// They differ only in the setup-stage gate and the ranking key:
 ///   • Continuation: TrendConfirmationGate + RS-primary ranking (ADR-0014).
 ///   • Breakout:     SetupGate (BreakoutEnhanced floor) + DirectionEdge+RScomp (ADR-0011).
+/// Both add a soft OBV field-trend tilt (+/-ObvSignalWeight) to their ranking key.
 /// </summary>
 public static class LensCatalog
 {
@@ -35,12 +36,13 @@ public static class LensCatalog
         ]);
 
         // RS-primary: realized leadership drives the pick; DirectionEdge confirms it
-        // (and the Direction gate already guarantees edge >= MinDirectionEdge).
+        // (and the Direction gate already guarantees edge >= MinDirectionEdge). OBV
+        // field trend adds a small confirmation tilt (+/-ObvSignalWeight) on top.
         return new LensDefinition(
             RankingLens.Continuation,
             label: "Continuation",
             pipeline: pipeline,
-            primaryKey: (_, rs) => rs);
+            primaryKey: (_, rs, obvTilt) => rs + obvTilt);
     }
 
     /// <summary>
@@ -56,6 +58,6 @@ public static class LensCatalog
             RankingLens.Breakout,
             label: "Breakout",
             pipeline: pipeline,
-            primaryKey: (pick, rs) => pick.DirectionEdge + rs);
+            primaryKey: (pick, rs, obvTilt) => pick.DirectionEdge + rs + obvTilt);
     }
 }

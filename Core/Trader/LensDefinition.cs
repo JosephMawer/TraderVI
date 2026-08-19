@@ -59,16 +59,20 @@ public sealed class LensDefinition
     /// Produces the primary ranking score for a candidate (higher = better).
     /// Buy-direction precedence and tertiary tiebreakers are applied by the engine;
     /// this selector supplies the lens-specific primary (and embeds any secondary
-    /// the lens cares about). RS for the symbol is supplied as the second argument
-    /// (raw RScomp, 0 when unavailable).
+    /// the lens cares about). Two per-symbol soft inputs are supplied to the lens:
+    ///   • <c>rs</c>      — raw RScomp (relative strength), 0 when unavailable.
+    ///   • <c>obvTilt</c> — On-Balance Volume field-trend tilt: +ObvSignalWeight when
+    ///                      OBV confirms (rising field trend), −ObvSignalWeight when it
+    ///                      contradicts (falling), 0 when doubtful/unavailable. A soft
+    ///                      nudge on ordering only — it never gates a candidate.
     /// </summary>
-    public Func<RankedPick, double, double> PrimaryKey { get; }
+    public Func<RankedPick, double, double, double> PrimaryKey { get; }
 
     public LensDefinition(
         RankingLens lens,
         string label,
         TradePipeline pipeline,
-        Func<RankedPick, double, double> primaryKey)
+        Func<RankedPick, double, double, double> primaryKey)
     {
         Lens = lens;
         Label = label;
