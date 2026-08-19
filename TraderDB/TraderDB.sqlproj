@@ -67,6 +67,8 @@
     <Build Include="dbo/Tables/DailyPick.sql" />
     <Build Include="dbo/Tables/SectorIndices.sql" />
     <Build Include="dbo/Tables/AdvanceDeclineLine.sql" />
+    <Build Include="dbo/Tables/SymbolObv.sql" />
+    <Build Include="dbo/Tables/MarketClimax.sql" />
     <Build Include="dbo/Tables/ModelExperiment.sql" />
     <Build Include="dbo/Tables/RelativeStrengthFeatures.sql" />
     <Build Include="dbo/Tables/StockSectorMap.sql" />
