@@ -33,6 +33,21 @@ public sealed class DelphiReportBuilder
     public PositionSizeResult? Size { get; set; }
     public Dictionary<string, Core.RelativeStrength.RelativeStrengthRow> RsScores { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, IReadOnlyList<DailyBar>> AllBars { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    // On-Balance Volume (OBV) field-trend results, keyed by symbol. Reporting-only:
+    // the soft ranking tilt is applied in the engine; here we surface the verdict
+    // (Rising/Falling/Doubtful) and latest UP/DOWN designation as confirmation.
+    public Dictionary<string, ObvFieldTrendResult> ObvResults { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public double ObvSignalWeight { get; set; }
+
+    // Market Climax (CLX) — standalone volume-breadth regime signal (sibling to the A/D Line).
+    // Diagnostic-only in v1: we surface the latest net tally and the confirmation/divergence
+    // verdict vs XIU. MarketClimax is sorted ascending by date; ClimaxRegime is the windowed
+    // verdict computed in Delphi via MarketClimaxCalculator.ClassifyRegime.
+    public IReadOnlyList<MarketClimaxEntry> MarketClimax { get; set; } = [];
+    public ClimaxRegimeResult? ClimaxRegime { get; set; }
+    public int ClimaxDivergenceWindow { get; set; }
+    public int ClimaxDivergenceThreshold { get; set; }
     public int LoadedSymbols { get; set; }
     public int SkippedHistory { get; set; }
     public int SkippedPrice { get; set; }
@@ -217,8 +232,8 @@ public sealed class DelphiReportBuilder
 
         // ── Top Picks Detail ──
         sb.AppendLine("\n── Top Picks (diagnostic) ──");
-        sb.AppendLine($"  {"#",-3} {"Symbol",-8} {"Dir",-5} {"Comp",6} {"P(Up)",6} {"P(Dn)",6} {"Edge",7} {"Brk",6} {"RScomp",10} {"CompZ",8} {"RS10d",9} {"Gate",-20}");
-        sb.AppendLine($"  {new string('─', 100)}");
+        sb.AppendLine($"  {"#",-3} {"Symbol",-8} {"Dir",-5} {"Comp",6} {"P(Up)",6} {"P(Dn)",6} {"Edge",7} {"Brk",6} {"RScomp",10} {"CompZ",8} {"RS10d",9} {"OBV",-10} {"Gate",-20}");
+        sb.AppendLine($"  {new string('─', 112)}");
         int rank = 1;
         foreach (var p in TopPicks)
         {
@@ -233,14 +248,78 @@ public sealed class DelphiReportBuilder
             string rsCompStr = row?.CompositeScore is double rsC ? rsC.ToString("+0.0000;-0.0000;0.0000") : "null";
             string rsCompZStr = row?.CompositeScoreZ is double rsCz ? rsCz.ToString("+0.00;-0.00;0.00") : "null";
             string rs10dStr = row?.RS_StockVsMarket_10d is double rs10 ? rs10.ToString("+0.000;-0.000;0.000") : "null";
+            string obvStr = ObvCell(p.Symbol);
             string gate = "Pass";
             if (p.GateTrace != null)
             {
                 var blocked = p.GateTrace.FirstOrDefault(g => !g.Passed);
                 if (blocked.Reason != null) gate = $"Fail:{blocked.GateName}";
             }
-            sb.AppendLine($"  {rank,-3} {p.Symbol,-8} {p.Direction,-5} {p.CompositeScore,6:P0} {pUp,6:P0} {pDn,6:P0} {edge,7:+0.0%;-0.0%} {brk,6:P0} {rsCompStr,10} {rsCompZStr,8} {rs10dStr,9} {gate,-20}");
+            sb.AppendLine($"  {rank,-3} {p.Symbol,-8} {p.Direction,-5} {p.CompositeScore,6:P0} {pUp,6:P0} {pDn,6:P0} {edge,7:+0.0%;-0.0%} {brk,6:P0} {rsCompStr,10} {rsCompZStr,8} {rs10dStr,9} {obvStr,-10} {gate,-20}");
             rank++;
+        }
+
+        // ── On-Balance Volume (OBV) Field Trend ──
+        // Granville's per-symbol volume confirmation. Reporting-only here; the soft
+        // ranking tilt (±ObvSignalWeight) is applied in the engine's PrimaryKey.
+        sb.AppendLine("\n── On-Balance Volume (Field Trend) ──");
+        if (ObvResults.Count > 0)
+        {
+            int rising = ObvResults.Values.Count(r => r.Trend == ObvFieldTrend.Rising);
+            int falling = ObvResults.Values.Count(r => r.Trend == ObvFieldTrend.Falling);
+            int doubtful = ObvResults.Values.Count(r => r.Trend == ObvFieldTrend.Doubtful);
+            int indet = ObvResults.Values.Count(r => r.Trend == ObvFieldTrend.Indeterminate);
+            sb.AppendLine($"  Window: {ObvResults.Values.Select(r => r.BreakoutWindow).FirstOrDefault()}  Tilt: ±{ObvSignalWeight:0.##}  (soft ranking signal, not a gate)");
+            sb.AppendLine($"  Universe trend: {rising} rising, {falling} falling, {doubtful} doubtful, {indet} indeterminate");
+            sb.AppendLine();
+            sb.AppendLine($"  {"Symbol",-8} {"Trend",-13} {"Designation",-12} {"AsOf",-12} {"Pivots",6} {"Tilt",6}");
+            sb.AppendLine($"  {new string('─', 62)}");
+            foreach (var p in TopPicks)
+            {
+                if (!ObvResults.TryGetValue(p.Symbol, out var r)) continue;
+                string desig = r.LatestDesignation == ObvDesignation.None
+                    ? "—"
+                    : $"{r.LatestDesignation}{(r.LatestDesignationDate is DateTime d ? $" {d:MM-dd}" : "")}";
+                string tilt = r.Trend switch
+                {
+                    ObvFieldTrend.Rising => $"+{ObvSignalWeight:0.##}",
+                    ObvFieldTrend.Falling => $"-{ObvSignalWeight:0.##}",
+                    _ => "0"
+                };
+                sb.AppendLine($"  {p.Symbol,-8} {r.Trend,-13} {desig,-12} {r.AsOf,-12:yyyy-MM-dd} {r.PivotCount,6} {tilt,6}");
+            }
+        }
+        else
+        {
+            sb.AppendLine("  [No OBV data] — run: dotnet run --project Sandbox -- obv-backfill");
+        }
+
+        // ── Market Climax (CLX) ──
+        // Granville's market-wide net OBV-breakout tally across the XIU-60 leaders (sibling
+        // to the A/D Line). Diagnostic-only: standing net is the signal, fresh flow is the
+        // flow diagnostic, regime is the confirmation/divergence verdict vs XIU.
+        sb.AppendLine("\n── Market Climax (CLX) ──");
+        if (MarketClimax.Count > 0)
+        {
+            var clx = MarketClimax[^1];
+            sb.AppendLine($"  Date:             {clx.Date:yyyy-MM-dd}");
+            sb.AppendLine($"  CLX (net):        {clx.Clx:+0;-0;0}");
+            sb.AppendLine($"  Up / Down:        {clx.UpBreakouts} / {clx.DownBreakouts}");
+            sb.AppendLine($"  Covered:          {clx.Covered} / {clx.BasketSize} (basket)");
+            sb.AppendLine($"  Fresh flow:       +{clx.FreshUp} up / -{clx.FreshDown} down (fired {clx.Date:MM-dd})");
+            sb.AppendLine($"  XIU Close:        {(clx.XiuClose.HasValue ? clx.XiuClose.Value.ToString("F2") : "N/A")}");
+            if (ClimaxRegime != null)
+            {
+                sb.AppendLine($"  Regime:           {ClimaxRegime.Regime}");
+                sb.AppendLine($"  CLX Change:       {ClimaxRegime.ClxThen:+0;-0;0} → {ClimaxRegime.ClxNow:+0;-0;0} (Δ{ClimaxRegime.ClxChange:+0;-0;0})");
+                sb.AppendLine($"  XIU Change:       {(ClimaxRegime.XiuChangePct.HasValue ? ClimaxRegime.XiuChangePct.Value.ToString("+0.0%;-0.0%") : "N/A")}");
+                sb.AppendLine($"  Window/Thresh:    {ClimaxDivergenceWindow}d / {ClimaxDivergenceThreshold}");
+                sb.AppendLine($"  Verdict:          {ClimaxRegime.Description}");
+            }
+        }
+        else
+        {
+            sb.AppendLine("  [No CLX data] — run: dotnet run --project Sandbox -- climax-backfill");
         }
 
         // ── Best Pick All Signals ──
@@ -311,6 +390,21 @@ public sealed class DelphiReportBuilder
             sb.AppendLine($"  Cumulative A/D: {latest.CumulativeDifferential:+#,0;-#,0;0}  Score: {BreadthScore:+0.00;-0.00}");
             if (BearishDivergence)
                 sb.AppendLine("  ⚠️ Bearish divergence detected");
+        }
+
+        // ── Volume regime (CLX) ──
+        // One-line confirmation/divergence read of the market-wide net OBV-breakout tally vs XIU.
+        if (MarketClimax.Count > 0 && ClimaxRegime != null && ClimaxRegime.Regime != Core.Indicators.ClimaxRegime.Insufficient)
+        {
+            string clxTag = ClimaxRegime.Regime switch
+            {
+                Core.Indicators.ClimaxRegime.Confirming => "✅ confirming",
+                Core.Indicators.ClimaxRegime.BearishDivergence => "⚠️ unconfirmed advance",
+                Core.Indicators.ClimaxRegime.BullishDivergence => "📈 improving breadth",
+                _ => "➖ neutral"
+            };
+            sb.AppendLine($"\nVolume regime: {clxTag} — CLX {ClimaxRegime.ClxThen:+0;-0;0}→{ClimaxRegime.ClxNow:+0;-0;0}" +
+                $"{(ClimaxRegime.XiuChangePct.HasValue ? $", XIU {ClimaxRegime.XiuChangePct.Value:+0.0%;-0.0%}" : "")} over {ClimaxDivergenceWindow}d");
         }
 
         // ── Sectors ──
@@ -398,6 +492,22 @@ public sealed class DelphiReportBuilder
 
             if (Granville != null)
                 sb.AppendLine($"  Granville adj: {Granville.CompositeAdjustment:+0.000;-0.000}");
+
+            // OBV confirmation — does Granville's volume field trend agree with the pick?
+            if (ObvResults.TryGetValue(BestPick.Symbol, out var obv))
+            {
+                string obvLine = obv.Trend switch
+                {
+                    ObvFieldTrend.Rising => $"✅ confirms (rising field trend, tilt +{ObvSignalWeight:0.##})",
+                    ObvFieldTrend.Falling => $"⚠️ contradicts (falling field trend, tilt -{ObvSignalWeight:0.##})",
+                    ObvFieldTrend.Doubtful => "➖ neutral (doubtful — breakouts out of gear)",
+                    _ => "➖ no read (insufficient OBV history)"
+                };
+                string desig = obv.LatestDesignation == ObvDesignation.None
+                    ? ""
+                    : $", last {obv.LatestDesignation}{(obv.LatestDesignationDate is DateTime dd ? $" {dd:MM-dd}" : "")}";
+                sb.AppendLine($"  OBV: {obvLine}{desig}");
+            }
         }
         else
         {
@@ -409,4 +519,29 @@ public sealed class DelphiReportBuilder
 
     private static double GetProb(RankedPick pick, string name) =>
         pick.Signals.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase))?.Score ?? 0;
+
+    /// <summary>
+    /// Compact OBV field-trend cell for the Top-Picks table: a trend arrow plus the
+    /// latest UP/DOWN designation (e.g. "↑UP", "↓DN", "→··", or "·" when no data).
+    /// </summary>
+    private string ObvCell(string symbol)
+    {
+        if (!ObvResults.TryGetValue(symbol, out var r))
+            return "·";
+
+        string arrow = r.Trend switch
+        {
+            ObvFieldTrend.Rising => "↑",
+            ObvFieldTrend.Falling => "↓",
+            ObvFieldTrend.Doubtful => "→",
+            _ => "·"
+        };
+        string desig = r.LatestDesignation switch
+        {
+            ObvDesignation.Up => "UP",
+            ObvDesignation.Down => "DN",
+            _ => "··"
+        };
+        return $"{arrow}{desig}";
+    }
 }

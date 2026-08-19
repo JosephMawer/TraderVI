@@ -536,6 +536,83 @@ Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 // EVALUATE + RANK (SINGLE PASS) + PICK BEST + SIZE IT
 // ═══════════════════════════════════════════════════════════════════
+// ── On-Balance Volume (OBV) field trend — soft per-symbol confirmation signal ──
+// Granville's OBV is a running cumulative volume tally. Its absolute value is
+// anchor-relative (meaningless alone) — what matters is the *field trend*: the
+// zigzag of UP/DOWN breakouts. We classify each loaded symbol's field trend and
+// turn it into a small additive ranking tilt (NOT a gate):
+//   • Rising  → +ObvSignalWeight   (volume confirms a long)
+//   • Falling → −ObvSignalWeight   (volume contradicts)
+//   • Doubtful / Indeterminate → 0 (no opinion)
+// The tilt is injected into the engine and folded into each lens's ranking key
+// alongside RS. Series are maintained by Hermes (UpdateObvAsync) and seeded by
+// the Sandbox `obv-backfill` probe. See ADR (OBV soft signal).
+var obvRepo = new SymbolObvRepository();
+var obvResults = new Dictionary<string, ObvFieldTrendResult>(StringComparer.OrdinalIgnoreCase);
+var obvTilts = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+// Pull only the window the classifier needs (retention window already bounds the table).
+DateTime obvSeriesStart = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+
+int obvRising = 0, obvFalling = 0, obvDoubtful = 0, obvIndeterminate = 0;
+
+foreach (var (symbol, _) in allBars)
+{
+    var series = await obvRepo.GetSeriesFromDateAsync(symbol, obvSeriesStart);
+    var result = ObvFieldTrendCalculator.Classify(series, config.ObvBreakoutWindow);
+    obvResults[symbol] = result;
+
+    double tilt = result.Trend switch
+    {
+        ObvFieldTrend.Rising => config.ObvSignalWeight,
+        ObvFieldTrend.Falling => -config.ObvSignalWeight,
+        _ => 0.0
+    };
+    if (tilt != 0) obvTilts[symbol] = tilt;
+
+    switch (result.Trend)
+    {
+        case ObvFieldTrend.Rising: obvRising++; break;
+        case ObvFieldTrend.Falling: obvFalling++; break;
+        case ObvFieldTrend.Doubtful: obvDoubtful++; break;
+        default: obvIndeterminate++; break;
+    }
+}
+
+// Inject OBV tilts into the engine BEFORE evaluation (mirrors RS injection).
+engine.ObvTilts = obvTilts;
+
+Console.WriteLine($"On-Balance Volume: classified {obvResults.Count} symbols (window {config.ObvBreakoutWindow}, tilt ±{config.ObvSignalWeight:0.##})");
+Console.WriteLine($"  Field trend: {obvRising} rising, {obvFalling} falling, {obvDoubtful} doubtful, {obvIndeterminate} indeterminate");
+if (obvResults.Count > 0 && obvRising + obvFalling == 0)
+    Console.WriteLine("  ⚠ No rising/falling field trends — OBV table may be empty or too short. Run: dotnet run --project Sandbox -- obv-backfill");
+Console.WriteLine();
+
+// LOAD MARKET CLIMAX (CLX) -- standalone volume-breadth regime signal (diagnostic-only).
+// CLX is Granville's market-wide net OBV-breakout tally across the XIU-60 leaders, a
+// sibling to the A/D Line. It is produced by Hermes (UpdateMarketClimaxAsync) and seeded by
+// the Sandbox `climax-backfill` probe. v1 is DIAGNOSTIC-ONLY: we read recent CLX, classify
+// its confirmation/divergence vs XIU, print it, and surface it in the report -- no gate or
+// ranking change. Phases 2 (composite adjustment) and 3 (regime gate) are deferred.
+var climaxRepo = new MarketClimaxRepository();
+var climaxRecent = await climaxRepo.GetRecentAsync(60);
+var climaxRegime = MarketClimaxCalculator.ClassifyRegime(
+    climaxRecent, config.ClimaxDivergenceWindow, config.ClimaxDivergenceThreshold);
+
+if (climaxRecent.Count > 0)
+{
+    var clxLatest = climaxRecent[^1];
+    Console.WriteLine(
+        $"Market Climax (CLX): {clxLatest.Clx:+0;-0;0} on {clxLatest.Date:yyyy-MM-dd} " +
+        $"({clxLatest.UpBreakouts} up / {clxLatest.DownBreakouts} down, covered {clxLatest.Covered}/{clxLatest.BasketSize})");
+    Console.WriteLine($"  Regime ({config.ClimaxDivergenceWindow}d): {climaxRegime.Description}");
+}
+else
+{
+    Console.WriteLine("Market Climax (CLX): [no data] -- run: dotnet run --project Sandbox -- climax-backfill");
+}
+Console.WriteLine();
+
 var continuationLens = Core.Trader.LensCatalog.Continuation(config);
 var breakoutLens = Core.Trader.LensCatalog.Breakout(config);
 
@@ -917,6 +994,12 @@ var report = new DelphiReportBuilder
     Size = size,
     RsScores = rsScores,
     AllBars = allBars,
+    ObvResults = obvResults,
+    ObvSignalWeight = config.ObvSignalWeight,
+    MarketClimax = climaxRecent,
+    ClimaxRegime = climaxRegime,
+    ClimaxDivergenceWindow = config.ClimaxDivergenceWindow,
+    ClimaxDivergenceThreshold = config.ClimaxDivergenceThreshold,
     LoadedSymbols = loaded,
     SkippedHistory = skipped,
     SkippedPrice = skippedPrice,
