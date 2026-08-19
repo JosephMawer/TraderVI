@@ -26,3 +26,14 @@ accurate that forecast was the following day, i.e. did the market rise like it w
 
 
 8) Create a worker service (daemon) that sits in background executing tasks at predefined intervals
+
+
+Development tooling:
+
+9) Add GitHub Actions continuous integration
+	- build the C# projects and run TraderVI.Core.Tests on pushes and pull requests
+	- decide whether the SSDT database project should run in the same workflow or a separate Windows job
+
+10) Refresh Git and GitHub command-line tooling
+	- update Git for Windows from the currently installed older version
+	- install and authenticate GitHub CLI for branch/PR discovery and detailed GitHub Actions logs
