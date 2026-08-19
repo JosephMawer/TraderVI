@@ -5,6 +5,33 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### On-Balance Volume soft tilt — first live-read calibration (ADR-0016)
+- **Q:** The first live Delphi OBV read (2026-06-06, 233 symbols) validated the wiring
+  (`0 indeterminate`; the ±0.1 tilt verifiably reordered ESI below BTE) but surfaced two
+  numbers that should be calibrated before the soft tilt is trusted long-term.
+- **Finding 1 — is `ObvSignalWeight = 0.10` too strong vs. the *gate-passer* RScomp spread?**
+  ADR-0016 sized the weight against the full-universe `RScomp` range (~±0.2). But the names
+  that actually clear every gate and compete for the executable #1 slot cluster near
+  `RScomp` ≈ ±0.1 (e.g. FM +0.097, ORE −0.009, DPM +0.022) — the high-RS names (MATR +0.91,
+  ATH +0.77) all fail gates. So among gate-passers a ±0.1 tilt is the same magnitude as the
+  entire RS spread and can act as the deciding vote rather than a gentle nudge. Resolve via a
+  paper-trade IC/agreement window; candidate fix is to scale the tilt to gate-passer RS
+  dispersion or lower the constant. Do **not** retune by guess.
+- **Finding 2 — is the classifier's "≥2 pivots per side" rule inflating `Doubtful`?** First
+  read was 140/233 (60%) `Doubtful`. Part of that is structural, not market chop:
+  `ObvFieldTrendCalculator.Classify` only returns `Rising`/`Falling` when it has ≥2 UP *and*
+  ≥2 DOWN pivots; once any opposing pivot exists with fewer than two per side it falls into
+  the "too few pivots" `Doubtful` branch. With a 20-session breakout window over capped
+  6-month retention, pivots are sparse, so 1–3-pivot symbols are forced `Doubtful`. This is
+  conservative/safe for a soft tilt, but (a) keeps the signal quiet and (b) directly
+  throttles the upcoming **Climax** indicator, which aggregates the same UP/DOWN
+  designations — a thin pivot supply means a thin breadth tally. Decide whether to relax the
+  pivot rule (e.g. allow a single-pivot-per-side higher-high/higher-low call) or accept the
+  conservatism.
+- **Tags:** decision-engine, technical-indicators, time-series, math-statistics
+- **Status:** parked — wiring verified live (ADR-0016). Both numbers to be calibrated against
+  a paper-trade window; Finding 2 is also an explicit input to the Climax ADR.
+
 ### Sector index history backfill (`dbo.SectorIndices` thin coverage)
 - **Q:** The 2026-05-23 Delphi run exposed `RScomp`/`CompZ`/`RS10d` displaying `null` for the top-14 passing candidates while a few lower-ranked rows (SOFY, RDDY) showed real values. Root cause: `dbo.SectorIndices` currently holds only **7–8 trading days** of history per `^TTxx` symbol (range 2026-04-16 → 2026-05-22). `RelativeStrengthCalculator.Compute(...)` clamps `n = min(stockBars, sectorBars, marketBars)` to ~8, so `ReturnDiff(horizon=10)` returns `null`, `ComputeRsZ(horizon=10, zWindow=20)` requires `n ≥ 30` and also returns `null`, and the switch expression collapses `CompositeScore` and `CompositeScoreZ` to `null` for every sector-mapped symbol. The 5 "fallback to XIU" symbols show non-null values because XIU has full history, but the sector dimension is mathematically degenerate (StockVsSector ≈ StockVsMarket, SectorVsMarket ≈ 0) — those numbers carry no real sector information.
 - **2026-05-23 partial fix (diagnostic, not data):** Delphi now emits an explicit RS-coverage block in both console and diagnostic report (min/max sector bars, fallback count, null-composite count) and a `⚠` warning when sector history < 80 bars. The bad data still produces null composites, but at least Delphi tells the truth about why instead of silently rendering empty cells.

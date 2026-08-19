@@ -269,3 +269,33 @@ add context later.
 - **Source:** ADR-0015
 
 **A:** `EntryComposite`, `StrategyVersionId`, and `OriginalPickId` are left null (manual entry only). That postpones model-vs-discretion attribution - comparing actual fills against Delphi's hypothetical pick for the same day.
+
+### Q: Why is On-Balance Volume (OBV) kept out of the Granville #1–#56 plug-in framework?
+- **Domains:** technical-indicators, decision-engine
+- **Source:** ADR-0016
+
+**A:** The Granville #1–#56 indicators are market-wide and read once per day. OBV is
+*per-symbol* and *cumulative* (its value is anchor-relative, only the breakout shape matters).
+Forcing it into that framework would break the framework's cohesion, so OBV lives as a
+separate per-symbol indicator with its own table (`dbo.SymbolObv`) and classifier.
+
+### Q: How does OBV influence the daily picks, and why isn't it in the engine composite?
+- **Domains:** decision-engine, technical-indicators
+- **Source:** ADR-0016
+
+**A:** OBV is a **soft additive tilt** on each lens's ranking key (mirroring the RS pattern,
+ADR-0011): `+ObvSignalWeight` when the field trend is Rising, `−ObvSignalWeight` when Falling,
+0 otherwise. It is injected via `TradeDecisionEngine.ObvTilts`. It stays out of the engine
+composite because that composite is built from **ML model roles** with registry weights; OBV
+is a rule-based indicator, so the ranking-key seam (the same one RS uses) is the right place.
+
+### Q: Why is pruning `dbo.SymbolObv`'s tail safe, and how does Hermes continue OBV across a gap?
+- **Domains:** data-pipeline, time-series
+- **Source:** ADR-0016
+
+**A:** The running cumulative is already baked into each retained row, so deleting old rows
+never changes the newer values — the newest retained row stays the anchor. Hermes
+`UpdateObvAsync` reads that last stored `(date, obv)` via `GetLatestAsync`, seeds
+`CalculateOBV` with it plus the prior close, and extends over every newer session, filling
+multi-day gaps in one pass.
+

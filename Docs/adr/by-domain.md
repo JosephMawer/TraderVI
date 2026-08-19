@@ -7,6 +7,7 @@ Manually maintained for now. Add new ADRs under each tag they carry.
 
 ## data-pipeline
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators (#21 and #22)
+- [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — On-Balance Volume (OBV) as a per-symbol soft ranking signal
 
 ## machine-learning
 *(none yet)*
@@ -15,13 +16,14 @@ Manually maintained for now. Add new ADRs under each tag they carry.
 *(none yet)*
 
 ## time-series
-*(none yet)*
+- [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — On-Balance Volume (OBV) as a per-symbol soft ranking signal
 
 ## technical-indicators
 - [ADR-0001](0001-granville-plugin-architecture.md) — Granville indicator plug-in architecture
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting indicator (Granville #15–#16) — narrow-advance warning gate
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — Genuity indicators (Granville #17–#20) — US confirming-index source & staleness gate
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators (#21 and #22)
+- [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — On-Balance Volume (OBV) as a per-symbol soft ranking signal
 
 ## market-microstructure
 *(none yet)*
@@ -34,6 +36,7 @@ Manually maintained for now. Add new ADRs under each tag they carry.
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting indicator (Granville #15–#16) — narrow-advance warning gate
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — Genuity indicators (Granville #17–#20) — US confirming-index source & staleness gate
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators (#21 and #22)
+- [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — On-Balance Volume (OBV) as a per-symbol soft ranking signal
 
 ## math-statistics
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting indicator (Granville #15–#16) — narrow-advance warning gate
