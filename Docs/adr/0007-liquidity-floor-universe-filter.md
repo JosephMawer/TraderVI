@@ -57,7 +57,7 @@ Both thresholds are applied per-symbol *before* the symbol is added to
 These join the existing `SkippedHistory` and `SkippedPrice` (affordability
 ceiling) buckets in the Delphi "Loaded / Skipped" console line and in both
 `BuildDiagnostic()` (Universe section) and `BuildSummary()` (liquidity-gate
-line) of `DelphiReportBuilder`, per the copilot-instructions rule about
+line) of `DelphiReportBuilder`, per the repository instruction about
 surfacing every new pipeline gate in the report builder.
 
 ## Alternatives considered

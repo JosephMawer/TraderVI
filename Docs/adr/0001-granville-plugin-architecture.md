@@ -41,7 +41,7 @@ and produces a unified `GranvilleDailyForecast`.
 ## Consequences
 - New categories require touching three places: a new class, registration in
   `GranvilleComposite`, and `MaxRawPointRange()` for normalization. This is
-  documented in `.github/copilot-instructions.md`.
+  documented in `AGENTS.md` and `Docs/design-rules.md` (see ADR-0017).
 - The composite's `MaxCompositeAdjustment` cap (currently 0.10) bounds the
   influence of all rule-based Granville signals on the trade decision,
   preventing them from overwhelming ML signals — but also requires

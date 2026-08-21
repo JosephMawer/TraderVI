@@ -2,7 +2,8 @@
 
 This document describes the current state of the TraderVI trading system — what's implemented, what was tried and rejected, and where things are headed.
 
-For Copilot-enforceable rules, see `docs/design-rules.md`.
+For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
+snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
 ## Philosophy
 
@@ -23,11 +24,11 @@ These are hand-coded logic gates that override or modulate the ML signals:
 |------|-------------|----------------|
 | **XIU Regime Filter** | Blocks longs when XIU MA50 < MA200 AND 20d return < 0 | `TradeDecisionEngine.ComputeRegime()` |
 | **A/D Line Breadth** | Blocks/warns longs when market breadth is deteriorating | `AdvanceDeclineCalculator.BreadthScore()` |
-| **Down-Probability Veto** | Blocks longs when P(down ≤ -4%) ≥ 20% | `AggregateAllSignals()` |
+| **Down-Probability Veto** | Blocks longs when P(down ≤ -4%) reaches the configured maximum (default 35%) | `DownProbabilityGate` |
 | **Stop-Loss** | Hard exit at -10% drawdown from entry (overrides all) | Planned in Sentinel |
 | **Drawdown Warning** | Alert at -5% drawdown | Planned in Sentinel |
 | **Rotation Threshold** | Only switch positions if new pick is sufficiently better | Strategy config |
-| **Pattern Confirmation** | Light bearish veto if pattern models disagree | `AggregateAllSignals()` |
+| **Trend Confirmation** | Continuation lens requires Trend30 and MA-crossover confirmation | `TrendConfirmationGate` |
 
 **Key decision**: The A/D Line is maintained as a **rule-based regime indicator**, not a direct ML feature. This was explicitly decided because breadth is best used as a binary/graded gate, not a noisy input to gradient boosting.
 
@@ -41,24 +42,27 @@ These are hand-coded logic gates that override or modulate the ML signals:
 
 These are trained models that produce probability scores:
 
-**Active Models (5 profit):**
+**Active models (4 profit):**
 
-1. **BreakoutEnhanced** (AUC 0.81) — "Is a breakout above the 20-day high happening?" — Primary **setup filter**. If this doesn't fire, we don't trade.
+1. **BreakoutEnhanced** — "Is a breakout above the 20-day high happening?" — Setup probability and the Breakout lens's primary setup gate.
 
-2. **BinaryUp10** (AUC 0.70) — "Will return ≥ +4% in the next 10 days?" — Direction signal.
+2. **BinaryUp10** — "Will return ≥ +4% in the next 10 days?" — Direction signal.
 
 3. **BinaryDown10** — "Will return ≤ -4% in the next 10 days?" — **Veto signal**. High P(down) blocks longs.
 
-4. **VolExpansionRelative10** (AUC 0.66) — "Will volatility expand significantly?" — Confirmation that a big move is expected.
+4. **VolExpansionRelative10** — "Will volatility expand significantly?" — Confirmation that a big move is expected.
 
-5. **RelStrengthCont10_2pct** (AUC 0.65) — "Will this stock outperform XIU by ≥ 2% in 10 days?" — Cross-sectional momentum.
+`RelStrengthCont10_2pct` is retained as a disabled experiment. Relative strength is currently
+computed deterministically by Delphi and used directly in lens ranking.
 
-6. **Trend10 / Trend30 / MaCrossover** — Pattern presence models. Used only for light confirmation, never as primary buy signals.
+**Trend10 / Trend30 / MaCrossover** are deterministic pattern-presence checks. They are evaluated
+directly from price history and are not trained, saved as model artifacts, or loaded from SQL.
 
 **How they combine:**
-- `DirectionEdge = P(up) - P(down)` — primary ranking metric
-- `Composite = 0.40×Breakout + 0.25×Up + 0.15×VolExp + 0.10×RelStr + 0.10×ensemble avg + Granville adj`
-- Breakout is the "setup filter" (gate), direction edge is the "conviction meter"
+- `DirectionEdge = P(up) - P(down)` — directional conviction and a ranking component in the Breakout lens.
+- `Composite = 0.40×Breakout + 0.25×Up − 0.20×Down + 0.15×VolExp + Granville adjustment`.
+- Relative strength and the OBV tilt are added in the lens ranking key, not the ML composite.
+- CLX is diagnostic-only in v1.
 
 ## Feature Builders
 
@@ -97,7 +101,15 @@ Each ML model uses a **feature builder** to convert a window of daily bars into 
 - Tail-event models (≥ +4%, ≤ -4%) work better than direction (> 0) models
 
 ## Current Decision Flow
-XIU Regime Filter (rule-based) ↓ pass A/D Breadth Gate (rule-based) ↓ pass Granville Composite (rule-based, ±0.10 adjustment) ↓ always (modifies score) Down-Probability Veto (ML P(down)) ↓ pass Setup Filter (ML BreakoutEnhanced ≥ 30%) ↓ pass Direction Filter (ML DirectionEdge ≥ 5%) ↓ pass Buy Conditions (composite thresholds + pattern check) ↓ pass Rank by DirectionEdge → RS Composite → Composite ↓ Size: SinglePositionAllIn
+
+Shared gates: regime → A/D breadth → Granville → down-probability veto.
+
+The setup stage then diverges by lens:
+
+- **Continuation (executed):** Trend30 + MA-crossover confirmation → direction gate → composite gate → rank by `RScomp + obvTilt`.
+- **Breakout (journaled):** BreakoutEnhanced setup gate → direction gate → composite gate → rank by `DirectionEdge + RScomp + obvTilt`.
+
+Both rank remaining ties by DirectionEdge and composite score. The executed recommendation is sized as a single concentrated ghost/advisory position. CLX is reported but does not affect this flow.
 
 ## Granville Market Timing Layer
 
@@ -109,6 +121,10 @@ overlay on top of the ML ranking stack.
 - **Plurality (#1–#4)** — based on advance/decline breadth vs `XIU`
 - **Disparity (#5–#6)** — TSX-adapted real-economy divergence signal
 - **Leadership (#7–#10)** — market leadership quality vs directional state
+- **Most Active / Features (#11–#14)** — most-active stock behavior versus the tape
+- **Weighting (#15–#16)** — narrow-advance warning
+- **Genuity (#17–#20)** — confirming US index behavior
+- **Light Volume (#25–#28)** — light-volume tape interpreted with leadership quality
 
 ### Disparity adaptation for TSX
 
@@ -189,7 +205,11 @@ The `GranvilleComposite` normalizes net Granville points to a `CompositeAdjustme
 | Plurality (#1–#4) | +4 | −2 |
 | Disparity (#5–#6) | +2 | −2 |
 | Leadership (#7–#10) | +4 | −2 |
-| **Total** | **+10** | **−6** |
+| Most Active (#11–#14) | +3 | −3 |
+| Weighting (#15–#16) | 0 | −1 |
+| Genuity (#17–#20) | +4 | −4 |
+| Light Volume (#25–#28) | +2 | −1 |
+| **Normalization headroom** | **+19** | **−15** |
 
 ## Relative Strength Layer
 
@@ -282,31 +302,16 @@ metadata changes far less often than daily prices.
 
 ## Future Direction
 
-### Near-Term (Active)
-- **RS backfill** for Hercules training (stock-vs-XIU first)
-- **Hercules RS features** — retrain models with RS columns
-- **Granville Features (#11+)** — next indicator group
-
-### Medium-Term (Planned)
-- **Sentinel**: Intraday monitoring with stop-loss execution and rotation triggers
-- **RS gating**: Block trades with extreme negative RS Z-scores
-- **Backtest harness**: Walk-forward simulation using historical picks vs actual outcomes
-- **Strategy versioning**: Compare strategy versions via `[dbo].[StrategyVersions]`
-- **Threshold tuning**: Use Hercules AUC/lift outputs to set optimal thresholds per model
-
-### Long-Term (Exploratory)
-- **TraderVI execution**: Automated order placement via Wealthsimple API
-- Sector rotation signals (group by TSX sector, rotate into strongest)
-- Intraday features from TMX time series (requires Sentinel)
-- Earnings/event calendar integration
-- Revisit A/D line as ML feature (only if rule-based gate proves insufficient)
-- Ensemble stacking (use model outputs as features for a meta-model)
+The active Now/Next/Later sequence lives in `Docs/roadmap.md`. Keep this document focused on
+architecture; do not duplicate volatile priority lists here.
 
 ## Data Flow
 
 | Program | Runs | Reads | Writes |
 |---------|------|-------|--------|
-| **Hermes** | Daily (post-close) | TMX API, `[DailyBars]` | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]`, `[RelativeStrengthFeatures]` (planned) |
-| **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
-| **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, console output |
-| **Sentinel** | Continuous (planned) | `[DailyBars]`, `[DailyPick]`, live quotes | Alerts, `[TradeLog]` |
+| **Hermes** | Daily (post-close) | TMX/Yahoo APIs, existing market tables | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SymbolObv]`, `[MarketClimax]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]`, `[UsIndexBars]` |
+| **Hercules** | Weekly / on-demand | `[DailyBars]`, enabled code registries | model artifacts, `[ModelExperiment]`, `[ModelRegistry]` |
+| **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
+| **TraderVI** | Manual | picks/models/positions | ghost positions and `[TradeLog]`; no live order placement |
+| **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
+| **Sentinel** | Continuous (planned) | picks, positions, live quotes | alerts and enforced risk/rotation actions |

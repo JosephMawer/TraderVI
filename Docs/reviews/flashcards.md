@@ -299,3 +299,19 @@ never changes the newer values — the newest retained row stays the anchor. Her
 `CalculateOBV` with it plus the prior close, and extends over every newer session, filling
 multi-day gaps in one pass.
 
+### Q: Why are active model names, data freshness, and current priorities kept out of root `AGENTS.md`?
+- **Domains:** architecture
+- **Source:** ADR-0017
+
+**A:** They change more frequently than durable working rules. Root `AGENTS.md` controls how agents
+work safely; `Docs/project-status.md` records what exists now, and `Docs/roadmap.md` records what
+comes next. This avoids turning the instruction prompt into a stale second architecture document.
+
+### Q: Why does Sandbox have its own nested `AGENTS.md`?
+- **Domains:** architecture
+- **Source:** ADR-0017
+
+**A:** Codex layers instructions from the repository root toward the working directory. A nested
+file applies the probe contract and side-effect rules only to Sandbox work while preserving the
+root safety and validation rules, avoiding irrelevant probe detail in every other task.
+

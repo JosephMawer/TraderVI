@@ -34,7 +34,7 @@ gap). The same Delphi run made the side-effect of the old policy visible:
 
 PEY won purely on forward-probability conviction; BTE was a ~2σ RS leader
 buried below several Edge-stronger names. The system goal in
-[`copilot-instructions.md`](../../.github/copilot-instructions.md) explicitly
+[`Docs/design-rules.md`](../design-rules.md) explicitly
 calls for **ensemble confidence** ("use multiple diverse signals... to
 increase conviction"). Letting Edge dominate alone violates that goal once
 RS is trustworthy.

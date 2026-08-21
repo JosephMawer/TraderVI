@@ -132,7 +132,7 @@ sub-periods.** 5d and 10d behavior is regime-dependent.
 - **MaxRawPointRange update.** `GranvilleComposite.MaxRawPointRange()` must
   add `-1` (Weighting bearish max) to the bearish floor. New range:
   bearish `[-10, +13]` bullish.
-- **DelphiReportBuilder.** Per `.github/copilot-instructions.md`, the diagnostic
+- **DelphiReportBuilder.** Per `AGENTS.md`, the diagnostic
   and summary outputs must surface ScoreB, ScoreC, trigger status, and top
   contributors when the group is registered.
 - **Thresholds are provisional.** 0.50 / 0.60 are v1 defaults calibrated on

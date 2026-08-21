@@ -23,6 +23,7 @@ architecture documentation.
 |---|---|
 | `architecture` | Project structure, plug-in patterns, DI, separation of concerns |
 | `data-pipeline` | Hermes, importers, DB schema, data quality |
+| `data-sources` | External APIs, benchmark feeds, provider selection, staleness |
 | `machine-learning` | Hercules, model training, feature engineering, AUC/thresholds |
 | `llm` | LLM integration (placeholder until introduced) |
 | `time-series` | EMAs, vol calc, rolling windows, lagging/leading |
@@ -52,6 +53,8 @@ architecture documentation.
 | [0013](0013-multi-lens-decision-architecture.md) | Multi-lens decision architecture (lens = thesis × gate stack × ranking key) | Accepted | architecture, decision-engine |
 | [0014](0014-continuations-lens-trend-confirmation.md) | Continuations lens — trend-confirmation gate + RS-primary ranking (executed) | Accepted | decision-engine, technical-indicators, risk-management |
 | [0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) | Manual trade logging with ghost execution and position lifecycle | Accepted | architecture, risk-management, market-microstructure |
+| [0016](0016-obv-per-symbol-soft-ranking-signal.md) | On-Balance Volume as a per-symbol soft ranking signal | Accepted | decision-engine, technical-indicators, data-pipeline, time-series |
+| [0017](0017-codex-native-instructions-and-project-status.md) | Codex-native instructions and explicit project-status structure | Accepted | architecture |
 
 See also:
 

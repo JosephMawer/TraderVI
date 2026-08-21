@@ -1,7 +1,7 @@
 # Design Rules (TraderVI)
 
-> This file is referenced by `.github/copilot-instructions.md`.
-> Rules here are authoritative for code generation.
+> This file is referenced by the repository-root `AGENTS.md`.
+> Rules here are authoritative for decision-engine, model, feature, and indicator changes.
 
 ## Rule-Based vs ML-Based Components
 
@@ -15,10 +15,10 @@
 | **SPY Regime Filter** | S&P 500 cross-market confirmation | `TradeDecisionEngine.ComputeRegime` |
 | **Stop-Loss (-10%)** | Hard exit override | `TradeDecisionEngine` / Sentinel (planned) |
 | **Drawdown Warning (-5%)** | Alert / tighter monitoring | Sentinel (planned) |
-| **Down-Probability Veto** | Block longs when P(down) ≥ 20% | `AggregateAllSignals` |
-| **Down-Probability Penalty** | P(down) reduces composite score continuously | `GetCompositeScoreWithBreakdown` |
+| **Down-Probability Veto** | Block longs when P(down) reaches the configured maximum (default 35%) | `DownProbabilityGate` |
+| **Down-Probability Penalty** | P(down) reduces the role-weighted composite continuously | `TradeDecisionEngine.ComputeCompositeFromRoles` |
 | **Rotation Threshold** | Prevent churn; require sufficient edge delta | `PositionSizer` / future Sentinel |
-| **Pattern Confirmation** | Require at least 1 pattern Buy when patterns exist | `AggregateAllSignals` |
+| **Trend Confirmation** | Continuation lens requires both Trend30 and MA-crossover confirmation | `TrendConfirmationGate` |
 
 These components act as **gates or modifiers** on the ML-driven ranking. They are never encoded as ML features unless explicitly revisited.
 
@@ -40,12 +40,12 @@ Each category is implemented as an `IGranvilleIndicatorGroup` in `Core/Indicator
 | **Plurality** | #1–#4 | ✅ Active | `PluralityIndicators.cs` |
 | **Disparity** | #5–#6 | ✅ Active | `DisparityIndicators.cs` |
 | **Leadership** | #7–#10 | ✅ Active | `LeadershipIndicators.cs` |
-| Features | — | 🔲 Planned | — |
-| Weighting | — | 🔲 Planned | — |
-| Genuity | — | 🔲 Planned | — |
-| Dullness (#21, #22) | — | ⏸ Deferred ([ADR-0005](adr/0005-defer-granville-dullness-21-22.md)) | Calibration showed #21 anti-predictive and #22 sample too small on 2020-2026 XIU; revisit with longer history or different universe |
-| Overdueness | — | 🔲 Planned | — |
-| Light Volume | — | 🔲 Planned | — |
+| **Features / Most Active** | #11–#14 | ✅ Active | `MostActiveIndicators.cs` |
+| **Weighting** | #15–#16 | ✅ Active | `WeightingIndicators.cs` (ADR-0003) |
+| **Genuity** | #17–#20 | ✅ Active | `GenuityIndicators.cs` (ADR-0004/0008) |
+| Dullness | #21–#22 | ⏸ Deferred | ADR-0005; #21 was anti-predictive and #22 had insufficient samples on 2020–2026 XIU |
+| Overdueness | #23–#24 | 🔲 Planned | — |
+| **Light Volume** | #25–#28 | ✅ Active | `LightVolumeIndicators.cs` (ADR-0006) |
 | Heavy Volume | — | 🔲 Planned | — |
 | Reversals | — | 🔲 Planned | — |
 | Gold Indicator | — | 🔲 Planned | — |
@@ -169,10 +169,18 @@ Plus volatility-normalized Z-scores: `RS_Z = (RS_today - mean(RS_20d)) / std(RS_
 
 **Backfill note**: Stock-vs-market RS is fully backfillable (XIU history exists since 2020). Stock-vs-sector RS is only backfillable from when Hermes started collecting `[SectorIndices]`.
 
-### Composite score formula
+### Decision score and ranking
 
-Where Granville_adjustment ∈ [−0.10, +0.10], derived from net Granville points normalized
-across all implemented indicator groups. Currently **Plurality (#1–#4) and Disparity (#5–#6)** contribute.
+The ML composite is role-weighted from the four active profit models. The Granville adjustment
+is then added and clamped at zero; its range is [−0.10, +0.10] and it is normalized across all
+implemented groups (#1–#20 and #25–#28).
+
+Ranking is lens-specific and deliberately separate from the ML composite:
+
+- Continuation: `RScomp + obvTilt`
+- Breakout: `DirectionEdge + RScomp + obvTilt`
+
+CLX remains diagnostic-only and must not affect a gate or ranking key without a new decision.
 
 ### Delphi reporting rules
 
@@ -180,7 +188,7 @@ Delphi outputs two structured reports via `Core.Runtime.DelphiReportBuilder`:
 
 | Report | Method | Audience | Content |
 |--------|--------|----------|---------|
-| **Diagnostic** | `BuildDiagnostic()` | Copilot / developer log analysis | Raw values for every data source: regime flags, A/D line stats, sector index table, Granville per-indicator breakdown, universe stats, per-pick signals + gate traces |
+| **Diagnostic** | `BuildDiagnostic()` | Developer/agent log analysis | Raw values for every data source: regime flags, A/D line stats, sector index table, Granville per-indicator breakdown, universe stats, per-pick signals + gate traces |
 | **Summary** | `BuildSummary()` | Human operator (pre-market review) | Regime label, breadth interpretation, sector leaders/laggards, Granville net signal, final recommendation with composite/edge/allocation |
 
 **Mandatory update rule**: Any new signal, gate, indicator, or data source added to Delphi's evaluation pipeline **must** be reflected in both `BuildDiagnostic()` and `BuildSummary()`. This includes:
@@ -201,8 +209,8 @@ Pattern detectors (`Trend10`, `Trend30`, `MaCrossover`, and any detector listed 
   the feature vector. An ML model trained this way just approximates the rule it was given.
 - Near-perfect training AUC (~0.99–1.00) is expected and uninformative — it does not mean
   the pattern predicts forward returns.
-- Forward-return prediction is handled by the **profit models** (`BinaryUp10`,
-  `BinaryDown10`, `BreakoutEnhanced`, `VolExpansionRelative10`, `RelStrengthCont10_2pct`).
+- Forward-return prediction is handled by the active **profit models** (`BinaryUp10`,
+  `BinaryDown10`, `BreakoutEnhanced`, and `VolExpansionRelative10`).
 
 **Implementation rules:**
 - Pattern detectors are authored as `IPatternDetector` implementations under

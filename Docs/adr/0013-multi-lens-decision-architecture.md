@@ -17,7 +17,7 @@ ranking key (`DirectionEdge + RScomp`, ADR-0011). Every recommendation the syste
 produced was therefore implicitly a **breakout** thesis: "this name is likely to
 clear a range in the next ~10 days."
 
-The strategy goal (`copilot-instructions.md`) is *aggressive momentum rotation*.
+The strategy goal (`Docs/design-rules.md`) is *aggressive momentum rotation*.
 Much of that rotation is **continuation** — a name that is *already* leading keeps
 leading — which is a different thesis from breakout and wants different gating
 (confirmed uptrend, not breakout probability) and different ranking (realized

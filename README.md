@@ -43,7 +43,8 @@ More details: see `docs/models.md`.
 - `docs/strategy.md` — Single-position rotation, rotation threshold, risk rules
 - `docs/glossary.md` — Terms used throughout the system
 
-## Engineering Rules (Copilot)
+## Engineering rules
 
 Engineering/iteration constraints live in:
-- `.github/copilot-instructions.md`
+- `AGENTS.md`
+- `Docs/design-rules.md`
