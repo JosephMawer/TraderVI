@@ -38,6 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3
 		Docs\models.md = Docs\models.md
 		Docs\oracle-phases.md = Docs\oracle-phases.md
 		Docs\oracle-rules.md = Docs\oracle-rules.md
+		Docs\database-operations.md = Docs\database-operations.md
 		Docs\project-status.md = Docs\project-status.md
 		Docs\roadmap.md = Docs\roadmap.md
 		Docs\running.md = Docs\running.md
@@ -67,6 +68,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0015-trade-logging-ghost-execution-and-position-lifecycle.md = Docs\adr\0015-trade-logging-ghost-execution-and-position-lifecycle.md
 		Docs\adr\0016-obv-per-symbol-soft-ranking-signal.md = Docs\adr\0016-obv-per-symbol-soft-ranking-signal.md
 		Docs\adr\0017-codex-native-instructions-and-project-status.md = Docs\adr\0017-codex-native-instructions-and-project-status.md
+		Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md = Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

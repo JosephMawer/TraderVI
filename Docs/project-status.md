@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-08-19  
+**Snapshot date:** 2026-08-21
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
@@ -16,6 +16,9 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
 - Core tests: 12 passed, 0 failed, 0 skipped.
 - Known dependency advisories remain; see build output before updating packages.
+- Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
+- Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
+- Backup baseline: a 31.00 MB compressed checksum full backup completed and passed `RESTORE VERIFYONLY` on 2026-08-22. Its staging and OneDrive copies have matching SHA-256 hashes.
 
 ## Programs and responsibility
 
@@ -94,8 +97,8 @@ Additional state:
 
 1. **Delphi restart is unverified.** Its data is fresh, but its persisted output has not been refreshed since June.
 2. **Historical relative-strength features are empty.** This blocks the documented RS-to-Hercules training path and Z-score backfill analysis.
-3. **Database project target mismatch.** `TraderDB.sqlproj` targets SQL Server 2025 (`Sql170`) while the local database engine is SQL Server 2019.
-4. **Full SSDT publish is unsafe today.** A reviewed deployment plan proposed unrelated table rebuilds, constraint/index drops, and database-option changes. Use narrowly reviewed schema scripts until drift is reconciled.
+3. **Backup automation and restore testing remain incomplete.** The initial verified backup exists in `C:\ProgramData\TraderVI\Backups` and `$env:OneDrive\Joseph\Tradervi\backups`, and SIMPLE recovery is active. Post-Hermes backup/copy is still manual, retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
+4. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 5. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 6. **No CI baseline.** Builds and tests are local only.
 7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
@@ -105,7 +108,7 @@ Additional state:
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
 1. Reconcile instructions and documentation.
-2. Establish safe schema/version management.
+2. Activate the verified backup, OneDrive-copy, SIMPLE-recovery, and manual-migration workflow in `Docs/database-operations.md`.
 3. Review Delphi side effects and add or confirm a controlled dry-run path.
 4. Run Delphi, inspect both reports, and resume paper-trade outcome collection.
 5. Add CI and only then resume feature/backfill work from `Docs/roadmap.md`.

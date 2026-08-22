@@ -315,3 +315,21 @@ comes next. This avoids turning the instruction prompt into a stale second archi
 file applies the probe contract and side-effect rules only to Sandbox work while preserving the
 root safety and validation rules, avoiding irrelevant probe detail in every other task.
 
+### Q: Why is TraderDB.sqlproj built but never published under ADR-0018?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0018
+
+**A:** The build validates that canonical schema definitions compile against SQL Server 2019. Publishing would broadly reconcile unresolved project/database drift and could rebuild or drop unrelated objects, so each live change is instead an individually reviewed manual migration.
+
+### Q: What recovery window does TraderDB's SIMPLE model provide?
+- **Domains:** data-pipeline, risk-management
+- **Source:** ADR-0018
+
+**A:** Recovery reaches the end of the newest successful full backup. Changes after that backup—such as later Delphi, Hercules, TraderVI, or Oracle writes—are exposed until the next full backup because SIMPLE recovery has no transaction-log backups.
+
+### Q: Why does SQL Server write locally before a backup is copied to OneDrive?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0018
+
+**A:** SQL Server writes as its service account while OneDrive syncs as the interactive user. Writing and checksum-verifying locally first prevents permission coupling and keeps OneDrive from treating an incomplete database-backup stream as a finished off-machine copy.
+

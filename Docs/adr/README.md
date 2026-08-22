@@ -55,6 +55,7 @@ architecture documentation.
 | [0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) | Manual trade logging with ghost execution and position lifecycle | Accepted | architecture, risk-management, market-microstructure |
 | [0016](0016-obv-per-symbol-soft-ranking-signal.md) | On-Balance Volume as a per-symbol soft ranking signal | Accepted | decision-engine, technical-indicators, data-pipeline, time-series |
 | [0017](0017-codex-native-instructions-and-project-status.md) | Codex-native instructions and explicit project-status structure | Accepted | architecture |
+| [0018](0018-manual-migrations-and-simple-recovery-backups.md) | Manual database migrations and SIMPLE-recovery backups | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

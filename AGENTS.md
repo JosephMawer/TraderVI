@@ -35,7 +35,7 @@ TraderVI is a TSX-focused daily-stock advisory system for short-term momentum ro
 - Keep changes focused and include tests for behavior changes when practical.
 - Preserve the separation between deterministic rule-based indicators and trained ML models defined in `Docs/design-rules.md`.
 - When adding a Delphi signal, gate, indicator, lens input, or data source, update `Core.Runtime.DelphiReportBuilder` and its construction in `Delphi/Program.cs` so diagnostic and human summaries remain complete.
-- Keep database project definitions and runtime repositories synchronized. Generate and review deployment plans before applying schema changes; never assume a successful DACPAC build deployed the database.
+- Keep database project definitions and runtime repositories synchronized. Apply schema changes only through individually reviewed manual migration scripts under `TraderDB/Migrations`; the DACPAC is a build/reference artifact and is not a deployment mechanism.
 - Add new documentation files to the Visual Studio solution when repository conventions require it.
 
 ## Decisions, documentation, and learning

@@ -25,11 +25,13 @@ The complete solution must be built with installed Visual Studio MSBuild plus SS
 Runtime repositories connect to the local `TraderDB` SQL Server database. Before running a producer or evaluator:
 
 1. Confirm required tables exist.
-2. Generate and review schema deployment SQL.
-3. Apply only explicitly authorized changes.
-4. Verify the deployed object after execution.
+2. Confirm the backup requirements in `Docs/database-operations.md` are satisfied.
+3. Apply only an explicitly authorized dated script from `TraderDB/Migrations`.
+4. Verify the changed object and preserved data after execution.
 
-Do not currently publish the complete DACPAC without reviewing the broad schema drift described in `Docs/project-status.md`. The project targets SQL Server 2025 while the verified local server is SQL Server 2019.
+Never publish the DACPAC. `TraderDB.sqlproj` targets SQL Server 2019 for build-time schema validation and blocks Deploy targets; it is not a live deployment mechanism.
+
+After a successful Hermes run, create and verify a full database backup using `TraderDB/Operations/Backup-TraderDB.sql`, then copy the completed file to the approved off-machine destination. The initial workflow is manual until storage and retention have been observed.
 
 ## Hermes — market-data collection and maintenance
 
@@ -153,7 +155,7 @@ Each probe has its own external and database effects. Read `Sandbox/AGENTS.md` a
 
 ### Missing SQL object
 
-A DACPAC build does not update SQL Server. Confirm the runtime database, generate a narrow reviewed deployment script, execute it deliberately, and verify the object afterward.
+A DACPAC build does not update SQL Server. Confirm the runtime database, add a narrow dated migration and matching canonical schema definition, build the project, execute only the explicitly authorized migration, and verify the object afterward.
 
 ### Multiple enabled registry rows
 

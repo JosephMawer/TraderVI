@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{39f432d2-1167-40eb-96bb-c16dee71b549}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql170DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql150DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -15,7 +15,7 @@
     <AssemblyName>TraderDB</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
-    <DeployToDatabase>True</DeployToDatabase>
+    <DeployToDatabase>False</DeployToDatabase>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -57,7 +57,10 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
+    <Folder Include="dbo\Indexes\" />
     <Folder Include="dbo\Tables\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="Operations\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo/Tables/ActivePosition.sql" />
@@ -80,7 +83,18 @@
     <Build Include="dbo/Tables/TradeLog.sql" />
     <Build Include="dbo/Tables/DecisionDossier.sql" />
     <Build Include="dbo/Tables/LlmNarrative.sql" />
-    <Build Include="UsIndexBars.sql" />
-    <Build Include="IX_DailyPick_DateSymbol.sql" />
+    <Build Include="dbo/Tables/UsIndexBars.sql" />
+    <Build Include="dbo/Indexes/IX_DailyPick_DateSymbol.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+    <None Include="README.md" />
+    <None Include="Migrations/README.md" />
+    <None Include="Operations/Backup-TraderDB.sql" />
+    <None Include="Operations/Check-TraderDB-Integrity.sql" />
+    <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
+  </ItemGroup>
+  <Target Name="BlockTraderDbDeployment" BeforeTargets="Deploy;SqlDeploy">
+    <Error Text="TraderDB deployment is intentionally disabled. Build the project for schema validation, then use a reviewed script from TraderDB/Migrations and follow Docs/database-operations.md." />
+  </Target>
 </Project>

@@ -13,10 +13,15 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 
 ### 2. Database deployment safety
 
-- [ ] Align the SQL project target with the actual supported SQL Server version, or explicitly decide to upgrade the server.
-- [ ] Compare project and deployed schemas without accepting unrelated destructive changes.
-- [ ] Establish a reviewed migration/deployment convention for future table and index changes.
-- [ ] Reconcile project definitions for indexes, defaults, foreign keys, and database options before allowing full DACPAC publish.
+- [x] Align the SQL project with the deployed SQL Server 2019 provider and disable project deployment.
+- [x] Establish dated manual migrations with additive-by-default, no-unapproved-deletion rules.
+- [x] Add checksum full-backup, integrity-check, and guarded SIMPLE-recovery operational scripts.
+- [x] Create and verify the first full backup, copy it to the approved OneDrive folder, and measure its compressed size (31.00 MB).
+- [x] Run the first integrity check and change the live database to SIMPLE recovery.
+- [ ] Observe several manual post-Hermes backups before automating backup-and-copy behavior.
+- [ ] Confirm the retention count against actual OneDrive quota and measured backup growth.
+- [ ] Perform and document a test restore into a differently named temporary database.
+- [ ] Reconcile remaining project/deployed index, default, foreign-key, and database-option drift without broad DACPAC publish.
 
 ### 3. Delphi restart
 
