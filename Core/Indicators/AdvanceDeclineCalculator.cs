@@ -51,11 +51,17 @@ public static class AdvanceDeclineCalculator
     /// The last stored CumulativeDifferential, so we continue the running total
     /// rather than resetting to zero. Pass 0 on first-ever calculation.
     /// </param>
+    /// <param name="accumulateFromDate">
+    /// Optional first date to emit and add to <paramref name="previousCumulative"/>.
+    /// Earlier bars are used only to prime each symbol's prior close. Leave null
+    /// when rebuilding the complete series from zero.
+    /// </param>
     /// <returns>A/D Line entries for each trading day, sorted ascending.</returns>
     public static List<ADLineEntry> Compute(
         IReadOnlyDictionary<string, IReadOnlyList<ML.DailyBar>> allSymbolBars,
         IReadOnlyList<ML.DailyBar> xiuBars,
-        int previousCumulative = 0)
+        int previousCumulative = 0,
+        DateTime? accumulateFromDate = null)
     {
         // Index XIU bars by date for O(1) lookup
         var xiuByDate = xiuBars.ToDictionary(b => b.Date.Date, b => b.Close);
@@ -105,6 +111,12 @@ public static class AdvanceDeclineCalculator
 
             // Skip days with no comparable data (first day for all symbols)
             if (advancers == 0 && decliners == 0 && unchanged == 0)
+                continue;
+
+            // Incremental runs load earlier bars to establish prior closes. Those
+            // lookback dates are already represented by previousCumulative and
+            // must not be accumulated or emitted a second time.
+            if (accumulateFromDate.HasValue && date < accumulateFromDate.Value.Date)
                 continue;
 
             int dailyPlurality = advancers - decliners;

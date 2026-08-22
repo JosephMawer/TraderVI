@@ -282,13 +282,13 @@ static async Task UpdateAdvanceDeclineLineAsync(
 
     Console.WriteLine($"Loaded {loaded} symbols for A/D calculation");
 
-    // Compute — the lookback days will prime priorCloseBySymbol, then the new
-    // days produce actual ADLineEntry records. We pass lastCumulative so the
-    // running total continues seamlessly from the stored value.
-    var adLine = AdvanceDeclineCalculator.Compute(allBars, xiuBars, lastCumulative);
-
-    // Filter out entries we already have stored (the lookback days)
-    var newEntries = adLine.Where(e => e.Date > lastDate.Value).ToList();
+    // The lookback days prime priorCloseBySymbol only. Accumulation and output
+    // start at computeFromDate so stored pluralities are not counted twice.
+    var newEntries = AdvanceDeclineCalculator.Compute(
+        allBars,
+        xiuBars,
+        lastCumulative,
+        accumulateFromDate: computeFromDate);
 
     if (newEntries.Count == 0)
     {
