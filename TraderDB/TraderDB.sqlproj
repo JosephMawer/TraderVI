@@ -95,6 +95,9 @@
     <None Include="Migrations/20260822_003_DeactivateEcnAfterAcquisition.sql" />
     <None Include="Migrations/20260822_004_DeactivateFoodDuringTradingSuspension.sql" />
     <None Include="Migrations/20260822_005_DeactivateGdiAfterTakePrivate.sql" />
+    <None Include="Migrations/20260822_006_DeactivateKsiAfterAcquisition.sql" />
+    <None Include="Migrations/20260822_007_DeactivateRemainingStaleListings.sql" />
+    <None Include="Migrations/20260822_008_DeleteInvalidBlankSymbol.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
