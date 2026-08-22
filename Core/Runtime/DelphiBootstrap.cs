@@ -62,7 +62,7 @@ public static class DelphiBootstrap
             if (profitModel != null)
             {
                 profitModels.Add(profitModel);
-                loadedProfit.Add(modelInfo.TaskType);
+                loadedProfit.Add($"{modelInfo.TaskType} [registry signal Buy >= {modelInfo.ThresholdBuy:P0}]");
             }
         }
 

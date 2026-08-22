@@ -14,6 +14,11 @@ using System.Threading.Tasks;
 
 Console.WriteLine("=== The Oracle Of Delphi ===\n");
 
+// The recommendation date is the run date and remains the persistence key for
+// DailyPick, DecisionDossier, and GranvilleIndicatorLog. The market-data date is
+// reported separately once the latest completed A/D session has been loaded.
+DateTime recommendationDate = DateTime.Today;
+
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION (aggressive single-position rotation)
 // ═══════════════════════════════════════════════════════════════════
@@ -43,6 +48,7 @@ if (activeStrategy != null)
 {
     Console.WriteLine($"Strategy Version:  {activeStrategy.VersionName}");
     Console.WriteLine($"Description:       {activeStrategy.Description}");
+    Console.WriteLine("Strategy gate thresholds:");
     Console.WriteLine($"  MinComposite:    {config.MinCompositeScore:P0}");
     Console.WriteLine($"  MinUpProb:       {config.MinUpProb:P0}");
     Console.WriteLine($"  MinBreakout:     {config.MinBreakoutProb:P0}");
@@ -62,7 +68,8 @@ else
 // BOOTSTRAP ENGINE (loads enabled models from registry + strategy config)
 // ═══════════════════════════════════════════════════════════════════
 var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry(config);
-engine.RankingMode = RankingMode.Probability;
+var continuationLens = LensCatalog.Continuation(config);
+var breakoutLens = LensCatalog.Breakout(config);
 
 engine.Sizer = new PositionSizer(availableCapital)
 {
@@ -74,7 +81,9 @@ engine.Sizer = new PositionSizer(availableCapital)
     RequireBothSignals = false
 };
 
-Console.WriteLine($"[DelphiBootstrap] Ranking mode:    {engine.RankingMode}");
+Console.WriteLine("[DelphiBootstrap] Ranking lenses:");
+Console.WriteLine("  Continuation (executed): RScomp + OBV tilt; DirectionEdge and composite tiebreakers");
+Console.WriteLine("  Breakout (journaled):    DirectionEdge + RScomp + OBV tilt; DirectionEdge and composite tiebreakers");
 
 // ═══════════════════════════════════════════════════════════════════
 // COMPUTE MARKET REGIME FROM XIU + SPY BENCHMARKS
@@ -120,6 +129,17 @@ engine.CurrentRegime = regime;
 // ═══════════════════════════════════════════════════════════════════
 var adRepo = new AdvanceDeclineRepository();
 var adLine = await adRepo.GetRecentAsync(200);
+DateTime marketDataAsOf = adLine.Count > 0
+    ? adLine[^1].Date.Date
+    : xiuBars.Count > 0
+        ? xiuBars[^1].Date.Date
+        : recommendationDate;
+
+Console.WriteLine("Evaluation Dates:");
+Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (run date; database PickDate/EvalDate)");
+Console.WriteLine($"  Market data as of:    {marketDataAsOf:yyyy-MM-dd} (latest completed TSX session)");
+Console.WriteLine();
+
 double breadthScore = AdvanceDeclineCalculator.BreadthScore(adLine);
 bool bearishDivergence = AdvanceDeclineCalculator.HasBearishDivergence(adLine);
 
@@ -304,7 +324,7 @@ if (adLine.Count >= 2)
     if (saveToDB)
     {
         var granvilleLog = new GranvilleIndicatorLogRepository();
-        var evalDate = DateTime.Today;
+        var evalDate = recommendationDate;
         await granvilleLog.DeleteByDateAsync(evalDate);
         await granvilleLog.LogForecastAsync(evalDate, granvilleForecast);
         Console.WriteLine($"  ✓ Granville indicators logged to [dbo].[GranvilleIndicatorLog] for {evalDate:yyyy-MM-dd}");
@@ -473,6 +493,7 @@ var sectorClosesBySector = rsSectorSnapshots
         StringComparer.OrdinalIgnoreCase);
 
 var rsScores = new Dictionary<string, Core.RelativeStrength.RelativeStrengthRow>(StringComparer.OrdinalIgnoreCase);
+var rsFallbackSymbols = new List<string>();
 
 // RS coverage counters — surface degenerate/missing RS instead of silently emitting null.
 int rsFallbackToXiu = 0;
@@ -498,7 +519,11 @@ foreach (var (symbol, bars) in allBars)
         sectorClosesBySector.TryGetValue(sectorSymbol, out sectorCloses);
 
     bool usedFallback = sectorCloses == null;
-    if (usedFallback) rsFallbackToXiu++;
+    if (usedFallback)
+    {
+        rsFallbackToXiu++;
+        rsFallbackSymbols.Add(symbol);
+    }
 
     // Compute RS — stock vs market always works; stock vs sector only if we have sector data.
     // For missing sector data, use XIU as a fallback (RS_StockVsSector ≈ 0).
@@ -507,7 +532,7 @@ foreach (var (symbol, bars) in allBars)
         sectorCloses: sectorCloses ?? xiuCloses,
         marketCloses: xiuCloses,
         symbol: symbol,
-        date: DateOnly.FromDateTime(DateTime.Today),
+        date: DateOnly.FromDateTime(marketDataAsOf),
         sectorIndexSymbol: sectorSymbol ?? "XIU");
 
     if (!rs.CompositeScore.HasValue) rsCompositeNull++;
@@ -521,8 +546,10 @@ engine.RsCompositeScores = rsScores
     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.CompositeScore!.Value, StringComparer.OrdinalIgnoreCase);
 
 Console.WriteLine($"Relative Strength: computed for {rsScores.Count} symbols ({sectorClosesBySector.Count} sectors loaded)");
-int withSector = rsScores.Count(kvp => stockSectorMap.ContainsKey(kvp.Key));
-Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsScores.Count - withSector}");
+int withSector = rsScores.Count - rsFallbackToXiu;
+Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsFallbackToXiu}");
+if (rsFallbackSymbols.Count > 0)
+    Console.WriteLine($"  Fallback symbols:      {string.Join(", ", rsFallbackSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
 Console.WriteLine($"  Sector bars (min/max): {rsMinSectorBars} / {rsMaxSectorBars} (required >= {rsBarsRequired} for full composite)");
 Console.WriteLine($"  Composite null:        {rsCompositeNull} (insufficient bars for 10d/60d horizons or 20d Z window)");
 if (rsMinSectorBars > 0 && rsMinSectorBars < rsBarsRequired)
@@ -552,7 +579,7 @@ var obvResults = new Dictionary<string, ObvFieldTrendResult>(StringComparer.Ordi
 var obvTilts = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
 // Pull only the window the classifier needs (retention window already bounds the table).
-DateTime obvSeriesStart = DateTime.Today.AddMonths(-Core.Constants.ObvRetentionMonths);
+DateTime obvSeriesStart = recommendationDate.AddMonths(-Core.Constants.ObvRetentionMonths);
 
 int obvRising = 0, obvFalling = 0, obvDoubtful = 0, obvIndeterminate = 0;
 
@@ -612,9 +639,6 @@ else
     Console.WriteLine("Market Climax (CLX): [no data] -- run: dotnet run --project Sandbox -- climax-backfill");
 }
 Console.WriteLine();
-
-var continuationLens = Core.Trader.LensCatalog.Continuation(config);
-var breakoutLens = Core.Trader.LensCatalog.Breakout(config);
 
 // Two independent lenses (ADR-0013): each is a (thesis -> gate stack -> ranking key)
 // triple. The Continuations lens (RS-primary, trend-confirmation gate) DRIVES the
@@ -772,7 +796,7 @@ Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
 if (saveToDB && top.Count > 0)
 {
-    var pickDate = DateTime.Today;
+    var pickDate = recommendationDate;
     var pickRepo = new DailyPickRepository();
     var dossierRepo = new DecisionDossierRepository();
     var narrativeRepo = new Core.Db.LlmNarrativeRepository();
@@ -962,6 +986,7 @@ if (bestPick.GateTrace != null)
 }
 
 Console.WriteLine("\nAll Signals (best pick):");
+Console.WriteLine("  Signal hints use ModelRegistry thresholds shown below; trade eligibility uses the strategy gate thresholds printed at startup.");
 foreach (var s in bestPick.Signals)
 {
     Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
@@ -980,6 +1005,8 @@ var todaySectorSnapshots = latestSectorDate.HasValue
 
 var report = new DelphiReportBuilder
 {
+    RecommendationDate = recommendationDate,
+    MarketDataAsOf = marketDataAsOf,
     Regime = regime,
     AdLine = adLine,
     BreadthScore = breadthScore,
@@ -1010,6 +1037,7 @@ var report = new DelphiReportBuilder
     MinVolume20d = minVolume20d,
     DeployableCapital = deployableCapital,
     RsFallbackToXiuCount = rsFallbackToXiu,
+    RsFallbackSymbols = rsFallbackSymbols,
     RsCompositeNullCount = rsCompositeNull,
     RsMinSectorBars = rsMinSectorBars,
     RsMaxSectorBars = rsMaxSectorBars,

@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system. The data collector (Hermes) is operational again and current market data is present through 2026-08-21. The recommendation pipeline (Delphi) has not produced a recorded daily pick since 2026-06-06 and is the next workflow to validate deliberately.
+TraderVI is an advisory-mode TSX momentum-rotation system. The data collector (Hermes) is operational again and current market data is present through 2026-08-21. Delphi completed its first full restart evaluation on 2026-08-22, producing and persisting both ranking lenses, Continuation dossiers, and Granville diagnostics. The next priority is to resume paper recommendations and establish an outcome-measurement baseline before tuning the strategy.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 16 passed, 0 failed, 0 skipped.
+- Core tests: 18 passed, 0 failed, 0 skipped.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -95,13 +95,22 @@ Additional state:
 - No active ghost-mode positions are open.
 - 27 historical task types have enabled registry rows, with no duplicate enabled row within a task type.
 
+Post-restart Delphi verification on 2026-08-22:
+
+- 25 Continuation picks persisted with ranks 1–25.
+- 25 Breakout picks persisted with ranks 1–25.
+- 25 Continuation decision dossiers persisted with ranks 1–25.
+- 11 Granville diagnostic rows persisted for the recommendation date.
+- The 19 RS fallbacks are structural rather than a sector-history outage: 14 eligible symbols have a mapping row with no sector-index symbol and 5 have no mapping row. Delphi now lists them explicitly.
+- `PickDate`/Granville `EvalDate` remain the recommendation run date; reports separately identify the latest completed TSX session used as the market-data-as-of date.
+
 ## Known gaps and risks
 
-1. **Delphi restart is unverified.** Its data is fresh, but its persisted output has not been refreshed since June.
-2. **Historical relative-strength features are empty.** This blocks the documented RS-to-Hercules training path and Z-score backfill analysis.
-3. **Backup operations still need repeated observation and restore testing.** The first automatic post-success Hermes backup/copy completed successfully, but retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
-4. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
-5. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
+1. **Historical relative-strength features are empty.** This blocks the documented RS-to-Hercules training path and Z-score backfill analysis.
+2. **Backup operations still need repeated observation and restore testing.** The first automatic post-success Hermes backup/copy completed successfully, but retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
+3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
+4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
+5. **RS fallback/universe hygiene.** Nineteen eligible symbols currently fall back to XIU. Several appear to be funds classified as stocks, so security-type and sector-mapping cleanup should be reviewed deliberately before changing the universe.
 6. **No CI baseline.** Builds and tests are local only.
 7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
 
@@ -109,8 +118,8 @@ Additional state:
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Reconcile instructions and documentation.
-2. Activate the verified backup, OneDrive-copy, SIMPLE-recovery, and manual-migration workflow in `Docs/database-operations.md`.
-3. Review Delphi side effects and add or confirm a controlled dry-run path.
-4. Run Delphi, inspect both reports, and resume paper-trade outcome collection.
-5. Add CI and only then resume feature/backfill work from `Docs/roadmap.md`.
+1. Resume deliberate daily Delphi recommendations without live execution.
+2. Define the observation window and realized-outcome measures for Continuation versus Breakout picks.
+3. Review the 19 fallback symbols for security-type and sector-mapping correctness without changing the universe implicitly.
+4. Observe additional Hermes backups and perform a test restore.
+5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

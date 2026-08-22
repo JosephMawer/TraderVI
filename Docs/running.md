@@ -108,7 +108,9 @@ Delphi currently:
 8. Writes daily picks, decision dossiers, and Granville diagnostics for later analysis.
 9. Prints machine-oriented diagnostics and a human summary.
 
-Delphi is advisory—it does not place a broker order—but it is not read-only. Review or add a dry-run/no-write path before using it as a harmless smoke test.
+Delphi is advisory—it does not place a broker order—but it is not read-only. Do not use it as a harmless smoke test; use focused builds and tests for routine validation. A no-write mode can be added later if an operational reporting need emerges.
+
+Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommendation run date so their date-scoped records remain linked. Its reports separately show the latest completed TSX session as the market-data-as-of date. A weekend run can therefore produce a weekend recommendation date based on Friday's completed market data; this is intentional audit semantics, not a claim that Saturday was a trading session.
 
 ```powershell
 dotnet run --project Delphi

@@ -19,6 +19,8 @@ namespace Core.Runtime;
 public sealed class DelphiReportBuilder
 {
     // ── Inputs (set before calling Build) ──
+    public DateTime RecommendationDate { get; set; }
+    public DateTime MarketDataAsOf { get; set; }
     public MarketRegime? Regime { get; set; }
     public IReadOnlyList<ADLineEntry> AdLine { get; set; } = [];
     public double BreadthScore { get; set; }
@@ -63,7 +65,8 @@ public sealed class DelphiReportBuilder
     // data, or silently falling back to XIU (degenerate) or failing entirely due
     // to insufficient sector index history. Without these counters the leaderboard
     // can show `null` RS values with no explanation.
-    public int RsFallbackToXiuCount { get; set; }       // symbols that used XIU because sector data was missing/short
+    public int RsFallbackToXiuCount { get; set; }       // symbols that used XIU because no usable sector series was loaded
+    public IReadOnlyList<string> RsFallbackSymbols { get; set; } = [];
     public int RsCompositeNullCount { get; set; }       // symbols where CompositeScore came back null (insufficient bars)
     public int RsMinSectorBars { get; set; }            // min #bars across loaded sector indices
     public int RsMaxSectorBars { get; set; }            // max #bars across loaded sector indices
@@ -79,6 +82,12 @@ public sealed class DelphiReportBuilder
         sb.AppendLine(new string('═', 80));
         sb.AppendLine("DELPHI DIAGNOSTIC REPORT");
         sb.AppendLine(new string('═', 80));
+
+        sb.AppendLine("\n── Evaluation Dates ──");
+        sb.AppendLine($"  Recommendation date: {RecommendationDate:yyyy-MM-dd}  (run date; database PickDate/EvalDate)");
+        sb.AppendLine($"  Market data as of:    {MarketDataAsOf:yyyy-MM-dd}  (latest completed TSX session)");
+        sb.AppendLine("  Continuation ranking: RScomp + OBV tilt; DirectionEdge and composite tiebreakers");
+        sb.AppendLine("  Breakout ranking:     DirectionEdge + RScomp + OBV tilt; DirectionEdge and composite tiebreakers (journaled only)");
 
         // ── Market Regime ──
         sb.AppendLine("\n── Market Regime ──");
@@ -223,7 +232,9 @@ public sealed class DelphiReportBuilder
         // top-picks RS columns silently empty. This block makes that visible.
         sb.AppendLine("\n── RS Coverage ──");
         sb.AppendLine($"  Sector bars (min/max): {RsMinSectorBars} / {RsMaxSectorBars}  (required >= {RsBarsRequired} for full composite)");
-        sb.AppendLine($"  Fallback to XIU:       {RsFallbackToXiuCount}  (sector unmapped — RS computed against XIU; sector dimension degenerate)");
+        sb.AppendLine($"  Fallback to XIU:       {RsFallbackToXiuCount}  (no usable sector-index series; sector dimension degenerate)");
+        if (RsFallbackSymbols.Count > 0)
+            sb.AppendLine($"  Fallback symbols:      {string.Join(", ", RsFallbackSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
         sb.AppendLine($"  Composite null:        {RsCompositeNullCount}  (insufficient bars for 10d/60d horizons or 20d Z window)");
         if (RsMinSectorBars > 0 && RsMinSectorBars < RsBarsRequired)
         {
@@ -326,6 +337,7 @@ public sealed class DelphiReportBuilder
         if (BestPick != null)
         {
             sb.AppendLine($"\n── Best Pick Signals: {BestPick.Symbol} ──");
+            sb.AppendLine("  Signal hints use ModelRegistry thresholds shown in each model's notes; trade eligibility uses StrategyVersion gate thresholds.");
             foreach (var s in BestPick.Signals)
                 sb.AppendLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
 
@@ -350,6 +362,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine(new string('═', 60));
         sb.AppendLine("DELPHI MARKET SUMMARY");
         sb.AppendLine(new string('═', 60));
+        sb.AppendLine($"\nRecommendation date: {RecommendationDate:yyyy-MM-dd}  |  Market data as of: {MarketDataAsOf:yyyy-MM-dd}");
 
         // ── Regime ──
         if (Regime != null)

@@ -26,17 +26,19 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 
 ### 3. Delphi restart
 
-- [ ] Inventory Delphi's database writes, artifact writes, and optional external calls.
-- [ ] Add or confirm a no-write/dry-run mode suitable for safe daily report validation.
-- [ ] Run one controlled Delphi evaluation against current data.
-- [ ] Review Continuation and Breakout outputs, gate traces, OBV coverage, and CLX interpretation.
-- [ ] Confirm persisted picks, dossiers, and Granville logs match the console report when writes are enabled.
+- [x] Inventory Delphi's database writes, artifact writes, and optional external calls.
+- [x] Confirm ordinary operation is a deliberate persisted run; use builds/tests for harmless validation rather than launching Delphi as a smoke test.
+- [x] Run one controlled Delphi evaluation against current data.
+- [x] Review Continuation and Breakout outputs, gate traces, OBV coverage, and CLX interpretation.
+- [x] Confirm persisted picks, dossiers, and Granville logs match the console report when writes are enabled.
+- [x] Correct diagnostic ambiguity around lens ranking, model-signal versus strategy-gate thresholds, RS fallbacks, and recommendation-date versus market-data-date semantics.
 
 ### 4. Observation baseline
 
 - [ ] Resume daily paper recommendations without live execution.
 - [ ] Define the minimum observation window and outcome measures before tuning thresholds.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
+- [ ] Review the 19 fallback symbols for stock/fund classification and sector-map correctness before altering the eligible universe.
 
 ### 5. Development hygiene
 

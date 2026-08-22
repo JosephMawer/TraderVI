@@ -69,7 +69,6 @@ public class TradeDecisionEngine
     public StrategyConfig Config { get; }
 
     public PositionSizer? Sizer { get; set; }
-    public RankingMode RankingMode { get; set; } = RankingMode.Probability;
 
     public MarketRegime? CurrentRegime { get; set; }
     public bool RequireBenchmarkUptrend => Config.RequireBenchmarkUptrend;
@@ -427,11 +426,6 @@ public class TradeDecisionEngine
     }
 }
 
-public enum RankingMode
-{
-    Probability,
-    ExpectedReturn
-}
 
 public record TradeDecisionResult(
     TradeDirection Direction,
