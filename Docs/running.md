@@ -31,7 +31,7 @@ Runtime repositories connect to the local `TraderDB` SQL Server database. Before
 
 Never publish the DACPAC. `TraderDB.sqlproj` targets SQL Server 2019 for build-time schema validation and blocks Deploy targets; it is not a live deployment mechanism.
 
-After a successful Hermes run, create and verify a full database backup using `TraderDB/Operations/Backup-TraderDB.sql`, then copy the completed file to the approved off-machine destination. The initial workflow is manual until storage and retention have been observed.
+After a successful Hermes data update, Hermes automatically creates and verifies a full database backup, then copies it to the approved OneDrive destination with SHA-256 verification. `TraderDB/Operations/Backup-TraderDB.sql` remains the manual fallback and the pre-migration backup tool.
 
 ## Hermes — market-data collection and maintenance
 
@@ -50,8 +50,13 @@ Hermes currently:
 7. Refreshes stock-sector mappings when stale.
 8. Updates market-leadership data.
 9. Updates US index history from the configured external source.
+10. After the data-update stages return successfully, creates and verifies a compressed checksum backup in `C:\ProgramData\TraderVI\Backups`, copies it to OneDrive, and compares SHA-256 hashes.
 
 Running Hermes performs external HTTP requests and writes multiple SQL tables. Obtain explicit authorization and review schema/data prerequisites first.
+
+The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
+
+If the data update completes but backup creation, verification, or copying fails, Hermes prints a prominent warning and exits with code `2`. The updated database remains intact, and any completed staging backup is preserved for diagnosis or manual copying. A successful copy still requires the OneDrive client to finish cloud synchronization.
 
 ```powershell
 dotnet run --project Hermes

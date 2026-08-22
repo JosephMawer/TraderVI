@@ -21,6 +21,8 @@ Use manual, additive-by-default migrations and full-backup checkpoints:
 - Prohibit unapproved destructive or data-replacement migrations. Require explicit preconditions, transactions where supported, postcondition verification, and a fresh backup before any authorized destructive change.
 - Use SIMPLE recovery with a checksum/compressed full backup after each successful Hermes run and before manual schema changes.
 - Write backups first to the narrow local staging directory `C:\ProgramData\TraderVI\Backups`, verify them, and only then copy completed files to OneDrive or another approved off-machine location.
+- Invoke the routine backup from Hermes itself after its data-update stages return successfully, so the protection is independent of whether Visual Studio or a terminal launches Hermes. A backup failure must be visible through exit code `2` without undoing or concealing the completed data update.
+- Publish the OneDrive filename only after a temporary copy has the same SHA-256 as the verified staging file. Preserve the staging generation if copying fails.
 - Never overwrite a backup generation or store database backup files in Git.
 
 ## Alternatives considered
@@ -37,7 +39,7 @@ Use manual, additive-by-default migrations and full-backup checkpoints:
 
 - Every live schema change is narrow, reviewable, and preserved in execution order.
 - The SQL project builds against the deployed engine instead of advertising unsupported capabilities.
-- Backup creation is simple enough to associate with a successful Hermes run.
+- Backup creation follows every normal successful Hermes launch path without relying on operator memory or IDE configuration.
 - Accidental project-wide deletion or rebuild is blocked from the normal workflow.
 
 **Harder:**

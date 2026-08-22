@@ -30,17 +30,20 @@ Do not delete or shrink the existing transaction log as part of this transition.
 
 ## Routine post-Hermes backup
 
-Run `Backup-TraderDB.sql` only after Hermes exits successfully. The script:
+Hermes automatically performs the backup after its data-update stages return successfully. The implementation is inside Hermes rather than a Visual Studio or terminal wrapper, so it follows every normal launch path. It:
 
 - uses the narrow shared staging directory `C:\ProgramData\TraderVI\Backups`;
 - creates a unique `TraderDB_FULL_yyyyMMdd_HHmmss_fff.bak` file;
 - enables backup compression and checksums;
 - refuses to overwrite a file;
 - runs `RESTORE VERIFYONLY WITH CHECKSUM`;
-- reports the completed path and compressed size;
+- copies through a uniquely named `.partial` file and publishes the final OneDrive file only after its SHA-256 matches the staging backup;
+- reports both completed paths, compressed size, and SHA-256;
 - performs no retention cleanup.
 
-The first version remains manually initiated. Automating it as a post-Hermes wrapper is a later step after the destination and retention behavior have been observed successfully.
+The default destination is `$env:OneDrive\Joseph\Tradervi\backups`. `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` may override the defaults, but both configured directories must already exist. Hermes does not create storage or broaden permissions.
+
+If this post-update backup fails, Hermes leaves the imported data in place, preserves any completed staging backup, prints a prominent failure message, and exits with code `2`. Treat that run as unprotected until a verified backup is copied to OneDrive. Do not rerun the import merely to retry a backup; use `TraderDB/Operations/Backup-TraderDB.sql` as the manual fallback, then copy and hash-check the completed file.
 
 ## OneDrive copy and retention
 
@@ -49,7 +52,7 @@ Do not configure SQL Server to write directly into a OneDrive user folder. SQL S
 Use this flow:
 
 1. SQL Server writes and verifies the backup in `C:\ProgramData\TraderVI\Backups`, where only the SQL Server service has added modify access.
-2. The interactive user copies the completed file to `$env:OneDrive\Joseph\Tradervi\backups`.
+2. Hermes copies the completed file through a temporary partial file to `$env:OneDrive\Joseph\Tradervi\backups`, verifies its SHA-256, then publishes its final `.bak` name. For a manual backup, the interactive user performs the equivalent copy and verification.
 3. Wait for OneDrive to report that synchronization is complete.
 4. Keep uniquely named generations; do not replace a fixed `latest.bak` file.
 

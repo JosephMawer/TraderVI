@@ -333,3 +333,9 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 
 **A:** SQL Server writes as its service account while OneDrive syncs as the interactive user. Writing and checksum-verifying locally first prevents permission coupling and keeps OneDrive from treating an incomplete database-backup stream as a finished off-machine copy.
 
+### Q: How does Hermes distinguish a successful data update with a failed backup from a fully protected run?
+- **Domains:** data-pipeline, risk-management
+- **Source:** ADR-0018
+
+**A:** The completed database update remains in place, but Hermes prints a prominent backup failure and exits with code `2`. A OneDrive filename is published only after a temporary copy matches the verified staging backup's SHA-256; if copying fails, the staging backup is retained for manual recovery.
+

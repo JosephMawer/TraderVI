@@ -18,7 +18,8 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 - [x] Add checksum full-backup, integrity-check, and guarded SIMPLE-recovery operational scripts.
 - [x] Create and verify the first full backup, copy it to the approved OneDrive folder, and measure its compressed size (31.00 MB).
 - [x] Run the first integrity check and change the live database to SIMPLE recovery.
-- [ ] Observe several manual post-Hermes backups before automating backup-and-copy behavior.
+- [x] Integrate verified backup-and-copy behavior as an internal post-success Hermes stage, independent of its launcher.
+- [ ] Observe several automatic post-Hermes backups and confirm OneDrive synchronization before relying on the routine unattended.
 - [ ] Confirm the retention count against actual OneDrive quota and measured backup growth.
 - [ ] Perform and document a test restore into a differently named temporary database.
 - [ ] Reconcile remaining project/deployed index, default, foreign-key, and database-option drift without broad DACPAC publish.

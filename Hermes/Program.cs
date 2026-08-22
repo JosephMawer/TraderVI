@@ -16,6 +16,31 @@ Console.WriteLine("=== Hermes: Market Data Collector ===\n");
 Console.WriteLine("[Backfill Mode] Downloading historical data...");
 await RunBackfillAsync();
 
+try
+{
+    Console.WriteLine("\n── Post-Hermes Database Backup ──\n");
+
+    var backupPaths = TraderDbBackupPaths.FromEnvironment();
+    var backupService = new TraderDbBackupService(SQLBase.Database, backupPaths);
+    var backup = await backupService.CreateAndReplicateAsync(
+        message => Console.WriteLine($"  {message}"));
+
+    Console.WriteLine($"  Backup completed: {backup.SizeBytes / 1048576.0:F2} MB");
+    Console.WriteLine($"  Staging: {backup.StagingFile}");
+    Console.WriteLine($"  OneDrive: {backup.DestinationFile}");
+    Console.WriteLine($"  SHA-256: {backup.Sha256}");
+    Console.WriteLine("  Backup protection complete ✓\n");
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine("\n╔══════════════════════════════════════════════════════════════╗");
+    Console.Error.WriteLine("║ DATA UPDATE COMPLETED, BUT THE DATABASE BACKUP FAILED.       ║");
+    Console.Error.WriteLine("╚══════════════════════════════════════════════════════════════╝");
+    Console.Error.WriteLine(ex.Message);
+    Console.Error.WriteLine("TraderDB contains the completed data update, but this run is not protected by a new off-machine backup.");
+    Environment.ExitCode = 2;
+}
+
 // ── One-time A/D Line backfill (uncomment to rebuild from scratch) ──
 // await BackfillAdvanceDeclineLineAsync(months: 6);
 
