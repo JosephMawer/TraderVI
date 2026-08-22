@@ -33,6 +33,19 @@ Never publish the DACPAC. `TraderDB.sqlproj` targets SQL Server 2019 for build-t
 
 After a successful Hermes data update, Hermes automatically creates and verifies a full database backup, then copies it to the approved OneDrive destination with SHA-256 verification. `TraderDB/Operations/Backup-TraderDB.sql` remains the manual fallback and the pre-migration backup tool.
 
+## DataAudit — read-only local data-quality scan
+
+**Project:** `DataAudit`
+**Typical schedule:** after a successful Hermes run, weekly or whenever universe quality is in question
+
+DataAudit scans every local symbol and the core `DailyBars` / `StockSectorMap` / `SectorIndices` relationships. It detects stale active symbols using completed XIU sessions, missing mappings, likely stock/fund misclassifications, malformed or duplicate bars, and orphaned data.
+
+It performs no external calls and no database writes. Findings about current listings or security type are candidates for official-source review, not automatic corrections. See `Docs/data-audit.md` for the checks, thresholds, and exit codes.
+
+```powershell
+dotnet run --project DataAudit
+```
+
 ## Hermes — market-data collection and maintenance
 
 **Project:** `Hermes`

@@ -91,6 +91,7 @@
     <None Include="README.md" />
     <None Include="Migrations/README.md" />
     <None Include="Migrations/20260822_001_RepairAdvanceDeclineCumulative.sql" />
+    <None Include="Migrations/20260822_002_CorrectDelphiUniverseClassifications.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />

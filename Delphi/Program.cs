@@ -1,5 +1,6 @@
 ﻿using Core.Db;
 using Core.Indicators;
+using Core.DataQuality;
 using Core.Indicators.Granville;
 using Core.Config;
 using Core.ML;
@@ -349,21 +350,7 @@ var constituents = await db.GetEquitiesAsync();
 // product names by their ShortName before they reach the ranking universe.
 static bool IsLeveragedOrInverseByName(string? shortName)
 {
-    if (string.IsNullOrWhiteSpace(shortName)) return false;
-    string n = shortName;
-    string[] markers =
-    [
-        "2x", "3x", "-2x", "-3x", "(2X)", "(3X)",
-        "BetaPro", "BtaPro", "MegaLong", "MegaShort",
-        "SavvyLong", "SavvyShort", "SavvyLg", "SavvyLng", "SavvyShrt",
-        "LFG Daily", "Inverse", "Invrs", "Leveraged",
-        "DlyBl", "DlyBr", "DailyInvrs"
-    ];
-    foreach (var m in markers)
-    {
-        if (n.Contains(m, StringComparison.OrdinalIgnoreCase)) return true;
-    }
-    return false;
+    return SecurityNameHeuristics.LooksLeveragedOrInverse(shortName);
 }
 
 int skippedLeveraged = 0;

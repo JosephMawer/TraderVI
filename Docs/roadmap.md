@@ -38,7 +38,10 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 - [ ] Resume daily paper recommendations without live execution.
 - [ ] Define the minimum observation window and outcome measures before tuning thresholds.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
-- [ ] Review the 19 fallback symbols for stock/fund classification and sector-map correctness before altering the eligible universe.
+- [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
+- [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
+- [ ] Triage the full-audit candidates using official sources and apply only reviewed manual corrections.
+- [ ] Add a Delphi runtime gate that excludes symbol histories stale relative to the recommendation data session.
 
 ### 5. Development hygiene
 

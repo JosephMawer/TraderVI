@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 18 passed, 0 failed, 0 skipped.
+- Core tests: 22 passed, 0 failed, 0 skipped.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -31,6 +31,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 | Delphi | Evaluates the universe through Continuation and Breakout lenses and emits reports | Reads models/data; rewrites daily picks, dossiers, narratives, and Granville logs for the evaluation date |
 | TraderVI | Manual trade/position CLI in ghost mode | Writes simulated positions and trade logs; does not place live orders |
 | Oracle | Optional LLM narration over deterministic decision dossiers | May call a configured LLM service and write narrative records |
+| DataAudit | Read-only full-local-universe classification, freshness, mapping, and bar-integrity diagnostics | Local SQL reads only; no external calls or writes |
 | Sandbox | Manually selected probes for reconnaissance, calibration, and controlled backfills | Probe-specific; some call external services or mutate SQL |
 
 ## Decision engine
@@ -101,8 +102,15 @@ Post-restart Delphi verification on 2026-08-22:
 - 25 Breakout picks persisted with ranks 1–25.
 - 25 Continuation decision dossiers persisted with ranks 1–25.
 - 11 Granville diagnostic rows persisted for the recommendation date.
-- The 19 RS fallbacks are structural rather than a sector-history outage: 14 eligible symbols have a mapping row with no sector-index symbol and 5 have no mapping row. Delphi now lists them explicitly.
+- The 19 RS fallbacks were audited and corrected: 14 funds were reclassified as ETFs, BITF/GLXY/NGD/NVA were marked inactive after their TSX listings ended, and active GDI was mapped to Industrials (`^TTIN`). The guarded migration updated 18 symbol rows and inserted/updated one mapping without deleting price history.
 - `PickDate`/Granville `EvalDate` remain the recommendation run date; reports separately identify the latest completed TSX session used as the market-data-as-of date.
+
+First full-local-universe DataAudit run on 2026-08-22:
+
+- 1,592 symbol rows inspected; 496 active (375 stocks and 121 ETFs).
+- 10 errors: nine severely stale active symbols plus one empty active symbol key.
+- 118 warnings: one lagging symbol, one missing active-stock map, 43 unmapped active stocks, 24 stale mappings, and 49 fund-like rows classified as stocks.
+- No non-positive prices, inverted high/low ranges, open-outside-range rows, negative volumes, duplicate symbol/date bars, orphan bars, invalid sector prices, or referenced sector-index coverage failures were reported.
 
 ## Known gaps and risks
 
@@ -110,7 +118,7 @@ Post-restart Delphi verification on 2026-08-22:
 2. **Backup operations still need repeated observation and restore testing.** The first automatic post-success Hermes backup/copy completed successfully, but retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
 3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
-5. **RS fallback/universe hygiene.** Nineteen eligible symbols currently fall back to XIU. Several appear to be funds classified as stocks, so security-type and sector-mapping cleanup should be reviewed deliberately before changing the universe.
+5. **Universe hygiene remains broader than the original 19 symbols.** The reusable audit found nine severely stale active symbols, an empty active symbol key, and overlapping fund-classification/sector-map candidates. These require official-source review before any further data correction. Delphi also needs its own stale-history exclusion gate.
 6. **No CI baseline.** Builds and tests are local only.
 7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
 
@@ -120,6 +128,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 
 1. Resume deliberate daily Delphi recommendations without live execution.
 2. Define the observation window and realized-outcome measures for Continuation versus Breakout picks.
-3. Review the 19 fallback symbols for security-type and sector-mapping correctness without changing the universe implicitly.
+3. Triage the full-universe audit findings and add the independent Delphi stale-history gate.
 4. Observe additional Hermes backups and perform a test restore.
 5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
