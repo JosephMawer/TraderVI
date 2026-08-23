@@ -1,11 +1,11 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-08-22
+**Snapshot date:** 2026-08-23
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system. The data collector (Hermes) is operational again and current market data is present through 2026-08-21. Delphi completed its first full restart evaluation on 2026-08-22, producing and persisting both ranking lenses, Continuation dossiers, and Granville diagnostics. The next priority is to resume paper recommendations and establish an outcome-measurement baseline before tuning the strategy.
+TraderVI is an advisory-mode TSX momentum-rotation system. The data collector (Hermes) is operational again and current market data is present through 2026-08-21. The immutable paper-calibration evidence ledger is implemented and present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort; Athena outcome evaluation remains pending until future sessions mature. The next priority is to accumulate distinct daily paper cohorts and establish their realized-outcome baseline before tuning the strategy.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,12 +14,13 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 22 passed, 0 failed, 0 skipped.
+- Core tests: 31 passed, 0 failed, 0 skipped on 2026-08-23.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
 - Backup baseline: a 31.00 MB compressed checksum full backup completed and passed `RESTORE VERIFYONLY` on 2026-08-22. Its staging and OneDrive copies have matching SHA-256 hashes.
 - Automatic backup validation: the first full post-Hermes path completed on 2026-08-22; both 31.09 MB copies independently matched SHA-256 `48B655E9BC1D402E85CA6F8698F548115FC074F7ED0B74AD40C9699E61482CB6`.
+- Calibration evidence backup: the final post-run 32.51 MB checksum backup and approved OneDrive copy matched SHA-256 `62CB244339235D555830CD93B139AD19182B160B4B4C7CBF9429B5A52CCB08BB` on 2026-08-23. Cloud-sync completion remains user-observed.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -128,13 +129,14 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback loop is not operational yet.** ADR-0020 through ADR-0022 define the evidence, outcome, execution, and promotion contracts. The additive schema is present in TraderDB and matched the project during the 2026-08-23 audit; a fresh post-migration backup and hash-matched OneDrive copy were created. Delphi has not yet captured an official calibration run and Athena has not written an outcome. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0022 define the evidence, outcome, execution, and promotion contracts. The additive schema matches TraderDB. Two official validation runs and one exploratory replay were captured for the same 2026-08-23 recommendation cohort, so they count as one independent cohort. Athena has not written an outcome because no future eligible session has matured. Track progress in `Docs/calibration-implementation-checklist.md`.
 
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Resume deliberate daily Delphi recommendations without live execution.
-2. Define the observation window and realized-outcome measures for Continuation versus Breakout picks.
-3. Observe additional Hermes backups and perform a test restore.
-4. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
+1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
+2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
+3. Run Athena once official cohorts have matured, then verify label-aligned 1/5/10/20-session outcomes and reporting coverage.
+4. Observe additional Hermes backups and perform a test restore.
+5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

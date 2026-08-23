@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design and first source implementation are complete. The five calibration tables were found already applied and empty during the 2026-08-23 operational audit; their live columns, constraints, foreign keys, and indexes match the committed schema. A fresh verified post-migration backup and hash-matched OneDrive copy now exist. No official calibration run has been captured and Athena has not written an outcome. The next milestone is one controlled Delphi run and evidence verification.
+The design, first source implementation, database rollout audit, and controlled evidence-capture milestone are complete. Delphi captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. The rerun appended immutable evidence, and the exploratory replay did not refresh operational picks, dossiers, or Granville logs. This is still one recommendation cohort, not three independent cohorts. Athena has not written an outcome because no future eligible session has matured yet. The next milestone is to accumulate official daily cohorts and run Athena after their outcome horizons mature.
 
 ## Phase A — measurement contract and decisions
 
@@ -66,11 +66,12 @@ The design and first source implementation are complete. The five calibration ta
 - [x] Create and verify a fresh post-migration full backup with checksums: `TraderDB_FULL_20260823_170922_281.bak` (31.23 MB).
 - [x] Copy the backup to the approved OneDrive directory and verify matching SHA-256 `B1F19BDD3C2919DE5D1204BEF357F06276D174F9C46715D050D158E83EE5C2C3`.
 - [ ] Confirm the OneDrive client reports cloud synchronization complete.
-- [ ] **Operational step:** run one controlled official Delphi evaluation.
-- [ ] Verify exactly one immutable run, one candidate per evaluated symbol, and two lens rows per candidate.
-- [ ] Verify strategy, code, model hashes, market-data session, counts, and audit state.
-- [ ] Rerun Delphi deliberately and verify it appends a new run without overwriting the first.
-- [ ] Run an explicit exploratory Delphi evaluation and verify it cannot enter official paper queries or refresh operational picks.
+- [x] **Operational step:** run one controlled official Delphi evaluation: run `a8df36d1-3c4b-4d30-b062-f041d760d055`.
+- [x] Verify the first run contains 213 distinct candidates and exactly 426 lens rows (Continuation and Breakout per candidate), with no duplicate candidates or lens evaluations.
+- [x] Verify strategy/model/context JSON, commit `bf5be830a0a131ec05ce359c66b95f0c90e80101`, clean working-tree provenance, 2026-08-21 observation session, captured counts, and `Valid` audit state.
+- [x] Rerun Delphi deliberately: run `092dc95b-9ad6-42dc-877e-db96db8c1d0e` appended another 213 candidates and 426 lens rows without overwriting the first run.
+- [x] Run an explicit exploratory Delphi evaluation: run `99c0e2a3-1920-4b8d-a1e0-2cd7823bd751` captured 213 candidates and 426 lens rows as `ExploratoryReplay` while operational state remained 50 picks, 25 dossiers, and 11 Granville rows.
+- [x] Create and verify a final post-run full backup, then hash-match its approved OneDrive copy: `TraderDB_FULL_20260823_173759_377.bak` (32.51 MB), SHA-256 `62CB244339235D555830CD93B139AD19182B160B4B4C7CBF9429B5A52CCB08BB`.
 
 ## Phase C — prediction outcomes
 
