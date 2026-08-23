@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design and first source implementation are complete. The database migration has not been applied, no official calibration run has been captured, and Athena has not written an outcome. The next milestone is a reviewed database rollout followed by one controlled Delphi run and evidence verification.
+The design and first source implementation are complete. The five calibration tables were found already applied and empty during the 2026-08-23 operational audit; their live columns, constraints, foreign keys, and indexes match the committed schema. A fresh verified post-migration backup and hash-matched OneDrive copy now exist. No official calibration run has been captured and Athena has not written an outcome. The next milestone is one controlled Delphi run and evidence verification.
 
 ## Phase A — measurement contract and decisions
 
@@ -56,13 +56,16 @@ The design and first source implementation are complete. The database migration 
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
 - [x] Migration and canonical schema definitions compile together.
 
-### Operational rollout — not yet performed
+### Operational rollout
 
-- [ ] **Operational step:** create and verify a fresh pre-migration TraderDB backup.
-- [ ] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
-- [ ] **Operational step:** execute the migration manually against TraderDB.
-- [ ] Verify all five tables, foreign keys, checks, unique constraints, and indexes exist.
-- [ ] Verify existing operational tables and row counts were not changed.
+- [ ] A fresh immediately pre-migration backup was not independently observed; the newest recorded backup before the discovered schema application was the valid 2026-08-22 full backup.
+- [x] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
+- [x] Migration application discovered from live object creation timestamps: all five tables were created together on 2026-08-23 at 16:58:29 and contained zero rows when audited.
+- [x] Verify all five tables, foreign keys, checks, unique constraints, and indexes exist and match the committed canonical definitions.
+- [ ] Existing operational row-count preservation cannot be proven retrospectively because no immediate pre-migration counts were captured; the migration is additive and the five new tables were empty when inspected.
+- [x] Create and verify a fresh post-migration full backup with checksums: `TraderDB_FULL_20260823_170922_281.bak` (31.23 MB).
+- [x] Copy the backup to the approved OneDrive directory and verify matching SHA-256 `B1F19BDD3C2919DE5D1204BEF357F06276D174F9C46715D050D158E83EE5C2C3`.
+- [ ] Confirm the OneDrive client reports cloud synchronization complete.
 - [ ] **Operational step:** run one controlled official Delphi evaluation.
 - [ ] Verify exactly one immutable run, one candidate per evaluated symbol, and two lens rows per candidate.
 - [ ] Verify strategy, code, model hashes, market-data session, counts, and audit state.
