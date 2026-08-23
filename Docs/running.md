@@ -146,6 +146,19 @@ dotnet run --project TraderVI -- scan
 
 Even in ghost mode, `buy` and `sell` mutate SQL trading records. `scan` loads market data and models. Obtain explicit authorization before using mutating commands.
 
+## Athena — calibration outcome evaluation
+
+**Project:** `Athena`
+**Entry point:** `Athena/Program.cs`
+
+Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It makes no external requests. It is still a database writer: apply the reviewed calibration migration manually first and obtain explicit authorization before running it.
+
+```powershell
+dotnet run --project Athena
+```
+
+Athena is manual in the initial release and is not launched by Hermes or Delphi.
+
 ## Oracle — LLM narration
 
 **Project:** `Oracle`

@@ -28,11 +28,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hercules", "ML.Train\Hercul
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Delphi", "Delphi\Delphi.csproj", "{A76FEDC7-D959-4A63-8461-FD2969906C4A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Athena", "Athena\Athena.csproj", "{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{41685814-8E63-4A11-9064-2A7449DAC076}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3E6D-46FD-99F2-40E624C12E09}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\architecture.md = Docs\architecture.md
+		Docs\calibration-implementation-checklist.md = Docs\calibration-implementation-checklist.md
 		Docs\data-audit.md = Docs\data-audit.md
 		Docs\design-rules.md = Docs\design-rules.md
 		Docs\glossary.md = Docs\glossary.md
@@ -71,6 +74,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0017-codex-native-instructions-and-project-status.md = Docs\adr\0017-codex-native-instructions-and-project-status.md
 		Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md = Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md
 		Docs\adr\0019-delphi-strict-history-freshness-eligibility.md = Docs\adr\0019-delphi-strict-history-freshness-eligibility.md
+		Docs\adr\0020-immutable-calibration-evidence-ledger.md = Docs\adr\0020-immutable-calibration-evidence-ledger.md
+		Docs\adr\0021-calibration-outcome-and-paper-execution-contract.md = Docs\adr\0021-calibration-outcome-and-paper-execution-contract.md
+		Docs\adr\0022-champion-challenger-evidence-and-promotion.md = Docs\adr\0022-champion-challenger-evidence-and-promotion.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -78,6 +84,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65EEFD96-834F-498F-8DB4-D1237BE733DC}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\concepts\oracle-prompt-tightening.md = Docs\concepts\oracle-prompt-tightening.md
+		Docs\concepts\paper-calibration-and-outcome-feedback.md = Docs\concepts\paper-calibration-and-outcome-feedback.md
 		Docs\concepts\price-weighted-contribution.md = Docs\concepts\price-weighted-contribution.md
 		Docs\concepts\ranking-lenses.md = Docs\concepts\ranking-lenses.md
 		Docs\concepts\README.md = Docs\concepts\README.md
@@ -343,6 +350,26 @@ Global
 		{D04DDE37-CC0B-4DBD-8B4A-5B4AC2A3B767}.Release|x64.Build.0 = Release|Any CPU
 		{D04DDE37-CC0B-4DBD-8B4A-5B4AC2A3B767}.Release|x86.ActiveCfg = Release|Any CPU
 		{D04DDE37-CC0B-4DBD-8B4A-5B4AC2A3B767}.Release|x86.Build.0 = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|x64.Build.0 = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Debug|x86.Build.0 = Debug|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|ARM.Build.0 = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|ARM64.Build.0 = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|x64.ActiveCfg = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|x64.Build.0 = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|x86.ActiveCfg = Release|Any CPU
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -353,6 +380,7 @@ Global
 		{3E18DB1C-7F54-4012-8CEF-89193D40DCD9} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{7EC3CAAD-5EA2-46BE-A8BD-88734B141DA4} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{A76FEDC7-D959-4A63-8461-FD2969906C4A} = {41685814-8E63-4A11-9064-2A7449DAC076}
+		{B662AA7F-75BC-4A08-8F71-A24BF438B1B8} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{2E2EB6BD-EDA5-4502-B18F-4A52ED8BF43E} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 		{65EEFD96-834F-498F-8DB4-D1237BE733DC} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}
 		{FDB8BD6D-3759-4919-8CF9-4286F5EDCBFE} = {BFB57C10-3E6D-46FD-99F2-40E624C12E09}

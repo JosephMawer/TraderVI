@@ -1,5 +1,6 @@
 ﻿using Core.Db;
 using Core.Indicators;
+using Core.Calibration;
 using Core.DataQuality;
 using Core.Indicators.Granville;
 using Core.Config;
@@ -11,9 +12,16 @@ using Core.TMX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 Console.WriteLine("=== The Oracle Of Delphi ===\n");
+
+DateTime runStartedUtc = DateTime.UtcNow;
+CalibrationRunPurpose calibrationPurpose = args.Any(a =>
+    string.Equals(a, "--exploratory", StringComparison.OrdinalIgnoreCase))
+    ? CalibrationRunPurpose.ExploratoryReplay
+    : CalibrationRunPurpose.OfficialPaper;
 
 // The recommendation date is the run date and remains the persistence key for
 // DailyPick, DecisionDossier, and GranvilleIndicatorLog. The market-data date is
@@ -30,10 +38,12 @@ double minExpectedReturn = 0.00;
 int maxSymbolsToScan = 500;
 int topPicksToSave = 25;
 bool saveToDB = true;
+bool saveOperationalState = saveToDB && calibrationPurpose == CalibrationRunPurpose.OfficialPaper;
 
 Console.WriteLine($"Available Capital: ${availableCapital:N2}");
 Console.WriteLine($"Reserve Cash:      {reserveCashPercent:P0}");
 Console.WriteLine($"Save to DB:        {saveToDB}");
+Console.WriteLine($"Calibration run:   {calibrationPurpose}");
 Console.WriteLine();
 
 // ═══════════════════════════════════════════════════════════════════
@@ -330,7 +340,7 @@ if (adLine.Count >= 2)
     Console.WriteLine();
 
     // ── Log to database ──
-    if (saveToDB)
+    if (saveOperationalState)
     {
         var granvilleLog = new GranvilleIndicatorLogRepository();
         var evalDate = recommendationDate;
@@ -657,8 +667,10 @@ Console.WriteLine();
 // triple. The Continuations lens (RS-primary, trend-confirmation gate) DRIVES the
 // executed recommendation (B1). The Breakouts lens (edge+RS, breakout setup gate)
 // is computed for supplemental awareness and JOURNALED only (B3) -- never executed.
-var top = engine.EvaluateAndRank(continuationLens, allBars, topN: topPicksToSave);
-var breakoutTop = engine.EvaluateAndRank(breakoutLens, allBars, topN: topPicksToSave);
+var continuationEvaluations = engine.EvaluateAndRank(continuationLens, allBars, topN: allBars.Count);
+var breakoutEvaluations = engine.EvaluateAndRank(breakoutLens, allBars, topN: allBars.Count);
+var top = continuationEvaluations.Take(topPicksToSave).ToList();
+var breakoutTop = breakoutEvaluations.Take(topPicksToSave).ToList();
 var (bestPick, size) = engine.EvaluateBestPickAllIn(top, availableCapital);
 
 Console.WriteLine(new string('═', 80));
@@ -805,9 +817,122 @@ foreach (var p in breakoutTop)
 }
 Console.WriteLine();
 // ═══════════════════════════════════════════════════════════════════
-// SAVE DAILY PICKS TO DATABASE
+// APPEND IMMUTABLE CALIBRATION EVIDENCE (ADR-0020)
 // ═══════════════════════════════════════════════════════════════════
-if (saveToDB && top.Count > 0)
+if (saveToDB)
+{
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var code = CalibrationProvenance.ResolveCode();
+    var modelProvenance = await CalibrationProvenance.ResolveLoadedModelsAsync();
+    CalibrationAuditState auditState = CalibrationAuditState.Valid;
+    var auditMessages = new List<string>();
+
+    if (code.Commit == "unavailable")
+    {
+        auditState = CalibrationAuditState.Invalid;
+        auditMessages.Add("Code commit is unavailable.");
+    }
+    else if (code.WorkingTreeState != "Clean")
+    {
+        auditState = CalibrationAuditState.Degraded;
+        auditMessages.Add($"Working tree state is {code.WorkingTreeState}.");
+    }
+
+    int expectedModels = Core.ML.Engine.Profit.ProfitModelRegistry.All.Count;
+    if (modelProvenance.Count != expectedModels)
+    {
+        auditState = CalibrationAuditState.Invalid;
+        auditMessages.Add($"Loaded model provenance count {modelProvenance.Count} does not match enabled code registry count {expectedModels}.");
+    }
+
+    var runId = Guid.NewGuid();
+    var candidateIds = allBars.Keys.ToDictionary(s => s, _ => Guid.NewGuid(), StringComparer.OrdinalIgnoreCase);
+    var continuationBySymbol = continuationEvaluations.ToDictionary(p => p.Symbol, StringComparer.OrdinalIgnoreCase);
+    var continuationPublished = top.Select(p => p.Symbol).ToHashSet(StringComparer.OrdinalIgnoreCase);
+    var breakoutPublished = breakoutTop.Select(p => p.Symbol).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    var candidates = new List<CalibrationCandidateEvidence>(allBars.Count);
+    foreach (var (symbol, bars) in allBars)
+    {
+        var p = continuationBySymbol[symbol];
+        var lastBar = bars[^1];
+        rsScores.TryGetValue(symbol, out var rs);
+        obvResults.TryGetValue(symbol, out var obv);
+        var payload = new
+        {
+            schemaVersion = CalibrationSchemaVersions.CandidateSnapshot,
+            signals = p.Signals,
+            relativeStrength = rs,
+            obv,
+            observationBar = lastBar
+        };
+
+        candidates.Add(new CalibrationCandidateEvidence(
+            candidateIds[symbol], runId, symbol, marketDataAsOf,
+            lastBar.Open, lastBar.High, lastBar.Low, lastBar.Close, lastBar.Volume,
+            GetUpProb(p), GetDownProb(p), GetBreakoutProb(p), GetProbContains(p, "VolExpansion"),
+            p.DirectionEdge, p.CompositeScore, rs?.CompositeScore, rs?.CompositeScoreZ,
+            obv?.Trend.ToString(), obvTilts.GetValueOrDefault(symbol, 0),
+            JsonSerializer.Serialize(payload, jsonOptions)));
+    }
+
+    CalibrationLensEvidence BuildLensEvidence(
+        RankedPick pick, LensDefinition lens, int rank, bool published)
+    {
+        double rsValue = rsScores.TryGetValue(pick.Symbol, out var rs) ? rs.CompositeScore ?? 0 : 0;
+        double obvValue = obvTilts.GetValueOrDefault(pick.Symbol, 0);
+        var trace = pick.GateTrace ?? [];
+        string? firstFailed = trace.FirstOrDefault(g => !g.Passed).GateName;
+        return new CalibrationLensEvidence(
+            Guid.NewGuid(), candidateIds[pick.Symbol], lens.Label, pick.Direction.ToString(),
+            pick.Direction == TradeDirection.Buy, rank, lens.PrimaryKey(pick, rsValue, obvValue),
+            published, firstFailed,
+            JsonSerializer.Serialize(new LensTracePayload(CalibrationSchemaVersions.LensTrace, trace), jsonOptions));
+    }
+
+    var lensEvidence = new List<CalibrationLensEvidence>(allBars.Count * 2);
+    for (int i = 0; i < continuationEvaluations.Count; i++)
+    {
+        var p = continuationEvaluations[i];
+        lensEvidence.Add(BuildLensEvidence(p, continuationLens, i + 1, continuationPublished.Contains(p.Symbol)));
+    }
+    for (int i = 0; i < breakoutEvaluations.Count; i++)
+    {
+        var p = breakoutEvaluations[i];
+        lensEvidence.Add(BuildLensEvidence(p, breakoutLens, i + 1, breakoutPublished.Contains(p.Symbol)));
+    }
+
+    var runContext = new
+    {
+        schemaVersion = CalibrationSchemaVersions.Feature,
+        regime,
+        breadthScore,
+        bearishDivergence,
+        granvilleForecast,
+        marketClimax = climaxRecent,
+        climaxRegime,
+        availableCapital,
+        reserveCashPercent,
+        minPriceFloor,
+        minVolume20d,
+        maxPriceForMinLot
+    };
+    var run = new CalibrationRunEvidence(
+        runId, calibrationPurpose, recommendationDate, marketDataAsOf, runStartedUtc,
+        strategyVersionId, JsonSerializer.Serialize(config, jsonOptions),
+        JsonSerializer.Serialize(modelProvenance, jsonOptions), JsonSerializer.Serialize(runContext, jsonOptions),
+        code, auditState, auditMessages.Count == 0 ? null : string.Join(" ", auditMessages),
+        symbols.Count, allBars.Count, skipped, skippedStaleHistory, skippedPrice,
+        skippedLowPrice, skippedLowVolume, skippedLeveraged);
+
+    await new CalibrationEvidenceRepository().AppendAsync(new CalibrationEvidenceBatch(run, candidates, lensEvidence));
+    Console.WriteLine($"✓ Appended immutable calibration run {runId} ({candidates.Count} candidates, {lensEvidence.Count} lens evaluations, audit={auditState})");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REFRESH OPERATIONAL DAILY PICKS
+// ═══════════════════════════════════════════════════════════════════
+if (saveOperationalState && top.Count > 0)
 {
     var pickDate = recommendationDate;
     var pickRepo = new DailyPickRepository();

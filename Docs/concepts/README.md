@@ -23,6 +23,9 @@ many ADRs.
   (shared-context suppression, curated JSON view, GPT-5 API quirks).
 - `ranking-lenses.md` — multi-lens evaluation (lens = thesis × gate stack ×
   ranking key); Continuations executed, Breakouts journaled.
+- `paper-calibration-and-outcome-feedback.md` — draft architecture and measurement
+  contract for immutable prediction outcomes, tradeable outcomes, shadow
+  portfolios, and controlled self-calibration.
 
 ## Concept template
 

@@ -128,7 +128,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
+7. **Outcome feedback loop is not operational yet.** ADR-0020 through ADR-0022 now define the evidence, outcome, execution, and promotion contracts. The additive schema, Delphi capture path, and Athena prediction evaluator exist in source, but migration `20260823_011` has not been applied and no calibration database workflow has been run. Track source and operational progress in `Docs/calibration-implementation-checklist.md`.
 
 ## Immediate direction
 

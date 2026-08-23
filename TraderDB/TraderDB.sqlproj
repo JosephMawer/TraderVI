@@ -84,6 +84,11 @@
     <Build Include="dbo/Tables/DecisionDossier.sql" />
     <Build Include="dbo/Tables/LlmNarrative.sql" />
     <Build Include="dbo/Tables/UsIndexBars.sql" />
+    <Build Include="dbo/Tables/CalibrationRun.sql" />
+    <Build Include="dbo/Tables/CalibrationCandidate.sql" />
+    <Build Include="dbo/Tables/CalibrationLensEvaluation.sql" />
+    <Build Include="dbo/Tables/CalibrationOutcomeDefinition.sql" />
+    <Build Include="dbo/Tables/CalibrationCandidateOutcome.sql" />
     <Build Include="dbo/Indexes/IX_DailyPick_DateSymbol.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +105,7 @@
     <None Include="Migrations/20260822_008_DeleteInvalidBlankSymbol.sql" />
     <None Include="Migrations/20260822_009_ClassifyReviewedFundsAsEtfs.sql" />
     <None Include="Migrations/20260822_010_ClassifyUnmappedActiveFundsAsEtfs.sql" />
+    <None Include="Migrations/20260823_011_AddCalibrationEvidenceLedger.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />

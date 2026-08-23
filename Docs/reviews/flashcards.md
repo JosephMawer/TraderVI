@@ -351,3 +351,20 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 
 **A:** DataAudit is an independent read-only diagnostic for the whole local universe, including classification, mapping, bar integrity, and freshness. Delphi's rule is a narrow runtime defense that prevents a session-mismatched symbol from entering recommendation scoring even when DataAudit was not run first.
 
+### Q: What exact event creates an official paper-calibration run?
+- **Domains:** architecture, data-pipeline, decision-engine
+- **Source:** ADR-0020
+
+**A:** The successful append-only transaction that writes the complete `OfficialPaper` run, every model-evaluated candidate, and both lens evaluations after point-in-time inputs are known. The mutable `DailyPick` refresh is a separate operational write and neither creates nor rewrites that evidence identity.
+
+### Q: Why does Athena use two different starting prices for prediction and tradeable outcomes?
+- **Domains:** math-statistics, market-microstructure
+- **Source:** ADR-0021
+
+**A:** Model labels were trained from the observation-session close, so calibration must reproduce that contract. A real recommendation cannot fill at the same close that produced it, so paper execution starts at the first eligible session open after both the observation and run time.
+
+### Q: What evidence is required before removing a safety gate?
+- **Domains:** decision-engine, math-statistics, risk-management
+- **Source:** ADR-0022
+
+**A:** At least 120 matured official cohorts, a forty-cohort untouched forward window, adequate regime coverage, cohort-aware confidence bounds for improvement, and bounds showing no unacceptable lower-tail or drawdown deterioration—followed by explicit human approval and immutable version/ADR/code records.

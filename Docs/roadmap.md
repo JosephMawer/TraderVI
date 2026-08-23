@@ -35,8 +35,11 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 
 ### 4. Observation baseline
 
+Design background: [`Docs/concepts/paper-calibration-and-outcome-feedback.md`](concepts/paper-calibration-and-outcome-feedback.md).
+Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibration-implementation-checklist.md).
+
 - [ ] Resume daily paper recommendations without live execution.
-- [ ] Define the minimum observation window and outcome measures before tuning thresholds.
+- [x] Define the minimum observation window, outcome measures, immutable evidence contract, and promotion tiers (ADR-0020 through ADR-0022).
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
