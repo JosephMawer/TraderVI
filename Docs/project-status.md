@@ -112,13 +112,21 @@ First full-local-universe DataAudit run on 2026-08-22:
 - 118 warnings: one lagging symbol, one missing active-stock map, 43 unmapped active stocks, 24 stale mappings, and 49 fund-like rows classified as stocks.
 - No non-positive prices, inverted high/low ranges, open-outside-range rows, negative volumes, duplicate symbol/date bars, orphan bars, invalid sector prices, or referenced sector-index coverage failures were reported.
 
+Full-local-universe reconciliation completed on 2026-08-22:
+
+- Final audit: 1,591 symbol rows; 485 active (321 stocks and 164 ETFs); zero errors and zero warnings.
+- Ten reviewed ended or suspended listings were marked inactive without deleting their price history: BLX, ECN, FOOD, GDI, KSI, OLA, QIPT, SOY, URC, and WNDR.
+- The single invalid empty-symbol metadata row was deleted only after a dependency scan found no related data and the exact deletion was authorized.
+- Eighty-eight additional fund rows were reclassified from Stock to ETF; active status, leverage/inverse flags, mappings, and price history were preserved.
+- The apparent active-stock mapping and stale-mapping warnings were classification errors, so no artificial sector mappings were created for those ETFs.
+
 ## Known gaps and risks
 
 1. **Historical relative-strength features are empty.** This blocks the documented RS-to-Hercules training path and Z-score backfill analysis.
 2. **Backup operations still need repeated observation and restore testing.** The first automatic post-success Hermes backup/copy completed successfully, but retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
 3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
-5. **Universe hygiene remains broader than the original 19 symbols.** The reusable audit found nine severely stale active symbols, an empty active symbol key, and overlapping fund-classification/sector-map candidates. These require official-source review before any further data correction. Delphi also needs its own stale-history exclusion gate.
+5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi still needs its own stale-history exclusion gate as defense in depth.
 6. **No CI baseline.** Builds and tests are local only.
 7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
 
@@ -128,6 +136,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 
 1. Resume deliberate daily Delphi recommendations without live execution.
 2. Define the observation window and realized-outcome measures for Continuation versus Breakout picks.
-3. Triage the full-universe audit findings and add the independent Delphi stale-history gate.
+3. Add the independent Delphi stale-history gate; the 2026-08-22 full-universe findings have been reconciled.
 4. Observe additional Hermes backups and perform a test restore.
 5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

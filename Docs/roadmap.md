@@ -40,7 +40,7 @@ This is the authoritative priority list. Keep detailed rationale in ADRs and def
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
-- [ ] Triage the full-audit candidates using official sources and apply only reviewed manual corrections.
+- [x] Triage the full-audit candidates using official sources and apply only reviewed manual corrections; final audit passed with zero findings on 2026-08-22.
 - [ ] Add a Delphi runtime gate that excludes symbol histories stale relative to the recommendation data session.
 
 ### 5. Development hygiene

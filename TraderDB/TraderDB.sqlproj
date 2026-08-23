@@ -99,6 +99,7 @@
     <None Include="Migrations/20260822_007_DeactivateRemainingStaleListings.sql" />
     <None Include="Migrations/20260822_008_DeleteInvalidBlankSymbol.sql" />
     <None Include="Migrations/20260822_009_ClassifyReviewedFundsAsEtfs.sql" />
+    <None Include="Migrations/20260822_010_ClassifyUnmappedActiveFundsAsEtfs.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
