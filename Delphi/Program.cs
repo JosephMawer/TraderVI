@@ -17,7 +17,7 @@ Console.WriteLine("=== The Oracle Of Delphi ===\n");
 
 // The recommendation date is the run date and remains the persistence key for
 // DailyPick, DecisionDossier, and GranvilleIndicatorLog. The market-data date is
-// reported separately once the latest completed A/D session has been loaded.
+// reported separately once the canonical XIU session has been loaded.
 DateTime recommendationDate = DateTime.Today;
 
 // ═══════════════════════════════════════════════════════════════════
@@ -130,11 +130,19 @@ engine.CurrentRegime = regime;
 // ═══════════════════════════════════════════════════════════════════
 var adRepo = new AdvanceDeclineRepository();
 var adLine = await adRepo.GetRecentAsync(200);
-DateTime marketDataAsOf = adLine.Count > 0
-    ? adLine[^1].Date.Date
-    : xiuBars.Count > 0
-        ? xiuBars[^1].Date.Date
-        : recommendationDate;
+if (xiuBars.Count == 0)
+{
+    Console.WriteLine("Cannot evaluate: XIU has no daily price history, so Delphi cannot establish the canonical TSX session.");
+    return;
+}
+
+DateTime marketDataAsOf = xiuBars[^1].Date.Date;
+var benchmarkSessions = xiuBars
+    .Select(b => b.Date.Date)
+    .Where(date => date <= marketDataAsOf)
+    .Distinct()
+    .OrderBy(date => date)
+    .ToArray();
 
 Console.WriteLine("Evaluation Dates:");
 Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (run date; database PickDate/EvalDate)");
@@ -387,9 +395,11 @@ var allBars = new Dictionary<string, IReadOnlyList<DailyBar>>(StringComparer.Ord
 
 int loaded = 0;
 int skipped = 0;
+int skippedStaleHistory = 0;
 int skippedPrice = 0;
 int skippedLowPrice = 0;
 int skippedLowVolume = 0;
+var staleHistoryExclusions = new List<HistoryFreshnessExclusion>();
 
 // Minimum price: must be able to afford at least 10 shares from deployable capital
 decimal deployableCapital = availableCapital * (1 - reserveCashPercent);
@@ -404,6 +414,7 @@ long minVolume20d = 50_000;
 
 Console.WriteLine($"Affordability filter: max price ${maxPriceForMinLot:N2} (must afford >= 10 shares from ${deployableCapital:N2} deployable)");
 Console.WriteLine($"Liquidity floor:      min price ${minPriceFloor:N2}, min 20d avg volume {minVolume20d:N0} shares (ADR-0007)\n");
+Console.WriteLine($"History freshness:    latest symbol bar must match XIU session {marketDataAsOf:yyyy-MM-dd} (ADR-0019)\n");
 
 foreach (var symbol in symbols)
 {
@@ -412,6 +423,21 @@ foreach (var symbol in symbols)
     if (bars.Count < minBarsRequired)
     {
         skipped++;
+        continue;
+    }
+
+    var freshness = HistoryFreshnessEligibility.Evaluate(
+        bars[^1].Date,
+        marketDataAsOf,
+        benchmarkSessions);
+    if (!freshness.IsEligible)
+    {
+        skippedStaleHistory++;
+        staleHistoryExclusions.Add(new HistoryFreshnessExclusion(
+            symbol,
+            freshness.LatestBarDate!.Value,
+            freshness.SessionsBehind,
+            freshness.Reason));
         continue;
     }
 
@@ -451,7 +477,7 @@ allBars = allBars
     })
     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
 
-Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedPrice} (price > ${maxPriceForMinLot:N2}), {skippedLowPrice} (price < ${minPriceFloor:N2}), {skippedLowVolume} (20d vol < {minVolume20d:N0}), {skippedLeveraged} (lev/inv ETP)");
+Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedStaleHistory} (stale history), {skippedPrice} (price > ${maxPriceForMinLot:N2}), {skippedLowPrice} (price < ${minPriceFloor:N2}), {skippedLowVolume} (20d vol < {minVolume20d:N0}), {skippedLeveraged} (lev/inv ETP)");
 Console.WriteLine($"Sorted by: avg 20-day volume (most liquid first)\n");
 
 if (allBars.Count == 0)
@@ -1016,6 +1042,8 @@ var report = new DelphiReportBuilder
     ClimaxDivergenceThreshold = config.ClimaxDivergenceThreshold,
     LoadedSymbols = loaded,
     SkippedHistory = skipped,
+    SkippedStaleHistory = skippedStaleHistory,
+    StaleHistoryExclusions = staleHistoryExclusions,
     SkippedPrice = skippedPrice,
     SkippedLowPrice = skippedLowPrice,
     SkippedLowVolume = skippedLowVolume,

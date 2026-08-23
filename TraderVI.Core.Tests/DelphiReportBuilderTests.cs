@@ -1,3 +1,4 @@
+using Core.DataQuality;
 using Core.Runtime;
 using Shouldly;
 using System;
@@ -37,5 +38,30 @@ public sealed class DelphiReportBuilderTests
         diagnostic.ShouldContain("Fallback to XIU:       3");
         diagnostic.ShouldContain("Fallback symbols:      BIGY, GDI, SOFY");
         diagnostic.ShouldContain("no usable sector-index series");
+    }
+
+    [Fact]
+    public void Reports_SurfaceStaleHistoryGateAndStableExclusionDetails()
+    {
+        var report = new DelphiReportBuilder
+        {
+            MarketDataAsOf = new DateTime(2026, 8, 21),
+            SkippedStaleHistory = 2,
+            StaleHistoryExclusions =
+            [
+                new("ZZZ", new DateTime(2026, 8, 19), 2, "Latest bar is 2 completed TSX session(s) behind."),
+                new("AAA", new DateTime(2026, 8, 20), 1, "Latest bar is 1 completed TSX session(s) behind.")
+            ]
+        };
+
+        string diagnostic = report.BuildDiagnostic();
+        string summary = report.BuildSummary();
+
+        diagnostic.ShouldContain("Skipped (stale):       2");
+        diagnostic.IndexOf("AAA", StringComparison.Ordinal).ShouldBeLessThan(
+            diagnostic.IndexOf("ZZZ", StringComparison.Ordinal));
+        summary.ShouldContain("2 stale");
+        summary.ShouldContain("Freshness gate: 2 symbol(s) excluded");
+        summary.ShouldContain("XIU session 2026-08-21");
     }
 }

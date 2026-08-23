@@ -1,4 +1,5 @@
 ﻿using Core.Db;
+using Core.DataQuality;
 using Core.Indicators;
 using Core.Indicators.Granville;
 using Core.ML;
@@ -52,6 +53,8 @@ public sealed class DelphiReportBuilder
     public int ClimaxDivergenceThreshold { get; set; }
     public int LoadedSymbols { get; set; }
     public int SkippedHistory { get; set; }
+    public int SkippedStaleHistory { get; set; }
+    public IReadOnlyList<HistoryFreshnessExclusion> StaleHistoryExclusions { get; set; } = [];
     public int SkippedPrice { get; set; }
     public int SkippedLowPrice { get; set; }
     public int SkippedLowVolume { get; set; }
@@ -218,6 +221,15 @@ public sealed class DelphiReportBuilder
         sb.AppendLine("\n── Universe ──");
         sb.AppendLine($"  Loaded:                {LoadedSymbols}");
         sb.AppendLine($"  Skipped (history):     {SkippedHistory}");
+        sb.AppendLine($"  Skipped (stale):       {SkippedStaleHistory}  (latest bar must match XIU session {MarketDataAsOf:yyyy-MM-dd}, ADR-0019)");
+        if (StaleHistoryExclusions.Count > 0)
+        {
+            foreach (var exclusion in StaleHistoryExclusions
+                .OrderBy(e => e.Symbol, StringComparer.OrdinalIgnoreCase))
+            {
+                sb.AppendLine($"    {exclusion.Symbol,-8} latest={exclusion.LatestBarDate:yyyy-MM-dd}  sessions behind={exclusion.SessionsBehind}  {exclusion.Reason}");
+            }
+        }
         sb.AppendLine($"  Skipped (price ceiling):{SkippedPrice}");
         sb.AppendLine($"  Skipped (price floor): {SkippedLowPrice}  (< ${MinPriceFloor:N2})");
         sb.AppendLine($"  Skipped (low volume):  {SkippedLowVolume}  (20d avg < {MinVolume20d:N0})");
@@ -376,7 +388,11 @@ public sealed class DelphiReportBuilder
 
         // ── Universe / liquidity gate ──
         sb.AppendLine($"\nUniverse: {LoadedSymbols} loaded (liquidity floor: price >= ${MinPriceFloor:N2}, 20d vol >= {MinVolume20d:N0})");
-        sb.AppendLine($"  Skipped: {SkippedHistory} history, {SkippedPrice} too pricey, {SkippedLowPrice} sub-${MinPriceFloor:N2}, {SkippedLowVolume} thin (< {MinVolume20d:N0}), {SkippedLeveragedEtp} lev/inv ETP");
+        sb.AppendLine($"  Skipped: {SkippedHistory} history, {SkippedStaleHistory} stale, {SkippedPrice} too pricey, {SkippedLowPrice} sub-${MinPriceFloor:N2}, {SkippedLowVolume} thin (< {MinVolume20d:N0}), {SkippedLeveragedEtp} lev/inv ETP");
+        if (SkippedStaleHistory > 0)
+        {
+            sb.AppendLine($"  ⚠ Freshness gate: {SkippedStaleHistory} symbol(s) excluded because their latest bar did not match XIU session {MarketDataAsOf:yyyy-MM-dd}.");
+        }
 
         // ── RS coverage banner (only when there is something to report) ──
         if (RsMinSectorBars > 0 && RsMinSectorBars < RsBarsRequired)

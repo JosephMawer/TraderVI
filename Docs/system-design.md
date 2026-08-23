@@ -29,6 +29,7 @@ These are hand-coded logic gates that override or modulate the ML signals:
 | **Drawdown Warning** | Alert at -5% drawdown | Planned in Sentinel |
 | **Rotation Threshold** | Only switch positions if new pick is sufficiently better | Strategy config |
 | **Trend Confirmation** | Continuation lens requires Trend30 and MA-crossover confirmation | `TrendConfirmationGate` |
+| **History Freshness Eligibility** | Excludes a symbol unless its newest bar matches the canonical XIU session | `HistoryFreshnessEligibility` |
 
 **Key decision**: The A/D Line is maintained as a **rule-based regime indicator**, not a direct ML feature. This was explicitly decided because breadth is best used as a binary/graded gate, not a noisy input to gradient boosting.
 
@@ -101,6 +102,8 @@ Each ML model uses a **feature builder** to convert a window of daily bars into 
 - Tail-event models (≥ +4%, ≤ -4%) work better than direction (> 0) models
 
 ## Current Decision Flow
+
+Before shared and lens-specific gates, Delphi establishes the latest XIU bar as the canonical completed TSX session and removes any symbol whose newest bar is from a different date. This pre-scoring invariant prevents stale bars from reaching relative strength, OBV, models, or ranking (ADR-0019).
 
 Shared gates: regime → A/D breadth → Granville → down-probability veto.
 

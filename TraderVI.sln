@@ -70,6 +70,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0016-obv-per-symbol-soft-ranking-signal.md = Docs\adr\0016-obv-per-symbol-soft-ranking-signal.md
 		Docs\adr\0017-codex-native-instructions-and-project-status.md = Docs\adr\0017-codex-native-instructions-and-project-status.md
 		Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md = Docs\adr\0018-manual-migrations-and-simple-recovery-backups.md
+		Docs\adr\0019-delphi-strict-history-freshness-eligibility.md = Docs\adr\0019-delphi-strict-history-freshness-eligibility.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

@@ -56,6 +56,7 @@ architecture documentation.
 | [0016](0016-obv-per-symbol-soft-ranking-signal.md) | On-Balance Volume as a per-symbol soft ranking signal | Accepted | decision-engine, technical-indicators, data-pipeline, time-series |
 | [0017](0017-codex-native-instructions-and-project-status.md) | Codex-native instructions and explicit project-status structure | Accepted | architecture |
 | [0018](0018-manual-migrations-and-simple-recovery-backups.md) | Manual database migrations and SIMPLE-recovery backups | Accepted | architecture, data-pipeline, risk-management |
+| [0019](0019-delphi-strict-history-freshness-eligibility.md) | Delphi strict history-freshness eligibility | Accepted | decision-engine, data-pipeline, risk-management |
 
 See also:
 

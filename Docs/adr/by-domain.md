@@ -9,7 +9,6 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) — Manual trade logging and position lifecycle
 - [ADR-0017](0017-codex-native-instructions-and-project-status.md) — Codex-native instructions and project-status structure
 - [ADR-0018](0018-manual-migrations-and-simple-recovery-backups.md) — Manual migrations and SIMPLE-recovery backups
-
 ## data-pipeline
 
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators
@@ -18,6 +17,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0012](0012-sector-index-historical-backfill.md) — Sector-index historical backfill
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
 - [ADR-0018](0018-manual-migrations-and-simple-recovery-backups.md) — Manual migrations and SIMPLE-recovery backups
+- [ADR-0019](0019-delphi-strict-history-freshness-eligibility.md) — Delphi strict history-freshness eligibility
 
 ## data-sources
 
@@ -63,6 +63,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0014](0014-continuations-lens-trend-confirmation.md) — Continuation lens trend confirmation
 - [ADR-0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) — Manual trade logging and position lifecycle
 - [ADR-0018](0018-manual-migrations-and-simple-recovery-backups.md) — Manual migrations and SIMPLE-recovery backups
+- [ADR-0019](0019-delphi-strict-history-freshness-eligibility.md) — Delphi strict history-freshness eligibility
 
 ## decision-engine
 
@@ -80,6 +81,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0013](0013-multi-lens-decision-architecture.md) — Multi-lens decision architecture
 - [ADR-0014](0014-continuations-lens-trend-confirmation.md) — Continuation lens trend confirmation
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
+- [ADR-0019](0019-delphi-strict-history-freshness-eligibility.md) — Delphi strict history-freshness eligibility
 
 ## math-statistics
 

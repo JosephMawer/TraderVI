@@ -126,7 +126,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 2. **Backup operations still need repeated observation and restore testing.** The first automatic post-success Hermes backup/copy completed successfully, but retention is not automated, OneDrive cloud-sync completion remains user-observed, and no test restore has been performed yet.
 3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
-5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi still needs its own stale-history exclusion gate as defense in depth.
+5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
 7. **Outcome feedback loop is incomplete.** Picks and market forecasts exist, but routine realized-outcome evaluation is not yet established.
 
@@ -136,6 +136,5 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 
 1. Resume deliberate daily Delphi recommendations without live execution.
 2. Define the observation window and realized-outcome measures for Continuation versus Breakout picks.
-3. Add the independent Delphi stale-history gate; the 2026-08-22 full-universe findings have been reconciled.
-4. Observe additional Hermes backups and perform a test restore.
-5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
+3. Observe additional Hermes backups and perform a test restore.
+4. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

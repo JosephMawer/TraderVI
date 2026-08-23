@@ -339,3 +339,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 
 **A:** The completed database update remains in place, but Hermes prints a prominent backup failure and exits with code `2`. A OneDrive filename is published only after a temporary copy matches the verified staging backup's SHA-256; if copying fails, the staging backup is retained for manual recovery.
 
+### Q: Why does Delphi reject stale history before model evaluation instead of using an `ITradeGate`?
+- **Domains:** decision-engine, risk-management
+- **Source:** ADR-0019
+
+**A:** Freshness is an input-integrity invariant shared by every lens. If checked in a lens gate, relative strength, OBV, and model features would already have consumed stale bars. Pre-scoring exclusion ensures every downstream comparison uses the same completed TSX session.
+
+### Q: How do DataAudit and Delphi's history-freshness eligibility rule differ?
+- **Domains:** data-pipeline, decision-engine
+- **Source:** ADR-0019
+
+**A:** DataAudit is an independent read-only diagnostic for the whole local universe, including classification, mapping, bar integrity, and freshness. Delphi's rule is a narrow runtime defense that prevents a session-mismatched symbol from entering recommendation scoring even when DataAudit was not run first.
+

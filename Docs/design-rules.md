@@ -19,8 +19,11 @@
 | **Down-Probability Penalty** | P(down) reduces the role-weighted composite continuously | `TradeDecisionEngine.ComputeCompositeFromRoles` |
 | **Rotation Threshold** | Prevent churn; require sufficient edge delta | `PositionSizer` / future Sentinel |
 | **Trend Confirmation** | Continuation lens requires both Trend30 and MA-crossover confirmation | `TrendConfirmationGate` |
+| **History Freshness Eligibility** | Exclude symbols whose newest daily bar does not match Delphi's canonical XIU session | `HistoryFreshnessEligibility` (ADR-0019) |
 
 These components act as **gates or modifiers** on the ML-driven ranking. They are never encoded as ML features unless explicitly revisited.
+
+History freshness is a pre-scoring universe invariant rather than an `ITradeGate`: it must run before relative strength, OBV, model evaluation, and lens-specific gate stacks consume a symbol's bars. The tolerance is exactly zero completed XIU sessions and is not a tunable strategy parameter.
 
 ### Hybrid Components (Rule-Based + ML)
 
