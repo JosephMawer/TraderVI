@@ -63,7 +63,7 @@ ORDER BY c.[ObservationDate], c.[Symbol];
         return result;
     }
 
-    public async Task InsertMaturedOutcomeAsync(
+    public async Task<bool> InsertMaturedOutcomeAsync(
         Guid candidateId,
         Guid definitionId,
         string outcomeJson,
@@ -89,6 +89,6 @@ VALUES
         command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier) { Value = definitionId });
         command.Parameters.Add(new SqlParameter("@AuditState", SqlDbType.NVarChar, 16) { Value = auditState.ToString() });
         command.Parameters.Add(new SqlParameter("@OutcomeJson", SqlDbType.NVarChar, -1) { Value = outcomeJson });
-        await command.ExecuteNonQueryAsync(cancellationToken);
+        return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 }

@@ -49,6 +49,50 @@ public class PredictionOutcomeCalculatorTests
         result.Events.ShouldBeEmpty();
     }
 
+    [Fact]
+    public void MissingSessionRemainsPendingUntilBenchmarkHorizonMatures()
+    {
+        DateTime observationDate = new(2026, 1, 1);
+        var xiu = Bars(observationDate.AddDays(1), 9, i => 100 + i);
+        var future = xiu.Where((_, i) => i != 4).ToList();
+
+        var readiness = PredictionOutcomeCalculator.AssessReadiness(
+            observationDate, future, xiu, PredictionOutcomeCalculator.LabelHorizon);
+
+        readiness.State.ShouldBe(PredictionOutcomeReadinessState.Pending);
+        readiness.BenchmarkSessionsAvailable.ShouldBe(9);
+    }
+
+    [Fact]
+    public void MissingSessionBecomesInvalidWhenBenchmarkHorizonMatures()
+    {
+        DateTime observationDate = new(2026, 1, 1);
+        var xiu = Bars(observationDate.AddDays(1), 10, i => 100 + i);
+        var future = xiu.Where((_, i) => i != 4).ToList();
+
+        var readiness = PredictionOutcomeCalculator.AssessReadiness(
+            observationDate, future, xiu, PredictionOutcomeCalculator.LabelHorizon);
+
+        readiness.State.ShouldBe(PredictionOutcomeReadinessState.Invalid);
+        readiness.AlignedSymbolSessions.ShouldBe(4);
+        readiness.FirstInvalidSession.ShouldBe(xiu[4].Date.Date);
+        readiness.ReasonCode.ShouldBe("MissingSymbolSession");
+    }
+
+    [Fact]
+    public void ExactAlignedHorizonIsMatured()
+    {
+        DateTime observationDate = new(2026, 1, 1);
+        var xiu = Bars(observationDate.AddDays(1), 10, i => 100 + i);
+
+        var readiness = PredictionOutcomeCalculator.AssessReadiness(
+            observationDate, xiu, xiu, PredictionOutcomeCalculator.LabelHorizon);
+
+        readiness.State.ShouldBe(PredictionOutcomeReadinessState.Matured);
+        readiness.AlignedSymbolSessions.ShouldBe(10);
+        readiness.FirstInvalidSession.ShouldBeNull();
+    }
+
     private static List<DailyBar> Bars(DateTime start, int count, Func<int, float> close) =>
         Enumerable.Range(0, count).Select(i =>
         {

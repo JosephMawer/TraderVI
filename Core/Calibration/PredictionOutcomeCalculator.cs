@@ -23,11 +23,104 @@ public sealed record PredictionOutcomeV1(
     double? ExcessReturn10,
     IReadOnlyList<PredictionEventOutcome> Events);
 
+public enum PredictionOutcomeReadinessState
+{
+    Pending,
+    Matured,
+    Invalid
+}
+
+public sealed record PredictionOutcomeReadiness(
+    PredictionOutcomeReadinessState State,
+    int RequiredSessions,
+    int BenchmarkSessionsAvailable,
+    int AlignedSymbolSessions,
+    DateTime? FirstInvalidSession,
+    string? ReasonCode);
+
+public sealed record InvalidPredictionOutcomeV1(
+    int SchemaVersion,
+    DateTime ObservationDate,
+    int RequiredSessions,
+    int BenchmarkSessionsAvailable,
+    int AlignedSymbolSessions,
+    DateTime? FirstInvalidSession,
+    string ReasonCode);
+
 public static class PredictionOutcomeCalculator
 {
     public const int SchemaVersion = 1;
     public const int LabelHorizon = 10;
     public const int PathHorizon = 20;
+
+    public static PredictionOutcomeReadiness AssessReadiness(
+        DateTime observationDate,
+        IReadOnlyList<DailyBar> futureBars,
+        IReadOnlyList<DailyBar> futureXiuBars,
+        int requiredSessions)
+    {
+        if (requiredSessions <= 0) throw new ArgumentOutOfRangeException(nameof(requiredSessions));
+
+        DateTime date = observationDate.Date;
+        var benchmarkSessions = futureXiuBars
+            .Where(x => x.Date.Date > date)
+            .OrderBy(x => x.Date)
+            .Select(x => x.Date.Date)
+            .ToList();
+
+        if (benchmarkSessions.Count < requiredSessions)
+        {
+            return new PredictionOutcomeReadiness(
+                PredictionOutcomeReadinessState.Pending,
+                requiredSessions,
+                benchmarkSessions.Count,
+                0,
+                null,
+                null);
+        }
+
+        var requiredBenchmarkSessions = benchmarkSessions.Take(requiredSessions).ToList();
+        var symbolSessionCounts = futureBars
+            .Where(x => x.Date.Date > date)
+            .GroupBy(x => x.Date.Date)
+            .ToDictionary(x => x.Key, x => x.Count());
+
+        int aligned = 0;
+        foreach (DateTime session in requiredBenchmarkSessions)
+        {
+            if (!symbolSessionCounts.TryGetValue(session, out int count))
+            {
+                return new PredictionOutcomeReadiness(
+                    PredictionOutcomeReadinessState.Invalid,
+                    requiredSessions,
+                    benchmarkSessions.Count,
+                    aligned,
+                    session,
+                    "MissingSymbolSession");
+            }
+
+            if (count != 1)
+            {
+                return new PredictionOutcomeReadiness(
+                    PredictionOutcomeReadinessState.Invalid,
+                    requiredSessions,
+                    benchmarkSessions.Count,
+                    aligned,
+                    session,
+                    "DuplicateSymbolSession");
+            }
+
+            aligned++;
+        }
+
+        return new PredictionOutcomeReadiness(
+            PredictionOutcomeReadinessState.Matured,
+            requiredSessions,
+            benchmarkSessions.Count,
+            aligned,
+            null,
+            null);
+    }
 
     public static PredictionOutcomeV1 Calculate(
         IReadOnlyList<DailyBar> observationWindow,

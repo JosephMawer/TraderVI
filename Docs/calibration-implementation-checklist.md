@@ -50,7 +50,7 @@ The design, first source implementation, database rollout audit, and controlled 
 
 ### Validation completed
 
-- [x] Core tests pass: 31 passed, 0 failed on 2026-08-23.
+- [x] Core tests pass: 34 passed, 0 failed on 2026-08-23.
 - [x] Delphi focused build succeeds with no compiler warnings.
 - [x] Athena focused build succeeds with no compiler warnings.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
@@ -89,7 +89,7 @@ The design, first source implementation, database rollout audit, and controlled 
 ### Remaining
 
 - [ ] **Operational step:** run Athena after the first official cohorts mature.
-- [ ] Persist explicit invalid/degraded records for missing or mismatched future sessions instead of leaving them pending indefinitely.
+- [x] Persist explicit invalid records for missing or duplicate symbol sessions once the required XIU horizon has matured; genuinely immature horizons remain pending so late ingestion can settle.
 - [ ] Add coverage-first deterministic scorecards.
 - [ ] Add Brier score, reliability buckets, calibration error, AUC where supported, and probability-decile lift.
 - [ ] Add Spearman rank information coefficient and top-1/top-3/top-5/top-decile lift.
