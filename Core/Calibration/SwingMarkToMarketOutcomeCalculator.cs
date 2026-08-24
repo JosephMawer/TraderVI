@@ -52,6 +52,27 @@ public sealed record SwingMarkToMarketOutcomeV1(
     double ExitHalfSpreadRate,
     IReadOnlyList<SwingHorizonMark> Horizons);
 
+public sealed record SwingExcursionHorizonV1(
+    int Sessions,
+    DateTime HorizonSession,
+    double MfeReturn,
+    DateTime MfeSession,
+    int MfeSessionOrdinal,
+    double MaeReturn,
+    DateTime MaeSession,
+    int MaeSessionOrdinal,
+    string ExcursionOrderState);
+
+public sealed record SwingExcursionOutcomeV1(
+    int SchemaVersion,
+    DateTime ObservationDate,
+    DateTime RunStartedUtc,
+    DateTime InitialEligibleSession,
+    DateTime EntrySession,
+    int EntryDelaySessions,
+    double RawEntryOpen,
+    IReadOnlyList<SwingExcursionHorizonV1> Horizons);
+
 public sealed record NoEntrySwingOutcomeV1(
     int SchemaVersion,
     DateTime ObservationDate,
@@ -79,6 +100,10 @@ public static class SwingMarkToMarketOutcomeCalculator
     public const double SlippageRatePerSide = 0.0010;
     public const double HalfSpreadRatePerSide = 0.0015;
     public const double TotalCostRatePerSide = SlippageRatePerSide + HalfSpreadRatePerSide;
+
+    public const string FavorableFirst = "FavorableFirst";
+    public const string AdverseFirst = "AdverseFirst";
+    public const string SameSessionUnknown = "SameSessionUnknown";
 
     private sealed record SessionBars(DateTime Date, IReadOnlyList<DailyBar> Bars)
     {
@@ -276,6 +301,134 @@ public static class SwingMarkToMarketOutcomeCalculator
             HalfSpreadRatePerSide,
             SlippageRatePerSide,
             HalfSpreadRatePerSide,
+            horizons);
+    }
+
+    public static SwingOutcomeReadiness AssessExcursionReadiness(
+        DateTime observationDate,
+        DateTime runStartedUtc,
+        IReadOnlyList<DailyBar> symbolBars,
+        IReadOnlyList<DailyBar> xiuBars)
+    {
+        var readiness = AssessReadiness(observationDate, runStartedUtc, symbolBars, xiuBars);
+        if (readiness.State != SwingOutcomeReadinessState.Matured || readiness.EntrySession is null)
+            return readiness;
+
+        DateTime entrySession = readiness.EntrySession.Value;
+        var pathDates = xiuBars
+            .Where(x => x.Date.Date >= entrySession)
+            .GroupBy(x => x.Date.Date)
+            .OrderBy(x => x.Key)
+            .Take(HorizonSessions)
+            .Select(x => x.Key)
+            .ToList();
+        var symbolByDate = symbolBars
+            .Where(x => x.Date.Date >= entrySession)
+            .GroupBy(x => x.Date.Date)
+            .ToDictionary(x => x.Key, x => x.Single());
+
+        foreach (DateTime pathDate in pathDates)
+        {
+            DailyBar bar = symbolByDate[pathDate];
+            if (bar.Open <= 0 || bar.High <= 0 || bar.Low <= 0 || bar.Close <= 0)
+                return Invalid(
+                    readiness.BenchmarkSessionsAvailable,
+                    readiness.InitialEligibleSession,
+                    entrySession,
+                    readiness.EntryDelaySessions,
+                    pathDate,
+                    "NonPositiveExcursionPrice");
+
+            if (bar.Low > System.Math.Min(bar.Open, bar.Close) ||
+                bar.High < System.Math.Max(bar.Open, bar.Close))
+                return Invalid(
+                    readiness.BenchmarkSessionsAvailable,
+                    readiness.InitialEligibleSession,
+                    entrySession,
+                    readiness.EntryDelaySessions,
+                    pathDate,
+                    "InconsistentSymbolOhlc");
+        }
+
+        return readiness;
+    }
+
+    public static SwingExcursionOutcomeV1 CalculateExcursions(
+        DateTime observationDate,
+        DateTime runStartedUtc,
+        IReadOnlyList<DailyBar> symbolBars,
+        IReadOnlyList<DailyBar> xiuBars)
+    {
+        var readiness = AssessExcursionReadiness(observationDate, runStartedUtc, symbolBars, xiuBars);
+        if (readiness.State != SwingOutcomeReadinessState.Matured ||
+            readiness.InitialEligibleSession is null || readiness.EntrySession is null || readiness.EntryDelaySessions is null)
+            throw new InvalidOperationException($"Swing excursion outcome is not mature: {readiness.State}.");
+
+        DateTime entrySession = readiness.EntrySession.Value;
+        var pathDates = xiuBars
+            .Where(x => x.Date.Date >= entrySession)
+            .GroupBy(x => x.Date.Date)
+            .OrderBy(x => x.Key)
+            .Take(HorizonSessions)
+            .Select(x => x.Key)
+            .ToList();
+        var symbolByDate = symbolBars
+            .Where(x => x.Date.Date >= entrySession)
+            .GroupBy(x => x.Date.Date)
+            .ToDictionary(x => x.Key, x => x.Single());
+
+        double rawEntry = symbolByDate[entrySession].Open;
+        double maximumHigh = rawEntry;
+        double minimumLow = rawEntry;
+        DateTime mfeSession = entrySession;
+        DateTime maeSession = entrySession;
+        int mfeSessionOrdinal = 1;
+        int maeSessionOrdinal = 1;
+        var horizons = new List<SwingExcursionHorizonV1>(HorizonSessions);
+
+        for (int i = 0; i < HorizonSessions; i++)
+        {
+            DateTime pathDate = pathDates[i];
+            DailyBar bar = symbolByDate[pathDate];
+            if (bar.High > maximumHigh)
+            {
+                maximumHigh = bar.High;
+                mfeSession = pathDate;
+                mfeSessionOrdinal = i + 1;
+            }
+
+            if (bar.Low < minimumLow)
+            {
+                minimumLow = bar.Low;
+                maeSession = pathDate;
+                maeSessionOrdinal = i + 1;
+            }
+
+            string orderState = mfeSessionOrdinal < maeSessionOrdinal
+                ? FavorableFirst
+                : maeSessionOrdinal < mfeSessionOrdinal
+                    ? AdverseFirst
+                    : SameSessionUnknown;
+            horizons.Add(new SwingExcursionHorizonV1(
+                i + 1,
+                pathDate,
+                maximumHigh / rawEntry - 1,
+                mfeSession,
+                mfeSessionOrdinal,
+                minimumLow / rawEntry - 1,
+                maeSession,
+                maeSessionOrdinal,
+                orderState));
+        }
+
+        return new SwingExcursionOutcomeV1(
+            SchemaVersion,
+            observationDate.Date,
+            NormalizeUtc(runStartedUtc),
+            readiness.InitialEligibleSession.Value,
+            entrySession,
+            readiness.EntryDelaySessions.Value,
+            rawEntry,
             horizons);
     }
 

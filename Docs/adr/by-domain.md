@@ -14,6 +14,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) — Primary swing policy and experimental opening confirmation
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
+- [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 
 ## data-pipeline
 
@@ -67,6 +68,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0021](0021-calibration-outcome-and-paper-execution-contract.md) — Calibration outcome and paper-execution contract
 - [ADR-0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) — Primary swing policy and experimental opening confirmation
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
+- [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 
 ## risk-management
 
@@ -80,6 +82,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0022](0022-champion-challenger-evidence-and-promotion.md) — Champion/challenger evidence and promotion
 - [ADR-0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) — Primary swing policy and experimental opening confirmation
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
+- [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 
 ## decision-engine
 
@@ -114,6 +117,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0022](0022-champion-challenger-evidence-and-promotion.md) — Champion/challenger evidence and promotion
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
+- [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 
 ## finance-fundamentals
 

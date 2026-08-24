@@ -20,6 +20,7 @@ public sealed class CalibrationOutcomeRepository : SQLBase
     public static readonly Guid PredictionLabel10DefinitionId = new("A72C01CB-9C83-45A6-9A72-CC49E67B9F5A");
     public static readonly Guid PredictionPath20DefinitionId = new("FA0C8F51-0C48-4E0C-BB26-DFBD82C0D640");
     public static readonly Guid SwingMarkToMarket3DefinitionId = new("491D7C6C-EBBB-4B5E-8259-3E3169D732B6");
+    public static readonly Guid SwingExcursion3DefinitionId = new("BBB218C1-616E-46F5-A70B-826E547A7DE3");
 
     public async Task EnsureOutcomeDefinitionsAsync(CancellationToken cancellationToken = default)
     {
@@ -36,6 +37,10 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
     INSERT INTO [dbo].[CalibrationOutcomeDefinition]
         ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
     VALUES (@SwingId,N'SwingMarkToMarket3',1,N'Tradeable',@SwingJson,1);
+IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [OutcomeDefinitionId] = @ExcursionId)
+    INSERT INTO [dbo].[CalibrationOutcomeDefinition]
+        ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
+    VALUES (@ExcursionId,N'SwingExcursion3',1,N'Tradeable',@ExcursionJson,1);
 """;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
@@ -43,9 +48,11 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
         command.Parameters.Add(new SqlParameter("@LabelId", SqlDbType.UniqueIdentifier) { Value = PredictionLabel10DefinitionId });
         command.Parameters.Add(new SqlParameter("@PathId", SqlDbType.UniqueIdentifier) { Value = PredictionPath20DefinitionId });
         command.Parameters.Add(new SqlParameter("@SwingId", SqlDbType.UniqueIdentifier) { Value = SwingMarkToMarket3DefinitionId });
+        command.Parameters.Add(new SqlParameter("@ExcursionId", SqlDbType.UniqueIdentifier) { Value = SwingExcursion3DefinitionId });
         command.Parameters.Add(new SqlParameter("@LabelJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizonSessions\":10,\"labelSource\":\"ProfitModelRegistry.ILabeler\",\"benchmark\":\"XIU\"}" });
         command.Parameters.Add(new SqlParameter("@PathJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizons\":[1,5,10,20],\"start\":\"observationClose\",\"benchmark\":\"XIU\"}" });
         command.Parameters.Add(new SqlParameter("@SwingJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"markToMarket\",\"horizons\":[1,2,3],\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entryTimeZone\":\"America/Toronto\",\"marketOpenLocal\":\"09:30:00\",\"entrySessionAllowance\":3,\"slippageRatePerSide\":0.001,\"halfSpreadRatePerSide\":0.0015,\"benchmark\":\"XIU\",\"benchmarkCosts\":false}" });
+        command.Parameters.Add(new SqlParameter("@ExcursionJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"excursion\",\"horizons\":[1,2,3],\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entryTimeZone\":\"America/Toronto\",\"marketOpenLocal\":\"09:30:00\",\"entrySessionAllowance\":3,\"mfe\":\"maxHigh/rawEntry-1\",\"mae\":\"minLow/rawEntry-1\",\"maeSign\":\"nonPositive\",\"timeUnit\":\"sessionOrdinal\",\"ties\":\"earliestSession\",\"sameSessionOrder\":\"unknown\",\"costAdjusted\":false}" });
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 

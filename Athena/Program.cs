@@ -34,6 +34,80 @@ var candidates = labelPending.Concat(pathPending)
     .ToList();
 
 var xiuBars = await GetBarsAsync("XIU");
+
+async Task<(int Inspected, int Matured, int NoEntry, int Pending, int Invalid)> EvaluateTradeableDefinitionAsync(
+    Guid definitionId,
+    Func<DateTime, DateTime, IReadOnlyList<DailyBar>, IReadOnlyList<DailyBar>, SwingOutcomeReadiness> assess,
+    Func<DateTime, DateTime, IReadOnlyList<DailyBar>, IReadOnlyList<DailyBar>, object> calculate)
+{
+    var pendingCandidates = await outcomes.GetPendingPublishedCandidatesAsync(definitionId);
+    int matured = 0, noEntry = 0, pending = 0, invalid = 0;
+
+    foreach (var candidate in pendingCandidates)
+    {
+        var symbolBars = await GetBarsAsync(candidate.Symbol);
+        var readiness = assess(candidate.ObservationDate, candidate.RunStartedUtc, symbolBars, xiuBars);
+
+        if (readiness.State == SwingOutcomeReadinessState.Pending)
+        {
+            pending++;
+            continue;
+        }
+
+        if (readiness.State == SwingOutcomeReadinessState.Invalid)
+        {
+            var invalidOutcome = new InvalidSwingOutcomeV1(
+                SwingMarkToMarketOutcomeCalculator.SchemaVersion,
+                candidate.ObservationDate.Date,
+                SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
+                readiness.InitialEligibleSession,
+                readiness.EntrySession,
+                readiness.EntryDelaySessions,
+                readiness.BenchmarkSessionsAvailable,
+                readiness.FirstInvalidSession,
+                readiness.ReasonCode ?? "InvalidSwingPath");
+            if (await outcomes.InsertOutcomeAsync(
+                candidate.CandidateId,
+                definitionId,
+                CalibrationOutcomeMaturityState.Matured,
+                JsonSerializer.Serialize(invalidOutcome, jsonOptions),
+                CalibrationAuditState.Invalid))
+                invalid++;
+            continue;
+        }
+
+        if (readiness.State == SwingOutcomeReadinessState.NoEntry)
+        {
+            var noEntryOutcome = new NoEntrySwingOutcomeV1(
+                SwingMarkToMarketOutcomeCalculator.SchemaVersion,
+                candidate.ObservationDate.Date,
+                SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
+                readiness.InitialEligibleSession!.Value,
+                SwingMarkToMarketOutcomeCalculator.EntrySessionAllowance,
+                readiness.ReasonCode ?? "NoSymbolBarWithinEntryAllowance");
+            if (await outcomes.InsertOutcomeAsync(
+                candidate.CandidateId,
+                definitionId,
+                CalibrationOutcomeMaturityState.NoEntry,
+                JsonSerializer.Serialize(noEntryOutcome, jsonOptions),
+                CalibrationAuditState.Valid))
+                noEntry++;
+            continue;
+        }
+
+        object result = calculate(candidate.ObservationDate, candidate.RunStartedUtc, symbolBars, xiuBars);
+        if (await outcomes.InsertOutcomeAsync(
+            candidate.CandidateId,
+            definitionId,
+            CalibrationOutcomeMaturityState.Matured,
+            JsonSerializer.Serialize(result, result.GetType(), jsonOptions),
+            CalibrationAuditState.Valid))
+            matured++;
+    }
+
+    return (pendingCandidates.Count, matured, noEntry, pending, invalid);
+}
+
 int labelsWritten = 0, pathsWritten = 0, immature = 0, invalidWritten = 0;
 
 foreach (var candidate in candidates)
@@ -118,87 +192,31 @@ Console.WriteLine($"Pending candidates inspected: {candidates.Count:N0}");
 Console.WriteLine($"10-session label outcomes:   {labelsWritten:N0}");
 Console.WriteLine($"20-session path outcomes:    {pathsWritten:N0}");
 Console.WriteLine($"Not yet 10-session mature:   {immature:N0}");
-Console.WriteLine($"Invalid outcomes written:    {invalidWritten:N0}");
+Console.WriteLine($"Prediction invalid outcomes: {invalidWritten:N0}");
 
-var swingPending = await outcomes.GetPendingPublishedCandidatesAsync(
-    CalibrationOutcomeRepository.SwingMarkToMarket3DefinitionId);
-int swingWritten = 0, swingNoEntryWritten = 0, swingImmature = 0;
-
-foreach (var candidate in swingPending)
-{
-    var symbolBars = await GetBarsAsync(candidate.Symbol);
-    var readiness = SwingMarkToMarketOutcomeCalculator.AssessReadiness(
-        candidate.ObservationDate,
-        candidate.RunStartedUtc,
-        symbolBars,
-        xiuBars);
-
-    if (readiness.State == SwingOutcomeReadinessState.Pending)
-    {
-        swingImmature++;
-        continue;
-    }
-
-    if (readiness.State == SwingOutcomeReadinessState.Invalid)
-    {
-        var invalidOutcome = new InvalidSwingOutcomeV1(
-            SwingMarkToMarketOutcomeCalculator.SchemaVersion,
-            candidate.ObservationDate.Date,
-            SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
-            readiness.InitialEligibleSession,
-            readiness.EntrySession,
-            readiness.EntryDelaySessions,
-            readiness.BenchmarkSessionsAvailable,
-            readiness.FirstInvalidSession,
-            readiness.ReasonCode ?? "InvalidSwingPath");
-        if (await outcomes.InsertOutcomeAsync(
-            candidate.CandidateId,
-            CalibrationOutcomeRepository.SwingMarkToMarket3DefinitionId,
-            CalibrationOutcomeMaturityState.Matured,
-            JsonSerializer.Serialize(invalidOutcome, jsonOptions),
-            CalibrationAuditState.Invalid))
-            invalidWritten++;
-        continue;
-    }
-
-    if (readiness.State == SwingOutcomeReadinessState.NoEntry)
-    {
-        var noEntryOutcome = new NoEntrySwingOutcomeV1(
-            SwingMarkToMarketOutcomeCalculator.SchemaVersion,
-            candidate.ObservationDate.Date,
-            SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
-            readiness.InitialEligibleSession!.Value,
-            SwingMarkToMarketOutcomeCalculator.EntrySessionAllowance,
-            readiness.ReasonCode ?? "NoSymbolBarWithinEntryAllowance");
-        if (await outcomes.InsertOutcomeAsync(
-            candidate.CandidateId,
-            CalibrationOutcomeRepository.SwingMarkToMarket3DefinitionId,
-            CalibrationOutcomeMaturityState.NoEntry,
-            JsonSerializer.Serialize(noEntryOutcome, jsonOptions),
-            CalibrationAuditState.Valid))
-            swingNoEntryWritten++;
-        continue;
-    }
-
-    var result = SwingMarkToMarketOutcomeCalculator.Calculate(
-        candidate.ObservationDate,
-        candidate.RunStartedUtc,
-        symbolBars,
-        xiuBars);
-    if (await outcomes.InsertOutcomeAsync(
-        candidate.CandidateId,
-        CalibrationOutcomeRepository.SwingMarkToMarket3DefinitionId,
-        CalibrationOutcomeMaturityState.Matured,
-        JsonSerializer.Serialize(result, jsonOptions),
-        CalibrationAuditState.Valid))
-        swingWritten++;
-}
+var swing = await EvaluateTradeableDefinitionAsync(
+    CalibrationOutcomeRepository.SwingMarkToMarket3DefinitionId,
+    SwingMarkToMarketOutcomeCalculator.AssessReadiness,
+    SwingMarkToMarketOutcomeCalculator.Calculate);
+var excursions = await EvaluateTradeableDefinitionAsync(
+    CalibrationOutcomeRepository.SwingExcursion3DefinitionId,
+    SwingMarkToMarketOutcomeCalculator.AssessExcursionReadiness,
+    SwingMarkToMarketOutcomeCalculator.CalculateExcursions);
+invalidWritten += swing.Invalid + excursions.Invalid;
 
 Console.WriteLine("\n=== Three-session swing mark-to-market ===");
-Console.WriteLine($"Published candidates inspected: {swingPending.Count:N0}");
-Console.WriteLine($"Matured outcomes written:      {swingWritten:N0}");
-Console.WriteLine($"No-entry outcomes written:     {swingNoEntryWritten:N0}");
-Console.WriteLine($"Not yet mature:                {swingImmature:N0}");
+Console.WriteLine($"Published candidates inspected: {swing.Inspected:N0}");
+Console.WriteLine($"Matured outcomes written:      {swing.Matured:N0}");
+Console.WriteLine($"No-entry outcomes written:     {swing.NoEntry:N0}");
+Console.WriteLine($"Not yet mature:                {swing.Pending:N0}");
+Console.WriteLine($"Invalid outcomes written:      {swing.Invalid:N0}");
+
+Console.WriteLine("\n=== Three-session swing MFE/MAE excursions ===");
+Console.WriteLine($"Published candidates inspected: {excursions.Inspected:N0}");
+Console.WriteLine($"Matured outcomes written:      {excursions.Matured:N0}");
+Console.WriteLine($"No-entry outcomes written:     {excursions.NoEntry:N0}");
+Console.WriteLine($"Not yet mature:                {excursions.Pending:N0}");
+Console.WriteLine($"Invalid outcomes written:      {excursions.Invalid:N0}");
 
 var coverageRows = await outcomes.GetOutcomeCoverageAsync();
 Console.WriteLine("\n=== Outcome coverage scorecard ===");

@@ -135,6 +135,70 @@ public class SwingMarkToMarketOutcomeCalculatorTests
         readiness.EntrySession.ShouldBe(new DateTime(2026, 1, 2));
     }
 
+    [Fact]
+    public void ExcursionsAreCumulativeAndPersistFirstSessionOrdering()
+    {
+        var symbol = ExcursionBars(new DateTime(2026, 1, 2),
+            (100, 105, 98, 104),
+            (104, 108, 101, 107),
+            (107, 107.5f, 95, 96));
+        var xiu = Bars(new DateTime(2026, 1, 2), 3, 200);
+
+        var result = SwingMarkToMarketOutcomeCalculator.CalculateExcursions(
+            ObservationDate, Utc(2026, 1, 2, 14, 0), symbol, xiu);
+
+        result.Horizons[0].MfeReturn.ShouldBe(.05, .0000001);
+        result.Horizons[0].MaeReturn.ShouldBe(-.02, .0000001);
+        result.Horizons[0].ExcursionOrderState.ShouldBe(SwingMarkToMarketOutcomeCalculator.SameSessionUnknown);
+
+        result.Horizons[1].MfeReturn.ShouldBe(.08, .0000001);
+        result.Horizons[1].MfeSessionOrdinal.ShouldBe(2);
+        result.Horizons[1].MaeSessionOrdinal.ShouldBe(1);
+        result.Horizons[1].ExcursionOrderState.ShouldBe(SwingMarkToMarketOutcomeCalculator.AdverseFirst);
+
+        result.Horizons[2].MfeSession.ShouldBe(new DateTime(2026, 1, 3));
+        result.Horizons[2].MaeReturn.ShouldBe(-.05, .0000001);
+        result.Horizons[2].MaeSessionOrdinal.ShouldBe(3);
+        result.Horizons[2].ExcursionOrderState.ShouldBe(SwingMarkToMarketOutcomeCalculator.FavorableFirst);
+    }
+
+    [Fact]
+    public void ExcursionTiesKeepTheEarliestSession()
+    {
+        var symbol = ExcursionBars(new DateTime(2026, 1, 2),
+            (100, 105, 98, 101),
+            (101, 105, 98, 102),
+            (102, 104, 99, 103));
+        var xiu = Bars(new DateTime(2026, 1, 2), 3, 200);
+
+        var result = SwingMarkToMarketOutcomeCalculator.CalculateExcursions(
+            ObservationDate, Utc(2026, 1, 2, 14, 0), symbol, xiu);
+
+        result.Horizons[2].MfeSessionOrdinal.ShouldBe(1);
+        result.Horizons[2].MaeSessionOrdinal.ShouldBe(1);
+        result.Horizons[2].ExcursionOrderState.ShouldBe(SwingMarkToMarketOutcomeCalculator.SameSessionUnknown);
+    }
+
+    [Fact]
+    public void InconsistentOhlcIsInvalidForExcursionsOnly()
+    {
+        var symbol = ExcursionBars(new DateTime(2026, 1, 2),
+            (100, 99, 98, 101),
+            (101, 103, 100, 102),
+            (102, 104, 101, 103));
+        var xiu = Bars(new DateTime(2026, 1, 2), 3, 200);
+
+        var markReadiness = SwingMarkToMarketOutcomeCalculator.AssessReadiness(
+            ObservationDate, Utc(2026, 1, 2, 14, 0), symbol, xiu);
+        var excursionReadiness = SwingMarkToMarketOutcomeCalculator.AssessExcursionReadiness(
+            ObservationDate, Utc(2026, 1, 2, 14, 0), symbol, xiu);
+
+        markReadiness.State.ShouldBe(SwingOutcomeReadinessState.Matured);
+        excursionReadiness.State.ShouldBe(SwingOutcomeReadinessState.Invalid);
+        excursionReadiness.ReasonCode.ShouldBe("InconsistentSymbolOhlc");
+        excursionReadiness.FirstInvalidSession.ShouldBe(new DateTime(2026, 1, 2));
+    }
+
     private static DateTime Utc(int year, int month, int day, int hour, int minute) =>
         new(year, month, day, hour, minute, 0, DateTimeKind.Utc);
 
@@ -145,6 +209,19 @@ public class SwingMarkToMarketOutcomeCalculatorTests
 
     private static List<DailyBar> CustomBars(DateTime start, params (float Open, float Close)[] prices) =>
         prices.Select((x, i) => Bar(start.AddDays(i), x.Open, x.Close)).ToList();
+
+    private static List<DailyBar> ExcursionBars(
+        DateTime start,
+        params (float Open, float High, float Low, float Close)[] prices) =>
+        prices.Select((x, i) => new DailyBar
+        {
+            Date = start.AddDays(i),
+            Open = x.Open,
+            High = x.High,
+            Low = x.Low,
+            Close = x.Close,
+            Volume = 100000
+        }).ToList();
 
     private static DailyBar Bar(DateTime date, float open, float close) => new()
     {

@@ -4,6 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, math-statistics, market-microstructure, risk-management
 - **Related:** ADR-0002, ADR-0020, ADR-0021, ADR-0023, ADR-0024
+- **Refined by:** ADR-0026 for separately versioned MFE and MAE measures
 
 ## Context
 

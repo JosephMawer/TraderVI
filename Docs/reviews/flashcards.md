@@ -404,3 +404,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0025
 
 **A:** It records terminal `NoEntry`, which counts as a valid execution observation but not as zero return. Return reports exclude it from averages and show the no-entry rate separately.
+
+### Q: What do MFE and MAE tell us about a long Delphi recommendation?
+- **Domains:** math-statistics, risk-management
+- **Source:** ADR-0026
+
+**A:** MFE is the largest unrealized gain reached from the raw entry open; MAE is the largest unrealized loss and is stored as zero or a negative return. Together they show available upside and endured downside that the closing return can hide.
+
+### Q: Why does Athena mark some excursion ordering as `SameSessionUnknown`?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0026
+
+**A:** A daily OHLC bar shows the session high and low but not which occurred first. Guessing the order could make a future target-and-stop policy look executable when the data cannot prove it.
