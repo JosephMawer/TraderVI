@@ -392,3 +392,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0024
 
 **A:** Completion counts every terminal outcome, including invalid ones. Usable coverage counts only valid and degraded terminal outcomes; invalid and pending rows cannot support the reported performance score.
+
+### Q: Why is `SwingMarkToMarket3` not the final Delphi swing exit policy?
+- **Domains:** architecture, math-statistics, risk-management
+- **Source:** ADR-0025
+
+**A:** It records the value of a published pick at the first three session closes without applying a stop, target, trailing rule, or forced sale. It measures selector potential while the actual trade-management policy remains an open, separately versioned decision.
+
+### Q: How does Athena treat a published pick that has no symbol bar in its first three eligible XIU sessions?
+- **Domains:** market-microstructure, math-statistics
+- **Source:** ADR-0025
+
+**A:** It records terminal `NoEntry`, which counts as a valid execution observation but not as zero return. Return reports exclude it from averages and show the no-entry rate separately.

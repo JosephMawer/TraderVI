@@ -129,7 +129,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0024 define the evidence, outcome, coverage, policy-separation, and promotion contracts. The additive schema matches TraderDB. Two official validation runs and one exploratory replay were captured over the same 2026-08-21 completed market session, so they count as one independent cohort. Athena now distinguishes immature horizons from terminal invalid session joins and has a coverage-first scorecard, but has not written an outcome because no future eligible session has matured. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0025 define the evidence, outcome, coverage, policy-separation, initial three-session swing measure, and promotion contracts. The additive schema matches TraderDB. Two official validation runs and one exploratory replay were captured over the same 2026-08-21 completed market session, so they count as one independent cohort. Athena now distinguishes immature horizons from terminal invalid session joins, reports definition-specific coverage, and can persist cost-aware 1/2/3-session marks for published picks, but has not written an outcome because no future eligible session has matured. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
@@ -138,6 +138,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
-3. Run Athena once official cohorts have matured, then verify label-aligned 1/5/10/20-session outcomes and reporting coverage.
+3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
 4. Observe additional Hermes backups and perform a test restore.
 5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

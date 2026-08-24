@@ -150,6 +150,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Q:** Which entitled, timestamped source should provide intraday trades, quotes, spreads, opening gaps, and volume, and what storage/retention contract should it use?
 - **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
 - **Q:** What exact versioned rule protects profit and exits the primary swing position: fixed maximum session, trailing stop, trend failure, profit floor, or a reviewed combination?
+- **Q:** What exact daily-OHLC contract should define MFE, MAE, and time-to-excursion, especially when the entry session does not reveal whether its high or low occurred first after the opening fill?
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
 - **Status:** open — ADR-0023 accepts the policy separation but deliberately does not promote timing or exit thresholds.
 

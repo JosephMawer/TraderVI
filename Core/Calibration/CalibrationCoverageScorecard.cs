@@ -6,6 +6,7 @@ public sealed record CalibrationCoverageCounts(
     Guid OutcomeDefinitionId,
     string DefinitionName,
     int DefinitionVersion,
+    string DefinitionKind,
     int OfficialRuns,
     int TotalCohorts,
     int MaturedCohorts,

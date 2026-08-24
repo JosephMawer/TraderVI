@@ -26,6 +26,13 @@ public enum CalibrationAuditState
     Invalid
 }
 
+public enum CalibrationOutcomeMaturityState
+{
+    Pending,
+    Matured,
+    NoEntry
+}
+
 public sealed record CodeProvenance(
     string Commit,
     string Source,

@@ -4,6 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, decision-engine, market-microstructure, risk-management
 - **Related:** ADR-0013, ADR-0015, ADR-0020, ADR-0021, ADR-0022
+- **Refined by:** ADR-0025 for the initial three-session mark-to-market measure
 
 ## Context
 

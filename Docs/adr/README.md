@@ -62,6 +62,7 @@ architecture documentation.
 | [0022](0022-champion-challenger-evidence-and-promotion.md) | Champion/challenger evidence and promotion | Accepted | decision-engine, machine-learning, math-statistics, risk-management |
 | [0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) | Primary swing policy and experimental opening confirmation | Accepted | architecture, decision-engine, market-microstructure, risk-management |
 | [0024](0024-coverage-scorecard-and-market-session-cohorts.md) | Coverage scorecard and market-session cohort identity | Accepted | architecture, data-pipeline, decision-engine, math-statistics |
+| [0025](0025-three-session-swing-mark-to-market-outcome.md) | Three-session swing mark-to-market outcome | Accepted | architecture, math-statistics, market-microstructure, risk-management |
 
 See also:
 

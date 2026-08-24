@@ -4,6 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, math-statistics
 - **Related:** ADR-0020, ADR-0021, ADR-0022
+- **Refined by:** ADR-0025 for tradeable-definition population and `NoEntry` coverage
 
 ## Context
 

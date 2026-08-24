@@ -70,6 +70,6 @@ public class CalibrationCoverageCalculatorTests
         int degraded = 0,
         int invalid = 0,
         int pending = 0) =>
-        new(Guid.NewGuid(), "PredictionPath20", 1, totalCohorts, totalCohorts,
+        new(Guid.NewGuid(), "PredictionPath20", 1, "Prediction", totalCohorts, totalCohorts,
             maturedCohorts, expected, valid, degraded, invalid, pending);
 }

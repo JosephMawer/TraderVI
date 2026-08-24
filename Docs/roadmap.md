@@ -39,7 +39,7 @@ Design background: [`Docs/concepts/paper-calibration-and-outcome-feedback.md`](c
 Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibration-implementation-checklist.md).
 
 - [ ] Resume daily paper recommendations without live execution.
-- [x] Define the evidence, outcome, primary swing direction, coverage contract, and promotion tiers (ADR-0020 through ADR-0024).
+- [x] Define the evidence, outcome, primary swing direction, initial three-session measure, coverage contract, and promotion tiers (ADR-0020 through ADR-0025).
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.

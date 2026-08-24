@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-08-23
-- **Authoritative design:** ADR-0020 through ADR-0024
+- **Authoritative design:** ADR-0020 through ADR-0025
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 
@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design, first source implementation, database rollout audit, and controlled evidence-capture milestone are complete. Delphi captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. The rerun appended immutable evidence, and the exploratory replay did not refresh operational picks, dossiers, or Granville logs. This is still one recommendation cohort, not three independent cohorts. Athena has not written an outcome because no future eligible session has matured yet. The next milestone is to accumulate official daily cohorts and run Athena after their outcome horizons mature.
+The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, and three-session swing mark-to-market source milestone are complete. Delphi captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. The rerun appended immutable evidence, and the exploratory replay did not refresh operational picks, dossiers, or Granville logs. This is still one recommendation cohort, not three independent cohorts. Athena has not written an outcome because no future eligible session has matured yet. The next milestone is to accumulate official daily cohorts and run Athena after their outcome horizons mature.
 
 ## Phase A — measurement contract and decisions
 
@@ -29,7 +29,8 @@ The design, first source implementation, database rollout audit, and controlled 
 - [x] Define champion/challenger evidence tiers and human promotion rules.
 - [x] Define the primary multi-day swing direction and keep intraday/opening confirmation as separate challengers.
 - [x] Define coverage reporting and market-session cohort identity so reruns do not inflate evidence.
-- [x] Accept ADR-0020 through ADR-0024 and add review cards.
+- [x] Define the initial three-session mark-to-market measure without claiming it is the final swing exit policy.
+- [x] Accept ADR-0020 through ADR-0025 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -52,7 +53,7 @@ The design, first source implementation, database rollout audit, and controlled 
 
 ### Validation completed
 
-- [x] Core tests pass: 39 passed, 0 failed on 2026-08-23.
+- [x] Core tests pass: 47 passed, 0 failed on 2026-08-23.
 - [x] Delphi focused build succeeds with no compiler warnings.
 - [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
@@ -101,15 +102,16 @@ The design, first source implementation, database rollout audit, and controlled 
 
 ## Phase D — tradeable recommendation outcomes
 
-- [ ] Add a versioned tradeable-outcome definition and persistence shape.
-- [ ] Add separately versioned 1-, 2-, and 3-session economic measures for the short-term swing objective; retain 10/20-session model diagnostics.
-- [ ] Select the first eligible entry session using run time in `America/Toronto`.
-- [ ] Implement the three-session missing-entry-bar allowance and `NoEntry` result.
-- [ ] Apply raw open plus separately persisted 10 bps slippage and 15 bps half-spread per side.
-- [ ] Compute gross/net returns, XIU excess return, MFE, MAE, and time to excursions.
+- [x] Add a versioned tradeable-outcome definition and persistence shape.
+- [x] Add separately versioned 1-, 2-, and 3-session economic measures for the short-term swing objective; retain 10/20-session model diagnostics.
+- [x] Select the first eligible entry session using run time in `America/Toronto`.
+- [x] Implement the three-session missing-entry-bar allowance and `NoEntry` result.
+- [x] Apply raw open plus separately persisted 10 bps slippage and 15 bps half-spread per side.
+- [x] Compute gross/net returns and net excess return versus XIU at the 1-, 2-, and 3-session closes.
+- [ ] Add MFE, MAE, and time to excursions under an explicitly reviewed metric contract.
 - [ ] Implement warning diagnostics and versioned hard-stop fills, including gap-through-stop handling.
 - [ ] Flag conservative same-day path ambiguity.
-- [ ] Restrict tradeable outcomes to published lens recommendations.
+- [x] Restrict tradeable outcomes to published lens recommendations.
 - [ ] Add recommendation-level Continuation and Breakout tradeability reports.
 - [ ] Resolve and version the primary 3–5-session swing profit-protection, trend-extension, and maximum-hold rules.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.

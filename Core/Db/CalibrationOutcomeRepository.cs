@@ -9,13 +9,19 @@ using System.Threading.Tasks;
 namespace Core.Db;
 
 public sealed record PendingCalibrationCandidate(Guid CandidateId, string Symbol, DateTime ObservationDate);
+public sealed record PendingTradeableCalibrationCandidate(
+    Guid CandidateId,
+    string Symbol,
+    DateTime ObservationDate,
+    DateTime RunStartedUtc);
 
 public sealed class CalibrationOutcomeRepository : SQLBase
 {
     public static readonly Guid PredictionLabel10DefinitionId = new("A72C01CB-9C83-45A6-9A72-CC49E67B9F5A");
     public static readonly Guid PredictionPath20DefinitionId = new("FA0C8F51-0C48-4E0C-BB26-DFBD82C0D640");
+    public static readonly Guid SwingMarkToMarket3DefinitionId = new("491D7C6C-EBBB-4B5E-8259-3E3169D732B6");
 
-    public async Task EnsurePredictionDefinitionsAsync(CancellationToken cancellationToken = default)
+    public async Task EnsureOutcomeDefinitionsAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
 IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [OutcomeDefinitionId] = @LabelId)
@@ -26,14 +32,20 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
     INSERT INTO [dbo].[CalibrationOutcomeDefinition]
         ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
     VALUES (@PathId,N'PredictionPath20',1,N'Prediction',@PathJson,1);
+IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [OutcomeDefinitionId] = @SwingId)
+    INSERT INTO [dbo].[CalibrationOutcomeDefinition]
+        ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
+    VALUES (@SwingId,N'SwingMarkToMarket3',1,N'Tradeable',@SwingJson,1);
 """;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add(new SqlParameter("@LabelId", SqlDbType.UniqueIdentifier) { Value = PredictionLabel10DefinitionId });
         command.Parameters.Add(new SqlParameter("@PathId", SqlDbType.UniqueIdentifier) { Value = PredictionPath20DefinitionId });
+        command.Parameters.Add(new SqlParameter("@SwingId", SqlDbType.UniqueIdentifier) { Value = SwingMarkToMarket3DefinitionId });
         command.Parameters.Add(new SqlParameter("@LabelJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizonSessions\":10,\"labelSource\":\"ProfitModelRegistry.ILabeler\",\"benchmark\":\"XIU\"}" });
         command.Parameters.Add(new SqlParameter("@PathJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizons\":[1,5,10,20],\"start\":\"observationClose\",\"benchmark\":\"XIU\"}" });
+        command.Parameters.Add(new SqlParameter("@SwingJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"markToMarket\",\"horizons\":[1,2,3],\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entryTimeZone\":\"America/Toronto\",\"marketOpenLocal\":\"09:30:00\",\"entrySessionAllowance\":3,\"slippageRatePerSide\":0.001,\"halfSpreadRatePerSide\":0.0015,\"benchmark\":\"XIU\",\"benchmarkCosts\":false}" });
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
@@ -63,15 +75,48 @@ ORDER BY c.[ObservationDate], c.[Symbol];
         return result;
     }
 
-    public async Task<List<CalibrationCoverageCounts>> GetPredictionCoverageAsync(
+    public async Task<List<PendingTradeableCalibrationCandidate>> GetPendingPublishedCandidatesAsync(
+        Guid definitionId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+SELECT c.[CandidateId], c.[Symbol], c.[ObservationDate], r.[StartedUtc]
+FROM [dbo].[CalibrationCandidate] c
+JOIN [dbo].[CalibrationRun] r ON r.[RunId] = c.[RunId]
+LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
+  ON o.[CandidateId] = c.[CandidateId] AND o.[OutcomeDefinitionId] = @DefinitionId
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+  AND o.[CandidateOutcomeId] IS NULL
+  AND EXISTS
+  (
+      SELECT 1
+      FROM [dbo].[CalibrationLensEvaluation] l
+      WHERE l.[CandidateId] = c.[CandidateId] AND l.[IsPublished] = 1
+  )
+ORDER BY c.[ObservationDate], c.[Symbol];
+""";
+        var result = new List<PendingTradeableCalibrationCandidate>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier) { Value = definitionId });
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+            result.Add(new PendingTradeableCalibrationCandidate(
+                reader.GetGuid(0), reader.GetString(1), reader.GetDateTime(2), reader.GetDateTime(3)));
+        return result;
+    }
+
+    public async Task<List<CalibrationCoverageCounts>> GetOutcomeCoverageAsync(
         CancellationToken cancellationToken = default)
     {
         const string sql = """
 WITH [Definitions] AS
 (
-    SELECT [OutcomeDefinitionId], [DefinitionName], [DefinitionVersion]
+    SELECT [OutcomeDefinitionId], [DefinitionName], [DefinitionVersion], [DefinitionKind]
     FROM [dbo].[CalibrationOutcomeDefinition]
-    WHERE [DefinitionKind] = N'Prediction' AND [IsActive] = 1
+    WHERE [DefinitionKind] IN (N'Prediction', N'Tradeable') AND [IsActive] = 1
 ),
 [OfficialRuns] AS
 (
@@ -81,12 +126,27 @@ WITH [Definitions] AS
 ),
 [DefinitionRunCandidates] AS
 (
-    SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion],
+    SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion], d.[DefinitionKind],
            r.[RunId], r.[MarketDataAsOf], c.[CandidateId],
            o.[CandidateOutcomeId], o.[MaturityState], o.[AuditState]
     FROM [Definitions] d
     CROSS JOIN [OfficialRuns] r
-    LEFT JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+    LEFT JOIN [dbo].[CalibrationCandidate] c
+      ON c.[RunId] = r.[RunId]
+     AND
+     (
+         d.[DefinitionKind] = N'Prediction'
+         OR
+         (
+             d.[DefinitionKind] = N'Tradeable'
+             AND EXISTS
+             (
+                 SELECT 1
+                 FROM [dbo].[CalibrationLensEvaluation] l
+                 WHERE l.[CandidateId] = c.[CandidateId] AND l.[IsPublished] = 1
+             )
+         )
+     )
     LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
       ON o.[CandidateId] = c.[CandidateId]
      AND o.[OutcomeDefinitionId] = d.[OutcomeDefinitionId]
@@ -119,7 +179,7 @@ WITH [Definitions] AS
     FROM [CohortSummary]
     GROUP BY [OutcomeDefinitionId]
 )
-SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion],
+SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion], d.[DefinitionKind],
        COALESCE(c.[OfficialRuns], 0) AS [OfficialRuns],
        COALESCE(c.[TotalCohorts], 0) AS [TotalCohorts],
        COALESCE(m.[MaturedCohorts], 0) AS [MaturedCohorts],
@@ -141,18 +201,19 @@ ORDER BY d.[DefinitionName], d.[DefinitionVersion];
         while (await reader.ReadAsync(cancellationToken))
         {
             result.Add(new CalibrationCoverageCounts(
-                reader.GetGuid(0), reader.GetString(1), reader.GetInt32(2),
-                reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5),
-                reader.GetInt32(6), reader.GetInt32(7), reader.GetInt32(8),
-                reader.GetInt32(9), reader.GetInt32(10)));
+                reader.GetGuid(0), reader.GetString(1), reader.GetInt32(2), reader.GetString(3),
+                reader.GetInt32(4), reader.GetInt32(5), reader.GetInt32(6),
+                reader.GetInt32(7), reader.GetInt32(8), reader.GetInt32(9),
+                reader.GetInt32(10), reader.GetInt32(11)));
         }
 
         return result;
     }
 
-    public async Task<bool> InsertMaturedOutcomeAsync(
+    public async Task<bool> InsertOutcomeAsync(
         Guid candidateId,
         Guid definitionId,
+        CalibrationOutcomeMaturityState maturityState,
         string outcomeJson,
         CalibrationAuditState auditState,
         CancellationToken cancellationToken = default)
@@ -166,7 +227,7 @@ IF NOT EXISTS
 INSERT INTO [dbo].[CalibrationCandidateOutcome]
     ([CandidateOutcomeId],[CandidateId],[OutcomeDefinitionId],[MaturityState],[AuditState],[OutcomeJson])
 VALUES
-    (@OutcomeId,@CandidateId,@DefinitionId,N'Matured',@AuditState,@OutcomeJson);
+    (@OutcomeId,@CandidateId,@DefinitionId,@MaturityState,@AuditState,@OutcomeJson);
 """;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
@@ -174,6 +235,7 @@ VALUES
         command.Parameters.Add(new SqlParameter("@OutcomeId", SqlDbType.UniqueIdentifier) { Value = Guid.NewGuid() });
         command.Parameters.Add(new SqlParameter("@CandidateId", SqlDbType.UniqueIdentifier) { Value = candidateId });
         command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier) { Value = definitionId });
+        command.Parameters.Add(new SqlParameter("@MaturityState", SqlDbType.NVarChar, 16) { Value = maturityState.ToString() });
         command.Parameters.Add(new SqlParameter("@AuditState", SqlDbType.NVarChar, 16) { Value = auditState.ToString() });
         command.Parameters.Add(new SqlParameter("@OutcomeJson", SqlDbType.NVarChar, -1) { Value = outcomeJson });
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
