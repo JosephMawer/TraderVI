@@ -60,6 +60,8 @@ architecture documentation.
 | [0020](0020-immutable-calibration-evidence-ledger.md) | Immutable calibration evidence ledger | Accepted | architecture, data-pipeline, decision-engine, machine-learning |
 | [0021](0021-calibration-outcome-and-paper-execution-contract.md) | Calibration outcome and paper-execution contract | Accepted | architecture, math-statistics, market-microstructure, risk-management |
 | [0022](0022-champion-challenger-evidence-and-promotion.md) | Champion/challenger evidence and promotion | Accepted | decision-engine, machine-learning, math-statistics, risk-management |
+| [0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) | Primary swing policy and experimental opening confirmation | Accepted | architecture, decision-engine, market-microstructure, risk-management |
+| [0024](0024-coverage-scorecard-and-market-session-cohorts.md) | Coverage scorecard and market-session cohort identity | Accepted | architecture, data-pipeline, decision-engine, math-statistics |
 
 See also:
 

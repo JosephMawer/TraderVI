@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-23
 - **Domains:** decision-engine, machine-learning, math-statistics, risk-management
-- **Related:** ADR-0010, ADR-0014, ADR-0016, ADR-0020, ADR-0021
+- **Related:** ADR-0010, ADR-0014, ADR-0016, ADR-0020, ADR-0021, ADR-0024
 
 ## Context
 

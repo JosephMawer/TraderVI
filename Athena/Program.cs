@@ -106,4 +106,16 @@ Console.WriteLine($"20-session path outcomes:    {pathsWritten:N0}");
 Console.WriteLine($"Not yet 10-session mature:   {immature:N0}");
 Console.WriteLine($"Invalid outcomes written:    {invalidWritten:N0}");
 
+var coverageRows = await outcomes.GetPredictionCoverageAsync();
+Console.WriteLine("\n=== Prediction coverage scorecard ===");
+foreach (var counts in coverageRows)
+{
+    var scorecard = CalibrationCoverageCalculator.Build(counts);
+    Console.WriteLine($"{counts.DefinitionName} v{counts.DefinitionVersion}");
+    Console.WriteLine($"  Cohorts:    {counts.MaturedCohorts:N0}/{counts.TotalCohorts:N0} matured ({counts.OfficialRuns:N0} official runs)");
+    Console.WriteLine($"  Candidates: {counts.ExpectedCandidates:N0} expected | {counts.ValidOutcomes:N0} valid | {counts.DegradedOutcomes:N0} degraded | {counts.InvalidOutcomes:N0} invalid | {counts.PendingOutcomes:N0} pending");
+    Console.WriteLine($"  Coverage:   {scorecard.UsableCoverage:P1} usable | {scorecard.CompletionCoverage:P1} complete | primary score {(scorecard.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
+    Console.WriteLine($"  State:      {scorecard.State}");
+}
+
 Environment.ExitCode = invalidWritten > 0 ? 2 : 0;

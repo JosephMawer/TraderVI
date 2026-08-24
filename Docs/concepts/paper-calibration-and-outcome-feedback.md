@@ -1,6 +1,6 @@
 # Paper calibration and outcome feedback
 
-- **Status:** Background design brief; implementation decisions accepted in ADR-0020 through ADR-0022
+- **Status:** Background design brief; implementation decisions accepted and refined in ADR-0020 through ADR-0024
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning, math-statistics, risk-management
 - **Related ADRs:** ADR-0002, ADR-0007, ADR-0009, ADR-0010, ADR-0011, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0019
@@ -594,7 +594,7 @@ The following are agreed starting constraints:
 
 ## Proposed defaults requiring a decision
 
-These items were proposals when this brief was written. They are now resolved by ADR-0020 (evidence/provenance), ADR-0021 (outcomes/execution/evaluator), and ADR-0022 (evidence/promotion). The ADRs are authoritative where wording differs.
+These items were proposals when this brief was written. They are now resolved by ADR-0020 (evidence/provenance), ADR-0021 (initial outcomes/execution/evaluator), ADR-0022 (evidence/promotion), ADR-0023 (primary swing direction and separate opening/intraday challengers), and ADR-0024 (coverage and market-session cohort identity). The ADRs are authoritative where wording differs.
 
 The following are recommendations, not yet accepted decisions:
 

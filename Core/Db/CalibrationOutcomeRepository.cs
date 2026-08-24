@@ -63,6 +63,93 @@ ORDER BY c.[ObservationDate], c.[Symbol];
         return result;
     }
 
+    public async Task<List<CalibrationCoverageCounts>> GetPredictionCoverageAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+WITH [Definitions] AS
+(
+    SELECT [OutcomeDefinitionId], [DefinitionName], [DefinitionVersion]
+    FROM [dbo].[CalibrationOutcomeDefinition]
+    WHERE [DefinitionKind] = N'Prediction' AND [IsActive] = 1
+),
+[OfficialRuns] AS
+(
+    SELECT r.[RunId], r.[MarketDataAsOf]
+    FROM [dbo].[CalibrationRun] r
+    WHERE r.[RunPurpose] = N'OfficialPaper' AND r.[AuditState] <> N'Invalid'
+),
+[DefinitionRunCandidates] AS
+(
+    SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion],
+           r.[RunId], r.[MarketDataAsOf], c.[CandidateId],
+           o.[CandidateOutcomeId], o.[MaturityState], o.[AuditState]
+    FROM [Definitions] d
+    CROSS JOIN [OfficialRuns] r
+    LEFT JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+    LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
+      ON o.[CandidateId] = c.[CandidateId]
+     AND o.[OutcomeDefinitionId] = d.[OutcomeDefinitionId]
+),
+[CandidateSummary] AS
+(
+    SELECT [OutcomeDefinitionId],
+           COUNT(DISTINCT [RunId]) AS [OfficialRuns],
+           COUNT(DISTINCT [MarketDataAsOf]) AS [TotalCohorts],
+           COUNT([CandidateId]) AS [ExpectedCandidates],
+           SUM(CASE WHEN [MaturityState] <> N'Pending' AND [AuditState] = N'Valid' THEN 1 ELSE 0 END) AS [ValidOutcomes],
+           SUM(CASE WHEN [MaturityState] <> N'Pending' AND [AuditState] = N'Degraded' THEN 1 ELSE 0 END) AS [DegradedOutcomes],
+           SUM(CASE WHEN [MaturityState] <> N'Pending' AND [AuditState] = N'Invalid' THEN 1 ELSE 0 END) AS [InvalidOutcomes],
+           SUM(CASE WHEN [CandidateId] IS NOT NULL AND ([CandidateOutcomeId] IS NULL OR [MaturityState] = N'Pending') THEN 1 ELSE 0 END) AS [PendingOutcomes]
+    FROM [DefinitionRunCandidates]
+    GROUP BY [OutcomeDefinitionId]
+),
+[CohortSummary] AS
+(
+    SELECT [OutcomeDefinitionId], [MarketDataAsOf],
+           COUNT([CandidateId]) AS [ExpectedCandidates],
+           SUM(CASE WHEN [CandidateOutcomeId] IS NOT NULL AND [MaturityState] <> N'Pending' THEN 1 ELSE 0 END) AS [CompletedCandidates]
+    FROM [DefinitionRunCandidates]
+    GROUP BY [OutcomeDefinitionId], [MarketDataAsOf]
+),
+[MaturitySummary] AS
+(
+    SELECT [OutcomeDefinitionId],
+           SUM(CASE WHEN [ExpectedCandidates] = [CompletedCandidates] THEN 1 ELSE 0 END) AS [MaturedCohorts]
+    FROM [CohortSummary]
+    GROUP BY [OutcomeDefinitionId]
+)
+SELECT d.[OutcomeDefinitionId], d.[DefinitionName], d.[DefinitionVersion],
+       COALESCE(c.[OfficialRuns], 0) AS [OfficialRuns],
+       COALESCE(c.[TotalCohorts], 0) AS [TotalCohorts],
+       COALESCE(m.[MaturedCohorts], 0) AS [MaturedCohorts],
+       COALESCE(c.[ExpectedCandidates], 0) AS [ExpectedCandidates],
+       COALESCE(c.[ValidOutcomes], 0) AS [ValidOutcomes],
+       COALESCE(c.[DegradedOutcomes], 0) AS [DegradedOutcomes],
+       COALESCE(c.[InvalidOutcomes], 0) AS [InvalidOutcomes],
+       COALESCE(c.[PendingOutcomes], 0) AS [PendingOutcomes]
+FROM [Definitions] d
+LEFT JOIN [CandidateSummary] c ON c.[OutcomeDefinitionId] = d.[OutcomeDefinitionId]
+LEFT JOIN [MaturitySummary] m ON m.[OutcomeDefinitionId] = d.[OutcomeDefinitionId]
+ORDER BY d.[DefinitionName], d.[DefinitionVersion];
+""";
+        var result = new List<CalibrationCoverageCounts>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new CalibrationCoverageCounts(
+                reader.GetGuid(0), reader.GetString(1), reader.GetInt32(2),
+                reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5),
+                reader.GetInt32(6), reader.GetInt32(7), reader.GetInt32(8),
+                reader.GetInt32(9), reader.GetInt32(10)));
+        }
+
+        return result;
+    }
+
     public async Task<bool> InsertMaturedOutcomeAsync(
         Guid candidateId,
         Guid definitionId,

@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 34 passed, 0 failed, 0 skipped on 2026-08-23.
+- Core tests: 39 passed, 0 failed, 0 skipped on 2026-08-23.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -129,7 +129,8 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0022 define the evidence, outcome, execution, and promotion contracts. The additive schema matches TraderDB. Two official validation runs and one exploratory replay were captured for the same 2026-08-23 recommendation cohort, so they count as one independent cohort. Athena now distinguishes immature horizons from terminal invalid session joins, but has not written an outcome because no future eligible session has matured. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0024 define the evidence, outcome, coverage, policy-separation, and promotion contracts. The additive schema matches TraderDB. Two official validation runs and one exploratory replay were captured over the same 2026-08-21 completed market session, so they count as one independent cohort. Athena now distinguishes immature horizons from terminal invalid session joins and has a coverage-first scorecard, but has not written an outcome because no future eligible session has matured. Track progress in `Docs/calibration-implementation-checklist.md`.
+8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
 

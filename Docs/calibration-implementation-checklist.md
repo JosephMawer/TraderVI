@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-08-23
-- **Authoritative design:** ADR-0020, ADR-0021, ADR-0022
+- **Authoritative design:** ADR-0020 through ADR-0024
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 
@@ -27,7 +27,9 @@ The design, first source implementation, database rollout audit, and controlled 
 - [x] Define next-eligible-session-open trade timing, costs, exits, and OHLC ambiguity handling.
 - [x] Define Top-1, Top-3, Top-5, and rank-weighted research policies.
 - [x] Define champion/challenger evidence tiers and human promotion rules.
-- [x] Accept ADR-0020 through ADR-0022 and add review cards.
+- [x] Define the primary multi-day swing direction and keep intraday/opening confirmation as separate challengers.
+- [x] Define coverage reporting and market-session cohort identity so reruns do not inflate evidence.
+- [x] Accept ADR-0020 through ADR-0024 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -50,9 +52,9 @@ The design, first source implementation, database rollout audit, and controlled 
 
 ### Validation completed
 
-- [x] Core tests pass: 34 passed, 0 failed on 2026-08-23.
+- [x] Core tests pass: 39 passed, 0 failed on 2026-08-23.
 - [x] Delphi focused build succeeds with no compiler warnings.
-- [x] Athena focused build succeeds with no compiler warnings.
+- [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
 - [x] Migration and canonical schema definitions compile together.
 
@@ -90,7 +92,7 @@ The design, first source implementation, database rollout audit, and controlled 
 
 - [ ] **Operational step:** run Athena after the first official cohorts mature.
 - [x] Persist explicit invalid records for missing or duplicate symbol sessions once the required XIU horizon has matured; genuinely immature horizons remain pending so late ingestion can settle.
-- [ ] Add coverage-first deterministic scorecards.
+- [x] Add coverage-first deterministic scorecards with run/cohort counts, valid/degraded/invalid/pending counts, completion and usable coverage, and a 95% primary-reporting floor.
 - [ ] Add Brier score, reliability buckets, calibration error, AUC where supported, and probability-decile lift.
 - [ ] Add Spearman rank information coefficient and top-1/top-3/top-5/top-decile lift.
 - [ ] Add gate pass/fail, OBV-state, regime, liquidity, volatility, sector, and lens slices.
@@ -100,6 +102,7 @@ The design, first source implementation, database rollout audit, and controlled 
 ## Phase D — tradeable recommendation outcomes
 
 - [ ] Add a versioned tradeable-outcome definition and persistence shape.
+- [ ] Add separately versioned 1-, 2-, and 3-session economic measures for the short-term swing objective; retain 10/20-session model diagnostics.
 - [ ] Select the first eligible entry session using run time in `America/Toronto`.
 - [ ] Implement the three-session missing-entry-bar allowance and `NoEntry` result.
 - [ ] Apply raw open plus separately persisted 10 bps slippage and 15 bps half-spread per side.
@@ -108,6 +111,8 @@ The design, first source implementation, database rollout audit, and controlled 
 - [ ] Flag conservative same-day path ambiguity.
 - [ ] Restrict tradeable outcomes to published lens recommendations.
 - [ ] Add recommendation-level Continuation and Breakout tradeability reports.
+- [ ] Resolve and version the primary 3–5-session swing profit-protection, trend-extension, and maximum-hold rules.
+- [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
 
 ## Phase E — shadow portfolios
 
@@ -115,7 +120,7 @@ The design, first source implementation, database rollout audit, and controlled 
 - [ ] Implement normalized fractional Top-3 and Top-5 equal-weight portfolios.
 - [ ] Implement the versioned rank-weighted formula.
 - [ ] Implement capital-constrained integer-share versions using historical capital and reserve.
-- [ ] Implement ten-session holding, vacancy filling, duplicate-symbol handling, and no-early-rotation v1 rules.
+- [ ] Implement the accepted versioned swing holding/exit policy, vacancy filling, duplicate-symbol handling, and rotation rules.
 - [ ] Add equity curves, drawdown, turnover, costs, utilization, and recovery metrics.
 - [ ] Keep Continuation and Breakout portfolio results separate.
 

@@ -145,6 +145,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   re-derive Dullness as a continuation indicator under a new ADR rather
   than revive Granville's literal bearish framing?
 
+### Delphi opening confirmation and swing exits (ADR-0023)
+
+- **Q:** Which entitled, timestamped source should provide intraday trades, quotes, spreads, opening gaps, and volume, and what storage/retention contract should it use?
+- **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
+- **Q:** What exact versioned rule protects profit and exits the primary swing position: fixed maximum session, trailing stop, trend failure, profit floor, or a reviewed combination?
+- **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
+- **Status:** open — ADR-0023 accepts the policy separation but deliberately does not promote timing or exit thresholds.
+
 ## Resolved
 
 - **Switch Continuations lens ranking from raw `RScomp` to Z-scored `CompZ`**

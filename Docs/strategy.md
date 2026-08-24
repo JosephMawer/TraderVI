@@ -5,7 +5,9 @@
 
 ## Strategy: Aggressive Single-Position Rotation
 - Allocate most/all available capital into the single top-ranked opportunity.
-- Intended holding window: ~1–2 weeks.
+- Primary paper-policy direction: a multi-day swing, normally about 3–5 completed sessions and potentially longer while a future versioned exit rule says the trend remains healthy (ADR-0023).
+- The exact profit-protection, trailing, stop, and maximum-hold rules are not yet accepted or implemented.
+- Intraday wave trading is a separate experimental policy and must not be blended into the swing results.
 - TSX-only for now.
 
 ## Decision Inputs ("Hints")

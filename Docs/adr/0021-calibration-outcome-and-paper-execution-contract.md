@@ -4,6 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, math-statistics, market-microstructure, risk-management
 - **Related:** ADR-0002, ADR-0007, ADR-0015, ADR-0020
+- **Refined by:** ADR-0023 for the primary swing-policy direction and ADR-0024 for coverage/cohort reporting
 
 ## Context
 

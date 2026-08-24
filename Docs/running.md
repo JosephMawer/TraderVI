@@ -151,7 +151,7 @@ Even in ghost mode, `buy` and `sell` mutate SQL trading records. `scan` loads ma
 **Project:** `Athena`
 **Entry point:** `Athena/Program.cs`
 
-Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It makes no external requests. It is still a database writer: apply the reviewed calibration migration manually first and obtain explicit authorization before running it.
+Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It then prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. It makes no external requests. It is still a database writer: apply the reviewed calibration migration manually first and obtain explicit authorization before running it.
 
 ```powershell
 dotnet run --project Athena

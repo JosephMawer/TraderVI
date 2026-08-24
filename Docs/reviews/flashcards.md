@@ -368,3 +368,27 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0022
 
 **A:** At least 120 matured official cohorts, a forty-cohort untouched forward window, adequate regime coverage, cohort-aware confidence bounds for improvement, and bounds showing no unacceptable lower-tail or drawdown deterioration—followed by explicit human approval and immutable version/ADR/code records.
+
+### Q: Why can an opening move not automatically veto Delphi's completed-session recommendation?
+- **Domains:** decision-engine, market-microstructure, risk-management
+- **Source:** ADR-0023
+
+**A:** The move may be new information, price discovery, or temporary execution noise. Opening direction must first prove incremental value as a versioned challenger; only input-integrity or execution-safety failures may be immediate hard exclusions.
+
+### Q: Why are intraday wave trading and multi-day swing trading scored separately?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0023
+
+**A:** They use different holding periods, entry and exit rules, costs, risks, and opportunities. Combining them would conceal which policy produced the result and make Delphi impossible to tune honestly.
+
+### Q: Why does Athena count prediction cohorts by `MarketDataAsOf` rather than Delphi run date?
+- **Domains:** architecture, data-pipeline, decision-engine, math-statistics
+- **Source:** ADR-0024
+
+**A:** Weekend runs and deliberate reruns can use the same completed market session. They remain separate audit records, but counting them as independent cohorts would exaggerate the evidence available for tuning.
+
+### Q: What is the difference between Athena's completion and usable coverage?
+- **Domains:** data-pipeline, math-statistics
+- **Source:** ADR-0024
+
+**A:** Completion counts every terminal outcome, including invalid ones. Usable coverage counts only valid and degraded terminal outcomes; invalid and pending rows cannot support the reported performance score.
