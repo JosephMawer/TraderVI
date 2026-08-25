@@ -230,4 +230,32 @@ foreach (var counts in coverageRows)
     Console.WriteLine($"  State:      {scorecard.State}");
 }
 
+var lensEvidence = await outcomes.GetLensTradeabilityEvidenceAsync();
+var lensReports = LensTradeabilityReportCalculator.BuildReports(lensEvidence);
+Console.WriteLine("\n=== Continuation vs Breakout tradeability ===");
+foreach (var report in lensReports)
+{
+    LensTradeabilityCoverage coverage = report.Coverage;
+    Console.WriteLine(report.Lens);
+    Console.WriteLine($"  Cohorts:        {coverage.MaturedCohorts:N0}/{coverage.TotalCohorts:N0} matured ({coverage.OfficialRuns:N0} official runs)");
+    Console.WriteLine($"  Recommendations:{coverage.ExpectedRecommendations,8:N0} expected | {coverage.EnteredRecommendations:N0} entered | {coverage.NoEntryRecommendations:N0} no-entry | {coverage.InvalidRecommendations:N0} invalid | {coverage.PendingRecommendations:N0} pending");
+    Console.WriteLine($"  Coverage:       {coverage.UsableCoverage:P1} usable | {coverage.CompletionCoverage:P1} complete | performance {(coverage.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
+    Console.WriteLine($"  State:          {coverage.State}");
+    if (!coverage.PrimaryScoreAvailable)
+        continue;
+
+    Console.WriteLine($"  No-entry rate:  {report.NoEntryRate:P1} (cohort-weighted)");
+    foreach (var horizon in report.Horizons)
+    {
+        if (horizon.MeanNetReturn is null)
+        {
+            Console.WriteLine($"  Session {horizon.Sessions}: no entered recommendations");
+            continue;
+        }
+
+        Console.WriteLine($"  Session {horizon.Sessions}: net {horizon.MeanNetReturn:P2} | profitable {horizon.ProfitableRate:P1} | net excess {horizon.MeanNetExcessReturn:P2} | MFE {horizon.MeanMfeReturn:P2} | MAE {horizon.MeanMaeReturn:P2}");
+        Console.WriteLine($"             mean extreme session: MFE {horizon.MeanMfeSessionOrdinal:0.00} | MAE {horizon.MeanMaeSessionOrdinal:0.00} ({horizon.ContributingCohorts:N0} cohorts)");
+    }
+}
+
 Environment.ExitCode = invalidWritten > 0 ? 2 : 0;

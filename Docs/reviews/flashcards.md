@@ -416,3 +416,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0026
 
 **A:** A daily OHLC bar shows the session high and low but not which occurred first. Guessing the order could make a future target-and-stop policy look executable when the data cannot prove it.
+
+### Q: How does Athena stop repeated official Delphi runs from overweighting one market session?
+- **Domains:** architecture, math-statistics
+- **Source:** ADR-0027
+
+**A:** It first averages recommendations within each run, then averages runs within the shared `MarketDataAsOf` cohort, and finally gives each cohort equal weight. Reruns remain auditable but do not create extra independent cohorts.
+
+### Q: Why are Continuation and Breakout tradeability results not combined?
+- **Domains:** decision-engine, risk-management
+- **Source:** ADR-0027
+
+**A:** The lenses express different theses with different gates and rankings. Separate reports show which selection process produced the return, path risk, or no-entry result; combining them would hide the behavior Delphi needs to tune.

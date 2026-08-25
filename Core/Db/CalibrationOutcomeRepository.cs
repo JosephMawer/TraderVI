@@ -217,6 +217,65 @@ ORDER BY d.[DefinitionName], d.[DefinitionVersion];
         return result;
     }
 
+    public async Task<LensTradeabilityEvidenceSet> GetLensTradeabilityEvidenceAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+SELECT r.[RunId], r.[MarketDataAsOf]
+FROM [dbo].[CalibrationRun] r
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf], r.[StartedUtc], r.[RunId];
+
+SELECT r.[RunId], r.[MarketDataAsOf], l.[Lens], l.[Rank], c.[CandidateId], c.[Symbol],
+       m.[MaturityState], m.[AuditState], m.[OutcomeJson],
+       e.[MaturityState], e.[AuditState], e.[OutcomeJson]
+FROM [dbo].[CalibrationRun] r
+JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+JOIN [dbo].[CalibrationLensEvaluation] l
+  ON l.[CandidateId] = c.[CandidateId] AND l.[IsPublished] = 1
+LEFT JOIN [dbo].[CalibrationCandidateOutcome] m
+  ON m.[CandidateId] = c.[CandidateId] AND m.[OutcomeDefinitionId] = @MarkDefinitionId
+LEFT JOIN [dbo].[CalibrationCandidateOutcome] e
+  ON e.[CandidateId] = c.[CandidateId] AND e.[OutcomeDefinitionId] = @ExcursionDefinitionId
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
+""";
+        var runs = new List<LensTradeabilityRunEvidence>();
+        var recommendations = new List<LensTradeabilityEvidenceRow>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.Add(new SqlParameter("@MarkDefinitionId", SqlDbType.UniqueIdentifier)
+            { Value = SwingMarkToMarket3DefinitionId });
+        command.Parameters.Add(new SqlParameter("@ExcursionDefinitionId", SqlDbType.UniqueIdentifier)
+            { Value = SwingExcursion3DefinitionId });
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+            runs.Add(new LensTradeabilityRunEvidence(reader.GetGuid(0), reader.GetDateTime(1)));
+
+        await reader.NextResultAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            recommendations.Add(new LensTradeabilityEvidenceRow(
+                reader.GetGuid(0),
+                reader.GetDateTime(1),
+                reader.GetString(2),
+                reader.GetInt32(3),
+                reader.GetGuid(4),
+                reader.GetString(5),
+                reader.IsDBNull(6) ? null : reader.GetString(6),
+                reader.IsDBNull(7) ? null : reader.GetString(7),
+                reader.IsDBNull(8) ? null : reader.GetString(8),
+                reader.IsDBNull(9) ? null : reader.GetString(9),
+                reader.IsDBNull(10) ? null : reader.GetString(10),
+                reader.IsDBNull(11) ? null : reader.GetString(11)));
+        }
+
+        return new LensTradeabilityEvidenceSet(runs, recommendations);
+    }
+
     public async Task<bool> InsertOutcomeAsync(
         Guid candidateId,
         Guid definitionId,

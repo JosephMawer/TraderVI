@@ -64,6 +64,7 @@ architecture documentation.
 | [0024](0024-coverage-scorecard-and-market-session-cohorts.md) | Coverage scorecard and market-session cohort identity | Accepted | architecture, data-pipeline, decision-engine, math-statistics |
 | [0025](0025-three-session-swing-mark-to-market-outcome.md) | Three-session swing mark-to-market outcome | Accepted | architecture, math-statistics, market-microstructure, risk-management |
 | [0026](0026-three-session-swing-excursion-measures.md) | Three-session swing excursion measures | Accepted | architecture, math-statistics, market-microstructure, risk-management |
+| [0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) | Lens tradeability scorecards and cohort aggregation | Accepted | architecture, decision-engine, math-statistics, risk-management |
 
 See also:
 

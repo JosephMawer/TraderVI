@@ -5,6 +5,7 @@
 - **Domains:** architecture, data-pipeline, decision-engine, math-statistics
 - **Related:** ADR-0020, ADR-0021, ADR-0022
 - **Refined by:** ADR-0025 for tradeable-definition population and `NoEntry` coverage
+- **Extended by:** ADR-0027 for lens-level joint coverage and nested run/cohort aggregation
 
 ## Context
 
