@@ -120,7 +120,9 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Add a deterministic pure policy engine for 15-minute bars, cost-aware break-even, non-decreasing trailing protection, fresh-Delphi exception qualification, data-age diagnostics, and time exits.
 - [x] Add and run the authorized read-only `tmx-xiu-intraday` probe with no database writes: three bounded XIU calls completed on 2026-08-25.
 - [x] Record the failed response contract honestly: the 2-, 14-, and 90-day 15-minute requests all returned the same seven daily 4:00 p.m. bars, and the two-day response included dates before its requested start.
-- [ ] Correct or replace the existing TMX intraday request shape and rerun the probe until actual 15-minute bars satisfy timestamp, interval, session, delay, and retention checks.
+- [x] Correct the TMX intraday request to omit `freq`, round Unix bounds to whole minutes, reject obvious daily fallback responses, and rerun the probe: the corrected 2- and 14-day requests returned clean, current, gap-free 15-minute XIU sessions.
+- [x] Record the wide-window cap: the 90-day request returned the oldest 754 bars (29 sessions) only, so rolling monitoring windows are viable but historical loading requires bounded chunks and deduplication.
+- [ ] During TSX market hours, probe when newly completed XIU bars become observable and how repeated 15-minute polls behave; keep this separate from tonight's historical shape test.
 - [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
 - [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.

@@ -29,6 +29,8 @@ namespace Core.TMX
         private readonly HttpClient _httpClient;
         private readonly HttpClientHandler _handler;
         private static readonly Uri GraphQLEndpoint = new("https://app-money.tmx.com/graphql");
+        private static readonly TimeZoneInfo TmxEasternTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 
         public TmxClient()
         {
@@ -58,41 +60,84 @@ namespace Core.TMX
         // ═══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Gets intraday time-series data (minute/hour intervals).
+        /// Gets intraday time-series data using TMX's current interval and
+        /// Unix-time request contract. Intraday requests intentionally omit
+        /// the historical <c>freq</c> argument; TMX uses that argument for
+        /// daily and longer aggregations.
         /// Returns canonical OhlcvBar with UTC timestamps.
         /// </summary>
         /// <param name="symbol">e.g., "BCE" or "BCE:US"</param>
-        /// <param name="freq">"minute" or "hour"</param>
         /// <param name="interval">1, 5, 15, 30, 60</param>
         /// <param name="startDateTime">UTC start time</param>
         /// <param name="endDateTime">UTC end time (optional)</param>
         public async Task<List<OhlcvBar>> GetIntradayTimeSeriesAsync(
             string symbol,
-            string freq,
             int interval,
             DateTime startDateTime,
             DateTime? endDateTime = null,
             CancellationToken ct = default)
         {
-            if (startDateTime.Kind != DateTimeKind.Utc)
-                startDateTime = startDateTime.ToUniversalTime();
-            if (endDateTime.HasValue && endDateTime.Value.Kind != DateTimeKind.Utc)
-                endDateTime = endDateTime.Value.ToUniversalTime();
+            GraphQLRequest request = BuildIntradayTimeSeriesRequest(
+                symbol,
+                interval,
+                startDateTime,
+                endDateTime);
 
-            var request = new GraphQLRequest
+            var response = await _graphClient.SendQueryAsync<TmxTimeSeriesResponse>(request, ct);
+            if (response.Errors is { Length: > 0 })
+                throw new InvalidOperationException(
+                    $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
+
+            // Map DTO → Domain — skip bars with null OHLCV (halted/suspended days).
+            List<OhlcvBar> bars = response.Data?.getTimeSeriesData
+                .Where(p => p.IsComplete)
+                .Select(TmxMapper.ToOhlcvBar)
+                .ToList()
+                ?? [];
+
+            return ValidateIntradayResponse(
+                bars,
+                interval,
+                startDateTime,
+                endDateTime);
+        }
+
+        internal static GraphQLRequest BuildIntradayTimeSeriesRequest(
+            string symbol,
+            int interval,
+            DateTime startDateTime,
+            DateTime? endDateTime)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(symbol);
+
+            if (interval is not (1 or 5 or 15 or 30 or 60))
+                throw new ArgumentOutOfRangeException(
+                    nameof(interval),
+                    interval,
+                    "TMX intraday interval must be 1, 5, 15, 30, or 60 minutes.");
+
+            DateTime startUtc = FloorToUtcMinute(startDateTime);
+            DateTime? endUtc = endDateTime.HasValue
+                ? FloorToUtcMinute(endDateTime.Value)
+                : null;
+
+            if (endUtc.HasValue && endUtc.Value <= startUtc)
+                throw new ArgumentException(
+                    "TMX intraday end time must be later than the start time.",
+                    nameof(endDateTime));
+
+            return new GraphQLRequest
             {
                 OperationName = "getTimeSeriesData",
                 Query = @"
                 query getTimeSeriesData(
                     $symbol: String!,
-                    $freq: String,
                     $interval: Int,
                     $startDateTime: Int,
                     $endDateTime: Int
                 ) {
                   getTimeSeriesData(
                     symbol: $symbol
-                    freq: $freq
                     interval: $interval
                     startDateTime: $startDateTime
                     endDateTime: $endDateTime
@@ -107,25 +152,62 @@ namespace Core.TMX
                 }",
                 Variables = new
                 {
-                    symbol,
-                    freq,
+                    symbol = symbol.Trim(),
                     interval,
-                    startDateTime = ToUnixSeconds(startDateTime),
-                    endDateTime = endDateTime.HasValue ? ToUnixSeconds(endDateTime.Value) : (int?)null
+                    startDateTime = ToUnixSeconds(startUtc),
+                    endDateTime = endUtc.HasValue ? ToUnixSeconds(endUtc.Value) : (int?)null
                 }
             };
+        }
 
-            var response = await _graphClient.SendQueryAsync<TmxTimeSeriesResponse>(request, ct);
-            if (response.Errors is { Length: > 0 })
+        internal static List<OhlcvBar> ValidateIntradayResponse(
+            IReadOnlyCollection<OhlcvBar> sourceBars,
+            int interval,
+            DateTime startDateTime,
+            DateTime? endDateTime)
+        {
+            List<OhlcvBar> bars = sourceBars
+                .OrderBy(bar => bar.TimestampUtc)
+                .ToList();
+
+            if (bars.Count == 0)
+                return bars;
+
+            if (bars.GroupBy(bar => bar.TimestampUtc).Any(group => group.Count() > 1))
                 throw new InvalidOperationException(
-                    $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
+                    "TMX returned duplicate timestamps for an intraday request.");
 
-            // Map DTO → Domain — skip bars with null OHLCV (halted/suspended days)
-            return response.Data?.getTimeSeriesData
-                .Where(p => p.IsComplete)
-                .Select(TmxMapper.ToOhlcvBar)
-                .ToList()
-                ?? new List<OhlcvBar>();
+            DateTime startUtc = FloorToUtcMinute(startDateTime);
+            DateTime? endUtc = endDateTime.HasValue
+                ? FloorToUtcMinute(endDateTime.Value)
+                : null;
+            TimeSpan boundaryTolerance = TimeSpan.FromMinutes(interval);
+
+            bool outsideWindow = bars.Any(bar =>
+                bar.TimestampUtc < startUtc - boundaryTolerance ||
+                endUtc.HasValue && bar.TimestampUtc > endUtc.Value + boundaryTolerance);
+            if (outsideWindow)
+                throw new InvalidOperationException(
+                    "TMX returned timestamps outside the requested intraday window; " +
+                    "the response may be a lower-frequency fallback.");
+
+            var sessions = bars
+                .GroupBy(bar => TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.SpecifyKind(bar.TimestampUtc, DateTimeKind.Utc),
+                    TmxEasternTimeZone).Date)
+                .ToList();
+            bool looksLikeDailyFallback =
+                sessions.Count >= 2 &&
+                sessions.All(session => session.Count() == 1) &&
+                bars.All(bar => TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.SpecifyKind(bar.TimestampUtc, DateTimeKind.Utc),
+                    TmxEasternTimeZone).TimeOfDay == new TimeSpan(16, 0, 0));
+            if (looksLikeDailyFallback)
+                throw new InvalidOperationException(
+                    "TMX returned one 4:00 p.m. bar per session for an intraday request; " +
+                    "this is daily fallback data, not intraday evidence.");
+
+            return bars;
         }
 
         /// <summary>
@@ -510,6 +592,16 @@ namespace Core.TMX
         // ═══════════════════════════════════════════════════════════════════
         // UTILITIES
         // ═══════════════════════════════════════════════════════════════════
+
+        private static DateTime FloorToUtcMinute(DateTime value)
+        {
+            DateTime utc = value.Kind == DateTimeKind.Utc
+                ? value
+                : value.ToUniversalTime();
+            return new DateTime(
+                utc.Ticks - utc.Ticks % TimeSpan.TicksPerMinute,
+                DateTimeKind.Utc);
+        }
 
         private static int ToUnixSeconds(DateTime utc)
         {

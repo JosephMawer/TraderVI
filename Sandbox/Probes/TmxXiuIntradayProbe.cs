@@ -55,7 +55,7 @@ public sealed class TmxXiuIntradayProbe : IProbe
 
         Console.WriteLine("=== TMX XIU delayed-intraday contract probe ===");
         Console.WriteLine($"Probe started UTC: {probeStartedUtc:O}");
-        Console.WriteLine($"Request: symbol={Symbol}, freq=minute, interval={IntervalMinutes}");
+        Console.WriteLine($"Request: symbol={Symbol}, freq=<unset>, interval={IntervalMinutes}");
         Console.WriteLine("Side effects: external read only; no SQL, files, positions, or orders.");
         Console.WriteLine();
 
@@ -66,7 +66,6 @@ public sealed class TmxXiuIntradayProbe : IProbe
             var stopwatch = Stopwatch.StartNew();
             List<OhlcvBar> bars = await tmx.GetIntradayTimeSeriesAsync(
                 Symbol,
-                "minute",
                 IntervalMinutes,
                 requestedStartUtc,
                 requestedEndUtc);
@@ -107,16 +106,19 @@ public sealed class TmxXiuIntradayProbe : IProbe
             r.InvalidOhlcCount == 0 &&
             r.NegativeVolumeCount == 0);
         bool hasCompleteSession = widest.Sessions.Any(s => s.BarCount == ExpectedRegularSessionBars);
+        bool wideWindowWasTruncated = widest.LatestUtc.HasValue &&
+            widest.LatestUtc.Value < widest.RequestedEndUtc.AddDays(-7);
 
         Console.WriteLine();
         Console.WriteLine("=== Probe verdict ===");
         Console.WriteLine($"Structural checks: {(structurallyClean ? "PASS" : "FAIL")}");
         Console.WriteLine($"At least one 26-bar regular session: {(hasCompleteSession ? "YES" : "NO")}");
+        Console.WriteLine($"Wide-window response was capped: {(wideWindowWasTruncated ? "YES" : "NO")}");
         Console.WriteLine($"Observed timestamp label: {widest.TimestampLabelInference}");
         Console.WriteLine($"Observed 90-day request range: {widest.RetentionDescription}");
         Console.WriteLine("Delay note: latest age is measured from the returned bar timestamp; interpret it with the inferred start/end label.");
         Console.WriteLine(structurallyClean && hasCompleteSession
-            ? "Result: response shape is suitable for storage-contract design, subject to the observed delay and retention limits above."
+            ? "Result: short rolling windows are suitable for monitoring/storage design; long history must be requested in bounded chunks."
             : "Result: keep the collector blocked until the failed response-contract checks are resolved.");
     }
 

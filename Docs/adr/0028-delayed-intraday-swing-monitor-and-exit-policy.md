@@ -15,11 +15,17 @@ TraderVI already has `TmxClient.GetIntradayTimeSeriesAsync`, which can request m
 
 **Post-decision source finding (2026-08-25):** the authorized read-only `tmx-xiu-intraday` probe requested 15-minute XIU bars over 2-, 14-, and 90-calendar-day windows. All three calls returned the same seven one-per-session bars timestamped at 4:00 p.m. Toronto time, spanning 2026-08-17 through 2026-08-25; the two-day call even returned dates before its requested start. The response was structurally valid daily OHLCV but did not satisfy the intraday interval or window contract. Therefore the existing method name and request shape are not evidence that usable intraday data is currently available. Persistence and polling remain blocked until a corrected request produces actual intraday bars and the probe passes.
 
+**Current request-contract finding (2026-08-26):** inspection of the GraphQL query in the JavaScript bundle loaded by TMX Money's current XIU quote page confirmed that intraday requests send `interval`, `startDateTime`, and `endDateTime`, with Unix-second bounds rounded down to the minute. They leave `freq` unset; `freq` is used for daily and longer aggregations. The page requests intraday history in five-calendar-day chunks. The failed probe had sent the obsolete `freq = "minute"` combination, which explains the daily fallback. Correcting the existing client to match the observed request contract and rejecting obvious daily fallback responses is within this ADR's source-validation milestone; it does not require a separate strategy decision.
+
+The corrected read-only probe then returned 52 bars across two sessions for the two-day window and 260 bars across ten sessions for the fourteen-day window. Every full session contained 26 gap-free bars from 9:30 a.m. through 3:45 p.m. Toronto time, confirming 15-minute bar-start timestamps; duplicate, alignment, OHLC, and volume checks all passed. A ninety-day request was capped at 754 bars: it returned the oldest 29 sessions from May 28 through July 8 rather than continuing to the current session. Short rolling requests are therefore suitable for monitor/storage design, while any historical load must use bounded chunks and deduplicate boundaries. A market-hours check remains necessary to measure when a newly completed bar actually becomes observable.
+
 ## Decision
 
 ### Confirmed direction
 
-Keep Delphi's completed-session recommendation process unchanged. After a manual or ghost entry, manage the position through a separate advisory monitor that polls the existing TMX intraday method every **15 minutes** during regular TSX trading hours. Use 15-minute OHLCV bars; do not poll minute by minute.
+Keep Delphi's completed-session recommendation process unchanged. After a manual or ghost entry, manage the position through a separate advisory monitor that polls the existing TMX intraday method every **15 minutes** during regular TSX trading hours. Request the newest completed 15-minute OHLCV evidence from TMX's minute-capable intraday source; do not poll minute by minute.
+
+The 15-minute value is the monitor's polling cadence, not a claim that TMX publishes only exact 15-minute updates. A poll may receive no new completed bar, especially outside trading hours or during a source delay; a repeated event timestamp is a no-op rather than new evidence. Market-hours probing must verify how quickly the corrected endpoint exposes a newly completed interval before scheduling or persistence is considered ready.
 
 Treat every source bar as delayed evidence. Preserve its market-event timestamp separately from the UTC time TraderVI received it, calculate and display its age, and never call an alert a guaranteed stop fill. The monitor emits advice and paper decisions only. It does not place an order, silently close a real position, or change Delphi's ranking.
 
@@ -70,7 +76,8 @@ It also creates a new paper-policy challenger under ADR-0022. It does not retroa
 - Fifteen-minute polling reduces noise but necessarily gives back part of fast moves and cannot enforce exact stop prices.
 - The pure policy can be tested without market, database, brokerage, or scheduling side effects.
 - Later collection must preserve event and receipt times; a table containing only a price timestamp cannot reproduce delayed decisions.
-- The first live source probe failed the intraday response contract, so no collector or schema may treat the current seven daily fallback bars as 15-minute evidence.
+- The obsolete `freq = "minute"` request produced daily fallback data; the corrected no-`freq` request produces structurally valid 15-minute evidence. The client now rejects obvious daily fallback responses instead of silently accepting them.
+- TMX caps wide intraday responses, so the monitor must use short rolling windows and any backfill must use bounded chunks with boundary deduplication.
 - The conditional 10% exception increases downside exposure and must remain a paper challenger until the stronger ADR-0022 promotion contract is satisfied.
 - The existing TMX Money endpoint is a user-accepted limitation for local advisory research; delay, availability, and terms remain operational risks and must be visible in documentation.
 

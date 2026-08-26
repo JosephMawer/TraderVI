@@ -39,4 +39,8 @@
     <Folder Include="WSTrade\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TraderVI.Core.Tests" />
+  </ItemGroup>
+
 </Project>

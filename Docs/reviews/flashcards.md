@@ -440,3 +440,9 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0028
 
 **A:** The exception requires the latest valid OfficialPaper run after entry to publish the same symbol through the Breakout lens with breakout probability at least 60%, direction edge at least 10%, and down probability below 35%. Missing or original-entry evidence cannot qualify, and no signal bypasses the 20% alert.
+
+### Q: Why must TMX intraday requests leave `freq` unset?
+- **Domains:** data-sources, market-microstructure
+- **Source:** ADR-0028
+
+**A:** TMX's current chart code uses `interval` plus Unix `startDateTime` and `endDateTime` for intraday data. Sending the obsolete `freq = "minute"` combination produced daily fallback bars; omitting it returned valid 15-minute sessions.
