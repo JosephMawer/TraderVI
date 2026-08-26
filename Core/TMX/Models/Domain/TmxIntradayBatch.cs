@@ -31,12 +31,39 @@ namespace Core.TMX.Models.Domain
             LatestEventUtc?.AddMinutes(IntervalMinutes);
 
         /// <summary>
-        /// Age of the newest completed interval when this fetch was received.
-        /// A negative value is retained as a diagnostic rather than hidden.
+        /// Age of the newest returned interval when this fetch was received.
+        /// A negative value means that the newest bar was still forming and is
+        /// retained as a diagnostic rather than hidden.
         /// </summary>
         public TimeSpan? LatestEvidenceAgeAtReceipt =>
             LatestIntervalCompletedUtc.HasValue
                 ? ReceivedUtc - LatestIntervalCompletedUtc.Value
                 : null;
+
+        /// <summary>
+        /// The newest bar whose full interval had elapsed by receipt time.
+        /// A newer returned bar may still be forming and may later be revised.
+        /// </summary>
+        public OhlcvBar LatestCompletedBarAtReceipt =>
+            Bars.LastOrDefault(bar =>
+                bar.TimestampUtc.AddMinutes(IntervalMinutes) <= ReceivedUtc);
+
+        /// <summary>The start timestamp of the newest completed bar.</summary>
+        public DateTime? LatestCompletedEventUtc =>
+            LatestCompletedBarAtReceipt?.TimestampUtc;
+
+        /// <summary>
+        /// Age of the newest completed interval at receipt time. Unlike
+        /// <see cref="LatestEvidenceAgeAtReceipt"/>, this cannot be negative.
+        /// </summary>
+        public TimeSpan? LatestCompletedEvidenceAgeAtReceipt =>
+            LatestCompletedEventUtc.HasValue
+                ? ReceivedUtc - LatestCompletedEventUtc.Value.AddMinutes(IntervalMinutes)
+                : null;
+
+        /// <summary>Whether the newest returned bar was still forming.</summary>
+        public bool HasFormingBarAtReceipt =>
+            LatestIntervalCompletedUtc.HasValue &&
+            LatestIntervalCompletedUtc.Value > ReceivedUtc;
     }
 }

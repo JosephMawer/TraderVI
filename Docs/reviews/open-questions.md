@@ -149,9 +149,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Q:** Which separately timestamped source should support the still-experimental opening-confirmation comparison, especially bid/ask spreads and opening gaps that ADR-0028's delayed OHLCV monitor does not establish?
 - **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
-- **Q:** What current TMX request shape, if any, returns real 15-minute XIU bars? The 2026-08-25 read-only probe sent 2-, 14-, and 90-day requests through the existing method; every call returned the same seven daily 4:00 p.m. bars, and the shortest response ignored its requested start. No intraday schema or collector should proceed until a corrected request passes the probe.
+- **Q:** Should the confirmed fifteen-minute polling process persist completed five-minute bars (the proposed v1 balance of path detail and noise) or completed one-minute bars (finer threshold replay at greater volume)? The 2026-08-26 market-hours probe confirmed that forming bars are mutable; five-minute evidence stayed gap-free and reproduced 9/9 comparable fifteen-minute bars exactly, while one-minute evidence developed missing slots.
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
-- **Status:** partially resolved — ADR-0028 accepts 15-minute delayed management and the first exit-policy challenger. Opening confirmation and the verified intraday storage/retention contract remain open.
+- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management, the request contract and live source behavior are verified, and the first exit-policy challenger is implemented. Opening confirmation, evidence-bar resolution, and the intraday storage contract remain open.
 
 ## Resolved
 

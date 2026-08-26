@@ -25,6 +25,7 @@ internal static class Program
         new TmxUsIndicesProbe(),
         new TmxSectorHistoryProbe(),
         new TmxXiuIntradayProbe(),
+        new TmxXiuIntervalResolutionProbe(),
         new TmxXiuMarketHoursPollingProbe(),
         new DullnessCalibrationProbe(),
         new ObvBackfillProbe(),

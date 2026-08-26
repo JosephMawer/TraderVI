@@ -1,11 +1,11 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-08-25
+**Snapshot date:** 2026-08-26
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system. At the last verified operational audit, the data collector (Hermes) was current through 2026-08-21 and the immutable paper-calibration evidence ledger was present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort. Athena can now produce cost-aware three-session marks, MFE/MAE paths, coverage, and separate Continuation/Breakout scorecards. A pure delayed-15-minute exit-policy engine now models the ADR-0028 paper challenger, but no TMX polling, persistence, or live/ghost position action is wired. The next priorities are to accumulate distinct daily cohorts and validate the intraday response contract before adding its collector.
+TraderVI is an advisory-mode TSX momentum-rotation system. At the last verified operational audit, the data collector (Hermes) was current through 2026-08-21 and the immutable paper-calibration evidence ledger was present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort. Athena can now produce cost-aware three-session marks, MFE/MAE paths, coverage, and separate Continuation/Breakout scorecards. A pure delayed-15-minute exit-policy engine now models the ADR-0028 paper challenger, but no production TMX polling, persistence, or live/ghost position action is wired. The intraday response contract and market-hours behavior are verified; the next source milestone is approving the completed-bar storage resolution before designing its collector.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 70 passed, 0 failed, 0 skipped on 2026-08-25.
+- Core tests: 83 passed, 0 failed, 0 skipped on 2026-08-26.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -129,7 +129,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0028 define the evidence, outcomes, coverage, policy separation, initial three-session swing marks/excursions, lens scorecards, cohort aggregation, promotion contracts, and delayed intraday exit-policy challenger. The pure ADR-0028 engine is implemented. The initial XIU source probe exposed an obsolete `freq = "minute"` request that returned daily fallback data; the corrected no-`freq` request returned clean 15-minute bars with 26 gap-free bars per regular session. Wide requests are capped at 754 bars. `TmxClient` now exposes timestamped batches, strict response validation, bounded transient retries, and explicit five-day chunked retrieval; the read-only `tmx-xiu-market-hours` probe is ready. Market-hours availability, intraday persistence, production polling, post-detection paper fills, and active-position integration are not implemented. At the last verified audit, two official validation runs and one exploratory replay covered the same 2026-08-21 completed market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0028 define the evidence, outcomes, coverage, policy separation, initial three-session swing marks/excursions, lens scorecards, cohort aggregation, promotion contracts, and delayed intraday exit-policy challenger. The pure ADR-0028 engine is implemented. The initial XIU source probe exposed an obsolete `freq = "minute"` request that returned daily fallback data; the corrected no-`freq` request returned clean 15-minute bars with 26 gap-free bars per regular session. Wide requests are capped at 754 bars. `TmxClient` now exposes timestamped batches, completed-versus-forming evidence, strict response validation, bounded transient retries, and explicit five-day chunked retrieval. The 2026-08-26 market-hours probes returned five successive completed 15-minute events and gap-free five-minute evidence; newer forming snapshots were revised before completion. All nine comparable 15-minute bars exactly matched deterministic aggregation from 5-minute bars. One-minute bars exist but developed two- and three-minute gaps in a longer session window. Evidence-bar resolution, intraday persistence, production polling, post-detection paper fills, and active-position integration are not implemented. At the last verified audit, two official validation runs and one exploratory replay covered the same 2026-08-21 completed market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
@@ -139,6 +139,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, MFE/MAE paths, separate lens scorecards, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
-4. Run `tmx-xiu-market-hours` during the regular TSX session to measure bar availability, then design the dedicated intraday evidence schema around timestamped short rolling requests and bounded historical chunks.
+4. Resolve whether the 15-minute monitor should persist completed 5-minute bars (proposed v1) or completed 1-minute bars, then design the dedicated intraday evidence schema around timestamped short rolling requests and bounded historical chunks.
 5. Observe additional Hermes backups and perform a test restore.
 6. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

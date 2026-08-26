@@ -257,6 +257,35 @@ public sealed class TmxIntradayRequestContractTests
         batch.LatestEventUtc.ShouldBe(eventUtc);
         batch.LatestIntervalCompletedUtc.ShouldBe(eventUtc.AddMinutes(15));
         batch.LatestEvidenceAgeAtReceipt.ShouldBe(TimeSpan.FromMinutes(20));
+        batch.LatestCompletedBarAtReceipt.ShouldBe(Bar(eventUtc));
+        batch.LatestCompletedEventUtc.ShouldBe(eventUtc);
+        batch.LatestCompletedEvidenceAgeAtReceipt.ShouldBe(TimeSpan.FromMinutes(20));
+        batch.HasFormingBarAtReceipt.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void BatchMetadata_SeparatesFormingBarFromLatestCompletedBar()
+    {
+        DateTime completedEventUtc =
+            new(2026, 8, 26, 13, 30, 0, DateTimeKind.Utc);
+        DateTime formingEventUtc = completedEventUtc.AddMinutes(15);
+        var batch = new TmxIntradayBatch(
+            "XIU",
+            15,
+            completedEventUtc,
+            formingEventUtc.AddMinutes(10),
+            formingEventUtc.AddMinutes(8),
+            formingEventUtc.AddMinutes(9),
+            AttemptCount: 1,
+            RequestCount: 1,
+            Bars: [Bar(completedEventUtc), Bar(formingEventUtc)]);
+
+        batch.LatestEventUtc.ShouldBe(formingEventUtc);
+        batch.LatestEvidenceAgeAtReceipt.ShouldBe(TimeSpan.FromMinutes(-6));
+        batch.LatestCompletedBarAtReceipt.ShouldBe(Bar(completedEventUtc));
+        batch.LatestCompletedEventUtc.ShouldBe(completedEventUtc);
+        batch.LatestCompletedEvidenceAgeAtReceipt.ShouldBe(TimeSpan.FromMinutes(9));
+        batch.HasFormingBarAtReceipt.ShouldBeTrue();
     }
 
     private static T GetVariable<T>(object variables, string name) =>

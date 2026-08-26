@@ -452,3 +452,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0028
 
 **A:** The bar timestamp describes when market activity occurred, while receipt time describes when TraderVI could first act on that evidence. Without both, a delayed paper policy could be credited with information it did not yet have.
+
+### Q: Why must a TMX consumer distinguish the newest returned bar from the newest completed bar?
+- **Domains:** data-sources, market-microstructure, risk-management
+- **Source:** ADR-0028
+
+**A:** TMX includes the currently forming interval, and the market-hours probe observed that snapshot changing before completion. A mutable forming bar may be displayed for diagnostics but cannot be treated as final policy evidence.
+
+### Q: Does TMX offering one-minute bars mean TraderVI should poll every minute?
+- **Domains:** architecture, data-sources, risk-management
+- **Source:** ADR-0028
+
+**A:** No. Bar resolution controls how precisely the observed path is represented; polling cadence controls how often TraderVI asks for updates. The confirmed v1 cadence remains fifteen minutes. Five-minute storage is the proposed finer evidence because it remained gap-free and reproduced all nine comparable fifteen-minute bars exactly; one-minute evidence showed gaps.

@@ -124,7 +124,10 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Record the wide-window cap: the 90-day request returned the oldest 754 bars (29 sessions) only, so rolling monitoring windows are viable but historical loading requires bounded chunks and deduplication.
 - [x] Harden `TmxClient` with bounded transient retries, timestamped intraday batches, strict OHLCV/timestamp/interval validation, explicit five-day chunked history, and neutral quote-freshness terminology.
 - [x] Add the bounded read-only `tmx-xiu-market-hours` probe for five polls spaced fifteen minutes apart; it refuses to call TMX outside the regular Toronto market window and performs no database or file writes.
-- [ ] During TSX market hours, probe when newly completed XIU bars become observable and how repeated 15-minute polls behave; keep this separate from tonight's historical shape test.
+- [x] Run the TSX market-hours probe on 2026-08-26: five calls completed without a surfaced transport failure and advanced completed XIU events exactly once per poll, while every newer forming bar was revised before completion.
+- [x] Verify lower resolutions with the read-only comparison probe: 1-, 5-, and 15-minute bars exist and each response includes a newer forming bar; five- and fifteen-minute sequences stayed gap-free, while the longer one-minute response developed two- and three-minute gaps.
+- [x] Verify deterministic aggregation: all nine comparable completed fifteen-minute XIU bars exactly matched the OHLCV reconstructed from their three completed five-minute bars.
+- [ ] Resolve the evidence-bar resolution before designing persistence. The confirmed polling cadence remains 15 minutes; completed 5-minute bars are the proposed v1 balance, while completed 1-minute bars remain available for finer replay if justified.
 - [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
 - [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.

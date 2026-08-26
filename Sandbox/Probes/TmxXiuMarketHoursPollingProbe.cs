@@ -1,6 +1,7 @@
 using Core.TMX;
 using Core.TMX.Models.Domain;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -59,12 +60,15 @@ public sealed class TmxXiuMarketHoursPollingProbe : IProbe
         }
 
         using var tmx = new TmxClient();
-        OhlcvBar previousLatest = null;
+        OhlcvBar previousLatestCompleted = null;
+        IReadOnlyDictionary<DateTime, OhlcvBar> previousBars =
+            new Dictionary<DateTime, OhlcvBar>();
 
         Console.WriteLine(
-            $"{"Poll",6} {"Receipt local",20} {"Latest event",20} {"Completed",20} " +
-            $"{"Age",12} {"State",20} {"Attempts",9} {"Bars",7}");
-        Console.WriteLine(new string('─', 124));
+            $"{"Poll",6} {"Receipt",12} {"Latest returned",18} {"Latest complete",18} " +
+            $"{"Age",12} {"Complete state",18} {"Prior snapshot",18} {"Forming",9} " +
+            $"{"Attempts",9} {"Bars",7}");
+        Console.WriteLine(new string('─', 144));
 
         for (int poll = 1; poll <= PollCount; poll++)
         {
@@ -74,29 +78,30 @@ public sealed class TmxXiuMarketHoursPollingProbe : IProbe
                 IntervalMinutes,
                 requestedEndUtc.AddDays(-2),
                 requestedEndUtc);
-            OhlcvBar latest = batch.Bars.LastOrDefault();
+            OhlcvBar latestReturned = batch.Bars.LastOrDefault();
+            OhlcvBar latestCompleted = batch.LatestCompletedBarAtReceipt;
 
-            string state = Classify(previousLatest, latest);
-            string eventLocal = latest is null
-                ? "—"
-                : ToToronto(latest.TimestampUtc).ToString("MM-dd HH:mm:ss");
-            string completedLocal = batch.LatestIntervalCompletedUtc.HasValue
-                ? ToToronto(batch.LatestIntervalCompletedUtc.Value).ToString("MM-dd HH:mm:ss")
-                : "—";
-            string age = FormatAge(batch.LatestEvidenceAgeAtReceipt);
+            string state = Classify(previousLatestCompleted, latestCompleted);
+            string priorSnapshot = ClassifyPriorSnapshot(previousBars, latestCompleted);
+            string latestReturnedLocal = FormatLocal(latestReturned?.TimestampUtc);
+            string latestCompletedLocal = FormatLocal(latestCompleted?.TimestampUtc);
+            string age = FormatAge(batch.LatestCompletedEvidenceAgeAtReceipt);
+            string forming = batch.HasFormingBarAtReceipt ? "yes" : "no";
 
             Console.WriteLine(
-                $"{poll,6} {ToToronto(batch.ReceivedUtc),20:MM-dd HH:mm:ss} " +
-                $"{eventLocal,20} {completedLocal,20} {age,12} {state,20} " +
+                $"{poll,6} {ToToronto(batch.ReceivedUtc),12:HH:mm:ss} " +
+                $"{latestReturnedLocal,18} {latestCompletedLocal,18} {age,12} " +
+                $"{state,18} {priorSnapshot,18} {forming,9} " +
                 $"{batch.AttemptCount,9} {batch.Bars.Count,7:N0}");
 
-            previousLatest = latest;
+            previousLatestCompleted = latestCompleted;
+            previousBars = batch.Bars.ToDictionary(bar => bar.TimestampUtc);
             if (poll < PollCount)
                 await Task.Delay(PollInterval);
         }
 
         Console.WriteLine();
-        Console.WriteLine("Result: polling sequence complete; review new/repeated/revised states and completion-to-receipt ages above.");
+        Console.WriteLine("Result: polling sequence complete; review completed-bar timing separately from the still-forming bar.");
     }
 
     private static bool IsRegularMarketWindow(DateTime local) =>
@@ -119,6 +124,22 @@ public sealed class TmxXiuMarketHoursPollingProbe : IProbe
         return "Timestamp regressed";
     }
 
+    private static string ClassifyPriorSnapshot(
+        IReadOnlyDictionary<DateTime, OhlcvBar> previousBars,
+        OhlcvBar current)
+    {
+        if (current is null)
+            return "No completed bar";
+        if (!previousBars.TryGetValue(current.TimestampUtc, out OhlcvBar previous))
+            return "Not seen before";
+        return current == previous
+            ? "Unchanged"
+            : "Revised";
+    }
+
+    private static string FormatLocal(DateTime? utc) =>
+        utc.HasValue ? ToToronto(utc.Value).ToString("HH:mm:ss") : "—";
+
     private static DateTime ToToronto(DateTime utc) =>
         TimeZoneInfo.ConvertTimeFromUtc(
             DateTime.SpecifyKind(utc, DateTimeKind.Utc),
@@ -128,8 +149,6 @@ public sealed class TmxXiuMarketHoursPollingProbe : IProbe
     {
         if (!age.HasValue)
             return "—";
-        if (age.Value < TimeSpan.Zero)
-            return $"future {age.Value.Duration():g}";
         return age.Value.ToString("g");
     }
 }
