@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are now the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars and uses exact five-minute aggregation as a consistency check when all components exist. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—are open and linked to today's persisted Continuation picks; an advisory-only monitor is polling them without automated sells or broker actions. ADR-0030's two-table intraday ledger, additive migration, and transactional repository are source-validated, but the migration is not applied and the running pilot remains replay-only. Applying and wiring that ledger is the next major implementation boundary.
+TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—were linked to persisted Continuation picks. CMG, EDR, and OGI have been closed as ghost trades for a combined realized -$0.01; NDM and ALK remain open. Migration 012 is applied and verified. ADR-0031/0032 now provide a shared durable monitor, database-guarded automatic ghost exits, and a live WPF dashboard without any broker integration. The next operational boundary is observing the first market-hours durable collection cycle.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,13 +14,14 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 91 passed, 0 failed, 0 skipped on 2026-08-26.
+- Core tests: 100 passed, 0 failed, 0 skipped on 2026-08-26.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
 - Backup baseline: a 31.00 MB compressed checksum full backup completed and passed `RESTORE VERIFYONLY` on 2026-08-22. Its staging and OneDrive copies have matching SHA-256 hashes.
 - Automatic backup validation: the first full post-Hermes path completed on 2026-08-22; both 31.09 MB copies independently matched SHA-256 `48B655E9BC1D402E85CA6F8698F548115FC074F7ED0B74AD40C9699E61482CB6`.
 - Calibration evidence backup: the final post-run 32.51 MB checksum backup and approved OneDrive copy matched SHA-256 `62CB244339235D555830CD93B139AD19182B160B4B4C7CBF9429B5A52CCB08BB` on 2026-08-23. Cloud-sync completion remains user-observed.
+- Intraday-ledger backup: the pre-migration checksum backup and approved OneDrive copy matched SHA-256 `CBDDB1E31877CA36E7B798867B5AC924DE0C9F09373F382191F30AE815C4A5B7` on 2026-08-26; migration 012 was then applied and verified.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -30,7 +31,8 @@ The repository contains a coherent 30-commit June/August development sequence. I
 | Hermes | Daily OHLCV ingestion and derived market-data maintenance; verified post-success database backup | External TMX/Yahoo reads; writes multiple SQL tables and a local/OneDrive backup pair |
 | Hercules (`ML.Train`) | Trains enabled profit models and records experiments/models | CPU-intensive training; writes model artifacts and SQL registry rows |
 | Delphi | Evaluates the universe through Continuation and Breakout lenses and emits reports | Reads models/data; rewrites daily picks, dossiers, narratives, and Granville logs for the evaluation date |
-| TraderVI | Manual trade/position CLI in ghost mode | Writes simulated positions and trade logs; does not place live orders |
+| TraderVI | Manual ghost CLI plus shared durable paper monitor | Writes simulated positions, trade logs, and intraday evidence; does not place live orders |
+| TraderVI.WPF | Live paper dashboard over the shared monitor | Refreshes SQL history, polls TMX during the regular monitor window, and can record policy-authorized ghost exits; no broker integration |
 | Oracle | Optional LLM narration over deterministic decision dossiers | May call a configured LLM service and write narrative records |
 | DataAudit | Read-only full-local-universe classification, freshness, mapping, and bar-integrity diagnostics | Local SQL reads only; no external calls or writes |
 | Sandbox | Manually selected probes for reconnaissance, calibration, and controlled backfills | Probe-specific; some call external services or mutate SQL |
@@ -94,7 +96,7 @@ Read-only aggregate inspection on 2026-08-19 showed:
 Additional state:
 
 - 386 stock-sector mappings are present.
-- Five one-share ADR-0029 ghost positions are open as of 2026-08-26: NDM at $2.43, CMG at $3.95, ALK at $1.92, EDR at $15.16, and OGI at $1.74. These are operational pilot positions, not official Athena outcomes.
+- The ADR-0029 pilot began with five one-share positions. CMG closed at $3.98 (+$0.03), EDR at $15.12 (-$0.04), and OGI at $1.74 ($0.00); NDM at $2.43 and ALK at $1.92 remain open. These are operational pilot positions, not official Athena outcomes.
 - 27 historical task types have enabled registry rows, with no duplicate enabled row within a task type.
 
 Post-restart Delphi verification on 2026-08-22:
@@ -129,7 +131,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0030 define the official contracts, policy separation, promotion rules, delayed intraday challenger, non-calibration pilot, and durable intraday evidence ledger. The pure policy, linked ghost entry, replay-only advisory monitor, canonical intraday schema/migration, and persistence repository are implemented in source. The first five-position pilot is operational, but it cannot contribute to Athena or promotion evidence. Migration 012 has not been applied; receipt history, collector wiring, post-detection fills, calibration-grade delayed outcomes, and the fresh post-entry Delphi exception join are not operational. At the last independently audited calibration count, two official validation runs and one exploratory replay covered the same 2026-08-21 market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0032 define the official contracts, policy separation, promotion rules, delayed intraday challenger, non-calibration pilot, durable evidence ledger, automatic ghost exits, and live dashboard. Migration 012 is applied; collector and automatic ghost-exit code are built, but their first market-hours durable cycle has not yet been observed. The pilot cannot contribute to Athena or promotion evidence. Calibration-grade delayed outcomes and the fresh post-entry Delphi exception join remain incomplete. At the last independently audited calibration count, two official validation runs and one exploratory replay covered the same 2026-08-21 market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
@@ -139,7 +141,7 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, MFE/MAE paths, separate lens scorecards, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
-4. Keep the ADR-0029 pilot monitor running for the selected ghost positions and record human paper exits when advice is accepted.
-5. Design the dedicated completed-five-minute intraday evidence schema, reviewed migration, collector, and calibration-grade delayed outcome.
+4. Keep `TraderVI.WPF` open during regular market hours, observe the first durable polling cycle, and verify the remaining NDM/ALK ghost positions are monitored and any policy exit is recorded exactly once.
+5. Implement the calibration-grade delayed intraday outcome and fresh post-entry Delphi exception join without mixing pilot records into Athena evidence.
 6. Observe additional Hermes backups and perform a test restore.
 7. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

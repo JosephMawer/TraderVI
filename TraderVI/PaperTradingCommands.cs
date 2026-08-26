@@ -17,7 +17,6 @@ internal static class PaperTradingCommands
     private const string Lens = "Continuation";
     private const int SharesPerSymbol = 1;
     private const int SourceIntervalMinutes = 5;
-    private const int PollIntervalMinutes = 15;
     private static readonly TimeZoneInfo TorontoTimeZone =
         TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 
@@ -142,17 +141,25 @@ internal static class PaperTradingCommands
 
     public static async Task MonitorAsync(string[] args)
     {
-        if (args.Length > 1 ||
-            (args.Length == 1 &&
-             !string.Equals(args[0], "watch", StringComparison.OrdinalIgnoreCase)))
+        bool hasUnknownArgument = args.Any(arg =>
+            !string.Equals(arg, "watch", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(arg, "--advisory-only", StringComparison.OrdinalIgnoreCase));
+        if (args.Length > 2 || hasUnknownArgument)
         {
-            throw new ArgumentException("Usage: paper-monitor [watch]");
+            throw new ArgumentException(
+                "Usage: paper-monitor [watch] [--advisory-only]");
         }
 
-        bool watch = args.Length == 1;
+        bool watch = args.Any(arg =>
+            string.Equals(arg, "watch", StringComparison.OrdinalIgnoreCase));
+        bool executeGhostExits = !args.Any(arg =>
+            string.Equals(arg, "--advisory-only", StringComparison.OrdinalIgnoreCase));
+        var monitor = new PaperTradingMonitor();
         do
         {
-            await MonitorOnceAsync();
+            PaperMonitorCycleResult cycle =
+                await monitor.PollOnceAsync(executeGhostExits);
+            PrintCycle(cycle);
             if (!watch)
                 return;
 
@@ -165,7 +172,8 @@ internal static class PaperTradingCommands
                 return;
             }
 
-            DateTime nextPollLocal = NextPollLocal(localNow);
+            DateTime nextPollLocal =
+                PaperTradingMonitor.NextScheduledPollLocal(localNow);
             TimeSpan delay = ToUtc(nextPollLocal) - DateTime.UtcNow;
             if (delay > TimeSpan.Zero)
             {
@@ -178,153 +186,52 @@ internal static class PaperTradingCommands
         while (true);
     }
 
-    private static async Task MonitorOnceAsync()
+    private static void PrintCycle(PaperMonitorCycleResult cycle)
     {
-        DateTime pollStartedUtc = DateTime.UtcNow;
-        var positionRepository = new ActivePositionRepository();
-        List<ActivePositionInfo> positions = (await positionRepository.GetActivePositions())
-            .Where(position => position.OriginalPickId.HasValue)
-            .OrderBy(position => position.Symbol)
-            .ToList();
-        if (positions.Count == 0)
+        if (cycle.Positions.Count == 0)
         {
             Console.WriteLine("No active paper positions linked to a Delphi pick.");
             return;
         }
 
-        using var tmx = new TmxClient();
         Console.WriteLine();
         Console.WriteLine(
-            $"ADR-0028 paper monitor — {ToToronto(pollStartedUtc):yyyy-MM-dd HH:mm:ss} Toronto");
-        Console.WriteLine("Advisory only: updates ghost position snapshots but never records a sell.");
+            $"ADR-0031 durable paper monitor — " +
+            $"{ToToronto(cycle.StartedUtc):yyyy-MM-dd HH:mm:ss} Toronto");
+        Console.WriteLine(cycle.AutomaticGhostExitsEnabled
+            ? "Ghost policy exits enabled; no broker orders can be sent."
+            : "Advisory-only override; no ghost exit will be recorded.");
         Console.WriteLine(
             $"{"Symbol",8} {"Entry",10} {"Observed",10} {"P/L",9} " +
-            $"{"Last policy bar",20} {"Trail",10} {"Directive",34} {"Age",12}");
-        Console.WriteLine(new string('-', 124));
+            $"{"Last policy bar",20} {"Trail",10} {"Directive",36} {"Audit",11}");
+        Console.WriteLine(new string('-', 128));
 
-        foreach (ActivePositionInfo position in positions)
+        foreach (PaperPositionMonitorResult position in cycle.Positions)
         {
-            try
-            {
-                TradeLogInfo entryTrade = await GetEntryTradeAsync(position.Symbol);
-                DateTime entryUtc = DateTime.SpecifyKind(
-                    entryTrade.CreatedUtc,
-                    DateTimeKind.Utc);
-                DateTime entryLocalDate = ToToronto(entryUtc).Date;
-                DateTime requestStartUtc = ToUtc(
-                    entryLocalDate.AddHours(9).AddMinutes(30));
-                TmxIntradayBatch batch = pollStartedUtc - requestStartUtc > TimeSpan.FromDays(5)
-                    ? await tmx.GetIntradayTimeSeriesChunkedAsync(
-                        position.Symbol,
-                        PollIntervalMinutes,
-                        requestStartUtc,
-                        pollStartedUtc)
-                    : await tmx.GetIntradayTimeSeriesBatchAsync(
-                        position.Symbol,
-                        PollIntervalMinutes,
-                        requestStartUtc,
-                        pollStartedUtc);
-                OhlcvBar observed = batch.Bars.LastOrDefault()
-                    ?? throw new InvalidOperationException(
-                        $"TMX returned no intraday evidence for {position.Symbol}.");
-                IReadOnlyList<OhlcvBar> completedPolicyEvidence = batch.Bars
-                    .Where(bar =>
-                        bar.TimestampUtc.AddMinutes(PollIntervalMinutes) <= batch.ReceivedUtc)
-                    .ToList()
-                    .AsReadOnly();
-                IReadOnlyList<DelayedIntradayBar> policyBars =
-                    CompletedIntradayBarAggregator.BuildPolicyBars(
-                        completedPolicyEvidence,
-                        batch.ReceivedUtc,
-                        entryUtc);
-
-                IntradaySwingPositionState state =
-                    IntradaySwingPositionState.Open(position.EntryPrice, entryUtc);
-                IntradaySwingDecision? decision = null;
-                foreach (DelayedIntradayBar bar in policyBars)
-                {
-                    decision = DelayedIntradaySwingExitPolicy.Evaluate(state, bar);
-                    state = decision.State;
-                    if (decision.Directive == IntradaySwingDirective.ExitAlert)
-                        break;
-                }
-
-                decimal currentValue = decimal.Round(observed.Close * position.Shares, 2);
-                decimal unrealized = decimal.Round(currentValue - position.CostBasis, 2);
-                double unrealizedPercent = position.CostBasis == 0m
-                    ? 0d
-                    : (double)(unrealized / position.CostBasis);
-                decimal highWater = state.HighestCompletedClose;
-                double drawdown = highWater == 0m
-                    ? 0d
-                    : (double)(observed.Close / highWater - 1m);
-                await positionRepository.UpdatePositionPrices(
-                    position.PositionId,
-                    observed.Close,
-                    currentValue,
-                    unrealized,
-                    unrealizedPercent,
-                    highWater,
-                    drawdown,
-                    state.LastTradingSessionOrdinal);
-
-                string policyEvent = decision is null
-                    ? "waiting"
-                    : ToToronto(decision.State.LastProcessedBarEndUtc!.Value)
-                        .ToString("MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                string trail = state.TrailingStopPrice.HasValue
-                    ? state.TrailingStopPrice.Value.ToString("C", CultureInfo.CurrentCulture)
-                    : "—";
-                string directive = decision is null
-                    ? "Hold — awaiting first full bar"
-                    : decision.Reason == IntradaySwingReason.None
-                        ? "Hold — no exit signal"
-                        : $"{decision.Directive} — {decision.Reason}";
-                string age = decision is null ? "—" : decision.DataAge.ToString("g");
-                Console.WriteLine(
-                    $"{position.Symbol,8} {position.EntryPrice,10:C} {observed.Close,10:C} " +
-                    $"{unrealizedPercent,9:P2} {policyEvent,20} {trail,10} " +
-                    $"{directive,34} {age,12}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"{position.Symbol,8} {position.EntryPrice,10:C} {"—",10} " +
-                    $"{"—",9} {"—",20} {"—",10} " +
-                    $"{"Unavailable — retry next poll",34} {"—",12}");
-                Console.Error.WriteLine(
-                    $"[{position.Symbol}] Monitor error type: {ex.GetType().Name}.");
-            }
+            string observed = position.ObservedPrice?.ToString("C") ?? "—";
+            string pnl = position.UnrealizedPnLPct?.ToString("P2") ?? "—";
+            string policyEvent = position.LastPolicyBarEndUtc.HasValue
+                ? ToToronto(position.LastPolicyBarEndUtc.Value)
+                    .ToString("MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                : "waiting";
+            string trail = position.TrailingStopPrice?.ToString("C") ?? "—";
+            string directive = position.ErrorCode is not null
+                ? $"Unavailable — {position.ErrorCode}"
+                : position.ExitExecuted
+                    ? $"Ghost exit — {position.Reason} @ {position.ExitPrice:C}"
+                    : position.Directive is null
+                        ? "Hold — awaiting first full bar"
+                        : position.Reason == IntradaySwingReason.None
+                            ? "Hold — no exit signal"
+                            : $"{position.Directive} — {position.Reason}";
+            string audit =
+                $"{position.FifteenMinuteAuditState?.ToString() ?? "—"}/" +
+                $"{position.FiveMinuteAuditState?.ToString() ?? "—"}";
+            Console.WriteLine(
+                $"{position.Symbol,8} {position.EntryPrice,10:C} {observed,10} " +
+                $"{pnl,9} {policyEvent,20} {trail,10} " +
+                $"{directive,36} {audit,11}");
         }
-    }
-
-    private static async Task<TradeLogInfo> GetEntryTradeAsync(string symbol)
-    {
-        List<TradeLogInfo> trades = await new TradeLogRepository()
-            .GetTradesBySymbol(symbol);
-        return trades
-            .Where(trade =>
-                string.Equals(trade.TradeType, "BUY", StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(trade => trade.CreatedUtc)
-            .FirstOrDefault()
-            ?? throw new InvalidOperationException(
-                $"No BUY trade exists for active position {symbol}.");
-    }
-
-    private static DateTime NextPollLocal(DateTime localNow)
-    {
-        DateTime hour = new(
-            localNow.Year,
-            localNow.Month,
-            localNow.Day,
-            localNow.Hour,
-            0,
-            0,
-            DateTimeKind.Unspecified);
-        int nextBoundaryMinute =
-            ((localNow.Minute / PollIntervalMinutes) + 1) * PollIntervalMinutes;
-        DateTime boundary = hour.AddMinutes(nextBoundaryMinute);
-        return boundary.AddMinutes(2);
     }
 
     private static void EnsureRegularSession(DateTime localNow)

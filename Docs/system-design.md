@@ -114,6 +114,18 @@ The setup stage then diverges by lens:
 
 Both rank remaining ties by DirectionEdge and composite score. The executed recommendation is sized as a single concentrated ghost/advisory position. CLX is reported but does not affect this flow.
 
+## Paper monitoring flow
+
+The operational paper pilot is deliberately separate from official Athena calibration outcomes. `TraderVI.WPF` and the `TraderVI paper-monitor` command call the same Core monitor:
+
+1. Poll TMX for direct completed 15-minute policy bars and append the request receipt/evidence to the ADR-0030 ledger.
+2. Replay the deterministic ADR-0028 policy from the ghost entry through the completed evidence.
+3. Poll five-minute TMX data after policy evaluation, append that receipt/evidence, and update the active-position snapshot.
+4. If the completed policy produces an exit alert, record a database-only ghost sale at the newest separately observed delayed price through the ADR-0031 serializable transaction.
+5. Refresh the WPF dashboard from SQL so positions, P/L, trades, and receipts remain visible after restarts.
+
+Automatic ghost exits never route to a broker. The WPF process must remain open for its 15-minute schedule; always-on service hosting is deferred. ADR-0032 keeps the legacy Wealthsimple window out of the default startup path.
+
 ## Granville Market Timing Layer
 
 TraderVI is incrementally implementing Granville's day-to-day market indicators as a **rule-based**
@@ -315,6 +327,7 @@ architecture; do not duplicate volatile priority lists here.
 | **Hermes** | Daily (post-close) | TMX/Yahoo APIs, existing market tables | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SymbolObv]`, `[MarketClimax]`, `[SectorIndices]`, `[StockSectorMap]`, `[LeadershipData]`, `[UsIndexBars]` |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, enabled code registries | model artifacts, `[ModelExperiment]`, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
-| **TraderVI** | Manual | picks/models/positions | ghost positions and `[TradeLog]`; no live order placement |
+| **TraderVI** | Manual or 15-minute console watch | picks/models/positions, delayed TMX bars | ghost positions, `[TradeLog]`, intraday receipts/evidence; no live order placement |
+| **TraderVI.WPF** | Interactive; five-second display refresh and regular-session policy cadence | paper positions/trades/receipts plus shared Core monitor | shared monitor writes only; no broker integration |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
-| **Sentinel** | Durable 15-minute advisory service planned; ADR-0029 replay-only pilot monitor implemented | active positions, delayed TMX intraday bars, fresh official Delphi evidence | planned `[IntradayPollObservation]` / `[IntradayEvidenceBar]`, timestamped alerts first; enforced actions remain deferred |
+| **Sentinel** | Future always-on/live-risk boundary | durable paper evidence and future explicitly authorized broker state | not implemented; ADR-0031 authorizes ghost exits only |

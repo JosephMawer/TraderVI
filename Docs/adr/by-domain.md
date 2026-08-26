@@ -19,6 +19,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
+- [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
+- [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 
 ## data-pipeline
 
@@ -32,6 +34,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0020](0020-immutable-calibration-evidence-ledger.md) — Immutable calibration evidence ledger
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
+- [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 
 ## data-sources
 
@@ -79,6 +82,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
+- [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
 
 ## risk-management
 
@@ -97,6 +101,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
+- [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
+- [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 
 ## decision-engine
 

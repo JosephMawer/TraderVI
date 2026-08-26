@@ -68,6 +68,8 @@ architecture documentation.
 | [0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) | Delayed intraday swing monitor and exit policy | Accepted | architecture, data-sources, market-microstructure, risk-management |
 | [0029](0029-intraday-ghost-entry-pilot.md) | Intraday ghost-entry pilot | Accepted | architecture, market-microstructure, risk-management |
 | [0030](0030-intraday-evidence-and-poll-audit-ledger.md) | Intraday evidence and poll-audit ledger | Accepted | architecture, data-pipeline, data-sources, market-microstructure, risk-management |
+| [0031](0031-automatic-ghost-exit-execution.md) | Automatic policy-triggered ghost exit execution | Accepted | architecture, market-microstructure, risk-management |
+| [0032](0032-live-paper-trading-wpf-dashboard.md) | Live paper-trading WPF dashboard | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

@@ -152,6 +152,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
 - **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management and completed five-minute evidence; ADR-0030 resolves the durable ledger design. Opening confirmation remains open, while migration rollout and collector wiring are implementation work rather than open strategy decisions.
 
+### Always-on hosting for the paper monitor
+
+- **Q:** After the WPF-hosted monitor is proven, should the shared Core monitor
+  also run under Windows Task Scheduler or a Windows Service so closing the UI
+  or sleeping the interactive session cannot miss polls?
+- **Tags:** architecture, data-pipeline, risk-management
+- **Status:** parked — version 1 is explicitly process-local under ADR-0032.
+  Revisit after several live sessions establish restart, duplicate-instance,
+  and failure behavior.
+
 ## Resolved
 
 - **Intraday evidence resolution and durable ledger** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume and retain direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. Poll attempts and first-received bars are separate immutable records, and conflicts never overwrite first evidence. Recorded in ADR-0028 through ADR-0030.

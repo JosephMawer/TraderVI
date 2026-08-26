@@ -129,12 +129,12 @@ Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommend
 dotnet run --project Delphi
 ```
 
-## TraderVI — manual ghost execution
+## TraderVI — ghost execution and headless paper monitor
 
 **Project:** `TraderVI`
 **Entry point:** `TraderVI/Program.cs`
 
-TraderVI is a manual CLI for simulated trade and position bookkeeping. Ghost mode records trades and positions but does not submit live broker orders.
+TraderVI is a CLI for simulated trade and position bookkeeping. Ghost mode records trades and positions but does not submit live broker orders. Its `paper-monitor` command uses the same durable monitor as the WPF dashboard: each cycle records TMX poll receipts and completed evidence, evaluates the 15-minute policy, and records an authorized policy exit at a separately observed delayed price. Pass `--advisory-only` to suppress automatic ghost exits.
 
 ```powershell
 dotnet run --project TraderVI -- list
@@ -142,9 +142,25 @@ dotnet run --project TraderVI -- pnl
 dotnet run --project TraderVI -- buy SYMBOL SHARES PRICE "notes"
 dotnet run --project TraderVI -- sell SYMBOL PRICE "notes"
 dotnet run --project TraderVI -- scan
+dotnet run --project TraderVI -- paper-monitor
+dotnet run --project TraderVI -- paper-monitor watch
+dotnet run --project TraderVI -- paper-monitor watch --advisory-only
 ```
 
-Even in ghost mode, `buy` and `sell` mutate SQL trading records. `scan` loads market data and models. Obtain explicit authorization before using mutating commands.
+Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `paper-monitor` also calls TMX. `scan` loads market data and models. Obtain explicit authorization before using mutating commands.
+
+## TraderVI.WPF — live paper dashboard
+
+**Project:** `TraderVI.WPF`
+**Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
+
+The WPF app is the normal interactive paper-monitor host. It shows open and closed Delphi-linked ghost positions, realized and unrealized P/L, trade history, and durable poll receipts. It refreshes SQL history every five seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+
+```powershell
+dotnet run --project TraderVI.WPF
+```
+
+Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The app has no broker controls and cannot place a real order; automatic actions are database-only ghost exits.
 
 ## Athena — calibration outcome evaluation
 

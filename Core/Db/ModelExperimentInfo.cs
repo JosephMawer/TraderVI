@@ -319,6 +319,13 @@ VALUES
         return await ExecuteReaderAsync(query, MapPosition);
     }
 
+    public async Task<List<ActivePositionInfo>> GetRecentPositions(int count = 100)
+    {
+        count = System.Math.Clamp(count, 1, 1000);
+        var query = $"SELECT TOP {count} {Fields} FROM {DbName} ORDER BY [EntryDate] DESC, [LastUpdatedUtc] DESC";
+        return await ExecuteReaderAsync(query, MapPosition);
+    }
+
     public async Task<ActivePositionInfo?> GetPositionBySymbol(string symbol)
     {
         var query = $"SELECT {Fields} FROM {DbName} WHERE [Symbol] = @Symbol AND [IsActive] = 1";

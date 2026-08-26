@@ -488,3 +488,21 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0030
 
 **A:** TraderVI keeps the first completed evidence unchanged, marks the later poll invalid with a bounded conflict code, and surfaces the disagreement. It never overwrites the audit trail or selects the more favourable version.
+
+### Q: Why does an automatic ghost exit use a new five-minute observation after the policy alert?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0031
+
+**A:** The trail or stop may have crossed before delayed evidence reached TraderVI. A later TMX receipt provides a price observed after detection; using the earlier threshold would award the paper trade a fill the system could not prove was available.
+
+### Q: Why is the live WPF dashboard not allowed to implement its own exit rules?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0032
+
+**A:** The console and GUI must use one shared, tested monitor. Keeping policy and persistence in Core prevents display code from creating a second trading behavior and lets either host reproduce the same result.
+
+### Q: Does applying migration 012 make intraday monitoring durable by itself?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0030, ADR-0032
+
+**A:** No. The migration creates the ledger. The shared collector must still fetch, validate, and append each poll before the dashboard can display durable receipt and completed-bar history.

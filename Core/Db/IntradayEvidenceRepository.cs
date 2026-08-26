@@ -142,6 +142,43 @@ VALUES
         return observationId;
     }
 
+    public async Task<IReadOnlyList<IntradayPollObservationInfo>> GetRecentObservationsAsync(
+        int count = 100,
+        CancellationToken cancellationToken = default)
+    {
+        count = System.Math.Clamp(count, 1, 1000);
+        string sql = $"""
+SELECT TOP {count}
+ [ObservationId],[PollCycleId],[Symbol],[IntervalMinutes],[ReceivedUtc],
+ [ReturnedBarCount],[CompletedBarCount],[PersistedNewBarCount],
+ [LatestCompletedEventUtc],[AuditState],[AuditCode],[CreatedUtc]
+FROM [dbo].[IntradayPollObservation]
+ORDER BY [CreatedUtc] DESC;
+""";
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        var result = new List<IntradayPollObservationInfo>();
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new IntradayPollObservationInfo(
+                reader.GetGuid(0),
+                reader.GetGuid(1),
+                reader.GetString(2),
+                reader.GetInt16(3),
+                reader.IsDBNull(4) ? null : reader.GetDateTime(4),
+                reader.GetInt32(5),
+                reader.GetInt32(6),
+                reader.GetInt32(7),
+                reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                reader.GetString(9),
+                reader.IsDBNull(10) ? null : reader.GetString(10),
+                reader.GetDateTime(11)));
+        }
+        return result.AsReadOnly();
+    }
+
     private static async Task<IReadOnlyList<StoredIntradayEvidenceBar>> LoadExistingAsync(
         SqlConnection connection,
         SqlTransaction transaction,

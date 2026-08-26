@@ -92,8 +92,8 @@ Rule:
 | `[RelativeStrengthFeatures]` | RS feature history | Hermes (planned) | Hercules (planned) |
 | `[DecisionDossier]` | Structured per-pick audit unit for LLM layer | Delphi | Oracle |
 | `[LlmNarrative]` | Per-pick and market-wide LLM narratives (prompt + response + cost) | Oracle | Analysis, future debate loop |
-| `[IntradayPollObservation]` | Versioned request/receipt and source-quality audit (source-defined; migration not applied) | Sentinel collector (planned) | Coverage and delayed-outcome evaluation |
-| `[IntradayEvidenceBar]` | Immutable completed 5-minute storage and direct 15-minute policy bars (source-defined; migration not applied) | Sentinel collector (planned) | Sentinel policy, delayed-outcome evaluation |
+| `[IntradayPollObservation]` | Versioned request/receipt and source-quality audit | Shared paper monitor | Dashboard, coverage, and delayed-outcome evaluation |
+| `[IntradayEvidenceBar]` | Immutable completed 5-minute storage and direct 15-minute policy bars | Shared paper monitor | Paper policy and delayed-outcome evaluation |
 
 ### Operational gotchas
 
@@ -114,6 +114,7 @@ Rule:
 | **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
-| **Sentinel** | Durable 15-minute advisory service planned; ADR-0029 replay-only pilot monitor implemented | active positions, delayed TMX intraday bars, fresh official Delphi evidence | planned `[IntradayPollObservation]` / `[IntradayEvidenceBar]`, timestamped alerts; no automated orders |
+| **TraderVI paper monitor** | WPF or headless console; immediate start plus 15-minute regular-session cadence | active linked positions, delayed TMX intraday bars | `[IntradayPollObservation]`, `[IntradayEvidenceBar]`, position snapshots, and database-only ghost exits; no broker orders |
+| **TraderVI.WPF** | Interactive live paper dashboard | linked positions, trades, poll receipts, shared paper monitor | dashboard state plus the shared monitor's durable writes |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
-| **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |
+| **TraderVI** | Manual and monitored ghost execution | `[DailyPick]`, linked positions, intraday evidence | ghost positions/trades and intraday evidence; no live broker orders |

@@ -4,6 +4,8 @@
 - **Date:** 2026-08-26
 - **Domains:** architecture, market-microstructure, risk-management
 - **Related:** ADR-0015, ADR-0020, ADR-0021, ADR-0028
+- **Superseded in part by:** ADR-0031 for automatic ghost-only exits after a
+  policy alert. The non-calibration pilot boundary remains unchanged.
 
 ## Context
 

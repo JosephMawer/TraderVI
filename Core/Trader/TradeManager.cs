@@ -19,12 +19,14 @@ namespace Core.Trader
         private readonly wstrade.WSTrade _wsTrade;
         private readonly TradeLogRepository _tradeLog;
         private readonly ActivePositionRepository _positions;
+        private readonly PaperGhostTradeRepository _ghostTrades;
 
         public TradeManager(bool ghost)
         {
             _wsTrade = new wstrade.WSTrade();
             _tradeLog = new TradeLogRepository();
             _positions = new ActivePositionRepository();
+            _ghostTrades = new PaperGhostTradeRepository();
             this.ghost = ghost;
         }
 
@@ -96,7 +98,11 @@ namespace Core.Trader
         /// Logs a sell: finds the open position, simulates/places the order, computes realized
         /// P&amp;L and holding days from the position cost basis, records a SELL trade, and closes the position.
         /// </summary>
-        public async Task<bool> Sell(string symbol, decimal price, string? notes = null)
+        public async Task<bool> Sell(
+            string symbol,
+            decimal price,
+            string? notes = null,
+            string reason = "Manual exit")
         {
             symbol = symbol.ToUpperInvariant();
 
@@ -113,36 +119,29 @@ namespace Core.Trader
                 return false;
             }
 
-            var shares = position.Shares;
-            var amount = decimal.Round(price * shares, 2);
-            PlaceOrder(wstrade.OrderSubType.sell_quantity, symbol, shares, price, amount);
+            var amount = decimal.Round(price * position.Shares, 2);
+            PlaceOrder(
+                wstrade.OrderSubType.sell_quantity,
+                symbol,
+                position.Shares,
+                price,
+                amount);
 
-            var tradeDate = DateTime.Now;
-            var realizedPnL = decimal.Round(amount - position.CostBasis, 2);
-            var realizedPnLPct = position.CostBasis == 0 ? 0d : (double)(realizedPnL / position.CostBasis);
-            var holdingDays = System.Math.Max(0, (tradeDate.Date - position.EntryDate.Date).Days);
+            PaperGhostExitResult? exit = await _ghostTrades.TryRecordExitAsync(
+                position.PositionId,
+                price,
+                DateTime.Now,
+                reason,
+                notes);
+            if (exit is null)
+            {
+                Console.WriteLine($"[TradeManager] Rejected SELL {symbol}: position was already closed.");
+                return false;
+            }
 
-            await _tradeLog.InsertTrade(
-                symbol: symbol,
-                tradeType: "SELL",
-                tradeDate: tradeDate,
-                shares: shares,
-                price: price,
-                amount: amount,
-                commission: 0m,
-                netAmount: amount,
-                positionId: position.PositionId,
-                reason: "Manual exit",
-                realizedPnL: realizedPnL,
-                realizedPnLPct: realizedPnLPct,
-                holdingDays: holdingDays,
-                notes: notes);
-
-            await _positions.ClosePosition(position.PositionId);
-
-            var sign = realizedPnL >= 0 ? "+" : "";
-            Console.WriteLine($"[TradeManager] Logged SELL {shares} {symbol} @ {price:C} = {amount:C}");
-            Console.WriteLine($"               Realized P&L {sign}{realizedPnL:C} ({sign}{realizedPnLPct:P2}) over {holdingDays}d | position {position.PositionId} closed");
+            var sign = exit.RealizedPnL >= 0 ? "+" : "";
+            Console.WriteLine($"[TradeManager] Logged SELL {exit.Shares} {symbol} @ {price:C} = {exit.Amount:C}");
+            Console.WriteLine($"               Realized P&L {sign}{exit.RealizedPnL:C} ({sign}{exit.RealizedPnLPct:P2}) over {exit.HoldingDays}d | position {exit.PositionId} closed");
             return true;
         }
 

@@ -4,6 +4,8 @@
 - **Date:** 2026-08-26
 - **Domains:** architecture, data-pipeline, data-sources, market-microstructure, risk-management
 - **Related:** ADR-0018, ADR-0020, ADR-0021, ADR-0028, ADR-0029
+- **Extended by:** ADR-0031 for policy-triggered ghost exits and ADR-0032 for
+  the live application surface.
 
 ## Context
 

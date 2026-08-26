@@ -163,7 +163,7 @@ internal class Program
         Console.WriteLine("  pnl                                Show realized P&L summary and recent trades");
         Console.WriteLine("  scan                               Run Delphi evaluation and print non-Hold directions");
         Console.WriteLine("  paper-enter [--dry-run] SYMBOL...  Link today's Continuation picks to one-share ghost entries");
-        Console.WriteLine("  paper-monitor [watch]               Evaluate active linked paper positions; never auto-sell");
+        Console.WriteLine("  paper-monitor [watch] [--advisory-only]  Persist evidence and auto-close ghost exits");
         Console.WriteLine();
         Console.WriteLine("Examples:");
         Console.WriteLine("  TraderVI buy CS 46 15.01 \"breakout lens #1\"");
@@ -171,5 +171,6 @@ internal class Program
         Console.WriteLine("  TraderVI sell CS 15.85");
         Console.WriteLine("  TraderVI paper-enter --dry-run NDM CMG ALK EDR OGI");
         Console.WriteLine("  TraderVI paper-monitor watch");
+        Console.WriteLine("  TraderVI paper-monitor --advisory-only");
     }
 }

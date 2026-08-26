@@ -1,6 +1,6 @@
 # Paper calibration and outcome feedback
 
-- **Status:** Background design brief; implementation decisions accepted and refined in ADR-0020 through ADR-0030
+- **Status:** Background design brief; implementation decisions accepted and refined in ADR-0020 through ADR-0032
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning, math-statistics, risk-management
 - **Related ADRs:** ADR-0002, ADR-0007, ADR-0009, ADR-0010, ADR-0011, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0019
@@ -12,7 +12,7 @@ TraderVI needs more than a simulated brokerage ledger. It needs a durable observ
 1. **Were Delphi's predictions and technical observations correct?**
 2. **Could a consistent, realistically executable policy based on Delphi's recommendations have made money while controlling losses?**
 
-This document records the background, objectives, boundaries, proposed architecture, measurement framework, and unresolved decisions for that system. It is intentionally a concept/design brief rather than an ADR. We have agreed on the direction, but the persistence schema, execution rules, evidence thresholds, and promotion contract still require explicit decisions. Those decisions should become one or more ADRs before implementation changes Delphi's behavior or writes new production tables.
+This document records the original background, objectives, boundaries, proposed architecture, measurement framework, and open questions for that system. It remains a concept/design brief rather than an ADR. ADR-0020 through ADR-0032 are authoritative where they accept or refine a proposal in this brief; unaccepted wording here remains background or a proposed default.
 
 The paper-calibration system may use a working name such as **Athena**, but the application name is not yet decided.
 

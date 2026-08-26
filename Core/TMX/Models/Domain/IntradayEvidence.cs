@@ -46,6 +46,20 @@ public sealed record IntradayEvidenceAppendResult(
     int PersistedNewBarCount,
     int ConflictCount);
 
+public sealed record IntradayPollObservationInfo(
+    Guid ObservationId,
+    Guid PollCycleId,
+    string Symbol,
+    int IntervalMinutes,
+    DateTime? ReceivedUtc,
+    int ReturnedBarCount,
+    int CompletedBarCount,
+    int PersistedNewBarCount,
+    DateTime? LatestCompletedEventUtc,
+    string AuditState,
+    string? AuditCode,
+    DateTime CreatedUtc);
+
 internal sealed record StoredIntradayEvidenceBar(
     DateTime EventUtc,
     decimal Open,
