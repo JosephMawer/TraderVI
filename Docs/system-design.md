@@ -317,4 +317,4 @@ architecture; do not duplicate volatile priority lists here.
 | **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
 | **TraderVI** | Manual | picks/models/positions | ghost positions and `[TradeLog]`; no live order placement |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
-| **Sentinel** | 15-minute advisory polling (process planned; pure ADR-0028 policy engine implemented) | active positions, delayed TMX intraday bars, fresh official Delphi evidence | timestamped alerts first; enforced actions remain deferred |
+| **Sentinel** | Durable 15-minute advisory service planned; ADR-0029 replay-only pilot monitor implemented | active positions, delayed TMX intraday bars, fresh official Delphi evidence | timestamped alerts first; enforced actions remain deferred |

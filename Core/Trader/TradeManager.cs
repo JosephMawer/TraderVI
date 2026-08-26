@@ -32,7 +32,14 @@ namespace Core.Trader
         /// Logs a buy: simulates/places the order, records a BUY trade, and opens a position
         /// with a -10% stop price. Refuses to double-open the same symbol.
         /// </summary>
-        public async Task<bool> Buy(string symbol, int shares, decimal price, string? notes = null)
+        public async Task<bool> Buy(
+            string symbol,
+            int shares,
+            decimal price,
+            string? notes = null,
+            Guid? originalPickId = null,
+            double? entryComposite = null,
+            string reason = "Manual entry")
         {
             symbol = symbol.ToUpperInvariant();
 
@@ -62,7 +69,8 @@ namespace Core.Trader
                 amount: amount,
                 commission: 0m,
                 netAmount: amount,
-                reason: "Manual entry",
+                reason: reason,
+                entryComposite: entryComposite,
                 notes: notes);
 
             var stopLossPrice = decimal.Round(price * (1 - StopLossFraction), 2);
@@ -74,6 +82,7 @@ namespace Core.Trader
                 entryPrice: price,
                 shares: shares,
                 costBasis: amount,
+                originalPickId: originalPickId,
                 stopLossPrice: stopLossPrice,
                 warningPrice: warningPrice,
                 notes: notes);

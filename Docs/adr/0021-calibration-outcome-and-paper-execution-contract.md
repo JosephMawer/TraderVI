@@ -4,7 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, math-statistics, market-microstructure, risk-management
 - **Related:** ADR-0002, ADR-0007, ADR-0015, ADR-0020
-- **Refined by:** ADR-0023 for the primary swing-policy direction, ADR-0024 for coverage/cohort reporting, ADR-0025 for the initial three-session tradeable measure, and ADR-0028 for the delayed intraday paper-exit challenger
+- **Refined by:** ADR-0023 for the primary swing-policy direction, ADR-0024 for coverage/cohort reporting, ADR-0025 for the initial three-session tradeable measure, ADR-0028 for the delayed intraday paper-exit challenger, and ADR-0029 for a deliberately non-official intraday ghost-entry pilot
 
 ## Context
 

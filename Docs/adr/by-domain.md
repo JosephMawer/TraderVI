@@ -17,6 +17,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
+- [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 
 ## data-pipeline
 
@@ -73,6 +74,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
 - [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
+- [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 
 ## risk-management
 
@@ -89,6 +91,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
+- [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 
 ## decision-engine
 

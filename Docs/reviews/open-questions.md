@@ -149,11 +149,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Q:** Which separately timestamped source should support the still-experimental opening-confirmation comparison, especially bid/ask spreads and opening gaps that ADR-0028's delayed OHLCV monitor does not establish?
 - **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
-- **Q:** Should the confirmed fifteen-minute polling process persist completed five-minute bars (the proposed v1 balance of path detail and noise) or completed one-minute bars (finer threshold replay at greater volume)? The 2026-08-26 market-hours probe confirmed that forming bars are mutable; five-minute evidence stayed gap-free and reproduced 9/9 comparable fifteen-minute bars exactly, while one-minute evidence developed missing slots.
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
-- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management, the request contract and live source behavior are verified, and the first exit-policy challenger is implemented. Opening confirmation, evidence-bar resolution, and the intraday storage contract remain open.
+- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management and completed five-minute evidence, the request contract and live source behavior are verified, and the first exit-policy challenger is implemented. Opening confirmation and the durable intraday storage contract remain open.
 
 ## Resolved
+
+- **Intraday evidence resolution** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. The durable design must version disagreement/missing-component handling. Recorded in ADR-0028 and ADR-0029.
 
 - **Switch Continuations lens ranking from raw `RScomp` to Z-scored `CompZ`**
   — logged 2026-05-24. The user has agreed this should happen "soon" (ADR-0014

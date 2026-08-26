@@ -41,6 +41,12 @@ internal class Program
                 case "scan":
                     await ScanCommand();
                     break;
+                case "paper-enter":
+                    await PaperTradingCommands.EnterAsync(args.Skip(1).ToArray());
+                    break;
+                case "paper-monitor":
+                    await PaperTradingCommands.MonitorAsync(args.Skip(1).ToArray());
+                    break;
                 default:
                     Console.WriteLine($"Unknown command: '{verb}'");
                     PrintUsage();
@@ -156,10 +162,14 @@ internal class Program
         Console.WriteLine("  list                               Show open positions");
         Console.WriteLine("  pnl                                Show realized P&L summary and recent trades");
         Console.WriteLine("  scan                               Run Delphi evaluation and print non-Hold directions");
+        Console.WriteLine("  paper-enter [--dry-run] SYMBOL...  Link today's Continuation picks to one-share ghost entries");
+        Console.WriteLine("  paper-monitor [watch]               Evaluate active linked paper positions; never auto-sell");
         Console.WriteLine();
         Console.WriteLine("Examples:");
         Console.WriteLine("  TraderVI buy CS 46 15.01 \"breakout lens #1\"");
         Console.WriteLine("  TraderVI buy BLDP 80 8.68");
         Console.WriteLine("  TraderVI sell CS 15.85");
+        Console.WriteLine("  TraderVI paper-enter --dry-run NDM CMG ALK EDR OGI");
+        Console.WriteLine("  TraderVI paper-monitor watch");
     }
 }

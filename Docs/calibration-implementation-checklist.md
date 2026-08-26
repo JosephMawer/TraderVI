@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
-- **Last updated:** 2026-08-25
-- **Authoritative design:** ADR-0020 through ADR-0028
+- **Last updated:** 2026-08-26
+- **Authoritative design:** ADR-0020 through ADR-0029
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 
@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, three-session swing marks/excursions, and separate Continuation/Breakout tradeability scorecards are complete in source. ADR-0028 now defines the delayed intraday swing-management challenger, and its pure exit-policy engine is implemented without scheduling, persistence, or live actions. The first authorized read-only XIU probe ran on 2026-08-25 with no database writes and showed that the existing nominal intraday request currently falls back to seven daily bars, so storage and polling remain blocked. At the last verified database audit, Delphi had captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. This is still one recommendation cohort, not three independent cohorts. No operational Athena run was performed during the later source work.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0028 defines the delayed intraday swing-management challenger; the pure policy and deterministic five-to-fifteen-minute aggregation are implemented. ADR-0029 now separates an operational intraday ghost-entry pilot from official ADR-0021/Athena outcomes. On 2026-08-26, the first explicitly selected five-position pilot cohort (NDM, CMG, ALK, EDR, and OGI) was linked to today's persisted Continuation picks and opened as one ghost share each. The advisory watch is running against completed evidence and cannot place or close an order. Durable intraday persistence, calibration-grade delayed outcomes, and fresh post-entry Delphi exception evidence remain incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -33,7 +33,7 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0028 and add review cards.
+- [x] Accept ADR-0020 through ADR-0029 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -127,9 +127,13 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Run the TSX market-hours probe on 2026-08-26: five calls completed without a surfaced transport failure and advanced completed XIU events exactly once per poll, while every newer forming bar was revised before completion.
 - [x] Verify lower resolutions with the read-only comparison probe: 1-, 5-, and 15-minute bars exist and each response includes a newer forming bar; five- and fifteen-minute sequences stayed gap-free, while the longer one-minute response developed two- and three-minute gaps.
 - [x] Verify deterministic aggregation: all nine comparable completed fifteen-minute XIU bars exactly matched the OHLCV reconstructed from their three completed five-minute bars.
-- [ ] Resolve the evidence-bar resolution before designing persistence. The confirmed polling cadence remains 15 minutes; completed 5-minute bars are the proposed v1 balance, while completed 1-minute bars remain available for finer replay if justified.
+- [x] Accept completed five-minute bars as the version-1 evidence resolution while retaining the confirmed fifteen-minute polling cadence.
+- [x] Add and test deterministic completed-five-minute to fifteen-minute aggregation that refuses incomplete three-bar groups.
 - [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
-- [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.
+- [x] Add the ADR-0029 operational bridge for preflighted, one-share intraday ghost entries linked to today's persisted Continuation picks.
+- [x] Add the pilot 15-minute advisory monitor for linked positions, using direct completed policy bars with source age, position snapshots, and no automatic sell or brokerage action.
+- [x] **Operational step:** preflight and open the first one-share ADR-0029 cohort for NDM, CMG, ALK, EDR, and OGI on 2026-08-26; verify all five linked active positions exist and the first monitor pass returned `Hold` while awaiting eligible completed bars.
+- [ ] Replace the replay-only pilot with the durable collector-backed monitor after the intraday evidence schema is reviewed and applied.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.
 - [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.

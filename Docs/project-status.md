@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system. At the last verified operational audit, the data collector (Hermes) was current through 2026-08-21 and the immutable paper-calibration evidence ledger was present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort. Athena can now produce cost-aware three-session marks, MFE/MAE paths, coverage, and separate Continuation/Breakout scorecards. A pure delayed-15-minute exit-policy engine now models the ADR-0028 paper challenger, but no production TMX polling, persistence, or live/ghost position action is wired. The intraday response contract and market-hours behavior are verified; the next source milestone is approving the completed-bar storage resolution before designing its collector.
+TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are now the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars and uses exact five-minute aggregation as a consistency check when all components exist. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—are open and linked to today's persisted Continuation picks; an advisory-only monitor is polling them without automated sells or broker actions. Durable intraday persistence and calibration-grade delayed outcomes remain the next major implementation boundary.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 83 passed, 0 failed, 0 skipped on 2026-08-26.
+- Core tests: 86 passed, 0 failed, 0 skipped on 2026-08-26.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -94,7 +94,7 @@ Read-only aggregate inspection on 2026-08-19 showed:
 Additional state:
 
 - 386 stock-sector mappings are present.
-- No active ghost-mode positions are open.
+- Five one-share ADR-0029 ghost positions are open as of 2026-08-26: NDM at $2.43, CMG at $3.95, ALK at $1.92, EDR at $15.16, and OGI at $1.74. These are operational pilot positions, not official Athena outcomes.
 - 27 historical task types have enabled registry rows, with no duplicate enabled row within a task type.
 
 Post-restart Delphi verification on 2026-08-22:
@@ -129,7 +129,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0028 define the evidence, outcomes, coverage, policy separation, initial three-session swing marks/excursions, lens scorecards, cohort aggregation, promotion contracts, and delayed intraday exit-policy challenger. The pure ADR-0028 engine is implemented. The initial XIU source probe exposed an obsolete `freq = "minute"` request that returned daily fallback data; the corrected no-`freq` request returned clean 15-minute bars with 26 gap-free bars per regular session. Wide requests are capped at 754 bars. `TmxClient` now exposes timestamped batches, completed-versus-forming evidence, strict response validation, bounded transient retries, and explicit five-day chunked retrieval. The 2026-08-26 market-hours probes returned five successive completed 15-minute events and gap-free five-minute evidence; newer forming snapshots were revised before completion. All nine comparable 15-minute bars exactly matched deterministic aggregation from 5-minute bars. One-minute bars exist but developed two- and three-minute gaps in a longer session window. Evidence-bar resolution, intraday persistence, production polling, post-detection paper fills, and active-position integration are not implemented. At the last verified audit, two official validation runs and one exploratory replay covered the same 2026-08-21 completed market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0029 define the official evidence/outcome contracts, policy separation, promotion rules, delayed intraday challenger, accepted completed-five-minute resolution, and non-calibration intraday pilot. The pure policy, exact five-to-fifteen-minute aggregation, linked ghost entry, and replay-only advisory monitor are implemented. The first five-position pilot is operational, but it cannot contribute to Athena or promotion evidence. Dedicated intraday persistence, receipt-time history, post-detection fill records, calibration-grade delayed outcomes, and the fresh post-entry Delphi exception join remain incomplete. At the last independently audited calibration count, two official validation runs and one exploratory replay covered the same 2026-08-21 market session, so they count as one independent cohort. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
@@ -139,6 +139,7 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, MFE/MAE paths, separate lens scorecards, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
-4. Resolve whether the 15-minute monitor should persist completed 5-minute bars (proposed v1) or completed 1-minute bars, then design the dedicated intraday evidence schema around timestamped short rolling requests and bounded historical chunks.
-5. Observe additional Hermes backups and perform a test restore.
-6. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
+4. Keep the ADR-0029 pilot monitor running for the selected ghost positions and record human paper exits when advice is accepted.
+5. Design the dedicated completed-five-minute intraday evidence schema, reviewed migration, collector, and calibration-grade delayed outcome.
+6. Observe additional Hermes backups and perform a test restore.
+7. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

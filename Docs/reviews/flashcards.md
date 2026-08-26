@@ -463,4 +463,16 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Domains:** architecture, data-sources, risk-management
 - **Source:** ADR-0028
 
-**A:** No. Bar resolution controls how precisely the observed path is represented; polling cadence controls how often TraderVI asks for updates. The confirmed v1 cadence remains fifteen minutes. Five-minute storage is the proposed finer evidence because it remained gap-free and reproduced all nine comparable fifteen-minute bars exactly; one-minute evidence showed gaps.
+**A:** No. Bar resolution controls how precisely the observed path is represented; polling cadence controls how often TraderVI asks for updates. The confirmed v1 cadence remains fifteen minutes. Completed five-minute storage is accepted because it remained gap-free and reproduced all nine comparable fifteen-minute bars exactly; one-minute evidence showed gaps.
+
+### Q: Why is an intraday ghost-entry pilot not an official Athena tradeable outcome?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0029
+
+**A:** ADR-0021's official outcome uses the first eligible session open. A user-timed intraday entry has a different opportunity and fill convention, so mixing it into the official scorecard would make the evidence incomparable. The pilot tests the workflow but earns no promotion evidence.
+
+### Q: Why may ADR-0029 observe a forming bar for entry but never use one for an exit-policy decision?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0029
+
+**A:** The user chooses the pilot entry at the current delayed observation, whose exact event and receipt state are recorded. An exit rule must be reproducible, so it waits for a completed direct fifteen-minute bar. Completed five-minute bars are retained later for finer evidence and exact aggregation checks, not substituted when a source slot is absent.

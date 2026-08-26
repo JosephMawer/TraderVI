@@ -66,6 +66,7 @@ architecture documentation.
 | [0026](0026-three-session-swing-excursion-measures.md) | Three-session swing excursion measures | Accepted | architecture, math-statistics, market-microstructure, risk-management |
 | [0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) | Lens tradeability scorecards and cohort aggregation | Accepted | architecture, decision-engine, math-statistics, risk-management |
 | [0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) | Delayed intraday swing monitor and exit policy | Accepted | architecture, data-sources, market-microstructure, risk-management |
+| [0029](0029-intraday-ghost-entry-pilot.md) | Intraday ghost-entry pilot | Accepted | architecture, market-microstructure, risk-management |
 
 See also:
 
