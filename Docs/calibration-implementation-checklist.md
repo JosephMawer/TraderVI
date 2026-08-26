@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, three-session swing marks/excursions, and separate Continuation/Breakout tradeability scorecards are complete in source. ADR-0028 now defines the delayed intraday swing-management challenger, and its pure exit-policy engine is implemented without scheduling, persistence, or live actions. At the last verified database audit, Delphi had captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. This is still one recommendation cohort, not three independent cohorts. No operational Athena or intraday TMX run was performed during the later source work.
+The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, three-session swing marks/excursions, and separate Continuation/Breakout tradeability scorecards are complete in source. ADR-0028 now defines the delayed intraday swing-management challenger, and its pure exit-policy engine is implemented without scheduling, persistence, or live actions. The first authorized read-only XIU probe ran on 2026-08-25 with no database writes and showed that the existing nominal intraday request currently falls back to seven daily bars, so storage and polling remain blocked. At the last verified database audit, Delphi had captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. This is still one recommendation cohort, not three independent cohorts. No operational Athena run was performed during the later source work.
 
 ## Phase A — measurement contract and decisions
 
@@ -118,7 +118,9 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Add recommendation-level Continuation and Breakout tradeability reports with joint coverage, no-entry rate, net/XIU-relative returns, MFE, MAE, and nested run/cohort weighting.
 - [x] Resolve and version the initial delayed intraday swing profit-protection, trend-extension, loss-alert, and maximum-hold challenger rules in ADR-0028.
 - [x] Add a deterministic pure policy engine for 15-minute bars, cost-aware break-even, non-decreasing trailing protection, fresh-Delphi exception qualification, data-age diagnostics, and time exits.
-- [ ] Validate the TMX intraday response's bar timestamps, interval alignment, delay, session coverage, and historical retention through a separately authorized read-only probe.
+- [x] Add and run the authorized read-only `tmx-xiu-intraday` probe with no database writes: three bounded XIU calls completed on 2026-08-25.
+- [x] Record the failed response contract honestly: the 2-, 14-, and 90-day 15-minute requests all returned the same seven daily 4:00 p.m. bars, and the two-day response included dates before its requested start.
+- [ ] Correct or replace the existing TMX intraday request shape and rerun the probe until actual 15-minute bars satisfy timestamp, interval, session, delay, and retention checks.
 - [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
 - [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.

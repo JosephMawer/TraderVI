@@ -13,6 +13,8 @@ ADR-0023 selected a roughly three-to-five-session swing as the primary direction
 
 TraderVI already has `TmxClient.GetIntradayTimeSeriesAsync`, which can request minute/hour OHLCV intervals from the TMX Money GraphQL endpoint, but no production collector, persistence contract, or Sentinel monitor uses it. TMX Money states that its market information is generally delayed by at least fifteen minutes and is not intended as trading data. The user has explicitly chosen to work within that limitation for a local, advisory-only first version.
 
+**Post-decision source finding (2026-08-25):** the authorized read-only `tmx-xiu-intraday` probe requested 15-minute XIU bars over 2-, 14-, and 90-calendar-day windows. All three calls returned the same seven one-per-session bars timestamped at 4:00 p.m. Toronto time, spanning 2026-08-17 through 2026-08-25; the two-day call even returned dates before its requested start. The response was structurally valid daily OHLCV but did not satisfy the intraday interval or window contract. Therefore the existing method name and request shape are not evidence that usable intraday data is currently available. Persistence and polling remain blocked until a corrected request produces actual intraday bars and the probe passes.
+
 ## Decision
 
 ### Confirmed direction
@@ -68,6 +70,7 @@ It also creates a new paper-policy challenger under ADR-0022. It does not retroa
 - Fifteen-minute polling reduces noise but necessarily gives back part of fast moves and cannot enforce exact stop prices.
 - The pure policy can be tested without market, database, brokerage, or scheduling side effects.
 - Later collection must preserve event and receipt times; a table containing only a price timestamp cannot reproduce delayed decisions.
+- The first live source probe failed the intraday response contract, so no collector or schema may treat the current seven daily fallback bars as 15-minute evidence.
 - The conditional 10% exception increases downside exposure and must remain a paper challenger until the stronger ADR-0022 promotion contract is satisfied.
 - The existing TMX Money endpoint is a user-accepted limitation for local advisory research; delay, availability, and terms remain operational risks and must be visible in documentation.
 

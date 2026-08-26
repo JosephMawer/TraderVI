@@ -24,6 +24,7 @@ internal static class Program
         new StooqProbe(),
         new TmxUsIndicesProbe(),
         new TmxSectorHistoryProbe(),
+        new TmxXiuIntradayProbe(),
         new DullnessCalibrationProbe(),
         new ObvBackfillProbe(),
         new ClimaxBackfillProbe(),

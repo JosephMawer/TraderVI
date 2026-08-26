@@ -40,7 +40,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 
 - [ ] Resume daily paper recommendations without live execution.
 - [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, promotion tiers, and delayed intraday swing-management challenger (ADR-0020 through ADR-0028).
-- [ ] Validate and persist delayed 15-minute TMX evidence before wiring the advisory swing monitor to active ghost/manual positions.
+- [ ] Repair and revalidate the TMX intraday request—the first XIU probe returned daily fallback bars—then persist proven 15-minute evidence before wiring the advisory monitor.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
