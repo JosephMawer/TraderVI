@@ -2,7 +2,6 @@ using Core.TMX;
 using Core.TMX.Models.Domain;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -63,22 +62,20 @@ public sealed class TmxXiuIntradayProbe : IProbe
         {
             DateTime requestedEndUtc = DateTime.UtcNow;
             DateTime requestedStartUtc = requestedEndUtc.AddDays(-days);
-            var stopwatch = Stopwatch.StartNew();
-            List<OhlcvBar> bars = await tmx.GetIntradayTimeSeriesAsync(
+            TmxIntradayBatch batch = await tmx.GetIntradayTimeSeriesBatchAsync(
                 Symbol,
                 IntervalMinutes,
                 requestedStartUtc,
                 requestedEndUtc);
-            stopwatch.Stop();
 
-            DateTime receivedUtc = DateTime.UtcNow;
             WindowResult result = Analyze(
                 days,
-                requestedStartUtc,
-                requestedEndUtc,
-                receivedUtc,
-                stopwatch.Elapsed,
-                bars);
+                batch.RequestedStartUtc,
+                batch.RequestedEndUtc,
+                batch.ReceivedUtc,
+                batch.ReceivedUtc - batch.FetchStartedUtc,
+                batch.AttemptCount,
+                batch.Bars);
             results.Add(result);
             PrintWindow(result, showSessions: days == 14, showLatestBars: days == 2);
         }
@@ -116,7 +113,7 @@ public sealed class TmxXiuIntradayProbe : IProbe
         Console.WriteLine($"Wide-window response was capped: {(wideWindowWasTruncated ? "YES" : "NO")}");
         Console.WriteLine($"Observed timestamp label: {widest.TimestampLabelInference}");
         Console.WriteLine($"Observed 90-day request range: {widest.RetentionDescription}");
-        Console.WriteLine("Delay note: latest age is measured from the returned bar timestamp; interpret it with the inferred start/end label.");
+        Console.WriteLine("Delay note: latest age is measured from the verified bar-start timestamp plus the 15-minute interval.");
         Console.WriteLine(structurallyClean && hasCompleteSession
             ? "Result: short rolling windows are suitable for monitoring/storage design; long history must be requested in bounded chunks."
             : "Result: keep the collector blocked until the failed response-contract checks are resolved.");
@@ -128,6 +125,7 @@ public sealed class TmxXiuIntradayProbe : IProbe
         DateTime requestedEndUtc,
         DateTime receivedUtc,
         TimeSpan requestDuration,
+        int attemptCount,
         IReadOnlyList<OhlcvBar> sourceBars)
     {
         List<OhlcvBar> bars = sourceBars.OrderBy(b => b.TimestampUtc).ToList();
@@ -163,6 +161,7 @@ public sealed class TmxXiuIntradayProbe : IProbe
             requestedEndUtc,
             receivedUtc,
             requestDuration,
+            attemptCount,
             bars,
             sessions,
             duplicates,
@@ -214,14 +213,16 @@ public sealed class TmxXiuIntradayProbe : IProbe
     {
         Console.WriteLine($"--- {result.LookbackDays}-calendar-day request ---");
         Console.WriteLine($"Requested UTC: {result.RequestedStartUtc:O} → {result.RequestedEndUtc:O}");
-        Console.WriteLine($"Received UTC:  {result.ReceivedUtc:O} (HTTP {result.RequestDuration.TotalMilliseconds:N0} ms)");
+        Console.WriteLine(
+            $"Received UTC:  {result.ReceivedUtc:O} " +
+            $"(HTTP {result.RequestDuration.TotalMilliseconds:N0} ms; attempts={result.AttemptCount})");
         Console.WriteLine($"Bars/sessions: {result.Bars.Count:N0} / {result.Sessions.Count:N0}");
         Console.WriteLine(
             $"Faults: duplicate={result.DuplicateTimestampCount}, alignment={result.MisalignedTimestampCount}, " +
             $"OHLC={result.InvalidOhlcCount}, negative-volume={result.NegativeVolumeCount}");
         Console.WriteLine($"Timestamp inference: {result.TimestampLabelInference}");
         Console.WriteLine($"Retention: {result.RetentionDescription}");
-        Console.WriteLine($"Latest returned age at receipt: {FormatAge(result.LatestAge)}");
+        Console.WriteLine($"Latest completed interval age at receipt: {FormatAge(result.LatestAge)}");
 
         if (showSessions && result.Sessions.Count > 0)
         {
@@ -274,6 +275,7 @@ public sealed class TmxXiuIntradayProbe : IProbe
         DateTime RequestedEndUtc,
         DateTime ReceivedUtc,
         TimeSpan RequestDuration,
+        int AttemptCount,
         IReadOnlyList<OhlcvBar> Bars,
         IReadOnlyList<SessionResult> Sessions,
         int DuplicateTimestampCount,
@@ -285,6 +287,8 @@ public sealed class TmxXiuIntradayProbe : IProbe
     {
         public DateTime? EarliestUtc => Bars.Count == 0 ? null : Bars[0].TimestampUtc;
         public DateTime? LatestUtc => Bars.Count == 0 ? null : Bars[^1].TimestampUtc;
-        public TimeSpan? LatestAge => LatestUtc.HasValue ? ReceivedUtc - LatestUtc.Value : null;
+        public TimeSpan? LatestAge => LatestUtc.HasValue
+            ? ReceivedUtc - LatestUtc.Value.AddMinutes(IntervalMinutes)
+            : null;
     }
 }

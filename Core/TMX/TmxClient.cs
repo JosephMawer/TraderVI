@@ -31,6 +31,9 @@ namespace Core.TMX
         private static readonly Uri GraphQLEndpoint = new("https://app-money.tmx.com/graphql");
         private static readonly TimeZoneInfo TmxEasternTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        private const int MaximumTransportAttempts = 3;
+        private static readonly TimeSpan IntradayChunkWindow = TimeSpan.FromDays(5);
+        private static readonly TimeSpan IntradayChunkPause = TimeSpan.FromMilliseconds(250);
 
         public TmxClient()
         {
@@ -77,13 +80,38 @@ namespace Core.TMX
             DateTime? endDateTime = null,
             CancellationToken ct = default)
         {
+            TmxIntradayBatch batch = await GetIntradayTimeSeriesBatchAsync(
+                symbol,
+                interval,
+                startDateTime,
+                endDateTime,
+                ct);
+            return batch.Bars.ToList();
+        }
+
+        /// <summary>
+        /// Gets one validated intraday response together with its request and
+        /// receipt metadata. Use this method when the evidence will drive a
+        /// delayed decision or be persisted for later replay.
+        /// </summary>
+        public async Task<TmxIntradayBatch> GetIntradayTimeSeriesBatchAsync(
+            string symbol,
+            int interval,
+            DateTime startDateTime,
+            DateTime? endDateTime = null,
+            CancellationToken ct = default)
+        {
+            DateTime fetchStartedUtc = DateTime.UtcNow;
             GraphQLRequest request = BuildIntradayTimeSeriesRequest(
                 symbol,
                 interval,
                 startDateTime,
                 endDateTime);
 
-            var response = await _graphClient.SendQueryAsync<TmxTimeSeriesResponse>(request, ct);
+            RetryResult<GraphQLResponse<TmxTimeSeriesResponse>> transport =
+                await SendQueryWithRetryAsync<TmxTimeSeriesResponse>(request, ct);
+            DateTime receivedUtc = DateTime.UtcNow;
+            GraphQLResponse<TmxTimeSeriesResponse> response = transport.Value;
             if (response.Errors is { Length: > 0 })
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
@@ -95,11 +123,85 @@ namespace Core.TMX
                 .ToList()
                 ?? [];
 
-            return ValidateIntradayResponse(
+            List<OhlcvBar> validated = ValidateIntradayResponse(
                 bars,
                 interval,
                 startDateTime,
                 endDateTime);
+
+            DateTime requestedStartUtc = FloorToUtcMinute(startDateTime);
+            DateTime requestedEndUtc = endDateTime.HasValue
+                ? FloorToUtcMinute(endDateTime.Value)
+                : FloorToUtcMinute(fetchStartedUtc);
+
+            return new TmxIntradayBatch(
+                symbol.Trim(),
+                interval,
+                requestedStartUtc,
+                requestedEndUtc,
+                fetchStartedUtc,
+                receivedUtc,
+                transport.AttemptCount,
+                RequestCount: 1,
+                validated.AsReadOnly());
+        }
+
+        /// <summary>
+        /// Gets a wide intraday range through explicit five-calendar-day TMX
+        /// requests, then validates and deduplicates the combined result.
+        /// This avoids TMX's observed 754-bar single-response cap.
+        /// </summary>
+        public async Task<TmxIntradayBatch> GetIntradayTimeSeriesChunkedAsync(
+            string symbol,
+            int interval,
+            DateTime startDateTime,
+            DateTime endDateTime,
+            CancellationToken ct = default)
+        {
+            IReadOnlyList<IntradayRequestWindow> windows = BuildIntradayRequestWindows(
+                startDateTime,
+                endDateTime);
+            DateTime fetchStartedUtc = DateTime.UtcNow;
+            DateTime receivedUtc = fetchStartedUtc;
+            int attemptCount = 0;
+            var bars = new List<OhlcvBar>();
+
+            for (int index = 0; index < windows.Count; index++)
+            {
+                ct.ThrowIfCancellationRequested();
+                IntradayRequestWindow window = windows[index];
+                TmxIntradayBatch chunk = await GetIntradayTimeSeriesBatchAsync(
+                    symbol,
+                    interval,
+                    window.StartUtc,
+                    window.EndUtc,
+                    ct);
+
+                bars.AddRange(chunk.Bars);
+                attemptCount += chunk.AttemptCount;
+                receivedUtc = chunk.ReceivedUtc;
+
+                if (index < windows.Count - 1)
+                    await Task.Delay(IntradayChunkPause, ct);
+            }
+
+            List<OhlcvBar> merged = MergeChunkBars(bars);
+            List<OhlcvBar> validated = ValidateIntradayResponse(
+                merged,
+                interval,
+                windows[0].StartUtc,
+                windows[^1].EndUtc);
+
+            return new TmxIntradayBatch(
+                symbol.Trim(),
+                interval,
+                windows[0].StartUtc,
+                windows[^1].EndUtc,
+                fetchStartedUtc,
+                receivedUtc,
+                attemptCount,
+                windows.Count,
+                validated.AsReadOnly());
         }
 
         internal static GraphQLRequest BuildIntradayTimeSeriesRequest(
@@ -110,11 +212,7 @@ namespace Core.TMX
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(symbol);
 
-            if (interval is not (1 or 5 or 15 or 30 or 60))
-                throw new ArgumentOutOfRangeException(
-                    nameof(interval),
-                    interval,
-                    "TMX intraday interval must be 1, 5, 15, 30, or 60 minutes.");
+            ValidateIntradayInterval(interval);
 
             DateTime startUtc = FloorToUtcMinute(startDateTime);
             DateTime? endUtc = endDateTime.HasValue
@@ -160,12 +258,57 @@ namespace Core.TMX
             };
         }
 
+        internal static IReadOnlyList<IntradayRequestWindow> BuildIntradayRequestWindows(
+            DateTime startDateTime,
+            DateTime endDateTime)
+        {
+            DateTime startUtc = FloorToUtcMinute(startDateTime);
+            DateTime endUtc = FloorToUtcMinute(endDateTime);
+            if (endUtc <= startUtc)
+                throw new ArgumentException(
+                    "TMX intraday end time must be later than the start time.",
+                    nameof(endDateTime));
+
+            var windows = new List<IntradayRequestWindow>();
+            DateTime windowStartUtc = startUtc;
+            while (windowStartUtc < endUtc)
+            {
+                DateTime windowEndUtc = windowStartUtc + IntradayChunkWindow;
+                if (windowEndUtc > endUtc)
+                    windowEndUtc = endUtc;
+                windows.Add(new IntradayRequestWindow(windowStartUtc, windowEndUtc));
+                windowStartUtc = windowEndUtc;
+            }
+
+            return windows.AsReadOnly();
+        }
+
+        internal static List<OhlcvBar> MergeChunkBars(
+            IReadOnlyCollection<OhlcvBar> sourceBars)
+        {
+            var merged = new List<OhlcvBar>();
+            foreach (IGrouping<DateTime, OhlcvBar> group in sourceBars
+                .GroupBy(bar => bar.TimestampUtc)
+                .OrderBy(group => group.Key))
+            {
+                OhlcvBar canonical = group.First();
+                if (group.Skip(1).Any(bar => bar != canonical))
+                    throw new InvalidOperationException(
+                        $"TMX returned conflicting bars at chunk boundary {group.Key:O}.");
+                merged.Add(canonical);
+            }
+
+            return merged;
+        }
+
         internal static List<OhlcvBar> ValidateIntradayResponse(
             IReadOnlyCollection<OhlcvBar> sourceBars,
             int interval,
             DateTime startDateTime,
             DateTime? endDateTime)
         {
+            ValidateIntradayInterval(interval);
+
             List<OhlcvBar> bars = sourceBars
                 .OrderBy(bar => bar.TimestampUtc)
                 .ToList();
@@ -176,6 +319,50 @@ namespace Core.TMX
             if (bars.GroupBy(bar => bar.TimestampUtc).Any(group => group.Count() > 1))
                 throw new InvalidOperationException(
                     "TMX returned duplicate timestamps for an intraday request.");
+
+            OhlcvBar nonUtc = bars.FirstOrDefault(bar =>
+                bar.TimestampUtc.Kind != DateTimeKind.Utc);
+            if (nonUtc is not null)
+                throw new InvalidOperationException(
+                    $"TMX intraday timestamp is not UTC: {nonUtc.TimestampUtc:O}.");
+
+            OhlcvBar invalidOhlc = bars.FirstOrDefault(bar =>
+                bar.Open <= 0m ||
+                bar.High <= 0m ||
+                bar.Low <= 0m ||
+                bar.Close <= 0m ||
+                bar.Low > bar.High ||
+                bar.Low > System.Math.Min(bar.Open, bar.Close) ||
+                bar.High < System.Math.Max(bar.Open, bar.Close));
+            if (invalidOhlc is not null)
+                throw new InvalidOperationException(
+                    $"TMX returned an invalid OHLC range at {invalidOhlc.TimestampUtc:O}.");
+
+            OhlcvBar negativeVolume = bars.FirstOrDefault(bar => bar.Volume < 0);
+            if (negativeVolume is not null)
+                throw new InvalidOperationException(
+                    $"TMX returned negative volume at {negativeVolume.TimestampUtc:O}.");
+
+            OhlcvBar misaligned = bars.FirstOrDefault(bar =>
+            {
+                if (bar.TimestampUtc.Second != 0 ||
+                    bar.TimestampUtc.Millisecond != 0 ||
+                    bar.TimestampUtc.Ticks % TimeSpan.TicksPerMinute != 0)
+                {
+                    return true;
+                }
+
+                DateTime local = TimeZoneInfo.ConvertTimeFromUtc(
+                    bar.TimestampUtc,
+                    TmxEasternTimeZone);
+                int minutesFromRegularOpen =
+                    (int)local.TimeOfDay.TotalMinutes - (9 * 60 + 30);
+                return minutesFromRegularOpen % interval != 0;
+            });
+            if (misaligned is not null)
+                throw new InvalidOperationException(
+                    $"TMX timestamp {misaligned.TimestampUtc:O} does not align to a " +
+                    $"{interval}-minute interval anchored at the 9:30 a.m. TSX open.");
 
             DateTime startUtc = FloorToUtcMinute(startDateTime);
             DateTime? endUtc = endDateTime.HasValue
@@ -208,6 +395,15 @@ namespace Core.TMX
                     "this is daily fallback data, not intraday evidence.");
 
             return bars;
+        }
+
+        private static void ValidateIntradayInterval(int interval)
+        {
+            if (interval is not (1 or 5 or 15 or 30 or 60))
+                throw new ArgumentOutOfRangeException(
+                    nameof(interval),
+                    interval,
+                    "TMX intraday interval must be 1, 5, 15, 30, or 60 minutes.");
         }
 
         /// <summary>
@@ -266,11 +462,11 @@ namespace Core.TMX
         }
 
         // ═══════════════════════════════════════════════════════════════════
-        // QUOTES (Real-time snapshots)
+        // QUOTES (Current snapshots; freshness depends on provider/source)
         // ═══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Gets real-time quotes for multiple symbols.
+        /// Gets current quote snapshots for multiple symbols.
         /// Returns canonical QuoteSnapshot models.
         /// </summary>
         public async Task<List<QuoteSnapshot>> GetQuotesBySymbolsAsync(
@@ -304,34 +500,14 @@ namespace Core.TMX
                 Variables = new { activity = symbols }
             };
 
-            // Basic retry on transient failures
-            for (int attempt = 1; attempt <= 3; attempt++)
-            {
-                try
-                {
-                    var resp = await _graphClient.SendQueryAsync<TmxQuoteResponse>(request, ct);
-                    if (resp.Errors is { Length: > 0 })
-                        throw new InvalidOperationException(
-                            $"TMX GraphQL errors: {string.Join(" | ", resp.Errors.Select(e => e.Message))}");
-
-                    return resp.Data?.marketActivity
-                        .Select(TmxMapper.ToQuoteSnapshot)
-                        .ToList()
-                        ?? new List<QuoteSnapshot>();
-                }
-                catch (HttpRequestException) when (attempt < 3)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(2 * attempt), ct);
-                }
-            }
-
-            // Last attempt without catching to surface error
-            var final = await _graphClient.SendQueryAsync<TmxQuoteResponse>(request, ct);
-            if (final.Errors is { Length: > 0 })
+            RetryResult<GraphQLResponse<TmxQuoteResponse>> transport =
+                await SendQueryWithRetryAsync<TmxQuoteResponse>(request, ct);
+            GraphQLResponse<TmxQuoteResponse> response = transport.Value;
+            if (response.Errors is { Length: > 0 })
                 throw new InvalidOperationException(
-                    $"TMX GraphQL errors: {string.Join(" | ", final.Errors.Select(e => e.Message))}");
+                    $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
 
-            return final.Data?.marketActivity
+            return response.Data?.marketActivity
                 .Select(TmxMapper.ToQuoteSnapshot)
                 .ToList()
                 ?? new List<QuoteSnapshot>();
@@ -593,6 +769,63 @@ namespace Core.TMX
         // UTILITIES
         // ═══════════════════════════════════════════════════════════════════
 
+        private async Task<RetryResult<GraphQLResponse<TResponse>>> SendQueryWithRetryAsync<TResponse>(
+            GraphQLRequest request,
+            CancellationToken ct)
+        {
+            return await ExecuteWithRetryAsync(
+                token => _graphClient.SendQueryAsync<TResponse>(request, token),
+                ct);
+        }
+
+        internal static async Task<RetryResult<T>> ExecuteWithRetryAsync<T>(
+            Func<CancellationToken, Task<T>> operation,
+            CancellationToken ct,
+            Func<TimeSpan, CancellationToken, Task> delayAsync = null)
+        {
+            ArgumentNullException.ThrowIfNull(operation);
+            delayAsync ??= static (delay, token) => Task.Delay(delay, token);
+
+            for (int attempt = 1; attempt <= MaximumTransportAttempts; attempt++)
+            {
+                ct.ThrowIfCancellationRequested();
+                try
+                {
+                    T value = await operation(ct);
+                    return new RetryResult<T>(value, attempt);
+                }
+                catch (Exception ex) when (
+                    attempt < MaximumTransportAttempts &&
+                    IsTransientTransportFailure(ex, ct))
+                {
+                    await delayAsync(TimeSpan.FromSeconds(attempt), ct);
+                }
+            }
+
+            throw new InvalidOperationException("TMX retry loop completed without a result.");
+        }
+
+        internal static bool IsTransientTransportFailure(
+            Exception exception,
+            CancellationToken ct)
+        {
+            return exception switch
+            {
+                GraphQLHttpRequestException graphQlHttp =>
+                    IsTransientStatusCode(graphQlHttp.StatusCode),
+                HttpRequestException http =>
+                    !http.StatusCode.HasValue ||
+                    IsTransientStatusCode(http.StatusCode.Value),
+                TaskCanceledException => !ct.IsCancellationRequested,
+                _ => false
+            };
+        }
+
+        private static bool IsTransientStatusCode(HttpStatusCode statusCode) =>
+            statusCode is HttpStatusCode.RequestTimeout or
+                HttpStatusCode.TooManyRequests ||
+            (int)statusCode >= 500;
+
         private static DateTime FloorToUtcMinute(DateTime value)
         {
             DateTime utc = value.Kind == DateTimeKind.Utc
@@ -617,4 +850,10 @@ namespace Core.TMX
             _handler?.Dispose();
         }
     }
+
+    internal readonly record struct RetryResult<T>(T Value, int AttemptCount);
+
+    internal readonly record struct IntradayRequestWindow(
+        DateTime StartUtc,
+        DateTime EndUtc);
 }

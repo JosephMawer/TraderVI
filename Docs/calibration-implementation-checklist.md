@@ -122,6 +122,8 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Record the failed response contract honestly: the 2-, 14-, and 90-day 15-minute requests all returned the same seven daily 4:00 p.m. bars, and the two-day response included dates before its requested start.
 - [x] Correct the TMX intraday request to omit `freq`, round Unix bounds to whole minutes, reject obvious daily fallback responses, and rerun the probe: the corrected 2- and 14-day requests returned clean, current, gap-free 15-minute XIU sessions.
 - [x] Record the wide-window cap: the 90-day request returned the oldest 754 bars (29 sessions) only, so rolling monitoring windows are viable but historical loading requires bounded chunks and deduplication.
+- [x] Harden `TmxClient` with bounded transient retries, timestamped intraday batches, strict OHLCV/timestamp/interval validation, explicit five-day chunked history, and neutral quote-freshness terminology.
+- [x] Add the bounded read-only `tmx-xiu-market-hours` probe for five polls spaced fifteen minutes apart; it refuses to call TMX outside the regular Toronto market window and performs no database or file writes.
 - [ ] During TSX market hours, probe when newly completed XIU bars become observable and how repeated 15-minute polls behave; keep this separate from tonight's historical shape test.
 - [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
 - [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.

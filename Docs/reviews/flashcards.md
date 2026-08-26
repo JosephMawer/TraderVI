@@ -446,3 +446,9 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0028
 
 **A:** TMX's current chart code uses `interval` plus Unix `startDateTime` and `endDateTime` for intraday data. Sending the obsolete `freq = "minute"` combination produced daily fallback bars; omitting it returned valid 15-minute sessions.
+
+### Q: Why does a TMX intraday batch record receipt time separately from the bar timestamp?
+- **Domains:** data-sources, market-microstructure, risk-management
+- **Source:** ADR-0028
+
+**A:** The bar timestamp describes when market activity occurred, while receipt time describes when TraderVI could first act on that evidence. Without both, a delayed paper policy could be credited with information it did not yet have.

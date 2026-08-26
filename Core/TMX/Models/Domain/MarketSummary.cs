@@ -21,7 +21,8 @@ namespace Core.TMX.Models.Domain
 
 
     /// <summary>
-    /// Canonical real-time quote snapshot (domain model).
+    /// Canonical current quote snapshot (domain model). Freshness depends on
+    /// the upstream provider and must not be inferred from this type name.
     /// Normalized to PascalCase C# conventions.
     /// </summary>
     public record QuoteSnapshot(

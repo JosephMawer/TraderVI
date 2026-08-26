@@ -29,6 +29,14 @@ The 15-minute value is the monitor's polling cadence, not a claim that TMX publi
 
 Treat every source bar as delayed evidence. Preserve its market-event timestamp separately from the UTC time TraderVI received it, calculate and display its age, and never call an alert a guaranteed stop fill. The monitor emits advice and paper decisions only. It does not place an order, silently close a real position, or change Delphi's ranking.
 
+### Accepted source-client operational defaults
+
+- Preserve the simple bar-list API as a compatibility wrapper, while making a timestamped intraday batch the evidence-bearing API. A batch records the requested window, fetch start, receipt time, transport attempt count, request count, and validated bars.
+- Retry only transient transport failures: timeouts, HTTP 408, HTTP 429, and HTTP 5xx responses. Make at most three total attempts with cancellation-aware one-second and two-second delays. Do not retry GraphQL/application errors as though they were network failures.
+- Reject duplicate timestamps, timestamps outside the requested window, obvious daily fallback, unsupported or misaligned intervals, non-UTC event timestamps, non-positive OHLC values, invalid OHLC ranges, and negative volume.
+- Expose wide intraday history through an explicit chunked method using five-calendar-day request windows, a short cancellation-aware pause between chunks, and exact duplicate removal at chunk boundaries. Conflicting duplicate bars are an error rather than an arbitrary last-write-wins choice.
+- Describe quote snapshots as current rather than guaranteed real-time data. Actual freshness comes from provider event timestamps where available and from measured receipt behavior, not from a method name or comment.
+
 Allow a same-session exit. The ordinary holding target is no more than five completed trading sessions, not a rule to wait five sessions before examining the position. A profitable, healthy position may continue beyond session five under the trailing rule, but session ten is the absolute time limit for the initial policy.
 
 Use two loss levels measured from the raw entry price:
