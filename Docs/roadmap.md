@@ -39,11 +39,12 @@ Design background: [`Docs/concepts/paper-calibration-and-outcome-feedback.md`](c
 Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibration-implementation-checklist.md).
 
 - [x] Resume daily paper recommendations without live execution; the 2026-08-26 Delphi run supplied the first ADR-0029 ghost pilot cohort.
-- [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, promotion tiers, delayed intraday swing-management challenger, and non-calibration ghost-entry pilot (ADR-0020 through ADR-0029).
+- [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, promotion tiers, delayed intraday swing-management challenger, non-calibration ghost-entry pilot, and durable intraday ledger (ADR-0020 through ADR-0030).
 - [x] Repair and revalidate the TMX intraday request: current short-window XIU calls return clean 15-minute bars; wide responses are capped and require bounded chunks.
 - [x] Run the prepared `tmx-xiu-market-hours` sequence and lower-resolution comparison: completed bars advanced reliably, forming bars were mutable, five-minute evidence stayed gap-free, and one-minute evidence showed occasional gaps.
 - [x] Select completed five-minute bars as version-1 evidence and add the replay-only ADR-0029 ghost-entry/advisory-monitor bridge.
-- [ ] Persist proven intraday evidence, then replace the pilot replay path with the durable collector-backed monitor.
+- [x] Add and source-validate the ADR-0030 canonical intraday schema, additive migration, transactional repository, and conflict/idempotence tests.
+- [ ] Back up and apply migration 012 with explicit authorization, then replace the pilot replay path with the durable collector-backed monitor.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.

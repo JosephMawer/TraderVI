@@ -18,6 +18,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
+- [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 
 ## data-pipeline
 
@@ -30,11 +31,13 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0019](0019-delphi-strict-history-freshness-eligibility.md) — Delphi strict history-freshness eligibility
 - [ADR-0020](0020-immutable-calibration-evidence-ledger.md) — Immutable calibration evidence ledger
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
+- [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 
 ## data-sources
 
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — US confirming-index source and staleness gate
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
+- [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 
 ## machine-learning
 
@@ -75,6 +78,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
+- [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 
 ## risk-management
 
@@ -92,6 +96,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
+- [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 
 ## decision-engine
 

@@ -92,6 +92,8 @@ Rule:
 | `[RelativeStrengthFeatures]` | RS feature history | Hermes (planned) | Hercules (planned) |
 | `[DecisionDossier]` | Structured per-pick audit unit for LLM layer | Delphi | Oracle |
 | `[LlmNarrative]` | Per-pick and market-wide LLM narratives (prompt + response + cost) | Oracle | Analysis, future debate loop |
+| `[IntradayPollObservation]` | Versioned request/receipt and source-quality audit (source-defined; migration not applied) | Sentinel collector (planned) | Coverage and delayed-outcome evaluation |
+| `[IntradayEvidenceBar]` | Immutable completed 5-minute storage and direct 15-minute policy bars (source-defined; migration not applied) | Sentinel collector (planned) | Sentinel policy, delayed-outcome evaluation |
 
 ### Operational gotchas
 
@@ -112,6 +114,6 @@ Rule:
 | **Hermes** | Daily (post-close) | TMX API | `[DailyBars]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` |
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
-| **Sentinel** | Durable 15-minute advisory service planned; ADR-0029 replay-only pilot monitor implemented | active positions, delayed TMX intraday bars, fresh official Delphi evidence | Timestamped alerts; no automated orders |
+| **Sentinel** | Durable 15-minute advisory service planned; ADR-0029 replay-only pilot monitor implemented | active positions, delayed TMX intraday bars, fresh official Delphi evidence | planned `[IntradayPollObservation]` / `[IntradayEvidenceBar]`, timestamped alerts; no automated orders |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
 | **TraderVI** | Event-driven (planned) | `[DailyPick]`, Sentinel signals | Wealthsimple API orders |

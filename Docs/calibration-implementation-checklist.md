@@ -1,9 +1,10 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-08-26
-- **Authoritative design:** ADR-0020 through ADR-0029
+- **Authoritative design:** ADR-0020 through ADR-0030
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
+- **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (source-validated; not applied)
 
 ## Status legend
 
@@ -13,7 +14,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0028 defines the delayed intraday swing-management challenger; the pure policy and deterministic five-to-fifteen-minute aggregation are implemented. ADR-0029 now separates an operational intraday ghost-entry pilot from official ADR-0021/Athena outcomes. On 2026-08-26, the first explicitly selected five-position pilot cohort (NDM, CMG, ALK, EDR, and OGI) was linked to today's persisted Continuation picks and opened as one ghost share each. The advisory watch is running against completed evidence and cannot place or close an order. Durable intraday persistence, calibration-grade delayed outcomes, and fresh post-entry Delphi exception evidence remain incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0028 defines the delayed intraday swing-management challenger; the pure policy and deterministic five-to-fifteen-minute aggregation are implemented. ADR-0029 separates an operational intraday ghost-entry pilot from official ADR-0021/Athena outcomes. On 2026-08-26, the first explicitly selected five-position pilot cohort (NDM, CMG, ALK, EDR, and OGI) was linked to today's persisted Continuation picks and opened as one ghost share each. The advisory watch is running against completed evidence and cannot place or close an order. ADR-0030, the canonical two-table intraday ledger, one additive migration, transactional repository, and persistence-planner tests are complete in source. The migration has not been applied, so today's monitor remains replay-only and performs no intraday-evidence writes. Collector wiring, calibration-grade delayed outcomes, and fresh post-entry Delphi exception evidence remain incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -33,7 +34,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0029 and add review cards.
+- [x] Accept ADR-0020 through ADR-0030 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -56,7 +57,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 
 ### Validation completed
 
-- [x] Core tests pass: 70 passed, 0 failed on 2026-08-25.
+- [x] Core tests pass: 91 passed, 0 failed on 2026-08-26.
 - [x] Delphi focused build succeeds with no compiler warnings.
 - [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
@@ -129,7 +130,11 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Verify deterministic aggregation: all nine comparable completed fifteen-minute XIU bars exactly matched the OHLCV reconstructed from their three completed five-minute bars.
 - [x] Accept completed five-minute bars as the version-1 evidence resolution while retaining the confirmed fifteen-minute polling cadence.
 - [x] Add and test deterministic completed-five-minute to fifteen-minute aggregation that refuses incomplete three-bar groups.
-- [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
+- [x] Define the immutable completed-bar and per-request poll-audit ledger in ADR-0030, independent from positions and official outcomes.
+- [x] Add canonical `IntradayPollObservation` and `IntradayEvidenceBar` definitions plus the single additive `20260826_012_AddIntradayEvidenceLedger.sql` migration; do not mix interval bars into `DailyBars` or legacy `Quotes`.
+- [x] Validate the canonical intraday schema with Visual Studio MSBuild 18.10 plus SSDT; no DACPAC deployment or migration execution was performed.
+- [x] Add transactional persistence planning/repository code for completed bars, exact-repeat idempotence, conflict invalidation, failed-poll audits, and schema presence checks.
+- [ ] **Operational step:** after reviewing the exact script, create/verify a fresh full backup, apply migration 012 manually, and verify both new empty tables, keys, checks, and indexes.
 - [x] Add the ADR-0029 operational bridge for preflighted, one-share intraday ghost entries linked to today's persisted Continuation picks.
 - [x] Add the pilot 15-minute advisory monitor for linked positions, using direct completed policy bars with source age, position snapshots, and no automatic sell or brokerage action.
 - [x] **Operational step:** preflight and open the first one-share ADR-0029 cohort for NDM, CMG, ALK, EDR, and OGI on 2026-08-26; verify all five linked active positions exist and the first monitor pass returned `Hold` while awaiting eligible completed bars.

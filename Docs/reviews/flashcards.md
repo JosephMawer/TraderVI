@@ -476,3 +476,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0029
 
 **A:** The user chooses the pilot entry at the current delayed observation, whose exact event and receipt state are recorded. An exit rule must be reproducible, so it waits for a completed direct fifteen-minute bar. Completed five-minute bars are retained later for finer evidence and exact aggregation checks, not substituted when a source slot is absent.
+
+### Q: Why does ADR-0030 store both a poll observation and completed market bars?
+- **Domains:** architecture, data-pipeline, market-microstructure
+- **Source:** ADR-0030
+
+**A:** Bars record what happened in the market; the poll observation records when and how TraderVI asked for and received that evidence, including empty or failed polls. Both are required to reconstruct a delayed decision without look-ahead.
+
+### Q: What happens when TMX returns different OHLCV for an already stored completed intraday bar?
+- **Domains:** data-pipeline, data-sources, risk-management
+- **Source:** ADR-0030
+
+**A:** TraderVI keeps the first completed evidence unchanged, marks the later poll invalid with a bounded conflict code, and surfaces the disagreement. It never overwrites the audit trail or selects the more favourable version.

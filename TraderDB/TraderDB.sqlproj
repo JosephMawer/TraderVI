@@ -89,6 +89,8 @@
     <Build Include="dbo/Tables/CalibrationLensEvaluation.sql" />
     <Build Include="dbo/Tables/CalibrationOutcomeDefinition.sql" />
     <Build Include="dbo/Tables/CalibrationCandidateOutcome.sql" />
+    <Build Include="dbo/Tables/IntradayPollObservation.sql" />
+    <Build Include="dbo/Tables/IntradayEvidenceBar.sql" />
     <Build Include="dbo/Indexes/IX_DailyPick_DateSymbol.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +108,7 @@
     <None Include="Migrations/20260822_009_ClassifyReviewedFundsAsEtfs.sql" />
     <None Include="Migrations/20260822_010_ClassifyUnmappedActiveFundsAsEtfs.sql" />
     <None Include="Migrations/20260823_011_AddCalibrationEvidenceLedger.sql" />
+    <None Include="Migrations/20260826_012_AddIntradayEvidenceLedger.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
