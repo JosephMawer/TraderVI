@@ -4,7 +4,7 @@
 - **Date:** 2026-08-23
 - **Domains:** architecture, decision-engine, market-microstructure, risk-management
 - **Related:** ADR-0013, ADR-0015, ADR-0020, ADR-0021, ADR-0022
-- **Refined by:** ADR-0025 for the initial three-session mark-to-market measure and ADR-0026 for excursion evidence
+- **Refined by:** ADR-0025 for the initial three-session mark-to-market measure, ADR-0026 for excursion evidence, and ADR-0028 for delayed intraday management of an open swing
 
 ## Context
 
@@ -14,7 +14,7 @@ High opening activity does not by itself prove that price direction confirms or 
 
 ## Decision
 
-Use a **multi-day swing policy** as Delphi's primary trade-management direction. A position is expected to last roughly three to five completed sessions, with a future versioned exit rule allowed to keep a healthy trend longer. The exact trailing, profit-protection, time-limit, and stop rules remain unresolved until separately reviewed.
+Use a **multi-day swing policy** as Delphi's primary trade-management direction. A position is expected to last roughly three to five completed sessions, with a future versioned exit rule allowed to keep a healthy trend longer. ADR-0028 later resolved the first delayed intraday trailing, profit-protection, time-limit, and stop challenger.
 
 Keep the current completed-daily-session Delphi evaluation as the baseline selector. Do not keep Delphi running overnight. A future opening-confirmation process, if implemented, runs separately after the market opens and persists its own timestamped inputs and decision.
 
@@ -30,7 +30,7 @@ Keep **intraday wave trading** as a separate experimental execution policy with 
 
 Retain the accepted 10- and 20-session prediction outcomes for model-label compatibility and longer-path diagnostics. New 1-, 2-, and 3-session economic measures and the eventual swing exit policy require new immutable outcome-definition versions; they do not rewrite the existing definitions.
 
-The initial 9:45 a.m. checkpoint and comparisons at 5, 15, and 30 minutes are **proposed research defaults**, not accepted production thresholds. The intraday source, quote/spread contract, checkpoint, and exact swing exit rule remain open decisions.
+The initial 9:45 a.m. checkpoint and comparisons at 5, 15, and 30 minutes are **proposed opening-confirmation research defaults**, not accepted production thresholds. ADR-0028 separately selected 15-minute polling for management of an already-open swing; the opening-confirmation source and checkpoint remain open.
 
 ## Alternatives considered
 

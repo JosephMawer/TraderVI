@@ -82,6 +82,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0025-three-session-swing-mark-to-market-outcome.md = Docs\adr\0025-three-session-swing-mark-to-market-outcome.md
 		Docs\adr\0026-three-session-swing-excursion-measures.md = Docs\adr\0026-three-session-swing-excursion-measures.md
 		Docs\adr\0027-lens-tradeability-scorecards-and-cohort-aggregation.md = Docs\adr\0027-lens-tradeability-scorecards-and-cohort-aggregation.md
+		Docs\adr\0028-delayed-intraday-swing-monitor-and-exit-policy.md = Docs\adr\0028-delayed-intraday-swing-monitor-and-exit-policy.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

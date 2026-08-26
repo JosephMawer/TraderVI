@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system. At the last verified operational audit, the data collector (Hermes) was current through 2026-08-21 and the immutable paper-calibration evidence ledger was present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort. Athena can now produce cost-aware three-session marks, MFE/MAE paths, coverage, and separate Continuation/Breakout scorecards, but no operational Athena run was performed during the later source work. The next priority is to accumulate distinct daily paper cohorts and establish their outcome baseline before tuning the strategy.
+TraderVI is an advisory-mode TSX momentum-rotation system. At the last verified operational audit, the data collector (Hermes) was current through 2026-08-21 and the immutable paper-calibration evidence ledger was present in TraderDB. On 2026-08-23, Delphi captured two valid official validation runs and one isolated exploratory replay for one recommendation cohort. Athena can now produce cost-aware three-session marks, MFE/MAE paths, coverage, and separate Continuation/Breakout scorecards. A pure delayed-15-minute exit-policy engine now models the ADR-0028 paper challenger, but no TMX polling, persistence, or live/ghost position action is wired. The next priorities are to accumulate distinct daily cohorts and validate the intraday response contract before adding its collector.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 58 passed, 0 failed, 0 skipped on 2026-08-25.
+- Core tests: 70 passed, 0 failed, 0 skipped on 2026-08-25.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -129,7 +129,7 @@ Full-local-universe reconciliation completed on 2026-08-22:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0027 define the evidence, outcomes, coverage, policy separation, initial three-session swing marks/excursions, lens scorecards, cohort aggregation, and promotion contracts. The additive schema matches TraderDB. At the last verified audit, two official validation runs and one exploratory replay covered the same 2026-08-21 completed market session, so they count as one independent cohort. Athena distinguishes immature horizons from terminal invalid joins and can produce separate cost-aware Continuation/Breakout scorecards without overweighting reruns. Operational outcome state has not been re-audited since the later source changes. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0028 define the evidence, outcomes, coverage, policy separation, initial three-session swing marks/excursions, lens scorecards, cohort aggregation, promotion contracts, and delayed intraday exit-policy challenger. The pure ADR-0028 engine is implemented, but its TMX timestamp validation, intraday persistence, polling process, post-detection paper fills, and active-position integration are not. At the last verified audit, two official validation runs and one exploratory replay covered the same 2026-08-21 completed market session, so they count as one independent cohort. Operational outcome state has not been re-audited since the later source changes. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 
 ## Immediate direction
@@ -139,5 +139,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, MFE/MAE paths, separate lens scorecards, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
-4. Observe additional Hermes backups and perform a test restore.
-5. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
+4. Validate the selected TMX 15-minute response contract before adding intraday persistence or an advisory polling loop; do not infer timestamp or fill semantics from method names.
+5. Observe additional Hermes backups and perform a test restore.
+6. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

@@ -13,7 +13,7 @@
 | **Granville 56 Indicators** | Market condition scoring / soft gate + composite adjustment | `Core.Indicators.Granville.*` → `GranvilleComposite` → `GranvilleGate` |
 | **XIU Regime Filter** | TSX benchmark uptrend / 20d return gate | `TradeDecisionEngine.ComputeRegime` |
 | **SPY Regime Filter** | S&P 500 cross-market confirmation | `TradeDecisionEngine.ComputeRegime` |
-| **Stop-Loss (-10%)** | Hard exit override | `TradeDecisionEngine` / Sentinel (planned) |
+| **Stop-Loss (-10%)** | Current operational hard-exit baseline; ADR-0028 separately tests a tightly qualified paper-only exception with an absolute -20% alert | `TradeDecisionEngine` / Sentinel (planned) |
 | **Drawdown Warning (-5%)** | Alert / tighter monitoring | Sentinel (planned) |
 | **Down-Probability Veto** | Block longs when P(down) reaches the configured maximum (default 35%) | `DownProbabilityGate` |
 | **Down-Probability Penalty** | P(down) reduces the role-weighted composite continuously | `TradeDecisionEngine.ComputeCompositeFromRoles` |

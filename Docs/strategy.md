@@ -5,9 +5,9 @@
 
 ## Strategy: Aggressive Single-Position Rotation
 - Allocate most/all available capital into the single top-ranked opportunity.
-- Primary paper-policy direction: a multi-day swing, normally about 3–5 completed sessions and potentially longer while a future versioned exit rule says the trend remains healthy (ADR-0023).
-- The exact profit-protection, trailing, stop, and maximum-hold rules are not yet accepted or implemented.
-- Intraday wave trading is a separate experimental policy and must not be blended into the swing results.
+- Primary paper-policy direction: Delphi selects from completed daily data, then a delayed 15-minute advisory monitor manages the open swing throughout each session (ADR-0028).
+- A same-day exit is allowed. Most positions should close within five completed sessions; a profitable position may trail through no more than ten sessions under the version-1 challenger defaults.
+- Intraday management of an open swing is part of this policy. A separate strategy that enters specifically to trade an intraday wave remains experimental and must not be blended into the swing results.
 - TSX-only for now.
 
 ## Decision Inputs ("Hints")
@@ -43,8 +43,9 @@ Composite = 0.40×Breakout + 0.25×Up + 0.15×VolExp + 0.10×RelStr + 0.10×ense
 
 ## Risk Rules (Capital Preservation)
 - Warning: drawdown reaches -5% from entry → alert / tighter monitoring
-- Stop-loss: drawdown reaches -10% from entry → sell (hard exit)
-- Stop-loss overrides model recommendations.
+- Current operational/ghost baseline: drawdown reaches -10% from entry → sell; model recommendations do not override it.
+- ADR-0028 paper challenger: the -10% alert may be deferred only by a fresh, published, very strong Breakout signal; -20% is never bypassed.
+- Delayed data means an alert cannot guarantee either threshold price. This challenger remains advisory and unpromoted.
 
 ## Gate Pipeline (sequential)
 Each gate can block a trade. Order matters:

@@ -72,7 +72,7 @@
 - **Hercules (`ML.Train`)**: Training pipeline. Trains models and writes `.zip` artifacts.
 - **ModelRegistry**: DB table storing trained models and metadata; used by runtime to load enabled models.
 - **Delphi**: Runtime inference and recommendation app (advisory mode). Evaluates Granville, computes live RS, runs ML models, ranks candidates.
-- **Sentinel**: Planned intraday monitoring with stop-loss execution and rotation triggers.
+- **Sentinel**: Planned 15-minute advisory process around the pure ADR-0028 exit-policy engine. It will monitor delayed TMX intraday bars and active positions; automated stop execution and rotation remain deferred.
 - **WSTrade**: Wealthsimple integration (future automated execution).
 
 ## Gate Pipeline

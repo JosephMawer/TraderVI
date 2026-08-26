@@ -1,6 +1,6 @@
 # Paper calibration and outcome feedback
 
-- **Status:** Background design brief; implementation decisions accepted and refined in ADR-0020 through ADR-0027
+- **Status:** Background design brief; implementation decisions accepted and refined in ADR-0020 through ADR-0028
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning, math-statistics, risk-management
 - **Related ADRs:** ADR-0002, ADR-0007, ADR-0009, ADR-0010, ADR-0011, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0019

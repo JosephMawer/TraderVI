@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-08-25
-- **Authoritative design:** ADR-0020 through ADR-0027
+- **Authoritative design:** ADR-0020 through ADR-0028
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 
@@ -13,7 +13,7 @@
 
 ## Current milestone
 
-The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, three-session swing marks/excursions, and separate Continuation/Breakout tradeability scorecards are complete in source. At the last verified database audit, Delphi had captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. The rerun appended immutable evidence, and the exploratory replay did not refresh operational picks, dossiers, or Granville logs. This is still one recommendation cohort, not three independent cohorts. No operational Athena run was performed during the later source work. The next operational milestone is to accumulate official daily cohorts and run Athena after their outcome horizons mature.
+The design, first source implementation, database rollout audit, controlled evidence capture, prediction evaluator, coverage scorecard, three-session swing marks/excursions, and separate Continuation/Breakout tradeability scorecards are complete in source. ADR-0028 now defines the delayed intraday swing-management challenger, and its pure exit-policy engine is implemented without scheduling, persistence, or live actions. At the last verified database audit, Delphi had captured two valid official validation runs and one valid exploratory replay for the 2026-08-23 recommendation cohort using the 2026-08-21 market session. This is still one recommendation cohort, not three independent cohorts. No operational Athena or intraday TMX run was performed during the later source work.
 
 ## Phase A — measurement contract and decisions
 
@@ -32,7 +32,8 @@ The design, first source implementation, database rollout audit, controlled evid
 - [x] Define the initial three-session mark-to-market measure without claiming it is the final swing exit policy.
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
-- [x] Accept ADR-0020 through ADR-0027 and add review cards.
+- [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
+- [x] Accept ADR-0020 through ADR-0028 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -55,7 +56,7 @@ The design, first source implementation, database rollout audit, controlled evid
 
 ### Validation completed
 
-- [x] Core tests pass: 58 passed, 0 failed on 2026-08-25.
+- [x] Core tests pass: 70 passed, 0 failed on 2026-08-25.
 - [x] Delphi focused build succeeds with no compiler warnings.
 - [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
@@ -115,7 +116,13 @@ The design, first source implementation, database rollout audit, controlled evid
 - [ ] Flag conservative same-day path ambiguity.
 - [x] Restrict tradeable outcomes to published lens recommendations.
 - [x] Add recommendation-level Continuation and Breakout tradeability reports with joint coverage, no-entry rate, net/XIU-relative returns, MFE, MAE, and nested run/cohort weighting.
-- [ ] Resolve and version the primary 3–5-session swing profit-protection, trend-extension, and maximum-hold rules.
+- [x] Resolve and version the initial delayed intraday swing profit-protection, trend-extension, loss-alert, and maximum-hold challenger rules in ADR-0028.
+- [x] Add a deterministic pure policy engine for 15-minute bars, cost-aware break-even, non-decreasing trailing protection, fresh-Delphi exception qualification, data-age diagnostics, and time exits.
+- [ ] Validate the TMX intraday response's bar timestamps, interval alignment, delay, session coverage, and historical retention through a separately authorized read-only probe.
+- [ ] Add a dedicated intraday evidence schema and one reviewed manual migration; do not mix interval bars into `DailyBars` or the legacy `Quotes` shape.
+- [ ] Add the 15-minute advisory polling process for active ghost/manual positions, with explicit source age and no automatic brokerage action.
+- [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.
+- [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
 
 ## Phase E — shadow portfolios

@@ -147,11 +147,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Delphi opening confirmation and swing exits (ADR-0023)
 
-- **Q:** Which entitled, timestamped source should provide intraday trades, quotes, spreads, opening gaps, and volume, and what storage/retention contract should it use?
+- **Q:** Which separately timestamped source should support the still-experimental opening-confirmation comparison, especially bid/ask spreads and opening gaps that ADR-0028's delayed OHLCV monitor does not establish?
 - **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
-- **Q:** What exact versioned rule protects profit and exits the primary swing position: fixed maximum session, trailing stop, trend failure, profit floor, or a reviewed combination?
+- **Q:** Does the user-selected TMX intraday method return consistently aligned 15-minute bars with enough retention to evaluate ADR-0028, and how should its delay and website-use limitations constrain raw-data retention?
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
-- **Status:** open — ADR-0023 accepts the policy separation but deliberately does not promote timing or exit thresholds.
+- **Status:** partially resolved — ADR-0028 accepts 15-minute delayed management and the first exit-policy challenger. Opening confirmation and the verified intraday storage/retention contract remain open.
 
 ## Resolved
 

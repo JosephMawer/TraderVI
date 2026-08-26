@@ -428,3 +428,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0027
 
 **A:** The lenses express different theses with different gates and rankings. Separate reports show which selection process produced the return, path risk, or no-entry result; combining them would hide the behavior Delphi needs to tune.
+
+### Q: Why can ADR-0028's 10% and 20% loss levels not guarantee those sale prices?
+- **Domains:** data-sources, market-microstructure, risk-management
+- **Source:** ADR-0028
+
+**A:** TMX evidence is delayed and the monitor is advisory, so the market may move further before the crossing is observed and a manual sale is possible. Paper evaluation must use a price available after detection rather than awarding the earlier threshold price.
+
+### Q: What prevents the original Delphi recommendation from bypassing ADR-0028's 10% loss alert?
+- **Domains:** decision-engine, risk-management
+- **Source:** ADR-0028
+
+**A:** The exception requires the latest valid OfficialPaper run after entry to publish the same symbol through the Breakout lens with breakout probability at least 60%, direction edge at least 10%, and down probability below 35%. Missing or original-entry evidence cannot qualify, and no signal bypasses the 20% alert.

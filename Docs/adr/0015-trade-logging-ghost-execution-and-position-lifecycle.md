@@ -5,6 +5,8 @@
 - **Domains:** architecture, risk-management, market-microstructure
 - **Related:** ADR-0007 (liquidity floor / capital preservation framing),
   ADR-0014 (Continuations lens — the executed pick whose trades we now record).
+- **Refined by:** ADR-0028 for the delayed intraday paper-exit challenger; the existing
+  operational position stop remains unchanged until a separately approved promotion.
 
 ## Context
 

@@ -39,7 +39,8 @@ Design background: [`Docs/concepts/paper-calibration-and-outcome-feedback.md`](c
 Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibration-implementation-checklist.md).
 
 - [ ] Resume daily paper recommendations without live execution.
-- [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, and promotion tiers (ADR-0020 through ADR-0027).
+- [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, promotion tiers, and delayed intraday swing-management challenger (ADR-0020 through ADR-0028).
+- [ ] Validate and persist delayed 15-minute TMX evidence before wiring the advisory swing monitor to active ghost/manual positions.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
@@ -64,7 +65,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 
 ## Later — expand system capability
 
-- Sentinel intraday monitoring and enforced stop-loss/rotation workflows.
+- Sentinel automated/enforced stop-loss and rotation workflows; the ADR-0028 advisory-only policy engine is now the non-executing foundation.
 - Oracle Phase 3 debate loop and evaluation harness.
 - Granville Overdueness (#23–#24), Heavy Volume, and later groups.
 - Broader walk-forward strategy simulation and version comparison.
