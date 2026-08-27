@@ -21,6 +21,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
+- [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 
 ## data-pipeline
 
@@ -35,6 +36,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
+- [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 
 ## data-sources
 
@@ -103,6 +105,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
+- [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 
 ## decision-engine
 

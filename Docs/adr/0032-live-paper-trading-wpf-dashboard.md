@@ -4,6 +4,8 @@
 - **Date:** 2026-08-26
 - **Domains:** architecture, data-pipeline, risk-management
 - **Related:** ADR-0015, ADR-0028, ADR-0030, ADR-0031
+- **Extended by:** ADR-0033, which introduces the tabbed shell and changes the
+  SQL display-refresh default to thirty seconds.
 
 ## Context
 

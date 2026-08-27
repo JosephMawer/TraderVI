@@ -12,7 +12,7 @@ namespace TraderVI.WPF;
 
 public partial class PaperDashboardWindow : Window
 {
-    private static readonly TimeSpan DashboardRefreshInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan DashboardRefreshInterval = TimeSpan.FromSeconds(30);
     private readonly PaperTradingMonitor monitor = new();
     private readonly PaperDashboardViewModel viewModel = new();
     private readonly DispatcherTimer timer;

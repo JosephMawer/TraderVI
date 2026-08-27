@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—were linked to persisted Continuation picks. CMG, EDR, and OGI have been closed as ghost trades for a combined realized -$0.01; NDM and ALK remain open. Migration 012 is applied and verified. ADR-0031/0032 now provide a shared durable monitor, database-guarded automatic ghost exits, and a live WPF dashboard without any broker integration. The next operational boundary is observing the first market-hours durable collection cycle.
+TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—were linked to persisted Continuation picks. CMG, EDR, and OGI have been closed as ghost trades for a combined realized -$0.01; NDM and ALK remain open. Migration 012 is applied and verified. ADR-0031/0032 provide a shared durable monitor, database-guarded automatic ghost exits, and a live WPF dashboard without broker integration. ADR-0033 begins the tabbed TraderVI shell with Paper Trading and Data Audit views while retaining both CLIs over shared workflows. The next trading boundary is observing the first market-hours durable collection cycle.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 100 passed, 0 failed, 0 skipped on 2026-08-26.
+- Core tests: 102 passed, 0 failed, 0 skipped on 2026-08-26.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -32,7 +32,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 | Hercules (`ML.Train`) | Trains enabled profit models and records experiments/models | CPU-intensive training; writes model artifacts and SQL registry rows |
 | Delphi | Evaluates the universe through Continuation and Breakout lenses and emits reports | Reads models/data; rewrites daily picks, dossiers, narratives, and Granville logs for the evaluation date |
 | TraderVI | Manual ghost CLI plus shared durable paper monitor | Writes simulated positions, trade logs, and intraday evidence; does not place live orders |
-| TraderVI.WPF | Live paper dashboard over the shared monitor | Refreshes SQL history, polls TMX during the regular monitor window, and can record policy-authorized ghost exits; no broker integration |
+| TraderVI.WPF | Tabbed desktop shell; Paper Trading and Data Audit are the first views | Paper tab refreshes SQL history, polls TMX during the regular monitor window, and can record ghost exits; Data Audit is read-only; no broker integration |
 | Oracle | Optional LLM narration over deterministic decision dossiers | May call a configured LLM service and write narrative records |
 | DataAudit | Read-only full-local-universe classification, freshness, mapping, and bar-integrity diagnostics | Local SQL reads only; no external calls or writes |
 | Sandbox | Manually selected probes for reconnaissance, calibration, and controlled backfills | Probe-specific; some call external services or mutate SQL |
@@ -122,6 +122,12 @@ Full-local-universe reconciliation completed on 2026-08-22:
 - The single invalid empty-symbol metadata row was deleted only after a dependency scan found no related data and the exact deletion was authorized.
 - Eighty-eight additional fund rows were reclassified from Stock to ETF; active status, leverage/inverse flags, mappings, and price history were preserved.
 - The apparent active-stock mapping and stale-mapping warnings were classification errors, so no artificial sector mappings were created for those ETFs.
+
+Shared-workflow DataAudit verification on 2026-08-26:
+
+- Both the retained CLI and the new WPF tab use `MarketDataAuditWorkflow`.
+- The read-only CLI run inspected 1,591 symbols and reported zero errors plus one warning: active RCTR's latest bar was 2026-08-21, two XIU sessions behind the 2026-08-25 market-data date.
+- No database correction or external market call was performed.
 
 ## Known gaps and risks
 

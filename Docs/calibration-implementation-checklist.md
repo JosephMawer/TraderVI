@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-08-26
-- **Authoritative design:** ADR-0020 through ADR-0032
+- **Authoritative design:** ADR-0020 through ADR-0033
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
@@ -34,7 +34,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0032 and add review cards.
+- [x] Accept ADR-0020 through ADR-0033 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -57,7 +57,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 
 ### Validation completed
 
-- [x] Core tests pass: 100 passed, 0 failed on 2026-08-26.
+- [x] Core tests pass: 102 passed, 0 failed on 2026-08-26.
 - [x] Delphi focused build succeeds with no compiler warnings.
 - [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
@@ -142,7 +142,9 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Record the authorized CMG, EDR, and OGI ghost exits through TraderVI; realized pilot P/L is currently -$0.01, with NDM and ALK still active.
 - [x] Replace the replay-only pilot with a shared durable collector-backed monitor that writes poll receipts/completed evidence before exposing decisions.
 - [x] Add ADR-0031 database-guarded automatic ghost exits at a separately observed post-detection TMX price; this can never place a broker order.
-- [x] Add the ADR-0032 live WPF paper dashboard with five-second SQL refresh, 15-minute scheduled market polling, positions, P/L, trade history, and durable receipt history.
+- [x] Add the ADR-0032 live WPF paper dashboard with 15-minute scheduled market polling, positions, P/L, trade history, and durable receipt history.
+- [x] Apply ADR-0033's thirty-second SQL display refresh without changing five-minute evidence collection or fifteen-minute policy decisions.
+- [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI.
 - [ ] **Operational step:** keep the WPF app open during a regular session and verify its first durable 15-minute cycle, five-minute evidence writes, and automatic ghost-exit behavior if a policy exit occurs.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.
 - [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.

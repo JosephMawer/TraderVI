@@ -1,5 +1,4 @@
 using Core.DataQuality;
-using Core.Db;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -19,9 +18,9 @@ try
     Console.WriteLine($"Freshness: warning at {options.StaleWarningSessions} sessions, error at {options.StaleErrorSessions} sessions");
     Console.WriteLine($"Sector mappings: warning after {options.SectorMappingMaxAgeDays} days\n");
 
-    var repository = new MarketDataAuditRepository(configuredConnection);
-    MarketDataAuditSnapshot snapshot = await repository.LoadAsync();
-    MarketDataAuditReport report = MarketDataAuditor.Analyze(snapshot, options);
+    var workflow = new MarketDataAuditWorkflow(configuredConnection);
+    MarketDataAuditRunResult result = await workflow.RunAsync(options);
+    MarketDataAuditReport report = result.Report;
 
     Console.WriteLine($"Market data as of: {report.MarketDataAsOf:yyyy-MM-dd}");
     Console.WriteLine($"Symbols audited:   {report.TotalSymbols:N0}");

@@ -154,7 +154,9 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 **Project:** `TraderVI.WPF`
 **Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
 
-The WPF app is the normal interactive paper-monitor host. It shows open and closed Delphi-linked ghost positions, realized and unrealized P/L, trade history, and durable poll receipts. It refreshes SQL history every five seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+The WPF app is the tabbed interactive TraderVI shell. Its Paper Trading tab shows open and closed Delphi-linked ghost positions, realized and unrealized P/L, trade history, and durable poll receipts. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+
+The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
 ```powershell
 dotnet run --project TraderVI.WPF

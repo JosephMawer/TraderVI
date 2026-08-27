@@ -1,0 +1,143 @@
+<UserControl x:Class="TraderVI.WPF.Views.DataAuditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#11151B" Foreground="#F4F7FB"
+             FontFamily="Segoe UI">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="AuditPanel" Color="#1A2029"/>
+        <SolidColorBrush x:Key="AuditBorder" Color="#2E3949"/>
+        <SolidColorBrush x:Key="AuditMuted" Color="#9BA8BA"/>
+        <SolidColorBrush x:Key="AuditAccent" Color="#5FA8FF"/>
+        <Style x:Key="AuditCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource AuditPanel}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AuditBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="AuditLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource AuditMuted}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="AuditValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#EAF0F8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource AuditBorder}"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="#171D25"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#171D25"/>
+            <Setter Property="Foreground" Value="{StaticResource AuditMuted}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AuditBorder}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Full Local Data Audit" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Classification, freshness, mappings and structural bar integrity"
+                           Foreground="{StaticResource AuditMuted}" Margin="0,6,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Background="#173348" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
+                    <TextBlock Text="READ-ONLY · LOCAL SQL · NO EXTERNAL CALLS"
+                               Foreground="#7EC2FF" FontWeight="SemiBold"/>
+                </Border>
+                <Button x:Name="RunAuditButton" Content="Run data audit"
+                        Click="RunAuditButton_Click" Background="{StaticResource AuditAccent}"
+                        Foreground="#08111D" BorderThickness="0" Padding="18,9"
+                        FontWeight="SemiBold" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource AuditCard}">
+                <StackPanel><TextBlock Style="{StaticResource AuditLabel}" Text="Result"/><TextBlock Style="{StaticResource AuditValue}" Text="{Binding Result}" Foreground="{Binding ResultBrush}"/></StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource AuditCard}">
+                <StackPanel><TextBlock Style="{StaticResource AuditLabel}" Text="Market data as of"/><TextBlock Style="{StaticResource AuditValue}" Text="{Binding MarketDataAsOf}"/></StackPanel>
+            </Border>
+            <Border Grid.Column="4" Style="{StaticResource AuditCard}">
+                <StackPanel><TextBlock Style="{StaticResource AuditLabel}" Text="Symbols / active"/><TextBlock Style="{StaticResource AuditValue}"><Run Text="{Binding TotalSymbols, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding ActiveSymbols, Mode=OneWay}"/></TextBlock></StackPanel>
+            </Border>
+            <Border Grid.Column="6" Style="{StaticResource AuditCard}">
+                <StackPanel><TextBlock Style="{StaticResource AuditLabel}" Text="Errors"/><TextBlock Style="{StaticResource AuditValue}" Text="{Binding ErrorCount}" Foreground="#E97878"/></StackPanel>
+            </Border>
+            <Border Grid.Column="8" Style="{StaticResource AuditCard}">
+                <StackPanel><TextBlock Style="{StaticResource AuditLabel}" Text="Warnings"/><TextBlock Style="{StaticResource AuditValue}" Text="{Binding WarningCount}" Foreground="#F5B94C"/></StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Style="{StaticResource AuditCard}" Margin="0,0,0,14">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Grid Margin="0,0,0,10">
+                    <TextBlock Text="Findings" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource AuditMuted}">
+                        <Run Text="Last run: "/><Run Text="{Binding LastRun, Mode=OneWay}"/>
+                    </TextBlock>
+                </Grid>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding Findings}" AlternationCount="2">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="88">
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{Binding SeverityBrush}"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="245"/>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
+                        <DataGridTextColumn Header="Finding" Binding="{Binding Message}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="3" Background="#202836" CornerRadius="8" Padding="12,8">
+            <Grid>
+                <TextBlock Text="{Binding Status}" Foreground="{StaticResource AuditMuted}" TextTrimming="CharacterEllipsis" Margin="0,0,310,0"/>
+                <TextBlock HorizontalAlignment="Right" Foreground="#F5B94C"
+                           Text="Findings are review candidates · no automatic corrections"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+

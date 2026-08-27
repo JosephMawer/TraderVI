@@ -87,6 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0030-intraday-evidence-and-poll-audit-ledger.md = Docs\adr\0030-intraday-evidence-and-poll-audit-ledger.md
 		Docs\adr\0031-automatic-ghost-exit-execution.md = Docs\adr\0031-automatic-ghost-exit-execution.md
 		Docs\adr\0032-live-paper-trading-wpf-dashboard.md = Docs\adr\0032-live-paper-trading-wpf-dashboard.md
+		Docs\adr\0033-tabbed-desktop-shell-and-shared-workflows.md = Docs\adr\0033-tabbed-desktop-shell-and-shared-workflows.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

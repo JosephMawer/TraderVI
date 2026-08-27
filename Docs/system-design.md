@@ -124,7 +124,7 @@ The operational paper pilot is deliberately separate from official Athena calibr
 4. If the completed policy produces an exit alert, record a database-only ghost sale at the newest separately observed delayed price through the ADR-0031 serializable transaction.
 5. Refresh the WPF dashboard from SQL so positions, P/L, trades, and receipts remain visible after restarts.
 
-Automatic ghost exits never route to a broker. The WPF process must remain open for its 15-minute schedule; always-on service hosting is deferred. ADR-0032 keeps the legacy Wealthsimple window out of the default startup path.
+Automatic ghost exits never route to a broker. The WPF process must remain open for its 15-minute schedule; always-on service hosting is deferred. ADR-0032 keeps the legacy Wealthsimple window out of the default startup path. ADR-0033 evolves that window into a tabbed shell: Paper Trading and Data Audit are the first views, while their workflows remain usable from the console.
 
 ## Granville Market Timing Layer
 
@@ -328,6 +328,6 @@ architecture; do not duplicate volatile priority lists here.
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, enabled code registries | model artifacts, `[ModelExperiment]`, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
 | **TraderVI** | Manual or 15-minute console watch | picks/models/positions, delayed TMX bars | ghost positions, `[TradeLog]`, intraday receipts/evidence; no live order placement |
-| **TraderVI.WPF** | Interactive; five-second display refresh and regular-session policy cadence | paper positions/trades/receipts plus shared Core monitor | shared monitor writes only; no broker integration |
+| **TraderVI.WPF** | Interactive tabbed shell; thirty-second paper display refresh and explicit read-only Data Audit | paper positions/trades/receipts, shared paper monitor, shared audit workflow | paper-monitor writes only; Data Audit has no writes; no broker integration |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
 | **Sentinel** | Future always-on/live-risk boundary | durable paper evidence and future explicitly authorized broker state | not implemented; ADR-0031 authorizes ghost exits only |

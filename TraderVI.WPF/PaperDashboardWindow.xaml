@@ -1,7 +1,8 @@
 <Window x:Class="TraderVI.WPF.PaperDashboardWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TraderVI · Paper Monitor"
+        xmlns:views="clr-namespace:TraderVI.WPF.Views"
+        Title="TraderVI"
         Width="1280" Height="820" MinWidth="980" MinHeight="680"
         Background="#11151B" Foreground="#F4F7FB"
         FontFamily="Segoe UI" WindowStartupLocation="CenterScreen">
@@ -68,9 +69,32 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="#1A2029"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}"
+                                CornerRadius="9,9,0,0" Padding="20,10">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="#08111D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="22">
+    <TabControl Background="Transparent" BorderThickness="0" Padding="0">
+      <TabItem Header="Paper Trading">
+       <Grid Margin="22">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -196,5 +220,10 @@
                 <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource WarningBrush}" Text="Keep this app open · TMX delayed · no broker"/>
             </Grid>
         </Border>
-    </Grid>
+       </Grid>
+      </TabItem>
+      <TabItem Header="Data Audit">
+        <views:DataAuditView/>
+      </TabItem>
+    </TabControl>
 </Window>

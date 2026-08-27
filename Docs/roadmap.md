@@ -46,6 +46,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Add and source-validate the ADR-0030 canonical intraday schema, additive migration, transactional repository, and conflict/idempotence tests.
 - [x] Back up and apply migration 012 with explicit authorization, verify the objects, and replace the pilot replay path with the shared durable collector-backed monitor.
 - [x] Add a live WPF paper dashboard and database-guarded automatic ghost exits that cannot place broker orders.
+- [x] Begin the ADR-0033 tabbed desktop shell with Paper Trading and read-only Data Audit tabs; preserve the DataAudit CLI over the same shared workflow and reduce display refresh to thirty seconds.
 - [ ] Observe the first market-hours durable dashboard cycle and verify completed evidence, receipt history, and any triggered ghost exit end to end.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.

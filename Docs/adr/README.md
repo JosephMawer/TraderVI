@@ -70,6 +70,7 @@ architecture documentation.
 | [0030](0030-intraday-evidence-and-poll-audit-ledger.md) | Intraday evidence and poll-audit ledger | Accepted | architecture, data-pipeline, data-sources, market-microstructure, risk-management |
 | [0031](0031-automatic-ghost-exit-execution.md) | Automatic policy-triggered ghost exit execution | Accepted | architecture, market-microstructure, risk-management |
 | [0032](0032-live-paper-trading-wpf-dashboard.md) | Live paper-trading WPF dashboard | Accepted | architecture, data-pipeline, risk-management |
+| [0033](0033-tabbed-desktop-shell-and-shared-workflows.md) | Tabbed desktop shell and shared application workflows | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

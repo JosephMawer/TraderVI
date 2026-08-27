@@ -13,7 +13,7 @@ namespace Core.Db;
 /// Loads the local market-data audit snapshot using SELECT statements only.
 /// It does not call external services or mutate TraderDB.
 /// </summary>
-public sealed class MarketDataAuditRepository
+public sealed class MarketDataAuditRepository : IMarketDataAuditSnapshotSource
 {
     private readonly string _connectionString;
 

@@ -506,3 +506,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0030, ADR-0032
 
 **A:** No. The migration creates the ledger. The shared collector must still fetch, validate, and append each poll before the dashboard can display durable receipt and completed-bar history.
+
+### Q: Where should behavior live when both a CLI and a WPF tab expose the same capability?
+- **Domains:** architecture
+- **Source:** ADR-0033
+
+**A:** In one host-neutral shared workflow returning structured results. The CLI owns text and exit codes; WPF owns presentation and interaction.
+
+### Q: Does opening TraderVI automatically run Data Audit, Delphi, Hermes, or Athena?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0033
+
+**A:** No. Tabs expose status and deliberate controls; opening the shell is not authorization to launch consequential workflows. The first Data Audit tab runs only when its read-only button is pressed.
