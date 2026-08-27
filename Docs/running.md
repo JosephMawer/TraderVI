@@ -161,6 +161,8 @@ The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the 
 
 The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
 
+The Project Docs tab discovers Markdown throughout the repository except `.git`, `.vs`, `bin`, `obj`, `packages`, and `node_modules`. It groups documents by folder, searches title/path/content, opens `Docs/project-status.md` by default, and reloads external edits with Refresh. Relative Markdown links and heading fragments navigate inside the tab only after safe repository resolution. Clicking an HTTP(S) link opens the system browser; merely loading, searching, or refreshing documentation never opens a web page. The reader does not write files or access SQL, models, or market services.
+
 `Run official Delphi` first shows a confirmation describing the operation: it reads local market data and registered model files, appends immutable calibration evidence, and replaces same-date operational picks and supporting records. It does not place a broker order or create a paper position. Do not confirm it merely to test the interface; use focused builds and tests instead.
 
 ```powershell

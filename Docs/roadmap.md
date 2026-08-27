@@ -49,6 +49,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Begin the ADR-0033 tabbed desktop shell with Paper Trading and read-only Data Audit tabs; preserve the DataAudit CLI over the same shared workflow and reduce display refresh to thirty seconds.
 - [x] Add ADR-0034's Delphi tab over a shared `DelphiWorkflow`; safely display persisted lenses by default and require confirmation before an official database-writing run.
 - [x] Add ADR-0035's six-view Delphi operator workspace and immutable typed presentation snapshot, with labelled date-aligned reconstruction for older saved runs.
+- [x] Add ADR-0036's native read-only Project Docs tab with repository-wide discovery, search, folder navigation, safe links, and refresh.
 - [ ] Observe the first market-hours durable dashboard cycle and verify completed evidence, receipt history, and any triggered ghost exit end to end.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.

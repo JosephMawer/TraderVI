@@ -228,5 +228,8 @@
       <TabItem Header="Delphi">
         <views:DelphiView x:Name="DelphiTabView"/>
       </TabItem>
+      <TabItem Header="Project Docs">
+        <views:ProjectDocsView/>
+      </TabItem>
     </TabControl>
 </Window>

@@ -90,6 +90,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0033-tabbed-desktop-shell-and-shared-workflows.md = Docs\adr\0033-tabbed-desktop-shell-and-shared-workflows.md
 		Docs\adr\0034-delphi-shared-workflow-and-desktop-tab.md = Docs\adr\0034-delphi-shared-workflow-and-desktop-tab.md
 		Docs\adr\0035-delphi-operator-workspace-and-presentation-snapshot.md = Docs\adr\0035-delphi-operator-workspace-and-presentation-snapshot.md
+		Docs\adr\0036-native-project-documentation-reader.md = Docs\adr\0036-native-project-documentation-reader.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

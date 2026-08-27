@@ -542,3 +542,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0035
 
 **A:** Overview answers what Delphi recommends and why at a glance. Full Report preserves the structured summary and detailed diagnostic text for copying and investigation.
+
+### Q: Why does Project Docs resolve a local link against both the repository boundary and the current catalog?
+- **Domains:** architecture
+- **Source:** ADR-0036
+
+**A:** Canonical root checking blocks path traversal, while catalog membership limits in-tab navigation to deliberately discovered Markdown and applies the same directory exclusions used during browsing.
+
+### Q: Can Project Docs open a web page merely by loading or refreshing Markdown?
+- **Domains:** architecture
+- **Source:** ADR-0036
+
+**A:** No. Only an explicit click on an HTTP(S) hyperlink may open the system browser; discovery, filtering, selection, rendering, and refresh are local and passive.

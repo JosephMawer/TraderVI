@@ -49,6 +49,13 @@ Rule:
 - Builds the human/diagnostic reports and a versioned typed presentation snapshot from the same evaluated facts
 - Embeds new presentation snapshots in immutable calibration run context; saved-session readers use the matching run or explicitly labelled date-aligned legacy reconstruction
 
+### Project Documentation Reader
+- `Core.Documentation.ProjectMarkdownCatalog` discovers repository Markdown, excluding tool and generated directories, and provides title/path/content filtering
+- `Core.Documentation.MarkdownLinkResolver` canonicalizes relative targets, refuses traversal outside the repository, and opens only catalogued Markdown internally
+- `TraderVI.WPF.Documentation.MarkdownFlowDocumentRenderer` maps the accepted Markdown subset to native WPF `FlowDocument` elements
+- The WPF Project Docs tab is read-only, defaults to `Docs/project-status.md`, reloads edited files on Refresh, and opens HTTP(S) links only after a click
+- The reader has no SQL, market-data, model, artifact, or trading side effect
+
 ### Granville Market Timing Layer
 - Rule-based market-level overlay on top of ML signals
 - `GranvilleComposite` aggregates all `IGranvilleIndicatorGroup` implementations
@@ -118,6 +125,6 @@ Rule:
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
 | **TraderVI paper monitor** | WPF or headless console; immediate start plus 15-minute regular-session cadence | active linked positions, delayed TMX intraday bars | `[IntradayPollObservation]`, `[IntradayEvidenceBar]`, position snapshots, and database-only ghost exits; no broker orders |
-| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, matching Delphi presentation evidence, and host-neutral workflows | shared paper-monitor writes; Data Audit and saved-Delphi refresh are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
+| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, matching Delphi presentation evidence, repository Markdown, and host-neutral workflows | shared paper-monitor writes; Data Audit, saved-Delphi refresh, and Project Docs are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
 | **TraderVI** | Manual and monitored ghost execution | `[DailyPick]`, linked positions, intraday evidence | ghost positions/trades and intraday evidence; no live broker orders |

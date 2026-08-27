@@ -73,6 +73,7 @@ architecture documentation.
 | [0033](0033-tabbed-desktop-shell-and-shared-workflows.md) | Tabbed desktop shell and shared application workflows | Accepted | architecture, data-pipeline, risk-management |
 | [0034](0034-delphi-shared-workflow-and-desktop-tab.md) | Delphi shared workflow and desktop tab | Accepted | architecture, data-pipeline, decision-engine, risk-management |
 | [0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) | Delphi operator workspace and presentation snapshot | Accepted | architecture, data-pipeline, decision-engine |
+| [0036](0036-native-project-documentation-reader.md) | Native read-only project documentation reader | Accepted | architecture |
 
 See also:
 

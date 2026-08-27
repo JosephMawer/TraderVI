@@ -24,6 +24,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
+- [ADR-0036](0036-native-project-documentation-reader.md) — Native read-only project documentation reader
 
 ## data-pipeline
 

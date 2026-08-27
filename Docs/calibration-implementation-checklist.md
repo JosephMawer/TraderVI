@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
-- **Last updated:** 2026-08-26
-- **Authoritative design:** ADR-0020 through ADR-0035
+- **Last updated:** 2026-08-27
+- **Authoritative design:** ADR-0020 through ADR-0036
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
@@ -14,7 +14,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0028 defines the delayed intraday swing-management challenger; the pure policy and deterministic five-to-fifteen-minute aggregation are implemented. ADR-0029 separates an operational intraday ghost-entry pilot from official ADR-0021/Athena outcomes. On 2026-08-26, the first explicitly selected five-position pilot cohort (NDM, CMG, ALK, EDR, and OGI) was linked to persisted Continuation picks and opened as one ghost share each. CMG, EDR, and OGI are now closed ghost trades; NDM and ALK remain open. ADR-0030's canonical two-table ledger is applied, ADR-0031/0032 add database-guarded automatic ghost exits plus a live WPF dashboard, and ADR-0033 through ADR-0035 add shared desktop workflows plus a detailed saved Delphi workspace. The first market-hours run of the newly durable collector remains to be observed. Calibration-grade delayed outcomes and fresh post-entry Delphi exception evidence remain incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0028 defines the delayed intraday swing-management challenger; the pure policy and deterministic five-to-fifteen-minute aggregation are implemented. ADR-0029 separates an operational intraday ghost-entry pilot from official ADR-0021/Athena outcomes. On 2026-08-26, the first explicitly selected five-position pilot cohort (NDM, CMG, ALK, EDR, and OGI) was linked to persisted Continuation picks and opened as one ghost share each. CMG, EDR, and OGI are now closed ghost trades; NDM and ALK remain open. ADR-0030's canonical two-table ledger is applied, ADR-0031/0032 add database-guarded automatic ghost exits plus a live WPF dashboard, ADR-0033 through ADR-0035 add shared desktop workflows plus a detailed saved Delphi workspace, and ADR-0036 adds a read-only Project Docs surface for the operating record. The first market-hours run of the newly durable collector remains to be observed. Calibration-grade delayed outcomes and fresh post-entry Delphi exception evidence remain incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -34,7 +34,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0035 and add review cards.
+- [x] Accept ADR-0020 through ADR-0036 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -147,6 +147,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI.
 - [x] Extract Delphi into one shared workflow and add an ADR-0034 desktop tab that reads saved lenses without running, then requires explicit confirmation for an official run.
 - [x] Add ADR-0035's typed immutable Delphi presentation snapshot and six inner views; reconstruct older saved runs only from date-aligned evidence and clearly label missing legacy facts.
+- [x] Add ADR-0036's read-only Project Docs tab so status, ADRs, architecture, running guidance, and this checklist are searchable in the operator shell without SQL or external calls.
 - [ ] **Operational step:** keep the WPF app open during a regular session and verify its first durable 15-minute cycle, five-minute evidence writes, and automatic ghost-exit behavior if a policy exit occurs.
 - [ ] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception.
 - [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.
