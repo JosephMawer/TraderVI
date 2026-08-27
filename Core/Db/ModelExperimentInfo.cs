@@ -476,6 +476,13 @@ VALUES
             MapPick);
     }
 
+    public async Task<DateTime?> GetLatestPickDate()
+    {
+        var query = $"SELECT TOP 1 {Fields} FROM {DbName} ORDER BY [PickDate] DESC, [CreatedUtc] DESC";
+        List<DailyPickInfo> latest = await ExecuteReaderAsync(query, MapPick);
+        return latest.Count == 0 ? null : latest[0].PickDate.Date;
+    }
+
     public async Task<List<DailyPickInfo>> GetTopPicksByDate(DateTime pickDate, int topN = 10, string lens = "Continuation")
     {
         var query = $"SELECT TOP {topN} {Fields} FROM {DbName} WHERE [PickDate] = @PickDate AND [Lens] = @Lens ORDER BY [Rank]";

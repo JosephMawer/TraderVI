@@ -1,0 +1,180 @@
+<UserControl x:Class="TraderVI.WPF.Views.DelphiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#11151B" Foreground="#F4F7FB"
+             FontFamily="Segoe UI">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="DelphiPanel" Color="#1A2029"/>
+        <SolidColorBrush x:Key="DelphiBorder" Color="#2E3949"/>
+        <SolidColorBrush x:Key="DelphiMuted" Color="#9BA8BA"/>
+        <SolidColorBrush x:Key="DelphiAccent" Color="#B58CFF"/>
+        <Style x:Key="DelphiCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource DelphiPanel}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="BorderBrush" Value="{StaticResource DelphiBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="DelphiLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource DelphiMuted}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="DelphiValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="23"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#EAF0F8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource DelphiBorder}"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="#171D25"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#171D25"/>
+            <Setter Property="Foreground" Value="{StaticResource DelphiMuted}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource DelphiBorder}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="115"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="The Oracle of Delphi" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Daily thesis · latest persisted Continuation and Breakout recommendations"
+                           Foreground="{StaticResource DelphiMuted}" Margin="0,6,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Background="#2B2340" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
+                    <TextBlock Text="VIEW IS READ-ONLY · RUN REQUIRES CONFIRMATION"
+                               Foreground="#CEB5FF" FontWeight="SemiBold"/>
+                </Border>
+                <Button x:Name="RefreshButton" Content="Refresh saved" Click="RefreshButton_Click"
+                        Background="#354154" Foreground="#EAF0F8" BorderThickness="0"
+                        Padding="15,9" Margin="0,0,8,0" FontWeight="SemiBold" Cursor="Hand"/>
+                <Button x:Name="RunDelphiButton" Content="Run official Delphi" Click="RunDelphiButton_Click"
+                        Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"
+                        Padding="17,9" FontWeight="SemiBold" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource DelphiCard}">
+                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Recommendation date"/><TextBlock Style="{StaticResource DelphiValue}" Text="{Binding RecommendationDate}"/></StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Saved locally"/><TextBlock Style="{StaticResource DelphiValue}" FontSize="18" Text="{Binding SavedAt}"/></StackPanel>
+            </Border>
+            <Border Grid.Column="4" Style="{StaticResource DelphiCard}">
+                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Continuation / breakout"/><TextBlock Style="{StaticResource DelphiValue}"><Run Text="{Binding ContinuationCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding BreakoutCount, Mode=OneWay}"/></TextBlock></StackPanel>
+            </Border>
+            <Border Grid.Column="6" Style="{StaticResource DelphiCard}">
+                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Primary top pick"/><TextBlock Style="{StaticResource DelphiValue}" Text="{Binding TopPick}" Foreground="{StaticResource DelphiAccent}"/></StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="1.05*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1*"/></Grid.ColumnDefinitions>
+            <Border Style="{StaticResource DelphiCard}">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,9">
+                        <TextBlock Text="Continuation lens" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Text="Primary daily thesis used for operational recommendations" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
+                            <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
+                            <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
+                            <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
+                            <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
+                            <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
+                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding SuggestedSize}" Width="70"/>
+                            <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,9">
+                        <TextBlock Text="Breakout lens" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Text="Comparison journal · measured but not automatically executed" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
+                            <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
+                            <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
+                            <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
+                            <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
+                            <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
+                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
+                            <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="3" Style="{StaticResource DelphiCard}" Margin="0,0,0,14" Padding="12">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <TextBlock Text="Latest run summary from this tab" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                <TextBox Grid.Row="1" Text="{Binding LastRunReport}" IsReadOnly="True"
+                         Background="Transparent" Foreground="#C7D1DE" BorderThickness="0"
+                         FontFamily="Cascadia Mono, Consolas" FontSize="12"
+                         TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="4" Background="#202836" CornerRadius="8" Padding="12,8">
+            <Grid>
+                <TextBlock Text="{Binding Status}" Foreground="{Binding StatusBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,360,0"/>
+                <TextBlock HorizontalAlignment="Right" Foreground="#F5B94C"
+                           Text="Delphi predicts · Paper Trading manages entries and exits"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

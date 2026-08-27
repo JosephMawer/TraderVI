@@ -225,5 +225,8 @@
       <TabItem Header="Data Audit">
         <views:DataAuditView/>
       </TabItem>
+      <TabItem Header="Delphi">
+        <views:DelphiView x:Name="DelphiTabView"/>
+      </TabItem>
     </TabControl>
 </Window>

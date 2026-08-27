@@ -518,3 +518,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0033
 
 **A:** No. Tabs expose status and deliberate controls; opening the shell is not authorization to launch consequential workflows. The first Data Audit tab runs only when its read-only button is pressed.
+
+### Q: What does opening or refreshing the Delphi tab do?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0034
+
+**A:** It only reads and displays the latest persisted Continuation and Breakout recommendations. It does not evaluate symbols or write SQL.
+
+### Q: Which component turns Delphi recommendations into paper buy, hold, and sell actions?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0034
+
+**A:** The paper controller or Trade Manager. Delphi publishes the daily thesis; the intraday paper workflow manages positions under the accepted entry and exit policy.

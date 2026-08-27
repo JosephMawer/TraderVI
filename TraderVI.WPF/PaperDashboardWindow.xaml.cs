@@ -2,6 +2,7 @@
 
 using Core.Trader;
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -121,5 +122,21 @@ public partial class PaperDashboardWindow : Window
     {
         timer.Stop();
         shutdown.Cancel();
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        if (DelphiTabView.IsRunning)
+        {
+            e.Cancel = true;
+            MessageBox.Show(
+                "Delphi is still running. Keep TraderVI open until the official run finishes so its evidence and recommendations are not interrupted.",
+                "Delphi run in progress",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        base.OnClosing(e);
     }
 }

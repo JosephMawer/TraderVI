@@ -105,6 +105,7 @@ Do not retrain until the intended data cutoff, enabled model set, output paths, 
 
 **Project:** `Delphi`
 **Entry point:** `Delphi/Program.cs`
+**Shared workflow:** `Core/Runtime/DelphiWorkflow.cs`
 **Typical schedule:** before market open, using the most recently completed daily bars
 
 Delphi currently:
@@ -157,6 +158,8 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 The WPF app is the tabbed interactive TraderVI shell. Its Paper Trading tab shows open and closed Delphi-linked ghost positions, realized and unrealized P/L, trade history, and durable poll receipts. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
 
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
+
+The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks. `Run official Delphi` first shows a confirmation describing the operation: it reads local market data and registered model files, appends immutable calibration evidence, and replaces same-date operational picks and supporting records. It does not place a broker order or create a paper position. Do not confirm it merely to test the interface; use focused builds and tests instead.
 
 ```powershell
 dotnet run --project TraderVI.WPF

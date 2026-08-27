@@ -22,6 +22,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
+- [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 
 ## data-pipeline
 
@@ -37,6 +38,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
+- [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 
 ## data-sources
 
@@ -106,6 +108,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
+- [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 
 ## decision-engine
 
@@ -129,6 +132,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0023](0023-primary-swing-policy-and-experimental-opening-confirmation.md) — Primary swing policy and experimental opening confirmation
 - [ADR-0024](0024-coverage-scorecard-and-market-session-cohorts.md) — Coverage scorecard and market-session cohort identity
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
+- [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 
 ## math-statistics
 

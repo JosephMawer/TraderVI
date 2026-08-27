@@ -8,13 +8,17 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Core.Runtime;
 
 public static class DelphiBootstrap
 {
     public static async Task<TradeDecisionEngine> BuildTradeDecisionEngineFromRegistry(
-        StrategyConfig? config = null)
+        StrategyConfig? config = null,
+        TextWriter? output = null)
     {
+        void Log(string message) => (output ?? Console.Out).WriteLine(message);
         var repo = new ModelRegistryRepository();
         var enabledModels = await repo.GetEnabledModels();
 
@@ -51,7 +55,7 @@ public static class DelphiBootstrap
 
             if (!File.Exists(modelInfo.ZipPath))
             {
-                Console.WriteLine($"[DelphiBootstrap] ⚠️  Model file not found, skipping: {modelInfo.TaskType}");
+                Log($"[DelphiBootstrap] ⚠️  Model file not found, skipping: {modelInfo.TaskType}");
                 continue;
             }
 
@@ -66,8 +70,8 @@ public static class DelphiBootstrap
             }
         }
 
-        Console.WriteLine($"[DelphiBootstrap] Pattern signals (rule-based): {string.Join(", ", loadedPatterns)}");
-        Console.WriteLine($"[DelphiBootstrap] Profit models (ML):          {string.Join(", ", loadedProfit)}");
+        Log($"[DelphiBootstrap] Pattern signals (rule-based): {string.Join(", ", loadedPatterns)}");
+        Log($"[DelphiBootstrap] Profit models (ML):          {string.Join(", ", loadedProfit)}");
 
         return new TradeDecisionEngine(patternModels, profitModels, config);
     }

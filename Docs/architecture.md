@@ -36,6 +36,7 @@ Rule:
 - Only one enabled model per `TaskType` (disable older models when inserting a new enabled one).
 
 ### Delphi / Runtime
+- Keeps orchestration in the host-neutral `DelphiWorkflow`; CLI and WPF are adapters
 - Loads enabled models from registry (`DelphiBootstrap`)
 - Instantiates:
   - `UnifiedPatternSignalModel` for pattern models
@@ -100,8 +101,8 @@ Rule:
 - **Delete order for date-scoped reruns:** the FK chain is
   `LlmNarrative` → `DecisionDossier` → `DailyPick`. Always delete
   child-first; reverse order trips `FK_DecisionDossier_DailyPick`.
-  Encoded in `Delphi/Program.cs`; mirror it anywhere else that deletes
-  by `PickDate`.
+  Encoded once in `Core/Runtime/DelphiWorkflow.cs`; hosts must call the shared
+  workflow rather than reproduce this deletion behavior.
 - **OpenAI `gpt-5*` request shape:** `temperature` is locked to `1` and
   must be omitted; `max_tokens` was renamed to `max_completion_tokens`.
   Handled in `Core/Oracle/Llm/OpenAiLlmClient.cs`. Practical default for
@@ -115,6 +116,6 @@ Rule:
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
 | **TraderVI paper monitor** | WPF or headless console; immediate start plus 15-minute regular-session cadence | active linked positions, delayed TMX intraday bars | `[IntradayPollObservation]`, `[IntradayEvidenceBar]`, position snapshots, and database-only ghost exits; no broker orders |
-| **TraderVI.WPF** | Interactive tabbed shell | linked paper state and host-neutral workflows | shared paper-monitor writes; Data Audit is read-only |
+| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, and host-neutral workflows | shared paper-monitor writes; Data Audit and saved-Delphi refresh are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
 | **TraderVI** | Manual and monitored ghost execution | `[DailyPick]`, linked positions, intraday evidence | ghost positions/trades and intraday evidence; no live broker orders |
