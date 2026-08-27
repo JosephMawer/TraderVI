@@ -46,6 +46,8 @@ Rule:
 - Evaluates Granville's day-to-day indicators (Plurality, Disparity)
 - Computes live Relative Strength per stock (stock vs sector, stock vs market)
 - Produces rankings and sizing decisions via `TradeDecisionEngine`
+- Builds the human/diagnostic reports and a versioned typed presentation snapshot from the same evaluated facts
+- Embeds new presentation snapshots in immutable calibration run context; saved-session readers use the matching run or explicitly labelled date-aligned legacy reconstruction
 
 ### Granville Market Timing Layer
 - Rule-based market-level overlay on top of ML signals
@@ -116,6 +118,6 @@ Rule:
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, `[RelativeStrengthFeatures]` (planned), `ProfitModelRegistry` | `.zip` models, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | `[DailyBars]`, `[ModelRegistry]`, `[AdvanceDeclineLine]`, `[SectorIndices]`, `[StockSectorMap]` | `[DailyPick]`, `[GranvilleIndicatorLog]`, `[DecisionDossier]`, console output |
 | **TraderVI paper monitor** | WPF or headless console; immediate start plus 15-minute regular-session cadence | active linked positions, delayed TMX intraday bars | `[IntradayPollObservation]`, `[IntradayEvidenceBar]`, position snapshots, and database-only ghost exits; no broker orders |
-| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, and host-neutral workflows | shared paper-monitor writes; Data Audit and saved-Delphi refresh are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
+| **TraderVI.WPF** | Interactive tabbed shell | linked paper state, saved recommendations, matching Delphi presentation evidence, and host-neutral workflows | shared paper-monitor writes; Data Audit and saved-Delphi refresh are read-only; confirmed official Delphi runs have Delphi's documented SQL effects |
 | **Oracle** | Daily (post-Delphi) | `[DecisionDossier]` | `[LlmNarrative]`, console output |
 | **TraderVI** | Manual and monitored ghost execution | `[DailyPick]`, linked positions, intraday evidence | ghost positions/trades and intraday evidence; no live broker orders |

@@ -43,7 +43,8 @@ public sealed record DelphiWorkflowRunResult(
     int ContinuationPickCount,
     int BreakoutPickCount,
     string? DiagnosticReport,
-    string? SummaryReport)
+    string? SummaryReport,
+    DelphiPresentationSnapshot? Presentation)
 {
     public static DelphiWorkflowRunResult Failed(
         DelphiWorkflowOptions options,
@@ -62,6 +63,7 @@ public sealed record DelphiWorkflowRunResult(
             0,
             0,
             null,
+            null,
             null);
 }
 
@@ -69,4 +71,5 @@ public sealed record DelphiPublishedRecommendations(
     DateTime PickDate,
     DateTime LatestCreatedUtc,
     IReadOnlyList<DailyPickInfo> Continuation,
-    IReadOnlyList<DailyPickInfo> Breakout);
+    IReadOnlyList<DailyPickInfo> Breakout,
+    DelphiPresentationSnapshot? Presentation);

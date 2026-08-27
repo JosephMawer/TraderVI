@@ -37,11 +37,18 @@ public sealed class DelphiPublishedRecommendationReader
             .Select(pick => pick.CreatedUtc)
             .DefaultIfEmpty(DateTime.MinValue)
             .Max();
+        DelphiPresentationSnapshot? presentation =
+            await new DelphiPersistedPresentationReader().LoadAsync(
+                pickDate.Value,
+                latestCreatedUtc,
+                continuation,
+                cancellationToken);
 
         return new DelphiPublishedRecommendations(
             pickDate.Value.Date,
             latestCreatedUtc,
             continuation.AsReadOnly(),
-            breakout.AsReadOnly());
+            breakout.AsReadOnly(),
+            presentation);
     }
 }

@@ -560,6 +560,15 @@ public class StrategyVersionRepository : SQLBase
         return results.Count > 0 ? results[0] : null;
     }
 
+    public async Task<StrategyVersionInfo?> GetVersionById(Guid versionId)
+    {
+        var query = $"SELECT {Fields} FROM {DbName} WHERE [VersionId] = @VersionId";
+        var results = await ExecuteReaderAsync(query,
+            [new SqlParameter("@VersionId", SqlDbType.UniqueIdentifier) { Value = versionId }],
+            MapVersion);
+        return results.Count > 0 ? results[0] : null;
+    }
+
     public async Task<List<StrategyVersionInfo>> GetAllVersions()
     {
         var query = $"SELECT {Fields} FROM {DbName} ORDER BY [CreatedUtc] DESC";

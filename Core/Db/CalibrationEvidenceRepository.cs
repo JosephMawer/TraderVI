@@ -11,6 +11,106 @@ namespace Core.Db;
 
 public sealed class CalibrationEvidenceRepository : SQLBase
 {
+    public async Task<CalibrationRunInfo?> GetLatestRunAsync(
+        DateTime recommendationDate,
+        CalibrationRunPurpose purpose = CalibrationRunPurpose.OfficialPaper,
+        DateTime? createdNoLaterThanUtc = null)
+    {
+        const string sql = """
+SELECT TOP 1
+ [RunId],[RunPurpose],[RecommendationDate],[MarketDataAsOf],[StartedUtc],[CreatedUtc],
+ [StrategyVersionId],[StrategyConfigJson],[ModelSnapshotJson],[RunContextJson],[CodeCommit],
+ [AuditState],[AuditMessage],[SymbolsDiscovered],[SymbolsModelEvaluated],[SkippedHistory],
+ [SkippedStaleHistory],[SkippedUnaffordable],[SkippedLowPrice],[SkippedLowVolume],[SkippedLeveragedEtp]
+FROM [dbo].[CalibrationRun]
+WHERE [RecommendationDate] = @RecommendationDate
+  AND [RunPurpose] = @Purpose
+  AND (@CreatedNoLaterThanUtc IS NULL OR [CreatedUtc] <= @CreatedNoLaterThanUtc)
+ORDER BY [CreatedUtc] DESC;
+""";
+        List<CalibrationRunInfo> rows = await ExecuteReaderAsync(
+            sql,
+            [
+                new SqlParameter("@RecommendationDate", SqlDbType.Date) { Value = recommendationDate.Date },
+                new SqlParameter("@Purpose", SqlDbType.NVarChar, 32) { Value = purpose.ToString() },
+                new SqlParameter("@CreatedNoLaterThanUtc", SqlDbType.DateTime2)
+                {
+                    Value = createdNoLaterThanUtc.HasValue ? createdNoLaterThanUtc.Value : DBNull.Value
+                }
+            ],
+            reader => new CalibrationRunInfo(
+                reader.GetGuid(0),
+                Enum.Parse<CalibrationRunPurpose>(reader.GetString(1)),
+                reader.GetDateTime(2),
+                reader.GetDateTime(3),
+                reader.GetDateTime(4),
+                reader.GetDateTime(5),
+                reader.IsDBNull(6) ? null : reader.GetGuid(6),
+                reader.GetString(7),
+                reader.GetString(8),
+                reader.GetString(9),
+                reader.GetString(10),
+                Enum.Parse<CalibrationAuditState>(reader.GetString(11)),
+                reader.IsDBNull(12) ? null : reader.GetString(12),
+                reader.GetInt32(13),
+                reader.GetInt32(14),
+                reader.GetInt32(15),
+                reader.GetInt32(16),
+                reader.GetInt32(17),
+                reader.GetInt32(18),
+                reader.GetInt32(19),
+                reader.GetInt32(20)));
+        return rows.Count == 0 ? null : rows[0];
+    }
+
+    public async Task<CalibrationCandidateRunInfo?> GetCandidateAsync(
+        Guid runId,
+        string symbol,
+        string lens = "Continuation")
+    {
+        const string sql = """
+SELECT c.[Symbol],c.[UpProbability],c.[DownProbability],c.[BreakoutProbability],
+ c.[VolExpansionProbability],c.[DirectionEdge],c.[CompositeScore],c.[ObvState],
+ c.[SnapshotJson],l.[GateTraceJson]
+FROM [dbo].[CalibrationCandidate] c
+INNER JOIN [dbo].[CalibrationLensEvaluation] l ON l.[CandidateId] = c.[CandidateId]
+WHERE c.[RunId] = @RunId AND c.[Symbol] = @Symbol AND l.[Lens] = @Lens;
+""";
+        List<CalibrationCandidateRunInfo> rows = await ExecuteReaderAsync(
+            sql,
+            [
+                new SqlParameter("@RunId", SqlDbType.UniqueIdentifier) { Value = runId },
+                new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol },
+                new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
+            ],
+            reader => new CalibrationCandidateRunInfo(
+                reader.GetString(0),
+                reader.IsDBNull(1) ? null : reader.GetDouble(1),
+                reader.IsDBNull(2) ? null : reader.GetDouble(2),
+                reader.IsDBNull(3) ? null : reader.GetDouble(3),
+                reader.IsDBNull(4) ? null : reader.GetDouble(4),
+                reader.GetDouble(5),
+                reader.GetDouble(6),
+                reader.IsDBNull(7) ? null : reader.GetString(7),
+                reader.GetString(8),
+                reader.GetString(9)));
+        return rows.Count == 0 ? null : rows[0];
+    }
+
+    public async Task<IReadOnlyList<CalibrationObvStateCount>> GetObvStateCountsAsync(Guid runId)
+    {
+        const string sql = """
+SELECT COALESCE([ObvState], 'Unavailable'), COUNT(*)
+FROM [dbo].[CalibrationCandidate]
+WHERE [RunId] = @RunId
+GROUP BY [ObvState];
+""";
+        return await ExecuteReaderAsync(
+            sql,
+            [new SqlParameter("@RunId", SqlDbType.UniqueIdentifier) { Value = runId }],
+            reader => new CalibrationObvStateCount(reader.GetString(0), reader.GetInt32(1)));
+    }
+
     public async Task AppendAsync(CalibrationEvidenceBatch batch, CancellationToken cancellationToken = default)
     {
         Validate(batch);

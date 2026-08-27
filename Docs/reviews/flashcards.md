@@ -530,3 +530,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0034
 
 **A:** The paper controller or Trade Manager. Delphi publishes the daily thesis; the intraday paper workflow manages positions under the accepted entry and exit policy.
+
+### Q: Why does the Delphi workspace use a typed presentation snapshot instead of parsing its console report?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0035
+
+**A:** The snapshot is a stable contract made from the same evaluated facts as the report. Parsing spacing and prose would make ordinary wording changes capable of breaking the GUI.
+
+### Q: What is the difference between Delphi Overview and Full Report?
+- **Domains:** architecture
+- **Source:** ADR-0035
+
+**A:** Overview answers what Delphi recommends and why at a glance. Full Report preserves the structured summary and detailed diagnostic text for copying and investigation.

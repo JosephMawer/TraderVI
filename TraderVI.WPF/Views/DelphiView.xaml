@@ -5,9 +5,12 @@
              FontFamily="Segoe UI">
     <UserControl.Resources>
         <SolidColorBrush x:Key="DelphiPanel" Color="#1A2029"/>
+        <SolidColorBrush x:Key="DelphiPanelRaised" Color="#202836"/>
         <SolidColorBrush x:Key="DelphiBorder" Color="#2E3949"/>
         <SolidColorBrush x:Key="DelphiMuted" Color="#9BA8BA"/>
         <SolidColorBrush x:Key="DelphiAccent" Color="#B58CFF"/>
+        <SolidColorBrush x:Key="DelphiGold" Color="#F5B94C"/>
+
         <Style x:Key="DelphiCard" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource DelphiPanel}"/>
             <Setter Property="CornerRadius" Value="12"/>
@@ -20,9 +23,65 @@
             <Setter Property="FontSize" Value="12"/>
         </Style>
         <Style x:Key="DelphiValue" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="23"/>
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style x:Key="DelphiSectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style x:Key="DelphiTab" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource DelphiMuted}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="TabBorder" Background="{TemplateBinding Background}"
+                                    CornerRadius="8,8,0,0" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <Border x:Name="ActiveLine" Height="3" Background="Transparent"
+                                    VerticalAlignment="Bottom" CornerRadius="2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="#F4F7FB"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="#211C2E"/>
+                                <Setter TargetName="ActiveLine" Property="Background" Value="{StaticResource DelphiAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#F4F7FB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SectorDeltaText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{Binding ChangeBrush}"/>
+        </Style>
+        <Style x:Key="IndexDeltaText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{Binding ReturnBrush}"/>
+        </Style>
+        <Style x:Key="GranvilleSignalText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{Binding SignalBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="SignalHintText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{Binding HintBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="GateResultText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{Binding ResultBrush}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>
@@ -38,6 +97,8 @@
             <Setter Property="IsReadOnly" Value="True"/>
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
         </Style>
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#171D25"/>
@@ -54,24 +115,28 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="22">
+    <Grid Margin="22,18,22,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="115"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,18">
+        <Grid Grid.Row="0" Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="The Oracle of Delphi" FontSize="28" FontWeight="SemiBold"/>
-                <TextBlock Text="Daily thesis · latest persisted Continuation and Breakout recommendations"
-                           Foreground="{StaticResource DelphiMuted}" Margin="0,6,0,0"/>
+                <WrapPanel Margin="0,5,0,0">
+                    <TextBlock Text="Daily thesis · saved session for " Foreground="{StaticResource DelphiMuted}"/>
+                    <TextBlock Text="{Binding RecommendationDate, Mode=OneWay}" FontWeight="SemiBold"/>
+                    <TextBlock Text=" · saved " Foreground="{StaticResource DelphiMuted}"/>
+                    <TextBlock Text="{Binding SavedAt, Mode=OneWay}"/>
+                    <TextBlock Text=" · " Foreground="{StaticResource DelphiMuted}"/>
+                    <TextBlock Text="{Binding SnapshotSource, Mode=OneWay}" Foreground="{StaticResource DelphiAccent}" FontWeight="SemiBold"/>
+                </WrapPanel>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Background="#2B2340" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
@@ -87,94 +152,322 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="1" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource DelphiCard}">
-                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Recommendation date"/><TextBlock Style="{StaticResource DelphiValue}" Text="{Binding RecommendationDate}"/></StackPanel>
-            </Border>
-            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
-                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Saved locally"/><TextBlock Style="{StaticResource DelphiValue}" FontSize="18" Text="{Binding SavedAt}"/></StackPanel>
-            </Border>
-            <Border Grid.Column="4" Style="{StaticResource DelphiCard}">
-                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Continuation / breakout"/><TextBlock Style="{StaticResource DelphiValue}"><Run Text="{Binding ContinuationCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding BreakoutCount, Mode=OneWay}"/></TextBlock></StackPanel>
-            </Border>
-            <Border Grid.Column="6" Style="{StaticResource DelphiCard}">
-                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="Primary top pick"/><TextBlock Style="{StaticResource DelphiValue}" Text="{Binding TopPick}" Foreground="{StaticResource DelphiAccent}"/></StackPanel>
-            </Border>
-        </Grid>
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0"
+                    TabStripPlacement="Top">
+            <TabItem Header="Overview" Style="{StaticResource DelphiTab}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="0,14,0,6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-        <Grid Grid.Row="2" Margin="0,0,0,14">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="1.05*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1*"/></Grid.ColumnDefinitions>
-            <Border Style="{StaticResource DelphiCard}">
-                <Grid>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <StackPanel Margin="0,0,0,9">
-                        <TextBlock Text="Continuation lens" FontSize="18" FontWeight="SemiBold"/>
-                        <TextBlock Text="Primary daily thesis used for operational recommendations" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
-                    </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
-                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
-                            <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
-                            <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
-                            <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
-                            <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
-                            <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
-                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
-                            <DataGridTextColumn Header="Size" Binding="{Binding SuggestedSize}" Width="70"/>
-                            <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/><ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}" BorderBrush="{Binding RecommendationBrush}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource DelphiLabel}" Text="OFFICIAL RECOMMENDATION"/>
+                                    <TextBlock Text="{Binding RecommendationAction, Mode=OneWay}" FontSize="29" FontWeight="Bold"
+                                               Foreground="{Binding RecommendationBrush}" Margin="0,5,0,0"/>
+                                    <TextBlock Text="{Binding RecommendationMetrics, Mode=OneWay}" Margin="0,5,0,0"/>
+                                    <TextBlock Text="{Binding RecommendationReason, Mode=OneWay}" Foreground="{StaticResource DelphiMuted}"
+                                               TextWrapping="Wrap" Margin="0,7,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource DelphiLabel}" Text="SUGGESTED ALLOCATION"/>
+                                    <TextBlock Style="{StaticResource DelphiValue}" Text="{Binding Allocation, Mode=OneWay}"/>
+                                    <TextBlock Text="Sizing guidance only · no broker order" Foreground="{StaticResource DelphiMuted}" Margin="0,7,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource DelphiCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource DelphiLabel}" Text="PUBLISHED LENSES"/>
+                                    <TextBlock Style="{StaticResource DelphiValue}">
+                                        <Run Text="{Binding ContinuationCount, Mode=OneWay}"/><Run Text=" continuation"/>
+                                    </TextBlock>
+                                    <TextBlock Foreground="{StaticResource DelphiMuted}">
+                                        <Run Text="{Binding BreakoutCount, Mode=OneWay}"/><Run Text=" breakout comparison picks · top "/><Run Text="{Binding TopPick, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="REGIME"/><TextBlock Text="{Binding MarketRegime, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="A/D BREADTH"/><TextBlock Text="{Binding BreadthHeadline, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="GRANVILLE"/><TextBlock Text="{Binding GranvilleHeadline, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                            <Border Grid.Column="6" Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="SECTORS"/><TextBlock Text="{Binding SectorHeadline, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                            <Border Grid.Column="8" Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="MARKET TAPE"/><TextBlock Text="{Binding TapeHeadline, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                            <Border Grid.Column="10" Style="{StaticResource DelphiCard}" Padding="13">
+                                <StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="CLIMAX"/><TextBlock Text="{Binding ClimaxHeadline, Mode=OneWay}" TextWrapping="Wrap" Margin="0,5,0,0"/></StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="0.7*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1.3*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}">
+                                <StackPanel>
+                                    <TextBlock Text="What deserves attention" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <TextBlock Text="{Binding OverviewWarnings, Mode=OneWay}" TextWrapping="Wrap" LineHeight="23" Foreground="#F6D38A"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                                <Grid>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Operator summary" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <TextBox Grid.Row="1" Text="{Binding OverviewSummary, Mode=OneWay}" IsReadOnly="True"
+                                             Background="Transparent" Foreground="#C7D1DE" BorderThickness="0"
+                                             FontFamily="Cascadia Mono, Consolas" FontSize="12" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Picks" Style="{StaticResource DelphiTab}">
+                <Grid Margin="0,14,0,6">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.05*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource DelphiCard}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <StackPanel Margin="0,0,0,9">
+                                <TextBlock Text="Continuation lens" FontSize="18" FontWeight="SemiBold"/>
+                                <TextBlock Text="Primary daily thesis used for operational recommendations" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                            </StackPanel>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
+                                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
+                                    <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
+                                    <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
+                                    <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
+                                    <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
+                                    <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
+                                    <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
+                                    <DataGridTextColumn Header="Size" Binding="{Binding SuggestedSize}" Width="70"/>
+                                    <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <StackPanel Margin="0,0,0,9">
+                                <TextBlock Text="Breakout lens" FontSize="18" FontWeight="SemiBold"/>
+                                <TextBlock Text="Comparison journal · measured but not automatically executed" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                            </StackPanel>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
+                                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
+                                    <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
+                                    <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
+                                    <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
+                                    <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
+                                    <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
+                                    <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
+                                    <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
                 </Grid>
-            </Border>
-            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
-                <Grid>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <StackPanel Margin="0,0,0,9">
-                        <TextBlock Text="Breakout lens" FontSize="18" FontWeight="SemiBold"/>
-                        <TextBlock Text="Comparison journal · measured but not automatically executed" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
-                    </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
-                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
-                            <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="48"/>
-                            <DataGridTextColumn Header="Score" Binding="{Binding Composite}" Width="62"/>
-                            <DataGridTextColumn Header="P(up)" Binding="{Binding UpProbability}" Width="62"/>
-                            <DataGridTextColumn Header="Break" Binding="{Binding BreakoutProbability}" Width="62"/>
-                            <DataGridTextColumn Header="Vol" Binding="{Binding VolumeExpansion}" Width="62"/>
-                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedReturn}" Width="70"/>
-                            <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+            </TabItem>
+
+            <TabItem Header="Market" Style="{StaticResource DelphiTab}">
+                <Grid Margin="0,14,0,6">
+                    <Grid.RowDefinitions><RowDefinition Height="0.9*"/><RowDefinition Height="14"/><RowDefinition Height="1.1*"/></Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1.2*"/></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource DelphiCard}">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <TextBlock Text="Regime, breadth, tape &amp; CLX" Style="{StaticResource DelphiSectionTitle}"/>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding MarketFacts}" AlternationCount="2">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Measure" Binding="{Binding Label}" Width="1.2*"/>
+                                        <DataGridTextColumn Header="Observed value" Binding="{Binding Value}" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <TextBlock Text="TSX sector tape" Style="{StaticResource DelphiSectionTitle}"/>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding Sectors}" AlternationCount="2">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Sector" Binding="{Binding Sector}" Width="*"/>
+                                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="75"/>
+                                        <DataGridTextColumn Header="Price" Binding="{Binding Price}" Width="80"/>
+                                        <DataGridTextColumn Header="Change" Binding="{Binding Change}" Width="80" ElementStyle="{StaticResource SectorDeltaText}"/>
+                                        <DataGridTextColumn Header="%" Binding="{Binding PercentChange}" Width="75" ElementStyle="{StaticResource SectorDeltaText}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Border Grid.Row="2" Style="{StaticResource DelphiCard}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <TextBlock Text="U.S. market context" Style="{StaticResource DelphiSectionTitle}"/>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding UsIndices}" AlternationCount="2">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Index" Binding="{Binding Symbol}" Width="*"/>
+                                    <DataGridTextColumn Header="As of" Binding="{Binding Date}" Width="*"/>
+                                    <DataGridTextColumn Header="Close" Binding="{Binding Close}" Width="*"/>
+                                    <DataGridTextColumn Header="1 day" Binding="{Binding Return1d}" Width="*" ElementStyle="{StaticResource IndexDeltaText}"/>
+                                    <DataGridTextColumn Header="5 day" Binding="{Binding Return5d}" Width="*" ElementStyle="{StaticResource IndexDeltaText}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
                 </Grid>
-            </Border>
-        </Grid>
+            </TabItem>
 
-        <Border Grid.Row="3" Style="{StaticResource DelphiCard}" Margin="0,0,0,14" Padding="12">
-            <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                <TextBlock Text="Latest run summary from this tab" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                <TextBox Grid.Row="1" Text="{Binding LastRunReport, Mode=OneWay}" IsReadOnly="True"
-                         Background="Transparent" Foreground="#C7D1DE" BorderThickness="0"
-                         FontFamily="Cascadia Mono, Consolas" FontSize="12"
-                         TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"
-                         HorizontalScrollBarVisibility="Auto"/>
-            </Grid>
-        </Border>
+            <TabItem Header="Granville" Style="{StaticResource DelphiTab}">
+                <Grid Margin="0,14,0,6">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="14"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource DelphiCard}"><StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="NET GRANVILLE SCORE"/><TextBlock Style="{StaticResource DelphiValue}" Text="{Binding GranvilleHeadline, Mode=OneWay}"/></StackPanel></Border>
+                        <Border Grid.Column="2" Style="{StaticResource DelphiCard}"><StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="MARKET REGIME"/><TextBlock Style="{StaticResource DelphiValue}" FontSize="16" Text="{Binding MarketRegime, Mode=OneWay}" TextWrapping="Wrap"/></StackPanel></Border>
+                        <Border Grid.Column="4" Style="{StaticResource DelphiCard}"><StackPanel><TextBlock Style="{StaticResource DelphiLabel}" Text="BREADTH CONFIRMATION"/><TextBlock Style="{StaticResource DelphiValue}" FontSize="16" Text="{Binding BreadthHeadline, Mode=OneWay}" TextWrapping="Wrap"/></StackPanel></Border>
+                    </Grid>
+                    <Border Grid.Row="2" Style="{StaticResource DelphiCard}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <StackPanel Margin="0,0,0,8">
+                                <TextBlock Text="Granville's eight price-and-volume rules" Style="{StaticResource DelphiSectionTitle}"/>
+                                <TextBlock Text="Deterministic technical evidence; it informs Delphi but does not make the recommendation by itself." Foreground="{StaticResource DelphiMuted}"/>
+                            </StackPanel>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding GranvilleIndicators}" AlternationCount="2">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="#" Binding="{Binding Number}" Width="44"/>
+                                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="110"/>
+                                    <DataGridTextColumn Header="Rule" Binding="{Binding Name}" Width="220"/>
+                                    <DataGridTextColumn Header="Signal" Binding="{Binding Signal}" Width="115" ElementStyle="{StaticResource GranvilleSignalText}"/>
+                                    <DataGridTextColumn Header="Points" Binding="{Binding Points}" Width="70"/>
+                                    <DataGridTextColumn Header="What it means" Binding="{Binding Description}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
 
-        <Border Grid.Row="4" Background="#202836" CornerRadius="8" Padding="12,8">
+            <TabItem Header="Diagnostics" Style="{StaticResource DelphiTab}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="0,14,0,6">
+                        <Grid.RowDefinitions><RowDefinition Height="280"/><RowDefinition Height="14"/><RowDefinition Height="280"/><RowDefinition Height="14"/><RowDefinition Height="300"/></Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Strategy &amp; risk thresholds" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding StrategyThresholds}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Setting" Binding="{Binding Label}" Width="*"/><DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="1.2*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Universe coverage" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding UniverseDiagnostics}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Measure" Binding="{Binding Label}" Width="*"/><DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Relative strength &amp; OBV" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding RsObvDiagnostics}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Measure" Binding="{Binding Label}" Width="*"/><DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="0.7*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1.3*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Models and rule signals" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Models}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Type" Binding="{Binding Label}" Width="110"/><DataGridTextColumn Header="Registered component" Binding="{Binding Value}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Published-symbol OBV evidence" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding ObvSymbols}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="75"/><DataGridTextColumn Header="Trend" Binding="{Binding Trend}" Width="90"/><DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="110"/><DataGridTextColumn Header="As of" Binding="{Binding AsOf}" Width="100"/><DataGridTextColumn Header="Pivots" Binding="{Binding Pivots}" Width="70"/><DataGridTextColumn Header="Tilt" Binding="{Binding Tilt}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <Grid Grid.Row="4">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="0.85*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Top-pick signal evidence" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding BestPickSignals}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Signal" Binding="{Binding Name}" Width="160"/><DataGridTextColumn Header="Score" Binding="{Binding Score}" Width="75"/><DataGridTextColumn Header="Hint" Binding="{Binding Hint}" Width="70" ElementStyle="{StaticResource SignalHintText}"/><DataGridTextColumn Header="Evidence" Binding="{Binding Notes}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource DelphiCard}">
+                                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Top-pick gates" Style="{StaticResource DelphiSectionTitle}"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding BestPickGates}" AlternationCount="2"><DataGrid.Columns><DataGridTextColumn Header="Gate" Binding="{Binding Name}" Width="140"/><DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="75" ElementStyle="{StaticResource GateResultText}"/><DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="*"/></DataGrid.Columns></DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Full Report" Style="{StaticResource DelphiTab}">
+                <Border Style="{StaticResource DelphiCard}" Margin="0,14,0,6" Padding="12">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                        <StackPanel Margin="4,2,4,8">
+                            <TextBlock Text="Complete human and diagnostic report" Style="{StaticResource DelphiSectionTitle}"/>
+                            <TextBlock Text="Captured exactly for new sessions; older sessions clearly identify reconstructed evidence." Foreground="{StaticResource DelphiMuted}"/>
+                        </StackPanel>
+                        <TextBox Grid.Row="1" Text="{Binding FullReport, Mode=OneWay}" IsReadOnly="True"
+                                 Background="#12171E" Foreground="#D8E1EC" BorderBrush="{StaticResource DelphiBorder}"
+                                 BorderThickness="1" Padding="14" FontFamily="Cascadia Mono, Consolas" FontSize="12"
+                                 TextWrapping="NoWrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"/>
+                    </Grid>
+                </Border>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="2" Background="{StaticResource DelphiPanelRaised}" CornerRadius="8" Padding="12,8" Margin="0,10,0,0">
             <Grid>
-                <TextBlock Text="{Binding Status}" Foreground="{Binding StatusBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,360,0"/>
-                <TextBlock HorizontalAlignment="Right" Foreground="#F5B94C"
+                <TextBlock Text="{Binding Status, Mode=OneWay}" Foreground="{Binding StatusBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,410,0"/>
+                <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource DelphiGold}"
                            Text="Delphi predicts · Paper Trading manages entries and exits"/>
             </Grid>
         </Border>
     </Grid>
+
 </UserControl>

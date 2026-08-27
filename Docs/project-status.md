@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—were linked to persisted Continuation picks. CMG, EDR, and OGI have been closed as ghost trades for a combined realized -$0.01; NDM and ALK remain open. Migration 012 is applied and verified. ADR-0031/0032 provide a shared durable monitor, database-guarded automatic ghost exits, and a live WPF dashboard without broker integration. ADR-0033/0034 evolve TraderVI into a tabbed shell with Paper Trading, Data Audit, and Delphi views while retaining their CLIs over shared workflows. The Delphi tab reads saved picks by default and requires confirmation before an official database-writing evaluation. The next trading boundary is observing the first market-hours durable collection cycle.
+TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. The user reported Hermes current and ran Delphi on 2026-08-26. Completed five-minute TMX bars are the accepted version-1 storage resolution; the operational policy consumes TMX's direct completed fifteen-minute bars. ADR-0029 distinguishes an operational ghost-entry pilot from official Athena outcomes. The first five one-share ghost positions—NDM, CMG, ALK, EDR, and OGI—were linked to persisted Continuation picks. CMG, EDR, and OGI have been closed as ghost trades for a combined realized -$0.01; NDM and ALK remain open. Migration 012 is applied and verified. ADR-0031/0032 provide a shared durable monitor, database-guarded automatic ghost exits, and a live WPF dashboard without broker integration. ADR-0033 through ADR-0035 evolve TraderVI into a tabbed shell with Paper Trading, Data Audit, and a six-view Delphi operator workspace while retaining the CLIs over shared workflows. The Delphi tab reads the saved run by default and requires confirmation before an official database-writing evaluation. The next trading boundary is observing the first market-hours durable collection cycle.
 
 The repository contains a coherent 30-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), and market-wide Climax (CLX) reporting.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 106 passed, 0 failed, 0 skipped on 2026-08-26.
+- Core tests: 110 passed, 0 failed, 0 skipped on 2026-08-26.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -32,7 +32,7 @@ The repository contains a coherent 30-commit June/August development sequence. I
 | Hercules (`ML.Train`) | Trains enabled profit models and records experiments/models | CPU-intensive training; writes model artifacts and SQL registry rows |
 | Delphi | Evaluates the universe through Continuation and Breakout lenses and emits reports | Reads models/data; rewrites daily picks, dossiers, narratives, and Granville logs for the evaluation date |
 | TraderVI | Manual ghost CLI plus shared durable paper monitor | Writes simulated positions, trade logs, and intraday evidence; does not place live orders |
-| TraderVI.WPF | Tabbed desktop shell for Paper Trading, Data Audit, and Delphi | Paper tab refreshes SQL history, polls TMX during the regular monitor window, and can record ghost exits; Data Audit and Delphi's saved-pick view are read-only; confirmed official Delphi runs have their documented SQL effects; no broker integration |
+| TraderVI.WPF | Tabbed desktop shell for Paper Trading, Data Audit, and Delphi | Paper tab refreshes SQL history, polls TMX during the regular monitor window, and can record ghost exits; Data Audit and Delphi's saved-session workspace are read-only; confirmed official Delphi runs have their documented SQL effects; no broker integration |
 | Oracle | Optional LLM narration over deterministic decision dossiers | May call a configured LLM service and write narrative records |
 | DataAudit | Read-only full-local-universe classification, freshness, mapping, and bar-integrity diagnostics | Local SQL reads only; no external calls or writes |
 | Sandbox | Manually selected probes for reconnaissance, calibration, and controlled backfills | Probe-specific; some call external services or mutate SQL |
@@ -132,9 +132,11 @@ Shared-workflow DataAudit verification on 2026-08-26:
 Shared-workflow Delphi tab implementation on 2026-08-26:
 
 - `DelphiWorkflow` now owns the evaluation once; the retained CLI and WPF tab are adapters over it.
-- Opening or refreshing the tab only reads the latest persisted Continuation and Breakout picks.
+- Opening or refreshing the tab only reads the latest persisted Continuation and Breakout picks plus their matching immutable Delphi presentation snapshot.
+- ADR-0035 adds Overview, Picks, Market, Granville, Diagnostics, and Full Report views backed by typed report facts instead of parsed console text.
+- New official runs store the versioned presentation snapshot inside the existing `CalibrationRun.RunContextJson`; older saved runs use a clearly labelled, date-aligned reconstruction and never substitute current market values.
 - An official run requires a warning confirmation and explicitly states that it appends calibration evidence and replaces same-date operational records.
-- Core, Delphi, and WPF focused builds succeeded; 106 core tests passed. Delphi itself was intentionally not run and no database record was changed during implementation.
+- Core, Delphi, and WPF focused builds succeeded; 110 core tests passed. Delphi itself was intentionally not run and no database record was changed during implementation. No database migration is required for ADR-0035.
 
 ## Known gaps and risks
 

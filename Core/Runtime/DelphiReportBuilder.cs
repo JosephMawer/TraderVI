@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#nullable enable
+
 namespace Core.Runtime;
 
 /// <summary>
@@ -62,6 +64,12 @@ public sealed class DelphiReportBuilder
     public decimal MinPriceFloor { get; set; }
     public long MinVolume20d { get; set; }
     public decimal DeployableCapital { get; set; }
+    public int DiscoveredSymbols { get; set; }
+    public string StrategyVersionName { get; set; } = "Default";
+    public string StrategyDescription { get; set; } = "Built-in strategy defaults";
+    public StrategyConfig StrategyConfig { get; set; } = StrategyConfig.Default;
+    public IReadOnlyList<string> PatternModels { get; set; } = [];
+    public IReadOnlyList<string> ProfitModels { get; set; } = [];
 
     // ── RS coverage diagnostics (ADR-0010 follow-up) ──
     // Surfaces whether RS composite is actually being computed against real sector
@@ -74,6 +82,280 @@ public sealed class DelphiReportBuilder
     public int RsMinSectorBars { get; set; }            // min #bars across loaded sector indices
     public int RsMaxSectorBars { get; set; }            // max #bars across loaded sector indices
     public int RsBarsRequired { get; set; } = 80;       // max horizon (60) + zWindow (20)
+
+    public DelphiPresentationSnapshot BuildPresentationSnapshot(
+        string summaryReport,
+        string diagnosticReport,
+        bool isReconstructed = false,
+        string sourceNote = "Captured by Delphi at evaluation time")
+    {
+        DelphiRecommendationPresentation recommendation = BuildRecommendationPresentation();
+        DelphiRegimePresentation? regime = Regime is null
+            ? null
+            : new DelphiRegimePresentation(
+                Regime.IsBothBearish ? "Bearish" : Regime.IsAnyBenchmarkUptrend ? "Bullish" : "Mixed",
+                Regime.IsBenchmarkUptrend,
+                Regime.IsBenchmark20dPositive,
+                Regime.BenchmarkReturn20d,
+                Regime.IsVolatilityNormal,
+                Regime.IsSpyUptrend,
+                Regime.IsSpy20dPositive,
+                Regime.IsAnyBenchmarkUptrend,
+                Regime.IsBothBearish);
+
+        DelphiBreadthPresentation? breadth = null;
+        if (AdLine.Count > 0)
+        {
+            ADLineEntry latest = AdLine[^1];
+            breadth = new DelphiBreadthPresentation(
+                latest.Date,
+                latest.Advancers,
+                latest.Decliners,
+                latest.Unchanged,
+                latest.DailyPlurality,
+                latest.CumulativeDifferential,
+                BreadthScore,
+                AdvanceDeclineCalculator.Slope(AdLine),
+                AdvanceDeclineCalculator.IsAboveSma(AdLine),
+                BearishDivergence);
+        }
+
+        List<DelphiUsIndexPresentation> usIndices = [];
+        foreach (var (symbol, bars) in UsIndexBars.OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            if (bars.Count == 0)
+                continue;
+            var last = bars[^1];
+            double return1d = bars.Count >= 2 && bars[^2].Close > 0
+                ? last.Close / bars[^2].Close - 1.0
+                : 0;
+            double return5d = bars.Count >= 6 && bars[^6].Close > 0
+                ? last.Close / bars[^6].Close - 1.0
+                : 0;
+            usIndices.Add(new DelphiUsIndexPresentation(
+                symbol,
+                last.Date,
+                last.Close,
+                return1d,
+                return5d,
+                bars.Count));
+        }
+
+        DelphiMarketTapePresentation? marketTape = MarketTape is null
+            ? null
+            : new DelphiMarketTapePresentation(
+                MarketTape.Date,
+                MarketTape.XiuClose,
+                MarketTape.XiuPrevClose,
+                MarketTape.XiuReturn1d,
+                MarketTape.XiuVolume,
+                MarketTape.XiuVolumeSma20Prior,
+                MarketTape.XiuVolumeRatio20,
+                MarketTape.XiuVolumeRatio20 is decimal ratio && ratio < 0.85m);
+
+        DelphiGranvillePresentation? granville = Granville is null
+            ? null
+            : new DelphiGranvillePresentation(
+                Granville.BullishCount,
+                Granville.BearishCount,
+                Granville.NetPoints,
+                Granville.CompositeAdjustment,
+                Granville.Results.Select(result => new DelphiGranvilleIndicatorPresentation(
+                    result.IndicatorNumber,
+                    result.Category.ToString(),
+                    result.Name,
+                    result.Signal.ToString(),
+                    result.GranvillePoints,
+                    result.Description)).ToArray());
+
+        DelphiWeightingPresentation? weighting = Weighting is null
+            ? null
+            : new DelphiWeightingPresentation(
+                Weighting.ConstituentsObserved,
+                Weighting.ConstituentsRequired,
+                Weighting.XiuReturn,
+                Weighting.ScoreB,
+                Weighting.ScoreC,
+                Weighting.Triggered,
+                Weighting.Degraded,
+                Weighting.TopContributors.Select(contributor => contributor.Symbol).ToArray());
+
+        var universe = new DelphiUniversePresentation(
+            DiscoveredSymbols,
+            LoadedSymbols,
+            SkippedHistory,
+            SkippedStaleHistory,
+            SkippedPrice,
+            SkippedLowPrice,
+            SkippedLowVolume,
+            SkippedLeveragedEtp,
+            MinPriceFloor,
+            MinVolume20d,
+            StaleHistoryExclusions.Select(exclusion => exclusion.Symbol).ToArray());
+
+        var relativeStrength = new DelphiRelativeStrengthPresentation(
+            RsScores.Count,
+            RsMinSectorBars,
+            RsMaxSectorBars,
+            RsBarsRequired,
+            RsFallbackToXiuCount,
+            RsCompositeNullCount,
+            RsFallbackSymbols.ToArray());
+
+        var obv = new DelphiObvPresentation(
+            ObvResults.Values.Select(result => result.BreakoutWindow).FirstOrDefault(),
+            ObvSignalWeight,
+            ObvResults.Values.Count(result => result.Trend == ObvFieldTrend.Rising),
+            ObvResults.Values.Count(result => result.Trend == ObvFieldTrend.Falling),
+            ObvResults.Values.Count(result => result.Trend == ObvFieldTrend.Doubtful),
+            ObvResults.Values.Count(result => result.Trend == ObvFieldTrend.Indeterminate),
+            TopPicks
+                .Where(pick => ObvResults.ContainsKey(pick.Symbol))
+                .Select(pick =>
+                {
+                    ObvFieldTrendResult result = ObvResults[pick.Symbol];
+                    double tilt = result.Trend switch
+                    {
+                        ObvFieldTrend.Rising => ObvSignalWeight,
+                        ObvFieldTrend.Falling => -ObvSignalWeight,
+                        _ => 0
+                    };
+                    return new DelphiObvSymbolPresentation(
+                        pick.Symbol,
+                        result.Trend.ToString(),
+                        result.LatestDesignation.ToString(),
+                        result.AsOf,
+                        result.PivotCount,
+                        tilt);
+                })
+                .ToArray());
+
+        DelphiClimaxPresentation? climax = null;
+        if (MarketClimax.Count > 0)
+        {
+            MarketClimaxEntry latest = MarketClimax[^1];
+            climax = new DelphiClimaxPresentation(
+                latest.Date,
+                latest.Clx,
+                latest.UpBreakouts,
+                latest.DownBreakouts,
+                latest.Covered,
+                latest.BasketSize,
+                latest.FreshUp,
+                latest.FreshDown,
+                latest.XiuClose,
+                ClimaxRegime?.Regime.ToString() ?? "Unavailable",
+                ClimaxRegime?.Description ?? "Not enough evidence to classify the CLX regime.",
+                ClimaxRegime?.ClxChange,
+                ClimaxRegime?.XiuChangePct);
+        }
+
+        var strategy = new DelphiStrategyPresentation(
+            StrategyVersionName,
+            StrategyDescription,
+            StrategyConfig.MinCompositeScore,
+            StrategyConfig.MinUpProb,
+            StrategyConfig.MinBreakoutProb,
+            StrategyConfig.MaxDownProb,
+            StrategyConfig.MinDirectionEdge,
+            StrategyConfig.BreadthVetoThreshold,
+            StrategyConfig.StopLossPercent,
+            StrategyConfig.MaxPositions,
+            PatternModels.ToArray(),
+            ProfitModels.ToArray());
+
+        IReadOnlyList<DelphiSignalPresentation> signals = BestPick?.Signals
+            .Select(signal => new DelphiSignalPresentation(
+                signal.Name,
+                signal.Score,
+                signal.Hint?.ToString() ?? "—",
+                signal.Notes ?? ""))
+            .ToArray() ?? [];
+        IReadOnlyList<DelphiGatePresentation> gates = BestPick?.GateTrace?
+            .Select(gate => new DelphiGatePresentation(
+                gate.GateName,
+                gate.Passed,
+                gate.Reason ?? "Passed"))
+            .ToArray() ?? [];
+
+        return new DelphiPresentationSnapshot(
+            DelphiPresentationSchema.CurrentVersion,
+            isReconstructed,
+            sourceNote,
+            RecommendationDate,
+            MarketDataAsOf,
+            recommendation,
+            regime,
+            breadth,
+            SectorSnapshots.Select(sector => new DelphiSectorPresentation(
+                sector.Symbol,
+                sector.SectorName,
+                sector.Price,
+                sector.PriceChange,
+                sector.PercentChange,
+                sector.Date)).ToArray(),
+            usIndices,
+            marketTape,
+            granville,
+            weighting,
+            universe,
+            relativeStrength,
+            obv,
+            climax,
+            strategy,
+            signals,
+            gates,
+            summaryReport,
+            diagnosticReport);
+    }
+
+    private DelphiRecommendationPresentation BuildRecommendationPresentation()
+    {
+        if (BestPick is null || Size is null || Size.SuggestedSize <= 0)
+        {
+            return new DelphiRecommendationPresentation(
+                false,
+                "—",
+                "NO TRADE",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                Size?.Reason ?? "No qualifying candidates",
+                "Unavailable");
+        }
+
+        string obvConfirmation = "Unavailable";
+        if (ObvResults.TryGetValue(BestPick.Symbol, out ObvFieldTrendResult? result))
+        {
+            obvConfirmation = result.Trend switch
+            {
+                ObvFieldTrend.Rising => "Confirms",
+                ObvFieldTrend.Falling => "Contradicts",
+                ObvFieldTrend.Doubtful => "Neutral",
+                _ => "No read"
+            };
+        }
+
+        return new DelphiRecommendationPresentation(
+            true,
+            BestPick.Symbol,
+            BestPick.Direction.ToString(),
+            BestPick.CompositeScore,
+            BestPick.DirectionProbability,
+            BestPick.DownProbability,
+            BestPick.DirectionEdge,
+            GetProb(BestPick, "BreakoutEnhanced"),
+            GetProb(BestPick, "VolExpansionRelative10"),
+            Size.SuggestedSize,
+            (double)Size.AllocationPercent,
+            Size.Reason,
+            obvConfirmation);
+    }
 
     /// <summary>
     /// Builds the full diagnostic report (detailed, for Copilot/log analysis).

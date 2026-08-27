@@ -855,6 +855,77 @@ public sealed class DelphiWorkflow
                 brRank++;
             }
             Console.WriteLine();
+
+            // Build one typed presentation snapshot from the same evaluated facts used by
+            // Delphi's structured reports. Hosts render this data without parsing console text.
+            var reportSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 3);
+            DateTime? reportSectorDate = reportSectorSnapshots
+                .Where(snapshot => snapshot.Date.Date <= marketDataAsOf)
+                .Select(snapshot => (DateTime?)snapshot.Date.Date)
+                .Max();
+            var todaySectorSnapshots = reportSectorDate.HasValue
+                ? reportSectorSnapshots.Where(snapshot => snapshot.Date.Date == reportSectorDate.Value).ToList()
+                : [];
+
+            var report = new DelphiReportBuilder
+            {
+                RecommendationDate = recommendationDate,
+                MarketDataAsOf = marketDataAsOf,
+                Regime = regime,
+                AdLine = adLine,
+                BreadthScore = breadthScore,
+                BearishDivergence = bearishDivergence,
+                Granville = granvilleForecast,
+                Weighting = weightingSnapshot,
+                MarketTape = marketTape,
+                SectorSnapshots = todaySectorSnapshots,
+                UsIndexBars = usIndexBars,
+                TopPicks = top,
+                BestPick = bestPick,
+                Size = size,
+                RsScores = rsScores,
+                AllBars = allBars,
+                ObvResults = obvResults,
+                ObvSignalWeight = config.ObvSignalWeight,
+                MarketClimax = climaxRecent,
+                ClimaxRegime = climaxRegime,
+                ClimaxDivergenceWindow = config.ClimaxDivergenceWindow,
+                ClimaxDivergenceThreshold = config.ClimaxDivergenceThreshold,
+                DiscoveredSymbols = symbols.Count,
+                LoadedSymbols = loaded,
+                SkippedHistory = skipped,
+                SkippedStaleHistory = skippedStaleHistory,
+                StaleHistoryExclusions = staleHistoryExclusions,
+                SkippedPrice = skippedPrice,
+                SkippedLowPrice = skippedLowPrice,
+                SkippedLowVolume = skippedLowVolume,
+                SkippedLeveragedEtp = skippedLeveraged,
+                MinPriceFloor = minPriceFloor,
+                MinVolume20d = minVolume20d,
+                DeployableCapital = deployableCapital,
+                RsFallbackToXiuCount = rsFallbackToXiu,
+                RsFallbackSymbols = rsFallbackSymbols,
+                RsCompositeNullCount = rsCompositeNull,
+                RsMinSectorBars = rsMinSectorBars,
+                RsMaxSectorBars = rsMaxSectorBars,
+                RsBarsRequired = rsBarsRequired,
+                StrategyVersionName = activeStrategy?.VersionName ?? "Default",
+                StrategyDescription = activeStrategy?.Description ?? "Built-in strategy defaults",
+                StrategyConfig = config,
+                PatternModels = Core.ML.Engine.Patterns.PatternRegistry.All
+                    .Select(model => model.TaskType)
+                    .ToArray(),
+                ProfitModels = Core.ML.Engine.Profit.ProfitModelRegistry.All
+                    .Select(model => $"{model.TaskType} · {model.Role} · weight {model.CompositeWeight:+0.00;-0.00;0.00}")
+                    .ToArray()
+            };
+
+            string diagnosticReport = report.BuildDiagnostic();
+            string summaryReport = report.BuildSummary();
+            DelphiPresentationSnapshot presentationSnapshot = report.BuildPresentationSnapshot(
+                summaryReport,
+                diagnosticReport);
+
             // ═══════════════════════════════════════════════════════════════════
             // APPEND IMMUTABLE CALIBRATION EVIDENCE (ADR-0020)
             // ═══════════════════════════════════════════════════════════════════
@@ -954,7 +1025,8 @@ public sealed class DelphiWorkflow
                     reserveCashPercent,
                     minPriceFloor,
                     minVolume20d,
-                    maxPriceForMinLot
+                    maxPriceForMinLot,
+                    presentation = presentationSnapshot
                 };
                 var run = new CalibrationRunEvidence(
                     runId, calibrationPurpose, recommendationDate, marketDataAsOf, runStartedUtc,
@@ -1102,6 +1174,8 @@ public sealed class DelphiWorkflow
             {
                 var reason = size?.Reason ?? "Unknown (size is null)";
                 Console.WriteLine($"\nNo qualifying trade found. Reason: {reason}");
+                Console.WriteLine(diagnosticReport);
+                Console.WriteLine(summaryReport);
                 return new DelphiWorkflowRunResult(
                     true,
                     $"Evaluation completed without a qualifying trade: {reason}",
@@ -1112,8 +1186,9 @@ public sealed class DelphiWorkflow
                     DateTime.UtcNow,
                     top.Count,
                     breakoutTop.Count,
-                    null,
-                    null);
+                    diagnosticReport,
+                    summaryReport,
+                    presentationSnapshot);
             }
 
             double bestBreakout = GetBreakoutProb(bestPick);
@@ -1180,62 +1255,6 @@ public sealed class DelphiWorkflow
                 Console.WriteLine($"  [{s.Hint,-5}] {s.Name,-25} Score={s.Score:0.###} {s.Notes}");
             }
 
-            // ═══════════════════════════════════════════════════════════════════
-            // STRUCTURED REPORTS (Diagnostic + Summary)
-            // ═══════════════════════════════════════════════════════════════════
-
-            // Load latest sector snapshots for report
-            var reportSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 1);
-            var latestSectorDate = reportSectorSnapshots.Count > 0 ? reportSectorSnapshots.Max(s => s.Date) : (DateTime?)null;
-            var todaySectorSnapshots = latestSectorDate.HasValue
-                ? reportSectorSnapshots.Where(s => s.Date.Date == latestSectorDate.Value.Date).ToList()
-                : [];
-
-            var report = new DelphiReportBuilder
-            {
-                RecommendationDate = recommendationDate,
-                MarketDataAsOf = marketDataAsOf,
-                Regime = regime,
-                AdLine = adLine,
-                BreadthScore = breadthScore,
-                BearishDivergence = bearishDivergence,
-                Granville = granvilleForecast,
-                Weighting = weightingSnapshot,
-                MarketTape = marketTape,
-                SectorSnapshots = todaySectorSnapshots,
-                UsIndexBars = usIndexBars,
-                TopPicks = top,
-                BestPick = bestPick,
-                Size = size,
-                RsScores = rsScores,
-                AllBars = allBars,
-                ObvResults = obvResults,
-                ObvSignalWeight = config.ObvSignalWeight,
-                MarketClimax = climaxRecent,
-                ClimaxRegime = climaxRegime,
-                ClimaxDivergenceWindow = config.ClimaxDivergenceWindow,
-                ClimaxDivergenceThreshold = config.ClimaxDivergenceThreshold,
-                LoadedSymbols = loaded,
-                SkippedHistory = skipped,
-                SkippedStaleHistory = skippedStaleHistory,
-                StaleHistoryExclusions = staleHistoryExclusions,
-                SkippedPrice = skippedPrice,
-                SkippedLowPrice = skippedLowPrice,
-                SkippedLowVolume = skippedLowVolume,
-                SkippedLeveragedEtp = skippedLeveraged,
-                MinPriceFloor = minPriceFloor,
-                MinVolume20d = minVolume20d,
-                DeployableCapital = deployableCapital,
-                RsFallbackToXiuCount = rsFallbackToXiu,
-                RsFallbackSymbols = rsFallbackSymbols,
-                RsCompositeNullCount = rsCompositeNull,
-                RsMinSectorBars = rsMinSectorBars,
-                RsMaxSectorBars = rsMaxSectorBars,
-                RsBarsRequired = rsBarsRequired
-            };
-
-            string diagnosticReport = report.BuildDiagnostic();
-            string summaryReport = report.BuildSummary();
             Console.WriteLine(diagnosticReport);
             Console.WriteLine(summaryReport);
 
@@ -1250,7 +1269,8 @@ public sealed class DelphiWorkflow
                 top.Count,
                 breakoutTop.Count,
                 diagnosticReport,
-                summaryReport);
+                summaryReport,
+                presentationSnapshot);
         }
         finally
         {

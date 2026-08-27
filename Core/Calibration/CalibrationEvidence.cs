@@ -109,6 +109,43 @@ public sealed record CalibrationEvidenceBatch(
     IReadOnlyList<CalibrationCandidateEvidence> Candidates,
     IReadOnlyList<CalibrationLensEvidence> LensEvaluations);
 
+public sealed record CalibrationRunInfo(
+    Guid RunId,
+    CalibrationRunPurpose Purpose,
+    DateTime RecommendationDate,
+    DateTime MarketDataAsOf,
+    DateTime StartedUtc,
+    DateTime CreatedUtc,
+    Guid? StrategyVersionId,
+    string StrategyConfigJson,
+    string ModelSnapshotJson,
+    string RunContextJson,
+    string CodeCommit,
+    CalibrationAuditState AuditState,
+    string? AuditMessage,
+    int SymbolsDiscovered,
+    int SymbolsModelEvaluated,
+    int SkippedHistory,
+    int SkippedStaleHistory,
+    int SkippedUnaffordable,
+    int SkippedLowPrice,
+    int SkippedLowVolume,
+    int SkippedLeveragedEtp);
+
+public sealed record CalibrationCandidateRunInfo(
+    string Symbol,
+    double? UpProbability,
+    double? DownProbability,
+    double? BreakoutProbability,
+    double? VolExpansionProbability,
+    double DirectionEdge,
+    double CompositeScore,
+    string? ObvState,
+    string SnapshotJson,
+    string GateTraceJson);
+
+public sealed record CalibrationObvStateCount(string State, int Count);
+
 public sealed record CandidateSnapshotPayload(
     int SchemaVersion,
     IReadOnlyList<SignalResult> Signals,
