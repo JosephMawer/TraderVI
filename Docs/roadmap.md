@@ -50,7 +50,11 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Add ADR-0034's Delphi tab over a shared `DelphiWorkflow`; safely display persisted lenses by default and require confirmation before an official database-writing run.
 - [x] Add ADR-0035's six-view Delphi operator workspace and immutable typed presentation snapshot, with labelled date-aligned reconstruction for older saved runs.
 - [x] Add ADR-0036's native read-only Project Docs tab with repository-wide discovery, search, folder navigation, safe links, and refresh.
-- [ ] Observe the first market-hours durable dashboard cycle and verify completed evidence, receipt history, and any triggered ghost exit end to end.
+- [x] Observe the first market-hours durable dashboard cycle: the 2026-08-27 09:47 Toronto cycle persisted valid receipts and completed evidence for NDM/ALK; no exit rule triggered.
+- [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
+- [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
+- [ ] Review, back up, and manually apply migration 013 with explicit authorization; verify it, then reconcile the current EDR mirror as `REAL / TFSA` after confirming shares and fill.
+- [ ] Verify the new five-share EDR position joins a scheduled durable cycle and observe an automatic ghost exit end to end when a policy rule genuinely triggers.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
@@ -76,7 +80,10 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 ## Later — expand system capability
 
 - Always-on paper-monitor hosting through a Windows service or scheduled process; v1 requires the WPF app or console watch to remain running.
-- Any future live-broker Sentinel stop-loss and rotation workflows; ADR-0031 applies only to ghost trades.
+- Extend the Scorecards workspace with charts only after enough matured official cohorts make them useful; retain Athena and its optional CSV export.
+- Consider Hermes status/run and System Log tabs as shared-workflow operator surfaces, with consequential runs explicitly confirmed and the existing CLIs preserved.
+- Consider broker import/reconciliation only after the manual ADR-0039 Real workflow is operated and audited; do not infer that `Real` means broker-verified.
+- Any future live-broker Sentinel stop-loss and rotation workflows require a new decision, independent authentication, limits, previews, partial-fill handling, reconciliation proof, and a kill switch.
 - Oracle Phase 3 debate loop and evaluation harness.
 - Granville Overdueness (#23–#24), Heavy Volume, and later groups.
 - Broader walk-forward strategy simulation and version comparison.

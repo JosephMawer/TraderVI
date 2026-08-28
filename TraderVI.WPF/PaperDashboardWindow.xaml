@@ -92,8 +92,8 @@
         </Style>
     </Window.Resources>
 
-    <TabControl Background="Transparent" BorderThickness="0" Padding="0">
-      <TabItem Header="Paper Trading">
+    <TabControl x:Name="MainTabs" Background="Transparent" BorderThickness="0" Padding="0">
+      <TabItem x:Name="PaperTradingTab" Header="Trading">
        <Grid Margin="22">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -109,7 +109,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="TraderVI Paper Monitor" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="TraderVI Trading Monitor" FontSize="28" FontWeight="SemiBold"/>
                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                     <TextBlock Text="{Binding MarketStatus}" Foreground="{StaticResource PositiveBrush}"/>
                     <TextBlock Text="  ·  Next poll " Foreground="{StaticResource MutedBrush}"/>
@@ -120,7 +120,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Background="#183B2B" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
-                    <TextBlock Text="GHOST EXITS ON · NO BROKER" Foreground="{StaticResource PositiveBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="GHOST AUTO-EXITS · REAL SIGNALS ONLY · NO BROKER" Foreground="{StaticResource PositiveBrush}" FontWeight="SemiBold"/>
                 </Border>
                 <Button x:Name="PollNowButton" Content="Poll now · TMX + SQL" Click="PollNowButton_Click"
                         IsEnabled="{Binding CanPollNow}"/>
@@ -132,33 +132,47 @@
                 <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Style="{StaticResource Card}">
-                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Open positions"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding OpenPositionCount}"/></StackPanel>
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Open ghost"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding OpenGhostCount}"/></StackPanel>
             </Border>
             <Border Grid.Column="2" Style="{StaticResource Card}">
-                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Closed paper trades"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding ClosedPositionCount}"/></StackPanel>
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Open real"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding OpenRealCount}"/></StackPanel>
             </Border>
             <Border Grid.Column="4" Style="{StaticResource Card}">
-                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Realized paper P/L"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding RealizedPnL, StringFormat={}{0:C2}}"/></StackPanel>
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Ghost unrealized"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding GhostUnrealizedPnL, StringFormat={}{0:C2}}"/></StackPanel>
             </Border>
             <Border Grid.Column="6" Style="{StaticResource Card}">
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Real unrealized"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding RealUnrealizedPnL, StringFormat={}{0:C2}}"/></StackPanel>
+            </Border>
+            <Border Grid.Column="8" Style="{StaticResource Card}">
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Ghost / real realized"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0"><Run Text="{Binding GhostRealizedPnL, StringFormat={}{0:C2}}"/><Run Text=" / "/><Run Text="{Binding RealRealizedPnL, StringFormat={}{0:C2}}"/></TextBlock></StackPanel>
+            </Border>
+            <Border Grid.Column="10" Style="{StaticResource Card}">
                 <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Latest durable receipt"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0" Text="{Binding LastReceiptText}" TextWrapping="Wrap"/></StackPanel>
             </Border>
         </Grid>
 
         <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,16">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Grid Margin="0,0,0,10">
-                    <TextBlock Text="Paper positions" FontSize="18" FontWeight="SemiBold"/>
+                    <StackPanel>
+                        <TextBlock Text="Tracked positions" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding ExecutionSchemaStatus}" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
+                    </StackPanel>
                     <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource MutedBrush}">
-                        <Run Text="Open unrealized: "/><Run Text="{Binding UnrealizedPnL, Mode=OneWay, StringFormat={}{0:C2}}"/>
+                        <Run Text="Ghost / real unrealized: "/><Run Text="{Binding GhostUnrealizedPnL, Mode=OneWay, StringFormat={}{0:C2}}"/><Run Text=" / "/><Run Text="{Binding RealUnrealizedPnL, Mode=OneWay, StringFormat={}{0:C2}}"/>
                     </TextBlock>
                 </Grid>
-                <DataGrid Grid.Row="1" ItemsSource="{Binding Positions}" AlternationCount="2">
+                <DataGrid x:Name="PositionsGrid" Grid.Row="1" ItemsSource="{Binding Positions}"
+                          SelectedItem="{Binding SelectedPosition}" AlternationCount="2">
                     <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mode" Binding="{Binding ModeDisplay}" Width="88"/>
+                        <DataGridTextColumn Header="Account" Binding="{Binding AccountLabel}" Width="72"/>
                         <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="70"/>
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="75"/>
                         <DataGridTextColumn Header="Entry" Binding="{Binding EntryPrice, StringFormat={}{0:C3}}" Width="90"/>
@@ -169,10 +183,26 @@
                         <DataGridTextColumn Header="P/L %" Binding="{Binding PnLPct, StringFormat={}{0:P2}}" Width="82"/>
                         <DataGridTextColumn Header="High water" Binding="{Binding HighWaterMark, StringFormat={}{0:C3}}" Width="100"/>
                         <DataGridTextColumn Header="Trail" Binding="{Binding TrailingStopPrice, StringFormat={}{0:C3}}" Width="90"/>
-                        <DataGridTextColumn Header="Directive" Binding="{Binding Directive}" Width="*"/>
+                        <DataGridTextColumn Header="Directive" Binding="{Binding Directive}" Width="*" MinWidth="170"/>
                         <DataGridTextColumn Header="Updated" Binding="{Binding LastUpdatedLocal, StringFormat={}{0:MMM d HH:mm:ss}}" Width="125"/>
                     </DataGrid.Columns>
                 </DataGrid>
+                <Grid Grid.Row="2" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/><ColumnDefinition Width="110"/><ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="105"/><ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Real account" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBox Grid.Column="1" Text="{Binding RealAccountLabel, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" Padding="7,5"/>
+                    <Button x:Name="MarkRealButton" Grid.Column="2" Content="Mark selected as REAL"
+                            Click="MarkRealButton_Click" IsEnabled="{Binding CanMarkSelectedAsReal}"
+                            Margin="10,0,0,0" Padding="12,6"/>
+                    <TextBlock Grid.Column="4" Text="Actual sell fill" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBox Grid.Column="5" Text="{Binding RealExitFillPrice, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" Padding="7,5"/>
+                    <Button x:Name="RecordRealExitButton" Grid.Column="6" Content="Record REAL exit"
+                            Click="RecordRealExitButton_Click" IsEnabled="{Binding CanRecordSelectedRealExit}"
+                            Margin="10,0,0,0" Padding="12,6" Background="{StaticResource WarningBrush}"/>
+                </Grid>
             </Grid>
         </Border>
 
@@ -185,6 +215,8 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Trades}" AlternationCount="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Time" Binding="{Binding TimeLocal, StringFormat={}{0:MMM d HH:mm:ss}}" Width="125"/>
+                            <DataGridTextColumn Header="Mode" Binding="{Binding ModeDisplay}" Width="82"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding AccountLabel}" Width="65"/>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
                             <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="58"/>
                             <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:C3}}" Width="78"/>
@@ -217,7 +249,7 @@
         <Border Grid.Row="4" Background="{StaticResource PanelAltBrush}" CornerRadius="8" Padding="12,8">
             <Grid>
                 <TextBlock Foreground="{StaticResource MutedBrush}" Text="{Binding LatestEventText}" TextTrimming="CharacterEllipsis" Margin="0,0,260,0"/>
-                <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource WarningBrush}" Text="Keep this app open · TMX delayed · no broker"/>
+                <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource WarningBrush}" Text="Keep this app open · TMX delayed · real fills manual · no broker"/>
             </Grid>
         </Border>
        </Grid>
@@ -227,6 +259,9 @@
       </TabItem>
       <TabItem Header="Delphi">
         <views:DelphiView x:Name="DelphiTabView"/>
+      </TabItem>
+      <TabItem Header="Scorecards">
+        <views:ScorecardsView/>
       </TabItem>
       <TabItem Header="Project Docs">
         <views:ProjectDocsView/>

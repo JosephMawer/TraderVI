@@ -150,7 +150,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Q:** Which separately timestamped source should support the still-experimental opening-confirmation comparison, especially bid/ask spreads and opening gaps that ADR-0028's delayed OHLCV monitor does not establish?
 - **Q:** Does a 5-, 15-, or 30-minute observation checkpoint add the best net value after missed winners, avoided losses, spreads, and slippage?
 - **Tags:** architecture, data-sources, decision-engine, market-microstructure, risk-management
-- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management and completed five-minute evidence; ADR-0030 resolves the durable ledger design. Opening confirmation remains open, while migration rollout and collector wiring are implementation work rather than open strategy decisions.
+- **Status:** partially resolved — ADR-0028 accepts fifteen-minute delayed management and completed five-minute evidence; ADR-0030's durable ledger, migration, collector, and first market-hours cycle are complete. Opening confirmation remains an unactivated challenger.
+
+### Automatic Delphi-to-paper entry and rotation policy (ADR-0034, ADR-0037)
+
+- **Q:** Should a separately scored shadow controller automatically open Delphi's selected Top pick at the first completed fifteen-minute checkpoint, or should all operational ghost entries continue to require operator confirmation?
+- **Q:** If automatic shadow entry is tested, which lens/rank, capital allocation, vacancy-filling, duplicate-symbol, and rotation rules define it, and how will it remain separate from operator-timed positions and official Athena outcomes?
+- **Tags:** architecture, decision-engine, market-microstructure, risk-management
+- **Status:** open — ADR-0037 accepts only operator-confirmed saved-pick entry. The earlier automatic-entry idea was a recommendation in discussion, not an approved policy, and must not be activated without a versioned ADR, separate evidence, and human approval.
 
 ### Always-on hosting for the paper monitor
 
@@ -162,7 +169,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Revisit after several live sessions establish restart, duplicate-instance,
   and failure behavior.
 
+### Broker reconciliation and possible future order routing
+
+- **Q:** Should TraderVI eventually import broker positions and fills, or should Real reconciliation remain operator-entered?
+- **Q:** If order routing is ever proposed, which independently authenticated broker adapter, account allowlist, cash/position limits, order preview, partial-fill state machine, kill switch, and reconciliation proof are required?
+- **Q:** Should version 2 support partial Real exits and commissions before any broker integration is considered?
+- **Tags:** architecture, data-pipeline, market-microstructure, risk-management
+- **Status:** parked — ADR-0039 resolves the combined display and manual-fill boundary. It explicitly adds no broker connection or order authority. Revisit only after the manual Real workflow has been operated and audited.
+
 ## Resolved
+
+- **Unified Ghost/Real trading dashboard** — resolved in source by ADR-0039 on 2026-08-28. Durable mode/account fields, an immutable Ghost-to-Real audit, separate P/L, manual Real entry/exit reconciliation, and a hard Ghost-only automatic-exit guard are implemented. Migration 013 remains unapplied until the reviewed backup and explicit manual authorization workflow is completed; the existing EDR row therefore remains Ghost until the operator confirms conversion in the migrated dashboard.
 
 - **Intraday evidence resolution and durable ledger** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume and retain direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. Poll attempts and first-received bars are separate immutable records, and conflicts never overwrite first evidence. Recorded in ADR-0028 through ADR-0030.
 

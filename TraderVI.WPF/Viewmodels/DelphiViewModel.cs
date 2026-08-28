@@ -2,6 +2,7 @@
 
 using Core.Db;
 using Core.Runtime;
+using Core.Trader;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -42,6 +43,12 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private Brush statusBrush = Brushes.SlateGray;
     private Brush recommendationBrush = Brushes.SlateGray;
     private DateTime? publishedPickDate;
+    private DelphiPickRow? selectedPaperPick;
+    private string paperShares = "1";
+    private string paperFillPrice = "";
+    private string selectedExecutionMode = TrackedExecutionMode.Ghost.ToStorageValue();
+    private string realAccountLabel = "TFSA";
+    private string paperEntryStatus = "Select a saved pick, then choose Ghost or Real tracking.";
 
     public ObservableCollection<DelphiPickRow> ContinuationPicks { get; } = [];
     public ObservableCollection<DelphiPickRow> BreakoutPicks { get; } = [];
@@ -80,6 +87,99 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     public Brush RecommendationBrush { get => recommendationBrush; private set => Set(ref recommendationBrush, value); }
     public int ContinuationCount => ContinuationPicks.Count;
     public int BreakoutCount => BreakoutPicks.Count;
+    public DelphiPickRow? SelectedPaperPick { get => selectedPaperPick; private set => Set(ref selectedPaperPick, value); }
+    public string PaperShares { get => paperShares; set => Set(ref paperShares, value); }
+    public string PaperFillPrice { get => paperFillPrice; set => Set(ref paperFillPrice, value); }
+    public IReadOnlyList<string> ExecutionModeOptions { get; } =
+        [TrackedExecutionMode.Ghost.ToStorageValue(), TrackedExecutionMode.Real.ToStorageValue()];
+    public string SelectedExecutionMode { get => selectedExecutionMode; set => Set(ref selectedExecutionMode, value); }
+    public string RealAccountLabel { get => realAccountLabel; set => Set(ref realAccountLabel, value); }
+    public string PaperEntryStatus { get => paperEntryStatus; private set => Set(ref paperEntryStatus, value); }
+
+    public void SelectPaperPick(DelphiPickRow? pick)
+    {
+        SelectedPaperPick = pick;
+        PaperEntryStatus = pick is null
+            ? "Select a saved pick, then choose Ghost or Real tracking."
+            : $"Selected {pick.Lens} #{pick.Rank}: {pick.Symbol}";
+    }
+
+    public bool TryBuildPaperEntry(
+        out DelphiPickRow? pick,
+        out int shares,
+        out decimal fillPrice,
+        out TrackedExecutionMode executionMode,
+        out string? accountLabel,
+        out string error)
+    {
+        pick = SelectedPaperPick;
+        shares = 0;
+        fillPrice = 0m;
+        executionMode = SelectedExecutionMode == TrackedExecutionMode.Real.ToStorageValue()
+            ? TrackedExecutionMode.Real
+            : TrackedExecutionMode.Ghost;
+        accountLabel = null;
+        if (pick is null)
+        {
+            error = "Select a Continuation or Breakout pick first.";
+            return false;
+        }
+        if (!int.TryParse(PaperShares, NumberStyles.Integer, CultureInfo.CurrentCulture, out shares) || shares <= 0)
+        {
+            error = "Shares must be a positive whole number.";
+            return false;
+        }
+        bool parsedPrice = decimal.TryParse(
+                PaperFillPrice,
+                NumberStyles.Number | NumberStyles.AllowCurrencySymbol,
+                CultureInfo.CurrentCulture,
+                out fillPrice) ||
+            decimal.TryParse(
+                PaperFillPrice,
+                NumberStyles.Number | NumberStyles.AllowCurrencySymbol,
+                CultureInfo.InvariantCulture,
+                out fillPrice);
+        if (!parsedPrice || fillPrice <= 0m)
+        {
+            error = "Fill price must be a positive amount.";
+            return false;
+        }
+        try
+        {
+            accountLabel = TrackedExecutionModeContract.NormalizeAccountLabel(
+                executionMode,
+                executionMode == TrackedExecutionMode.Real ? RealAccountLabel : null);
+        }
+        catch (ArgumentException ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+        error = "";
+        return true;
+    }
+
+    public async Task<PaperTradeEntryResult> OpenPaperPositionAsync(
+        DelphiPickRow pick,
+        int shares,
+        decimal fillPrice,
+        TrackedExecutionMode executionMode,
+        string? accountLabel)
+    {
+        PaperEntryStatus = $"Opening {executionMode.ToStorageValue()} position for {pick.Symbol}…";
+        try
+        {
+            PaperTradeEntryResult result = await new PaperTradeEntryWorkflow()
+                .OpenAsync(pick.PickId, shares, fillPrice, executionMode, accountLabel);
+            PaperEntryStatus = result.Message;
+            return result;
+        }
+        catch (Exception ex)
+        {
+            PaperEntryStatus = $"Paper entry failed · {ex.Message}";
+            throw;
+        }
+    }
 
     public bool HasRecommendationsFor(DateTime date) => publishedPickDate == date.Date;
 
@@ -174,6 +274,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private async Task LoadLatestAsync(CancellationToken cancellationToken, bool updateStatus = true)
     {
         DelphiPublishedRecommendations? published = await reader.LoadLatestAsync(cancellationToken);
+        SelectPaperPick(null);
         ContinuationPicks.Clear();
         BreakoutPicks.Clear();
 
@@ -427,11 +528,13 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
 }
 
 public sealed record DelphiPickRow(
+    Guid PickId, DateTime PickDate, string Lens,
     int Rank, string Symbol, string Direction, string Composite, string UpProbability,
     string BreakoutProbability, string VolumeExpansion, string ExpectedReturn,
     string SuggestedSize, string Notes)
 {
     public static DelphiPickRow Create(DailyPickInfo pick) => new(
+        pick.PickId, pick.PickDate, pick.Lens,
         pick.Rank, pick.Symbol, pick.Direction, pick.CompositeScore.ToString("P1"),
         FormatPercent(pick.DirectionProb), FormatPercent(pick.BreakoutProb),
         FormatPercent(pick.VolExpansionProb), FormatPercent(pick.ExpectedReturn),

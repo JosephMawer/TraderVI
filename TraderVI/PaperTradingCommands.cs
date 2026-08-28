@@ -186,6 +186,36 @@ internal static class PaperTradingCommands
         while (true);
     }
 
+    public static async Task AddSavedPickAsync(string[] args)
+    {
+        if (args.Length != 4 ||
+            !int.TryParse(args[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out int shares) ||
+            !decimal.TryParse(args[3], NumberStyles.Number, CultureInfo.InvariantCulture, out decimal fillPrice))
+        {
+            throw new ArgumentException(
+                "Usage: paper-add SYMBOL LENS SHARES FILL_PRICE");
+        }
+
+        string symbol = args[0].Trim().ToUpperInvariant();
+        string lens = args[1].Trim();
+        if (!string.Equals(lens, "Continuation", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(lens, "Breakout", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("LENS must be Continuation or Breakout.");
+        }
+
+        var repository = new DailyPickRepository();
+        DateTime pickDate = await repository.GetLatestPickDate()
+            ?? throw new InvalidOperationException("No saved Delphi picks exist.");
+        DailyPickInfo pick = await repository.GetPickByDateAndSymbol(pickDate, symbol, lens)
+            ?? throw new InvalidOperationException(
+                $"No saved {lens} pick exists for {symbol} on {pickDate:yyyy-MM-dd}.");
+
+        PaperTradeEntryResult result = await new PaperTradeEntryWorkflow()
+            .OpenAsync(pick.PickId, shares, fillPrice);
+        Console.WriteLine(result.Message);
+    }
+
     private static void PrintCycle(PaperMonitorCycleResult cycle)
     {
         if (cycle.Positions.Count == 0)
@@ -224,6 +254,8 @@ internal static class PaperTradingCommands
                         : position.Reason == IntradaySwingReason.None
                             ? "Hold — no exit signal"
                             : $"{position.Directive} — {position.Reason}";
+            if (position.WarningCode is not null)
+                directive += $" — {position.WarningCode}";
             string audit =
                 $"{position.FifteenMinuteAuditState?.ToString() ?? "—"}/" +
                 $"{position.FiveMinuteAuditState?.ToString() ?? "—"}";

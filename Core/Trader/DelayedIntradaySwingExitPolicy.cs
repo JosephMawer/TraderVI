@@ -66,13 +66,15 @@ public sealed record DelayedIntradayBar(
 /// exception. The original entry recommendation is deliberately insufficient.
 /// </summary>
 public sealed record DelayedIntradayBreakoutEvidence(
+    Guid RunId,
     DateTime RunStartedUtc,
+    DateTime AvailableUtc,
     bool IsLatestAvailableOfficialRun,
     bool IsValid,
     bool IsBreakoutPublished,
-    double BreakoutProbability,
-    double DirectionEdge,
-    double DownProbability);
+    double? BreakoutProbability,
+    double? DirectionEdge,
+    double? DownProbability);
 
 public sealed record IntradaySwingPositionState(
     decimal EntryPrice,
@@ -282,18 +284,24 @@ public static class DelayedIntradaySwingExitPolicy
         if (evidence is null)
             return false;
 
-        return evidence.RunStartedUtc.Kind == DateTimeKind.Utc &&
+        return evidence.RunId != Guid.Empty &&
+               evidence.RunStartedUtc.Kind == DateTimeKind.Utc &&
+               evidence.AvailableUtc.Kind == DateTimeKind.Utc &&
                evidence.RunStartedUtc > state.EntryUtc &&
-               evidence.RunStartedUtc <= bar.StartUtc &&
+               evidence.RunStartedUtc <= evidence.AvailableUtc &&
+               evidence.AvailableUtc <= bar.StartUtc &&
                evidence.IsLatestAvailableOfficialRun &&
                evidence.IsValid &&
                evidence.IsBreakoutPublished &&
-               double.IsFinite(evidence.BreakoutProbability) &&
-               double.IsFinite(evidence.DirectionEdge) &&
-               double.IsFinite(evidence.DownProbability) &&
-               evidence.BreakoutProbability >= config.StrongBreakoutProbability &&
-               evidence.DirectionEdge >= config.StrongDirectionEdge &&
-               evidence.DownProbability < config.MaximumStrongDownProbability;
+               evidence.BreakoutProbability is double breakoutProbability &&
+               evidence.DirectionEdge is double directionEdge &&
+               evidence.DownProbability is double downProbability &&
+               double.IsFinite(breakoutProbability) &&
+               double.IsFinite(directionEdge) &&
+               double.IsFinite(downProbability) &&
+               breakoutProbability >= config.StrongBreakoutProbability &&
+               directionEdge >= config.StrongDirectionEdge &&
+               downProbability < config.MaximumStrongDownProbability;
     }
 
     private static IntradaySwingDecision Decision(

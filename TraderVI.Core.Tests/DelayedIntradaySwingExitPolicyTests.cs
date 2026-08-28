@@ -101,6 +101,23 @@ public sealed class DelayedIntradaySwingExitPolicyTests
     }
 
     [Fact]
+    public void EvidencePersistedAfterPolicyBar_CannotBypassConditionalLossAlert()
+    {
+        var bar = Bar(2, 14, 0, open: 94m, high: 95m, low: 89m, close: 92m);
+        var evidence = StrongEvidence(
+            bar.StartUtc.AddMinutes(-5),
+            availableUtc: bar.StartUtc.AddSeconds(1));
+
+        var decision = DelayedIntradaySwingExitPolicy.Evaluate(
+            IntradaySwingPositionState.Open(100m, EntryUtc),
+            bar,
+            evidence);
+
+        decision.Directive.ShouldBe(IntradaySwingDirective.ExitAlert);
+        decision.Reason.ShouldBe(IntradaySwingReason.ConditionalLossLimit);
+    }
+
+    [Fact]
     public void AbsoluteLossAlwaysEmitsExitAlert()
     {
         var bar = Bar(2, 14, 0, open: 90m, high: 92m, low: 79m, close: 82m);
@@ -177,9 +194,13 @@ public sealed class DelayedIntradaySwingExitPolicyTests
             DelayedIntradaySwingExitPolicy.Evaluate(first.State, bar));
     }
 
-    private static DelayedIntradayBreakoutEvidence StrongEvidence(DateTime runStartedUtc) =>
+    private static DelayedIntradayBreakoutEvidence StrongEvidence(
+        DateTime runStartedUtc,
+        DateTime? availableUtc = null) =>
         new(
+            Guid.Parse("8f17e7a9-cd4c-4cdd-b188-d8cda7b2335a"),
             runStartedUtc,
+            availableUtc ?? runStartedUtc.AddSeconds(1),
             IsLatestAvailableOfficialRun: true,
             IsValid: true,
             IsBreakoutPublished: true,

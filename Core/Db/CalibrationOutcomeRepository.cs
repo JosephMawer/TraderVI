@@ -17,7 +17,8 @@ public sealed record PendingTradeableCalibrationCandidate(
 
 public sealed class CalibrationOutcomeRepository : SQLBase
 {
-    public static readonly Guid PredictionLabel10DefinitionId = new("A72C01CB-9C83-45A6-9A72-CC49E67B9F5A");
+    public static readonly Guid PredictionLabel10DefinitionId =
+        OfficialPredictionScorecardCalculator.PredictionLabels10DefinitionId;
     public static readonly Guid PredictionPath20DefinitionId = new("FA0C8F51-0C48-4E0C-BB26-DFBD82C0D640");
     public static readonly Guid SwingMarkToMarket3DefinitionId = new("491D7C6C-EBBB-4B5E-8259-3E3169D732B6");
     public static readonly Guid SwingExcursion3DefinitionId = new("BBB218C1-616E-46F5-A70B-826E547A7DE3");
@@ -274,6 +275,113 @@ ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
         }
 
         return new LensTradeabilityEvidenceSet(runs, recommendations);
+    }
+
+    public async Task<OfficialPredictionEvidenceSet> GetOfficialPredictionScorecardEvidenceAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+SELECT [OutcomeDefinitionId],[DefinitionName],[DefinitionVersion]
+FROM [dbo].[CalibrationOutcomeDefinition]
+WHERE [OutcomeDefinitionId] = @DefinitionId;
+
+SELECT r.[RunId],r.[MarketDataAsOf],r.[RunPurpose],r.[AuditState],r.[RunContextJson]
+FROM [dbo].[CalibrationRun] r
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf],r.[StartedUtc],r.[RunId];
+
+SELECT r.[RunId],r.[MarketDataAsOf],c.[CandidateId],c.[Symbol],c.[ObservationDate],
+       c.[ObservationOpen],c.[ObservationHigh],c.[ObservationLow],c.[ObservationClose],c.[ObservationVolume],
+       c.[UpProbability],c.[DownProbability],c.[BreakoutProbability],c.[VolExpansionProbability],
+       c.[RsCompositeScore],c.[RsCompositeScoreZ],c.[ObvState],c.[SnapshotJson],
+       o.[MaturityState],o.[AuditState],o.[OutcomeJson]
+FROM [dbo].[CalibrationRun] r
+JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
+  ON o.[CandidateId] = c.[CandidateId]
+ AND o.[OutcomeDefinitionId] = @DefinitionId
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf],r.[StartedUtc],c.[Symbol];
+
+SELECT l.[CandidateId],l.[Lens],l.[IsEligible],l.[IsPublished],l.[Rank],l.[FirstFailedGate]
+FROM [dbo].[CalibrationRun] r
+JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+JOIN [dbo].[CalibrationLensEvaluation] l ON l.[CandidateId] = c.[CandidateId]
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
+""";
+
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier)
+            { Value = PredictionLabel10DefinitionId });
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        if (!await reader.ReadAsync(cancellationToken))
+            throw new InvalidOperationException("PredictionLabels10 outcome definition is missing.");
+        var definition = new OfficialPredictionScorecardDefinition(
+            reader.GetGuid(0),
+            reader.GetString(1),
+            reader.GetInt32(2));
+
+        var runs = new List<OfficialPredictionRunEvidence>();
+        await reader.NextResultAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            runs.Add(new OfficialPredictionRunEvidence(
+                reader.GetGuid(0),
+                reader.GetDateTime(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetString(4)));
+        }
+
+        var candidates = new List<OfficialPredictionCandidateEvidence>();
+        await reader.NextResultAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            candidates.Add(new OfficialPredictionCandidateEvidence(
+                reader.GetGuid(0),
+                reader.GetDateTime(1),
+                reader.GetGuid(2),
+                reader.GetString(3),
+                reader.GetDateTime(4),
+                reader.GetFloat(5),
+                reader.GetFloat(6),
+                reader.GetFloat(7),
+                reader.GetFloat(8),
+                reader.GetInt64(9),
+                reader.IsDBNull(10) ? null : reader.GetDouble(10),
+                reader.IsDBNull(11) ? null : reader.GetDouble(11),
+                reader.IsDBNull(12) ? null : reader.GetDouble(12),
+                reader.IsDBNull(13) ? null : reader.GetDouble(13),
+                reader.IsDBNull(14) ? null : reader.GetDouble(14),
+                reader.IsDBNull(15) ? null : reader.GetDouble(15),
+                reader.IsDBNull(16) ? null : reader.GetString(16),
+                reader.GetString(17),
+                reader.IsDBNull(18) ? null : reader.GetString(18),
+                reader.IsDBNull(19) ? null : reader.GetString(19),
+                reader.IsDBNull(20) ? null : reader.GetString(20)));
+        }
+
+        var lenses = new List<OfficialPredictionLensEvidence>();
+        await reader.NextResultAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            lenses.Add(new OfficialPredictionLensEvidence(
+                reader.GetGuid(0),
+                reader.GetString(1),
+                reader.GetBoolean(2),
+                reader.GetBoolean(3),
+                reader.GetInt32(4),
+                reader.IsDBNull(5) ? null : reader.GetString(5)));
+        }
+
+        return new OfficialPredictionEvidenceSet(definition, runs, candidates, lenses);
     }
 
     public async Task<bool> InsertOutcomeAsync(

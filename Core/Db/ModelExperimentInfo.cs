@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Core.Trader;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -152,11 +153,26 @@ public class TradeLogRepository : SQLBase
         double? entryComposite = null,
         double? exitComposite = null,
         Guid? strategyVersionId = null,
-        string? notes = null)
+        string? notes = null,
+        TrackedExecutionMode executionMode = TrackedExecutionMode.Ghost,
+        string? accountLabel = null)
     {
         var tradeId = Guid.NewGuid();
+        string? normalizedAccount =
+            TrackedExecutionModeContract.NormalizeAccountLabel(executionMode, accountLabel);
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        if (!trackedSchema && executionMode == TrackedExecutionMode.Real)
+            throw TrackedExecutionSchema.MigrationRequired();
 
-        var query = $@"
+        var query = trackedSchema ? $@"
+INSERT INTO {DbName}
+([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
+ [NetAmount],[PositionId],[Reason],[RealizedPnL],[RealizedPnLPct],[HoldingDays],
+ [EntryComposite],[ExitComposite],[StrategyVersionId],[Notes],[ExecutionMode],[AccountLabel])
+VALUES
+(@TradeId,@Symbol,@TradeType,@TradeDate,@Shares,@Price,@Amount,@Commission,
+ @NetAmount,@PositionId,@Reason,@RealizedPnL,@RealizedPnLPct,@HoldingDays,
+ @EntryComposite,@ExitComposite,@StrategyVersionId,@Notes,@ExecutionMode,@AccountLabel);" : $@"
 INSERT INTO {DbName}
 ([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
  [NetAmount],[PositionId],[Reason],[RealizedPnL],[RealizedPnLPct],[HoldingDays],
@@ -185,7 +201,9 @@ VALUES
             new SqlParameter("@EntryComposite", SqlDbType.Float) { Value = (object?)entryComposite ?? DBNull.Value },
             new SqlParameter("@ExitComposite", SqlDbType.Float) { Value = (object?)exitComposite ?? DBNull.Value },
             new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier) { Value = (object?)strategyVersionId ?? DBNull.Value },
-            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value }
+            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value },
+            new SqlParameter("@ExecutionMode", SqlDbType.NVarChar, 8) { Value = executionMode.ToStorageValue() },
+            new SqlParameter("@AccountLabel", SqlDbType.NVarChar, 64) { Value = (object?)normalizedAccount ?? DBNull.Value }
         ]);
 
         return tradeId;
@@ -193,41 +211,68 @@ VALUES
 
     public async Task<List<TradeLogInfo>> GetTradesBySymbol(string symbol)
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [Symbol] = @Symbol ORDER BY [TradeDate] DESC";
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT {fields} FROM {DbName} WHERE [Symbol] = @Symbol ORDER BY [TradeDate] DESC";
         return await ExecuteReaderAsync(query,
             [new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol }],
-            MapTrade);
+            reader => MapTrade(reader, trackedSchema));
+    }
+
+    public async Task AttachPosition(Guid tradeId, Guid positionId)
+    {
+        var query = $@"
+UPDATE {DbName}
+SET [PositionId] = @PositionId
+WHERE [TradeId] = @TradeId AND [PositionId] IS NULL;";
+        await Update(query,
+        [
+            new SqlParameter("@TradeId", SqlDbType.UniqueIdentifier) { Value = tradeId },
+            new SqlParameter("@PositionId", SqlDbType.UniqueIdentifier) { Value = positionId }
+        ]);
     }
 
     public async Task<List<TradeLogInfo>> GetRecentTrades(int count = 50)
     {
-        var query = $"SELECT TOP {count} {Fields} FROM {DbName} ORDER BY [TradeDate] DESC";
-        return await ExecuteReaderAsync(query, MapTrade);
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT TOP {count} {fields} FROM {DbName} ORDER BY [TradeDate] DESC";
+        return await ExecuteReaderAsync(query, reader => MapTrade(reader, trackedSchema));
     }
 
     public async Task<List<TradeLogInfo>> GetTradesByDateRange(DateTime fromDate, DateTime toDate)
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [TradeDate] >= @FromDate AND [TradeDate] <= @ToDate ORDER BY [TradeDate] DESC";
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT {fields} FROM {DbName} WHERE [TradeDate] >= @FromDate AND [TradeDate] <= @ToDate ORDER BY [TradeDate] DESC";
         return await ExecuteReaderAsync(query,
         [
             new SqlParameter("@FromDate", SqlDbType.DateTime2) { Value = fromDate },
             new SqlParameter("@ToDate", SqlDbType.DateTime2) { Value = toDate }
-        ], MapTrade);
+        ], reader => MapTrade(reader, trackedSchema));
     }
 
-    public async Task<(decimal TotalPnL, int WinCount, int LossCount)> GetPnLSummary()
+    public async Task<(decimal TotalPnL, int WinCount, int LossCount)> GetPnLSummary(
+        TrackedExecutionMode executionMode = TrackedExecutionMode.Ghost)
     {
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        if (!trackedSchema && executionMode == TrackedExecutionMode.Real)
+            throw TrackedExecutionSchema.MigrationRequired();
+        string modeFilter = trackedSchema ? " AND [ExecutionMode] = @ExecutionMode" : string.Empty;
         var query = @"
 SELECT 
     ISNULL(SUM([RealizedPnL]), 0) AS TotalPnL,
     SUM(CASE WHEN [RealizedPnL] > 0 THEN 1 ELSE 0 END) AS WinCount,
     SUM(CASE WHEN [RealizedPnL] < 0 THEN 1 ELSE 0 END) AS LossCount
 FROM [dbo].[TradeLog]
-WHERE [TradeType] = 'SELL' AND [RealizedPnL] IS NOT NULL;";
+WHERE [TradeType] = 'SELL' AND [RealizedPnL] IS NOT NULL" + modeFilter + ";";
 
         using var con = new SqlConnection(ConnectionString);
         await con.OpenAsync();
         using var cmd = new SqlCommand(query, con);
+        if (trackedSchema)
+            cmd.Parameters.Add(new SqlParameter("@ExecutionMode", SqlDbType.NVarChar, 8)
+                { Value = executionMode.ToStorageValue() });
         using var reader = await cmd.ExecuteReaderAsync();
 
         if (await reader.ReadAsync())
@@ -242,7 +287,7 @@ WHERE [TradeType] = 'SELL' AND [RealizedPnL] IS NOT NULL;";
         return (0, 0, 0);
     }
 
-    private static TradeLogInfo MapTrade(SqlDataReader reader) => new()
+    private static TradeLogInfo MapTrade(SqlDataReader reader, bool trackedSchema) => new()
     {
         TradeId = reader.GetGuid(0),
         Symbol = reader.GetString(1),
@@ -262,7 +307,11 @@ WHERE [TradeType] = 'SELL' AND [RealizedPnL] IS NOT NULL;";
         ExitComposite = reader.IsDBNull(15) ? null : reader.GetDouble(15),
         StrategyVersionId = reader.IsDBNull(16) ? null : reader.GetGuid(16),
         CreatedUtc = reader.GetDateTime(17),
-        Notes = reader.IsDBNull(18) ? null : reader.GetString(18)
+        Notes = reader.IsDBNull(18) ? null : reader.GetString(18),
+        ExecutionMode = trackedSchema
+            ? TrackedExecutionModeContract.Parse(reader.GetString(19))
+            : TrackedExecutionMode.Ghost,
+        AccountLabel = trackedSchema && !reader.IsDBNull(20) ? reader.GetString(20) : null
     };
 }
 
@@ -283,11 +332,24 @@ public class ActivePositionRepository : SQLBase
         Guid? originalPickId = null,
         decimal? stopLossPrice = null,
         decimal? warningPrice = null,
-        string? notes = null)
+        string? notes = null,
+        TrackedExecutionMode executionMode = TrackedExecutionMode.Ghost,
+        string? accountLabel = null)
     {
         var positionId = Guid.NewGuid();
+        string? normalizedAccount =
+            TrackedExecutionModeContract.NormalizeAccountLabel(executionMode, accountLabel);
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        if (!trackedSchema && executionMode == TrackedExecutionMode.Real)
+            throw TrackedExecutionSchema.MigrationRequired();
 
-        var query = $@"
+        var query = trackedSchema ? $@"
+INSERT INTO {DbName}
+([PositionId],[Symbol],[EntryDate],[EntryPrice],[Shares],[CostBasis],[OriginalPickId],
+ [StopLossPrice],[WarningPrice],[HighWaterMark],[Notes],[ExecutionMode],[AccountLabel])
+VALUES
+(@PositionId,@Symbol,@EntryDate,@EntryPrice,@Shares,@CostBasis,@OriginalPickId,
+ @StopLossPrice,@WarningPrice,@HighWaterMark,@Notes,@ExecutionMode,@AccountLabel);" : $@"
 INSERT INTO {DbName}
 ([PositionId],[Symbol],[EntryDate],[EntryPrice],[Shares],[CostBasis],[OriginalPickId],
  [StopLossPrice],[WarningPrice],[HighWaterMark],[Notes])
@@ -307,7 +369,9 @@ VALUES
             new SqlParameter("@StopLossPrice", SqlDbType.Decimal) { Value = (object?)stopLossPrice ?? DBNull.Value },
             new SqlParameter("@WarningPrice", SqlDbType.Decimal) { Value = (object?)warningPrice ?? DBNull.Value },
             new SqlParameter("@HighWaterMark", SqlDbType.Decimal) { Value = entryPrice }, // Start with entry price
-            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value }
+            new SqlParameter("@Notes", SqlDbType.NVarChar, 512) { Value = (object?)notes ?? DBNull.Value },
+            new SqlParameter("@ExecutionMode", SqlDbType.NVarChar, 8) { Value = executionMode.ToStorageValue() },
+            new SqlParameter("@AccountLabel", SqlDbType.NVarChar, 64) { Value = (object?)normalizedAccount ?? DBNull.Value }
         ]);
 
         return positionId;
@@ -315,23 +379,29 @@ VALUES
 
     public async Task<List<ActivePositionInfo>> GetActivePositions()
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [IsActive] = 1 ORDER BY [EntryDate]";
-        return await ExecuteReaderAsync(query, MapPosition);
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT {fields} FROM {DbName} WHERE [IsActive] = 1 ORDER BY [EntryDate]";
+        return await ExecuteReaderAsync(query, reader => MapPosition(reader, trackedSchema));
     }
 
     public async Task<List<ActivePositionInfo>> GetRecentPositions(int count = 100)
     {
         count = System.Math.Clamp(count, 1, 1000);
-        var query = $"SELECT TOP {count} {Fields} FROM {DbName} ORDER BY [EntryDate] DESC, [LastUpdatedUtc] DESC";
-        return await ExecuteReaderAsync(query, MapPosition);
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT TOP {count} {fields} FROM {DbName} ORDER BY [EntryDate] DESC, [LastUpdatedUtc] DESC";
+        return await ExecuteReaderAsync(query, reader => MapPosition(reader, trackedSchema));
     }
 
     public async Task<ActivePositionInfo?> GetPositionBySymbol(string symbol)
     {
-        var query = $"SELECT {Fields} FROM {DbName} WHERE [Symbol] = @Symbol AND [IsActive] = 1";
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(ConnectionString);
+        string fields = trackedSchema ? $"{Fields},[ExecutionMode],[AccountLabel]" : Fields;
+        var query = $"SELECT {fields} FROM {DbName} WHERE [Symbol] = @Symbol AND [IsActive] = 1";
         var results = await ExecuteReaderAsync(query,
             [new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol }],
-            MapPosition);
+            reader => MapPosition(reader, trackedSchema));
         return results.Count > 0 ? results[0] : null;
     }
 
@@ -381,7 +451,7 @@ WHERE [PositionId] = @PositionId;";
             [new SqlParameter("@PositionId", SqlDbType.UniqueIdentifier) { Value = positionId }]);
     }
 
-    private static ActivePositionInfo MapPosition(SqlDataReader reader) => new()
+    private static ActivePositionInfo MapPosition(SqlDataReader reader, bool trackedSchema) => new()
     {
         PositionId = reader.GetGuid(0),
         Symbol = reader.GetString(1),
@@ -401,7 +471,11 @@ WHERE [PositionId] = @PositionId;";
         WarningPrice = reader.IsDBNull(15) ? null : reader.GetDecimal(15),
         IsActive = reader.GetBoolean(16),
         LastUpdatedUtc = reader.GetDateTime(17),
-        Notes = reader.IsDBNull(18) ? null : reader.GetString(18)
+        Notes = reader.IsDBNull(18) ? null : reader.GetString(18),
+        ExecutionMode = trackedSchema
+            ? TrackedExecutionModeContract.Parse(reader.GetString(19))
+            : TrackedExecutionMode.Ghost,
+        AccountLabel = trackedSchema && !reader.IsDBNull(20) ? reader.GetString(20) : null
     };
 }
 
@@ -503,6 +577,15 @@ VALUES
             new SqlParameter("@Symbol", SqlDbType.NVarChar, 16) { Value = symbol },
             new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens }
         ], MapPick);
+        return results.Count > 0 ? results[0] : null;
+    }
+
+    public async Task<DailyPickInfo?> GetPickById(Guid pickId)
+    {
+        var query = $"SELECT {Fields} FROM {DbName} WHERE [PickId] = @PickId";
+        var results = await ExecuteReaderAsync(query,
+            [new SqlParameter("@PickId", SqlDbType.UniqueIdentifier) { Value = pickId }],
+            MapPick);
         return results.Count > 0 ? results[0] : null;
     }
 
@@ -785,6 +868,8 @@ public sealed class ActivePositionInfo
     public bool IsActive { get; set; }
     public DateTime LastUpdatedUtc { get; set; }
     public string? Notes { get; init; }
+    public TrackedExecutionMode ExecutionMode { get; set; } = TrackedExecutionMode.Ghost;
+    public string? AccountLabel { get; set; }
 }
 
 public sealed class TradeLogInfo
@@ -808,4 +893,6 @@ public sealed class TradeLogInfo
     public Guid? StrategyVersionId { get; init; }
     public DateTime CreatedUtc { get; init; }
     public string? Notes { get; init; }
+    public TrackedExecutionMode ExecutionMode { get; init; } = TrackedExecutionMode.Ghost;
+    public string? AccountLabel { get; init; }
 }

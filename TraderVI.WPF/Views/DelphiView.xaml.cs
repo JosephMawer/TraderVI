@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Core.Trader;
 using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF.Views;
@@ -14,6 +15,7 @@ public partial class DelphiView : UserControl
     private bool loadedOnce;
 
     public bool IsRunning => viewModel.IsRunning;
+    public event EventHandler<PaperTradeEntryResult>? PaperPositionOpened;
 
     public DelphiView()
     {
@@ -56,6 +58,71 @@ public partial class DelphiView : UserControl
             return;
 
         await RunWithButtonsDisabledAsync(() => viewModel.RunOfficialAsync());
+    }
+
+    private void PickGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not DataGrid grid || grid.SelectedItem is not DelphiPickRow pick)
+            return;
+        if (ReferenceEquals(grid, ContinuationGrid))
+            BreakoutGrid.SelectedItem = null;
+        else
+            ContinuationGrid.SelectedItem = null;
+        viewModel.SelectPaperPick(pick);
+    }
+
+    private async void AddToPaperButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!viewModel.TryBuildPaperEntry(
+                out DelphiPickRow? pick,
+                out int shares,
+                out decimal fillPrice,
+                out TrackedExecutionMode executionMode,
+                out string? accountLabel,
+                out string error) || pick is null)
+        {
+            MessageBox.Show(error, "Paper entry", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        decimal cost = decimal.Round(fillPrice * shares, 2);
+        string exploratory = string.Equals(pick.Lens, "Breakout", StringComparison.OrdinalIgnoreCase)
+            ? "\n\nThis is an exploratory Breakout-lens selection; Continuation remains the production lens."
+            : "";
+        MessageBoxResult answer = MessageBox.Show(
+            $"Track {shares} share(s) of {pick.Symbol} at {fillPrice:C2} as {executionMode.ToStorageValue().ToUpperInvariant()}?\n\n" +
+            $"Book cost: {cost:C2}\nSaved pick: {pick.Lens} #{pick.Rank} from {pick.PickDate:MMM d, yyyy}" +
+            (executionMode == TrackedExecutionMode.Real ? $"\nAccount: {accountLabel}" : "") +
+            exploratory +
+            (executionMode == TrackedExecutionMode.Real
+                ? "\n\nConfirm only if this fill already happened at your broker. TraderVI records it but sends no order."
+                : "\n\nThis creates a simulated Ghost fill. No broker order can be placed."),
+            "Confirm tracked position",
+            MessageBoxButton.OKCancel,
+            MessageBoxImage.Warning,
+            MessageBoxResult.Cancel);
+        if (answer != MessageBoxResult.OK)
+            return;
+
+        AddToPaperButton.IsEnabled = false;
+        try
+        {
+            PaperTradeEntryResult result = await viewModel.OpenPaperPositionAsync(
+                pick,
+                shares,
+                fillPrice,
+                executionMode,
+                accountLabel);
+            PaperPositionOpened?.Invoke(this, result);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Paper entry failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            AddToPaperButton.IsEnabled = true;
+        }
     }
 
     private async Task RunWithButtonsDisabledAsync(Func<Task> action)

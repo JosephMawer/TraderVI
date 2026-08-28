@@ -14,11 +14,19 @@ CREATE TABLE [dbo].[ActivePosition]
 	[DrawdownFromHigh]  FLOAT            NULL,
 	[DaysHeld]          INT              NULL,
 	[OriginalPickId]    UNIQUEIDENTIFIER NULL,
+	[ExecutionMode]     NVARCHAR(8)      NOT NULL CONSTRAINT [DF_ActivePosition_ExecutionMode] DEFAULT (N'Ghost'),
+	[AccountLabel]      NVARCHAR(64)     NULL,
 	[StopLossPrice]     DECIMAL(18,4)    NULL,
 	[WarningPrice]      DECIMAL(18,4)    NULL,
 	[IsActive]          BIT              NOT NULL,
 	[LastUpdatedUtc]    DATETIME2        NOT NULL,
 	[Notes]             NVARCHAR(512)    NULL,
 
-	CONSTRAINT [PK_ActivePosition] PRIMARY KEY CLUSTERED ([PositionId])
+	CONSTRAINT [PK_ActivePosition] PRIMARY KEY CLUSTERED ([PositionId]),
+	CONSTRAINT [CK_ActivePosition_ExecutionMode] CHECK ([ExecutionMode] IN (N'Ghost', N'Real')),
+	CONSTRAINT [CK_ActivePosition_AccountLabel] CHECK
+	(
+		([ExecutionMode] = N'Ghost' AND [AccountLabel] IS NULL)
+		OR ([ExecutionMode] = N'Real' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
+	)
 );

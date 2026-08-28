@@ -1,5 +1,6 @@
 #nullable enable
 
+using Core.Db;
 using Core.Trader;
 using System;
 using System.ComponentModel;
@@ -25,6 +26,7 @@ public partial class PaperDashboardWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        DelphiTabView.PaperPositionOpened += DelphiTabView_PaperPositionOpened;
         timer = new DispatcherTimer(DispatcherPriority.Background)
         {
             Interval = DashboardRefreshInterval
@@ -64,6 +66,80 @@ public partial class PaperDashboardWindow : Window
 
     private async void PollNowButton_Click(object sender, RoutedEventArgs e) =>
         await RunMonitorCycleAsync("Manual");
+
+    private async void MarkRealButton_Click(object sender, RoutedEventArgs e)
+    {
+        PaperPositionRow? selected = viewModel.SelectedPosition;
+        if (selected is null)
+            return;
+
+        MessageBoxResult answer = MessageBox.Show(
+            $"Mark the tracked {selected.Symbol} position as a REAL holding in account '{viewModel.RealAccountLabel}'?\n\n" +
+            "Confirm only if its recorded entry fill and share count match the holding at your broker. " +
+            "Real positions receive monitoring signals but can never be closed automatically. TraderVI sends no order.",
+            "Confirm real-position reconciliation",
+            MessageBoxButton.OKCancel,
+            MessageBoxImage.Warning,
+            MessageBoxResult.Cancel);
+        if (answer != MessageBoxResult.OK)
+            return;
+
+        MarkRealButton.IsEnabled = false;
+        try
+        {
+            PositionModeChangeResult result = await viewModel.MarkSelectedAsRealAsync(shutdown.Token);
+            viewModel.AddEvent(
+                DateTime.UtcNow,
+                $"{result.Symbol} reconciled as REAL in {result.AccountLabel}; no broker order was sent.",
+                "Reconcile");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Real reconciliation failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            MarkRealButton.IsEnabled = viewModel.CanMarkSelectedAsReal;
+        }
+    }
+
+    private async void RecordRealExitButton_Click(object sender, RoutedEventArgs e)
+    {
+        PaperPositionRow? selected = viewModel.SelectedPosition;
+        if (selected is null)
+            return;
+
+        MessageBoxResult answer = MessageBox.Show(
+            $"Record the actual broker SELL fill '{viewModel.RealExitFillPrice}' for all {selected.Symbol} shares?\n\n" +
+            "This closes only TraderVI's tracked Real position at the manually supplied fill. " +
+            "It does not send, modify, or verify a broker order.",
+            "Confirm real exit fill",
+            MessageBoxButton.OKCancel,
+            MessageBoxImage.Warning,
+            MessageBoxResult.Cancel);
+        if (answer != MessageBoxResult.OK)
+            return;
+
+        RecordRealExitButton.IsEnabled = false;
+        try
+        {
+            TrackedRealExitResult result = await viewModel.RecordSelectedRealExitAsync(
+                DateTime.Now,
+                shutdown.Token);
+            viewModel.AddEvent(
+                DateTime.UtcNow,
+                $"{result.Symbol} REAL exit recorded at {result.Price:C3}; TraderVI sent no order.",
+                "Real fill");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Real exit recording failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            RecordRealExitButton.IsEnabled = viewModel.CanRecordSelectedRealExit;
+        }
+    }
 
     private async Task RunMonitorCycleAsync(string source)
     {
@@ -116,6 +192,16 @@ public partial class PaperDashboardWindow : Window
             viewModel.MonitorStatus = "SQL refresh unavailable";
             viewModel.AddEvent(DateTime.UtcNow, $"{ex.GetType().Name}: {ex.Message}", "Error");
         }
+    }
+
+    private async void DelphiTabView_PaperPositionOpened(object? sender, PaperTradeEntryResult result)
+    {
+        viewModel.AddEvent(
+            DateTime.UtcNow,
+            $"{result.Symbol} {result.ExecutionMode.ToStorageValue()} position opened: {result.Shares} share(s) at {result.FillPrice:C2} from {result.Lens}.",
+            "Entry");
+        await RefreshSafelyAsync();
+        MainTabs.SelectedItem = PaperTradingTab;
     }
 
     private void Window_Closed(object? sender, EventArgs e)

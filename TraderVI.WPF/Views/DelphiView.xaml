@@ -140,7 +140,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Background="#2B2340" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
-                    <TextBlock Text="VIEW IS READ-ONLY · RUN REQUIRES CONFIRMATION"
+                    <TextBlock Text="SAVED VIEW · PAPER ENTRY AND RUN REQUIRE CONFIRMATION"
                                Foreground="#CEB5FF" FontWeight="SemiBold"/>
                 </Border>
                 <Button x:Name="RefreshButton" Content="Refresh saved" Click="RefreshButton_Click"
@@ -253,6 +253,7 @@
 
             <TabItem Header="Picks" Style="{StaticResource DelphiTab}">
                 <Grid Margin="0,14,0,6">
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="1.05*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Border Style="{StaticResource DelphiCard}">
                         <Grid>
@@ -261,7 +262,8 @@
                                 <TextBlock Text="Continuation lens" FontSize="18" FontWeight="SemiBold"/>
                                 <TextBlock Text="Primary daily thesis used for operational recommendations" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
                             </StackPanel>
-                            <DataGrid Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2">
+                            <DataGrid x:Name="ContinuationGrid" Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2"
+                                      SelectionChanged="PickGrid_SelectionChanged">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
                                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
@@ -284,7 +286,8 @@
                                 <TextBlock Text="Breakout lens" FontSize="18" FontWeight="SemiBold"/>
                                 <TextBlock Text="Comparison journal · measured but not automatically executed" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
                             </StackPanel>
-                            <DataGrid Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2">
+                            <DataGrid x:Name="BreakoutGrid" Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2"
+                                      SelectionChanged="PickGrid_SelectionChanged">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
                                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
@@ -297,6 +300,33 @@
                                     <DataGridTextColumn Header="Note" Binding="{Binding Notes}" Width="*"/>
                                 </DataGrid.Columns>
                             </DataGrid>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource DelphiCard}" Margin="0,14,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="78"/>
+                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="95"/><ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="90"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Track selected Delphi pick" FontWeight="SemiBold" FontSize="15"/>
+                                <TextBlock Text="{Binding PaperEntryStatus}" Foreground="{StaticResource DelphiMuted}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="Shares" VerticalAlignment="Center" Margin="18,0,7,0"/>
+                            <TextBox Grid.Column="2" Text="{Binding PaperShares, UpdateSourceTrigger=PropertyChanged}" Padding="8,6"/>
+                            <TextBlock Grid.Column="3" Text="Fill price" VerticalAlignment="Center" Margin="18,0,7,0"/>
+                            <TextBox Grid.Column="4" Text="{Binding PaperFillPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6"/>
+                            <TextBlock Grid.Column="5" Text="Mode" VerticalAlignment="Center" Margin="18,0,7,0"/>
+                            <ComboBox Grid.Column="6" ItemsSource="{Binding ExecutionModeOptions}"
+                                      SelectedItem="{Binding SelectedExecutionMode}" Padding="7,5"/>
+                            <TextBlock Grid.Column="7" Text="Account" VerticalAlignment="Center" Margin="18,0,7,0"/>
+                            <TextBox Grid.Column="8" Text="{Binding RealAccountLabel, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Required for Real positions; ignored for Ghost" Padding="8,6"/>
+                            <Button x:Name="AddToPaperButton" Grid.Column="9" Content="Track position"
+                                    Click="AddToPaperButton_Click" Margin="18,0,0,0" Padding="16,8"
+                                    Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"/>
                         </Grid>
                     </Border>
                 </Grid>

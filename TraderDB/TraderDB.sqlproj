@@ -81,6 +81,7 @@
     <Build Include="dbo/Tables/Symbols.sql" />
     <Build Include="dbo/Tables/StrategyVersion.sql" />
     <Build Include="dbo/Tables/TradeLog.sql" />
+    <Build Include="dbo/Tables/PositionExecutionAudit.sql" />
     <Build Include="dbo/Tables/DecisionDossier.sql" />
     <Build Include="dbo/Tables/LlmNarrative.sql" />
     <Build Include="dbo/Tables/UsIndexBars.sql" />
@@ -109,6 +110,7 @@
     <None Include="Migrations/20260822_010_ClassifyUnmappedActiveFundsAsEtfs.sql" />
     <None Include="Migrations/20260823_011_AddCalibrationEvidenceLedger.sql" />
     <None Include="Migrations/20260826_012_AddIntradayEvidenceLedger.sql" />
+    <None Include="Migrations/20260827_013_AddTrackedExecutionMode.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />

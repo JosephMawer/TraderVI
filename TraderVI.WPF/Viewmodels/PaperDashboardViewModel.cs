@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -18,44 +19,63 @@ namespace TraderVI.WPF.Viewmodels;
 public sealed class PaperDashboardViewModel : INotifyPropertyChanged
 {
     private readonly Dictionary<Guid, PaperPositionMonitorResult> latestResults = [];
-    private int openPositionCount;
-    private int closedPositionCount;
-    private decimal realizedPnL;
-    private decimal unrealizedPnL;
+    private int openGhostCount;
+    private int openRealCount;
+    private decimal ghostRealizedPnL;
+    private decimal realRealizedPnL;
+    private decimal ghostUnrealizedPnL;
+    private decimal realUnrealizedPnL;
     private string marketStatus = "Loading…";
     private string nextPollText = "—";
     private string lastReceiptText = "No durable poll yet";
     private string monitorStatus = "Starting";
     private string latestEventText = "Ready · durable SQL history loaded by the dashboard";
     private bool automaticGhostExitsEnabled = true;
+    private PaperPositionRow? selectedPosition;
+    private string realAccountLabel = "TFSA";
+    private string realExitFillPrice = "";
+    private string executionSchemaStatus = "Checking Ghost/Real schema…";
+    private bool trackedExecutionSchemaInstalled;
 
     public ObservableCollection<PaperPositionRow> Positions { get; } = [];
     public ObservableCollection<PaperTradeRow> Trades { get; } = [];
     public ObservableCollection<PaperPollRow> Polls { get; } = [];
     public ObservableCollection<PaperMonitorEventRow> Events { get; } = [];
 
-    public int OpenPositionCount
+    public int OpenGhostCount
     {
-        get => openPositionCount;
-        private set => Set(ref openPositionCount, value);
+        get => openGhostCount;
+        private set => Set(ref openGhostCount, value);
     }
 
-    public int ClosedPositionCount
+    public int OpenRealCount
     {
-        get => closedPositionCount;
-        private set => Set(ref closedPositionCount, value);
+        get => openRealCount;
+        private set => Set(ref openRealCount, value);
     }
 
-    public decimal RealizedPnL
+    public decimal GhostRealizedPnL
     {
-        get => realizedPnL;
-        private set => Set(ref realizedPnL, value);
+        get => ghostRealizedPnL;
+        private set => Set(ref ghostRealizedPnL, value);
     }
 
-    public decimal UnrealizedPnL
+    public decimal RealRealizedPnL
     {
-        get => unrealizedPnL;
-        private set => Set(ref unrealizedPnL, value);
+        get => realRealizedPnL;
+        private set => Set(ref realRealizedPnL, value);
+    }
+
+    public decimal GhostUnrealizedPnL
+    {
+        get => ghostUnrealizedPnL;
+        private set => Set(ref ghostUnrealizedPnL, value);
+    }
+
+    public decimal RealUnrealizedPnL
+    {
+        get => realUnrealizedPnL;
+        private set => Set(ref realUnrealizedPnL, value);
     }
 
     public string MarketStatus
@@ -94,11 +114,67 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
         private set => Set(ref latestEventText, value);
     }
 
+    public PaperPositionRow? SelectedPosition
+    {
+        get => selectedPosition;
+        set
+        {
+            if (!Set(ref selectedPosition, value))
+                return;
+            OnPropertyChanged(nameof(CanMarkSelectedAsReal));
+            OnPropertyChanged(nameof(CanRecordSelectedRealExit));
+        }
+    }
+
+    public string RealAccountLabel
+    {
+        get => realAccountLabel;
+        set => Set(ref realAccountLabel, value);
+    }
+
+    public string RealExitFillPrice
+    {
+        get => realExitFillPrice;
+        set => Set(ref realExitFillPrice, value);
+    }
+
+    public string ExecutionSchemaStatus
+    {
+        get => executionSchemaStatus;
+        private set => Set(ref executionSchemaStatus, value);
+    }
+
+    public bool TrackedExecutionSchemaInstalled
+    {
+        get => trackedExecutionSchemaInstalled;
+        private set
+        {
+            if (!Set(ref trackedExecutionSchemaInstalled, value))
+                return;
+            OnPropertyChanged(nameof(CanMarkSelectedAsReal));
+            OnPropertyChanged(nameof(CanRecordSelectedRealExit));
+        }
+    }
+
+    public bool CanMarkSelectedAsReal =>
+        TrackedExecutionSchemaInstalled &&
+        SelectedPosition is { IsActive: true, ExecutionMode: TrackedExecutionMode.Ghost };
+
+    public bool CanRecordSelectedRealExit =>
+        TrackedExecutionSchemaInstalled &&
+        SelectedPosition is { IsActive: true, ExecutionMode: TrackedExecutionMode.Real };
+
     public bool CanPollNow => PaperTradingMonitor.IsAutomaticPollTime(
         PaperTradingMonitor.ToToronto(DateTime.UtcNow));
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(cancellationToken);
+        TrackedExecutionSchemaInstalled = trackedSchema;
+        ExecutionSchemaStatus = trackedSchema
+            ? "Ghost/Real ledger active · Real fills are manual · no broker"
+            : $"Legacy Ghost-only database · apply {TrackedExecutionSchema.MigrationFileName} to enable Real tracking";
+        Guid? selectedPositionId = SelectedPosition?.PositionId;
         List<ActivePositionInfo> positions =
             (await new ActivePositionRepository().GetRecentPositions(250))
             .Where(position => position.OriginalPickId.HasValue)
@@ -112,6 +188,7 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             .Where(trade =>
                 (trade.PositionId.HasValue && paperPositionIds.Contains(trade.PositionId.Value)) ||
                 (trade.Notes?.Contains("OfficialPaper", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (trade.Notes?.Contains("OperatorPaper", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (trade.Notes?.Contains("ADR-0028", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (trade.Notes?.Contains("ADR-0031", StringComparison.OrdinalIgnoreCase) ?? false))
             .OrderByDescending(trade => trade.CreatedUtc)
@@ -134,16 +211,33 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
                 position,
                 exitsByPosition.GetValueOrDefault(position.PositionId),
                 latestResults.GetValueOrDefault(position.PositionId))));
+        SelectedPosition = selectedPositionId.HasValue
+            ? Positions.FirstOrDefault(position => position.PositionId == selectedPositionId.Value)
+            : null;
         Replace(Trades, trades.Select(PaperTradeRow.Create));
         Replace(Polls, polls.Select(PaperPollRow.Create));
 
-        OpenPositionCount = positions.Count(position => position.IsActive);
-        ClosedPositionCount = positions.Count(position => !position.IsActive);
-        RealizedPnL = trades
-            .Where(trade => string.Equals(trade.TradeType, "SELL", StringComparison.OrdinalIgnoreCase))
+        OpenGhostCount = positions.Count(position =>
+            position.IsActive && position.ExecutionMode == TrackedExecutionMode.Ghost);
+        OpenRealCount = positions.Count(position =>
+            position.IsActive && position.ExecutionMode == TrackedExecutionMode.Real);
+        GhostRealizedPnL = trades
+            .Where(trade =>
+                trade.ExecutionMode == TrackedExecutionMode.Ghost &&
+                string.Equals(trade.TradeType, "SELL", StringComparison.OrdinalIgnoreCase))
             .Sum(trade => trade.RealizedPnL ?? 0m);
-        UnrealizedPnL = positions
-            .Where(position => position.IsActive)
+        RealRealizedPnL = trades
+            .Where(trade =>
+                trade.ExecutionMode == TrackedExecutionMode.Real &&
+                string.Equals(trade.TradeType, "SELL", StringComparison.OrdinalIgnoreCase))
+            .Sum(trade => trade.RealizedPnL ?? 0m);
+        GhostUnrealizedPnL = positions
+            .Where(position =>
+                position.IsActive && position.ExecutionMode == TrackedExecutionMode.Ghost)
+            .Sum(position => position.UnrealizedPnL ?? 0m);
+        RealUnrealizedPnL = positions
+            .Where(position =>
+                position.IsActive && position.ExecutionMode == TrackedExecutionMode.Real)
             .Sum(position => position.UnrealizedPnL ?? 0m);
 
         IntradayPollObservationInfo? latestReceipt = polls
@@ -156,12 +250,60 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
         RefreshClock();
     }
 
+    public async Task<PositionModeChangeResult> MarkSelectedAsRealAsync(
+        CancellationToken cancellationToken = default)
+    {
+        PaperPositionRow selected = SelectedPosition
+            ?? throw new InvalidOperationException("Select an active Ghost position first.");
+        if (!selected.IsActive || selected.ExecutionMode != TrackedExecutionMode.Ghost)
+            throw new InvalidOperationException("Only an active Ghost position can be reconciled as Real.");
+
+        PositionModeChangeResult result = await new RealPositionReconciliationWorkflow()
+            .MarkAsRealAsync(selected.PositionId, RealAccountLabel, cancellationToken);
+        await RefreshAsync(cancellationToken);
+        return result;
+    }
+
+    public async Task<TrackedRealExitResult> RecordSelectedRealExitAsync(
+        DateTime filledAtLocal,
+        CancellationToken cancellationToken = default)
+    {
+        PaperPositionRow selected = SelectedPosition
+            ?? throw new InvalidOperationException("Select an active Real position first.");
+        if (!selected.IsActive || selected.ExecutionMode != TrackedExecutionMode.Real)
+            throw new InvalidOperationException("A manual real exit can only be recorded for an active Real position.");
+
+        bool parsed = decimal.TryParse(
+                RealExitFillPrice,
+                NumberStyles.Number | NumberStyles.AllowCurrencySymbol,
+                CultureInfo.CurrentCulture,
+                out decimal fillPrice) ||
+            decimal.TryParse(
+                RealExitFillPrice,
+                NumberStyles.Number | NumberStyles.AllowCurrencySymbol,
+                CultureInfo.InvariantCulture,
+                out fillPrice);
+        if (!parsed || fillPrice <= 0m)
+            throw new ArgumentException("Enter the positive per-share fill that already occurred at your broker.");
+
+        TrackedRealExitResult result = await new RealPositionReconciliationWorkflow()
+            .RecordManualExitAsync(
+                selected.PositionId,
+                fillPrice,
+                filledAtLocal,
+                cancellationToken);
+        RealExitFillPrice = "";
+        await RefreshAsync(cancellationToken);
+        return result;
+    }
+
     public void ApplyCycle(PaperMonitorCycleResult cycle)
     {
         foreach (PaperPositionMonitorResult result in cycle.Positions)
             latestResults[result.PositionId] = result;
 
-        MonitorStatus = cycle.Positions.Any(position => position.ErrorCode is not null)
+        MonitorStatus = cycle.Positions.Any(position =>
+                position.ErrorCode is not null || position.WarningCode is not null)
             ? "Completed with warnings"
             : $"Cycle complete · {cycle.Positions.Count} position(s)";
         AddEvent(
@@ -169,7 +311,10 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             cycle.Positions.Count == 0
                 ? "Monitor cycle completed; no active Delphi-linked paper positions."
                 : $"Monitor cycle {cycle.PollCycleId.ToString()[..8]} completed for {cycle.Positions.Count} position(s).",
-            cycle.Positions.Any(position => position.ErrorCode is not null) ? "Warning" : "Info");
+            cycle.Positions.Any(position =>
+                position.ErrorCode is not null || position.WarningCode is not null)
+                ? "Warning"
+                : "Info");
 
         foreach (PaperPositionMonitorResult exit in cycle.Positions.Where(x => x.ExitExecuted))
         {
@@ -226,8 +371,13 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
 }
 
 public sealed record PaperPositionRow(
+    Guid PositionId,
+    TrackedExecutionMode ExecutionMode,
+    string ModeDisplay,
+    string AccountLabel,
     string Symbol,
     string Status,
+    bool IsActive,
     decimal EntryPrice,
     decimal? CurrentOrExitPrice,
     decimal PnL,
@@ -258,9 +408,22 @@ public sealed record PaperPositionRow(
                         ? "Hold"
                         : $"{latest.Directive} · {latest.Reason}"
                     : exit?.Reason ?? (position.IsActive ? "Awaiting next poll" : "Closed");
+        if (latest?.WarningCode is not null)
+            directive += $" · {latest.WarningCode}";
+        if (position.ExecutionMode == TrackedExecutionMode.Real)
+        {
+            directive = latest?.Directive == IntradaySwingDirective.ExitAlert
+                ? $"REAL SELL SIGNAL · manual broker action required · {latest.Reason}"
+                : $"REAL · {directive}";
+        }
         return new PaperPositionRow(
+            position.PositionId,
+            position.ExecutionMode,
+            position.ExecutionMode == TrackedExecutionMode.Ghost ? "👻 GHOST" : "● REAL",
+            position.AccountLabel ?? "—",
             position.Symbol,
             position.IsActive ? "OPEN" : "CLOSED",
+            position.IsActive,
             position.EntryPrice,
             position.IsActive ? position.CurrentPrice : exit?.Price ?? position.CurrentPrice,
             pnl,
@@ -276,6 +439,8 @@ public sealed record PaperPositionRow(
 
 public sealed record PaperTradeRow(
     DateTime TimeLocal,
+    string ModeDisplay,
+    string AccountLabel,
     string Symbol,
     string Side,
     int Shares,
@@ -288,6 +453,8 @@ public sealed record PaperTradeRow(
         new(
             PaperTradingMonitor.ToToronto(
                 DateTime.SpecifyKind(trade.CreatedUtc, DateTimeKind.Utc)),
+            trade.ExecutionMode == TrackedExecutionMode.Ghost ? "👻 GHOST" : "● REAL",
+            trade.AccountLabel ?? "—",
             trade.Symbol,
             trade.TradeType,
             trade.Shares,

@@ -31,8 +31,9 @@ namespace Core.Trader
         }
 
         /// <summary>
-        /// Logs a buy: simulates/places the order, records a BUY trade, and opens a position
-        /// with a -10% stop price. Refuses to double-open the same symbol.
+        /// Logs a buy and opens a tracked position with a -10% stop price.
+        /// A Real execution mode is an operator-reported fill and is never routed.
+        /// Refuses to double-open the same symbol.
         /// </summary>
         public async Task<bool> Buy(
             string symbol,
@@ -41,9 +42,14 @@ namespace Core.Trader
             string? notes = null,
             Guid? originalPickId = null,
             double? entryComposite = null,
-            string reason = "Manual entry")
+            string reason = "Manual entry",
+            TrackedExecutionMode executionMode = TrackedExecutionMode.Ghost,
+            string? accountLabel = null)
         {
             symbol = symbol.ToUpperInvariant();
+
+            string? normalizedAccount =
+                TrackedExecutionModeContract.NormalizeAccountLabel(executionMode, accountLabel);
 
             if (shares <= 0 || price <= 0)
             {
@@ -59,10 +65,16 @@ namespace Core.Trader
             }
 
             var amount = decimal.Round(price * shares, 2);
-            PlaceOrder(wstrade.OrderSubType.buy_quantity, symbol, shares, price, amount);
+            PlaceOrder(
+                wstrade.OrderSubType.buy_quantity,
+                symbol,
+                shares,
+                price,
+                amount,
+                executionMode);
 
             var tradeDate = DateTime.Now;
-            await _tradeLog.InsertTrade(
+            Guid tradeId = await _tradeLog.InsertTrade(
                 symbol: symbol,
                 tradeType: "BUY",
                 tradeDate: tradeDate,
@@ -73,7 +85,9 @@ namespace Core.Trader
                 netAmount: amount,
                 reason: reason,
                 entryComposite: entryComposite,
-                notes: notes);
+                notes: notes,
+                executionMode: executionMode,
+                accountLabel: normalizedAccount);
 
             var stopLossPrice = decimal.Round(price * (1 - StopLossFraction), 2);
             var warningPrice = decimal.Round(price * (1 - WarningFraction), 2);
@@ -87,9 +101,12 @@ namespace Core.Trader
                 originalPickId: originalPickId,
                 stopLossPrice: stopLossPrice,
                 warningPrice: warningPrice,
-                notes: notes);
+                notes: notes,
+                executionMode: executionMode,
+                accountLabel: normalizedAccount);
+            await _tradeLog.AttachPosition(tradeId, positionId);
 
-            Console.WriteLine($"[TradeManager] Logged BUY {shares} {symbol} @ {price:C} = {amount:C}");
+            Console.WriteLine($"[TradeManager] Logged {executionMode.ToStorageValue().ToUpperInvariant()} BUY {shares} {symbol} @ {price:C} = {amount:C}");
             Console.WriteLine($"               Position {positionId} opened | stop {stopLossPrice:C} (-{StopLossFraction:P0}), warning {warningPrice:C} (-{WarningFraction:P0})");
             return true;
         }
@@ -119,13 +136,20 @@ namespace Core.Trader
                 return false;
             }
 
+            if (position.ExecutionMode == TrackedExecutionMode.Real)
+            {
+                Console.WriteLine($"[TradeManager] Rejected SELL {symbol}: real holdings require an operator-confirmed manual broker fill; no order was sent.");
+                return false;
+            }
+
             var amount = decimal.Round(price * position.Shares, 2);
             PlaceOrder(
                 wstrade.OrderSubType.sell_quantity,
                 symbol,
                 position.Shares,
                 price,
-                amount);
+                amount,
+                position.ExecutionMode);
 
             PaperGhostExitResult? exit = await _ghostTrades.TryRecordExitAsync(
                 position.PositionId,
@@ -145,8 +169,20 @@ namespace Core.Trader
             return true;
         }
 
-        private void PlaceOrder(wstrade.OrderSubType side, string symbol, int shares, decimal price, decimal amount)
+        private void PlaceOrder(
+            wstrade.OrderSubType side,
+            string symbol,
+            int shares,
+            decimal price,
+            decimal amount,
+            TrackedExecutionMode executionMode)
         {
+            if (executionMode == TrackedExecutionMode.Real)
+            {
+                Console.WriteLine($"[REAL RECORD] Operator-reported {side} fill for {shares} {symbol} @ {price:C} (market value {amount:C}) - no order sent.");
+                return;
+            }
+
             if (ghost)
             {
                 Console.WriteLine($"[GHOST] Simulated Wealthsimple {side} {shares} {symbol} @ {price:C} (market value {amount:C}) - no order sent.");

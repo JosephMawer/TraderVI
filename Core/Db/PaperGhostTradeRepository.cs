@@ -42,6 +42,10 @@ public sealed class PaperGhostTradeRepository : SQLBase
         if (notes?.Length > 512)
             throw new ArgumentException("Exit notes cannot exceed 512 characters.", nameof(notes));
 
+        bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(
+            ConnectionString,
+            cancellationToken);
+
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
         await using var transaction =
@@ -51,7 +55,13 @@ public sealed class PaperGhostTradeRepository : SQLBase
 
         try
         {
-            const string selectSql = """
+            string selectSql = trackedSchema ? """
+SELECT [Symbol],[Shares],[CostBasis],[EntryDate]
+FROM [dbo].[ActivePosition] WITH (UPDLOCK, HOLDLOCK)
+WHERE [PositionId] = @PositionId
+  AND [IsActive] = 1
+  AND [ExecutionMode] = N'Ghost';
+""" : """
 SELECT [Symbol],[Shares],[CostBasis],[EntryDate]
 FROM [dbo].[ActivePosition] WITH (UPDLOCK, HOLDLOCK)
 WHERE [PositionId] = @PositionId
@@ -88,7 +98,16 @@ WHERE [PositionId] = @PositionId
             int holdingDays = System.Math.Max(0, (tradeDate.Date - entryDate.Date).Days);
             Guid tradeId = Guid.NewGuid();
 
-            const string insertSql = """
+            string insertSql = trackedSchema ? """
+INSERT INTO [dbo].[TradeLog]
+([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
+ [NetAmount],[PositionId],[Reason],[RealizedPnL],[RealizedPnLPct],[HoldingDays],
+ [CreatedUtc],[Notes],[ExecutionMode],[AccountLabel])
+VALUES
+(@TradeId,@Symbol,'SELL',@TradeDate,@Shares,@Price,@Amount,0,
+ @Amount,@PositionId,@Reason,@RealizedPnL,@RealizedPnLPct,@HoldingDays,
+ SYSUTCDATETIME(),@Notes,N'Ghost',NULL);
+""" : """
 INSERT INTO [dbo].[TradeLog]
 ([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
  [NetAmount],[PositionId],[Reason],[RealizedPnL],[RealizedPnLPct],[HoldingDays],
@@ -118,7 +137,18 @@ VALUES
                 await insert.ExecuteNonQueryAsync(cancellationToken);
             }
 
-            const string closeSql = """
+            string closeSql = trackedSchema ? """
+UPDATE [dbo].[ActivePosition]
+SET [CurrentPrice] = @Price,
+    [CurrentValue] = @Amount,
+    [UnrealizedPnL] = @RealizedPnL,
+    [UnrealizedPnLPct] = @RealizedPnLPct,
+    [IsActive] = 0,
+    [LastUpdatedUtc] = SYSUTCDATETIME()
+WHERE [PositionId] = @PositionId
+  AND [IsActive] = 1
+  AND [ExecutionMode] = N'Ghost';
+""" : """
 UPDATE [dbo].[ActivePosition]
 SET [CurrentPrice] = @Price,
     [CurrentValue] = @Amount,

@@ -44,6 +44,9 @@ internal class Program
                 case "paper-enter":
                     await PaperTradingCommands.EnterAsync(args.Skip(1).ToArray());
                     break;
+                case "paper-add":
+                    await PaperTradingCommands.AddSavedPickAsync(args.Skip(1).ToArray());
+                    break;
                 case "paper-monitor":
                     await PaperTradingCommands.MonitorAsync(args.Skip(1).ToArray());
                     break;
@@ -163,6 +166,7 @@ internal class Program
         Console.WriteLine("  pnl                                Show realized P&L summary and recent trades");
         Console.WriteLine("  scan                               Run Delphi evaluation and print non-Hold directions");
         Console.WriteLine("  paper-enter [--dry-run] SYMBOL...  Link today's Continuation picks to one-share ghost entries");
+        Console.WriteLine("  paper-add SYMBOL LENS SHARES PRICE  Open a saved Delphi pick at an operator fill");
         Console.WriteLine("  paper-monitor [watch] [--advisory-only]  Persist evidence and auto-close ghost exits");
         Console.WriteLine();
         Console.WriteLine("Examples:");

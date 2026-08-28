@@ -10,6 +10,8 @@ CREATE TABLE [dbo].[TradeLog]
 	[Commission]         DECIMAL(18,2)    NULL,
 	[NetAmount]          DECIMAL(18,2)    NOT NULL,
 	[PositionId]         UNIQUEIDENTIFIER NULL,
+	[ExecutionMode]      NVARCHAR(8)      NOT NULL CONSTRAINT [DF_TradeLog_ExecutionMode] DEFAULT (N'Ghost'),
+	[AccountLabel]       NVARCHAR(64)     NULL,
 	[Reason]             NVARCHAR(64)     NULL,
 	[RealizedPnL]        DECIMAL(18,2)    NULL,
 	[RealizedPnLPct]     FLOAT            NULL,
@@ -20,5 +22,11 @@ CREATE TABLE [dbo].[TradeLog]
 	[CreatedUtc]         DATETIME2        NOT NULL,
 	[Notes]              NVARCHAR(512)    NULL,
 
-	CONSTRAINT [PK_TradeLog] PRIMARY KEY CLUSTERED ([TradeId])
+	CONSTRAINT [PK_TradeLog] PRIMARY KEY CLUSTERED ([TradeId]),
+	CONSTRAINT [CK_TradeLog_ExecutionMode] CHECK ([ExecutionMode] IN (N'Ghost', N'Real')),
+	CONSTRAINT [CK_TradeLog_AccountLabel] CHECK
+	(
+		([ExecutionMode] = N'Ghost' AND [AccountLabel] IS NULL)
+		OR ([ExecutionMode] = N'Real' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
+	)
 );

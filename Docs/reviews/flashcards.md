@@ -439,7 +439,7 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Domains:** decision-engine, risk-management
 - **Source:** ADR-0028
 
-**A:** The exception requires the latest valid OfficialPaper run after entry to publish the same symbol through the Breakout lens with breakout probability at least 60%, direction edge at least 10%, and down probability below 35%. Missing or original-entry evidence cannot qualify, and no signal bypasses the 20% alert.
+**A:** The exception requires the newest valid OfficialPaper run that started after entry and was durably created before the decision bar. That exact run must publish the same symbol through Breakout with probability at least 60%, direction edge at least 10%, and down probability below 35%. A newer run that omits the symbol prevents fallback to older evidence; missing or original-entry evidence cannot qualify, and no signal bypasses the 20% alert.
 
 ### Q: Why must TMX intraday requests leave `freq` unset?
 - **Domains:** data-sources, market-microstructure
@@ -554,3 +554,51 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0036
 
 **A:** No. Only an explicit click on an HTTP(S) hyperlink may open the system browser; discovery, filtering, selection, rendering, and refresh are local and passive.
+
+### Q: Why does an operator-confirmed paper entry require the actual fill price?
+- **Domains:** architecture, market-microstructure
+- **Source:** ADR-0037
+
+**A:** A later TMX quote is not the operator's execution. Requiring the actual fill preserves faithful book cost, P/L, and exit evidence while avoiding an invented price.
+
+### Q: What happens when a Breakout pick is manually added to Paper Trading?
+- **Domains:** risk-management, decision-engine
+- **Source:** ADR-0037
+
+**A:** It is linked to its exact saved pick and monitored, but it is durably labelled exploratory. Continuation remains the production recommendation lens, and no selection automatically changes Delphi.
+
+### Q: How can a model rank useful candidates while still being badly calibrated?
+- **Domains:** machine-learning, math-statistics
+- **Source:** ADR-0038
+
+**A:** Its higher probabilities may correctly order events above non-events, producing useful AUC, while the probability values are systematically too high or low. Reliability buckets, Brier score, and expected calibration error test confidence honesty separately from ordering.
+
+### Q: Why does the official prediction scorecard average candidates, then reruns, then market-session cohorts?
+- **Domains:** architecture, math-statistics
+- **Source:** ADR-0038
+
+**A:** Candidates from one run share market exposure, and deliberate reruns over the same completed session are not independent evidence. Nested weighting keeps every run visible while giving each distinct `MarketDataAsOf` cohort equal final weight.
+
+### Q: Why can a favourable diagnostic slice not automatically increase a Delphi signal's weight?
+- **Domains:** decision-engine, machine-learning, math-statistics
+- **Source:** ADR-0038
+
+**A:** A slice is an association that may reflect correlated signals, regime concentration, repeated testing, or a small sample. It can justify a versioned challenger hypothesis, but only forward evidence and human approval may change the champion.
+
+### Q: What does a TraderVI `REAL` row establish?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0039
+
+**A:** It records a broker fill reported by the operator, with an account label. It does not establish that TraderVI sent or verified the order, and it gives TraderVI no broker authority.
+
+### Q: Why can an exit policy automatically close a Ghost row but not a Real row?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0039
+
+**A:** A Ghost fill is simulated under TraderVI's accepted paper policy. A Real sale is true only after it occurs at the broker, so the dashboard must keep the signal open until the operator records the actual fill.
+
+### Q: Why are Trading-tab P/L and Scorecards-tab calibration kept separate?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0039
+
+**A:** Trading P/L depends on operator timing, execution mode, and fills. Official scorecards test immutable Delphi predictions against defined outcomes; mixing the ledgers would confound model calibration.

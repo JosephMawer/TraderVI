@@ -114,17 +114,23 @@ The setup stage then diverges by lens:
 
 Both rank remaining ties by DirectionEdge and composite score. The executed recommendation is sized as a single concentrated ghost/advisory position. CLX is reported but does not affect this flow.
 
-## Paper monitoring flow
+## Tracked-position monitoring flow
 
-The operational paper pilot is deliberately separate from official Athena calibration outcomes. `TraderVI.WPF` and the `TraderVI paper-monitor` command call the same Core monitor:
+The operational Ghost/Real ledger is deliberately separate from official Athena calibration outcomes. `TraderVI.WPF` and the `TraderVI paper-monitor` command call the same Core monitor:
 
 1. Poll TMX for direct completed 15-minute policy bars and append the request receipt/evidence to the ADR-0030 ledger.
-2. Replay the deterministic ADR-0028 policy from the ghost entry through the completed evidence.
+2. Replay the deterministic ADR-0028 policy from the tracked entry through the completed evidence.
 3. Poll five-minute TMX data after policy evaluation, append that receipt/evidence, and update the active-position snapshot.
-4. If the completed policy produces an exit alert, record a database-only ghost sale at the newest separately observed delayed price through the ADR-0031 serializable transaction.
-5. Refresh the WPF dashboard from SQL so positions, P/L, trades, and receipts remain visible after restarts.
+4. If the completed policy produces an exit alert for a Ghost position, record a database-only simulated sale at the newest separately observed delayed price through the ADR-0031 serializable transaction. For Real, display a manual-action signal and leave the holding open.
+5. Refresh the WPF dashboard from SQL so explicitly labelled Ghost/Real positions, separate P/L, trades, and receipts remain visible after restarts.
 
-Automatic ghost exits never route to a broker. The WPF process must remain open for its 15-minute schedule; always-on service hosting is deferred. ADR-0032 keeps the legacy Wealthsimple window out of the default startup path. ADR-0033 through ADR-0036 evolve that window into a tabbed shell: Paper Trading, Data Audit, Delphi, and Project Docs share the same safety boundary. The six-view Delphi workspace loads persisted picks and the matching typed presentation snapshot without evaluation; only a confirmed official action invokes its database-writing workflow. The snapshot is embedded in the existing immutable calibration run context, so it requires no new SQL object. Older runs use labelled date-aligned reconstruction with unavailable values preserved as unavailable. Project Docs separately reads repository Markdown through a host-neutral catalog and safe link resolver, then renders it with native WPF elements; it does not access SQL or market services.
+Automatic Ghost exits never route to a broker. ADR-0039 adds durable mode/account fields plus an immutable Ghost-to-Real reconciliation audit; all pre-migration rows default to Ghost, and Real fills are operator-reported facts only. The WPF process must remain open for its 15-minute schedule; always-on service hosting is deferred. The tabbed shell contains Trading, Data Audit, Delphi, Scorecards, and Project Docs. The six-view Delphi workspace loads persisted picks and the matching typed presentation snapshot without evaluation; only a confirmed official action invokes its database-writing workflow. Project Docs remains file-only. Scorecards reads official calibration SQL through the same pure calculator as Athena and cannot write outcomes or alter Delphi.
+
+## Official prediction scorecard flow
+
+Athena joins the immutable `OfficialPaper` candidate population to `PredictionLabels10` version 1 and validates definition, purpose, cohort, candidate, lens, rank, schema, session, and event identity before reporting performance. ADR-0038 averages candidates inside a run, reruns inside `MarketDataAsOf`, and market-session cohorts equally. It produces four model-calibration reports, separate eligible Continuation/Breakout rank reports, and descriptive technical/market slices only after the 95% coverage floor is met. Versioned CSV artifacts are optional outputs of the same pure calculator. Operational ghost positions, actual broker holdings, and manual fills never enter this report.
+
+ADR-0039's operational ledger persists `Ghost` or `Real` plus an account label for Real and displays the modes separately. This state never enters the official prediction report. `Real` is not broker identity or verification: no order, balance, import, partial-fill, or broker adapter exists. Migration 013 remains manual and unapplied at this snapshot, so the existing EDR monitoring mirror remains Ghost until confirmed reconciliation.
 
 ## Granville Market Timing Layer
 
@@ -328,6 +334,6 @@ architecture; do not duplicate volatile priority lists here.
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, enabled code registries | model artifacts, `[ModelExperiment]`, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
 | **TraderVI** | Manual or 15-minute console watch | picks/models/positions, delayed TMX bars | ghost positions, `[TradeLog]`, intraday receipts/evidence; no live order placement |
-| **TraderVI.WPF** | Interactive tabbed shell; thirty-second paper display refresh, explicit read-only Data Audit, six-view saved Delphi workspace, and native Project Docs reader | paper state, shared monitor/audit/Delphi workflows, saved picks and matching calibration presentation evidence, repository Markdown | paper-monitor writes; Data Audit, saved-Delphi refresh, and Project Docs do not; a confirmed official Delphi run has Delphi's documented SQL effects; no broker integration |
+| **TraderVI.WPF** | Interactive tabbed shell; thirty-second Trading refresh, explicit Ghost/Real rows, read-only official Scorecards/Data Audit, six-view saved Delphi workspace, and native Project Docs reader | operational positions/trades, official calibration evidence, shared monitor/audit/Delphi workflows, saved presentation evidence, repository Markdown | Ghost auto-exits and confirmed manual Real reconciliation write SQL; Scorecards, Data Audit, saved-Delphi refresh, and Project Docs do not; a confirmed official Delphi run has Delphi's documented SQL effects; no broker integration |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
 | **Sentinel** | Future always-on/live-risk boundary | durable paper evidence and future explicitly authorized broker state | not implemented; ADR-0031 authorizes ghost exits only |

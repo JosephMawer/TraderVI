@@ -25,6 +25,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
 - [ADR-0036](0036-native-project-documentation-reader.md) — Native read-only project documentation reader
+- [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
+- [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
+- [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 
 ## data-pipeline
 
@@ -42,6 +45,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
+- [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 
 ## data-sources
 
@@ -53,6 +57,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 - [ADR-0020](0020-immutable-calibration-evidence-ledger.md) — Immutable calibration evidence ledger
 - [ADR-0022](0022-champion-challenger-evidence-and-promotion.md) — Champion/challenger evidence and promotion
+- [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 
 ## llm
 
@@ -90,6 +95,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0029](0029-intraday-ghost-entry-pilot.md) — Intraday ghost-entry pilot
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0031](0031-automatic-ghost-exit-execution.md) — Automatic policy-triggered ghost exit execution
+- [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
+- [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 
 ## risk-management
 
@@ -112,6 +119,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0032](0032-live-paper-trading-wpf-dashboard.md) — Live paper-trading WPF dashboard
 - [ADR-0033](0033-tabbed-desktop-shell-and-shared-workflows.md) — Tabbed desktop shell and shared application workflows
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
+- [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
+- [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 
 ## decision-engine
 
@@ -137,6 +146,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
+- [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 
 ## math-statistics
 
@@ -151,6 +161,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0025](0025-three-session-swing-mark-to-market-outcome.md) — Three-session swing mark-to-market outcome
 - [ADR-0026](0026-three-session-swing-excursion-measures.md) — Three-session swing excursion measures
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
+- [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 
 ## finance-fundamentals
 

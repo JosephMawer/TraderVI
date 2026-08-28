@@ -3,9 +3,19 @@ using Core.Db;
 using Core.ML;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+
+string? scorecardCsvDirectory = null;
+if (args.Length > 0)
+{
+    if (args.Length != 2 || args[0] != "--scorecard-csv" || string.IsNullOrWhiteSpace(args[1]))
+        throw new ArgumentException("Usage: Athena [--scorecard-csv DIRECTORY]");
+    scorecardCsvDirectory = Path.GetFullPath(args[1]);
+}
 
 Console.WriteLine("=== Athena: deterministic calibration evaluator ===");
 Console.WriteLine("Local SQL only; no external market services.\n");
@@ -228,6 +238,90 @@ foreach (var counts in coverageRows)
     Console.WriteLine($"  Candidates: {counts.ExpectedCandidates:N0} expected | {counts.ValidOutcomes:N0} valid | {counts.DegradedOutcomes:N0} degraded | {counts.InvalidOutcomes:N0} invalid | {counts.PendingOutcomes:N0} pending");
     Console.WriteLine($"  Coverage:   {scorecard.UsableCoverage:P1} usable | {scorecard.CompletionCoverage:P1} complete | primary score {(scorecard.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
     Console.WriteLine($"  State:      {scorecard.State}");
+}
+
+var predictionEvidence = await outcomes.GetOfficialPredictionScorecardEvidenceAsync();
+OfficialPredictionScorecard predictionScorecard =
+    OfficialPredictionScorecardCalculator.Build(predictionEvidence);
+Console.WriteLine("\n=== Advanced official prediction scorecard ===");
+Console.WriteLine($"Definition: {predictionScorecard.Definition.DefinitionName} v{predictionScorecard.Definition.DefinitionVersion}");
+Console.WriteLine($"Coverage:   {predictionScorecard.Coverage.UsableCoverage:P1} usable | " +
+                  $"{predictionScorecard.Coverage.CompletionCoverage:P1} complete | " +
+                  $"performance {(predictionScorecard.Coverage.PrimaryScoreAvailable ? "available" : "BLOCKED")}");
+Console.WriteLine($"Evidence:   {predictionScorecard.Coverage.Counts.ExpectedCandidates:N0} candidates | " +
+                  $"{predictionScorecard.Coverage.Counts.MaturedCohorts:N0}/{predictionScorecard.Coverage.Counts.TotalCohorts:N0} matured cohorts | " +
+                  $"{predictionScorecard.Coverage.Counts.OfficialRuns:N0} official runs");
+
+Console.WriteLine("\nProbability calibration (lower Brier/ECE is better; higher AUC/lift is better):");
+foreach (ProbabilityCalibrationReport model in predictionScorecard.Models)
+{
+    Console.WriteLine($"  {model.TaskType}: {model.UsablePredictions:N0}/{model.ExpectedCandidates:N0} usable predictions " +
+                      $"({model.PredictionCoverage:P1})");
+    if (!model.MetricsAvailable)
+    {
+        Console.WriteLine("    Metrics BLOCKED by outcome or model-specific coverage.");
+        continue;
+    }
+
+    Console.WriteLine($"    Brier {model.BrierScore:0.0000} | AUC {(model.AreaUnderRocCurve.HasValue ? model.AreaUnderRocCurve.Value.ToString("0.0000") : "unsupported: one class")} | " +
+                      $"ECE {model.ExpectedCalibrationError:0.0000} | top-decile event lift {model.TopDecileEventLift:+0.0%;-0.0%;0.0%}");
+    foreach (ProbabilityReliabilityBucket bucket in model.Reliability)
+    {
+        Console.WriteLine($"    P{bucket.LowerBound:P0}-{bucket.UpperBound:P0}: predicted {bucket.MeanProbability:P1} | " +
+                          $"observed {bucket.ObservedEventRate:P1} | n={bucket.Observations:N0} | cohorts={bucket.ContributingCohorts:N0}");
+    }
+}
+
+Console.WriteLine("\nLens ranking quality (positive IC/lift means higher-ranked eligible candidates did better):");
+foreach (LensRankPerformanceReport lens in predictionScorecard.Lenses)
+{
+    Console.WriteLine($"  {lens.Lens}: {lens.EligibleObservations:N0} eligible observations | " +
+                      $"{lens.ContributingCohorts:N0} cohorts | " +
+                      $"rank IC {(lens.SpearmanRankInformationCoefficient.HasValue ? lens.SpearmanRankInformationCoefficient.Value.ToString("+0.000;-0.000;0.000") : "BLOCKED/unsupported")}");
+    foreach (LensRankSelectionReport selection in lens.Selections)
+    {
+        Console.WriteLine($"    {selection.Selection,-10} return {selection.MeanReturn10:+0.00%;-0.00%;0.00%} | " +
+                          $"excess {selection.MeanExcessReturn10:+0.00%;-0.00%;0.00%} | " +
+                          $"lift {selection.ReturnLiftVersusEligibleBaseline:+0.00%;-0.00%;0.00%}");
+    }
+}
+
+if (predictionScorecard.Slices.Count > 0)
+{
+    Console.WriteLine("\nDiagnostic slices (descriptive only; never changes a weight automatically):");
+    foreach (PredictionSliceReport slice in predictionScorecard.Slices)
+    {
+        Console.WriteLine($"  {slice.Dimension}/{slice.Value}: n={slice.Observations:N0} | cohorts={slice.ContributingCohorts:N0} | " +
+                          $"return {slice.MeanReturn10:+0.00%;-0.00%;0.00%} | excess {slice.MeanExcessReturn10:+0.00%;-0.00%;0.00%} | " +
+                          $"up/down/breakout/vol {slice.UpEventRate:P0}/{slice.DownEventRate:P0}/{slice.BreakoutEventRate:P0}/{slice.VolExpansionEventRate:P0}");
+    }
+}
+
+if (scorecardCsvDirectory is not null)
+{
+    IReadOnlyList<OfficialPredictionScorecardCsvArtifact> artifacts =
+        OfficialPredictionScorecardCsv.Build(predictionScorecard);
+    string[] paths = artifacts
+        .Select(artifact => Path.Combine(scorecardCsvDirectory, artifact.FileName))
+        .ToArray();
+    string? existing = paths.FirstOrDefault(File.Exists);
+    if (existing is not null)
+        throw new IOException($"Refusing to overwrite an existing scorecard export: {existing}");
+
+    Directory.CreateDirectory(scorecardCsvDirectory);
+    for (int index = 0; index < artifacts.Count; index++)
+    {
+        await using var stream = new FileStream(
+            paths[index],
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 4096,
+            useAsync: true);
+        await using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        await writer.WriteAsync(artifacts[index].Content);
+    }
+    Console.WriteLine($"\nVersioned scorecard CSV files written to {scorecardCsvDirectory}");
 }
 
 var lensEvidence = await outcomes.GetLensTradeabilityEvidenceAsync();

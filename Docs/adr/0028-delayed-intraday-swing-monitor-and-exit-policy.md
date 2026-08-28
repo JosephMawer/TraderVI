@@ -72,6 +72,12 @@ Every exit-policy result must identify the rule, threshold, source-bar event tim
 
 The first implementation milestone is a deterministic pure policy engine and fixtures. Intraday persistence, scheduling, alert delivery, historical outcome calculation, and position-ledger integration follow as separately reviewable changes. No TMX request, database write, or live position action is required to validate the pure engine.
 
+### Fresh-Delphi connection implemented
+
+The shared paper monitor now reads the existing immutable calibration ledger once per position and builds a timeline of valid `OfficialPaper` runs that started after entry. For each completed fifteen-minute decision bar, it selects the newest run whose `CreatedUtc` proves that the run was durably available before the bar began. The lookup starts from the latest valid run itself and left-joins the monitored symbol and Breakout lens, so a newer run that omitted or did not publish the symbol blocks fallback to an older favorable signal.
+
+The selected evidence records its run identity, start time, durable availability time, publication state, and three probabilities in the structured monitor result. Missing values, an unavailable future run, a pre-entry run, or a database-read failure cannot qualify the exception. A read failure is surfaced as a warning while the monitor conservatively applies the ordinary 10% and absolute 20% protections. Any automatic ghost-exit note records the relevant evidence identity or explicitly records that none was available. This connection uses the existing calibration tables and requires no migration.
+
 ### Relationship to prior decisions
 
 This ADR refines ADR-0023: intraday monitoring of an already-open swing position belongs to the primary swing-management policy. A separate strategy whose entry and exit thesis is an intraday wave remains a separately scored challenger.

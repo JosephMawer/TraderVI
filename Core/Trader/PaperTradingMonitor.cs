@@ -27,7 +27,9 @@ public sealed record PaperPositionMonitorResult(
     IntradayPollAuditState? FiveMinuteAuditState,
     bool ExitExecuted,
     decimal? ExitPrice,
-    string? ErrorCode);
+    string? ErrorCode,
+    DelayedIntradayBreakoutEvidence? FreshBreakoutEvidence,
+    string? WarningCode);
 
 public sealed record PaperMonitorCycleResult(
     Guid PollCycleId,
@@ -180,12 +182,42 @@ public sealed class PaperTradingMonitor
                 completedPolicyEvidence,
                 policyBatch.ReceivedUtc,
                 entryUtc);
+        IReadOnlyList<FreshDelphiBreakoutEvidenceSnapshot> breakoutTimeline =
+            Array.Empty<FreshDelphiBreakoutEvidenceSnapshot>();
+        string? evidenceWarningCode = null;
+        if (policyBars.Count > 0)
+        {
+            try
+            {
+                breakoutTimeline = await new CalibrationEvidenceRepository()
+                    .GetValidOfficialBreakoutTimelineAsync(
+                        position.Symbol,
+                        entryUtc,
+                        policyBars[^1].StartUtc,
+                        cancellationToken);
+            }
+            catch
+            {
+                // Missing evidence can never grant the exception. Continue with
+                // the normal loss limits and surface the bounded diagnostic.
+                evidenceWarningCode = "FreshDelphiEvidenceReadFailed";
+            }
+        }
+
         IntradaySwingPositionState state =
             IntradaySwingPositionState.Open(position.EntryPrice, entryUtc);
         IntradaySwingDecision? decision = null;
+        DelayedIntradayBreakoutEvidence? decisionEvidence = null;
         foreach (DelayedIntradayBar bar in policyBars)
         {
-            decision = DelayedIntradaySwingExitPolicy.Evaluate(state, bar);
+            decisionEvidence = FreshDelphiBreakoutEvidenceResolver.Resolve(
+                breakoutTimeline,
+                entryUtc,
+                bar.StartUtc);
+            decision = DelayedIntradaySwingExitPolicy.Evaluate(
+                state,
+                bar,
+                decisionEvidence);
             state = decision.State;
             if (decision.Directive == IntradaySwingDirective.ExitAlert)
                 break;
@@ -224,7 +256,9 @@ public sealed class PaperTradingMonitor
                 null,
                 false,
                 null,
-                "Tmx5FetchFailed");
+                "Tmx5FetchFailed",
+                decisionEvidence,
+                evidenceWarningCode);
         }
 
         IntradayEvidenceAppendResult fiveAppend;
@@ -246,7 +280,9 @@ public sealed class PaperTradingMonitor
                 null,
                 false,
                 null,
-                "Persist5Failed");
+                "Persist5Failed",
+                decisionEvidence,
+                evidenceWarningCode);
         }
         if (fiveAppend.AuditState == IntradayPollAuditState.Invalid)
         {
@@ -259,7 +295,9 @@ public sealed class PaperTradingMonitor
                 fiveAppend.AuditState,
                 false,
                 null,
-                fiveAppend.AuditCode ?? "Invalid5Evidence");
+                fiveAppend.AuditCode ?? "Invalid5Evidence",
+                decisionEvidence,
+                evidenceWarningCode);
         }
 
         OhlcvBar? observed = fiveMinuteBatch.Bars.LastOrDefault();
@@ -274,29 +312,35 @@ public sealed class PaperTradingMonitor
                 fiveAppend.AuditState,
                 false,
                 null,
-                "NoObservedPrice");
+                "NoObservedPrice",
+                decisionEvidence,
+                evidenceWarningCode);
         }
 
         await UpdatePositionSnapshotAsync(position, observed.Close, state);
 
         bool exited = false;
         decimal? exitPrice = null;
-        if (executeGhostExits &&
-            decision?.Directive == IntradaySwingDirective.ExitAlert)
+        if (ShouldExecuteAutomaticExit(
+                position.ExecutionMode,
+                executeGhostExits,
+                decision?.Directive))
         {
+            IntradaySwingDecision exitDecision = decision!;
             bool wasForming =
                 observed.TimestampUtc.AddMinutes(SourceIntervalMinutes) > fiveMinuteBatch.ReceivedUtc;
             string notes =
-                $"ADR-0031 auto ghost exit; trigger={decision.Reason}; " +
+                $"ADR-0031 auto ghost exit; trigger={exitDecision.Reason}; " +
                 $"TMX5 eventUtc={observed.TimestampUtc:O}; " +
                 $"receivedUtc={fiveMinuteBatch.ReceivedUtc:O}; " +
                 $"sourceState={(wasForming ? "forming" : "complete")}; " +
+                $"freshDelphi={FormatEvidence(decisionEvidence)}; " +
                 "delayed observed price, not guaranteed fill";
             exited = await new TradeManager(ghost: true).Sell(
                 position.Symbol,
                 observed.Close,
                 notes,
-                $"Policy {decision.Reason}");
+                $"Policy {exitDecision.Reason}");
             if (exited)
                 exitPrice = observed.Close;
         }
@@ -310,8 +354,18 @@ public sealed class PaperTradingMonitor
             fiveAppend.AuditState,
             exited,
             exitPrice,
-            null);
+            null,
+            decisionEvidence,
+            evidenceWarningCode);
     }
+
+    public static bool ShouldExecuteAutomaticExit(
+        TrackedExecutionMode executionMode,
+        bool automaticGhostExitsEnabled,
+        IntradaySwingDirective? directive) =>
+        automaticGhostExitsEnabled &&
+        executionMode.AllowsAutomaticExit() &&
+        directive == IntradaySwingDirective.ExitAlert;
 
     private static async Task<TmxIntradayBatch> GetBatchAsync(
         TmxClient tmx,
@@ -421,7 +475,9 @@ public sealed class PaperTradingMonitor
             null,
             false,
             null,
-            errorCode);
+            errorCode,
+            null,
+            null);
 
     private static PaperPositionMonitorResult Result(
         ActivePositionInfo position,
@@ -432,7 +488,9 @@ public sealed class PaperTradingMonitor
         IntradayPollAuditState? fiveAudit,
         bool exitExecuted,
         decimal? exitPrice,
-        string? errorCode)
+        string? errorCode,
+        DelayedIntradayBreakoutEvidence? freshBreakoutEvidence = null,
+        string? warningCode = null)
     {
         double? unrealizedPercent = observedPrice.HasValue && position.CostBasis != 0m
             ? (double)((decimal.Round(observedPrice.Value * position.Shares, 2) -
@@ -453,8 +511,19 @@ public sealed class PaperTradingMonitor
             fiveAudit,
             exitExecuted,
             exitPrice,
-            errorCode);
+            errorCode,
+            freshBreakoutEvidence,
+            warningCode);
     }
+
+    private static string FormatEvidence(DelayedIntradayBreakoutEvidence? evidence) =>
+        evidence is null
+            ? "none"
+            : $"run={evidence.RunId}; availableUtc={evidence.AvailableUtc:O}; " +
+              $"published={evidence.IsBreakoutPublished}; " +
+              $"breakout={evidence.BreakoutProbability?.ToString("0.000") ?? "null"}; " +
+              $"edge={evidence.DirectionEdge?.ToString("0.000") ?? "null"}; " +
+              $"down={evidence.DownProbability?.ToString("0.000") ?? "null"}";
 
     public static DateTime NextScheduledPollLocal(DateTime localNow)
     {

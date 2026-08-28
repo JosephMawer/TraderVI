@@ -137,6 +137,8 @@ dotnet run --project Delphi
 
 TraderVI is a CLI for simulated trade and position bookkeeping. Ghost mode records trades and positions but does not submit live broker orders. Its `paper-monitor` command uses the same durable monitor as the WPF dashboard: each cycle records TMX poll receipts and completed evidence, evaluates the 15-minute policy, and records an authorized policy exit at a separately observed delayed price. Pass `--advisory-only` to suppress automatic ghost exits.
 
+For each completed policy bar, the monitor also reads the existing immutable calibration ledger and selects the newest valid `OfficialPaper` run that both started after the position entry and was durably created before that bar began. Only a same-run published Breakout with probability at least 60%, direction edge at least 10%, and down probability below 35% can qualify the paper-only 10% loss exception. Missing/unpublished evidence or a read failure defaults to the ordinary 10% exit, and no Delphi evidence can bypass the absolute 20% exit.
+
 ```powershell
 dotnet run --project TraderVI -- list
 dotnet run --project TraderVI -- pnl
@@ -146,20 +148,49 @@ dotnet run --project TraderVI -- scan
 dotnet run --project TraderVI -- paper-monitor
 dotnet run --project TraderVI -- paper-monitor watch
 dotnet run --project TraderVI -- paper-monitor watch --advisory-only
+dotnet run --project TraderVI -- paper-add EDR Continuation 5 15.34
 ```
 
 Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `paper-monitor` also calls TMX. `scan` loads market data and models. Obtain explicit authorization before using mutating commands.
 
-## TraderVI.WPF — live paper dashboard
+## TraderVI.WPF — combined Ghost/Real trading dashboard
 
 **Project:** `TraderVI.WPF`
 **Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
 
-The WPF app is the tabbed interactive TraderVI shell. Its Paper Trading tab shows open and closed Delphi-linked ghost positions, realized and unrealized P/L, trade history, and durable poll receipts. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+The WPF app is the tabbed interactive TraderVI shell. Its Trading tab shows open and closed Delphi-linked positions, separate Ghost/Real realized and unrealized P/L, trade history, and durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
 
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
 The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
+
+The Picks view can create a monitored Ghost position or record a Real position
+from a selected saved Continuation or Breakout recommendation. The operator
+enters positive whole shares and the actual fill, chooses the mode, supplies an
+account label for Real, and confirms the lens, rank, recommendation date, and
+book cost. `Real` means the operator says that fill already occurred; TraderVI
+does not submit or verify it. The shared `PaperTradeEntryWorkflow` preserves the
+exact `PickId`, rejects duplicate active symbols, and never calls a broker or
+invents a fill. Breakout selections are explicitly labelled exploratory.
+
+Migration `20260827_013_AddTrackedExecutionMode.sql` must be reviewed, backed up,
+and manually applied before Real tracking is available. Before application,
+legacy rows remain readable and are displayed as Ghost. After application, an
+active Ghost row can be marked Real only through the confirmed reconciliation
+control, which writes an immutable audit event. For the current EDR mirror,
+confirm the stored five shares and $15.34 entry before marking it `REAL / TFSA`.
+
+The monitor evaluates both modes. Automatic exits are hard-guarded to Ghost.
+A Real exit alert remains a manual-action signal until the operator records the
+actual all-shares broker sell fill; that control changes only TraderVI's ledger
+and never sends an order.
+
+The Scorecards tab is a read-only view of the advanced official Delphi report:
+coverage/readiness, model probability metrics, reliability, deciles,
+Continuation/Breakout rank performance, and diagnostic slices. It uses the
+same official evidence query and pure calculator as Athena, writes nothing, and
+does not require CSV export. Refreshing it cannot mature outcomes or change
+Delphi.
 
 The Project Docs tab discovers Markdown throughout the repository except `.git`, `.vs`, `bin`, `obj`, `packages`, and `node_modules`. It groups documents by folder, searches title/path/content, opens `Docs/project-status.md` by default, and reloads external edits with Refresh. Relative Markdown links and heading fragments navigate inside the tab only after safe repository resolution. Clicking an HTTP(S) link opens the system browser; merely loading, searching, or refreshing documentation never opens a web page. The reader does not write files or access SQL, models, or market services.
 
@@ -169,17 +200,20 @@ The Project Docs tab discovers Markdown throughout the repository except `.git`,
 dotnet run --project TraderVI.WPF
 ```
 
-Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The app has no broker controls and cannot place a real order; automatic actions are database-only ghost exits.
+Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The app has manual ledger-reconciliation controls but no broker connection and cannot place a real order; automatic actions are database-only Ghost exits.
 
 ## Athena — calibration outcome evaluation
 
 **Project:** `Athena`
 **Entry point:** `Athena/Program.cs`
 
-Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It then prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. It makes no external requests. It is still a database writer: apply the reviewed calibration migration manually first and obtain explicit authorization before running it.
+Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It then prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
+
+Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migration manually first and obtain explicit authorization before running it. The optional CSV switch writes five export-schema-v1 artifacts and refuses to overwrite an existing filename.
 
 ```powershell
 dotnet run --project Athena
+dotnet run --project Athena -- --scorecard-csv C:\path\to\an-empty-export-directory
 ```
 
 Athena is manual in the initial release and is not launched by Hermes or Delphi.
