@@ -6,6 +6,7 @@
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
 - **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
+- **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
 
 ## Status legend
 
@@ -15,7 +16,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. The report remains blocked below 95% usable coverage and cannot change Delphi. ADR-0039 also implements a durable Ghost/Real operational boundary: migration 013 was backed up, applied, and verified on 2026-08-28, so explicit mode/account fields, separate P/L, confirmed Ghost-to-Real audit, manually reported Real entries/exits, and the hard Ghost-only automatic-exit guard are available. All legacy rows were intentionally classified Ghost. The five-share EDR Ghost mirror joined valid durable polling and was automatically closed at $15.62 by `Policy TrailingProfit` on 2026-08-27; this did not sell or represent closure of the operator's real TFSA holding. That holding still needs a separate operator-confirmed `REAL / TFSA` entry. Calibration-grade delayed outcomes and any automatic first-checkpoint entry policy remain incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. Migration 014 seeded and verified the four canonical outcome-definition contracts on 2026-08-28, so the read-only page can now load its 6 official runs across 4 market-data cohorts and 1,292 official candidates. No prediction outcomes exist yet, so performance remains correctly blocked below the 95% usable-coverage floor and the report cannot change Delphi. ADR-0039 also implements a durable Ghost/Real operational boundary through applied migration 013. All legacy rows were intentionally classified Ghost. The five-share EDR Ghost mirror joined valid durable polling and was automatically closed at $15.62 by `Policy TrailingProfit` on 2026-08-27; this did not sell or represent closure of the operator's real TFSA holding. That holding still needs a separate operator-confirmed `REAL / TFSA` entry. Calibration-grade delayed outcomes and any automatic first-checkpoint entry policy remain incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -105,6 +106,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Add versioned invariant-culture CSV artifacts and an explicit non-overwriting Athena export option.
 - [x] Add a read-only WPF Scorecards workspace over the exact same official evidence query and pure calculator; CSV is not required for normal viewing.
 - [x] Add integrity tests for duplicate candidates/ranks, wrong-session joins, mixed purposes/lenses, and definition identity/version changes.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260828_085526_014.bak`, hash-match its approved OneDrive copy with SHA-256 `A01FFCECAD236C967D8BA68AA4DCC8387BFB49DFA9C5B22F533A69C995D48F27`, apply migration 014, and verify all four canonical definitions while preserving 1,505 total candidate rows and zero outcome rows.
 
 ## Phase D — tradeable recommendation outcomes
 

@@ -193,7 +193,10 @@ coverage/readiness, model probability metrics, reliability, deciles,
 Continuation/Breakout rank performance, and diagnostic slices. It uses the
 same official evidence query and pure calculator as Athena, writes nothing, and
 does not require CSV export. Refreshing it cannot mature outcomes or change
-Delphi.
+Delphi. Migration `20260828_014_SeedCalibrationOutcomeDefinitions.sql` was
+applied on 2026-08-28 to initialize the four canonical definition contracts;
+without matured Athena outcomes the tab loads coverage but correctly blocks
+performance metrics.
 
 The Project Docs tab discovers Markdown throughout the repository except `.git`, `.vs`, `bin`, `obj`, `packages`, and `node_modules`. It groups documents by folder, searches title/path/content, opens `Docs/project-status.md` by default, and reloads external edits with Refresh. Relative Markdown links and heading fragments navigate inside the tab only after safe repository resolution. Clicking an HTTP(S) link opens the system browser; merely loading, searching, or refreshing documentation never opens a web page. The reader does not write files or access SQL, models, or market services.
 
