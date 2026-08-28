@@ -173,12 +173,15 @@ does not submit or verify it. The shared `PaperTradeEntryWorkflow` preserves the
 exact `PickId`, rejects duplicate active symbols, and never calls a broker or
 invents a fill. Breakout selections are explicitly labelled exploratory.
 
-Migration `20260827_013_AddTrackedExecutionMode.sql` must be reviewed, backed up,
-and manually applied before Real tracking is available. Before application,
-legacy rows remain readable and are displayed as Ghost. After application, an
-active Ghost row can be marked Real only through the confirmed reconciliation
-control, which writes an immutable audit event. For the current EDR mirror,
-confirm the stored five shares and $15.34 entry before marking it `REAL / TFSA`.
+Migration `20260827_013_AddTrackedExecutionMode.sql` was manually applied and
+verified on 2026-08-28 after a checksum-verified full backup and hash-matched
+secondary copy. All legacy rows were deliberately classified Ghost. An active
+Ghost row can be marked Real only through the confirmed reconciliation control,
+which writes an immutable audit event. The five-share EDR Ghost mirror is no
+longer active: it was automatically paper-sold at $15.62 under
+`Policy TrailingProfit`. If the broker holding is still open, create a separate
+operator-confirmed `REAL / TFSA` entry using the actual five-share, $15.34 fill;
+do not convert or reopen the completed Ghost lifecycle.
 
 The monitor evaluates both modes. Automatic exits are hard-guarded to Ghost.
 A Real exit alert remains a manual-action signal until the operator records the

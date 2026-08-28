@@ -179,7 +179,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Resolved
 
-- **Unified Ghost/Real trading dashboard** — resolved in source by ADR-0039 on 2026-08-28. Durable mode/account fields, an immutable Ghost-to-Real audit, separate P/L, manual Real entry/exit reconciliation, and a hard Ghost-only automatic-exit guard are implemented. Migration 013 remains unapplied until the reviewed backup and explicit manual authorization workflow is completed; the existing EDR row therefore remains Ghost until the operator confirms conversion in the migrated dashboard.
+- **Unified Ghost/Real trading dashboard** — resolved by ADR-0039 and operational migration 013 on 2026-08-28. Durable mode/account fields, an immutable Ghost-to-Real audit, separate P/L, manual Real entry/exit reconciliation, and a hard Ghost-only automatic-exit guard are implemented and verified. All legacy rows remain Ghost. The five-share EDR Ghost mirror was already automatically closed at $15.62, so the operator's still-held broker position must be entered separately as `REAL / TFSA`; the historical Ghost lifecycle must not be converted or rewritten.
 
 - **Intraday evidence resolution and durable ledger** — resolved 2026-08-26. Persist completed five-minute bars in version 1, consume and retain direct completed fifteen-minute bars for policy decisions, and use exact three-component aggregation as a consistency check when available. One-minute bars remain a possible research source rather than a storage requirement. Poll attempts and first-received bars are separate immutable records, and conflicts never overwrite first evidence. Recorded in ADR-0028 through ADR-0030.
 

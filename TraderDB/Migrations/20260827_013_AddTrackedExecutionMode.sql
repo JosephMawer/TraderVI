@@ -2,6 +2,7 @@ USE [TraderDB];
 GO
 
 SET XACT_ABORT ON;
+SET QUOTED_IDENTIFIER ON;
 
 /*
     Explicit Ghost/Real tracked-execution mode (ADR-0039).
@@ -48,42 +49,46 @@ BEGIN TRANSACTION;
 
 IF @PositionModeExists = 0
 BEGIN
-    ALTER TABLE [dbo].[ActivePosition]
-        ADD [ExecutionMode] NVARCHAR(8) NULL,
-            [AccountLabel] NVARCHAR(64) NULL;
+    -- Defer compilation until the new columns exist. SQL Server otherwise binds
+    -- later references in this batch against the pre-migration table metadata.
+    EXEC sys.sp_executesql N'
+        ALTER TABLE [dbo].[ActivePosition]
+            ADD [ExecutionMode] NVARCHAR(8) NULL,
+                [AccountLabel] NVARCHAR(64) NULL;
 
-    ALTER TABLE [dbo].[TradeLog]
-        ADD [ExecutionMode] NVARCHAR(8) NULL,
-            [AccountLabel] NVARCHAR(64) NULL;
+        ALTER TABLE [dbo].[TradeLog]
+            ADD [ExecutionMode] NVARCHAR(8) NULL,
+                [AccountLabel] NVARCHAR(64) NULL;';
 
-    UPDATE [dbo].[ActivePosition]
-    SET [ExecutionMode] = N'Ghost'
-    WHERE [ExecutionMode] IS NULL;
+    EXEC sys.sp_executesql N'
+        UPDATE [dbo].[ActivePosition]
+        SET [ExecutionMode] = N''Ghost''
+        WHERE [ExecutionMode] IS NULL;
 
-    UPDATE [dbo].[TradeLog]
-    SET [ExecutionMode] = N'Ghost'
-    WHERE [ExecutionMode] IS NULL;
+        UPDATE [dbo].[TradeLog]
+        SET [ExecutionMode] = N''Ghost''
+        WHERE [ExecutionMode] IS NULL;
 
-    ALTER TABLE [dbo].[ActivePosition] ALTER COLUMN [ExecutionMode] NVARCHAR(8) NOT NULL;
-    ALTER TABLE [dbo].[TradeLog] ALTER COLUMN [ExecutionMode] NVARCHAR(8) NOT NULL;
+        ALTER TABLE [dbo].[ActivePosition] ALTER COLUMN [ExecutionMode] NVARCHAR(8) NOT NULL;
+        ALTER TABLE [dbo].[TradeLog] ALTER COLUMN [ExecutionMode] NVARCHAR(8) NOT NULL;
 
-    ALTER TABLE [dbo].[ActivePosition]
-        ADD CONSTRAINT [DF_ActivePosition_ExecutionMode] DEFAULT (N'Ghost') FOR [ExecutionMode],
-            CONSTRAINT [CK_ActivePosition_ExecutionMode] CHECK ([ExecutionMode] IN (N'Ghost', N'Real')),
-            CONSTRAINT [CK_ActivePosition_AccountLabel] CHECK
-            (
-                ([ExecutionMode] = N'Ghost' AND [AccountLabel] IS NULL)
-                OR ([ExecutionMode] = N'Real' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
-            );
+        ALTER TABLE [dbo].[ActivePosition]
+            ADD CONSTRAINT [DF_ActivePosition_ExecutionMode] DEFAULT (N''Ghost'') FOR [ExecutionMode],
+                CONSTRAINT [CK_ActivePosition_ExecutionMode] CHECK ([ExecutionMode] IN (N''Ghost'', N''Real'')),
+                CONSTRAINT [CK_ActivePosition_AccountLabel] CHECK
+                (
+                    ([ExecutionMode] = N''Ghost'' AND [AccountLabel] IS NULL)
+                    OR ([ExecutionMode] = N''Real'' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
+                );
 
-    ALTER TABLE [dbo].[TradeLog]
-        ADD CONSTRAINT [DF_TradeLog_ExecutionMode] DEFAULT (N'Ghost') FOR [ExecutionMode],
-            CONSTRAINT [CK_TradeLog_ExecutionMode] CHECK ([ExecutionMode] IN (N'Ghost', N'Real')),
-            CONSTRAINT [CK_TradeLog_AccountLabel] CHECK
-            (
-                ([ExecutionMode] = N'Ghost' AND [AccountLabel] IS NULL)
-                OR ([ExecutionMode] = N'Real' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
-            );
+        ALTER TABLE [dbo].[TradeLog]
+            ADD CONSTRAINT [DF_TradeLog_ExecutionMode] DEFAULT (N''Ghost'') FOR [ExecutionMode],
+                CONSTRAINT [CK_TradeLog_ExecutionMode] CHECK ([ExecutionMode] IN (N''Ghost'', N''Real'')),
+                CONSTRAINT [CK_TradeLog_AccountLabel] CHECK
+                (
+                    ([ExecutionMode] = N''Ghost'' AND [AccountLabel] IS NULL)
+                    OR ([ExecutionMode] = N''Real'' AND LEN(LTRIM(RTRIM([AccountLabel]))) BETWEEN 1 AND 64)
+                );';
 
     CREATE TABLE [dbo].[PositionExecutionAudit]
     (
@@ -119,6 +124,7 @@ IF COL_LENGTH(N'dbo.ActivePosition', N'ExecutionMode') IS NULL
     THROW 51032, 'Tracked-execution schema verification failed. Transaction will be rolled back.', 1;
 
 COMMIT TRANSACTION;
+GO
 
 SELECT
     [PositionRows] = COUNT_BIG(*),

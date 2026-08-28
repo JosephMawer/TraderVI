@@ -53,8 +53,9 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Observe the first market-hours durable dashboard cycle: the 2026-08-27 09:47 Toronto cycle persisted valid receipts and completed evidence for NDM/ALK; no exit rule triggered.
 - [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
 - [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
-- [ ] Review, back up, and manually apply migration 013 with explicit authorization; verify it, then reconcile the current EDR mirror as `REAL / TFSA` after confirming shares and fill.
-- [ ] Verify the new five-share EDR position joins a scheduled durable cycle and observe an automatic ghost exit end to end when a policy rule genuinely triggers.
+- [x] Review, back up, manually apply, and verify migration 013 with explicit authorization; preserve all legacy rows as Ghost and verify the empty immutable execution audit.
+- [ ] Record the still-held five-share EDR broker position as a new operator-confirmed `REAL / TFSA` entry after reconfirming shares and the $15.34 average fill; preserve the already closed Ghost lifecycle separately.
+- [x] Verify the five-share EDR Ghost position joins a valid scheduled durable cycle and observe its automatic $15.62 `Policy TrailingProfit` exit end to end.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.

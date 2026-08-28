@@ -5,7 +5,7 @@
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
-- **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (reviewed in source; not applied)
+- **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
 
 ## Status legend
 
@@ -15,7 +15,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. The report remains blocked below 95% usable coverage and cannot change Delphi. ADR-0039 also implements a durable Ghost/Real operational boundary in source: explicit mode/account fields, separate P/L, a confirmed Ghost-to-Real audit, manually reported Real entries/exits, and a hard Ghost-only automatic-exit guard. Migration 013 is intentionally unapplied, so the five-share EDR TFSA monitoring mirror remains a legacy Ghost row until backup, manual migration application, and operator-confirmed reconciliation. The first market-hours durable collector cycle succeeded at 09:47 Toronto on 2026-08-27; EDR's first scheduled cycle and an actual automatic Ghost exit remain to be observed. Calibration-grade delayed outcomes and any automatic first-checkpoint entry policy remain incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. The report remains blocked below 95% usable coverage and cannot change Delphi. ADR-0039 also implements a durable Ghost/Real operational boundary: migration 013 was backed up, applied, and verified on 2026-08-28, so explicit mode/account fields, separate P/L, confirmed Ghost-to-Real audit, manually reported Real entries/exits, and the hard Ghost-only automatic-exit guard are available. All legacy rows were intentionally classified Ghost. The five-share EDR Ghost mirror joined valid durable polling and was automatically closed at $15.62 by `Policy TrailingProfit` on 2026-08-27; this did not sell or represent closure of the operator's real TFSA holding. That holding still needs a separate operator-confirmed `REAL / TFSA` entry. Calibration-grade delayed outcomes and any automatic first-checkpoint entry policy remain incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -153,9 +153,10 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Add ADR-0037's operator-confirmed bridge from saved Continuation/Breakout rows to pick-linked monitored ghost positions with explicit shares, actual fill, duplicate protection, and exploratory Breakout labelling.
 - [x] **Operational step:** open a new five-share EDR ghost position at the reported $15.34 average fill ($76.70 book cost), linked to the 2026-08-26 Continuation rank-4 pick; preserve the prior closed one-share lifecycle.
 - [x] Implement ADR-0039's explicit Ghost/Real source model, account labelling, immutable reconciliation audit, separate dashboard P/L, manual Real fills, and Ghost-only automatic-exit guard without broker connectivity.
-- [ ] **Operational step:** review migration 013, create and verify a fresh backup, apply it manually, verify its checks/defaults/audit table, then reconcile the five-share EDR row as `REAL / TFSA` only after confirming its saved shares and $15.34 fill.
+- [x] **Operational step:** review and correct migration 013 before its first successful run; create and checksum-verify `TraderDB_FULL_20260828_081259_747.bak`, hash-match its approved OneDrive copy with SHA-256 `6DF2FAFD8590688B21D610190754FE72BC6375FAE67C7DD267B20A26904BC365`, apply the migration manually, and verify all columns, defaults, trusted checks, audit keys, and the preserved 6-position/11-trade row counts.
+- [ ] Record the still-held five-share EDR broker position as a new operator-confirmed `REAL / TFSA` entry after reconfirming the shares and $15.34 average fill. Do not convert or reopen the closed Ghost mirror: it completed its own audited paper lifecycle at $15.62.
 - [x] **Operational step:** observe the first WPF market-hours durable cycle on 2026-08-27 at 09:47 Toronto: four valid ALK/NDM receipts persisted 191 new 5-/15-minute bars and refreshed both position snapshots; no exit rule triggered. Three immediate repeat cycles were valid and idempotent with zero new bars, so ensure only one monitor host is open.
-- [ ] Keep the WPF app open and verify the newly added five-share EDR position joins its first scheduled durable cycle; continue observing automatic ghost-exit behavior when a policy exit actually occurs.
+- [x] Verify the five-share EDR Ghost position joins a scheduled durable cycle and observe an automatic Ghost exit end to end: valid five- and fifteen-minute receipts persisted at 10:47 Toronto on 2026-08-27, followed by the separately recorded $15.62 `Policy TrailingProfit` sale.
 - [x] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception, using run `CreatedUtc` for per-bar availability and refusing fallback when the newest valid run omitted or did not publish the symbol.
 - [x] Core tests pass: 143 passed, 0 failed, 0 skipped on 2026-08-28; the complete Release solution build succeeds with Visual Studio 18.10 MSBuild, including the SSDT database project.
 - [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.
