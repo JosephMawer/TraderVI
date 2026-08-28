@@ -149,7 +149,7 @@
                 <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Real unrealized"/><TextBlock Style="{StaticResource StatValue}" Text="{Binding RealUnrealizedPnL, StringFormat={}{0:C2}}"/></StackPanel>
             </Border>
             <Border Grid.Column="8" Style="{StaticResource Card}">
-                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Ghost / real realized"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0"><Run Text="{Binding GhostRealizedPnL, StringFormat={}{0:C2}}"/><Run Text=" / "/><Run Text="{Binding RealRealizedPnL, StringFormat={}{0:C2}}"/></TextBlock></StackPanel>
+                <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Ghost / real realized"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0"><Run Text="{Binding GhostRealizedPnL, Mode=OneWay, StringFormat={}{0:C2}}"/><Run Text=" / "/><Run Text="{Binding RealRealizedPnL, Mode=OneWay, StringFormat={}{0:C2}}"/></TextBlock></StackPanel>
             </Border>
             <Border Grid.Column="10" Style="{StaticResource Card}">
                 <StackPanel><TextBlock Style="{StaticResource StatLabel}" Text="Latest durable receipt"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0" Text="{Binding LastReceiptText}" TextWrapping="Wrap"/></StackPanel>
