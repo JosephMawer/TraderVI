@@ -48,6 +48,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
+- [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 
 ## data-sources
 
@@ -68,6 +69,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 ## time-series
 
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
+- [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 
 ## technical-indicators
 
@@ -82,6 +84,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0012](0012-sector-index-historical-backfill.md) — Sector-index historical backfill
 - [ADR-0014](0014-continuations-lens-trend-confirmation.md) — Continuation lens trend confirmation
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
+- [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 
 ## market-microstructure
 
@@ -151,6 +154,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0034](0034-delphi-shared-workflow-and-desktop-tab.md) — Delphi shared workflow and desktop tab
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
+- [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 
 ## math-statistics
 

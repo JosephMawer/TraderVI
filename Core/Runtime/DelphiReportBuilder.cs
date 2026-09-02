@@ -78,10 +78,14 @@ public sealed class DelphiReportBuilder
     // can show `null` RS values with no explanation.
     public int RsFallbackToXiuCount { get; set; }       // symbols that used XIU because no usable sector series was loaded
     public IReadOnlyList<string> RsFallbackSymbols { get; set; } = [];
-    public int RsCompositeNullCount { get; set; }       // symbols where CompositeScore came back null (insufficient bars)
+    public int RsFullCoverageCount { get; set; }        // symbols with the complete exact canonical session window
+    public int RsAlignmentGapCount { get; set; }        // symbols with an exact-session gap or duplicate against XIU sessions
+    public IReadOnlyList<string> RsAlignmentGapSymbols { get; set; } = [];
+    public int RsCompositeNullCount { get; set; }       // symbols where exact 10-session endpoints were unavailable
     public int RsMinSectorBars { get; set; }            // min #bars across loaded sector indices
     public int RsMaxSectorBars { get; set; }            // max #bars across loaded sector indices
-    public int RsBarsRequired { get; set; } = 80;       // max horizon (60) + zWindow (20)
+    public int RsBarsRequired { get; set; } =
+        Core.RelativeStrength.RelativeStrengthCalculator.RequiredCanonicalSessionCount();
 
     public DelphiPresentationSnapshot BuildPresentationSnapshot(
         string summaryReport,
@@ -200,7 +204,10 @@ public sealed class DelphiReportBuilder
             RsBarsRequired,
             RsFallbackToXiuCount,
             RsCompositeNullCount,
-            RsFallbackSymbols.ToArray());
+            RsFallbackSymbols.ToArray(),
+            RsAlignmentGapCount,
+            RsAlignmentGapSymbols.OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase).ToArray(),
+            RsFullCoverageCount);
 
         var obv = new DelphiObvPresentation(
             ObvResults.Values.Select(result => result.BreakoutWindow).FirstOrDefault(),
@@ -520,20 +527,22 @@ public sealed class DelphiReportBuilder
         sb.AppendLine($"  RS computed:           {RsScores.Count}");
 
         // ── RS Coverage ──
-        // Tells the truth about whether RS composite is meaningful. If sector
-        // index history is shorter than RsBarsRequired (max horizon + Z window),
-        // CompositeScore will be null for all sector-mapped symbols — making the
-        // top-picks RS columns silently empty. This block makes that visible.
+        // Tells the truth about sector-history depth and exact XIU-session alignment.
+        // Shorter-horizon values may remain available when the full 60-session feature set is not.
         sb.AppendLine("\n── RS Coverage ──");
-        sb.AppendLine($"  Sector bars (min/max): {RsMinSectorBars} / {RsMaxSectorBars}  (required >= {RsBarsRequired} for full composite)");
+        sb.AppendLine($"  Raw sector rows min/max: {RsMinSectorBars} / {RsMaxSectorBars}");
+        sb.AppendLine($"  Full canonical coverage: {RsFullCoverageCount} / {RsScores.Count}  ({RsBarsRequired} XIU sessions required)");
         sb.AppendLine($"  Fallback to XIU:       {RsFallbackToXiuCount}  (no usable sector-index series; sector dimension degenerate)");
         if (RsFallbackSymbols.Count > 0)
             sb.AppendLine($"  Fallback symbols:      {string.Join(", ", RsFallbackSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
-        sb.AppendLine($"  Composite null:        {RsCompositeNullCount}  (insufficient bars for 10d/60d horizons or 20d Z window)");
-        if (RsMinSectorBars > 0 && RsMinSectorBars < RsBarsRequired)
-        {
-            sb.AppendLine($"  ⚠ Sector index history is too short ({RsMinSectorBars} < {RsBarsRequired} bars). RS composite cannot be computed for sector-mapped symbols. Backfill TraderDB.dbo.SectorIndices.");
-        }
+        sb.AppendLine($"  Date-alignment gaps:   {RsAlignmentGapCount}  (missing or duplicate exact canonical sessions)");
+        if (RsAlignmentGapSymbols.Count > 0)
+            sb.AppendLine($"  Gap symbols:           {string.Join(", ", RsAlignmentGapSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
+        sb.AppendLine($"  Composite null:        {RsCompositeNullCount}  (missing exact 10-session endpoints or insufficient history)");
+        if (RsFullCoverageCount < RsScores.Count)
+            sb.AppendLine("  ⚠ Some symbols lack the full canonical stock/sector session window; shorter features compute only from exact available endpoints.");
+        if (RsAlignmentGapCount > 0)
+            sb.AppendLine("  ⚠ Date-alignment gaps degrade coverage; metrics requiring those sessions stay null, while unaffected metrics remain valid.");
 
         // ── Top Picks Detail ──
         sb.AppendLine("\n── Top Picks (diagnostic) ──");
@@ -677,14 +686,16 @@ public sealed class DelphiReportBuilder
         }
 
         // ── RS coverage banner (only when there is something to report) ──
-        if (RsMinSectorBars > 0 && RsMinSectorBars < RsBarsRequired)
+        if (RsFullCoverageCount < RsScores.Count)
         {
-            sb.AppendLine($"  ⚠ RS coverage: sector index history {RsMinSectorBars} bars (< {RsBarsRequired}) — composite null for sector-mapped symbols. {RsCompositeNullCount} symbols affected.");
+            sb.AppendLine($"  ⚠ RS coverage: {RsFullCoverageCount} / {RsScores.Count} symbols have the full {RsBarsRequired}-session canonical window; {RsCompositeNullCount} 10-session composites are null.");
         }
         else if (RsFallbackToXiuCount > 0 || RsCompositeNullCount > 0)
         {
             sb.AppendLine($"  RS coverage: {RsFallbackToXiuCount} fallback-to-XIU, {RsCompositeNullCount} null composite.");
         }
+        if (RsAlignmentGapCount > 0)
+            sb.AppendLine($"  ⚠ RS date alignment: {RsAlignmentGapCount} symbol(s) contain missing or duplicate exact XIU sessions; metrics requiring those sessions remain null.");
 
         // ── A/D Breadth ──
         if (AdLine.Count > 0)

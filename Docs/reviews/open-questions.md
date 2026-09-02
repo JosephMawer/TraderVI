@@ -5,6 +5,21 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Risk-threshold ownership and persisted defaults
+- **Q:** Which values are the authoritative policy for new tracked positions and Delphi's downside veto,
+  and which are merely legacy constructor/repository defaults?
+- `StrategyConfig.MaxDownProb` and the design rules use `0.35`, while the repository insertion default and
+  `DownProbabilityGate` constructor fallback use `0.20`. Delphi currently supplies the strategy value, but
+  another caller can receive a materially different veto without an explicit policy choice.
+- `StrategyConfig.WarningPercent` and the design rules use −5%, while accepted ADR-0015 and `TradeManager`
+  create tracked positions with a −8% warning. The −10% stop agrees, but the warning contract does not.
+- Before changing code or stored values, classify each value as a versioned strategy setting, a tracked-position
+  lifecycle policy, a per-run override, or a compatibility default. Decide whether entry and exit policies need
+  separate versioned snapshots, and preserve existing position/audit history.
+- **Tags:** risk-management, decision-engine, database, architecture
+- **Status:** open — identified by the 2026-09-01 static changeability audit. Do not normalize these values as
+  mechanical cleanup; resolve them through an explicit decision and strategy/policy version boundary.
+
 ### On-Balance Volume soft tilt — first live-read calibration (ADR-0016)
 - **Q:** The first live Delphi OBV read (2026-06-06, 233 symbols) validated the wiring
   (`0 indeterminate`; the ±0.1 tilt verifiably reordered ESI below BTE) but surfaced two
@@ -43,6 +58,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   - After backfill: re-validate Z-window choice (currently `zWindow = 20`) against actual sector volatility — 20 may be too short for sector indices that move smoothly.
 - **Tags:** data-pipeline, technical-indicators, decision-engine
 - **Status:** parked — diagnostic visibility shipped. Data backfill is the next ADR-tracked piece of work (candidate ADR-0011).
+- **2026-09-01 correctness update (ADR-0041):** the calculator no longer clips undated arrays to
+  `min(count)`. It aligns exact stock/sector endpoints to canonical XIU sessions and reports interior or
+  stale-tail gaps. The complete current feature set requires 61 sessions, not the earlier diagnostic's
+  `60 + 20 = 80`; retaining 80–120 sector sessions is still useful operating/backfill headroom. The
+  source, owner, cadence, and historical-backfill questions remain open.
 
 ### Relative Strength composite scale — raw return diffs vs Z-score normalization
 - **Q:** The 2026-05-23 Delphi run showed `RScomp = +0.000` (3-decimal display) for the entire top-14 passing list. Investigation in [`RelativeStrengthCalculator.cs`](../../Core/RelativeStrength/RelativeStrengthCalculator.cs) confirmed the values are **real, not a bug**: the composite is a weighted blend of raw 10-day return differences (`0.5×svm10 + 0.3×svs10 + 0.2×secvm10`), which for typical TSX stocks lives in `±0.005` (±0.5%) on a 10-day window. The leaderboard now displays 4 decimals + `RS10d` (raw stock-vs-XIU 10d) for visibility, but this is a *cosmetic* fix.

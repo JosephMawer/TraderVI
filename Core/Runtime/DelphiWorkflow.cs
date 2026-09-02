@@ -5,6 +5,7 @@ using Core.DataQuality;
 using Core.Indicators.Granville;
 using Core.Config;
 using Core.ML;
+using Core.RelativeStrength;
 using Core.Runtime;
 using Core.Trader;
 using Core.Trader.Gates;
@@ -130,6 +131,75 @@ public sealed class DelphiWorkflow
             var xiuBars = await quoteRepo.GetDailyBarsAsync("XIU");
             var spyBars = await quoteRepo.GetDailyBarsAsync("SPY");
 
+            if (xiuBars.Count == 0)
+            {
+                const string status = "Cannot evaluate: XIU has no daily price history, so Delphi cannot establish the canonical TSX session.";
+                Console.WriteLine(status);
+                return DelphiWorkflowRunResult.Failed(
+                    options,
+                    runStartedUtc,
+                    recommendationDate,
+                    status);
+            }
+
+            DateTime marketDataAsOf = xiuBars[^1].Date.Date;
+            var benchmarkSessions = xiuBars
+                .Select(bar => bar.Date.Date)
+                .Where(date => date <= marketDataAsOf)
+                .Distinct()
+                .OrderBy(date => date)
+                .ToArray();
+            RelativeStrengthPricePoint[] xiuCloses = xiuBars
+                .Select(bar => new RelativeStrengthPricePoint(
+                    DateOnly.FromDateTime(bar.Date),
+                    bar.Close))
+                .ToArray();
+            int rsBarsRequired = RelativeStrengthCalculator.RequiredCanonicalSessionCount();
+            DateOnly rsTargetSession = DateOnly.FromDateTime(marketDataAsOf);
+            HashSet<DateOnly> requiredXiuSessions = xiuCloses
+                .Select(point => point.Date)
+                .Where(date => date <= rsTargetSession)
+                .Distinct()
+                .OrderBy(date => date)
+                .TakeLast(rsBarsRequired)
+                .ToHashSet();
+
+            // Validate the shared RS calendar before any optional operational write. A failed
+            // canonical input must not leave Granville logs or later projections partially replaced.
+            IGrouping<DateOnly, RelativeStrengthPricePoint>? duplicateXiuSession = xiuCloses
+                .Where(point => requiredXiuSessions.Contains(point.Date))
+                .GroupBy(point => point.Date)
+                .FirstOrDefault(group => group.Count() > 1);
+            if (duplicateXiuSession is not null)
+            {
+                string status = $"XIU contains duplicate daily rows for canonical session {duplicateXiuSession.Key:yyyy-MM-dd}; relative strength was not evaluated.";
+                Console.WriteLine(status);
+                return DelphiWorkflowRunResult.Failed(
+                    options,
+                    runStartedUtc,
+                    recommendationDate,
+                    status,
+                    marketDataAsOf);
+            }
+
+            RelativeStrengthPricePoint[] invalidXiuCloses = xiuCloses
+                .Where(point => requiredXiuSessions.Contains(point.Date))
+                .OrderBy(point => point.Date)
+                .Where(point => !double.IsFinite(point.Close) || point.Close <= 0)
+                .ToArray();
+            if (invalidXiuCloses.Length > 0)
+            {
+                string invalidSessions = string.Join(", ", invalidXiuCloses.Select(point => point.Date.ToString("yyyy-MM-dd")));
+                string status = $"XIU has invalid closes in the canonical relative-strength window ({invalidSessions}); relative strength was not evaluated.";
+                Console.WriteLine(status);
+                return DelphiWorkflowRunResult.Failed(
+                    options,
+                    runStartedUtc,
+                    recommendationDate,
+                    status,
+                    marketDataAsOf);
+            }
+
             MarketRegime? regime = null;
             if (xiuBars.Count >= 200)
             {
@@ -167,24 +237,6 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             var adRepo = new AdvanceDeclineRepository();
             var adLine = await adRepo.GetRecentAsync(200);
-            if (xiuBars.Count == 0)
-            {
-                const string status = "Cannot evaluate: XIU has no daily price history, so Delphi cannot establish the canonical TSX session.";
-                Console.WriteLine(status);
-                return DelphiWorkflowRunResult.Failed(
-                    options,
-                    runStartedUtc,
-                    recommendationDate,
-                    status);
-            }
-
-            DateTime marketDataAsOf = xiuBars[^1].Date.Date;
-            var benchmarkSessions = xiuBars
-                .Select(b => b.Date.Date)
-                .Where(date => date <= marketDataAsOf)
-                .Distinct()
-                .OrderBy(date => date)
-                .ToArray();
 
             Console.WriteLine("Evaluation Dates:");
             Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (run date; database PickDate/EvalDate)");
@@ -541,17 +593,22 @@ public sealed class DelphiWorkflow
             var stockSectorMap = stockSectorMappings
                 .ToDictionary(m => m.Symbol, m => m.SectorIndexSymbol, StringComparer.OrdinalIgnoreCase);
 
-            // XIU closes (already loaded above for regime)
-            var xiuCloses = xiuBars.Select(b => (double)b.Close).ToList();
+            // XIU dated closes and the canonical depth were validated before any optional write.
 
-            // Sector index closes keyed by sector symbol — wider window for RS horizons (60d + 20d Z)
+            // Sector index closes keyed by sector symbol — retain headroom beyond the current
+            // 61-session requirement for the 60-session return and 10-session Z-score.
             var rsSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 80);
 
             var sectorClosesBySector = rsSectorSnapshots
                 .GroupBy(s => s.Symbol, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.OrderBy(s => s.Date).Select(s => (double)s.Price).ToList(),
+                    g => (IReadOnlyList<RelativeStrengthPricePoint>)(
+                        g.OrderBy(snapshot => snapshot.Date)
+                            .Select(snapshot => new RelativeStrengthPricePoint(
+                                DateOnly.FromDateTime(snapshot.Date),
+                                (double)snapshot.Price))
+                            .ToArray()),
                     StringComparer.OrdinalIgnoreCase);
 
             var rsScores = new Dictionary<string, Core.RelativeStrength.RelativeStrengthRow>(StringComparer.OrdinalIgnoreCase);
@@ -560,7 +617,9 @@ public sealed class DelphiWorkflow
             // RS coverage counters — surface degenerate/missing RS instead of silently emitting null.
             int rsFallbackToXiu = 0;
             int rsCompositeNull = 0;
-            int rsBarsRequired = 80; // max horizon (60d) + Z window (20d) in RelativeStrengthCalculator
+            int rsFullCoverageCount = 0;
+            int rsAlignmentGapCount = 0;
+            var rsAlignmentGapSymbols = new List<string>();
 
             int rsMinSectorBars = sectorClosesBySector.Count > 0
                 ? sectorClosesBySector.Values.Min(v => v.Count)
@@ -571,12 +630,19 @@ public sealed class DelphiWorkflow
 
             foreach (var (symbol, bars) in allBars)
             {
-                var stockCloses = bars.Select(b => (double)b.Close).ToList();
+                RelativeStrengthPricePoint[] stockCloses = bars
+                    .Select(bar => new RelativeStrengthPricePoint(
+                        DateOnly.FromDateTime(bar.Date),
+                        bar.Close))
+                    .ToArray();
 
                 // Determine this stock's sector index
-                string? sectorSymbol = stockSectorMap.TryGetValue(symbol, out var sec) ? sec : null;
+                string? sectorSymbol = stockSectorMap.TryGetValue(symbol, out string? mappedSector) &&
+                    !string.IsNullOrWhiteSpace(mappedSector)
+                        ? mappedSector.Trim()
+                        : null;
 
-                List<double>? sectorCloses = null;
+                IReadOnlyList<RelativeStrengthPricePoint>? sectorCloses = null;
                 if (sectorSymbol != null)
                     sectorClosesBySector.TryGetValue(sectorSymbol, out sectorCloses);
 
@@ -587,15 +653,27 @@ public sealed class DelphiWorkflow
                     rsFallbackSymbols.Add(symbol);
                 }
 
-                // Compute RS — stock vs market always works; stock vs sector only if we have sector data.
-                // For missing sector data, use XIU as a fallback (RS_StockVsSector ≈ 0).
-                var rs = Core.RelativeStrength.RelativeStrengthCalculator.Compute(
+                // Stock-vs-market does not depend on sector availability; any missing exact stock/XIU
+                // endpoint still remains null under the calculator's coverage contract.
+                // For an unmapped/missing sector series, use XIU as the explicit fallback:
+                // StockVsSector equals StockVsMarket and SectorVsMarket is zero.
+                RelativeStrengthCalculationResult rsCalculation = RelativeStrengthCalculator.Compute(
                     stockCloses: stockCloses,
                     sectorCloses: sectorCloses ?? xiuCloses,
                     marketCloses: xiuCloses,
                     symbol: symbol,
                     date: DateOnly.FromDateTime(marketDataAsOf),
                     sectorIndexSymbol: sectorSymbol ?? "XIU");
+                RelativeStrengthRow rs = rsCalculation.Features;
+
+                if (rsCalculation.Coverage.HasFullCoverage)
+                    rsFullCoverageCount++;
+
+                if (rsCalculation.Coverage.HasAlignmentGap)
+                {
+                    rsAlignmentGapCount++;
+                    rsAlignmentGapSymbols.Add(symbol);
+                }
 
                 if (!rs.CompositeScore.HasValue) rsCompositeNull++;
 
@@ -612,14 +690,16 @@ public sealed class DelphiWorkflow
             Console.WriteLine($"  With sector data: {withSector} | Fallback to XIU: {rsFallbackToXiu}");
             if (rsFallbackSymbols.Count > 0)
                 Console.WriteLine($"  Fallback symbols:      {string.Join(", ", rsFallbackSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
-            Console.WriteLine($"  Sector bars (min/max): {rsMinSectorBars} / {rsMaxSectorBars} (required >= {rsBarsRequired} for full composite)");
-            Console.WriteLine($"  Composite null:        {rsCompositeNull} (insufficient bars for 10d/60d horizons or 20d Z window)");
-            if (rsMinSectorBars > 0 && rsMinSectorBars < rsBarsRequired)
-            {
-                Console.WriteLine($"  ⚠ Sector index history too short ({rsMinSectorBars} < {rsBarsRequired} bars).");
-                Console.WriteLine($"    RS composite will be null for sector-mapped symbols — top-pick RScomp/CompZ/RS10d columns will display 'null'.");
-                Console.WriteLine($"    Action: backfill TraderDB.dbo.SectorIndices to >= {rsBarsRequired} trading days of history.");
-            }
+            Console.WriteLine($"  Raw sector rows min/max: {rsMinSectorBars} / {rsMaxSectorBars}");
+            Console.WriteLine($"  Full canonical coverage: {rsFullCoverageCount} / {rsScores.Count} ({rsBarsRequired} XIU sessions required)");
+            Console.WriteLine($"  Date-alignment gaps:   {rsAlignmentGapCount}");
+            if (rsAlignmentGapSymbols.Count > 0)
+                Console.WriteLine($"  Gap symbols:           {string.Join(", ", rsAlignmentGapSymbols.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))}");
+            Console.WriteLine($"  Composite null:        {rsCompositeNull} (missing exact 10-session endpoints or insufficient history)");
+            if (rsFullCoverageCount < rsScores.Count)
+                Console.WriteLine("  ⚠ Some symbols lack the full canonical stock/sector session window; shorter features compute only from exact available endpoints.");
+            if (rsAlignmentGapCount > 0)
+                Console.WriteLine("  ⚠ RS inputs contain missing or duplicate exact canonical XIU sessions; metrics requiring those sessions remain null instead of shifting dates.");
             Console.WriteLine();
 
             // ═══════════════════════════════════════════════════════════════════
@@ -905,6 +985,9 @@ public sealed class DelphiWorkflow
                 DeployableCapital = deployableCapital,
                 RsFallbackToXiuCount = rsFallbackToXiu,
                 RsFallbackSymbols = rsFallbackSymbols,
+                RsFullCoverageCount = rsFullCoverageCount,
+                RsAlignmentGapCount = rsAlignmentGapCount,
+                RsAlignmentGapSymbols = rsAlignmentGapSymbols,
                 RsCompositeNullCount = rsCompositeNull,
                 RsMinSectorBars = rsMinSectorBars,
                 RsMaxSectorBars = rsMaxSectorBars,

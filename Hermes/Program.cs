@@ -140,7 +140,8 @@ static async Task RunBackfillAsync()
     // ═══════════════════════════════════════════════════════════════════
     // BACKFILL SECTOR INDEX HISTORY (TMX getTimeSeriesData)
     // Fills dbo.SectorIndices with multi-year daily history per ^TT* symbol
-    // so Delphi RS composites (60d + 20d Z window) have enough bars to compute.
+    // so Delphi has the 61 exact canonical sessions required by the current 60-session
+    // return and 10-session/20-observation Z-score, plus operating headroom.
     // Safe to run daily — resumes from each symbol's last stored date.
     // ═══════════════════════════════════════════════════════════════════
     await BackfillSectorIndexHistoryAsync(tmx);

@@ -67,9 +67,41 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Triage the full-audit candidates using official sources and apply only reviewed manual corrections; final audit passed with zero findings on 2026-08-22.
 - [x] Add a Delphi pre-scoring eligibility gate that excludes symbol histories not matching the canonical XIU market-data session.
 
-### 5. Development hygiene
+### 5. Correctness and change-safety stabilization
 
-- [ ] Add GitHub Actions for .NET build and `TraderVI.Core.Tests`.
+The 2026-09-01 static changeability audit found correctness and integrity risks inside the existing
+advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
+publication contracts without tuning weights, thresholds, ranking theses, or automatic execution.
+
+- [ ] Pause new official Delphi publication/evidence cohorts until the date-aligned relative-strength
+  correction is implemented and validated. Normal Hermes ingestion and single-instance WPF evidence
+  collection remain separate operational workflows.
+- [x] Replace undated, minimum-length relative-strength inputs with explicit alignment to canonical XIU
+  sessions; surface missing/degraded coverage and add source-level regression fixtures for unequal
+  histories, exact depth boundaries, and interior gaps (ADR-0041; source completed 2026-09-01).
+- [ ] Validate ADR-0041 under the separately authorized build/test boundary, record the new strategy/code
+  identity, and determine how already-recorded official runs should be labelled or excluded.
+- [ ] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
+  as genuine zero/falling breadth.
+- [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
+  before adding another lens.
+- [ ] Reconcile canonical SQL definitions with repository writes before any broad database work. Continue
+  to use reviewed manual migrations only; do not use DACPAC deployment.
+- [ ] Record and implement explicit transaction boundaries for same-day Delphi operational publication and
+  tracked-position opening. A successful zero-result rerun must replace stale same-date operational picks,
+  and retry behavior must not expose empty or partially replaced projections. Keep append-only calibration
+  evidence semantically distinct.
+- [ ] Establish CI and static contract checks after the bounded correctness fixes and before large workflow
+  extraction. Decide the SSDT job boundary separately.
+- [ ] Introduce immutable Delphi evaluation facts and typed load/evaluate/evidence/publish stages while
+  preserving ADR-0035 presentation compatibility.
+- [ ] Separate Hermes completion semantics and Hercules training/evaluation/artifact-promotion responsibilities.
+- [ ] Phase in clearer module boundaries, nullable/analyzer enforcement, dormant-code removal, and public-surface
+  reduction after the consequential seams above are protected.
+
+### 6. Development hygiene
+
+- [ ] Add GitHub Actions for .NET build and `TraderVI.Core.Tests` as ordered in the stabilization tranche.
 - [ ] Decide whether the SSDT build belongs in the same Windows workflow or a separate job.
 - [ ] Address dependency-security advisories separately from compiler cleanup.
 

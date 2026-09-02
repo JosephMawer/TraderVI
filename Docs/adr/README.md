@@ -78,6 +78,7 @@ architecture documentation.
 | [0038](0038-cohort-weighted-official-prediction-scorecards.md) | Cohort-weighted official prediction scorecards | Accepted | architecture, decision-engine, machine-learning, math-statistics |
 | [0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) | Unified Ghost/Real dashboard and scorecard workspace | Accepted | architecture, data-pipeline, market-microstructure, risk-management |
 | [0040](0040-reconstructible-delayed-intraday-outcome-fill.md) | Reconstructible delayed-intraday outcome fill | Accepted | architecture, data-pipeline, market-microstructure, math-statistics, risk-management |
+| [0041](0041-date-aligned-relative-strength-inputs.md) | Date-aligned relative-strength inputs | Accepted | decision-engine, data-pipeline, time-series, technical-indicators |
 
 See also:
 

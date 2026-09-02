@@ -1,5 +1,9 @@
 # ADR-0012 — Sector-index historical backfill from TMX `getTimeSeriesData`
 
+> **Accuracy note (added 2026-09-01, ADR-0041):** the implemented feature set needs 61 exact
+> canonical sessions, not `60 + 20 = 80`; the Z-score uses a 10-session horizon with a 20-observation
+> window. The accepted 110-row backfill remains useful operating and future-analysis headroom.
+
 - **Status:** Accepted
 - **Date:** 2026-05-23
 - **Tags:** data-pipeline, technical-indicators, decision-engine

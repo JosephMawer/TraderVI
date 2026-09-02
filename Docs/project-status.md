@@ -186,17 +186,27 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
+10. **Relative-strength date alignment is corrected in source under ADR-0041 but remains unvalidated.** The prior calculator
+    accepted undated histories and clipped them to their minimum count, so differently sized recent
+    sector and longer stock/XIU histories could compare different sessions. Dated canonical-XIU
+    alignment, coverage diagnostics, and regression fixtures are now implemented in source but have
+    not been built or run. Do not create another official Delphi cohort until the correction is
+    validated and a new strategy/code identity boundary is recorded; existing evidence remains immutable.
 
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
+1. Temporarily pause new official Delphi publication/evidence cohorts until ADR-0041's dated
+   relative-strength correction is validated and a new strategy/code identity boundary is recorded.
+   This pause does not stop normal Hermes ingestion or single-instance WPF evidence collection.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Keep exactly one `TraderVI.WPF` instance open during regular market hours and verify that fresh SGY and XIU five-/fifteen-minute receipts appear after 2026-08-28. The current launch is not yet durable proof of a new collection cycle.
 4. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A Real alert cannot auto-close it.
 5. Run Athena after new eligible daily or intraday evidence exists. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven continuity gap is stored as invalid rather than bridged.
-6. Continue deliberate official Delphi recommendations to accumulate distinct cohorts; do not treat repeated runs over one market-data date as independent evidence.
+6. After ADR-0041 validation, resume deliberate official Delphi recommendations to accumulate distinct
+   cohorts; keep pre-/post-correction code identities distinct and do not treat repeated runs over one
+   market-data date as independent evidence.
 7. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill prices; do not reopen closed Ghost lifecycles.
 8. Observe additional Hermes backups and perform a test restore.
 9. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

@@ -5,6 +5,7 @@ using Core.Trader;
 using Shouldly;
 using System;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Xunit;
 
 namespace TraderVI.Core.Tests;
@@ -24,7 +25,10 @@ public sealed class DelphiPresentationSnapshotTests
             StrategyVersionName = "Short swing v1",
             StrategyDescription = "Official paper strategy",
             PatternModels = ["Granville", "A/D breadth"],
-            ProfitModels = ["BinaryUp10"]
+            ProfitModels = ["BinaryUp10"],
+            RsAlignmentGapCount = 2,
+            RsAlignmentGapSymbols = ["ZZZ", "AAA"],
+            RsFullCoverageCount = 299
         };
 
         DelphiPresentationSnapshot snapshot = report.BuildPresentationSnapshot(
@@ -41,6 +45,9 @@ public sealed class DelphiPresentationSnapshotTests
         snapshot.Universe.SkippedStaleHistory.ShouldBe(4);
         snapshot.Strategy.VersionName.ShouldBe("Short swing v1");
         snapshot.Strategy.PatternSignals.ShouldContain("Granville");
+        snapshot.RelativeStrength.AlignmentGapCount.ShouldBe(2);
+        snapshot.RelativeStrength.AlignmentGapSymbols.ShouldBe(["AAA", "ZZZ"]);
+        snapshot.RelativeStrength.FullCoverageCount.ShouldBe(299);
         snapshot.SummaryReport.ShouldBe("Human summary");
         snapshot.DiagnosticReport.ShouldBe("Diagnostic detail");
     }
@@ -60,7 +67,32 @@ public sealed class DelphiPresentationSnapshotTests
         actual.Recommendation.SuggestedSize.ShouldBe(140m);
         actual.Strategy.PatternSignals.ShouldBe(["Granville"]);
         actual.RecommendationDate.ShouldBe(expected.RecommendationDate);
+        actual.RelativeStrength.AlignmentGapCount.ShouldBe(2);
+        actual.RelativeStrength.AlignmentGapSymbols.ShouldBe(["AAA", "ZZZ"]);
+        actual.RelativeStrength.FullCoverageCount.ShouldBe(299);
         actual.SummaryReport.ShouldBe("Summary");
+    }
+
+    [Fact]
+    public void CapturedSchemaV1WithoutNewRelativeStrengthCoverageFieldsStillLoads()
+    {
+        string json = JsonSerializer.Serialize(
+            new { presentation = CreateSnapshot() },
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        JsonObject root = JsonNode.Parse(json)!.AsObject();
+        JsonObject relativeStrength = root["presentation"]!["relativeStrength"]!.AsObject();
+        relativeStrength.Remove("alignmentGapCount");
+        relativeStrength.Remove("alignmentGapSymbols");
+        relativeStrength.Remove("fullCoverageCount");
+
+        DelphiPresentationSnapshot? actual = DelphiPersistedPresentationReader.TryReadCaptured(root.ToJsonString());
+
+        actual.ShouldNotBeNull();
+        actual!.SchemaVersion.ShouldBe(1);
+        actual.RelativeStrength.Computed.ShouldBe(301);
+        actual.RelativeStrength.AlignmentGapCount.ShouldBeNull();
+        actual.RelativeStrength.AlignmentGapSymbols.ShouldBeNull();
+        actual.RelativeStrength.FullCoverageCount.ShouldBeNull();
     }
 
     [Fact]
@@ -127,7 +159,9 @@ public sealed class DelphiPresentationSnapshotTests
         null,
         null,
         new DelphiUniversePresentation(412, 301, 10, 4, 5, 2, 80, 10, 1m, 100000, []),
-        new DelphiRelativeStrengthPresentation(301, 80, 120, 80, 0, 0, []),
+        new DelphiRelativeStrengthPresentation(
+            301, 80, 120, 61, 0, 0, [],
+            2, ["AAA", "ZZZ"], 299),
         new DelphiObvPresentation(20, 0.03, 100, 90, 80, 31, []),
         null,
         new DelphiStrategyPresentation(

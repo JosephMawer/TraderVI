@@ -247,13 +247,18 @@ RS measures how a stock performs relative to its sector and the market across mu
 
 Horizons: 5d, 10d, 20d, 60d.
 
+XIU defines the canonical completed-session sequence. Live stock, sector, and XIU observations retain
+their dates, and every return or rolling Z-score uses exact canonical endpoints. Missing or ambiguous
+duplicate stock/sector endpoints leave only affected metrics unavailable; duplicate or invalid XIU data in the required
+61-session canonical window fails the RS stage (ADR-0041).
+
 ### Composite Score
 `0.5 × RS_StockVsMarket_10d + 0.3 × RS_StockVsSector_10d + 0.2 × RS_SectorVsMarket_10d`
 
 Weights are initial defaults, intended to be tuned via Hercules feature importance.
 
 ### Lifecycle
-- **Delphi**: computes live from in-memory price arrays (does not read DB)
+- **Delphi**: computes live from dated in-memory price observations (does not read saved RS features)
 - **Hermes**: backfills historical to `[dbo].[RelativeStrengthFeatures]` (planned — stock-vs-XIU is fully backfillable from 2020; stock-vs-sector only from when sector collection started)
 - **Hercules**: reads from DB, includes RS columns as LightGBM features (planned)
 
@@ -261,7 +266,9 @@ Weights are initial defaults, intended to be tuned via Hercules feature importan
 `[SectorIndices]` only has data from when Hermes started collecting. For historical backfill:
 - Stock vs XIU features are available from 2020 (full DailyBars history)
 - Stock vs Sector features are only available from sector collection start date
-- Delphi gracefully degrades: if no sector data, falls back to XIU (making RS_StockVsSector ≈ 0)
+- Delphi explicitly falls back to XIU only when no sector series is available. In that case
+  `RS_StockVsSector` equals `RS_StockVsMarket`, while `RS_SectorVsMarket` is zero; the fallback is
+  counted and labelled rather than presented as real sector evidence.
 
 ## TSX Sector Map
 

@@ -626,3 +626,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0040
 
 **A:** That substitution would hide a data gap and choose a different price after seeing what evidence survived. Athena records the proven gap as invalid so every valid fill follows one reconstructible convention.
+
+### Q: Why can relative-strength histories not be aligned by their minimum list length?
+- **Domains:** decision-engine, data-pipeline, time-series
+- **Source:** ADR-0041
+
+**A:** Length contains no session identity. A short recent sector series and a long stock/XIU series can have the same selected count while representing different dates, and an interior gap can shift every later position. ADR-0041 aligns exact endpoints to canonical XIU sessions instead.
+
+### Q: What does TraderVI do when an exact relative-strength endpoint is missing?
+- **Domains:** decision-engine, technical-indicators, time-series
+- **Source:** ADR-0041
+
+**A:** The affected metric remains null and coverage reports the missing or stale-tail session. TraderVI does not clip, compress, forward-fill, or substitute another date, and pre-/post-correction official evidence keeps a visible code and strategy boundary.

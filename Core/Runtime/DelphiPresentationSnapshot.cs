@@ -143,7 +143,10 @@ public sealed record DelphiRelativeStrengthPresentation(
     int? BarsRequired,
     int? FallbackToXiu,
     int? CompositeNull,
-    IReadOnlyList<string> FallbackSymbols);
+    IReadOnlyList<string> FallbackSymbols,
+    int? AlignmentGapCount = null,
+    IReadOnlyList<string>? AlignmentGapSymbols = null,
+    int? FullCoverageCount = null);
 
 public sealed record DelphiObvPresentation(
     int? BreakoutWindow,

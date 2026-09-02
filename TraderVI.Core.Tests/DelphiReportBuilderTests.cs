@@ -41,6 +41,23 @@ public sealed class DelphiReportBuilderTests
     }
 
     [Fact]
+    public void BuildDiagnostic_ListsDateAlignmentGapSymbolsInStableOrder()
+    {
+        var report = new DelphiReportBuilder
+        {
+            RsAlignmentGapCount = 2,
+            RsAlignmentGapSymbols = ["ZZZ", "AAA"]
+        };
+
+        string diagnostic = report.BuildDiagnostic();
+
+        diagnostic.ShouldContain("Date-alignment gaps:   2");
+        diagnostic.ShouldContain("Gap symbols:           AAA, ZZZ");
+        diagnostic.ShouldContain("metrics requiring those sessions stay null");
+        diagnostic.ShouldContain("unaffected metrics remain valid");
+    }
+
+    [Fact]
     public void Reports_SurfaceStaleHistoryGateAndStableExclusionDetails()
     {
         var report = new DelphiReportBuilder

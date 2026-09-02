@@ -162,6 +162,15 @@ Across horizons: **5d, 10d, 20d, 60d**
 
 Plus volatility-normalized Z-scores: `RS_Z = (RS_today - mean(RS_20d)) / std(RS_20d)`
 
+**Session alignment (ADR-0041):** XIU defines the canonical completed-session sequence. Stock and
+sector inputs retain their dates, and each return/Z-score uses exact canonical endpoints. A missing or
+duplicated stock/sector endpoint leaves only the affected metric null and is surfaced as degraded
+coverage; never select a duplicate by source order, align by minimum list length, compress gaps,
+forward-fill, or substitute a nearby session. The full current
+feature set requires 61 canonical sessions (a 60-session return needs 61 endpoints). Duplicate XIU
+sessions or invalid XIU closes inside that required canonical window fail Delphi's RS stage because
+the shared session reference itself is not safe to degrade independently per symbol.
+
 **Lifecycle**:
 - **Delphi** computes live for today's inference (does NOT read from DB)
 - **Hermes** backfills historical values to `[dbo].[RelativeStrengthFeatures]` for Hercules training

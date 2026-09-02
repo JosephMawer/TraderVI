@@ -455,9 +455,12 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
 
         DelphiRelativeStrengthPresentation rs = snapshot.RelativeStrength;
         RsObvDiagnostics.Add(new("RS computed", rs.Computed.ToString("N0")));
-        RsObvDiagnostics.Add(new("Sector bars min / max", $"{NullableNumber(rs.SectorBarsMinimum)} / {NullableNumber(rs.SectorBarsMaximum)}"));
+        RsObvDiagnostics.Add(new("Raw sector rows min / max", $"{NullableNumber(rs.SectorBarsMinimum)} / {NullableNumber(rs.SectorBarsMaximum)}"));
         RsObvDiagnostics.Add(new("RS bars required", NullableNumber(rs.BarsRequired)));
+        RsObvDiagnostics.Add(new("Full canonical coverage", $"{NullableNumber(rs.FullCoverageCount)} / {rs.Computed:N0}"));
         RsObvDiagnostics.Add(new("Fallback to XIU", NullableNumber(rs.FallbackToXiu)));
+        RsObvDiagnostics.Add(new("Date-alignment gaps", NullableNumber(rs.AlignmentGapCount)));
+        RsObvDiagnostics.Add(new("Gap symbols", StableSymbols(rs.AlignmentGapSymbols)));
         RsObvDiagnostics.Add(new("Composite null", NullableNumber(rs.CompositeNull)));
         DelphiObvPresentation obv = snapshot.Obv;
         RsObvDiagnostics.Add(new("OBV rising / falling", $"{NullableNumber(obv.Rising)} / {NullableNumber(obv.Falling)}"));
@@ -491,6 +494,12 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
             warnings.Add($"{snapshot.Universe.SkippedStaleHistory} symbol(s) failed the strict freshness rule.");
         if (snapshot.RelativeStrength.FallbackToXiu is > 0)
             warnings.Add($"{snapshot.RelativeStrength.FallbackToXiu} relative-strength rows fell back to XIU.");
+        if (snapshot.RelativeStrength.AlignmentGapCount is > 0)
+        {
+            string symbols = StableSymbols(snapshot.RelativeStrength.AlignmentGapSymbols);
+            string symbolDetail = symbols == "—" ? string.Empty : $" ({symbols})";
+            warnings.Add($"{snapshot.RelativeStrength.AlignmentGapCount} relative-strength row(s) had date-alignment gaps{symbolDetail}; coverage is degraded and metrics requiring those sessions are unavailable.");
+        }
         if (snapshot.RelativeStrength.CompositeNull is > 0)
             warnings.Add($"{snapshot.RelativeStrength.CompositeNull} relative-strength composites were unavailable.");
         return warnings.Count == 0
@@ -514,6 +523,10 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private static string YesNo(bool value) => value ? "Yes" : "No";
     private static string Money(decimal? value) => value?.ToString("C2") ?? "—";
     private static string NullableNumber(int? value) => value?.ToString("N0") ?? "—";
+    private static string StableSymbols(IReadOnlyList<string>? symbols) =>
+        symbols is { Count: > 0 }
+            ? string.Join(", ", symbols.OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase))
+            : "—";
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

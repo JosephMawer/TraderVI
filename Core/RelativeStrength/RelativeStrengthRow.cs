@@ -40,7 +40,7 @@ public sealed record RelativeStrengthRow
     public double? RS_SectorVsMarket_60d { get; init; }
 
     // ── Volatility-normalized (Z-score) variants ──
-    // RS_Z = RS / rolling_std(RS, 20d) — captures whether today's RS is extreme
+    // RS_Z = (RS - rolling_mean(RS, 20d)) / rolling_std(RS, 20d) — captures whether today's RS is extreme
     // relative to its own recent history.
     public double? RS_Z_StockVsSector { get; init; }
     public double? RS_Z_StockVsMarket { get; init; }
