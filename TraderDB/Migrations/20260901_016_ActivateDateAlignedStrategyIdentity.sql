@@ -49,8 +49,11 @@ BEGIN
     EXEC sys.sp_executesql N'
         ALTER TABLE [dbo].[StrategyVersion]
             ADD [InitialCodeCommit] NVARCHAR(128) NULL,
-                [DecisionRef] NVARCHAR(64) NULL;
+                [DecisionRef] NVARCHAR(64) NULL;';
 
+    -- Compile the constraint in a new dynamic batch so SQL Server can resolve the
+    -- columns added by the preceding statement inside this transaction.
+    EXEC sys.sp_executesql N'
         ALTER TABLE [dbo].[StrategyVersion]
             ADD CONSTRAINT [CK_StrategyVersion_CodeIdentity] CHECK
             (
