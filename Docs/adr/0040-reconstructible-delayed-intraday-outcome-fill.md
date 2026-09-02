@@ -27,9 +27,11 @@ For delayed-intraday outcome version 1:
 
 1. Detect policy exits from completed fifteen-minute bars using their first
    durable receipt time.
-2. Assign the raw simulated exit to the open of the first completed five-minute
-   bar whose start is at or after detection. Never award the earlier trigger or
-   trailing threshold.
+2. Assign the raw simulated exit to the open at the exact next five-minute
+   boundary during a regular session. If detection occurs after the last
+   five-minute start, use the next observed regular-session open. Never award
+   the earlier trigger or trailing threshold or silently substitute a later
+   in-session bar.
 3. Report the raw zero-commission gross return separately from a conservative
    return that applies 25 basis points per side for spread/slippage sensitivity.
    Do not label the sensitivity as a Wealthsimple fee or commission.
@@ -41,6 +43,12 @@ For delayed-intraday outcome version 1:
 6. Keep the outcome population tied to immutable official published Delphi
    candidates. Operational Ghost/Real mode, account, actual fill, and P/L do not
    determine the calculated outcome.
+7. Require the replayed fifteen-minute path to begin at the official entry,
+   remain on the Toronto regular-session grid, preserve consecutive bars and
+   session ordinals, and keep first-receipt times non-decreasing. Once later
+   evidence proves an omitted policy or exact fill bar, persist an audited
+   invalid outcome. When no later evidence proves the apparent tail gap, keep
+   the candidate pending.
 
 The operator restated the essential fill rule before acceptance: the simulated
 outcome receives a price observed at the first five-minute checkpoint after the
@@ -66,13 +74,18 @@ start at or after the recorded detection time.
 - Raw and conservative results answer different questions and must remain
   visibly separate in reports.
 - Matching intraday XIU evidence becomes a prerequisite for a matured outcome.
+- A later available bar can prove that an exact required bar is missing, but an
+  empty evidence tail cannot; this keeps `Invalid` distinct from `Pending`.
+- Receipt-order validation prevents a late historical backfill from being
+  replayed as though it had been known before subsequently received evidence.
 - Existing SGY evidence collected before XIU polling begins may remain pending
   where no aligned benchmark bar exists; the evaluator must not invent one.
 - This ADR does not change SGY, any live holding, Delphi ranking, or the accepted
   exit thresholds.
 - Athena persists this as a fifth `Tradeable` definition and reports
   Continuation and Breakout separately with equal market-session cohort
-  weighting. Migration 015 is an explicit manual rollout step.
+  weighting. Migration 015 was operator-applied and the definition was verified
+  active on 2026-09-01; the associated backup was not independently verified.
 - A Real sale remains the operator-reported broker fill in Trade history. It is
   not replaced by, or copied into, this standardized outcome.
 

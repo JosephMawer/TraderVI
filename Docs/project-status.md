@@ -5,7 +5,7 @@
 
 ## Executive summary
 
-TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source: Athena can replay first-received 15-minute alerts, assign the first eligible five-minute open, compare aligned XIU evidence, persist the official result, and report raw zero-commission performance separately from the 25-basis-point-per-side spread/slippage sensitivity. Future WPF monitor cycles collect XIU evidence even with no tracked position. Migration 015 defines this fifth outcome contract but is not applied, and Athena has not been run. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab now keeps only open positions in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
+TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps only open positions in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
 
 The repository contains a coherent 31-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), market-wide Climax (CLX) reporting, and the read-only desktop documentation surface.
 
@@ -14,7 +14,7 @@ The repository contains a coherent 31-commit June/August development sequence. I
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
 - Complete solution build: successful with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced.
-- Core tests: 150 passed, 0 failed, 0 skipped on 2026-09-01.
+- Core tests: 157 passed, 0 failed, 0 skipped on 2026-09-01.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -97,7 +97,7 @@ Read-only aggregate inspection on 2026-08-19 showed:
 Additional state:
 
 - 386 stock-sector mappings are present.
-- The ADR-0029 pilot began with five one-share positions. CMG closed at $3.98 (+$0.03), the original EDR position closed at $15.12 (-$0.04), and OGI closed at $1.74 ($0.00); NDM at $2.43 and ALK at $1.92 were still open at the last independently verified database snapshot. A separate five-share EDR Ghost mirror opened at $15.34 on 2026-08-27, joined valid durable polling, and was automatically closed at $15.62 by `Policy TrailingProfit`. On 2026-08-28 the operator reported that the WPF Trading tab showed all tracked positions closed; exact later NDM/ALK exit details have not yet been independently inspected. These operational records are not official Athena outcomes.
+- All six Ghost lifecycles are closed. SGY is the only open tracked position: a Real, operator-reported entry at $11.09. The 2026-09-01 Delphi run now rates SGY `Hold` at Continuation rank 9 and Breakout rank 10; its prior 2026-08-28 saved picks were `Buy` at ranks 3 and 4 respectively. These operational records are not official Athena outcomes.
 - 27 historical task types have enabled registry rows, with no duplicate enabled row within a task type.
 
 Post-restart Delphi verification on 2026-08-22:
@@ -157,6 +157,14 @@ Advanced official prediction scorecard implementation on 2026-08-27:
 - 138 Core tests and the focused Release Athena build passed. Athena itself was intentionally not run, so no outcome row or export file was written.
 - Migration 014 was applied on 2026-08-28 to seed the four canonical definition contracts that were previously initialized only by Athena. Post-migration inspection found 6 official runs across 4 market-data cohorts, 1,292 official candidates, 2,584 correctly paired lens rows, no duplicate run/lens ranks, and zero outcomes. The WPF query can therefore load coverage while remaining read-only; Athena was not run merely to initialize rows.
 
+Verified operational calibration state on 2026-09-01:
+
+- Migration 015 was operator-applied and read-only inspection verified all five active definitions, including `DelayedIntradaySwing` version 1. A migration-015 backup was not independently verified in this inspection.
+- The latest official Delphi run, `B46479FF-23CE-4E25-9842-C0609AE29362`, is valid for recommendation date 2026-09-01 using market data through 2026-08-31. It persisted 218 candidates and 436 lens rows. The ledger now contains 7 official runs across 5 distinct market-data cohorts and 1,510 candidates.
+- Both lenses published 25 picks. The first five Breakout symbols were MATR, GTE, BTE, ATH, and ESI; the first five Continuation symbols were MATR, BTE, ESI, GTE, and ATH.
+- Athena wrote 112 valid matured `SwingMarkToMarket3` outcomes and 112 valid matured `SwingExcursion3` outcomes. `PredictionLabels10`, `PredictionPath20`, and `DelayedIntradaySwing` remain at zero outcomes.
+- The operator launched WPF, but the durable ledger still ended on 2026-08-28: SGY had 76 five-minute bars and 26 fifteen-minute bars, XIU had 78 and 26, and no later receipt was present. The launch therefore does not yet verify a new market-hours collection cycle.
+
 Unified Trading and WPF scorecard implementation on 2026-08-28:
 
 - ADR-0039 adds a read-only Scorecards tab over ADR-0038's exact official query and pure calculator; it displays coverage, model, reliability, decile, lens, and slice reports without requiring CSV.
@@ -175,7 +183,7 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
 6. **No CI baseline.** Builds and tests are local only.
-7. **Outcome feedback is collecting but not mature.** ADR-0020 through ADR-0032 define the official contracts, policy separation, promotion rules, delayed intraday challenger, non-calibration pilot, durable evidence ledger, automatic ghost exits, and live dashboard. Migration 012 is applied and the first market-hours durable cycle succeeded. Three immediate repeat invocations were valid and idempotent with zero new bars; their initiating host was not independently established, so operate only one monitor host. The fresh post-entry Delphi exception join is implemented conservatively, but the pilot still cannot contribute to Athena or promotion evidence and calibration-grade delayed outcomes remain incomplete. Migration 014 initialized the definition contracts; current read-only inspection sees 6 official runs across 4 market-data cohorts and 1,292 official candidates, but zero outcome rows. Track progress in `Docs/calibration-implementation-checklist.md`.
+7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
 
@@ -185,10 +193,10 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 
 1. Continue deliberate daily official Delphi recommendations without live execution to accumulate distinct cohorts.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
-3. Run Athena once official swing paths have matured, then verify entry timing, 1/2/3-session marks, MFE/MAE paths, separate lens scorecards, and reporting coverage; verify label-aligned 1/5/10/20-session outcomes when those longer horizons mature.
-4. Keep exactly one `TraderVI.WPF` instance open during regular market hours; add deliberate Ghost entries from current saved Delphi Buy picks and verify their durable cycles and exactly-once exits.
-5. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill prices; do not reopen or rewrite the closed EDR Ghost mirror.
-6. Operate the new Scorecards and combined Trading workspace; verify Real alerts cannot auto-close and keep operational Ghost/Real records outside Athena evidence.
-7. Review, back up, manually apply, and verify migration 015 before the first delayed-outcome Athena run. The repository/Athena/lens-report integration is complete in source and operational Ghost/Real records remain excluded.
+3. Keep exactly one `TraderVI.WPF` instance open during regular market hours and verify that fresh SGY and XIU five-/fifteen-minute receipts appear after 2026-08-28. The current launch is not yet durable proof of a new collection cycle.
+4. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A Real alert cannot auto-close it.
+5. Run Athena after new eligible daily or intraday evidence exists. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven continuity gap is stored as invalid rather than bridged.
+6. Continue deliberate official Delphi recommendations to accumulate distinct cohorts; do not treat repeated runs over one market-data date as independent evidence.
+7. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill prices; do not reopen closed Ghost lifecycles.
 8. Observe additional Hermes backups and perform a test restore.
 9. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.

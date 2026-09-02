@@ -614,3 +614,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0040
 
 **A:** No. The raw result is explicitly zero-commission. The separate 25-basis-point-per-side result is a conservative spread/slippage sensitivity used to test whether an apparent edge survives execution friction.
+
+### Q: When does a delayed-intraday evidence gap become invalid rather than pending?
+- **Domains:** architecture, data-pipeline, math-statistics
+- **Source:** ADR-0040
+
+**A:** It becomes invalid only when later evidence proves a required policy or exact fill bar was skipped, or when receipt order conflicts with event order. With no later proof, an apparent gap at the end of the available evidence remains pending.
+
+### Q: Why can Athena not use the next later five-minute bar when the exact expected fill bar is missing?
+- **Domains:** data-pipeline, market-microstructure
+- **Source:** ADR-0040
+
+**A:** That substitution would hide a data gap and choose a different price after seeing what evidence survived. Athena records the proven gap as invalid so every valid fill follows one reconstructible convention.

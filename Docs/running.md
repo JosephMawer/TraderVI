@@ -158,7 +158,7 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 **Project:** `TraderVI.WPF`
 **Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
 
-The WPF app is the tabbed interactive TraderVI shell. Its Trading tab shows open and closed Delphi-linked positions, separate Ghost/Real realized and unrealized P/L, trade history, and durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+The WPF app is the tabbed interactive TraderVI shell. Its Tracked positions area shows open Delphi-linked positions only; completed lifecycles remain available in Trade history. The tab also shows separate Ghost/Real realized and unrealized P/L plus durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
 
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
@@ -194,9 +194,12 @@ Continuation/Breakout rank performance, and diagnostic slices. It uses the
 same official evidence query and pure calculator as Athena, writes nothing, and
 does not require CSV export. Refreshing it cannot mature outcomes or change
 Delphi. Migration `20260828_014_SeedCalibrationOutcomeDefinitions.sql` was
-applied on 2026-08-28 to initialize the four canonical definition contracts;
-without matured Athena outcomes the tab loads coverage but correctly blocks
-performance metrics.
+applied on 2026-08-28 to initialize four contracts, and migration
+`20260901_015_AddDelayedIntradayOutcomeDefinition.sql` was operator-applied and
+verified active on 2026-09-01 to add the fifth. The latest verified Athena run
+wrote 112 valid three-session mark outcomes and 112 valid excursion outcomes;
+the two prediction definitions and delayed-intraday definition still have zero
+outcomes, so their performance sections remain correctly unavailable.
 
 The Project Docs tab discovers Markdown throughout the repository except `.git`, `.vs`, `bin`, `obj`, `packages`, and `node_modules`. It groups documents by folder, searches title/path/content, opens `Docs/project-status.md` by default, and reloads external edits with Refresh. Relative Markdown links and heading fragments navigate inside the tab only after safe repository resolution. Clicking an HTTP(S) link opens the system browser; merely loading, searching, or refreshing documentation never opens a web page. The reader does not write files or access SQL, models, or market services.
 
@@ -213,7 +216,11 @@ Keep the app open for future polling. Closing it, signing out, sleeping, or rest
 **Project:** `Athena`
 **Entry point:** `Athena/Program.cs`
 
-Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session label and 20-session price-path outcomes. It then prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
+Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session labels, 20-session price paths, three-session marks/excursions, and delayed-intraday outcomes. It prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
+
+For `DelayedIntradaySwing`, Athena replays only a continuous first-received 15-minute path. A later bar that proves a missing bar/session, a receipt-order conflict, or a later five-minute bar that proves the exact symbol/XIU fill bar is missing produces an audited invalid outcome. If no later evidence yet proves a gap, the candidate stays pending. An alert during the session uses the exact next five-minute boundary; an after-close alert waits for the next observed regular-session open. Athena never substitutes a later convenient price.
+
+The 2026-09-01 verified run wrote 112 valid `SwingMarkToMarket3` and 112 valid `SwingExcursion3` outcomes. It wrote zero `PredictionLabels10`, `PredictionPath20`, or `DelayedIntradaySwing` outcomes. Durable SGY/XIU evidence still ended on 2026-08-28, so launching WPF without a newer receipt does not make delayed outcomes ready.
 
 Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migration manually first and obtain explicit authorization before running it. The optional CSV switch writes five export-schema-v1 artifacts and refuses to overwrite an existing filename.
 

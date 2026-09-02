@@ -7,7 +7,7 @@
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
 - **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
 - **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
-- **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (source-complete; not applied)
+- **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (operator-applied; definition verified active 2026-09-01; backup not independently verified)
 
 ## Status legend
 
@@ -17,7 +17,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. Migration 014 seeded and verified the four previously implemented outcome-definition contracts on 2026-08-28. No prediction outcomes existed at the last verified database snapshot, so performance remains correctly blocked below the 95% usable-coverage floor and the report cannot change Delphi. ADR-0040 is now source-complete: immutable intraday queries, Athena persistence, the separate raw/25-basis-point sensitivity result, aligned XIU comparison, and cohort-weighted Continuation/Breakout reports are implemented. Migration 015 adds its fifth definition but remains unapplied, and Athena has not been run. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven evidence tail remains pending. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so the next market-hours WPF collection cycle remains an operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -168,7 +168,10 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   - [x] Add the pure deterministic calculator and focused fixtures.
   - [x] Collect XIU five- and fifteen-minute evidence once per future WPF monitor cycle, even with no active tracked position.
   - [x] Add immutable-evidence repository queries, Athena persistence, the reviewed migration 015 definition, and cohort-weighted Continuation/Breakout lens reports.
-  - [ ] **Operational step:** back up, review, manually apply, and verify migration 015; then run Athena only when the evidence is ready.
+  - [x] Reject proven 15-minute bar/session gaps, receipt-order conflicts, and missing exact symbol/XIU fill bars as audited invalid outcomes; leave only unproven tails pending.
+  - [x] **Operational step:** the operator applied migration 015 and read-only inspection verified the fifth active definition on 2026-09-01. A corresponding backup was not independently verified.
+  - [x] **Operational step:** run Athena and verify 112 valid matured `SwingMarkToMarket3` plus 112 valid matured `SwingExcursion3` outcomes; prediction and delayed-intraday outcomes remain at zero.
+  - [ ] **Operational step:** observe a new WPF market-hours collection after 2026-08-28 with fresh SGY/XIU five-/fifteen-minute receipts, then rerun Athena when delayed evidence can advance.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
 
 ## Phase E — shadow portfolios

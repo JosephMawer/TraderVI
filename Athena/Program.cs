@@ -366,6 +366,24 @@ foreach (PendingTradeableCalibrationCandidate candidate in delayedPending)
         continue;
     }
 
+    if (assessment.State == DelayedIntradayOutcomeState.Invalid)
+    {
+        var invalidOutcome = new InvalidDelayedIntradayOutcomeV1(
+            DelayedIntradayOutcomeCalculator.SchemaVersion,
+            IntradayEvidenceVersions.Policy,
+            entryUtc,
+            assessment.FirstInvalidEventUtc ?? entryUtc,
+            assessment.ReasonCode ?? "InvalidDelayedIntradayEvidence");
+        if (await outcomes.InsertOutcomeAsync(
+            candidate.CandidateId,
+            CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId,
+            CalibrationOutcomeMaturityState.Matured,
+            JsonSerializer.Serialize(invalidOutcome, jsonOptions),
+            CalibrationAuditState.Invalid))
+            delayedInvalid++;
+        continue;
+    }
+
     if (await outcomes.InsertOutcomeAsync(
         candidate.CandidateId,
         CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId,

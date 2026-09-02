@@ -11,6 +11,7 @@ namespace Core.Calibration;
 public enum DelayedIntradayOutcomeState
 {
     Pending,
+    Invalid,
     Matured
 }
 
@@ -42,14 +43,22 @@ public sealed record DelayedIntradayOutcomeV1(
     string FillConvention,
     DelayedIntradayBreakoutEvidence? FreshBreakoutEvidence);
 
+public sealed record InvalidDelayedIntradayOutcomeV1(
+    int SchemaVersion,
+    string PolicyVersion,
+    DateTime EntryUtc,
+    DateTime FirstInvalidEventUtc,
+    string ReasonCode);
+
 public sealed record DelayedIntradayOutcomeAssessment(
     DelayedIntradayOutcomeState State,
-    string? PendingReason,
+    string? ReasonCode,
+    DateTime? FirstInvalidEventUtc,
     DelayedIntradayOutcomeV1? Outcome);
 
 /// <summary>
 /// Replays ADR-0028 from immutable completed bars. An alert receives the open
-/// of the first five-minute bar beginning at or after detection. The raw return
+/// of the exact first five-minute boundary at or after detection. The raw return
 /// represents a zero-commission fill; the conservative return separately
 /// applies the accepted spread/slippage sensitivity.
 /// </summary>
@@ -90,9 +99,16 @@ public static class DelayedIntradayOutcomeCalculator
         IntradaySwingDecision? exit = null;
         DelayedIntradayBar? decisionBar = null;
         DelayedIntradayBreakoutEvidence? decisionEvidence = null;
+        var validatedPolicyBars = new List<DelayedIntradayBar>();
 
         foreach (DelayedIntradayBar bar in orderedPolicyBars)
         {
+            validatedPolicyBars.Add(bar);
+            DelayedIntradayOutcomeAssessment? continuityFailure =
+                ValidatePolicyContinuity(entryUtc, validatedPolicyBars, config);
+            if (continuityFailure is not null)
+                return continuityFailure;
+
             breakoutEvidenceByBar?.TryGetValue(bar.StartUtc, out decisionEvidence);
             IntradaySwingDecision decision = DelayedIntradaySwingExitPolicy.Evaluate(
                 state,
@@ -111,22 +127,60 @@ public static class DelayedIntradayOutcomeCalculator
         if (exit is null || decisionBar is null)
             return Pending("NoExitAlertYet");
 
-        OhlcvBar? fillBar = symbolFiveMinuteBars
-            .Where(bar => bar.TimestampUtc.Kind == DateTimeKind.Utc &&
-                          bar.TimestampUtc >= exit.DetectedUtc)
-            .OrderBy(bar => bar.TimestampUtc)
-            .FirstOrDefault();
-        if (fillBar is null)
+        DateTime? expectedFill = DetermineExpectedFillUtc(
+            exit.DetectedUtc,
+            symbolFiveMinuteBars,
+            xiuFiveMinuteBars);
+        if (expectedFill is null)
             return Pending("AwaitingPostDetectionSymbolFillBar");
+        DateTime expectedFillUtc = expectedFill.Value;
+        List<OhlcvBar> fillMatches = symbolFiveMinuteBars
+            .Where(bar => bar.TimestampUtc == expectedFillUtc)
+            .ToList();
+        if (fillMatches.Count > 1)
+            return Invalid("DuplicateExpectedSymbolFillBar", expectedFillUtc);
+        if (fillMatches.Count == 0)
+        {
+            return symbolFiveMinuteBars.Any(bar =>
+                       bar.TimestampUtc.Kind == DateTimeKind.Utc &&
+                       bar.TimestampUtc > expectedFillUtc)
+                ? Invalid("MissingExpectedSymbolFillBar", expectedFillUtc)
+                : Pending("AwaitingPostDetectionSymbolFillBar");
+        }
 
-        OhlcvBar? xiuFillBar = xiuFiveMinuteBars
-            .Where(bar => bar.TimestampUtc == fillBar.TimestampUtc)
-            .SingleOrDefault();
-        if (xiuFillBar is null)
-            return Pending("AwaitingAlignedPostDetectionXiuBar");
+        List<OhlcvBar> xiuFillMatches = xiuFiveMinuteBars
+            .Where(bar => bar.TimestampUtc == expectedFillUtc)
+            .ToList();
+        if (xiuFillMatches.Count > 1)
+            return Invalid("DuplicateAlignedXiuFillBar", expectedFillUtc);
+        if (xiuFillMatches.Count == 0)
+        {
+            return xiuFiveMinuteBars.Any(bar =>
+                       bar.TimestampUtc.Kind == DateTimeKind.Utc &&
+                       bar.TimestampUtc > expectedFillUtc)
+                ? Invalid("MissingAlignedXiuFillBar", expectedFillUtc)
+                : Pending("AwaitingAlignedPostDetectionXiuBar");
+        }
 
-        ValidateFillBar(fillBar, nameof(symbolFiveMinuteBars));
-        ValidateFillBar(xiuFillBar, nameof(xiuFiveMinuteBars));
+        OhlcvBar fillBar = fillMatches[0];
+        OhlcvBar xiuFillBar = xiuFillMatches[0];
+
+        try
+        {
+            ValidateFillBar(fillBar, nameof(symbolFiveMinuteBars));
+        }
+        catch (ArgumentException)
+        {
+            return Invalid("InvalidExpectedSymbolFillBar", expectedFillUtc);
+        }
+        try
+        {
+            ValidateFillBar(xiuFillBar, nameof(xiuFiveMinuteBars));
+        }
+        catch (ArgumentException)
+        {
+            return Invalid("InvalidAlignedXiuFillBar", expectedFillUtc);
+        }
 
         decimal adjustedEntry = rawEntryPrice * (1m + ExecutionFrictionRatePerSide);
         decimal adjustedExit = fillBar.Open * (1m - ExecutionFrictionRatePerSide);
@@ -136,6 +190,7 @@ public static class DelayedIntradayOutcomeCalculator
 
         return new DelayedIntradayOutcomeAssessment(
             DelayedIntradayOutcomeState.Matured,
+            null,
             null,
             new DelayedIntradayOutcomeV1(
                 SchemaVersion,
@@ -167,7 +222,164 @@ public static class DelayedIntradayOutcomeCalculator
     }
 
     private static DelayedIntradayOutcomeAssessment Pending(string reason) =>
-        new(DelayedIntradayOutcomeState.Pending, reason, null);
+        new(DelayedIntradayOutcomeState.Pending, reason, null, null);
+
+    private static DelayedIntradayOutcomeAssessment Invalid(string reason, DateTime firstInvalidEventUtc) =>
+        new(DelayedIntradayOutcomeState.Invalid, reason, firstInvalidEventUtc, null);
+
+    private static DelayedIntradayOutcomeAssessment? ValidatePolicyContinuity(
+        DateTime entryUtc,
+        IReadOnlyList<DelayedIntradayBar> bars,
+        DelayedIntradaySwingPolicyConfig config)
+    {
+        TimeZoneInfo toronto = ResolveTorontoTimeZone();
+        TimeSpan interval = TimeSpan.FromMinutes(config.PollIntervalMinutes);
+        DelayedIntradayBar first = bars[0];
+        if (first.StartUtc.Kind != DateTimeKind.Utc)
+            return Invalid("InvalidPolicyBarTimestamp", entryUtc);
+        if (first.TradingSessionOrdinal != 1)
+            return Invalid("FirstPolicySessionOrdinalNotOne", first.StartUtc);
+        if (first.StartUtc != entryUtc)
+            return Invalid("FirstPolicyBarDoesNotMatchEntry", entryUtc);
+
+        DelayedIntradayBar? previous = null;
+        DateTime previousLocalDate = default;
+        foreach (DelayedIntradayBar bar in bars)
+        {
+            if (bar.StartUtc.Kind != DateTimeKind.Utc ||
+                bar.EndUtc.Kind != DateTimeKind.Utc ||
+                bar.ReceivedUtc.Kind != DateTimeKind.Utc)
+                return Invalid("InvalidPolicyBarTimestamp", entryUtc);
+
+            DateTime localStart = TimeZoneInfo.ConvertTimeFromUtc(bar.StartUtc, toronto);
+            TimeSpan localTime = localStart.TimeOfDay;
+            bool onRegularGrid = localTime >= new TimeSpan(9, 30, 0) &&
+                                 localTime <= new TimeSpan(15, 45, 0) &&
+                                 (localTime - new TimeSpan(9, 30, 0)).Ticks % interval.Ticks == 0;
+            if (!onRegularGrid)
+                return Invalid("PolicyBarOutsideRegularSessionGrid", bar.StartUtc);
+
+            bool isClosingBar = localTime == new TimeSpan(15, 45, 0);
+            if (bar.IsSessionClosingBar != isClosingBar)
+                return Invalid("IncorrectPolicySessionClosingFlag", bar.StartUtc);
+
+            if (previous is not null)
+            {
+                if (bar.ReceivedUtc < previous.ReceivedUtc)
+                    return Invalid("PolicyReceiptOrderConflict", bar.StartUtc);
+
+                if (localStart.Date == previousLocalDate)
+                {
+                    if (bar.TradingSessionOrdinal != previous.TradingSessionOrdinal)
+                        return Invalid("PolicySessionOrdinalChangedWithinSession", bar.StartUtc);
+
+                    DateTime expectedStart = previous.StartUtc + interval;
+                    if (bar.StartUtc != expectedStart)
+                        return Invalid("MissingExpectedPolicyBar", expectedStart);
+                }
+                else
+                {
+                    if (!previous.IsSessionClosingBar)
+                        return Invalid("MissingPriorPolicySessionClose", previous.StartUtc + interval);
+                    if (bar.TradingSessionOrdinal != previous.TradingSessionOrdinal + 1)
+                        return Invalid("NonConsecutivePolicySessionOrdinal", bar.StartUtc);
+                    if (localTime != new TimeSpan(9, 30, 0))
+                        return Invalid("MissingPolicySessionOpen", bar.StartUtc);
+                }
+            }
+
+            try
+            {
+                // The policy validator supplies the remaining timestamp, duration,
+                // receipt, OHLC, volume, and state-order checks.
+                var validationState = previous is null
+                    ? IntradaySwingPositionState.Open(1m, entryUtc)
+                    : IntradaySwingPositionState.Open(1m, entryUtc) with
+                    {
+                        LastProcessedBarEndUtc = previous.EndUtc,
+                        LastTradingSessionOrdinal = previous.TradingSessionOrdinal
+                    };
+                DelayedIntradaySwingExitPolicy.Evaluate(validationState, bar, config: config);
+            }
+            catch (ArgumentException)
+            {
+                return Invalid("InvalidPolicyBar", bar.StartUtc);
+            }
+
+            previous = bar;
+            previousLocalDate = localStart.Date;
+        }
+
+        return null;
+    }
+
+    private static DateTime CeilingToFiveMinutes(DateTime timestampUtc)
+    {
+        RequireUtc(timestampUtc, nameof(timestampUtc));
+        long intervalTicks = TimeSpan.FromMinutes(5).Ticks;
+        long remainder = timestampUtc.Ticks % intervalTicks;
+        return remainder == 0
+            ? timestampUtc
+            : new DateTime(timestampUtc.Ticks + intervalTicks - remainder, DateTimeKind.Utc);
+    }
+
+    private static DateTime? DetermineExpectedFillUtc(
+        DateTime detectedUtc,
+        IReadOnlyCollection<OhlcvBar> symbolBars,
+        IReadOnlyCollection<OhlcvBar> xiuBars)
+    {
+        TimeZoneInfo toronto = ResolveTorontoTimeZone();
+        DateTime localDetected = TimeZoneInfo.ConvertTimeFromUtc(detectedUtc, toronto);
+        TimeSpan localTime = localDetected.TimeOfDay;
+        TimeSpan open = new(9, 30, 0);
+        TimeSpan lastFiveMinuteStart = new(15, 55, 0);
+
+        if (localTime < open)
+            return ToUtc(localDetected.Date + open, toronto);
+        if (localTime <= lastFiveMinuteStart)
+            return CeilingToFiveMinutes(detectedUtc);
+
+        DateTime? firstLaterEvidence = symbolBars
+            .Concat(xiuBars)
+            .Where(bar => bar.TimestampUtc.Kind == DateTimeKind.Utc &&
+                          bar.TimestampUtc > detectedUtc &&
+                          IsRegularFiveMinuteStart(bar.TimestampUtc, toronto))
+            .Select(bar => (DateTime?)bar.TimestampUtc)
+            .OrderBy(timestamp => timestamp)
+            .FirstOrDefault();
+        if (firstLaterEvidence is null)
+            return null;
+
+        DateTime firstLaterLocal = TimeZoneInfo.ConvertTimeFromUtc(firstLaterEvidence.Value, toronto);
+        return ToUtc(firstLaterLocal.Date + open, toronto);
+    }
+
+    private static bool IsRegularFiveMinuteStart(DateTime timestampUtc, TimeZoneInfo toronto)
+    {
+        DateTime local = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, toronto);
+        TimeSpan time = local.TimeOfDay;
+        TimeSpan open = new(9, 30, 0);
+        return time >= open &&
+               time <= new TimeSpan(15, 55, 0) &&
+               (time - open).Ticks % TimeSpan.FromMinutes(5).Ticks == 0;
+    }
+
+    private static DateTime ToUtc(DateTime localTimestamp, TimeZoneInfo timeZone) =>
+        TimeZoneInfo.ConvertTimeToUtc(
+            DateTime.SpecifyKind(localTimestamp, DateTimeKind.Unspecified),
+            timeZone);
+
+    private static TimeZoneInfo ResolveTorontoTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        }
+    }
 
     private static void ValidateFillBar(OhlcvBar bar, string parameterName)
     {
