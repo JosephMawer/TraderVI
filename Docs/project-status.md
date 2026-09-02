@@ -1,11 +1,17 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-01
+**Snapshot date:** 2026-09-02
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
 
 TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps only open positions in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
+
+ADR-0042 now defines and implements the post-ADR-0041 strategy/code boundary in source. Comparative
+reports and export-schema-v2 artifacts are scoped to one explicitly identified active strategy, while
+earlier runs remain immutable and are counted as excluded. Manual migration 016 is prepared but not
+applied, so official Delphi publication remains paused until backup, authorization, application, and
+verification are complete.
 
 The repository contains a coherent 31-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), market-wide Climax (CLX) reporting, and the read-only desktop documentation surface.
 
@@ -13,8 +19,8 @@ The repository contains a coherent 31-commit June/August development sequence. I
 
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
-- Complete solution build: successful at commit `c51c084` with Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-01.
-- Core tests: 170 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-01; the 20 focused ADR-0041 presentation/relative-strength tests also passed.
+- Complete Release solution build: successful with the pending ADR-0042 source changes using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
+- Core tests: 174 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-02. The identity/scoping additions account for four tests beyond the 170-test ADR-0041 baseline.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
 - Database recovery: `TraderDB` uses SIMPLE recovery with page checksums. `DBCC CHECKDB` completed without errors on 2026-08-22.
@@ -153,7 +159,7 @@ Advanced official prediction scorecard implementation on 2026-08-27:
 - The four model reports include cohort-weighted Brier score, supported AUC, fixed reliability buckets, expected calibration error, and probability-decile event lift.
 - Separate eligible Continuation and Breakout reports include Spearman rank IC and Top-1/Top-3/Top-5/top-decile ten-session return lift.
 - Diagnostic slices cover OBV, regime, sector, first lens-gate result, published lens, observation dollar volume, and observation range. They are descriptive and cannot change weights.
-- Five export-schema-v1 CSV artifacts are available through an explicit non-overwriting Athena option. No database schema change is required.
+- Five export-schema-v2 CSV artifacts are available through an explicit non-overwriting Athena option; every artifact carries the selected strategy ID/name, initial code commit, and decision reference.
 - 138 Core tests and the focused Release Athena build passed. Athena itself was intentionally not run, so no outcome row or export file was written.
 - Migration 014 was applied on 2026-08-28 to seed the four canonical definition contracts that were previously initialized only by Athena. Post-migration inspection found 6 official runs across 4 market-data cohorts, 1,292 official candidates, 2,584 correctly paired lens rows, no duplicate run/lens ranks, and zero outcomes. The WPF query can therefore load coverage while remaining read-only; Athena was not run merely to initialize rows.
 
@@ -186,20 +192,21 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Relative-strength date alignment is corrected and build/test validated under ADR-0041, but its official-evidence identity boundary remains open.** The prior calculator
+10. **Relative-strength date alignment is corrected and its official-evidence identity is implemented in source, but database activation remains pending.** The prior calculator
     accepted undated histories and clipped them to their minimum count, so differently sized recent
     sector and longer stock/XIU histories could compare different sessions. Dated canonical-XIU
     alignment, coverage diagnostics, and regression fixtures passed focused and full Core tests plus
-    affected-project and complete Release solution builds at commit `c51c084`. Do not create another
-    official Delphi cohort until a new strategy/code identity boundary is recorded; existing evidence
-    remains immutable and its comparative treatment is still undecided.
+    affected-project and complete Release solution builds at commit `c51c084`. ADR-0042 keeps existing
+    evidence immutable under its original identity, excludes/counts it in active comparative reports,
+    and prepares the identity-only `v3.1-rs-date-aligned` successor. Do not create another official
+    Delphi cohort until manual migration 016 is separately authorized, applied, and verified.
 
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Temporarily pause new official Delphi publication/evidence cohorts until ADR-0041's dated
-   relative-strength correction has a new strategy/code identity boundary recorded.
+1. Keep new official Delphi publication/evidence cohorts paused until ADR-0042 manual migration 016 is
+   backed up, separately authorized, applied, and verified. Its source guards and report scoping are ready.
    This pause does not stop normal Hermes ingestion or single-instance WPF evidence collection.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Keep exactly one `TraderVI.WPF` instance open during regular market hours and verify that fresh SGY and XIU five-/fifteen-minute receipts appear after 2026-08-28. The current launch is not yet durable proof of a new collection cycle.

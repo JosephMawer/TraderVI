@@ -186,6 +186,14 @@ GROUP BY [ObvState];
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
         try
         {
+            if (batch.Run.Purpose == CalibrationRunPurpose.OfficialPaper)
+            {
+                await EnsureActiveOfficialStrategyIdentityAsync(
+                    connection,
+                    transaction,
+                    batch.Run.StrategyVersionId!.Value,
+                    cancellationToken);
+            }
             await InsertRunAsync(connection, transaction, batch.Run, cancellationToken);
             foreach (var candidate in batch.Candidates)
                 await InsertCandidateAsync(connection, transaction, candidate, cancellationToken);
@@ -197,6 +205,39 @@ GROUP BY [ObvState];
         {
             await transaction.RollbackAsync(cancellationToken);
             throw;
+        }
+    }
+
+    private static async Task EnsureActiveOfficialStrategyIdentityAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        Guid strategyVersionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+SELECT CASE
+    WHEN COUNT(*) = 1
+     AND MAX(CASE
+            WHEN [VersionId] = @StrategyVersionId
+             AND LEN(LTRIM(RTRIM([InitialCodeCommit]))) BETWEEN 7 AND 128
+             AND LEN(LTRIM(RTRIM([DecisionRef]))) BETWEEN 1 AND 64
+            THEN 1 ELSE 0
+         END) = 1
+    THEN 1 ELSE 0
+END
+FROM [dbo].[StrategyVersion]
+WHERE [IsActive] = 1;
+""";
+        await using var command = new SqlCommand(sql, connection, transaction);
+        command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
+            { Value = strategyVersionId });
+        int count = Convert.ToInt32(
+            await command.ExecuteScalarAsync(cancellationToken),
+            System.Globalization.CultureInfo.InvariantCulture);
+        if (count != 1)
+        {
+            throw new InvalidOperationException(
+                "Official evidence requires the one active strategy version to have an explicit code and decision identity.");
         }
     }
 

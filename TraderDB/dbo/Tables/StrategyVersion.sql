@@ -12,6 +12,8 @@ CREATE TABLE [dbo].[StrategyVersion]
 	[MaxPositions]           INT              NULL,
 	[CreatedUtc]             DATETIME2        NOT NULL,
 	[Notes]                  NVARCHAR(MAX)    NULL,
+	[InitialCodeCommit]      NVARCHAR(128)    NULL,
+	[DecisionRef]            NVARCHAR(64)     NULL,
 	[MinBreakoutProb]        FLOAT            NULL,
 	[MinDirectionEdge]       FLOAT            NULL,
 	[MaxDownProb]            FLOAT            NULL,
@@ -19,5 +21,14 @@ CREATE TABLE [dbo].[StrategyVersion]
 	[StrongBreakoutOverride] FLOAT            NULL,
 	[StrongEdgeOverride]     FLOAT            NULL,
 
-	CONSTRAINT [PK_StrategyVersion] PRIMARY KEY CLUSTERED ([VersionId])
+	CONSTRAINT [PK_StrategyVersion] PRIMARY KEY CLUSTERED ([VersionId]),
+	CONSTRAINT [CK_StrategyVersion_CodeIdentity] CHECK
+	(
+		([InitialCodeCommit] IS NULL AND [DecisionRef] IS NULL)
+		OR
+		(
+			LEN(LTRIM(RTRIM([InitialCodeCommit]))) BETWEEN 7 AND 128
+			AND LEN(LTRIM(RTRIM([DecisionRef]))) BETWEEN 1 AND 64
+		)
+	)
 );

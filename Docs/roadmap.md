@@ -73,8 +73,8 @@ The 2026-09-01 static changeability audit found correctness and integrity risks 
 advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
 publication contracts without tuning weights, thresholds, ranking theses, or automatic execution.
 
-- [ ] Pause new official Delphi publication/evidence cohorts until the date-aligned relative-strength
-  correction is implemented and validated. Normal Hermes ingestion and single-instance WPF evidence
+- [ ] Keep new official Delphi publication/evidence cohorts paused through the separately authorized
+  migration-016 activation and verification. Normal Hermes ingestion and single-instance WPF evidence
   collection remain separate operational workflows.
 - [x] Replace undated, minimum-length relative-strength inputs with explicit alignment to canonical XIU
   sessions; surface missing/degraded coverage and add source-level regression fixtures for unequal
@@ -82,8 +82,14 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 - [x] Validate ADR-0041 under the separately authorized build/test boundary: 20 focused tests and all
   170 Core tests passed; Core, Delphi, WPF, and Hermes focused builds succeeded; and the complete Release
   solution built with Visual Studio 18.10 MSBuild plus SSDT on 2026-09-01.
-- [ ] Record the new strategy/code identity before another official Delphi cohort, and determine how
-  already-recorded official runs should be labelled or excluded from comparative performance claims.
+- [x] Record ADR-0042's `v3.1-rs-date-aligned` strategy/code identity and immutable legacy-evidence
+  treatment; implement publication guards and scope comparative reports/exports to the explicitly
+  identified active strategy. No threshold, model, gate, ranking, or policy was tuned.
+- [x] Validate ADR-0042 source: all 174 Core tests passed in Debug and Release; affected-project builds
+  succeeded; and the complete Release solution built with Visual Studio 18.10 MSBuild plus SSDT on
+  2026-09-02 without database deployment or launching an operational application.
+- [ ] After a fresh verified backup and separate authorization, apply and verify manual migration 016
+  so the identified successor becomes active. Keep official Delphi publication paused until then.
 - [ ] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
   as genuine zero/falling breadth.
 - [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests

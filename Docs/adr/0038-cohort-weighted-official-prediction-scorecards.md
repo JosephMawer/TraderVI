@@ -59,6 +59,10 @@ The last two are explicitly one-session diagnostic proxies, not new Delphi liqui
 
 Athena prints the advanced report after outcome coverage. Provide five invariant-culture CSV artifacts under export schema version 1: coverage, models, reliability/deciles, lens rank, and slices. An explicit `--scorecard-csv DIRECTORY` option writes them and refuses to overwrite an existing artifact.
 
+ADR-0042 supersedes only the export identity contract: the same five artifacts now use export schema
+version 2 so every file carries the selected strategy ID/name, initial code commit, and decision
+reference. The version-1 metric formulas and weighting remain unchanged.
+
 The scorecard requires no schema migration and performs no broker action. The user's actual EDR holding and its current ghost monitoring mirror remain outside this official scorecard. A later trading-dashboard decision must add a durable execution mode such as `Ghost` or `Real`; a ghost icon may reinforce that distinction but cannot be its only control or data boundary.
 
 ## Alternatives considered

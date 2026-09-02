@@ -78,6 +78,15 @@ public sealed class DelphiWorkflow
             var strategyRepo = new StrategyVersionRepository();
             var activeStrategy = await strategyRepo.GetActiveVersion();
 
+            if (saveOperationalState &&
+                (activeStrategy is null || !activeStrategy.HasOfficialEvidenceIdentity))
+            {
+                throw new InvalidOperationException(
+                    "A persisted OfficialPaper run requires exactly one active strategy with " +
+                    "InitialCodeCommit and DecisionRef. Apply the separately authorized ADR-0042 " +
+                    "identity migration before publishing another official cohort.");
+            }
+
             Guid? strategyVersionId = activeStrategy?.VersionId;
             StrategyConfig config = activeStrategy?.ToConfig() ?? StrategyConfig.Default;
 
@@ -85,6 +94,8 @@ public sealed class DelphiWorkflow
             {
                 Console.WriteLine($"Strategy Version:  {activeStrategy.VersionName}");
                 Console.WriteLine($"Description:       {activeStrategy.Description}");
+                Console.WriteLine($"Decision / code:   {activeStrategy.DecisionRef ?? "unidentified"} / " +
+                                  $"{activeStrategy.InitialCodeCommit ?? "unidentified"}");
                 Console.WriteLine("Strategy gate thresholds:");
                 Console.WriteLine($"  MinComposite:    {config.MinCompositeScore:P0}");
                 Console.WriteLine($"  MinUpProb:       {config.MinUpProb:P0}");
@@ -994,6 +1005,8 @@ public sealed class DelphiWorkflow
                 RsBarsRequired = rsBarsRequired,
                 StrategyVersionName = activeStrategy?.VersionName ?? "Default",
                 StrategyDescription = activeStrategy?.Description ?? "Built-in strategy defaults",
+                StrategyInitialCodeCommit = activeStrategy?.InitialCodeCommit ?? string.Empty,
+                StrategyDecisionRef = activeStrategy?.DecisionRef ?? string.Empty,
                 StrategyConfig = config,
                 PatternModels = Core.ML.Engine.Patterns.PatternRegistry.All
                     .Select(model => model.TaskType)

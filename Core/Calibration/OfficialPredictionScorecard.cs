@@ -14,6 +14,7 @@ public sealed record OfficialPredictionScorecardDefinition(
 
 public sealed record OfficialPredictionRunEvidence(
     Guid RunId,
+    Guid StrategyVersionId,
     DateTime MarketDataAsOf,
     string RunPurpose,
     string AuditState,
@@ -51,6 +52,7 @@ public sealed record OfficialPredictionLensEvidence(
     string? FirstFailedGate);
 
 public sealed record OfficialPredictionEvidenceSet(
+    OfficialEvidenceIdentity Identity,
     OfficialPredictionScorecardDefinition Definition,
     IReadOnlyList<OfficialPredictionRunEvidence> Runs,
     IReadOnlyList<OfficialPredictionCandidateEvidence> Candidates,
@@ -118,6 +120,7 @@ public sealed record PredictionSliceReport(
     double VolExpansionEventRate);
 
 public sealed record OfficialPredictionScorecard(
+    OfficialEvidenceIdentity Identity,
     OfficialPredictionScorecardDefinition Definition,
     CalibrationCoverageScorecard Coverage,
     IReadOnlyList<ProbabilityCalibrationReport> Models,
@@ -239,6 +242,7 @@ public static class OfficialPredictionScorecardCalculator
             : [];
 
         return new OfficialPredictionScorecard(
+            evidence.Identity,
             evidence.Definition,
             coverage,
             models,
@@ -248,9 +252,16 @@ public static class OfficialPredictionScorecardCalculator
 
     private static void ValidateEvidenceSet(OfficialPredictionEvidenceSet evidence)
     {
-        if (evidence.Definition is null || evidence.Runs is null ||
+        if (evidence.Identity is null || evidence.Definition is null || evidence.Runs is null ||
             evidence.Candidates is null || evidence.Lenses is null)
-            throw new ArgumentException("Definition, run, candidate, and lens evidence are required.", nameof(evidence));
+            throw new ArgumentException("Identity, definition, run, candidate, and lens evidence are required.", nameof(evidence));
+        if (evidence.Identity.StrategyVersionId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(evidence.Identity.StrategyVersionName) ||
+            string.IsNullOrWhiteSpace(evidence.Identity.InitialCodeCommit) ||
+            string.IsNullOrWhiteSpace(evidence.Identity.DecisionRef) ||
+            evidence.Identity.IncludedOfficialRuns < 0 ||
+            evidence.Identity.ExcludedOfficialRuns < 0)
+            throw new ArgumentException("The scorecard requires an identified strategy evidence scope.", nameof(evidence));
         if (evidence.Definition.OutcomeDefinitionId != PredictionLabels10DefinitionId ||
             evidence.Definition.DefinitionName != "PredictionLabels10" ||
             evidence.Definition.DefinitionVersion != 1)
@@ -261,10 +272,13 @@ public static class OfficialPredictionScorecardCalculator
             throw new ArgumentException("Duplicate official runs are not allowed.", nameof(evidence));
         if (evidence.Runs.Any(run =>
                 run.RunId == Guid.Empty ||
+                run.StrategyVersionId != evidence.Identity.StrategyVersionId ||
                 run.MarketDataAsOf == default ||
                 run.RunPurpose != OfficialPurpose ||
                 run.AuditState is not (nameof(CalibrationAuditState.Valid) or nameof(CalibrationAuditState.Degraded))))
             throw new ArgumentException("Only identified, non-invalid OfficialPaper runs are allowed.", nameof(evidence));
+        if (evidence.Identity.IncludedOfficialRuns != evidence.Runs.Count)
+            throw new ArgumentException("The evidence-scope run count does not match the included runs.", nameof(evidence));
 
         var runDates = evidence.Runs.ToDictionary(run => run.RunId, run => run.MarketDataAsOf.Date);
         var duplicateCandidate = evidence.Candidates

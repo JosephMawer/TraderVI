@@ -638,3 +638,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0041
 
 **A:** The affected metric remains null and coverage reports the missing or stale-tail session. TraderVI does not clip, compress, forward-fill, or substitute another date, and pre-/post-correction official evidence keeps a visible code and strategy boundary.
+
+### Q: Why are pre-ADR-0041 official runs excluded from the active strategy scorecard rather than marked invalid?
+- **Domains:** decision-engine, math-statistics
+- **Source:** ADR-0042
+
+**A:** They faithfully record the earlier implementation, so they are valid historical evidence. They are excluded because combining them with the corrected strategy would describe two implementations as one unchanged system.
+
+### Q: What changes when `v3.1-rs-date-aligned` is activated?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0042
+
+**A:** The strategy and code identity changes, and active comparative cohorts restart under that identity. Thresholds, models, gates, ranking formulas, and execution policy are cloned unchanged.

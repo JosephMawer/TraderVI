@@ -97,7 +97,7 @@ Rule:
 | `[StockSectorMap]` | Stock → sector index mapping | Hermes | Delphi (Granville, RS) |
 | `[ModelRegistry]` | Trained ML model metadata | Hercules | Delphi |
 | `[DailyPick]` | Daily recommendations | Delphi | Sentinel (planned) |
-| `[StrategyVersions]` | Strategy config versioning | Manual | Delphi |
+| `[StrategyVersion]` | Immutable strategy configuration plus initial code/decision identity | Reviewed manual migration | Delphi, Athena, Scorecards |
 | `[GranvilleIndicatorLog]` | Granville indicator history | Delphi | Analysis |
 | `[RelativeStrengthFeatures]` | RS feature history | Hermes (planned) | Hercules (planned) |
 | `[DecisionDossier]` | Structured per-pick audit unit for LLM layer | Delphi | Oracle |

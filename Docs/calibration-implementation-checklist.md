@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
-- **Last updated:** 2026-09-01
-- **Authoritative design:** ADR-0020 through ADR-0040
+- **Last updated:** 2026-09-02
+- **Authoritative design:** ADR-0020 through ADR-0042
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
@@ -37,7 +37,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0041 and add review cards.
+- [x] Accept ADR-0020 through ADR-0042 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -57,6 +57,12 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Keep exploratory runs from refreshing official operational tables.
 - [x] Add the new tables and migration to the SQL project.
 - [x] Add Athena and the ADRs to the Visual Studio solution.
+- [x] Add explicit `StrategyVersion.InitialCodeCommit` / `DecisionRef` provenance and refuse an
+  unidentified persisted `OfficialPaper` run at both workflow and ledger boundaries.
+- [x] Scope comparative coverage, prediction, lens-tradeability, delayed-intraday, WPF, and export
+  surfaces to one identified active strategy; count rather than rewrite earlier-identity runs.
+- [x] Prepare guarded manual migration 016 to clone the active thresholds/model associations unchanged
+  into `v3.1-rs-date-aligned`; do not apply it through a DACPAC.
 
 ### Validation completed
 
@@ -72,12 +78,19 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Keep ADR-0041 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
   Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training, model-artifact,
   or publication workflow ran.
+- [x] Validate ADR-0042 source on 2026-09-02: all 174 Core tests passed in both Debug and Release;
+  focused Core, Athena, Delphi, and WPF Release builds succeeded; and the complete Release solution
+  built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
+- [x] Keep ADR-0042 validation non-operational: migration 016 was not applied and no application,
+  database, external-service, training, artifact-publication, or market workflow was launched.
 
 ### Operational rollout
 
-- [ ] Before another official Delphi cohort, record the post-ADR-0041 strategy/code identity and decide
-  how pre-correction runs are labelled or excluded from comparative performance claims. Existing evidence
-  remains immutable.
+- [x] Record ADR-0042's post-ADR-0041 identity and treatment: existing runs remain immutable under their
+  original `StrategyVersionId`, outcome maturation may continue, and active comparative claims exclude
+  and count those earlier identities.
+- [ ] Before another official Delphi cohort, create and verify a fresh backup, obtain explicit
+  authorization, then apply and verify `20260901_016_ActivateDateAlignedStrategyIdentity.sql`.
 - [ ] A fresh immediately pre-migration backup was not independently observed; the newest recorded backup before the discovered schema application was the valid 2026-08-22 full backup.
 - [x] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
 - [x] Migration application discovered from live object creation timestamps: all five tables were created together on 2026-08-23 at 16:58:29 and contained zero rows when audited.

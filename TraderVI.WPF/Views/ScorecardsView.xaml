@@ -43,6 +43,7 @@
                 <TextBlock Text="Official Delphi Prediction Scorecards" FontSize="28" FontWeight="SemiBold"/>
                 <TextBlock Text="Model calibration, lens ranking, and diagnostics · official predictions only"
                            Foreground="{StaticResource ScoreMuted}" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding EvidenceIdentity}" Foreground="#77C7FF" Margin="0,4,0,0"/>
             </StackPanel>
             <Button x:Name="RefreshScorecardsButton" HorizontalAlignment="Right" VerticalAlignment="Center"
                     Content="Refresh from SQL" Click="RefreshScorecardsButton_Click"/>

@@ -64,6 +64,53 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    public async Task<OfficialEvidenceIdentity> GetActiveOfficialEvidenceIdentityAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+SELECT v.[VersionId],v.[VersionName],v.[InitialCodeCommit],v.[DecisionRef],
+       COUNT(CASE WHEN r.[StrategyVersionId] = v.[VersionId] THEN 1 END) AS [IncludedOfficialRuns],
+       COUNT(CASE WHEN r.[RunId] IS NOT NULL AND
+                           (r.[StrategyVersionId] IS NULL OR r.[StrategyVersionId] <> v.[VersionId])
+                  THEN 1 END) AS [ExcludedOfficialRuns]
+FROM [dbo].[StrategyVersion] v
+LEFT JOIN [dbo].[CalibrationRun] r
+  ON r.[RunPurpose] = N'OfficialPaper' AND r.[AuditState] <> N'Invalid'
+WHERE v.[IsActive] = 1
+GROUP BY v.[VersionId],v.[VersionName],v.[InitialCodeCommit],v.[DecisionRef];
+""";
+
+        var result = new List<OfficialEvidenceIdentity>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new OfficialEvidenceIdentity(
+                reader.GetGuid(0),
+                reader.GetString(1),
+                reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                reader.GetInt32(4),
+                reader.GetInt32(5)));
+        }
+
+        if (result.Count != 1)
+            throw new InvalidOperationException(
+                "Official reports require exactly one active strategy version.");
+
+        OfficialEvidenceIdentity identity = result[0];
+        if (string.IsNullOrWhiteSpace(identity.InitialCodeCommit) ||
+            string.IsNullOrWhiteSpace(identity.DecisionRef))
+        {
+            throw new InvalidOperationException(
+                "The active strategy lacks InitialCodeCommit or DecisionRef and cannot scope official reports.");
+        }
+
+        return identity;
+    }
+
     public async Task<List<PendingCalibrationCandidate>> GetPendingOfficialCandidatesAsync(
         Guid definitionId,
         CancellationToken cancellationToken = default)
@@ -124,6 +171,7 @@ ORDER BY c.[ObservationDate], c.[Symbol];
     }
 
     public async Task<List<CalibrationCoverageCounts>> GetOutcomeCoverageAsync(
+        OfficialEvidenceIdentity identity,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -137,7 +185,9 @@ WITH [Definitions] AS
 (
     SELECT r.[RunId], r.[MarketDataAsOf]
     FROM [dbo].[CalibrationRun] r
-    WHERE r.[RunPurpose] = N'OfficialPaper' AND r.[AuditState] <> N'Invalid'
+    WHERE r.[RunPurpose] = N'OfficialPaper'
+      AND r.[AuditState] <> N'Invalid'
+      AND r.[StrategyVersionId] = @StrategyVersionId
 ),
 [DefinitionRunCandidates] AS
 (
@@ -212,6 +262,8 @@ ORDER BY d.[DefinitionName], d.[DefinitionVersion];
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
         await using var command = new SqlCommand(sql, connection);
+        command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
+            { Value = identity.StrategyVersionId });
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -226,6 +278,7 @@ ORDER BY d.[DefinitionName], d.[DefinitionVersion];
     }
 
     public async Task<LensTradeabilityEvidenceSet> GetLensTradeabilityEvidenceAsync(
+        OfficialEvidenceIdentity identity,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -233,6 +286,7 @@ SELECT r.[RunId], r.[MarketDataAsOf]
 FROM [dbo].[CalibrationRun] r
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf], r.[StartedUtc], r.[RunId];
 
 SELECT r.[RunId], r.[MarketDataAsOf], l.[Lens], l.[Rank], c.[CandidateId], c.[Symbol],
@@ -248,6 +302,7 @@ LEFT JOIN [dbo].[CalibrationCandidateOutcome] e
   ON e.[CandidateId] = c.[CandidateId] AND e.[OutcomeDefinitionId] = @ExcursionDefinitionId
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
 """;
         var runs = new List<LensTradeabilityRunEvidence>();
@@ -259,6 +314,8 @@ ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
             { Value = SwingMarkToMarket3DefinitionId });
         command.Parameters.Add(new SqlParameter("@ExcursionDefinitionId", SqlDbType.UniqueIdentifier)
             { Value = SwingExcursion3DefinitionId });
+        command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
+            { Value = identity.StrategyVersionId });
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
             runs.Add(new LensTradeabilityRunEvidence(reader.GetGuid(0), reader.GetDateTime(1)));
@@ -285,6 +342,7 @@ ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
     }
 
     public async Task<IReadOnlyList<DelayedIntradayLensEvidenceRow>> GetDelayedIntradayLensEvidenceAsync(
+        OfficialEvidenceIdentity identity,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -298,6 +356,7 @@ LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
   ON o.[CandidateId] = c.[CandidateId] AND o.[OutcomeDefinitionId] = @DefinitionId
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
 """;
         var result = new List<DelayedIntradayLensEvidenceRow>();
@@ -306,6 +365,8 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier)
             { Value = DelayedIntradaySwingDefinitionId });
+        command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
+            { Value = identity.StrategyVersionId });
         await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -322,6 +383,7 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
     }
 
     public async Task<OfficialPredictionEvidenceSet> GetOfficialPredictionScorecardEvidenceAsync(
+        OfficialEvidenceIdentity identity,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -329,10 +391,11 @@ SELECT [OutcomeDefinitionId],[DefinitionName],[DefinitionVersion]
 FROM [dbo].[CalibrationOutcomeDefinition]
 WHERE [OutcomeDefinitionId] = @DefinitionId;
 
-SELECT r.[RunId],r.[MarketDataAsOf],r.[RunPurpose],r.[AuditState],r.[RunContextJson]
+SELECT r.[RunId],r.[StrategyVersionId],r.[MarketDataAsOf],r.[RunPurpose],r.[AuditState],r.[RunContextJson]
 FROM [dbo].[CalibrationRun] r
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf],r.[StartedUtc],r.[RunId];
 
 SELECT r.[RunId],r.[MarketDataAsOf],c.[CandidateId],c.[Symbol],c.[ObservationDate],
@@ -347,6 +410,7 @@ LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
  AND o.[OutcomeDefinitionId] = @DefinitionId
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf],r.[StartedUtc],c.[Symbol];
 
 SELECT l.[CandidateId],l.[Lens],l.[IsEligible],l.[IsPublished],l.[Rank],l.[FirstFailedGate]
@@ -355,6 +419,7 @@ JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
 JOIN [dbo].[CalibrationLensEvaluation] l ON l.[CandidateId] = c.[CandidateId]
 WHERE r.[RunPurpose] = N'OfficialPaper'
   AND r.[AuditState] <> N'Invalid'
+  AND r.[StrategyVersionId] = @StrategyVersionId
 ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
 """;
 
@@ -363,6 +428,8 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier)
             { Value = PredictionLabel10DefinitionId });
+        command.Parameters.Add(new SqlParameter("@StrategyVersionId", SqlDbType.UniqueIdentifier)
+            { Value = identity.StrategyVersionId });
         await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
 
         if (!await reader.ReadAsync(cancellationToken))
@@ -378,10 +445,11 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
         {
             runs.Add(new OfficialPredictionRunEvidence(
                 reader.GetGuid(0),
-                reader.GetDateTime(1),
-                reader.GetString(2),
+                reader.GetGuid(1),
+                reader.GetDateTime(2),
                 reader.GetString(3),
-                reader.GetString(4)));
+                reader.GetString(4),
+                reader.GetString(5)));
         }
 
         var candidates = new List<OfficialPredictionCandidateEvidence>();
@@ -425,7 +493,7 @@ ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
                 reader.IsDBNull(5) ? null : reader.GetString(5)));
         }
 
-        return new OfficialPredictionEvidenceSet(definition, runs, candidates, lenses);
+        return new OfficialPredictionEvidenceSet(identity, definition, runs, candidates, lenses);
     }
 
     public async Task<bool> InsertOutcomeAsync(

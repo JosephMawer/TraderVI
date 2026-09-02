@@ -23,6 +23,8 @@ Console.WriteLine("=== Athena: deterministic calibration evaluator ===");
 Console.WriteLine("Local SQL only; no external market services.\n");
 
 var outcomes = new CalibrationOutcomeRepository();
+OfficialEvidenceIdentity officialEvidenceIdentity =
+    await outcomes.GetActiveOfficialEvidenceIdentityAsync();
 await outcomes.EnsureOutcomeDefinitionsAsync();
 var quoteRepository = new QuoteRepository();
 var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -415,7 +417,15 @@ Console.WriteLine($"Not yet mature:                {delayedPendingCount:N0}");
 Console.WriteLine($"Invalid outcomes written:      {delayedInvalid:N0}");
 invalidWritten += delayedInvalid;
 
-var coverageRows = await outcomes.GetOutcomeCoverageAsync();
+Console.WriteLine("\n=== Official evidence identity ===");
+Console.WriteLine($"Strategy:   {officialEvidenceIdentity.StrategyVersionName} " +
+                  $"({officialEvidenceIdentity.StrategyVersionId})");
+Console.WriteLine($"Boundary:   {officialEvidenceIdentity.DecisionRef} · " +
+                  $"{officialEvidenceIdentity.InitialCodeCommit}");
+Console.WriteLine($"Run scope:  {officialEvidenceIdentity.IncludedOfficialRuns:N0} included | " +
+                  $"{officialEvidenceIdentity.ExcludedOfficialRuns:N0} earlier-identity runs excluded");
+
+var coverageRows = await outcomes.GetOutcomeCoverageAsync(officialEvidenceIdentity);
 Console.WriteLine("\n=== Outcome coverage scorecard ===");
 foreach (var counts in coverageRows)
 {
@@ -427,7 +437,7 @@ foreach (var counts in coverageRows)
     Console.WriteLine($"  State:      {scorecard.State}");
 }
 
-var predictionEvidence = await outcomes.GetOfficialPredictionScorecardEvidenceAsync();
+var predictionEvidence = await outcomes.GetOfficialPredictionScorecardEvidenceAsync(officialEvidenceIdentity);
 OfficialPredictionScorecard predictionScorecard =
     OfficialPredictionScorecardCalculator.Build(predictionEvidence);
 Console.WriteLine("\n=== Advanced official prediction scorecard ===");
@@ -511,7 +521,7 @@ if (scorecardCsvDirectory is not null)
     Console.WriteLine($"\nVersioned scorecard CSV files written to {scorecardCsvDirectory}");
 }
 
-var lensEvidence = await outcomes.GetLensTradeabilityEvidenceAsync();
+var lensEvidence = await outcomes.GetLensTradeabilityEvidenceAsync(officialEvidenceIdentity);
 var lensReports = LensTradeabilityReportCalculator.BuildReports(lensEvidence);
 Console.WriteLine("\n=== Continuation vs Breakout tradeability ===");
 foreach (var report in lensReports)
@@ -540,7 +550,8 @@ foreach (var report in lensReports)
 }
 
 IReadOnlyList<DelayedIntradayLensReport> delayedLensReports =
-    DelayedIntradayLensReportCalculator.Build(await outcomes.GetDelayedIntradayLensEvidenceAsync());
+    DelayedIntradayLensReportCalculator.Build(
+        await outcomes.GetDelayedIntradayLensEvidenceAsync(officialEvidenceIdentity));
 Console.WriteLine("\n=== Delayed intraday exit results by lens ===");
 foreach (DelayedIntradayLensReport report in delayedLensReports)
 {

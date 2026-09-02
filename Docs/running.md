@@ -110,7 +110,8 @@ Do not retrain until the intended data cutoff, enabled model set, output paths, 
 
 Delphi currently:
 
-1. Loads the active strategy version and currently allowed profit models.
+1. Loads the one active strategy version and currently allowed profit models. A persisted official run
+   also requires the strategy's explicit initial-code and decision identity (ADR-0042).
 2. Creates deterministic pattern signals from the code registry.
 3. Computes XIU/SPY regime and A/D breadth.
 4. Evaluates Granville groups #1–#20 and #25–#28.
@@ -123,6 +124,11 @@ Delphi currently:
 9. Prints machine-oriented diagnostics and a human summary.
 
 Delphi is advisory—it does not place a broker order—but it is not read-only. Do not use it as a harmless smoke test; use focused builds and tests for routine validation. A no-write mode can be added later if an operational reporting need emerges.
+
+Official publication remains paused until manual migration 016 is separately authorized, applied, and
+verified. The migration activates `v3.1-rs-date-aligned` without changing thresholds, models, gates,
+ranking formulas, or execution policy. Source guards reject a persisted `OfficialPaper` run while the
+active strategy lacks that explicit identity.
 
 Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommendation run date so their date-scoped records remain linked. Its reports separately show the latest completed TSX session as the market-data-as-of date. A weekend run can therefore produce a weekend recommendation date based on Friday's completed market data; this is intentional audit semantics, not a claim that Saturday was a trading session.
 
@@ -216,13 +222,13 @@ Keep the app open for future polling. Closing it, signing out, sleeping, or rest
 **Project:** `Athena`
 **Entry point:** `Athena/Program.cs`
 
-Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session labels, 20-session price paths, three-session marks/excursions, and delayed-intraday outcomes. It prints coverage first: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
+Athena reads immutable official calibration candidates and local `DailyBars`, reproduces the enabled production labelers, and idempotently writes matured 10-session labels, 20-session price paths, three-session marks/excursions, and delayed-intraday outcomes. It prints the identified active strategy scope and excludes/counts earlier strategy identities before reporting comparative coverage: distinct completed-market-session cohorts, official run and candidate counts, valid/degraded/invalid/pending outcomes, completion coverage, usable coverage, and whether the 95% reporting floor permits a primary descriptive score. ADR-0038 adds official-only probability calibration, eligible-lens rank quality, and descriptive technical/market slices. All metrics use nested candidate/run/market-session weighting so a deliberate Delphi rerun cannot inflate independent evidence. The report never changes a model, weight, gate, lens, or trading policy.
 
 For `DelayedIntradaySwing`, Athena replays only a continuous first-received 15-minute path. A later bar that proves a missing bar/session, a receipt-order conflict, or a later five-minute bar that proves the exact symbol/XIU fill bar is missing produces an audited invalid outcome. If no later evidence yet proves a gap, the candidate stays pending. An alert during the session uses the exact next five-minute boundary; an after-close alert waits for the next observed regular-session open. Athena never substitutes a later convenient price.
 
 The 2026-09-01 verified run wrote 112 valid `SwingMarkToMarket3` and 112 valid `SwingExcursion3` outcomes. It wrote zero `PredictionLabels10`, `PredictionPath20`, or `DelayedIntradaySwing` outcomes. Durable SGY/XIU evidence still ended on 2026-08-28, so launching WPF without a newer receipt does not make delayed outcomes ready.
 
-Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migration manually first and obtain explicit authorization before running it. The optional CSV switch writes five export-schema-v1 artifacts and refuses to overwrite an existing filename.
+Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. ADR-0042 requires migration 016 before this build can resolve the active official evidence identity. The optional CSV switch writes five export-schema-v2 artifacts stamped with strategy ID/name, initial code commit, and decision reference, and refuses to overwrite an existing filename.
 
 ```powershell
 dotnet run --project Athena

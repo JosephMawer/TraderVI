@@ -29,6 +29,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
+- [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 
 ## data-pipeline
 
@@ -49,6 +50,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
+- [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 
 ## data-sources
 
@@ -155,6 +157,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0035](0035-delphi-operator-workspace-and-presentation-snapshot.md) — Delphi operator workspace and presentation snapshot
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
+- [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 
 ## math-statistics
 
@@ -171,6 +174,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0027](0027-lens-tradeability-scorecards-and-cohort-aggregation.md) — Lens tradeability scorecards and cohort aggregation
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
+- [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 
 ## finance-fundamentals
 

@@ -624,14 +624,21 @@ public class StrategyVersionRepository : SQLBase
         "[VersionId],[VersionName],[Description],[IsActive],[MinCompositeScore],[MinDirectionProb]," +
         "[RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions]," +
         "[MinBreakoutProb],[MinDirectionEdge],[MaxDownProb],[BreadthVetoThreshold]," +
-        "[StrongBreakoutOverride],[StrongEdgeOverride],[CreatedUtc],[Notes]")
+        "[StrongBreakoutOverride],[StrongEdgeOverride],[CreatedUtc],[Notes]," +
+        "[InitialCodeCommit],[DecisionRef]")
     { }
 
     public async Task<StrategyVersionInfo?> GetActiveVersion()
     {
         var query = $"SELECT {Fields} FROM {DbName} WHERE [IsActive] = 1";
         var results = await ExecuteReaderAsync(query, MapVersion);
-        return results.Count > 0 ? results[0] : null;
+        return results.Count switch
+        {
+            0 => null,
+            1 => results[0],
+            _ => throw new InvalidOperationException(
+                "Multiple active strategy versions exist; strategy identity is ambiguous.")
+        };
     }
 
     public async Task<StrategyVersionInfo?> GetVersionByName(string versionName)
@@ -684,8 +691,24 @@ UPDATE [dbo].[StrategyVersion] SET [IsActive] = 1 WHERE [VersionName] = @Version
         double? breadthVetoThreshold = -0.30,
         double? strongBreakoutOverride = 0.60,
         double? strongEdgeOverride = 0.10,
-        string? notes = null)
+        string? notes = null,
+        string initialCodeCommit = null,
+        string decisionRef = null)
     {
+        bool hasCode = !string.IsNullOrWhiteSpace(initialCodeCommit);
+        bool hasDecision = !string.IsNullOrWhiteSpace(decisionRef);
+        if (hasCode != hasDecision)
+            throw new ArgumentException("InitialCodeCommit and DecisionRef must be supplied together.");
+        if (hasCode && (initialCodeCommit.Trim().Length is < 7 or > 128 ||
+                        decisionRef.Trim().Length is < 1 or > 64))
+        {
+            throw new ArgumentException(
+                "InitialCodeCommit must contain 7-128 characters and DecisionRef 1-64 characters.");
+        }
+
+        string normalizedInitialCodeCommit = hasCode ? initialCodeCommit.Trim() : null;
+        string normalizedDecisionRef = hasDecision ? decisionRef.Trim() : null;
+
         var versionId = Guid.NewGuid();
 
         var query = $@"
@@ -693,12 +716,12 @@ INSERT INTO {DbName}
 ([VersionId],[VersionName],[Description],[IsActive],[MinCompositeScore],[MinDirectionProb],
  [RegressionVeto],[StopLossPercent],[WarningPercent],[MaxPositions],
  [MinBreakoutProb],[MinDirectionEdge],[MaxDownProb],[BreadthVetoThreshold],
- [StrongBreakoutOverride],[StrongEdgeOverride],[Notes])
+ [StrongBreakoutOverride],[StrongEdgeOverride],[CreatedUtc],[Notes],[InitialCodeCommit],[DecisionRef])
 VALUES
 (@VersionId,@VersionName,@Description,@IsActive,@MinCompositeScore,@MinDirectionProb,
  @RegressionVeto,@StopLossPercent,@WarningPercent,@MaxPositions,
  @MinBreakoutProb,@MinDirectionEdge,@MaxDownProb,@BreadthVetoThreshold,
- @StrongBreakoutOverride,@StrongEdgeOverride,@Notes);";
+ @StrongBreakoutOverride,@StrongEdgeOverride,SYSUTCDATETIME(),@Notes,@InitialCodeCommit,@DecisionRef);";
 
         await Insert(query,
         [
@@ -718,7 +741,9 @@ VALUES
             new SqlParameter("@BreadthVetoThreshold", SqlDbType.Float) { Value = (object?)breadthVetoThreshold ?? DBNull.Value },
             new SqlParameter("@StrongBreakoutOverride", SqlDbType.Float) { Value = (object?)strongBreakoutOverride ?? DBNull.Value },
             new SqlParameter("@StrongEdgeOverride", SqlDbType.Float) { Value = (object?)strongEdgeOverride ?? DBNull.Value },
-            new SqlParameter("@Notes", SqlDbType.NVarChar, -1) { Value = (object?)notes ?? DBNull.Value }
+            new SqlParameter("@Notes", SqlDbType.NVarChar, -1) { Value = (object?)notes ?? DBNull.Value },
+            new SqlParameter("@InitialCodeCommit", SqlDbType.NVarChar, 128) { Value = (object?)normalizedInitialCodeCommit ?? DBNull.Value },
+            new SqlParameter("@DecisionRef", SqlDbType.NVarChar, 64) { Value = (object?)normalizedDecisionRef ?? DBNull.Value }
         ]);
 
         return versionId;
@@ -743,7 +768,9 @@ VALUES
         StrongBreakoutOverride = reader.IsDBNull(14) ? null : reader.GetDouble(14),
         StrongEdgeOverride = reader.IsDBNull(15) ? null : reader.GetDouble(15),
         CreatedUtc = reader.GetDateTime(16),
-        Notes = reader.IsDBNull(17) ? null : reader.GetString(17)
+        Notes = reader.IsDBNull(17) ? null : reader.GetString(17),
+        InitialCodeCommit = reader.IsDBNull(18) ? null : reader.GetString(18),
+        DecisionRef = reader.IsDBNull(19) ? null : reader.GetString(19)
     };
 }
 
@@ -796,6 +823,14 @@ public sealed class StrategyVersionInfo
     public double? StrongEdgeOverride { get; init; }
     public DateTime CreatedUtc { get; init; }
     public string? Notes { get; init; }
+    public string InitialCodeCommit { get; init; }
+    public string DecisionRef { get; init; }
+
+    public bool HasOfficialEvidenceIdentity =>
+        VersionId != Guid.Empty &&
+        !string.IsNullOrWhiteSpace(VersionName) &&
+        !string.IsNullOrWhiteSpace(InitialCodeCommit) &&
+        !string.IsNullOrWhiteSpace(DecisionRef);
 
     /// <summary>
     /// Converts to a runtime StrategyConfig, using stored values where available

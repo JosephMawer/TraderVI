@@ -48,6 +48,14 @@ public sealed record ModelArtifactProvenance(
     DateTime? TrainedToUtc,
     string ArtifactSha256);
 
+public sealed record OfficialEvidenceIdentity(
+    Guid StrategyVersionId,
+    string StrategyVersionName,
+    string InitialCodeCommit,
+    string DecisionRef,
+    int IncludedOfficialRuns,
+    int ExcludedOfficialRuns);
+
 public sealed record CalibrationRunEvidence(
     Guid RunId,
     CalibrationRunPurpose Purpose,

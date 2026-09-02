@@ -12,6 +12,9 @@ namespace TraderVI.Core.Tests;
 
 public sealed class OfficialPredictionScorecardCalculatorTests
 {
+    private static readonly Guid StrategyVersionId =
+        new("99D52317-8D16-4F2A-8B97-AE9698972F55");
+
     [Fact]
     public void BuildsCalibrationRankingAndDiagnosticReports()
     {
@@ -46,6 +49,21 @@ public sealed class OfficialPredictionScorecardCalculatorTests
         rising.UpEventRate.ShouldBe(1, .0000001);
         report.Slices.ShouldContain(slice =>
             slice.Dimension == "PublishedLens" && slice.Value == "Continuation");
+    }
+
+    [Fact]
+    public void NewStrategyIdentityStartsWithAnEmptyNoEvidenceScorecard()
+    {
+        OfficialPredictionScorecard report = OfficialPredictionScorecardCalculator.Build(
+            Evidence([], []));
+
+        report.Identity.StrategyVersionId.ShouldBe(StrategyVersionId);
+        report.Coverage.Counts.OfficialRuns.ShouldBe(0);
+        report.Coverage.Counts.ExpectedCandidates.ShouldBe(0);
+        report.Coverage.State.ShouldBe(CalibrationCoverageState.NoEvidence);
+        report.Models.ShouldAllBe(model => !model.MetricsAvailable);
+        report.Lenses.ShouldAllBe(lens => !lens.MetricsAvailable);
+        report.Slices.ShouldBeEmpty();
     }
 
     [Fact]
@@ -195,6 +213,26 @@ public sealed class OfficialPredictionScorecardCalculatorTests
     }
 
     [Fact]
+    public void MixedStrategyIdentitiesAndScopeCountMismatchesAreRejected()
+    {
+        DateTime cohort = new(2026, 8, 21);
+        Guid run = Guid.NewGuid();
+        OfficialPredictionCandidateEvidence candidate = Candidate(run, cohort, 1, .8, true, .02);
+        OfficialPredictionEvidenceSet valid = Evidence([Run(run, cohort)], [candidate]);
+
+        Should.Throw<ArgumentException>(() => OfficialPredictionScorecardCalculator.Build(
+            valid with
+            {
+                Runs = [valid.Runs[0] with { StrategyVersionId = Guid.NewGuid() }]
+            }));
+        Should.Throw<ArgumentException>(() => OfficialPredictionScorecardCalculator.Build(
+            valid with
+            {
+                Identity = valid.Identity with { IncludedOfficialRuns = 2 }
+            }));
+    }
+
+    [Fact]
     public void CsvExportIsVersionedAndContainsEveryScorecardSurface()
     {
         DateTime cohort = new(2026, 8, 21);
@@ -208,12 +246,24 @@ public sealed class OfficialPredictionScorecardCalculatorTests
             OfficialPredictionScorecardCsv.Build(report);
 
         artifacts.Count.ShouldBe(5);
-        artifacts.ShouldAllBe(artifact => artifact.FileName.StartsWith("official-prediction-v1-"));
+        artifacts.ShouldAllBe(artifact => artifact.FileName.StartsWith("official-prediction-v2-"));
         artifacts.Select(artifact => artifact.FileName).Distinct().Count().ShouldBe(5);
         artifacts.Single(artifact => artifact.FileName.EndsWith("models.csv"))
+            .Content.ShouldContain("strategy_version_id");
+        artifacts.Single(artifact => artifact.FileName.EndsWith("models.csv"))
             .Content.ShouldContain("brier_score");
+        artifacts.Single(artifact => artifact.FileName.EndsWith("coverage.csv"))
+            .Content.ShouldContain("excluded_official_runs");
         artifacts.Single(artifact => artifact.FileName.EndsWith("slices.csv"))
             .Content.ShouldContain("PublishedLens");
+        foreach (OfficialPredictionScorecardCsvArtifact artifact in artifacts)
+        {
+            string[] lines = artifact.Content.Split(
+                ['\r', '\n'],
+                StringSplitOptions.RemoveEmptyEntries);
+            int columns = lines[0].Split(',').Length;
+            lines.ShouldAllBe(line => line.Split(',').Length == columns);
+        }
     }
 
     private static OfficialPredictionEvidenceSet Evidence(
@@ -245,6 +295,13 @@ public sealed class OfficialPredictionScorecardCalculatorTests
         }
 
         return new OfficialPredictionEvidenceSet(
+            new OfficialEvidenceIdentity(
+                StrategyVersionId,
+                "v3.1-rs-date-aligned",
+                "c51c0849fd1311b3797cc664a19988e553bbe122",
+                "ADR-0041",
+                runs.Count,
+                0),
             new OfficialPredictionScorecardDefinition(
                 new Guid("A72C01CB-9C83-45A6-9A72-CC49E67B9F5A"),
                 "PredictionLabels10",
@@ -256,6 +313,7 @@ public sealed class OfficialPredictionScorecardCalculatorTests
 
     private static OfficialPredictionRunEvidence Run(Guid id, DateTime cohort) => new(
         id,
+        StrategyVersionId,
         cohort.Date,
         nameof(CalibrationRunPurpose.OfficialPaper),
         nameof(CalibrationAuditState.Valid),

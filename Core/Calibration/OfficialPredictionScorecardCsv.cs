@@ -12,7 +12,7 @@ public sealed record OfficialPredictionScorecardCsvArtifact(string FileName, str
 
 public static class OfficialPredictionScorecardCsv
 {
-    public const int ExportSchemaVersion = 1;
+    public const int ExportSchemaVersion = 2;
 
     public static IReadOnlyList<OfficialPredictionScorecardCsvArtifact> Build(
         OfficialPredictionScorecard scorecard)
@@ -33,12 +33,19 @@ public static class OfficialPredictionScorecardCsv
     {
         CalibrationCoverageCounts counts = scorecard.Coverage.Counts;
         var csv = NewCsv(
-            "export_schema_version", "definition_id", "definition_name", "definition_version",
+            "export_schema_version", "strategy_version_id", "strategy_version_name",
+            "initial_code_commit", "decision_ref", "excluded_official_runs",
+            "definition_id", "definition_name", "definition_version",
             "official_runs", "total_cohorts", "matured_cohorts", "expected_candidates",
             "valid_outcomes", "degraded_outcomes", "invalid_outcomes", "pending_outcomes",
             "completion_coverage", "usable_coverage", "performance_available", "state");
         Row(csv,
             ExportSchemaVersion,
+            scorecard.Identity.StrategyVersionId,
+            scorecard.Identity.StrategyVersionName,
+            scorecard.Identity.InitialCodeCommit,
+            scorecard.Identity.DecisionRef,
+            scorecard.Identity.ExcludedOfficialRuns,
             scorecard.Definition.OutcomeDefinitionId,
             scorecard.Definition.DefinitionName,
             scorecard.Definition.DefinitionVersion,
@@ -60,7 +67,8 @@ public static class OfficialPredictionScorecardCsv
     private static string Models(OfficialPredictionScorecard scorecard)
     {
         var csv = NewCsv(
-            "export_schema_version", "definition_id", "definition_version", "task_type",
+            "export_schema_version", "strategy_version_id", "strategy_version_name",
+            "initial_code_commit", "decision_ref", "definition_id", "definition_version", "task_type",
             "expected_candidates", "usable_predictions", "missing_or_invalid_predictions",
             "contributing_cohorts", "prediction_coverage", "metrics_available", "brier_score",
             "auc", "expected_calibration_error", "top_decile_event_lift");
@@ -68,6 +76,10 @@ public static class OfficialPredictionScorecardCsv
         {
             Row(csv,
                 ExportSchemaVersion,
+                scorecard.Identity.StrategyVersionId,
+                scorecard.Identity.StrategyVersionName,
+                scorecard.Identity.InitialCodeCommit,
+                scorecard.Identity.DecisionRef,
                 scorecard.Definition.OutcomeDefinitionId,
                 scorecard.Definition.DefinitionVersion,
                 model.TaskType,
@@ -89,7 +101,8 @@ public static class OfficialPredictionScorecardCsv
     private static string Reliability(OfficialPredictionScorecard scorecard)
     {
         var csv = NewCsv(
-            "export_schema_version", "definition_id", "definition_version", "task_type", "report",
+            "export_schema_version", "strategy_version_id", "strategy_version_name",
+            "initial_code_commit", "decision_ref", "definition_id", "definition_version", "task_type", "report",
             "bucket", "lower_bound", "upper_bound", "observations", "contributing_cohorts",
             "cohort_weight", "mean_probability", "observed_event_rate", "event_rate_lift");
         foreach (ProbabilityCalibrationReport model in scorecard.Models)
@@ -98,6 +111,10 @@ public static class OfficialPredictionScorecardCsv
             {
                 Row(csv,
                     ExportSchemaVersion,
+                    scorecard.Identity.StrategyVersionId,
+                    scorecard.Identity.StrategyVersionName,
+                    scorecard.Identity.InitialCodeCommit,
+                    scorecard.Identity.DecisionRef,
                     scorecard.Definition.OutcomeDefinitionId,
                     scorecard.Definition.DefinitionVersion,
                     model.TaskType,
@@ -117,6 +134,10 @@ public static class OfficialPredictionScorecardCsv
             {
                 Row(csv,
                     ExportSchemaVersion,
+                    scorecard.Identity.StrategyVersionId,
+                    scorecard.Identity.StrategyVersionName,
+                    scorecard.Identity.InitialCodeCommit,
+                    scorecard.Identity.DecisionRef,
                     scorecard.Definition.OutcomeDefinitionId,
                     scorecard.Definition.DefinitionVersion,
                     model.TaskType,
@@ -139,7 +160,8 @@ public static class OfficialPredictionScorecardCsv
     private static string Rank(OfficialPredictionScorecard scorecard)
     {
         var csv = NewCsv(
-            "export_schema_version", "definition_id", "definition_version", "lens",
+            "export_schema_version", "strategy_version_id", "strategy_version_name",
+            "initial_code_commit", "decision_ref", "definition_id", "definition_version", "lens",
             "eligible_observations", "contributing_cohorts", "metrics_available", "rank_ic",
             "selection", "selected_observations", "selection_cohorts", "mean_return_10",
             "mean_excess_return_10", "return_lift_versus_eligible_baseline");
@@ -149,6 +171,10 @@ public static class OfficialPredictionScorecardCsv
             {
                 Row(csv,
                     ExportSchemaVersion,
+                    scorecard.Identity.StrategyVersionId,
+                    scorecard.Identity.StrategyVersionName,
+                    scorecard.Identity.InitialCodeCommit,
+                    scorecard.Identity.DecisionRef,
                     scorecard.Definition.OutcomeDefinitionId,
                     scorecard.Definition.DefinitionVersion,
                     lens.Lens,
@@ -169,6 +195,10 @@ public static class OfficialPredictionScorecardCsv
             {
                 Row(csv,
                     ExportSchemaVersion,
+                    scorecard.Identity.StrategyVersionId,
+                    scorecard.Identity.StrategyVersionName,
+                    scorecard.Identity.InitialCodeCommit,
+                    scorecard.Identity.DecisionRef,
                     scorecard.Definition.OutcomeDefinitionId,
                     scorecard.Definition.DefinitionVersion,
                     lens.Lens,
@@ -191,13 +221,18 @@ public static class OfficialPredictionScorecardCsv
     private static string Slices(OfficialPredictionScorecard scorecard)
     {
         var csv = NewCsv(
-            "export_schema_version", "definition_id", "definition_version", "dimension", "value",
+            "export_schema_version", "strategy_version_id", "strategy_version_name",
+            "initial_code_commit", "decision_ref", "definition_id", "definition_version", "dimension", "value",
             "observations", "contributing_cohorts", "mean_return_10", "mean_excess_return_10",
             "up_event_rate", "down_event_rate", "breakout_event_rate", "vol_expansion_event_rate");
         foreach (PredictionSliceReport slice in scorecard.Slices)
         {
             Row(csv,
                 ExportSchemaVersion,
+                scorecard.Identity.StrategyVersionId,
+                scorecard.Identity.StrategyVersionName,
+                scorecard.Identity.InitialCodeCommit,
+                scorecard.Identity.DecisionRef,
                 scorecard.Definition.OutcomeDefinitionId,
                 scorecard.Definition.DefinitionVersion,
                 slice.Dimension,

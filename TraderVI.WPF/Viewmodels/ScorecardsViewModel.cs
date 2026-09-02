@@ -23,6 +23,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
     private string usableCoverage = "—";
     private string cohortCount = "—";
     private string candidateCount = "—";
+    private string evidenceIdentity = "Strategy identity has not been loaded.";
     private string readinessExplanation =
         "Metrics remain hidden until at least 95% of expected official outcomes are usable.";
 
@@ -39,6 +40,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
     public string UsableCoverage { get => usableCoverage; private set => Set(ref usableCoverage, value); }
     public string CohortCount { get => cohortCount; private set => Set(ref cohortCount, value); }
     public string CandidateCount { get => candidateCount; private set => Set(ref candidateCount, value); }
+    public string EvidenceIdentity { get => evidenceIdentity; private set => Set(ref evidenceIdentity, value); }
     public string ReadinessExplanation { get => readinessExplanation; private set => Set(ref readinessExplanation, value); }
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
@@ -51,8 +53,11 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         StatusBrush = Brushes.SlateGray;
         try
         {
-            OfficialPredictionEvidenceSet evidence = await new CalibrationOutcomeRepository()
-                .GetOfficialPredictionScorecardEvidenceAsync(cancellationToken);
+            var repository = new CalibrationOutcomeRepository();
+            OfficialEvidenceIdentity identity =
+                await repository.GetActiveOfficialEvidenceIdentityAsync(cancellationToken);
+            OfficialPredictionEvidenceSet evidence =
+                await repository.GetOfficialPredictionScorecardEvidenceAsync(identity, cancellationToken);
             OfficialPredictionScorecard report =
                 OfficialPredictionScorecardCalculator.Build(evidence);
             Apply(report);
@@ -72,6 +77,7 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
         {
             ClearRows();
             CoverageState = "Unavailable";
+            EvidenceIdentity = "Official strategy identity unavailable.";
             Status = $"Scorecards unavailable · {ex.GetType().Name}: {ex.Message}";
             StatusBrush = Brushes.IndianRed;
         }
@@ -84,6 +90,10 @@ public sealed class ScorecardsViewModel : INotifyPropertyChanged
     private void Apply(OfficialPredictionScorecard report)
     {
         CalibrationCoverageScorecard coverage = report.Coverage;
+        EvidenceIdentity =
+            $"{report.Identity.StrategyVersionName} · {report.Identity.DecisionRef} · " +
+            $"{report.Identity.IncludedOfficialRuns} runs included · " +
+            $"{report.Identity.ExcludedOfficialRuns} earlier-identity runs excluded";
         CoverageState = coverage.State.ToString().ToUpperInvariant();
         UsableCoverage = coverage.UsableCoverage.ToString("P1");
         CohortCount = $"{coverage.Counts.MaturedCohorts} matured / {coverage.Counts.TotalCohorts} total";

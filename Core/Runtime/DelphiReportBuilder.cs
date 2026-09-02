@@ -67,6 +67,8 @@ public sealed class DelphiReportBuilder
     public int DiscoveredSymbols { get; set; }
     public string StrategyVersionName { get; set; } = "Default";
     public string StrategyDescription { get; set; } = "Built-in strategy defaults";
+    public string StrategyInitialCodeCommit { get; set; } = string.Empty;
+    public string StrategyDecisionRef { get; set; } = string.Empty;
     public StrategyConfig StrategyConfig { get; set; } = StrategyConfig.Default;
     public IReadOnlyList<string> PatternModels { get; set; } = [];
     public IReadOnlyList<string> ProfitModels { get; set; } = [];
@@ -378,6 +380,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine("\n── Evaluation Dates ──");
         sb.AppendLine($"  Recommendation date: {RecommendationDate:yyyy-MM-dd}  (run date; database PickDate/EvalDate)");
         sb.AppendLine($"  Market data as of:    {MarketDataAsOf:yyyy-MM-dd}  (latest completed TSX session)");
+        sb.AppendLine($"  Strategy identity:    {StrategyVersionName}  ({StrategyDecisionRef ?? "unidentified"} · {ShortCommit(StrategyInitialCodeCommit)})");
         sb.AppendLine("  Continuation ranking: RScomp + OBV tilt; DirectionEdge and composite tiebreakers");
         sb.AppendLine("  Breakout ranking:     DirectionEdge + RScomp + OBV tilt; DirectionEdge and composite tiebreakers (journaled only)");
 
@@ -666,6 +669,7 @@ public sealed class DelphiReportBuilder
         sb.AppendLine("DELPHI MARKET SUMMARY");
         sb.AppendLine(new string('═', 60));
         sb.AppendLine($"\nRecommendation date: {RecommendationDate:yyyy-MM-dd}  |  Market data as of: {MarketDataAsOf:yyyy-MM-dd}");
+        sb.AppendLine($"Strategy: {StrategyVersionName}  |  {StrategyDecisionRef ?? "unidentified"} · {ShortCommit(StrategyInitialCodeCommit)}");
 
         // ── Regime ──
         if (Regime != null)
@@ -838,6 +842,11 @@ public sealed class DelphiReportBuilder
 
         return sb.ToString();
     }
+
+    private static string ShortCommit(string commit) =>
+        string.IsNullOrWhiteSpace(commit)
+            ? "no code boundary"
+            : commit[..System.Math.Min(12, commit.Length)];
 
     private static double GetProb(RankedPick pick, string name) =>
         pick.Signals.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase))?.Score ?? 0;

@@ -25,6 +25,22 @@ public sealed class DelphiReportBuilderTests
     }
 
     [Fact]
+    public void Reports_NameTheStrategyDecisionAndCodeBoundary()
+    {
+        var report = new DelphiReportBuilder
+        {
+            StrategyVersionName = "v3.1-rs-date-aligned",
+            StrategyDecisionRef = "ADR-0041",
+            StrategyInitialCodeCommit = "c51c0849fd1311b3797cc664a19988e553bbe122"
+        };
+
+        report.BuildDiagnostic().ShouldContain(
+            "v3.1-rs-date-aligned  (ADR-0041 · c51c0849fd13)");
+        report.BuildSummary().ShouldContain(
+            "Strategy: v3.1-rs-date-aligned  |  ADR-0041 · c51c0849fd13");
+    }
+
+    [Fact]
     public void BuildDiagnostic_ListsFallbackSymbolsInStableOrder()
     {
         var report = new DelphiReportBuilder
