@@ -10,7 +10,7 @@
         public string name { get; set; } = "";
         public string exchangeCode { get; set; } = "";
         public decimal price { get; set; }
-        public decimal priceChange { get; set; }
+        public decimal? priceChange { get; set; }
         public decimal percentChange { get; set; }
         public long volume { get; set; }
         public long tradeVolume { get; set; }

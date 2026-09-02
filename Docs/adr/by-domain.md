@@ -51,12 +51,14 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
+- [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 
 ## data-sources
 
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — US confirming-index source and staleness gate
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
+- [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 
 ## machine-learning
 
@@ -87,6 +89,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0014](0014-continuations-lens-trend-confirmation.md) — Continuation lens trend confirmation
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
+- [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 
 ## market-microstructure
 
@@ -158,6 +161,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
+- [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 
 ## math-statistics
 

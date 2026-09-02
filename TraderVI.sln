@@ -97,6 +97,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0040-reconstructible-delayed-intraday-outcome-fill.md = Docs\adr\0040-reconstructible-delayed-intraday-outcome-fill.md
 		Docs\adr\0041-date-aligned-relative-strength-inputs.md = Docs\adr\0041-date-aligned-relative-strength-inputs.md
 		Docs\adr\0042-strategy-code-identity-and-scoped-official-evidence.md = Docs\adr\0042-strategy-code-identity-and-scoped-official-evidence.md
+		Docs\adr\0043-preserve-leadership-source-missingness.md = Docs\adr\0043-preserve-leadership-source-missingness.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

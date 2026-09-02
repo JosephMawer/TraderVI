@@ -123,15 +123,20 @@ rising while internal participation deteriorates.
 **Data pipeline**:
 - **Hermes** computes and stores daily `LeadershipSnapshot` to `[dbo].[LeadershipData]`
   - NHNL: computed from stored `[DailyBars]` (fully backfillable)
-  - Active breadth: real-time only (from TMX market movers API, builds up over daily runs)
+  - Active breadth: same-session only from a complete, distinct top-50 TMX movers response; the undated
+    response is never assigned to an earlier session
   - Benchmark closes: XIU from stored bars, `^TXCE` from TMX API
 - **Delphi** loads recent 50 days from `LeadershipRepository` into `GranvilleMarketContext.LeadershipHistory`
 - `LeadershipCalculator` computes EMA-smoothed series, determines state and quality
 - `LeadershipIndicators` maps (quality × state) to indicator signals #7–#10
 
-**Graceful degradation**: If fewer than 12 days of leadership history are available,
-`LeadershipIndicators` emits a neutral/no-data result. Active breadth and benchmark closes
-are only available for days where Hermes ran; historical backfill days store NHNL only.
+**Graceful degradation (ADR-0043)**: Active breadth is one atomic nullable observation. All three mover
+counts are null when the source is unavailable; a genuine neutral reading has a positive reported basket
+whose advancing and declining counts are equal. Leadership and Light Volume require the newest 12
+sessions (`EMA10 + two slope observations`) to contain contiguous valid active-breadth observations.
+Never filter across a gap, turn unavailable data into numeric zero, or count unavailable/flat inputs as
+falling. Insufficient mover coverage emits an explicit neutral/no-data result even when enough NHNL rows
+exist. Historical backfill days store NHNL only.
 
 ### TSX sector map rules
 

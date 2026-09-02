@@ -33,19 +33,45 @@ public sealed record LeadershipSnapshot
 
     // ── Layer 2: Active-stock breadth (top-N by dollar volume) ──
 
-    /// <summary>Number of top-N most-active stocks (by dollar volume) that advanced.</summary>
-    public int ActiveAdvancers { get; init; }
+    /// <summary>
+    /// Number of top-N most-active stocks (by dollar volume) that advanced.
+    /// Null when the movers source was unavailable for this session.
+    /// </summary>
+    public int? ActiveAdvancers { get; init; }
 
-    /// <summary>Number of top-N most-active stocks (by dollar volume) that declined.</summary>
-    public int ActiveDecliners { get; init; }
+    /// <summary>
+    /// Number of top-N most-active stocks (by dollar volume) that declined.
+    /// Null when the movers source was unavailable for this session.
+    /// </summary>
+    public int? ActiveDecliners { get; init; }
 
-    /// <summary>The N used for the active-stock basket.</summary>
-    public int ActiveN { get; init; }
+    /// <summary>
+    /// The N used for the active-stock basket. Null when no basket was reported.
+    /// A reported basket always has a positive value, even when its breadth is neutral.
+    /// </summary>
+    public int? ActiveN { get; init; }
 
-    /// <summary>Raw ratio: (ActiveAdvancers − ActiveDecliners) / N.</summary>
-    public double ActiveBreadthRaw => ActiveN > 0
-        ? (double)(ActiveAdvancers - ActiveDecliners) / ActiveN
-        : 0.0;
+    /// <summary>
+    /// Whether this snapshot contains a reported active-stock basket.
+    /// Persistence validation guarantees that the three active-breadth fields are
+    /// either all present and valid or all null.
+    /// </summary>
+    public bool HasActiveBreadth =>
+        ActiveAdvancers is int advancers
+        && ActiveDecliners is int decliners
+        && ActiveN is int basketSize
+        && advancers >= 0
+        && decliners >= 0
+        && basketSize > 0
+        && (long)advancers + decliners <= basketSize;
+
+    /// <summary>
+    /// Raw ratio: (ActiveAdvancers − ActiveDecliners) / N, or null when the
+    /// movers source was unavailable. A genuine tied basket remains exactly zero.
+    /// </summary>
+    public double? ActiveBreadthRaw => HasActiveBreadth
+        ? (double)(ActiveAdvancers!.Value - ActiveDecliners!.Value) / ActiveN!.Value
+        : null;
 
     // ── Layer 3: Large-cap relative strength ──
 

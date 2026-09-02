@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 namespace Core.Indicators.Granville;
 
 /// <summary>
@@ -37,7 +36,20 @@ public sealed class LeadershipIndicators : IGranvilleIndicatorGroup
     {
         var results = new List<GranvilleResult>(4);
 
-        if (context.LeadershipHistory is not { Count: >= 12 })
+        if (context.LeadershipExpectedSessions is not { Count: > 0 } expectedSessions)
+        {
+            results.Add(new GranvilleResult(
+                IndicatorNumber: 0,
+                Category: IndicatorCategory.Leadership,
+                Name: "Leadership: No Session Calendar",
+                Signal: IndicatorSignal.Neutral,
+                GranvillePoints: 0,
+                Description: "The canonical XIU session calendar is unavailable. Skipping leadership analysis."));
+            return results;
+        }
+
+        if (context.LeadershipHistory is not { } history
+            || history.Count < _calculator.RequiredActiveBreadthDays)
         {
             results.Add(new GranvilleResult(
                 IndicatorNumber: 0,
@@ -45,12 +57,28 @@ public sealed class LeadershipIndicators : IGranvilleIndicatorGroup
                 Name: "Leadership: No Data",
                 Signal: IndicatorSignal.Neutral,
                 GranvillePoints: 0,
-                Description: "Insufficient leadership history (need ≥ 12 days). Skipping leadership analysis."));
+                Description: $"Insufficient leadership history (need ≥ {_calculator.RequiredActiveBreadthDays} days). " +
+                             "Skipping leadership analysis."));
             return results;
         }
 
-        var state = _calculator.Compute(context.LeadershipHistory);
-        var quality = _calculator.ComputeQuality(context.LeadershipHistory);
+        int activeBreadthDays = _calculator.CountTrailingActiveBreadthDays(history, expectedSessions);
+        if (activeBreadthDays < _calculator.RequiredActiveBreadthDays)
+        {
+            results.Add(new GranvilleResult(
+                IndicatorNumber: 0,
+                Category: IndicatorCategory.Leadership,
+                Name: "Leadership: No Active-Breadth Data",
+                Signal: IndicatorSignal.Neutral,
+                GranvillePoints: 0,
+                Description: $"Active-stock movers coverage is {activeBreadthDays}/" +
+                             $"{_calculator.RequiredActiveBreadthDays} contiguous days. " +
+                             "Unavailable movers data is not treated as neutral or falling breadth; skipping #7–#10."));
+            return results;
+        }
+
+        var state = _calculator.Compute(history, expectedSessions);
+        var quality = _calculator.ComputeQuality(history, expectedSessions);
 
         // If either dimension is indeterminate, we can't fire a signal
         if (state == LeadershipState.Indeterminate || quality == LeadershipQuality.Indeterminate

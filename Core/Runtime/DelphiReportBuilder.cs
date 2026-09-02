@@ -29,6 +29,10 @@ public sealed class DelphiReportBuilder
     public double BreadthScore { get; set; }
     public bool BearishDivergence { get; set; }
     public GranvilleDailyForecast? Granville { get; set; }
+    public int LeadershipHistoryDays { get; set; }
+    public int LeadershipActiveBreadthDays { get; set; }
+    public int LeadershipActiveBreadthRequired { get; set; } =
+        new LeadershipCalculator().RequiredActiveBreadthDays;
     public WeightingSnapshot? Weighting { get; set; }
     public MarketTapeContext? MarketTape { get; set; }
     public IReadOnlyList<SectorIndexSnapshot> SectorSnapshots { get; set; } = [];
@@ -172,7 +176,12 @@ public sealed class DelphiReportBuilder
                     result.Name,
                     result.Signal.ToString(),
                     result.GranvillePoints,
-                    result.Description)).ToArray());
+                    result.Description)).ToArray())
+            {
+                LeadershipHistoryDays = LeadershipHistoryDays,
+                LeadershipActiveBreadthDays = LeadershipActiveBreadthDays,
+                LeadershipActiveBreadthRequired = LeadershipActiveBreadthRequired
+            };
 
         DelphiWeightingPresentation? weighting = Weighting is null
             ? null
@@ -475,6 +484,7 @@ public sealed class DelphiReportBuilder
         if (Granville != null)
         {
             sb.AppendLine("\n── Granville Indicators ──");
+            AppendLeadershipCoverageDiagnostic(sb);
             foreach (var r in Granville.Results)
             {
                 sb.AppendLine($"  [{r.IndicatorNumber:D2}] {r.Name,-30} Signal={r.Signal,-14} Points={r.GranvillePoints:+0;-0}");
@@ -752,6 +762,7 @@ public sealed class DelphiReportBuilder
         {
             string gLabel = Granville.NetPoints > 0 ? "📈 Bullish" : Granville.NetPoints < 0 ? "📉 Bearish" : "➖ Neutral";
             sb.AppendLine($"\nGranville: {gLabel} (net {Granville.NetPoints:+0;-0} pts, {Granville.BullishCount} bull / {Granville.BearishCount} bear)");
+            AppendLeadershipCoverageSummary(sb);
 
             // Genuity (#17–#20) line — cross-border (US) confirmation of XIU's move.
             var genuity = Granville.Results.Where(r => r.Category == Core.Indicators.Granville.IndicatorCategory.Genuity).ToList();
@@ -847,6 +858,40 @@ public sealed class DelphiReportBuilder
         string.IsNullOrWhiteSpace(commit)
             ? "no code boundary"
             : commit[..System.Math.Min(12, commit.Length)];
+
+    private void AppendLeadershipCoverageDiagnostic(StringBuilder sb)
+    {
+        sb.AppendLine("  Leadership mover coverage:");
+        sb.AppendLine($"    Stored history:          {LeadershipHistoryDays} day(s)");
+        sb.AppendLine($"    Contiguous observations: {LeadershipActiveBreadthDays}/{LeadershipActiveBreadthRequired} trailing session(s)");
+        if (LeadershipActiveBreadthRequired <= 0)
+        {
+            sb.AppendLine("    Status:                  N/A — the coverage requirement was not captured.");
+        }
+        else if (LeadershipActiveBreadthDays < LeadershipActiveBreadthRequired)
+        {
+            sb.AppendLine("    Status:                  N/A — insufficient mover observations; missing data is not zero or falling breadth.");
+        }
+        else
+        {
+            sb.AppendLine("    Status:                  available");
+        }
+    }
+
+    private void AppendLeadershipCoverageSummary(StringBuilder sb)
+    {
+        if (LeadershipActiveBreadthRequired > 0
+            && LeadershipActiveBreadthDays >= LeadershipActiveBreadthRequired)
+        {
+            sb.AppendLine($"  Leadership movers: {LeadershipActiveBreadthDays}/{LeadershipActiveBreadthRequired} contiguous observations ({LeadershipHistoryDays} stored days)");
+            return;
+        }
+
+        string required = LeadershipActiveBreadthRequired > 0
+            ? LeadershipActiveBreadthRequired.ToString()
+            : "unknown";
+        sb.AppendLine($"  ⚠ Leadership movers: N/A — {LeadershipActiveBreadthDays}/{required} contiguous observations ({LeadershipHistoryDays} stored days); mover-dependent evidence is neutral/no-data.");
+    }
 
     private static double GetProb(RankedPick pick, string name) =>
         pick.Signals.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase))?.Score ?? 0;

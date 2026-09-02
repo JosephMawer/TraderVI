@@ -278,6 +278,10 @@ public sealed class DelphiWorkflow
             GranvilleDailyForecast? granvilleForecast = null;
             WeightingSnapshot? weightingSnapshot = null;
             MarketTapeContext? marketTape = null;
+            var leadershipCalculator = new LeadershipCalculator();
+            int leadershipHistoryDays = 0;
+            int leadershipActiveBreadthDays = 0;
+            int leadershipActiveBreadthRequired = leadershipCalculator.RequiredActiveBreadthDays;
             var usIndexBars = new Dictionary<string, IReadOnlyList<Core.Indicators.Granville.UsIndexBar>>(StringComparer.OrdinalIgnoreCase);
 
             var sectorIndexRepo = new SectorIndexRepository();
@@ -296,6 +300,10 @@ public sealed class DelphiWorkflow
                 // Need ~50 days for EMA-10 smoothing + 20-day large-cap RS lookback.
                 var leadershipRepo = new LeadershipRepository();
                 var leadershipHistory = await leadershipRepo.GetRecentAsync(50);
+                leadershipHistoryDays = leadershipHistory.Count;
+                leadershipActiveBreadthDays = leadershipCalculator.CountTrailingActiveBreadthDays(
+                    leadershipHistory,
+                    benchmarkSessions);
 
                 // Load the 15 most active stocks by volume for today (Features indicators #11–#14).
                 var mostActiveRepo = new MostActiveStocksRepository();
@@ -343,6 +351,7 @@ public sealed class DelphiWorkflow
                     SectorSnapshots = granvilleSectorSnapshots,
                     StockSectorMappings = stockSectorMappings,
                     LeadershipHistory = leadershipHistory.Count >= 2 ? leadershipHistory : null,
+                    LeadershipExpectedSessions = benchmarkSessions,
                     MostActiveStocks = mostActiveStocks.Count >= 8 ? mostActiveStocks : null,
                     XiuConstituentBars = xiuConstituentBars,
                     UsIndexBars = usIndexBars.Count > 0 ? usIndexBars : null,
@@ -372,7 +381,8 @@ public sealed class DelphiWorkflow
                 Console.WriteLine($"  XIU Close:          {adLine[^1].XiuClose:F2} (prev: {adLine[^2].XiuClose:F2})");
                 Console.WriteLine($"  Sector snapshots:   {granvilleSectorSnapshots.Count}");
                 Console.WriteLine($"  Stock-sector maps:  {stockSectorMappings.Count}");
-                Console.WriteLine($"  Leadership history: {leadershipHistory.Count} days");
+                Console.WriteLine($"  Leadership history: {leadershipHistoryDays} days");
+                Console.WriteLine($"  Leadership movers:  {leadershipActiveBreadthDays}/{leadershipActiveBreadthRequired} contiguous observations");
                 Console.WriteLine($"  Most active stocks: {mostActiveStocks.Count}");
                 Console.WriteLine($"  US index symbols:   {usIndexBars.Count} (Genuity inputs)");
                 if (marketTape is { XiuVolumeRatio20: decimal vr, XiuReturn1d: decimal r1 })
@@ -399,9 +409,9 @@ public sealed class DelphiWorkflow
                     Console.WriteLine("  ⚠️  No stock-sector mappings loaded — future sector-aware Granville groups will be unavailable.");
                 }
 
-                if (leadershipHistory.Count < 12)
+                if (leadershipActiveBreadthDays < leadershipActiveBreadthRequired)
                 {
-                    Console.WriteLine("  ⚠️  Insufficient leadership history (< 12 days) — Leadership indicators will degrade to neutral.");
+                    Console.WriteLine("  ⚠️  Leadership movers unavailable — insufficient contiguous observations; mover-dependent Leadership/Light Volume evidence will be neutral/no-data.");
                 }
 
                 if (marketTape is null || marketTape.XiuVolumeRatio20 is null || marketTape.XiuReturn1d is null)
@@ -967,6 +977,9 @@ public sealed class DelphiWorkflow
                 BreadthScore = breadthScore,
                 BearishDivergence = bearishDivergence,
                 Granville = granvilleForecast,
+                LeadershipHistoryDays = leadershipHistoryDays,
+                LeadershipActiveBreadthDays = leadershipActiveBreadthDays,
+                LeadershipActiveBreadthRequired = leadershipActiveBreadthRequired,
                 Weighting = weightingSnapshot,
                 MarketTape = marketTape,
                 SectorSnapshots = todaySectorSnapshots,

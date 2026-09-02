@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 namespace Core.Indicators.Granville;
 
 /// <summary>
@@ -74,14 +73,33 @@ public sealed class LightVolumeIndicators : IGranvilleIndicatorGroup
         }
 
         // ── Leadership quality ──
-        if (context.LeadershipHistory is not { Count: >= 12 })
+        if (context.LeadershipExpectedSessions is not { Count: > 0 } expectedSessions)
         {
-            results.Add(NeutralNoData("Light Volume: No Leadership",
-                "Insufficient leadership history (need ≥ 12 days) to compute quality for #25–#28."));
+            results.Add(NeutralNoData("Light Volume: No Leadership Calendar",
+                "The canonical XIU session calendar is unavailable. Skipping #25–#28."));
             return results;
         }
 
-        var quality = _leadershipCalculator.ComputeQuality(context.LeadershipHistory);
+        if (context.LeadershipHistory is not { } history
+            || history.Count < _leadershipCalculator.RequiredActiveBreadthDays)
+        {
+            results.Add(NeutralNoData("Light Volume: No Leadership",
+                $"Insufficient leadership history (need ≥ {_leadershipCalculator.RequiredActiveBreadthDays} days) " +
+                "to compute quality for #25–#28."));
+            return results;
+        }
+
+        int activeBreadthDays = _leadershipCalculator.CountTrailingActiveBreadthDays(history, expectedSessions);
+        if (activeBreadthDays < _leadershipCalculator.RequiredActiveBreadthDays)
+        {
+            results.Add(NeutralNoData("Light Volume: No Leadership Movers",
+                $"Active-stock movers coverage is {activeBreadthDays}/" +
+                $"{_leadershipCalculator.RequiredActiveBreadthDays} contiguous days. " +
+                "Unavailable movers data is not a leadership-quality observation; skipping #25–#28."));
+            return results;
+        }
+
+        var quality = _leadershipCalculator.ComputeQuality(history, expectedSessions);
         if (quality == LeadershipQuality.Indeterminate || quality == LeadershipQuality.Stable)
         {
             results.Add(Neutral("Light Volume: Neutral Quality",

@@ -650,3 +650,21 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0042
 
 **A:** The strategy and code identity changes, and active comparative cohorts restart under that identity. Thresholds, models, gates, ranking formulas, and execution policy are cloned unchanged.
+
+### Q: How does TraderVI distinguish genuine zero active breadth from unavailable movers data?
+- **Domains:** data-pipeline, data-sources, technical-indicators
+- **Source:** ADR-0043
+
+**A:** A genuine zero has a positive reported basket with equal advancing and declining counts. Unavailable data stores all three mover fields as null; `0/0/0` is never treated as a market reading.
+
+### Q: Why can leadership not filter out missing mover rows and calculate over the remaining observations?
+- **Domains:** decision-engine, technical-indicators
+- **Source:** ADR-0043
+
+**A:** Filtering would compress time across gaps and make stale observations appear consecutive. Leadership requires the newest 12 sessions to have contiguous mover coverage, otherwise the affected indicators remain neutral/no-data.
+
+### Q: Why does the leadership-missingness correction start a new strategy identity?
+- **Domains:** decision-engine, data-pipeline
+- **Source:** ADR-0043
+
+**A:** Preventing fabricated zero and falling votes can change Granville scores or gates. A new identity keeps pre- and post-correction evidence attributable even though thresholds, weights, models, and execution policy are unchanged.

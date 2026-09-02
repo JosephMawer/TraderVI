@@ -2,6 +2,7 @@
 
 using Core.Runtime;
 using Core.Trader;
+using Core.Indicators.Granville;
 using Shouldly;
 using System;
 using System.Text.Json;
@@ -28,7 +29,11 @@ public sealed class DelphiPresentationSnapshotTests
             ProfitModels = ["BinaryUp10"],
             RsAlignmentGapCount = 2,
             RsAlignmentGapSymbols = ["ZZZ", "AAA"],
-            RsFullCoverageCount = 299
+            RsFullCoverageCount = 299,
+            Granville = new GranvilleDailyForecast([], 0, 0, 0, 0),
+            LeadershipHistoryDays = 50,
+            LeadershipActiveBreadthDays = 12,
+            LeadershipActiveBreadthRequired = 12
         };
 
         DelphiPresentationSnapshot snapshot = report.BuildPresentationSnapshot(
@@ -48,6 +53,10 @@ public sealed class DelphiPresentationSnapshotTests
         snapshot.RelativeStrength.AlignmentGapCount.ShouldBe(2);
         snapshot.RelativeStrength.AlignmentGapSymbols.ShouldBe(["AAA", "ZZZ"]);
         snapshot.RelativeStrength.FullCoverageCount.ShouldBe(299);
+        snapshot.Granville.ShouldNotBeNull();
+        snapshot.Granville!.LeadershipHistoryDays.ShouldBe(50);
+        snapshot.Granville.LeadershipActiveBreadthDays.ShouldBe(12);
+        snapshot.Granville.LeadershipActiveBreadthRequired.ShouldBe(12);
         snapshot.SummaryReport.ShouldBe("Human summary");
         snapshot.DiagnosticReport.ShouldBe("Diagnostic detail");
     }
@@ -70,6 +79,10 @@ public sealed class DelphiPresentationSnapshotTests
         actual.RelativeStrength.AlignmentGapCount.ShouldBe(2);
         actual.RelativeStrength.AlignmentGapSymbols.ShouldBe(["AAA", "ZZZ"]);
         actual.RelativeStrength.FullCoverageCount.ShouldBe(299);
+        actual.Granville.ShouldNotBeNull();
+        actual.Granville!.LeadershipHistoryDays.ShouldBe(50);
+        actual.Granville.LeadershipActiveBreadthDays.ShouldBe(12);
+        actual.Granville.LeadershipActiveBreadthRequired.ShouldBe(12);
         actual.SummaryReport.ShouldBe("Summary");
     }
 
@@ -84,6 +97,10 @@ public sealed class DelphiPresentationSnapshotTests
         relativeStrength.Remove("alignmentGapCount");
         relativeStrength.Remove("alignmentGapSymbols");
         relativeStrength.Remove("fullCoverageCount");
+        JsonObject granville = root["presentation"]!["granville"]!.AsObject();
+        granville.Remove("leadershipHistoryDays");
+        granville.Remove("leadershipActiveBreadthDays");
+        granville.Remove("leadershipActiveBreadthRequired");
 
         DelphiPresentationSnapshot? actual = DelphiPersistedPresentationReader.TryReadCaptured(root.ToJsonString());
 
@@ -93,6 +110,10 @@ public sealed class DelphiPresentationSnapshotTests
         actual.RelativeStrength.AlignmentGapCount.ShouldBeNull();
         actual.RelativeStrength.AlignmentGapSymbols.ShouldBeNull();
         actual.RelativeStrength.FullCoverageCount.ShouldBeNull();
+        actual.Granville.ShouldNotBeNull();
+        actual.Granville!.LeadershipHistoryDays.ShouldBe(0);
+        actual.Granville.LeadershipActiveBreadthDays.ShouldBe(0);
+        actual.Granville.LeadershipActiveBreadthRequired.ShouldBe(0);
     }
 
     [Fact]
@@ -156,7 +177,12 @@ public sealed class DelphiPresentationSnapshotTests
         [],
         [],
         null,
-        null,
+        new DelphiGranvillePresentation(0, 0, 0, 0, [])
+        {
+            LeadershipHistoryDays = 50,
+            LeadershipActiveBreadthDays = 12,
+            LeadershipActiveBreadthRequired = 12
+        },
         null,
         new DelphiUniversePresentation(412, 301, 10, 4, 5, 2, 80, 10, 1m, 100000, []),
         new DelphiRelativeStrengthPresentation(

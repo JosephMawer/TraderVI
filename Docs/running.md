@@ -67,6 +67,12 @@ Hermes currently:
 
 Running Hermes performs external HTTP requests and writes multiple SQL tables. Obtain explicit authorization and review schema/data prerequisites first.
 
+ADR-0043's nullable leadership-source contract requires manual migration 017. While that migration is
+pending, do not run Hermes: the corrected writer intentionally refuses the old non-null leadership
+schema rather than persisting another ambiguous `0/0/0` observation. Keep official Delphi publication
+paused until the matching `v3.2-leadership-missingness` identity is active. Athena does not collect or
+repair leadership data and does not need to run for this rollout.
+
 The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
 
 If the data update completes but backup creation, verification, or copying fails, Hermes prints a prominent warning and exits with code `2`. The updated database remains intact, and any completed staging backup is preserved for diagnosis or manual copying. A successful copy still requires the OneDrive client to finish cloud synchronization.

@@ -47,6 +47,13 @@ public sealed class GranvilleMarketContext
     /// </summary>
     public IReadOnlyList<LeadershipSnapshot>? LeadershipHistory { get; init; }
 
+    /// <summary>
+    /// Canonical XIU trading sessions expected to have leadership rows, ascending by
+    /// date. This must come from the benchmark calendar rather than A/D availability.
+    /// Null or empty forces leadership-dependent indicators to degrade to no-data.
+    /// </summary>
+    public IReadOnlyList<System.DateTime>? LeadershipExpectedSessions { get; init; }
+
     // ── Most Active data (for Features/Most Active indicators #11–#14) ──
 
     /// <summary>

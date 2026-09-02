@@ -864,16 +864,24 @@ static async Task UpdateLeadershipDataAsync(
         return;
     }
 
-    // Only compute new-high/low counts for recent dates we don't already have
-    var lastStored = await leadershipRepo.GetLatestDateAsync();
-    var computeFrom = lastStored.HasValue
-        ? lastStored.Value.AddDays(1)
-        : DateTime.Today.AddDays(-30); // first run: seed last 30 days
+    // Normally resume after the latest stored day. Only an incomplete row dated
+    // for the current local market date may be retried: the movers response has
+    // no source date, so it must never be inferred to belong to yesterday.
+    var latestStored = (await leadershipRepo.GetRecentAsync(1)).LastOrDefault();
+    var localMarketDate = DateTime.Today;
+    var acquisitionPlan = LeadershipAcquisitionPolicy.CreatePlan(
+        localMarketDate,
+        latestStored?.Date,
+        latestStored?.HasActiveBreadth ?? false,
+        localMarketDate.AddDays(-30)); // first run: seed last 30 days
+    var repairLatestActiveBreadth = acquisitionPlan.IsCurrentDateRetry;
+    var computeFrom = acquisitionPlan.ComputeFrom;
 
-    if (computeFrom > DateTime.Today.AddDays(-1))
+    if (repairLatestActiveBreadth)
     {
-        Console.WriteLine("Leadership data is already up-to-date. ✓\n");
-        return;
+        Console.WriteLine(
+            $"Latest leadership row ({latestStored!.Date:yyyy-MM-dd}) has no active-stock observation; " +
+            "recomputing it for a repair attempt.");
     }
 
     Console.WriteLine($"Computing new highs/lows from {computeFrom:yyyy-MM-dd}...");
@@ -883,91 +891,168 @@ static async Task UpdateLeadershipDataAsync(
 
     if (highLowCounts.Count == 0)
     {
-        Console.WriteLine("No new trading days to process. ✓\n");
+        Console.WriteLine(repairLatestActiveBreadth
+            ? "The latest row could not be recomputed from stored bars; active-stock breadth remains N/A.\n"
+            : "No new trading days to process. ✓\n");
         return;
     }
 
+    // Live leadership sources may be attached only when both the computed
+    // leadership row and a dated XIU anchor exist for the current local market
+    // date. Resolve the dated anchor before calling either undated endpoint.
+    var computedLeadershipDates = highLowCounts.Select(h => h.Date).ToArray();
+    var hasCurrentComputedRow = computedLeadershipDates.Any(date => date.Date == localMarketDate);
+    DailyBar? xiuAnchorBar = null;
+
+    if (hasCurrentComputedRow)
+    {
+        var xiuBars = await repository.GetDailyBarsAsync(TsxBenchmarkSymbols.Xiu, localMarketDate);
+        xiuAnchorBar = xiuBars.LastOrDefault(bar => bar.Date.Date == localMarketDate);
+
+        if (xiuAnchorBar is null)
+        {
+            Console.WriteLine(
+                $"⚠️  No XIU bar dated {localMarketDate:yyyy-MM-dd}; " +
+                "undated movers and ^TXCE sources will not be requested.");
+        }
+    }
+    else
+    {
+        Console.WriteLine(
+            $"No computed leadership row dated {localMarketDate:yyyy-MM-dd}; " +
+            "undated live sources will not be requested.");
+    }
+
+    var liveTargetDate = LeadershipAcquisitionPolicy.SelectLiveTargetDate(
+        localMarketDate,
+        computedLeadershipDates,
+        xiuAnchorBar?.Date);
+
     // ─── Layer 2: Active-stock breadth (top-N by dollar volume) ───
 
-    Console.WriteLine("Fetching top-50 most active by dollar volume...");
+    int? activeAdvancers = null;
+    int? activeDecliners = null;
+    int? activeN = null;
+    var retainingStoredActiveBreadth = false;
 
-    int activeAdvancers = 0;
-    int activeDecliners = 0;
-    int activeN = 0;
-
-    try
+    // Preserve an existing valid observation defensively if this date is ever
+    // revisited and the external source is temporarily unavailable. The
+    // repository also guards this invariant during the upsert.
+    if (latestStored is not null
+        && latestStored.Date.Date == localMarketDate
+        && latestStored.HasActiveBreadth)
     {
-        var movers = await tmx.GetMarketMoversAsync(
-            sortOrder: "dollarvolume",
-            statExchange: "tsx",
-            limit: 50);
-
-        activeN = movers.Length;
-        activeAdvancers = movers.Count(m => m.priceChange > 0);
-        activeDecliners = movers.Count(m => m.priceChange < 0);
-
-        Console.WriteLine($"  Active stocks: {activeN} (↑ {activeAdvancers}, ↓ {activeDecliners}, → {activeN - activeAdvancers - activeDecliners})");
+        activeAdvancers = latestStored.ActiveAdvancers;
+        activeDecliners = latestStored.ActiveDecliners;
+        activeN = latestStored.ActiveN;
+        retainingStoredActiveBreadth = true;
     }
-    catch (Exception ex)
+
+    if (liveTargetDate.HasValue)
     {
-        Console.WriteLine($"  ⚠️  Market movers fetch failed: {ex.Message}");
-        Console.WriteLine("  Using zero for active breadth (will be updated on next run).");
+        Console.WriteLine(
+            $"Fetching top-50 most active by dollar volume for {liveTargetDate.Value:yyyy-MM-dd}...");
+
+        try
+        {
+            var movers = await tmx.GetMarketMoversAsync(
+                sortOrder: "dollarvolume",
+                statExchange: "tsx",
+                limit: LeadershipAcquisitionPolicy.RequiredMoverBasketSize);
+
+            var basket = LeadershipAcquisitionPolicy.EvaluateMoverBasket(movers);
+            if (!basket.IsValid)
+            {
+                Console.WriteLine(retainingStoredActiveBreadth
+                    ? $"  ⚠️  Invalid market movers basket ({basket.Reason}) " +
+                      "Retaining the existing active-stock observation."
+                    : $"  ⚠️  Invalid market movers basket ({basket.Reason}) " +
+                      "Active-stock breadth is unavailable (N/A). " +
+                      "No zero observation will be stored.");
+            }
+            else
+            {
+                var observation = basket.Observation!;
+                activeN = observation.BasketSize;
+                activeAdvancers = observation.Advancers;
+                activeDecliners = observation.Decliners;
+
+                Console.WriteLine(
+                    $"  Active stocks: {activeN} (↑ {activeAdvancers}, ↓ {activeDecliners}, " +
+                    $"→ {observation.Unchanged})");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"  ⚠️  Market movers fetch failed: {ex.Message}");
+            Console.WriteLine(retainingStoredActiveBreadth
+                ? "  Retaining the existing active-stock observation."
+                : "  Active-stock breadth is unavailable (N/A); no zero observation will be stored.");
+        }
+    }
+    else
+    {
+        Console.WriteLine(
+            "Movers were not requested because no current-date leadership row has an exact XIU anchor; " +
+            "new active-stock breadth remains N/A.");
     }
 
     // ─── Layer 3: Benchmark index closes (XIU = TSX 60, ^TXCE = Composite Equal Weight) ───
 
-    Console.WriteLine("Fetching benchmark index quotes (XIU, ^TXCE)...");
+    decimal? tsx60Close = liveTargetDate.HasValue && xiuAnchorBar is not null
+        ? (decimal)xiuAnchorBar.Close
+        : null;
+    decimal? equalWeightClose = liveTargetDate.HasValue
+        && latestStored is not null
+        && latestStored.Date.Date == liveTargetDate.Value
+        ? latestStored.EqualWeightClose
+        : null;
 
-    decimal? tsx60Close = null;
-    decimal? equalWeightClose = null;
-
-    // XIU close from stored bars (already backfilled)
-    var xiuBars = await repository.GetDailyBarsAsync(TsxBenchmarkSymbols.Xiu, DateTime.Today.AddDays(-5));
-    if (xiuBars.Count > 0)
+    if (liveTargetDate.HasValue)
     {
-        tsx60Close = (decimal)xiuBars[^1].Close;
+        Console.WriteLine("Fetching benchmark index quotes (XIU, ^TXCE)...");
         Console.WriteLine($"  XIU (TSX 60 proxy):    {tsx60Close:F2}");
-    }
-    else
-    {
-        Console.WriteLine("  ⚠️  No recent XIU data.");
-    }
 
-    // ^TXCE from TMX API
-    try
-    {
-        var benchmarks = await tmx.GetBenchmarkIndicesAsync();
-        var txce = benchmarks.FirstOrDefault(b =>
-            b.Symbol.Equals(TsxBenchmarkSymbols.TsxCompositeEqualWeight, StringComparison.OrdinalIgnoreCase));
+        // ^TXCE from TMX API
+        try
+        {
+            var benchmarks = await tmx.GetBenchmarkIndicesAsync();
+            var txce = benchmarks.FirstOrDefault(b =>
+                b.Symbol.Equals(TsxBenchmarkSymbols.TsxCompositeEqualWeight, StringComparison.OrdinalIgnoreCase));
 
-        if (txce != null)
-        {
-            equalWeightClose = txce.Price;
-            Console.WriteLine($"  ^TXCE (Composite EW):  {equalWeightClose:F2}");
+            if (txce != null)
+            {
+                equalWeightClose = txce.Price;
+                Console.WriteLine($"  ^TXCE (Composite EW):  {equalWeightClose:F2}");
+            }
+            else
+            {
+                Console.WriteLine("  ⚠️  ^TXCE not found in benchmark response.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("  ⚠️  ^TXCE not found in benchmark response.");
+            Console.WriteLine($"  ⚠️  Benchmark index fetch failed: {ex.Message}");
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"  ⚠️  Benchmark index fetch failed: {ex.Message}");
     }
 
     // ─── Build LeadershipSnapshot entries ───
     //
     // New-high/new-low data is per-day (historical), but active breadth and
-    // benchmark closes are real-time (today only). For historical backfill days,
-    // we store the NHNL data with zero active breadth and null benchmark closes.
-    // Hermes will fill in today's active breadth and closes on each daily run,
-    // building up the series over time.
+    // benchmark closes are live observations. Only the current date, anchored
+    // by an exact-date XIU bar, receives new values. Historical backfill rows
+    // store null (unavailable), not a synthetic zero that could be interpreted
+    // as genuine neutral breadth.
 
     var snapshots = new List<LeadershipSnapshot>(highLowCounts.Count);
 
     foreach (var hlc in highLowCounts)
     {
-        bool isToday = hlc.Date.Date >= DateTime.Today.AddDays(-1); // yesterday or today (market close)
+        bool receivesLiveObservation = liveTargetDate.HasValue
+            && hlc.Date.Date == liveTargetDate.Value;
+        bool retainsStoredActiveBreadth = retainingStoredActiveBreadth
+            && hlc.Date.Date == localMarketDate;
+        bool receivesActiveBreadth = receivesLiveObservation || retainsStoredActiveBreadth;
 
         snapshots.Add(new LeadershipSnapshot
         {
@@ -975,11 +1060,11 @@ static async Task UpdateLeadershipDataAsync(
             NewHighs = hlc.NewHighs,
             NewLows = hlc.NewLows,
             IssuesTraded = hlc.IssuesTraded,
-            ActiveAdvancers = isToday ? activeAdvancers : 0,
-            ActiveDecliners = isToday ? activeDecliners : 0,
-            ActiveN = isToday ? activeN : 0,
-            Tsx60Close = isToday ? tsx60Close : null,
-            EqualWeightClose = isToday ? equalWeightClose : null,
+            ActiveAdvancers = receivesActiveBreadth ? activeAdvancers : null,
+            ActiveDecliners = receivesActiveBreadth ? activeDecliners : null,
+            ActiveN = receivesActiveBreadth ? activeN : null,
+            Tsx60Close = receivesLiveObservation ? tsx60Close : null,
+            EqualWeightClose = receivesLiveObservation ? equalWeightClose : null,
         });
     }
 
@@ -988,9 +1073,12 @@ static async Task UpdateLeadershipDataAsync(
     Console.WriteLine(new string('─', 65));
     foreach (var s in snapshots.TakeLast(10))
     {
+        var activeAdvancersDisplay = s.ActiveAdvancers?.ToString() ?? "N/A";
+        var activeDeclinersDisplay = s.ActiveDecliners?.ToString() ?? "N/A";
+
         Console.WriteLine(
             $"{s.Date:yyyy-MM-dd}  {s.NewHighs,4} {s.NewLows,4} {s.IssuesTraded,7} " +
-            $"{s.ActiveAdvancers,7} {s.ActiveDecliners,7} " +
+            $"{activeAdvancersDisplay,7} {activeDeclinersDisplay,7} " +
             $"{(s.Tsx60Close.HasValue ? $"{s.Tsx60Close.Value,9:F2}" : "      N/A")} " +
             $"{(s.EqualWeightClose.HasValue ? $"{s.EqualWeightClose.Value,9:F2}" : "      N/A")}");
     }

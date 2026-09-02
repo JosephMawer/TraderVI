@@ -400,6 +400,24 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
             MarketFacts.Add(new("Above A/D SMA50", YesNo(snapshot.Breadth.AboveSma50)));
             MarketFacts.Add(new("Bearish divergence", YesNo(snapshot.Breadth.BearishDivergence)));
         }
+        if (snapshot.Granville is not null)
+        {
+            DelphiGranvillePresentation granville = snapshot.Granville;
+            if (granville.LeadershipActiveBreadthRequired > 0)
+            {
+                MarketFacts.Add(new("Leadership history", $"{granville.LeadershipHistoryDays:N0} stored days"));
+                MarketFacts.Add(new("Leadership mover coverage",
+                    $"{granville.LeadershipActiveBreadthDays:N0} / {granville.LeadershipActiveBreadthRequired:N0} contiguous"));
+                MarketFacts.Add(new("Leadership mover status",
+                    granville.LeadershipActiveBreadthDays >= granville.LeadershipActiveBreadthRequired
+                        ? "Available"
+                        : "N/A — neutral/no-data"));
+            }
+            else
+            {
+                MarketFacts.Add(new("Leadership coverage", "Not captured (legacy snapshot)"));
+            }
+        }
         if (snapshot.MarketTape is not null)
         {
             MarketFacts.Add(new("XIU close / previous", $"{Money(snapshot.MarketTape.XiuClose)} / {Money(snapshot.MarketTape.XiuPreviousClose)}"));
@@ -486,6 +504,16 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
             warnings.Add("A/D breadth shows bearish divergence from the benchmark.");
         if (snapshot.Granville is { NetPoints: < 0 })
             warnings.Add($"Granville is net bearish ({snapshot.Granville.NetPoints} points).");
+        if (snapshot.Granville is { LeadershipActiveBreadthRequired: <= 0 })
+        {
+            warnings.Add("Leadership mover coverage was not captured; mover-dependent Granville evidence cannot be verified.");
+        }
+        else if (snapshot.Granville is { } granville
+                 && granville.LeadershipActiveBreadthDays < granville.LeadershipActiveBreadthRequired)
+        {
+            warnings.Add(
+                $"Leadership movers are unavailable ({granville.LeadershipActiveBreadthDays}/{granville.LeadershipActiveBreadthRequired} contiguous observations); mover-dependent Granville evidence is neutral/no-data.");
+        }
         if (snapshot.Weighting?.Triggered == true)
             warnings.Add("Granville weighting flags a narrow market advance.");
         if (snapshot.Weighting?.Degraded == true)

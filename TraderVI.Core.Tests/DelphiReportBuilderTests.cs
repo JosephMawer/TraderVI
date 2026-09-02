@@ -1,4 +1,5 @@
 using Core.DataQuality;
+using Core.Indicators.Granville;
 using Core.Runtime;
 using Shouldly;
 using System;
@@ -96,5 +97,43 @@ public sealed class DelphiReportBuilderTests
         summary.ShouldContain("2 stale");
         summary.ShouldContain("Freshness gate: 2 symbol(s) excluded");
         summary.ShouldContain("XIU session 2026-08-21");
+    }
+
+    [Fact]
+    public void Reports_SurfaceUnavailableLeadershipMoversWithoutCallingThemZeroBreadth()
+    {
+        var report = new DelphiReportBuilder
+        {
+            Granville = new GranvilleDailyForecast([], 0, 0, 0, 0),
+            LeadershipHistoryDays = 42,
+            LeadershipActiveBreadthDays = 3,
+            LeadershipActiveBreadthRequired = 12
+        };
+
+        string diagnostic = report.BuildDiagnostic();
+        string summary = report.BuildSummary();
+
+        diagnostic.ShouldContain("Stored history:          42 day(s)");
+        diagnostic.ShouldContain("Contiguous observations: 3/12 trailing session(s)");
+        diagnostic.ShouldContain("N/A — insufficient mover observations");
+        diagnostic.ShouldContain("missing data is not zero or falling breadth");
+        summary.ShouldContain("Leadership movers: N/A — 3/12 contiguous observations (42 stored days)");
+        summary.ShouldContain("mover-dependent evidence is neutral/no-data");
+    }
+
+    [Fact]
+    public void Reports_SurfaceSufficientContiguousLeadershipMoverCoverage()
+    {
+        var report = new DelphiReportBuilder
+        {
+            Granville = new GranvilleDailyForecast([], 0, 0, 0, 0),
+            LeadershipHistoryDays = 50,
+            LeadershipActiveBreadthDays = 14,
+            LeadershipActiveBreadthRequired = 12
+        };
+
+        report.BuildDiagnostic().ShouldContain("Status:                  available");
+        report.BuildSummary().ShouldContain(
+            "Leadership movers: 14/12 contiguous observations (50 stored days)");
     }
 }

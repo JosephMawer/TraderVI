@@ -212,9 +212,13 @@ quality is trending up or down.
 | **10** | Quality improves + upswing | StrongBullish (+2) | Advance likely to continue |
 
 **Data pipeline**:
-- Hermes stores daily `LeadershipSnapshot` to `[dbo].[LeadershipData]`
-- Delphi loads 50-day history → `LeadershipCalculator` → `LeadershipIndicators`
-- Graceful degradation: neutral signal if < 12 days of history available
+- Hermes stores daily `LeadershipSnapshot` to `[dbo].[LeadershipData]`. A complete, distinct top-50
+  movers basket is attached only to a computed session matching the current local date because the TMX
+  response has no as-of field; historical, stale-target, malformed, or unavailable mover fields are null.
+- Delphi loads 50-day history → `LeadershipCalculator` → `LeadershipIndicators`.
+- Graceful degradation (ADR-0043): Leadership #7–#10 and Light Volume #25–#28 require 12 trailing
+  contiguous active-breadth observations. Missing rows break coverage instead of being filtered out;
+  unavailable and flat layers cast no falling vote and produce explicit neutral/no-data output.
 
 ### Composite point range
 

@@ -103,7 +103,20 @@ public sealed record DelphiGranvillePresentation(
     int BearishCount,
     int NetPoints,
     double CompositeAdjustment,
-    IReadOnlyList<DelphiGranvilleIndicatorPresentation> Indicators);
+    IReadOnlyList<DelphiGranvilleIndicatorPresentation> Indicators)
+{
+    /// <summary>Total stored leadership rows available to the evaluation.</summary>
+    public int LeadershipHistoryDays { get; init; }
+
+    /// <summary>
+    /// Latest contiguous run of leadership rows with an observed active-movers basket.
+    /// Missing mover observations break the run instead of being treated as zero breadth.
+    /// </summary>
+    public int LeadershipActiveBreadthDays { get; init; }
+
+    /// <summary>Contiguous active-movers observations required for leadership quality scoring.</summary>
+    public int LeadershipActiveBreadthRequired { get; init; }
+}
 
 public sealed record DelphiGranvilleIndicatorPresentation(
     int IndicatorNumber,
