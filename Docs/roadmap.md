@@ -91,8 +91,17 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 - [x] After a fresh verified, synchronized backup and separate authorization, apply and verify manual
   migration 016. `v3.1-rs-date-aligned` is the sole active identity; its thresholds/model mappings match
   `v3.0`, all calibration counts are preserved, and its scope begins at 0 included / 7 excluded runs.
-- [ ] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
-  as genuine zero/falling breadth.
+- [x] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
+  as genuine zero/falling breadth (ADR-0043; source completed at `fad4b96`). The implementation requires
+  an exact same-date XIU anchor, a complete 50-symbol movers basket, contiguous canonical XIU sessions,
+  and explicit neutral/no-data reporting; all 202 Core tests passed in Debug and Release.
+- [ ] After a fresh verified and synchronized backup plus separate authorization, apply and verify manual
+  migration 017. Keep Hermes and official Delphi publication paused until the nullable leadership contract
+  and `v3.2-leadership-missingness` identity are active. Also verify the strengthened paired strategy-identity
+  constraint. Do not use DACPAC deployment.
+- [ ] After migration 017, run Hermes once after market close, inspect the newest `LeadershipData` row and
+  post-success backup, and run Delphi only when a deliberate new official `v3.2` cohort is wanted. Athena
+  remains evidence-driven and does not repair or initialize leadership data.
 - [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
   before adding another lens.
 - [ ] Reconcile canonical SQL definitions with repository writes before any broad database work. Continue

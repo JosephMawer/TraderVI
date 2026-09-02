@@ -1,7 +1,7 @@
 # Paper calibration implementation checklist
 
 - **Last updated:** 2026-09-02
-- **Authoritative design:** ADR-0020 through ADR-0042
+- **Authoritative design:** ADR-0020 through ADR-0043
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
@@ -9,6 +9,7 @@
 - **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
 - **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (operator-applied; definition verified active 2026-09-01; backup not independently verified)
 - **Strategy-identity rollout script:** `TraderDB/Migrations/20260901_016_ActivateDateAlignedStrategyIdentity.sql` (applied and verified 2026-09-02)
+- **Leadership-missingness rollout script:** `TraderDB/Migrations/20260902_017_PreserveLeadershipSourceMissingness.sql` (prepared; not applied)
 
 ## Status legend
 
@@ -18,7 +19,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven evidence tail remains pending. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so the next market-hours WPF collection cycle remains an operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 is complete and validated in source, but migration 017 is not applied: Hermes and official Delphi publication therefore remain paused until the live database has the nullable leadership-source contract and `v3.2-leadership-missingness` is active. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -38,7 +39,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0042 and add review cards.
+- [x] Accept ADR-0020 through ADR-0043 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -64,6 +65,17 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   surfaces to one identified active strategy; count rather than rewrite earlier-identity runs.
 - [x] Prepare guarded manual migration 016 to clone the active thresholds/model associations unchanged
   into `v3.1-rs-date-aligned`; do not apply it through a DACPAC.
+- [x] Implement ADR-0043's nullable leadership-source contract end to end: distinguish unavailable
+  movers data from a genuine tied basket; require an exact same-date XIU anchor and complete 50-symbol
+  movers payload; preserve only contiguous canonical XIU-session coverage; and surface neutral/no-data
+  diagnostics instead of false zero or falling breadth.
+- [x] Record fixed successor identity `2BD1A7D0-D144-4A7B-9FA4-49606AB7E963` /
+  `v3.2-leadership-missingness` with initial behavioral commit `fad4b968244d57a6224cb7ab137774a9bff4b645`
+  and decision `ADR-0043`; earlier strategy evidence remains immutable and excluded from `v3.2` comparisons.
+- [x] Prepare guarded manual migration 017 to make the three active-breadth columns nullable, convert only
+  legacy `0/0/0` sentinels to `NULL`, add the trusted all-null-or-valid observation constraint, and clone
+  the active v3.1 thresholds/model associations unchanged. The same atomic migration strengthens the
+  intended paired strategy-identity check against SQL `UNKNOWN`; do not apply it through a DACPAC.
 
 ### Validation completed
 
@@ -85,6 +97,15 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Keep the ADR-0042 source-validation phase non-operational: at that stage migration 016 was not
   applied and no application, database, external-service, training, artifact-publication, or market
   workflow was launched. The later separately authorized rollout is recorded below.
+- [x] Validate ADR-0043 source at `fad4b96` on 2026-09-02: all 202 Core tests passed in both Debug and
+  Release; focused Core, Delphi, Hermes, and WPF Release builds succeeded; and the complete Release
+  solution built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
+- [x] Keep ADR-0043 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
+  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training,
+  model-artifact, outcome, or publication workflow ran.
+- [x] Validate prepared migration 017 offline: SQL Server 2019 `TSql150` parsing reports zero errors;
+  the strengthened canonical SQL project and complete Release solution build successfully with Visual
+  Studio 18.10 MSBuild plus SSDT; the DACPAC was produced only as a build artifact and was not deployed.
 
 ### Operational rollout
 
@@ -103,6 +124,19 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   zero successor runs, 0 included active-identity official runs, and 7 excluded legacy official runs.
 - [x] Preserve all calibration rows across migration 016: 8 runs, 1,723 candidates, 3,446 lens
   evaluations, 5 outcome definitions, and 224 outcomes.
+- [ ] **Operational step:** create and checksum-verify a fresh full database backup, copy it to the
+  approved secondary location, verify matching hashes and synchronized status, and record the evidence
+  before migration 017.
+- [ ] Obtain separate authorization, manually apply migration 017, and verify nullable active-breadth
+  columns, enabled/trusted `CK_LeadershipData_ActiveBreadthObservation`, no invalid partial triples, only
+  legacy `0/0/0` sentinel conversion, strengthened enabled/trusted paired identity constraint, preserved
+  row counts and references, one exact active v3.2 successor, inactive v3.1, and unchanged thresholds/model
+  mappings.
+- [ ] **Operational step:** after migration 017, run Hermes once after market close and inspect the newest
+  `LeadershipData` observation plus the verified post-success backup. Do not use Delphi, Athena, WPF, or
+  another application as a substitute for this ingestion check.
+- [ ] Run Delphi only when a deliberate official `v3.2-leadership-missingness` cohort is wanted. Run Athena
+  later only when eligible outcomes have matured; Athena does not repair leadership data.
 - [ ] For the original migration-011 rollout, a fresh immediately pre-migration backup was not
   independently observed; the newest recorded backup before that discovered schema application was the
   valid 2026-08-22 full backup.

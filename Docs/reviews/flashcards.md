@@ -668,3 +668,9 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0043
 
 **A:** Preventing fabricated zero and falling votes can change Granville scores or gates. A new identity keeps pre- and post-correction evidence attributable even though thresholds, weights, models, and execution policy are unchanged.
+
+### Q: Why must the strategy-identity check explicitly require both fields to be non-null in its populated branch?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0042, ADR-0043
+
+**A:** SQL `CHECK` constraints accept `UNKNOWN`. A length expression over one null field is unknown, so explicit non-null predicates are required to make a partial `InitialCodeCommit`/`DecisionRef` pair fail at the database boundary.

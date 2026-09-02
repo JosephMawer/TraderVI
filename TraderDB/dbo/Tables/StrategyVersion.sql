@@ -27,7 +27,9 @@ CREATE TABLE [dbo].[StrategyVersion]
 		([InitialCodeCommit] IS NULL AND [DecisionRef] IS NULL)
 		OR
 		(
-			LEN(LTRIM(RTRIM([InitialCodeCommit]))) BETWEEN 7 AND 128
+			[InitialCodeCommit] IS NOT NULL
+			AND [DecisionRef] IS NOT NULL
+			AND LEN(LTRIM(RTRIM([InitialCodeCommit]))) BETWEEN 7 AND 128
 			AND LEN(LTRIM(RTRIM([DecisionRef]))) BETWEEN 1 AND 64
 		)
 	)

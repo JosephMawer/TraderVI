@@ -49,7 +49,12 @@ a market meaning.
    `v3.2-leadership-missingness` when migration 017 is applied. Clone every threshold and model mapping
    from the sole active `v3.1-rs-date-aligned` predecessor unchanged. Existing runs and outcomes remain
    immutable under their original identities and are excluded from the new active comparative scope.
-8. Build the database project only as a schema check. Apply migration 017 manually only after a fresh
+8. Correct the existing `CK_StrategyVersion_CodeIdentity` implementation while migration 017 already
+   holds the strategy boundary. SQL `CHECK` constraints accept `UNKNOWN`, so length checks alone do not
+   enforce paired nullability when only one identity field is null. Preflight must reject any existing
+   partial identity, then the constraint must require either both fields null or both explicitly non-null
+   with valid lengths. This is a database-integrity correction, not a strategy-behavior change.
+9. Build the database project only as a schema check. Apply migration 017 manually only after a fresh
    verified and synchronized backup, exact-script review, and separate authorization; never publish the
    DACPAC.
 
@@ -95,8 +100,8 @@ a market meaning.
 Keep Hermes, Delphi, and Athena paused while migration 017 is pending. After source validation, create
 and verify a fresh full backup, confirm its approved secondary copy is synchronized, obtain separate
 authorization, and execute only migration 017. Verify the nullable columns, enabled/trusted constraint,
-legacy normalization counts, row preservation, exact active `v3.2` identity, and unchanged thresholds
-and model mappings.
+legacy normalization counts, row preservation, strengthened paired strategy-identity constraint, exact
+active `v3.2` identity, and unchanged thresholds and model mappings.
 
 After successful migration, run Hermes once after market close and inspect the newest
 `LeadershipData` observation and backup result. Run Delphi only if a deliberate official recommendation
