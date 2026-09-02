@@ -79,8 +79,11 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 - [x] Replace undated, minimum-length relative-strength inputs with explicit alignment to canonical XIU
   sessions; surface missing/degraded coverage and add source-level regression fixtures for unequal
   histories, exact depth boundaries, and interior gaps (ADR-0041; source completed 2026-09-01).
-- [ ] Validate ADR-0041 under the separately authorized build/test boundary, record the new strategy/code
-  identity, and determine how already-recorded official runs should be labelled or excluded.
+- [x] Validate ADR-0041 under the separately authorized build/test boundary: 20 focused tests and all
+  170 Core tests passed; Core, Delphi, WPF, and Hermes focused builds succeeded; and the complete Release
+  solution built with Visual Studio 18.10 MSBuild plus SSDT on 2026-09-01.
+- [ ] Record the new strategy/code identity before another official Delphi cohort, and determine how
+  already-recorded official runs should be labelled or excluded from comparative performance claims.
 - [ ] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
   as genuine zero/falling breadth.
 - [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests

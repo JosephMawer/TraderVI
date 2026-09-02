@@ -37,7 +37,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0040 and add review cards.
+- [x] Accept ADR-0020 through ADR-0041 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -65,9 +65,19 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Athena focused build succeeds with no errors; a clean rebuild currently surfaces 236 repository compiler warnings, primarily the existing nullable-annotation backlog.
 - [x] SQL project builds successfully with SSDT and includes all calibration objects.
 - [x] Migration and canonical schema definitions compile together.
+- [x] Validate ADR-0041 at commit `c51c084`: 20 focused relative-strength/presentation tests and all
+  170 Core tests passed in Debug; all 170 passed again from the Release build; focused Core, Delphi,
+  WPF, and Hermes builds succeeded; and the complete Release solution built with Visual Studio 18.10
+  MSBuild plus SSDT without database deployment on 2026-09-01.
+- [x] Keep ADR-0041 validation non-operational: no Delphi, Hermes, Hercules, TraderVI, WPF, Athena,
+  Oracle, DataAudit, or Sandbox application was launched; no SQL, market-service, training, model-artifact,
+  or publication workflow ran.
 
 ### Operational rollout
 
+- [ ] Before another official Delphi cohort, record the post-ADR-0041 strategy/code identity and decide
+  how pre-correction runs are labelled or excluded from comparative performance claims. Existing evidence
+  remains immutable.
 - [ ] A fresh immediately pre-migration backup was not independently observed; the newest recorded backup before the discovered schema application was the valid 2026-08-22 full backup.
 - [x] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
 - [x] Migration application discovered from live object creation timestamps: all five tables were created together on 2026-08-23 at 16:58:29 and contained zero rows when audited.
