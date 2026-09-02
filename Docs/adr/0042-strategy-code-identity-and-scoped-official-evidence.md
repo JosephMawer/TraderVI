@@ -90,6 +90,23 @@ editing this row.
   strategy identities without representing them as one unchanged implementation. That would require a
   new report contract and must retain per-identity results.
 
+## Operational rollout
+
+Migration 016 was separately authorized, applied, and verified on 2026-09-02 after
+`TraderDB_FULL_20260902_002015_223.bak` passed checksum verification and its staging/OneDrive copies
+matched SHA-256 `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`.
+
+The first execution exposed a SQL Server column-resolution error in the schema batch and stopped before
+activation. `XACT_ABORT` rolled the transaction back completely; the identity schema remained absent and
+all captured rows were preserved. The column and constraint operations were separated into consecutive
+dynamic batches inside the same transaction, rebuilt with SSDT, independently reviewed, and committed at
+`d391db8` before successful execution.
+
+Postflight verified the exact active identity, inactive predecessor, expected nullable columns, an
+enabled/trusted constraint with no violations, identical thresholds and model mappings, and unchanged
+calibration counts. No historical run was rewritten: the new scope begins with zero included official
+runs and seven excluded earlier-identity runs.
+
 ## Review questions
 
 1. Why is `CalibrationRun.CodeCommit` necessary but insufficient as the strategy identity?

@@ -8,6 +8,7 @@
 - **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
 - **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
 - **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (operator-applied; definition verified active 2026-09-01; backup not independently verified)
+- **Strategy-identity rollout script:** `TraderDB/Migrations/20260901_016_ActivateDateAlignedStrategyIdentity.sql` (applied and verified 2026-09-02)
 
 ## Status legend
 
@@ -81,17 +82,30 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Validate ADR-0042 source on 2026-09-02: all 174 Core tests passed in both Debug and Release;
   focused Core, Athena, Delphi, and WPF Release builds succeeded; and the complete Release solution
   built with Visual Studio 18.10 MSBuild plus SSDT without database deployment.
-- [x] Keep ADR-0042 validation non-operational: migration 016 was not applied and no application,
-  database, external-service, training, artifact-publication, or market workflow was launched.
+- [x] Keep the ADR-0042 source-validation phase non-operational: at that stage migration 016 was not
+  applied and no application, database, external-service, training, artifact-publication, or market
+  workflow was launched. The later separately authorized rollout is recorded below.
 
 ### Operational rollout
 
 - [x] Record ADR-0042's post-ADR-0041 identity and treatment: existing runs remain immutable under their
   original `StrategyVersionId`, outcome maturation may continue, and active comparative claims exclude
   and count those earlier identities.
-- [ ] Before another official Delphi cohort, create and verify a fresh backup, obtain explicit
-  authorization, then apply and verify `20260901_016_ActivateDateAlignedStrategyIdentity.sql`.
-- [ ] A fresh immediately pre-migration backup was not independently observed; the newest recorded backup before the discovered schema application was the valid 2026-08-22 full backup.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260902_002015_223.bak`,
+  hash-match its 37,508,096-byte approved OneDrive copy with SHA-256
+  `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and confirm synchronization.
+- [x] Obtain separate authorization and apply migration 016 manually. Its first execution stopped on a
+  same-dynamic-batch column-resolution error before activation; the transaction rolled back completely
+  with every captured count unchanged. Split column/constraint compilation was committed at `d391db8`,
+  rebuilt with SSDT, independently reviewed, and then executed successfully.
+- [x] Verify one exact active `v3.1-rs-date-aligned` identity, inactive immutable `v3.0`, expected
+  nullable identity columns, enabled/trusted clean check constraint, zero threshold/model differences,
+  zero successor runs, 0 included active-identity official runs, and 7 excluded legacy official runs.
+- [x] Preserve all calibration rows across migration 016: 8 runs, 1,723 candidates, 3,446 lens
+  evaluations, 5 outcome definitions, and 224 outcomes.
+- [ ] For the original migration-011 rollout, a fresh immediately pre-migration backup was not
+  independently observed; the newest recorded backup before that discovered schema application was the
+  valid 2026-08-22 full backup.
 - [x] Review `20260823_011_AddCalibrationEvidenceLedger.sql` against the target database.
 - [x] Migration application discovered from live object creation timestamps: all five tables were created together on 2026-08-23 at 16:58:29 and contained zero rows when audited.
 - [x] Verify all five tables, foreign keys, checks, unique constraints, and indexes exist and match the committed canonical definitions.

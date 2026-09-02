@@ -73,9 +73,9 @@ The 2026-09-01 static changeability audit found correctness and integrity risks 
 advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
 publication contracts without tuning weights, thresholds, ranking theses, or automatic execution.
 
-- [ ] Keep new official Delphi publication/evidence cohorts paused through the separately authorized
+- [x] Keep new official Delphi publication/evidence cohorts paused through the separately authorized
   migration-016 activation and verification. Normal Hermes ingestion and single-instance WPF evidence
-  collection remain separate operational workflows.
+  collection remain separate operational workflows. No operational application ran during activation.
 - [x] Replace undated, minimum-length relative-strength inputs with explicit alignment to canonical XIU
   sessions; surface missing/degraded coverage and add source-level regression fixtures for unequal
   histories, exact depth boundaries, and interior gaps (ADR-0041; source completed 2026-09-01).
@@ -88,8 +88,9 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 - [x] Validate ADR-0042 source: all 174 Core tests passed in Debug and Release; affected-project builds
   succeeded; and the complete Release solution built with Visual Studio 18.10 MSBuild plus SSDT on
   2026-09-02 without database deployment or launching an operational application.
-- [ ] After a fresh verified backup and separate authorization, apply and verify manual migration 016
-  so the identified successor becomes active. Keep official Delphi publication paused until then.
+- [x] After a fresh verified, synchronized backup and separate authorization, apply and verify manual
+  migration 016. `v3.1-rs-date-aligned` is the sole active identity; its thresholds/model mappings match
+  `v3.0`, all calibration counts are preserved, and its scope begins at 0 included / 7 excluded runs.
 - [ ] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
   as genuine zero/falling breadth.
 - [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests

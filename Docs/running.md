@@ -125,10 +125,11 @@ Delphi currently:
 
 Delphi is advisory—it does not place a broker order—but it is not read-only. Do not use it as a harmless smoke test; use focused builds and tests for routine validation. A no-write mode can be added later if an operational reporting need emerges.
 
-Official publication remains paused until manual migration 016 is separately authorized, applied, and
-verified. The migration activates `v3.1-rs-date-aligned` without changing thresholds, models, gates,
-ranking formulas, or execution policy. Source guards reject a persisted `OfficialPaper` run while the
-active strategy lacks that explicit identity.
+Migration 016 was applied and verified on 2026-09-02. `v3.1-rs-date-aligned` is the sole active strategy
+without any threshold, model, gate, ranking-formula, or execution-policy change. A deliberate official
+publication may now start its new evidence scope; the seven earlier official runs remain attached to
+`v3.0` and are excluded rather than rewritten. Delphi is still a consequential database writer and must
+not be launched as routine validation.
 
 Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommendation run date so their date-scoped records remain linked. Its reports separately show the latest completed TSX session as the market-data-as-of date. A weekend run can therefore produce a weekend recommendation date based on Friday's completed market data; this is intentional audit semantics, not a claim that Saturday was a trading session.
 
@@ -228,7 +229,7 @@ For `DelayedIntradaySwing`, Athena replays only a continuous first-received 15-m
 
 The 2026-09-01 verified run wrote 112 valid `SwingMarkToMarket3` and 112 valid `SwingExcursion3` outcomes. It wrote zero `PredictionLabels10`, `PredictionPath20`, or `DelayedIntradaySwing` outcomes. Durable SGY/XIU evidence still ended on 2026-08-28, so launching WPF without a newer receipt does not make delayed outcomes ready.
 
-Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. ADR-0042 requires migration 016 before this build can resolve the active official evidence identity. The optional CSV switch writes five export-schema-v2 artifacts stamped with strategy ID/name, initial code commit, and decision reference, and refuses to overwrite an existing filename.
+Athena makes no external requests. It is still a database writer because it creates missing definitions and matured outcomes: apply the reviewed calibration migrations manually first and obtain explicit authorization before running it. Migration 016 is applied; until a new official Delphi cohort exists, the active identity correctly reports 0 included runs and 7 excluded earlier-identity runs. The optional CSV switch writes five export-schema-v2 artifacts stamped with strategy ID/name, initial code commit, and decision reference, and refuses to overwrite an existing filename.
 
 ```powershell
 dotnet run --project Athena

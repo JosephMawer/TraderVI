@@ -9,9 +9,9 @@ TraderVI is an advisory-mode TSX momentum-rotation system with an immutable pape
 
 ADR-0042 now defines and implements the post-ADR-0041 strategy/code boundary in source. Comparative
 reports and export-schema-v2 artifacts are scoped to one explicitly identified active strategy, while
-earlier runs remain immutable and are counted as excluded. Manual migration 016 is prepared but not
-applied, so official Delphi publication remains paused until backup, authorization, application, and
-verification are complete.
+earlier runs remain immutable and are counted as excluded. Manual migration 016 was backed up,
+authorized, applied, and verified on 2026-09-02. `v3.1-rs-date-aligned` is now the sole active strategy;
+its evidence scope begins at zero included official runs with seven earlier-identity runs excluded.
 
 The repository contains a coherent 31-commit June/August development sequence. It adds multi-lens ranking, more Granville indicators, relative-strength ranking, ghost-mode trade logging, historical sector data, per-symbol On-Balance Volume (OBV), market-wide Climax (CLX) reporting, and the read-only desktop documentation surface.
 
@@ -19,7 +19,7 @@ The repository contains a coherent 31-commit June/August development sequence. I
 
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-08-18).
-- Complete Release solution build: successful with the pending ADR-0042 source changes using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
+- Complete Release solution build: successful for ADR-0042 source at `6596fbd` using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02. After the migration compile correction at `d391db8`, the SQL project was rebuilt successfully with the same toolchain and again was not deployed.
 - Core tests: 174 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-02. The identity/scoping additions account for four tests beyond the 170-test ADR-0041 baseline.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -29,6 +29,7 @@ The repository contains a coherent 31-commit June/August development sequence. I
 - Calibration evidence backup: the final post-run 32.51 MB checksum backup and approved OneDrive copy matched SHA-256 `62CB244339235D555830CD93B139AD19182B160B4B4C7CBF9429B5A52CCB08BB` on 2026-08-23. Cloud-sync completion remains user-observed.
 - Intraday-ledger backup: the pre-migration checksum backup and approved OneDrive copy matched SHA-256 `CBDDB1E31877CA36E7B798867B5AC924DE0C9F09373F382191F30AE815C4A5B7` on 2026-08-26; migration 012 was then applied and verified.
 - Outcome-definition backup: the pre-migration 34.98 MB checksum backup and approved OneDrive copy matched SHA-256 `A01FFCECAD236C967D8BA68AA4DCC8387BFB49DFA9C5B22F533A69C995D48F27` on 2026-08-28; migration 014 was then applied and verified without creating outcomes.
+- Strategy-identity backup: `TraderDB_FULL_20260902_002015_223.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,508,096-byte staging and OneDrive copies matched SHA-256 `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and the operator confirmed synchronization before migration 016.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -171,6 +172,14 @@ Verified operational calibration state on 2026-09-01:
 - Athena wrote 112 valid matured `SwingMarkToMarket3` outcomes and 112 valid matured `SwingExcursion3` outcomes. `PredictionLabels10`, `PredictionPath20`, and `DelayedIntradaySwing` remain at zero outcomes.
 - The operator launched WPF, but the durable ledger still ended on 2026-08-28: SGY had 76 five-minute bars and 26 fifteen-minute bars, XIU had 78 and 26, and no later receipt was present. The launch therefore does not yet verify a new market-hours collection cycle.
 
+Strategy/code identity activation on 2026-09-02:
+
+- Migration 016 activated fixed identity `99D52317-8D16-4F2A-8B97-AE9698972F55` / `v3.1-rs-date-aligned`, initial behavioral commit `c51c0849fd1311b3797cc664a19988e553bbe122`, decision `ADR-0041`. The prior `v3.0` row remains immutable and inactive.
+- The first execution exposed a SQL Server same-batch column-resolution defect before activation. `XACT_ABORT` rolled the schema transaction back completely; all captured schema and row counts were unchanged. The migration was split into two transactional dynamic batches, rebuilt with SSDT, independently reviewed, and committed at `d391db8` before the successful execution.
+- Postflight found both identity columns with the expected nullable `nvarchar` shapes, an enabled/trusted `CK_StrategyVersion_CodeIdentity`, no constraint violations or partial identities, one exact active successor, and zero bidirectional threshold or model-mapping differences from `v3.0`.
+- Preservation counts remained 8 calibration runs, 1,723 candidates, 3,446 lens evaluations, 5 outcome definitions, and 224 outcomes. No historical run references the successor; the active report scope is 0 included and 7 excluded legacy official runs.
+- No TraderVI application, market service, training, outcome, publication, or model-artifact workflow ran during activation.
+
 Unified Trading and WPF scorecard implementation on 2026-08-28:
 
 - ADR-0039 adds a read-only Scorecards tab over ADR-0038's exact official query and pure calculator; it displays coverage, model, reliability, decile, lens, and slice reports without requiring CSV.
@@ -192,29 +201,17 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Relative-strength date alignment is corrected and its official-evidence identity is implemented in source, but database activation remains pending.** The prior calculator
-    accepted undated histories and clipped them to their minimum count, so differently sized recent
-    sector and longer stock/XIU histories could compare different sessions. Dated canonical-XIU
-    alignment, coverage diagnostics, and regression fixtures passed focused and full Core tests plus
-    affected-project and complete Release solution builds at commit `c51c084`. ADR-0042 keeps existing
-    evidence immutable under its original identity, excludes/counts it in active comparative reports,
-    and prepares the identity-only `v3.1-rs-date-aligned` successor. Do not create another official
-    Delphi cohort until manual migration 016 is separately authorized, applied, and verified.
-
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Keep new official Delphi publication/evidence cohorts paused until ADR-0042 manual migration 016 is
-   backed up, separately authorized, applied, and verified. Its source guards and report scoping are ready.
-   This pause does not stop normal Hermes ingestion or single-instance WPF evidence collection.
+1. Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
+   as genuine zero/falling breadth; this is the next bounded correctness item in the stabilization order.
 2. Run Hermes on the normal schedule so future eligible sessions become available; do not run Athena merely to create still-pending outcomes.
 3. Keep exactly one `TraderVI.WPF` instance open during regular market hours and verify that fresh SGY and XIU five-/fifteen-minute receipts appear after 2026-08-28. The current launch is not yet durable proof of a new collection cycle.
 4. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A Real alert cannot auto-close it.
 5. Run Athena after new eligible daily or intraday evidence exists. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven continuity gap is stored as invalid rather than bridged.
-6. After the ADR-0041 strategy/code identity boundary is recorded, resume deliberate official Delphi
-   recommendations to accumulate distinct cohorts; keep pre-/post-correction identities separate and do
-   not treat repeated runs over one market-data date as independent evidence.
+6. Resume deliberate official Delphi recommendations under `v3.1-rs-date-aligned` when operationally requested. The first run starts the new evidence scope; keep pre-/post-correction identities separate and do not treat repeated runs over one market-data date as independent evidence.
 7. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill prices; do not reopen closed Ghost lifecycles.
 8. Observe additional Hermes backups and perform a test restore.
 9. Add CI, then resume feature/backfill work from `Docs/roadmap.md`.
