@@ -602,3 +602,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0039
 
 **A:** Trading P/L depends on operator timing, execution mode, and fills. Official scorecards test immutable Delphi predictions against defined outcomes; mixing the ledgers would confound model calibration.
+
+### Q: Which price does the delayed-intraday outcome receive after an exit alert?
+- **Domains:** market-microstructure, math-statistics
+- **Source:** ADR-0040
+
+**A:** The raw fill is the open of the first five-minute bar beginning at or after the recorded detection time. The earlier policy threshold is never awarded as a fill.
+
+### Q: Is the delayed-intraday outcome's 25-basis-point adjustment a Wealthsimple commission?
+- **Domains:** market-microstructure, math-statistics
+- **Source:** ADR-0040
+
+**A:** No. The raw result is explicitly zero-commission. The separate 25-basis-point-per-side result is a conservative spread/slippage sensitivity used to test whether an apparent edge survives execution friction.

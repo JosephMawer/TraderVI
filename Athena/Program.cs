@@ -1,6 +1,8 @@
 using Core.Calibration;
 using Core.Db;
 using Core.ML;
+using Core.TMX.Models.Domain;
+using Core.Trader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -214,6 +216,165 @@ var excursions = await EvaluateTradeableDefinitionAsync(
     SwingMarkToMarketOutcomeCalculator.CalculateExcursions);
 invalidWritten += swing.Invalid + excursions.Invalid;
 
+var intradayRepository = new IntradayEvidenceRepository();
+var calibrationEvidenceRepository = new CalibrationEvidenceRepository();
+TimeZoneInfo torontoTimeZone = ResolveTorontoTimeZone();
+var delayedPending = await outcomes.GetPendingPublishedCandidatesAsync(
+    CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId);
+int delayedMatured = 0, delayedNoEntry = 0, delayedPendingCount = 0, delayedInvalid = 0;
+DateTime delayedThroughUtc = DateTime.UtcNow;
+DateTime delayedFromUtc = delayedPending.Count == 0
+    ? delayedThroughUtc
+    : SessionOpenUtc(delayedPending.Min(candidate => candidate.ObservationDate));
+var intradayCache = new Dictionary<(string Symbol, int Interval), IReadOnlyList<StoredIntradayOutcomeBar>>();
+
+async Task<IReadOnlyList<StoredIntradayOutcomeBar>> GetIntradayBarsAsync(string symbol, int interval)
+{
+    var key = (symbol.ToUpperInvariant(), interval);
+    if (intradayCache.TryGetValue(key, out var cached)) return cached;
+    IReadOnlyList<StoredIntradayOutcomeBar> loaded = await intradayRepository.GetOutcomeBarsAsync(
+        key.Item1,
+        interval,
+        delayedFromUtc,
+        delayedThroughUtc);
+    intradayCache[key] = loaded;
+    return loaded;
+}
+
+foreach (PendingTradeableCalibrationCandidate candidate in delayedPending)
+{
+    List<DailyBar> symbolBars = await GetBarsAsync(candidate.Symbol);
+    SwingOutcomeReadiness entryReadiness = SwingMarkToMarketOutcomeCalculator.AssessReadiness(
+        candidate.ObservationDate,
+        candidate.RunStartedUtc,
+        symbolBars,
+        xiuBars);
+
+    if (entryReadiness.State == SwingOutcomeReadinessState.Invalid)
+    {
+        var invalidOutcome = new InvalidSwingOutcomeV1(
+            DelayedIntradayOutcomeCalculator.SchemaVersion,
+            candidate.ObservationDate.Date,
+            SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
+            entryReadiness.InitialEligibleSession,
+            entryReadiness.EntrySession,
+            entryReadiness.EntryDelaySessions,
+            entryReadiness.BenchmarkSessionsAvailable,
+            entryReadiness.FirstInvalidSession,
+            entryReadiness.ReasonCode ?? "InvalidDelayedIntradayEntry");
+        if (await outcomes.InsertOutcomeAsync(
+            candidate.CandidateId,
+            CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId,
+            CalibrationOutcomeMaturityState.Matured,
+            JsonSerializer.Serialize(invalidOutcome, jsonOptions),
+            CalibrationAuditState.Invalid))
+            delayedInvalid++;
+        continue;
+    }
+
+    if (entryReadiness.State == SwingOutcomeReadinessState.NoEntry)
+    {
+        var noEntryOutcome = new NoEntrySwingOutcomeV1(
+            DelayedIntradayOutcomeCalculator.SchemaVersion,
+            candidate.ObservationDate.Date,
+            SwingMarkToMarketOutcomeCalculator.NormalizeUtc(candidate.RunStartedUtc),
+            entryReadiness.InitialEligibleSession!.Value,
+            SwingMarkToMarketOutcomeCalculator.EntrySessionAllowance,
+            entryReadiness.ReasonCode ?? "NoSymbolBarWithinEntryAllowance");
+        if (await outcomes.InsertOutcomeAsync(
+            candidate.CandidateId,
+            CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId,
+            CalibrationOutcomeMaturityState.NoEntry,
+            JsonSerializer.Serialize(noEntryOutcome, jsonOptions),
+            CalibrationAuditState.Valid))
+            delayedNoEntry++;
+        continue;
+    }
+
+    if (entryReadiness.EntrySession is null)
+    {
+        delayedPendingCount++;
+        continue;
+    }
+
+    DateTime entrySession = entryReadiness.EntrySession.Value.Date;
+    DailyBar entryBar = symbolBars.Single(bar => bar.Date.Date == entrySession);
+    DailyBar xiuEntryBar = xiuBars.Single(bar => bar.Date.Date == entrySession);
+    DateTime entryUtc = SessionOpenUtc(entrySession);
+    IReadOnlyList<StoredIntradayOutcomeBar> storedPolicy = (await GetIntradayBarsAsync(candidate.Symbol, 15))
+        .Where(bar => bar.EventUtc >= entryUtc)
+        .ToList();
+    IReadOnlyList<StoredIntradayOutcomeBar> storedFive = (await GetIntradayBarsAsync(candidate.Symbol, 5))
+        .Where(bar => bar.EventUtc >= entryUtc)
+        .ToList();
+    IReadOnlyList<StoredIntradayOutcomeBar> storedXiuFive = (await GetIntradayBarsAsync("XIU", 5))
+        .Where(bar => bar.EventUtc >= entryUtc)
+        .ToList();
+
+    var sessionOrdinals = xiuBars
+        .Select(bar => bar.Date.Date)
+        .Distinct()
+        .Where(date => date >= entrySession)
+        .OrderBy(date => date)
+        .Select((date, index) => (date, ordinal: index + 1))
+        .ToDictionary(item => item.date, item => item.ordinal);
+    List<DelayedIntradayBar> policyBars = storedPolicy
+        .Select(bar =>
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(bar.EventUtc, torontoTimeZone);
+            return sessionOrdinals.TryGetValue(local.Date, out int ordinal)
+                ? new DelayedIntradayBar(
+                    bar.EventUtc,
+                    bar.EventUtc.AddMinutes(15),
+                    bar.FirstReceivedUtc,
+                    ordinal,
+                    local.TimeOfDay == new TimeSpan(15, 45, 0),
+                    bar.Open,
+                    bar.High,
+                    bar.Low,
+                    bar.Close,
+                    bar.Volume)
+                : null;
+        })
+        .Where(bar => bar is not null)
+        .Cast<DelayedIntradayBar>()
+        .OrderBy(bar => bar.StartUtc)
+        .ToList();
+
+    IReadOnlyList<FreshDelphiBreakoutEvidenceSnapshot> timeline = policyBars.Count == 0
+        ? Array.Empty<FreshDelphiBreakoutEvidenceSnapshot>()
+        : await calibrationEvidenceRepository.GetValidOfficialBreakoutTimelineAsync(
+            candidate.Symbol,
+            entryUtc,
+            policyBars.Max(bar => bar.StartUtc));
+    IReadOnlyDictionary<DateTime, DelayedIntradayBreakoutEvidence?> breakoutByBar = policyBars
+        .ToDictionary(
+            bar => bar.StartUtc,
+            bar => FreshDelphiBreakoutEvidenceResolver.Resolve(timeline, entryUtc, bar.StartUtc));
+
+    DelayedIntradayOutcomeAssessment assessment = DelayedIntradayOutcomeCalculator.Assess(
+        (decimal)entryBar.Open,
+        (decimal)xiuEntryBar.Open,
+        entryUtc,
+        policyBars,
+        storedFive.Select(ToOhlcvBar).ToList(),
+        storedXiuFive.Select(ToOhlcvBar).ToList(),
+        breakoutByBar);
+    if (assessment.State == DelayedIntradayOutcomeState.Pending)
+    {
+        delayedPendingCount++;
+        continue;
+    }
+
+    if (await outcomes.InsertOutcomeAsync(
+        candidate.CandidateId,
+        CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId,
+        CalibrationOutcomeMaturityState.Matured,
+        JsonSerializer.Serialize(assessment.Outcome!, jsonOptions),
+        CalibrationAuditState.Valid))
+        delayedMatured++;
+}
+
 Console.WriteLine("\n=== Three-session swing mark-to-market ===");
 Console.WriteLine($"Published candidates inspected: {swing.Inspected:N0}");
 Console.WriteLine($"Matured outcomes written:      {swing.Matured:N0}");
@@ -227,6 +388,14 @@ Console.WriteLine($"Matured outcomes written:      {excursions.Matured:N0}");
 Console.WriteLine($"No-entry outcomes written:     {excursions.NoEntry:N0}");
 Console.WriteLine($"Not yet mature:                {excursions.Pending:N0}");
 Console.WriteLine($"Invalid outcomes written:      {excursions.Invalid:N0}");
+
+Console.WriteLine("\n=== Delayed intraday swing exits ===");
+Console.WriteLine($"Published candidates inspected: {delayedPending.Count:N0}");
+Console.WriteLine($"Matured outcomes written:      {delayedMatured:N0}");
+Console.WriteLine($"No-entry outcomes written:     {delayedNoEntry:N0}");
+Console.WriteLine($"Not yet mature:                {delayedPendingCount:N0}");
+Console.WriteLine($"Invalid outcomes written:      {delayedInvalid:N0}");
+invalidWritten += delayedInvalid;
 
 var coverageRows = await outcomes.GetOutcomeCoverageAsync();
 Console.WriteLine("\n=== Outcome coverage scorecard ===");
@@ -352,4 +521,46 @@ foreach (var report in lensReports)
     }
 }
 
+IReadOnlyList<DelayedIntradayLensReport> delayedLensReports =
+    DelayedIntradayLensReportCalculator.Build(await outcomes.GetDelayedIntradayLensEvidenceAsync());
+Console.WriteLine("\n=== Delayed intraday exit results by lens ===");
+foreach (DelayedIntradayLensReport report in delayedLensReports)
+{
+    Console.WriteLine($"{report.Lens}: {report.MaturedRecommendations:N0} matured | " +
+                      $"{report.NoEntryRecommendations:N0} no-entry | {report.InvalidRecommendations:N0} invalid | " +
+                      $"{report.PendingRecommendations:N0} pending | usable {report.UsableCoverage:P1}");
+    if (!report.MetricsAvailable)
+    {
+        Console.WriteLine("  Metrics BLOCKED by the 95% usable-coverage floor.");
+        continue;
+    }
+    Console.WriteLine($"  Raw gross {report.MeanGrossReturn:+0.00%;-0.00%;0.00%} | " +
+                      $"25-bps sensitivity {report.MeanConservativeNetReturn:+0.00%;-0.00%;0.00%}");
+    Console.WriteLine($"  Raw excess {report.MeanGrossExcessReturn:+0.00%;-0.00%;0.00%} | " +
+                      $"sensitivity excess {report.MeanConservativeNetExcessReturn:+0.00%;-0.00%;0.00%} | " +
+                      $"{report.ContributingCohorts:N0} cohorts");
+}
+
 Environment.ExitCode = invalidWritten > 0 ? 2 : 0;
+
+static OhlcvBar ToOhlcvBar(StoredIntradayOutcomeBar bar) =>
+    new(bar.EventUtc, bar.Open, bar.High, bar.Low, bar.Close, bar.Volume);
+
+static DateTime SessionOpenUtc(DateTime sessionDate)
+{
+    DateTime local = DateTime.SpecifyKind(
+        sessionDate.Date.AddHours(9).AddMinutes(30),
+        DateTimeKind.Unspecified);
+    return TimeZoneInfo.ConvertTimeToUtc(local, ResolveTorontoTimeZone());
+}
+
+static TimeZoneInfo ResolveTorontoTimeZone()
+{
+    foreach (string id in new[] { "America/Toronto", "Eastern Standard Time" })
+    {
+        try { return TimeZoneInfo.FindSystemTimeZoneById(id); }
+        catch (TimeZoneNotFoundException) { }
+    }
+    throw new TimeZoneNotFoundException(
+        "Neither America/Toronto nor Eastern Standard Time is available.");
+}

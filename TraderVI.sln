@@ -94,6 +94,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0037-operator-confirmed-delphi-paper-entry.md = Docs\adr\0037-operator-confirmed-delphi-paper-entry.md
 		Docs\adr\0038-cohort-weighted-official-prediction-scorecards.md = Docs\adr\0038-cohort-weighted-official-prediction-scorecards.md
 		Docs\adr\0039-unified-ghost-real-dashboard-and-scorecard-workspace.md = Docs\adr\0039-unified-ghost-real-dashboard-and-scorecard-workspace.md
+		Docs\adr\0040-reconstructible-delayed-intraday-outcome-fill.md = Docs\adr\0040-reconstructible-delayed-intraday-outcome-fill.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

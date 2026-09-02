@@ -1,12 +1,13 @@
 # Paper calibration implementation checklist
 
-- **Last updated:** 2026-08-28
-- **Authoritative design:** ADR-0020 through ADR-0039
+- **Last updated:** 2026-09-01
+- **Authoritative design:** ADR-0020 through ADR-0040
 - **Background:** `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 - **Database rollout script:** `TraderDB/Migrations/20260823_011_AddCalibrationEvidenceLedger.sql`
 - **Intraday rollout script:** `TraderDB/Migrations/20260826_012_AddIntradayEvidenceLedger.sql` (applied and verified 2026-08-26)
 - **Tracked-execution rollout script:** `TraderDB/Migrations/20260827_013_AddTrackedExecutionMode.sql` (applied and verified 2026-08-28)
 - **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
+- **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (source-complete; not applied)
 
 ## Status legend
 
@@ -16,7 +17,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. Migration 014 seeded and verified the four canonical outcome-definition contracts on 2026-08-28, so the read-only page can now load its 6 official runs across 4 market-data cohorts and 1,292 official candidates. No prediction outcomes exist yet, so performance remains correctly blocked below the 95% usable-coverage floor and the report cannot change Delphi. ADR-0039 also implements a durable Ghost/Real operational boundary through applied migration 013. All legacy rows were intentionally classified Ghost. The five-share EDR Ghost mirror joined valid durable polling and was automatically closed at $15.62 by `Policy TrailingProfit` on 2026-08-27; this did not sell or represent closure of the operator's real TFSA holding. That holding still needs a separate operator-confirmed `REAL / TFSA` entry. Calibration-grade delayed outcomes and any automatic first-checkpoint entry policy remain incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. ADR-0038 adds the advanced official prediction scorecard, and ADR-0039 exposes the same pure report in a read-only WPF Scorecards workspace. Migration 014 seeded and verified the four previously implemented outcome-definition contracts on 2026-08-28. No prediction outcomes existed at the last verified database snapshot, so performance remains correctly blocked below the 95% usable-coverage floor and the report cannot change Delphi. ADR-0040 is now source-complete: immutable intraday queries, Athena persistence, the separate raw/25-basis-point sensitivity result, aligned XIU comparison, and cohort-weighted Continuation/Breakout reports are implemented. Migration 015 adds its fifth definition but remains unapplied, and Athena has not been run. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -36,7 +37,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Define signed MFE/MAE, session-to-extreme, and same-session uncertainty as a separate immutable outcome.
 - [x] Define separate lens scorecards and nested run/cohort aggregation so reruns cannot inflate evidence.
 - [x] Define delayed 15-minute management of an open swing, same-day exits, trailing profit, conditional/absolute loss alerts, and five-/ten-session limits.
-- [x] Accept ADR-0020 through ADR-0039 and add review cards.
+- [x] Accept ADR-0020 through ADR-0040 and add review cards.
 
 ## Phase B — immutable evidence capture
 
@@ -156,12 +157,18 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] **Operational step:** open a new five-share EDR ghost position at the reported $15.34 average fill ($76.70 book cost), linked to the 2026-08-26 Continuation rank-4 pick; preserve the prior closed one-share lifecycle.
 - [x] Implement ADR-0039's explicit Ghost/Real source model, account labelling, immutable reconciliation audit, separate dashboard P/L, manual Real fills, and Ghost-only automatic-exit guard without broker connectivity.
 - [x] **Operational step:** review and correct migration 013 before its first successful run; create and checksum-verify `TraderDB_FULL_20260828_081259_747.bak`, hash-match its approved OneDrive copy with SHA-256 `6DF2FAFD8590688B21D610190754FE72BC6375FAE67C7DD267B20A26904BC365`, apply the migration manually, and verify all columns, defaults, trusted checks, audit keys, and the preserved 6-position/11-trade row counts.
-- [ ] Record the still-held five-share EDR broker position as a new operator-confirmed `REAL / TFSA` entry after reconfirming the shares and $15.34 average fill. Do not convert or reopen the closed Ghost mirror: it completed its own audited paper lifecycle at $15.62.
+- [x] Resolve the separate EDR Real-reconciliation choice: on 2026-08-28 the operator declined to add a `REAL / TFSA` row because EDR is no longer in the current Delphi picks. Preserve the closed Ghost mirror and its audited $15.62 exit unchanged.
 - [x] **Operational step:** observe the first WPF market-hours durable cycle on 2026-08-27 at 09:47 Toronto: four valid ALK/NDM receipts persisted 191 new 5-/15-minute bars and refreshed both position snapshots; no exit rule triggered. Three immediate repeat cycles were valid and idempotent with zero new bars, so ensure only one monitor host is open.
 - [x] Verify the five-share EDR Ghost position joins a scheduled durable cycle and observe an automatic Ghost exit end to end: valid five- and fifteen-minute receipts persisted at 10:47 Toronto on 2026-08-27, followed by the separately recorded $15.62 `Policy TrailingProfit` sale.
 - [x] Join the latest valid post-entry OfficialPaper Breakout evidence needed by the conditional -10% exception, using run `CreatedUtc` for per-bar availability and refusing fallback when the newest valid run omitted or did not publish the symbol.
 - [x] Core tests pass: 143 passed, 0 failed, 0 skipped on 2026-08-28; the complete Release solution build succeeds with Visual Studio 18.10 MSBuild, including the SSDT database project.
-- [ ] Add a separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards.
+- [x] Complete the separately versioned delayed-intraday paper outcome with achievable post-detection fills and lens scorecards in source.
+  - [x] Accept ADR-0040: use the first five-minute bar open at or after detection, never the earlier trigger threshold.
+  - [x] Report raw zero-commission return separately from the 25-basis-point-per-side spread/slippage sensitivity.
+  - [x] Add the pure deterministic calculator and focused fixtures.
+  - [x] Collect XIU five- and fifteen-minute evidence once per future WPF monitor cycle, even with no active tracked position.
+  - [x] Add immutable-evidence repository queries, Athena persistence, the reviewed migration 015 definition, and cohort-weighted Continuation/Breakout lens reports.
+  - [ ] **Operational step:** back up, review, manually apply, and verify migration 015; then run Athena only when the evidence is ready.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
 
 ## Phase E — shadow portfolios

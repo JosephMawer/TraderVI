@@ -36,7 +36,8 @@ public sealed record PaperMonitorCycleResult(
     DateTime StartedUtc,
     DateTime CompletedUtc,
     bool AutomaticGhostExitsEnabled,
-    IReadOnlyList<PaperPositionMonitorResult> Positions);
+    IReadOnlyList<PaperPositionMonitorResult> Positions,
+    string? BenchmarkWarningCode);
 
 /// <summary>
 /// Shared ADR-0030/0031 paper monitor used by both the console and WPF hosts.
@@ -73,15 +74,6 @@ public sealed class PaperTradingMonitor
                 .Where(position => position.OriginalPickId.HasValue)
                 .OrderBy(position => position.Symbol)
                 .ToList();
-            if (positions.Count == 0)
-            {
-                return new PaperMonitorCycleResult(
-                    pollCycleId,
-                    startedUtc,
-                    DateTime.UtcNow,
-                    executeGhostExits,
-                    Array.Empty<PaperPositionMonitorResult>());
-            }
 
             CodeProvenance code = CalibrationProvenance.ResolveCode();
             var context = new IntradayPollContext(
@@ -92,6 +84,15 @@ public sealed class PaperTradingMonitor
                 code);
             var results = new List<PaperPositionMonitorResult>();
             using var tmx = new TmxClient();
+
+            string? benchmarkWarningCode = positions.Any(position =>
+                    string.Equals(position.Symbol, "XIU", StringComparison.OrdinalIgnoreCase))
+                ? null
+                : await CollectBenchmarkAsync(
+                    context,
+                    tmx,
+                    evidenceRepository,
+                    cancellationToken);
 
             foreach (ActivePositionInfo position in positions)
             {
@@ -110,12 +111,61 @@ public sealed class PaperTradingMonitor
                 startedUtc,
                 DateTime.UtcNow,
                 executeGhostExits,
-                results.AsReadOnly());
+                results.AsReadOnly(),
+                benchmarkWarningCode);
         }
         finally
         {
             _pollGate.Release();
         }
+    }
+
+    private static async Task<string?> CollectBenchmarkAsync(
+        IntradayPollContext context,
+        TmxClient tmx,
+        IntradayEvidenceRepository evidenceRepository,
+        CancellationToken cancellationToken)
+    {
+        const string symbol = "XIU";
+        DateTime requestStartUtc = ToUtc(
+            ToToronto(DateTime.UtcNow).Date.AddHours(9).AddMinutes(30));
+
+        foreach (int intervalMinutes in new[] { PolicyIntervalMinutes, SourceIntervalMinutes })
+        {
+            DateTime requestEndUtc = DateTime.UtcNow;
+            try
+            {
+                TmxIntradayBatch batch = await GetBatchAsync(
+                    tmx,
+                    symbol,
+                    intervalMinutes,
+                    requestStartUtc,
+                    requestEndUtc,
+                    cancellationToken);
+                IntradayEvidenceAppendResult append =
+                    await evidenceRepository.AppendCompletedBatchAsync(
+                        context,
+                        batch,
+                        cancellationToken);
+                if (append.AuditState == IntradayPollAuditState.Invalid)
+                    return append.AuditCode ?? $"InvalidXiu{intervalMinutes}Evidence";
+            }
+            catch
+            {
+                await TryAppendFailureAsync(
+                    evidenceRepository,
+                    context,
+                    symbol,
+                    intervalMinutes,
+                    requestStartUtc,
+                    requestEndUtc,
+                    $"TmxXiu{intervalMinutes}FetchOrPersistFailed",
+                    cancellationToken);
+                return $"TmxXiu{intervalMinutes}FetchOrPersistFailed";
+            }
+        }
+
+        return null;
     }
 
     private static async Task<PaperPositionMonitorResult> PollPositionAsync(

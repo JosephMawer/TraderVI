@@ -53,9 +53,11 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Observe the first market-hours durable dashboard cycle: the 2026-08-27 09:47 Toronto cycle persisted valid receipts and completed evidence for NDM/ALK; no exit rule triggered.
 - [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
 - [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
+- [x] Accept ADR-0040's reconstructible delayed-intraday fill contract, add the pure calculator, and make future WPF monitor cycles collect aligned XIU five-/fifteen-minute evidence once per cycle.
+- [x] Complete ADR-0040 in source with immutable-evidence queries, Athena persistence, separate raw/sensitivity lens reports, and guarded migration 015; leave migration application and Athena execution as explicit operational steps.
 - [x] Back up, apply, and verify migration 014 so the read-only Scorecards workspace can load the canonical outcome definitions without running Athena prematurely.
 - [x] Review, back up, manually apply, and verify migration 013 with explicit authorization; preserve all legacy rows as Ghost and verify the empty immutable execution audit.
-- [ ] Record the still-held five-share EDR broker position as a new operator-confirmed `REAL / TFSA` entry after reconfirming shares and the $15.34 average fill; preserve the already closed Ghost lifecycle separately.
+- [x] Close the EDR reconciliation decision without changing its audited Ghost history: on 2026-08-28 the operator chose not to add a separate `REAL / TFSA` row because EDR is no longer in the current Delphi picks. The broker holding remains outside TraderVI unless deliberately re-entered from a future saved pick.
 - [x] Verify the five-share EDR Ghost position joins a valid scheduled durable cycle and observe its automatic $15.62 `Policy TrailingProfit` exit end to end.
 - [ ] Record forecast/pick outcomes so changes can be compared against a stable baseline.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.

@@ -22,6 +22,7 @@ public sealed class CalibrationOutcomeRepository : SQLBase
     public static readonly Guid PredictionPath20DefinitionId = new("FA0C8F51-0C48-4E0C-BB26-DFBD82C0D640");
     public static readonly Guid SwingMarkToMarket3DefinitionId = new("491D7C6C-EBBB-4B5E-8259-3E3169D732B6");
     public static readonly Guid SwingExcursion3DefinitionId = new("BBB218C1-616E-46F5-A70B-826E547A7DE3");
+    public static readonly Guid DelayedIntradaySwingDefinitionId = new("77134C9C-595A-4BF4-9DB7-2AE67FA48C92");
 
     public async Task EnsureOutcomeDefinitionsAsync(CancellationToken cancellationToken = default)
     {
@@ -42,6 +43,10 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
     INSERT INTO [dbo].[CalibrationOutcomeDefinition]
         ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
     VALUES (@ExcursionId,N'SwingExcursion3',1,N'Tradeable',@ExcursionJson,1);
+IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [OutcomeDefinitionId] = @DelayedId)
+    INSERT INTO [dbo].[CalibrationOutcomeDefinition]
+        ([OutcomeDefinitionId],[DefinitionName],[DefinitionVersion],[DefinitionKind],[DefinitionJson],[IsActive])
+    VALUES (@DelayedId,N'DelayedIntradaySwing',1,N'Tradeable',@DelayedJson,1);
 """;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
@@ -50,10 +55,12 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[CalibrationOutcomeDefinition] WHERE [Outcome
         command.Parameters.Add(new SqlParameter("@PathId", SqlDbType.UniqueIdentifier) { Value = PredictionPath20DefinitionId });
         command.Parameters.Add(new SqlParameter("@SwingId", SqlDbType.UniqueIdentifier) { Value = SwingMarkToMarket3DefinitionId });
         command.Parameters.Add(new SqlParameter("@ExcursionId", SqlDbType.UniqueIdentifier) { Value = SwingExcursion3DefinitionId });
+        command.Parameters.Add(new SqlParameter("@DelayedId", SqlDbType.UniqueIdentifier) { Value = DelayedIntradaySwingDefinitionId });
         command.Parameters.Add(new SqlParameter("@LabelJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizonSessions\":10,\"labelSource\":\"ProfitModelRegistry.ILabeler\",\"benchmark\":\"XIU\"}" });
         command.Parameters.Add(new SqlParameter("@PathJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"horizons\":[1,5,10,20],\"start\":\"observationClose\",\"benchmark\":\"XIU\"}" });
         command.Parameters.Add(new SqlParameter("@SwingJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"markToMarket\",\"horizons\":[1,2,3],\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entryTimeZone\":\"America/Toronto\",\"marketOpenLocal\":\"09:30:00\",\"entrySessionAllowance\":3,\"slippageRatePerSide\":0.001,\"halfSpreadRatePerSide\":0.0015,\"benchmark\":\"XIU\",\"benchmarkCosts\":false}" });
         command.Parameters.Add(new SqlParameter("@ExcursionJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"excursion\",\"horizons\":[1,2,3],\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entryTimeZone\":\"America/Toronto\",\"marketOpenLocal\":\"09:30:00\",\"entrySessionAllowance\":3,\"mfe\":\"maxHigh/rawEntry-1\",\"mae\":\"minLow/rawEntry-1\",\"maeSign\":\"nonPositive\",\"timeUnit\":\"sessionOrdinal\",\"ties\":\"earliestSession\",\"sameSessionOrder\":\"unknown\",\"costAdjusted\":false}" });
+        command.Parameters.Add(new SqlParameter("@DelayedJson", SqlDbType.NVarChar, -1) { Value = "{\"schemaVersion\":1,\"measure\":\"policyExit\",\"population\":\"publishedLensCandidates\",\"entry\":\"firstEligibleOpen\",\"entrySessionAllowance\":3,\"policyBarMinutes\":15,\"fill\":\"firstFiveMinuteBarOpenAtOrAfterDetection\",\"grossCommissionRate\":0.0,\"executionFrictionRatePerSide\":0.0025,\"benchmark\":\"XIU\",\"benchmarkAlignment\":\"sameFiveMinuteBarStart\"}" });
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
@@ -275,6 +282,43 @@ ORDER BY r.[MarketDataAsOf], r.[StartedUtc], l.[Lens], l.[Rank], c.[Symbol];
         }
 
         return new LensTradeabilityEvidenceSet(runs, recommendations);
+    }
+
+    public async Task<IReadOnlyList<DelayedIntradayLensEvidenceRow>> GetDelayedIntradayLensEvidenceAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+SELECT r.[RunId],r.[MarketDataAsOf],l.[Lens],c.[CandidateId],
+       o.[MaturityState],o.[AuditState],o.[OutcomeJson]
+FROM [dbo].[CalibrationRun] r
+JOIN [dbo].[CalibrationCandidate] c ON c.[RunId] = r.[RunId]
+JOIN [dbo].[CalibrationLensEvaluation] l
+  ON l.[CandidateId] = c.[CandidateId] AND l.[IsPublished] = 1
+LEFT JOIN [dbo].[CalibrationCandidateOutcome] o
+  ON o.[CandidateId] = c.[CandidateId] AND o.[OutcomeDefinitionId] = @DefinitionId
+WHERE r.[RunPurpose] = N'OfficialPaper'
+  AND r.[AuditState] <> N'Invalid'
+ORDER BY r.[MarketDataAsOf],r.[StartedUtc],l.[Lens],l.[Rank],c.[Symbol];
+""";
+        var result = new List<DelayedIntradayLensEvidenceRow>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.Add(new SqlParameter("@DefinitionId", SqlDbType.UniqueIdentifier)
+            { Value = DelayedIntradaySwingDefinitionId });
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new DelayedIntradayLensEvidenceRow(
+                reader.GetGuid(0),
+                reader.GetDateTime(1),
+                reader.GetString(2),
+                reader.GetGuid(3),
+                reader.IsDBNull(4) ? null : reader.GetString(4),
+                reader.IsDBNull(5) ? null : reader.GetString(5),
+                reader.IsDBNull(6) ? null : reader.GetString(6)));
+        }
+        return result.AsReadOnly();
     }
 
     public async Task<OfficialPredictionEvidenceSet> GetOfficialPredictionScorecardEvidenceAsync(

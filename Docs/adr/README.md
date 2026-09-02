@@ -77,6 +77,7 @@ architecture documentation.
 | [0037](0037-operator-confirmed-delphi-paper-entry.md) | Operator-confirmed Delphi pick to paper position | Accepted | architecture, market-microstructure, risk-management |
 | [0038](0038-cohort-weighted-official-prediction-scorecards.md) | Cohort-weighted official prediction scorecards | Accepted | architecture, decision-engine, machine-learning, math-statistics |
 | [0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) | Unified Ghost/Real dashboard and scorecard workspace | Accepted | architecture, data-pipeline, market-microstructure, risk-management |
+| [0040](0040-reconstructible-delayed-intraday-outcome-fill.md) | Reconstructible delayed-intraday outcome fill | Accepted | architecture, data-pipeline, market-microstructure, math-statistics, risk-management |
 
 See also:
 

@@ -112,6 +112,7 @@
     <None Include="Migrations/20260826_012_AddIntradayEvidenceLedger.sql" />
     <None Include="Migrations/20260827_013_AddTrackedExecutionMode.sql" />
     <None Include="Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql" />
+    <None Include="Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />

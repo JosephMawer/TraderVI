@@ -219,7 +219,7 @@
                             <DataGridTextColumn Header="Account" Binding="{Binding AccountLabel}" Width="65"/>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
                             <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="58"/>
-                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:C3}}" Width="78"/>
+                            <DataGridTextColumn Header="Recorded fill" Binding="{Binding Price, StringFormat={}{0:C3}}" Width="96"/>
                             <DataGridTextColumn Header="Realized" Binding="{Binding RealizedPnL, StringFormat={}{0:C2}}" Width="80">
                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{Binding PnLBrush}"/></Style></DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>

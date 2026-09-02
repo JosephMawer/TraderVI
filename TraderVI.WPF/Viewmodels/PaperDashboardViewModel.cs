@@ -175,13 +175,16 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             ? "Ghost/Real ledger active · Real fills are manual · no broker"
             : $"Legacy Ghost-only database · apply {TrackedExecutionSchema.MigrationFileName} to enable Real tracking";
         Guid? selectedPositionId = SelectedPosition?.PositionId;
-        List<ActivePositionInfo> positions =
+        List<ActivePositionInfo> linkedPositions =
             (await new ActivePositionRepository().GetRecentPositions(250))
             .Where(position => position.OriginalPickId.HasValue)
             .OrderBy(position => position.EntryDate)
             .ThenBy(position => position.Symbol)
             .ToList();
-        HashSet<Guid> paperPositionIds = positions
+        List<ActivePositionInfo> activePositions = linkedPositions
+            .Where(position => position.IsActive)
+            .ToList();
+        HashSet<Guid> paperPositionIds = linkedPositions
             .Select(position => position.PositionId)
             .ToHashSet();
         List<TradeLogInfo> trades = (await new TradeLogRepository().GetRecentTrades(250))
@@ -207,7 +210,7 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
 
         Replace(
             Positions,
-            positions.Select(position => PaperPositionRow.Create(
+            activePositions.Select(position => PaperPositionRow.Create(
                 position,
                 exitsByPosition.GetValueOrDefault(position.PositionId),
                 latestResults.GetValueOrDefault(position.PositionId))));
@@ -217,10 +220,10 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
         Replace(Trades, trades.Select(PaperTradeRow.Create));
         Replace(Polls, polls.Select(PaperPollRow.Create));
 
-        OpenGhostCount = positions.Count(position =>
-            position.IsActive && position.ExecutionMode == TrackedExecutionMode.Ghost);
-        OpenRealCount = positions.Count(position =>
-            position.IsActive && position.ExecutionMode == TrackedExecutionMode.Real);
+        OpenGhostCount = activePositions.Count(position =>
+            position.ExecutionMode == TrackedExecutionMode.Ghost);
+        OpenRealCount = activePositions.Count(position =>
+            position.ExecutionMode == TrackedExecutionMode.Real);
         GhostRealizedPnL = trades
             .Where(trade =>
                 trade.ExecutionMode == TrackedExecutionMode.Ghost &&
@@ -231,13 +234,11 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
                 trade.ExecutionMode == TrackedExecutionMode.Real &&
                 string.Equals(trade.TradeType, "SELL", StringComparison.OrdinalIgnoreCase))
             .Sum(trade => trade.RealizedPnL ?? 0m);
-        GhostUnrealizedPnL = positions
-            .Where(position =>
-                position.IsActive && position.ExecutionMode == TrackedExecutionMode.Ghost)
+        GhostUnrealizedPnL = activePositions
+            .Where(position => position.ExecutionMode == TrackedExecutionMode.Ghost)
             .Sum(position => position.UnrealizedPnL ?? 0m);
-        RealUnrealizedPnL = positions
-            .Where(position =>
-                position.IsActive && position.ExecutionMode == TrackedExecutionMode.Real)
+        RealUnrealizedPnL = activePositions
+            .Where(position => position.ExecutionMode == TrackedExecutionMode.Real)
             .Sum(position => position.UnrealizedPnL ?? 0m);
 
         IntradayPollObservationInfo? latestReceipt = polls
@@ -302,16 +303,18 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
         foreach (PaperPositionMonitorResult result in cycle.Positions)
             latestResults[result.PositionId] = result;
 
-        MonitorStatus = cycle.Positions.Any(position =>
+        MonitorStatus = cycle.BenchmarkWarningCode is not null || cycle.Positions.Any(position =>
                 position.ErrorCode is not null || position.WarningCode is not null)
             ? "Completed with warnings"
             : $"Cycle complete · {cycle.Positions.Count} position(s)";
         AddEvent(
             cycle.CompletedUtc,
-            cycle.Positions.Count == 0
-                ? "Monitor cycle completed; no active Delphi-linked paper positions."
+            cycle.BenchmarkWarningCode is not null
+                ? $"Monitor cycle completed with benchmark warning {cycle.BenchmarkWarningCode}."
+                : cycle.Positions.Count == 0
+                    ? "Monitor cycle completed; XIU evidence collected with no active Delphi-linked positions."
                 : $"Monitor cycle {cycle.PollCycleId.ToString()[..8]} completed for {cycle.Positions.Count} position(s).",
-            cycle.Positions.Any(position =>
+            cycle.BenchmarkWarningCode is not null || cycle.Positions.Any(position =>
                 position.ErrorCode is not null || position.WarningCode is not null)
                 ? "Warning"
                 : "Info");
