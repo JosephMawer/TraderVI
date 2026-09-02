@@ -110,9 +110,9 @@ runs and seven excluded earlier-identity runs.
 Follow-up static review on 2026-09-02 found that migration 016's constraint did not fully implement the
 intended paired-null rule: SQL `CHECK` accepts `UNKNOWN`, so one null field plus one valid field could pass
 the length-only second branch. Repository validation and the observed data remained paired. ADR-0043's
-guarded migration 017 therefore preflights for zero partial identities and atomically strengthens the
-constraint with explicit non-null predicates; this repairs the database boundary without changing this
-decision or rewriting evidence.
+guarded migration 017 preflighted zero partial identities and atomically strengthened the constraint with
+explicit non-null predicates; this repaired the database boundary without changing this decision or
+rewriting evidence.
 
 ## Review questions
 

@@ -67,11 +67,10 @@ Hermes currently:
 
 Running Hermes performs external HTTP requests and writes multiple SQL tables. Obtain explicit authorization and review schema/data prerequisites first.
 
-ADR-0043's nullable leadership-source contract requires manual migration 017. While that migration is
-pending, do not run Hermes: the corrected writer intentionally refuses the old non-null leadership
-schema rather than persisting another ambiguous `0/0/0` observation. Keep official Delphi publication
-paused until the matching `v3.2-leadership-missingness` identity is active. Athena does not collect or
-repair leadership data and does not need to run for this rollout.
+Migration 017 was applied and verified on 2026-09-02. The nullable leadership contract and matching
+`v3.2-leadership-missingness` identity are active, so Hermes may resume only through its normal explicitly
+authorized workflow. Inspect the first post-migration `LeadershipData` row and backup before starting a
+deliberate official Delphi cohort. Athena does not collect or repair leadership data.
 
 The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
 
@@ -131,11 +130,12 @@ Delphi currently:
 
 Delphi is advisory—it does not place a broker order—but it is not read-only. Do not use it as a harmless smoke test; use focused builds and tests for routine validation. A no-write mode can be added later if an operational reporting need emerges.
 
-Migration 016 was applied and verified on 2026-09-02. `v3.1-rs-date-aligned` is the sole active strategy
-without any threshold, model, gate, ranking-formula, or execution-policy change. A deliberate official
-publication may now start its new evidence scope; the seven earlier official runs remain attached to
-`v3.0` and are excluded rather than rewritten. Delphi is still a consequential database writer and must
-not be launched as routine validation.
+Migrations 016 and 017 were applied and verified on 2026-09-02. `v3.2-leadership-missingness` is the sole
+active strategy without any threshold, model, gate, ranking-formula, or execution-policy change. A
+deliberate official publication may start its new evidence scope after the first post-migration Hermes
+observation is inspected; the seven earlier official runs remain attached to their original identities and
+are excluded rather than rewritten. Delphi is still a consequential database writer and must not be
+launched as routine validation.
 
 Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommendation run date so their date-scoped records remain linked. Its reports separately show the latest completed TSX session as the market-data-as-of date. A weekend run can therefore produce a weekend recommendation date based on Friday's completed market data; this is intentional audit semantics, not a claim that Saturday was a trading session.
 

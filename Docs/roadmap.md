@@ -89,16 +89,17 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   succeeded; and the complete Release solution built with Visual Studio 18.10 MSBuild plus SSDT on
   2026-09-02 without database deployment or launching an operational application.
 - [x] After a fresh verified, synchronized backup and separate authorization, apply and verify manual
-  migration 016. `v3.1-rs-date-aligned` is the sole active identity; its thresholds/model mappings match
-  `v3.0`, all calibration counts are preserved, and its scope begins at 0 included / 7 excluded runs.
+  migration 016. `v3.1-rs-date-aligned` became the sole active identity at that boundary; its
+  thresholds/model mappings matched `v3.0`, all calibration counts were preserved, and its scope began at
+  0 included / 7 excluded runs before migration 017 superseded it.
 - [x] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
   as genuine zero/falling breadth (ADR-0043; source completed at `fad4b96`). The implementation requires
   an exact same-date XIU anchor, a complete 50-symbol movers basket, contiguous canonical XIU sessions,
   and explicit neutral/no-data reporting; all 202 Core tests passed in Debug and Release.
-- [ ] After a fresh verified and synchronized backup plus separate authorization, apply and verify manual
-  migration 017. Keep Hermes and official Delphi publication paused until the nullable leadership contract
-  and `v3.2-leadership-missingness` identity are active. Also verify the strengthened paired strategy-identity
-  constraint. Do not use DACPAC deployment.
+- [x] After a fresh verified and synchronized backup plus separate authorization, apply and verify manual
+  migration 017. The nullable leadership contract and strengthened paired strategy-identity constraint are
+  trusted, `v3.2-leadership-missingness` is solely active, and all protected counts/references are preserved.
+  No DACPAC deployment or application workflow ran.
 - [ ] After migration 017, run Hermes once after market close, inspect the newest `LeadershipData` row and
   post-success backup, and run Delphi only when a deliberate new official `v3.2` cohort is wanted. Athena
   remains evidence-driven and does not repair or initialize leadership data.

@@ -97,16 +97,23 @@ a market meaning.
 
 ## Operational rollout
 
-Keep Hermes, Delphi, and Athena paused while migration 017 is pending. After source validation, create
-and verify a fresh full backup, confirm its approved secondary copy is synchronized, obtain separate
-authorization, and execute only migration 017. Verify the nullable columns, enabled/trusted constraint,
-legacy normalization counts, row preservation, strengthened paired strategy-identity constraint, exact
-active `v3.2` identity, and unchanged thresholds and model mappings.
+The rollout required Hermes, Delphi, and Athena to remain paused until a fresh verified full backup and
+synchronized secondary copy were confirmed, separate authorization was obtained, and migration 017's
+nullable columns, constraints, normalization, row preservation, exact v3.2 identity, thresholds, and model
+mappings were verified.
 
 After successful migration, run Hermes once after market close and inspect the newest
 `LeadershipData` observation and backup result. Run Delphi only if a deliberate official recommendation
 should start the new strategy cohort. Athena does not collect leadership data and should wait until new
 eligible outcomes have matured.
+
+Migration 017 was separately authorized, applied, and verified on 2026-09-02 after
+`TraderDB_FULL_20260902_012154_689.bak` passed checksum verification and its 37,497,344-byte staging and
+OneDrive copies matched SHA-256 `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`;
+the operator confirmed synchronization. Postflight found 101 exact sentinels normalized, all 115 leadership
+rows preserved, both constraints enabled/trusted/non-replication, sole active v3.2, inactive v3.1, zero
+threshold/model differences, zero v3.2 runs, and all calibration counts/references unchanged. No application,
+external-service, training, outcome, publication, or artifact workflow ran.
 
 ## Review questions
 

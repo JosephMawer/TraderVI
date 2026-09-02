@@ -9,7 +9,7 @@
 - **Outcome-definition rollout script:** `TraderDB/Migrations/20260828_014_SeedCalibrationOutcomeDefinitions.sql` (applied and verified 2026-08-28)
 - **Delayed-outcome rollout script:** `TraderDB/Migrations/20260901_015_AddDelayedIntradayOutcomeDefinition.sql` (operator-applied; definition verified active 2026-09-01; backup not independently verified)
 - **Strategy-identity rollout script:** `TraderDB/Migrations/20260901_016_ActivateDateAlignedStrategyIdentity.sql` (applied and verified 2026-09-02)
-- **Leadership-missingness rollout script:** `TraderDB/Migrations/20260902_017_PreserveLeadershipSourceMissingness.sql` (prepared; not applied)
+- **Leadership-missingness rollout script:** `TraderDB/Migrations/20260902_017_PreserveLeadershipSourceMissingness.sql` (applied and verified 2026-09-02)
 
 ## Status legend
 
@@ -19,7 +19,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 is complete and validated in source, but migration 017 is not applied: Hermes and official Delphi publication therefore remain paused until the live database has the nullable leadership-source contract and `v3.2-leadership-missingness` is active. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; `v3.2-leadership-missingness` is solely active and the first post-migration Hermes observation remains pending. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -124,14 +124,14 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   zero successor runs, 0 included active-identity official runs, and 7 excluded legacy official runs.
 - [x] Preserve all calibration rows across migration 016: 8 runs, 1,723 candidates, 3,446 lens
   evaluations, 5 outcome definitions, and 224 outcomes.
-- [ ] **Operational step:** create and checksum-verify a fresh full database backup, copy it to the
-  approved secondary location, verify matching hashes and synchronized status, and record the evidence
-  before migration 017.
-- [ ] Obtain separate authorization, manually apply migration 017, and verify nullable active-breadth
-  columns, enabled/trusted `CK_LeadershipData_ActiveBreadthObservation`, no invalid partial triples, only
-  legacy `0/0/0` sentinel conversion, strengthened enabled/trusted paired identity constraint, preserved
-  row counts and references, one exact active v3.2 successor, inactive v3.1, and unchanged thresholds/model
-  mappings.
+- [x] **Operational step:** create and checksum-verify `TraderDB_FULL_20260902_012154_689.bak`, hash-match
+  its 37,497,344-byte approved OneDrive copy with SHA-256
+  `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`, and confirm synchronization.
+- [x] Obtain separate authorization, manually apply migration 017, and verify all three active-breadth
+  columns nullable; enabled/trusted/non-replication leadership and paired-identity checks; exactly 101
+  sentinel rows normalized with all 115 leadership rows preserved; zero invalid/partial rows; one exact
+  active v3.2 and inactive v3.1; zero threshold/model differences; zero successor runs; and preserved
+  counts/references for 8 runs, 1,723 candidates, 3,446 lens rows, 5 definitions, and 224 outcomes.
 - [ ] **Operational step:** after migration 017, run Hermes once after market close and inspect the newest
   `LeadershipData` observation plus the verified post-success backup. Do not use Delphi, Athena, WPF, or
   another application as a substitute for this ingestion check.

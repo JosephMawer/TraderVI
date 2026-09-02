@@ -10,16 +10,16 @@ TraderVI is an advisory-mode TSX momentum-rotation system with an immutable pape
 ADR-0042 now defines and implements the post-ADR-0041 strategy/code boundary in source. Comparative
 reports and export-schema-v2 artifacts are scoped to one explicitly identified active strategy, while
 earlier runs remain immutable and are counted as excluded. Manual migration 016 was backed up,
-authorized, applied, and verified on 2026-09-02. `v3.1-rs-date-aligned` is now the sole active strategy;
-its evidence scope begins at zero included official runs with seven earlier-identity runs excluded.
+authorized, applied, and verified on 2026-09-02. `v3.1-rs-date-aligned` became the sole active strategy at
+that boundary, with zero included official runs and seven earlier-identity runs excluded.
 
 ADR-0043 now preserves leadership-source missingness in source. Movers-derived breadth requires an exact
 same-date XIU anchor and a complete 50-symbol observation, while scoring uses a contiguous canonical XIU
 session suffix and reports unavailable inputs as neutral/no-data rather than zero or falling breadth. The
 fixed successor is `v3.2-leadership-missingness` at behavioral commit `fad4b96`. Manual migration 017 is
-prepared but not applied, so Hermes and official Delphi publication remain paused until a fresh verified,
-synchronized backup, separate migration authorization, and successful postflight verification. Athena does
-not collect or repair leadership inputs.
+applied and verified: v3.2 is the sole active strategy, the nullable leadership contract is trusted, and
+all protected evidence counts and references remain unchanged. The first post-migration Hermes ingestion
+has not run. Athena does not collect or repair leadership inputs.
 
 The repository retains a coherent June/August feature foundation plus the September correctness and
 identity stabilization sequence. It includes multi-lens ranking, Granville indicators, relative-strength
@@ -42,6 +42,7 @@ Climax (CLX) reporting, and read-only desktop documentation and scorecard surfac
 - Intraday-ledger backup: the pre-migration checksum backup and approved OneDrive copy matched SHA-256 `CBDDB1E31877CA36E7B798867B5AC924DE0C9F09373F382191F30AE815C4A5B7` on 2026-08-26; migration 012 was then applied and verified.
 - Outcome-definition backup: the pre-migration 34.98 MB checksum backup and approved OneDrive copy matched SHA-256 `A01FFCECAD236C967D8BA68AA4DCC8387BFB49DFA9C5B22F533A69C995D48F27` on 2026-08-28; migration 014 was then applied and verified without creating outcomes.
 - Strategy-identity backup: `TraderDB_FULL_20260902_002015_223.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,508,096-byte staging and OneDrive copies matched SHA-256 `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and the operator confirmed synchronization before migration 016.
+- Leadership-missingness backup: `TraderDB_FULL_20260902_012154_689.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,497,344-byte staging and OneDrive copies matched SHA-256 `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`, and the operator confirmed synchronization before migration 017.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -198,8 +199,8 @@ Leadership-source missingness stabilization on 2026-09-02:
 - Hermes requires a current-date computed row, exact current-date XIU anchor, and exactly 50 distinct nonblank symbols with explicit price changes before assigning movers data. It does not attribute undated responses to another session or overwrite a valid same-date observation with missingness.
 - Granville leadership and light-volume scoring uses a 12-session contiguous canonical XIU suffix. Missing sessions break the suffix, post-calendar rows are ignored, and unavailable or insufficient mover coverage is neutral and explicitly reported.
 - The fixed successor identity is `2BD1A7D0-D144-4A7B-9FA4-49606AB7E963` / `v3.2-leadership-missingness`, initial behavioral commit `fad4b968244d57a6224cb7ab137774a9bff4b645`, decision `ADR-0043`. Existing evidence remains immutable under its original identity.
-- All 202 Core tests passed in Debug and Release; focused Core, Delphi, Hermes, and WPF Release builds and the complete SSDT-inclusive Release solution build succeeded. Migration 017 also passed offline `TSql150` parsing and independent static review. Existing dependency advisories and compiler-warning backlog remain separate. No operational application, database migration, external call, training, outcome, publication, or artifact workflow ran.
-- Migration 017 is prepared for manual review and remains unapplied. It converts only exact legacy `0/0/0` sentinels to null, adds the trusted observation constraint, repairs the intended paired strategy-identity check against SQL `UNKNOWN`, and activates v3.2 without changing thresholds or model mappings.
+- All 202 Core tests passed in Debug and Release; focused Core, Delphi, Hermes, and WPF Release builds and the complete SSDT-inclusive Release solution build succeeded. Migration 017 also passed offline `TSql150` parsing and independent static review. Existing dependency advisories and compiler-warning backlog remain separate.
+- Migration 017 was separately authorized, applied, and independently verified after the synchronized backup. It converted exactly 101 legacy `0/0/0` sentinels to null while preserving all 115 leadership rows; both checks are enabled, trusted, and not-for-replication; v3.2 is solely active; threshold/model differences are zero; and 8 runs, 1,723 candidates, 3,446 lens rows, 5 definitions, and 224 outcomes remain unchanged. No application, external call, training, outcome, publication, or artifact workflow ran.
 
 Unified Trading and WPF scorecard implementation on 2026-08-28:
 
@@ -222,30 +223,26 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Leadership missingness is fixed in source but not rolled out.** Migration 017 remains unapplied, so the live database still has the old non-null active-breadth contract and v3.1 identity. Keep Hermes and official Delphi publication paused until the required backup, authorization, application, and postflight are complete. This fix does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
+10. **Leadership missingness is rolled out but lacks its first live observation.** Migration 017 is applied and verified, but Hermes has not yet exercised the same-session movers contract against a new post-migration row. This fix also does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
 
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Review migration 017, create and verify a fresh full backup and synchronized secondary copy, then obtain
-   separate authorization to apply the migration manually. Verify the nullable leadership contract, sentinel
-   conversion, row/reference preservation, both trusted constraints, and exact active v3.2 identity. Do not
-   deploy a DACPAC.
-2. Keep Hermes, Delphi, and other operational applications closed until migration 017 is verified. Afterward,
-   run Hermes once after market close and inspect the newest `LeadershipData` row plus its post-success backup.
-3. Run Delphi only when a deliberate official `v3.2-leadership-missingness` recommendation cohort is wanted;
+1. Obtain explicit authorization and run Hermes once after market close. Inspect the newest
+   `LeadershipData` row for same-session mover provenance and confirm the post-success backup and copy.
+2. Run Delphi only when a deliberate official `v3.2-leadership-missingness` recommendation cohort is wanted;
    keep pre-/post-correction identities separate and do not count repeated runs over one market-data date as
    independent evidence.
-4. Keep exactly one `TraderVI.WPF` instance open during regular market hours only when resuming the separate
+3. Keep exactly one `TraderVI.WPF` instance open during regular market hours only when resuming the separate
    intraday evidence workflow; verify fresh SGY/XIU receipts after 2026-08-28.
-5. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A
+4. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A
    Real alert cannot auto-close it.
-6. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair
+5. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair
    leadership data. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven
    continuity gap is stored as invalid rather than bridged.
-7. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
+6. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
    prices; do not reopen closed Ghost lifecycles.
-8. Observe additional Hermes backups and perform a test restore.
-9. Continue the stabilization order with ADR-0013's score-once contract, then canonical SQL/repository drift,
+7. Observe additional Hermes backups and perform a test restore.
+8. Continue the stabilization order with ADR-0013's score-once contract, then canonical SQL/repository drift,
    transaction boundaries, and CI before larger workflow extraction.
