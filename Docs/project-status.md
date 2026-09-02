@@ -19,7 +19,9 @@ session suffix and reports unavailable inputs as neutral/no-data rather than zer
 fixed successor is `v3.2-leadership-missingness` at behavioral commit `fad4b96`. Manual migration 017 is
 applied and verified: v3.2 is the sole active strategy, the nullable leadership contract is trusted, and
 all protected evidence counts and references remain unchanged. The first post-migration Hermes ingestion
-has not run. Athena does not collect or repair leadership inputs.
+completed on 2026-09-02: its 2026-09-01 observation stored 11 new highs, 18 new lows, and 467 eligible
+issues while preserving unavailable movers breadth and same-session price anchors as null. Athena does not
+collect or repair leadership inputs.
 
 The repository retains a coherent June/August feature foundation plus the September correctness and
 identity stabilization sequence. It includes multi-lens ranking, Granville indicators, relative-strength
@@ -43,6 +45,7 @@ Climax (CLX) reporting, and read-only desktop documentation and scorecard surfac
 - Outcome-definition backup: the pre-migration 34.98 MB checksum backup and approved OneDrive copy matched SHA-256 `A01FFCECAD236C967D8BA68AA4DCC8387BFB49DFA9C5B22F533A69C995D48F27` on 2026-08-28; migration 014 was then applied and verified without creating outcomes.
 - Strategy-identity backup: `TraderDB_FULL_20260902_002015_223.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,508,096-byte staging and OneDrive copies matched SHA-256 `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and the operator confirmed synchronization before migration 016.
 - Leadership-missingness backup: `TraderDB_FULL_20260902_012154_689.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,497,344-byte staging and OneDrive copies matched SHA-256 `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`, and the operator confirmed synchronization before migration 017.
+- First post-migration Hermes backup: `TraderDB_FULL_20260902_013547_367.bak` passed Hermes' SQL checksum verification; its 37,552,640-byte staging and OneDrive copies independently matched SHA-256 `B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`. OneDrive cloud-sync completion remains user-observed.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -223,26 +226,24 @@ Unified Trading and WPF scorecard implementation on 2026-08-28:
 7. **Outcome feedback has started but is not broadly mature.** Seven official runs across five market-data cohorts now contain 1,510 candidates. Athena has written 112 valid three-session marks and 112 valid excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. The delayed evaluator now converts proven evidence gaps into audited invalid outcomes while leaving an unproven tail pending. SGY/XIU evidence still ends on 2026-08-28, so the next WPF market-hours cycle must be observed before delayed replay can advance. Track progress in `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Leadership missingness is rolled out but lacks its first live observation.** Migration 017 is applied and verified, but Hermes has not yet exercised the same-session movers contract against a new post-migration row. This fix also does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
+10. **Broader leadership SQL/repository integrity remains deferred.** The first post-migration Hermes observation passed: the 2026-09-01 row retained an all-null active-breadth triple, zero sentinel and partial triples remain absent, and the constraint remains enabled/trusted. ADR-0043 intentionally does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
 
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Obtain explicit authorization and run Hermes once after market close. Inspect the newest
-   `LeadershipData` row for same-session mover provenance and confirm the post-success backup and copy.
-2. Run Delphi only when a deliberate official `v3.2-leadership-missingness` recommendation cohort is wanted;
+1. Run Delphi only when a deliberate official `v3.2-leadership-missingness` recommendation cohort is wanted;
    keep pre-/post-correction identities separate and do not count repeated runs over one market-data date as
    independent evidence.
-3. Keep exactly one `TraderVI.WPF` instance open during regular market hours only when resuming the separate
+2. Keep exactly one `TraderVI.WPF` instance open during regular market hours only when resuming the separate
    intraday evidence workflow; verify fresh SGY/XIU receipts after 2026-08-28.
-4. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A
+3. Monitor the open SGY Real position, but record a sale only from the operator's actual Wealthsimple fill. A
    Real alert cannot auto-close it.
-5. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair
+4. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair
    leadership data. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven
    continuity gap is stored as invalid rather than bridged.
-6. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
+5. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
    prices; do not reopen closed Ghost lifecycles.
-7. Observe additional Hermes backups and perform a test restore.
-8. Continue the stabilization order with ADR-0013's score-once contract, then canonical SQL/repository drift,
+6. Observe additional Hermes backups and perform a test restore.
+7. Continue the stabilization order with ADR-0013's score-once contract, then canonical SQL/repository drift,
    transaction boundaries, and CI before larger workflow extraction.

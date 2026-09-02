@@ -19,7 +19,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; `v3.2-leadership-missingness` is solely active and the first post-migration Hermes observation remains pending. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; `v3.2-leadership-missingness` is solely active. The first post-migration Hermes run stored a 2026-09-01 observation with unavailable movers breadth kept null and produced a checksum-verified, hash-matched backup copy. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -132,9 +132,13 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   sentinel rows normalized with all 115 leadership rows preserved; zero invalid/partial rows; one exact
   active v3.2 and inactive v3.1; zero threshold/model differences; zero successor runs; and preserved
   counts/references for 8 runs, 1,723 candidates, 3,446 lens rows, 5 definitions, and 224 outcomes.
-- [ ] **Operational step:** after migration 017, run Hermes once after market close and inspect the newest
-  `LeadershipData` observation plus the verified post-success backup. Do not use Delphi, Athena, WPF, or
-  another application as a substitute for this ingestion check.
+- [x] **Operational step:** after migration 017, run Hermes once after market close and inspect the newest
+  `LeadershipData` observation plus the verified post-success backup. The 2026-09-01 row stored 11 new
+  highs, 18 new lows, 467 issues, and an all-null movers/price-anchor observation; zero sentinel and partial
+  triples remain absent and the leadership check remains enabled/trusted. Hermes inserted 483 daily bars,
+  reported BLKY and RCTR as no-data without failing, and produced
+  `TraderDB_FULL_20260902_013547_367.bak`; both 37,552,640-byte copies matched SHA-256
+  `B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`.
 - [ ] Run Delphi only when a deliberate official `v3.2-leadership-missingness` cohort is wanted. Run Athena
   later only when eligible outcomes have matured; Athena does not repair leadership data.
 - [ ] For the original migration-011 rollout, a fresh immediately pre-migration backup was not

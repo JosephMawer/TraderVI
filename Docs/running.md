@@ -68,9 +68,11 @@ Hermes currently:
 Running Hermes performs external HTTP requests and writes multiple SQL tables. Obtain explicit authorization and review schema/data prerequisites first.
 
 Migration 017 was applied and verified on 2026-09-02. The nullable leadership contract and matching
-`v3.2-leadership-missingness` identity are active, so Hermes may resume only through its normal explicitly
-authorized workflow. Inspect the first post-migration `LeadershipData` row and backup before starting a
-deliberate official Delphi cohort. Athena does not collect or repair leadership data.
+`v3.2-leadership-missingness` identity are active. The first authorized post-migration Hermes run also
+passed: its 2026-09-01 row preserved unavailable movers breadth as null, its leadership constraint remained
+enabled/trusted, and its checksum-verified staging and OneDrive backup copies hash-matched. Later Hermes
+runs still require explicit authorization. A deliberate official Delphi cohort may now start when wanted;
+Athena does not collect or repair leadership data.
 
 The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
 

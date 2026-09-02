@@ -115,6 +115,17 @@ rows preserved, both constraints enabled/trusted/non-replication, sole active v3
 threshold/model differences, zero v3.2 runs, and all calibration counts/references unchanged. No application,
 external-service, training, outcome, publication, or artifact workflow ran.
 
+The separately authorized first post-migration Hermes run completed successfully on 2026-09-02. It inserted
+483 daily bars for 2026-09-01 (BLKY and RCTR returned no data), then stored a 2026-09-01 leadership row with
+11 new highs, 18 new lows, 467 eligible issues, and null active breadth, XIU, and equal-weight anchors because
+no exact 2026-09-02 XIU anchor existed for the undated live sources. Independent postflight confirmed 102
+all-null breadth observations, zero sentinel triples, zero partial triples, and an enabled/trusted constraint.
+Hermes' checksum-verified `TraderDB_FULL_20260902_013547_367.bak` staging and OneDrive copies were each
+37,552,640 bytes and independently matched SHA-256
+`B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`. Cloud-sync completion remains an
+operator-observed step. Delphi, Athena, WPF, Hercules, training, publication, and artifact workflows did not
+run as part of this ingestion check.
+
 ## Review questions
 
 1. How does a genuine zero active-breadth observation differ from missing mover data?
