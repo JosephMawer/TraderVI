@@ -105,8 +105,11 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   remained enabled/trusted, and both backup copies independently hash-matched. Run Delphi only when a
   deliberate new official `v3.2` cohort is wanted. Athena remains evidence-driven and does not repair or
   initialize leadership data.
-- [ ] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
-  before adding another lens.
+- [x] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
+  before adding another lens. Delphi now computes one shared candidate score per symbol, applies independent
+  Continuation/Breakout gates and ranking over it, and reuses each profit-model prediction for both composite
+  calculation and reporting. All 204 Core tests passed in Debug and Release; the affected Delphi build and
+  complete Release solution plus SSDT build succeeded without deployment or operational workflows.
 - [ ] Reconcile canonical SQL definitions with repository writes before any broad database work. Continue
   to use reviewed manual migrations only; do not use DACPAC deployment.
 - [ ] Record and implement explicit transaction boundaries for same-day Delphi operational publication and

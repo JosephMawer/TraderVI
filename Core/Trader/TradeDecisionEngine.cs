@@ -30,6 +30,17 @@ public interface IStockSignalModel
 }
 
 /// <summary>
+/// Internal scoring contract for trained profit models. Keeping the decision engine
+/// dependent on this narrow shape makes the score-once boundary directly testable
+/// without exposing model-loading details to lens evaluation.
+/// </summary>
+internal interface IProfitSignalModel : IStockSignalModel
+{
+    SignalRole Role { get; }
+    float CompositeWeight { get; }
+}
+
+/// <summary>
 /// Market regime information for filtering trades.
 /// Includes both TSX (XIU) and S&amp;P 500 (SPY) benchmarks.
 /// </summary>
@@ -60,7 +71,7 @@ public record RoleTaggedSignal(SignalRole Role, string Name, double Score, float
 public class TradeDecisionEngine
 {
     private readonly IReadOnlyList<IStockSignalModel> _patternModels;
-    private readonly IReadOnlyList<UnifiedProfitSignalModel> _profitModels;
+    private readonly IReadOnlyList<IProfitSignalModel> _profitModels;
     private readonly TradePipeline _pipeline;
 
     /// <summary>
@@ -111,6 +122,14 @@ public class TradeDecisionEngine
         IEnumerable<IStockSignalModel> patternModels,
         IEnumerable<UnifiedProfitSignalModel> profitModels,
         StrategyConfig? config = null)
+        : this(patternModels, profitModels.Cast<IProfitSignalModel>(), config)
+    {
+    }
+
+    internal TradeDecisionEngine(
+        IEnumerable<IStockSignalModel> patternModels,
+        IEnumerable<IProfitSignalModel> profitModels,
+        StrategyConfig? config = null)
     {
         _patternModels = patternModels.ToList();
         _profitModels = profitModels.ToList();
@@ -146,18 +165,36 @@ public class TradeDecisionEngine
     /// </summary>
     public TradeDecisionResult Evaluate(IReadOnlyList<DailyBar> history, TradePipeline pipeline)
     {
+        var score = Score(history);
+        return Evaluate(score, pipeline);
+    }
+
+    /// <summary>
+    /// Computes every lens-independent model and pattern fact for one symbol.
+    /// The returned score can then be gated independently by any number of lenses.
+    /// </summary>
+    private CandidateScore Score(IReadOnlyList<DailyBar> history)
+    {
         var patternSignals = _patternModels
             .Select(m => m.Evaluate(history))
             .ToList();
 
-        // Evaluate profit models and tag each result with its role
-        var taggedSignals = _profitModels
-            .Select(m => new RoleTaggedSignal(m.Role, m.Name, m.Evaluate(history).Score, m.CompositeWeight))
+        // A profit model prediction is expensive. Capture it once, then reuse that
+        // exact result for role-based scoring and persisted/reporting signals.
+        var evaluatedProfitSignals = _profitModels
+            .Select(m => (Model: m, Result: m.Evaluate(history)))
             .ToList();
 
-        // Also collect the raw SignalResult list for output
-        var profitSignals = _profitModels
-            .Select(m => m.Evaluate(history))
+        var taggedSignals = evaluatedProfitSignals
+            .Select(x => new RoleTaggedSignal(
+                x.Model.Role,
+                x.Model.Name,
+                x.Result.Score,
+                x.Model.CompositeWeight))
+            .ToList();
+
+        var profitSignals = evaluatedProfitSignals
+            .Select(x => x.Result)
             .ToList();
 
         var (composite, breakoutProb, upProb, downProb, directionEdge) =
@@ -169,7 +206,6 @@ public class TradeDecisionEngine
             composite = System.Math.Max(0, composite + GranvilleForecast.CompositeAdjustment);
         }
 
-        // Build gate context
         var patternHints = patternSignals
             .Where(s => s.Hint.HasValue && s.Hint != TradeDirection.Hold)
             .Select(s => s.Hint!.Value)
@@ -188,6 +224,28 @@ public class TradeDecisionEngine
             .Any(s => string.Equals(s.Name, "MaCrossover", StringComparison.OrdinalIgnoreCase)
                       && s.Hint == TradeDirection.Buy);
 
+        return new CandidateScore(
+            CompositeScore: composite,
+            BreakoutProbability: breakoutProb,
+            DirectionProbability: upProb,
+            DownProbability: downProb,
+            DirectionEdge: directionEdge,
+            VolExpansionProbability: volExpansionProb,
+            PatternBuys: patternHints.Count(h => h == TradeDirection.Buy),
+            PatternCount: patternSignals.Count,
+            Trend30Confirmed: trend30Confirmed,
+            MaCrossoverConfirmed: maCrossoverConfirmed,
+            Signals: patternSignals.Concat(profitSignals).ToList());
+    }
+
+    /// <summary>
+    /// Applies one lens's gate stack to an already-computed candidate score.
+    /// A fresh context keeps each lens's gate trace isolated.
+    /// </summary>
+    private TradeDecisionResult Evaluate(CandidateScore score, TradePipeline pipeline)
+    {
+        ArgumentNullException.ThrowIfNull(pipeline);
+
         var gateContext = new GateContext
         {
             Regime = CurrentRegime,
@@ -195,32 +253,30 @@ public class TradeDecisionEngine
             BreadthVetoThreshold = Config.BreadthVetoThreshold,
             RequireBenchmarkUptrend = Config.RequireBenchmarkUptrend,
             GranvilleForecast = GranvilleForecast,
-            BreakoutProb = breakoutProb,
-            UpProb = upProb,
-            DownProb = downProb,
-            DirectionEdge = directionEdge,
-            CompositeScore = composite,
-            VolExpansionProb = volExpansionProb,
-            PatternBuys = patternHints.Count(h => h == TradeDirection.Buy),
-            PatternCount = patternSignals.Count,
-            Trend30Confirmed = trend30Confirmed,
-            MaCrossoverConfirmed = maCrossoverConfirmed
+            BreakoutProb = score.BreakoutProbability,
+            UpProb = score.DirectionProbability,
+            DownProb = score.DownProbability,
+            DirectionEdge = score.DirectionEdge,
+            CompositeScore = score.CompositeScore,
+            VolExpansionProb = score.VolExpansionProbability,
+            PatternBuys = score.PatternBuys,
+            PatternCount = score.PatternCount,
+            Trend30Confirmed = score.Trend30Confirmed,
+            MaCrossoverConfirmed = score.MaCrossoverConfirmed
         };
 
         var direction = pipeline.Evaluate(gateContext);
 
-        var allSignals = patternSignals.Concat(profitSignals).ToList();
-
         return new TradeDecisionResult(
             Direction: direction,
             ExpectedReturn: 0,
-            Confidence: composite,
-            CompositeScore: composite,
-            DirectionProbability: upProb,
-            DownProbability: downProb,
-            DirectionEdge: directionEdge,
+            Confidence: score.CompositeScore,
+            CompositeScore: score.CompositeScore,
+            DirectionProbability: score.DirectionProbability,
+            DownProbability: score.DownProbability,
+            DirectionEdge: score.DirectionEdge,
             PositionSize: null,
-            Signals: allSignals,
+            Signals: score.Signals,
             GateTrace: gateContext.Trace);
     }
 
@@ -310,14 +366,60 @@ public class TradeDecisionEngine
         Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
         int topN = 10)
     {
-        var picks = new List<RankedPick>();
+        ArgumentNullException.ThrowIfNull(lens);
+        ArgumentNullException.ThrowIfNull(symbolBars);
 
-        foreach (var (symbol, history) in symbolBars)
+        var scoredCandidates = ScoreUniverse(symbolBars);
+        return EvaluateAndRank(lens, scoredCandidates, topN);
+    }
+
+    /// <summary>
+    /// Scores the universe once, then applies and ranks every requested lens over
+    /// the same immutable candidate facts. This is ADR-0013's score-once boundary.
+    /// </summary>
+    public IReadOnlyDictionary<RankingLens, IReadOnlyList<RankedPick>> EvaluateAndRank(
+        IReadOnlyList<LensDefinition> lenses,
+        Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,
+        int topN = 10)
+    {
+        ArgumentNullException.ThrowIfNull(lenses);
+        ArgumentNullException.ThrowIfNull(symbolBars);
+
+        if (lenses.Count == 0)
+            return new Dictionary<RankingLens, IReadOnlyList<RankedPick>>();
+
+        var duplicateLens = lenses
+            .GroupBy(lens => lens.Lens)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateLens is not null)
+            throw new ArgumentException($"Lens '{duplicateLens.Key}' was requested more than once.", nameof(lenses));
+
+        var scoredCandidates = ScoreUniverse(symbolBars);
+        return lenses.ToDictionary(
+            lens => lens.Lens,
+            lens => (IReadOnlyList<RankedPick>)EvaluateAndRank(lens, scoredCandidates, topN));
+    }
+
+    private List<ScoredCandidate> ScoreUniverse(
+        Dictionary<string, IReadOnlyList<DailyBar>> symbolBars) =>
+        symbolBars
+            .Select(pair => new ScoredCandidate(pair.Key, Score(pair.Value)))
+            .ToList();
+
+    private List<RankedPick> EvaluateAndRank(
+        LensDefinition lens,
+        IReadOnlyList<ScoredCandidate> scoredCandidates,
+        int topN)
+    {
+        var picks = new List<RankedPick>(scoredCandidates.Count);
+
+        foreach (var candidate in scoredCandidates)
         {
-            var result = Evaluate(history, lens.Pipeline);
+            var result = Evaluate(candidate.Score, lens.Pipeline);
 
             picks.Add(new RankedPick(
-                Symbol: symbol,
+                Symbol: candidate.Symbol,
                 Direction: result.Direction,
                 ExpectedReturn: result.ExpectedReturn,
                 Confidence: result.Confidence,
@@ -340,6 +442,21 @@ public class TradeDecisionEngine
             .Take(topN)
             .ToList();
     }
+
+    private sealed record ScoredCandidate(string Symbol, CandidateScore Score);
+
+    private sealed record CandidateScore(
+        double CompositeScore,
+        double BreakoutProbability,
+        double DirectionProbability,
+        double DownProbability,
+        double DirectionEdge,
+        double VolExpansionProbability,
+        int PatternBuys,
+        int PatternCount,
+        bool Trend30Confirmed,
+        bool MaCrossoverConfirmed,
+        IReadOnlyList<SignalResult> Signals);
 
     public List<SizedPick> EvaluateRankAndSize(
         Dictionary<string, IReadOnlyList<DailyBar>> symbolBars,

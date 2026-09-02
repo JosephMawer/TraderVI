@@ -807,8 +807,12 @@ public sealed class DelphiWorkflow
             // triple. The Continuations lens (RS-primary, trend-confirmation gate) DRIVES the
             // executed recommendation (B1). The Breakouts lens (edge+RS, breakout setup gate)
             // is computed for supplemental awareness and JOURNALED only (B3) -- never executed.
-            var continuationEvaluations = engine.EvaluateAndRank(continuationLens, allBars, topN: allBars.Count);
-            var breakoutEvaluations = engine.EvaluateAndRank(breakoutLens, allBars, topN: allBars.Count);
+            var lensEvaluations = engine.EvaluateAndRank(
+                [continuationLens, breakoutLens],
+                allBars,
+                topN: allBars.Count);
+            var continuationEvaluations = lensEvaluations[RankingLens.Continuation];
+            var breakoutEvaluations = lensEvaluations[RankingLens.Breakout];
             var top = continuationEvaluations.Take(topPicksToSave).ToList();
             var breakoutTop = breakoutEvaluations.Take(topPicksToSave).ToList();
             var (bestPick, size) = engine.EvaluateBestPickAllIn(top, availableCapital);

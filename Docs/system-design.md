@@ -105,6 +105,11 @@ Each ML model uses a **feature builder** to convert a window of daily bars into 
 
 Before shared and lens-specific gates, Delphi establishes the latest XIU bar as the canonical completed TSX session and removes any symbol whose newest bar is from a different date. This pre-scoring invariant prevents stale bars from reaching relative strength, OBV, models, or ranking (ADR-0019).
 
+`TradeDecisionEngine` then evaluates every pattern and trained profit model exactly once per eligible symbol.
+The resulting composite, probabilities, direction edge, pattern facts, and signal list are shared unchanged
+across lenses; each lens receives a fresh gate context and applies only its own gate stack and ranking key
+(ADR-0013).
+
 Shared gates: regime → A/D breadth → Granville → down-probability veto.
 
 The setup stage then diverges by lens:

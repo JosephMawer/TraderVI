@@ -12,7 +12,7 @@ namespace Core.ML.Engine.Profit;
 /// Runtime signal model for profit predictions.
 /// Handles regression, 3-way classification, and binary event models.
 /// </summary>
-public class UnifiedProfitSignalModel : IStockSignalModel
+public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
 {
     private static readonly MLContext MlContext = new();
 

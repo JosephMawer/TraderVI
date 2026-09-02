@@ -100,6 +100,25 @@ Breakouts lens writes picks only.
 - A future thesis genuinely needs lens-specific *scoring*, breaking the
   shared-scoring contract this ADR locks in.
 
+## Implementation correction (2026-09-02)
+
+Static review found that Delphi called the one-lens `EvaluateAndRank` path twice, which recomputed every
+pattern and trained-model prediction for both lenses. A profit model was also invoked twice inside each
+individual scoring pass: once for role-based composite calculation and again for the reported signal list.
+The resulting values were expected to be deterministic, but the implementation violated this ADR's
+explicit score-once boundary and increased both cost and drift risk.
+
+`TradeDecisionEngine` now separates a lens-independent candidate score from lens-specific gate application.
+Its multi-lens entry point scores the universe once, reuses the exact score and signal facts for each lens,
+and creates a fresh gate context so traces remain independent. Delphi uses that entry point for Continuation
+and Breakout. The retained one-lens APIs remain available for callers that intentionally evaluate one lens.
+
+Direct characterization tests prove that every pattern and profit model is invoked once per symbol across
+both lenses, both lenses receive identical composite/probability/edge/signal facts, their gate traces remain
+independent, and their documented ranking keys can still produce different orderings. This correction does
+not change a threshold, model, signal value, gate, ranking formula, persistence shape, or publication policy;
+it therefore stays within the active strategy identity and requires no database migration.
+
 ## Review questions
 
 1. Define "lens" as used in TraderVI, and name the three components of the triple.

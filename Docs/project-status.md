@@ -32,8 +32,8 @@ Climax (CLX) reporting, and read-only desktop documentation and scorecard surfac
 
 - Active branch: `master`, with upstream `origin/master` configured.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
-- Complete Release solution build: successful for ADR-0043 source and prepared migration 017 using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
-- Core tests: 202 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-02. The test project is now explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
+- Complete Release solution build: successful after the ADR-0013 score-once restoration using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
+- Core tests: 204 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-02. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
 - Migration 017 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. The final canonical SQL project and complete Release solution both build successfully after the strengthened identity constraint; neither build deployed the DACPAC.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -86,6 +86,7 @@ These are rule-based detectors evaluated directly in code, not trained ML models
 
 - **Continuation** is the executed lens. It requires trend confirmation and ranks primarily by live relative strength plus the OBV tilt.
 - **Breakout** is journaled as a comparison lens. It retains the breakout setup gate and ranks by `DirectionEdge + relative strength + OBV tilt`.
+- Delphi now scores every symbol once and applies both lens gate/rank definitions to those exact shared facts. Profit-model results are also reused for composite calculation and reporting instead of invoking each model twice inside one score.
 - CLX is diagnostic-only in v1; it does not gate or rank candidates.
 
 ### Active Granville groups
@@ -245,5 +246,5 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 5. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
    prices; do not reopen closed Ghost lifecycles.
 6. Observe additional Hermes backups and perform a test restore.
-7. Continue the stabilization order with ADR-0013's score-once contract, then canonical SQL/repository drift,
-   transaction boundaries, and CI before larger workflow extraction.
+7. Continue the stabilization order with canonical SQL/repository drift, then transaction boundaries and CI
+   before larger workflow extraction.
