@@ -1,5 +1,6 @@
 #nullable enable
 
+using Core.Db;
 using Core.Trader;
 using Shouldly;
 using System;
@@ -10,6 +11,43 @@ namespace TraderVI.Core.Tests;
 
 public sealed class TrackedExecutionModeTests
 {
+    [Theory]
+    [InlineData(TrackedExecutionMode.Ghost, true, true)]
+    [InlineData(TrackedExecutionMode.Real, true, true)]
+    [InlineData(TrackedExecutionMode.Real, false, true)]
+    [InlineData(TrackedExecutionMode.Ghost, false, false)]
+    public void PositionScope_IncludesLinkedPositionsAndUnlinkedRealHoldings(
+        TrackedExecutionMode executionMode,
+        bool hasOriginalPick,
+        bool expected)
+    {
+        var position = new ActivePositionInfo
+        {
+            ExecutionMode = executionMode,
+            OriginalPickId = hasOriginalPick ? Guid.NewGuid() : null
+        };
+
+        TrackedPositionScope.Includes(position).ShouldBe(expected);
+    }
+
+    [Theory]
+    [InlineData(TrackedExecutionMode.Ghost, true, true)]
+    [InlineData(TrackedExecutionMode.Real, true, true)]
+    [InlineData(TrackedExecutionMode.Real, false, false)]
+    public void FreshDelphiLossException_RequiresOriginalPickProvenance(
+        TrackedExecutionMode executionMode,
+        bool hasOriginalPick,
+        bool expected)
+    {
+        var position = new ActivePositionInfo
+        {
+            ExecutionMode = executionMode,
+            OriginalPickId = hasOriginalPick ? Guid.NewGuid() : null
+        };
+
+        TrackedPositionScope.AllowsFreshDelphiLossException(position).ShouldBe(expected);
+    }
+
     [Fact]
     public void GhostPosition_CanAutoExitWhenEnabledAndPolicyAlerts()
     {

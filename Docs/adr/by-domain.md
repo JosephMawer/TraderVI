@@ -30,6 +30,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
+- [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
+- [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
+- [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 
 ## data-pipeline
 
@@ -52,6 +55,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
+- [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
+- [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
+- [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 
 ## data-sources
 
@@ -59,6 +65,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy
 - [ADR-0030](0030-intraday-evidence-and-poll-audit-ledger.md) — Intraday evidence and poll-audit ledger
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
+- [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 
 ## machine-learning
 
@@ -108,6 +115,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
+- [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
+- [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 
 ## risk-management
 
@@ -133,6 +142,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0037](0037-operator-confirmed-delphi-paper-entry.md) — Operator-confirmed Delphi pick to paper position
 - [ADR-0039](0039-unified-ghost-real-dashboard-and-scorecard-workspace.md) — Unified Ghost/Real dashboard and scorecard workspace
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
+- [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
+- [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
+- [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 
 ## decision-engine
 
@@ -162,6 +174,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
+- [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 
 ## math-statistics
 

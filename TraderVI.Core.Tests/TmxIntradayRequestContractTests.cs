@@ -135,7 +135,7 @@ public sealed class TmxIntradayRequestContractTests
     }
 
     [Fact]
-    public void ChunkWindows_UseFiveDayBoundariesAndMinutePrecision()
+    public void ChunkWindows_UseNonOverlappingFiveDayBoundariesAndMinutePrecision()
     {
         IReadOnlyList<IntradayRequestWindow> windows =
             TmxClient.BuildIntradayRequestWindows(
@@ -146,14 +146,17 @@ public sealed class TmxIntradayRequestContractTests
         {
             new IntradayRequestWindow(
                 new DateTime(2026, 5, 28, 13, 30, 0, DateTimeKind.Utc),
-                new DateTime(2026, 6, 2, 13, 30, 0, DateTimeKind.Utc)),
+                new DateTime(2026, 6, 2, 13, 29, 0, DateTimeKind.Utc)),
             new IntradayRequestWindow(
                 new DateTime(2026, 6, 2, 13, 30, 0, DateTimeKind.Utc),
-                new DateTime(2026, 6, 7, 13, 30, 0, DateTimeKind.Utc)),
+                new DateTime(2026, 6, 7, 13, 29, 0, DateTimeKind.Utc)),
             new IntradayRequestWindow(
                 new DateTime(2026, 6, 7, 13, 30, 0, DateTimeKind.Utc),
                 new DateTime(2026, 6, 9, 14, 0, 0, DateTimeKind.Utc))
         });
+
+        for (int index = 1; index < windows.Count; index++)
+            windows[index - 1].EndUtc.AddMinutes(1).ShouldBe(windows[index].StartUtc);
     }
 
     [Fact]

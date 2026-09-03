@@ -48,6 +48,7 @@ public sealed class PaperTradingMonitor
 {
     public const int SourceIntervalMinutes = 5;
     public const int PolicyIntervalMinutes = 15;
+    public const int ScheduleIntervalMinutes = 5;
 
     private static readonly TimeZoneInfo TorontoTimeZone =
         TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
@@ -71,7 +72,7 @@ public sealed class PaperTradingMonitor
 
             List<ActivePositionInfo> positions =
                 (await new ActivePositionRepository().GetActivePositions())
-                .Where(position => position.OriginalPickId.HasValue)
+                .Where(TrackedPositionScope.Includes)
                 .OrderBy(position => position.Symbol)
                 .ToList();
 
@@ -176,7 +177,7 @@ public sealed class PaperTradingMonitor
         bool executeGhostExits,
         CancellationToken cancellationToken)
     {
-        TradeLogInfo entryTrade = await GetEntryTradeAsync(position.Symbol);
+        TradeLogInfo entryTrade = await GetEntryTradeAsync(position);
         DateTime entryUtc = DateTime.SpecifyKind(entryTrade.CreatedUtc, DateTimeKind.Utc);
         DateTime requestStartUtc = ToUtc(
             ToToronto(entryUtc).Date.AddHours(9).AddMinutes(30));
@@ -235,7 +236,8 @@ public sealed class PaperTradingMonitor
         IReadOnlyList<FreshDelphiBreakoutEvidenceSnapshot> breakoutTimeline =
             Array.Empty<FreshDelphiBreakoutEvidenceSnapshot>();
         string? evidenceWarningCode = null;
-        if (policyBars.Count > 0)
+        if (policyBars.Count > 0 &&
+            TrackedPositionScope.AllowsFreshDelphiLossException(position))
         {
             try
             {
@@ -463,17 +465,18 @@ public sealed class PaperTradingMonitor
             state.LastTradingSessionOrdinal);
     }
 
-    private static async Task<TradeLogInfo> GetEntryTradeAsync(string symbol)
+    private static async Task<TradeLogInfo> GetEntryTradeAsync(ActivePositionInfo position)
     {
         List<TradeLogInfo> trades = await new TradeLogRepository()
-            .GetTradesBySymbol(symbol);
+            .GetTradesBySymbol(position.Symbol);
         return trades
             .Where(trade =>
+                trade.PositionId == position.PositionId &&
                 string.Equals(trade.TradeType, "BUY", StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(trade => trade.CreatedUtc)
             .FirstOrDefault()
             ?? throw new InvalidOperationException(
-                $"No BUY trade exists for active position {symbol}.");
+                $"No attached BUY trade exists for active position {position.Symbol}.");
     }
 
     private static async Task TryAppendFailureAsync(
@@ -587,7 +590,7 @@ public sealed class PaperTradingMonitor
             DateTimeKind.Unspecified);
         DateTime candidate = hour.AddMinutes(2);
         while (candidate <= localNow)
-            candidate = candidate.AddMinutes(PolicyIntervalMinutes);
+            candidate = candidate.AddMinutes(ScheduleIntervalMinutes);
 
         DateTime firstRegularPoll = localNow.Date.AddHours(9).AddMinutes(47);
         return candidate < firstRegularPoll ? firstRegularPoll : candidate;

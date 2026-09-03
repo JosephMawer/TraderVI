@@ -4,6 +4,7 @@
 - **Date:** 2026-08-28
 - **Domains:** architecture, data-pipeline, market-microstructure, risk-management
 - **Related:** ADR-0015, ADR-0021, ADR-0031, ADR-0032, ADR-0037, ADR-0038
+- **Extended by:** ADR-0044, which includes unlinked operator-reported Real holdings in the dashboard and monitor without granting Delphi provenance
 
 ## Context
 

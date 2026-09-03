@@ -53,6 +53,8 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Observe the first market-hours durable dashboard cycle: the 2026-08-27 09:47 Toronto cycle persisted valid receipts and completed evidence for NDM/ALK; no exit rule triggered.
 - [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
 - [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
+- [x] Add ADR-0044's honest scope for historical Real holdings: display and monitor unlinked Real rows, keep unlinked Ghost rows excluded, deny the fresh-Delphi loss exception without original-pick provenance, and retain manual-only Real exits.
+- [x] Add ADR-0045's five-minute WPF collection cadence while retaining completed 15-minute policy bars, and replace overlapping wide TMX chunks with minute-contiguous request windows that cannot ask for the same boundary bar twice.
 - [x] Accept ADR-0040's reconstructible delayed-intraday fill contract, add the pure calculator, and make future WPF monitor cycles collect aligned XIU five-/fifteen-minute evidence once per cycle.
 - [x] Complete ADR-0040 in source with immutable-evidence queries, Athena persistence, separate raw/sensitivity lens reports, and guarded migration 015; leave migration application and Athena execution as explicit operational steps.
 - [x] Add ADR-0040's continuity guard so proven missing policy sessions/bars, receipt-order conflicts, and missing exact fill bars are audited invalid rather than silently bridged; preserve pending for an unproven tail.
@@ -61,7 +63,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Review, back up, manually apply, and verify migration 013 with explicit authorization; preserve all legacy rows as Ghost and verify the empty immutable execution audit.
 - [x] Close the EDR reconciliation decision without changing its audited Ghost history: on 2026-08-28 the operator chose not to add a separate `REAL / TFSA` row because EDR is no longer in the current Delphi picks. The broker holding remains outside TraderVI unless deliberately re-entered from a future saved pick.
 - [x] Verify the five-share EDR Ghost position joins a valid scheduled durable cycle and observe its automatic $15.62 `Policy TrailingProfit` exit end to end.
-- [ ] Record enough forecast/pick outcomes to compare changes against a stable baseline. Collection has begun with 112 valid three-session marks and 112 valid excursions across a ledger of 7 official runs/5 market-data cohorts; longer prediction and delayed-intraday outcomes are still unavailable.
+- [ ] Record enough forecast/pick outcomes to compare changes against a stable baseline. Collection has begun with 112 valid three-session marks and 112 valid excursions across a ledger of 8 official runs/6 market-data cohorts and 1,729 candidates; longer prediction and delayed-intraday outcomes are still unavailable.
 - [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
 - [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
 - [x] Triage the full-audit candidates using official sources and apply only reviewed manual corrections; final audit passed with zero findings on 2026-08-22.
@@ -102,9 +104,17 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   No DACPAC deployment or application workflow ran.
 - [x] After migration 017, run Hermes once after market close and inspect the newest `LeadershipData` row
   and post-success backup. The 2026-09-01 row preserved unavailable movers breadth as null, the constraint
-  remained enabled/trusted, and both backup copies independently hash-matched. Run Delphi only when a
-  deliberate new official `v3.2` cohort is wanted. Athena remains evidence-driven and does not repair or
-  initialize leadership data.
+  remained enabled/trusted, and both backup copies independently hash-matched. Athena remains evidence-driven
+  and does not repair or initialize leadership data.
+- [x] Run the first deliberate official `v3.2-leadership-missingness` Delphi cohort. The 2026-09-02 run is
+  valid against market data through 2026-09-01 and persisted 219 candidates, 438 lens rows, and 50 published
+  picks; the ledger now contains 8 runs across 6 distinct market-data cohorts and 1,729 candidates.
+- [x] Complete fresh post-2026-08-28 SGY/XIU market-hours evidence. The 2026-09-02 09:47 and 10:02 cycles
+  produced valid XIU and historical-Real receipts, but SGY failed because adjacent five-day chunks returned
+  conflicting values for their shared 09:30 boundary bar. ADR-0045 removes the overlap and the corrected
+  read-only production-window probe succeeded. The rebuilt WPF app then stored six valid collector-v2
+  receipts at both 10:22 and 10:27, proving SGY recovery and the five-minute runtime cadence. Athena remains
+  a separate evidence-driven run.
 - [x] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
   before adding another lens. Delphi now computes one shared candidate score per symbol, applies independent
   Continuation/Breakout gates and ranking over it, and reuses each profit-model prediction for both composite
@@ -121,6 +131,9 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 - [ ] Introduce immutable Delphi evaluation facts and typed load/evaluate/evidence/publish stages while
   preserving ADR-0035 presentation compatibility.
 - [ ] Separate Hermes completion semantics and Hercules training/evaluation/artifact-promotion responsibilities.
+- [x] Add ADR-0046's guarded weekday operations runner: latest-source Release preflight, source-stability
+  and per-run artifact validation, single-instance and same-date guards, explicit stage exit semantics,
+  Windows Task Scheduler hosting, atomic local status, and read-only Codex failure supervision.
 - [ ] Phase in clearer module boundaries, nullable/analyzer enforcement, dormant-code removal, and public-surface
   reduction after the consequential seams above are protected.
 

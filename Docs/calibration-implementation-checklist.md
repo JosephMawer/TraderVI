@@ -19,7 +19,7 @@
 
 ## Current milestone
 
-The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 7 official runs across 5 market-data cohorts and 1,510 candidates. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; `v3.2-leadership-missingness` is solely active. The first post-migration Hermes run stored a 2026-09-01 observation with unavailable movers breadth kept null and produced a checksum-verified, hash-matched backup copy. Athena does not collect or repair leadership inputs. Durable SGY/XIU intraday evidence still ends on 2026-08-28, so a future market-hours WPF collection cycle remains a separate operational prerequisite. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
+The immutable calibration ledger, prediction evaluator, coverage scorecard, three-session marks/excursions, and separate Continuation/Breakout scorecards are complete in source. Migration 015 is applied and all five definitions are active. The verified ledger contains 8 official runs across 6 market-data cohorts and 1,729 candidates. The first deliberate `v3.2-leadership-missingness` cohort is valid for recommendation date 2026-09-02 using market data through 2026-09-01; it added 219 candidates, 438 lens rows, and 50 published picks. Athena has written 112 valid matured three-session marks and 112 valid matured excursion outcomes; 10-session labels, 20-session paths, and delayed-intraday outcomes remain at zero. ADR-0040 now includes a continuity guard: proven policy/fill gaps and receipt-order conflicts become audited invalid outcomes, while an unproven end-of-data tail remains pending. ADR-0043 and migration 017 are applied and verified; v3.2 is solely active. The first post-migration Hermes run stored a 2026-09-01 observation with unavailable movers breadth kept null and produced a checksum-verified, hash-matched backup copy. Athena does not collect or repair leadership inputs. ADR-0045 fixes SGY's overlapping wide-request boundary and introduces `IntradayEvidenceCollectorV2` with five-minute collection while retaining completed 15-minute policy bars. The rebuilt WPF app produced six valid SGY/XIU/historical-Real receipts at both 10:22 and 10:27, verifying the five-minute runtime cadence and completing the fresh market-hours evidence prerequisite. Athena has not yet been rerun against that evidence. ADR-0039 separately preserves operator-reported Real fills as operational truth; those fills never become official Athena outcomes. Any automatic first-checkpoint entry policy also remains incomplete.
 
 ## Phase A — measurement contract and decisions
 
@@ -139,8 +139,10 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   reported BLKY and RCTR as no-data without failing, and produced
   `TraderDB_FULL_20260902_013547_367.bak`; both 37,552,640-byte copies matched SHA-256
   `B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`.
-- [ ] Run Delphi only when a deliberate official `v3.2-leadership-missingness` cohort is wanted. Run Athena
-  later only when eligible outcomes have matured; Athena does not repair leadership data.
+- [x] **Operational step:** run the first deliberate official `v3.2-leadership-missingness` cohort. The
+  2026-09-02 run is valid against market data through 2026-09-01 and persisted 219 candidates, 438 lens
+  rows, and 50 published picks. Run Delphi again only for another deliberate cohort. Run Athena later only
+  when eligible outcomes have matured; Athena does not repair leadership data.
 - [ ] For the original migration-011 rollout, a fresh immediately pre-migration backup was not
   independently observed; the newest recorded backup before that discovered schema application was the
   valid 2026-08-22 full backup.
@@ -208,7 +210,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Run the TSX market-hours probe on 2026-08-26: five calls completed without a surfaced transport failure and advanced completed XIU events exactly once per poll, while every newer forming bar was revised before completion.
 - [x] Verify lower resolutions with the read-only comparison probe: 1-, 5-, and 15-minute bars exist and each response includes a newer forming bar; five- and fifteen-minute sequences stayed gap-free, while the longer one-minute response developed two- and three-minute gaps.
 - [x] Verify deterministic aggregation: all nine comparable completed fifteen-minute XIU bars exactly matched the OHLCV reconstructed from their three completed five-minute bars.
-- [x] Accept completed five-minute bars as the version-1 evidence resolution while retaining the confirmed fifteen-minute polling cadence.
+- [x] Accept completed five-minute bars as the version-1 evidence resolution while retaining completed 15-minute policy bars. ADR-0045 later separates the five-minute collection schedule from the unchanged policy-bar interval.
 - [x] Add and test deterministic completed-five-minute to fifteen-minute aggregation that refuses incomplete three-bar groups.
 - [x] Define the immutable completed-bar and per-request poll-audit ledger in ADR-0030, independent from positions and official outcomes.
 - [x] Add canonical `IntradayPollObservation` and `IntradayEvidenceBar` definitions plus the single additive `20260826_012_AddIntradayEvidenceLedger.sql` migration; do not mix interval bars into `DailyBars` or legacy `Quotes`.
@@ -222,7 +224,7 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
 - [x] Record the authorized CMG, EDR, and OGI ghost exits through TraderVI; realized pilot P/L is currently -$0.01, with NDM and ALK still active.
 - [x] Replace the replay-only pilot with a shared durable collector-backed monitor that writes poll receipts/completed evidence before exposing decisions.
 - [x] Add ADR-0031 database-guarded automatic ghost exits at a separately observed post-detection TMX price; this can never place a broker order.
-- [x] Add the ADR-0032 live WPF paper dashboard with 15-minute scheduled market polling, positions, P/L, trade history, and durable receipt history.
+- [x] Add the ADR-0032 live WPF paper dashboard with scheduled market polling, positions, P/L, trade history, and durable receipt history; ADR-0045 later reduces collection to five minutes while retaining 15-minute policy bars.
 - [x] Apply ADR-0033's thirty-second SQL display refresh without changing five-minute evidence collection or fifteen-minute policy decisions.
 - [x] Add the first tabbed-shell vertical slice: Paper Trading plus a read-only Data Audit tab backed by the same shared workflow as the retained DataAudit CLI.
 - [x] Extract Delphi into one shared workflow and add an ADR-0034 desktop tab that reads saved lenses without running, then requires explicit confirmation for an official run.
@@ -246,7 +248,10 @@ The immutable calibration ledger, prediction evaluator, coverage scorecard, thre
   - [x] Reject proven 15-minute bar/session gaps, receipt-order conflicts, and missing exact symbol/XIU fill bars as audited invalid outcomes; leave only unproven tails pending.
   - [x] **Operational step:** the operator applied migration 015 and read-only inspection verified the fifth active definition on 2026-09-01. A corresponding backup was not independently verified.
   - [x] **Operational step:** run Athena and verify 112 valid matured `SwingMarkToMarket3` plus 112 valid matured `SwingExcursion3` outcomes; prediction and delayed-intraday outcomes remain at zero.
-  - [ ] **Operational step:** observe a new WPF market-hours collection after 2026-08-28 with fresh SGY/XIU five-/fifteen-minute receipts, then rerun Athena when delayed evidence can advance.
+  - [x] **Operational step:** observe a new WPF market-hours collection after 2026-08-28 with fresh SGY/XIU
+    five-/fifteen-minute receipts. The 09:47 and 10:02 cycles exposed SGY's overlapping-chunk conflict;
+    ADR-0045 fixed the request windows, and the rebuilt app stored six valid receipts at both 10:22 and
+    10:27 under collector v2. Rerun Athena separately when eligible delayed evidence should be evaluated.
 - [ ] Keep opening confirmation and intraday wave execution as separately scored challengers; do not activate either without evidence and human approval.
 
 ## Phase E — shadow portfolios

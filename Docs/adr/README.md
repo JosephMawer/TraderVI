@@ -81,6 +81,9 @@ architecture documentation.
 | [0041](0041-date-aligned-relative-strength-inputs.md) | Date-aligned relative-strength inputs | Accepted | decision-engine, data-pipeline, time-series, technical-indicators |
 | [0042](0042-strategy-code-identity-and-scoped-official-evidence.md) | Strategy/code identity and scoped official evidence | Accepted | architecture, data-pipeline, decision-engine, math-statistics |
 | [0043](0043-preserve-leadership-source-missingness.md) | Preserve leadership-source missingness | Accepted | data-pipeline, data-sources, decision-engine, technical-indicators |
+| [0044](0044-unlinked-real-position-monitoring.md) | Unlinked Real position monitoring | Accepted | architecture, data-pipeline, market-microstructure, risk-management |
+| [0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) | Five-minute collection and non-overlapping intraday chunks | Accepted | architecture, data-pipeline, data-sources, market-microstructure, risk-management |
+| [0046](0046-guarded-nightly-operations-runner.md) | Guarded nightly operations runner | Accepted | architecture, data-pipeline, decision-engine, risk-management |
 
 See also:
 

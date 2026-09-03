@@ -33,6 +33,51 @@ Never publish the DACPAC. `TraderDB.sqlproj` targets SQL Server 2019 for build-t
 
 After a successful Hermes data update, Hermes automatically creates and verifies a full database backup, then copies it to the approved OneDrive destination with SHA-256 verification. `TraderDB/Operations/Backup-TraderDB.sql` remains the manual fallback and the pre-migration backup tool.
 
+## Guarded nightly pipeline
+
+ADR-0046 schedules one deterministic pipeline at 00:30 Toronto/Eastern time every Monday through Friday:
+Hermes, then Delphi, then Athena. Running after midnight gives Delphi the new recommendation date while it
+uses the prior completed TSX session. This schedule is recurring authorization for these exact three
+programs and their documented effects; it grants no authority to train models, apply migrations, deploy a
+database, run Sandbox probes, start WPF monitoring, invoke Oracle, or place a broker order.
+
+Install the Windows task once, or rerun the installer when changing its schedule or task settings:
+
+```powershell
+./Operations/Install-TraderVINightlyTask.ps1
+```
+
+The task invokes the repository runner and configuration directly. At every scheduled start, the runner
+fingerprints the current tracked and untracked non-ignored source, builds the three focused projects in
+Release with no restore and no incremental compilation, verifies that the source did not change during the
+build, and hashes each resulting output directory. Each stage's output is verified again immediately before
+execution. Therefore source and runner edits apply on the next run without reinstalling the task. A build
+failure or concurrent source edit stops before Hermes, Delphi, or Athena starts. Dependency restores remain
+a separate reviewed operation; run an appropriate `dotnet restore` before night when package references or
+restore inputs change.
+
+The task uses the current user's interactive token, stores no Windows password, wakes the computer, and
+starts when available; the user must remain signed in.
+
+Read the latest status without starting any operational program:
+
+```powershell
+./Operations/Get-TraderVINightlyStatus.ps1 -IncludeLogTail
+```
+
+The runner writes atomic `status.json` state and per-run logs beneath
+`%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all three stages passed.
+`Attention` includes Athena exit code 2 or degraded Delphi provenance. `Failed` includes build failures,
+source changes during preflight, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
+provenance, or any unexpected exit code. Hermes failure stops later stages; Delphi failure
+does not prevent Athena from maturing earlier evidence. Neither the runner nor Task Scheduler retries a
+failed pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
+`-Force` after reviewing it.
+
+The weekday Codex supervisor is read-only. It may inspect `status.json` and its referenced log, explain a
+problem, and recommend the next safe action. It must not launch or retry a program, modify SQL, call a market
+service, or repair data.
+
 ## DataAudit — read-only local data-quality scan
 
 **Project:** `DataAudit`
@@ -173,7 +218,7 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 **Project:** `TraderVI.WPF`
 **Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
 
-The WPF app is the tabbed interactive TraderVI shell. Its Tracked positions area shows open Delphi-linked positions only; completed lifecycles remain available in Trade history. The tab also shows separate Ghost/Real realized and unrealized P/L plus durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then on the 15-minute schedule after each completed policy bar. Outside that window it is history-only and makes no TMX request.
+The WPF app is the tabbed interactive TraderVI shell. Its Tracked positions area shows open Delphi-linked positions plus operator-reported Real holdings that were enrolled without a Delphi pick; completed lifecycles remain available in Trade history. Unlinked Real holdings are labelled as historical, begin durable monitoring at their enrollment time, and cannot receive the fresh-Delphi loss exception. Unlinked Ghost rows remain excluded. The tab also shows separate Ghost/Real realized and unrealized P/L plus durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then collects every five minutes from the first safe 09:47 poll through 16:02. The exit policy still consumes only completed 15-minute bars; intermediate collection ticks do not create five-minute policy decisions. Outside that window it is history-only and makes no TMX request.
 
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
@@ -244,7 +289,8 @@ dotnet run --project Athena
 dotnet run --project Athena -- --scorecard-csv C:\path\to\an-empty-export-directory
 ```
 
-Athena is manual in the initial release and is not launched by Hermes or Delphi.
+Athena remains independently runnable, and ADR-0046 also invokes it as the final stage of the guarded
+weekday pipeline. Hermes and Delphi do not launch it directly.
 
 ## Oracle — LLM narration
 

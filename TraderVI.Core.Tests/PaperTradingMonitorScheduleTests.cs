@@ -8,10 +8,12 @@ public sealed class PaperTradingMonitorScheduleTests
 {
     [Theory]
     [InlineData(9, 31, 9, 47)]
-    [InlineData(9, 32, 9, 47)]
+    [InlineData(9, 46, 9, 47)]
+    [InlineData(9, 47, 9, 52)]
     [InlineData(15, 46, 15, 47)]
-    [InlineData(15, 47, 16, 2)]
-    public void NextScheduledPollLocal_UsesQuarterHourPlusTwoMinutes(
+    [InlineData(15, 47, 15, 52)]
+    [InlineData(16, 1, 16, 2)]
+    public void NextScheduledPollLocal_UsesFiveMinuteCadenceAfterFirstSafePoll(
         int hour,
         int minute,
         int expectedHour,

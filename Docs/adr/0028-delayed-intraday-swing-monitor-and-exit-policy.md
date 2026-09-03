@@ -1,5 +1,8 @@
 # ADR-0028: Delayed intraday swing monitor and exit policy
 
+**Extended by:** ADR-0045 distinguishes five-minute evidence collection from the unchanged completed
+15-minute policy-event cadence and makes wide TMX chunk requests non-overlapping.
+
 - **Status:** Accepted
 - **Date:** 2026-08-25
 - **Domains:** architecture, data-sources, market-microstructure, risk-management

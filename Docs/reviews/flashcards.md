@@ -12,6 +12,18 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why may TraderVI monitor an unlinked Real holding while excluding an unlinked Ghost row?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0044
+
+**A:** A Real row represents a broker holding the operator says already exists, so hiding it would defeat actual-capital supervision. A Ghost row is experimental evidence and still requires a saved Delphi pick so its provenance cannot be invented or lost.
+
+### Q: Why can an unlinked Real holding not receive the fresh-Delphi loss exception?
+- **Domains:** data-pipeline, market-microstructure, risk-management
+- **Source:** ADR-0044
+
+**A:** The exception requires original-pick provenance plus a newer qualifying official Breakout publication. An unlinked holding cannot prove that chain, so it receives the ordinary conservative loss policy and remains manual-exit only.
+
 ### Q: Why are Granville indicators implemented as per-category classes rather than one big class?
 - **Domains:** architecture, technical-indicators
 - **Source:** ADR-0001
@@ -463,7 +475,7 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Domains:** architecture, data-sources, risk-management
 - **Source:** ADR-0028
 
-**A:** No. Bar resolution controls how precisely the observed path is represented; polling cadence controls how often TraderVI asks for updates. The confirmed v1 cadence remains fifteen minutes. Completed five-minute storage is accepted because it remained gap-free and reproduced all nine comparable fifteen-minute bars exactly; one-minute evidence showed gaps.
+**A:** No. Bar resolution controls how precisely the observed path is represented; collection cadence controls how often TraderVI asks for updates. ADR-0045 collects every five minutes while the policy still consumes completed 15-minute bars. Completed five-minute storage is accepted because it remained gap-free and reproduced all nine comparable fifteen-minute bars exactly; one-minute evidence showed gaps.
 
 ### Q: Why is an intraday ghost-entry pilot not an official Athena tradeable outcome?
 - **Domains:** architecture, market-microstructure, risk-management
@@ -674,3 +686,33 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0042, ADR-0043
 
 **A:** SQL `CHECK` constraints accept `UNKNOWN`. A length expression over one null field is unknown, so explicit non-null predicates are required to make a partial `InitialCodeCommit`/`DecisionRef` pair fail at the database boundary.
+
+### Q: Why can TraderVI collect every five minutes while retaining a 15-minute exit policy?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0045
+
+**A:** The scheduler controls when source evidence and snapshots are refreshed; the policy consumes only completed 15-minute bars. Intermediate ticks can add five-minute evidence but cannot invent a new policy event or change the accepted thresholds.
+
+### Q: Why do wide TMX chunk requests end one minute before the next chunk begins?
+- **Domains:** data-pipeline, data-sources, market-microstructure
+- **Source:** ADR-0045
+
+**A:** TMX treats both bounds as inclusive and can revise a boundary bar between adjacent requests. Minute-contiguous, non-overlapping windows retrieve each aligned bar once while the merge validator still rejects any unexpected conflict.
+
+### Q: Why does the guarded nightly pipeline run shortly after midnight instead of immediately after the TSX close?
+- **Domains:** architecture, data-pipeline, decision-engine
+- **Source:** ADR-0046
+
+**A:** Delphi records the recommendation run date. Starting after midnight lets Hermes ingest the prior completed session and lets Delphi publish for the new calendar day rather than dating advice after that day's market has already closed.
+
+### Q: How does the nightly runner safely use the latest source on every scheduled run?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0046
+
+**A:** It fingerprints the current Git working tree, performs non-incremental Release builds without restoring dependencies, and fingerprints the source again before any operational stage starts. A concurrent edit or build failure stops the pipeline, while per-stage artifact hashes ensure each program runs the output produced by that preflight.
+
+### Q: What is Codex allowed to do when the nightly pipeline fails?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0046
+
+**A:** It may read the durable status and referenced log, explain the evidence, and recommend a safe next step. It may not retry a program, change SQL, call a market service, repair data, or expand the authorized workflow.

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "task": {
+    "name": "TraderVI Nightly",
+    "localTime": "00:30",
+    "daysOfWeek": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "executionTimeLimitHours": 10
+  },
+  "build": {
+    "configuration": "Release",
+    "timeoutMinutes": 30,
+    "restoreDependencies": false
+  },
+  "stages": [
+    {
+      "name": "Hermes",
+      "project": "Hermes/Hermes.csproj",
+      "entryAssembly": "Hermes/bin/Release/net10.0/Hermes.dll",
+      "timeoutMinutes": 360,
+      "successExitCodes": [0],
+      "attentionExitCodes": [],
+      "failurePatterns": [
+        "Failed:\\s*[1-9]\\d*",
+        "collection failed:"
+      ],
+      "attentionPatterns": [],
+      "continueAfterFailure": false
+    },
+    {
+      "name": "Delphi",
+      "project": "Delphi/Delphi.csproj",
+      "entryAssembly": "Delphi/bin/Release/net10.0/Delphi.dll",
+      "timeoutMinutes": 120,
+      "successExitCodes": [0],
+      "attentionExitCodes": [],
+      "failurePatterns": [
+        "audit=Invalid"
+      ],
+      "attentionPatterns": [
+        "audit=Degraded"
+      ],
+      "continueAfterFailure": true
+    },
+    {
+      "name": "Athena",
+      "project": "Athena/Athena.csproj",
+      "entryAssembly": "Athena/bin/Release/net10.0/Athena.dll",
+      "timeoutMinutes": 120,
+      "successExitCodes": [0],
+      "attentionExitCodes": [2],
+      "failurePatterns": [],
+      "attentionPatterns": [],
+      "continueAfterFailure": false
+    }
+  ]
+}

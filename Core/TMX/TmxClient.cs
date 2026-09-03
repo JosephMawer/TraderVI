@@ -147,8 +147,9 @@ namespace Core.TMX
         }
 
         /// <summary>
-        /// Gets a wide intraday range through explicit five-calendar-day TMX
-        /// requests, then validates and deduplicates the combined result.
+        /// Gets a wide intraday range through explicit non-overlapping TMX
+        /// requests no longer than five calendar days, then validates and
+        /// deduplicates the combined result.
         /// This avoids TMX's observed 754-bar single-response cap.
         /// </summary>
         public async Task<TmxIntradayBatch> GetIntradayTimeSeriesChunkedAsync(
@@ -273,11 +274,12 @@ namespace Core.TMX
             DateTime windowStartUtc = startUtc;
             while (windowStartUtc < endUtc)
             {
-                DateTime windowEndUtc = windowStartUtc + IntradayChunkWindow;
-                if (windowEndUtc > endUtc)
-                    windowEndUtc = endUtc;
+                DateTime nextWindowStartUtc = windowStartUtc + IntradayChunkWindow;
+                DateTime windowEndUtc = nextWindowStartUtc < endUtc
+                    ? nextWindowStartUtc.AddMinutes(-1)
+                    : endUtc;
                 windows.Add(new IntradayRequestWindow(windowStartUtc, windowEndUtc));
-                windowStartUtc = windowEndUtc;
+                windowStartUtc = nextWindowStartUtc;
             }
 
             return windows.AsReadOnly();

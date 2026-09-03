@@ -175,21 +175,21 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             ? "Ghost/Real ledger active · Real fills are manual · no broker"
             : $"Legacy Ghost-only database · apply {TrackedExecutionSchema.MigrationFileName} to enable Real tracking";
         Guid? selectedPositionId = SelectedPosition?.PositionId;
-        List<ActivePositionInfo> linkedPositions =
+        List<ActivePositionInfo> trackedPositions =
             (await new ActivePositionRepository().GetRecentPositions(250))
-            .Where(position => position.OriginalPickId.HasValue)
+            .Where(TrackedPositionScope.Includes)
             .OrderBy(position => position.EntryDate)
             .ThenBy(position => position.Symbol)
             .ToList();
-        List<ActivePositionInfo> activePositions = linkedPositions
+        List<ActivePositionInfo> activePositions = trackedPositions
             .Where(position => position.IsActive)
             .ToList();
-        HashSet<Guid> paperPositionIds = linkedPositions
+        HashSet<Guid> trackedPositionIds = trackedPositions
             .Select(position => position.PositionId)
             .ToHashSet();
         List<TradeLogInfo> trades = (await new TradeLogRepository().GetRecentTrades(250))
             .Where(trade =>
-                (trade.PositionId.HasValue && paperPositionIds.Contains(trade.PositionId.Value)) ||
+                (trade.PositionId.HasValue && trackedPositionIds.Contains(trade.PositionId.Value)) ||
                 (trade.Notes?.Contains("OfficialPaper", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (trade.Notes?.Contains("OperatorPaper", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (trade.Notes?.Contains("ADR-0028", StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -312,7 +312,7 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             cycle.BenchmarkWarningCode is not null
                 ? $"Monitor cycle completed with benchmark warning {cycle.BenchmarkWarningCode}."
                 : cycle.Positions.Count == 0
-                    ? "Monitor cycle completed; XIU evidence collected with no active Delphi-linked positions."
+                    ? "Monitor cycle completed; XIU evidence collected with no active monitored positions."
                 : $"Monitor cycle {cycle.PollCycleId.ToString()[..8]} completed for {cycle.Positions.Count} position(s).",
             cycle.BenchmarkWarningCode is not null || cycle.Positions.Any(position =>
                 position.ErrorCode is not null || position.WarningCode is not null)
@@ -415,9 +415,12 @@ public sealed record PaperPositionRow(
             directive += $" · {latest.WarningCode}";
         if (position.ExecutionMode == TrackedExecutionMode.Real)
         {
+            string provenance = position.OriginalPickId.HasValue
+                ? string.Empty
+                : " · unlinked historical holding";
             directive = latest?.Directive == IntradaySwingDirective.ExitAlert
                 ? $"REAL SELL SIGNAL · manual broker action required · {latest.Reason}"
-                : $"REAL · {directive}";
+                : $"REAL · {directive}{provenance}";
         }
         return new PaperPositionRow(
             position.PositionId,
