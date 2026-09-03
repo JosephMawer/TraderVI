@@ -224,6 +224,7 @@ TimeZoneInfo torontoTimeZone = ResolveTorontoTimeZone();
 var delayedPending = await outcomes.GetPendingPublishedCandidatesAsync(
     CalibrationOutcomeRepository.DelayedIntradaySwingDefinitionId);
 int delayedMatured = 0, delayedNoEntry = 0, delayedPendingCount = 0, delayedInvalid = 0;
+var delayedInvalidDetails = new List<(string Symbol, DateTime EntryUtc, DateTime InvalidEventUtc, string ReasonCode)>();
 DateTime delayedThroughUtc = DateTime.UtcNow;
 DateTime delayedFromUtc = delayedPending.Count == 0
     ? delayedThroughUtc
@@ -382,7 +383,14 @@ foreach (PendingTradeableCalibrationCandidate candidate in delayedPending)
             CalibrationOutcomeMaturityState.Matured,
             JsonSerializer.Serialize(invalidOutcome, jsonOptions),
             CalibrationAuditState.Invalid))
+        {
             delayedInvalid++;
+            delayedInvalidDetails.Add((
+                candidate.Symbol,
+                entryUtc,
+                invalidOutcome.FirstInvalidEventUtc,
+                invalidOutcome.ReasonCode));
+        }
         continue;
     }
 
@@ -415,6 +423,26 @@ Console.WriteLine($"Matured outcomes written:      {delayedMatured:N0}");
 Console.WriteLine($"No-entry outcomes written:     {delayedNoEntry:N0}");
 Console.WriteLine($"Not yet mature:                {delayedPendingCount:N0}");
 Console.WriteLine($"Invalid outcomes written:      {delayedInvalid:N0}");
+if (delayedInvalidDetails.Count > 0)
+{
+    Console.WriteLine("Rejected evidence details:");
+    foreach (var group in delayedInvalidDetails
+                 .GroupBy(detail => detail)
+                 .OrderBy(group => group.Key.EntryUtc)
+                 .ThenBy(group => group.Key.Symbol)
+                 .ThenBy(group => group.Key.InvalidEventUtc))
+    {
+        DateTime entryLocal = TimeZoneInfo.ConvertTimeFromUtc(group.Key.EntryUtc, torontoTimeZone);
+        DateTime invalidLocal = TimeZoneInfo.ConvertTimeFromUtc(group.Key.InvalidEventUtc, torontoTimeZone);
+        string count = group.Count() == 1 ? string.Empty : $" · {group.Count():N0} candidate records";
+        Console.WriteLine(
+            $"  {group.Key.Symbol} · entry {entryLocal:yyyy-MM-dd} · " +
+            $"{DelayedIntradayOutcomeReasonPresenter.ToOperatorMessage(group.Key.ReasonCode)} " +
+            $"{DelayedIntradayOutcomeReasonPresenter.EventTimeLabel(group.Key.ReasonCode)}: " +
+            $"{invalidLocal:yyyy-MM-dd HH:mm} Toronto{count} " +
+            $"[{group.Key.ReasonCode}]");
+    }
+}
 invalidWritten += delayedInvalid;
 
 Console.WriteLine("\n=== Official evidence identity ===");
