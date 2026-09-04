@@ -444,16 +444,6 @@ public sealed class DelphiWorkflow
                 Console.WriteLine($"    Composite Adjustment: {granvilleForecast.CompositeAdjustment:+0.000;-0.000}");
                 Console.WriteLine();
 
-                // ── Log to database ──
-                if (saveOperationalState)
-                {
-                    var granvilleLog = new GranvilleIndicatorLogRepository();
-                    var evalDate = recommendationDate;
-                    await granvilleLog.DeleteByDateAsync(evalDate);
-                    await granvilleLog.LogForecastAsync(evalDate, granvilleForecast);
-                    Console.WriteLine($"  ✓ Granville indicators logged to [dbo].[GranvilleIndicatorLog] for {evalDate:yyyy-MM-dd}");
-                    Console.WriteLine();
-                }
             }
             else
             {
@@ -1156,20 +1146,12 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // REFRESH OPERATIONAL DAILY PICKS
             // ═══════════════════════════════════════════════════════════════════
-            if (saveOperationalState && top.Count > 0)
+            if (saveOperationalState)
             {
                 var pickDate = recommendationDate;
-                var pickRepo = new DailyPickRepository();
-                var dossierRepo = new DecisionDossierRepository();
-                var narrativeRepo = new Core.Db.LlmNarrativeRepository();
+                var operationalPicks = new List<DelphiOperationalPick>(top.Count + breakoutTop.Count);
 
-                // Delete child→parent to respect FKs:
-                //   LlmNarrative → DecisionDossier → DailyPick
-                await narrativeRepo.DeleteByDateAsync(pickDate);
-                await dossierRepo.DeleteByDateAsync(pickDate);
-                await pickRepo.DeletePicksByDate(pickDate);
-
-                Console.WriteLine($"\nSaving {top.Count} picks to database...");
+                Console.WriteLine($"\nPublishing {top.Count + breakoutTop.Count} operational picks atomically...");
 
                 var strategyRef = activeStrategy is not null
                     ? new Core.Oracle.StrategyVersionRef(activeStrategy.VersionId, activeStrategy.VersionName)
@@ -1185,22 +1167,7 @@ public sealed class DelphiWorkflow
                     double volExp = GetProbContains(p, "VolExpansion");
                     double relStrength = GetProbContains(p, "RelStrength");
 
-                    var pickId = await pickRepo.InsertPick(
-                        pickDate: pickDate,
-                        symbol: p.Symbol,
-                        rank: savedRank,
-                        direction: p.Direction.ToString(),
-                        compositeScore: p.CompositeScore,
-                        breakoutProb: breakout,
-                        directionProb: pUp,
-                        volExpansionProb: volExp,
-                        relStrengthProb: relStrength > 0 ? relStrength : null,
-                        expectedReturn: p.ExpectedReturn,
-                        suggestedSize: savedRank == 1 && size != null ? size.SuggestedSize : null,
-                        allocationPercent: savedRank == 1 && size != null ? (double)size.AllocationPercent : null,
-                        strategyVersionId: strategyVersionId,
-                        notes: savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null,
-                        lens: "Continuation");
+                    var pickId = Guid.NewGuid();
 
                     // ── Phase 1 of the Oracle layer: emit a DecisionDossier per pick.
                     // The dossier is the audit unit fed to the downstream LLM layer
@@ -1240,14 +1207,28 @@ public sealed class DelphiWorkflow
                         sizing: sizingForDossier,
                         strategy: strategyRef);
 
-                    await dossierRepo.InsertAsync(dossier);
+                    operationalPicks.Add(new DelphiOperationalPick(
+                        pickId,
+                        pickDate,
+                        p.Symbol,
+                        savedRank,
+                        p.Direction.ToString(),
+                        p.CompositeScore,
+                        breakout,
+                        pUp,
+                        volExp,
+                        relStrength > 0 ? relStrength : null,
+                        p.ExpectedReturn,
+                        savedRank == 1 && size != null ? size.SuggestedSize : null,
+                        savedRank == 1 && size != null ? (double)size.AllocationPercent : null,
+                        strategyVersionId,
+                        savedRank == 1 ? $"Top pick. P↓={pDown:P0}, Edge={pUp - pDown:P0}" : null,
+                        "Continuation",
+                        dossier));
                     dossiersSaved++;
 
                     savedRank++;
                 }
-
-                Console.WriteLine($"✓ Saved {top.Count} Continuation picks to [dbo].[DailyPick] for {pickDate:yyyy-MM-dd}");
-                Console.WriteLine($"✓ Saved {dossiersSaved} dossiers to [dbo].[DecisionDossier]");
 
                 // ── Journal the Breakouts lens (B3): picks only, no dossiers/sizing.
                 // These are never executed; they exist so the two theses' outcomes can be
@@ -1260,24 +1241,39 @@ public sealed class DelphiWorkflow
                     double brVolExp = GetProbContains(p, "VolExpansion");
                     double brRelStrength = GetProbContains(p, "RelStrength");
 
-                    await pickRepo.InsertPick(
-                        pickDate: pickDate,
-                        symbol: p.Symbol,
-                        rank: breakoutRank,
-                        direction: p.Direction.ToString(),
-                        compositeScore: p.CompositeScore,
-                        breakoutProb: brBreakout,
-                        directionProb: brUp,
-                        volExpansionProb: brVolExp,
-                        relStrengthProb: brRelStrength > 0 ? brRelStrength : null,
-                        expectedReturn: p.ExpectedReturn,
-                        strategyVersionId: strategyVersionId,
-                        notes: breakoutRank == 1 ? "Breakouts lens top pick (journaled, not executed)" : null,
-                        lens: "Breakout");
+                    operationalPicks.Add(new DelphiOperationalPick(
+                        Guid.NewGuid(),
+                        pickDate,
+                        p.Symbol,
+                        breakoutRank,
+                        p.Direction.ToString(),
+                        p.CompositeScore,
+                        brBreakout,
+                        brUp,
+                        brVolExp,
+                        brRelStrength > 0 ? brRelStrength : null,
+                        p.ExpectedReturn,
+                        SuggestedSize: null,
+                        AllocationPercent: null,
+                        StrategyVersionId: strategyVersionId,
+                        Notes: breakoutRank == 1 ? "Breakouts lens top pick (journaled, not executed)" : null,
+                        Lens: "Breakout",
+                        Dossier: null));
                     breakoutRank++;
                 }
 
-                Console.WriteLine($"✓ Journaled {breakoutTop.Count} Breakout picks to [dbo].[DailyPick] (lens='Breakout', not executed)");
+                DelphiOperationalPublicationResult publication =
+                    await new DelphiOperationalPublicationRepository().ReplaceAsync(
+                        pickDate,
+                        operationalPicks,
+                        granvilleForecast,
+                        cancellationToken);
+                Console.WriteLine(
+                    $"✓ Published {top.Count} Continuation and {breakoutTop.Count} Breakout picks, " +
+                    $"{dossiersSaved} dossiers, and {publication.GranvilleLogCount} Granville logs " +
+                    $"for {pickDate:yyyy-MM-dd} in one transaction.");
+                if (publication.PickCount == 0)
+                    Console.WriteLine("✓ Cleared stale same-date operational recommendations for the successful zero-result run.");
             }
 
             // ═══════════════════════════════════════════════════════════════════

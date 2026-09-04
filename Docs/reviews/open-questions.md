@@ -194,8 +194,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Q:** Should TraderVI eventually import broker positions and fills, or should Real reconciliation remain operator-entered?
 - **Q:** If order routing is ever proposed, which independently authenticated broker adapter, account allowlist, cash/position limits, order preview, partial-fill state machine, kill switch, and reconciliation proof are required?
 - **Q:** Should version 2 support partial Real exits and commissions before any broker integration is considered?
+- **Current safety boundary (2026-09-03):** ADR-0048 keeps version 1 as one all-shares,
+  zero-commission fill and requires the operator to affirm those facts. The workflow must not be used for a
+  partial fill or any fee-bearing transaction. A version-2 decision must define remaining-share state,
+  cost-basis and commission allocation, multi-fill retry identity, final-close rules, and correction handling;
+  adding shares/commission fields alone is insufficient.
 - **Tags:** architecture, data-pipeline, market-microstructure, risk-management
-- **Status:** parked — ADR-0039 resolves the combined display and manual-fill boundary. It explicitly adds no broker connection or order authority. Revisit only after the manual Real workflow has been operated and audited.
+- **Status:** open design decision, implementation blocked — ADR-0039 resolves the combined display and
+  manual-fill boundary and ADR-0048 makes the current full exit atomic/retry-safe. Neither authorizes partial
+  fills, commissions, a broker connection, or order routing.
 
 ## Resolved
 

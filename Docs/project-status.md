@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-02
+**Snapshot date:** 2026-09-03
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
@@ -48,7 +48,7 @@ broker activity. The Windows task and weekday 07:00 Codex heartbeat were install
   `TraderVI Nightly Watch` is active for weekday 07:00 read-only supervision.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
 - Complete Release solution build: successful after the ADR-0013 score-once restoration using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
-- Core tests: 213 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-02. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
+- Core tests: 225 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
 - Migration 017 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. The final canonical SQL project and complete Release solution both build successfully after the strengthened identity constraint; neither build deployed the DACPAC.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -241,6 +241,24 @@ Historical Real-position monitoring correction on 2026-09-02:
 - The existing hard execution boundary remains unchanged: Real alerts require manual broker action and an operator-reported fill; no broker call or automatic Real closure is possible.
 - All 213 Core tests passed in Debug and Release, and the focused WPF Release build succeeded. The corrected Release binary was built separately while TraderVI.WPF was closed; no broker operation was used for source validation.
 
+Discretionary Real-entry correction on 2026-09-03:
+
+- ADR-0047 allows an operator to record an actual Real broker fill from a saved Delphi row whose direction is not Buy, but only after an explicit discretionary-override warning.
+- The resulting position is deliberately unlinked: `OriginalPickId` and `EntryComposite` remain null, while the selected row's ID, date, lens, rank, and direction are retained in notes. It therefore remains outside official calibration and cannot receive the fresh-Delphi loss exception.
+- Ghost entries remain restricted to saved Buy recommendations. Real exits remain manual, and TraderVI still has no broker-order capability.
+- All 221 Core tests passed, including direct attribution-policy cases. The focused Release WPF build succeeded to an isolated output because the open app held its deployed `Core.dll`; the running application was not stopped or replaced, and no trade/database operation was performed.
+
+Consequential transaction-boundary stabilization on 2026-09-03:
+
+- ADR-0048 now inserts a tracked BUY and its `ActivePosition` in one serializable transaction, with the BUY linked to its preallocated position ID at insert time and the duplicate-symbol check held under the same lock.
+- A same-date Delphi operational publication now replaces narratives, dossiers, picks, and Granville logs in one serializable transaction. A successful zero-result run clears stale same-date rows; append-only calibration evidence remains a separate contract.
+- The existing Real-exit transaction now returns the one durable attached SELL on retry after an ambiguous commit instead of creating a duplicate. The repository still rechecks active Real mode and rejects an exit date before entry.
+- Monitor snapshot writes now require `IsActive = 1`, so a cycle holding a stale in-memory row cannot overwrite a manual exit snapshot after the close commits.
+- Version 1 still supports only one all-shares, zero-commission Real exit. The UI and workflow require explicit affirmation and direct the operator to cancel for partial or fee-bearing fills; their lifecycle/accounting policy remains open.
+- Basic Windows GitHub Actions now runs all Core tests and focused Release builds for Delphi, Hermes, Athena, TraderVI, and TraderVI.WPF. `TraderDB.sqlproj`/SSDT remains intentionally outside CI pending a separate decision.
+- Read-only SQL verification found CS (35 shares) and GGD (50 shares) open as operator-reported Real TFSA positions, and SGY closed with exactly one attached 20-share Real SELL. No position or trade row was changed.
+- All 225 Core tests passed in Debug and Release. Focused Release builds succeeded for Core, Delphi, Hermes, Athena, TraderVI, and TraderVI.WPF. The final WPF check used an isolated output because an existing process held the deployed Release `Core.dll`; that process was not started, stopped, or replaced. Existing dependency advisories, nullable-context warnings, Hermes' unused local-function warning, and WPF's unused-variable warning remain separate backlog items.
+
 First v3.2 operating day on 2026-09-02:
 
 - The first deliberate official `v3.2-leadership-missingness` run is valid for recommendation date
@@ -272,7 +290,7 @@ First v3.2 operating day on 2026-09-02:
 3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
-6. **No CI baseline.** Builds and tests are local only.
+6. **Basic CI excludes SSDT.** Windows GitHub Actions now runs all Core tests and focused .NET application builds. Whether and how to build `TraderDB.sqlproj` with SSDT is still a separate explicit decision; CI never deploys a DACPAC.
 7. **Outcome feedback has started but is not broadly mature.** Eight official runs across six market-data
    cohorts now contain 1,729 candidates. Athena has written 112 valid three-session marks and 112 valid
    excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at
@@ -281,7 +299,7 @@ First v3.2 operating day on 2026-09-02:
    ADR-0045 correction, but Athena has not been rerun against it. Track progress in
    `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
-9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
+9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. Version 1 explicitly accepts only one all-shares, zero-commission Real exit and refuses partial/fee-bearing use; the version-2 lifecycle/accounting decision remains open. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
 10. **Broader leadership SQL/repository integrity remains deferred.** The first post-migration Hermes observation passed: the 2026-09-01 row retained an all-null active-breadth triple, zero sentinel and partial triples remain absent, and the constraint remains enabled/trusted. ADR-0043 intentionally does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
 
 ## Immediate direction
@@ -299,8 +317,9 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
 4. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair
    leadership data. Confirm that new valid outcomes mature, incomplete tails stay pending, and any proven
    continuity gap is stored as invalid rather than bridged.
-5. Add new tracked positions only from current saved Delphi Buy picks with operator-confirmed shares and fill
-   prices; do not reopen closed Ghost lifecycles.
+5. Add Ghost positions only from current saved Delphi Buy picks. Record an already-executed discretionary
+   Real fill from a non-Buy row only through ADR-0047's explicit override confirmation; preserve it as
+   unlinked and do not reopen closed Ghost lifecycles.
 6. Observe additional Hermes backups and perform a test restore.
-7. Continue the stabilization order with canonical SQL/repository drift, then transaction boundaries and CI
-   before larger workflow extraction.
+7. Continue the stabilization order with canonical SQL/repository drift and the separate SSDT CI decision
+   before larger workflow extraction; ADR-0048's transaction boundaries and basic .NET CI are complete in source.

@@ -27,7 +27,8 @@ public sealed record TrackedRealExitResult(
     decimal Amount,
     decimal RealizedPnL,
     double RealizedPnLPct,
-    int HoldingDays);
+    int HoldingDays,
+    bool WasAlreadyRecorded);
 
 /// <summary>
 /// Persists operator-reported Real reconciliation only. It has no broker client
@@ -209,21 +210,44 @@ WHERE [PositionId] = @PositionId
             decimal costBasis;
             DateTime entryDate;
             string accountLabel;
+            bool activeRealPositionFound;
             await using (var select = new SqlCommand(selectSql, connection, transaction))
             {
                 select.Parameters.Add(P("@PositionId", SqlDbType.UniqueIdentifier, positionId));
                 await using SqlDataReader reader = await select.ExecuteReaderAsync(cancellationToken);
-                if (!await reader.ReadAsync(cancellationToken))
+                activeRealPositionFound = await reader.ReadAsync(cancellationToken);
+                if (activeRealPositionFound)
                 {
-                    await transaction.CommitAsync(cancellationToken);
-                    return null;
+                    symbol = reader.GetString(0);
+                    shares = reader.GetInt32(1);
+                    costBasis = reader.GetDecimal(2);
+                    entryDate = reader.GetDateTime(3);
+                    accountLabel = reader.GetString(4);
                 }
-                symbol = reader.GetString(0);
-                shares = reader.GetInt32(1);
-                costBasis = reader.GetDecimal(2);
-                entryDate = reader.GetDateTime(3);
-                accountLabel = reader.GetString(4);
+                else
+                {
+                    symbol = string.Empty;
+                    shares = 0;
+                    costBasis = 0m;
+                    entryDate = default;
+                    accountLabel = string.Empty;
+                }
             }
+
+            if (!activeRealPositionFound)
+            {
+                TrackedRealExitResult? existing = await ReadExistingRealExitAsync(
+                    connection,
+                    transaction,
+                    positionId,
+                    cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return existing;
+            }
+
+            if (tradeDate.Date < entryDate.Date)
+                throw new InvalidOperationException(
+                    $"The reported exit date {tradeDate:yyyy-MM-dd} is before the {symbol} entry date {entryDate:yyyy-MM-dd}.");
 
             decimal amount = decimal.Round(price * shares, 2);
             decimal realizedPnL = decimal.Round(amount - costBasis, 2);
@@ -299,13 +323,57 @@ WHERE [PositionId] = @PositionId
                 amount,
                 realizedPnL,
                 realizedPnLPct,
-                holdingDays);
+                holdingDays,
+                WasAlreadyRecorded: false);
         }
         catch
         {
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    private static async Task<TrackedRealExitResult?> ReadExistingRealExitAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        Guid positionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+SELECT TOP (2)
+       [TradeId],[Symbol],[AccountLabel],[Shares],[Price],[Amount],
+       [RealizedPnL],[RealizedPnLPct],[HoldingDays]
+FROM [dbo].[TradeLog] WITH (UPDLOCK, HOLDLOCK)
+WHERE [PositionId] = @PositionId
+  AND [TradeType] = N'SELL'
+  AND [ExecutionMode] = N'Real'
+ORDER BY [CreatedUtc] DESC, [TradeId] DESC;
+""";
+        await using var command = new SqlCommand(sql, connection, transaction);
+        command.Parameters.Add(P("@PositionId", SqlDbType.UniqueIdentifier, positionId));
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+            return null;
+
+        var result = new TrackedRealExitResult(
+            reader.GetGuid(0),
+            positionId,
+            reader.GetString(1),
+            reader.GetString(2),
+            reader.GetInt32(3),
+            reader.GetDecimal(4),
+            reader.GetDecimal(5),
+            reader.IsDBNull(6) ? 0m : reader.GetDecimal(6),
+            reader.IsDBNull(7) ? 0d : reader.GetDouble(7),
+            reader.IsDBNull(8) ? 0 : reader.GetInt32(8),
+            WasAlreadyRecorded: true);
+        if (await reader.ReadAsync(cancellationToken))
+        {
+            throw new InvalidOperationException(
+                "Multiple Real SELL records exist for this full-exit position; manual reconciliation is required.");
+        }
+
+        return result;
     }
 
     private static SqlParameter P(

@@ -425,7 +425,8 @@ SET [CurrentPrice] = @CurrentPrice,
     [DrawdownFromHigh] = @DrawdownFromHigh,
     [DaysHeld] = @DaysHeld,
     [LastUpdatedUtc] = SYSUTCDATETIME()
-WHERE [PositionId] = @PositionId;";
+WHERE [PositionId] = @PositionId
+  AND [IsActive] = 1;";
 
         await Update(query,
         [

@@ -54,6 +54,7 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
 - [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
 - [x] Add ADR-0044's honest scope for historical Real holdings: display and monitor unlinked Real rows, keep unlinked Ghost rows excluded, deny the fresh-Delphi loss exception without original-pick provenance, and retain manual-only Real exits.
+- [x] Add ADR-0047's explicit discretionary-Real override: a confirmed broker fill selected from a non-Buy Delphi row is tracked unlinked with the row retained only as notes context; Ghost entries remain Buy-only.
 - [x] Add ADR-0045's five-minute WPF collection cadence while retaining completed 15-minute policy bars, and replace overlapping wide TMX chunks with minute-contiguous request windows that cannot ask for the same boundary bar twice.
 - [x] Accept ADR-0040's reconstructible delayed-intraday fill contract, add the pure calculator, and make future WPF monitor cycles collect aligned XIU five-/fifteen-minute evidence once per cycle.
 - [x] Complete ADR-0040 in source with immutable-evidence queries, Athena persistence, separate raw/sensitivity lens reports, and guarded migration 015; leave migration application and Athena execution as explicit operational steps.
@@ -122,12 +123,12 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   complete Release solution plus SSDT build succeeded without deployment or operational workflows.
 - [ ] Reconcile canonical SQL definitions with repository writes before any broad database work. Continue
   to use reviewed manual migrations only; do not use DACPAC deployment.
-- [ ] Record and implement explicit transaction boundaries for same-day Delphi operational publication and
+- [x] Record and implement ADR-0048's explicit transaction boundaries for same-day Delphi operational publication and
   tracked-position opening. A successful zero-result rerun must replace stale same-date operational picks,
-  and retry behavior must not expose empty or partially replaced projections. Keep append-only calibration
-  evidence semantically distinct.
-- [ ] Establish CI and static contract checks after the bounded correctness fixes and before large workflow
-  extraction. Decide the SSDT job boundary separately.
+  and retry behavior must not expose empty or partially replaced projections. BUY/position creation is now
+  one serializable commit, and append-only calibration evidence remains semantically distinct.
+- [x] Establish basic Windows CI for all Core tests and focused .NET application builds after the bounded
+  correctness fixes and before large workflow extraction. The SSDT job boundary remains a separate decision.
 - [ ] Introduce immutable Delphi evaluation facts and typed load/evaluate/evidence/publish stages while
   preserving ADR-0035 presentation compatibility.
 - [ ] Separate Hermes completion semantics and Hercules training/evaluation/artifact-promotion responsibilities.
@@ -139,7 +140,7 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 
 ### 6. Development hygiene
 
-- [ ] Add GitHub Actions for .NET build and `TraderVI.Core.Tests` as ordered in the stabilization tranche.
+- [x] Add GitHub Actions for focused .NET builds and `TraderVI.Core.Tests` as ordered in the stabilization tranche.
 - [ ] Decide whether the SSDT build belongs in the same Windows workflow or a separate job.
 - [ ] Address dependency-security advisories separately from compiler cleanup.
 

@@ -716,3 +716,33 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0046
 
 **A:** It may read the durable status and referenced log, explain the evidence, and recommend a safe next step. It may not retry a program, change SQL, call a market service, repair data, or expand the authorized workflow.
+
+### Q: How is a confirmed Real fill from a Delphi Hold row attributed?
+- **Domains:** architecture, decision-engine, risk-management
+- **Source:** ADR-0047
+
+**A:** It is stored as an unlinked discretionary Real holding: `OriginalPickId` and `EntryComposite` remain null, while the selected row's ID, date, lens, rank, and Hold direction are retained in notes as context rather than recommendation provenance.
+
+### Q: Why can a Real entry override a Hold row while a Ghost entry cannot?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0047
+
+**A:** The Real entry reconciles a broker fill the operator says already happened, so omitting it would make the operational ledger incomplete. A Ghost fill has no independent broker fact and remains restricted to saved Buy recommendations so experiments retain valid Delphi provenance.
+
+### Q: What must a successful zero-result Delphi rerun do to same-date operational recommendations?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0048
+
+**A:** Atomically replace the projection with an empty one, deleting stale narratives, dossiers, picks, and Granville logs for that date. It must not leave an earlier same-date result visible.
+
+### Q: Why is immutable calibration evidence outside Delphi's operational-publication transaction?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0048
+
+**A:** Calibration evidence is an append-only record of the evaluation, while picks, dossiers, narratives, and Granville logs are a replaceable same-date operational projection. Combining their retry semantics would blur those distinct contracts.
+
+### Q: What does TraderVI do when a Real exit is partial or carries commission?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0048
+
+**A:** It refuses the version-1 workflow. The operator may confirm only one all-shares, zero-commission fill; partial-fill lifecycle and commission accounting remain an explicit open decision.

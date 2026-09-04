@@ -292,6 +292,7 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
                 selected.PositionId,
                 fillPrice,
                 filledAtLocal,
+                confirmAllSharesZeroCommission: true,
                 cancellationToken);
         RealExitFillPrice = "";
         await RefreshAsync(cancellationToken);

@@ -84,6 +84,8 @@ architecture documentation.
 | [0044](0044-unlinked-real-position-monitoring.md) | Unlinked Real position monitoring | Accepted | architecture, data-pipeline, market-microstructure, risk-management |
 | [0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) | Five-minute collection and non-overlapping intraday chunks | Accepted | architecture, data-pipeline, data-sources, market-microstructure, risk-management |
 | [0046](0046-guarded-nightly-operations-runner.md) | Guarded nightly operations runner | Accepted | architecture, data-pipeline, decision-engine, risk-management |
+| [0047](0047-discretionary-real-entry-from-non-buy-row.md) | Discretionary Real entry from a non-Buy Delphi row | Accepted | architecture, decision-engine, market-microstructure, risk-management |
+| [0048](0048-consequential-operational-transaction-boundaries.md) | Consequential operational transaction boundaries | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

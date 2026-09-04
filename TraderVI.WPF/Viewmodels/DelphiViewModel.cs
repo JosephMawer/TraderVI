@@ -124,6 +124,12 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
             error = "Select a Continuation or Breakout pick first.";
             return false;
         }
+        if (executionMode == TrackedExecutionMode.Ghost &&
+            !string.Equals(pick.Direction, "Buy", StringComparison.OrdinalIgnoreCase))
+        {
+            error = $"The selected {pick.Lens} row for {pick.Symbol} is {pick.Direction}, not Buy. Only an actual Real fill can be recorded as a discretionary override.";
+            return false;
+        }
         if (!int.TryParse(PaperShares, NumberStyles.Integer, CultureInfo.CurrentCulture, out shares) || shares <= 0)
         {
             error = "Shares must be a positive whole number.";
@@ -164,19 +170,26 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
         int shares,
         decimal fillPrice,
         TrackedExecutionMode executionMode,
-        string? accountLabel)
+        string? accountLabel,
+        bool confirmNonBuyRealOverride = false)
     {
         PaperEntryStatus = $"Opening {executionMode.ToStorageValue()} position for {pick.Symbol}…";
         try
         {
             PaperTradeEntryResult result = await new PaperTradeEntryWorkflow()
-                .OpenAsync(pick.PickId, shares, fillPrice, executionMode, accountLabel);
+                .OpenAsync(
+                    pick.PickId,
+                    shares,
+                    fillPrice,
+                    executionMode,
+                    accountLabel,
+                    confirmNonBuyRealOverride);
             PaperEntryStatus = result.Message;
             return result;
         }
         catch (Exception ex)
         {
-            PaperEntryStatus = $"Paper entry failed · {ex.Message}";
+            PaperEntryStatus = $"Position entry failed · {ex.Message}";
             throw;
         }
     }

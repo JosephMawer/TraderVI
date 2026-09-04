@@ -1,0 +1,49 @@
+name: .NET CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core-tests-and-focused-builds:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore Core tests
+        run: dotnet restore TraderVI.Core.Tests/TraderVI.Core.Tests.csproj
+
+      - name: Run Core tests
+        run: dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --configuration Release --verbosity minimal
+
+      - name: Restore focused applications
+        shell: pwsh
+        run: |
+          dotnet restore Delphi/Delphi.csproj
+          dotnet restore Hermes/Hermes.csproj
+          dotnet restore Athena/Athena.csproj
+          dotnet restore TraderVI/TraderVI.csproj
+          dotnet restore TraderVI.WPF/TraderVI.WPF.csproj
+
+      - name: Build focused applications
+        shell: pwsh
+        run: |
+          dotnet build Delphi/Delphi.csproj --no-restore --configuration Release --verbosity minimal
+          dotnet build Hermes/Hermes.csproj --no-restore --configuration Release --verbosity minimal
+          dotnet build Athena/Athena.csproj --no-restore --configuration Release --verbosity minimal
+          dotnet build TraderVI/TraderVI.csproj --no-restore --configuration Release --verbosity minimal
+          dotnet build TraderVI.WPF/TraderVI.WPF.csproj --no-restore --configuration Release --verbosity minimal
+
+# TraderDB.sqlproj is intentionally excluded. Its SSDT/MSBuild validation is a
+# separate explicit job decision and this workflow must never publish a DACPAC.

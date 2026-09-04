@@ -311,7 +311,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Track selected Delphi pick" FontWeight="SemiBold" FontSize="15"/>
+                                <TextBlock Text="Track selected Delphi row" FontWeight="SemiBold" FontSize="15"/>
                                 <TextBlock Text="{Binding PaperEntryStatus}" Foreground="{StaticResource DelphiMuted}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <TextBlock Grid.Column="1" Text="Shares" VerticalAlignment="Center" Margin="18,0,7,0"/>

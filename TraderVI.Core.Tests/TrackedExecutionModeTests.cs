@@ -97,6 +97,16 @@ public sealed class TrackedExecutionModeTests
         await Should.ThrowAsync<ArgumentException>(() =>
             workflow.MarkAsRealAsync(Guid.NewGuid(), " "));
         await Should.ThrowAsync<ArgumentOutOfRangeException>(() =>
-            workflow.RecordManualExitAsync(Guid.NewGuid(), 0m, DateTime.Now));
+            workflow.RecordManualExitAsync(
+                Guid.NewGuid(),
+                0m,
+                DateTime.Now,
+                confirmAllSharesZeroCommission: true));
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+            workflow.RecordManualExitAsync(
+                Guid.NewGuid(),
+                10m,
+                DateTime.Now,
+                confirmAllSharesZeroCommission: false));
     }
 }

@@ -4,6 +4,8 @@
 - **Date:** 2026-08-27
 - **Domains:** architecture, market-microstructure, risk-management
 - **Related:** ADR-0013, ADR-0015, ADR-0029, ADR-0032, ADR-0035
+- **Extended by:** ADR-0047, which permits explicitly confirmed discretionary Real fills from non-Buy rows without attaching recommendation provenance
+- **Transaction boundary:** ADR-0048 makes the BUY and tracked-position insert one atomic operation
 
 ## Context
 

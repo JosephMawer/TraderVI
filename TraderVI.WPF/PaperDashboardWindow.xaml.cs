@@ -112,7 +112,9 @@ public partial class PaperDashboardWindow : Window
         MessageBoxResult answer = MessageBox.Show(
             $"Record the actual broker SELL fill '{viewModel.RealExitFillPrice}' for all {selected.Symbol} shares?\n\n" +
             "This closes only TraderVI's tracked Real position at the manually supplied fill. " +
-            "It does not send, modify, or verify a broker order.",
+            "It does not send, modify, or verify a broker order.\n\n" +
+            "Continue only if this was one all-shares fill with zero commission. " +
+            "Cancel for a partial fill or any fee; those cases require a policy decision before they can be recorded safely.",
             "Confirm real exit fill",
             MessageBoxButton.OKCancel,
             MessageBoxImage.Warning,
@@ -128,7 +130,9 @@ public partial class PaperDashboardWindow : Window
                 shutdown.Token);
             viewModel.AddEvent(
                 DateTime.UtcNow,
-                $"{result.Symbol} REAL exit recorded at {result.Price:C3}; TraderVI sent no order.",
+                result.WasAlreadyRecorded
+                    ? $"{result.Symbol} REAL exit was already recorded at {result.Price:C3}; no duplicate was created."
+                    : $"{result.Symbol} REAL exit recorded at {result.Price:C3}; TraderVI sent no order.",
                 "Real fill");
         }
         catch (Exception ex)

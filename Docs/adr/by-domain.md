@@ -33,6 +33,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
+- [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
+- [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 
 ## data-pipeline
 
@@ -58,6 +60,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
+- [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 
 ## data-sources
 
@@ -117,6 +120,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0040](0040-reconstructible-delayed-intraday-outcome-fill.md) — Reconstructible delayed-intraday outcome fill
 - [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
+- [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 
 ## risk-management
 
@@ -145,6 +149,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
+- [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
+- [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 
 ## decision-engine
 
@@ -175,6 +181,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0042](0042-strategy-code-identity-and-scoped-official-evidence.md) — Strategy/code identity and scoped official evidence
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
+- [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 
 ## math-statistics
 

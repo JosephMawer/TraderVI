@@ -17,16 +17,16 @@ namespace Core.Trader
 
         private readonly bool ghost;
         private readonly wstrade.WSTrade _wsTrade;
-        private readonly TradeLogRepository _tradeLog;
         private readonly ActivePositionRepository _positions;
         private readonly PaperGhostTradeRepository _ghostTrades;
+        private readonly TrackedPositionOpeningRepository _positionOpenings;
 
         public TradeManager(bool ghost)
         {
             _wsTrade = new wstrade.WSTrade();
-            _tradeLog = new TradeLogRepository();
             _positions = new ActivePositionRepository();
             _ghostTrades = new PaperGhostTradeRepository();
+            _positionOpenings = new TrackedPositionOpeningRepository();
             this.ghost = ghost;
         }
 
@@ -57,14 +57,30 @@ namespace Core.Trader
                 return false;
             }
 
-            var existing = await _positions.GetPositionBySymbol(symbol);
-            if (existing is not null)
+            var amount = decimal.Round(price * shares, 2);
+            var tradeDate = DateTime.Now;
+            var stopLossPrice = decimal.Round(price * (1 - StopLossFraction), 2);
+            var warningPrice = decimal.Round(price * (1 - WarningFraction), 2);
+            TrackedPositionOpenResult? opened = await _positionOpenings.TryOpenAsync(
+                new TrackedPositionOpenRequest(
+                    symbol,
+                    tradeDate,
+                    shares,
+                    price,
+                    reason,
+                    notes,
+                    originalPickId,
+                    entryComposite,
+                    stopLossPrice,
+                    warningPrice,
+                    executionMode,
+                    normalizedAccount));
+            if (opened is null)
             {
-                Console.WriteLine($"[TradeManager] Rejected BUY {symbol}: an active position already exists (entered {existing.EntryDate:yyyy-MM-dd} @ {existing.EntryPrice:C}). Sell it before re-entering.");
+                Console.WriteLine($"[TradeManager] Rejected BUY {symbol}: an active position already exists. Sell or reconcile it before re-entering.");
                 return false;
             }
 
-            var amount = decimal.Round(price * shares, 2);
             PlaceOrder(
                 wstrade.OrderSubType.buy_quantity,
                 symbol,
@@ -73,41 +89,8 @@ namespace Core.Trader
                 amount,
                 executionMode);
 
-            var tradeDate = DateTime.Now;
-            Guid tradeId = await _tradeLog.InsertTrade(
-                symbol: symbol,
-                tradeType: "BUY",
-                tradeDate: tradeDate,
-                shares: shares,
-                price: price,
-                amount: amount,
-                commission: 0m,
-                netAmount: amount,
-                reason: reason,
-                entryComposite: entryComposite,
-                notes: notes,
-                executionMode: executionMode,
-                accountLabel: normalizedAccount);
-
-            var stopLossPrice = decimal.Round(price * (1 - StopLossFraction), 2);
-            var warningPrice = decimal.Round(price * (1 - WarningFraction), 2);
-
-            var positionId = await _positions.InsertPosition(
-                symbol: symbol,
-                entryDate: tradeDate.Date,
-                entryPrice: price,
-                shares: shares,
-                costBasis: amount,
-                originalPickId: originalPickId,
-                stopLossPrice: stopLossPrice,
-                warningPrice: warningPrice,
-                notes: notes,
-                executionMode: executionMode,
-                accountLabel: normalizedAccount);
-            await _tradeLog.AttachPosition(tradeId, positionId);
-
             Console.WriteLine($"[TradeManager] Logged {executionMode.ToStorageValue().ToUpperInvariant()} BUY {shares} {symbol} @ {price:C} = {amount:C}");
-            Console.WriteLine($"               Position {positionId} opened | stop {stopLossPrice:C} (-{StopLossFraction:P0}), warning {warningPrice:C} (-{WarningFraction:P0})");
+            Console.WriteLine($"               Position {opened.PositionId} opened | stop {stopLossPrice:C} (-{StopLossFraction:P0}), warning {warningPrice:C} (-{WarningFraction:P0})");
             return true;
         }
 

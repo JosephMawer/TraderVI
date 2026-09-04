@@ -81,19 +81,27 @@ public partial class DelphiView : UserControl
                 out string? accountLabel,
                 out string error) || pick is null)
         {
-            MessageBox.Show(error, "Paper entry", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(error, "Position entry", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         decimal cost = decimal.Round(fillPrice * shares, 2);
+        bool isDiscretionaryRealOverride =
+            executionMode == TrackedExecutionMode.Real &&
+            !string.Equals(pick.Direction, "Buy", StringComparison.OrdinalIgnoreCase);
         string exploratory = string.Equals(pick.Lens, "Breakout", StringComparison.OrdinalIgnoreCase)
             ? "\n\nThis is an exploratory Breakout-lens selection; Continuation remains the production lens."
+            : "";
+        string overrideWarning = isDiscretionaryRealOverride
+            ? $"\n\nDELPHI DIRECTION: {pick.Direction.ToUpperInvariant()}. This is a discretionary override, not a Delphi Buy recommendation. " +
+              "TraderVI will track the actual holding without original-pick attribution or the fresh-Delphi loss exception."
             : "";
         MessageBoxResult answer = MessageBox.Show(
             $"Track {shares} share(s) of {pick.Symbol} at {fillPrice:C2} as {executionMode.ToStorageValue().ToUpperInvariant()}?\n\n" +
             $"Book cost: {cost:C2}\nSaved pick: {pick.Lens} #{pick.Rank} from {pick.PickDate:MMM d, yyyy}" +
             (executionMode == TrackedExecutionMode.Real ? $"\nAccount: {accountLabel}" : "") +
             exploratory +
+            overrideWarning +
             (executionMode == TrackedExecutionMode.Real
                 ? "\n\nConfirm only if this fill already happened at your broker. TraderVI records it but sends no order."
                 : "\n\nThis creates a simulated Ghost fill. No broker order can be placed."),
@@ -112,12 +120,13 @@ public partial class DelphiView : UserControl
                 shares,
                 fillPrice,
                 executionMode,
-                accountLabel);
+                accountLabel,
+                confirmNonBuyRealOverride: isDiscretionaryRealOverride);
             PaperPositionOpened?.Invoke(this, result);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Paper entry failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, "Position entry failed", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {

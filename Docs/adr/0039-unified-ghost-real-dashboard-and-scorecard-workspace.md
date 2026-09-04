@@ -4,7 +4,7 @@
 - **Date:** 2026-08-28
 - **Domains:** architecture, data-pipeline, market-microstructure, risk-management
 - **Related:** ADR-0015, ADR-0021, ADR-0031, ADR-0032, ADR-0037, ADR-0038
-- **Extended by:** ADR-0044, which includes unlinked operator-reported Real holdings in the dashboard and monitor without granting Delphi provenance
+- **Extended by:** ADR-0044, which includes unlinked operator-reported Real holdings in the dashboard and monitor without granting Delphi provenance; ADR-0047, which records confirmed non-Buy Real overrides as that same unlinked class; ADR-0048, which adds atomic opening and retry-safe full-exit receipts without deciding partial fills or commissions
 
 ## Context
 
