@@ -271,13 +271,13 @@ Canonical database write-contract reconciliation on 2026-09-03:
 - Two dormant symbol-write methods now target explicit `dbo.Symbols` columns instead of an obsolete Ticker
   contract or a mismatched positional insert. Leadership repository validation now rejects counts above the
   stated denominator and non-positive optional benchmark prices.
-- Guarded migration 018 is prepared but intentionally not applied. It adds the corresponding trusted
-  Leadership checks and revalidates the existing enabled-but-untrusted Quotes-to-Symbols foreign key without
-  changing rows. A fresh verified backup, separate authorization, manual execution, and postflight are still
-  required before the live reconciliation is complete.
+- Guarded migration 018 was manually applied and verified after a fresh checksum-verified full backup and
+  hash-matched OneDrive copy. It preserved 117 Leadership rows and 462 Quote rows, found zero invalid
+  Leadership rows and zero Quote orphans, and left both new checks plus the Quotes-to-Symbols foreign key
+  enabled and trusted.
 - All 236 Core tests passed in Debug and Release. The focused Release Hermes build and the SSDT Release
   database-project build succeeded; the latter produced a DACPAC only as a build artifact. Migration 018
-  passed offline `TSql150` parsing with zero errors. No migration or DACPAC was applied.
+  passed offline `TSql150` parsing with zero errors. No DACPAC was deployed.
 
 First v3.2 operating day on 2026-09-02:
 
@@ -320,12 +320,6 @@ First v3.2 operating day on 2026-09-02:
    `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. Version 1 explicitly accepts only one all-shares, zero-commission Real exit and refuses partial/fee-bearing use; the version-2 lifecycle/accounting decision remains open. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Canonical write-contract migration 018 is pending.** ADR-0049's source reconciliation and repository
-    validation are complete, and read-only preflight found no invalid Leadership rows or orphan Quotes.
-    The live database still lacks the two new Leadership checks and its enabled Quotes foreign key remains
-    untrusted until migration 018 receives a fresh verified backup, separate authorization, manual execution,
-    and postflight. Do not publish the DACPAC.
-
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
@@ -345,6 +339,5 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
    Real fill from a non-Buy row only through ADR-0047's explicit override confirmation; preserve it as
    unlinked and do not reopen closed Ghost lifecycles.
 6. Observe additional Hermes backups and perform a test restore.
-7. Complete migration 018's separately authorized rollout, then make the separate SSDT CI decision before
-   larger workflow extraction. ADR-0048's transaction boundaries, ADR-0049's source reconciliation, and
-   basic .NET CI are complete in source.
+7. Make the separate SSDT CI decision before larger workflow extraction. ADR-0048's transaction boundaries,
+   ADR-0049's source/live reconciliation, and basic .NET CI are complete.

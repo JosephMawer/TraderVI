@@ -67,9 +67,16 @@ not certified all older rows.
 
 **Harder:**
 
-- Migration 018 remains an operational boundary and blocks declaring the live reconciliation complete until
-  it is separately backed up, authorized, applied, and verified.
+- Future changes to these contracts retain the same manual backup, authorization, migration, and verification
+  boundary.
 - The canonical project intentionally retains some existing indexes pending a separate measured cleanup.
+
+## Implementation status
+
+Migration 018 was manually applied and verified on 2026-09-03 after a fresh checksum-verified full backup
+and hash-matched OneDrive copy. It preserved 117 Leadership rows and 462 Quote rows, found zero invalid
+Leadership rows and zero Quote orphans, and left both new checks plus `FK_Quotes_Symbols` enabled and trusted.
+No DACPAC was deployed.
 
 **Would tell us this was wrong:**
 

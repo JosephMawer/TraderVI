@@ -119,6 +119,10 @@ enabled/trusted, and its checksum-verified staging and OneDrive backup copies ha
 runs still require explicit authorization. A deliberate official Delphi cohort may now start when wanted;
 Athena does not collect or repair leadership data.
 
+Migration 018 was manually applied and verified on 2026-09-03 after a fresh checksum-verified full backup
+and hash-matched OneDrive copy. The two Leadership value checks and `FK_Quotes_Symbols` are enabled and
+trusted, with zero invalid Leadership rows and zero Quote orphans. No DACPAC was deployed.
+
 The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
 
 If the data update completes but backup creation, verification, or copying fails, Hermes prints a prominent warning and exits with code `2`. The updated database remains intact, and any completed staging backup is preserved for diagnosis or manual copying. A successful copy still requires the OneDrive client to finish cloud synchronization.
