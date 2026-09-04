@@ -746,3 +746,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0048
 
 **A:** It refuses the version-1 workflow. The operator may confirm only one all-shares, zero-commission fill; partial-fill lifecycle and commission accounting remain an explicit open decision.
+
+### Q: Why must `DailyBars` enforce `(Symbol, Date)` when the repository already uses that pair in MERGE?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0049
+
+**A:** A MERGE predicate describes how one writer searches; it does not prevent another or concurrent writer from creating duplicate natural sessions. The database uniqueness rule makes the repository's identity assumption true for every writer.
+
+### Q: Why does migration 018 validate Quotes before trusting its existing foreign key?
+- **Domains:** data-pipeline, risk-management
+- **Source:** ADR-0049
+
+**A:** An enabled but untrusted foreign key protects new writes without certifying older rows. The migration first proves there are no orphan Quotes, then asks SQL Server to check existing rows and mark the relationship trusted.

@@ -8,15 +8,20 @@ namespace Core.Db
 {
     public class SymbolsRepository : SQLBase
     {
-        public SymbolsRepository() : base("[Symbols]", "[Symbol]") { }
+        public SymbolsRepository() : base("[dbo].[Symbols]", "[ShortName],[Symbol]") { }
 
         public async Task AddSymbol(string name, string symbol)
         {
+            if (string.IsNullOrWhiteSpace(symbol) || symbol.Trim().Length > 20)
+                throw new ArgumentException("Symbol is required and cannot exceed 20 characters.", nameof(symbol));
+            if (name?.Length > 100)
+                throw new ArgumentException("Short name cannot exceed 100 characters.", nameof(name));
+
             var query = $"INSERT INTO {DbName} ({Fields}) VALUES (@name, @symbol)";
             await Insert(query,
              [
-                new SqlParameter("@name", SqlDbType.NVarChar, 100) { Value = name },
-                new SqlParameter("@symbol", SqlDbType.VarChar, 10) { Value = symbol }
+                new SqlParameter("@name", SqlDbType.NVarChar, 100) { Value = name is null ? DBNull.Value : name },
+                new SqlParameter("@symbol", SqlDbType.NVarChar, 20) { Value = symbol.Trim() }
              ]);
         }
 

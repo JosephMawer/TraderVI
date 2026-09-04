@@ -14,7 +14,8 @@ CREATE TABLE [dbo].[Quotes]
 	[Weeks52High]   DECIMAL(18,4) NULL,
 	[Weeks52Low]    DECIMAL(18,4) NULL,
 	[Volume]        BIGINT        NULL,
-	[IngestedUtc]   DATETIME2     NOT NULL,
+	[IngestedUtc]   DATETIME2     NOT NULL CONSTRAINT [DF_Quotes_IngestedUtc] DEFAULT (SYSUTCDATETIME()),
 
-	CONSTRAINT [PK_Quotes] PRIMARY KEY CLUSTERED ([Symbol], [CreatedUtc])
+	CONSTRAINT [PK_Quotes] PRIMARY KEY CLUSTERED ([Symbol], [CreatedUtc]),
+	CONSTRAINT [FK_Quotes_Symbols] FOREIGN KEY ([Symbol]) REFERENCES [dbo].[Symbols] ([Symbol])
 );

@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[ModelExperiment]
 (
-	[ExperimentId]      UNIQUEIDENTIFIER NOT NULL,
+	[ExperimentId]      UNIQUEIDENTIFIER NOT NULL CONSTRAINT [DF_ModelExperiment_ExperimentId] DEFAULT (NEWID()),
 	[TaskType]          NVARCHAR(64)     NOT NULL,
 	[ExperimentName]    NVARCHAR(128)    NOT NULL,
 	[LabelDefinition]   NVARCHAR(256)    NULL,
@@ -22,8 +22,17 @@ CREATE TABLE [dbo].[ModelExperiment]
 	[Hypothesis]        NVARCHAR(512)    NULL,
 	[Outcome]           NVARCHAR(512)    NULL,
 	[Decision]          NVARCHAR(64)     NULL,
-	[CreatedUtc]        DATETIME2        NOT NULL,
+	[CreatedUtc]        DATETIME2        NOT NULL CONSTRAINT [DF_ModelExperiment_CreatedUtc] DEFAULT (SYSUTCDATETIME()),
 	[Notes]             NVARCHAR(MAX)    NULL,
 
 	CONSTRAINT [PK_ModelExperiment] PRIMARY KEY CLUSTERED ([ExperimentId])
 );
+GO
+
+CREATE INDEX [IX_ModelExperiment_CreatedUtc]
+	ON [dbo].[ModelExperiment] ([CreatedUtc] DESC);
+GO
+
+CREATE INDEX [IX_ModelExperiment_TaskType]
+	ON [dbo].[ModelExperiment] ([TaskType]);
+GO

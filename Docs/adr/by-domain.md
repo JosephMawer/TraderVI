@@ -35,6 +35,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
+- [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 
 ## data-pipeline
 
@@ -61,6 +62,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
+- [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 
 ## data-sources
 
@@ -151,6 +153,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
+- [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 
 ## decision-engine
 

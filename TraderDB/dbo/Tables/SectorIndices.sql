@@ -9,3 +9,8 @@ CREATE TABLE [dbo].[SectorIndices]
 
 	CONSTRAINT [PK_SectorIndices] PRIMARY KEY CLUSTERED ([Date], [Symbol])
 );
+GO
+
+CREATE INDEX [IX_SectorIndices_Symbol_Date]
+	ON [dbo].[SectorIndices] ([Symbol], [Date] DESC);
+GO

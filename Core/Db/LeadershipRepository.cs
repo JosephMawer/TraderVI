@@ -83,8 +83,10 @@ WHEN NOT MATCHED THEN
         cmd.Parameters.Add("@ActiveAdvancers", SqlDbType.Int);
         cmd.Parameters.Add("@ActiveDecliners", SqlDbType.Int);
         cmd.Parameters.Add("@ActiveN", SqlDbType.Int);
-        cmd.Parameters.Add("@Tsx60Close", SqlDbType.Decimal);
-        cmd.Parameters.Add("@EqualWeightClose", SqlDbType.Decimal);
+        cmd.Parameters.Add("@Tsx60Close", SqlDbType.Decimal).Precision = 10;
+        cmd.Parameters["@Tsx60Close"].Scale = 2;
+        cmd.Parameters.Add("@EqualWeightClose", SqlDbType.Decimal).Precision = 10;
+        cmd.Parameters["@EqualWeightClose"].Scale = 2;
 
         foreach (var entry in entries)
         {
@@ -176,6 +178,14 @@ END;
             if (entry.NewHighs < 0 || entry.NewLows < 0 || entry.IssuesTraded <= 0)
                 throw new ArgumentException(
                     "New highs and lows must be nonnegative, and issues traded must be positive.",
+                    nameof(entries));
+            if (entry.NewHighs > entry.IssuesTraded || entry.NewLows > entry.IssuesTraded)
+                throw new ArgumentException(
+                    "New-high and new-low counts cannot exceed issues traded.",
+                    nameof(entries));
+            if (entry.Tsx60Close is <= 0m || entry.EqualWeightClose is <= 0m)
+                throw new ArgumentException(
+                    "Stored leadership benchmark prices must be positive when present.",
                     nameof(entries));
 
             bool hasAnyActiveValue = entry.ActiveAdvancers.HasValue

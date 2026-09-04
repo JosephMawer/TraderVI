@@ -107,6 +107,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0046-guarded-nightly-operations-runner.md = Docs\adr\0046-guarded-nightly-operations-runner.md
 		Docs\adr\0047-discretionary-real-entry-from-non-buy-row.md = Docs\adr\0047-discretionary-real-entry-from-non-buy-row.md
 		Docs\adr\0048-consequential-operational-transaction-boundaries.md = Docs\adr\0048-consequential-operational-transaction-boundaries.md
+		Docs\adr\0049-canonical-database-write-contracts.md = Docs\adr\0049-canonical-database-write-contracts.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

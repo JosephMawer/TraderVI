@@ -86,6 +86,7 @@ architecture documentation.
 | [0046](0046-guarded-nightly-operations-runner.md) | Guarded nightly operations runner | Accepted | architecture, data-pipeline, decision-engine, risk-management |
 | [0047](0047-discretionary-real-entry-from-non-buy-row.md) | Discretionary Real entry from a non-Buy Delphi row | Accepted | architecture, decision-engine, market-microstructure, risk-management |
 | [0048](0048-consequential-operational-transaction-boundaries.md) | Consequential operational transaction boundaries | Accepted | architecture, data-pipeline, risk-management |
+| [0049](0049-canonical-database-write-contracts.md) | Canonical database write contracts | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

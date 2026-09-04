@@ -48,7 +48,7 @@ broker activity. The Windows task and weekday 07:00 Codex heartbeat were install
   `TraderVI Nightly Watch` is active for weekday 07:00 read-only supervision.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
 - Complete Release solution build: successful after the ADR-0013 score-once restoration using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
-- Core tests: 225 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
+- Core tests: 236 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
 - Migration 017 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. The final canonical SQL project and complete Release solution both build successfully after the strengthened identity constraint; neither build deployed the DACPAC.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -259,6 +259,26 @@ Consequential transaction-boundary stabilization on 2026-09-03:
 - Read-only SQL verification found CS (35 shares) and GGD (50 shares) open as operator-reported Real TFSA positions, and SGY closed with exactly one attached 20-share Real SELL. No position or trade row was changed.
 - All 225 Core tests passed in Debug and Release. Focused Release builds succeeded for Core, Delphi, Hermes, Athena, TraderVI, and TraderVI.WPF. The final WPF check used an isolated output because an existing process held the deployed Release `Core.dll`; that process was not started, stopped, or replaced. Existing dependency advisories, nullable-context warnings, Hermes' unused local-function warning, and WPF's unused-variable warning remain separate backlog items.
 
+Canonical database write-contract reconciliation on 2026-09-03:
+
+- ADR-0049 records the source/live audit. Read-only metadata and integrity queries found zero duplicate
+  `DailyBars` natural keys, zero orphan Quotes or tracked-position references, and zero invalid Leadership
+  counts or benchmark prices.
+- The SSDT project now represents the identities, defaults, relationships, checks, and indexes relied on by
+  runtime writers. In particular, `DailyBars.Id` is an identity and `(Symbol, Date)` is unique; Symbols and
+  Quotes expose the defaults omitted by their writers; and tracked positions, trades, picks, models, and
+  operational publications retain their live relationships.
+- Two dormant symbol-write methods now target explicit `dbo.Symbols` columns instead of an obsolete Ticker
+  contract or a mismatched positional insert. Leadership repository validation now rejects counts above the
+  stated denominator and non-positive optional benchmark prices.
+- Guarded migration 018 is prepared but intentionally not applied. It adds the corresponding trusted
+  Leadership checks and revalidates the existing enabled-but-untrusted Quotes-to-Symbols foreign key without
+  changing rows. A fresh verified backup, separate authorization, manual execution, and postflight are still
+  required before the live reconciliation is complete.
+- All 236 Core tests passed in Debug and Release. The focused Release Hermes build and the SSDT Release
+  database-project build succeeded; the latter produced a DACPAC only as a build artifact. Migration 018
+  passed offline `TSql150` parsing with zero errors. No migration or DACPAC was applied.
+
 First v3.2 operating day on 2026-09-02:
 
 - The first deliberate official `v3.2-leadership-missingness` run is valid for recommendation date
@@ -300,7 +320,11 @@ First v3.2 operating day on 2026-09-02:
    `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. Version 1 explicitly accepts only one all-shares, zero-commission Real exit and refuses partial/fee-bearing use; the version-2 lifecycle/accounting decision remains open. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
-10. **Broader leadership SQL/repository integrity remains deferred.** The first post-migration Hermes observation passed: the 2026-09-01 row retained an all-null active-breadth triple, zero sentinel and partial triples remain absent, and the constraint remains enabled/trusted. ADR-0043 intentionally does not resolve every older `LeadershipData` integrity rule; broader canonical SQL/repository reconciliation remains a separate roadmap item.
+10. **Canonical write-contract migration 018 is pending.** ADR-0049's source reconciliation and repository
+    validation are complete, and read-only preflight found no invalid Leadership rows or orphan Quotes.
+    The live database still lacks the two new Leadership checks and its enabled Quotes foreign key remains
+    untrusted until migration 018 receives a fresh verified backup, separate authorization, manual execution,
+    and postflight. Do not publish the DACPAC.
 
 ## Immediate direction
 
@@ -321,5 +345,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
    Real fill from a non-Buy row only through ADR-0047's explicit override confirmation; preserve it as
    unlinked and do not reopen closed Ghost lifecycles.
 6. Observe additional Hermes backups and perform a test restore.
-7. Continue the stabilization order with canonical SQL/repository drift and the separate SSDT CI decision
-   before larger workflow extraction; ADR-0048's transaction boundaries and basic .NET CI are complete in source.
+7. Complete migration 018's separately authorized rollout, then make the separate SSDT CI decision before
+   larger workflow extraction. ADR-0048's transaction boundaries, ADR-0049's source reconciliation, and
+   basic .NET CI are complete in source.

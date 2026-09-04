@@ -20,18 +20,17 @@ namespace Core.Db
 
     public class QuoteRepository : SQLBase
     {
-        public QuoteRepository() : base("[dbo].[Ticker]", "[Ticker],[Name],[Exchange]") { }
+        public QuoteRepository()
+            : base("[dbo].[Symbols]", "[Symbol],[ShortName],[ExchangeCode]")
+        { }
 
         /// <summary>
         /// Gets a list of symbols
         /// </summary>
-        /// <param name="Filter">Optional WHERE clause filter (e.g., "WHERE Exchange = 'TSX'")</param>
         /// <returns>An ordered list of <see cref="TickerInfo"/></returns>
-        public async Task<List<TickerInfo>> GetSymbols(string Filter = null)
+        public async Task<List<TickerInfo>> GetSymbols()
         {
             var sql = $"SELECT {Fields} FROM {DbName}";
-            if (!string.IsNullOrEmpty(Filter))
-                sql += $" {Filter}";
             sql += " ORDER BY [Symbol]";
 
             var lst = new List<TickerInfo>();
@@ -48,8 +47,8 @@ namespace Core.Db
                             lst.Add(new TickerInfo
                             {
                                 Symbol = reader.GetString(0),
-                                Name = reader.GetString(1),
-                                Exchange = reader.GetString(2)
+                                Name = reader.IsDBNull(1) ? null : reader.GetString(1),
+                                Exchange = reader.IsDBNull(2) ? null : reader.GetString(2)
                             });
                         }
                     }
@@ -68,15 +67,22 @@ namespace Core.Db
         /// <returns></returns>
         public async Task InsertSymbol(string symbol, string name, string exchange)
         {
-            var query = $"INSERT INTO {DbName} VALUES (@Symbol, @Name, @Exchange)";
+            if (string.IsNullOrWhiteSpace(symbol) || symbol.Trim().Length > 20)
+                throw new ArgumentException("Symbol is required and cannot exceed 20 characters.", nameof(symbol));
+            if (name?.Length > 100)
+                throw new ArgumentException("Short name cannot exceed 100 characters.", nameof(name));
+            if (exchange?.Length > 20)
+                throw new ArgumentException("Exchange code cannot exceed 20 characters.", nameof(exchange));
+
+            var query = $"INSERT INTO {DbName} ({Fields}) VALUES (@Symbol, @Name, @Exchange)";
             using (var con = new SqlConnection(ConnectionString))
             {
                 await con.OpenAsync();
                 using (var cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@Symbol", symbol);
-                    cmd.Parameters.AddWithValue("@Name", name);
-                    cmd.Parameters.AddWithValue("@Exchange", exchange);
+                    cmd.Parameters.Add(new SqlParameter("@Symbol", SqlDbType.NVarChar, 20) { Value = symbol.Trim() });
+                    cmd.Parameters.Add(new SqlParameter("@Name", SqlDbType.NVarChar, 100) { Value = name is null ? DBNull.Value : name });
+                    cmd.Parameters.Add(new SqlParameter("@Exchange", SqlDbType.NVarChar, 20) { Value = exchange is null ? DBNull.Value : exchange });
                     await cmd.ExecuteNonQueryAsync();
                 }
             }

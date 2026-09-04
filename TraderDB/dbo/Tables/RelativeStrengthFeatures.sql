@@ -25,3 +25,8 @@ CREATE TABLE [dbo].[RelativeStrengthFeatures]
 
 	CONSTRAINT [PK_RelativeStrengthFeatures] PRIMARY KEY CLUSTERED ([Symbol], [Date])
 );
+GO
+
+CREATE INDEX [IX_RSF_Date]
+	ON [dbo].[RelativeStrengthFeatures] ([Date]);
+GO

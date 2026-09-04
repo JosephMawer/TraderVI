@@ -8,3 +8,8 @@ CREATE TABLE [dbo].[StockSectorMap]
 
 	CONSTRAINT [PK_StockSectorMap] PRIMARY KEY CLUSTERED ([Symbol])
 );
+GO
+
+CREATE INDEX [IX_StockSectorMap_SectorIndex]
+	ON [dbo].[StockSectorMap] ([SectorIndexSymbol]);
+GO

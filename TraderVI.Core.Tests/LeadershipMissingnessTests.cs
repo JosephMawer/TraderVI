@@ -62,6 +62,51 @@ public sealed class LeadershipMissingnessTests
         yield return [30, 25, 50];
     }
 
+    [Theory]
+    [InlineData(101, 0, 100)]
+    [InlineData(0, 101, 100)]
+    public void RepositoryValidation_RejectsNhnlCountsAboveIssuesTraded(
+        int newHighs,
+        int newLows,
+        int issuesTraded)
+    {
+        LeadershipSnapshot entry = Snapshot(
+            0,
+            newHighs,
+            activeAdvancers: null,
+            activeDecliners: null,
+            activeN: null) with
+        {
+            NewLows = newLows,
+            IssuesTraded = issuesTraded
+        };
+
+        Should.Throw<ArgumentException>(() => LeadershipRepository.Validate([entry]));
+    }
+
+    [Theory]
+    [InlineData(0, 100)]
+    [InlineData(-1, 100)]
+    [InlineData(100, 0)]
+    [InlineData(100, -1)]
+    public void RepositoryValidation_RejectsNonPositiveBenchmarkPrices(
+        double? tsx60Close,
+        double? equalWeightClose)
+    {
+        LeadershipSnapshot entry = Snapshot(
+            0,
+            newHighs: 20,
+            activeAdvancers: null,
+            activeDecliners: null,
+            activeN: null) with
+        {
+            Tsx60Close = (decimal?)tsx60Close,
+            EqualWeightClose = (decimal?)equalWeightClose
+        };
+
+        Should.Throw<ArgumentException>(() => LeadershipRepository.Validate([entry]));
+    }
+
     [Fact]
     public void ComputeQuality_RequiresAContiguousObservedMoverSuffix()
     {

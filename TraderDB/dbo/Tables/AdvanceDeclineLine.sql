@@ -10,3 +10,8 @@ CREATE TABLE [dbo].[AdvanceDeclineLine]
 
 	CONSTRAINT [PK_AdvanceDeclineLine] PRIMARY KEY CLUSTERED ([Date])
 );
+GO
+
+CREATE INDEX [IX_ADLine_Date]
+	ON [dbo].[AdvanceDeclineLine] ([Date] DESC);
+GO

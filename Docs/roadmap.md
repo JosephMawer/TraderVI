@@ -121,8 +121,11 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   Continuation/Breakout gates and ranking over it, and reuses each profit-model prediction for both composite
   calculation and reporting. All 204 Core tests passed in Debug and Release; the affected Delphi build and
   complete Release solution plus SSDT build succeeded without deployment or operational workflows.
-- [ ] Reconcile canonical SQL definitions with repository writes before any broad database work. Continue
-  to use reviewed manual migrations only; do not use DACPAC deployment.
+- [ ] Complete ADR-0049's canonical SQL/repository reconciliation before any broad database work. Source now
+  mirrors the live identity/default/relationship/index contracts, symbol writers name canonical columns,
+  and Leadership validation rejects impossible stored facts. Guarded migration 018 must still receive a
+  fresh verified backup, separate authorization, manual application, and verification before this item is
+  operationally complete. Do not use DACPAC deployment.
 - [x] Record and implement ADR-0048's explicit transaction boundaries for same-day Delphi operational publication and
   tracked-position opening. A successful zero-result rerun must replace stale same-date operational picks,
   and retry behavior must not expose empty or partially replaced projections. BUY/position creation is now

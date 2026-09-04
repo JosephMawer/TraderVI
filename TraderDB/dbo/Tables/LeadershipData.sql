@@ -28,5 +28,23 @@ CREATE TABLE [dbo].[LeadershipData]
 			AND [ActiveN] > 0
 			AND CONVERT(BIGINT, [ActiveAdvancers]) + [ActiveDecliners] <= [ActiveN]
 		)
+	),
+	CONSTRAINT [CK_LeadershipData_NhnlObservation] CHECK
+	(
+		[NewHighs] >= 0
+		AND [NewLows] >= 0
+		AND [IssuesTraded] > 0
+		AND [NewHighs] <= [IssuesTraded]
+		AND [NewLows] <= [IssuesTraded]
+	),
+	CONSTRAINT [CK_LeadershipData_BenchmarkPrices] CHECK
+	(
+		([Tsx60Close] IS NULL OR [Tsx60Close] > 0)
+		AND ([EqualWeightClose] IS NULL OR [EqualWeightClose] > 0)
 	)
 );
+GO
+
+CREATE INDEX [IX_LeadershipData_Date]
+	ON [dbo].[LeadershipData] ([Date] DESC);
+GO

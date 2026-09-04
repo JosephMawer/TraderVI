@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[GranvilleIndicatorLog]
 (
-	[LogId]                UNIQUEIDENTIFIER NOT NULL,
+	[LogId]                UNIQUEIDENTIFIER NOT NULL CONSTRAINT [DF_GranvilleIndicatorLog_LogId] DEFAULT (NEWID()),
 	[EvalDate]             DATE             NOT NULL,
 	[IndicatorNumber]      INT              NOT NULL,
 	[Category]             NVARCHAR(50)     NOT NULL,
@@ -10,7 +10,16 @@ CREATE TABLE [dbo].[GranvilleIndicatorLog]
 	[Description]          NVARCHAR(512)    NOT NULL,
 	[NetPoints]            INT              NOT NULL,
 	[CompositeAdjustment]  FLOAT            NOT NULL,
-	[CreatedUtc]           DATETIME2        NOT NULL,
+	[CreatedUtc]           DATETIME2        NOT NULL CONSTRAINT [DF_GranvilleIndicatorLog_CreatedUtc] DEFAULT (SYSUTCDATETIME()),
 
 	CONSTRAINT [PK_GranvilleIndicatorLog] PRIMARY KEY CLUSTERED ([LogId])
 );
+GO
+
+CREATE INDEX [IX_GranvilleIndicatorLog_EvalDate]
+	ON [dbo].[GranvilleIndicatorLog] ([EvalDate]);
+GO
+
+CREATE INDEX [IX_GranvilleIndicatorLog_Category]
+	ON [dbo].[GranvilleIndicatorLog] ([EvalDate], [Category]);
+GO
