@@ -87,6 +87,7 @@ architecture documentation.
 | [0047](0047-discretionary-real-entry-from-non-buy-row.md) | Discretionary Real entry from a non-Buy Delphi row | Accepted | architecture, decision-engine, market-microstructure, risk-management |
 | [0048](0048-consequential-operational-transaction-boundaries.md) | Consequential operational transaction boundaries | Accepted | architecture, data-pipeline, risk-management |
 | [0049](0049-canonical-database-write-contracts.md) | Canonical database write contracts | Accepted | architecture, data-pipeline, risk-management |
+| [0050](0050-build-only-ssdt-ci-boundary.md) | Build-only SSDT CI boundary | Accepted | architecture, data-pipeline, risk-management |
 
 See also:
 

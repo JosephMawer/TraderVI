@@ -758,3 +758,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0049
 
 **A:** An enabled but untrusted foreign key protects new writes without certifying older rows. The migration first proves there are no orphan Quotes, then asks SQL Server to check existing rows and mark the relationship trusted.
+
+### Q: Why is TraderDB built in a separate CI job from the .NET applications?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0050
+
+**A:** The original SQL project requires a pinned Visual Studio/SSDT toolchain. A separate job makes that dependency and its failures explicit without coupling them to Core tests or focused application builds.
+
+### Q: Why can the SSDT CI job not deploy TraderDB?
+- **Domains:** architecture, risk-management
+- **Source:** ADR-0050
+
+**A:** It receives no database credentials, invokes only the Build target with deployment disabled, uploads no DACPAC, and is backed by the project's target that rejects deploy operations. Live changes still require an authorized manual migration.

@@ -130,7 +130,7 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
   and retry behavior must not expose empty or partially replaced projections. BUY/position creation is now
   one serializable commit, and append-only calibration evidence remains semantically distinct.
 - [x] Establish basic Windows CI for all Core tests and focused .NET application builds after the bounded
-  correctness fixes and before large workflow extraction. The SSDT job boundary remains a separate decision.
+  correctness fixes and before large workflow extraction. ADR-0050 separately adds the build-only SSDT job.
 - [ ] Introduce immutable Delphi evaluation facts and typed load/evaluate/evidence/publish stages while
   preserving ADR-0035 presentation compatibility.
 - [ ] Separate Hermes completion semantics and Hercules training/evaluation/artifact-promotion responsibilities.
@@ -143,7 +143,9 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 ### 6. Development hygiene
 
 - [x] Add GitHub Actions for focused .NET builds and `TraderVI.Core.Tests` as ordered in the stabilization tranche.
-- [ ] Decide whether the SSDT build belongs in the same Windows workflow or a separate job.
+- [x] Keep SSDT in the same Windows workflow as a separate build-only job under ADR-0050. The pinned
+  Visual Studio 2026 runner verifies its SSDT targets, builds only `TraderDB.sqlproj`, receives no database
+  credentials, and neither uploads nor deploys the DACPAC.
 - [ ] Address dependency-security advisories separately from compiler cleanup.
 
 ## Next — improve data and model evidence

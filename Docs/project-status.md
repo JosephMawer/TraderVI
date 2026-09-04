@@ -48,7 +48,7 @@ broker activity. The Windows task and weekday 07:00 Codex heartbeat were install
   `TraderVI Nightly Watch` is active for weekday 07:00 read-only supervision.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
 - Complete Release solution build: successful after the ADR-0013 score-once restoration using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
-- Core tests: 236 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
+- Core tests: 237 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
 - Migration 017 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. The final canonical SQL project and complete Release solution both build successfully after the strengthened identity constraint; neither build deployed the DACPAC.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -255,7 +255,8 @@ Consequential transaction-boundary stabilization on 2026-09-03:
 - The existing Real-exit transaction now returns the one durable attached SELL on retry after an ambiguous commit instead of creating a duplicate. The repository still rechecks active Real mode and rejects an exit date before entry.
 - Monitor snapshot writes now require `IsActive = 1`, so a cycle holding a stale in-memory row cannot overwrite a manual exit snapshot after the close commits.
 - Version 1 still supports only one all-shares, zero-commission Real exit. The UI and workflow require explicit affirmation and direct the operator to cancel for partial or fee-bearing fills; their lifecycle/accounting policy remains open.
-- Basic Windows GitHub Actions now runs all Core tests and focused Release builds for Delphi, Hermes, Athena, TraderVI, and TraderVI.WPF. `TraderDB.sqlproj`/SSDT remains intentionally outside CI pending a separate decision.
+- Basic Windows GitHub Actions runs all Core tests and focused Release builds for Delphi, Hermes, Athena,
+  TraderVI, and TraderVI.WPF.
 - Read-only SQL verification found CS (35 shares) and GGD (50 shares) open as operator-reported Real TFSA positions, and SGY closed with exactly one attached 20-share Real SELL. No position or trade row was changed.
 - All 225 Core tests passed in Debug and Release. Focused Release builds succeeded for Core, Delphi, Hermes, Athena, TraderVI, and TraderVI.WPF. The final WPF check used an isolated output because an existing process held the deployed Release `Core.dll`; that process was not started, stopped, or replaced. Existing dependency advisories, nullable-context warnings, Hermes' unused local-function warning, and WPF's unused-variable warning remain separate backlog items.
 
@@ -278,6 +279,17 @@ Canonical database write-contract reconciliation on 2026-09-03:
 - All 236 Core tests passed in Debug and Release. The focused Release Hermes build and the SSDT Release
   database-project build succeeded; the latter produced a DACPAC only as a build artifact. Migration 018
   passed offline `TSql150` parsing with zero errors. No DACPAC was deployed.
+
+Build-only SSDT CI boundary on 2026-09-03:
+
+- ADR-0050 adds an independent database-project job to the existing Windows workflow. It is pinned to the
+  documented Visual Studio 2026 image, verifies the expected MSBuild and SSDT targets, and invokes only the
+  Release `Build` target with `DeployOnBuild=False`.
+- The job receives no database credentials, runs no SQL Server or migration command, and deliberately does
+  not upload the generated DACPAC. A Core safety test guards those workflow properties.
+- All 237 Core tests passed in Debug and Release. The exact build flags succeeded locally with Visual Studio
+  18/SSDT. No database, migration, application, market service, or deployment operation ran. The first hosted
+  GitHub Actions result remains pending until this change is pushed.
 
 First v3.2 operating day on 2026-09-02:
 
@@ -310,7 +322,9 @@ First v3.2 operating day on 2026-09-02:
 3. **Database deployment is intentionally manual.** `TraderDB.sqlproj` is a `Sql150` build/reference artifact and blocks Deploy targets. Live changes use dated scripts under `TraderDB/Migrations`; unresolved project/database drift must be reconciled without broad DACPAC publish.
 4. **Model registry hygiene.** Retired experiments remain enabled in SQL even though runtime filtering prevents them from loading.
 5. **Universe hygiene requires continued monitoring.** The reviewed full-universe audit is clean, but upstream metadata can classify newly listed ETFs as stocks. Run DataAudit regularly after ingestion changes. Delphi now independently excludes any symbol history that does not match its canonical XIU session before scoring.
-6. **Basic CI excludes SSDT.** Windows GitHub Actions now runs all Core tests and focused .NET application builds. Whether and how to build `TraderDB.sqlproj` with SSDT is still a separate explicit decision; CI never deploys a DACPAC.
+6. **CI validates SSDT without deployment.** Windows GitHub Actions runs Core tests, focused .NET application
+   builds, and ADR-0050's separate build-only `TraderDB.sqlproj` job. CI has no database credentials and never
+   executes migrations, publishes a DACPAC, or contacts the live database.
 7. **Outcome feedback has started but is not broadly mature.** Eight official runs across six market-data
    cohorts now contain 1,729 candidates. Athena has written 112 valid three-session marks and 112 valid
    excursion outcomes, but 10-session labels, 20-session paths, and delayed-intraday outcomes remain at
@@ -339,5 +353,6 @@ Stabilize the existing daily advisory loop before adding indicators or automatio
    Real fill from a non-Buy row only through ADR-0047's explicit override confirmation; preserve it as
    unlinked and do not reopen closed Ghost lifecycles.
 6. Observe additional Hermes backups and perform a test restore.
-7. Make the separate SSDT CI decision before larger workflow extraction. ADR-0048's transaction boundaries,
-   ADR-0049's source/live reconciliation, and basic .NET CI are complete.
+7. Continue to larger workflow extraction only after the CI jobs have produced their first successful hosted
+   run. ADR-0048's transaction boundaries, ADR-0049's source/live reconciliation, and ADR-0050's build-only
+   SSDT boundary are complete in source.

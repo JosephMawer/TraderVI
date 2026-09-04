@@ -77,6 +77,30 @@ public sealed class DatabaseWriteContractTests
         migration.ShouldNotContain("INSERT INTO", Case.Insensitive);
     }
 
+    [Fact]
+    public void DatabaseCiJob_BuildsSchemaWithoutDeploymentAuthority()
+    {
+        string workflow = File.ReadAllText(Path.Combine(
+            FindRepositoryRoot(),
+            ".github",
+            "workflows",
+            "dotnet-ci.yml"));
+        int jobStart = workflow.IndexOf("  database-project-build:", StringComparison.Ordinal);
+
+        jobStart.ShouldBeGreaterThanOrEqualTo(0);
+        string databaseJob = workflow[jobStart..];
+
+        databaseJob.ShouldContain("runs-on: windows-2025-vs2026", Case.Insensitive);
+        databaseJob.ShouldContain("/target:Build", Case.Insensitive);
+        databaseJob.ShouldContain("/property:DeployOnBuild=False", Case.Insensitive);
+        databaseJob.ShouldContain("Microsoft.Data.Tools.Schema.SqlTasks.targets", Case.Insensitive);
+        databaseJob.ShouldNotContain("/target:Deploy", Case.Insensitive);
+        databaseJob.ShouldNotContain("sqlcmd", Case.Insensitive);
+        databaseJob.ShouldNotContain("sqlpackage", Case.Insensitive);
+        databaseJob.ShouldNotContain("secrets.", Case.Insensitive);
+        databaseJob.ShouldNotContain("actions/upload-artifact", Case.Insensitive);
+    }
+
     private static string ReadCanonicalTable(string fileName)
     {
         string text = File.ReadAllText(Path.Combine(

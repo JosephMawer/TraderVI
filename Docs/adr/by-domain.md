@@ -36,6 +36,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
+- [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
 
 ## data-pipeline
 
@@ -63,6 +64,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
+- [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
 
 ## data-sources
 
@@ -154,6 +156,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
+- [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
 
 ## decision-engine
 
