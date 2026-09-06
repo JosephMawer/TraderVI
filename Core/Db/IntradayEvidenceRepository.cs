@@ -55,7 +55,18 @@ WHERE b.[Symbol] = @Symbol
   AND o.[AuditState] <> N'Invalid'
   AND o.[EvidenceSchemaVersion] = @EvidenceSchemaVersion
   AND o.[SourceContractVersion] = @SourceContractVersion
-  AND o.[PolicyVersion] = @PolicyVersion
+  AND
+  (
+      o.[PolicyVersion] = @PolicyVersion
+      OR
+      (
+          o.[PolicyVersion] IS NULL
+          AND o.[CollectorVersion] = N'IntradayEvidenceCollectorV3'
+          AND b.[IntervalMinutes] = 5
+          AND o.[Purpose] = N'PaperMonitor'
+          AND o.[AuditState] IN (N'Valid', N'Degraded')
+      )
+  )
 ORDER BY b.[EventUtc];
 """;
         await using var connection = new SqlConnection(ConnectionString);

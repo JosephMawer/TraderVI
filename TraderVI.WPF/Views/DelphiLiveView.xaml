@@ -1,0 +1,371 @@
+<UserControl x:Class="TraderVI.WPF.Views.DelphiLiveView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:TraderVI.WPF.Viewmodels"
+             Background="#11151B" Foreground="#F4F7FB">
+    <UserControl.Resources>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#171D25"/>
+            <Setter Property="Foreground" Value="#EAF0F8"/>
+            <Setter Property="BorderBrush" Value="#2E3949"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#2E3949"/>
+            <Setter Property="RowBackground" Value="#171D25"/>
+            <Setter Property="AlternatingRowBackground" Value="#1A2029"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#202836"/>
+            <Setter Property="Foreground" Value="#9BA8BA"/>
+            <Setter Property="Padding" Value="9,7"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="9,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#5FA8FF"/>
+            <Setter Property="Foreground" Value="#08111D"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#202836"/>
+            <Setter Property="Foreground" Value="#F4F7FB"/>
+            <Setter Property="BorderBrush" Value="#3E4B5E"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="#202836"/>
+            <Setter Property="Foreground" Value="#B4C1D3"/>
+            <Setter Property="Padding" Value="14,8"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="22,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="160"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="170" MinHeight="80"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Delphi Live" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Status}" Foreground="#8FC5FF" FontSize="15" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding PolicyText}" Foreground="#9BA8BA" TextWrapping="Wrap" Margin="0,4,15,0"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Refresh saved state" IsEnabled="{Binding CanRefresh}"
+                    Click="RefreshButton_Click" VerticalAlignment="Top"/>
+        </Grid>
+        <Expander Grid.Row="1" Header="Activate paper observation for the next regular session" Margin="0,12,0,10" Foreground="#D5DEEB">
+            <StackPanel Margin="8,10,8,4">
+                <TextBlock Text="Enter explicit simulation capital. Activation records a cash-only paper portfolio and enables market-data collection while this app is open."
+                           TextWrapping="Wrap" Foreground="#B4C1D3" Margin="0,0,0,8"/>
+                <WrapPanel VerticalAlignment="Center">
+                    <StackPanel Margin="0,0,12,0"><TextBlock Text="Starting capital"/><TextBox Text="{Binding StartingCapital, UpdateSourceTrigger=PropertyChanged}" Width="140"/></StackPanel>
+                    <StackPanel Margin="0,0,12,0"><TextBlock Text="Currency"/><TextBox Text="{Binding Currency, UpdateSourceTrigger=PropertyChanged}" Width="70" MaxLength="3"/></StackPanel>
+                    <StackPanel Margin="0,0,12,0"><TextBlock Text="Operator reason"/><TextBox Text="{Binding ActivationReason, UpdateSourceTrigger=PropertyChanged}" Width="360"/></StackPanel>
+                    <Button Content="Review activation" IsEnabled="{Binding CanActivate}" Click="ActivateButton_Click" VerticalAlignment="Bottom"/>
+                </WrapPanel>
+            </StackPanel>
+        </Expander>
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <TextBlock Text="{Binding Coverage}" Foreground="#B4C1D3" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding PhaseText}" Foreground="#9BA8BA" TextWrapping="Wrap" Margin="0,3,0,0"/>
+            <TextBlock Text="{Binding Warning}" Foreground="#F5B94C" TextWrapping="Wrap" Margin="0,5,0,0"/>
+        </StackPanel>
+        <TabControl Grid.Row="3" Background="#11151B" BorderBrush="#2E3949">
+            <TabItem Header="Live opportunities">
+                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <TextBlock Text="The Operational Champion's active candidates. Quiet candidates and holdings remain in All observations."
+                               Foreground="#9BA8BA" Margin="10" TextWrapping="Wrap"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Opportunities}" SelectedItem="{Binding SelectedObservation}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Order" Binding="{Binding Rank}" Width="60"/>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
+                            <DataGridTextColumn Header="Frozen daily thesis" Binding="{Binding DailySource}" Width="220"/>
+                            <DataGridTextColumn Header="Live momentum" Binding="{Binding Momentum}" Width="165"/>
+                            <DataGridTextColumn Header="Recommendation" Binding="{Binding Lifecycle}" Width="125"/>
+                            <DataGridTextColumn Header="Data confidence" Binding="{Binding Confidence}" Width="115"/>
+                            <DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="*" MinWidth="180"/>
+                            <DataGridTextColumn Header="Checkpoint" Binding="{Binding Checkpoint}" Width="95"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="All observations">
+                <DataGrid ItemsSource="{Binding AllObservations}" SelectedItem="{Binding SelectedObservation}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="75"/>
+                        <DataGridTextColumn Header="Portfolio role" Binding="{Binding Role}" Width="165"/>
+                        <DataGridTextColumn Header="Display" Binding="{Binding Activity}" Width="70"/>
+                        <DataGridTextColumn Header="Frozen daily thesis" Binding="{Binding DailySource}" Width="210"/>
+                        <DataGridTextColumn Header="Daily composite" Binding="{Binding DailyComposite, StringFormat=F4}" Width="100"/>
+                        <DataGridTextColumn Header="Momentum" Binding="{Binding Momentum}" Width="160"/>
+                        <DataGridTextColumn Header="Confidence" Binding="{Binding Confidence}" Width="110"/>
+                        <DataGridTextColumn Header="Lifecycle" Binding="{Binding Lifecycle}" Width="105"/>
+                        <DataGridTextColumn Header="Persistence" Binding="{Binding Persistence}" Width="120"/>
+                        <DataGridTextColumn Header="Score" Binding="{Binding PersistenceScore}" Width="55"/>
+                        <DataGridTextColumn Header="Price movement" Binding="{Binding PriceMovement}" Width="120"/>
+                        <DataGridTextColumn Header="Volume support" Binding="{Binding VolumeSupport}" Width="120"/>
+                        <DataGridTextColumn Header="Price structure" Binding="{Binding PriceStructure}" Width="120"/>
+                        <DataGridTextColumn Header="Policy identity" Binding="{Binding PolicyVersionId}" Width="270"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Independent paper portfolios">
+                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="110"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <TextBlock Text="Each row is a separate what-if account with its own cash and fills. Values are never added together."
+                               Foreground="#9BA8BA" Margin="10" TextWrapping="Wrap"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Portfolios}" SelectedItem="{Binding SelectedPortfolio}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="180"/>
+                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" Width="75"/>
+                            <DataGridTextColumn Header="Cash" Binding="{Binding Cash, StringFormat=N2}" Width="110"/>
+                            <DataGridTextColumn Header="Holdings" Binding="{Binding Holdings}" Width="75"/>
+                            <DataGridTextColumn Header="Last complete NAV" Binding="{Binding LastCompleteNav, StringFormat=N2}" Width="135"/>
+                            <DataGridTextColumn Header="Risk state" Binding="{Binding Guard}" Width="200"/>
+                            <DataGridTextColumn Header="Policy" Binding="{Binding Policy}" Width="*" MinWidth="180"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <WrapPanel Grid.Row="2" Margin="10,7">
+                        <TextBlock Text="Capital review reason" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox Text="{Binding OperatorReason, UpdateSourceTrigger=PropertyChanged}" Width="340" Margin="0,0,10,0"/>
+                        <Button Content="Review resuming selected portfolio" IsEnabled="{Binding CanResumeCapitalReview}" Click="ResumeCapitalButton_Click"/>
+                    </WrapPanel>
+                    <TabControl Grid.Row="3" Margin="0,6,0,0" Background="#11151B" BorderThickness="0">
+                        <TabItem Header="Positions"><DataGrid ItemsSource="{Binding Positions}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
+                            <DataGridTextColumn Header="Shares" Binding="{Binding Quantity}" Width="75"/>
+                            <DataGridTextColumn Header="Average cost" Binding="{Binding AverageCost, StringFormat=N4}" Width="110"/>
+                            <DataGridTextColumn Header="Profit floor" Binding="{Binding ProfitFloor, StringFormat=N4}" Width="110"/>
+                            <DataGridTextColumn Header="Protection" Binding="{Binding Protection}" Width="100"/>
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90"/>
+                            <DataGridTextColumn Header="Opened" Binding="{Binding Opened}" Width="*"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                        <TabItem Header="Decisions and pending exits"><DataGrid ItemsSource="{Binding Actions}" SelectedItem="{Binding SelectedAction}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="75"/>
+                            <DataGridTextColumn Header="Action" Binding="{Binding Side}" Width="65"/>
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="150"/>
+                            <DataGridTextColumn Header="Primary reason" Binding="{Binding Reason}" Width="200"/>
+                            <DataGridTextColumn Header="Outcome" Binding="{Binding TerminalReason}" Width="200"/>
+                            <DataGridTextColumn Header="Attempts" Binding="{Binding Attempts}" Width="75"/>
+                            <DataGridTextColumn Header="Decision time" Binding="{Binding DecisionTime}" Width="*"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                        <TabItem Header="Persisted fills"><DataGrid ItemsSource="{Binding Fills}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
+                            <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="65"/>
+                            <DataGridTextColumn Header="Shares" Binding="{Binding Quantity}" Width="75"/>
+                            <DataGridTextColumn Header="Observed price" Binding="{Binding Price, StringFormat=N4}" Width="125"/>
+                            <DataGridTextColumn Header="Fill confidence" Binding="{Binding Confidence}" Width="150"/>
+                            <DataGridTextColumn Header="Quote field" Binding="{Binding Field}" Width="100"/>
+                            <DataGridTextColumn Header="Observed time" Binding="{Binding Time}" Width="*"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                        <TabItem Header="Quote attempts"><DataGrid ItemsSource="{Binding Quotes}" SelectedItem="{Binding SelectedQuote}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80"/>
+                            <DataGridTextColumn Header="Purpose" Binding="{Binding Purpose}" Width="145"/>
+                            <DataGridTextColumn Header="Bid" Binding="{Binding Bid, StringFormat=N4}" Width="90"/>
+                            <DataGridTextColumn Header="Ask" Binding="{Binding Ask, StringFormat=N4}" Width="90"/>
+                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=N4}" Width="90"/>
+                            <DataGridTextColumn Header="Outcome" Binding="{Binding Disposition}" Width="200"/>
+                            <DataGridTextColumn Header="Requested" Binding="{Binding Requested}" Width="90"/>
+                            <DataGridTextColumn Header="Received" Binding="{Binding Received}" Width="*"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Experiment review">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="14">
+                        <TextBlock Text="{Binding ExperimentText}" Foreground="#B4C1D3" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding PromotionText}" Foreground="#8FC5FF" TextWrapping="Wrap" Margin="0,10,0,12"/>
+                        <Button Content="Inspect persisted protocol and score" Click="ExperimentEvidenceButton_Click" HorizontalAlignment="Left"/>
+                        <TextBlock Text="Operator reason for the reviewed command" Margin="0,14,0,4"/>
+                        <TextBox Text="{Binding OperatorReason, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="48"/>
+                        <Expander Header="Start a predeclared discovery comparison" Foreground="#D5DEEB" Margin="0,12,0,8" IsExpanded="True">
+                            <StackPanel Margin="8">
+                                <TextBlock Text="Requires ten clean engineering sessions. Select one family and one or two alternate values; the current champion value is unavailable."
+                                           TextWrapping="Wrap" Foreground="#9BA8BA" Margin="0,0,0,8"/>
+                                <ComboBox ItemsSource="{x:Static vm:DelphiLiveViewModel.FamilyChoices}" SelectedItem="{Binding SelectedFamily}" DisplayMemberPath="Label" Width="260" HorizontalAlignment="Left"/>
+                                <TextBlock Text="{Binding FamilyHelp}" Foreground="#9BA8BA" Margin="0,7,0,7"/>
+                                <ItemsControl ItemsSource="{Binding VariantChoices}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected}" IsEnabled="{Binding IsEnabled}" Foreground="#EAF0F8" Margin="0,0,24,0"/>
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <WrapPanel Margin="0,10,0,0">
+                                    <StackPanel Margin="0,0,12,0"><TextBlock Text="Capital per comparison portfolio"/><TextBox Text="{Binding ExperimentCapital, UpdateSourceTrigger=PropertyChanged}" Width="210"/></StackPanel>
+                                    <StackPanel Margin="0,0,12,0"><TextBlock Text="Currency"/><TextBox Text="{Binding ExperimentCurrency, UpdateSourceTrigger=PropertyChanged}" Width="70" MaxLength="3"/></StackPanel>
+                                    <Button Content="Review next-session discovery" IsEnabled="{Binding CanScheduleDiscovery}" Click="DiscoveryButton_Click" VerticalAlignment="Bottom"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Expander>
+                        <WrapPanel Margin="0,8,0,8">
+                            <ComboBox ItemsSource="{Binding Challengers}" SelectedItem="{Binding SelectedChallenger}" DisplayMemberPath="Label" Width="460" Margin="0,0,12,0"/>
+                            <Button Content="Review untouched confirmation" IsEnabled="{Binding CanScheduleUntouched}" Click="UntouchedButton_Click"/>
+                        </WrapPanel>
+                        <TextBlock Text="Untouched confirmation requires thirty eligible paired discovery sessions for every contender. The selected contender and its settings are then frozen."
+                                   TextWrapping="Wrap" Foreground="#9BA8BA" Margin="0,0,0,10"/>
+                        <WrapPanel>
+                            <Button Content="Review next-session promotion" IsEnabled="{Binding CanApprovePromotion}" Click="PromotionButton_Click" Margin="0,0,12,0"/>
+                            <Button Content="Report measurement defect" IsEnabled="{Binding CanRecordMeasurementDefect}" Click="DefectButton_Click"/>
+                        </WrapPanel>
+                        <Expander Header="Report an unsupported corporate action" Foreground="#D5DEEB" Margin="0,14,0,8">
+                            <StackPanel Margin="8">
+                                <TextBlock Text="Record the affected symbol and inclusive dates. Affected research is excluded and new risk in an affected holding's portfolio is blocked; quote protection remains active."
+                                           Foreground="#9BA8BA" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <WrapPanel>
+                                    <StackPanel Margin="0,0,10,0"><TextBlock Text="TSX symbol"/><TextBox Text="{Binding CorporateSymbol, UpdateSourceTrigger=PropertyChanged}" Width="110"/></StackPanel>
+                                    <StackPanel Margin="0,0,10,0"><TextBlock Text="From (yyyy-MM-dd)"/><TextBox Text="{Binding CorporateFrom, UpdateSourceTrigger=PropertyChanged}" Width="155"/></StackPanel>
+                                    <StackPanel Margin="0,0,10,0"><TextBlock Text="Through (yyyy-MM-dd)"/><TextBox Text="{Binding CorporateThrough, UpdateSourceTrigger=PropertyChanged}" Width="155"/></StackPanel>
+                                    <Button Content="Review corporate-action flag" IsEnabled="{Binding CanRecordCorporateAction}" Click="CorporateActionButton_Click" VerticalAlignment="Bottom"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Expander>
+                        <TextBlock Text="Persisted session cohorts" FontWeight="SemiBold" Margin="0,14,0,8"/>
+                        <DataGrid ItemsSource="{Binding Cohorts}" Height="250"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Session" Binding="{Binding Date}" Width="100"/>
+                            <DataGridTextColumn Header="Phase" Binding="{Binding Phase}" Width="110"/>
+                            <DataGridTextColumn Header="Regime" Binding="{Binding Regime}" Width="120"/>
+                            <DataGridTextColumn Header="Usable/expected slots" Binding="{Binding OperationalSlots}" Width="150"/>
+                            <DataGridCheckBoxColumn Header="Clean" Binding="{Binding Clean}" Width="65"/>
+                            <DataGridCheckBoxColumn Header="5-session mature" Binding="{Binding Mature}" Width="125"/>
+                            <DataGridTextColumn Header="Exclusions" Binding="{Binding Exclusions}" Width="*" MinWidth="200"/>
+                        </DataGrid.Columns></DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Research coverage">
+                <Grid Margin="10"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <StackPanel>
+                        <WrapPanel Margin="0,0,0,8">
+                            <TextBlock Text="From" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Text="{Binding ResearchFrom, UpdateSourceTrigger=PropertyChanged}" Width="120" Margin="0,0,12,0"/>
+                            <TextBlock Text="Through" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Text="{Binding ResearchThrough, UpdateSourceTrigger=PropertyChanged}" Width="120" Margin="0,0,12,0"/>
+                            <Button Content="Load saved report" IsEnabled="{Binding CanLoadResearch}" Click="LoadResearchButton_Click" Margin="0,0,12,0"/>
+                            <Button Content="Inspect report evidence" Click="ResearchEvidenceButton_Click"/>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding ResearchPeriodText}" Foreground="#9BA8BA" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Text="{Binding ResearchText}" Foreground="#B4C1D3" TextWrapping="Wrap" Margin="0,8,0,10"/>
+                    <TabControl Grid.Row="2" Background="#11151B" BorderThickness="0">
+                        <TabItem Header="Outcome coverage"><DataGrid ItemsSource="{Binding ResearchMetrics}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Horizon" Binding="{Binding Horizon}" Width="135"/>
+                            <DataGridTextColumn Header="Metric" Binding="{Binding Metric}" Width="170"/>
+                            <DataGridTextColumn Header="Valid" Binding="{Binding Valid}" Width="60"/>
+                            <DataGridTextColumn Header="Degraded" Binding="{Binding Degraded}" Width="80"/>
+                            <DataGridTextColumn Header="Invalid" Binding="{Binding Invalid}" Width="65"/>
+                            <DataGridTextColumn Header="Pending" Binding="{Binding Pending}" Width="75"/>
+                            <DataGridTextColumn Header="N/A" Binding="{Binding NotApplicable}" Width="60"/>
+                            <DataGridTextColumn Header="Denominator" Binding="{Binding Applicable}" Width="100"/>
+                            <DataGridTextColumn Header="Completion" Binding="{Binding Completion}" Width="95"/>
+                            <DataGridTextColumn Header="Usable" Binding="{Binding Usable}" Width="80"/>
+                            <DataGridTextColumn Header="Readiness" Binding="{Binding Readiness}" Width="95"/>
+                            <DataGridTextColumn Header="Reasons" Binding="{Binding Reasons}" Width="*" MinWidth="210"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                        <TabItem Header="Daily versus confirmed-live ranking"><DataGrid ItemsSource="{Binding RankingMetrics}"><DataGrid.Columns>
+                            <DataGridTextColumn Header="Source lens" Binding="{Binding Lens}" Width="120"/>
+                            <DataGridTextColumn Header="Horizon" Binding="{Binding Horizon}" Width="135"/>
+                            <DataGridTextColumn Header="Metric" Binding="{Binding Metric}" Width="140"/>
+                            <DataGridTextColumn Header="Daily basket return" Binding="{Binding Daily}" Width="140"/>
+                            <DataGridTextColumn Header="Confirmed-live return" Binding="{Binding Live}" Width="155"/>
+                            <DataGridTextColumn Header="Incremental return" Binding="{Binding Incremental}" Width="140"/>
+                            <DataGridTextColumn Header="Equal-cohort coverage" Binding="{Binding Coverage}" Width="*" MinWidth="240"/>
+                        </DataGrid.Columns></DataGrid></TabItem>
+                        <TabItem Header="Fill quality">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <TextBlock Text="Official NAV includes the full portfolio. Closed-trade returns use completed trades only; bid/ask-only diagnostics use their own smaller sample and do not replace NAV."
+                                           Foreground="#9BA8BA" TextWrapping="Wrap" Margin="8"/>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding FillDiagnostics}"><DataGrid.Columns>
+                                    <DataGridTextColumn Header="Portfolio role" Binding="{Binding Role}" Width="160"/>
+                                    <DataGridTextColumn Header="Official NAV return" Binding="{Binding OfficialNavReturn, StringFormat=P2}" Width="145"/>
+                                    <DataGridTextColumn Header="All fills" Binding="{Binding AllFillCount}" Width="70"/>
+                                    <DataGridTextColumn Header="Estimated fills" Binding="{Binding EstimatedFillCount}" Width="110"/>
+                                    <DataGridTextColumn Header="Estimated fraction" Binding="{Binding EstimatedFillFraction, StringFormat=P2}" Width="135"/>
+                                    <DataGridTextColumn Header="Closed trades" Binding="{Binding ClosedTradeCount}" Width="105"/>
+                                    <DataGridTextColumn Header="Bid/ask-only trades" Binding="{Binding BidAskOnlyClosedTradeCount}" Width="140"/>
+                                    <DataGridTextColumn Header="All closed return" Binding="{Binding OfficialRealizedReturn, StringFormat=P2}" Width="130"/>
+                                    <DataGridTextColumn Header="Bid/ask-only return" Binding="{Binding BidAskOnlyRealizedReturn, StringFormat=P2}" Width="145"/>
+                                    <DataGridTextColumn Header="Closed-return difference" Binding="{Binding Difference, StringFormat=P2}" Width="175"/>
+                                    <DataGridTextColumn Header="Portfolio identity" Binding="{Binding PortfolioId}" Width="270"/>
+                                </DataGrid.Columns></DataGrid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Portfolio performance">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <TextBlock Text="Each portfolio runs from generation inception through the report cutoff, independently of the research start date. Turnover is gross filled notional divided by starting capital. No-fill counts include pending requests. Select a row for checkpoint coverage, exit counts and policy identity."
+                                           Foreground="#9BA8BA" TextWrapping="Wrap" Margin="8"/>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding PortfolioPerformance}" SelectedItem="{Binding SelectedPerformance}"><DataGrid.Columns>
+                                    <DataGridTextColumn Header="Portfolio role" Binding="{Binding Role}" Width="170"/>
+                                    <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" Width="75"/>
+                                    <DataGridTextColumn Header="Inception" Binding="{Binding Inception}" Width="110"/>
+                                    <DataGridTextColumn Header="Through" Binding="{Binding Through}" Width="110"/>
+                                    <DataGridTextColumn Header="Total return" Binding="{Binding TotalReturn, StringFormat=P2}" Width="105"/>
+                                    <DataGridTextColumn Header="Maximum checkpoint drawdown" Binding="{Binding MaximumCheckpointDrawdown, StringFormat=P2}" Width="210"/>
+                                    <DataGridTextColumn Header="Completed trades" Binding="{Binding CompletedTradeCount}" Width="130"/>
+                                    <DataGridTextColumn Header="Win rate" Binding="{Binding WinRate, StringFormat=P2}" Width="95"/>
+                                    <DataGridTextColumn Header="Mean checkpoint exposure" Binding="{Binding MeanCheckpointExposure, StringFormat=P2}" Width="185"/>
+                                    <DataGridTextColumn Header="Gross turnover / starting capital" Binding="{Binding GrossTurnoverVsStartingCapital, StringFormat=P2}" Width="215"/>
+                                    <DataGridTextColumn Header="Requested actions" Binding="{Binding RequestedActionCount}" Width="135"/>
+                                    <DataGridTextColumn Header="No fill" Binding="{Binding NoFillCount}" Width="75"/>
+                                    <DataGridTextColumn Header="No-fill rate" Binding="{Binding NoFillRate, StringFormat=P2}" Width="100"/>
+                                    <DataGridTextColumn Header="Pending" Binding="{Binding PendingActionCount}" Width="85"/>
+                                    <DataGridTextColumn Header="Estimated fills" Binding="{Binding EstimatedFillCount}" Width="115"/>
+                                    <DataGridTextColumn Header="Estimated-fill rate" Binding="{Binding EstimatedFillRate, StringFormat=P2}" Width="135"/>
+                                </DataGrid.Columns></DataGrid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Signal diagnostics">
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="2*"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <TextBlock Text="Research-only observations of predeclared signals and variants. They cannot change live recommendations or portfolio actions. Select a row to inspect forward metrics and their coverage."
+                                           Foreground="#9BA8BA" TextWrapping="Wrap" Margin="8"/>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding DiagnosticScorecards}" SelectedItem="{Binding SelectedDiagnostic}"><DataGrid.Columns>
+                                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="160"/>
+                                    <DataGridTextColumn Header="Variant" Binding="{Binding Variant}" Width="170"/>
+                                    <DataGridTextColumn Header="Signal" Binding="{Binding Signal}" Width="180"/>
+                                    <DataGridTextColumn Header="Horizon" Binding="{Binding Horizon}" Width="130"/>
+                                    <DataGridTextColumn Header="Expected slots" Binding="{Binding ExpectedSlots}" Width="115"/>
+                                    <DataGridTextColumn Header="Observed signals" Binding="{Binding ObservedSignalCount}" Width="125"/>
+                                    <DataGridTextColumn Header="Equal-cohort frequency" Binding="{Binding EqualCohortSignalFrequency, StringFormat=P2}" Width="165"/>
+                                    <DataGridTextColumn Header="First signal (minutes after open)" Binding="{Binding EqualCohortFirstSignalMinutesAfterOpen, StringFormat=F1}" Width="220"/>
+                                    <DataGridTextColumn Header="Direction flips" Binding="{Binding DirectionFlipCount}" Width="115"/>
+                                    <DataGridTextColumn Header="Absolute/relative agreements" Binding="{Binding AbsoluteRelativeAgreementCount}" Width="200"/>
+                                    <DataGridTextColumn Header="Sessions" Binding="{Binding SessionCount}" Width="85"/>
+                                    <DataGridTextColumn Header="Authority" Binding="{Binding Authority}" Width="165"/>
+                                </DataGrid.Columns></DataGrid>
+                                <TextBlock Grid.Row="2" Text="{Binding DiagnosticCoverageText}" Foreground="#B4C1D3" TextWrapping="Wrap" Margin="8"/>
+                                <DataGrid Grid.Row="3" ItemsSource="{Binding DiagnosticForwardMetrics}"><DataGrid.Columns>
+                                    <DataGridTextColumn Header="Forward metric" Binding="{Binding Metric}" Width="220"/>
+                                    <DataGridTextColumn Header="Equal-cohort mean" Binding="{Binding Mean, StringFormat=P2}" Width="160"/>
+                                    <DataGridTextColumn Header="Usable/expected" Binding="{Binding Coverage}" Width="*"/>
+                                </DataGrid.Columns></DataGrid>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <GridSplitter Grid.Row="4" Height="5" HorizontalAlignment="Stretch" Background="#2E3949"/>
+        <Grid Grid.Row="5">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <TextBlock Text="Persisted decision evidence · raw measurements, family reasons, daily attribution, policy and source identities"
+                       Foreground="#9BA8BA" Margin="0,7,0,5" TextWrapping="Wrap"/>
+            <TextBox Grid.Row="1" Text="{Binding SelectedDossier, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="11"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap"/>
+        </Grid>
+    </Grid>
+</UserControl>

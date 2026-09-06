@@ -60,6 +60,16 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Complete ADR-0040 in source with immutable-evidence queries, Athena persistence, separate raw/sensitivity lens reports, and guarded migration 015; leave migration application and Athena execution as explicit operational steps.
 - [x] Add ADR-0040's continuity guard so proven missing policy sessions/bars, receipt-order conflicts, and missing exact fill bars are audited invalid rather than silently bridged; preserve pending for an unproven tail.
 - [x] Apply and verify migration 015's fifth active definition, then run Athena: 112 valid three-session marks and 112 valid excursions matured; prediction and delayed-intraday outcomes remain at zero.
+- [x] Accept and implement ADR-0051's System Shadow V1: four independent, capital-constrained Continuation/Breakout Top-3/Top-5 Ghost alternatives; frozen daily Delphi evidence; causal pending fills; 5% hard loss, protected-profit trail, daily loss and drawdown guards; durable ledger; and a WPF Portfolios workspace. Athena remains separate.
+- [x] Take and verify a fresh checksum backup, manually apply migration 019, and verify all eight Shadow
+  tables, constraints, indexes, and empty/off initial state without deploying a DACPAC or starting an
+  operational application.
+- [x] Preserve the 2026-09-04 Shadow ledger as shakedown evidence and fix both discovered causality defects
+  in source: consume each fifteen-minute trailing bar at most once, and cancel/requalify a pending buy after
+  its exact immediate fill window is missed.
+- [x] Take a fresh verified backup, explicitly authorize and manually apply migration 021, and verify the
+  additive last-consumed-bar column before running Shadow again. Every Shadow row count and financial/order
+  aggregate remained unchanged.
 - [x] Back up, apply, and verify migration 014 so the read-only Scorecards workspace can load the canonical outcome definitions without running Athena prematurely.
 - [x] Review, back up, manually apply, and verify migration 013 with explicit authorization; preserve all legacy rows as Ghost and verify the empty immutable execution audit.
 - [x] Close the EDR reconciliation decision without changing its audited Ghost history: on 2026-08-28 the operator chose not to add a separate `REAL / TFSA` row because EDR is no longer in the current Delphi picks. The broker holding remains outside TraderVI unless deliberately re-entered from a future saved pick.
@@ -71,6 +81,12 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 - [x] Add a Delphi pre-scoring eligibility gate that excludes symbol histories not matching the canonical XIU market-data session.
 
 ### 5. Correctness and change-safety stabilization
+
+- [x] Reconcile the frozen Delphi Live V1 design into ADR-0053 and review aids without retuning it.
+- [x] Complete and validate the small source phases in the [Delphi Live checklist](delphi-live-implementation-checklist.md): 581 Core tests passed and the complete Release solution, including SSDT, built successfully.
+- [ ] Separately review and authorize Delphi Live migrations 022–025, a reviewed TSX calendar,
+  source-capacity shakedown and explicit simulation-capital activation. The source work does not
+  activate any of these operations.
 
 The 2026-09-01 static changeability audit found correctness and integrity risks inside the existing
 advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
@@ -150,6 +166,9 @@ publication contracts without tuning weights, thresholds, ranking theses, or aut
 
 ## Next — improve data and model evidence
 
+- [ ] After migration 021, observe Shadow V1 across several uninterrupted complete sessions and review
+  skipped entries, causal fills, Session-2 rotations, and provisional risk thresholds before changing its
+  policy or hosting it headlessly. Exclude the 2026-09-04 shakedown session from performance conclusions.
 - [ ] Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics.
 - [ ] Compare raw relative-strength and Z-score rank orderings before changing the executed lens.
 - [ ] Integrate historical RS features into Hercules only after the backfill is validated.

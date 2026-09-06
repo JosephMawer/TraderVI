@@ -86,9 +86,9 @@ deployment, WPF/paper-monitor hosting, Sandbox probes, Oracle, or any broker act
   restored separately. The scheduler never performs an implicit network restore.
 - An edit made while the preflight build is running fails the pipeline before Hermes starts. The next normal
   schedule, or a deliberately reviewed `-Force` invocation, can then build the settled source.
-- A dirty working tree can still cause Delphi to persist degraded official evidence because provenance is
-  resolved at execution time. The runner elevates that marker to an attention state so supervision cannot
-  report a silent clean success.
+- The runner fingerprints and records a dirty working tree, but ADR-0052 makes that source state provenance
+  rather than evidence degradation. Delphi's `audit=Degraded` output remains an attention condition when a
+  future run reports an actual evidence-quality limitation.
 - The runner does not solve Delphi's broader same-day publication transaction boundary. Same-date suppression
   protects this task's ordinary repeat path, while ADR-0042's immutable evidence remains authoritative.
 - A future Windows service may supersede only the hosting mechanism. The manifest, stage semantics, status

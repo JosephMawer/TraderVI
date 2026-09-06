@@ -46,6 +46,7 @@ public partial class PaperDashboardWindow : Window
             ? "Waiting for scheduled poll"
             : "History mode";
         await RefreshSafelyAsync();
+        await DelphiLiveTabView.RefreshAsync(shutdown.Token);
         timer.Start();
     }
 
@@ -53,6 +54,9 @@ public partial class PaperDashboardWindow : Window
     {
         viewModel.RefreshClock();
         await RefreshSafelyAsync();
+        // The shared Core workflow owns its own exact schedule and durable
+        // lease. Monitoring is independent of which tab the operator selected.
+        await DelphiLiveTabView.TickAsync(shutdown.Token);
 
         DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
         if (PaperTradingMonitor.IsAutomaticPollTime(localNow) &&
@@ -161,11 +165,31 @@ public partial class PaperDashboardWindow : Window
 
             PollNowButton.IsEnabled = false;
             viewModel.MonitorStatus = $"{source} poll running…";
-            PaperMonitorCycleResult cycle = await monitor.PollOnceAsync(
-                viewModel.AutomaticGhostExitsEnabled,
-                shutdown.Token);
-            viewModel.ApplyCycle(cycle);
-            await viewModel.RefreshAsync(shutdown.Token);
+            try
+            {
+                PaperMonitorCycleResult cycle = await monitor.PollOnceAsync(
+                    viewModel.AutomaticGhostExitsEnabled,
+                    shutdown.Token);
+                viewModel.ApplyCycle(cycle);
+                await viewModel.RefreshAsync(shutdown.Token);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                viewModel.AddEvent(DateTime.UtcNow, $"Tracked-position monitor: {ex.GetType().Name}: {ex.Message}", "Error");
+            }
+
+            try
+            {
+                SystemShadowPollResult shadowCycle = await PortfoliosTabView.RunScheduledCycleAsync(shutdown.Token);
+                viewModel.AddEvent(
+                    shadowCycle.CompletedUtc,
+                    $"Shadow: {shadowCycle.OrdersFilled} fill(s), {shadowCycle.SignalsCreated} signal(s), {shadowCycle.Warnings.Count} warning(s).",
+                    "Shadow");
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                viewModel.AddEvent(DateTime.UtcNow, $"Shadow monitor: {ex.GetType().Name}: {ex.Message}", "Error");
+            }
         }
         catch (OperationCanceledException) when (shutdown.IsCancellationRequested)
         {
@@ -187,6 +211,7 @@ public partial class PaperDashboardWindow : Window
         try
         {
             await viewModel.RefreshAsync(shutdown.Token);
+            await PortfoliosTabView.RefreshAsync(shutdown.Token);
         }
         catch (OperationCanceledException) when (shutdown.IsCancellationRequested)
         {
@@ -208,10 +233,15 @@ public partial class PaperDashboardWindow : Window
         MainTabs.SelectedItem = PaperTradingTab;
     }
 
-    private void Window_Closed(object? sender, EventArgs e)
+    private async void Window_Closed(object? sender, EventArgs e)
     {
         timer.Stop();
         shutdown.Cancel();
+        try { await DelphiLiveTabView.StopAsync(); }
+        catch (Exception ex)
+        {
+            viewModel.AddEvent(DateTime.UtcNow, $"Delphi Live shutdown: {ex.GetType().Name}", "Error");
+        }
     }
 
     protected override void OnClosing(CancelEventArgs e)

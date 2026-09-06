@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-23
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning
-- **Related:** ADR-0013, ADR-0018, ADR-0019, `Docs/concepts/paper-calibration-and-outcome-feedback.md`
+- **Related:** ADR-0013, ADR-0018, ADR-0019, ADR-0052, `Docs/concepts/paper-calibration-and-outcome-feedback.md`
 
 ## Context
 
@@ -27,7 +27,7 @@ Capture every symbol that reaches model evaluation after Delphi's pre-scoring un
 
 Normalize stable, frequently queried values: run dates/purpose/status and version identifiers; symbol and observation OHLCV; the four enabled model probabilities; direction edge and composite; raw and Z-scored RS composites; OBV state/tilt; lens eligibility/direction/rank/ranking key/publication/first failure. Store the remainder in schema-versioned JSON. A breaking payload change requires a schema-version bump.
 
-Record model identity as registry ID, task type, input/feature schema, training bounds, and SHA-256 of the loaded artifact; never persist an artifact or credential. Record code identity from `TRADERVI_CODE_VERSION` when supplied, otherwise from the repository Git commit discovered from `.git`. Also record working-tree state as `Clean`, `Dirty`, or `Unknown`. An official run is invalid if the commit or any loaded model identity/hash is unavailable. `Dirty` is permitted only when the exact effective payload schemas and configuration are captured and is visibly degraded; release-like runs should use a clean commit.
+Record model identity as registry ID, task type, input/feature schema, training bounds, and SHA-256 of the loaded artifact; never persist an artifact or credential. Record code identity from `TRADERVI_CODE_VERSION` when supplied, otherwise from the repository Git commit discovered from `.git`. Also record working-tree state as `Clean`, `Dirty`, or `Unknown`. An official run is invalid if the commit or any loaded model identity/hash is unavailable. ADR-0052 later clarified that working-tree state remains visible provenance but does not, by itself, degrade an otherwise complete run.
 
 Historical official evidence begins prospectively. Existing `DailyPick` and dossier rows may be imported only into explicitly degraded legacy runs.
 

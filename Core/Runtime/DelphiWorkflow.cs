@@ -1037,26 +1037,11 @@ public sealed class DelphiWorkflow
                 var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                 var code = CalibrationProvenance.ResolveCode();
                 var modelProvenance = await CalibrationProvenance.ResolveLoadedModelsAsync();
-                CalibrationAuditState auditState = CalibrationAuditState.Valid;
-                var auditMessages = new List<string>();
-
-                if (code.Commit == "unavailable")
-                {
-                    auditState = CalibrationAuditState.Invalid;
-                    auditMessages.Add("Code commit is unavailable.");
-                }
-                else if (code.WorkingTreeState != "Clean")
-                {
-                    auditState = CalibrationAuditState.Degraded;
-                    auditMessages.Add($"Working tree state is {code.WorkingTreeState}.");
-                }
-
                 int expectedModels = Core.ML.Engine.Profit.ProfitModelRegistry.All.Count;
-                if (modelProvenance.Count != expectedModels)
-                {
-                    auditState = CalibrationAuditState.Invalid;
-                    auditMessages.Add($"Loaded model provenance count {modelProvenance.Count} does not match enabled code registry count {expectedModels}.");
-                }
+                CalibrationRunAuditDecision audit = CalibrationRunAuditPolicy.Evaluate(
+                    code,
+                    modelProvenance.Count,
+                    expectedModels);
 
                 var runId = Guid.NewGuid();
                 var candidateIds = allBars.Keys.ToDictionary(s => s, _ => Guid.NewGuid(), StringComparer.OrdinalIgnoreCase);
@@ -1135,12 +1120,12 @@ public sealed class DelphiWorkflow
                     runId, calibrationPurpose, recommendationDate, marketDataAsOf, runStartedUtc,
                     strategyVersionId, JsonSerializer.Serialize(config, jsonOptions),
                     JsonSerializer.Serialize(modelProvenance, jsonOptions), JsonSerializer.Serialize(runContext, jsonOptions),
-                    code, auditState, auditMessages.Count == 0 ? null : string.Join(" ", auditMessages),
+                    code, audit.State, audit.Message,
                     symbols.Count, allBars.Count, skipped, skippedStaleHistory, skippedPrice,
                     skippedLowPrice, skippedLowVolume, skippedLeveraged);
 
                 await new CalibrationEvidenceRepository().AppendAsync(new CalibrationEvidenceBatch(run, candidates, lensEvidence));
-                Console.WriteLine($"✓ Appended immutable calibration run {runId} ({candidates.Count} candidates, {lensEvidence.Count} lens evaluations, audit={auditState})");
+                Console.WriteLine($"✓ Appended immutable calibration run {runId} ({candidates.Count} candidates, {lensEvidence.Count} lens evaluations, audit={audit.State})");
             }
 
             // ═══════════════════════════════════════════════════════════════════

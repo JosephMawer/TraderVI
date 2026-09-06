@@ -67,7 +67,8 @@ Read the latest status without starting any operational program:
 
 The runner writes atomic `status.json` state and per-run logs beneath
 `%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all three stages passed.
-`Attention` includes Athena exit code 2 or degraded Delphi provenance. `Failed` includes build failures,
+`Attention` includes Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
+working tree by itself remains recorded provenance and does not change the run audit state. `Failed` includes build failures,
 source changes during preflight, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
 provenance, or any unexpected exit code. Hermes failure stops later stages; Delphi failure
 does not prevent Athena from maturing earlier evidence. Neither the runner nor Task Scheduler retries a
@@ -224,6 +225,27 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 
 The WPF app is the tabbed interactive TraderVI shell. Its Tracked positions area shows open Delphi-linked positions plus operator-reported Real holdings that were enrolled without a Delphi pick; completed lifecycles remain available in Trade history. Unlinked Real holdings are labelled as historical, begin durable monitoring at their enrollment time, and cannot receive the fresh-Delphi loss exception. Unlinked Ghost rows remain excluded. The tab also shows separate Ghost/Real realized and unrealized P/L plus durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then collects every five minutes from the first safe 09:47 poll through 16:02. The exit policy still consumes only completed 15-minute bars; intermediate collection ticks do not create five-minute policy decisions. Outside that window it is history-only and makes no TMX request.
 
+The Portfolios tab adds ADR-0051's separately versioned Shadow V1 ledger. Enter the total TFSA value and
+available cash, then explicitly confirm Start. Each of the four System portfolios receives the total value
+as its own alternative starting cash; the available-cash field describes the real comparison and does not
+cap those separate what-if accounts. A same-session Start establishes an activation baseline and waits for
+fresh completed five-minute evidence. Pause blocks new buys, add-ons, re-entries, and rotations while risk
+exits continue. A portfolio at `CapitalReviewRequired` needs an explicit Resume after review. Recording a
+later real snapshot updates only the comparison; it never overwrites Shadow cash or returns. Portfolio
+display names are editable, but stable identity and history are not. Selecting a System portfolio shows a
+read-only candidate monitor with its frozen rank, current state, yesterday's close, prior/latest completed
+five-minute closes, distance from yesterday, plain-language decision reason, and last evaluation time. The
+overview freshness also advances from candidate evaluations before any holding exists. Migration
+`20260904_019_AddSystemShadowPortfolioLedger.sql` was manually applied and verified on 2026-09-04 after a
+checksum-verified, hash-matched full backup. Migration 020 later corrected the exact 2026-09-04 Delphi run
+and cleared only its first empty Shadow attempt. The first completed session is retained as engineering
+shakedown evidence: it is operationally useful but is excluded from strategy-performance conclusions.
+Migration `20260904_021_HardenSystemShadowExecutionCausality.sql` was backed up, manually applied, and
+verified on 2026-09-04. It additively stores the last consumed fifteen-minute bar identity while preserving
+all prior ledger rows and totals; historical identities remain unknown rather than inferred. The controller
+also cancels any pending buy whose exact next-bar fill window was missed and requires current five-minute
+requalification; pending sells remain protective. Shadow has no Wealthsimple or other broker connection.
+
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
 The Delphi tab calls the same host-neutral `DelphiWorkflow` as the retained Delphi console application. Opening or refreshing the tab only reads the latest saved Continuation and Breakout picks and their matching saved presentation evidence. Its inner views are Overview, Picks, Market, Granville, Diagnostics, and Full Report. New official runs reopen from a typed immutable snapshot stored inside the existing calibration run context. Runs from before ADR-0035 show a clearly labelled, date-aligned reconstruction; missing facts remain unavailable rather than being replaced with newer values.
@@ -274,6 +296,58 @@ dotnet run --project TraderVI.WPF
 ```
 
 Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The app has manual ledger-reconciliation controls but no broker connection and cannot place a real order; automatic actions are database-only Ghost exits.
+
+## Delphi Live — explicit paper-monitor activation
+
+The frozen design is [Delphi Live V1](concepts/delphi-live.md); source and validation status are in the
+[implementation checklist](delphi-live-implementation-checklist.md). The WPF Delphi Live tab reads
+status separately from activation. It starts inactive and requires reviewed manual migrations
+022, 023, 024 and 025, applied in order through the normal backup/review workflow. Building the SQL
+project does not satisfy that prerequisite or authorize a migration.
+
+The first host requires a reviewed local official TSX regular-session calendar. Set
+`TRADERVI_TSX_CALENDAR_PATH` to its absolute file path before starting WPF. The JSON has these required
+fields (names are case-insensitive; unknown fields are rejected):
+
+| Field | Contents |
+|---|---|
+| `version` | Immutable name for the reviewed snapshot |
+| `sourceReference` | Official source reference and review provenance |
+| `firstCoveredDate`, `lastCoveredDate` | Inclusive `yyyy-MM-dd` coverage, including non-session dates |
+| `regularSessionDates` | Distinct `yyyy-MM-dd` dates of the regular 09:30–16:00 TSX sessions inside that coverage |
+
+Include enough prior history for the frozen daily baselines and enough future coverage for five-session
+outcomes and next-session assignments. The host uses `America/Toronto`, refuses dates outside coverage,
+and never guesses weekdays or fetches a calendar on demand. This implementation does not supply a
+verified calendar or treat sample dates as official exchange evidence.
+
+After separately authorizing activation, enter a positive simulation amount, currency and operator
+reason in the Delphi Live tab. There is no default capital, broker cash lookup, deposit or withdrawal.
+Activation queues a cash-only Operational Champion for the next regular-session boundary. Start WPF
+sufficiently before 09:30 Toronto time to establish successful pre-open heartbeats, with the eligible
+official daily run and daily baselines already available. Keep it open through completion of the final
+16:02 collection and closing persistence. Its monitor is independent of the selected tab.
+Closing or interrupting the host records a coverage gap; restarting protects existing holdings and
+rebuilds ordinary confirmation from fresh observations without replaying missed actions.
+
+The experiment controls record explicit reasons and future boundaries. Discovery requires ten clean
+engineering sessions and starts fresh, equal-capital champion-control and challenger runs for one
+predeclared threshold family. Untouched confirmation selects one contender after thirty matured paired
+discovery cohorts and starts new aligned runs. A passing thirty-cohort untouched score permits human
+promotion review; it does not activate a policy automatically. The former champion then supplies a
+thirty-clean-session baseline. Portfolio capital-review resumption is a separate recorded human action.
+
+Research reports load only when requested for an explicit date range of at most 366 calendar dates and show their read time. They do not
+run inside the periodic monitoring refresh. Official portfolio NAV includes every valid fill; the adjacent
+fill-confidence diagnostic compares realized returns for all closed trades against the bid/ask-only closed
+trade slice, with estimated-fill counts and percentages. Its trade-return denominator is labelled and is
+not substituted for a portfolio NAV return. Report a known or suspected corporate action with its symbol,
+affected date range and reason; the resulting audit excludes affected evidence without adjusting cash,
+shares or historical prices.
+
+Use offline Core tests and builds for source validation. Starting WPF, collecting quotes/bars, applying
+migrations, scheduling an experiment and activating a portfolio are operational steps with persistent
+effects; none was performed merely to validate this implementation.
 
 ## Athena — calibration outcome evaluation
 

@@ -88,6 +88,9 @@ architecture documentation.
 | [0048](0048-consequential-operational-transaction-boundaries.md) | Consequential operational transaction boundaries | Accepted | architecture, data-pipeline, risk-management |
 | [0049](0049-canonical-database-write-contracts.md) | Canonical database write contracts | Accepted | architecture, data-pipeline, risk-management |
 | [0050](0050-build-only-ssdt-ci-boundary.md) | Build-only SSDT CI boundary | Accepted | architecture, data-pipeline, risk-management |
+| [0051](0051-system-shadow-portfolios.md) | System-selected Shadow V1 portfolios | Accepted | architecture, data-pipeline, decision-engine, market-microstructure, risk-management |
+| [0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) | Working-tree state is provenance, not evidence quality | Accepted | architecture, data-pipeline, decision-engine |
+| [0053](0053-delphi-live-v1.md) | Delphi Live V1 | Accepted | architecture, data-pipeline, decision-engine, machine-learning, market-microstructure, risk-management, technical-indicators |
 
 See also:
 

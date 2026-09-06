@@ -177,7 +177,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Q:** Should a separately scored shadow controller automatically open Delphi's selected Top pick at the first completed fifteen-minute checkpoint, or should all operational ghost entries continue to require operator confirmation?
 - **Q:** If automatic shadow entry is tested, which lens/rank, capital allocation, vacancy-filling, duplicate-symbol, and rotation rules define it, and how will it remain separate from operator-timed positions and official Athena outcomes?
 - **Tags:** architecture, decision-engine, market-microstructure, risk-management
-- **Status:** open — ADR-0037 accepts only operator-confirmed saved-pick entry. The earlier automatic-entry idea was a recommendation in discussion, not an approved policy, and must not be activated without a versioned ADR, separate evidence, and human approval.
+- **Status:** resolved for System-selected Ghost portfolios by ADR-0051. Shadow V1 freezes the valid 09:30 OfficialPaper Top 3/Top 5 Continuation and Breakout candidates, applies its versioned capital/risk/execution policy, and remains separate from operator Ghost/Real records and Athena. AI selection and real execution remain future decisions.
+
+### Delphi Live — future research after ADR-0053
+
+- **Q:** May a future evidence-backed version add an explicit named lens-specific requirement, such as requiring Volume Support for a Breakout action?
+- **Q:** Which causal calculations and categorical boundaries should govern the explanatory multi-horizon volatility profile after V1?
+- **Q:** What volatility-adjusted rule should group raw observations into one derived price-move event without erasing the immutable five-minute evidence?
+- **Q:** What structured input/output, model-and-prompt versioning, reproducibility, latency, failure, and evaluation contract must a future AI Selector satisfy before Shadow comparison?
+- **Tags:** architecture, decision-engine, machine-learning, technical-indicators
+- **Status:** deferred, non-blocking — ADR-0053 accepts the frozen V1 behavior and leaves these as prospective successor decisions. Source implementation does not authorize migration, activation, external collection, model training, deployment, or broker work.
 
 ### Always-on hosting for the paper monitor
 

@@ -1,9 +1,17 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-03
+**Snapshot date:** 2026-09-05
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
+
+Delphi Live V1 is implemented in source against the frozen [concept](concepts/delphi-live.md) and
+[ADR-0053](adr/0053-delphi-live-v1.md). Its independent Core engine, durable five-minute collection,
+paper portfolios, research protocol and inactive WPF surface are tracked in the
+[implementation checklist](delphi-live-implementation-checklist.md). All 581 Core tests passed and the
+complete Release solution built successfully, including the SQL database project. Migrations 022–025 are source
+artifacts only. No Delphi Live schema has been applied, calendar installed, simulation capital
+assigned, market collection started or broker operation performed during this implementation.
 
 TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps open Delphi-linked positions and unlinked operator-reported Real holdings in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
 
@@ -38,17 +46,63 @@ atomic status, and no automatic retry. A separate Codex heartbeat
 reads only that durable status and stays quiet unless a run is missing, stale, long-running, failed, or
 needs attention. The pipeline does not include Hercules, migrations, WPF monitoring, Oracle, Sandbox, or
 broker activity. The Windows task and weekday 07:00 Codex heartbeat were installed and verified active on
-2026-09-02; no operational pipeline run was started during setup, so the first scheduled result is pending.
+2026-09-02. The first scheduled pipeline completed on 2026-09-04 with Attention rather than failure:
+Hermes and Delphi completed, while Athena reported six invalid delayed-intraday outcomes.
+
+ADR-0051 adds System Shadow V1 as a separate, capital-constrained paper-execution layer over frozen daily
+Delphi recommendations. Four independent virtual portfolios compare Continuation and Breakout Top-3 and
+Top-5 baskets using causal five-minute fills, whole-share equal slots, provisional loss/profit exits, and
+daily/drawdown guards. The WPF Portfolios workspace keeps Real, operator-selected Ghost, and System results
+visibly separate. Migration 019 was backed up, manually applied, and verified on 2026-09-04; the new ledger
+was initially empty and off, then the operator activated the first same-session generation with manually
+entered TFSA capital. It has no broker connection and remains entirely separate from Athena's official
+calibration evidence.
+
+The first live Shadow session exposed a nullable SQL `BIT` projection defect: market evidence kept arriving,
+but the first pending fill stopped the decision phase because `COALESCE(DailyLossGuardActive, 0)` was returned
+as an integer and read as a Boolean. The fill query now casts the expression back to `BIT`, with a regression
+contract covering the database-reader boundary. The three already-persisted pending orders were preserved;
+the repair did not invent a historical fill or alter the live ledger.
+
+The completed 2026-09-04 Shadow session is retained as an engineering shakedown record, not clean strategy
+performance evidence. All four sessions closed and reconciled, but one CRDL fifteen-minute bar was consumed
+twice: it first armed a trailing stop, then its earlier low was tested against that newly armed stop on the
+next poll. A software interruption also left MFC and CRDL buys pending for roughly two and a half hours; the
+restart filled them without current requalification. Source now persists the last consumed fifteen-minute
+bar identity and treats repeat or older bars as idempotent. Pending buys are valid only for their exact
+immediate fill bar; a restart or later bar cancels the stale order so current evidence must create a new
+one. Migration 021 is additive and deliberately leaves existing bar identities null, preserving the ledger
+without inventing history. It was manually applied and verified on 2026-09-04 after a fresh checksum backup
+and hash-matched OneDrive copy. Postflight preserved every Shadow row count and the portfolio cash/high-water,
+position share/cost/P&L, and order-status totals exactly; the schema check now reports ready.
+
+ADR-0052 separates source provenance from evidence quality. Delphi continues to store `Clean`, `Dirty`, or
+`Unknown`, but tree state alone no longer degrades an otherwise complete run; missing code or model identity
+still makes it invalid. Guarded migration 020 preserved today's `Dirty` marker while changing only official
+run `463416D8-8229-4C51-B255-107F96DF21D4` to `Valid`, then removed the empty initial Shadow generation so
+the operator can start it again against today's 25 Continuation and 25 Breakout picks. Delphi was not rerun.
 
 ## Verified development baseline
+
+- Delphi Live validation and final integration status are recorded in its
+  [phase checklist](delphi-live-implementation-checklist.md); the earlier operational baseline below
+  remains a historical record and does not establish Delphi Live readiness.
 
 - Active branch: `master`, with upstream `origin/master` configured.
 - Nightly operations: Windows task `TraderVI Nightly` is Ready for weekday 00:30 execution under the
   signed-in user, with wake/start-when-available enabled and no automatic retry. Codex automation
   `TraderVI Nightly Watch` is active for weekday 07:00 read-only supervision.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
-- Complete Release solution build: successful after the ADR-0013 score-once restoration using Visual Studio 2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced without deployment on 2026-09-02.
-- Core tests: 237 passed, 0 failed, 0 skipped in both Debug and Release validation on 2026-09-03. The test project is explicitly marked as a test project so .NET 10 discovery cannot silently report success with zero executed tests.
+- Complete Release solution build: successful after the Shadow execution-causality fixes using Visual Studio
+  2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced only as a build artifact and was not
+  deployed on 2026-09-04.
+- Core tests: 266 passed, 0 failed, 0 skipped after the duplicate fifteen-minute-bar and stale pending-buy
+  regressions were added on 2026-09-04. The test project is explicitly marked as a test project so .NET 10
+  discovery cannot silently report success with zero executed tests.
+- Migration 021 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. It was manually
+  applied and verified on 2026-09-04. The 39.34 MB checksum backup and its approved OneDrive copy are both
+  41,237,504 bytes with SHA-256 `DC6826BC176B7787DD89D476640DE1FAD66D29711981E1D1119DF5698B37B265`.
+  OneDrive cloud-sync completion remains user-observed.
 - Migration 017 parses with the SQL Server 2019 (`TSql150`) offline parser with zero errors. The final canonical SQL project and complete Release solution both build successfully after the strengthened identity constraint; neither build deployed the DACPAC.
 - Known dependency advisories remain; see build output before updating packages.
 - Local database engine: SQL Server 2019 Developer RTM (`15.0.2000.5`); the project now targets `Sql150` and blocks database deployment.
@@ -61,6 +115,8 @@ broker activity. The Windows task and weekday 07:00 Codex heartbeat were install
 - Strategy-identity backup: `TraderDB_FULL_20260902_002015_223.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,508,096-byte staging and OneDrive copies matched SHA-256 `33C5A08493BE4A2941341CC22EFECAB773BD854AA908C289DB6D6F5E15573EFF`, and the operator confirmed synchronization before migration 016.
 - Leadership-missingness backup: `TraderDB_FULL_20260902_012154_689.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 37,497,344-byte staging and OneDrive copies matched SHA-256 `D74FF2F3F3B18AED0C8C72BCCB99D6214497B7BFA3738B6E9420B7FA5EACF658`, and the operator confirmed synchronization before migration 017.
 - First post-migration Hermes backup: `TraderDB_FULL_20260902_013547_367.bak` passed Hermes' SQL checksum verification; its 37,552,640-byte staging and OneDrive copies independently matched SHA-256 `B4C7126D851B20704C37B3A8D4EE43497AFE9AD3A1B8B9E20F779F3EB51AE625`. OneDrive cloud-sync completion remains user-observed.
+- System Shadow backup: `TraderDB_FULL_20260904_100139_426.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 39,577,600-byte staging and approved backup copies matched SHA-256 `29C87EAFAE76E870BF0D8CB3F73C28A059562FCB99085C22F21209769204694C` before migration 019 was applied.
+- Delphi/Shadow correction backup: `TraderDB_FULL_20260904_104732_010.bak` passed `RESTORE VERIFYONLY WITH CHECKSUM`; its 40,429,056-byte staging and approved OneDrive copies matched SHA-256 `06FE957D08012D9FC07ECABF8F4D5F4B76AE03A2493CF2A4001E57D9FDE5BBE7` before migration 020 was applied.
 - A/D integrity: the incremental lookback double-counting defect was fixed, and all 262 stored rows were repaired and re-audited with zero plurality, cumulative, or step mismatches. The final 2026-08-21 cumulative is `7,307`.
 
 ## Programs and responsibility
@@ -71,7 +127,7 @@ broker activity. The Windows task and weekday 07:00 Codex heartbeat were install
 | Hercules (`ML.Train`) | Trains enabled profit models and records experiments/models | CPU-intensive training; writes model artifacts and SQL registry rows |
 | Delphi | Evaluates the universe through Continuation and Breakout lenses and emits reports | Reads models/data; rewrites daily picks, dossiers, narratives, and Granville logs for the evaluation date |
 | TraderVI | Manual ghost CLI plus shared durable paper monitor | Writes simulated positions, trade logs, and intraday evidence; does not place live orders |
-| TraderVI.WPF | Tabbed desktop shell for Trading, Data Audit, Delphi, official Scorecards, and Project Docs | Trading refreshes SQL history, polls TMX during the regular monitor window, auto-closes Ghost positions only, and records confirmed operator-reported Real fills after migration 013; Scorecards, Data Audit, saved Delphi sessions, and Project Docs are read-only; confirmed official Delphi runs have their documented SQL effects; no broker integration |
+| TraderVI.WPF | Tabbed desktop shell for Trading, Portfolios, Data Audit, Delphi, official Scorecards, and Project Docs | Trading refreshes SQL history, polls TMX during the regular monitor window, auto-closes operator Ghost positions only, and records confirmed operator-reported Real fills after migration 013. Portfolios hosts the explicitly started System Shadow V1 paper controller and its durable audit ledger. Scorecards, Data Audit, saved Delphi sessions, and Project Docs are read-only; confirmed official Delphi runs have their documented SQL effects; no broker integration |
 | Oracle | Optional LLM narration over deterministic decision dossiers | May call a configured LLM service and write narrative records |
 | DataAudit | Read-only full-local-universe classification, freshness, mapping, and bar-integrity diagnostics | Local SQL reads only; no external calls or writes |
 | Sandbox | Manually selected probes for reconnaissance, calibration, and controlled backfills | Probe-specific; some call external services or mutate SQL |
@@ -315,6 +371,34 @@ First v3.2 operating day on 2026-09-02:
   postflight confirmed one BUY, one SELL, and no active SGY row. The visibly restarted WPF app's 10:35
   cycle then stored four valid collector-v2 receipts for XIU and the remaining Real holding only.
 
+System Shadow V1 implementation and migration on 2026-09-04:
+
+- ADR-0051 implements four independent System-selected Ghost portfolios: Continuation Top-3/Top-5 and
+  Breakout Top-3/Top-5. Each starts with the same operator-entered TFSA value as a separate what-if account;
+  positions use equal whole-share slots, an initial 75% allocation, and one possible 25% Delphi-supported
+  add-on while profitable and rising.
+- The controller freezes only the newest valid same-date official Delphi run available by the policy
+  boundary, requires fresh completed five-minute evidence after same-session activation, and records a
+  pending order before using the open of a strictly later completed five-minute bar. It does not manufacture
+  historical fills or carry unfilled daily candidates into the next session.
+- Version-1 controls include a 5% hard loss, a protected-profit trail, Session-2 non-mover rotation/exit,
+  a -3% daily new-risk guard, and a -10% capital-review drawdown guard. Pause and capital review stop new
+  risk while allowing protective exits. Shadow has no maximum holding period and no broker path.
+- Migration 019 added eight canonical Shadow tables. Post-application verification found all 18 foreign
+  keys and all 30 checks enabled and trusted, the filtered open-position uniqueness index present, and zero
+  generation, portfolio, session, position, order, or event rows. Shadow is therefore installed but off.
+- ADR-0052 and migration 020 changed today's exact official run from `Degraded` to `Valid` while preserving
+  `WorkingTreeState = Dirty`, 211 candidates, 422 lens evaluations, and 50 published picks. The reviewed
+  empty generation contained four portfolios, four `NoValidDelphiRun` sessions, eight startup events, one
+  capital snapshot, and no candidates, positions, or orders; migration 020 removed only that graph.
+- The Portfolios tab now exposes the selected System portfolio's candidate state, prior/latest five-minute
+  evidence, distance from the previous session close, plain-language decision, and evaluation timestamp.
+  Portfolio freshness uses that timestamp before a holding exists, making active no-entry polling visible.
+- All 266 Core tests passed after the Shadow causality regressions were added. Focused Core/WPF builds, the
+  SSDT database-project build, and the complete Release solution build succeeded without deploying the
+  DACPAC. Migration 021 parsed with zero `TSql150` errors, then its separately authorized script was applied
+  and verified without changing application rows. No workflow called a market, model, or broker service.
+
 ## Known gaps and risks
 
 1. **Historical relative-strength features are empty.** This blocks the documented RS-to-Hercules training path and Z-score backfill analysis.
@@ -334,16 +418,23 @@ First v3.2 operating day on 2026-09-02:
    `Docs/calibration-implementation-checklist.md`.
 8. **Compiler warning backlog.** A clean Athena/Core rebuild succeeds but reports 236 warnings, primarily nullable annotations outside a nullable context plus existing unreachable/unused code warnings. Treat this separately from the dependency-security advisories and from build failures.
 9. **Ghost/Real source support is rolled out, but Real records remain operator-reported only.** Migration 013 is applied and verified. The EDR Ghost mirror completed its paper exit at $15.62 and remains immutable; the operator declined a separate Real entry on 2026-08-28 because EDR is no longer in the current Delphi picks. Version 1 explicitly accepts only one all-shares, zero-commission Real exit and refuses partial/fee-bearing use; the version-2 lifecycle/accounting decision remains open. There is no broker verification, balance, partial-fill, commission, or order integration. No policy signal may be interpreted as a completed real sale.
+10. **System Shadow V1 needs clean live observation before policy tuning.** The first session is preserved as
+    shakedown evidence and excluded from performance conclusions. The duplicate fifteen-minute trailing-bar
+    and stale pending-buy restart fixes are installed through migration 021. Collect several uninterrupted
+    sessions before changing the provisional 5% hard loss, Session-2 rotation, add-on, re-entry, or
+    daily/drawdown thresholds. Dividends, splits, automatic account synchronization, headless hosting, and
+    broker execution are deferred.
 ## Immediate direction
 
 Stabilize the existing daily advisory loop before adding indicators or automation:
 
-1. Treat the valid 2026-09-02 Delphi run as the first official `v3.2-leadership-missingness` cohort; run
+1. Treat the valid 2026-09-04 Delphi run as the newest official `v3.2-leadership-missingness` cohort; run
    Delphi again only when another deliberate cohort is wanted, and do not count repeated runs over one
    market-data date as independent evidence.
-2. Keep exactly one `TraderVI.WPF` instance open during regular market hours only when resuming the separate
-   intraday evidence workflow. It now collects every five minutes while policy decisions remain based on
-   completed 15-minute bars; observe source health without starting a second monitor.
+2. Migration 021 is applied and verified. At the next real TSX session, keep exactly one `TraderVI.WPF`
+   instance open during regular market hours and observe the four virtual portfolios, skipped-entry reasons,
+   pending/fill causality, and risk exits without starting a second monitor. This still cannot place a broker
+   order.
 3. Monitor the remaining open historical Real position, but record a sale only from the operator's actual
    broker fill. A Real alert cannot auto-close it.
 4. Run Athena only after new eligible daily or intraday evidence exists. It does not initialize or repair

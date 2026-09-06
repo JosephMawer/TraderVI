@@ -37,6 +37,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 - [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
+- [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
+- [ADR-0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) — Working-tree state is provenance, not evidence quality
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## data-pipeline
 
@@ -65,6 +68,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 - [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
+- [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
+- [ADR-0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) — Working-tree state is provenance, not evidence quality
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## data-sources
 
@@ -79,6 +85,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0020](0020-immutable-calibration-evidence-ledger.md) — Immutable calibration evidence ledger
 - [ADR-0022](0022-champion-challenger-evidence-and-promotion.md) — Champion/challenger evidence and promotion
 - [ADR-0038](0038-cohort-weighted-official-prediction-scorecards.md) — Cohort-weighted official prediction scorecards
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## llm
 
@@ -104,6 +111,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## market-microstructure
 
@@ -125,6 +133,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0044](0044-unlinked-real-position-monitoring.md) — Unlinked Real position monitoring
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
+- [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## risk-management
 
@@ -157,6 +167,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0048](0048-consequential-operational-transaction-boundaries.md) — Consequential operational transaction boundaries
 - [ADR-0049](0049-canonical-database-write-contracts.md) — Canonical database write contracts
 - [ADR-0050](0050-build-only-ssdt-ci-boundary.md) — Build-only SSDT CI boundary
+- [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## decision-engine
 
@@ -188,6 +200,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0043](0043-preserve-leadership-source-missingness.md) — Preserve leadership-source missingness
 - [ADR-0046](0046-guarded-nightly-operations-runner.md) — Guarded nightly operations runner
 - [ADR-0047](0047-discretionary-real-entry-from-non-buy-row.md) — Discretionary Real entry from a non-Buy Delphi row
+- [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
+- [ADR-0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) — Working-tree state is provenance, not evidence quality
+- [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## math-statistics
 

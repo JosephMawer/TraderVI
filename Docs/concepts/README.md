@@ -1,5 +1,8 @@
 # Concepts
 
+- [Delphi Live](delphi-live.md) — frozen V1 design source accepted by ADR-0053 for five-minute reranking, explainable safety vetoes, separate Shadow challengers, and future calibration.
+- [System Shadow portfolios](system-shadow-portfolios.md) — plain-language purpose and boundary for the four System-selected Ghost alternatives.
+
 This folder explains the *ideas* behind the system — the "what" and "why
 it matters" — separately from the decisions captured in ADRs.
 
@@ -26,6 +29,9 @@ many ADRs.
 - `paper-calibration-and-outcome-feedback.md` — draft architecture and measurement
   contract for immutable prediction outcomes, tradeable outcomes, shadow
   portfolios, and controlled self-calibration.
+- `delphi-live.md` — frozen V1 design source for a daily-informed, five-minute
+  Delphi advisory layer with separately calibratable signals and safety behavior;
+  accepted without behavioral changes by ADR-0053.
 
 ## Concept template
 

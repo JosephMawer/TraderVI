@@ -131,9 +131,40 @@ The operational Ghost/Real ledger is deliberately separate from official Athena 
 
 Automatic Ghost exits never route to a broker. ADR-0039 adds durable mode/account fields plus an immutable Ghost-to-Real reconciliation audit; all pre-migration rows default to Ghost, and Real fills are operator-reported facts only. The WPF process must remain open for its five-minute collection schedule; the decision policy still consumes completed 15-minute bars, and always-on service hosting is deferred. The tabbed shell contains Trading, Data Audit, Delphi, Scorecards, and Project Docs. The six-view Delphi workspace loads persisted picks and the matching typed presentation snapshot without evaluation; only a confirmed official action invokes its database-writing workflow. Project Docs remains file-only. Scorecards reads official calibration SQL through the same pure calculator as Athena and cannot write outcomes or alter Delphi.
 
+## Delphi Live flow
+
+[ADR-0053](adr/0053-delphi-live-v1.md) adopts the frozen [Delphi Live V1 design](concepts/delphi-live.md).
+`DelphiLiveMonitorWorkflow` in Core owns session scheduling, lease recovery, collection, deterministic
+evaluation and per-portfolio action sequencing behind injected stores, market data, clock/calendar and
+notifications. `DelphiLiveDesktopService` composes the first WPF host; UI selection never determines
+whether an activated monitor ticks.
+
+At a regular-session boundary the session repository freezes one eligible daily source and the
+published Top-25 union, exact policy assignments and point-in-time daily baselines. The collection
+repository stores one expected symbol/checkpoint slot, receipts and canonical five-minute observations
+with deadline disposition and process-continuity evidence. Every assigned policy references those same
+market facts; each portfolio owns its confirmation, cash, orders, positions and immutable ledger revisions.
+Protective sells precede buys and every decision precedes its fresh simulated-fill quote.
+
+Research outcomes and lens-specific Daily/Live Top-5 baskets are separate from executable portfolio
+returns. The experiment protocol creates aligned cash-only controls and challengers, records cohort
+coverage, and permits a human-approved policy change only at a later session boundary. A promotion
+carries the operational positions and preserves their original entry evidence. Additive migrations
+022–025 define this storage; applying them and activating monitoring remain separate operational steps.
+
 ## Official prediction scorecard flow
 
 Athena joins the immutable `OfficialPaper` candidate population to `PredictionLabels10` version 1 and validates definition, purpose, strategy identity, cohort, candidate, lens, rank, schema, session, and event identity before reporting performance. ADR-0042 scopes every comparative query to the one active strategy carrying `InitialCodeCommit` and `DecisionRef`; earlier identities remain immutable and queryable but are counted as excluded rather than pooled. ADR-0038 averages candidates inside a run, reruns inside `MarketDataAsOf`, and market-session cohorts equally. It produces four model-calibration reports, separate eligible Continuation/Breakout rank reports, and descriptive technical/market slices only after the 95% coverage floor is met. Export-schema-v2 CSV artifacts stamp the same strategy identity and are optional outputs of the pure calculator. Operational ghost positions, actual broker holdings, and manual fills never enter this report.
+
+ADR-0051 adds a second, explicitly separate evidence path: four System-selected Shadow portfolios. The WPF
+host freezes the valid 09:30 `OfficialPaper` ranks for each lens and maximum basket size, persists completed
+intraday source receipts, records a decision as a pending virtual order, and resolves it only from a later
+five-minute bar. A buy may use only its exact immediate fill bar; a missed window cancels the order and
+requires current requalification. Positions persist the last consumed fifteen-minute bar start so trailing
+state is idempotent and a bar cannot test its earlier low against a stop that the same bar just established.
+The Shadow ledger owns its own generations, sessions, candidates, positions, orders, capital snapshots, and
+audit events. It never writes Athena outcomes or the operator Ghost/Real position tables, and neither of
+those ledgers is treated as a substitute for Shadow performance.
 
 ADR-0039's operational ledger persists `Ghost` or `Real` plus an account label for Real and displays the modes separately. This state never enters the official prediction report. `Real` is not broker identity or verification: no order, balance, import, partial-fill, or broker adapter exists. Migration 013 was applied and verified manually on 2026-08-28; all legacy operational rows were deliberately classified Ghost. A real holding is represented only by a separately confirmed Real entry or audited active-position reconciliation, never by inference from a Ghost lifecycle.
 

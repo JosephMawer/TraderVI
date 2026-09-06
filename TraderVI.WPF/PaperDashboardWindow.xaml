@@ -254,11 +254,17 @@
         </Border>
        </Grid>
       </TabItem>
+      <TabItem Header="Portfolios">
+        <views:PortfoliosView x:Name="PortfoliosTabView"/>
+      </TabItem>
       <TabItem Header="Data Audit">
         <views:DataAuditView/>
       </TabItem>
       <TabItem Header="Delphi">
         <views:DelphiView x:Name="DelphiTabView"/>
+      </TabItem>
+      <TabItem Header="Delphi Live">
+        <views:DelphiLiveView x:Name="DelphiLiveTabView"/>
       </TabItem>
       <TabItem Header="Scorecards">
         <views:ScorecardsView/>

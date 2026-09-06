@@ -12,6 +12,85 @@ namespace Core.Db;
 
 public sealed class CalibrationEvidenceRepository : SQLBase
 {
+    public async Task<SystemShadowDelphiRun?> GetLatestValidOfficialRunAsync(
+        DateTime recommendationDate,
+        DateTime createdNoLaterThanUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (createdNoLaterThanUtc.Kind != DateTimeKind.Utc)
+            throw new ArgumentException("Delphi availability cutoff must be UTC.", nameof(createdNoLaterThanUtc));
+
+        const string sql = """
+SELECT TOP (1) [RunId],[RecommendationDate],[MarketDataAsOf],[CreatedUtc]
+FROM [dbo].[CalibrationRun]
+WHERE [RecommendationDate] = @RecommendationDate
+  AND [RunPurpose] = N'OfficialPaper'
+  AND [AuditState] = N'Valid'
+  AND [CreatedUtc] <= @CreatedNoLaterThanUtc
+ORDER BY [CreatedUtc] DESC,[StartedUtc] DESC,[RunId];
+""";
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddRange([
+            new SqlParameter("@RecommendationDate", SqlDbType.Date) { Value = recommendationDate.Date },
+            new SqlParameter("@CreatedNoLaterThanUtc", SqlDbType.DateTime2) { Value = createdNoLaterThanUtc }
+        ]);
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+            return null;
+        return new SystemShadowDelphiRun(
+            reader.GetGuid(0),
+            reader.GetDateTime(1),
+            reader.GetDateTime(2),
+            DateTime.SpecifyKind(reader.GetDateTime(3), DateTimeKind.Utc));
+    }
+
+    public async Task<IReadOnlyList<SystemShadowDelphiCandidate>> GetPublishedCandidatesAsync(
+        Guid runId,
+        string lens,
+        int maximumRank,
+        CancellationToken cancellationToken = default)
+    {
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Calibration run ID is required.", nameof(runId));
+        if (lens is not ("Continuation" or "Breakout"))
+            throw new ArgumentOutOfRangeException(nameof(lens));
+        if (maximumRank is < 1 or > 5)
+            throw new ArgumentOutOfRangeException(nameof(maximumRank));
+
+        const string sql = """
+SELECT c.[CandidateId],c.[Symbol],l.[Rank],CONVERT(decimal(19,6),c.[ObservationClose])
+FROM [dbo].[CalibrationCandidate] c
+JOIN [dbo].[CalibrationLensEvaluation] l ON l.[CandidateId] = c.[CandidateId]
+WHERE c.[RunId] = @RunId
+  AND l.[Lens] = @Lens
+  AND l.[IsEligible] = 1
+  AND l.[IsPublished] = 1
+  AND l.[Rank] <= @MaximumRank
+ORDER BY l.[Rank],c.[Symbol];
+""";
+        var rows = new List<SystemShadowDelphiCandidate>();
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddRange([
+            new SqlParameter("@RunId", SqlDbType.UniqueIdentifier) { Value = runId },
+            new SqlParameter("@Lens", SqlDbType.NVarChar, 16) { Value = lens },
+            new SqlParameter("@MaximumRank", SqlDbType.Int) { Value = maximumRank }
+        ]);
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            rows.Add(new SystemShadowDelphiCandidate(
+                reader.GetGuid(0),
+                reader.GetString(1),
+                reader.GetInt32(2),
+                reader.GetDecimal(3)));
+        }
+        return rows.AsReadOnly();
+    }
+
     public async Task<IReadOnlyList<FreshDelphiBreakoutEvidenceSnapshot>>
         GetValidOfficialBreakoutTimelineAsync(
             string symbol,

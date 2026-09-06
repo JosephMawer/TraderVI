@@ -770,3 +770,63 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0050
 
 **A:** It receives no database credentials, invokes only the Build target with deployment disabled, uploads no DACPAC, and is backed by the project's target that rejects deploy operations. Live changes still require an authorized manual migration.
+
+### Q: Why does Shadow V1 run four independent portfolios with the full starting capital in each?
+- **Domains:** architecture, decision-engine, risk-management
+- **Source:** ADR-0051
+
+**A:** Each is an alternative answer to “what if this one policy controlled the available TFSA capital?” Sharing or summing their cash would mix Continuation/Breakout and Top-3/Top-5 policies and make the comparison meaningless.
+
+### Q: Why is a Shadow signal persisted before its virtual fill?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0051
+
+**A:** The signal becomes knowable only after a completed bar is received. Filling at that bar's close would use an already-past price; Shadow waits for the first later five-minute bar and applies friction to its open.
+
+### Q: What happens when a Shadow pending buy misses its exact next-bar fill window?
+- **Domains:** market-microstructure, risk-management
+- **Source:** ADR-0051
+
+**A:** The order is cancelled rather than filled at a later convenient open. The frozen candidate must pass the full entry test again using current five-minute evidence before a new pending order can be created.
+
+### Q: Why does a Shadow position persist the last consumed fifteen-minute bar start?
+- **Domains:** architecture, market-microstructure, risk-management
+- **Source:** ADR-0051
+
+**A:** It makes trailing-state processing idempotent across polls and restarts. A bar may arm or raise a stop once, but its earlier low can never be retested against the stop that same bar established.
+
+### Q: Can Athena silently use Shadow portfolio returns to calibrate Delphi?
+- **Domains:** architecture, decision-engine
+- **Source:** ADR-0051
+
+**A:** No. Athena measures immutable candidate outcomes at fixed checkpoints, while Shadow measures one capital-constrained selection and execution policy. They remain separate evidence streams unless a future reviewed design explicitly joins them.
+
+### Q: Why does a dirty working tree no longer make an otherwise complete Delphi run degraded?
+- **Domains:** architecture, data-pipeline, decision-engine
+- **Source:** ADR-0052
+
+**A:** Working-tree state answers where the run came from, while audit state answers whether its captured trading evidence is usable. TraderVI preserves `Dirty` visibly but does not treat source-control hygiene as an evidence defect.
+
+### Q: What still makes Delphi provenance invalid after ADR-0052?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0052
+
+**A:** An unavailable code commit or incomplete loaded-model identity/hash still makes the official run invalid. A dirty run also cannot be reconstructed from the commit alone, so its working-tree marker must remain visible.
+
+### Q: Why must Delphi Live keep observing a candidate after dismissing it from active ranking?
+- **Domains:** data-pipeline, decision-engine, math-statistics
+- **Source:** ADR-0053
+
+**A:** The later evidence reveals whether dismissal avoided a loser or rejected a delayed winner. Stopping collection at dismissal would preserve more winner histories than loser histories and bias both calibration and future training.
+
+### Q: What role may DotLLM play when a user asks why Delphi Live changed a recommendation or Shadow exited?
+- **Domains:** architecture, decision-engine, llm, risk-management
+- **Source:** ADR-0053; `Docs/oracle-rules.md`
+
+**A:** It may translate persisted deterministic facts, rule results, veto codes, and action history into plain language. It may not invent causality, calculate the decision, change a score, trigger an action, or claim a reason absent from the durable record.
+
+### Q: Why can one clean Delphi Live observation restore Data Confidence without restoring entry eligibility?
+- **Domains:** data-pipeline, decision-engine, risk-management
+- **Source:** ADR-0053
+
+**A:** The clean exact stock/XIU pair proves the current collection cycle is healthy, so the consecutive-miss ladder resets. It cannot recreate a missing bar or repair a rolling window; each family must independently remature from the required contiguous evidence before a Buy is possible.
