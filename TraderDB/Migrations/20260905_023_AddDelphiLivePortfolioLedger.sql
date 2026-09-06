@@ -32,5 +32,25 @@ GO
 :r TraderDB\dbo\Tables\DelphiLivePortfolioLedger.sql
 :r TraderDB\dbo\Tables\DelphiLivePortfolioRevision.sql
 :r TraderDB\dbo\Tables\DelphiLiveLedgerEvent.sql
+
+DECLARE @NewTables TABLE ([ObjectId] INT NULL);
+INSERT @NewTables ([ObjectId]) VALUES
+    (OBJECT_ID(N'dbo.DelphiLivePortfolioGeneration', N'U')),
+    (OBJECT_ID(N'dbo.DelphiLivePortfolioLedger', N'U')),
+    (OBJECT_ID(N'dbo.DelphiLivePortfolioRevision', N'U')),
+    (OBJECT_ID(N'dbo.DelphiLiveLedgerEvent', N'U'));
+IF (SELECT COUNT([ObjectId]) FROM @NewTables) <> 4
+    THROW 52300, 'The complete four-table Delphi Live portfolio schema was not created.', 1;
+IF EXISTS (SELECT 1 FROM dbo.DelphiLivePortfolioGeneration)
+    OR EXISTS (SELECT 1 FROM dbo.DelphiLivePortfolioLedger)
+    OR EXISTS (SELECT 1 FROM dbo.DelphiLivePortfolioRevision)
+    OR EXISTS (SELECT 1 FROM dbo.DelphiLiveLedgerEvent)
+    THROW 52301, 'Portfolio installation must not create capital, portfolios, revisions, or events.', 1;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys k JOIN @NewTables t ON t.ObjectId=k.parent_object_id
+           WHERE k.is_disabled=1 OR k.is_not_trusted=1)
+    OR EXISTS (SELECT 1 FROM sys.check_constraints k JOIN @NewTables t ON t.ObjectId=k.parent_object_id
+               WHERE k.is_disabled=1 OR k.is_not_trusted=1)
+    OR EXISTS (SELECT 1 FROM sys.indexes i JOIN @NewTables t ON t.ObjectId=i.object_id WHERE i.is_disabled=1)
+    THROW 52302, 'A new portfolio constraint or index is disabled or untrusted.', 1;
 COMMIT TRANSACTION;
 GO

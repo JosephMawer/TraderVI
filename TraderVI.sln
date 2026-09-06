@@ -130,6 +130,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviews", "reviews", "{FDB8BD6D-3759-4919-8CF9-4286F5EDCBFE}"
 	ProjectSection(SolutionItems) = preProject
+		Docs\reviews\delphi-live-migrations-20260906.json = Docs\reviews\delphi-live-migrations-20260906.json
 		Docs\reviews\flashcards.md = Docs\reviews\flashcards.md
 		Docs\reviews\open-questions.md = Docs\reviews\open-questions.md
 		Docs\reviews\review-log.md = Docs\reviews\review-log.md

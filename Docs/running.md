@@ -301,9 +301,10 @@ Keep the app open for future polling. Closing it, signing out, sleeping, or rest
 
 The frozen design is [Delphi Live V1](concepts/delphi-live.md); source and validation status are in the
 [implementation checklist](delphi-live-implementation-checklist.md). The WPF Delphi Live tab reads
-status separately from activation. It starts inactive and requires reviewed manual migrations
-022, 023, 024 and 025, applied in order through the normal backup/review workflow. Building the SQL
-project does not satisfy that prerequisite or authorize a migration.
+status separately from activation. Migrations 022, 023, 024 and 025 were separately authorized and
+applied in order on 2026-09-06 after a checksum-verified full backup and a hash-matched OneDrive copy
+reported synced by Windows. Schema and preservation checks passed, and `DBCC CHECKDB` reported no
+errors. Delphi Live remains inactive. Building the SQL project alone does not apply a migration.
 
 The first host requires a reviewed local official TSX regular-session calendar. Set
 `TRADERVI_TSX_CALENDAR_PATH` to its absolute file path before starting WPF. The JSON has these required

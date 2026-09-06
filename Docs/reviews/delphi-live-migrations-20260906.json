@@ -1,0 +1,202 @@
+{
+  "RecordVersion": 1,
+  "AppliedDateToronto": "2026-09-06",
+  "Database": "TraderDB",
+  "SqlServerVersion": "15.0.2000.5",
+  "RecoveryModel": "SIMPLE",
+  "Authorization": "User explicitly requested backup and application of Delphi Live database migrations.",
+  "Method": "SQLCMD, migrations 022–025 individually in order; no DACPAC deployment.",
+  "SessionOptions": [
+    "ANSI_NULLS ON",
+    "ANSI_PADDING ON",
+    "ANSI_WARNINGS ON",
+    "ARITHABORT ON",
+    "CONCAT_NULL_YIELDS_NULL ON",
+    "QUOTED_IDENTIFIER ON",
+    "NUMERIC_ROUNDABORT OFF",
+    "XACT_ABORT ON",
+    "LOCK_TIMEOUT 15000"
+  ],
+  "Backup": {
+    "File": "TraderDB_FULL_20260905_235931_669.bak",
+    "StagingDirectory": "C:\\ProgramData\\TraderVI\\Backups",
+    "Destination": "OneDrive\\Joseph\\Tradervi\\backups",
+    "Bytes": 41238016,
+    "SHA256": "6E4574B7A6EBC40CAE243C28BB3297BAA3ED27CAB82990572B23BBEDE82A76EE",
+    "HasBackupChecksums": true,
+    "IsDamaged": false,
+    "RestoreVerifyOnlyWithChecksum": "Passed",
+    "CopySizeAndSHA256": "Matched",
+    "WindowsCloudFilesInSyncState": 1
+  },
+  "Preservation": {
+    "ExistingTables": 37,
+    "NewTables": 27,
+    "ExistingRowCounts": "Matched",
+    "ExistingAggregateContentChecksums": "Matched",
+    "ExistingSchemaFingerprints": "Matched",
+    "InactivePolicyRows": 1,
+    "NewOperationalRows": 0,
+    "DisabledOrUntrustedNewConstraints": 0,
+    "DisabledNewIndexes": 0,
+    "SettingsUTF8SHA256Verified": true,
+    "SettingsTopLevelKeys": 48,
+    "DBCC_CHECKDB": "No errors reported",
+    "BeforeSnapshotSHA256": "5EB7B16D3A208CE0FBBD8350A862341ED74820E45894F05AE20E8C6EC0247383",
+    "AfterSnapshotSHA256": "2A2FA119FA9FE3CE606AFBAA87A7F4FEC5498715195C70843F621A1665E54031"
+  },
+  "Validation": {
+    "SqlProjectBuild": "Passed",
+    "ExpandedMigrationsTSql150Parsing": "Four scripts, 27 included tables, zero errors",
+    "FocusedDatabaseContractTests": 18,
+    "FailedTests": 0,
+    "CatalogStructuralComparison": {
+      "Passed": true,
+      "Tables": 27,
+      "Columns": 356,
+      "Constraints": 210,
+      "Indexes": 79,
+      "Differences": 0,
+      "ExpressionTextDifferenceCount": 99,
+      "ExpressionComparisonScope": "SQL Server-normalized expression text is retained separately; the structural comparison does not assert byte-identical expression text.",
+      "ComparisonReportSHA256": "B92DB0D04FA9328D764DC86F4230BDAF5CAF52B226FC41DB9940CFBE0A4B4A54"
+    }
+  },
+  "Boundaries": [
+    "No calendar installed",
+    "No application launched",
+    "No external market service called",
+    "No simulation capital assigned",
+    "No trading or experiment activated",
+    "No broker operation",
+    "No training",
+    "No commit or push",
+    "No restore rehearsal or recovery-model change"
+  ],
+  "AppliedSources": [
+    {
+      "Path": "TraderDB\\Migrations\\20260905_022_AddDelphiLiveIdentityAndCollectionFoundation.sql",
+      "SHA256": "84178CAA23E95CF21F970120D314089DBC733B656E7B5F9D19003D1F3AA1676A"
+    },
+    {
+      "Path": "TraderDB\\Migrations\\20260905_023_AddDelphiLivePortfolioLedger.sql",
+      "SHA256": "B5CDF2782FE29FFFF235356FB19879A7BA99AF14362D7C2C77C77173F6D695CB"
+    },
+    {
+      "Path": "TraderDB\\Migrations\\20260905_024_AddDelphiLiveEvaluationLedger.sql",
+      "SHA256": "AEAC890C9FB1C02D3232AC882EF60CAE5A02FE1112F7A1C09CE834C765085342"
+    },
+    {
+      "Path": "TraderDB\\Migrations\\20260905_025_AddDelphiLiveResearchAndExperiments.sql",
+      "SHA256": "CAE868E5A7B24672410D139BD2AADA526C4B53CE48CB65F7AB652169F2AE9369"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLivePolicyVersion.sql",
+      "SHA256": "18E717F30FD90A5F5AEBE6FB7C727C6D7FD28F8821FF27E150EF7CD2D2AA4D35"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLivePolicyAssignment.sql",
+      "SHA256": "E7E1CAC7645130E16FF88EFF1F20219323094A666902E8DF9B8ECF6D1292AFA2"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveHostLease.sql",
+      "SHA256": "30A4F8B25CD2FC5B83012FE5C5D818B8E6D8C0145BC51FAC80C894D1CEB73B88"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveSession.sql",
+      "SHA256": "C5D956844FCBBAA5D9A8F67086422E196CA9A9F3CA5F0FF241128F01E92E3F8E"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveSessionPolicy.sql",
+      "SHA256": "3C10291B64A06323BF43D6D99A3942A0E5CC68E41B12C4E15A5C57AFD3BF6D90"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveContinuityEpoch.sql",
+      "SHA256": "BFEBB9D9F5FE10CAB153FD93CFB09EDD9BDCA28528FE8CA117BBB6CF5BC9B19E"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveSessionSymbol.sql",
+      "SHA256": "5BBE987863D027006F9697E581B0FB8A8282DA02F25D039AA2E41C6368B1BB61"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveFrozenCandidate.sql",
+      "SHA256": "22C382809CB994AC774E571ED67A507BBEF2CD968298DCC109C5F1105F69F129"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveFrozenCandidateLens.sql",
+      "SHA256": "5E3E7EC50B040A52E55A828A60BCDA580C05061C7D3909FC3A10D75CA58DB6BF"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveDailyBaseline.sql",
+      "SHA256": "C2E83F4DE0F84FDABC5214E500DB07394D0EF66A3FE8591B89EC676EE0316CB3"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\IntradayCollectionCycle.sql",
+      "SHA256": "A5609613060E48141480879D4332D99A088C35B22B1A33A4E5254648C949F688"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\IntradayCollectionSlot.sql",
+      "SHA256": "025E0D9AB070C7B65973D4C918D165F7ACB0E5344AE0093D488F364AA82AD8B7"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\IntradayEvidenceConflict.sql",
+      "SHA256": "E54CFBCF36D7936F59A2A2EFEA3E7895C59E9130262B61466B5A2BDF94E4179D"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\IntradayCollectionReceipt.sql",
+      "SHA256": "FA4D6A04BF548B468A9F2D00676B79D983CC865FF6B6390C6BADD942869D39CD"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLivePortfolioGeneration.sql",
+      "SHA256": "1EBD8C3CEB1043161F71D60E1FE7FA6D77BDA9AD40E043F6F68940C0E8FB611F"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLivePortfolioLedger.sql",
+      "SHA256": "207AD04250020A7EDE8F3CE04EA831A567EAEA2D0E16EF6D0D93A3738F8AD918"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLivePortfolioRevision.sql",
+      "SHA256": "E8AB5A6EDAE325A9BD2945F489C9FF2639DE8EAAAF10BD1BA3BFAB728F724393"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveLedgerEvent.sql",
+      "SHA256": "B10198C60AB6307FD725AAD8B5F8F7543541ABDC440C1513B95FB2A182502385"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveEvaluation.sql",
+      "SHA256": "073A59DA7F9D68DCBA9E14993858AF83CB93828AFC91C88F175BD716AA114195"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveExperimentProtocol.sql",
+      "SHA256": "2D4E22EE03CFC713648FAE827F34C28A78B5B4274E8A07F9620806EA06FBCA76"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveExperimentRevision.sql",
+      "SHA256": "028F4D9ADAC04E2574231B9D38B93CDBFC0250B95357217E5A3A33EB68C34602"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveExperimentEvent.sql",
+      "SHA256": "F63FF17F2EC0A8455A046F9E98B2D5DF1B7B391070D269A9375408C9FCD1FFED"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveExpectedResearchSlot.sql",
+      "SHA256": "9555F984E1ED8056CD763E986AEA6A32A5AC8FE04270F03D754814039AC12024"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveResearchOutcomeRevision.sql",
+      "SHA256": "4CAD0F9554AE66DC98352ACAD5769C395D75C7CA4737EA68B554279B112C7BA8"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveRankingCheckpoint.sql",
+      "SHA256": "5326C5B283D40F7021CD4BAAE271162800A68EEB3A14D3942221F586A9721947"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveCorporateActionAudit.sql",
+      "SHA256": "5C515FF1B08572DEA98A162FD377056C2472B28522907BF1B73F06242EF7EBE5"
+    },
+    {
+      "Path": "TraderDB\\dbo\\Tables\\DelphiLiveResearchSessionReview.sql",
+      "SHA256": "BBA27239C34EAEEA34936B9D31AADFB6AA6751C47E700049557D54ADD1C7C657"
+    }
+  ]
+}

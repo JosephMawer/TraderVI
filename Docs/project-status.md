@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-05
+**Snapshot date:** 2026-09-06
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
@@ -9,9 +9,12 @@ Delphi Live V1 is implemented in source against the frozen [concept](concepts/de
 [ADR-0053](adr/0053-delphi-live-v1.md). Its independent Core engine, durable five-minute collection,
 paper portfolios, research protocol and inactive WPF surface are tracked in the
 [implementation checklist](delphi-live-implementation-checklist.md). All 581 Core tests passed and the
-complete Release solution built successfully, including the SQL database project. Migrations 022–025 are source
-artifacts only. No Delphi Live schema has been applied, calendar installed, simulation capital
-assigned, market collection started or broker operation performed during this implementation.
+complete Release solution built successfully, including the SQL database project. Migrations 022–025 were
+separately authorized, backed up, applied and verified on 2026-09-06. All 27 new tables are installed with
+exactly one inactive policy definition and no operational rows; the 37 existing tables retained matching
+row counts, aggregate checksums and schema fingerprints. `DBCC CHECKDB` reported no errors. Calendar
+installation, provider-capacity shakedown and simulation activation remain outstanding. No market
+collection or broker operation was started by the migration work.
 
 TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps open Delphi-linked positions and unlinked operator-reported Real holdings in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
 

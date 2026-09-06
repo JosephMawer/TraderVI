@@ -84,9 +84,10 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
 
 - [x] Reconcile the frozen Delphi Live V1 design into ADR-0053 and review aids without retuning it.
 - [x] Complete and validate the small source phases in the [Delphi Live checklist](delphi-live-implementation-checklist.md): 581 Core tests passed and the complete Release solution, including SSDT, built successfully.
-- [ ] Separately review and authorize Delphi Live migrations 022–025, a reviewed TSX calendar,
-  source-capacity shakedown and explicit simulation-capital activation. The source work does not
-  activate any of these operations.
+- [x] Separately review, back up, apply and verify Delphi Live migrations 022–025. Applied on 2026-09-06;
+  all 27 new tables installed inactive, existing table preservation checks matched, and database integrity passed.
+- [ ] Separately authorize a reviewed TSX calendar, source-capacity shakedown and explicit
+  simulation-capital activation. The schema installation does not activate these operations.
 
 The 2026-09-01 static changeability audit found correctness and integrity risks inside the existing
 advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
