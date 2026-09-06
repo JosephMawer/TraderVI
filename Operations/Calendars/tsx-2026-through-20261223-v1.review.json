@@ -1,0 +1,56 @@
+{
+  "reviewVersion": 1,
+  "reviewedDate": "2026-09-06",
+  "reviewedBy": "Codex, using the official TMX publications listed below",
+  "calendarFile": "tsx-2026-through-20261223-v1.json",
+  "calendarSha256": "4D9682D396D9E6B313711F5ED0CF37B8FC145364C5899AA9BDDCAAC1CD2E0976",
+  "sourceAccess": "Official TMX page text returned by web search indexing, current crawl September5–6,2026; direct page retrieval returned HTTP403. No market-data API was called.",
+  "sources": [
+    {
+      "url": "https://www.tsx.com/en/trading/calendars-and-trading-hours/calendar",
+      "purpose": "2026 exchange closures and December24 early close"
+    },
+    {
+      "url": "https://www.tsx.com/en/trading/calendars-and-trading-hours/trading-hours",
+      "purpose": "TSX continuous regular session09:30–16:00 ET"
+    },
+    {
+      "url": "https://www.tsx.com/en/resource/3407/",
+      "purpose": "Distinguish exchange closures from banking and USD settlement holidays"
+    },
+    {
+      "url": "https://www.tsx.com/en/news?id=1185",
+      "purpose": "August26 notice independently confirms September7 closure and September8 reopening"
+    }
+  ],
+  "includedFullDayClosures": [
+    "2026-01-01",
+    "2026-02-16",
+    "2026-04-03",
+    "2026-05-18",
+    "2026-07-01",
+    "2026-08-03",
+    "2026-09-07",
+    "2026-10-12"
+  ],
+  "construction": "Explicit ordered list of Monday–Friday dates inside the declared range, excluding the eight official exchange closures. Runtime consumes only this list; it does not infer weekdays or fetch updates.",
+  "coverage": {
+    "firstDate": "2026-01-01",
+    "lastDate": "2026-12-23",
+    "fullSessions": 247,
+    "firstFullSession": "2026-01-02",
+    "lastFullSession": "2026-12-23",
+    "nextSessionFromReviewDate": "2026-09-08",
+    "sessionsFromSeptember8": 76,
+    "priorSessionForSeptember8": "2026-09-04"
+  },
+  "limitation": "December24 is an actual13:00 close, outside this full-session-only snapshot. It must not be marked closed or treated as16:00. Review short-session scheduling, held-position protection, canonical history and outcomes before extending coverage. No automatic calendar update or extension.",
+  "validation": {
+    "calendarFocusedTestsPassed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "loader": "ReviewedTsxSessionCalendar.Load",
+    "marketDataOrDatabaseCalls": 0
+  },
+  "authorization": "User requested the next rollout item: review and install the TSX calendar. This does not activate collection, simulated trading or experiments."
+}

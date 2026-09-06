@@ -14,7 +14,7 @@ it does not itself grant operational authorization.
 | 4 | Shared Core scheduling, recovery, evaluation and causal action orchestration | Implemented; synthetic host and recovery regression tests passing |
 | 5 | Research outcomes/baskets, cohort coverage, experiment phases and human promotion | Implemented; focused protocol and reporting regression tests passing |
 | 6 | Inactive WPF host, activation command, independent diagnostics and portfolio views | Implemented; complete Release solution build passing |
-| 7 | Migration, source-capacity shakedown and operational activation | Migrations 022–025 applied and verified on 2026-09-06; calendar, capacity shakedown and activation remain outstanding |
+| 7 | Migration, source-capacity shakedown and operational activation | Migrations 022–025 and bounded TSX calendar installed on 2026-09-06; capacity shakedown and activation remain outstanding |
 
 ## Source organization
 
@@ -29,7 +29,7 @@ it does not itself grant operational authorization.
 
 The initial policy and generated schema install inactive. Simulation capital has no default. An explicit positive capital amount, currency and operator reason are required; activation takes effect at the next regular-session boundary.
 
-The host requires a locally supplied, reviewed official TSX calendar snapshot through `TRADERVI_TSX_CALENDAR_PATH`. `ReviewedTsxSessionCalendar` validates a version, source reference, declared date coverage and distinct regular-session dates. It fails outside coverage and never substitutes a weekday guess. Calendar source verification and installation belong to separately authorized rollout; no external calendar service is called while implementing or testing.
+The host requires a locally supplied, reviewed official TSX calendar snapshot through `TRADERVI_TSX_CALENDAR_PATH`. `ReviewedTsxSessionCalendar` validates a version, source reference, declared date coverage and distinct regular-session dates. It fails outside coverage and never substitutes a weekday guess. The [calendar installation](../Operations/Calendars/README.md) was separately authorized and completed on 2026-09-06: 247 full sessions within 2026-01-01 through 2026-12-23, with the path saved for the Windows user. Eight focused offline tests passed. Runtime does not call a calendar service. Coverage stops before December 24's short session; short-session handling and carried-position protection require review before extension.
 
 The WPF process is the V1 host. A closed or interrupted host leaves visible coverage gaps. Assigned Delphi Live policies share each V3 observation; legacy Ghost and frozen System Shadow retain their existing collectors and accepted timing while sharing compatible canonical facts. Combined provider load must be measured during authorized shakedown.
 
@@ -86,7 +86,8 @@ contract tests passed.
 The user separately authorized backup and application of migrations 022–025 on 2026-09-06. They are now
 applied and must not be edited or rerun. The authorization did not include application/trading activation,
 external market calls, model training, model-artifact publication, broker operations, commits, pushes or
-pull requests. Calendar and operational rollout remain separate explicit operator actions.
+pull requests. The subsequent calendar review and installation were separately authorized and completed.
+Collection shakedown and simulation activation remain separate explicit operator actions.
 
 The remaining rollout risks are live SQL concurrency/latency, combined provider capacity, reviewed calendar coverage,
 and actual WPF operation through complete sessions. Offline tests and build/parser checks do not establish those

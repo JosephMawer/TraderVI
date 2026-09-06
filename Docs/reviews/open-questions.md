@@ -5,6 +5,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Delphi Live short sessions and calendar extension
+- **Q:** How should the frozen full-session V1 collection, protective exits, marks, daily baselines and
+  forward outcomes handle an official early close?
+- The reviewed calendar installed on 2026-09-06 ends at 2026-12-23. TMX lists a 13:00 close on December 24;
+  treating it as a full session or omitting it as though the exchange were closed would misstate evidence.
+- **Status:** open — resolve before 2026-12-24 and before extending the snapshot, including protection
+  for positions carried into the short session. [Calendar record](../../Operations/Calendars/README.md).
+- **Tags:** data-pipeline, risk-management, decision-engine
+
 ### Risk-threshold ownership and persisted defaults
 - **Q:** Which values are the authoritative policy for new tracked positions and Delphi's downside veto,
   and which are merely legacy constructor/repository defaults?

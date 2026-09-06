@@ -12,9 +12,11 @@ paper portfolios, research protocol and inactive WPF surface are tracked in the
 complete Release solution built successfully, including the SQL database project. Migrations 022–025 were
 separately authorized, backed up, applied and verified on 2026-09-06. All 27 new tables are installed with
 exactly one inactive policy definition and no operational rows; the 37 existing tables retained matching
-row counts, aggregate checksums and schema fingerprints. `DBCC CHECKDB` reported no errors. Calendar
-installation, provider-capacity shakedown and simulation activation remain outstanding. No market
-collection or broker operation was started by the migration work.
+row counts, aggregate checksums and schema fingerprints. `DBCC CHECKDB` reported no errors. The
+[reviewed TSX calendar](../Operations/Calendars/README.md) is installed for the Windows user, covering
+2026-01-01 through 2026-12-23, with eight focused calendar tests passing. It stops before the unsupported
+December 24 short session. Provider-capacity shakedown and simulation activation remain outstanding;
+neither was started by the migration or calendar work.
 
 TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps open Delphi-linked positions and unlinked operator-reported Real holdings in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
 

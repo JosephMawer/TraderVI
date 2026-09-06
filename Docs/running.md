@@ -306,8 +306,13 @@ applied in order on 2026-09-06 after a checksum-verified full backup and a hash-
 reported synced by Windows. Schema and preservation checks passed, and `DBCC CHECKDB` reported no
 errors. Delphi Live remains inactive. Building the SQL project alone does not apply a migration.
 
-The first host requires a reviewed local official TSX regular-session calendar. Set
-`TRADERVI_TSX_CALENDAR_PATH` to its absolute file path before starting WPF. The JSON has these required
+The reviewed local calendar was installed on 2026-09-06. The current Windows user's
+`TRADERVI_TSX_CALENDAR_PATH` points to
+`C:\src\TraderVI\Operations\Calendars\tsx-2026-through-20261223-v1.json`.
+It covers 247 full sessions within 2026-01-01 through 2026-12-23; see the
+[calendar installation record](../Operations/Calendars/README.md). Restart an already-open Visual Studio
+or other launcher before starting WPF so its child process receives the new variable.
+The JSON has these required
 fields (names are case-insensitive; unknown fields are rejected):
 
 | Field | Contents |
@@ -319,8 +324,10 @@ fields (names are case-insensitive; unknown fields are rejected):
 
 Include enough prior history for the frozen daily baselines and enough future coverage for five-session
 outcomes and next-session assignments. The host uses `America/Toronto`, refuses dates outside coverage,
-and never guesses weekdays or fetches a calendar on demand. This implementation does not supply a
-verified calendar or treat sample dates as official exchange evidence.
+and never guesses weekdays or fetches a calendar on demand. The installed snapshot stops before
+December 24's 13:00 close because V1 assumes a full 16:00 close. Short-session handling, including
+protection of carried positions, must be reviewed before extending coverage. The next listed session
+after the installation date is Tuesday, September 8; Monday, September 7 is Labour Day.
 
 After separately authorizing activation, enter a positive simulation amount, currency and operator
 reason in the Delphi Live tab. There is no default capital, broker cash lookup, deposit or withdrawal.
