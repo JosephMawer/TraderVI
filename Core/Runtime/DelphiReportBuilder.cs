@@ -3,6 +3,7 @@ using Core.DataQuality;
 using Core.Indicators;
 using Core.Indicators.Granville;
 using Core.ML;
+using Core.ML.Engine.Profit;
 using Core.TMX.Models.Domain;
 using Core.Trader;
 using System;
@@ -59,6 +60,9 @@ public sealed class DelphiReportBuilder
     public int ClimaxDivergenceThreshold { get; set; }
     public int LoadedSymbols { get; set; }
     public int SkippedHistory { get; set; }
+    public string FeatureInputContract { get; set; } = ProfitFeatureInputs.LegacyContract;
+    public DailyBenchmarkEvidence? BenchmarkEvidence { get; set; }
+    public IReadOnlyList<ProfitFeatureInputExclusion> FeatureInputExclusions { get; set; } = [];
     public int SkippedStaleHistory { get; set; }
     public IReadOnlyList<HistoryFreshnessExclusion> StaleHistoryExclusions { get; set; } = [];
     public int SkippedPrice { get; set; }
@@ -395,6 +399,11 @@ public sealed class DelphiReportBuilder
 
         // ── Market Regime ──
         sb.AppendLine("\n── Market Regime ──");
+        if (BenchmarkEvidence is { } benchmark)
+        {
+            sb.AppendLine($"  Benchmark policy: {benchmark.PolicyVersion}; calendar: {benchmark.CalendarVersion}");
+            sb.AppendLine($"  {benchmark.XiuSource}: {benchmark.XiuObservations} observations; {benchmark.SpySource}: {benchmark.SpyObservations} observations; both through {benchmark.MarketSession:yyyy-MM-dd}.");
+        }
         if (Regime != null)
         {
             sb.AppendLine($"  XIU Uptrend (MA50>MA200): {Regime.IsBenchmarkUptrend}");
@@ -523,6 +532,10 @@ public sealed class DelphiReportBuilder
         sb.AppendLine("\n── Universe ──");
         sb.AppendLine($"  Loaded:                {LoadedSymbols}");
         sb.AppendLine($"  Skipped (history):     {SkippedHistory}");
+        sb.AppendLine($"  Model input contract: {FeatureInputContract}");
+        sb.AppendLine($"  Skipped (model inputs):{FeatureInputExclusions.Count}");
+        foreach (var exclusion in FeatureInputExclusions)
+            sb.AppendLine($"    {exclusion.Symbol}: {exclusion.Reason} ({exclusion.Session:yyyy-MM-dd})");
         sb.AppendLine($"  Skipped (stale):       {SkippedStaleHistory}  (latest bar must match XIU session {MarketDataAsOf:yyyy-MM-dd}, ADR-0019)");
         if (StaleHistoryExclusions.Count > 0)
         {
@@ -692,7 +705,10 @@ public sealed class DelphiReportBuilder
         }
 
         // ── Universe / liquidity gate ──
+        if (BenchmarkEvidence is { } benchmark)
+            sb.AppendLine($"  XIU and SPY confirmation uses observed data through {benchmark.MarketSession:yyyy-MM-dd} ({benchmark.PolicyVersion}).");
         sb.AppendLine($"\nUniverse: {LoadedSymbols} loaded (liquidity floor: price >= ${MinPriceFloor:N2}, 20d vol >= {MinVolume20d:N0})");
+        sb.AppendLine($"  Model inputs: {FeatureInputContract}; {FeatureInputExclusions.Count} symbol(s) excluded for unavailable or invalid required inputs.");
         sb.AppendLine($"  Skipped: {SkippedHistory} history, {SkippedStaleHistory} stale, {SkippedPrice} too pricey, {SkippedLowPrice} sub-${MinPriceFloor:N2}, {SkippedLowVolume} thin (< {MinVolume20d:N0}), {SkippedLeveragedEtp} lev/inv ETP");
         if (SkippedStaleHistory > 0)
         {

@@ -1,214 +1,110 @@
 ﻿using Core.Db;
+using Core.Calibration;
 using Core.ML;
-using Core.ML.Engine.Patterns;
-using Core.ML.Engine.Patterns.Features;
 using Core.ML.Engine.Profit;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json;
 
-Console.WriteLine("=== ML Training Pipeline (Hercules) ===\n");
-
-var modelsRoot = @"C:\Users\joseph.mawer\OneDrive\Joseph\Programming\ML\_models";
-Directory.CreateDirectory(modelsRoot);
-
-//const int maxSymbols = 180; // <-- iterate fast
-const int maxSymbols = 494; // <-- full training run
-
-// XIU = iShares S&P/TSX 60 Index ETF (TSX benchmark for market context)
-const string MarketBenchmarkSymbol = "XIU";
-
-var quoteRepo = new QuoteRepository();
-var registry = new ModelRegistryRepository();
-var experimentRepo = new ModelExperimentRepository();
-
-// ═══════════════════════════════════════════════════════════════════
-// Load symbol universe
-// ═══════════════════════════════════════════════════════════════════
-var symbols = (await new SymbolsRepository().GetEquitiesAsync())
-    .Select(s => s.Symbol)
-    .Where(s => !string.IsNullOrWhiteSpace(s))
-    .Take(maxSymbols)
-    .ToList();
-
-Console.WriteLine($"Loading bars for {symbols.Count} symbols (equities only)...\n");
-
-var barsBySymbol = new Dictionary<string, List<DailyBar>>();
-foreach (var sym in symbols)
+// Training always creates separate candidates. Selection is a reviewed operation.
+string outputRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TraderVI", "Models");
+for (int i = 0; i < args.Length; i++)
 {
-    var bars = await quoteRepo.GetDailyBarsAsync(sym);
-    if (bars.Count > 0)
-        barsBySymbol[sym] = bars;
+    if (args[i] == "--dated-candidates") continue;
+    if (args[i] == "--output-root" && i + 1 < args.Length) outputRoot = args[++i];
+    else { Console.Error.WriteLine("Usage: Hercules [--output-root <private-model-directory>]"); return 2; }
 }
+Guid setId = Guid.NewGuid();
+string directory = Path.Combine(Path.GetFullPath(outputRoot), "candidates", setId.ToString("N"));
+Directory.CreateDirectory(directory);
+var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+void SaveNew(string name, object value) => ProfitModelArtifactStore.WriteNew(Path.Combine(directory, name),
+    stream => JsonSerializer.Serialize(stream, value, jsonOptions));
 
-Console.WriteLine($"Loaded {barsBySymbol.Count} symbols with data.\n");
-
-// ═══════════════════════════════════════════════════════════════════
-// Load market benchmark (XIU) for market context features
-// ═══════════════════════════════════════════════════════════════════
-List<DailyBar>? marketBars = null;
-var xiuBars = await quoteRepo.GetDailyBarsAsync(MarketBenchmarkSymbol);
-if (xiuBars.Count > 0)
+try
 {
-    marketBars = xiuBars;
-    Console.WriteLine($"Loaded {MarketBenchmarkSymbol} benchmark: {marketBars.Count} bars ({marketBars[0].Date:yyyy-MM-dd} to {marketBars[^1].Date:yyyy-MM-dd})\n");
+    string sourceIdentity = ProfitTrainingSourceIdentity.Capture(Environment.CurrentDirectory);
+    string sourceArchivePath = Path.Combine(directory, "training-source.zip");
+    string sourceArchiveHash = ProfitTrainingSourceIdentity.PreserveArchive(Environment.CurrentDirectory, sourceArchivePath, sourceIdentity);
+    var code = CalibrationProvenance.ResolveCode(Environment.CurrentDirectory);
+    var registry = new ModelRegistryRepository();
+    var strategy = await new StrategyVersionRepository().GetActiveVersion();
+    var currentSet = strategy is null ? null : await new StrategyModelBindingRepository().GetAsync(strategy.VersionId);
+    currentSet?.Validate(strategy!.VersionId, strategy.DecisionRef);
+    if (currentSet is not null && currentSet.Models.Any(model => ProfitModelArtifactStore.HashFile(model.Registry.ZipPath) != model.ArtifactSha256))
+        throw new InvalidDataException("The predecessor assignment no longer matches its preserved bytes.");
+    var allowed = ProfitModelRegistry.All.Select(model => model.TaskType).ToHashSet(StringComparer.Ordinal);
+    var currentRows = currentSet?.Models.Select(model => model.Registry).ToList()
+        ?? (await registry.GetEnabledModels()).Where(row => allowed.Contains(row.TaskType)).ToList();
+    if (currentRows.Count != allowed.Count || currentRows.Select(row => row.TaskType).Distinct().Count() != allowed.Count)
+        throw new InvalidOperationException("A complete unambiguous predecessor set is required to preserve signal thresholds.");
+    var preserved = currentRows.Select(row => ProfitModelArtifactStore.Preserve(row, Path.Combine(directory, "predecessor"))).ToImmutableArray();
+    SaveNew("predecessor.json", new { strategy, modelSet = currentSet, models = preserved });
+    Console.WriteLine($"Preserved {preserved.Length} predecessor artifacts. Training candidates; no activation.");
+
+    var quoteRepo = new QuoteRepository();
+    var market = (await quoteRepo.GetDailyBarsAsync("XIU")).Where(bar => bar.Date.Date < DateTime.Today).OrderBy(bar => bar.Date).ToList();
+    if (market.Count == 0) throw new InvalidOperationException("No completed XIU history is available.");
+    DateTime asOf = market[^1].Date.Date;
+    var inputs = new ProfitFeatureInputs(market, market.Select(bar => bar.Date.Date).Distinct().ToArray());
+    inputs.ValidateBenchmark(asOf, ProfitModelRegistry.All.Max(model => model.Lookback));
+    const int maxSymbols = 494; // Existing cap, unchanged.
+    var symbols = (await new SymbolsRepository().GetEquitiesAsync()).Select(row => row.Symbol)
+        .Where(symbol => !string.IsNullOrWhiteSpace(symbol)).Take(maxSymbols).ToArray();
+    var barsBySymbol = new Dictionary<string, List<DailyBar>>(StringComparer.OrdinalIgnoreCase);
+    foreach (string symbol in symbols)
+    {
+        var bars = (await quoteRepo.GetDailyBarsAsync(symbol)).Where(bar => bar.Date.Date <= asOf).ToList();
+        if (bars.Count > 0) barsBySymbol.Add(symbol, bars);
+    }
+    string dataPath = Path.Combine(directory, "training-data.json.gz");
+    ProfitModelArtifactStore.WriteNew(dataPath, stream =>
+    {
+        using var gzip = new GZipStream(stream, CompressionLevel.Optimal, leaveOpen: true);
+        JsonSerializer.Serialize(gzip, new { inputContract = ProfitFeatureInputs.Contract, marketDataAsOf = asOf, market, barsBySymbol });
+    });
+    string dataHash = ProfitModelArtifactStore.HashFile(dataPath);
+    SaveNew("started.json", new { setId, code, sourceIdentity, sourceArchiveHash, asOf, dataHash, inputContract = ProfitFeatureInputs.Contract });
+
+    var results = ImmutableArray.CreateBuilder<ProfitCandidateResult>();
+    foreach (var definition in ProfitModelRegistry.All)
+    {
+        var model = inputs.Bind(definition);
+        string path = Path.Combine(directory, model.TaskType + ".zip");
+        var result = UnifiedProfitTrainer.Train(model, barsBySymbol, path);
+        SaveNew(model.TaskType + ".training.json", result);
+        if (!result.Success) throw new InvalidOperationException($"{model.TaskType} did not produce a valid candidate. Existing selection is unchanged.");
+        var previous = preserved.Single(item => item.Registry.TaskType == model.TaskType).Registry;
+        // OptimalThreshold remains a research metric. Do not retune signal thresholds in this correction.
+        Guid id = await registry.InsertModel(model.TaskType + " (dated candidate)", model.TaskType, model.ModelKind.ToString(),
+            "Profit", "Daily", model.Lookback, model.HorizonBars, model.TaskType + "_profit", model.FeatureBuilder.Name,
+            path, previous.ThresholdBuy, previous.ThresholdSell, isEnabled: false,
+            result.TrainingWindowFrom, result.TrainingWindowTo,
+            $"Candidate set {setId:D}; {ProfitFeatureInputs.Contract}; SourceSHA256={sourceIdentity}; DataSHA256={dataHash}; thresholds preserved.");
+        var row = (await registry.GetModelsById([id])).Single();
+        var snapshot = new ProfitModelSnapshot(row, ProfitModelArtifactStore.HashFile(path));
+        results.Add(new(snapshot, model.Labeler.Name, result));
+        await new ModelExperimentRepository().InsertExperiment(model.TaskType, "Dated candidate", model.Labeler.Name,
+            model.FeatureBuilder.Name, model.FeatureBuilder.FeatureCount(model.Lookback), result.TrainWindows, result.TestWindows,
+            auc: result.PrimaryMetric, f1AtDefault: result.SecondaryMetric, f1AtOptimal: result.F1AtOptimal,
+            optimalThreshold: result.OptimalThreshold, precisionAtOpt: result.PrecisionAtOptimal, recallAtOpt: result.RecallAtOptimal,
+            decision: "Candidate", notes: $"ModelId={id:D}; SetId={setId:D}; SHA256={snapshot.ArtifactSha256}; SourceSHA256={sourceIdentity}; DataSHA256={dataHash}");
+    }
+    if (sourceIdentity != ProfitTrainingSourceIdentity.Capture(Environment.CurrentDirectory))
+        throw new InvalidOperationException("Training source changed during the run; candidates were not completed or selected.");
+    SaveNew("candidate-set.json", new ProfitCandidateManifest(setId, ProfitFeatureInputs.Contract, DateTime.UtcNow, code,
+        sourceIdentity, dataPath, dataHash, asOf, strategy?.VersionId, results.ToImmutable())
+        { SourceArchivePath = sourceArchivePath, SourceArchiveSha256 = sourceArchiveHash });
+    Console.WriteLine($"Completed {results.Count} candidate models. All registry rows remain disabled. Manifest: {Path.Combine(directory, "candidate-set.json")}");
+    return 0;
 }
-else
+catch (Exception failure)
 {
-    Console.WriteLine($"⚠️  Warning: {MarketBenchmarkSymbol} not found in database. Market context features will be zeros.\n");
+    SaveNew("failed.json", new { failedUtc = DateTime.UtcNow, message = failure.Message });
+    Console.Error.WriteLine($"Candidate training failed: {failure.Message}");
+    return 1;
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// PART 1: Rule-Based Pattern Presence Report (informational only)
-//
-// Patterns are deterministic detectors — they are NOT trained. This section
-// just reports how often each pattern fires across the universe so we can
-// sanity-check detector logic without committing anything to the registry.
-// See docs/design-rules.md → "Rule-Based Pattern Signals".
-// ═══════════════════════════════════════════════════════════════════
-Console.WriteLine(new string('═', 60));
-Console.WriteLine("RULE-BASED PATTERN PRESENCE REPORT (no training)");
-Console.WriteLine(new string('═', 60) + "\n");
-
-foreach (var pattern in PatternRegistry.All)
-{
-    int windowsEvaluated = 0;
-    int windowsPositive = 0;
-
-    foreach (var (sym, bars) in barsBySymbol)
-    {
-        if (bars.Count < pattern.Lookback) continue;
-
-        for (int end = pattern.Lookback; end <= bars.Count; end++)
-        {
-            var window = bars.GetRange(end - pattern.Lookback, pattern.Lookback);
-            if (pattern.Detector.Detect(window))
-                windowsPositive++;
-            windowsEvaluated++;
-        }
-    }
-
-    double rate = windowsEvaluated > 0 ? (double)windowsPositive / windowsEvaluated : 0;
-    Console.WriteLine($"  [{pattern.TaskType,-14}] lookback={pattern.Lookback,3}  windows={windowsEvaluated,8:N0}  present={windowsPositive,8:N0}  rate={rate:P2}  semantics={pattern.Semantics}");
-}
-Console.WriteLine();
-
-// ═══════════════════════════════════════════════════════════════════
-// PART 2: Train Profit Prediction Models
-// ═══════════════════════════════════════════════════════════════════
-Console.WriteLine(new string('═', 60));
-Console.WriteLine("PROFIT PREDICTION MODELS");
-Console.WriteLine(new string('═', 60) + "\n");
-
-foreach (var profitModel in ProfitModelRegistry.All)
-{
-    var suffix = profitModel.ModelKind switch
-    {
-        ProfitModelKind.Regression => "regression",
-        ProfitModelKind.ThreeWayClassification => "3way",
-        ProfitModelKind.BinaryClassification => "binary",
-        _ => "model"
-    };
-
-    var modelPath = Path.Combine(modelsRoot, $"{profitModel.TaskType.ToLower()}_{suffix}.zip");
-
-    // Inject market context if the feature builder supports it
-    if (profitModel.FeatureBuilder is MarketContextFeatureBuilder mcfb && marketBars != null)
-    {
-        mcfb.MarketBars = marketBars;
-        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context ({marketBars.Count} bars)");
-    }
-
-    if (profitModel.FeatureBuilder is EnhancedFeatureBuilder efb && marketBars != null)
-    {
-        efb.MarketBars = marketBars;
-        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context into EnhancedFeatureBuilder");
-    }
-
-    if (profitModel.FeatureBuilder is TrendMomentumFeatureBuilder tmfb && marketBars != null)
-    {
-        tmfb.MarketBars = marketBars;
-        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} market context into TrendMomentumFeatureBuilder");
-    }
-
-    // Inject market context into labeler if it supports it
-    if (profitModel.Labeler is RelativeStrengthContinuationLabeler rsLabeler && marketBars != null)
-    {
-        rsLabeler.MarketBars = marketBars;
-        Console.WriteLine($"[{profitModel.TaskType}] Injecting {MarketBenchmarkSymbol} into labeler");
-    }
-
-    var result = UnifiedProfitTrainer.Train(profitModel, barsBySymbol, modelPath);
-
-    // Determine metrics based on model kind
-    double? auc = profitModel.ModelKind == ProfitModelKind.BinaryClassification ? result.PrimaryMetric : null;
-    double? rmse = profitModel.ModelKind == ProfitModelKind.Regression ? result.PrimaryMetric : null;
-    double? mae = profitModel.ModelKind == ProfitModelKind.Regression ? result.SecondaryMetric : null;
-
-    // Log experiment to DB (even if failed)
-    await experimentRepo.InsertExperiment(
-        taskType: profitModel.TaskType,
-        experimentName: $"{profitModel.TaskType} ({profitModel.ModelKind})",
-        labelDefinition: profitModel.Labeler.Name,
-        featureSet: profitModel.FeatureBuilder.Name,
-        featureCount: profitModel.FeatureBuilder.FeatureCount(profitModel.Lookback),
-        trainWindows: result.TrainWindows,
-        testWindows: result.TestWindows,
-        auc: auc,
-        f1AtDefault: profitModel.ModelKind == ProfitModelKind.BinaryClassification ? result.SecondaryMetric : null,
-        f1AtOptimal: result.F1AtOptimal,
-        optimalThreshold: result.OptimalThreshold,
-        precisionAtOpt: result.PrecisionAtOptimal,
-        recallAtOpt: result.RecallAtOptimal,
-        rmse: rmse,
-        mae: mae,
-        decision: result.Success ? "Keep" : "Skip",
-        notes: $"Lookback={profitModel.Lookback}. Horizon={profitModel.HorizonBars}d. Symbols={result.SymbolsUsed}");
-
-    if (result.Success)
-    {
-        // Use optimal threshold if available (binary models), else fall back to configured threshold.
-        var thresholdBuy = profitModel.ModelKind == ProfitModelKind.BinaryClassification
-            ? (result.OptimalThreshold ?? (profitModel.BuyThresholdPercent / 100.0))
-            : (profitModel.BuyThresholdPercent / 100.0);
-
-        var thresholdSell = profitModel.SellThresholdPercent / 100.0;
-
-        var notes = $"Profit prediction. Horizon={profitModel.HorizonBars}d. Trained on {result.SymbolsUsed} symbols.";
-        if (profitModel.ModelKind == ProfitModelKind.BinaryClassification && result.OptimalThreshold.HasValue)
-        {
-            notes = $"Horizon={profitModel.HorizonBars}d. AUC={result.PrimaryMetric:0.###}. OptThresh={result.OptimalThreshold:0.##}. F1@opt={result.F1AtOptimal:P1}";
-        }
-
-        await registry.InsertModel(
-            name: $"{profitModel.TaskType} ({profitModel.ModelKind})",
-            taskType: profitModel.TaskType,
-            modelKind: profitModel.ModelKind.ToString(),
-            family: "Profit",
-            timeFrame: "Daily",
-            lookbackBars: profitModel.Lookback,
-            horizonBars: profitModel.HorizonBars,
-            inputSchema: $"{profitModel.TaskType}_profit",
-            featureSet: profitModel.FeatureBuilder.Name,
-            zipPath: modelPath,
-            thresholdBuy: thresholdBuy,
-            thresholdSell: thresholdSell,
-            isEnabled: true,
-            trainedFromUtc: null,
-            trainedToUtc: null,
-            notes: notes);
-
-        Console.WriteLine($"  ✓ Logged experiment and model for {profitModel.TaskType}\n");
-    }
-    else
-    {
-        Console.WriteLine($"  ✗ Logged failed experiment for {profitModel.TaskType}\n");
-    }
-}
-
-Console.WriteLine(new string('═', 60));
-Console.WriteLine("=== Training Complete ===");
-Console.WriteLine($"All experiments logged to [dbo].[ModelExperiment]");
-Console.WriteLine($"All models registered to [dbo].[ModelRegistry]");

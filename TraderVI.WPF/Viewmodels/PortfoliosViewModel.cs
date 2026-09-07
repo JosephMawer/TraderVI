@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace TraderVI.WPF.Viewmodels;
 
-public sealed class PortfoliosViewModel : INotifyPropertyChanged
+public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
 {
     private readonly SystemShadowRepository repository = new();
     private SystemShadowGenerationInfo? generation;
@@ -47,7 +47,7 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
     public string Status
     {
         get => status;
-        private set => Set(ref status, value);
+        private set { if (Set(ref status, value)) OnPropertyChanged(nameof(DisplayStatus)); }
     }
 
     public string GenerationStatus
@@ -63,8 +63,11 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
         {
             if (!Set(ref selectedPortfolio, value)) return;
             PortfolioDisplayName = value?.DisplayName ?? "";
-            OnPropertyChanged(nameof(CanResume));
-            OnPropertyChanged(nameof(CanRename));
+            NotifyActions();
+            OnPropertyChanged(nameof(CandidateHint));
+            OnPropertyChanged(nameof(ExecutionHint));
+            OnPropertyChanged(nameof(SelectedAccountExplanation));
+            OnPropertyChanged(nameof(DisplayStatus));
         }
     }
 
@@ -74,9 +77,9 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
         set => Set(ref portfolioDisplayName, value);
     }
 
-    public bool CanStart => schemaInstalled && !busy && generation is null;
-    public bool CanPause => schemaInstalled && !busy && generation?.Status == SystemShadowGenerationStatus.Active;
-    public bool CanResume => schemaInstalled && !busy &&
+    public bool CanStart => !IsLiveSelected && schemaInstalled && !busy && generation is null;
+    public bool CanPause => !IsLiveSelected && schemaInstalled && !busy && generation?.Status == SystemShadowGenerationStatus.Active;
+    public bool CanResume => !IsLiveSelected && schemaInstalled && !busy &&
         (generation?.Status == SystemShadowGenerationStatus.Paused || SelectedPortfolio?.Status == "CapitalReviewRequired");
     public bool CanRecordSnapshot => schemaInstalled && !busy && generation is not null;
     public bool CanRename => schemaInstalled && !busy && SelectedPortfolio?.SystemPortfolioId is not null;
@@ -90,8 +93,10 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
             generation = null;
             GenerationStatus = "Shadow schema not installed";
             Status = $"Apply {SystemShadowRepository.MigrationFileName}; Shadow is safely off.";
-            Replace(Portfolios, await BuildTrackedRowsAsync(null, null));
-            ClearDetails();
+            var tracked = await BuildTrackedRowsAsync(null, null);
+            Replace(Portfolios, tracked.Concat(await ReadDelphiLiveRowsAsync(cancellationToken)));
+            SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
+            await RefreshDetailsAsync(cancellationToken);
             NotifyActions();
             return;
         }
@@ -111,6 +116,7 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
             : await repository.GetPortfolioOverviewsAsync(generation.GenerationId, cancellationToken);
         var rows = new List<PortfolioOverviewRow>();
         rows.AddRange(await BuildTrackedRowsAsync(generation, accountSnapshot));
+        rows.AddRange(await ReadDelphiLiveRowsAsync(cancellationToken));
         rows.AddRange(system.Select(PortfolioOverviewRow.FromSystem));
         Replace(Portfolios, rows);
         if (selectedCode is not null)
@@ -119,14 +125,15 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
             ? "Shadow off · enter TFSA capital to begin"
             : $"{generation.PolicyVersion} · {generation.Status} · started {generation.ActivatedUtc?.ToLocalTime():MMM d HH:mm}";
         Status = generation is null
-            ? "No system-selected trades can occur until you click Start Shadow V1."
-            : "System portfolios use virtual cash only. No broker connection and no real order is sent.";
+            ? "Daily Shadow is off. Delphi Live accounts have their own activation and execution."
+            : "Daily Shadow and Delphi Live use independent virtual accounts and execution rules.";
         await RefreshDetailsAsync(cancellationToken);
         NotifyActions();
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
+        RequireDailySelection();
         (decimal total, decimal cash) = ReadCapital();
         await BusyAsync(async () =>
         {
@@ -157,6 +164,7 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
 
     public async Task PauseAsync(CancellationToken cancellationToken = default)
     {
+        RequireDailySelection();
         if (generation is null)
             return;
         await BusyAsync(() => repository.SetGenerationStatusAsync(
@@ -170,6 +178,7 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
 
     public async Task ResumeAsync(CancellationToken cancellationToken = default)
     {
+        RequireDailySelection();
         if (generation is null)
             return;
         if (SelectedPortfolio is { Status: "CapitalReviewRequired", SystemPortfolioId: Guid portfolioId })
@@ -205,7 +214,10 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
 
     public async Task RefreshDetailsAsync(CancellationToken cancellationToken = default)
     {
+        int request = ++detailRequest;
+        string? selection = SelectedPortfolio?.StableCode;
         ClearDetails();
+        if (IsLiveSelected) { ShowDelphiLiveDetails(); return; }
         if (SelectedPortfolio?.SystemPortfolioId is not Guid portfolioId)
             return;
 
@@ -216,6 +228,8 @@ public sealed class PortfoliosViewModel : INotifyPropertyChanged
         Task<IReadOnlyList<SystemShadowEventInfo>> eventsTask =
             repository.GetRecentEventsAsync(portfolioId, 100, cancellationToken);
         await Task.WhenAll(candidatesTask, positionsTask, eventsTask);
+
+        if (request != detailRequest || selection != SelectedPortfolio?.StableCode) return;
 
         Replace(Candidates, candidatesTask.Result.Select(PortfolioCandidateRow.From));
         Replace(Holdings, positionsTask.Result.Select(PortfolioHoldingRow.From));
@@ -338,16 +352,20 @@ public sealed record PortfolioOverviewRow(
     string Selector,
     string Execution,
     string Status,
-    decimal NetAssetValue,
-    decimal Cash,
-    int OpenPositions,
-    decimal RealizedProfitLoss,
-    decimal UnrealizedProfitLoss,
-    decimal TotalReturn,
+    decimal? NetAssetValue,
+    decimal? Cash,
+    int? OpenPositions,
+    decimal? RealizedProfitLoss,
+    decimal? UnrealizedProfitLoss,
+    decimal? TotalReturn,
     decimal? DailyReturn,
-    decimal Drawdown,
+    decimal? Drawdown,
     DateTime? FreshnessUtc)
 {
+    public bool IsDelphiLive { get; init; }
+    public Guid? DelphiLivePortfolioId { get; init; }
+    public string Currency { get; init; } = "CAD";
+    public string Explanation { get; init; } = "";
     public string FreshnessText => FreshnessUtc?.ToLocalTime().ToString("MMM d HH:mm") ?? "—";
 
     public static PortfolioOverviewRow FromSystem(SystemShadowPortfolioOverview x) =>
@@ -372,10 +390,10 @@ public sealed record PortfolioOverviewRow(
 }
 
 public sealed record PortfolioCandidateRow(
-    int Rank,
+    int? Rank,
     string Symbol,
     string State,
-    decimal PreviousSessionClose,
+    decimal? PreviousSessionClose,
     decimal? PreviousFiveMinuteClose,
     decimal? LatestFiveMinuteClose,
     DateTime? LatestFiveMinuteBarUtc,
@@ -412,9 +430,9 @@ public sealed record PortfolioHoldingRow(
     string Status,
     int Shares,
     decimal AverageCost,
-    decimal LastPrice,
-    decimal MarketValue,
-    decimal ProfitLoss,
+    decimal? LastPrice,
+    decimal? MarketValue,
+    decimal? ProfitLoss,
     decimal? TrailingStop,
     DateTime EntryLocal,
     string ExitReason)

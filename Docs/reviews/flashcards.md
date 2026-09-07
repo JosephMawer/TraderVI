@@ -12,6 +12,69 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why did a weekday 00:30 schedule miss Friday's market data?
+- **Tags:** data-pipeline
+- **Source:** ADR-0058
+- **A:** Friday at 00:30 occurs before Friday's trading session. Collecting its completed daily bars
+  requires a later invocation, including Saturday. The repaired schedule runs every calendar day.
+
+### Q: Does absent SPY data mean positive cross-market confirmation?
+- **Tags:** decision-engine, data-pipeline
+- **Source:** ADR-0058
+- **A:** No. The corrected strategy requires observed XIU and SPY histories at the expected completed
+  session. Missing, insufficient, malformed or stale shared inputs stop the new recommendation set with
+  a reason. Valid-data formulas and the four ML models stay unchanged.
+
+### Q: What happens when Hercules finishes training a replacement model set?
+- **Tags:** machine-learning, decision-engine
+- **Source:** ADR-0057
+- **A:** New files and training evidence are saved separately as candidates. The current strategy keeps
+  its selected models until a later reviewed selection explicitly changes them.
+
+### Q: What makes switching back to an earlier model set possible?
+- **Tags:** architecture, machine-learning
+- **Source:** ADR-0057
+- **A:** Preserve its exact files, hashes, metadata, input behavior and strategy identity. Rollback
+  selects that recorded set and adds a history event; it does not delete the newer results.
+
+### Q: What does training/prediction feature parity fix in daily Delphi?
+- **Tags:** machine-learning, data-pipeline
+- **Source:** ADR-0056
+- **A:** The same dated stock and XIU observations must produce the same model inputs in training and
+  prediction. This restores existing relative-return inputs; it does not train models to imitate the
+  deterministic trading rules or add those rules to the feature vector.
+
+### Q: Why does a missing stock date exclude one stock, while bad required XIU data stops the corrected set?
+- **Tags:** machine-learning, data-pipeline, decision-engine
+- **Source:** ADR-0056
+- **A:** Complete stocks still have usable individual inputs. XIU is shared, so an unusable required
+  benchmark input undermines the common comparison. Neither case should silently produce substitute zeros.
+
+### Q: Does matching model vector length prove that an old artifact is compatible with corrected inputs?
+- **Tags:** machine-learning, architecture
+- **Source:** ADR-0056
+- **A:** No. A separately authorized review must establish the training contract for the exact bytes.
+  The corrected strategy binds those model hashes and metadata; otherwise new candidate training may be
+  needed. Source tests and a filled-in binding do not constitute that compatibility review.
+
+### Q: What do we promote when a paper strategy proves successful?
+- **Tags:** architecture, decision-engine, risk-management
+- **Source:** ADR-0055
+- **A:** The identified complete strategy: selection, entry, exit, sizing, risk and model/policy inputs.
+  Its paper account stays independent. Training success or today's highest account balance is not approval.
+
+### Q: Does selecting the recommendation champion permit real broker orders?
+- **Tags:** risk-management, market-microstructure
+- **Source:** ADR-0055
+- **A:** No. Selection determines the approved source of recommendations. Broker execution needs separate
+  permission and account/risk checks; the adapter reports actual orders and fills rather than copying paper fills.
+
+### Q: Why can't we simply choose the highest balance in the Portfolios tab?
+- **Tags:** architecture, decision-engine
+- **Source:** ADR-0055
+- **A:** Accounts can have different starting capital, dates, costs, coverage and drawdowns. Compare
+  identified strategies on an explicit fair basis with untouched evidence; preserve each account's history.
+
 ### Q: Why may TraderVI monitor an unlinked Real holding while excluding an unlinked Ghost row?
 - **Domains:** architecture, market-microstructure, risk-management
 - **Source:** ADR-0044
@@ -830,3 +893,15 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0053
 
 **A:** The clean exact stock/XIU pair proves the current collection cycle is healthy, so the consecutive-miss ladder resets. It cannot recreate a missing bar or repair a rolling window; each family must independently remature from the required contiguous evidence before a Buy is possible.
+
+### Q: Why does an inactive Delphi Live preview show more rows than the eligible live source?
+- **Domains:** architecture, data-pipeline
+- **Source:** ADR-0054
+
+**A:** The preview explains all published daily picks, including rows blocked by daily gates. Displaying a row does not grant entry eligibility or make an older daily run fresh for another session.
+
+### Q: Why is the Friday replay's profit/loss an estimate rather than clean live evidence?
+- **Domains:** data-pipeline, market-microstructure
+- **Source:** ADR-0054
+
+**A:** Historical bars do not recover original receipt times or executable quotes. The replay assumes publication timing, uses minute-price proxies, leaves missing bars missing and excludes costs; it cannot count toward operational shakedown or promotion.

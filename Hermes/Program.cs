@@ -6,6 +6,7 @@ using Core.ML;
 using Core.TMX;
 using Core.TMX.Models.Domain;
 using Core.Config;
+using Core.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,15 @@ using System.Threading.Tasks;
 
 Console.WriteLine("=== Hermes: Market Data Collector ===\n");
 
-Console.WriteLine("[Backfill Mode] Downloading historical data...");
-await RunBackfillAsync();
+bool spyOnly = args.Length == 1 && args[0] == "--spy-only";
+if (args.Length != 0 && !spyOnly)
+    throw new ArgumentException("Usage: Hermes [--spy-only]");
+if (!spyOnly)
+{
+    Console.WriteLine("[Backfill Mode] Downloading historical data...");
+    await RunBackfillAsync();
+}
+await UpdateSpyBenchmarkAsync();
 
 try
 {
@@ -43,6 +51,32 @@ catch (Exception ex)
 
 // ── One-time A/D Line backfill (uncomment to rebuild from scratch) ──
 // await BackfillAdvanceDeclineLineAsync(months: 6);
+
+static async Task UpdateSpyBenchmarkAsync()
+{
+    Console.WriteLine("\n── SPY daily benchmark confirmation ──");
+    var repository = new QuoteRepository();
+    var calendar = DailyBenchmarkPolicy.LoadCalendar();
+    DateTime expected = calendar.GetImmediatelyPrecedingSession(DateOnly.FromDateTime(DateTime.Today))
+        .ToDateTime(TimeOnly.MinValue);
+    var existing = await repository.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol);
+    DateTime from = existing.Count < DailyBenchmarkPolicy.RequiredObservations
+        ? expected.AddYears(-2) : existing.Max(bar => bar.Date.Date).AddDays(1);
+    int inserted = 0;
+    if (from <= expected)
+    {
+        using var source = new YahooChartUsIndexDataSource();
+        var response = await source.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol, from, expected);
+        var missing = SpyBenchmarkIngestion.SelectMissingBars(existing, response, from, expected);
+        // Validate the complete proposed history before any SPY database write.
+        DailyBenchmarkPolicy.ValidateSeries(SpyBenchmarkIngestion.Symbol,
+            existing.Concat(missing).ToArray(), expected);
+        inserted = await repository.InsertMissingDailyBarsAsync(SpyBenchmarkIngestion.Symbol, missing);
+    }
+    var verified = await repository.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol);
+    DailyBenchmarkPolicy.ValidateSeries(SpyBenchmarkIngestion.Symbol, verified, expected);
+    Console.WriteLine($"SPY: {inserted} new observations; {verified.Count} stored; verified through {expected:yyyy-MM-dd}. Existing observations preserved.");
+}
 
 static async Task RunBackfillAsync()
 {

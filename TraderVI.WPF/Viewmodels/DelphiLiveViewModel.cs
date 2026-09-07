@@ -41,6 +41,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     {
         this.service = service;
         RefreshVariantChoices();
+        TryLoadLatestReplay();
     }
 
     public ObservableCollection<DelphiLiveObservationRow> Opportunities { get; } = [];
@@ -122,6 +123,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
                 return;
             }
             Apply(tick ? await service.TickAsync(cancellationToken) : await service.SnapshotAsync(cancellationToken));
+            if (!tick || dailyPreview.Run is null) await RefreshDailyPreviewAsync(cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
         catch (Exception exception)
@@ -173,6 +175,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
         SelectedPortfolio = Portfolios.FirstOrDefault(p => p.PortfolioId == portfolioSelection) ?? Portfolios.FirstOrDefault();
         ShowPortfolio();
         OnPropertyChanged(nameof(CanActivate));
+        RebuildWatchlist();
     }
 
     private static DelphiLiveObservationRow ObservationRow(DelphiLiveStoredEvaluation stored, int rank, DelphiLivePortfolioSnapshot? portfolio)
@@ -207,7 +210,9 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
             Family(DelphiLiveSignalFamily.PriceMovement), Family(DelphiLiveSignalFamily.VolumeSupport), Family(DelphiLiveSignalFamily.PriceStructure),
             result.NextState.PersistenceScore, TorontoTime(input.BarEndUtc), held, pendingSell,
             FormatEvidence(stored, portfolio, ownLifecycle), inScope ? ownLifecycle.ReasonCode : "Observe only · outside this portfolio's entry scope")
-            { Role = portfolio?.Role ?? "Shared research", PortfolioId = portfolio?.PortfolioId };
+            { Role = portfolio?.Role ?? "Shared research", PortfolioId = portfolio?.PortfolioId,
+                Price = result.RawValues.GetValueOrDefault("Close"),
+                ChangeFromPreviousClose = result.RawValues.GetValueOrDefault("PreviousCloseReturn") };
     }
 
     private void ShowPortfolio()
@@ -262,6 +267,8 @@ public sealed record DelphiLiveObservationRow(string SelectionKey, Guid PolicyVe
 {
     public string Role { get; init; } = "";
     public Guid? PortfolioId { get; init; }
+    public decimal? Price { get; init; }
+    public decimal? ChangeFromPreviousClose { get; init; }
 }
 public sealed record DelphiLivePortfolioRow(Guid PortfolioId, string Role, string Currency, decimal Cash,
     int Holdings, decimal? LastCompleteNav, string Guard, string Policy, long Revision);

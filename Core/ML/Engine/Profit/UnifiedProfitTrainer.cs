@@ -5,6 +5,7 @@ using Microsoft.ML.Data;
 using Microsoft.ML.Trainers.LightGbm;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Core.ML.Engine.Profit;
@@ -37,6 +38,7 @@ public static class UnifiedProfitTrainer
         int lookback = model.Lookback;
         int horizon = model.HorizonBars;
         int symbolsUsed = 0;
+        var rejectedInputs = new Dictionary<string, int>(StringComparer.Ordinal);
 
         // ─────────────────────────────────────────────────────────────
         // Step 1: Build ALL windows across ALL symbols (no split yet).
@@ -57,7 +59,8 @@ public static class UnifiedProfitTrainer
                 model.FeatureBuilder,
                 model.Labeler,
                 model.ModelKind,
-                model.RegressionReturnClamp);
+                model.RegressionReturnClamp,
+                failure => rejectedInputs[failure.Reason] = rejectedInputs.GetValueOrDefault(failure.Reason) + 1);
 
             if (windows.Count < 10)
                 continue;
@@ -65,6 +68,9 @@ public static class UnifiedProfitTrainer
             allWindows.AddRange(windows);
             symbolsUsed++;
         }
+
+        foreach (var rejected in rejectedInputs.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+            Console.WriteLine($"[FeatureInputExcluded] {model.TaskType}: {rejected.Key}={rejected.Value}");
 
         if (allWindows.Count == 0)
         {
@@ -135,17 +141,25 @@ public static class UnifiedProfitTrainer
 
         Console.WriteLine();
 
-        return model.ModelKind switch
+        var trainingResult = model.ModelKind switch
         {
             ProfitModelKind.Regression => TrainRegression(model, trainWindows, testWindows, modelPath, symbolsUsed),
             ProfitModelKind.ThreeWayClassification => TrainThreeWay(model, trainWindows, testWindows, modelPath, symbolsUsed),
             ProfitModelKind.BinaryClassification => TrainBinary(model, trainWindows, testWindows, modelPath, symbolsUsed),
             _ => new ProfitTrainingResult(false, 0, 0, 0, 0, 0)
         };
+        return trainingResult with
+        {
+            TrainingWindowFrom = trainWindows.Min(window => window.Date),
+            TrainingWindowTo = trainWindows.Max(window => window.Date),
+            TestWindowFrom = testWindows.Min(window => window.Date),
+            TestWindowTo = testWindows.Max(window => window.Date),
+            InputExclusions = new Dictionary<string, int>(rejectedInputs)
+        };
     }
 
     /// <summary>
-    /// Train with market context (passes XIU bars to MarketContextFeatureBuilder).
+    /// Train a separate candidate using the dated stock/XIU input contract.
     /// </summary>
     public static ProfitTrainingResult TrainWithMarketContext(
         ProfitModelDefinition model,
@@ -154,12 +168,8 @@ public static class UnifiedProfitTrainer
         string modelPath,
         double trainFraction = 0.8)
     {
-        if (model.FeatureBuilder is MarketContextFeatureBuilder mcfb)
-        {
-            mcfb.MarketBars = marketBars;
-        }
-
-        return Train(model, barsBySymbol, modelPath, trainFraction);
+        var inputs = new ProfitFeatureInputs(marketBars, marketBars.Select(bar => bar.Date).Distinct().OrderBy(date => date).ToArray());
+        return Train(inputs.Bind(model), barsBySymbol, modelPath, trainFraction);
     }
 
     private static void PrintClassBalance(string name, List<ProfitWindow> windows)
@@ -238,7 +248,7 @@ public static class UnifiedProfitTrainer
 
         PrintRegressionRankingMetrics(mlContext, predictions);
 
-        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        SaveArtifact(mlContext, model, trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
         return new ProfitTrainingResult(
@@ -395,7 +405,7 @@ public static class UnifiedProfitTrainer
 
         PrintConfusionMatrix(metrics);
 
-        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        SaveArtifact(mlContext, model, trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
         return new ProfitTrainingResult(
@@ -500,7 +510,7 @@ public static class UnifiedProfitTrainer
 
         PrintTopDecileLift(rows);
 
-        mlContext.Model.Save(trainedModel, trainData.Schema, modelPath);
+        SaveArtifact(mlContext, model, trainedModel, trainData.Schema, modelPath);
         Console.WriteLine($"  Model saved: {modelPath}\n");
 
         return new ProfitTrainingResult(
@@ -636,21 +646,40 @@ public static class UnifiedProfitTrainer
         public float Score { get; set; }
     }
 
-    private static List<ProfitWindow> BuildProfitWindows(
+    private static void SaveArtifact(MLContext context, ProfitModelDefinition definition, ITransformer model, DataViewSchema schema, string path)
+    {
+        ProfitModelArtifactStore.WriteNew(path, stream => context.Model.Save(model, schema, stream));
+    }
+
+    internal static List<ProfitWindow> BuildProfitWindows(
         List<DailyBar> bars,
         int lookback,
         int horizon,
         IFeatureBuilder featureBuilder,
         ILabeler labeler,
         ProfitModelKind modelKind,
-        float? regressionReturnClamp)
+        float? regressionReturnClamp,
+        Action<ProfitFeatureInputException>? reportExclusion = null)
     {
         var result = new List<ProfitWindow>();
+        var duplicateStockSessions = featureBuilder is DatedProfitFeatureBuilder
+            ? DatedProfitFeatureBuilder.DuplicateSessions(bars) : null;
 
         for (int windowEnd = lookback - 1; windowEnd < bars.Count - horizon; windowEnd++)
         {
             var windowBars = bars.GetRange(windowEnd - lookback + 1, lookback);
             var futureBars = bars.GetRange(windowEnd + 1, horizon);
+
+            float[]? validatedFeatures = null;
+            if (featureBuilder is DatedProfitFeatureBuilder dated)
+            {
+                try { validatedFeatures = dated.Build(windowBars, duplicateStockSessions!); }
+                catch (ProfitFeatureInputException failure)
+                {
+                    reportExclusion?.Invoke(failure);
+                    continue;
+                }
+            }
 
             var label = labeler.ComputeLabel(windowBars, futureBars);
             if (!label.IsValid)
@@ -678,7 +707,7 @@ public static class UnifiedProfitTrainer
 
             result.Add(new ProfitWindow
             {
-                Features = featureBuilder.Build(windowBars),
+                Features = validatedFeatures ?? featureBuilder.Build(windowBars),
                 ForwardReturn = forwardReturn,
                 ThreeWayLabel = threeWayEncoded,
                 IsEvent = label.ThreeWayClass == ThreeWayLabel.Buy,

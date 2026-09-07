@@ -16,6 +16,10 @@ it does not itself grant operational authorization.
 | 6 | Inactive WPF host, activation command, independent diagnostics and portfolio views | Implemented; complete Release solution build passing |
 | 7 | Migration, source-capacity shakedown and operational activation | Migrations 022–025 and bounded TSX calendar installed on 2026-09-06; capacity shakedown and activation remain outstanding |
 
+The separately authorized [closed-market source trial](reviews/delphi-live-closed-market-trial-20260906.md)
+passed nine of nine exact historical bar requests on 2026-09-06. It made no SQL connection or portfolio
+action and contributes zero clean cohorts. The live collection and durability trial remains outstanding.
+
 ## Source organization
 
 - `Core/Trader/DelphiLive`: host-neutral contracts, deterministic measurements/judgments, policy selection, lifecycle, safety, collection, action and monitor workflows.
@@ -81,13 +85,51 @@ contract tests passed.
 - The [application record](reviews/delphi-live-migrations-20260906.json) preserves backup verification,
   validation results and the SHA-256 of every applied script and included table definition.
 
+## Daily preview and historical replay — 2026-09-06
+
+- [x] Add the SELECT-only latest published-picks preview, preserving source dates and daily eligibility.
+- [x] Add a separate historical engine using V1 rule functions with the explicitly estimated
+  `EstimatedNextMinuteOpenV1` execution convention; no operational persistence path.
+- [x] Run the user-authorized September 4 replay using the saved Shadow account capital and bounded
+  historical source requests. Produce 78 frames, six estimated fills, and explicit missing-bar coverage.
+- [x] Simplify the WPF watchlist, add saved replay timing/account inspection, and retain existing
+  controls under Advanced with their shared view model and original confirmations.
+- [x] Validate all 592 Core tests, targeted Sandbox/WPF builds and isolated actual WPF rendering.
+  See the [replay review](reviews/delphi-live-friday-replay-20260906.md) for warnings and limitations.
+- [x] Read-only postflight: no Delphi Live operational rows and unchanged saved Shadow account capital.
+
+This is additive [ADR-0054](adr/0054-delphi-live-preview-and-historical-replay.md) work, not a change to
+the frozen V1 design. Historical estimates contribute zero engineering or promotion cohorts.
+
+## Portfolios overview integration — 2026-09-06
+
+- [x] Read queued, enabled, cancelled and ended Delphi Live generations from their own ledger and list
+  them alongside the existing accounts, with distinct identities, currencies and statuses.
+- [x] Show an unfunded **Not activated** placeholder when there is no current/queued main account;
+  distinguish an unavailable read from an inactive account.
+- [x] Show selected-account states, holdings, decisions and fills; retain estimated-fill labels and
+  avoid substituting an older complete mark for missing or changed portfolio evidence.
+- [x] Guard daily Shadow start/pause/resume methods and controls from Delphi Live selections, and
+  discard an older asynchronous detail response after the selection changes.
+- [x] Validate 600 Core tests, including eight new regressions, and isolated WPF fixture rendering for
+  inactive, queued and invested accounts. The WPF build retains the existing unused-variable warning;
+  existing dependency advisories remain separate and unresolved. No full SSDT solution build was claimed.
+- [x] Execute the new SELECT-only reader against local SQL under the approved normal host context:
+  schema installed, zero saved Delphi Live accounts. The inactive row is a UI placeholder, not a ledger
+  write. Sandbox SQL authentication was unavailable; encryption was not disabled.
+
+This is the presentation integration of the existing ADR-0053/0054 account boundary. It introduces no
+schema, activation, source-collection, trading-policy or broker changes.
+
 ## Authorization boundary
 
 The user separately authorized backup and application of migrations 022–025 on 2026-09-06. They are now
 applied and must not be edited or rerun. The authorization did not include application/trading activation,
 external market calls, model training, model-artifact publication, broker operations, commits, pushes or
 pull requests. The subsequent calendar review and installation were separately authorized and completed.
-Collection shakedown and simulation activation remain separate explicit operator actions.
+The user then authorized a controlled collection trial; its closed-market historical portion is complete.
+Live timing and SQL durability still require an open-session trial. Simulation activation remains a
+separate explicit operator action with user-specified capital.
 
 The remaining rollout risks are live SQL concurrency/latency, combined provider capacity, reviewed calendar coverage,
 and actual WPF operation through complete sessions. Offline tests and build/parser checks do not establish those

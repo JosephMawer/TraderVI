@@ -16,11 +16,21 @@ public static class DelphiBootstrap
 {
     public static async Task<TradeDecisionEngine> BuildTradeDecisionEngineFromRegistry(
         StrategyConfig? config = null,
-        TextWriter? output = null)
+        TextWriter? output = null,
+        ProfitFeatureInputs? featureInputs = null,
+        DateTime? predictionSession = null,
+        ReviewedProfitInputBinding? binding = null,
+        StoredProfitModelSet? storedModelSet = null)
     {
         void Log(string message) => (output ?? Console.Out).WriteLine(message);
         var repo = new ModelRegistryRepository();
-        var enabledModels = await repo.GetEnabledModels();
+        if ((featureInputs is null) != (binding is null))
+            throw new InvalidOperationException("Corrected model inputs require an explicit reviewed binding.");
+        var enabledModels = storedModelSet is not null ? storedModelSet.Models.Select(model => model.Registry).ToList() : binding is null
+            ? await repo.GetEnabledModels()
+            : await repo.GetModelsById(binding.Models.Select(model => model.ModelId).ToArray());
+        binding?.ValidateRows(enabledModels);
+        var artifactBinding = storedModelSet?.ToBinding() ?? binding;
 
         var allowedProfitTaskTypes = ProfitModelRegistry.All
             .Select(p => p.TaskType)
@@ -55,6 +65,7 @@ public static class DelphiBootstrap
 
             if (!File.Exists(modelInfo.ZipPath))
             {
+                if (artifactBinding is not null) throw new InvalidOperationException($"Reviewed model artifact missing for {modelInfo.TaskType}.");
                 Log($"[DelphiBootstrap] ⚠️  Model file not found, skipping: {modelInfo.TaskType}");
                 continue;
             }
@@ -62,7 +73,7 @@ public static class DelphiBootstrap
             if (!loadedTaskTypes.Add(modelInfo.TaskType))
                 continue;
 
-            var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo);
+            var profitModel = UnifiedProfitSignalModel.FromRegistryInfo(modelInfo, featureInputs, predictionSession, artifactBinding);
             if (profitModel != null)
             {
                 profitModels.Add(profitModel);

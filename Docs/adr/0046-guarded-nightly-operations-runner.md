@@ -35,7 +35,8 @@ The accepted operating contract is:
    changed during preflight. Record SHA-256 aggregates for each build output, and verify the applicable
    output again immediately before each stage. This makes each run use the latest source while preventing
    a partially concurrent edit or later artifact replacement from changing that run underneath it.
-3. Schedule the pipeline at 00:30 machine-local Toronto/Eastern time on Monday through Friday. This lets
+3. Schedule the pipeline at 00:30 machine-local Toronto/Eastern time. The initial Monday–Friday schedule
+   was corrected to every calendar day by ADR-0058 so Saturday collects Friday's close. This lets
    Delphi's recommendation date be the new calendar day while its market data remains the prior completed
    TSX session.
 4. Run under the current user's interactive Windows token, with `WakeToRun` and `StartWhenAvailable`. Do not
@@ -50,7 +51,8 @@ The accepted operating contract is:
    2 as attention rather than ordinary success.
 8. Write an atomic machine-readable `status.json` after every state transition plus one append-only log per
    attempt under the current user's local application-data directory.
-9. Have Codex inspect only that status and its referenced log on weekday mornings. Stay quiet on a timely
+9. Have Codex inspect only that status and its referenced log each morning (including weekends under
+   ADR-0058). Stay quiet on a timely
    success; report missing, stale, long-running, failed, or attention states with evidence and a safe next
    step. Codex must not retry a program, modify SQL, call a market service, or repair data automatically.
 

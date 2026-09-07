@@ -15,6 +15,10 @@ public sealed record DelphiWorkflowOptions(
     int TopPicksToSave = 25,
     bool SaveToDatabase = true)
 {
+    // Optional explicit binding. Stored strategy assignments are resolved automatically;
+    // a caller-supplied file cannot replace a stored assignment.
+    public string? ModelInputBindingPath { get; init; }
+
     public void Validate()
     {
         if (Purpose is not (

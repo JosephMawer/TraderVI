@@ -5,6 +5,46 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Corrected daily model inputs — first scheduled evidence
+
+- **Accepted:** exclude only stocks with incomplete required dated inputs; unusable shared XIU inputs
+  stop the new daily recommendation set. Existing model reuse requires separately authorized proof of
+  compatibility; retrain candidates only when needed and authorized. Corrected behavior needs a new identity.
+- **Resolved:** the operator authorized inspection, replacement training when proof was unavailable,
+  and a new corrected daily selection. [ADR-0057](../adr/0057-preserved-model-sets-and-explicit-selection.md)
+  now governs candidate-only training and preserved assignments. The later ADR-0058 benchmark repair
+  selected `v3.4-observed-benchmarks` with the same four models; its actual bootstrap and observed
+  benchmarks verify. Previous strategies remain available for reviewed rollback.
+- **Q:** Does the first normal scheduled corrected cohort complete with the expected input coverage and
+  evidence identity? This requires observation of a real scheduled result, not another design approval.
+- **Status:** the separately authorized September 6 standalone v3.4 run completed at 22:43 Eastern with
+  valid provenance, 209 evaluated stocks, four matching model identities and no qualifying trade. All 50
+  published rows are Hold; seven input exclusions and unavailable leadership-movers evidence are explicit.
+  Earlier evidence/account snapshots are preserved. Scheduled pipeline completion remains pending; no
+  new monitor was launched. The
+  later readiness findings were repaired under separate operator authority: every-day scheduling,
+  Friday/SPY data refresh and required observed benchmark inputs now pass. See the
+  [cutover review](model-input-cutover-20260906.md). Continue ordinary dialogue
+  one concrete step at a time; the operator asked to stop using timed question cards.
+  [Design draft](../concepts/strategy-alignment-stabilization-draft.md);
+  [implementation checklist](../strategy-alignment-implementation-checklist.md).
+- **Tags:** architecture, machine-learning, data-pipeline, decision-engine
+
+### Common strategy comparison, recommendation promotion and broker execution
+- **Accepted:** independent accounts prove complete strategies; a human selects the recommendation
+  strategy before separately permitting broker execution. [ADR-0055](../adr/0055-independent-strategies-to-approved-live-execution.md).
+- **Q:** What common evidence and identity contract lets daily Shadow and Delphi Live strategies compete
+  fairly while preserving ADR-0022 and ADR-0053's existing requirements? Resolve capital/cash-flow
+  normalization, paired periods, fill/cost differences, coverage, downside criteria and untouched evidence.
+- **Q:** How is the selected strategy bound to immutable model/policy inputs and routed against real
+  account state, with explicit effective boundaries and treatment of existing positions?
+- **Q:** Which reviewed Wealthsimple access mechanism and execution contract will support authentication,
+  approved accounts, permissions, idempotency, partial fills, fees, reconciliation, recovery and stopping?
+- **Status:** open implementation/design details; the direction itself is accepted. Do not reinterpret
+  Delphi Live's internal champion role, a successful training run, or a replay balance as this approval.
+  [Static findings and ordering](strategy-direction-alignment-20260906.md).
+- **Tags:** architecture, decision-engine, risk-management, market-microstructure
+
 ### Delphi Live short sessions and calendar extension
 - **Q:** How should the frozen full-session V1 collection, protective exits, marks, daily baselines and
   forward outcomes handle an official early close?
@@ -197,6 +237,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Tags:** architecture, decision-engine, machine-learning, technical-indicators
 - **Status:** deferred, non-blocking — ADR-0053 accepts the frozen V1 behavior and leaves these as prospective successor decisions. Source implementation does not authorize migration, activation, external collection, model training, deployment, or broker work.
 
+### Delphi Live historical replay follow-ups
+
+- **Q:** How should the pure frozen-source selector validate published-but-ineligible rows consistently with the SQL path, which filters eligibility before selection?
+- **Q:** Which explicit spread, slippage, commission and quote-path assumptions should a later research replay compare before performance interpretation?
+- **Tags:** architecture, data-pipeline, market-microstructure
+- **Status:** deferred after ADR-0054. The September 4 exploratory replay preserves the existing live eligibility filter and claims no live equivalence. Additional days, cost sensitivity and monitoring without an activated portfolio remain separate future decisions.
+
 ### Always-on hosting for the paper monitor
 
 - **Q:** After the WPF-hosted monitor is proven, should the shared Core monitor
@@ -223,6 +270,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   fills, commissions, a broker connection, or order routing.
 
 ## Resolved
+
+- **Missing Friday data and SPY confirmation (S8/S9)** — resolved under ADR-0058 on 2026-09-06.
+  Weekday-only midnight scheduling omitted Saturday's collection of Friday's close; execution and
+  read-only morning supervision now run every calendar day. Friday and actual SPY history were refreshed
+  with verified backups. The selected v3.4 strategy requires current observed XIU/SPY inputs and reuses the
+  same four models. No substitute benchmark, threshold retuning or historical evidence rewrite occurred.
+  Independent historical US-calendar gap detection remains outside this repair; a missing SPY endpoint
+  on a US-only closure stops new publication explicitly. The first official corrected run subsequently
+  completed with valid provenance and no qualifying trade; normal nightly completion remains open.
 
 - **Unified Ghost/Real trading dashboard** — resolved by ADR-0039 and operational migration 013 on 2026-08-28. Durable mode/account fields, an immutable Ghost-to-Real audit, separate P/L, manual Real entry/exit reconciliation, and a hard Ghost-only automatic-exit guard are implemented and verified. All legacy rows remain Ghost. The five-share EDR Ghost mirror was automatically closed at $15.62. On 2026-08-28 the operator declined to add a separate Real row because EDR is no longer in the current Delphi picks; the historical Ghost lifecycle remains unchanged.
 

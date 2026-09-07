@@ -398,7 +398,7 @@ public sealed class DelphiLiveActionWorkflow
     private async Task<DelphiLivePortfolioSnapshot> CheckpointMark(DelphiLivePortfolioSnapshot state, DelphiLivePortfolioCycleInput input,
         DelphiLivePolicyDefinition policy, DelphiLiveLease lease, CancellationToken cancellationToken)
     {
-        var nav = CurrentNav(state, input);
+        var (nav, marks) = CurrentValuation(state, input);
         var guards = nav.NetAssetValue is > 0m
             ? DelphiLivePortfolioPolicy.EvaluateGuards(nav.NetAssetValue.Value, state.OpeningNav, state.Guards.HighestClosingNav,
                 state.Guards.DailyBuyingPaused, state.Guards.CapitalReviewRequired, policy) : state.Guards;
@@ -406,7 +406,7 @@ public sealed class DelphiLiveActionWorkflow
         var mark = new DelphiLiveLedgerMark(Guid.NewGuid(), input.TradingDate,
             closing ? DelphiLivePortfolioMarkKind.Closing : DelphiLivePortfolioMarkKind.Checkpoint,
             input.CheckpointBarEndUtc, nav.IsComplete && !input.CorporateActionUnsupported,
-            nav.NetAssetValue, input.ExactCheckpointMarks.ToImmutableArray(), input.CorporateActionUnsupported ? "CorporateActionUnsupported" : nav.ReasonCode);
+            nav.NetAssetValue, marks, input.CorporateActionUnsupported ? "CorporateActionUnsupported" : nav.ReasonCode);
         if (closing && mark.Complete)
             guards = guards with { HighestClosingNav = System.Math.Max(guards.HighestClosingNav, nav.NetAssetValue!.Value) };
         return await Commit(state, state with { Guards = guards, Marks = state.Marks.Add(mark),
@@ -414,7 +414,11 @@ public sealed class DelphiLiveActionWorkflow
             "PortfolioNavObserved", mark, lease, cancellationToken);
     }
 
-    private static DelphiLiveNavResult CurrentNav(DelphiLivePortfolioSnapshot state, DelphiLivePortfolioCycleInput input)
+    private static DelphiLiveNavResult CurrentNav(DelphiLivePortfolioSnapshot state, DelphiLivePortfolioCycleInput input) =>
+        CurrentValuation(state, input).Nav;
+
+    private static (DelphiLiveNavResult Nav, ImmutableArray<DelphiLivePositionMark> Marks) CurrentValuation(
+        DelphiLivePortfolioSnapshot state, DelphiLivePortfolioCycleInput input)
     {
         var marks = new List<DelphiLivePositionMark>();
         foreach (var position in state.OpenPositions)
@@ -430,8 +434,12 @@ public sealed class DelphiLiveActionWorkflow
                     marks.Add(new(position.PositionId, position.Symbol, position.Quantity, close, input.CheckpointBarEndUtc));
             }
         }
-        return DelphiLivePortfolioPolicy.CalculateExactNav(state.Cash,
-            state.OpenPositions.Select(p => (p.PositionId, p.Symbol, p.Quantity)).ToArray(), marks, input.CheckpointBarEndUtc);
+        // Persist exactly the holdings used for NAV, including new fills and
+        // excluding liquidated positions from the cycle's original input marks.
+        var positions = marks.ToImmutableArray();
+        var nav = DelphiLivePortfolioPolicy.CalculateExactNav(state.Cash,
+            state.OpenPositions.Select(p => (p.PositionId, p.Symbol, p.Quantity)).ToArray(), positions, input.CheckpointBarEndUtc);
+        return (nav, positions);
     }
 
     private async Task<DelphiLivePortfolioSnapshot> Overnight(DelphiLivePortfolioSnapshot state, DateTime closeUtc,

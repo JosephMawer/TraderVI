@@ -75,6 +75,71 @@ public sealed class DelphiLiveActionWorkflowTests
         ordered.IndexOf("SellFillCommitted").ShouldBeLessThan(ordered.LastIndexOf("BuyDecisionPersisted"));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WorkflowProducedMarks_ReconcileAfterBuyAndLiquidation_ThroughAccountAndExposureReaders(bool liquidate)
+    {
+        var h = new Harness();
+        var calendar = new ReviewedTsxSessionCalendar(new("synthetic-calendar", "isolated workflow fixture", Date, Date, [Date]));
+        for (int minutes = 5; minutes <= 390; minutes += 5)
+        {
+            h.Clock.Now = Open.AddMinutes(minutes + 2);
+            decimal close = liquidate && minutes == 25 ? 9.4m : 10m;
+            var input = h.Input("AAA", minutes) with
+            {
+                Candidates = [h.Candidate("AAA", close, eligible: minutes == 20)],
+                ExactCheckpointMarks = h.Store.State.OpenPositions.Select(p =>
+                    new DelphiLivePositionMark(p.PositionId, p.Symbol, p.Quantity, close, Open.AddMinutes(minutes))).ToArray()
+            };
+            if (minutes == 20)
+                h.Source.Enqueue(10m, 9.99m, 10m);
+            else if (h.Store.State.OpenPositions.Any())
+            {
+                if (liquidate && minutes == 25)
+                {
+                    h.Source.Enqueue(9.4m, 9.4m, 9.41m); // Protective trigger.
+                    h.Source.Enqueue(9.3m, 9.3m, 9.4m); // Separate post-decision fill.
+                }
+                else h.Source.Enqueue(10m, 9.99m, 10m);
+            }
+
+            var state = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
+            var mark = state.Marks.Last();
+            mark.Complete.ShouldBeTrue();
+            mark.Positions.Select(m => m.PositionId).ShouldBe(state.OpenPositions.Select(p => p.PositionId));
+            mark.Nav.ShouldBe(state.Cash + mark.Positions.Sum(m => m.Quantity * m.Price));
+            foreach (var position in state.OpenPositions)
+            {
+                var positionMark = mark.Positions.Single(m => m.PositionId == position.PositionId);
+                positionMark.Quantity.ShouldBe(position.Quantity);
+                positionMark.Price.ShouldBe(close);
+                positionMark.BarEndUtc.ShouldBe(input.CheckpointBarEndUtc);
+            }
+            var account = DelphiLiveAccountValuation.From(state, Date);
+            account.NetAssetValue.ShouldBe(mark.Nav);
+            account.PositionPrices.Count.ShouldBe(state.OpenPositions.Count());
+        }
+
+        var result = h.Store.State;
+        result.Fills.Length.ShouldBe(liquidate ? 2 : 1);
+        var report = DelphiLivePortfolioScorecard.Calculate(result, Date, calendar);
+        report.CheckpointCoverage.Readiness.ShouldBe(DelphiLiveCoverageReadiness.Ready);
+        // There are 78 exact checkpoints: cash at the first three, then a 20%
+        // holding from checkpoint four. Full liquidation at checkpoint five
+        // leaves only checkpoint four exposed; the pre-sale input must not leak.
+        report.MeanCheckpointExposure.ShouldBe(0.2m * (liquidate ? 1 : 75) / 78m);
+        report.TotalReturn.ShouldBe(liquidate ? -0.014m : 0m);
+        var buyMark = result.Marks.Last(m => m.BarEndUtc == Open.AddMinutes(20));
+        buyMark.Positions.Single().Quantity.ShouldBe(20);
+        if (liquidate)
+        {
+            result.Marks.Last(m => m.BarEndUtc == Open.AddMinutes(25)).Positions.ShouldBeEmpty();
+            // Later fills append new marks without rewriting the earlier checkpoint.
+            buyMark.Positions.Single().Price.ShouldBe(10m);
+        }
+    }
+
     [Fact]
     public async Task PendingSell_RetriesThreeInitiallyThenOncePerCycle_PreservesIdentityOvernightAndRestart()
     {

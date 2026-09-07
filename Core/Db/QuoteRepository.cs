@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -261,6 +262,44 @@ WHERE [Symbol] = @Symbol;";
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
+        }
+
+        /// <summary>Append missing benchmark observations without revising stored market history.</summary>
+        public async Task<int> InsertMissingDailyBarsAsync(string symbol, IReadOnlyList<DailyBar> bars)
+        {
+            if (string.IsNullOrWhiteSpace(symbol) || symbol.Length > 10 ||
+                bars.Any(bar => !Core.Runtime.DailyBenchmarkPolicy.IsValidBar(bar)) ||
+                bars.Select(bar => bar.Date.Date).Distinct().Count() != bars.Count)
+                throw new ArgumentException("A valid symbol and unique, valid daily observations are required.");
+            using var con = new SqlConnection(ConnectionString);
+            await con.OpenAsync();
+            using var transaction = con.BeginTransaction(IsolationLevel.Serializable);
+            const string sql = @"
+INSERT dbo.DailyBars (Symbol, [Date], [Open], High, Low, [Close], Volume)
+SELECT @Symbol, @Date, @Open, @High, @Low, @Close, @Volume
+WHERE NOT EXISTS (SELECT 1 FROM dbo.DailyBars WITH (UPDLOCK, HOLDLOCK)
+                  WHERE Symbol = @Symbol AND [Date] = @Date);";
+            using var command = new SqlCommand(sql, con, transaction);
+            command.Parameters.Add("@Symbol", SqlDbType.VarChar, 10).Value = symbol;
+            command.Parameters.Add("@Date", SqlDbType.Date);
+            command.Parameters.Add("@Open", SqlDbType.Real);
+            command.Parameters.Add("@High", SqlDbType.Real);
+            command.Parameters.Add("@Low", SqlDbType.Real);
+            command.Parameters.Add("@Close", SqlDbType.Real);
+            command.Parameters.Add("@Volume", SqlDbType.BigInt);
+            int inserted = 0;
+            foreach (var bar in bars)
+            {
+                command.Parameters["@Date"].Value = bar.Date.Date;
+                command.Parameters["@Open"].Value = bar.Open;
+                command.Parameters["@High"].Value = bar.High;
+                command.Parameters["@Low"].Value = bar.Low;
+                command.Parameters["@Close"].Value = bar.Close;
+                command.Parameters["@Volume"].Value = bar.Volume;
+                inserted += await command.ExecuteNonQueryAsync();
+            }
+            transaction.Commit();
+            return inserted;
         }
 
         /// <summary>

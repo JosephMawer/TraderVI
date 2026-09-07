@@ -100,6 +100,9 @@ public sealed class YahooChartUsIndexDataSource : IUsIndexDataSource, IDisposabl
         }
 
         var result = resultArr[0];
+        if (symbol == "SPY" && (!result.TryGetProperty("meta", out var metadata) ||
+            !metadata.TryGetProperty("symbol", out var reportedSymbol) || reportedSymbol.GetString() != symbol))
+            throw new InvalidOperationException("SPY chart response did not attest to the requested symbol.");
         if (!result.TryGetProperty("timestamp", out var tsArr) || tsArr.ValueKind != JsonValueKind.Array) return bars;
         if (!result.TryGetProperty("indicators", out var indicators)) return bars;
         if (!indicators.TryGetProperty("quote", out var quoteArr) || quoteArr.GetArrayLength() == 0) return bars;

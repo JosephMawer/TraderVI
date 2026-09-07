@@ -91,6 +91,11 @@ architecture documentation.
 | [0051](0051-system-shadow-portfolios.md) | System-selected Shadow V1 portfolios | Accepted | architecture, data-pipeline, decision-engine, market-microstructure, risk-management |
 | [0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) | Working-tree state is provenance, not evidence quality | Accepted | architecture, data-pipeline, decision-engine |
 | [0053](0053-delphi-live-v1.md) | Delphi Live V1 | Accepted | architecture, data-pipeline, decision-engine, machine-learning, market-microstructure, risk-management, technical-indicators |
+| [0054](0054-delphi-live-preview-and-historical-replay.md) | Delphi Live preview and historical replay | Accepted (exploratory execution estimates) | architecture, data-pipeline, market-microstructure |
+| [0055](0055-independent-strategies-to-approved-live-execution.md) | Independent strategies to approved live execution | Accepted direction; implementation incomplete | architecture, decision-engine, risk-management, market-microstructure |
+| [0056](0056-dated-profit-model-input-contract.md) | Dated profit-model input contract | Accepted; operationally adopted | architecture, machine-learning, data-pipeline, decision-engine |
+| [0057](0057-preserved-model-sets-and-explicit-selection.md) | Preserved model sets and explicit selection | Accepted; supported daily workflow validated | architecture, machine-learning, data-pipeline, decision-engine |
+| [0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) | Daily ingestion and observed benchmark confirmation | Accepted; implemented and operationally verified | architecture, data-pipeline, decision-engine |
 
 See also:
 

@@ -1,6 +1,10 @@
 # Concepts
 
+- [Strategy promotion and execution](strategy-promotion-and-execution.md) — independent paper strategies, comparable evidence, approved live recommendations, then separately authorized Wealthsimple execution.
+- [Strategy alignment stabilization draft](strategy-alignment-stabilization-draft.md) — accepted input/compatibility decisions, completed corrected-strategy selection and remaining policy/comparison work.
+
 - [Delphi Live](delphi-live.md) — frozen V1 design source accepted by ADR-0053 for five-minute reranking, explainable safety vetoes, separate Shadow challengers, and future calibration.
+- [Delphi Live watchlist and replay](delphi-live-watchlist-and-replay.md) — daily-picks preview and isolated, explicitly estimated historical account under ADR-0054.
 - [System Shadow portfolios](system-shadow-portfolios.md) — plain-language purpose and boundary for the four System-selected Ghost alternatives.
 
 This folder explains the *ideas* behind the system — the "what" and "why

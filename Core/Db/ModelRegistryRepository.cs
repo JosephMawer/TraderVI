@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Core.Db
@@ -12,14 +13,20 @@ namespace Core.Db
             "[ModelId],[Name],[TaskType],[ModelKind],[Family],[TimeFrame],[LookbackBars],[HorizonBars],[InputSchema],[FeatureSet],[ZipPath],[ThresholdBuy],[ThresholdSell],[IsEnabled],[TrainedFromUtc],[TrainedToUtc],[CreatedUtc],[Notes]")
         { }
 
-        public async Task<List<ModelRegistryInfo>> GetEnabledModels()
-        {
-            string query = $"SELECT {Fields} FROM {DbName} WHERE [IsEnabled] = @enabled ORDER BY [CreatedUtc] DESC";
+        public Task<List<ModelRegistryInfo>> GetEnabledModels() =>
+            ReadModels($"SELECT {Fields} FROM {DbName} WHERE [IsEnabled] = @enabled ORDER BY [CreatedUtc] DESC",
+                [new SqlParameter("@enabled", SqlDbType.Bit) { Value = true }]);
 
-            return await ExecuteReaderAsync(query,
-                [
-                    new SqlParameter("@enabled", SqlDbType.Bit) { Value = true }
-                ],
+        public Task<List<ModelRegistryInfo>> GetModelsById(IReadOnlyList<Guid> modelIds)
+        {
+            if (modelIds.Count == 0 || modelIds.Any(id => id == Guid.Empty) || modelIds.Distinct().Count() != modelIds.Count)
+                throw new ArgumentException("An explicit, distinct model set is required.", nameof(modelIds));
+            var parameters = modelIds.Select((id, index) => new SqlParameter($"@model{index}", SqlDbType.UniqueIdentifier) { Value = id }).ToArray();
+            return ReadModels($"SELECT {Fields} FROM {DbName} WHERE [ModelId] IN ({string.Join(",", parameters.Select(parameter => parameter.ParameterName))})", parameters);
+        }
+
+        private Task<List<ModelRegistryInfo>> ReadModels(string query, SqlParameter[] parameters) =>
+            ExecuteReaderAsync(query, parameters.ToList(),
                 reader => new ModelRegistryInfo
                 {
                     ModelId = reader.GetGuid(0),
@@ -41,7 +48,6 @@ namespace Core.Db
                     CreatedUtc = reader.GetDateTime(16),
                     Notes = reader.IsDBNull(17) ? null : reader.GetString(17)
                 });
-        }
 
         public async Task DisableEnabledModelsForTaskType(string taskType)
         {
@@ -56,7 +62,7 @@ WHERE [TaskType] = @TaskType AND [IsEnabled] = 1;";
             ]);
         }
 
-        public async Task InsertModel(
+        public async Task<Guid> InsertModel(
             string name,
             string taskType,
             string modelKind,
@@ -72,15 +78,19 @@ WHERE [TaskType] = @TaskType AND [IsEnabled] = 1;";
             bool isEnabled,
             DateTime? trainedFromUtc,
             DateTime? trainedToUtc,
-            string? notes)
+            string? notes,
+            Guid? modelId = null)
         {
-            // Ensure only one enabled model per TaskType
+            Guid insertedId = modelId ?? Guid.NewGuid();
+            if (insertedId == Guid.Empty) throw new ArgumentException("Model identity must not be empty.", nameof(modelId));
+            // Legacy explicit registry activation remains separate from candidate training.
             if (isEnabled)
                 await DisableEnabledModelsForTaskType(taskType);
 
             var query = $@"
 INSERT INTO {DbName}
 (
+    [ModelId],
     [Name],
     [TaskType],
     [ModelKind],
@@ -100,6 +110,7 @@ INSERT INTO {DbName}
 )
 VALUES
 (
+    @ModelId,
     @Name,
     @TaskType,
     @ModelKind,
@@ -120,6 +131,7 @@ VALUES
 
             await Insert(query,
             [
+                new SqlParameter("@ModelId", SqlDbType.UniqueIdentifier) { Value = insertedId },
                 new SqlParameter("@Name", SqlDbType.NVarChar, 128) { Value = name },
                 new SqlParameter("@TaskType", SqlDbType.NVarChar, 64) { Value = taskType },
                 new SqlParameter("@ModelKind", SqlDbType.NVarChar, 32) { Value = modelKind },
@@ -137,6 +149,7 @@ VALUES
                 new SqlParameter("@TrainedToUtc", SqlDbType.DateTime2) { Value = (object?)trainedToUtc ?? DBNull.Value },
                 new SqlParameter("@Notes", SqlDbType.NVarChar, 4000) { Value = (object?)notes ?? DBNull.Value }
             ]);
+            return insertedId;
         }
     }
 }

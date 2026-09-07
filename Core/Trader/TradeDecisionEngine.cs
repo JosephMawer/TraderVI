@@ -1,10 +1,12 @@
 ﻿using Core.ML;
 using Core.ML.Engine.Profit;
+using Core.Calibration;
 using Core.Indicators;
 using Core.Indicators.Granville;
 using Core.Trader.Gates;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Core.Trader;
@@ -38,6 +40,7 @@ internal interface IProfitSignalModel : IStockSignalModel
 {
     SignalRole Role { get; }
     float CompositeWeight { get; }
+    ModelArtifactProvenance? ArtifactProvenance => null;
 }
 
 /// <summary>
@@ -78,6 +81,10 @@ public class TradeDecisionEngine
     /// The active strategy configuration driving all gate thresholds.
     /// </summary>
     public StrategyConfig Config { get; }
+
+    /// <summary>Identity captured from the actual model instances in this engine, never reread from the registry.</summary>
+    public ImmutableArray<ModelArtifactProvenance> LoadedModelProvenance { get; }
+    public ImmutableArray<string> LoadedProfitTaskTypes { get; }
 
     public PositionSizer? Sizer { get; set; }
 
@@ -133,6 +140,9 @@ public class TradeDecisionEngine
     {
         _patternModels = patternModels.ToList();
         _profitModels = profitModels.ToList();
+        LoadedModelProvenance = _profitModels.Select(model => model.ArtifactProvenance)
+            .OfType<ModelArtifactProvenance>().ToImmutableArray();
+        LoadedProfitTaskTypes = _profitModels.Select(model => model.Name).ToImmutableArray();
         Config = config ?? StrategyConfig.Default;
         _pipeline = TradePipeline.FromConfig(Config);
     }

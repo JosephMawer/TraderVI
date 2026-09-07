@@ -5,6 +5,7 @@ using Core.DataQuality;
 using Core.Indicators.Granville;
 using Core.Config;
 using Core.ML;
+using Core.ML.Engine.Profit;
 using Core.RelativeStrength;
 using Core.Runtime;
 using Core.Trader;
@@ -90,6 +91,18 @@ public sealed class DelphiWorkflow
             Guid? strategyVersionId = activeStrategy?.VersionId;
             StrategyConfig config = activeStrategy?.ToConfig() ?? StrategyConfig.Default;
 
+            var storedModelSet = strategyVersionId is null ? null
+                : await new StrategyModelBindingRepository().GetAsync(strategyVersionId.Value);
+            storedModelSet?.Validate(strategyVersionId!.Value, activeStrategy?.DecisionRef);
+            var bindingJson = options.ModelInputBindingPath is null
+                ? (storedModelSet?.InputContract == ProfitFeatureInputs.Contract ? JsonSerializer.Serialize(storedModelSet.ToBinding()) : null)
+                : await File.ReadAllTextAsync(options.ModelInputBindingPath, cancellationToken);
+            var modelInputBinding = ReviewedProfitInputBinding.Resolve(strategyVersionId, activeStrategy?.DecisionRef, bindingJson);
+            if (storedModelSet is not null && modelInputBinding is not null &&
+                (modelInputBinding.InputContract != storedModelSet.InputContract ||
+                 !modelInputBinding.Models.OrderBy(model => model.TaskType).SequenceEqual(storedModelSet.ToBinding().Models.OrderBy(model => model.TaskType))))
+                throw new InvalidOperationException("An external binding cannot replace the stored strategy/model assignment.");
+
             if (activeStrategy != null)
             {
                 Console.WriteLine($"Strategy Version:  {activeStrategy.VersionName}");
@@ -115,9 +128,31 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // BOOTSTRAP ENGINE (loads enabled models from registry + strategy config)
             // ═══════════════════════════════════════════════════════════════════
+            // The corrected path needs XIU before constructing its model instances.
+            var quoteRepo = new QuoteRepository();
+            List<DailyBar>? earlyXiu = modelInputBinding is null ? null : await quoteRepo.GetDailyBarsAsync("XIU");
+            List<DailyBar>? earlySpy = null;
+            DailyBenchmarkSnapshot? benchmarkSnapshot = null;
+            if (DailyBenchmarkPolicy.IsRequired(activeStrategy?.DecisionRef))
+            {
+                earlySpy = await quoteRepo.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol);
+                benchmarkSnapshot = DailyBenchmarkPolicy.Prepare(recommendationDate,
+                    DailyBenchmarkPolicy.LoadCalendar(), earlyXiu ?? [], earlySpy);
+                earlyXiu = benchmarkSnapshot.Xiu.ToList();
+                earlySpy = benchmarkSnapshot.Spy.ToList();
+                Console.WriteLine($"Benchmark policy: {benchmarkSnapshot.Evidence.PolicyVersion}; XIU and SPY verified through {benchmarkSnapshot.Evidence.MarketSession:yyyy-MM-dd}.");
+            }
+            ProfitFeatureInputs? featureInputs = null;
+            DateTime? predictionSession = null;
+            if (earlyXiu is not null)
+            {
+                earlyXiu = earlyXiu.Where(bar => bar.Date.Date < recommendationDate).OrderBy(bar => bar.Date).ToList();
+                predictionSession = earlyXiu.Count == 0 ? recommendationDate.AddDays(-1) : earlyXiu.Max(bar => bar.Date.Date);
+                featureInputs = new ProfitFeatureInputs(earlyXiu, earlyXiu.Select(bar => bar.Date.Date).Distinct().OrderBy(date => date).ToArray());
+                featureInputs.ValidateBenchmark(predictionSession.Value, ProfitModelRegistry.All.Max(model => model.Lookback));
+            }
             var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry(
-                config,
-                output);
+                config, output, featureInputs, predictionSession, modelInputBinding, storedModelSet);
             var continuationLens = LensCatalog.Continuation(config);
             var breakoutLens = LensCatalog.Breakout(config);
 
@@ -138,9 +173,8 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // COMPUTE MARKET REGIME FROM XIU + SPY BENCHMARKS
             // ═══════════════════════════════════════════════════════════════════
-            var quoteRepo = new QuoteRepository();
-            var xiuBars = await quoteRepo.GetDailyBarsAsync("XIU");
-            var spyBars = await quoteRepo.GetDailyBarsAsync("SPY");
+            var xiuBars = earlyXiu ?? await quoteRepo.GetDailyBarsAsync("XIU");
+            var spyBars = earlySpy ?? await quoteRepo.GetDailyBarsAsync("SPY");
 
             if (xiuBars.Count == 0)
             {
@@ -214,7 +248,8 @@ public sealed class DelphiWorkflow
             MarketRegime? regime = null;
             if (xiuBars.Count >= 200)
             {
-                regime = TradeDecisionEngine.ComputeRegime(xiuBars, spyBars.Count >= 200 ? spyBars : null);
+                regime = benchmarkSnapshot?.ComputeRegime()
+                    ?? TradeDecisionEngine.ComputeRegime(xiuBars, spyBars.Count >= 200 ? spyBars : null);
 
                 Console.WriteLine("Market Regime:");
                 Console.WriteLine($"  XIU Uptrend (MA50>MA200): {(regime.IsBenchmarkUptrend ? "✓ Yes" : "✗ No")}");
@@ -505,6 +540,9 @@ public sealed class DelphiWorkflow
             int skippedLowPrice = 0;
             int skippedLowVolume = 0;
             var staleHistoryExclusions = new List<HistoryFreshnessExclusion>();
+            var featureInputExclusions = new List<ProfitFeatureInputExclusion>();
+            var featureValidators = featureInputs is null ? Array.Empty<ProfitModelDefinition>()
+                : ProfitModelRegistry.All.Select(model => featureInputs.Bind(model, marketDataAsOf)).ToArray();
 
             // Minimum price: must be able to afford at least 10 shares from deployable capital
             decimal deployableCapital = availableCapital * (1 - reserveCashPercent);
@@ -525,6 +563,21 @@ public sealed class DelphiWorkflow
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var bars = await quoteRepo.GetDailyBarsAsync(symbol);
+
+                if (featureValidators.Length > 0)
+                {
+                    try
+                    {
+                        foreach (var validator in featureValidators)
+                            UnifiedProfitSignalModel.BuildPredictionInput(validator, bars);
+                    }
+                    catch (ProfitFeatureInputException failure) when (!failure.SharedBenchmark)
+                    {
+                        featureInputExclusions.Add(new(symbol, failure.Reason, failure.Session));
+                        Console.WriteLine($"[FeatureInputExcluded] {symbol}: {failure.Reason} ({failure.Session:yyyy-MM-dd})");
+                        continue;
+                    }
+                }
 
                 if (bars.Count < minBarsRequired)
                 {
@@ -584,6 +637,8 @@ public sealed class DelphiWorkflow
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
 
             Console.WriteLine($"Loaded: {loaded} symbols | Skipped: {skipped} (insufficient history), {skippedStaleHistory} (stale history), {skippedPrice} (price > ${maxPriceForMinLot:N2}), {skippedLowPrice} (price < ${minPriceFloor:N2}), {skippedLowVolume} (20d vol < {minVolume20d:N0}), {skippedLeveraged} (lev/inv ETP)");
+            if (featureValidators.Length > 0)
+                Console.WriteLine($"Model feature contract: {ProfitFeatureInputs.Contract} | Excluded: {featureInputExclusions.Count} symbols (dated model inputs)");
             Console.WriteLine($"Sorted by: avg 20-day volume (most liquid first)\n");
 
             if (allBars.Count == 0)
@@ -992,6 +1047,9 @@ public sealed class DelphiWorkflow
                 DiscoveredSymbols = symbols.Count,
                 LoadedSymbols = loaded,
                 SkippedHistory = skipped,
+                FeatureInputContract = modelInputBinding?.InputContract ?? ProfitFeatureInputs.LegacyContract,
+                BenchmarkEvidence = benchmarkSnapshot?.Evidence,
+                FeatureInputExclusions = featureInputExclusions,
                 SkippedStaleHistory = skippedStaleHistory,
                 StaleHistoryExclusions = staleHistoryExclusions,
                 SkippedPrice = skippedPrice,
@@ -1036,11 +1094,12 @@ public sealed class DelphiWorkflow
             {
                 var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                 var code = CalibrationProvenance.ResolveCode();
-                var modelProvenance = await CalibrationProvenance.ResolveLoadedModelsAsync();
-                int expectedModels = Core.ML.Engine.Profit.ProfitModelRegistry.All.Count;
+                var modelProvenance = engine.LoadedModelProvenance;
+                var expectedModels = Core.ML.Engine.Profit.ProfitModelRegistry.All.Select(model => model.TaskType).ToArray();
                 CalibrationRunAuditDecision audit = CalibrationRunAuditPolicy.Evaluate(
                     code,
-                    modelProvenance.Count,
+                    modelProvenance,
+                    engine.LoadedProfitTaskTypes,
                     expectedModels);
 
                 var runId = Guid.NewGuid();
@@ -1114,6 +1173,11 @@ public sealed class DelphiWorkflow
                     minPriceFloor,
                     minVolume20d,
                     maxPriceForMinLot,
+                    modelInputBinding,
+                    modelSetId = storedModelSet?.ModelSetId,
+                    benchmarkEvidence = benchmarkSnapshot?.Evidence,
+                    featureInputContract = modelInputBinding?.InputContract ?? ProfitFeatureInputs.LegacyContract,
+                    featureInputExclusions,
                     presentation = presentationSnapshot
                 };
                 var run = new CalibrationRunEvidence(

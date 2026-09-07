@@ -7,6 +7,13 @@ snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.m
 
 ## Philosophy
 
+The accepted product direction is [independent strategies to approved live execution](adr/0055-independent-strategies-to-approved-live-execution.md):
+prove complete strategies in separate paper accounts, compare evidence fairly, and explicitly select one
+for real-account recommendations before adding separately authorized Wealthsimple execution. The
+[concept and diagram](concepts/strategy-promotion-and-execution.md) explain these relationships. The
+[2026-09-06 static review](reviews/strategy-direction-alignment-20260906.md) identifies implementation gaps;
+the existing Delphi Live Operational Champion is a paper-policy role, not a universal production selection.
+
 TraderVI is a **short-term aggressive momentum rotation** system on the TSX. The core idea:
 
 - Use **multiple diverse ML signals** (not one model) to build conviction

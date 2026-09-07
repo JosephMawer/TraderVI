@@ -4,6 +4,13 @@ TraderVI currently operates in advisory and ghost-execution modes. None of these
 
 Read `Docs/project-status.md` before restarting a workflow after a long pause.
 
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) records the future path from
+independent paper strategies to approved real-account recommendations and Wealthsimple execution.
+No current command performs that common strategy promotion or broker integration. Delphi Live's promotion
+control changes its own paper policy only. Hercules saves separate replacement candidates without selecting
+them. Training still writes private artifacts and SQL and needs explicit authorization; model selection is
+a separate reviewed operation under [ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md).
+
 ## Safe validation commands
 
 Core tests:
@@ -35,7 +42,7 @@ After a successful Hermes data update, Hermes automatically creates and verifies
 
 ## Guarded nightly pipeline
 
-ADR-0046 schedules one deterministic pipeline at 00:30 Toronto/Eastern time every Monday through Friday:
+ADR-0046, as corrected by ADR-0058, schedules one deterministic pipeline at 00:30 Toronto/Eastern every calendar day:
 Hermes, then Delphi, then Athena. Running after midnight gives Delphi the new recommendation date while it
 uses the prior completed TSX session. This schedule is recurring authorization for these exact three
 programs and their documented effects; it grants no authority to train models, apply migrations, deploy a
@@ -75,7 +82,7 @@ does not prevent Athena from maturing earlier evidence. Neither the runner nor T
 failed pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
 `-Force` after reviewing it.
 
-The weekday Codex supervisor is read-only. It may inspect `status.json` and its referenced log, explain a
+The daily 07:00 Codex supervisor is read-only. It may inspect `status.json` and its referenced log, explain a
 problem, and recommend the next safe action. It must not launch or retry a program, modify SQL, call a market
 service, or repair data.
 
@@ -109,12 +116,13 @@ Hermes currently:
 7. Refreshes stock-sector mappings when stale.
 8. Updates market-leadership data.
 9. Updates US index history from the configured external source.
-10. After the data-update stages return successfully, creates and verifies a compressed checksum backup in `C:\ProgramData\TraderVI\Backups`, copies it to OneDrive, and compares SHA-256 hashes.
+10. Collects actual SPY daily-chart history into `DailyBars`, validates required benchmark coverage and appends missing observations without rewriting prior SPY rows. A failed required SPY refresh stops with an error.
+11. After the data-update stages return successfully, creates and verifies a compressed checksum backup in `C:\ProgramData\TraderVI\Backups`, copies it to OneDrive, and compares SHA-256 hashes.
 
 Running Hermes performs external HTTP requests and writes multiple SQL tables. Obtain explicit authorization and review schema/data prerequisites first.
 
-Migration 017 was applied and verified on 2026-09-02. The nullable leadership contract and matching
-`v3.2-leadership-missingness` identity are active. The first authorized post-migration Hermes run also
+Migration 017 was applied and verified on 2026-09-02. It introduced the nullable leadership contract and
+`v3.2-leadership-missingness` identity; the current v3.4 strategy preserves that contract. The first authorized post-migration Hermes run also
 passed: its 2026-09-01 row preserved unavailable movers breadth as null, its leadership constraint remained
 enabled/trusted, and its checksum-verified staging and OneDrive backup copies hash-matched. Later Hermes
 runs still require explicit authorization. A deliberate official Delphi cohort may now start when wanted;
@@ -132,6 +140,11 @@ If the data update completes but backup creation, verification, or copying fails
 dotnet run --project Hermes
 ```
 
+`dotnet run --project Hermes -- --spy-only` runs the same SPY maintenance and verified-backup path without
+refreshing the TSX universe or other indicators. It still accesses the external source and writes SQL;
+use only under explicit operational authority. SPY is not added to the TSX symbol universe or the Genuity
+index list. A missing/stale shared benchmark is not interpreted as a positive signal.
+
 One-time A/D, OBV, and CLX backfills are separate operations; use only the documented Sandbox probe or explicitly enabled backfill path after reviewing its scope.
 
 ## Hercules — model training
@@ -142,11 +155,11 @@ One-time A/D, OBV, and CLX backfills are separate operations; use only the docum
 
 Hercules:
 
-1. Loads equity histories and the XIU benchmark.
-2. Prints an informational presence report for deterministic pattern detectors.
-3. Trains only profit models enabled in `ProfitModelRegistry`.
-4. Writes model artifacts.
-5. Records experiment metrics and model metadata in SQL.
+1. Preserves the selected strategy's exact models and metadata for comparison and rollback.
+2. Loads stored equity histories and XIU, retaining a checksummed private data snapshot and source archive.
+3. Trains only profit tasks enabled in the code's `ProfitModelRegistry`, using the shared dated inputs.
+4. Saves new files in a unique candidate directory and refuses to overwrite existing artifacts.
+5. Records experiment metrics, disabled model rows and a completed manifest only after all tasks succeed.
 
 Pattern detectors are rule-based and are not trained or stored in `ModelRegistry`.
 
@@ -158,6 +171,39 @@ dotnet run --project ML.Train
 
 Do not retrain until the intended data cutoff, enabled model set, output paths, and registration behavior have been reviewed.
 
+Candidate-only dated training is now the default; `--dated-candidates` remains an optional alias.
+Storage defaults to `%LOCALAPPDATA%\TraderVI\Models`; `--output-root <directory>` can select another
+reviewed private location. Signal thresholds are inherited from the predecessor; optimized suggestions
+remain recorded metrics. Neither a successful training run nor a completed manifest changes selection.
+
+## Model review and deliberate selection
+
+**Project:** `Tools/ModelLifecycle`
+**Selection script:** `Operations/Set-TraderVIModelSelection.ps1`
+
+Under explicit operational authorization, `ModelLifecycle` can inspect a private registry export
+(`inspect-registry`), verify a preserved assignment using artifact hashes and synthetic predictions
+(`verify-set`), or prepare previous/corrected assignments from a completed candidate manifest
+(`prepare-switch`). `verify-active` reads SQL and loads models through Delphi's actual bootstrap without
+publishing recommendations. These commands do not launch the nightly pipeline or fetch market data.
+
+The selection script defaults to `Prepare`, producing reviewable forward and rollback SQL. Its
+`VerifyTransaction` and `VerifyRollbackTransaction` modes exercise the transitions and roll them back;
+`Apply` commits reviewed selection and `Rollback` commits a separately authorized return to the retained
+predecessor. The script verifies files and expected state and holds the nightly lock. Migration 026
+provides immutable assignments and selection history. Registration changes the selected strategy, while
+global model-enable flags and prior recommendations/account history remain unchanged.
+
+The 2026-09-06 authorized [cutover review](reviews/model-input-cutover-20260906.md) records the completed
+selection. Future training or selection is not authorized merely by these instructions.
+
+ADR-0058 adds `ModelLifecycle verify-benchmarks` and `prepare-benchmark-switch <review-directory>`.
+The latter requires the dated-input predecessor, validates current XIU/SPY inputs, preserves the same four
+models and prepares a new source/strategy identity. The selection script's `-NewDecisionRef ADR-0058`
+requires an unchanged predecessor model set; provide the reviewed `-NewVersionName` for every mode.
+Default ADR-0056 selection remains supported for existing review records. None of these commands publishes
+recommendations; preparation and verification do not select a strategy.
+
 ## Delphi — advisory recommendations
 
 **Project:** `Delphi`
@@ -165,9 +211,19 @@ Do not retrain until the intended data cutoff, enabled model set, output paths, 
 **Shared workflow:** `Core/Runtime/DelphiWorkflow.cs`
 **Typical schedule:** before market open, using the most recently completed daily bars
 
+Delphi resolves the active strategy's immutable model assignment from SQL. The nightly CLI and WPF use
+the same shared workflow, so the selected `v3.4-observed-benchmarks` automatically receives the corrected
+ADR-0056 model inputs and ADR-0058 observed XIU/SPY policy, with exact reviewed model files. The benchmark
+policy validates the prior session against the reviewed TSX calendar and requires 200 valid observations
+and a matching endpoint for both series before evaluation. A US-only holiday without a matching SPY row
+therefore stops new publication with a reason; no stale-data tolerance or substitute index is assumed.
+No per-host binding flag is needed. A corrected
+strategy missing its assignment fails before evaluation. An optional `--model-input-binding` file cannot
+override a stored assignment. Unbound legacy strategies retain explicitly unverified legacy inputs.
+
 Delphi currently:
 
-1. Loads the one active strategy version and currently allowed profit models. A persisted official run
+1. Loads the one active strategy version and its assigned profit models. A persisted official run
    also requires the strategy's explicit initial-code and decision identity (ADR-0042).
 2. Creates deterministic pattern signals from the code registry.
 3. Computes XIU/SPY regime and A/D breadth.
@@ -182,11 +238,12 @@ Delphi currently:
 
 Delphi is advisory—it does not place a broker order—but it is not read-only. Do not use it as a harmless smoke test; use focused builds and tests for routine validation. A no-write mode can be added later if an operational reporting need emerges.
 
-Migrations 016 and 017 were applied and verified on 2026-09-02. `v3.2-leadership-missingness` is the sole
-active strategy without any threshold, model, gate, ranking-formula, or execution-policy change. A
-deliberate official publication may start its new evidence scope after the first post-migration Hermes
-observation is inspected; the seven earlier official runs remain attached to their original identities and
-are excluded rather than rewritten. Delphi is still a consequential database writer and must not be
+Migrations 016 and 017 introduced `v3.2-leadership-missingness` on 2026-09-02 without changing thresholds,
+models, gates, ranking formulas or execution policy. On 2026-09-06 the authorized input correction selected
+`v3.3-dated-profit-inputs` with four separately trained models and unchanged strategy/signal thresholds.
+The later ADR-0058 repair selected v3.4 with the same four model files and thresholds, after the Friday/SPY
+refresh. Earlier evidence retains its original identity. The next normal scheduled run uses v3.4; a full
+pipeline was not launched to validate either switch. Delphi remains a consequential database writer and must not be
 launched as routine validation.
 
 Delphi records `DailyPick.PickDate` and Granville `EvalDate` using the recommendation run date so their date-scoped records remain linked. Its reports separately show the latest completed TSX session as the market-data-as-of date. A weekend run can therefore produce a weekend recommendation date based on Friday's completed market data; this is intentional audit semantics, not a claim that Saturday was a trading session.
@@ -245,6 +302,16 @@ verified on 2026-09-04. It additively stores the last consumed fifteen-minute ba
 all prior ledger rows and totals; historical identities remain unknown rather than inferred. The controller
 also cancels any pending buy whose exact next-bar fill window was missed and requires current five-minute
 requalification; pending sells remain protective. Shadow has no Wealthsimple or other broker connection.
+
+The same Portfolios overview now also reads Delphi Live's independent paper accounts, including queued
+activations and ended comparison accounts. The row's selector, currency and status identify its scope.
+Before the main account is created, a **Not activated** placeholder explains where to review activation;
+it has no fabricated cash or returns. Selecting a saved Delphi Live account shows its candidate states,
+holdings, decisions and fills, retaining estimated-fill labels. Account values use the latest saved exact
+checkpoint matching its holdings and cash; incomplete or superseded marks remain unavailable.
+Daily Shadow start/pause/resume/rename controls cannot operate on a Delphi Live selection. Manage live
+activation and capital review in **Delphi Live → Setup & advanced**. Friday's historical replay remains
+under **Delphi Live → Replay account** and is not an operational portfolio in this list.
 
 The Data Audit tab calls the same host-neutral `MarketDataAuditWorkflow` as the retained DataAudit console application. It runs only when its clearly labelled button is pressed, uses local SQL reads only, and makes no correction or external call.
 
@@ -329,8 +396,22 @@ December 24's 13:00 close because V1 assumes a full 16:00 close. Short-session h
 protection of carried positions, must be reviewed before extending coverage. The next listed session
 after the installation date is Tuesday, September 8; Monday, September 7 is Labour Day.
 
-After separately authorizing activation, enter a positive simulation amount, currency and operator
-reason in the Delphi Live tab. There is no default capital, broker cash lookup, deposit or withdrawal.
+The main **Current watchlist** reads the latest valid saved Delphi picks while inactive, showing the
+recommendation date and combined source ranks. Friday's 25 picks per lens overlap into 28 stocks;
+published rows that fail entry gates remain visible. This preview does not start collection or make
+Friday's source eligible for a later live session. Once saved live observations exist, the same table
+shows them. Select a stock to see its checkpoint price, data quality and explanation.
+
+Click **Replay Fri, Sep 4** to open the saved historical simulation. Move the time slider or use
+Previous/Next; **Replay account** shows cash, marked holdings and estimated trades at that point in time.
+The app automatically finds the latest supported report under `artifacts/delphi-live-replays` when run
+from the repository. If none is found, **Open saved replay…** opens a local `*-report.json` file.
+This file viewer makes no market requests. The estimates and limitations are recorded in
+[ADR-0054](adr/0054-delphi-live-preview-and-historical-replay.md) and the
+[replay review](reviews/delphi-live-friday-replay-20260906.md).
+
+After separately authorizing activation, use **Setup & advanced** and enter a positive simulation
+amount, currency and operator reason. There is no default live capital, broker cash lookup, deposit or withdrawal.
 Activation queues a cash-only Operational Champion for the next regular-session boundary. Start WPF
 sufficiently before 09:30 Toronto time to establish successful pre-open heartbeats, with the eligible
 official daily run and daily baselines already available. Keep it open through completion of the final
@@ -357,6 +438,19 @@ Use offline Core tests and builds for source validation. Starting WPF, collectin
 migrations, scheduling an experiment and activating a portfolio are operational steps with persistent
 effects; none was performed merely to validate this implementation.
 
+The one-shot `delphi-live-closed-market-trial` Sandbox probe is the explicitly selected historical
+source check documented in the [2026-09-06 trial record](reviews/delphi-live-closed-market-trial-20260906.md).
+It requests nine pinned September 4 intervals from TMX and writes one unique local metadata report,
+with no SQL or portfolio action. It requires external-service authorization on each run and does not
+exercise current-session availability, persistence or activation.
+
+The separately authorized `delphi-live-friday-replay` Sandbox probe produced the saved historical replay
+on 2026-09-06. It reads the frozen Friday source and saved Shadow account capital from SQL, then obtains
+at most 58 historical TMX batches (29 symbols including XIU, one- and five-minute intervals). Completed
+symbol requests are cached. Its only writes are ignored local replay artifacts; it is not a database
+backfill. Do not run it as a build check or to open an existing replay. Any additional acquisition run
+requires explicit operational authorization.
+
 ## Athena — calibration outcome evaluation
 
 **Project:** `Athena`
@@ -376,7 +470,7 @@ dotnet run --project Athena -- --scorecard-csv C:\path\to\an-empty-export-direct
 ```
 
 Athena remains independently runnable, and ADR-0046 also invokes it as the final stage of the guarded
-weekday pipeline. Hermes and Delphi do not launch it directly.
+daily pipeline. Hermes and Delphi do not launch it directly.
 
 ## Oracle — LLM narration
 

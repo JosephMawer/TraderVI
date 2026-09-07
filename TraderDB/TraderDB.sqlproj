@@ -76,6 +76,10 @@
     <Build Include="dbo/Tables/RelativeStrengthFeatures.sql" />
     <Build Include="dbo/Tables/StockSectorMap.sql" />
     <Build Include="dbo/Tables/StrategyVersionModel.sql" />
+    <Build Include="dbo/Tables/StrategyModelBinding.sql" />
+    <Build Include="dbo/Tables/StrategyModelSelectionEvent.sql" />
+    <Build Include="dbo/Triggers/StrategyModelBinding_Immutable.sql" />
+    <Build Include="dbo/Triggers/StrategyModelSelectionEvent_Immutable.sql" />
     <Build Include="dbo/Tables/Quotes.sql" />
     <Build Include="dbo/Tables/GranvilleIndicatorLog.sql" />
     <Build Include="dbo/Tables/Symbols.sql" />
@@ -158,7 +162,9 @@
     <None Include="Migrations/20260905_023_AddDelphiLivePortfolioLedger.sql" />
     <None Include="Migrations/20260905_024_AddDelphiLiveEvaluationLedger.sql" />
     <None Include="Migrations/20260905_025_AddDelphiLiveResearchAndExperiments.sql" />
+    <None Include="Migrations/20260906_026_AddImmutableStrategyModelBindings.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
+    <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />
     <None Include="Operations/Set-TraderDB-SimpleRecovery.sql" />
   </ItemGroup>

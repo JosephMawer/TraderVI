@@ -4,6 +4,14 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) — Daily ingestion and observed benchmark confirmation
+
+- [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
+
+- [ADR-0056](0056-dated-profit-model-input-contract.md) — Dated profit-model input contract
+
+- [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
+
 - [ADR-0001](0001-granville-plugin-architecture.md) — Granville indicator plug-in architecture
 - [ADR-0013](0013-multi-lens-decision-architecture.md) — Multi-lens decision architecture
 - [ADR-0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) — Manual trade logging and position lifecycle
@@ -41,7 +49,15 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) — Working-tree state is provenance, not evidence quality
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
+- [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
+
 ## data-pipeline
+
+- [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) — Daily ingestion and observed benchmark confirmation
+
+- [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
+
+- [ADR-0056](0056-dated-profit-model-input-contract.md) — Dated profit-model input contract
 
 - [ADR-0005](0005-defer-granville-dullness-21-22.md) — Defer Granville Dullness indicators
 - [ADR-0007](0007-liquidity-floor-universe-filter.md) — Liquidity floor on Delphi's universe
@@ -72,6 +88,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0052](0052-working-tree-state-is-provenance-not-evidence-quality.md) — Working-tree state is provenance, not evidence quality
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
+- [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
+
 ## data-sources
 
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — US confirming-index source and staleness gate
@@ -81,6 +99,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 
 ## machine-learning
+
+- [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
+
+- [ADR-0056](0056-dated-profit-model-input-contract.md) — Dated profit-model input contract
 
 - [ADR-0020](0020-immutable-calibration-evidence-ledger.md) — Immutable calibration evidence ledger
 - [ADR-0022](0022-champion-challenger-evidence-and-promotion.md) — Champion/challenger evidence and promotion
@@ -115,6 +137,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
+- [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
+
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 - [ADR-0007](0007-liquidity-floor-universe-filter.md) — Liquidity floor on Delphi's universe
 - [ADR-0009](0009-exclude-leveraged-inverse-etps-from-delphi-universe.md) — Exclude leveraged/inverse ETPs
@@ -136,7 +160,11 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0051](0051-system-shadow-portfolios.md) — System-selected Shadow V1 portfolios
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
+- [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
+
 ## risk-management
+
+- [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
 
 - [ADR-0007](0007-liquidity-floor-universe-filter.md) — Liquidity floor on Delphi's universe
 - [ADR-0009](0009-exclude-leveraged-inverse-etps-from-delphi-universe.md) — Exclude leveraged/inverse ETPs
@@ -171,6 +199,14 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## decision-engine
+
+- [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) — Daily ingestion and observed benchmark confirmation
+
+- [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
+
+- [ADR-0056](0056-dated-profit-model-input-contract.md) — Dated profit-model input contract
+
+- [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
 
 - [ADR-0002](0002-xiu-as-benchmark-index.md) — XIU as the system benchmark
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting narrow-advance warning

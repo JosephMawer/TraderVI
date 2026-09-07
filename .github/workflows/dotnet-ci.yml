@@ -31,19 +31,29 @@ jobs:
         shell: pwsh
         run: |
           dotnet restore Delphi/Delphi.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore Hermes/Hermes.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore Athena/Athena.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore TraderVI/TraderVI.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore TraderVI.WPF/TraderVI.WPF.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build focused applications
         shell: pwsh
         run: |
           dotnet build Delphi/Delphi.csproj --no-restore --configuration Release --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build Hermes/Hermes.csproj --no-restore --configuration Release --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build Athena/Athena.csproj --no-restore --configuration Release --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build TraderVI/TraderVI.csproj --no-restore --configuration Release --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build TraderVI.WPF/TraderVI.WPF.csproj --no-restore --configuration Release --verbosity minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   database-project-build:
     name: Database project build (no deploy)

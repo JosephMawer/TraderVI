@@ -1,12 +1,7 @@
 using Core.Db;
-using Core.ML.Engine.Profit;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace Core.Calibration;
 
@@ -23,35 +18,6 @@ public static class CalibrationProvenance
         string state = explicitState ?? ResolveWorkingTreeState(root);
         string source = explicitVersion is null ? (root is null ? "Unavailable" : "Git") : "Environment";
         return new CodeProvenance(commit.Trim(), source, NormalizeState(state));
-    }
-
-    public static async Task<IReadOnlyList<ModelArtifactProvenance>> ResolveLoadedModelsAsync()
-    {
-        var enabled = await new ModelRegistryRepository().GetEnabledModels();
-        var allowed = ProfitModelRegistry.All.Select(x => x.TaskType)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var result = new List<ModelArtifactProvenance>();
-
-        foreach (var model in enabled)
-        {
-            if (!allowed.Contains(model.TaskType) || !seen.Add(model.TaskType) || !File.Exists(model.ZipPath))
-                continue;
-
-            await using var stream = File.OpenRead(model.ZipPath);
-            string hash = Convert.ToHexString(await SHA256.HashDataAsync(stream));
-            result.Add(new ModelArtifactProvenance(
-                model.ModelId,
-                model.TaskType,
-                model.ModelKind,
-                model.InputSchema,
-                model.FeatureSet,
-                model.TrainedFromUtc,
-                model.TrainedToUtc,
-                hash));
-        }
-
-        return result;
     }
 
     private static string? FindRepositoryRoot(string? start)

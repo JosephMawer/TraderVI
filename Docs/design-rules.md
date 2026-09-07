@@ -5,6 +5,15 @@
 
 ## Rule-Based vs ML-Based Components
 
+### Strategy identity and adoption direction
+
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) makes the complete strategy the
+unit of evidence and adoption: selection, entry, exit, sizing, risk, model/policy identity and execution
+assumptions. Preserve independent paper accounts and explicit human promotion to recommendation mode.
+Training success must not be treated as strategy approval. Broker execution requires a separate authority
+and actual-account reconciliation. Existing ADR-0022 and frozen Delphi Live V1 evidence/behavior rules
+remain in force; common comparison and promotion across families still require a reviewed design.
+
 ### Rule-Based (non-ML) — DO NOT feed into feature vectors
 
 | Component | Purpose | Where |
@@ -32,6 +41,20 @@ History freshness is a pre-scoring universe invariant rather than an `ITradeGate
 | **Relative Strength** | Ranking signal via `CompositeScore`; future gating (deferred) | Feature columns for LightGBM training (planned) | `Core.RelativeStrength.*` |
 
 RS is explicitly designed to serve both roles. The rule-based ranking is active now; ML integration requires Hercules retraining after historical backfill.
+
+Enhanced already contains separate stock-versus-XIU return features. Their corrected dated input path
+is governed by [ADR-0056](adr/0056-dated-profit-model-input-contract.md): identical training/prediction
+calculations, exact required session alignment, explicit stock exclusions and rejection of unusable shared
+XIU input. Reuse requires proven model compatibility and a new strategy identity. The corrected path adds
+no deterministic gates, Granville indicators or database RS ranking values to the ML vector. The active
+`v3.4-observed-benchmarks` uses the reviewed v3.3 replacements through the immutable stored assignment in
+[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Training creates separate candidates;
+selection requires a reviewed transition. Preserved legacy inputs remain explicitly unverified.
+
+[ADR-0058](adr/0058-daily-ingestion-and-observed-benchmark-confirmation.md) separately requires observed
+XIU and SPY histories for the daily regime filter. An unavailable, invalid or stale shared benchmark
+stops new evaluation with a reason. This deterministic input check preserves complete-data trend/return
+formulas and the ML vectors; it does not substitute Genuity's S&P 500 index for SPY or change Delphi Live V1.
 
 ### Granville's 56 Day-to-Day Indicators
 

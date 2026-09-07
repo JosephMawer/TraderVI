@@ -2,7 +2,48 @@
 
 This is the authoritative priority list. Keep detailed rationale in ADRs and deferred design questions in `Docs/reviews/open-questions.md`.
 
+## Accepted direction — prove strategies, then adopt one deliberately
+
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) records the 2026-09-06 direction:
+independent paper portfolios, comparable evidence, human promotion of a complete strategy to real-account
+recommendations, then separately approved Wealthsimple execution. Preserve the current observation and
+data-quality priorities below. The [alignment review](reviews/strategy-direction-alignment-20260906.md)
+defines the following prerequisites in order:
+
+- [x] Document the direction and review repository-wide alignment without changing trading behavior.
+- [x] Implement and locally validate audit F3 loaded-byte provenance, F4 post-fill marks and F7 CI failure
+  propagation. The [durable checklist](strategy-alignment-implementation-checklist.md) records validation limits.
+- [x] Implement and locally validate the dated training/prediction input path and explicit compatibility
+  binding under [ADR-0056](adr/0056-dated-profit-model-input-contract.md).
+- [x] Complete the operator-authorized daily input cutover: inspect old artifacts, use the accepted
+  retraining fallback when compatibility cannot be proven, preserve prior files, and select the new
+  `v3.3-dated-profit-inputs` identity. All hosts use the shared stored assignment. Actual bootstrap checks,
+  655 Core tests and the full Release solution build (including SSDT) pass; the nightly pipeline was not run.
+- [x] Make Hercules candidate-only by default, retain exact data/source/model identities, and implement
+  reviewed atomic model selection and rollback under [ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md).
+- [ ] Separate model training from activation and bind immutable model/policy inputs to the complete
+  strategy version. The model portion is complete for the supported daily tasks; risk-default ownership,
+  daily Shadow policy/version dispatch and remaining legacy mutation paths still need review without V1 retuning.
+- [ ] Define comparable evidence across daily and intraday strategy families, including capital, dates,
+  fill costs, coverage, downside guardrails and untouched evaluation. Reconcile ADR-0022/0053 explicitly.
+- [ ] Implement a durable human-approved strategy selection and recommendation route using the target
+  real account's state; preserve every independent paper account and its historical evidence.
+- [ ] Design and validate the Wealthsimple execution/reconciliation boundary before enabling any orders.
+  The legacy client prototype is not an execution-ready integration.
+
 ## Now — restore a dependable advisory loop
+
+- [x] Resolve the September 6 missing-Friday/SPY findings under ADR-0058: install all-seven-day 00:30
+  execution and 07:00 supervision, refresh Friday and actual SPY history, and select v3.4 with required
+  observed benchmark inputs and the same four models. All 676 tests, full solution/SSDT, active bootstrap,
+  transaction rehearsals and preservation checks pass. No Delphi publication was launched.
+  [Results](reviews/model-input-cutover-20260906.md), checklist S8/S9.
+- [x] Run and verify the first corrected official Delphi evaluation under operator authority. September 6
+  v3.4 used September 4 data, evaluated 209 stocks and saved valid provenance plus 418 lens rows. All 50
+  published entries are Hold; no trade qualifies. Seven input exclusions and unavailable leadership-movers
+  evidence are explicit. Earlier evidence/account snapshots are unchanged.
+- [ ] Observe subsequent normal nightly completion. Leadership movers still lack the required contiguous
+  history; full common-strategy comparison and policy-history work remain.
 
 ### 1. Repository orientation and working agreements
 
@@ -88,8 +129,12 @@ Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibra
   all 27 new tables installed inactive, existing table preservation checks matched, and database integrity passed.
 - [x] Review and install the [bounded TSX calendar](../Operations/Calendars/README.md), completed
   2026-09-06 with eight focused tests passing; coverage ends on 2026-12-23 before the short session.
-- [ ] Separately authorize source-capacity shakedown and explicit simulation-capital activation.
-  Calendar installation does not activate these operations.
+- [x] Run the authorized [closed-market source trial](reviews/delphi-live-closed-market-trial-20260906.md):
+  nine of nine historical exact bars retrieved on 2026-09-06, no SQL or portfolio actions.
+- [x] Simplify Delphi Live around the saved daily picks and complete the authorized isolated Friday
+  signal/account replay under ADR-0054: 78 checkpoints, six estimated fills, 592 Core tests passing.
+- [ ] Complete the controlled trial during a regular session: live freshness, SQL durability and
+  full-watchlist/provider capacity. Separately authorize explicit simulation-capital activation.
 - [ ] Resolve short-session operation and extend reviewed calendar coverage before 2026-12-24,
   including protective monitoring for carried positions.
 

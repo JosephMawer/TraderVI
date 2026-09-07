@@ -5,6 +5,69 @@
 
 ## Executive summary
 
+**First official corrected Delphi run completed (2026-09-06, 22:43 Eastern):** the operator authorized
+the standalone daily run. `v3.4-observed-benchmarks` evaluated 209 stocks using September 4 market data
+and saved run `7cd0ab32-07c1-4efb-b5c3-808f99b75887` with `audit=Valid`. Its four captured model hashes,
+dated input contract, observed XIU/SPY policy and saved presentation were verified in SQL. It appended
+418 lens evaluations and published 25 Continuation plus 25 Breakout entries, all **Hold**: the result is
+**no qualifying trade**. Seven stocks were excluded for required-input problems. Leadership movers have
+0/12 contiguous observations, so the affected signals remain explicitly unavailable; Valid here verifies
+provenance and does not claim complete indicator coverage or predictive performance. Thirty-eight prior
+evidence/account table snapshots retain matching counts/checksums after excluding this new cohort and
+publication. The affected Release build passed. No paper positions, broker orders, Athena evaluation or
+full nightly pipeline was started. Normal scheduled completion remains to be observed.
+[Run verification](reviews/model-input-cutover-20260906.md#first-authorized-official-v34-run--2026-09-06-2243-eastern).
+
+**Nightly schedule and benchmark repair completed (2026-09-06):** the task had been configured for
+Monday–Friday at 00:30, so Friday's successful invocation collected Thursday and there was no Saturday
+invocation to collect Friday. The task now covers all seven days, with other settings preserved; the
+read-only 07:00 supervisor also covers weekends. The authorized Hermes refresh added 481 daily bars
+with zero symbol-download failures. XIU, 320 of 321 stocks and supporting indicators now reach September 4.
+SPY collection added 503 daily observations through that date; both refreshes completed verified backups.
+
+The active daily strategy is now `v3.4-observed-benchmarks`
+(`48864449-92F4-4E33-99CF-40039210786E`, [ADR-0058](adr/0058-daily-ingestion-and-observed-benchmark-confirmation.md)).
+It reuses the exact four v3.3 models and thresholds, requires observed/current XIU and SPY inputs, and
+uses the reviewed calendar to reject a stale shared XIU endpoint before evaluation. Missing confirmation
+can no longer become positive under this policy. One stale stock and six incomplete/invalid 55-session
+stock windows remain subject to the accepted exclusions. All 676 Core tests and the full Release solution
+build (including SQL/SSDT) pass. Actual active bootstrap and benchmark validation pass; forward/rollback
+rehearsals passed. All 232 model rows and 38 historical evidence tables are unchanged. Compiler warnings
+and dependency-security advisories remain. No Delphi/Athena run, paper monitor, broker action, commit,
+push or deployment occurred. [Repair results](reviews/model-input-cutover-20260906.md).
+
+**Daily model-input cutover completed (2026-09-06):** `v3.3-dated-profit-inputs`
+(`9EB26788-76C3-4064-9595-2373ECF6C26A`) became the sole active daily strategy at the initial cutover,
+before the later v3.4 benchmark repair above. The operator authorized model
+inspection, replacement training if compatibility could not be proven, new registration and the switch.
+Older files loaded but lacked proof of their training-input contract, so four separate candidates were
+trained and selected under [ADR-0056](adr/0056-dated-profit-model-input-contract.md) and
+[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Delphi's actual bootstrap loaded all
+four recorded hashes with the dated contract. The nightly CLI and WPF share this stored assignment; no
+per-host binding flag is needed. The full nightly pipeline was not launched as validation.
+
+Hercules now creates candidates by default, preserves prior files, records data/source evidence and never
+automatically selects replacements. Existing strategy and signal thresholds are unchanged. The previous
+set remains available for reviewed rollback; both forward and rollback transitions passed rolled-back SQL
+rehearsals. All 228 earlier model registry rows are unchanged, and 38 historical tables retained matching
+counts/checksums. Migration 026 was backed up, built with SSDT and applied without altering the 64 existing
+tables' row counts. All 655 Core tests pass and the complete Release solution builds, including TraderDB.
+Compiler and dependency warnings remain. No market collection, new recommendation cohort, paper-monitor
+activation, broker operation, commit or deployment was performed. See the [cutover review](reviews/model-input-cutover-20260906.md)
+and [audit checklist](strategy-alignment-implementation-checklist.md). Next: policy/version dispatch and
+historical outcome-definition contracts; common cross-strategy promotion remains unimplemented.
+
+**Accepted direction (2026-09-06):** independent paper accounts evaluate complete strategies; comparable
+evidence and human review select the strategy for real-account recommendations, with separately approved
+Wealthsimple execution later. [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md)
+records that direction. The [repository alignment review](reviews/strategy-direction-alignment-20260906.md)
+finds that account isolation and Delphi Live's internal policy-promotion framework support it, but a common
+strategy identity/comparison/promotion route and broker execution are not yet implemented. The audit
+identified model activation, training/inference feature parity and portfolio measurement defects; the
+stabilization work and later authorized model cutover are recorded above and in the audit checklist.
+The audit itself was static, with no operational validation or account activation. The build/test results
+below describe the earlier milestones individually.
+
 Delphi Live V1 is implemented in source against the frozen [concept](concepts/delphi-live.md) and
 [ADR-0053](adr/0053-delphi-live-v1.md). Its independent Core engine, durable five-minute collection,
 paper portfolios, research protocol and inactive WPF surface are tracked in the
@@ -15,8 +78,23 @@ exactly one inactive policy definition and no operational rows; the 37 existing 
 row counts, aggregate checksums and schema fingerprints. `DBCC CHECKDB` reported no errors. The
 [reviewed TSX calendar](../Operations/Calendars/README.md) is installed for the Windows user, covering
 2026-01-01 through 2026-12-23, with eight focused calendar tests passing. It stops before the unsupported
-December 24 short session. Provider-capacity shakedown and simulation activation remain outstanding;
-neither was started by the migration or calendar work.
+December 24 short session. A separately authorized [closed-market historical source trial](reviews/delphi-live-closed-market-trial-20260906.md)
+passed on 2026-09-06: all nine sampled XIU/RY/ENB five-minute bars were retrieved, with no database or
+portfolio actions. Live freshness/durability, full-capacity shakedown and simulation activation remain
+outstanding; the historical trial counts as zero clean engineering cohorts.
+
+The [daily-picks preview and Friday replay](adr/0054-delphi-live-preview-and-historical-replay.md)
+are now implemented. The simpler WPF view shows the latest published picks before activation, including
+blocked daily rows, and loads a separate historical account from local artifacts. The authorized September 4
+replay produced 78 checkpoints and six estimated fills, with missing source intervals reported explicitly;
+see the [replay review](reviews/delphi-live-friday-replay-20260906.md). All 592 Core tests and targeted
+Sandbox/WPF builds pass. No operational session or portfolio was activated by the replay.
+
+Portfolios now includes a SELECT-only Delphi Live account projection: queued, active and ended accounts,
+an explicit inactive placeholder, and per-account holdings/actions/fills. Daily Shadow commands are
+guarded from Delphi Live selections. All 600 Core tests pass, including eight account-valuation and
+status regressions; isolated WPF checks cover selection and command separation. This display change
+does not activate an account or alter either execution engine.
 
 TraderVI is an advisory-mode TSX momentum-rotation system with an immutable paper-calibration ledger and deterministic Continuation/Breakout scorecards. ADR-0040's delayed-intraday outcome is complete in source, including a continuity guard: Athena rejects proven missing 15-minute bars/sessions, receipt-order conflicts, and missing exact symbol/XIU fill bars instead of silently replaying across them; an unproven end-of-data tail remains pending. Migration 015 is applied and its fifth definition is active. Athena has produced the first 112 valid three-session marks and 112 valid excursion outcomes; the longer prediction and delayed-intraday definitions still have zero outcomes. Operational Real exits remain manually reported Wealthsimple fills and are never substituted into official outcomes. The Trading tab keeps open Delphi-linked positions and unlinked operator-reported Real holdings in Tracked positions while retaining closed lifecycles in Trade history. There is no broker integration.
 
@@ -30,7 +108,7 @@ ADR-0043 now preserves leadership-source missingness in source. Movers-derived b
 same-date XIU anchor and a complete 50-symbol observation, while scoring uses a contiguous canonical XIU
 session suffix and reports unavailable inputs as neutral/no-data rather than zero or falling breadth. The
 fixed successor is `v3.2-leadership-missingness` at behavioral commit `fad4b96`. Manual migration 017 is
-applied and verified: v3.2 is the sole active strategy, the nullable leadership contract is trusted, and
+applied and verified: v3.2 became the sole active strategy at that boundary, the nullable leadership contract is trusted, and
 all protected evidence counts and references remain unchanged. The first post-migration Hermes ingestion
 completed on 2026-09-02: its 2026-09-01 observation stored 11 new highs, 18 new lows, and 467 eligible
 issues while preserving unavailable movers breadth and same-session price anchors as null. Athena does not
@@ -46,7 +124,7 @@ Climax (CLX) reporting, and read-only desktop documentation and scorecard surfac
 
 ADR-0046 adds the unattended operations boundary: a Windows task builds the current source and then runs
 the resulting hash-verified Release artifacts for Hermes, Delphi, and Athena at 00:30 Toronto/Eastern time
-on weekdays, with source-stability verification, exclusive locking, same-date suppression, stage timeouts,
+every calendar day after the ADR-0058 correction, with source-stability verification, exclusive locking, same-date suppression, stage timeouts,
 atomic status, and no automatic retry. A separate Codex heartbeat
 reads only that durable status and stays quiet unless a run is missing, stale, long-running, failed, or
 needs attention. The pipeline does not include Hercules, migrations, WPF monitoring, Oracle, Sandbox, or
@@ -94,9 +172,9 @@ the operator can start it again against today's 25 Continuation and 25 Breakout 
   remains a historical record and does not establish Delphi Live readiness.
 
 - Active branch: `master`, with upstream `origin/master` configured.
-- Nightly operations: Windows task `TraderVI Nightly` is Ready for weekday 00:30 execution under the
+- Nightly operations: Windows task `TraderVI Nightly` is Ready for daily 00:30 execution under the
   signed-in user, with wake/start-when-available enabled and no automatic retry. Codex automation
-  `TraderVI Nightly Watch` is active for weekday 07:00 read-only supervision.
+  `TraderVI Nightly Watch` is active for daily 07:00 read-only supervision, including weekends.
 - SDK: .NET 10 (`10.0.400` verified on 2026-09-02).
 - Complete Release solution build: successful after the Shadow execution-causality fixes using Visual Studio
   2026 Insiders MSBuild 18.10 and SSDT; `TraderDB.dacpac` was produced only as a build artifact and was not
@@ -149,7 +227,10 @@ The code registry currently enables four profit models:
 3. `VolExpansionRelative10` — volatility-expansion confirmation.
 4. `BreakoutEnhanced` — breakout/setup probability.
 
-`RelStrengthCont10_2pct` is retained in code but disabled. Historical `ModelRegistry` rows for retired tasks remain enabled in SQL; `DelphiBootstrap` filters them out unless the task is currently enabled in `ProfitModelRegistry`.
+`RelStrengthCont10_2pct` is retained in code but disabled. The active v3.4 strategy selects exactly four
+reviewed replacements through its immutable stored assignment, independently of global SQL enable flags.
+Historical `ModelRegistry` rows remain unchanged. Only unbound legacy strategies use the global enabled
+rows filtered by the code's currently allowed tasks.
 
 ### Active deterministic pattern signals
 

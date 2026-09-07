@@ -1,5 +1,6 @@
 ﻿using Core.Db;
 using Core.ML.Engine.Patterns;
+using Core.Calibration;
 using Core.Trader;
 using Microsoft.ML;
 using Microsoft.ML.Data;
@@ -29,20 +30,30 @@ public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
     public ProfitModelKind ModelKind => _model.ModelKind;
     public SignalRole Role => _model.Role;
     public float CompositeWeight => _model.CompositeWeight;
+    public ModelArtifactProvenance? ArtifactProvenance { get; }
 
     public UnifiedProfitSignalModel(
         ProfitModelDefinition model,
         string modelZipPath,
         float? thresholdBuy = null,
         float? thresholdSell = null)
+        : this(model, MlContext.Model.Load(modelZipPath, out _), null, thresholdBuy, thresholdSell)
+    {
+    }
+
+    private UnifiedProfitSignalModel(
+        ProfitModelDefinition model,
+        ITransformer loadedModel,
+        ModelArtifactProvenance? provenance,
+        float? thresholdBuy,
+        float? thresholdSell)
     {
         _model = model;
+        ArtifactProvenance = provenance;
 
         // Use registry thresholds if provided, otherwise fall back to model definition defaults.
         _thresholdBuy = thresholdBuy ?? (model.BuyThresholdPercent / 100f);
         _thresholdSell = thresholdSell ?? (model.SellThresholdPercent / 100f);
-
-        var loadedModel = MlContext.Model.Load(modelZipPath, out _);
 
         int featureCount = model.FeatureBuilder.FeatureCount(model.Lookback);
         var schemaDefinition = SchemaDefinition.Create(typeof(ProfitWindow));
@@ -68,6 +79,9 @@ public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
 
         if (history.Count < lookback)
         {
+            if (_model.FeatureBuilder is DatedProfitFeatureBuilder)
+                throw new ProfitFeatureInputException("StockFeatureHistoryMissing", false,
+                    history.Count == 0 ? System.DateTime.MinValue : history[^1].Date);
             return new SignalResult(
                 Name,
                 Score: 0,
@@ -75,18 +89,7 @@ public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
                 Notes: $"Insufficient history (need {lookback} bars, got {history.Count})");
         }
 
-        var windowBars = history
-            .Skip(history.Count - lookback)
-            .Take(lookback)
-            .ToList();
-
-        var input = new ProfitWindow
-        {
-            Features = _model.FeatureBuilder.Build(windowBars),
-            ForwardReturn = 0,
-            ThreeWayLabel = 1,
-            IsEvent = false
-        };
+        var input = BuildPredictionInput(_model, history);
 
         return _model.ModelKind switch
         {
@@ -152,16 +155,38 @@ public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
             Notes: $"EventProbability={p:P1}, ThresholdBuy={_thresholdBuy:P1}, Horizon={_model.HorizonBars}d");
     }
 
-    public static UnifiedProfitSignalModel? FromRegistryInfo(ModelRegistryInfo info)
+    internal static ProfitWindow BuildPredictionInput(ProfitModelDefinition model, IReadOnlyList<DailyBar> history) => new()
+    {
+        Features = model.FeatureBuilder is DatedProfitFeatureBuilder dated
+            ? dated.Build(history.TakeLast(model.Lookback).ToArray(), DatedProfitFeatureBuilder.DuplicateSessions(history))
+            : model.FeatureBuilder.Build(history.TakeLast(model.Lookback).ToArray()),
+        ForwardReturn = 0,
+        ThreeWayLabel = 1,
+        IsEvent = false
+    };
+
+    public static UnifiedProfitSignalModel? FromRegistryInfo(ModelRegistryInfo info,
+        ProfitFeatureInputs? inputs = null, System.DateTime? predictionSession = null,
+        ReviewedProfitInputBinding? binding = null)
     {
         var model = ProfitModelRegistry.GetByTaskType(info.TaskType);
         if (model == null)
             return null;
 
-        return new UnifiedProfitSignalModel(
-            model,
-            info.ZipPath,
-            thresholdBuy: (float)info.ThresholdBuy,
-            thresholdSell: (float)info.ThresholdSell);
+        if (inputs is null && info.FeatureSet?.EndsWith(".XiuDatedV1", System.StringComparison.Ordinal) == true)
+            throw new System.InvalidOperationException("A dated candidate model requires the reviewed corrected-input path.");
+
+        bool correctedBinding = binding?.InputContract == ProfitFeatureInputs.Contract;
+        if ((inputs is not null) != correctedBinding || (inputs is not null && predictionSession is null) ||
+            (binding is not null && !correctedBinding && binding.InputContract != ProfitFeatureInputs.LegacyContract))
+            throw new System.InvalidOperationException("Corrected inference requires both reviewed model compatibility and an exact prediction session.");
+        if (inputs is not null) model = inputs.Bind(model, predictionSession);
+
+        return LoadedModelArtifact.Load(info, (stream, provenance) =>
+        {
+            binding?.ValidateArtifact(provenance);
+            return new UnifiedProfitSignalModel(model, MlContext.Model.Load(stream, out _), provenance,
+                thresholdBuy: (float)info.ThresholdBuy, thresholdSell: (float)info.ThresholdSell);
+        });
     }
 }
