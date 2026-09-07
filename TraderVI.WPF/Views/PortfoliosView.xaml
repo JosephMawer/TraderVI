@@ -114,7 +114,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Portfolios" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel VerticalAlignment="Center"><TextBlock Text="Portfolios" FontSize="28" FontWeight="SemiBold"/><Button Content="Settings…" Click="SettingsButton_Click" HorizontalAlignment="Left" Padding="8,3" Margin="0,4,0,0"/></StackPanel>
             <TextBlock Grid.Column="2" Text="Total TFSA value" VerticalAlignment="Center"
                        Foreground="{StaticResource MutedBrush}"/>
             <TextBox Grid.Column="3" Text="{Binding TotalTfsaValue, UpdateSourceTrigger=PropertyChanged}"

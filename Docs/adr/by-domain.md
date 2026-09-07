@@ -4,6 +4,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
+
+- [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings
+
 - [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) — Daily ingestion and observed benchmark confirmation
 
 - [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
@@ -99,6 +103,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0045](0045-five-minute-collection-and-nonoverlapping-intraday-chunks.md) — Five-minute collection and non-overlapping intraday chunks
 
 ## machine-learning
+
+- [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings
 
 - [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
 
@@ -200,6 +206,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## decision-engine
 
+- [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
+
+- [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings
+
 - [ADR-0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) — Daily ingestion and observed benchmark confirmation
 
 - [ADR-0057](0057-preserved-model-sets-and-explicit-selection.md) — Preserved model sets and explicit selection
@@ -263,3 +273,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0003](0003-weighting-indicator-narrow-advance.md) — Weighting narrow-advance warning
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — Genuity confirming-index source and staleness gate
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
+
+## user-interface
+
+- [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
+
+- [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings

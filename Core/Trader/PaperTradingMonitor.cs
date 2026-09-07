@@ -2,6 +2,7 @@
 
 using Core.Calibration;
 using Core.Db;
+using Core.Runtime;
 using Core.TMX;
 using Core.TMX.Models.Domain;
 using System;
@@ -61,6 +62,10 @@ public sealed class PaperTradingMonitor
         await _pollGate.WaitAsync(cancellationToken);
         try
         {
+            await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
+            var assignment = await new EngineSettingsRepository().ReadAsync(EngineStrategySettings.TrackedTargetId,
+                EngineStrategySettings.Tracked, DelayedIntradaySwingPolicyConfig.Version1);
+            var boundaryHighs = assignment.AssignedUtc is null ? null : await new EngineSettingsRepository().ReadTrackedHighsAsync();
             DateTime startedUtc = DateTime.UtcNow;
             Guid pollCycleId = Guid.NewGuid();
             var evidenceRepository = new IntradayEvidenceRepository();
@@ -81,7 +86,7 @@ public sealed class PaperTradingMonitor
                 pollCycleId,
                 IntradayPollPurpose.PaperMonitor,
                 IntradayEvidenceVersions.Collector,
-                IntradayEvidenceVersions.Policy,
+                assignment.VersionId is Guid version ? $"Settings:{version:D}" : IntradayEvidenceVersions.Policy,
                 code);
             var results = new List<PaperPositionMonitorResult>();
             using var tmx = new TmxClient();
@@ -104,7 +109,8 @@ public sealed class PaperTradingMonitor
                     tmx,
                     evidenceRepository,
                     executeGhostExits,
-                    cancellationToken));
+                    cancellationToken, assignment.Settings, assignment.AssignedUtc,
+                    boundaryHighs is not null && boundaryHighs.TryGetValue(position.PositionId, out var high) ? high : null));
             }
 
             return new PaperMonitorCycleResult(
@@ -175,7 +181,7 @@ public sealed class PaperTradingMonitor
         TmxClient tmx,
         IntradayEvidenceRepository evidenceRepository,
         bool executeGhostExits,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, DelayedIntradaySwingPolicyConfig config, DateTime? assignedUtc, decimal? boundaryHigh)
     {
         TradeLogInfo entryTrade = await GetEntryTradeAsync(position);
         DateTime entryUtc = DateTime.SpecifyKind(entryTrade.CreatedUtc, DateTimeKind.Utc);
@@ -260,6 +266,12 @@ public sealed class PaperTradingMonitor
             IntradaySwingPositionState.Open(position.EntryPrice, entryUtc);
         IntradaySwingDecision? decision = null;
         DelayedIntradayBreakoutEvidence? decisionEvidence = null;
+        if (assignedUtc is not null)
+        {
+            // Preserve observed facts while discarding old-version exit decisions. Evaluate the latest
+            // close as a current point observation: a floor created now cannot trigger on a past bar low.
+            (state, policyBars) = EngineStrategyReassignment.PrepareTrackedReplay(state, boundaryHigh, policyBars, assignedUtc.Value, config);
+        }
         foreach (DelayedIntradayBar bar in policyBars)
         {
             decisionEvidence = FreshDelphiBreakoutEvidenceResolver.Resolve(
@@ -269,10 +281,22 @@ public sealed class PaperTradingMonitor
             decision = DelayedIntradaySwingExitPolicy.Evaluate(
                 state,
                 bar,
-                decisionEvidence);
+                decisionEvidence, config);
             state = decision.State;
             if (decision.Directive == IntradaySwingDirective.ExitAlert)
                 break;
+        }
+
+        // Preserve highs observed on earlier polls even if today's source response has lost older bars.
+        if (assignedUtc is not null && position.HighWaterMark > state.HighestCompletedClose)
+        {
+            state = EngineStrategyReassignment.RebaseTracked(state, position.HighWaterMark, [], config);
+            if (decision?.Directive != IntradaySwingDirective.ExitAlert && policyBars.LastOrDefault() is { } current)
+            {
+                decision = DelayedIntradaySwingExitPolicy.Evaluate(state with { LastProcessedBarEndUtc = null },
+                    current with { Open = current.Close, High = current.Close, Low = current.Close }, decisionEvidence, config);
+                state = decision.State;
+            }
         }
 
         // This request is intentionally after policy evaluation. If an alert was

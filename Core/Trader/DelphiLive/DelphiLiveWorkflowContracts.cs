@@ -150,7 +150,8 @@ public enum DelphiLivePolicyRole
 {
     OperationalChampion,
     ActiveShadowChallenger,
-    ShadowBaseline
+    ShadowBaseline,
+    ChampionControl
 }
 
 public sealed record DelphiLivePolicyAssignment(

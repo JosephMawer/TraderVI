@@ -49,7 +49,7 @@ public sealed partial class DelphiLiveSessionRepository
             DateOnly.FromDateTime((DateTime)session.ExpectedPriorCanonicalSessionDate), openUtc, now,
             addedSymbols, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        return await ReadContextAsync(tradingDate, cancellationToken)
+        return await ReadOperationalContextAsync(tradingDate, cancellationToken)
             ?? throw new InvalidOperationException("Frozen session disappeared after observation synchronization.");
     }
 

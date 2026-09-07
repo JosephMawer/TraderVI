@@ -23,6 +23,17 @@ public sealed partial class DelphiLiveExperimentRepository : SQLBase, IDelphiLiv
     public async Task RegisterPolicyAsync(DelphiLivePolicyDefinition policy, string decisionRef,
         DelphiLiveLease lease, CancellationToken cancellationToken = default)
     {
+        await using var c = await Open(cancellationToken);
+        await using var t = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        await Fence(c, t, lease, cancellationToken);
+        await RegisterSettingsPolicyAsync(c, t, policy, decisionRef, cancellationToken);
+        await Fence(c, t, lease, cancellationToken);
+        await t.CommitAsync(cancellationToken);
+    }
+
+    internal static async Task RegisterSettingsPolicyAsync(SqlConnection c, SqlTransaction t,
+        DelphiLivePolicyDefinition policy, string decisionRef, CancellationToken cancellationToken)
+    {
         policy.Validate();
         if (string.IsNullOrWhiteSpace(decisionRef) || decisionRef.Length > 64)
             throw new ArgumentException("An immutable policy requires its reviewed decision reference.");
@@ -38,9 +49,6 @@ public sealed partial class DelphiLiveExperimentRepository : SQLBase, IDelphiLiv
         string json = settings.ToJsonString();
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(json));
         _ = DelphiLivePolicyStorage.Read(identity, json, hash);
-        await using var c = await Open(cancellationToken);
-        await using var t = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        await Fence(c, t, lease, cancellationToken);
         await using var command = new SqlCommand("""
 IF EXISTS(SELECT 1 FROM dbo.DelphiLivePolicyVersion WITH(UPDLOCK,HOLDLOCK) WHERE DelphiLivePolicyVersionId=@Policy)
 BEGIN
@@ -68,7 +76,6 @@ VALUES(@Policy,@Name,@Schema,@Evaluator,@Collector,@Source,@Dossier,@DossierSche
             P("@Promotion", policy.PromotionProtocolVersion, 64), P("@Settings", json),
             new SqlParameter("@Hash", SqlDbType.Binary, 32) { Value = hash }, P("@DecisionRef", decisionRef, 64)]);
         await command.ExecuteNonQueryAsync(cancellationToken);
-        await Fence(c, t, lease, cancellationToken); await t.CommitAsync(cancellationToken);
     }
 
     public async Task<DelphiLiveExperimentState?> LoadAsync(CancellationToken cancellationToken = default)

@@ -17,6 +17,7 @@ public partial class DelphiLiveView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) => viewModel.RefreshAsync(cancellationToken);
     public Task TickAsync(CancellationToken cancellationToken = default) => viewModel.TickAsync(cancellationToken);
     public Task StopAsync(CancellationToken cancellationToken = default) => viewModel.StopAsync(cancellationToken);
+    private void SettingsButton_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings(EngineStrategySettings.Live);
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await viewModel.RefreshAsync();
     private void AdvancedButton_Click(object sender, RoutedEventArgs e) => MainSections.SelectedIndex = 2;
     private void PreviousButton_Click(object sender, RoutedEventArgs e) => viewModel.ReplayFrameIndex--;

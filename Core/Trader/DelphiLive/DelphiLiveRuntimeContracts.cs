@@ -32,6 +32,8 @@ public sealed record DelphiLiveStoredEvaluation(
 public interface IDelphiLiveSessionContextStore : IDelphiLiveSessionStore, IDelphiLivePolicyAssignmentSource
 {
     Task<DelphiLiveSessionContext?> ReadContextAsync(DateOnly date, CancellationToken cancellationToken = default);
+    Task<DelphiLiveSessionContext?> ReadOperationalContextAsync(DateOnly date, CancellationToken cancellationToken = default) =>
+        ReadContextAsync(date, cancellationToken);
     Task<DelphiLivePolicyDefinition> GetPolicyAsync(Guid policyId, CancellationToken cancellationToken = default);
     Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(Guid sessionId, DateTime nextBarEndUtc,
         DelphiLiveLease lease, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios,

@@ -29,6 +29,8 @@ public sealed class DelphiLiveMonitorWorkflow
     private DelphiLiveCollectionRecovery? recovery;
     private DateTime? nextEnd;
     private DateTime continuityStart;
+    private readonly Dictionary<Guid, DateTime> policyAssignmentBoundaries = new();
+    private DateTime ContinuityStartFor(Guid policy) => policyAssignmentBoundaries.TryGetValue(policy, out var boundary) && boundary > continuityStart ? boundary : continuityStart;
     private bool sessionProtectionStarted;
     private PreOpenHeartbeat? preOpenHeartbeat;
     private DateOnly? warningSession;
@@ -123,7 +125,7 @@ public sealed class DelphiLiveMonitorWorkflow
                 assignments = await sessions.GetAssignmentsForSessionAsync(date, ct);
                 await sessions.FreezeSessionAsync(new(date, bounds.OpenUtc,
                     calendar.GetImmediatelyPrecedingSession(date), assignments), ct);
-                context = await sessions.ReadContextAsync(date, ct) ?? throw new InvalidOperationException("Frozen session is unavailable.");
+                context = await sessions.ReadOperationalContextAsync(date, ct) ?? throw new InvalidOperationException("Frozen session is unavailable.");
                 if (warningSession != date) { warnings.Clear(); warningSession = date; }
                 recovery = await collection.RecoverSessionAsync(context.Session.SessionId, lease, ct,
                     wasArmedAtSessionOpen: armedAtOpen);
@@ -137,6 +139,16 @@ public sealed class DelphiLiveMonitorWorkflow
                 if (recovery.HostGapObserved) AddWarning("Host coverage gap: this session cannot support clean shakedown or promotion.");
             }
             var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
+            var refreshedContext = await sessions.ReadOperationalContextAsync(date, ct) ?? throw new InvalidOperationException("Session context is unavailable.");
+            if (!context.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId)).SequenceEqual(
+                    refreshedContext.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId))))
+            {
+                sessionProtectionStarted = false;
+                foreach (var changed in refreshedContext.Assignments.Where(a => !context.Assignments.Any(old => old.PolicyVersionId == a.PolicyVersionId)))
+                    policyAssignmentBoundaries[changed.PolicyVersionId] = clock.UtcNow;
+                AddWarning("Strategy reassigned: protection reevaluates now; confirmation restarts with fresh evidence. Research promotion is paused.");
+            }
+            context = refreshedContext;
             // Opening protection runs once immediately, before the first 09:37
             // collection. Later protection is first in each scheduled cycle.
             if (!sessionProtectionStarted)
@@ -161,7 +173,7 @@ public sealed class DelphiLiveMonitorWorkflow
             var previous = await evaluations.GetLatestSnapshotAsync(context.Session.SessionId, ct);
             foreach (var portfolio in portfolios)
             {
-                bool warming = end < continuityStart.AddMinutes(20) ||
+                bool warming = end < ContinuityStartFor(portfolio.PolicyVersionId).AddMinutes(20) ||
                     portfolio.OpenPositions.Any(position => !previous.Any(p => p.Input.Policy.PolicyVersionId == portfolio.PolicyVersionId &&
                         p.Input.Stock.Symbol == position.Symbol && p.ContinuityEpoch == recovery!.EpochNumber && p.Result.FamiliesMature));
                 await actions.ProtectHoldingsAsync(new(portfolio.PortfolioId, cycleId, date,
@@ -181,13 +193,14 @@ public sealed class DelphiLiveMonitorWorkflow
             var bars = await collection.GetSessionBarsAsync(context.Session.SessionId, end, ct);
             var saved = new List<DelphiLiveStoredEvaluation>();
             // Every policy judgment is durable before any cycle action is considered.
-            foreach (var assignment in context.Assignments)
+            foreach (var assignment in context.Assignments.DistinctBy(a => a.PolicyVersionId))
             {
                 var policy = context.Policies[assignment.PolicyVersionId];
+                DateTime policyStart = ContinuityStartFor(policy.PolicyVersionId);
                 var rolePortfolios = portfolios.Where(p => p.PolicyVersionId == policy.PolicyVersionId).ToArray();
                 foreach (string symbol in targets.Where(t => t.Symbol != "XIU").Select(t => t.Symbol))
                 {
-                    var prior = previous.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId && e.Input.Stock.Symbol == symbol);
+                    var prior = previous.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId && e.Input.Stock.Symbol == symbol && e.Input.EvaluatedUtc >= policyStart);
                     if (prior?.Input.BarEndUtc >= end) { saved.Add(prior); continue; }
                     context.Candidates.TryGetValue(symbol, out var candidate);
                     bool carry = candidate is null && rolePortfolios.SelectMany(p => p.Positions).Any(p => p.Symbol == symbol &&
@@ -210,8 +223,8 @@ public sealed class DelphiLiveMonitorWorkflow
                     var input = new DelphiLiveEvaluationInput
                     {
                         EvaluationId = Guid.NewGuid(), SessionId = context.Session.SessionId, BarEndUtc = end,
-                        EvaluatedUtc = clock.UtcNow, Stock = new(symbol, date, bounds.OpenUtc, continuityStart, stockBars),
-                        Xiu = new("XIU", date, bounds.OpenUtc, continuityStart, xiuBars), Policy = policy,
+                        EvaluatedUtc = clock.UtcNow, Stock = new(symbol, date, bounds.OpenUtc, policyStart, stockBars),
+                        Xiu = new("XIU", date, bounds.OpenUtc, policyStart, xiuBars), Policy = policy,
                         VolatilityRulers = baseline.Rulers, PreviousState = state, PreviousStockSessionClose = baseline.PreviousClose,
                         PreviousXiuSessionClose = context.Baselines["XIU"].PreviousClose,
                         DailySetup = candidate is null ? null : DailySetup(context, candidate), IsSessionCarryCandidate = carry,

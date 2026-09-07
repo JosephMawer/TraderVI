@@ -31,6 +31,7 @@ architecture documentation.
 | `market-microstructure` | Order types, slippage, liquidity |
 | `risk-management` | Stop-loss, position sizing, capital preservation rules |
 | `decision-engine` | Delphi, ranking, gates, composite scoring |
+| `user-interface` | Desktop operator views, settings and review flows |
 | `math-statistics` | Probability, normalization, z-scores, distributions |
 | `finance-fundamentals` | Index construction, weighting schemes, sector classification |
 
@@ -96,6 +97,8 @@ architecture documentation.
 | [0056](0056-dated-profit-model-input-contract.md) | Dated profit-model input contract | Accepted; operationally adopted | architecture, machine-learning, data-pipeline, decision-engine |
 | [0057](0057-preserved-model-sets-and-explicit-selection.md) | Preserved model sets and explicit selection | Accepted; supported daily workflow validated | architecture, machine-learning, data-pipeline, decision-engine |
 | [0058](0058-daily-ingestion-and-observed-benchmark-confirmation.md) | Daily ingestion and observed benchmark confirmation | Accepted; implemented and operationally verified | architecture, data-pipeline, decision-engine |
+| [0059](0059-delphi-model-and-threshold-settings.md) | Delphi model-set and threshold settings | Implemented in source; operational selection pending | architecture, decision-engine, machine-learning, user-interface |
+| [0060](0060-central-settings-and-scoped-configuration.md) | Central settings and scoped configuration | Accepted direction; broader implementation pending | architecture, user-interface, decision-engine |
 
 See also:
 

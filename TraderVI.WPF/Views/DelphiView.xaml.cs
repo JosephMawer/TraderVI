@@ -15,6 +15,9 @@ public partial class DelphiView : UserControl
     private bool loadedOnce;
 
     public bool IsRunning => viewModel.IsRunning;
+    public Task RefreshSettingsResultAsync() => viewModel.RefreshAsync();
+    private void OpenSettings_Click(object sender, RoutedEventArgs e) =>
+        (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Daily");
     public event EventHandler<PaperTradeEntryResult>? PaperPositionOpened;
 
     public DelphiView()

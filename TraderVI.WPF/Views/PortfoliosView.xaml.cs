@@ -15,6 +15,7 @@ public partial class PortfoliosView : UserControl
     private readonly PortfoliosViewModel viewModel = new();
     private readonly SystemShadowController controller = new();
     private bool loadedOnce;
+    private void SettingsButton_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Accounts");
 
     public PortfoliosView()
     {

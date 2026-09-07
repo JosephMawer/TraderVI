@@ -905,3 +905,28 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 - **Source:** ADR-0054
 
 **A:** Historical bars do not recover original receipt times or executable quotes. The replay assumes publication timing, uses minute-price proxies, leaves missing bars missing and excludes costs; it cannot count toward operational shakedown or promotion.
+
+## Delphi model-set and threshold settings (ADR-0059)
+
+**Q:** Why does editing a daily gate create a new strategy version?
+**A:** Past forecasts and outcomes must keep the exact settings that produced them. A new version starts separately identified evidence while preserving the original for review or rollback.
+
+**Q:** Does selecting a trained model set replace recommendations already on screen?
+**A:** Browsing a set changes nothing. Save Version also leaves assignments alone. Explicit Assign updates the shared selection and starts an official daily reevaluation; successful publication replaces current recommendations while preserving prior run evidence (ADR-0060).
+
+**Q:** How do model signal thresholds differ from strategy gates?
+**A:** Signal thresholds label individual model outputs. Strategy gates determine whether the combined candidate qualifies. The settings page preserves signal thresholds and edits only the eight persisted daily gates.
+
+## Central settings and ownership (ADR-0060)
+
+**Q:** Does one global Settings page mean all portfolios share the same trading rules?
+**A:** No. It is one navigation destination. Trading rules and limits belong to the assigned strategy; each account retains its own capital, holdings and history. The initial design adds no duplicate account-level trading caps. Each change's scope must be shown before application.
+
+**Q:** What changes when a revised strategy is saved under the accepted central-settings design?
+**A:** A new version becomes available; existing systems and portfolios keep their assignments. Assigning that version is a separate explicit action, subject to system eligibility and a defined effective boundary.
+
+**Q:** What happens to existing positions when a new strategy version is explicitly assigned?
+**A:** The new version immediately governs the whole target, including carried positions and pending internal actions. It inherits entry prices, quantities, cash, observed highs and loss history. Old-version work cannot execute stale decisions after the switch; completed fills and earlier decisions remain immutable history. Assignment timing does not imply an instant fill or broker acknowledgement.
+
+**Q:** Does splitting account returns at an assignment boundary prove the new strategy's performance?
+**A:** No. It shows what happened while that version governed the account, but inherited holdings and cash reflect earlier decisions. Clean strategy comparison needs a prospectively defined study with comparable conditions; mixed-origin trades remain descriptive account evidence. See `concepts/settings-system-map.md`.

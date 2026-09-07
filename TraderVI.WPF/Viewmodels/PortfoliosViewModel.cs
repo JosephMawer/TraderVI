@@ -118,12 +118,19 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         rows.AddRange(await BuildTrackedRowsAsync(generation, accountSnapshot));
         rows.AddRange(await ReadDelphiLiveRowsAsync(cancellationToken));
         rows.AddRange(system.Select(PortfolioOverviewRow.FromSystem));
+        var settingsNames = await new EngineSettingsRepository().ReadAssignedNamesAsync();
+        for (int i = 0; i < rows.Count; i++)
+        {
+            Guid target = rows[i].SystemPortfolioId ?? rows[i].DelphiLivePortfolioId ?? Core.Runtime.EngineStrategySettings.TrackedTargetId;
+            if (settingsNames.TryGetValue(target, out string? strategy))
+                rows[i] = rows[i] with { Explanation = rows[i].Explanation + $" Assigned strategy: {strategy}. Lifetime results include history under earlier rules; see Settings for the current assignment." };
+        }
         Replace(Portfolios, rows);
         if (selectedCode is not null)
             SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
         GenerationStatus = generation is null
             ? "Shadow off · enter TFSA capital to begin"
-            : $"{generation.PolicyVersion} · {generation.Status} · started {generation.ActivatedUtc?.ToLocalTime():MMM d HH:mm}";
+            : $"Started with {generation.PolicyVersion} · {generation.Status} · current strategies in Settings";
         Status = generation is null
             ? "Daily Shadow is off. Delphi Live accounts have their own activation and execution."
             : "Daily Shadow and Delphi Live use independent virtual accounts and execution rules.";

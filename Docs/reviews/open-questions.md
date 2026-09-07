@@ -5,6 +5,44 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Central settings — strategy version adoption
+
+- **Accepted:** one central Settings destination with system sections, a shared strategy editor and
+  contextual links (ADR-0060).
+- **Accepted:** saving a changed strategy creates a version without changing assignments; assigning it
+  is a separate explicit action. This now replaces the daily combined edit-and-apply UI in source.
+- **Accepted:** an explicit assignment takes effect immediately for the whole target, including existing
+  positions and pending actions. Waiting until the portfolio empties was rejected; do not retain separate
+  old-rule assignments for carried holdings.
+- **Accepted:** the assigned version inherits entry prices, quantities, cash, observed price highs and
+  loss/drawdown history and applies its new rules to those facts. Assignment does not reset the account.
+- **Accepted:** keep trading limits in the strategy for now. Accounts retain their actual capital,
+  holdings, history and assignment; no duplicate configurable account-cap layer is planned initially.
+- **Deferred:** optional account-specific trading caps until there is a concrete need.
+- **Implemented in source:** atomic assignment and pending-action supersession, worker fencing,
+  floor recomputation from facts, fresh target confirmation, retained risk-review holds, explicit
+  data-readiness/failure outcomes and research-promotion isolation. See the
+  [implementation review](central-settings-implementation-20260907.md).
+- **Rollout completed 2026-09-07:** verified backup, migration 027 and updated-host launch. The first
+  operator-chosen assignment remains separate; no current assignment was changed during rollout.
+- **Deferred:** editable Shadow lens/slot definitions, service scheduling/provider editors, capital
+  deposits/withdrawals and a reviewed route to fresh research after manual Live reassignment.
+- **Proposed research refinement (not accepted or implemented):** retain one operational assignment and
+  continuous ledger; record assignment periods and inherited state; end only affected comparisons and
+  restart prospectively with comparable conditions. Shared daily-input changes must be included in the
+  affected-study scope. Define restart authority and eligibility before narrowing the current broad pause.
+  See [settings system map](../concepts/settings-system-map.md).
+
+### Delphi settings — candidate assignment and first operational selection
+
+- The desktop settings page selects complete preserved strategy/model sets. A candidate not yet assigned
+  to a reviewed strategy is not selectable, and individual model mixing remains deferred pending a
+  complete input-compatibility and evidence-review flow (ADR-0057/0059).
+- Perform the first intentional settings selection and later rollback with a concrete reviewed target;
+  verify the active identity and immutable event. Source validation deliberately did not change the
+  active daily strategy. Cross-family performance promotion remains separate; independent supported account policies now have
+  their own sections in central Settings.
+
 ### Corrected daily model inputs — first scheduled evidence
 
 - **Accepted:** exclude only stocks with incomplete required dated inputs; unusable shared XIU inputs

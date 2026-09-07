@@ -27,6 +27,9 @@ public partial class PaperDashboardWindow : Window
         InitializeComponent();
         DataContext = viewModel;
         DelphiTabView.PaperPositionOpened += DelphiTabView_PaperPositionOpened;
+        SettingsTabView.PreferencesChanged = enabled => viewModel.AutomaticGhostExitsEnabled = enabled;
+        SettingsTabView.InitializePreferences(viewModel.AutomaticGhostExitsEnabled);
+        SettingsTabView.ReevaluateAsync = ReevaluateSettingsAsync;
         timer = new DispatcherTimer(DispatcherPriority.Background)
         {
             Interval = DashboardRefreshInterval
@@ -34,6 +37,38 @@ public partial class PaperDashboardWindow : Window
         timer.Tick += Timer_Tick;
         Loaded += Window_Loaded;
         Closed += Window_Closed;
+    }
+
+    public void OpenSettings(string section)
+    {
+        SettingsTabView.Navigate(section); MainTabs.SelectedItem = SettingsTab;
+    }
+    private void TradingSettings_Click(object sender, RoutedEventArgs e) => OpenSettings(Core.Runtime.EngineStrategySettings.Tracked);
+
+    private async Task<string> ReevaluateSettingsAsync(string family)
+    {
+        if (family == "Daily")
+        {
+            using var report = new System.IO.StringWriter();
+            var result = await Task.Run(() => new Core.Runtime.DelphiWorkflow().RunAsync(output: report, cancellationToken: shutdown.Token));
+            await DelphiTabView.RefreshSettingsResultAsync();
+            return result.Succeeded ? "Daily reevaluation completed." : "Assignment active; daily reevaluation needs attention. See Delphi's report and run again to retry.";
+        }
+        if (family == Core.Runtime.EngineStrategySettings.Live)
+        {
+            await DelphiLiveTabView.TickAsync(shutdown.Token);
+            return "Protection review requested. Entry confirmation needs fresh eligible bars; outside the market session it waits for the next opening.";
+        }
+        DateTime local = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
+        if (!PaperTradingMonitor.IsAutomaticPollTime(local)) return "Market closed; the new rules are active and reevaluation awaits the next market window.";
+        if (family == Core.Runtime.EngineStrategySettings.Shadow)
+        {
+            var result = await PortfoliosTabView.RunScheduledCycleAsync(shutdown.Token);
+            return $"Reevaluated Shadow: {result.SignalsCreated} signals; {result.Warnings.Count} evidence warnings. See Portfolios.";
+        }
+        var cycle = await monitor.PollOnceAsync(viewModel.AutomaticGhostExitsEnabled, shutdown.Token);
+        viewModel.ApplyCycle(cycle); await viewModel.RefreshAsync(shutdown.Token);
+        return "Trading monitor reevaluated. See Trading for position results and evidence availability.";
     }
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -246,12 +281,12 @@ public partial class PaperDashboardWindow : Window
 
     protected override void OnClosing(CancelEventArgs e)
     {
-        if (DelphiTabView.IsRunning)
+        if (DelphiTabView.IsRunning || SettingsTabView.IsBusy)
         {
             e.Cancel = true;
             MessageBox.Show(
-                "Delphi is still running. Keep TraderVI open until the official run finishes so its evidence and recommendations are not interrupted.",
-                "Delphi run in progress",
+                "A Delphi run or settings change is still in progress. Keep TraderVI open until it finishes so its evidence and state changes are not interrupted.",
+                "Work in progress",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
             return;

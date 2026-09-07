@@ -24,7 +24,7 @@ public sealed partial class PortfoliosViewModel
     public string CandidateHint => IsLiveSelected ? "Saved live states · live ranking and signals are in Delphi Live" :
         "Rechecked every daily Shadow poll · a blocked candidate may qualify later";
     public string ExecutionHint => IsLiveSelected ? "Delphi Live · separate paper account · saved bid/ask or tagged estimated fills" :
-        "Daily Shadow · whole shares · 0.25% friction each side · no broker";
+        "Daily Shadow · whole shares · friction follows the assigned strategy · no broker";
     public string SelectedAccountExplanation => SelectedPortfolio?.Explanation ?? "";
 
     private void RequireDailySelection()

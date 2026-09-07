@@ -808,8 +808,10 @@ ORDER BY [EarliestFillUtc],[CreatedUtc];
         DateTime signalReceivedUtc,
         decimal? budget,
         string reasonCode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, SystemShadowPolicyConfig? config = null, Guid? strategyVersionId = null)
     {
+        config ??= SystemShadowPolicyConfig.Version1;
+        SystemShadowPolicy.ValidateConfig(config);
         if (signalReceivedUtc.Kind != DateTimeKind.Utc)
             throw new ArgumentException("Signal receipt must be UTC.", nameof(signalReceivedUtc));
         if (side is not ("Buy" or "Sell"))
@@ -873,13 +875,14 @@ END;
                 P("@EarliestFillUtc", SqlDbType.DateTime2, earliestFillUtc),
                 P("@Budget", SqlDbType.Decimal, budget, precision: 19, scale: 6),
                 P("@FrictionRate", SqlDbType.Decimal,
-                    side == "Buy" ? SystemShadowPolicyConfig.Version1.EntryFrictionRate : SystemShadowPolicyConfig.Version1.ExitFrictionRate,
+                    side == "Buy" ? config.EntryFrictionRate : config.ExitFrictionRate,
                     precision: 9, scale: 6),
                 P("@ReasonCode", SqlDbType.NVarChar, reasonCode, 64),
                 P("@NowUtc", SqlDbType.DateTime2, nowUtc),
                 P("@EventId", SqlDbType.UniqueIdentifier, Guid.NewGuid()),
                 P("@DetailsJson", SqlDbType.NVarChar, JsonSerializer.Serialize(new
                 {
+                    strategyVersionId,
                     side,
                     orderKind,
                     candidateTrackingId,
@@ -905,16 +908,18 @@ END;
         DateTime fillUtc,
         DateTime tradingDate,
         int sameDayReentryCount,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, SystemShadowPolicyConfig? config = null)
     {
+        config ??= SystemShadowPolicyConfig.Version1;
+        SystemShadowPolicy.ValidateConfig(config);
         ArgumentNullException.ThrowIfNull(order);
         if (fillUtc.Kind != DateTimeKind.Utc || fillUtc < order.EarliestFillUtc)
             throw new ArgumentException("Fill must be a qualifying later UTC bar.", nameof(fillUtc));
         if (order.Side == "Buy" && fillUtc != order.EarliestFillUtc)
             throw new ArgumentException("A Shadow buy can fill only at its exact immediate fill bar.", nameof(fillUtc));
         decimal adjustedPrice = order.Side == "Buy"
-            ? SystemShadowPolicy.AdjustedBuyPrice(rawFillPrice)
-            : SystemShadowPolicy.AdjustedSellPrice(rawFillPrice);
+            ? SystemShadowPolicy.AdjustedBuyPrice(rawFillPrice, config)
+            : SystemShadowPolicy.AdjustedSellPrice(rawFillPrice, config);
         DateTime nowUtc = DateTime.UtcNow;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
@@ -980,7 +985,7 @@ WHERE p.[PortfolioId] = @PortfolioId;
                     }
                 }
                 decimal budget = System.Math.Min(order.Budget ?? 0m, cash);
-                shares = SystemShadowPolicy.WholeSharesForBuy(budget, rawFillPrice);
+                shares = SystemShadowPolicy.WholeSharesForBuy(budget, rawFillPrice, config);
                 if (shares <= 0)
                 {
                     await CancelLockedOrderAsync(connection, transaction, order, "InsufficientCashForWholeShare", nowUtc, cancellationToken);
@@ -1016,7 +1021,7 @@ IF @@ROWCOUNT <> 1 THROW 51140, 'The Shadow add-on position is no longer eligibl
                 {
                     positionId = Guid.NewGuid();
                     decimal target = order.Budget.HasValue
-                        ? decimal.Round(order.Budget.Value / SystemShadowPolicyConfig.Version1.InitialAllocationFraction, 6)
+                        ? decimal.Round(order.Budget.Value / config.InitialAllocationFraction, 6)
                         : fillValue;
                     const string openSql = """
 INSERT INTO [dbo].[ShadowPosition]

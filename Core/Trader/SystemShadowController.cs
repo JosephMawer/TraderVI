@@ -31,6 +31,7 @@ public sealed class SystemShadowController
         await pollGate.WaitAsync(cancellationToken);
         try
         {
+            await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
             DateTime startedUtc = DateTime.UtcNow;
             Guid pollCycleId = Guid.NewGuid();
             var warnings = new List<string>();
@@ -40,6 +41,14 @@ public sealed class SystemShadowController
 
             IReadOnlyList<SystemShadowRuntimePortfolio> portfolios =
                 await repository.GetRunnablePortfoliosAsync(cancellationToken);
+            var configured = new List<SystemShadowRuntimePortfolio>();
+            foreach (var portfolio in portfolios)
+            {
+                var assignment = await new EngineSettingsRepository().ReadAsync(portfolio.PortfolioId,
+                    Core.Runtime.EngineStrategySettings.Shadow, SystemShadowPolicyConfig.Version1);
+                configured.Add(portfolio with { Settings = assignment.Settings, SettingsAssignedUtc = assignment.AssignedUtc, StrategyVersionId = assignment.VersionId });
+            }
+            portfolios = configured;
             if (portfolios.Count == 0)
             {
                 return new(pollCycleId, startedUtc, DateTime.UtcNow, 0, 0, 0, 0,
@@ -189,7 +198,7 @@ public sealed class SystemShadowController
                             fillBar.TimestampUtc,
                             tradingDate,
                             reentry,
-                            cancellationToken))
+                            cancellationToken, config: portfolio.Settings))
                         fills++;
                 }
                 positionsByPortfolio[portfolio.PortfolioId] =
@@ -231,8 +240,8 @@ public sealed class SystemShadowController
                         position.LastFifteenMinuteBarUtc);
                     SystemShadowExitReason exitReason = SystemShadowPolicy.EvaluateFiveMinuteRisk(
                         position.AverageCost,
-                        latestFive.Low,
-                        position.TrailingStopPrice);
+                        latestFive.TimestampUtc < portfolio.SettingsAssignedUtc ? latestFive.Close : latestFive.Low,
+                        position.TrailingStopPrice, portfolio.Settings);
                     if (fifteenMinute.TryGetValue(position.Symbol, out TmxIntradayBatch? fifteenBatch))
                     {
                         OhlcvBar? latestFifteen = Completed(fifteenBatch).LastOrDefault();
@@ -242,8 +251,8 @@ public sealed class SystemShadowController
                                 SystemShadowPolicy.EvaluateFifteenMinuteClose(
                                     trailing,
                                     latestFifteen.TimestampUtc,
-                                    latestFifteen.Low,
-                                    latestFifteen.Close);
+                                    latestFifteen.TimestampUtc < portfolio.SettingsAssignedUtc ? latestFifteen.Close : latestFifteen.Low,
+                                    latestFifteen.Close, portfolio.Settings);
                             trailing = trailingDecision.State;
                             if (exitReason == SystemShadowExitReason.None)
                                 exitReason = trailingDecision.ExitReason;
@@ -269,7 +278,7 @@ public sealed class SystemShadowController
                             fiveBatch.ReceivedUtc,
                             null,
                             exitReason.ToString(),
-                            cancellationToken);
+                            cancellationToken, config: portfolio.Settings, strategyVersionId: portfolio.StrategyVersionId);
                         if (created) signals++;
                         continue;
                     }
@@ -283,7 +292,7 @@ public sealed class SystemShadowController
                         SystemShadowPolicy.ShouldExitAtSessionTwoClose(
                             latestFive.Close,
                             position.AverageCost,
-                            sessionOrdinal))
+                            sessionOrdinal, portfolio.Settings))
                     {
                         bool created = await repository.TryCreateOrderAsync(
                             portfolio.PortfolioId,
@@ -296,7 +305,7 @@ public sealed class SystemShadowController
                             fiveBatch.ReceivedUtc,
                             null,
                             "SessionTwoUnprofitable",
-                            cancellationToken);
+                            cancellationToken, config: portfolio.Settings, strategyVersionId: portfolio.StrategyVersionId);
                         if (created) signals++;
                     }
                 }
@@ -310,7 +319,7 @@ public sealed class SystemShadowController
                 SystemShadowGuardDecision guards = SystemShadowPolicy.EvaluateGuards(
                     overview.NetAssetValue,
                     session.OpeningValue,
-                    portfolio.HighestClosingValue);
+                    portfolio.HighestClosingValue, portfolio.Settings);
                 await repository.SetRiskGuardAsync(
                     portfolio.PortfolioId,
                     session.SessionId,
@@ -429,7 +438,7 @@ public sealed class SystemShadowController
                             incumbent.AverageCost,
                             momentum,
                             true,
-                            ordinal))
+                            ordinal, portfolio.Settings))
                         continue;
                     if (fiveMinute.TryGetValue(incumbent.Symbol, out TmxIntradayBatch? incumbentBatch) &&
                         await repository.TryCreateOrderAsync(
@@ -443,7 +452,7 @@ public sealed class SystemShadowController
                             incumbentBatch.ReceivedUtc,
                             null,
                             "SessionTwoRotation",
-                            cancellationToken))
+                            cancellationToken, config: portfolio.Settings, strategyVersionId: portfolio.StrategyVersionId))
                         createdSignals++;
                     break;
                 }
@@ -459,10 +468,10 @@ public sealed class SystemShadowController
                 !fiveMinute.TryGetValue(position.Symbol, out TmxIntradayBatch? batch))
                 continue;
             OhlcvBar? latest = Completed(batch).LastOrDefault();
-            if (latest is null || SystemShadowPolicy.AdjustedSellPrice(latest.Close) <= position.AverageCost)
+            if (latest is null || SystemShadowPolicy.AdjustedSellPrice(latest.Close, portfolio.Settings) <= position.AverageCost)
                 continue;
             decimal budget = System.Math.Min(
-                SystemShadowPolicy.AddOnBudget(position.FullPositionTarget),
+                SystemShadowPolicy.AddOnBudget(position.FullPositionTarget, portfolio.Settings),
                 portfolio.CashBalance);
             if (budget > 0m && await repository.TryCreateOrderAsync(
                     portfolio.PortfolioId,
@@ -475,7 +484,7 @@ public sealed class SystemShadowController
                     batch.ReceivedUtc,
                     budget,
                     "DelphiReaffirmed",
-                    cancellationToken))
+                    cancellationToken, config: portfolio.Settings, strategyVersionId: portfolio.StrategyVersionId))
                 createdSignals++;
         }
 
@@ -496,13 +505,13 @@ public sealed class SystemShadowController
                 .ToList();
             bool priceBased = entriesToday.FirstOrDefault()?.ExitReasonCode is
                 "HardLoss" or "TrailingProfit" or "SessionTwoUnprofitable" or "SessionTwoRotation";
-            if (!SystemShadowPolicy.CanEnterAgainToday(entriesToday.Count, priceBased))
+            if (!SystemShadowPolicy.CanEnterAgainToday(entriesToday.Count, priceBased, portfolio.Settings))
                 continue;
 
             if (!fiveMinute.TryGetValue(candidate.Symbol, out TmxIntradayBatch? batch))
                 continue;
             decimal target = SystemShadowPolicy.PositionTarget(netAssetValue, portfolio.MaximumPositions);
-            decimal budget = SystemShadowPolicy.InitialBudget(target);
+            decimal budget = SystemShadowPolicy.InitialBudget(target, portfolio.Settings);
             string kind = entriesToday.Count == 0 ? "Initial" : "Reentry";
             if (await repository.TryCreateOrderAsync(
                     portfolio.PortfolioId,
@@ -515,7 +524,7 @@ public sealed class SystemShadowController
                     batch.ReceivedUtc,
                     budget,
                     entriesToday.Count == 0 ? "Qualified" : "PriceBasedRequalification",
-                    cancellationToken))
+                    cancellationToken, config: portfolio.Settings, strategyVersionId: portfolio.StrategyVersionId))
             {
                 createdSignals++;
                 vacancies--;

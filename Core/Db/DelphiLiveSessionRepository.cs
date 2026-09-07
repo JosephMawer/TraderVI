@@ -161,7 +161,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
             new { Session = session.SessionId }, cancellationToken: cancellationToken))).Select(row => new DelphiLivePolicyAssignment(
                 (Guid)row.AssignmentId, (Guid)row.DelphiLivePolicyVersionId, Enum.Parse<DelphiLivePolicyRole>((string)row.PolicyRole), date, (Guid?)row.ExperimentId)).ToArray();
         var policies = new Dictionary<Guid, DelphiLivePolicyDefinition>();
-        foreach (var assignment in assignments) policies.Add(assignment.PolicyVersionId, await ReadPolicyAsync(connection, assignment.PolicyVersionId, null, cancellationToken));
+        foreach (var assignment in assignments) policies[assignment.PolicyVersionId] = await ReadPolicyAsync(connection, assignment.PolicyVersionId, null, cancellationToken);
         var candidates = new Dictionary<string, DelphiLiveFrozenCandidate>(StringComparer.Ordinal);
         var rows = await connection.QueryAsync(new CommandDefinition(
             "SELECT c.CalibrationCandidateId,s.Symbol,c.CommonCompositeScore,c.CandidateSnapshotJson,c.FrozenCandidateId FROM dbo.DelphiLiveFrozenCandidate c JOIN dbo.DelphiLiveSessionSymbol s ON s.SessionSymbolId=c.SessionSymbolId WHERE c.SessionId=@Session;",
@@ -187,6 +187,33 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
                 Utc((DateTime)row.RequiredFromBarEndUtc),Utc((DateTime)row.RequiredThroughBarEndUtc)),StringComparer.Ordinal);
         return new(session, calendar.GetSessionBounds(date), assignments, policies, candidates, baselines)
             { ObservationMembership = membership };
+    }
+
+    public async Task<DelphiLiveSessionContext?> ReadOperationalContextAsync(DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var frozen = await ReadContextAsync(date, cancellationToken);
+        if (frozen is null) return null;
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        var assignments = (await EngineSettingsRepository.OverlayLiveAsync(connection, date, frozen.Assignments.ToArray(), cancellationToken)).ToList();
+        var policies = frozen.Policies.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var assignment in assignments)
+            policies[assignment.PolicyVersionId] = await ReadPolicyAsync(connection, assignment.PolicyVersionId, null, cancellationToken);
+        // An unchanged control can still use the original champion policy after the operational target switches.
+        var controls = await connection.QueryAsync(new CommandDefinition("""
+            SELECT g.AssignmentId,l.DelphiLivePolicyVersionId FROM dbo.DelphiLivePortfolioLedger l
+            JOIN dbo.DelphiLivePortfolioGeneration g ON g.GenerationId=l.GenerationId
+            WHERE g.PortfolioRole=N'ChampionControl' AND g.EffectiveTradingDate<=@Date
+             AND (g.EndExclusiveTradingDate IS NULL OR g.EndExclusiveTradingDate>@Date)
+            """, new { Date = Date(date) }, cancellationToken: cancellationToken));
+        foreach (var control in controls)
+        {
+            Guid policy = (Guid)control.DelphiLivePolicyVersionId;
+            if (assignments.All(a => a.PolicyVersionId != policy))
+                assignments.Add(new((Guid)control.AssignmentId, policy, DelphiLivePolicyRole.ChampionControl, date));
+            if (!policies.ContainsKey(policy)) policies[policy] = await ReadPolicyAsync(connection, policy, null, cancellationToken);
+        }
+        return frozen with { Assignments = assignments, Policies = policies };
     }
 
     private static async Task<DelphiLiveFrozenSession?> ReadFrozenAsync(SqlConnection connection, DateOnly date, SqlTransaction? transaction, CancellationToken ct)

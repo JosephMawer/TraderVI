@@ -1,0 +1,82 @@
+<UserControl x:Class="TraderVI.WPF.Views.GlobalSettingsView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="clr-namespace:TraderVI.WPF.Views" Background="#11151B" Foreground="#F4F7FB">
+ <UserControl.Resources>
+  <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Foreground" Value="#E4EAF3"/></Style>
+  <Style TargetType="Button"><Setter Property="Padding" Value="16,10"/><Setter Property="Margin" Value="0,0,10,8"/><Setter Property="Foreground" Value="#131922"/><Setter Property="Background" Value="#C9B1F5"/></Style>
+  <Style TargetType="TextBox"><Setter Property="Padding" Value="10,8"/><Setter Property="Foreground" Value="#F4F7FB"/><Setter Property="Background" Value="#11151B"/><Setter Property="BorderBrush" Value="#536078"/><Setter Property="CaretBrush" Value="White"/></Style>
+  <Style TargetType="ComboBox"><Setter Property="Padding" Value="10,8"/><Setter Property="Foreground" Value="#11151B"/><Setter Property="Background" Value="#E7ECF4"/></Style>
+  <Style x:Key="Card" TargetType="Border"><Setter Property="Background" Value="#1A2029"/><Setter Property="CornerRadius" Value="12"/><Setter Property="BorderBrush" Value="#344055"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="20"/><Setter Property="Margin" Value="0,0,0,16"/></Style>
+ </UserControl.Resources>
+ <Grid Margin="24,20">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="225"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+  <StackPanel Margin="0,0,20,0">
+   <TextBlock Text="Settings" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,8"/>
+   <TextBlock Text="One place. Clear scope." Foreground="#A6B3C6" Margin="0,0,0,24"/>
+   <Button Content="General &amp; operations" Tag="General" Click="Navigate_Click"/>
+   <TextBlock Text="SYSTEMS &amp; STRATEGIES" FontSize="11" Foreground="#A6B3C6" Margin="0,16,0,10"/>
+   <Button Content="Daily Delphi" Tag="Daily" Click="Navigate_Click"/>
+   <Button Content="Delphi Live" Tag="DelphiLive" Click="Navigate_Click"/>
+   <Button Content="System Shadow" Tag="SystemShadow" Click="Navigate_Click"/>
+   <Button Content="Trading monitor" Tag="TrackedPositions" Click="Navigate_Click"/>
+   <Button Content="Portfolios &amp; accounts" Tag="Accounts" Click="Navigate_Click" Margin="0,24,10,0"/>
+  </StackPanel>
+  <Grid Grid.Column="1">
+   <StackPanel x:Name="GeneralPanel">
+    <Border Style="{StaticResource Card}"><StackPanel>
+     <TextBlock Text="General &amp; operations" FontSize="24" FontWeight="SemiBold"/>
+     <TextBlock Text="Application preferences on this computer" Foreground="#A6B3C6" Margin="0,8,0,20"/>
+     <CheckBox x:Name="GhostExits" Content="Automatically execute eligible Ghost exits" Foreground="#F4F7FB" Margin="0,0,0,12"/>
+     <TextBlock Text="Applies to the Trading monitor. Real fills remain manual; independent Shadow and Delphi Live accounts follow their own strategies." Foreground="#A6B3C6" Margin="0,0,0,20"/>
+     <Button Content="Save preferences" Click="SavePreferences_Click" HorizontalAlignment="Left"/>
+     <TextBlock x:Name="PreferenceStatus" Foreground="#A6B3C6"/>
+    </StackPanel></Border>
+    <Border Style="{StaticResource Card}"><StackPanel>
+     <TextBlock Text="Operating contracts" FontSize="19" FontWeight="SemiBold"/>
+     <TextBlock Margin="0,12,0,0" Text="Market clock: America/Toronto&#10;Dashboard and Delphi Live host tick: 30 seconds&#10;Trading / Shadow schedule: 5 minutes during the market window&#10;Delphi Live: completed 5-minute bars, collected 2 minutes later&#10;Nightly collection: managed by the installed Windows task&#10;Calendar and data freshness: reviewed source contracts" Foreground="#A6B3C6"/>
+     <TextBlock Text="These operating contracts are displayed for reference. Changes to scheduling, calendars or data providers require their own reviewed configuration workflow." Foreground="#A6B3C6" Margin="0,14,0,0"/>
+    </StackPanel></Border>
+   </StackPanel>
+   <local:DelphiSettingsView x:Name="DailyEditor" Visibility="Collapsed"/>
+   <Grid x:Name="StrategyPanel" Visibility="Collapsed">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Border Style="{StaticResource Card}" Background="#211C2E"><StackPanel>
+     <DockPanel><Button Content="Reload" DockPanel.Dock="Right" Click="Reload_Click" IsEnabled="{Binding CanEdit}"/><TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold"/></DockPanel>
+     <TextBlock Text="{Binding Description}" Foreground="#C4CDDA" Margin="0,6,0,10"/>
+     <TextBlock Text="{Binding Status}" Foreground="#CCB4FA"/>
+    </StackPanel></Border>
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,14,0" IsEnabled="{Binding CanEdit}">
+     <Border Style="{StaticResource Card}"><StackPanel>
+      <TextBlock Text="1  Strategy version" FontSize="19" FontWeight="SemiBold" Margin="0,0,0,12"/>
+      <ComboBox ItemsSource="{Binding Versions}" SelectedItem="{Binding Selected}" DisplayMemberPath="DisplayName" AutomationProperties.Name="Saved strategy version"/>
+      <TextBlock Text="Edit a saved version or the template. Saving preserves a new version and leaves every assignment unchanged." Foreground="#A6B3C6" Margin="0,12,0,18"/>
+      <ItemsControl ItemsSource="{Binding Fields}"><ItemsControl.ItemTemplate><DataTemplate>
+       <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
+        <StackPanel><TextBlock Text="{Binding Label}" FontWeight="SemiBold"/><TextBlock Text="{Binding Help}" FontSize="12" Foreground="#A6B3C6" Margin="0,4,12,0"/></StackPanel>
+        <TextBox Grid.Column="1" Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Label}"/>
+       </Grid>
+      </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+      <TextBlock Text="New version name" Margin="0,12,0,6"/><TextBox Text="{Binding NewName,UpdateSourceTrigger=PropertyChanged}" MaxLength="80"/>
+      <TextBlock Text="Reason" Margin="0,12,0,6"/><TextBox Text="{Binding Reason,UpdateSourceTrigger=PropertyChanged}" MaxLength="512"/>
+      <Button Content="Save Version" Click="SaveVersion_Click" IsEnabled="{Binding CanWrite}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
+     </StackPanel></Border>
+     <Border Style="{StaticResource Card}"><StackPanel>
+      <TextBlock Text="2  Assignment" FontSize="19" FontWeight="SemiBold" Margin="0,0,0,12"/>
+      <ComboBox ItemsSource="{Binding Targets}" SelectedItem="{Binding Target}" DisplayMemberPath="DisplayName" AutomationProperties.Name="Assignment target"/>
+      <TextBlock Text="{Binding TargetSummary}" Foreground="#A6B3C6" Margin="0,12,0,12"/>
+      <TextBlock Text="Assign replaces the target’s governing strategy immediately, including existing holdings. Old pending decisions are superseded and reevaluated. Financial facts and completed history remain intact. Existing risk-review holds stay in force." Foreground="#A6B3C6"/>
+      <Button Content="Review assignment…" Click="Assign_Click" IsEnabled="{Binding CanWrite}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
+     </StackPanel></Border>
+    </StackPanel></ScrollViewer>
+   </Grid>
+   <StackPanel x:Name="AccountsPanel" Visibility="Collapsed">
+    <TextBlock Text="Portfolios &amp; accounts" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,12"/>
+    <TextBlock Text="Choose a target to open its strategy and assignment in the same editor. Capital, holdings and completed fills belong to the account; trading limits belong to its strategy." Foreground="#A6B3C6" Margin="0,0,0,20"/>
+    <ListBox x:Name="AccountsList" ItemsSource="{Binding Accounts}" DisplayMemberPath="DisplayName" Background="#1A2029" Foreground="#F4F7FB" Padding="14" MinHeight="120"/>
+    <Button Content="Open selected assignment" Click="OpenAccount_Click" HorizontalAlignment="Left" Margin="0,16,0,0"/>
+    <TextBlock Text="Account creation, activation, pause/resume and actual fill recording remain explicit actions on the operational pages." Foreground="#A6B3C6" Margin="0,16,0,0"/>
+   </StackPanel>
+  </Grid>
+ </Grid>
+</UserControl>

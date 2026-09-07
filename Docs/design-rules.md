@@ -7,6 +7,20 @@
 
 ### Strategy identity and adoption direction
 
+[ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
+and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not
+mutate an existing version's evidence identity. Preserve the source input-policy dispatch and immutable
+model metadata. Save Version never changes assignments. Explicit Assign is serialized with daily
+evaluation and starts an official reevaluation under the new selection. UI configuration is not proof of
+performance or cross-strategy/account promotion.
+
+[ADR-0060](adr/0060-central-settings-and-scoped-configuration.md) governs central settings and whole-target
+reassignment. Preserve financial facts, observed highs and completed history; recompute derived floors,
+supersede old pending internal actions and restart target confirmation with eligible evidence. Fence old
+workers through publication/fills. Do not clear existing loss/capital-review holds by changing thresholds.
+Manual Live assignments pause research promotion so mixed-policy history cannot pass as an untouched
+comparison. New settings tables require reviewed manual migration 027; no active assignments are seeded.
+
 [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) makes the complete strategy the
 unit of evidence and adoption: selection, entry, exit, sizing, risk, model/policy identity and execution
 assumptions. Preserve independent paper accounts and explicit human promotion to recommendation mode.

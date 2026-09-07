@@ -52,6 +52,7 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
             Symbol = input.Stock.Symbol, End = input.BarEndUtc, Epoch = continuityEpoch,
             Lease = lease.LeaseId, Token = lease.FencingToken, Owner = lease.OwnerId,
             Valid = result.ObservationIsValid, Confirmed = result.ConfirmedLiveEligible,
+            SettingsAuthorized = await EngineSettingsRepository.IsLivePolicyAssignedAsync(connection, input.SessionId, input.Policy.PolicyVersionId),
             Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc,
             Input = DelphiLiveLedgerJson.Serialize(input), Result = DelphiLiveLedgerJson.Serialize(result)
         }, cancellationToken: cancellationToken));
@@ -88,7 +89,7 @@ IF @LockResult<0 THROW 51241,'Delphi Live evaluation store lock unavailable.',1;
 IF NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveHostLease WITH(UPDLOCK,HOLDLOCK)
  WHERE LeaseId=@Lease AND OwnerId=@Owner AND FencingToken=@Token AND IsHeld=1 AND ExpiresUtc>SYSUTCDATETIME())
  THROW 51242,'Delphi Live evaluation writer lost its host lease.',1;
-IF NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveSessionPolicy WHERE SessionId=@Session AND DelphiLivePolicyVersionId=@Policy)
+IF @SettingsAuthorized=0 AND NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveSessionPolicy WHERE SessionId=@Session AND DelphiLivePolicyVersionId=@Policy)
  THROW 51243,'Evaluation policy is not frozen for this session.',1;
 IF NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveContinuityEpoch WHERE SessionId=@Session AND EpochNumber=@Epoch
  AND LeaseId=@Lease AND LeaseFencingToken=@Token AND EndedUtc IS NULL)

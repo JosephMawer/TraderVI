@@ -163,6 +163,11 @@
     <None Include="Migrations/20260905_024_AddDelphiLiveEvaluationLedger.sql" />
     <None Include="Migrations/20260905_025_AddDelphiLiveResearchAndExperiments.sql" />
     <None Include="Migrations/20260906_026_AddImmutableStrategyModelBindings.sql" />
+    <Build Include="dbo/Tables/EngineStrategyVersion.sql" />
+    <Build Include="dbo/Tables/EngineStrategyAssignment.sql" />
+    <Build Include="dbo/Triggers/EngineStrategyVersion_Immutable.sql" />
+    <Build Include="dbo/Triggers/EngineStrategyAssignment_Immutable.sql" />
+    <None Include="Migrations/20260907_027_AddCentralSettings.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />

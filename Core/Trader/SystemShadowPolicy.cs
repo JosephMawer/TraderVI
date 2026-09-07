@@ -415,7 +415,7 @@ public static class SystemShadowPolicy
             throw new ArgumentException("Evidence cannot be received before its bar completes.", nameof(evidence));
     }
 
-    private static void ValidateConfig(SystemShadowPolicyConfig config)
+    public static void ValidateConfig(SystemShadowPolicyConfig config)
     {
         if (config.InitialAllocationFraction <= 0m ||
             config.AddOnAllocationFraction <= 0m ||

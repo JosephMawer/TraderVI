@@ -366,7 +366,7 @@ public static class DelayedIntradaySwingExitPolicy
             throw new ArgumentOutOfRangeException(nameof(bar), "Volume cannot be negative.");
     }
 
-    private static void ValidateConfig(DelayedIntradaySwingPolicyConfig config)
+    public static void ValidateConfig(DelayedIntradaySwingPolicyConfig config)
     {
         if (config.PollIntervalMinutes <= 0 ||
             config.ExpectedSourceDelayMinutes < 0 ||

@@ -32,6 +32,23 @@ public class UnifiedProfitSignalModel : IStockSignalModel, IProfitSignalModel
     public float CompositeWeight => _model.CompositeWeight;
     public ModelArtifactProvenance? ArtifactProvenance { get; }
 
+    /// <summary>Verifies exact bytes and runtime prediction schema without market reads or predictions.</summary>
+    internal static void VerifyStoredArtifact(ModelRegistryInfo info, ReviewedProfitInputBinding binding)
+    {
+        LoadedModelArtifact.Load(info, (stream, provenance) =>
+        {
+            binding.ValidateArtifact(provenance);
+            var definition = ProfitModelRegistry.GetByTaskType(info.TaskType)
+                ?? throw new System.InvalidOperationException("Unsupported profit task.");
+            var model = new UnifiedProfitSignalModel(definition, MlContext.Model.Load(stream, out _), provenance,
+                (float)info.ThresholdBuy, (float)info.ThresholdSell);
+            model._binaryEngine?.Dispose();
+            model._threeWayEngine?.Dispose();
+            model._regressionEngine?.Dispose();
+            return true;
+        });
+    }
+
     public UnifiedProfitSignalModel(
         ProfitModelDefinition model,
         string modelZipPath,

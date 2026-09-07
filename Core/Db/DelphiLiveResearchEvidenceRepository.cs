@@ -127,6 +127,8 @@ SELECT s.HostGapObserved,COALESCE(r.RunContextJson,N'{}') AS RunContextJson,
  AND d.AffectedThrough>=s.TradingDate AND d.RecordedUtc<=@AsOf) THEN 1 ELSE 0 END AS bit) AS CorporateActionUnsupported
 FROM dbo.DelphiLiveSession s LEFT JOIN dbo.CalibrationRun r ON r.RunId=s.CalibrationRunId WHERE s.SessionId=@Session;
 """, new { Session = context.Session.SessionId, AsOf = asOfUtc }, cancellationToken: cancellationToken));
+        if (await EngineSettingsRepository.HasLiveOverrideForSessionAsync(connection, context.Session.SessionId, asOfUtc))
+            metadata = metadata with { StablePolicies = false };
         // The official calendar defines each ordinal even when a daily XIU bar
         // is missing. Missing bars therefore cannot compress the horizon.
         var dates = ImmutableArray.CreateBuilder<DateOnly>();

@@ -19,6 +19,34 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
     [Fact]
+    public async Task AssignmentReloadsPolicyAndRechecksHeldRiskBeforeNextScheduledBar()
+    {
+        var h = new Harness();
+        await h.Workflow.TickAsync();
+        for (int index = 1; index <= 5; index++)
+        {
+            h.Clock.Now = Open.AddMinutes(5 * index + 2);
+            await h.Workflow.TickAsync();
+        }
+        h.Ledger.State!.OpenPositions.Count().ShouldBe(1);
+        var prior = h.Ledger.State;
+        int bars = h.Source.BarRequests.Count;
+        var policy = Policy with { PolicyVersionId = Guid.NewGuid(), HardLossFraction = .01m };
+        h.Clock.Now = Open.AddMinutes(28);
+        h.Ledger.State = global::Core.Runtime.EngineStrategyReassignment.Rebase(prior, policy, h.Clock.Now);
+        h.Sessions.Reassign(policy);
+        (await h.Sessions.ReadContextAsync(Date))!.Assignments.Single().PolicyVersionId.ShouldBe(Policy.PolicyVersionId);
+        h.Source.Enqueue(103m, 103m, 103m);
+        h.Source.Enqueue(103m, 103m, 103m);
+        var result = await h.Workflow.TickAsync();
+        h.Source.BarRequests.Count.ShouldBe(bars);
+        h.Ledger.State.PolicyVersionId.ShouldBe(policy.PolicyVersionId);
+        h.Ledger.State.OpenPositions.ShouldBeEmpty();
+        h.Ledger.State.Fills.Last().Side.ShouldBe(DelphiLiveActionSide.Sell);
+        result.Warnings.ShouldContain(w => w.Contains("Strategy reassigned"));
+    }
+
+    [Fact]
     public async Task InactiveSystem_NeverAcquiresLeaseCollectsOrQuotes()
     {
         var h = new Harness(enabled: false);
@@ -336,9 +364,15 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private sealed class SessionStore : IDelphiLiveSessionContextStore
     {
         private readonly bool enabled;
-        private readonly DelphiLiveSessionContext context;
+        private DelphiLiveSessionContext context;
+        private readonly DelphiLiveSessionContext frozenContext;
         public int FreezeCount;
         public Action? BeforeFreeze;
+        public void Reassign(DelphiLivePolicyDefinition policy) => context = context with
+        {
+            Assignments = [context.Assignments.Single() with { AssignmentId = Guid.NewGuid(), PolicyVersionId = policy.PolicyVersionId }],
+            Policies = new Dictionary<Guid, DelphiLivePolicyDefinition> { [policy.PolicyVersionId] = policy }
+        };
         public SessionStore(bool enabled)
         {
             this.enabled = enabled;
@@ -353,6 +387,7 @@ public sealed class DelphiLiveMonitorWorkflowTests
                 new Dictionary<Guid, DelphiLivePolicyDefinition> { [Policy.PolicyVersionId] = Policy },
                 new Dictionary<string, DelphiLiveFrozenCandidate> { ["AAA"] = candidate },
                 new Dictionary<string, DelphiLiveFrozenBaseline> { ["AAA"] = baseline, ["XIU"] = baseline });
+            frozenContext = context;
         }
         public Task<IReadOnlyList<DelphiLivePolicyAssignment>> GetAssignmentsForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default) =>
             Task.FromResult(enabled ? context.Assignments : (IReadOnlyList<DelphiLivePolicyAssignment>)Array.Empty<DelphiLivePolicyAssignment>());
@@ -360,7 +395,8 @@ public sealed class DelphiLiveMonitorWorkflowTests
             Task.FromResult(FreezeCount > 0 ? context.Session : null);
         public Task<DelphiLiveFrozenSession> FreezeSessionAsync(DelphiLiveSessionFreezeRequest request, CancellationToken cancellationToken = default)
         { BeforeFreeze?.Invoke(); FreezeCount++; return Task.FromResult(context.Session); }
-        public Task<DelphiLiveSessionContext?> ReadContextAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.FromResult<DelphiLiveSessionContext?>(context);
+        public Task<DelphiLiveSessionContext?> ReadContextAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.FromResult<DelphiLiveSessionContext?>(frozenContext);
+        public Task<DelphiLiveSessionContext?> ReadOperationalContextAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.FromResult<DelphiLiveSessionContext?>(context);
         public Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(Guid sessionId, DateTime nextBarEndUtc,
             DelphiLiveLease lease, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, CancellationToken cancellationToken = default) => Task.FromResult(context);
         public Task<DelphiLivePolicyDefinition> GetPolicyAsync(Guid policyId, CancellationToken cancellationToken = default) => Task.FromResult(Policy);

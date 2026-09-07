@@ -1,5 +1,35 @@
 # Running TraderVI
 
+## Central Settings
+
+In the rebuilt app, open the top-level **Settings** tab. Delphi, Delphi Live, Trading and Portfolios have
+shortcuts to the same relevant editor. General & operations contains the local Ghost-exit preference;
+system sections contain their supported strategy fields; Portfolios & accounts lists existing targets.
+
+Select a saved version or template, edit supported fields, name it and enter a reason, then **Save
+Version**. Saving preserves a new version without changing any assignment. Select a saved, unedited
+version and an existing target, then **Review assignment**. The review names the target and effects.
+Assign takes effect for existing holdings and future decisions immediately, supersedes pending internal
+actions, and initiates reevaluation. Actual fills still require eligible evidence. Closed markets wait;
+reevaluation failure leaves the assignment active and is reported for retry. Real fills remain manual.
+
+Daily Delphi selects complete preserved four-model sets and eight gates; it does not mix arbitrary
+individual candidates. Assign also starts an official local-data run. Live and Shadow use deterministic
+policy editors, not the daily ML-model selector. Trading limits belong to the strategy; financial facts
+belong to accounts. The initial editor does not expose fixed calendar, evidence or Shadow lens/slot
+contracts as tunable controls. Manual Live assignment pauses automatic research promotion.
+
+Before operational rollout, obtain authorization, create/verify a full backup, close old hosts and apply
+`TraderDB/Migrations/20260907_027_AddCentralSettings.sql` manually with SQLCMD error stopping. Old hosts
+do not participate in the new settings fence. Building a DACPAC does not apply this migration. Without
+027, new-family Save/Assign are disabled; daily settings retain their installed migration-026 contract.
+Migration 027 was applied with a verified backup on 2026-09-07; do not reapply it. The updated Release
+desktop app is installed in the build output and was launched successfully. Settings is in the main tab
+bar between Scorecards and Project Docs. No settings assignment was seeded during rollout.
+See [ADR-0060](adr/0060-central-settings-and-scoped-configuration.md), the
+[system map](concepts/settings-system-map.md) and the
+[implementation and rollout review](reviews/central-settings-implementation-20260907.md).
+
 TraderVI currently operates in advisory and ghost-execution modes. None of these commands should be used as routine code-change validation: several call external services, write SQL Server, train models, or create model artifacts.
 
 Read `Docs/project-status.md` before restarting a workflow after a long pause.

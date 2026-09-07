@@ -105,8 +105,12 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
     public bool AutomaticGhostExitsEnabled
     {
         get => automaticGhostExitsEnabled;
-        set => Set(ref automaticGhostExitsEnabled, value);
+        set { Set(ref automaticGhostExitsEnabled, value); OnPropertyChanged(nameof(ExecutionPolicyBanner)); }
     }
+
+    public string ExecutionPolicyBanner => AutomaticGhostExitsEnabled
+        ? "GHOST AUTO-EXITS · REAL SIGNALS ONLY · NO BROKER"
+        : "GHOST SIGNALS ONLY · REAL SIGNALS ONLY · NO BROKER";
 
     public string LatestEventText
     {

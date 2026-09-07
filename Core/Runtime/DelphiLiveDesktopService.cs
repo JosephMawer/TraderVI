@@ -74,6 +74,7 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
             sessions, ledger, calendar, clock, () => codeIdentity);
         workflow.ApplySessionBoundaryAsync = async (date, open, lease, token) =>
         {
+            if (await EngineSettingsRepository.HasLiveOverridesAsync(token)) return;
             var current = await experiments.LoadAsync(token);
             if (current is null)
             {
@@ -87,8 +88,10 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
             if (await sessions.GetFrozenSessionAsync(date, token) is null)
                 await experimentWorkflow.ApplySessionBoundaryAsync(date, open, clock.UtcNow, lease, token);
         };
-        workflow.PersistResearchCheckpointAsync = research.CheckpointAsync;
-        workflow.PersistSessionResearchAsync = research.SessionClosedAsync;
+        workflow.PersistResearchCheckpointAsync = async (context, end, saved, lease, token) =>
+        { if (!await EngineSettingsRepository.HasLiveOverridesAsync(token)) await research.CheckpointAsync(context, end, saved, lease, token); };
+        workflow.PersistSessionResearchAsync = async (context, lease, token) =>
+        { if (!await EngineSettingsRepository.HasLiveOverridesAsync(token)) await research.SessionClosedAsync(context, lease, token); };
         workflow.GetCorporateActionSymbolsAsync = (date, token) => experiments.ReadAffectedSymbolsAsync(date, date, token);
     }
 
@@ -139,6 +142,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 
     public async Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken cancellationToken = default)
     {
+        await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
         ResetNotificationsFor(Today());
         if (workflow is null || !await HasSchemaAsync(cancellationToken)) return await SnapshotAsync(cancellationToken);
         var result = await workflow.TickAsync(cancellationToken);
@@ -266,13 +270,18 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 
     private async Task ExecuteOperatorAsync(Func<DelphiLiveLease, CancellationToken, Task> command, CancellationToken token)
     {
+        await using var settingsLease = await EngineSettingsLease.AcquireAsync(token);
         if (workflow is null || calendar is null || sessions is null) throw new InvalidOperationException(CalendarWarning);
         if (!await HasSchemaAsync(token)) throw new InvalidOperationException("The reviewed Delphi Live migrations are required before operator commands.");
         await workflow.ExecuteOperatorCommandAsync(command, token);
     }
 
-    private async Task<DelphiLiveExperimentState> RequiredExperimentAsync(CancellationToken token) =>
-        await experiments.LoadAsync(token) ?? throw new InvalidOperationException("The activated champion has not started its engineering shakedown.");
+    private async Task<DelphiLiveExperimentState> RequiredExperimentAsync(CancellationToken token)
+    {
+        if (await EngineSettingsRepository.HasLiveOverridesAsync(token))
+            throw new InvalidOperationException("Manual strategy assignments pause this research protocol. A separately reviewed fresh comparison is required before promotion.");
+        return await experiments.LoadAsync(token) ?? throw new InvalidOperationException("The activated champion has not started its engineering shakedown.");
+    }
 
     private DelphiLiveExperimentBoundaryPlan BoundaryCommand(string kind, DelphiLiveExperimentDefinition definition,
         Guid? challenger, string reason)
@@ -289,7 +298,9 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
     private async Task<DelphiLiveRuntimeSnapshot> WithExperimentAsync(DelphiLiveRuntimeSnapshot snapshot, CancellationToken token)
     {
         var state = await experiments.LoadAsync(token);
-        Guid? championId = state?.ChampionPolicyVersionId ?? snapshot.Portfolios.FirstOrDefault(p => p.Role == "OperationalChampion")?.PolicyVersionId;
+        bool manual = await EngineSettingsRepository.HasLiveOverridesAsync(token);
+        if (manual) snapshot = snapshot with { Warnings = snapshot.Warnings.Append("Manual strategy assignment active · research promotion paused; portfolio policy is authoritative.").ToArray() };
+        Guid? championId = snapshot.Portfolios.FirstOrDefault(p => p.Role == "OperationalChampion")?.PolicyVersionId ?? state?.ChampionPolicyVersionId;
         DelphiLivePolicyDefinition? champion = championId is Guid id && sessions is not null
             ? await sessions.GetPolicyAsync(id, token) : null;
         if (scoredProtocolRevision != state?.Revision)

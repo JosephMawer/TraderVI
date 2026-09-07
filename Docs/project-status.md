@@ -1,9 +1,43 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-06
+**Snapshot date:** 2026-09-07
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
+
+**Central Settings rolled out (2026-09-07):** the main tab bar now has one
+Settings destination, with links from operational pages. Save Version and Assign are separate for daily
+Delphi, Delphi Live, System Shadow and tracked-position exit policies. Assignment replaces the whole
+target's rules, supersedes pending internal actions and begins reevaluation while preserving financial
+facts and history. Supported controls, state conversion, research isolation and failure behavior are
+documented in the [implementation review](reviews/central-settings-implementation-20260907.md).
+Core tests (699), WPF/Core builds and the SQL/SSDT project pass; five isolated layouts render without
+binding errors. Existing compiler warnings and dependency advisories remain. Migration 027 adds the
+version/assignment audit storage and the explicit Live assignment revision authority. With explicit operator
+authorization, a fresh checksum-verified backup was copied to the approved OneDrive folder with matching
+SHA-256, migration 027 was applied, and the updated Release WPF app was launched. All 66 preexisting table
+counts and the account/order/ledger/strategy state hashes matched across the migration; zero settings
+versions or assignments were seeded. The installed catalog exposes five targets. No active strategy or
+model assignment was changed. OneDrive cloud synchronization has not been independently verified.
+The [system map](concepts/settings-system-map.md) explains configuration scope and a proposed narrower
+research-comparison restart; that refinement is not implemented. New work remains uncommitted.
+
+The following daily-only milestone predates and is superseded by central navigation and separate
+save/assign behavior above.
+
+**Delphi Settings implemented in source (2026-09-06):** the daily Delphi workspace now has a Settings tab
+for selecting a preserved four-model set with its associated strategy, reviewing model identities and
+editing eight daily decision thresholds. Explicit Apply either selects an existing version or creates a
+new version for changed gates, preserving prior evidence and input-policy dispatch. Desktop and CLI
+evaluations share a SQL selection lock through publication; the settings writer also honors the nightly
+file lock and appends the existing immutable selection event. All 690 Core tests and affected WPF/CLI
+builds pass; isolated synthetic previews have no binding errors. The read-only installed catalog check
+found seven versions, three selectable preserved assignments, exactly one active version and matching
+hashes for all four active model files. Compiler warnings and dependency-security advisories remain.
+No actual selection, threshold update,
+database migration, application run or market call was made during implementation. See
+[ADR-0059](adr/0059-delphi-model-and-threshold-settings.md). Earlier work was first checkpointed at
+`6868299`; settings changes are subsequent uncommitted work.
 
 **First official corrected Delphi run completed (2026-09-06, 22:43 Eastern):** the operator authorized
 the standalone daily run. `v3.4-observed-benchmarks` evaluated 209 stocks using September 4 market data

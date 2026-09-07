@@ -1,5 +1,8 @@
 # Concepts
 
+- [Global settings design draft](global-settings-design-draft.md) — accepted central navigation, separate save/assign actions and immediate whole-account reassignment.
+- [Settings system map](settings-system-map.md) — current configuration paths, supporting services and proposed scoped research-comparison restarts.
+
 - [Strategy promotion and execution](strategy-promotion-and-execution.md) — independent paper strategies, comparable evidence, approved live recommendations, then separately authorized Wealthsimple execution.
 - [Strategy alignment stabilization draft](strategy-alignment-stabilization-draft.md) — accepted input/compatibility decisions, completed corrected-strategy selection and remaining policy/comparison work.
 

@@ -42,6 +42,8 @@ public sealed class DelphiWorkflow
         await RunGate.WaitAsync(cancellationToken);
         try
         {
+            // Held through publication, across desktop and CLI processes.
+            await using var selectionLease = await DelphiStrategySelectionLease.AcquireForRunAsync(cancellationToken);
             using IDisposable logScope = DelphiWorkflowLog.Use(output ?? TextWriter.Null);
             cancellationToken.ThrowIfCancellationRequested();
 

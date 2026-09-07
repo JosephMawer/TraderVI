@@ -117,7 +117,12 @@ public sealed record SystemShadowRuntimePortfolio(
     string Status,
     decimal CashBalance,
     decimal HighestClosingValue,
-    DateTime ActivatedUtc);
+    DateTime ActivatedUtc)
+{
+    public SystemShadowPolicyConfig Settings { get; init; } = SystemShadowPolicyConfig.Version1;
+    public DateTime? SettingsAssignedUtc { get; init; }
+    public Guid? StrategyVersionId { get; init; }
+}
 
 public sealed record SystemShadowRuntimeSession(
     Guid SessionId,

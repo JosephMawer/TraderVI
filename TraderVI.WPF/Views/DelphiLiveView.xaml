@@ -21,6 +21,7 @@
         </Grid>
         <WrapPanel Grid.Row="1" Margin="0,0,0,12">
             <ComboBox ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding DisplayModeIndex}" SelectionChanged="DisplayMode_SelectionChanged" Width="205" Margin="0,0,10,6"/>
+            <Button Content="Settings…" Click="SettingsButton_Click" Margin="0,0,10,6"/>
             <Button Content="Refresh picks / saved state" IsEnabled="{Binding CanRefresh}" Click="RefreshButton_Click" Margin="0,0,10,6"/>
             <Button Content="{Binding ReplayButtonText}" Click="ReplayButton_Click" Margin="0,0,10,6"/>
         </WrapPanel>

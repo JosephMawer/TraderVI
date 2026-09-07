@@ -750,7 +750,7 @@ VALUES
         return versionId;
     }
 
-    private static StrategyVersionInfo MapVersion(SqlDataReader reader) => new()
+    internal static StrategyVersionInfo MapVersion(SqlDataReader reader) => new()
     {
         VersionId = reader.GetGuid(0),
         VersionName = reader.GetString(1),
