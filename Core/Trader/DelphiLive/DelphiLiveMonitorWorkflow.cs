@@ -43,6 +43,9 @@ public sealed class DelphiLiveMonitorWorkflow
     public Func<DelphiLiveSessionContext, DateTime, IReadOnlyList<DelphiLiveStoredEvaluation>, DelphiLiveLease, CancellationToken, Task>? PersistResearchCheckpointAsync { get; set; }
     public Func<DelphiLiveSessionContext, DelphiLiveLease, CancellationToken, Task>? PersistSessionResearchAsync { get; set; }
     public Func<DateOnly, CancellationToken, Task<IReadOnlyList<string>>>? GetCorporateActionSymbolsAsync { get; set; }
+    private bool operatorEntriesPaused;
+    public bool NewBuysPaused { get => operatorEntriesPaused; set { operatorEntriesPaused=value; actions.NewBuysPaused=value; } }
+    public Func<Guid?, CancellationToken, Task<bool>>? IsDailyStrategyCurrentAsync { get; set; }
 
     public DelphiLiveMonitorWorkflow(IDelphiLiveClock clock, ITsxSessionCalendar calendar,
         IDelphiLiveSessionContextStore sessions, IDelphiLiveEvaluationStore evaluations,
@@ -149,6 +152,9 @@ public sealed class DelphiLiveMonitorWorkflow
                 AddWarning("Strategy reassigned: protection reevaluates now; confirmation restarts with fresh evidence. Research promotion is paused.");
             }
             context = refreshedContext;
+            bool dailyCompatible = IsDailyStrategyCurrentAsync is null || await IsDailyStrategyCurrentAsync(context.Session.DailyStrategyVersionId, ct);
+            actions.NewBuysPaused = operatorEntriesPaused || !dailyCompatible;
+            if (!dailyCompatible) AddWarning("New buys wait for a fresh session: frozen daily picks do not use the currently assigned daily strategy.");
             // Opening protection runs once immediately, before the first 09:37
             // collection. Later protection is first in each scheduled cycle.
             if (!sessionProtectionStarted)

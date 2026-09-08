@@ -15,11 +15,13 @@ evaluation and starts an official reevaluation under the new selection. UI confi
 performance or cross-strategy/account promotion.
 
 [ADR-0060](adr/0060-central-settings-and-scoped-configuration.md) governs central settings and whole-target
-reassignment. Preserve financial facts, observed highs and completed history; recompute derived floors,
-supersede old pending internal actions and restart target confirmation with eligible evidence. Fence old
-workers through publication/fills. Do not clear existing loss/capital-review holds by changing thresholds.
-Manual Live assignments pause research promotion so mixed-policy history cannot pass as an untouched
-comparison. New settings tables require reviewed manual migration 027; no active assignments are seeded.
+reassignment. Its revised operating contract requires the affected family to be paused and empty before
+editing, saving or assigning trading rules. Daily shared models/gates require all dependent families paused
+and empty. Sell is separate and requires eligible execution evidence; assignment cannot liquidate or erase
+pending orders. Fence workers through publication/fills. Preserve completed history, capital and existing
+loss/capital-review holds. Resume explicitly and reject incompatible frozen daily source evidence for buys.
+Manual Live assignments and operator interventions pause research promotion; a fresh comparison requires
+separate review. Migration 027 provides versions/assignments; 028 adds durable pauses and exit requests.
 
 [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) makes the complete strategy the
 unit of evidence and adoption: selection, entry, exit, sizing, risk, model/policy identity and execution

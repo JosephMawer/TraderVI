@@ -68,6 +68,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(ExecutionHint));
             OnPropertyChanged(nameof(SelectedAccountExplanation));
             OnPropertyChanged(nameof(DisplayStatus));
+            NotifyComparisonSelection();
         }
     }
 
@@ -78,13 +79,14 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
     }
 
     public bool CanStart => !IsLiveSelected && schemaInstalled && !busy && generation is null;
+    public bool CanStartDailyShadow => schemaInstalled && !busy && generation is null;
     public bool CanPause => !IsLiveSelected && schemaInstalled && !busy && generation?.Status == SystemShadowGenerationStatus.Active;
     public bool CanResume => !IsLiveSelected && schemaInstalled && !busy &&
-        (generation?.Status == SystemShadowGenerationStatus.Paused || SelectedPortfolio?.Status == "CapitalReviewRequired");
+        SelectedPortfolio?.Status == "CapitalReviewRequired";
     public bool CanRecordSnapshot => schemaInstalled && !busy && generation is not null;
     public bool CanRename => schemaInstalled && !busy && SelectedPortfolio?.SystemPortfolioId is not null;
 
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+    private async Task RefreshCoreAsync(CancellationToken cancellationToken = default)
     {
         string? selectedCode = SelectedPortfolio?.StableCode;
         schemaInstalled = await repository.HasSchemaAsync(cancellationToken);
@@ -94,9 +96,12 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             GenerationStatus = "Shadow schema not installed";
             Status = $"Apply {SystemShadowRepository.MigrationFileName}; Shadow is safely off.";
             var tracked = await BuildTrackedRowsAsync(null, null);
-            Replace(Portfolios, tracked.Concat(await ReadDelphiLiveRowsAsync(cancellationToken)));
+            var liveRows = await ReadDelphiLiveRowsAsync(cancellationToken);
+            selectedCode = SelectedPortfolio?.StableCode;
+            Replace(Portfolios, tracked.Concat(liveRows));
             SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
             await RefreshDetailsAsync(cancellationToken);
+            await RefreshComparisonAsync(cancellationToken);
             NotifyActions();
             return;
         }
@@ -119,12 +124,15 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         rows.AddRange(await ReadDelphiLiveRowsAsync(cancellationToken));
         rows.AddRange(system.Select(PortfolioOverviewRow.FromSystem));
         var settingsNames = await new EngineSettingsRepository().ReadAssignedNamesAsync();
+        trackedStrategyName = settingsNames.GetValueOrDefault(Core.Runtime.EngineStrategySettings.TrackedTargetId)
+            ?? "Default tracked-position exit rules";
         for (int i = 0; i < rows.Count; i++)
         {
-            Guid target = rows[i].SystemPortfolioId ?? rows[i].DelphiLivePortfolioId ?? Core.Runtime.EngineStrategySettings.TrackedTargetId;
-            if (settingsNames.TryGetValue(target, out string? strategy))
-                rows[i] = rows[i] with { Explanation = rows[i].Explanation + $" Assigned strategy: {strategy}. Lifetime results include history under earlier rules; see Settings for the current assignment." };
+            Guid? target = rows[i].SystemPortfolioId ?? rows[i].DelphiLivePortfolioId;
+            if (target.HasValue && settingsNames.TryGetValue(target.Value, out string? strategy))
+                rows[i] = rows[i] with { StrategyName = strategy, Explanation = rows[i].Explanation + $" Assigned strategy: {strategy}. Lifetime results include history under earlier rules; see Settings for the current assignment." };
         }
+        selectedCode = SelectedPortfolio?.StableCode;
         Replace(Portfolios, rows);
         if (selectedCode is not null)
             SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
@@ -135,12 +143,20 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             ? "Daily Shadow is off. Delphi Live accounts have their own activation and execution."
             : "Daily Shadow and Delphi Live use independent virtual accounts and execution rules.";
         await RefreshDetailsAsync(cancellationToken);
+        await RefreshComparisonAsync(cancellationToken);
         NotifyActions();
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    public Task StartAsync(CancellationToken cancellationToken = default)
     {
         RequireDailySelection();
+        return StartDailyShadowAsync(cancellationToken);
+    }
+
+    // Explicitly scoped account-tool command; independent of the comparison's selected challenger.
+    public async Task StartDailyShadowAsync(CancellationToken cancellationToken = default)
+    {
+        if (!CanStartDailyShadow) throw new InvalidOperationException("Daily Shadow cannot be started in the current account state.");
         (decimal total, decimal cash) = ReadCapital();
         await BusyAsync(async () =>
         {
@@ -192,7 +208,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         {
             await BusyAsync(() => repository.ResumePortfolioAfterCapitalReviewAsync(
                 portfolioId,
-                "Operator reviewed the 10% drawdown and explicitly resumed new risk.",
+                "Operator reviewed the account drawdown and explicitly cleared the capital-review hold.",
                 cancellationToken));
         }
         else
@@ -234,13 +250,21 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             repository.GetPositionsAsync(portfolioId, cancellationToken);
         Task<IReadOnlyList<SystemShadowEventInfo>> eventsTask =
             repository.GetRecentEventsAsync(portfolioId, 100, cancellationToken);
-        await Task.WhenAll(candidatesTask, positionsTask, eventsTask);
+        var exitsTask = new TradingControlRepository().ExitRequestsAsync(Core.Runtime.EngineStrategySettings.Shadow);
+        await Task.WhenAll(candidatesTask, positionsTask, eventsTask, exitsTask);
 
         if (request != detailRequest || selection != SelectedPortfolio?.StableCode) return;
 
         Replace(Candidates, candidatesTask.Result.Select(PortfolioCandidateRow.From));
-        Replace(Holdings, positionsTask.Result.Select(PortfolioHoldingRow.From));
-        Replace(Events, eventsTask.Result.Select(PortfolioEventRow.From));
+        var exits = exitsTask.Result.Where(r => r.TargetId == portfolioId).ToArray();
+        Replace(Holdings, positionsTask.Result.Select(x => PortfolioHoldingRow.From(x) with
+        {
+            TargetId=portfolioId,
+            ExitReason=x.Status=="Open" && exits.Any(r=>r.PositionId==x.PositionId) ? "Exit requested · awaiting eligible fill" : x.ExitReasonCode ?? "—"
+        }));
+        Replace(Events, eventsTask.Result.Select(PortfolioEventRow.From).Concat(exits.Select(r=>
+            new PortfolioEventRow(r.RequestedUtc.ToLocalTime(),"Operator exit requested",r.Reason,
+                System.Text.Json.JsonSerializer.Serialize(r)))).OrderByDescending(e=>e.TimeLocal).Take(100));
     }
 
     public void ApplyPollResult(SystemShadowPollResult result)
@@ -319,6 +343,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
     private void NotifyActions()
     {
         OnPropertyChanged(nameof(CanStart));
+        OnPropertyChanged(nameof(CanStartDailyShadow));
         OnPropertyChanged(nameof(CanPause));
         OnPropertyChanged(nameof(CanResume));
         OnPropertyChanged(nameof(CanRecordSnapshot));
@@ -373,6 +398,7 @@ public sealed record PortfolioOverviewRow(
     public Guid? DelphiLivePortfolioId { get; init; }
     public string Currency { get; init; } = "CAD";
     public string Explanation { get; init; } = "";
+    public string StrategyName { get; init; } = "Operator selected";
     public string FreshnessText => FreshnessUtc?.ToLocalTime().ToString("MMM d HH:mm") ?? "—";
 
     public static PortfolioOverviewRow FromSystem(SystemShadowPortfolioOverview x) =>
@@ -380,7 +406,11 @@ public sealed record PortfolioOverviewRow(
             x.Status != "Active" ? x.Status : x.SessionStatus ?? x.Status,
             x.NetAssetValue, x.Cash, x.OpenPositions, x.RealizedProfitLoss, x.UnrealizedProfitLoss,
             x.TotalReturn, x.DailyReturn, x.Drawdown,
-            Latest(x.FreshestPriceEventUtc, x.LatestCandidateEvaluationUtc) ?? x.UpdatedUtc);
+            Latest(x.FreshestPriceEventUtc, x.LatestCandidateEvaluationUtc) ?? x.UpdatedUtc)
+        {
+            StrategyName = $"{x.Lens} · {x.MaximumPositions} positions",
+            Explanation = "Daily Shadow paper account. Current value uses saved holding marks. Account lifetime results can include earlier strategy assignments."
+        };
 
     public static PortfolioOverviewRow ForTracked(
         string code, string name, string selector, string execution, decimal nav, decimal cash,
@@ -444,10 +474,14 @@ public sealed record PortfolioHoldingRow(
     DateTime EntryLocal,
     string ExitReason)
 {
+    public Guid PositionId { get; init; }
+    public Guid TargetId { get; init; }
+    public string Family { get; init; } = Core.Runtime.EngineStrategySettings.Shadow;
+    public bool CanRequestExit => PositionId != Guid.Empty && Status is "Open" or "Held";
     public static PortfolioHoldingRow From(SystemShadowPositionInfo x) =>
         new(x.Symbol, x.Status, x.Shares, x.AverageCost, x.LastPrice, x.Shares * x.LastPrice,
             x.Status == "Open" ? x.Shares * x.LastPrice - x.CostBasis : x.RealizedProfitLoss,
-            x.TrailingStopPrice, x.EntryUtc.ToLocalTime(), x.ExitReasonCode ?? "—");
+            x.TrailingStopPrice, x.EntryUtc.ToLocalTime(), x.ExitReasonCode ?? "—") { PositionId=x.PositionId };
 }
 
 public sealed record PortfolioEventRow(

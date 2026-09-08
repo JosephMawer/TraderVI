@@ -114,6 +114,9 @@
                     </WrapPanel>
                     <TabControl Grid.Row="3" Margin="0,6,0,0" Background="#11151B" BorderThickness="0">
                         <TabItem Header="Positions"><DataGrid ItemsSource="{Binding Positions}"><DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Action" Width="75"><DataGridTemplateColumn.CellTemplate><DataTemplate>
+                              <Button Content="Sell…" IsEnabled="{Binding CanRequestExit}" Click="SellPosition_Click"/>
+                            </DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
                             <DataGridTextColumn Header="Shares" Binding="{Binding Quantity}" Width="75"/>
                             <DataGridTextColumn Header="Average cost" Binding="{Binding AverageCost, StringFormat=N4}" Width="110"/>

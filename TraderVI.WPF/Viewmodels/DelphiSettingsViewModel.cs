@@ -22,11 +22,37 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
     private string active = "Not loaded";
     private string name = "";
     private string reason = "";
+    private TradingSettingsAccess access = new(false,false,0,0);
+    private readonly Dictionary<Guid,(string Name,string Reason,string[] Values)> drafts = new();
+    private string[] originalValues = [];
+    public bool HasUnsavedChanges => NewVersionName.Length>0 || !Thresholds.Select(t=>t.Value).SequenceEqual(originalValues);
+    public bool HasAnyDrafts => HasUnsavedChanges || drafts.Count>0;
+    public bool RulesReadOnly => IsBusy || !access.CanEdit;
+    public bool CanWrite => !IsBusy && access.CanEdit;
+    public string AccessDescription => access.Description;
+    private void CaptureDraft()
+    {
+        if(selected is null)return;
+        if(HasUnsavedChanges) drafts[selected.Strategy.VersionId]=(NewVersionName,ReviewReason,Thresholds.Select(t=>t.Value).ToArray());
+        else drafts.Remove(selected.Strategy.VersionId);
+    }
+    public void DiscardCurrentDraft()
+    {
+        if(selected is not null) drafts.Remove(selected.Strategy.VersionId);
+        for(int i=0;i<Thresholds.Count&&i<originalValues.Length;i++)Thresholds[i].Value=originalValues[i];
+        NewVersionName="";ReviewReason="";
+    }
+    public async Task RefreshAccessAsync()
+    {
+        try{access=await new TradingControlRepository().AccessAsync(TradingSystems.Daily);}
+        catch{access=new(false,false,0,0);}
+        OnPropertyChanged(nameof(AccessDescription));OnPropertyChanged(nameof(RulesReadOnly));OnPropertyChanged(nameof(CanWrite));
+    }
 
     public ObservableCollection<DelphiStrategySettings> Strategies { get; } = [];
     public ObservableCollection<DelphiSettingsModelRow> Models { get; } = [];
     public ObservableCollection<DelphiThresholdEditor> Thresholds { get; } = [];
-    public bool IsBusy { get => busy; set { Set(ref busy, value); OnPropertyChanged(nameof(CanEdit)); } }
+    public bool IsBusy { get => busy; set { Set(ref busy, value); OnPropertyChanged(nameof(CanEdit)); OnPropertyChanged(nameof(CanWrite)); OnPropertyChanged(nameof(RulesReadOnly)); } }
     public bool CanEdit => !IsBusy;
     public string Status { get => status; set => Set(ref status, value); }
     public string ActiveSummary { get => active; private set => Set(ref active, value); }
@@ -48,9 +74,10 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
         get => selected;
         set
         {
+            CaptureDraft();
             if (!Set(ref selected, value)) return;
             Models.Clear(); Thresholds.Clear();
-            NewVersionName = "";
+            NewVersionName = ""; ReviewReason="";
             if (value is not null)
             {
                 if (value.ModelSet is not null)
@@ -68,6 +95,12 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
                 Add("Breadth veto", "Breadth at or below this value blocks new longs; range −1 to 1.", g.BreadthVetoThreshold);
                 Add("Strong breakout override", "Breakout probability needed to bypass the composite gate with strong edge.", g.StrongBreakoutOverride);
                 Add("Strong edge override", "Direction edge also needed for the composite override; range −1 to 1.", g.StrongEdgeOverride);
+            }
+            originalValues=Thresholds.Select(t=>t.Value).ToArray();
+            if(value is not null&&drafts.TryGetValue(value.Strategy.VersionId,out var draft))
+            {
+                NewVersionName=draft.Name;ReviewReason=draft.Reason;
+                for(int i=0;i<Thresholds.Count&&i<draft.Values.Length;i++)Thresholds[i].Value=draft.Values[i];
             }
             OnPropertyChanged(nameof(PolicySummary)); OnPropertyChanged(nameof(PreservedSettings));
         }
@@ -89,6 +122,7 @@ public sealed class DelphiSettingsViewModel : INotifyPropertyChanged
             ActiveSummary = $"{current.Strategy.VersionName} · shared by desktop and nightly Delphi";
             SelectedStrategy = loaded.Strategies.FirstOrDefault(s => s.Strategy.VersionId == select) ?? current;
             Status = "Select a saved model set to load its strategy. Browsing and editing do not change the engine.";
+            await RefreshAccessAsync();
         }
         catch
         {

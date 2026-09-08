@@ -1,117 +1,71 @@
-# Global settings design draft
+# Global settings: agreed operating workflow
 
-- **Status:** Decision history; accepted design implemented and rolled out on 2026-09-07
-- **Domains:** architecture, user-interface, decision-engine
-- **Related ADRs:** ADR-0051, ADR-0053, ADR-0055, ADR-0057, ADR-0059, ADR-0060
+- **Status:** Accepted and implemented in source, 2026-09-07; migration 028 rollout tracked in project status.
+- **Related:** ADR-0060, [system map](settings-system-map.md), [implementation review](../reviews/central-settings-implementation-20260907.md).
 
-The operator subsequently authorized implementation. ADR-0060 and the
-[implementation review](../reviews/central-settings-implementation-20260907.md) now define the concrete
-source behavior. Migration, actual assignment, training and operational rollout remain separate actions.
+The immediate problem is changing trading rules without changing the rules underneath an open trade.
+The parent problem is clear configuration ownership. The root goal is dependable operation and an
+explainable history of which strategy produced each decision and result.
 
-## Goal and current state
+## Pause, close, configure, resume
 
-Make configuration easy to find across TraderVI while keeping each change's scope explicit and preserving
-the identity of independently evaluated strategies. Daily Delphi currently has its own model-set and
-eight-gate settings view (ADR-0059), now hosted by central Settings alongside the other policy editors.
+1. **Pause new buys** for the affected system. This is a durable operator control: it survives restart,
+   blocks new simulated entries and cancels internal pending buys. Exits and monitoring continue.
+2. **Sell each holding separately.** A simulated Sell records an immutable request and waits for eligible
+   later market evidence; it never erases the position or fabricates an immediate fill. Real holdings use
+   Record sale after an actual broker fill. The app has no broker-order connection.
+3. **Wait for zero holdings and pending orders.** Until the system is both paused and empty, its strategy
+   fields, Save Version and Assign stay read-only. Backend checks repeat this under the same lock that
+   fences trading cycles, so a stale screen cannot bypass the rule.
+4. **Edit a complete strategy draft.** Entry, Exit, Sizing and Account risk tabs share one draft and one
+   review/save action. Daily Delphi saves its model-set references and gates together. Navigation and
+   reload preserve drafts in memory; closing the app warns before discarding them. Drafts are not a
+   crash-persistent workspace. There is no cross-system Save All.
+5. **Save Version, then Assign.** Saving creates a preserved strategy version; it does not change any
+   assignment. Assignment requires paused, empty accounts and leaves the pause in place.
+6. **Resume buys explicitly.** Future eligible decisions use the assigned rules. Resume neither assigns
+   the version merely selected on screen nor clears loss/capital-review holds.
 
-## Decision record
+## Ownership and scope
 
-**Accepted:** One top-level Settings destination, organized by system, with contextual shortcuts from
-operational pages. Four areas: General & operations, Systems, Strategies, and Portfolios & accounts.
-Reuse the daily editor. Strategy definitions own models and trading behavior; accounts own their state
-and assignments. A central UI must not imply shared balances or cross-family policy compatibility.
+The initial lock and pause are **per system family**, not per row: all Delphi Live accounts, all System
+Shadow portfolios, or positions governed by the tracked monitor. This deliberately simple scope prevents
+one occupied account from having its family's rules edited through another empty account. Other families
+remain independent. The tracked scope remains linked Delphi Ghost positions and reported Real positions;
+unlinked legacy Ghost records are not silently enrolled in this monitor.
 
-**Accepted — save versus assign:** Saving a revised strategy creates a new preserved version and leaves
-all system/account assignments unchanged. Assigning a version is a separate explicit action identifying
-the target system/account. The operator accepted this separation after the navigation decision. It
-supersedes the combined edit-and-apply interaction as the intended broader design; the existing daily
-implementation now follows the separate Save Version and Assign flow. Saving also does not confer performance approval
-or bypass system-specific eligibility and promotion rules.
+Daily Delphi is shared upstream input. Its pause blocks dependent entries in all three families. Editing
+its models/gates requires all dependent families paused and empty. A separate family pause is retained
+when the shared Daily pause resumes. Data collection, recommendations and protective exits continue.
 
-**Accepted — immediate reassignment:** The operator rejected waiting until holdings and orders clear.
-A successful explicit assignment immediately replaces the target's governing version for all existing
-positions, pending actions and future decisions. There is one current assignment per target; old rules
-do not remain assigned to carried positions. An assignment must initiate reevaluation under the new
-rules without waiting for the portfolio to empty or requiring a separate manual evaluation command.
-Already completed fills and decisions remain historical facts, attributed to their original versions.
+Live and Shadow freeze picks for a session. A different daily strategy does not rewrite those picks.
+Entries stay blocked until a fresh compatible session is available; tracked simulated entries also reject
+a pick belonging to an earlier daily strategy. Changing only a family's execution strategy does not
+require retraining the daily models.
 
-**Required implementation consequences:** Validate compatibility before committing a replacement, then
-switch the target as one coordinated operation. Older in-flight evaluations cannot publish decisions or
-execute pending actions after the assignment boundary. Pending internal actions must be revalidated
-under the new version before execution; superseded actions retain their audit history. Reevaluation
-must use eligible data, with unavailable evidence reported explicitly, rather than manufacturing an
-instant fill. Distinguish assignment completion from reevaluation completion in the UI. Performance
-spanning a reassignment must identify the transition instead of claiming a pure new-version track record.
+## What needs a version
 
-**Accepted — inherited factual state:** Preserve actual entry prices, quantities, cash, observed price
-highs and account loss/drawdown history when changing versions. Apply the new rules to those existing
-facts. The operator confirmed this explicitly; assignment is not a new account or a reset of its history.
+A **model version** identifies a preserved trained artifact. A **strategy version** is a saved snapshot
+of decision rules and their model references. Editing thresholds, entry/exit conditions, sizing or risk
+creates a new strategy version when the combined draft is saved. Several edits become one version;
+keystrokes do not create versions. Rule-only changes reuse compatible trained artifacts.
 
-**Implemented — rule-derived state:** Recompute profit floors from retained entry costs and observed
-highs; they may tighten or loosen under the new rules. Clear target confirmation counters. Supersede
-pending internal buys and sells, preserving original dossiers and events. Existing daily-loss and
-capital-review holds remain latched for the existing reviewed resume flow. Do not apply new floors to
-pre-assignment intrabar lows or invent missing observations.
+Names and descriptions are metadata. Pause/resume and explicit exits are audited operator actions.
+Neither changes strategy identity, but both affect the interpretation of performance. Every editable
+strategy field includes behavioral help and units; each system banner explains its purpose and scope.
 
-**Accepted — simple ownership of trading limits:** The assigned strategy owns trading limits, including
-position count, sizing and risk thresholds, alongside entry/exit rules and models. Do not introduce a
-second configurable account-level cap or override layer in the initial settings design. Accounts retain
-their own identity, capital/cash, holdings, history, execution mode and strategy assignment. Available
-cash and existing execution-authority constraints remain real constraints; this decision does not make
-them configurable strategy overrides or remove current operational checks. The operator chose this
-simplification after discussing the competing strategy/account limits example.
+## Preserved history and deferred work
 
-**Implemented — failure and readiness:** Commit assignment and state conversion atomically after
-compatibility checks and worker fencing. Begin reevaluation afterward; report failure or unavailable
-data without silently reverting the assignment. Normal host cycles retry using the assigned rules.
+Exit requests retain operator, time, reason, symbol, target, position identity and the original holding
+snapshot. Existing order, fill, trade and ledger records remain the execution authority. Pauses and resumes
+also have immutable audit events. No sale, assignment or resume resets capital or historical losses.
 
-**Open — subsequent capabilities:** Fresh cross-family comparison runs, configurable Shadow lens/slot
-definitions, scheduling/provider editors, deposits/withdrawals and resuming automatic research after
-a manual Live assignment remain separate work.
+An empty-account switch avoids trades spanning strategies, but does not make account periods a controlled
+comparison. Live manual assignments, shared/Live pauses and Live operator exits keep the existing broad
+research-promotion guard engaged. A reviewed prospective research restart remains deferred; earlier
+session evidence is assessed using the intervention timestamp. There is no automatic promotion restart.
 
-**Deferred:** Optional account-specific trading caps until a concrete need emerges; a universal
-cross-family promotion mechanism, broker execution, and making every source
-constant editable. Existing evidence requirements remain authoritative. Immediate portfolio reassignment
-is an accepted future behavior change to reconcile explicitly with the current frozen policy contracts;
-it has not changed their implementation. For future broker integration, an already submitted order
-requires broker-confirmed cancellation/amendment and reconciliation; an assignment cannot rewrite fills
-or assume an external order has changed merely because internal configuration changed.
-
-## Proposed acceptance criteria, pending behavioral decisions
-
-- A page's Settings shortcut opens the same editor as central navigation.
-- Each control identifies its owning application/service, system, strategy version or account.
-- Trading limits are edited in the strategy; the initial account settings have no duplicate trading
-  caps or override hierarchy. Account facts and execution-authority boundaries remain separate.
-- Saving creates a version without altering assignments, ongoing evaluations, positions or pending actions.
-- Assignment is a separate reviewed action with an explicit target and effective boundary; eligibility
-  remains governed by the target system's existing policy and evidence requirements.
-- A successful assignment governs all existing holdings and pending internal actions immediately and
-  starts reevaluation. No old-version worker may subsequently publish or execute a stale decision.
-- A review shows changed values, affected consumers and effective timing before a consequential apply.
-- Historical model bindings, strategy versions, outcomes, fills and account history remain unchanged.
-- Assignment preserves entry prices, quantities, cash, observed highs and loss/drawdown history and
-  applies the new rules to that state without resetting the portfolio.
-- Unsupported settings or incompatible strategy assignments are explained rather than silently ignored.
-- Browsing, editing and saving do not initiate training, collection, an evaluation run or a broker
-  operation. Explicit assignment starts reevaluation; it does not grant new broker execution authority.
-
-## Implementation readiness
-
-Source implementation and focused validation are complete. The separately authorized backup, migration
-027 and updated-host launch completed on 2026-09-07 with preserved prior state. No actual strategy
-selection was performed. Old binaries do not participate in the new settings fence and must not be
-used alongside the settings writer. See the [system map](settings-system-map.md) for current scope and
-the proposed future research-comparison refinement.
-
-## Review questions
-
-1. What is the difference between saving a strategy version and assigning it to a running system?
-2. Why must the effects on open positions be decided before adding an Apply button for exit rules?
-
-## Decision history
-
-The proposed wait-until-empty transition was rejected. The operator requires immediate whole-target
-reassignment, including existing holdings and pending orders, without simultaneous old/new rule assignments.
-The proposed account-cap hierarchy was also set aside in favor of strategy-owned trading limits for
-the initial design. Revisit optional caps only when an actual account-specific requirement warrants them.
+Other deferred work: editable Shadow lens/slot definitions, service scheduling/provider editors, partial
+sales and commissions in the new Real row dialog, account-specific cap overrides, durable cross-restart
+drafts, and broker order routing/reconciliation. The new Real dialog records a complete, zero-commission
+sale, matching the existing manual tracker contract.

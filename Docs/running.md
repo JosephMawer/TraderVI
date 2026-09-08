@@ -6,23 +6,33 @@ In the rebuilt app, open the top-level **Settings** tab. Delphi, Delphi Live, Tr
 shortcuts to the same relevant editor. General & operations contains the local Ghost-exit preference;
 system sections contain their supported strategy fields; Portfolios & accounts lists existing targets.
 
-Select a saved version or template, edit supported fields, name it and enter a reason, then **Save
-Version**. Saving preserves a new version without changing any assignment. Select a saved, unedited
-version and an existing target, then **Review assignment**. The review names the target and effects.
-Assign takes effect for existing holdings and future decisions immediately, supersedes pending internal
-actions, and initiates reevaluation. Actual fills still require eligible evidence. Closed markets wait;
-reevaluation failure leaves the assignment active and is reported for retry. Real fills remain manual.
+Choose **Pause new buys** on the system page or Settings. Use each holding's **Sell** action to request a
+simulated close, or **Record sale** for an actual completed Real fill. Requests retain their audit records
+and wait for eligible market evidence. Exits continue while paused. No broker order is sent.
+
+When the affected family has zero holdings and pending orders, its strategy fields unlock. Select a saved
+version or template, edit related sections, name the draft and enter a reason, then **Review and save
+version**. Navigation retains the combined draft in memory. Saving changes no assignment. Select the saved
+version and target, then **Review assignment**. Assignment remains paused; choose **Resume buys** separately.
+Existing account risk holds remain in force. If reevaluation fails, the assignment stays active and the
+failure is reported for retry.
 
 Daily Delphi selects complete preserved four-model sets and eight gates; it does not mix arbitrary
 individual candidates. Assign also starts an official local-data run. Live and Shadow use deterministic
 policy editors, not the daily ML-model selector. Trading limits belong to the strategy; financial facts
 belong to accounts. The initial editor does not expose fixed calendar, evidence or Shadow lens/slot
-contracts as tunable controls. Manual Live assignment pauses automatic research promotion.
+contracts as tunable controls. Shared Daily changes require all dependent families paused and empty;
+Live/Shadow entries wait for compatible frozen daily picks in a fresh session after a daily source change.
+Manual Live assignment or operator intervention pauses automatic research promotion.
 
 Before operational rollout, obtain authorization, create/verify a full backup, close old hosts and apply
 `TraderDB/Migrations/20260907_027_AddCentralSettings.sql` manually with SQLCMD error stopping. Old hosts
 do not participate in the new settings fence. Building a DACPAC does not apply this migration. Without
-027, new-family Save/Assign are disabled; daily settings retain their installed migration-026 contract.
+028, the revised trading-rule editors and new controls are read-only. Apply
+`TraderDB/Migrations/20260907_028_AddTradingControls.sql` after 027 with a fresh verified backup and SQLCMD
+error stopping; close older hosts before rollout. The migration creates no pauses, requests or assignments.
+Migration 028 was applied with a fresh verified backup and preservation checks on 2026-09-07; do not
+reapply it. The updated Debug and Release desktop outputs are ready for the next app launch.
 Migration 027 was applied with a verified backup on 2026-09-07; do not reapply it. The updated Release
 desktop app is installed in the build output and was launched successfully. Settings is in the main tab
 bar between Scorecards and Project Docs. No settings assignment was seeded during rollout.

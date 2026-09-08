@@ -43,6 +43,14 @@ public partial class PaperDashboardWindow : Window
     {
         SettingsTabView.Navigate(section); MainTabs.SelectedItem = SettingsTab;
     }
+    public void OpenTrading() => MainTabs.SelectedItem = PaperTradingTab;
+    public async Task TradingControlsChangedAsync()
+    {
+        await DelphiLiveTabView.TickAsync(shutdown.Token);
+        await SettingsTabView.RefreshAccessAsync();
+        await PortfoliosTabView.RefreshAsync(shutdown.Token);
+        await viewModel.RefreshAsync(shutdown.Token);
+    }
     private void TradingSettings_Click(object sender, RoutedEventArgs e) => OpenSettings(Core.Runtime.EngineStrategySettings.Tracked);
 
     private async Task<string> ReevaluateSettingsAsync(string family)
@@ -92,6 +100,7 @@ public partial class PaperDashboardWindow : Window
         // The shared Core workflow owns its own exact schedule and durable
         // lease. Monitoring is independent of which tab the operator selected.
         await DelphiLiveTabView.TickAsync(shutdown.Token);
+        await SettingsTabView.RefreshAccessAsync();
 
         DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
         if (PaperTradingMonitor.IsAutomaticPollTime(localNow) &&
@@ -182,6 +191,25 @@ public partial class PaperDashboardWindow : Window
         {
             RecordRealExitButton.IsEnabled = viewModel.CanRecordSelectedRealExit;
         }
+    }
+
+    private async void ExitPosition_Click(object sender, RoutedEventArgs e)
+    {
+        if(sender is not System.Windows.Controls.Button {DataContext:PaperPositionRow row} || !row.IsActive)return;
+        try
+        {
+            if(row.ExecutionMode==TrackedExecutionMode.Ghost)
+                await Views.OperatorHoldingActions.RequestAsync(this,Core.Runtime.EngineStrategySettings.Tracked,Core.Runtime.EngineStrategySettings.TrackedTargetId,row.PositionId,row.Symbol);
+            else
+            {
+                var dialog=new Views.OperatorActionDialog(this,"Record actual broker sale",
+                    $"Record the completed sale of all {row.Symbol} shares in {row.AccountLabel}. Enter the actual price and time. This records one all-shares fill with zero commission; it sends no order and does not support partial fills.",true);
+                if(dialog.ShowDialog()!=true)return;
+                await new TrackedPositionExecutionRepository().TryRecordManualRealExitAsync(row.PositionId,dialog.FillPrice,dialog.FillTime,"OperatorRecordedExit",dialog.Reason,shutdown.Token);
+            }
+            await viewModel.RefreshAsync(shutdown.Token); await SettingsTabView.RefreshAccessAsync();
+        }
+        catch(Exception ex){MessageBox.Show(this,ex.Message,"Exit could not be recorded",MessageBoxButton.OK,MessageBoxImage.Warning);}
     }
 
     private async Task RunMonitorCycleAsync(string source)
@@ -292,6 +320,10 @@ public partial class PaperDashboardWindow : Window
             return;
         }
 
+        if (SettingsTabView.HasUnsavedDrafts && MessageBox.Show(this,
+            "There are unsaved strategy drafts. Close and discard them? Choose Cancel to return to Settings and save them.",
+            "Unsaved strategy drafts", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel)!=MessageBoxResult.OK)
+        { e.Cancel=true; return; }
         base.OnClosing(e);
     }
 }

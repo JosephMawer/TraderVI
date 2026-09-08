@@ -28,7 +28,7 @@ CREATE TABLE [dbo].[ShadowOrder]
     CONSTRAINT [FK_ShadowOrder_Candidate] FOREIGN KEY ([CandidateTrackingId]) REFERENCES [dbo].[ShadowPortfolioCandidate] ([CandidateTrackingId]),
     CONSTRAINT [FK_ShadowOrder_Symbol] FOREIGN KEY ([Symbol]) REFERENCES [dbo].[Symbols] ([Symbol]),
     CONSTRAINT [CK_ShadowOrder_Side] CHECK ([Side] IN (N'Buy', N'Sell')),
-    CONSTRAINT [CK_ShadowOrder_Kind] CHECK ([OrderKind] IN (N'Initial', N'AddOn', N'RiskExit', N'RotationExit', N'SessionTwoExit', N'Reentry')),
+    CONSTRAINT [CK_ShadowOrder_Kind] CHECK ([OrderKind] IN (N'Initial', N'AddOn', N'RiskExit', N'RotationExit', N'SessionTwoExit', N'Reentry', N'OperatorExit')),
     CONSTRAINT [CK_ShadowOrder_Status] CHECK ([Status] IN (N'Pending', N'Filled', N'Expired', N'Cancelled')),
     CONSTRAINT [CK_ShadowOrder_Times] CHECK ([EarliestFillUtc] > [SignalReceivedUtc]),
     CONSTRAINT [CK_ShadowOrder_Friction] CHECK ([FrictionRate] >= 0 AND [FrictionRate] < 1),

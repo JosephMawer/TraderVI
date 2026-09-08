@@ -124,6 +124,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0058-daily-ingestion-and-observed-benchmark-confirmation.md = Docs\adr\0058-daily-ingestion-and-observed-benchmark-confirmation.md
 		Docs\adr\0059-delphi-model-and-threshold-settings.md = Docs\adr\0059-delphi-model-and-threshold-settings.md
 		Docs\adr\0060-central-settings-and-scoped-configuration.md = Docs\adr\0060-central-settings-and-scoped-configuration.md
+		Docs\adr\0061-portfolio-comparison-workspace.md = Docs\adr\0061-portfolio-comparison-workspace.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -132,6 +133,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 	ProjectSection(SolutionItems) = preProject
 		Docs\concepts\delphi-live.md = Docs\concepts\delphi-live.md
 		Docs\concepts\global-settings-design-draft.md = Docs\concepts\global-settings-design-draft.md
+		Docs\concepts\portfolio-comparison.md = Docs\concepts\portfolio-comparison.md
 		Docs\concepts\settings-system-map.md = Docs\concepts\settings-system-map.md
 		Docs\concepts\delphi-live-watchlist-and-replay.md = Docs\concepts\delphi-live-watchlist-and-replay.md
 		Docs\concepts\oracle-prompt-tightening.md = Docs\concepts\oracle-prompt-tightening.md

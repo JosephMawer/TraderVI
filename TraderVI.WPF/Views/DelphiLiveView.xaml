@@ -9,6 +9,7 @@
             <BooleanToVisibilityConverter x:Key="VisibleIfTrue"/>
         </ResourceDictionary>
     </UserControl.Resources>
+    <DockPanel><views:SystemControlBar DockPanel.Dock="Top" SystemKey="DelphiLive" Margin="22,8,22,0"/>
     <Grid Margin="22,16">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid Margin="0,0,0,16">
@@ -108,4 +109,5 @@
             <TabItem Header="Advanced"><views:DelphiLiveAdvancedView/></TabItem>
         </TabControl>
     </Grid>
+    </DockPanel>
 </UserControl>

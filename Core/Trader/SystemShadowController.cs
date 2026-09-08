@@ -36,6 +36,9 @@ public sealed class SystemShadowController
             Guid pollCycleId = Guid.NewGuid();
             var warnings = new List<string>();
             var repository = new SystemShadowRepository();
+            var controls = new TradingControlRepository();
+            bool entriesPaused = await controls.IsPausedAsync(Core.Runtime.EngineStrategySettings.Shadow);
+            var operatorExits = await controls.ExitRequestsAsync(Core.Runtime.EngineStrategySettings.Shadow);
             if (!await repository.HasSchemaAsync(cancellationToken))
                 throw new InvalidOperationException($"Shadow V1 requires migration {SystemShadowRepository.MigrationFileName}.");
 
@@ -108,6 +111,10 @@ public sealed class SystemShadowController
             {
                 IReadOnlyList<SystemShadowPositionInfo> positions =
                     await repository.GetPositionsAsync(portfolio.PortfolioId, cancellationToken);
+                foreach (var request in operatorExits.Where(r => r.TargetId == portfolio.PortfolioId && positions.Any(p => p.PositionId == r.PositionId && p.Status == "Open")))
+                    await repository.TryCreateOrderAsync(portfolio.PortfolioId, sessions[portfolio.PortfolioId].SessionId,
+                        request.PositionId, null, request.Symbol, "Sell", "OperatorExit", DateTime.SpecifyKind(request.RequestedUtc, DateTimeKind.Utc),
+                        null, "OperatorRequestedExit", cancellationToken, portfolio.Settings, portfolio.StrategyVersionId, request.RequestId);
                 IReadOnlyList<SystemShadowPendingOrder> pending =
                     await repository.GetPendingOrdersAsync(portfolio.PortfolioId, cancellationToken);
                 positionsByPortfolio[portfolio.PortfolioId] = positions;
@@ -163,6 +170,11 @@ public sealed class SystemShadowController
                     OhlcvBar? fillBar;
                     if (order.Side == "Buy")
                     {
+                        if (entriesPaused)
+                        {
+                            await repository.CancelPendingOrderAsync(order, "OperatorPaused", DateTime.UtcNow, cancellationToken);
+                            continue;
+                        }
                         SystemShadowPendingBuyAction action = SystemShadowPolicy.EvaluatePendingBuyFill(
                             order.EarliestFillUtc,
                             hostStartedUtc,
@@ -327,7 +339,10 @@ public sealed class SystemShadowController
                     guards.CapitalReviewRequired,
                     cancellationToken);
 
-                bool buyingAllowed = portfolio.Status == "Active" &&
+                bool currentDailySource = await controls.IsCurrentDailyRunAsync(session.CalibrationRunId);
+                if (!currentDailySource && session.CalibrationRunId.HasValue)
+                    warnings.Add($"{portfolio.PortfolioId}: today's frozen picks use an earlier daily strategy. New buys wait for a fresh session using the assigned daily version.");
+                bool buyingAllowed = !entriesPaused && currentDailySource && portfolio.Status == "Active" &&
                                      portfolioEvidenceHealthy &&
                                      !session.DailyLossGuardActive &&
                                      !guards.DailyBuyingPaused &&

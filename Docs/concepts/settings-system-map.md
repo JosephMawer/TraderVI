@@ -1,6 +1,6 @@
 # Settings, systems and research history
 
-- **Status:** Current configuration map; research refinement below is proposed, not implemented
+- **Status:** Revised source configuration map; research restart refinement remains deferred
 - **Date:** 2026-09-07
 - **Related:** ADR-0060 and [implementation review](../reviews/central-settings-implementation-20260907.md)
 
@@ -18,13 +18,13 @@ not yet edit every service setting or fixed evidence contract.
 flowchart TB
     S["Global Settings"] --> G["General and operations<br/>Automatic Ghost exits"]
     S --> V["Save Version<br/>Preserved strategy library"]
-    V --> A["Assign a saved version<br/>One current version per target"]
+    V --> A["Assign while paused and empty<br/>One current version per target"]
     A --> D["Daily Delphi<br/>Four-model set and eight gates"]
     A --> L["Delphi Live portfolio<br/>Entry, exit, sizing and risk"]
     A --> H["System Shadow portfolio<br/>Allocation, loss, friction and re-entry"]
     A --> T["Trading monitor<br/>Exit policy for all tracked positions"]
     D --> P["Recommendations<br/>Continuation and Breakout lenses"]
-    L --> LH["Champion or research account<br/>Existing holdings and new decisions"]
+    L --> LH["Champion or research account<br/>New decisions after explicit resume"]
     H --> HH["Continuation / Breakout<br/>Top 3 / Top 5 accounts"]
     T --> TH["Ghost and reported Real holdings<br/>Real fills remain manual"]
     G --> T
@@ -40,9 +40,24 @@ Solid arrows show configuration ownership and outputs; dotted arrows show data d
 account state. Save Version alone never follows the Assign path. Daily models and deterministic intraday
 policies are different families, so their versions are not interchangeable.
 
-Portfolios retains activation, pause/resume, rename and financial reconciliation workflows. Assigning
-rules does not reset cash, entry costs, quantities, observed highs or historical losses. Existing pending
-internal actions are superseded, protection is recalculated and fresh evaluation uses eligible data.
+Portfolios retains activation, pause/resume, rename and financial reconciliation workflows. Trading-rule
+editing and assignment require the affected family paused and empty. Sell remains a separate action,
+with recorded request and eligible later fill. Account history and risk holds survive assignment.
+
+```mermaid
+flowchart LR
+    P["Pause new buys<br/>Exits continue"] --> C["Sell holdings separately<br/>Resolve pending orders"]
+    C --> E{"Paused and empty?"}
+    E -- No --> R["Settings read-only<br/>Keep monitoring"]
+    R --> C
+    E -- Yes --> D["One strategy draft<br/>Review and Save Version"]
+    D --> A["Assign saved version<br/>Remain paused"]
+    A --> U["Explicit Resume<br/>Assigned rules, existing risk holds"]
+```
+
+Daily Delphi is shared: its pause blocks all dependent entries and its rules require all families paused
+and empty. Family pauses are otherwise independent. Frozen Live/Shadow picks from another daily version
+remain historical evidence; they cannot initiate new buys after resume.
 
 ## Supporting services and evidence
 
@@ -73,19 +88,19 @@ selection also does not rewrite an existing frozen Shadow session.
 
 ## Why research needs a separate boundary
 
-Example: version A buys a position; version B inherits it and later sells it. The full trade result is
+The rejected first-release transition allowed version A to buy a position and version B to sell it. The full trade result is
 part of the account's real history, but it is not a clean result for A alone or B alone. Even the return
 after the switch depends on which positions and cash B inherited. Merely adding a version label or
 starting a new chart period does not remove that dependency.
 
-The installed first release uses a broad guard: once any manual Delphi Live assignment exists, automatic
+The revised source retains a broad guard: once any manual Delphi Live assignment or shared/Live operator intervention exists, automatic
 research promotion and associated boundary/checkpoint processing pause. A dated assignment also marks
 affected session evidence as policy-unstable. This protects comparisons but is deliberately conservative:
 it has no built-in fresh-comparison restart, and an unrelated later study should not need to stay paused.
 
 **Recommended refinement, awaiting a separate decision:** keep one current operational assignment and
 one continuous account ledger. Record an assignment period (also called an epoch: the time one version
-governs a target), its opening account snapshot and inherited positions. Report lifetime account results
+governs a target) and its opening account snapshot after holdings close. Report lifetime account results
 and period results as descriptive evidence. End promotion eligibility only for comparisons whose declared
 policies or inputs changed; retain earlier valid evidence with its original scope. Unaffected comparisons
 continue. A changed shared input, such as the daily source strategy, can affect multiple studies and must
@@ -100,8 +115,8 @@ eligibility requirements; assigning a familiar old version does not automaticall
 
 ```mermaid
 flowchart LR
-    A["Operational account<br/>Version A"] --> B["Assignment boundary<br/>Keep holdings, cash and history"]
-    B --> C["Same account<br/>Version B governs everything"]
+    A["Operational account<br/>Version A"] --> B["Pause and close holdings<br/>Keep cash and history"]
+    B --> C["Assign version B while empty<br/>Resume explicitly"]
     B -.-> H["Record transition<br/>Descriptive account evidence"]
     B -.-> X["Affected comparison ends<br/>No mixed-history promotion"]
     X --> N["New prospective comparison<br/>Comparable initial state and dates"]

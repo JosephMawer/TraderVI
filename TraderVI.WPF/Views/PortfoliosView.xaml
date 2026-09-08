@@ -1,6 +1,7 @@
 <UserControl x:Class="TraderVI.WPF.Views.PortfoliosView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:TraderVI.WPF.Views"
              Background="#11151B" Foreground="#F4F7FB" FontSize="13">
     <UserControl.Resources>
         <!-- The view is constructed before it joins PaperDashboardWindow's resource tree,
@@ -84,96 +85,260 @@
                 </ControlTemplate.Triggers>
             </ControlTemplate></Setter.Value></Setter>
         </Style>
+        <BooleanToVisibilityConverter x:Key="BoolVisibility"/>
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#253245"/><Setter Property="Foreground" Value="#C6D5E7"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#EAF0F8"/><Setter Property="Background" Value="#253245"/>
+            <Setter Property="Padding" Value="10,7"/><Setter Property="MinHeight" Value="36"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+                <Grid>
+                    <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ToggleButton.Template><ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Box" Background="#253245" BorderBrush="#3B4D65" BorderThickness="1" CornerRadius="5">
+                                <TextBlock Text="⌄" Foreground="#B4C2D4" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="#77BAFF"/></Trigger></ControlTemplate.Triggers>
+                        </ControlTemplate></ToggleButton.Template>
+                    </ToggleButton>
+                    <ContentPresenter Margin="10,5,28,5" VerticalAlignment="Center" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                    <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False">
+                        <Border Background="#202C3C" BorderBrush="#5FA8FF" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ScrollViewer MaxHeight="300"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </ControlTemplate></Setter.Value></Setter>
+            <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem">
+                <Setter Property="Foreground" Value="#EAF0F8"/><Setter Property="Background" Value="#202C3C"/><Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Item" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+                    <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Item" Property="Background" Value="#355981"/></Trigger></ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value></Setter>
+            </Style></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="#A9B9CD"/><Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
+                <Border x:Name="TabBorder" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,3" Padding="{TemplateBinding Padding}">
+                    <ContentPresenter ContentSource="Header"/>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#72B6FF"/><Setter TargetName="TabBorder" Property="BorderBrush" Value="#5FA8FF"/></Trigger>
+                    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="TabBorder" Property="Background" Value="#253245"/></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="Margin" Value="0,12,0,4"/></Style>
+        <Style x:Key="TableValue" TargetType="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="8,0"/></Style>
+        <Style x:Key="ReturnValue" TargetType="TextBlock" BasedOn="{StaticResource TableValue}"><Setter Property="Foreground" Value="{Binding ReturnColor}"/></Style>
+        <Style x:Key="Heading" TargetType="TextBlock"><Setter Property="Foreground" Value="#EAF0F8"/><Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,10"/></Style>
     </UserControl.Resources>
-    <Grid Margin="22">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1.5*"/>
-            <RowDefinition Height="1.15*"/>
-            <RowDefinition Height="1.35*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid Margin="0,0,0,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="22"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="98"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="98"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel VerticalAlignment="Center"><TextBlock Text="Portfolios" FontSize="28" FontWeight="SemiBold"/><Button Content="Settings…" Click="SettingsButton_Click" HorizontalAlignment="Left" Padding="8,3" Margin="0,4,0,0"/></StackPanel>
-            <TextBlock Grid.Column="2" Text="Total TFSA value" VerticalAlignment="Center"
-                       Foreground="{StaticResource MutedBrush}"/>
-            <TextBox Grid.Column="3" Text="{Binding TotalTfsaValue, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="7,0,14,0" Padding="7,5" VerticalContentAlignment="Center"/>
-            <TextBlock Grid.Column="4" Text="Available cash" VerticalAlignment="Center"
-                       Foreground="{StaticResource MutedBrush}"/>
-            <TextBox Grid.Column="5" Text="{Binding AvailableTfsaCash, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="7,0,14,0" Padding="7,5" VerticalContentAlignment="Center"/>
-            <Button x:Name="StartButton" Grid.Column="6" Content="Start daily Shadow" Click="StartButton_Click"
-                    IsEnabled="{Binding CanStart}" Margin="0,0,8,0" Padding="14,7"/>
-            <Button x:Name="SnapshotButton" Grid.Column="7" Content="Record real snapshot" Click="SnapshotButton_Click"
-                    IsEnabled="{Binding CanRecordSnapshot}" Background="#77C7FF" Margin="0,0,8,0" Padding="14,7"/>
-            <Button x:Name="PauseButton" Grid.Column="8" Content="Pause daily buys" Click="PauseButton_Click"
-                    IsEnabled="{Binding CanPause}" Background="{StaticResource WarningBrush}" Margin="0,0,8,0" Padding="14,7"/>
-            <Button x:Name="ResumeButton" Grid.Column="9" Content="Resume daily" Click="ResumeButton_Click"
-                    IsEnabled="{Binding CanResume}" Padding="14,7"/>
-            <Button x:Name="RefreshButton" Grid.Column="11" Content="Refresh from SQL" Click="RefreshButton_Click"
-                    Margin="12,0,0,0" Padding="14,7" VerticalAlignment="Center"/>
-
-            <WrapPanel Grid.Row="1" Grid.ColumnSpan="12" Margin="0,5,0,0">
-                <TextBlock Text="Real · operator Ghost · daily Shadow · Delphi Live"
-                           Foreground="{StaticResource MutedBrush}"/>
-                <TextBlock Text="  ·  " Foreground="{StaticResource MutedBrush}"/>
-                <TextBlock Text="{Binding GenerationStatus}" Foreground="{StaticResource AccentBrush}"/>
-                <TextBlock Text="  ·  " Foreground="{StaticResource MutedBrush}"/>
-                <TextBlock Text="{Binding LiveAccountsStatus}" Foreground="{StaticResource AccentBrush}"/>
-            </WrapPanel>
+    <Grid Margin="22,16">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Portfolios" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Compare strategies, explore performance and review a challenger." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="Open Trading" Style="{StaticResource SecondaryButton}" Click="OpenTrading_Click" Margin="0,0,8,0"/>
+                <Button x:Name="RefreshButton" Content="Refresh saved data" IsEnabled="{Binding CanRefresh}" Click="RefreshButton_Click"/>
+            </StackPanel>
         </Grid>
-
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,14">
+        <Border Grid.Row="1" Background="#192432" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <TextBlock Text="Portfolio overview" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                <DataGrid Grid.Row="1" ItemsSource="{Binding Portfolios}" SelectedItem="{Binding SelectedPortfolio}"
-                          SelectionChanged="PortfoliosGrid_SelectionChanged" AlternationCount="2">
-                    <DataGrid.RowStyle><StaticResource ResourceKey="PortfolioRow"/></DataGrid.RowStyle>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Portfolio" Binding="{Binding DisplayName}" Width="2*" MinWidth="210"/>
-                        <DataGridTextColumn Header="Selector" Binding="{Binding Selector}" Width="95"/>
-                        <DataGridTextColumn Header="Mode" Binding="{Binding Execution}" Width="65"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="135"/>
-                        <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" Width="70"/>
-                        <DataGridTextColumn Header="NAV" Binding="{Binding NetAssetValue, StringFormat={}{0:C2}}" Width="100"/>
-                        <DataGridTextColumn Header="Cash" Binding="{Binding Cash, StringFormat={}{0:C2}}" Width="95"/>
-                        <DataGridTextColumn Header="Open" Binding="{Binding OpenPositions}" Width="52"/>
-                        <DataGridTextColumn Header="Realized" Binding="{Binding RealizedProfitLoss, StringFormat={}{0:C2}}" Width="90"/>
-                        <DataGridTextColumn Header="Unrealized" Binding="{Binding UnrealizedProfitLoss, StringFormat={}{0:C2}}" Width="95"/>
-                        <DataGridTextColumn Header="Total" Binding="{Binding TotalReturn, StringFormat={}{0:P2}}" Width="72"/>
-                        <DataGridTextColumn Header="Today" Binding="{Binding DailyReturn, StringFormat={}{0:P2}}" Width="72"/>
-                        <DataGridTextColumn Header="Drawdown" Binding="{Binding Drawdown, StringFormat={}{0:P2}}" Width="85"/>
-                        <DataGridTextColumn Header="Freshness" Binding="{Binding FreshnessText}" Width="105"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <TextBlock Grid.Row="2" Text="{Binding SelectedAccountExplanation}" Foreground="{StaticResource MutedBrush}"
-                           TextWrapping="Wrap" Margin="0,8,0,0"/>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <WrapPanel><TextBlock Text="Daily recommendation source   " Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding PrimaryStrategyName}" Foreground="#74BBFF" FontWeight="SemiBold"/></WrapPanel>
+                    <TextBlock Text="{Binding WindowText}" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/>
+                </StackPanel>
+                <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                    <ComboBox ItemsSource="{Binding Periods}" SelectedIndex="{Binding SelectedPeriod}" Width="164" Margin="12,0,8,0" AutomationProperties.Name="Comparison period"/>
+                    <ComboBox ItemsSource="{Binding Scopes}" SelectedIndex="{Binding SelectedScope}" Width="152" AutomationProperties.Name="Account scope"/>
+                </WrapPanel>
             </Grid>
         </Border>
+        <TabControl Grid.Row="2" SelectedIndex="{Binding SelectedView}" Background="Transparent" BorderThickness="0" Padding="0,14,0,0" Foreground="#EAF0F8">
+            <TabItem Header="Compare">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Foreground="#EAF0F8">
+                    <Grid MinWidth="1000">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="2.3*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*" MinWidth="300"/></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Strategy comparison" Style="{StaticResource Heading}"/>
+                                    <TextBlock Text="Select a paper account to inspect its current strategy and saved results." Foreground="{StaticResource MutedBrush}" Margin="0,0,0,10"/>
+                                    <DataGrid x:Name="ComparisonGrid" ItemsSource="{Binding ComparisonRows}" SelectedItem="{Binding SelectedComparison, Mode=TwoWay}"
+                                              SelectionMode="Single" SelectionUnit="FullRow" RowHeight="50" Height="290" AlternationCount="2">
+                                        <DataGrid.Columns>
+                                            <DataGridTemplateColumn Header="Strategy / account" Width="*" MinWidth="210" SortMemberPath="StrategyName">
+                                                <DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel VerticalAlignment="Center" Margin="8,3">
+                                                    <TextBlock Text="{Binding StrategyName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding DisplayName}" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
+                                                </StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="Period return" ElementStyle="{StaticResource ReturnValue}" Binding="{Binding Period.Return, StringFormat={}{0:+0.00%;-0.00%;0.00%}, TargetNullValue=—}" Width="104"/>
+                                            <DataGridTextColumn Header="Max close decline" ElementStyle="{StaticResource TableValue}" Binding="{Binding Period.ObservedDrawdown, StringFormat={}{0:P2}, TargetNullValue=—}" Width="123"/>
+                                            <DataGridTextColumn Header="Account value" ElementStyle="{StaticResource TableValue}" Binding="{Binding Source.NetAssetValue, StringFormat={}{0:N2}, TargetNullValue=—}" Width="105"/>
+                                            <DataGridTemplateColumn Header="Evidence" Width="175" SortMemberPath="Evidence"><DataGridTemplateColumn.CellTemplate><DataTemplate>
+                                                <TextBlock Text="{Binding Evidence}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="11" Margin="8,3"/>
+                                            </DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Values retain each account's currency. Return and decline use the shared period above." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Growth of 100 · saved closing values" Style="{StaticResource Heading}"/>
+                                    <views:PortfolioPerformanceChart ItemsSource="{Binding ComparisonRows}" SelectedCode="{Binding SelectedPortfolio.StableCode}" Height="200" AutomationProperties.Name="Saved closing performance chart; equivalent period results in strategy table"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <Border Grid.Column="2" Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="SELECTED CHALLENGER" Foreground="#77BAFF" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SelectedComparison.StrategyName, TargetNullValue=Select a strategy}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,9,0,4"/>
+                                <TextBlock Text="{Binding SelectedComparison.DisplayName}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                <WrapPanel Margin="0,12,0,0"><TextBlock Text="{Binding SelectedComparison.Mode}" Foreground="#9ACBFF" Margin="0,0,14,0"/><TextBlock Text="{Binding SelectedPortfolio.Status}" Foreground="{StaticResource WarningBrush}"/></WrapPanel>
+                                <TextBlock Text="Period return" Style="{StaticResource Label}"/>
+                                <TextBlock Text="{Binding SelectedComparison.PeriodReturnText, TargetNullValue=—}" FontSize="36" Foreground="{Binding SelectedComparison.ReturnColor, TargetNullValue=#B4C2D4}"/>
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                    <StackPanel><TextBlock Text="Account value" Style="{StaticResource Label}"/><TextBlock Text="{Binding SelectedComparison.ValueText, TargetNullValue=—}" TextWrapping="Wrap" FontSize="16"/></StackPanel>
+                                    <StackPanel Grid.Column="2"><TextBlock Text="Cash" Style="{StaticResource Label}"/><TextBlock Text="{Binding SelectedComparison.CashText, TargetNullValue=—}" TextWrapping="Wrap" FontSize="16"/></StackPanel>
+                                    <StackPanel Grid.Row="1"><TextBlock Text="Max closing decline" Style="{StaticResource Label}" TextWrapping="Wrap"/><TextBlock Text="{Binding SelectedComparison.ClosingDrawdownText, TargetNullValue=—}" FontSize="18" Foreground="#F5B94C"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="2"><TextBlock Text="Open holdings" Style="{StaticResource Label}"/><TextBlock Text="{Binding SelectedComparison.OpenText, TargetNullValue=—}" FontSize="18"/></StackPanel>
+                                </Grid>
+                                <TextBlock Text="Evidence for this period" Style="{StaticResource Label}"/>
+                                <TextBlock Text="{Binding SelectedComparison.Evidence}" TextWrapping="Wrap"/>
+                                <TextBlock Text="Last account evidence" Style="{StaticResource Label}"/>
+                                <TextBlock Text="{Binding SelectedPortfolio.FreshnessText, TargetNullValue=—}"/>
+                                <TextBlock Text="{Binding SelectedAccountExplanation}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,15,0,15"/>
+                                <Button Content="Review promotion" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}"/>
+                                <TextBlock Text="Opens the challenger review. No assignment changes." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                <Expander Header="Account result breakdown" Foreground="#A9B9CD" Margin="0,16,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Realized profit / loss · account lifetime" Style="{StaticResource Label}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding SelectedComparison.RealizedText, TargetNullValue=—}"/>
+                                        <TextBlock Text="Unrealized profit / loss · current holdings" Style="{StaticResource Label}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding SelectedComparison.UnrealizedText, TargetNullValue=—}"/>
+                                        <TextBlock Text="{Binding SelectedComparison.HistoryScope}" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Performance">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Foreground="#EAF0F8">
+                    <StackPanel MinWidth="1000">
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Performance over time" Style="{StaticResource Heading}"/>
+                                <TextBlock Text="Rebased to 100 at the same saved start date. The selected account has a thicker line; gaps remain visible." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                <views:PortfolioPerformanceChart ItemsSource="{Binding ComparisonRows}" SelectedCode="{Binding SelectedPortfolio.StableCode}" Height="350" Margin="0,12,0,0" AutomationProperties.Name="Paper strategy performance; equivalent values in cards below"/>
+                            </StackPanel>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding ComparisonRows}" Margin="0,14,0,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate>
+                                <Border Width="310" Margin="0,0,12,12" Padding="16" CornerRadius="10" Background="#1A2029" BorderBrush="#35465C" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding StrategyName}" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" ToolTip="{Binding DisplayName}"/>
+                                        <TextBlock Text="{Binding PeriodReturnText}" FontSize="30" Foreground="{Binding ReturnColor}" Margin="0,10,0,0"/>
+                                        <TextBlock Text="Period return" Foreground="{StaticResource MutedBrush}"/>
+                                        <TextBlock Text="{Binding ClosingDrawdownText, StringFormat=Maximum closing decline: {0}}" Margin="0,10,0,5"/>
+                                        <TextBlock Text="{Binding Evidence}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" MinHeight="34"/>
+                                        <Button Content="Inspect in Compare" Click="InspectStrategy_Click" Style="{StaticResource SecondaryButton}" Margin="0,12,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding MetricNotes}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Strategy review">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Foreground="#EAF0F8">
+                    <StackPanel MinWidth="1000">
+                        <DockPanel Margin="0,0,0,14">
+                            <TextBlock Text="Primary and challenger" Style="{StaticResource Heading}" VerticalAlignment="Center"/>
+                            <ComboBox DockPanel.Dock="Right" HorizontalAlignment="Right" Width="355" ItemsSource="{Binding ComparisonRows}" SelectedItem="{Binding SelectedComparison, Mode=TwoWay}" DisplayMemberPath="DisplayName" AutomationProperties.Name="Selected challenger"/>
+                        </DockPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width=".9*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="CURRENT RECOMMENDATION SOURCE" Foreground="#65CDB4" FontSize="11"/>
+                                    <TextBlock Text="{Binding PrimaryStrategyName}" FontSize="23" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,12,0,12"/>
+                                    <TextBlock Text="Daily models and decision gates" Foreground="{StaticResource MutedBrush}"/>
+                                    <TextBlock Text="Tracked-position exit strategy" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding TrackedStrategyName}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Comparable account performance" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding PrimaryPerformanceText}" TextWrapping="Wrap" Foreground="#F5B94C"/>
+                                    <TextBlock Text="Assignment identity" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding PrimaryStrategyIdentity}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" FontSize="12"/>
+                                    <Button Content="Open Trading" Click="OpenTrading_Click" Style="{StaticResource SecondaryButton}" Margin="0,22,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Card}" BorderBrush="#5FA8FF">
+                                <StackPanel>
+                                    <TextBlock Text="SELECTED CHALLENGER" Foreground="#77BAFF" FontSize="11"/>
+                                    <TextBlock Text="{Binding SelectedComparison.StrategyName, TargetNullValue=Select a paper strategy}" FontSize="23" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,12,0,6"/>
+                                    <TextBlock Text="{Binding SelectedComparison.DisplayName}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Period return" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding SelectedComparison.PeriodReturnText, TargetNullValue=—}" FontSize="30" Foreground="{Binding SelectedComparison.ReturnColor, TargetNullValue=#B4C2D4}"/>
+                                    <TextBlock Text="Maximum closing decline" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding SelectedComparison.ClosingDrawdownText, TargetNullValue=—}" FontSize="22" Foreground="#F5B94C"/>
+                                    <TextBlock Text="Evidence" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding SelectedComparison.Evidence}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Execution assumptions" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding SelectedComparison.ExecutionAssumptions}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"/>
+                                    <TextBlock Text="Account identity" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding SelectedComparison.AccountIdentity}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Promotion review" Style="{StaticResource Heading}"/>
+                                    <TextBlock Text="{Binding ReviewExplanation}" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                                    <Border Background="#30291C" CornerRadius="8" Padding="12"><TextBlock Text="{Binding PromotionStatus}" Foreground="#F5CB83" TextWrapping="Wrap"/></Border>
+                                    <Button Content="Review current assignments" Click="ReviewAssignments_Click" Style="{StaticResource SecondaryButton}" Margin="0,18,0,8"/>
+                                    <Button Content="Back to Compare" Click="BackToCompare_Click" Style="{StaticResource SecondaryButton}"/>
+                                    <TextBlock Text="Reviewing a challenger preserves account balances, holdings and history. A future promotion will require an explicit, compatible assignment." Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,18,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="{Binding MetricNotes}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,16,0,14"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Expander Grid.Row="3" Header="Account tools and saved activity" Foreground="#A9B9CD" Margin="0,12,0,5">
+            <ScrollViewer MaxHeight="480" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel MinWidth="1000" Margin="0,12,0,0">
+                    <TextBlock Text="Operational controls for independent paper accounts. Trading manages tracked real and operator Ghost positions." Foreground="{StaticResource MutedBrush}"/>
+                    <views:SystemControlBar SystemKey="SystemShadow"/>
+                    <views:SystemControlBar SystemKey="DelphiLive"/>
+                    <WrapPanel Margin="0,8,0,12">
+                        <TextBlock Text="Total TFSA value" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBox Text="{Binding TotalTfsaValue}" Width="100" Padding="8,5" Margin="0,0,14,0"/>
+                        <TextBlock Text="Available cash" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBox Text="{Binding AvailableTfsaCash}" Width="100" Padding="8,5" Margin="0,0,14,0"/>
+                        <Button x:Name="StartButton" Content="Start daily Shadow" Click="StartButton_Click" IsEnabled="{Binding CanStartDailyShadow}" Margin="0,0,8,0"/>
+                        <Button x:Name="SnapshotButton" Content="Record real snapshot" Click="SnapshotButton_Click" IsEnabled="{Binding CanRecordSnapshot}" Margin="0,0,8,0"/>
+                        <Button x:Name="ResumeButton" Content="Clear capital-review hold…" Click="ResumeButton_Click" IsEnabled="{Binding CanResume}" Margin="0,0,8,0"/>
+                        <Button Content="Account settings" Click="SettingsButton_Click" Style="{StaticResource SecondaryButton}"/>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding GenerationStatus}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding PortfolioDisplayName}" Foreground="#77BAFF" FontWeight="SemiBold" Margin="0,6,0,12"/>
 
-        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,14">
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14" Height="230">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <Grid Margin="0,0,0,8">
@@ -201,7 +366,7 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="3" Margin="0,0,0,14">
+        <Grid Margin="0,0,0,14" Height="300">
             <Grid.ColumnDefinitions><ColumnDefinition Width="1.2*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1*"/></Grid.ColumnDefinitions>
             <Border Style="{StaticResource Card}">
                 <Grid>
@@ -224,6 +389,9 @@
                             <DataGridTextColumn Header="P/L" Binding="{Binding ProfitLoss, StringFormat={}{0:C2}}" Width="80"/>
                             <DataGridTextColumn Header="Trail" Binding="{Binding TrailingStop, StringFormat={}{0:C3}}" Width="80"/>
                             <DataGridTextColumn Header="Exit" Binding="{Binding ExitReason}" Width="*"/>
+                            <DataGridTemplateColumn Header="Action" Width="70"><DataGridTemplateColumn.CellTemplate><DataTemplate>
+                              <Button Content="Sell…" Click="SellHolding_Click" IsEnabled="{Binding CanRequestExit}" Padding="8,4"/>
+                            </DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -244,11 +412,13 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="4" Background="{StaticResource PanelAltBrush}" CornerRadius="8" Padding="12,8">
-            <Grid>
-                <TextBlock Text="{Binding DisplayStatus}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,570,0"/>
-                <TextBlock HorizontalAlignment="Right" Foreground="{StaticResource WarningBrush}"
-                           Text="{Binding ExecutionHint}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Expander>
+        <Border Grid.Row="4" Background="#19212C" CornerRadius="6" Padding="12,8">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding ComparisonDataStatus}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,0,16,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding RefreshedText}" Foreground="{StaticResource MutedBrush}" FontSize="11" VerticalAlignment="Center"/>
             </Grid>
         </Border>
     </Grid>

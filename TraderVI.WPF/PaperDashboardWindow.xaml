@@ -104,6 +104,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,18">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -126,6 +127,7 @@
                 <Button x:Name="PollNowButton" Content="Poll now · TMX + SQL" Click="PollNowButton_Click"
                         IsEnabled="{Binding CanPollNow}"/>
             </StackPanel>
+            <views:SystemControlBar Grid.Row="1" Grid.ColumnSpan="2" SystemKey="TrackedPositions"/>
         </Grid>
 
         <Grid Grid.Row="1" Margin="0,0,0,16">
@@ -172,6 +174,9 @@
                 <DataGrid x:Name="PositionsGrid" Grid.Row="1" ItemsSource="{Binding Positions}"
                           SelectedItem="{Binding SelectedPosition}" AlternationCount="2">
                     <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Action" Width="112"><DataGridTemplateColumn.CellTemplate><DataTemplate>
+                          <Button Content="{Binding ExitActionLabel}" Click="ExitPosition_Click" IsEnabled="{Binding IsActive}" Padding="8,4"/>
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                         <DataGridTextColumn Header="Mode" Binding="{Binding ModeDisplay}" Width="88"/>
                         <DataGridTextColumn Header="Account" Binding="{Binding AccountLabel}" Width="72"/>
                         <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="70"/>

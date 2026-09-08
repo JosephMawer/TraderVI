@@ -76,14 +76,7 @@ public static class EngineStrategySettings
         .Where(p => family == Live ? LiveFields.Contains(p.Name) : p.SetMethod is not null &&
             (family != Tracked || p.Name is not ("PollIntervalMinutes" or "ExpectedSourceDelayMinutes" or "LateDataAgeMinutes")))
         .Select(p => new EngineSettingField(p.Name, System.Text.RegularExpressions.Regex.Replace(p.Name, "(?<=[a-z])(?=[A-Z])", " "),
-            p.Name switch
-            {
-                "SelectedRawMoveThreshold" => "Volatility-ruler units: 0.15, 0.25 or 0.35",
-                "SelectedExcessMoveThreshold" => "Relative volatility-ruler units: 0.025, 0.05 or 0.10",
-                "StructureBufferUnits" => "Buffer in volatility-ruler units",
-                "SelectedRulerSessions" => "Choose 10 or 14 sessions",
-                _ => p.PropertyType == typeof(int) ? "Whole number" : "Decimal fraction: 0.05 means 5%"
-            }, Convert.ToString(p.GetValue(config), CultureInfo.InvariantCulture)!)).ToArray();
+            EngineSettingDescriptions.Help(p.Name), Convert.ToString(p.GetValue(config), CultureInfo.InvariantCulture)!)).ToArray();
     public static object Edit(string family, object source, IEnumerable<EngineSettingField> fields, Guid id)
     {
         object result = Read(family, Serialize(source));

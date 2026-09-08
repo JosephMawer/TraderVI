@@ -19,6 +19,33 @@ public sealed class DelphiLiveActionWorkflow
     private readonly IDelphiLiveLedgerStore store;
     private readonly IDelphiLiveMarketDataSource source;
     private readonly IDelphiLiveClock clock;
+    public bool NewBuysPaused { get; set; }
+
+    public async Task CancelOperatorPausedBuysAsync(Guid portfolioId, DelphiLiveLease lease, CancellationToken ct = default)
+    {
+        var state = await store.LoadPortfolioAsync(portfolioId, ct);
+        if (state is null) return;
+        foreach (var buy in state.PendingActions.Where(a => a.Intent.Side == DelphiLiveActionSide.Buy).ToArray())
+            state = await EndBuy(state, buy, "OperatorPaused", lease, ct);
+    }
+
+    public async Task QueueOperatorExitAsync(Core.Runtime.OperatorExitRequest request, DelphiLiveLease lease, CancellationToken ct = default)
+    {
+        var state = await store.LoadPortfolioAsync(request.TargetId, ct) ?? throw new InvalidOperationException("Portfolio is unavailable.");
+        var position = state.OpenPositions.SingleOrDefault(p => p.PositionId == request.PositionId);
+        if (position is null || state.PendingActions.Any(a => a.PositionId == position.PositionId && a.Intent.Side == DelphiLiveActionSide.Sell)) return;
+        if (state.Actions.Any(a => a.Intent.ActionId == request.RequestId)) return;
+        DateTime now = clock.UtcNow;
+        var intent = new DelphiLiveActionIntent(request.RequestId, Guid.NewGuid(), request.RequestId,
+            position.Symbol, DelphiLiveActionSide.Sell, now, now, null, position.Quantity, null);
+        var action = new DelphiLiveLedgerAction(intent, position.PositionId, null,
+            DateOnly.FromDateTime(Core.Trader.PaperTradingMonitor.ToToronto(now)), Guid.NewGuid(), "OperatorRequestedExit",
+            System.Text.Json.JsonSerializer.Serialize(new { operatorRequest = request, originalEntry = position.OriginalEntryDossierJson, policyVersionId = state.PolicyVersionId }),
+            "Pending", 0, null, null, null, []);
+        await Commit(state, state with { Actions = state.Actions.Add(action),
+            CandidateStates = SetLifecycle(state, position.Symbol, DelphiLiveRecommendationState.ExitPending) },
+            "OperatorSellRequested", new { request, action }, lease, ct);
+    }
 
     public DelphiLiveActionWorkflow(IDelphiLiveLedgerStore store, IDelphiLiveMarketDataSource source, IDelphiLiveClock clock)
     {
@@ -332,6 +359,7 @@ public sealed class DelphiLiveActionWorkflow
     private string? BuyBlockReason(DelphiLivePortfolioSnapshot state, DelphiLiveActionCandidate? candidate,
         DelphiLivePortfolioCycleInput input, DelphiLivePolicyDefinition policy, Guid? pendingActionId = null)
     {
+        if (NewBuysPaused) return "OperatorPaused";
         if (candidate is null || !candidate.ConfirmedEntryEligible || !candidate.Safety.Momentum.IsEntryEligibleStrong ||
             !candidate.ConfirmationStartedBarEndUtc.HasValue)
             return "BuyCancelledSignal";

@@ -243,6 +243,8 @@ VALUES
             throw new ArgumentException("A lifecycle reason is required.", nameof(reason));
 
         string value = status.ToString();
+        await new TradingControlRepository().SetPausedAsync(Core.Runtime.EngineStrategySettings.Shadow,
+            status==SystemShadowGenerationStatus.Paused,reason);
         DateTime nowUtc = DateTime.UtcNow;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
@@ -808,7 +810,7 @@ ORDER BY [EarliestFillUtc],[CreatedUtc];
         DateTime signalReceivedUtc,
         decimal? budget,
         string reasonCode,
-        CancellationToken cancellationToken = default, SystemShadowPolicyConfig? config = null, Guid? strategyVersionId = null)
+        CancellationToken cancellationToken = default, SystemShadowPolicyConfig? config = null, Guid? strategyVersionId = null, Guid? operatorRequestId = null)
     {
         config ??= SystemShadowPolicyConfig.Version1;
         SystemShadowPolicy.ValidateConfig(config);
@@ -883,6 +885,7 @@ END;
                 P("@DetailsJson", SqlDbType.NVarChar, JsonSerializer.Serialize(new
                 {
                     strategyVersionId,
+                    operatorRequestId,
                     side,
                     orderKind,
                     candidateTrackingId,

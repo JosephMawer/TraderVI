@@ -23,6 +23,16 @@ public partial class DelphiLiveAdvancedView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) => viewModel.RefreshAsync(cancellationToken);
     public Task TickAsync(CancellationToken cancellationToken = default) => viewModel.TickAsync(cancellationToken);
     public Task StopAsync(CancellationToken cancellationToken = default) => viewModel.StopAsync(cancellationToken);
+    private async void SellPosition_Click(object sender,RoutedEventArgs e)
+    {
+        if(sender is not Button {DataContext:DelphiLivePositionRow row} || !row.CanRequestExit)return;
+        try
+        {
+            await OperatorHoldingActions.RequestAsync(Window.GetWindow(this),EngineStrategySettings.Live,row.PortfolioId,row.PositionId,row.Symbol);
+            await viewModel.RefreshAsync();
+        }
+        catch(Exception ex){MessageBox.Show(Window.GetWindow(this),ex.Message,"Exit request failed",MessageBoxButton.OK,MessageBoxImage.Warning);}
+    }
 
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await viewModel.RefreshAsync();
     private void ExperimentEvidenceButton_Click(object sender, RoutedEventArgs e) => viewModel.ShowExperimentEvidence();

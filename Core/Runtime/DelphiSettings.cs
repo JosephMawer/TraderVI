@@ -128,6 +128,8 @@ public sealed record DelphiSettingsChange(Guid EventId, DelphiStrategySettings E
         $"Composite ≥ {Gates.MinCompositeScore:G}; up ≥ {Gates.MinUpProb:G}; breakout ≥ {Gates.MinBreakoutProb:G}\n" +
         $"Edge ≥ {Gates.MinDirectionEdge:G}; down veto ≥ {Gates.MaxDownProb:G}; breadth veto ≤ {Gates.BreadthVetoThreshold:G}\n" +
         $"Override: breakout ≥ {Gates.StrongBreakoutOverride:G} and edge ≥ {Gates.StrongEdgeOverride:G}\n\n" +
-        $"Reason: {ReviewNote}\n\nAssigns the saved version to daily Delphi immediately and starts an official reevaluation using local SQL data. " +
-        "The reevaluation publishes new recommendations and preserves the previous evidence. Independent portfolio strategies retain their own assignments.";
+        $"Reason: {ReviewNote}\n\n" +
+        (CreatesVersion ? "Saves this complete strategy as a new version. No assignment or recommendation changes until a separate Assign action." :
+        "Assigns the saved version to daily Delphi while dependent systems remain paused and starts an official reevaluation using local SQL data. " +
+        "The reevaluation publishes new recommendations and preserves the previous evidence. Independent portfolio strategies retain their own assignments.");
 }

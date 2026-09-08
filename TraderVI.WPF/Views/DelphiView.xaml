@@ -116,6 +116,7 @@
         </Style>
     </UserControl.Resources>
 
+    <DockPanel><views:SystemControlBar DockPanel.Dock="Top" SystemKey="Daily" Margin="22,8,22,0"/>
     <Grid Margin="22,18,22,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -503,5 +504,5 @@
             </Grid>
         </Border>
     </Grid>
-
+    </DockPanel>
 </UserControl>

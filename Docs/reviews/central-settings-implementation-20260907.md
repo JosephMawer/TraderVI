@@ -3,6 +3,10 @@
 Status: implemented and rolled out with explicit operator authorization on 2026-09-07.
 Decision: [ADR-0060](../adr/0060-central-settings-and-scoped-configuration.md).
 
+The migration-028 revision at the end of this review supersedes the original with-holdings transition
+described below. Current flow: pause entries, close holdings separately, edit/save/assign while paused
+and empty, then resume. See the [agreed workflow](../concepts/global-settings-design-draft.md).
+
 ## User flow
 
 Open **Settings** in the main TraderVI tab bar. The Delphi, Delphi Live, Trading and Portfolios pages
@@ -129,3 +133,68 @@ was saved or assigned, no portfolio activated, and no training or data backfill 
 
 Local audit artifacts are in the ignored `artifacts/central-settings-rollout` directory. No DACPAC was
 deployed. See the [system map and proposed research refinement](../concepts/settings-system-map.md).
+
+## Revision 028 — pause, close, configure, resume
+
+Implemented on 2026-09-07 following the operator's explicit revised request. The shared controls appear
+on Trading, Portfolios, Delphi and Delphi Live, and in their Settings sections. Both the editor and the
+save/assignment repositories enforce paused-and-empty eligibility. Database checks run under the engine
+transaction lock also used by Live, Shadow and tracked-entry workflows. Family scope and shared Daily
+input scope are described in the agreed workflow. Names remain separately editable.
+
+TradingControlRepository owns durable entry pauses and immutable operator requests/events. Pause
+cancels Shadow pending buys immediately; Live cancels pending buys through its durable ledger maintenance
+on the next host tick (the desktop requests that tick after a control change). If maintenance is unavailable,
+settings remain blocked while those pending actions exist. Protective sells continue. Normal old-host
+pause/resume routes now participate in the shared control. Existing capital-review holds have a separate,
+explicitly labelled review action and are not cleared by ordinary Resume or assignment.
+
+Sell row controls preserve the request, position snapshot, reason and operator/time, then use existing
+Shadow orders, Live actions or tracked Ghost exit ledgers for the actual simulated fill. Requested positions
+remain visible until a fill commits. Shadow events and tracked directives display queued requests; Live's
+existing action/dossier views retain the new request evidence. A repeated request returns the same identity;
+ledger execution remains idempotent. Real row actions record an actual complete zero-commission sale,
+matching the existing manual tracker contract. Broker routing, partial sales and commissions are not added.
+
+The settings view models retain one in-memory draft per source version across sections, source selection
+and reload; app close warns before discarding. One save includes all related fields. Every supported field
+has behavioral help, and system banners explain their scope. Daily Save review explicitly describes
+saving without assignment. Missing migration 028 leaves all trading-rule editors and controls read-only.
+
+Live/Shadow sessions keep their frozen daily inputs. New entries reject a daily source different from the
+current selection; tracked simulated entries also reject a saved pick from an earlier daily strategy.
+Existing exits remain eligible. Manual Live assignment and operator interventions keep the broad research
+promotion guard active; session checks use the intervention time. A clean prospective restart is deferred.
+
+### Validation and limits
+
+- Core tests: 713 passed, including pause/unpause entry behavior, continued protective exits, retained
+  capital-review holds, interrupted-buy cancellation, post-request operator fills and duplicate-request
+  idempotency. Access-state combinations and behavioral-description coverage are also tested.
+- WPF Debug/Release, Delphi project and SQL/SSDT project builds pass. This is not a complete solution build.
+- Five shared-editor and three daily-editor synthetic layouts render without binding errors. Isolated
+  checks confirm combined drafts survive navigation, saving includes changed fields, and Daily fields
+  lock/unlock with eligibility. No operational app, model prediction or market service is used by these checks.
+- SQL runtime readers verify all four families are installed and read-only before any pause, and the
+  catalog exposes five targets. Actual pause/sale/assignment operations were not exercised on user holdings.
+- Existing nullable-context and unused-variable compiler warnings remain. Dependency advisories remain
+  separately: System.Data.SqlClient 4.8.1 (moderate/high), System.DirectoryServices.Protocols 5.0.0 (moderate),
+  System.Drawing.Common 5.0.0 (critical), System.Security.Cryptography.Xml 5.0.0 (moderate).
+
+### Authorized migration and preservation
+
+Using the operator's earlier explicit authorization for migrations/backups, created and checksum-verified
+`TraderDB_FULL_20260907_140725_434.bak` (43,864,576 bytes) in the existing ProgramData staging folder.
+The existing OneDrive backup folder contains an identical copy; both hashes are
+`826CCEF39905ECF16169553B2358D47D852CB1B59DC5EFEBC98462820E4B1E78`.
+Cloud synchronization is not independently verified. No backup was overwritten.
+
+No old TraderVI/Delphi host was running at migration time. SQLCMD applied migration 028 with error
+stopping. All 68 existing table counts and 16 selected account/trade/model/strategy state hashes match
+before/after. New controls, events and exit requests contain zero rows. Immutable audit triggers and
+trusted checks were verified; focused DBCC CHECKCONSTRAINTS reported no violations. No DACPAC publish,
+strategy assignment, sale, pause, model training, backfill or market-service workflow was run. The updated
+Release desktop binary is ready for the next launch; no operational host was started for validation.
+
+Local audit artifacts: `artifacts/trading-controls-rollout-20260907`; build, test and render logs use
+`artifacts/trading-controls-*`. Unrelated architecture/Oracle/Obsidian work was preserved.

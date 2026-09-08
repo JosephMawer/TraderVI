@@ -926,7 +926,25 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 **A:** A new version becomes available; existing systems and portfolios keep their assignments. Assigning that version is a separate explicit action, subject to system eligibility and a defined effective boundary.
 
 **Q:** What happens to existing positions when a new strategy version is explicitly assigned?
-**A:** The new version immediately governs the whole target, including carried positions and pending internal actions. It inherits entry prices, quantities, cash, observed highs and loss history. Old-version work cannot execute stale decisions after the switch; completed fills and earlier decisions remain immutable history. Assignment timing does not imply an instant fill or broker acknowledgement.
+**A:** Assignment is blocked while holdings or pending orders remain. Pause new buys, close holdings separately, then save/assign while paused and empty. Resume explicitly. Completed fills and earlier decisions remain immutable history.
 
 **Q:** Does splitting account returns at an assignment boundary prove the new strategy's performance?
 **A:** No. It shows what happened while that version governed the account, but inherited holdings and cash reflect earlier decisions. Clean strategy comparison needs a prospectively defined study with comparable conditions; mixed-origin trades remain descriptive account evidence. See `concepts/settings-system-map.md`.
+
+**Q:** Under the accepted revision to ADR-0060, does Assign close holdings so a new version can start?
+**A:** No. It must remain blocked until holdings and pending orders are gone; selling and order resolution are separate actions. This supersedes the earlier with-holdings design. Trading-rule editing and saving also require the affected family to be paused and empty; saving remains separate from assignment.
+
+**Q:** Does Pause new buys disable protective exits or clear loss-review holds?
+**A:** No. It blocks new entries and cancels pending internal buys. Exits continue. Resume retains risk holds and uses the explicitly assigned version.
+
+**Q:** Do edits on different rule tabs require separate strategy versions?
+**A:** No. The tabs share one retained draft and one combined review/save. The saved version is assigned separately; there is no cross-system Save All.
+
+**Q:** Why do Portfolios returns require matching saved start and end dates?
+**A:** Different dates expose accounts to different market conditions. Missing endpoints remain unavailable; the comparison does not shift one account's window to manufacture a result.
+
+**Q:** Does maximum closing decline measure the worst intraday loss?
+**A:** No. It measures the largest observed fall from a prior closing-value peak in the displayed period. Intraday moves and missing observations cannot be inferred from those closes.
+
+**Q:** Does Review promotion assign the selected paper strategy to Trading?
+**A:** No. It opens a review. Complete primary-account identity and a durable cross-family recommendation route remain future work; account history and current policy names alone do not establish promotion readiness. See ADR-0061.

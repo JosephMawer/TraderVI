@@ -219,7 +219,8 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     {
         var portfolio = portfolios.FirstOrDefault(p => p.PortfolioId == SelectedPortfolio?.PortfolioId);
         Replace(Positions, portfolio?.Positions.Select(p => new DelphiLivePositionRow(p.Symbol, p.Quantity, p.AveragePurchasePrice,
-            p.Protection.FloorPrice, p.Protection.Stage.ToString(), p.ClosedUtc.HasValue ? "Closed" : "Held", TorontoTime(p.OpenedUtc))) ?? []);
+            p.Protection.FloorPrice, p.Protection.Stage.ToString(), p.ClosedUtc.HasValue ? "Closed" : "Held", TorontoTime(p.OpenedUtc))
+            { PositionId=p.PositionId, PortfolioId=portfolio.PortfolioId }) ?? []);
         Replace(Actions, portfolio?.Actions.Reverse().Select(a => new DelphiLiveActionRow(a.Intent.Symbol, a.Intent.Side.ToString(),
             a.Status, a.PrimaryReason, a.TerminalReason ?? "", a.AttemptCount, TorontoTime(a.Intent.DecisionUtc),
             FormatJson(a.DossierJson))) ?? []);
@@ -273,7 +274,12 @@ public sealed record DelphiLiveObservationRow(string SelectionKey, Guid PolicyVe
 public sealed record DelphiLivePortfolioRow(Guid PortfolioId, string Role, string Currency, decimal Cash,
     int Holdings, decimal? LastCompleteNav, string Guard, string Policy, long Revision);
 public sealed record DelphiLivePositionRow(string Symbol, int Quantity, decimal AverageCost, decimal? ProfitFloor,
-    string Protection, string State, string Opened);
+    string Protection, string State, string Opened)
+{
+    public Guid PositionId { get; init; }
+    public Guid PortfolioId { get; init; }
+    public bool CanRequestExit => State=="Held";
+}
 public sealed record DelphiLiveActionRow(string Symbol, string Side, string State, string Reason, string TerminalReason,
     int Attempts, string DecisionTime, string DossierJson);
 public sealed record DelphiLiveFillRow(string Symbol, string Side, int Quantity, decimal Price, string Confidence, string Field, string Time);

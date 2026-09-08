@@ -58,6 +58,7 @@ public sealed partial class PortfoliosViewModel
                 value.UnrealizedProfitLoss, value.TotalReturn, value.DailyReturn, value.Drawdown, value.MarkUtc ?? p.UpdatedUtc)
             {
                 IsDelphiLive = true, DelphiLivePortfolioId = p.PortfolioId, Currency = p.Currency,
+                StrategyName = $"Live policy {p.PolicyVersionId.ToString("N")[..8]}",
                 Explanation = $"{account.DisplayName}. {account.StatusAt(nowUtc)}. Starts {p.EffectiveSession:MMM d, yyyy}; starting cash {p.StartingCapital:N2} {p.Currency}. " +
                     $"{value.Explanation} {p.Fills.Count(f => f.Confidence == DelphiLiveFillConfidence.EstimatedFill)} estimated fill(s). " +
                     "Manage this account in Delphi Live → Setup & advanced. Historical replay accounts are viewed in Delphi Live → Replay account."
@@ -76,7 +77,7 @@ public sealed partial class PortfoliosViewModel
     private static PortfolioOverviewRow LivePlaceholder(string status, string explanation) =>
         new("DelphiLive:inactive", null, "Delphi Live — Main paper account", "Delphi Live", "Paper", status,
             null, null, null, null, null, null, null, null, null)
-        { IsDelphiLive = true, Currency = "—", Explanation = explanation };
+        { IsDelphiLive = true, Currency = "—", Explanation = explanation, StrategyName = "No paper account" };
 
     private void ShowDelphiLiveDetails()
     {
@@ -95,7 +96,8 @@ public sealed partial class PortfoliosViewModel
             return new PortfolioHoldingRow(position.Symbol, position.ClosedUtc.HasValue ? "Closed" : "Held", position.Quantity,
                 position.AveragePurchasePrice, price, position.ClosedUtc.HasValue ? null : price * position.Quantity,
                 price.HasValue ? (price - position.AveragePurchasePrice) * position.Quantity : null,
-                position.Protection.FloorPrice, position.OpenedUtc.ToLocalTime(), exit is null ? "—" : Words(exit.PrimaryReason));
+                position.Protection.FloorPrice, position.OpenedUtc.ToLocalTime(), exit is null ? "—" : Words(exit.PrimaryReason))
+                { PositionId=position.PositionId, TargetId=p.PortfolioId, Family=Core.Runtime.EngineStrategySettings.Live };
         }));
         var actions = p.Actions.Select(a => new PortfolioEventRow(a.Intent.DecisionUtc.ToLocalTime(), $"{a.Intent.Side} decision",
             Words(a.PrimaryReason), $"{a.Intent.Symbol} · {a.Status} · {a.AttemptCount} quote attempt(s) · {Words(a.TerminalReason ?? "Pending")}"));

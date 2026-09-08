@@ -86,6 +86,8 @@ public sealed class EngineSettingsRepository : SQLBase
         await using var c = new SqlConnection(ConnectionString); await c.OpenAsync();
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (!await Installed(c, t)) throw new InvalidOperationException($"Install reviewed migration {Migration} before saving versions.");
+        await TradingControlRepository.FenceAsync(c, t);
+        await TradingControlRepository.RequireEditableAsync(c, t, family);
         if (settings is DelphiLivePolicyDefinition live) await DelphiLiveExperimentRepository.RegisterSettingsPolicyAsync(c, t, live, "ADR-0060", default);
         await c.ExecuteAsync("""
             INSERT dbo.EngineStrategyVersion(VersionId,Family,Name,SettingsJson,SettingsHash,CreatedUtc,CreatedBy,Reason)
@@ -111,6 +113,7 @@ public sealed class EngineSettingsRepository : SQLBase
             EXEC @r=sys.sp_getapplock @Resource=N'TraderVI.EngineSettings',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=30000;
             IF @r<0 THROW 51313,'An evaluation is still running. Retry the assignment after it completes.',1;
             """, transaction: t, commandTimeout: 40);
+        await TradingControlRepository.RequireEditableAsync(c, t, target.Family);
         var saved = await c.QuerySingleOrDefaultAsync<EngineStrategyVersion>("SELECT VersionId,Family,Name,SettingsJson,SettingsHash,CreatedUtc FROM dbo.EngineStrategyVersion WHERE VersionId=@Id", new { Id = version.VersionId }, t);
         if (saved is null || saved.Family != version.Family || saved.SettingsHash != version.SettingsHash || saved.SettingsJson != version.SettingsJson)
             throw new InvalidOperationException("Save this version before assigning it, then reload the catalog.");
@@ -215,6 +218,7 @@ public sealed class EngineSettingsRepository : SQLBase
     public static async Task<bool> HasLiveOverridesAsync(CancellationToken ct = default)
     {
         await using var c = new SqlConnection(new SQLBase().ConnectionString); await c.OpenAsync(ct);
+        if (await TradingControlRepository.ResearchInterventionAsync(c, DateTime.UtcNow)) return true;
         return await Installed(c) && await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.EngineStrategyAssignment a JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId WHERE v.Family=N'DelphiLive'") > 0;
     }
 
@@ -254,6 +258,8 @@ public sealed class EngineSettingsRepository : SQLBase
 
     internal static async Task<bool> HasLiveOverrideForSessionAsync(SqlConnection c, Guid session, DateTime asOf)
     {
+        var close = await c.ExecuteScalarAsync<DateTime>("SELECT SessionCloseUtc FROM dbo.DelphiLiveSession WHERE SessionId=@Id", new { Id=session });
+        if (await TradingControlRepository.ResearchInterventionAsync(c, asOf < close ? asOf : close)) return true;
         if (!await Installed(c)) return false;
         return await c.ExecuteScalarAsync<int>("""
             SELECT COUNT(*) FROM dbo.EngineStrategyAssignment a

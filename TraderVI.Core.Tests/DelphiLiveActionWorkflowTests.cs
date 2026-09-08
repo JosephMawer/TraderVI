@@ -290,6 +290,71 @@ public sealed class DelphiLiveActionWorkflowTests
         Should.Throw<ArgumentException>(() => DelphiLiveLedgerIntegrity.Create(harness.Request with { AuthorizedUtc = Open }));
     }
 
+    [Fact]
+    public async Task OperatorPauseBlocksNewBuysWithoutRequestingExecutionQuotes()
+    {
+        var h=new Harness();h.Workflow.NewBuysPaused=true;
+        var state=await h.Workflow.RunCycleAsync(h.Input("AAA"),Policy,h.Lease);
+        state.OpenPositions.ShouldBeEmpty();state.PendingActions.ShouldBeEmpty();
+        state.Cash.ShouldBe(1000m);h.Source.Requests.ShouldBeEmpty();
+        h.Workflow.NewBuysPaused=false;h.Clock.Now=Open.AddMinutes(27);
+        h.Source.Enqueue(10m,9.99m,10m);
+        (await h.Workflow.RunCycleAsync(h.Input("AAA",25),Policy,h.Lease)).OpenPositions.Count().ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task OperatorExitPreservesRequestAndEntryUntilPostRequestFillAndIsIdempotentWhilePaused()
+    {
+        var h=new Harness();h.Source.Enqueue(10m,9.99m,10m);
+        await h.Workflow.RunCycleAsync(h.Input("AAA"),Policy,h.Lease);
+        var before=h.Store.State;var position=before.OpenPositions.Single();
+        h.Workflow.NewBuysPaused=true;h.Clock.Now=Open.AddMinutes(27);
+        var request=new global::Core.Runtime.OperatorExitRequest(Guid.NewGuid(),global::Core.Runtime.EngineStrategySettings.Live,
+            before.PortfolioId,position.PositionId,position.Symbol,h.Clock.Now,"operator","Close to change strategy",DelphiLiveLedgerJson.Serialize(position));
+        await h.Workflow.QueueOperatorExitAsync(request,h.Lease);
+        var queued=h.Store.State;
+        queued.Cash.ShouldBe(before.Cash);queued.OpenPositions.Single().ShouldBe(position);
+        queued.PendingActions.Single().Intent.ActionId.ShouldBe(request.RequestId);
+        queued.PendingActions.Single().DossierJson.ShouldContain(request.Reason);
+        await h.Workflow.QueueOperatorExitAsync(request,h.Lease);
+        h.Store.State.Revision.ShouldBe(queued.Revision);
+        h.Source.Enqueue(10.4m,10.39m,10.41m);
+        var exited=await h.Workflow.ProtectHoldingsAsync(h.Protection(),Policy,h.Lease);
+        exited.OpenPositions.ShouldBeEmpty();exited.Fills.Length.ShouldBe(2);
+        exited.Fills.Last().Price.ShouldBe(10.39m);
+        exited.Positions.Single().OriginalEntryDossierJson.ShouldBe(position.OriginalEntryDossierJson);
+        exited.Fills.Last().FilledUtc.ShouldBeGreaterThan(request.RequestedUtc);
+        await h.Workflow.QueueOperatorExitAsync(request,h.Lease);
+        h.Store.State.Fills.Length.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task OperatorPauseStillAllowsProtectiveExitsAndRetainsCapitalReviewHold()
+    {
+        var h=new Harness();h.Source.Enqueue(10m,9.99m,10m);
+        await h.Workflow.RunCycleAsync(h.Input("AAA"),Policy,h.Lease);
+        h.Store.State=h.Store.State with {Guards=new(true,true,-0.05m,-0.10m,1100m)};
+        h.Workflow.NewBuysPaused=true;h.Clock.Now=Open.AddMinutes(27);
+        h.Source.Enqueue(9.4m,9.4m,9.41m);h.Source.Enqueue(9.39m,9.39m,9.4m);
+        var state=await h.Workflow.ProtectHoldingsAsync(h.Protection(),Policy,h.Lease);
+        state.OpenPositions.ShouldBeEmpty();state.Guards.CapitalReviewRequired.ShouldBeTrue();state.Guards.DailyBuyingPaused.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task OperatorPauseCancelsInterruptedBuyWithoutQuotesOrCashChanges()
+    {
+        var h=new Harness();h.Source.BeforeRequest=_=>throw new OperationCanceledException();
+        await Should.ThrowAsync<OperationCanceledException>(()=>h.Workflow.RunCycleAsync(h.Input("AAA"),Policy,h.Lease));
+        h.Store.State.PendingActions.Single().Intent.Side.ShouldBe(DelphiLiveActionSide.Buy);
+        h.Source.BeforeRequest=null;h.Workflow.NewBuysPaused=true;
+        await h.Workflow.CancelOperatorPausedBuysAsync(h.Store.State.PortfolioId,h.Lease);
+        h.Store.State.PendingActions.ShouldBeEmpty();h.Store.State.Actions.Single().TerminalReason.ShouldBe("OperatorPaused");
+        h.Store.State.Cash.ShouldBe(1000m);h.Store.State.Fills.ShouldBeEmpty();h.Source.Requests.ShouldBeEmpty();
+        long revision=h.Store.State.Revision;
+        await h.Workflow.CancelOperatorPausedBuysAsync(h.Store.State.PortfolioId,h.Lease);
+        h.Store.State.Revision.ShouldBe(revision);
+    }
+
     private sealed class Harness
     {
         public readonly TestClock Clock = new() { Now = Open.AddMinutes(22) };

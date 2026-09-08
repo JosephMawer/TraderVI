@@ -89,6 +89,8 @@ public sealed class DelphiSettingsRepository : StrategyVersionRepository
                 """, connection, transaction))
                 await command.ExecuteNonQueryAsync();
 
+            await TradingControlRepository.FenceAsync(connection, transaction);
+            await TradingControlRepository.RequireEditableAsync(connection, transaction, TradingSystems.Daily);
             change.ValidateCurrent(await ReadCatalogAsync(connection, transaction));
             string targetHash = change.Source.ModelSetHash!;
             if (change.CreatesVersion)

@@ -44,6 +44,8 @@
     <Border Style="{StaticResource Card}" Background="#211C2E"><StackPanel>
      <DockPanel><Button Content="Reload" DockPanel.Dock="Right" Click="Reload_Click" IsEnabled="{Binding CanEdit}"/><TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold"/></DockPanel>
      <TextBlock Text="{Binding Description}" Foreground="#C4CDDA" Margin="0,6,0,10"/>
+     <local:SystemControlBar x:Name="StrategyControls"/>
+     <TextBlock Text="{Binding AccessDescription}" Foreground="#EBC98C" Margin="0,0,0,8"/>
      <TextBlock Text="{Binding Status}" Foreground="#CCB4FA"/>
     </StackPanel></Border>
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,14,0" IsEnabled="{Binding CanEdit}">
@@ -51,21 +53,28 @@
       <TextBlock Text="1  Strategy version" FontSize="19" FontWeight="SemiBold" Margin="0,0,0,12"/>
       <ComboBox ItemsSource="{Binding Versions}" SelectedItem="{Binding Selected}" DisplayMemberPath="DisplayName" AutomationProperties.Name="Saved strategy version"/>
       <TextBlock Text="Edit a saved version or the template. Saving preserves a new version and leaves every assignment unchanged." Foreground="#A6B3C6" Margin="0,12,0,18"/>
-      <ItemsControl ItemsSource="{Binding Fields}"><ItemsControl.ItemTemplate><DataTemplate>
+      <TabControl ItemsSource="{Binding Groups}" Background="#1A2029" Foreground="#F4F7FB" Margin="0,0,0,12">
+       <TabControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></TabControl.ItemTemplate>
+       <TabControl.ContentTemplate><DataTemplate>
+       <ItemsControl ItemsSource="{Binding Fields}" Margin="12"><ItemsControl.ItemTemplate><DataTemplate>
        <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
-        <StackPanel><TextBlock Text="{Binding Label}" FontWeight="SemiBold"/><TextBlock Text="{Binding Help}" FontSize="12" Foreground="#A6B3C6" Margin="0,4,12,0"/></StackPanel>
-        <TextBox Grid.Column="1" Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Label}"/>
+        <StackPanel><TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock Text="{Binding Help}" FontSize="12" Foreground="#A6B3C6" Margin="0,4,12,0" TextWrapping="Wrap"/></StackPanel>
+        <TextBox Grid.Column="1" Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{Binding Label}"
+         IsReadOnly="{Binding DataContext.RulesReadOnly,RelativeSource={RelativeSource AncestorType=UserControl}}"/>
        </Grid>
       </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-      <TextBlock Text="New version name" Margin="0,12,0,6"/><TextBox Text="{Binding NewName,UpdateSourceTrigger=PropertyChanged}" MaxLength="80"/>
-      <TextBlock Text="Reason" Margin="0,12,0,6"/><TextBox Text="{Binding Reason,UpdateSourceTrigger=PropertyChanged}" MaxLength="512"/>
-      <Button Content="Save Version" Click="SaveVersion_Click" IsEnabled="{Binding CanWrite}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
+       </DataTemplate></TabControl.ContentTemplate>
+      </TabControl>
+      <TextBlock Text="New version name" Margin="0,12,0,6"/><TextBox Text="{Binding NewName,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding RulesReadOnly}" MaxLength="80"/>
+      <TextBlock Text="Reason" Margin="0,12,0,6"/><TextBox Text="{Binding Reason,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding RulesReadOnly}" MaxLength="512"/>
+      <WrapPanel Margin="0,16,0,0"><Button Content="Review and save version" Click="SaveVersion_Click" IsEnabled="{Binding CanWrite}"/>
+       <Button Content="Discard this draft" Click="DiscardDraft_Click" IsEnabled="{Binding CanEdit}"/></WrapPanel>
      </StackPanel></Border>
      <Border Style="{StaticResource Card}"><StackPanel>
       <TextBlock Text="2  Assignment" FontSize="19" FontWeight="SemiBold" Margin="0,0,0,12"/>
       <ComboBox ItemsSource="{Binding Targets}" SelectedItem="{Binding Target}" DisplayMemberPath="DisplayName" AutomationProperties.Name="Assignment target"/>
       <TextBlock Text="{Binding TargetSummary}" Foreground="#A6B3C6" Margin="0,12,0,12"/>
-      <TextBlock Text="Assign replaces the target’s governing strategy immediately, including existing holdings. Old pending decisions are superseded and reevaluated. Financial facts and completed history remain intact. Existing risk-review holds stay in force." Foreground="#A6B3C6"/>
+      <TextBlock Text="Assign requires paused accounts with no holdings or pending orders. It changes the selected target's strategy and leaves buying paused. Resume separately to start using the assigned rules. Account history and risk-review holds remain intact." Foreground="#A6B3C6"/>
       <Button Content="Review assignment…" Click="Assign_Click" IsEnabled="{Binding CanWrite}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
      </StackPanel></Border>
     </StackPanel></ScrollViewer>

@@ -66,6 +66,7 @@ public sealed class PaperTradingMonitor
             var assignment = await new EngineSettingsRepository().ReadAsync(EngineStrategySettings.TrackedTargetId,
                 EngineStrategySettings.Tracked, DelayedIntradaySwingPolicyConfig.Version1);
             var boundaryHighs = assignment.AssignedUtc is null ? null : await new EngineSettingsRepository().ReadTrackedHighsAsync();
+            var operatorRequests = await new TradingControlRepository().ExitRequestsAsync(EngineStrategySettings.Tracked);
             DateTime startedUtc = DateTime.UtcNow;
             Guid pollCycleId = Guid.NewGuid();
             var evidenceRepository = new IntradayEvidenceRepository();
@@ -110,7 +111,8 @@ public sealed class PaperTradingMonitor
                     evidenceRepository,
                     executeGhostExits,
                     cancellationToken, assignment.Settings, assignment.AssignedUtc,
-                    boundaryHighs is not null && boundaryHighs.TryGetValue(position.PositionId, out var high) ? high : null));
+                    boundaryHighs is not null && boundaryHighs.TryGetValue(position.PositionId, out var high) ? high : null,
+                    operatorRequests.SingleOrDefault(r => r.PositionId == position.PositionId)));
             }
 
             return new PaperMonitorCycleResult(
@@ -181,7 +183,8 @@ public sealed class PaperTradingMonitor
         TmxClient tmx,
         IntradayEvidenceRepository evidenceRepository,
         bool executeGhostExits,
-        CancellationToken cancellationToken, DelayedIntradaySwingPolicyConfig config, DateTime? assignedUtc, decimal? boundaryHigh)
+        CancellationToken cancellationToken, DelayedIntradaySwingPolicyConfig config, DateTime? assignedUtc, decimal? boundaryHigh,
+        OperatorExitRequest? operatorRequest = null)
     {
         TradeLogInfo entryTrade = await GetEntryTradeAsync(position);
         DateTime entryUtc = DateTime.SpecifyKind(entryTrade.CreatedUtc, DateTimeKind.Utc);
@@ -397,7 +400,19 @@ public sealed class PaperTradingMonitor
 
         bool exited = false;
         decimal? exitPrice = null;
-        if (ShouldExecuteAutomaticExit(
+        bool operatorExit = operatorRequest is not null && position.ExecutionMode == TrackedExecutionMode.Ghost &&
+            fiveMinuteBatch.ReceivedUtc > operatorRequest.RequestedUtc &&
+            observed.TimestampUtc >= SystemShadowPolicy.EarliestFiveMinuteFillBoundary(DateTime.SpecifyKind(operatorRequest.RequestedUtc, DateTimeKind.Utc)) &&
+            IsAutomaticPollTime(ToToronto(fiveMinuteBatch.ReceivedUtc));
+        if (operatorExit)
+        {
+            string notes = $"Operator request {operatorRequest!.RequestId:D}; requested={operatorRequest.RequestedUtc:O}; " +
+                $"TMX5 event={observed.TimestampUtc:O}; received={fiveMinuteBatch.ReceivedUtc:O}; observed simulated exit; " + operatorRequest.Reason;
+            var result = await new PaperGhostTradeRepository().TryRecordExitAsync(position.PositionId, observed.Close,
+                ToToronto(fiveMinuteBatch.ReceivedUtc), "OperatorRequestedExit", notes[..System.Math.Min(notes.Length, 512)], cancellationToken);
+            exited = result is not null; if (exited) exitPrice = result!.Price;
+        }
+        else if (ShouldExecuteAutomaticExit(
                 position.ExecutionMode,
                 executeGhostExits,
                 decision?.Directive))

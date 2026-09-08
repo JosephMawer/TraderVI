@@ -179,6 +179,8 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
             ? "Ghost/Real ledger active · Real fills are manual · no broker"
             : $"Legacy Ghost-only database · apply {TrackedExecutionSchema.MigrationFileName} to enable Real tracking";
         Guid? selectedPositionId = SelectedPosition?.PositionId;
+        var operatorExits = (await new TradingControlRepository().ExitRequestsAsync(Core.Runtime.EngineStrategySettings.Tracked))
+            .ToDictionary(r=>r.PositionId);
         List<ActivePositionInfo> trackedPositions =
             (await new ActivePositionRepository().GetRecentPositions(250))
             .Where(TrackedPositionScope.Includes)
@@ -214,10 +216,14 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
 
         Replace(
             Positions,
-            activePositions.Select(position => PaperPositionRow.Create(
-                position,
-                exitsByPosition.GetValueOrDefault(position.PositionId),
-                latestResults.GetValueOrDefault(position.PositionId))));
+            activePositions.Select(position =>
+            {
+                var row = PaperPositionRow.Create(position, exitsByPosition.GetValueOrDefault(position.PositionId),
+                    latestResults.GetValueOrDefault(position.PositionId));
+                return operatorExits.TryGetValue(position.PositionId, out var request)
+                    ? row with { Directive=$"Exit requested {request.RequestedUtc.ToLocalTime():MMM d HH:mm} · awaiting eligible fill · {request.Reason}" }
+                    : row;
+            }));
         SelectedPosition = selectedPositionId.HasValue
             ? Positions.FirstOrDefault(position => position.PositionId == selectedPositionId.Value)
             : null;
@@ -396,6 +402,7 @@ public sealed record PaperPositionRow(
     DateTime LastUpdatedLocal,
     Brush PnLBrush)
 {
+    public string ExitActionLabel => ExecutionMode == TrackedExecutionMode.Real ? "Record sale…" : "Sell…";
     public static PaperPositionRow Create(
         ActivePositionInfo position,
         TradeLogInfo? exit,

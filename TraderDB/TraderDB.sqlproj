@@ -168,6 +168,12 @@
     <Build Include="dbo/Triggers/EngineStrategyVersion_Immutable.sql" />
     <Build Include="dbo/Triggers/EngineStrategyAssignment_Immutable.sql" />
     <None Include="Migrations/20260907_027_AddCentralSettings.sql" />
+    <Build Include="dbo/Tables/TradingSystemControl.sql" />
+    <Build Include="dbo/Tables/TradingControlEvent.sql" />
+    <Build Include="dbo/Tables/OperatorExitRequest.sql" />
+    <Build Include="dbo/Triggers/TradingControlEvent_Immutable.sql" />
+    <Build Include="dbo/Triggers/OperatorExitRequest_Immutable.sql" />
+    <None Include="Migrations/20260907_028_AddTradingControls.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />

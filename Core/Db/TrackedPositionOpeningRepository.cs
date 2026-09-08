@@ -64,6 +64,17 @@ public sealed class TrackedPositionOpeningRepository : SQLBase
 
         try
         {
+            await TradingControlRepository.FenceAsync(connection, transaction, "Shared");
+            if (request.ExecutionMode == TrackedExecutionMode.Ghost &&
+                await TradingControlRepository.IsPausedAsync(connection, transaction, Core.Runtime.EngineStrategySettings.Tracked))
+                throw new InvalidOperationException("New tracked buys are paused. Resume trading before opening a simulated position.");
+            if (request.ExecutionMode == TrackedExecutionMode.Ghost && request.OriginalPickId is Guid pickId)
+            {
+                await using var sourceCheck = new SqlCommand("SELECT COUNT(*) FROM dbo.DailyPick p JOIN dbo.StrategyVersion s ON s.VersionId=p.StrategyVersionId AND s.IsActive=1 WHERE p.PickId=@Id", connection, transaction);
+                sourceCheck.Parameters.Add(new SqlParameter("@Id",SqlDbType.UniqueIdentifier) {Value=pickId});
+                if (Convert.ToInt32(await sourceCheck.ExecuteScalarAsync(cancellationToken)) != 1)
+                    throw new InvalidOperationException("This pick does not use the currently assigned daily strategy. Evaluate Daily Delphi and select a current pick before opening a simulated position.");
+            }
             const string existingSql = """
 SELECT TOP (1) [PositionId]
 FROM [dbo].[ActivePosition] WITH (UPDLOCK, HOLDLOCK)

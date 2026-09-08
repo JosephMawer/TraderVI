@@ -276,6 +276,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## user-interface
 
+- [ADR-0061](0061-portfolio-comparison-workspace.md) — Linked comparison, performance and challenger review views
+
 - [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
 
 - [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings

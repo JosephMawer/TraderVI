@@ -13,6 +13,8 @@ public partial class DelphiSettingsView : UserControl
 {
     public Func<Task<string>>? ReevaluateAsync { get; set; }
     public bool IsBusy => model.IsBusy;
+    public bool HasUnsavedDrafts => model.HasAnyDrafts;
+    public Task RefreshAccessAsync() => model.RefreshAccessAsync();
     private readonly DelphiSettingsViewModel model = new();
     private bool loaded;
     public DelphiSettingsView()
@@ -30,7 +32,10 @@ public partial class DelphiSettingsView : UserControl
         try
         {
             var change = model.PrepareReview();
+            if (MessageBox.Show(Window.GetWindow(this), change.ReviewSummary + "\n\nSave all threshold edits as one version? Assignments remain unchanged.",
+                "Review daily strategy version", MessageBoxButton.OKCancel, MessageBoxImage.Information, MessageBoxResult.Cancel)!=MessageBoxResult.OK) return;
             await Task.Run(() => new Core.Db.DelphiSettingsRepository().SaveVersionAsync(change));
+            model.DiscardCurrentDraft();
             await model.RefreshAsync(change.TargetId);
             model.Status = $"Saved {change.TargetName}. The daily engine assignment has not changed.";
         }
@@ -50,7 +55,7 @@ public partial class DelphiSettingsView : UserControl
             model.Status = "Verifying the four preserved model files and prediction schemas…";
             await Task.Run(change.VerifyArtifacts);
             model.Status = "Model files verified. Review the proposed selection.";
-            if (MessageBox.Show(Window.GetWindow(this), change.ReviewSummary,
+            if (MessageBox.Show(Window.GetWindow(this), change.ReviewSummary + "\n\nAll dependent accounts must be paused with no holdings or pending orders. Assignment leaves buying paused. Resume separately after reviewing the new daily results.",
                 "Assign daily Delphi strategy?", MessageBoxButton.OKCancel, MessageBoxImage.Warning,
                 MessageBoxResult.Cancel) != MessageBoxResult.OK)
             {
@@ -80,5 +85,10 @@ public partial class DelphiSettingsView : UserControl
                 : "Review could not complete. " + detail;
         }
         finally { model.IsBusy = false; }
+    }
+    private void Discard_Click(object sender, RoutedEventArgs e)
+    {
+        if(MessageBox.Show(Window.GetWindow(this),"Discard this unsaved daily strategy draft?","Discard draft",MessageBoxButton.OKCancel,MessageBoxImage.Question,MessageBoxResult.Cancel)==MessageBoxResult.OK)
+            model.DiscardCurrentDraft();
     }
 }

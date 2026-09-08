@@ -7,32 +7,18 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Central settings — strategy version adoption
 
-- **Accepted:** one central Settings destination with system sections, a shared strategy editor and
-  contextual links (ADR-0060).
-- **Accepted:** saving a changed strategy creates a version without changing assignments; assigning it
-  is a separate explicit action. This now replaces the daily combined edit-and-apply UI in source.
-- **Accepted:** an explicit assignment takes effect immediately for the whole target, including existing
-  positions and pending actions. Waiting until the portfolio empties was rejected; do not retain separate
-  old-rule assignments for carried holdings.
-- **Accepted:** the assigned version inherits entry prices, quantities, cash, observed price highs and
-  loss/drawdown history and applies its new rules to those facts. Assignment does not reset the account.
-- **Accepted:** keep trading limits in the strategy for now. Accounts retain their actual capital,
-  holdings, history and assignment; no duplicate configurable account-cap layer is planned initially.
-- **Deferred:** optional account-specific trading caps until there is a concrete need.
-- **Implemented in source:** atomic assignment and pending-action supersession, worker fencing,
-  floor recomputation from facts, fresh target confirmation, retained risk-review holds, explicit
-  data-readiness/failure outcomes and research-promotion isolation. See the
-  [implementation review](central-settings-implementation-20260907.md).
-- **Rollout completed 2026-09-07:** verified backup, migration 027 and updated-host launch. The first
-  operator-chosen assignment remains separate; no current assignment was changed during rollout.
-- **Deferred:** editable Shadow lens/slot definitions, service scheduling/provider editors, capital
-  deposits/withdrawals and a reviewed route to fresh research after manual Live reassignment.
-- **Proposed research refinement (not accepted or implemented):** retain one operational assignment and
-  continuous ledger; record assignment periods and inherited state; end only affected comparisons and
-  restart prospectively with comparable conditions. Shared daily-input changes must be included in the
-  affected-study scope. Define restart authority and eligibility before narrowing the current broad pause.
-  See [settings system map](../concepts/settings-system-map.md).
-
+- **Accepted and implemented in source:** pause new buys, close holdings separately, then edit/save/assign
+  while paused and empty; explicitly resume afterward. One shared draft per strategy, retained navigation,
+  per-setting help and system banners are implemented. See [agreed workflow](../concepts/global-settings-design-draft.md).
+- **Initial scope:** family-wide locks; shared Daily Delphi changes require all dependent families paused
+  and empty. Old frozen daily picks cannot initiate buys under a changed daily selection.
+- **Rollout:** migration 027 is installed. Migration 028 and new host rollout are tracked in project status.
+- **Retained:** account history and risk holds; separate Save and Assign; no duplicate account-cap layer.
+- **Deferred:** a prospective research restart after operator intervention. Empty accounts remove carried
+  trades but do not establish equal capital, periods, inputs or clean controls. The broad promotion guard
+  remains in force. Narrowing it requires explicit study ownership, restart authority and eligibility.
+- **Deferred:** partial Real fills/commissions in the new dialog, durable drafts across app restarts,
+  editable Shadow lens/slot definitions, account capital flows/caps, provider/schedule editors and broker routing.
 ### Delphi settings — candidate assignment and first operational selection
 
 - The desktop settings page selects complete preserved strategy/model sets. A candidate not yet assigned
@@ -353,3 +339,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   calibration: TMX accepts `TECK.B`, `BBD.B`, `RCI.B`, `GIB.A`, `REI.UN`
   in canonical dot form; missing coverage was a seeding gap, not a
   symbol-format limitation. Backfilled via `Tools/Backfill.MissingXiu`.
+
+### Portfolios comparison — follow-through after ADR-0061
+
+- **Accepted/implemented:** Compare as default, Performance, and one-challenger Strategy review; shared selection, period and account scope. Existing operational tools remain accessible in a collapsed section.
+- **Provisional display:** aligned saved closing-date returns, normalized charts and maximum observed closing decline. Account histories can span earlier rule assignments; observed dates do not prove complete TSX session coverage.
+- **Deferred:** common complete-strategy identity, prospective comparable evidence, verified primary paper-account mapping, and durable human-approved strategy-to-Trading routing. Review currently explains that promotion is unavailable.
+- **Deferred:** historical daily Shadow generations, arbitrary date selection, benchmark overlay, period trade/fill statistics and reconciled Real cash-flow returns. These need explicit evidence contracts, not invented values.

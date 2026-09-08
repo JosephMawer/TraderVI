@@ -5,6 +5,30 @@
 
 ## Executive summary
 
+**Portfolios comparison workspace implemented in source (2026-09-07):** Portfolios now opens to Compare,
+with Performance and Strategy review tabs sharing the selected account, period and scope. Saved paper
+closing history supports descriptive aligned returns and observed closing declines, with explicit gaps;
+Real/operator accounts remain references. Existing account tools are collapsed. Review shows the saved
+daily recommendation source and tracked exit assignment, but cross-family promotion and a verified
+primary paper-account mapping remain unimplemented. All 720 core tests and the targeted WPF build pass;
+offscreen synthetic previews verify navigation and binding behavior. Existing warnings remain. No database
+operation, operational app, market call, assignment or account activation was run. See
+[ADR-0061](adr/0061-portfolio-comparison-workspace.md) and [measurement/validation notes](concepts/portfolio-comparison.md).
+
+**Pause / close / configure revision implemented in source (2026-09-07):** strategy editors, Save and
+Assign now require a durable entry pause plus zero holdings/pending orders in the affected family. Daily
+shared models/gates require all dependent families paused and empty. Operational pages have Pause/Resume
+and per-holding Sell/Record sale controls with immutable request/audit history; protective exits continue.
+Related rule tabs retain one draft and save together, with behavioral descriptions and system banners.
+Resume uses the assigned strategy, retains risk holds and rejects incompatible frozen daily picks.
+Core tests pass (713); WPF and SQL/SSDT builds pass. Migration 028 was applied after a fresh verified backup
+and matching OneDrive copy. All 68 existing table counts and 16 selected state hashes match the baseline;
+trusted constraints, immutable triggers and runtime read-only eligibility checks pass. The new Release
+app is built for the next launch; no operational host was started for validation. Cloud sync is unverified.
+No holding has been sold and no actual pause or strategy assignment was changed during implementation.
+The [agreed workflow](concepts/global-settings-design-draft.md) supersedes the immediate-with-holdings
+behavior of the first release below. Existing compiler warnings and dependency advisories remain.
+
 **Central Settings rolled out (2026-09-07):** the main tab bar now has one
 Settings destination, with links from operational pages. Save Version and Assign are separate for daily
 Delphi, Delphi Live, System Shadow and tracked-position exit policies. Assignment replaces the whole

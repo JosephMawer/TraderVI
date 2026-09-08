@@ -93,6 +93,7 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
         workflow.PersistSessionResearchAsync = async (context, lease, token) =>
         { if (!await EngineSettingsRepository.HasLiveOverridesAsync(token)) await research.SessionClosedAsync(context, lease, token); };
         workflow.GetCorporateActionSymbolsAsync = (date, token) => experiments.ReadAffectedSymbolsAsync(date, date, token);
+        workflow.IsDailyStrategyCurrentAsync = async (strategy, token) => strategy is Guid id && id == await new TradingControlRepository().CurrentDailyStrategyAsync();
     }
 
     public async Task<bool> HasSchemaAsync(CancellationToken cancellationToken = default)
@@ -145,6 +146,18 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
         ResetNotificationsFor(Today());
         if (workflow is null || !await HasSchemaAsync(cancellationToken)) return await SnapshotAsync(cancellationToken);
+        var controls = new TradingControlRepository();
+        bool paused = await controls.IsPausedAsync(EngineStrategySettings.Live);
+        workflow.NewBuysPaused = paused;
+        var requests = await controls.ExitRequestsAsync(EngineStrategySettings.Live);
+        if (paused || requests.Count > 0)
+            await workflow.ExecuteOperatorCommandAsync(async (lease, token) =>
+            {
+                if (paused)
+                    foreach (var portfolio in await ledger.GetPortfoliosForSessionAsync(Today(), token))
+                        await actions!.CancelOperatorPausedBuysAsync(portfolio.PortfolioId, lease, token);
+                foreach (var request in requests) await actions!.QueueOperatorExitAsync(request, lease, token);
+            }, cancellationToken);
         var result = await workflow.TickAsync(cancellationToken);
         if (result.Status == "Inactive") return await SnapshotAsync(cancellationToken);
         return await WithExperimentAsync(result with { Warnings = result.Warnings.Concat(notifications).Distinct().ToArray() }, cancellationToken);
@@ -279,7 +292,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
     private async Task<DelphiLiveExperimentState> RequiredExperimentAsync(CancellationToken token)
     {
         if (await EngineSettingsRepository.HasLiveOverridesAsync(token))
-            throw new InvalidOperationException("Manual strategy assignments pause this research protocol. A separately reviewed fresh comparison is required before promotion.");
+            throw new InvalidOperationException("Operator intervention pauses this research protocol. A separately reviewed fresh comparison is required before promotion.");
         return await experiments.LoadAsync(token) ?? throw new InvalidOperationException("The activated champion has not started its engineering shakedown.");
     }
 
@@ -299,7 +312,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
     {
         var state = await experiments.LoadAsync(token);
         bool manual = await EngineSettingsRepository.HasLiveOverridesAsync(token);
-        if (manual) snapshot = snapshot with { Warnings = snapshot.Warnings.Append("Manual strategy assignment active · research promotion paused; portfolio policy is authoritative.").ToArray() };
+        if (manual) snapshot = snapshot with { Warnings = snapshot.Warnings.Append("Operator intervention recorded · research promotion paused; assigned portfolio rules remain authoritative.").ToArray() };
         Guid? championId = snapshot.Portfolios.FirstOrDefault(p => p.Role == "OperationalChampion")?.PolicyVersionId ?? state?.ChampionPolicyVersionId;
         DelphiLivePolicyDefinition? champion = championId is Guid id && sessions is not null
             ? await sessions.GetPolicyAsync(id, token) : null;
