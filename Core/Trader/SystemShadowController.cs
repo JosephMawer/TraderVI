@@ -23,7 +23,15 @@ public sealed class SystemShadowController
     private static readonly TimeSpan EarliestNormalDecision = new(9, 50, 0);
     private static readonly TimeSpan RegularClose = new(16, 0, 0);
     private readonly SemaphoreSlim pollGate = new(1, 1);
-    private readonly DateTime hostStartedUtc = DateTime.UtcNow;
+    private readonly ISystemShadowEnvironment environment;
+    private readonly DateTime hostStartedUtc;
+
+    public SystemShadowController() : this(new OperationalSystemShadowEnvironment()) { }
+    public SystemShadowController(ISystemShadowEnvironment environment)
+    {
+        this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        hostStartedUtc = environment.UtcNow;
+    }
 
     public async Task<SystemShadowPollResult> PollOnceAsync(
         CancellationToken cancellationToken = default)
@@ -31,14 +39,13 @@ public sealed class SystemShadowController
         await pollGate.WaitAsync(cancellationToken);
         try
         {
-            await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
-            DateTime startedUtc = DateTime.UtcNow;
-            Guid pollCycleId = Guid.NewGuid();
+            await using var settingsLease = await environment.AcquireLeaseAsync(cancellationToken);
+            DateTime startedUtc = environment.UtcNow;
+            Guid pollCycleId = environment.NewId();
             var warnings = new List<string>();
-            var repository = new SystemShadowRepository();
-            var controls = new TradingControlRepository();
-            bool entriesPaused = await controls.IsPausedAsync(Core.Runtime.EngineStrategySettings.Shadow);
-            var operatorExits = await controls.ExitRequestsAsync(Core.Runtime.EngineStrategySettings.Shadow);
+            var repository = environment.Store;
+            bool entriesPaused = await environment.EntriesPausedAsync();
+            var operatorExits = await environment.ExitRequestsAsync();
             if (!await repository.HasSchemaAsync(cancellationToken))
                 throw new InvalidOperationException($"Shadow V1 requires migration {SystemShadowRepository.MigrationFileName}.");
 
@@ -47,14 +54,12 @@ public sealed class SystemShadowController
             var configured = new List<SystemShadowRuntimePortfolio>();
             foreach (var portfolio in portfolios)
             {
-                var assignment = await new EngineSettingsRepository().ReadAsync(portfolio.PortfolioId,
-                    Core.Runtime.EngineStrategySettings.Shadow, SystemShadowPolicyConfig.Version1);
-                configured.Add(portfolio with { Settings = assignment.Settings, SettingsAssignedUtc = assignment.AssignedUtc, StrategyVersionId = assignment.VersionId });
+                configured.Add(await environment.ConfigureAsync(portfolio));
             }
             portfolios = configured;
             if (portfolios.Count == 0)
             {
-                return new(pollCycleId, startedUtc, DateTime.UtcNow, 0, 0, 0, 0,
+                return new(pollCycleId, startedUtc, environment.UtcNow, 0, 0, 0, 0,
                     new[] { "Shadow is off; no active generation." });
             }
 
@@ -63,15 +68,14 @@ public sealed class SystemShadowController
                 localNow.TimeOfDay < RegularOpen ||
                 localNow.TimeOfDay > new TimeSpan(16, 5, 0))
             {
-                return new(pollCycleId, startedUtc, DateTime.UtcNow, 0, 0, 0, 0,
+                return new(pollCycleId, startedUtc, environment.UtcNow, 0, 0, 0, 0,
                     new[] { "Outside the regular TSX Shadow window; no evidence was requested." });
             }
 
             DateTime tradingDate = localNow.Date;
             await repository.ExpirePendingBuysBeforeDateAsync(tradingDate, cancellationToken);
             DateTime cutoffUtc = PaperTradingMonitor.ToUtc(tradingDate.Add(RegularOpen));
-            var calibration = new CalibrationEvidenceRepository();
-            SystemShadowDelphiRun? run = await calibration.GetLatestValidOfficialRunAsync(
+            SystemShadowDelphiRun? run = await environment.GetDailyRunAsync(
                 tradingDate,
                 cutoffUtc,
                 cancellationToken);
@@ -82,7 +86,7 @@ public sealed class SystemShadowController
             {
                 IReadOnlyList<SystemShadowDelphiCandidate> frozen = run is null
                     ? Array.Empty<SystemShadowDelphiCandidate>()
-                    : await calibration.GetPublishedCandidatesAsync(
+                    : await environment.GetCandidatesAsync(
                         run.RunId,
                         portfolio.Lens,
                         portfolio.MaximumPositions,
@@ -128,7 +132,7 @@ public sealed class SystemShadowController
             }
 
             DateTime requestStartUtc = cutoffUtc;
-            CodeProvenance code = CalibrationProvenance.ResolveCode();
+            CodeProvenance code = environment.Code;
             var context = new IntradayPollContext(
                 pollCycleId,
                 IntradayPollPurpose.PaperMonitor,
@@ -137,13 +141,11 @@ public sealed class SystemShadowController
                 code);
             var fiveMinute = new Dictionary<string, TmxIntradayBatch>(StringComparer.OrdinalIgnoreCase);
             var fifteenMinute = new Dictionary<string, TmxIntradayBatch>(StringComparer.OrdinalIgnoreCase);
-            var evidenceRepository = new IntradayEvidenceRepository();
-            using var tmx = new TmxClient();
             foreach (string symbol in symbols.OrderBy(x => x))
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                TmxIntradayBatch? five = await CollectAsync(
-                    tmx, evidenceRepository, context, symbol, 5, requestStartUtc, warnings, cancellationToken);
+                TmxIntradayBatch? five = await environment.CollectAsync(
+                    context, symbol, 5, requestStartUtc, warnings, cancellationToken);
                 if (five is not null)
                     fiveMinute[symbol] = five;
 
@@ -152,8 +154,8 @@ public sealed class SystemShadowController
                     .Any(x => x.Status == "Open" && string.Equals(x.Symbol, symbol, StringComparison.OrdinalIgnoreCase));
                 if (needsFifteen)
                 {
-                    TmxIntradayBatch? fifteen = await CollectAsync(
-                        tmx, evidenceRepository, context, symbol, 15, requestStartUtc, warnings, cancellationToken);
+                    TmxIntradayBatch? fifteen = await environment.CollectAsync(
+                        context, symbol, 15, requestStartUtc, warnings, cancellationToken);
                     if (fifteen is not null)
                         fifteenMinute[symbol] = fifteen;
                 }
@@ -172,7 +174,7 @@ public sealed class SystemShadowController
                     {
                         if (entriesPaused)
                         {
-                            await repository.CancelPendingOrderAsync(order, "OperatorPaused", DateTime.UtcNow, cancellationToken);
+                            await repository.CancelPendingOrderAsync(order, "OperatorPaused", environment.UtcNow, cancellationToken);
                             continue;
                         }
                         SystemShadowPendingBuyAction action = SystemShadowPolicy.EvaluatePendingBuyFill(
@@ -333,7 +335,7 @@ public sealed class SystemShadowController
                     guards.CapitalReviewRequired,
                     cancellationToken);
 
-                bool currentDailySource = await controls.IsCurrentDailyRunAsync(session.CalibrationRunId);
+                bool currentDailySource = await environment.IsCurrentDailyRunAsync(session.CalibrationRunId);
                 if (!currentDailySource && session.CalibrationRunId.HasValue)
                     warnings.Add($"{portfolio.PortfolioId}: today's frozen picks use an earlier daily strategy. New buys wait for a fresh session using the assigned daily version.");
                 bool buyingAllowed = !entriesPaused && currentDailySource && portfolio.Status == "Active" &&
@@ -361,7 +363,7 @@ public sealed class SystemShadowController
                 {
                     await repository.ExpirePendingBuysAndMarkNoEntryAsync(
                         session.SessionId,
-                        DateTime.UtcNow,
+                        environment.UtcNow,
                         cancellationToken);
                     IReadOnlyList<SystemShadowPortfolioOverview> closingRows =
                         await repository.GetPortfolioOverviewsAsync(portfolio.GenerationId, cancellationToken);
@@ -369,7 +371,7 @@ public sealed class SystemShadowController
                     await repository.CompleteSessionAsync(
                         session.SessionId,
                         closingValue,
-                        DateTime.UtcNow,
+                        environment.UtcNow,
                         cancellationToken);
                 }
             }
@@ -377,7 +379,7 @@ public sealed class SystemShadowController
             return new(
                 pollCycleId,
                 startedUtc,
-                DateTime.UtcNow,
+                environment.UtcNow,
                 symbols.Count,
                 fills,
                 signals,
@@ -390,8 +392,8 @@ public sealed class SystemShadowController
         }
     }
 
-    private static async Task<int> EvaluateNewRiskAsync(
-        SystemShadowRepository repository,
+    private async Task<int> EvaluateNewRiskAsync(
+        ISystemShadowStore repository,
         SystemShadowRuntimePortfolio portfolio,
         SystemShadowRuntimeSession session,
         IReadOnlyList<SystemShadowRuntimeCandidate> candidates,
@@ -415,7 +417,7 @@ public sealed class SystemShadowController
                 candidate.CandidateTrackingId,
                 held ? "Held" : exitedThisSession ? "Exited" : decision.IsEligible ? "Qualified" : "Blocked",
                 decision.Reason.ToString(),
-                DateTime.UtcNow,
+                environment.UtcNow,
                 cancellationToken);
         }
 
@@ -574,62 +576,6 @@ public sealed class SystemShadowController
             .Where(x => x.TimestampUtc.AddMinutes(batch.IntervalMinutes) <= batch.ReceivedUtc)
             .OrderBy(x => x.TimestampUtc)
             .ToList();
-
-    private static async Task<TmxIntradayBatch?> CollectAsync(
-        TmxClient tmx,
-        IntradayEvidenceRepository repository,
-        IntradayPollContext context,
-        string symbol,
-        int intervalMinutes,
-        DateTime requestStartUtc,
-        List<string> warnings,
-        CancellationToken cancellationToken)
-    {
-        DateTime requestEndUtc = DateTime.UtcNow;
-        try
-        {
-            TmxIntradayBatch batch = await tmx.GetIntradayTimeSeriesBatchAsync(
-                symbol,
-                intervalMinutes,
-                requestStartUtc,
-                requestEndUtc,
-                cancellationToken);
-            IntradayEvidenceAppendResult append = await repository.AppendCompletedBatchAsync(
-                context,
-                batch,
-                cancellationToken);
-            if (append.AuditState == IntradayPollAuditState.Invalid)
-            {
-                warnings.Add($"{symbol} {intervalMinutes}m evidence invalid: {append.AuditCode}");
-                return null;
-            }
-            return batch;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            warnings.Add($"{symbol} {intervalMinutes}m unavailable: {ex.GetType().Name}");
-            try
-            {
-                await repository.AppendFailedObservationAsync(
-                    context,
-                    symbol,
-                    intervalMinutes,
-                    requestStartUtc,
-                    requestEndUtc,
-                    DateTime.UtcNow,
-                    1,
-                    1,
-                    $"Shadow{intervalMinutes}FetchOrPersistFailed",
-                    cancellationToken);
-            }
-            catch
-            {
-                // The source error remains the bounded result when even its
-                // secondary durable audit record cannot be written.
-            }
-            return null;
-        }
-    }
 
     private static bool Same(string left, string right) =>
         string.Equals(left, right, StringComparison.OrdinalIgnoreCase);

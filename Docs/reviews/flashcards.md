@@ -12,6 +12,51 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does the first practice runner test SQL recovery or prove historical provider delivery timing?
+- **Tags:** architecture, data-pipeline
+- **Source:** concepts/historical-practice-implementation.md
+- **A:** No. It runs the shared daily/Shadow workflows with isolated storage and assumed bar availability.
+  Acquisition timestamps remain separate. SQL leases, crash resume, transport latency and load require
+  their own tests; a failed run keeps traces and is explicitly replayed into a fresh directory.
+
+### Q: Should missing historical market data prevent the normal practice trial?
+- **Tags:** architecture, data-pipeline
+- **Source:** ADR-0063
+- **A:** No. Replay includes gaps and keeps simulated time moving so the production workflows must
+  handle unavailable inputs and recover when data returns. Record effects and unexpected failures;
+  do not manufacture prices, skip affected sessions or present unknown valuations as known.
+
+### Q: How much capital belongs to each account in the first practice trial?
+- **Tags:** architecture, user-interface
+- **Source:** ADR-0063
+- **A:** Each of the four independent Shadow portfolios starts with CAD 1,000 cash and no holdings or
+  pending orders. No deposits or withdrawals occur during the trial. These are alternative strategy
+  accounts; their starting balances are not pooled or divided among strategies.
+
+### Q: What does the first practice version's exploratory model mode allow?
+
+**A:** It allows today's exact preserved models to run on older market sessions, with a visible exploratory
+label and model provenance. Market inputs must still arrive causally. Results describe today's system on
+past prices and cannot establish a forecast made with only then-available training information.
+
+Tags: machine-learning, architecture. Source: ADR-0063.
+
+### Q: Does historical TMX access prove that a strategy had a trading edge?
+
+**A:** No. It establishes source availability for the sampled dates and securities. Model/input eligibility,
+execution assumptions, costs and comparison evidence still determine whether the historical result is useful.
+The accepted 20-session starter trial bounds the first test; it is not a statistical promotion threshold.
+
+Tags: data-pipeline, machine-learning. Source: ADR-0063.
+
+### Q: Why separate practice data preparation from playback?
+
+**A:** A checksummed saved dataset gives reruns the same evidence and lets playback control simulated time
+without depending on provider availability. The Practice label helps users; isolated storage protects accounts.
+The first milestone applies this to historical daily Delphi and four independent Shadow accounts; Live follows.
+
+Tags: architecture, user-interface. Source: ADR-0063.
+
 ### Q: Why did a weekday 00:30 schedule miss Friday's market data?
 - **Tags:** data-pipeline
 - **Source:** ADR-0058

@@ -50,6 +50,8 @@ public sealed record DelphiWorkflowRunResult(
     string? SummaryReport,
     DelphiPresentationSnapshot? Presentation)
 {
+    public IReadOnlyList<DelphiEvaluatedPick> EvaluatedPicks { get; init; } = [];
+
     public static DelphiWorkflowRunResult Failed(
         DelphiWorkflowOptions options,
         DateTime startedUtc,

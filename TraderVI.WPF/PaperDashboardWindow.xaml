@@ -268,6 +268,9 @@
       <TabItem Header="Portfolios">
         <views:PortfoliosView x:Name="PortfoliosTabView"/>
       </TabItem>
+      <TabItem Header="Practice">
+        <views:PracticeView/>
+      </TabItem>
       <TabItem Header="Data Audit">
         <views:DataAuditView/>
       </TabItem>

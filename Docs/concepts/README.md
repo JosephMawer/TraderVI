@@ -8,6 +8,8 @@
 
 - [Delphi Live](delphi-live.md) — frozen V1 design source accepted by ADR-0053 for five-minute reranking, explainable safety vetoes, separate Shadow challengers, and future calibration.
 - [Delphi Live watchlist and replay](delphi-live-watchlist-and-replay.md) — daily-picks preview and isolated, explicitly estimated historical account under ADR-0054.
+- [Historical practice implementation](historical-practice-implementation.md) — daily Delphi plus four isolated Shadow accounts, pinned datasets, preparation commands, missing data and WPF playback.
+- [Historical practice environment draft](historical-practice-environment-draft.md) — accepted design history, verified bounded TMX access and later milestones.
 - [System Shadow portfolios](system-shadow-portfolios.md) — plain-language purpose and boundary for the four System-selected Ghost alternatives.
 
 This folder explains the *ideas* behind the system — the "what" and "why

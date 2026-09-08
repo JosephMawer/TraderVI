@@ -1,11 +1,24 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-07
+**Snapshot date:** 2026-09-08
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
 
-**Manual complete-strategy promotion implemented in source (2026-09-07):** Portfolios can prepare an
+**Historical Practice implemented in source (2026-09-08):** the shared daily Delphi workflow now accepts
+bounded historical inputs; the shared Shadow controller accepts isolated time/data/storage. A dedicated
+Practice runner uses pinned datasets/models/settings, four independent CAD 1,000 accounts and every
+reviewed session in the August 10–September 4 starter period, preserving gaps and carrying holdings/orders.
+The WPF Practice tab plays saved frames with a permanent exploratory label and simulated Toronto time.
+Separate explicit commands prepare stored daily inputs and bounded historical TMX batches. No database
+schema change, acquisition, real historical trial, operational host, model training, assignment or commit
+ran during implementation. Actual dataset preparation remains follow-up; incomplete datasets are allowed.
+The final complete Core suite passed all 790 tests and focused CLI/WPF builds passed. Existing compiler
+warnings and separate dependency advisories remain. Two offscreen synthetic previews have zero binding errors;
+real SQL concurrency, automatic crash resume and Delphi Live are not implemented by this milestone.
+See [contracts, validation and commands](concepts/historical-practice-implementation.md), [ADR-0063](adr/0063-historical-practice-environment-direction.md).
+
+**Manual complete-strategy promotion installed, awaiting operator activation (2026-09-07):** Portfolios can prepare an
 exact strategy/evidence/account review and record explicit human approval; Trading shows the approved
 source, reports actual account state, evaluates Shadow or Live policies against Real holdings/cash, and
 records separately reported actual fills. Approval and recommendation history are immutable and account
@@ -13,11 +26,23 @@ scoped. Switching back appends a new approval. Performance evidence is advisory 
 automated evidence enforcement is deferred to Wealthsimple live trading. Existing pause/empty and risk
 controls remain. See [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md).
 
-All 774 Core tests and the affected WPF and SQL/SSDT builds pass; existing compiler warnings and separate
-dependency advisories remain. Additive migration 029 is prepared but **not applied**. No application,
-market call, training, actual approval/assignment, migration or broker operation was run. Separate reviewed
-migration, account reconciliation and explicit activation remain necessary; database integration and
-operational capacity were not exercised.
+After the operator committed the implementation at `f72fca5` and authorized rollout, migration 029 was
+applied with SQLCMD error stopping after a fresh checksum-verified full backup and a matching SHA-256
+OneDrive copy. All 71 existing table counts and 16 populated selected state hashes match before and after
+both migration and runtime checks. The five new tables are empty, their five immutable triggers are enabled,
+and all nine foreign keys and seven checks are trusted. OneDrive cloud synchronization is unverified.
+
+All 774 Core tests passed during implementation; the 54 focused promotion tests passed again during rollout.
+Debug and Release WPF builds and the SQL/SSDT build pass; existing compiler warnings and separate dependency
+advisories remain. Read-only installed repository checks prepared all four Shadow reviews, loaded account
+and assignment history, and verified that an unassigned account requests no quotes and publishes no batch.
+The reviewed calendar loads and covers the next regular session, September 8. Delphi Live has no initialized
+paper ledger, so its installed review path could not be exercised. TFSA has existing reported holdings,
+no current account-state report, and Trading buys are not paused; reconciliation and the existing paused/empty
+requirements precede explicit approval. No operational host, market call, training, actual approval/assignment,
+financial report/fill or broker operation was run. The new desktop outputs are ready for the next launch;
+live source capacity and actual approval/publication transactions remain unexercised. See the
+[rollout record](adr/0062-complete-strategy-recommendation-promotion.md#authorized-rollout--2026-09-07).
 
 **Portfolios comparison workspace implemented in source (2026-09-07):** Portfolios now opens to Compare,
 with Performance and Strategy review tabs sharing the selected account, period and scope. Saved paper

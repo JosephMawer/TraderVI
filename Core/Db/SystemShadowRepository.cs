@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Core.Db;
 
-public sealed class SystemShadowRepository : SQLBase
+public sealed class SystemShadowRepository : SQLBase, ISystemShadowStore
 {
     public const string MigrationFileName = "20260904_021_HardenSystemShadowExecutionCausality.sql";
 

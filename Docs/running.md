@@ -1,5 +1,14 @@
 # Running TraderVI
 
+## Historical Practice
+
+The **Practice** tab opens a saved `frames.ndjson` for labelled playback with a simulated Toronto clock,
+Play/Pause, Step, speed controls, daily picks and four independent accounts. Generate a run with the
+dedicated `Practice` console project. Acquisition is explicit and separate; `run` is offline and never
+publishes operational results. See [input preparation and commands](concepts/historical-practice-implementation.md).
+The first trial defaults to August 10–September 4, 2026, CAD 1,000 per account, and accepts missing data.
+No actual starter dataset acquisition/replay ran during implementation.
+
 ## Central Settings
 
 In the rebuilt app, open the top-level **Settings** tab. Delphi, Delphi Live, Trading and Portfolios have
@@ -44,12 +53,42 @@ TraderVI currently operates in advisory and ghost-execution modes. None of these
 
 Read `Docs/project-status.md` before restarting a workflow after a long pause.
 
-[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) records the future path from
-independent paper strategies to approved real-account recommendations and Wealthsimple execution.
-No current command performs that common strategy promotion or broker integration. Delphi Live's promotion
-control changes its own paper policy only. Hercules saves separate replacement candidates without selecting
-them. Training still writes private artifacts and SQL and needs explicit authorization; model selection is
-a separate reviewed operation under [ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md).
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) records the path from independent
+paper strategies to approved real-account recommendations and future Wealthsimple execution. The desktop
+now implements manual recommendation promotion under [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md),
+as described below. Delphi Live's separate research promotion control changes its own paper policy only.
+Hercules saves replacement model candidates without selecting them. Training still writes private artifacts
+and SQL and needs explicit authorization; model selection is a separate reviewed operation under
+[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Broker execution is not implemented.
+
+## Manual strategy promotion to Trading
+
+Migration `20260907_029_AddTradingPromotion.sql` was applied on September 7 after a verified backup and
+preservation checks; do not reapply it. The updated Debug and Release desktop outputs are ready for the
+next launch. Rollout did not launch the app or approve any strategy.
+
+1. In **Trading → Recommendations**, load the Real account. Reconcile its actual holdings in **Tracked
+   holdings**, then use **Report current account state** to confirm current CAD cash, account value,
+   session opening value, highest closing value and outstanding orders. These must come from the actual
+   account. Report again each session and after a fill or external cash change.
+2. Satisfy the existing configuration requirements: **Pause new buys** and no holdings or pending orders
+   in the affected tracked family. Promotion also requires the target Real account to have no holdings
+   or outstanding orders. Record sales only when they have actually happened; approval does not close holdings.
+3. In **Portfolios**, select the supporting paper account and review its complete strategy for Trading.
+   Inspect the target account, exact strategy/model/policy versions, evidence limitations, previous source
+   and any operational blockers. Performance evidence is advisory for this manual decision.
+4. Enter your reason and choose **Approve this strategy for Trading**. The approval records you as reviewer
+   and takes effect when its transaction commits. Paper holdings and histories stay independent. Return to
+   **Trading → Recommendations** to see the approved source and subsequent results; **Resume buys** separately
+   when ready. New entries require current reported account facts and compatible frozen daily inputs.
+5. Report actual purchases and sales separately after they occur. A recommendation sends no broker order.
+   To switch back, select a prior approval in the history and **Review selected strategy again…**; the same
+   prerequisites apply and a new approval preserves the previous history.
+
+At rollout, all four Shadow accounts produced valid reviews. TFSA still has reported holdings, no current
+account-state report, and Trading buys are not paused. Delphi Live has no initialized paper ledger yet.
+These are remaining operator prerequisites, not evidence-performance thresholds. The reviewed calendar
+loads; actual approved evaluation and live source capacity still require operational observation.
 
 ## Safe validation commands
 

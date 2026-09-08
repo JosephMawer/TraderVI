@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "reviews/strategy-direction-alignment-20260906.md",
+                "file": "concepts/historical-practice-implementation.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "strategy-direction-alignment-20260906"
+              "title": "historical-practice-implementation"
             }
           }
         ]
@@ -190,6 +190,10 @@
   },
   "active": "c7e6057b9db5a744",
   "lastOpenFiles": [
+    "reviews/strategy-direction-alignment-20260906.md",
+    "concepts/historical-practice-implementation.md",
+    "concepts/historical-practice-environment-draft.md",
+    "adr/0063-historical-practice-environment-direction.md",
     "adr/0055-independent-strategies-to-approved-live-execution.md",
     "adr/0022-champion-challenger-evidence-and-promotion.md",
     "project-status.md",

@@ -126,6 +126,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0060-central-settings-and-scoped-configuration.md = Docs\adr\0060-central-settings-and-scoped-configuration.md
 		Docs\adr\0061-portfolio-comparison-workspace.md = Docs\adr\0061-portfolio-comparison-workspace.md
 		Docs\adr\0062-complete-strategy-recommendation-promotion.md = Docs\adr\0062-complete-strategy-recommendation-promotion.md
+		Docs\adr\0063-historical-practice-environment-direction.md = Docs\adr\0063-historical-practice-environment-direction.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -137,6 +138,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 		Docs\concepts\portfolio-comparison.md = Docs\concepts\portfolio-comparison.md
 		Docs\concepts\settings-system-map.md = Docs\concepts\settings-system-map.md
 		Docs\concepts\delphi-live-watchlist-and-replay.md = Docs\concepts\delphi-live-watchlist-and-replay.md
+		Docs\concepts\historical-practice-environment-draft.md = Docs\concepts\historical-practice-environment-draft.md
+		Docs\concepts\historical-practice-implementation.md = Docs\concepts\historical-practice-implementation.md
 		Docs\concepts\oracle-prompt-tightening.md = Docs\concepts\oracle-prompt-tightening.md
 		Docs\concepts\paper-calibration-and-outcome-feedback.md = Docs\concepts\paper-calibration-and-outcome-feedback.md
 		Docs\concepts\price-weighted-contribution.md = Docs\concepts\price-weighted-contribution.md
@@ -175,6 +178,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{07C2787E
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelLifecycle", "Tools\ModelLifecycle\ModelLifecycle.csproj", "{D42ACC6A-5AEC-440E-967B-A4ADB02B8F43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice", "Practice\Practice.csproj", "{B5AB40BA-874E-4235-B46E-E665F02E92F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -460,6 +465,26 @@ Global
 		{D42ACC6A-5AEC-440E-967B-A4ADB02B8F43}.Release|x64.Build.0 = Release|Any CPU
 		{D42ACC6A-5AEC-440E-967B-A4ADB02B8F43}.Release|x86.ActiveCfg = Release|Any CPU
 		{D42ACC6A-5AEC-440E-967B-A4ADB02B8F43}.Release|x86.Build.0 = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|x64.Build.0 = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Debug|x86.Build.0 = Debug|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|ARM.Build.0 = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|ARM64.Build.0 = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|x64.ActiveCfg = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|x64.Build.0 = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|x86.ActiveCfg = Release|Any CPU
+		{B5AB40BA-874E-4235-B46E-E665F02E92F6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

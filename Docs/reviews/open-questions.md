@@ -5,6 +5,36 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Historical practice environment — follow-up milestones
+
+- **Accepted:** shared Core runner, separate saved historical dataset, and eventual WPF Practice display;
+  see [ADR-0063](../adr/0063-historical-practice-environment-direction.md) and the
+  [running draft](../concepts/historical-practice-environment-draft.md).
+- **Verified:** bounded TMX probe returned full five-/fifteen-minute XIU and RY sessions on March 4,
+  August 4 and September 4, 2026; all 156 five-to-fifteen aggregation comparisons matched exactly.
+- **Accepted first model mode:** exploratory runs with today's preserved model set, pinned per run and
+  visibly labelled; later-trained/unverified models do not establish honest historical forecasts.
+- **Accepted first milestone:** historical daily Delphi plus all four independent Shadow portfolios,
+  carrying accounts across sessions; Delphi Live follows afterward.
+- **Accepted starter trial:** latest 20 consecutive completed TSX sessions, including source gaps. The
+  reviewed calendar resolves the current target to August 10–September 4, 2026; prior indicator history
+  is additional. This defines a starter test rather than a strategy-performance evidence threshold.
+- **Accepted capital:** each of the four accounts starts with CAD 1,000 cash, zero holdings/pending orders,
+  and no deposits/withdrawals during the trial; all accounts remain independent.
+- **Accepted missingness:** missing historical data does not block or abort the ordinary trial. Keep
+  the timeline, use production no-data/recovery behavior and record effects/failures; completeness is
+  not a prerequisite. Artificial failures have separate scenario identities. Unknown marks stay explicit.
+- **Implemented in source:** bounded historical daily inputs, the shared Shadow controller with isolated
+  storage/time, pinned packages, 20-session scheduling, per-account CAD 1,000, gap diagnostics and WPF
+  recorded playback. [Contracts and commands](../concepts/historical-practice-implementation.md).
+- **Open:** acquire/inspect the actual starter dataset under separate operator authority; establish
+  historical universe/sector membership provenance without backdating current membership. Missing
+  inputs remain permitted. No actual 20-session market-data trial has run yet.
+- **Deferred:** automatic checkpoint resume, real isolated SQL/time/lease integration, deliberate
+  provider-failure injection, throughput testing, live runner controls in WPF and Delphi Live replay.
+- **Deferred:** broader acquisition, historical quote/corporate-action verification and walk-forward training.
+  The first source implementation establishes neither strategy edge nor clean forward cohorts.
+
 ### Central settings — strategy version adoption
 
 - **Accepted and implemented in source:** pause new buys, close holdings separately, then edit/save/assign
@@ -57,7 +87,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
 ### Common strategy comparison, recommendation promotion and broker execution
 - **Resolved/implemented in source:** immutable complete strategy identity, account-specific human approval,
   auditable history, immediate committed boundary, paused/empty switching and Real recommendation routing.
-  [ADR-0062](../adr/0062-complete-strategy-recommendation-promotion.md). Migration 029 is not applied.
+  [ADR-0062](../adr/0062-complete-strategy-recommendation-promotion.md). Migration 029 was applied with
+  verified backup/preservation checks on September 7; Debug and Release desktop builds are ready.
 - **Operator decision:** performance evidence is advisory in manual recommendation mode. A human may
   accept incomplete evidence; this does not certify that ADR-0022 or Live research standards were met.
   Live's internal untouched/research rules and Athena evidence are unchanged.
@@ -66,8 +97,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   assumptions, coverage, downside criteria and untouched validation. No universal winner score is agreed.
 - **Deferred:** reviewed Wealthsimple access/authentication, approved accounts, order authorization,
   idempotency, partial fills, fees, reconciliation, cancellation, stale inputs, stopping and recovery.
-- **Operational validation outstanding:** separately authorized migration rehearsal, Real account
-  reconciliation, actual promotion and source/quote capacity checks. Do not run these as unit validation.
+- **Installed read paths verified:** all four Shadow reviews, Real account/history/latest reads, the
+  unassigned workflow's no-quote/no-publication behavior and reviewed calendar loading. Live has no initialized
+  paper ledger to review. All existing data and the five empty promotion tables remain unchanged.
+- **Operational validation outstanding:** Real account reconciliation, existing paused/empty requirements,
+  explicit strategy approval and actual publication/source/quote capacity checks. Approval-write/concurrency
+  integration and an isolated migration rehearsal were not run; applying 029 successfully is not a rehearsal.
+  Do not execute operational activation as unit validation.
 - **Tags:** architecture, decision-engine, risk-management, market-microstructure
 
 ### Delphi Live short sessions and calendar extension

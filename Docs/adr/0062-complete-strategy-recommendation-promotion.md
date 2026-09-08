@@ -1,6 +1,6 @@
 # ADR-0062: Complete-strategy recommendation promotion
 
-- **Status:** Accepted; implemented in source, not operationally activated.
+- **Status:** Accepted; migration installed and desktop builds prepared, no strategy approved yet.
 - **Date:** 2026-09-07
 - **Related:** ADR-0022, ADR-0051, ADR-0053, ADR-0055, ADR-0060, ADR-0061
 
@@ -109,11 +109,12 @@ Migration `TraderDB/Migrations/20260907_029_AddTradingPromotion.sql` creates fiv
 the SQL project. Composite foreign keys retain account ownership and prior history; the promotion chain
 cannot fork. The migration contains no seed, approval, account assignment or financial data copy.
 
-The migration was **not applied**. Before a separately authorized activation: stop older hosts, take and
-verify the required backup, review/apply 029 with SQLCMD error-stop behavior, use the reviewed build and
-calendar, then report/reconcile the account and review an actual promotion. Keep the existing collectors
-available: this feature consumes their durable evidence and does not start them. Live quote retrieval is
-market observation only, never broker execution.
+The migration was applied during the separately authorized rollout recorded below; do not reapply it.
+For a different installation, stop older hosts, take and verify the required backup, and obtain authorization
+before applying 029 with SQLCMD error stopping. For operator activation, use the reviewed build and calendar,
+report/reconcile the account and review an actual promotion after satisfying the existing paused/empty
+requirements. Keep the existing collectors available: this feature consumes their durable evidence and
+does not start them. Live quote retrieval is market observation only, never broker execution.
 
 ## Validation and limits
 
@@ -124,10 +125,10 @@ and 980×680 with zero binding errors; no operational code or event handlers are
 warnings concern nullable annotations, unused variables and unreachable code. Separate existing package
 advisories: System.Data.SqlClient 4.8.1 (moderate/high), System.DirectoryServices.Protocols 5.0.0 (moderate),
 System.Drawing.Common 5.0.0 (critical), System.Security.Cryptography.Xml 5.0.0 (moderate).
-The SQL transaction contract is statically reviewed and built; no database integration test or migration
-rehearsal was executed. No operational application, market request, model training, actual approval,
-assignment, migration, broker connection, commit or push was run. `Docs/.obsidian/workspace.json` was
-modified externally during the task and preserved.
+During implementation, the SQL transaction contract was statically reviewed and built; no database integration
+test or migration rehearsal was executed. That stage ran no operational application, market request, model
+training, actual approval, assignment, migration, broker connection, commit or push. `Docs/.obsidian/workspace.json`
+was modified externally during the task and preserved. The later authorized rollout is recorded below.
 
 Primary changed files are the six domain/workflow files under `Core/Trader/Promotion`, the four
 `Core/Db/Trading*` repositories/storage helper, `SystemShadowProtection` and its controller call site;
@@ -136,6 +137,36 @@ review/header integration and dashboard scheduling; five SQL tables, five immuta
 029 and the SQL project; and this ADR plus linked status/architecture/design/roadmap/concept/review records.
 Validation logs and isolated preview output are in ignored `artifacts/promotion-*` paths. The complete
 solution was not built; the affected WPF dependency graph and SQL project were built separately.
+
+## Authorized rollout — 2026-09-07
+
+The operator committed the implementation at `f72fca5` and explicitly requested migration and remaining
+rollout work. The working tree was clean. TraderDB was online; no operational host was running, and the
+nightly task remained scheduled for September 8 at 00:30 Eastern. No task or process was reconfigured.
+
+- Created `TraderDB_FULL_20260907_230300_879.bak` with checksums and successful `RESTORE VERIFYONLY`.
+  The usual OneDrive backup copy has the same length and SHA-256. Cloud synchronization is unverified.
+- Applied the exact committed migration 029 using SQLCMD `-b`. All 71 preexisting table counts and 16
+  populated selected state hashes match across migration and the subsequent read-only runtime checks.
+  The five additive tables contain zero rows, five immutable triggers cover UPDATE/DELETE, nine foreign
+  keys and seven checks are enabled/trusted, and `DBCC CHECKCONSTRAINTS` reports no violations.
+- Built the SQL project with Visual Studio MSBuild/SSDT and the WPF Debug and Release outputs. Re-ran
+  the 54 focused promotion tests successfully. Existing compiler warnings and the dependency advisories
+  listed above remain; the whole solution was not built.
+- An isolated repository probe loaded the installed Real-account, assignment/history and latest-batch
+  paths, prepared/serialized all four saved Shadow reviews, and verified that the unassigned workflow
+  performs no quote lookup or publication. All new tables remained empty afterward. The reviewed calendar
+  loaded with September 8 as the next regular session. No Live paper ledger exists, so that family could
+  not receive an installed account review check. This is not an approval-write or concurrency integration test.
+
+TFSA currently has reported holdings, lacks a current account-state report, and Trading buys are not paused.
+The operator must reconcile actual facts and satisfy the existing paused/empty requirements before selecting
+and approving a complete strategy. The rollout did not alter financial facts, pauses, assignments, paper
+accounts or research roles. No operational host was launched, and no market service, model training or broker
+was accessed. Actual approval/publication transactions and in-session source/quote capacity remain unexercised.
+
+Backup receipt, preservation snapshots, schema checks, read-only probe and build/test logs are retained under
+ignored `artifacts/promotion-rollout-20260907/`. No source code or migration script needed correction during rollout.
 
 Before automated Wealthsimple trading, decide enforceable evidence eligibility, cross-family comparability,
 account/broker reconciliation, credentials/access, order authorization, stale data behavior, partial fills,

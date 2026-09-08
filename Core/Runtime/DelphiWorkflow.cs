@@ -1,4 +1,4 @@
-﻿using Core.Db;
+using Core.Db;
 using Core.Indicators;
 using Core.Calibration;
 using Core.DataQuality;
@@ -31,6 +31,20 @@ namespace Core.Runtime;
 public sealed class DelphiWorkflow
 {
     private static readonly SemaphoreSlim RunGate = new(1, 1);
+    private readonly DelphiHistoricalInputs? historical;
+    private readonly Core.Trader.DelphiLive.ReviewedTsxSessionCalendar? historicalCalendar;
+    private readonly Func<DateTime> utcNow;
+    internal Func<TradeDecisionEngine>? HistoricalEngineFactory { get; init; }
+
+    public DelphiWorkflow() { utcNow = () => DateTime.UtcNow; }
+
+    public DelphiWorkflow(DelphiHistoricalInputs historical,
+        Core.Trader.DelphiLive.ReviewedTsxSessionCalendar calendar, Func<DateTime> utcNow)
+    {
+        this.historical = historical ?? throw new ArgumentNullException(nameof(historical));
+        historicalCalendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
+        this.utcNow = utcNow ?? throw new ArgumentNullException(nameof(utcNow));
+    }
 
     public async Task<DelphiWorkflowRunResult> RunAsync(
         DelphiWorkflowOptions? options = null,
@@ -39,17 +53,20 @@ public sealed class DelphiWorkflow
     {
         options ??= new DelphiWorkflowOptions();
         options.Validate();
+        if (historical is not null && (options.SaveToDatabase || options.Purpose != CalibrationRunPurpose.ExploratoryReplay ||
+            options.RecommendationDate is null || options.ModelInputBindingPath is not null))
+            throw new InvalidOperationException("Historical inputs require an explicitly dated, offline ExploratoryReplay with its pinned models.");
         await RunGate.WaitAsync(cancellationToken);
         try
         {
             // Held through publication, across desktop and CLI processes.
-            await using var selectionLease = await DelphiStrategySelectionLease.AcquireForRunAsync(cancellationToken);
+            await using var selectionLease = historical is null ? await DelphiStrategySelectionLease.AcquireForRunAsync(cancellationToken) : null;
             using IDisposable logScope = DelphiWorkflowLog.Use(output ?? TextWriter.Null);
             cancellationToken.ThrowIfCancellationRequested();
 
             Console.WriteLine("=== The Oracle Of Delphi ===\n");
 
-            DateTime runStartedUtc = DateTime.UtcNow;
+            DateTime runStartedUtc = utcNow();
             CalibrationRunPurpose calibrationPurpose = options.Purpose;
 
             // The recommendation date is the run date and remains the persistence key for
@@ -78,8 +95,7 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // LOAD ACTIVE STRATEGY VERSION → DERIVE RUNTIME CONFIG
             // ═══════════════════════════════════════════════════════════════════
-            var strategyRepo = new StrategyVersionRepository();
-            var activeStrategy = await strategyRepo.GetActiveVersion();
+            var activeStrategy = historical is null ? await new StrategyVersionRepository().GetActiveVersion() : historical.Strategy;
 
             if (saveOperationalState &&
                 (activeStrategy is null || !activeStrategy.HasOfficialEvidenceIdentity))
@@ -93,7 +109,7 @@ public sealed class DelphiWorkflow
             Guid? strategyVersionId = activeStrategy?.VersionId;
             StrategyConfig config = activeStrategy?.ToConfig() ?? StrategyConfig.Default;
 
-            var storedModelSet = strategyVersionId is null ? null
+            var storedModelSet = historical is not null ? historical.Models : strategyVersionId is null ? null
                 : await new StrategyModelBindingRepository().GetAsync(strategyVersionId.Value);
             storedModelSet?.Validate(strategyVersionId!.Value, activeStrategy?.DecisionRef);
             var bindingJson = options.ModelInputBindingPath is null
@@ -131,15 +147,18 @@ public sealed class DelphiWorkflow
             // BOOTSTRAP ENGINE (loads enabled models from registry + strategy config)
             // ═══════════════════════════════════════════════════════════════════
             // The corrected path needs XIU before constructing its model instances.
-            var quoteRepo = new QuoteRepository();
-            List<DailyBar>? earlyXiu = modelInputBinding is null ? null : await quoteRepo.GetDailyBarsAsync("XIU");
+            var quoteRepo = historical is null ? new QuoteRepository() : null;
+            Task<List<DailyBar>> DailyBars(string symbol, DateTime? from = null) => historical is null
+                ? quoteRepo!.GetDailyBarsAsync(symbol, from)
+                : Task.FromResult(historical.Bars(symbol, recommendationDate, from));
+            List<DailyBar>? earlyXiu = modelInputBinding is null ? null : await DailyBars("XIU");
             List<DailyBar>? earlySpy = null;
             DailyBenchmarkSnapshot? benchmarkSnapshot = null;
             if (DailyBenchmarkPolicy.IsRequired(activeStrategy?.DecisionRef))
             {
-                earlySpy = await quoteRepo.GetDailyBarsAsync(SpyBenchmarkIngestion.Symbol);
+                earlySpy = await DailyBars(SpyBenchmarkIngestion.Symbol);
                 benchmarkSnapshot = DailyBenchmarkPolicy.Prepare(recommendationDate,
-                    DailyBenchmarkPolicy.LoadCalendar(), earlyXiu ?? [], earlySpy);
+                    historicalCalendar ?? DailyBenchmarkPolicy.LoadCalendar(), earlyXiu ?? [], earlySpy);
                 earlyXiu = benchmarkSnapshot.Xiu.ToList();
                 earlySpy = benchmarkSnapshot.Spy.ToList();
                 Console.WriteLine($"Benchmark policy: {benchmarkSnapshot.Evidence.PolicyVersion}; XIU and SPY verified through {benchmarkSnapshot.Evidence.MarketSession:yyyy-MM-dd}.");
@@ -153,8 +172,9 @@ public sealed class DelphiWorkflow
                 featureInputs = new ProfitFeatureInputs(earlyXiu, earlyXiu.Select(bar => bar.Date.Date).Distinct().OrderBy(date => date).ToArray());
                 featureInputs.ValidateBenchmark(predictionSession.Value, ProfitModelRegistry.All.Max(model => model.Lookback));
             }
-            var engine = await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry(
-                config, output, featureInputs, predictionSession, modelInputBinding, storedModelSet);
+            var engine = historical is not null && HistoricalEngineFactory is not null ? HistoricalEngineFactory()
+                : await DelphiBootstrap.BuildTradeDecisionEngineFromRegistry(
+                    config, output, featureInputs, predictionSession, modelInputBinding, storedModelSet);
             var continuationLens = LensCatalog.Continuation(config);
             var breakoutLens = LensCatalog.Breakout(config);
 
@@ -175,8 +195,8 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // COMPUTE MARKET REGIME FROM XIU + SPY BENCHMARKS
             // ═══════════════════════════════════════════════════════════════════
-            var xiuBars = earlyXiu ?? await quoteRepo.GetDailyBarsAsync("XIU");
-            var spyBars = earlySpy ?? await quoteRepo.GetDailyBarsAsync("SPY");
+            var xiuBars = earlyXiu ?? await DailyBars("XIU");
+            var spyBars = earlySpy ?? await DailyBars("SPY");
 
             if (xiuBars.Count == 0)
             {
@@ -283,8 +303,7 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // LOAD A/D LINE BREADTH — WIRE IN BEFORE EVALUATION
             // ═══════════════════════════════════════════════════════════════════
-            var adRepo = new AdvanceDeclineRepository();
-            var adLine = await adRepo.GetRecentAsync(200);
+            var adLine = historical is null ? await new AdvanceDeclineRepository().GetRecentAsync(200) : historical.Breadth.Where(x => x.Date.Date < recommendationDate).OrderBy(x => x.Date).TakeLast(200).ToList();
 
             Console.WriteLine("Evaluation Dates:");
             Console.WriteLine($"  Recommendation date: {recommendationDate:yyyy-MM-dd} (run date; database PickDate/EvalDate)");
@@ -321,30 +340,31 @@ public sealed class DelphiWorkflow
             int leadershipActiveBreadthRequired = leadershipCalculator.RequiredActiveBreadthDays;
             var usIndexBars = new Dictionary<string, IReadOnlyList<Core.Indicators.Granville.UsIndexBar>>(StringComparer.OrdinalIgnoreCase);
 
-            var sectorIndexRepo = new SectorIndexRepository();
-            var stockSectorRepo = new StockSectorRepository();
+            var sectorIndexRepo = historical is null ? new SectorIndexRepository() : null;
+            Task<IReadOnlyList<Core.TMX.Models.Domain.SectorIndexSnapshot>> SectorHistory(IReadOnlyList<string> symbols, int days) => historical is null ? sectorIndexRepo!.GetRecentAsync(symbols, days) : Task.FromResult(historical.SectorHistory(symbols, days, recommendationDate));
+
 
             // Load once — reused by both Granville and RS sections
-            var stockSectorMappings = await stockSectorRepo.GetAllAsync();
+            var stockSectorMappings = historical is null ? await new StockSectorRepository().GetAllAsync() : historical.Members(recommendationDate).Sectors;
 
             if (adLine.Count >= 2)
             {
                 // Load the cyclical basket sector snapshots required by Disparity.
                 // We pull a small recent window so 1-day and 5-day comparisons have enough history.
-                var granvilleSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.CyclicalBasket, days: 10);
+                var granvilleSectorSnapshots = await SectorHistory(TsxSectorSymbols.CyclicalBasket, days: 10);
 
                 // Load leadership history for Leadership indicators (#7–#10).
                 // Need ~50 days for EMA-10 smoothing + 20-day large-cap RS lookback.
-                var leadershipRepo = new LeadershipRepository();
-                var leadershipHistory = await leadershipRepo.GetRecentAsync(50);
+                var leadershipHistory = historical is null ? await new LeadershipRepository().GetRecentAsync(50) : historical.Leadership.Where(x => x.Date.Date < recommendationDate).OrderBy(x => x.Date).TakeLast(50).ToList();
                 leadershipHistoryDays = leadershipHistory.Count;
                 leadershipActiveBreadthDays = leadershipCalculator.CountTrailingActiveBreadthDays(
                     leadershipHistory,
                     benchmarkSessions);
 
                 // Load the 15 most active stocks by volume for today (Features indicators #11–#14).
-                var mostActiveRepo = new MostActiveStocksRepository();
-                var mostActiveStocks = await mostActiveRepo.GetTopByVolumeAsync(adLine[^1].Date, count: 15);
+                var mostActiveStocks = historical is null ? await new MostActiveStocksRepository().GetTopByVolumeAsync(adLine[^1].Date, count: 15)
+                    : historical.Daily.SelectMany(kv => historical.Bars(kv.Key, recommendationDate).Where(x => x.Date.Date == adLine[^1].Date.Date && x.Open > 0 && x.Close > 0)
+                        .Select(x => new MostActiveSnapshot(kv.Key, (decimal)x.Open, (decimal)x.Close, x.Volume))).OrderByDescending(x => x.Volume).Take(15).ToList();
 
                 // Load XIU constituent closes for Weighting indicator (#15/#16 — see ADR-0003).
                 // Only the two most recent sessions per symbol are needed. Pull a small recent
@@ -352,9 +372,9 @@ public sealed class DelphiWorkflow
                 DateTime evalDateForWeighting = adLine[^1].Date;
                 DateTime weightingFrom = evalDateForWeighting.AddDays(-10);
                 var xiuConstituentBars = new List<XiuConstituentBar>(Xiu60Constituents.Symbols.Count);
-                foreach (var symbol in Xiu60Constituents.Symbols)
+                foreach (var symbol in historical is null ? Xiu60Constituents.Symbols : historical.Members(recommendationDate).XiuConstituents)
                 {
-                    var bars = await quoteRepo.GetDailyBarsAsync(symbol, weightingFrom);
+                    var bars = await DailyBars(symbol, weightingFrom);
                     if (bars.Count < 2) continue;
                     var todayBar = bars[^1];
                     var prevBar = bars[^2];
@@ -368,10 +388,10 @@ public sealed class DelphiWorkflow
                 // Need at least ~6 trading bars for the 5-day trend check (#20); pull a small
                 // calendar window to absorb US-vs-CA holiday offsets and weekends.
                 DateTime usIndexFrom = adLine[^1].Date.AddDays(-30);
-                var usIndexBarsRepo = new UsIndexBarsRepository();
+                var usIndexBarsRepo = historical is null ? new UsIndexBarsRepository() : null;
                 foreach (var usSymbol in Core.TMX.UsIndexSymbols.AllSymbols)
                 {
-                    var bars = await usIndexBarsRepo.GetBarsAsync(usSymbol, usIndexFrom);
+                    var bars = historical is null ? await usIndexBarsRepo!.GetBarsAsync(usSymbol, usIndexFrom) : historical.UsIndices.GetValueOrDefault(usSymbol, []).Where(x => x.Date >= usIndexFrom && x.Date.Date < recommendationDate).OrderBy(x => x.Date).ToArray();
                     if (bars.Count > 0) usIndexBars[usSymbol] = bars;
                 }
 
@@ -490,8 +510,7 @@ public sealed class DelphiWorkflow
             // ═══════════════════════════════════════════════════════════════════
             // LOAD ALL SYMBOLS FROM DATABASE
             // ═══════════════════════════════════════════════════════════════════
-            var db = new SymbolsRepository();
-            var constituents = await db.GetEquitiesAsync();
+            var constituents = historical is null ? await new SymbolsRepository().GetEquitiesAsync() : historical.Members(recommendationDate).Equities.ToList();
 
             // ── Defense-in-depth: leveraged/inverse ETP keyword guard (ADR-0009) ──
             // Primary exclusion is the IsLeveragedOrInverseEtp flag in dbo.Symbols
@@ -564,7 +583,7 @@ public sealed class DelphiWorkflow
             foreach (var symbol in symbols)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var bars = await quoteRepo.GetDailyBarsAsync(symbol);
+                var bars = await DailyBars(symbol);
 
                 if (featureValidators.Length > 0)
                 {
@@ -665,7 +684,7 @@ public sealed class DelphiWorkflow
 
             // Sector index closes keyed by sector symbol — retain headroom beyond the current
             // 61-session requirement for the 60-session return and 10-session Z-score.
-            var rsSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 80);
+            var rsSectorSnapshots = await SectorHistory(TsxSectorSymbols.AllSymbols, days: 80);
 
             var sectorClosesBySector = rsSectorSnapshots
                 .GroupBy(s => s.Symbol, StringComparer.OrdinalIgnoreCase)
@@ -784,7 +803,7 @@ public sealed class DelphiWorkflow
             // The tilt is injected into the engine and folded into each lens's ranking key
             // alongside RS. Series are maintained by Hermes (UpdateObvAsync) and seeded by
             // the Sandbox `obv-backfill` probe. See ADR (OBV soft signal).
-            var obvRepo = new SymbolObvRepository();
+            var obvRepo = historical is null ? new SymbolObvRepository() : null;
             var obvResults = new Dictionary<string, ObvFieldTrendResult>(StringComparer.OrdinalIgnoreCase);
             var obvTilts = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
@@ -795,7 +814,7 @@ public sealed class DelphiWorkflow
 
             foreach (var (symbol, _) in allBars)
             {
-                var series = await obvRepo.GetSeriesFromDateAsync(symbol, obvSeriesStart);
+                var series = historical is null ? await obvRepo!.GetSeriesFromDateAsync(symbol, obvSeriesStart) : historical.Obv.GetValueOrDefault(symbol, []).Where(x => x.Date >= obvSeriesStart && x.Date.Date < recommendationDate).OrderBy(x => x.Date).ToList();
                 var result = ObvFieldTrendCalculator.Classify(series, config.ObvBreakoutWindow);
                 obvResults[symbol] = result;
 
@@ -831,8 +850,7 @@ public sealed class DelphiWorkflow
             // the Sandbox `climax-backfill` probe. v1 is DIAGNOSTIC-ONLY: we read recent CLX, classify
             // its confirmation/divergence vs XIU, print it, and surface it in the report -- no gate or
             // ranking change. Phases 2 (composite adjustment) and 3 (regime gate) are deferred.
-            var climaxRepo = new MarketClimaxRepository();
-            var climaxRecent = await climaxRepo.GetRecentAsync(60);
+            var climaxRecent = historical is null ? await new MarketClimaxRepository().GetRecentAsync(60) : historical.Climax.Where(x => x.Date.Date < recommendationDate).OrderBy(x => x.Date).TakeLast(60).ToList();
             var climaxRegime = MarketClimaxCalculator.ClassifyRegime(
                 climaxRecent, config.ClimaxDivergenceWindow, config.ClimaxDivergenceThreshold);
 
@@ -862,6 +880,10 @@ public sealed class DelphiWorkflow
             var breakoutEvaluations = lensEvaluations[RankingLens.Breakout];
             var top = continuationEvaluations.Take(topPicksToSave).ToList();
             var breakoutTop = breakoutEvaluations.Take(topPicksToSave).ToList();
+            var evaluatedPicks = top.Select((p, i) => new DelphiEvaluatedPick("Continuation", p.Symbol, i + 1,
+                    p.Direction == TradeDirection.Buy, (decimal)allBars[p.Symbol][^1].Close))
+                .Concat(breakoutTop.Select((p, i) => new DelphiEvaluatedPick("Breakout", p.Symbol, i + 1,
+                    p.Direction == TradeDirection.Buy, (decimal)allBars[p.Symbol][^1].Close))).ToArray();
             var (bestPick, size) = engine.EvaluateBestPickAllIn(top, availableCapital);
 
             Console.WriteLine(new string('═', 80));
@@ -1010,7 +1032,7 @@ public sealed class DelphiWorkflow
 
             // Build one typed presentation snapshot from the same evaluated facts used by
             // Delphi's structured reports. Hosts render this data without parsing console text.
-            var reportSectorSnapshots = await sectorIndexRepo.GetRecentAsync(TsxSectorSymbols.AllSymbols, days: 3);
+            var reportSectorSnapshots = await SectorHistory(TsxSectorSymbols.AllSymbols, days: 3);
             DateTime? reportSectorDate = reportSectorSnapshots
                 .Where(snapshot => snapshot.Date.Date <= marketDataAsOf)
                 .Select(snapshot => (DateTime?)snapshot.Date.Date)
@@ -1343,12 +1365,12 @@ public sealed class DelphiWorkflow
                     recommendationDate,
                     marketDataAsOf,
                     runStartedUtc,
-                    DateTime.UtcNow,
+                    utcNow(),
                     top.Count,
                     breakoutTop.Count,
                     diagnosticReport,
                     summaryReport,
-                    presentationSnapshot);
+                    presentationSnapshot) { EvaluatedPicks = evaluatedPicks };
             }
 
             double bestBreakout = GetBreakoutProb(bestPick);
@@ -1425,12 +1447,12 @@ public sealed class DelphiWorkflow
                 recommendationDate,
                 marketDataAsOf,
                 runStartedUtc,
-                DateTime.UtcNow,
+                utcNow(),
                 top.Count,
                 breakoutTop.Count,
                 diagnosticReport,
                 summaryReport,
-                presentationSnapshot);
+                presentationSnapshot) { EvaluatedPicks = evaluatedPicks };
         }
         finally
         {

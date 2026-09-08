@@ -31,11 +31,18 @@ defines the following prerequisites in order:
   makes evidence advisory for manual recommendation approval; internal Live research rules remain unchanged.
 - [x] Implement durable human-approved complete-strategy selection and recommendation routing against
   reported Real account state, preserving independent paper accounts/history (ADR-0062). Migration 029
-  and actual activation require separate execution; no broker integration was added.
+  is installed and verified; actual account reconciliation and explicit approval remain. No broker integration was added.
 - [ ] Design and validate the Wealthsimple execution/reconciliation boundary before enabling any orders.
   The legacy client prototype is not an execution-ready integration.
 
 ## Now — restore a dependable advisory loop
+
+- [x] Implement the first historical Practice milestone in source: shared daily Delphi and four isolated
+  Shadow accounts, missing-data tolerance, fixed CAD 1,000 starts, pinned inputs/models and WPF recorded
+  playback. [Contracts and limits](concepts/historical-practice-implementation.md).
+- [ ] Prepare and exercise the actual 20-session Practice dataset under explicit acquisition authority;
+  preserve missing inputs and record historical membership provenance. Delphi Live and isolated SQL
+  recovery/load tests follow the first daily/Shadow milestone.
 
 - [x] Resolve the September 6 missing-Friday/SPY findings under ADR-0058: install all-seven-day 00:30
   execution and 07:00 supervision, refresh Friday and actual SPY history, and select v3.4 with required

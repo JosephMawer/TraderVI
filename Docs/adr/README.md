@@ -39,6 +39,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0063](0063-historical-practice-environment-direction.md) | Historical practice environment direction | Accepted; first milestone implemented in source | architecture, data-pipeline, user-interface, machine-learning |
 | [0061](0061-portfolio-comparison-workspace.md) | Portfolio comparison workspace | Accepted navigation; descriptive display implemented | user-interface, architecture |
 | [0001](0001-granville-plugin-architecture.md) | Granville indicator plug-in architecture | Accepted | architecture, technical-indicators |
 | [0002](0002-xiu-as-benchmark-index.md) | XIU as the system benchmark index | Accepted | finance-fundamentals, decision-engine |

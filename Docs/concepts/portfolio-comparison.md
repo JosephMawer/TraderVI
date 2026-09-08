@@ -32,7 +32,8 @@ supporting paper account. Portfolios prepares an explicit human review; Trading 
 for the chosen Real account. Paper-account lifetime returns still do not establish the exact version's
 performance. The review explains those limitations. Statistical evidence is advisory in this manual
 mode; enforced eligibility is deferred to Wealthsimple automation. Existing pause/empty and financial
-risk controls remain. Migration 029 and actual activation require separate execution.
+risk controls remain. Migration 029 was installed and verified on September 7; actual account reconciliation
+and explicit strategy approval remain separate operator steps.
 
 ## Implementation and validation (2026-09-07)
 
