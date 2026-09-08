@@ -125,6 +125,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0059-delphi-model-and-threshold-settings.md = Docs\adr\0059-delphi-model-and-threshold-settings.md
 		Docs\adr\0060-central-settings-and-scoped-configuration.md = Docs\adr\0060-central-settings-and-scoped-configuration.md
 		Docs\adr\0061-portfolio-comparison-workspace.md = Docs\adr\0061-portfolio-comparison-workspace.md
+		Docs\adr\0062-complete-strategy-recommendation-promotion.md = Docs\adr\0062-complete-strategy-recommendation-promotion.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection

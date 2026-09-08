@@ -5,12 +5,26 @@
 
 ## Executive summary
 
+**Manual complete-strategy promotion implemented in source (2026-09-07):** Portfolios can prepare an
+exact strategy/evidence/account review and record explicit human approval; Trading shows the approved
+source, reports actual account state, evaluates Shadow or Live policies against Real holdings/cash, and
+records separately reported actual fills. Approval and recommendation history are immutable and account
+scoped. Switching back appends a new approval. Performance evidence is advisory by the operator's decision;
+automated evidence enforcement is deferred to Wealthsimple live trading. Existing pause/empty and risk
+controls remain. See [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md).
+
+All 774 Core tests and the affected WPF and SQL/SSDT builds pass; existing compiler warnings and separate
+dependency advisories remain. Additive migration 029 is prepared but **not applied**. No application,
+market call, training, actual approval/assignment, migration or broker operation was run. Separate reviewed
+migration, account reconciliation and explicit activation remain necessary; database integration and
+operational capacity were not exercised.
+
 **Portfolios comparison workspace implemented in source (2026-09-07):** Portfolios now opens to Compare,
 with Performance and Strategy review tabs sharing the selected account, period and scope. Saved paper
 closing history supports descriptive aligned returns and observed closing declines, with explicit gaps;
 Real/operator accounts remain references. Existing account tools are collapsed. Review shows the saved
-daily recommendation source and tracked exit assignment, but cross-family promotion and a verified
-primary paper-account mapping remain unimplemented. All 720 core tests and the targeted WPF build pass;
+then-current daily recommendation source and tracked exit assignment. ADR-0062 above adds complete
+strategy approval and the supporting paper-account identity; version-specific returns remain unproven. All 720 core tests and the targeted WPF build pass;
 offscreen synthetic previews verify navigation and binding behavior. Existing warnings remain. No database
 operation, operational app, market call, assignment or account activation was run. See
 [ADR-0061](adr/0061-portfolio-comparison-workspace.md) and [measurement/validation notes](concepts/portfolio-comparison.md).
@@ -113,14 +127,15 @@ tables' row counts. All 655 Core tests pass and the complete Release solution bu
 Compiler and dependency warnings remain. No market collection, new recommendation cohort, paper-monitor
 activation, broker operation, commit or deployment was performed. See the [cutover review](reviews/model-input-cutover-20260906.md)
 and [audit checklist](strategy-alignment-implementation-checklist.md). Next: policy/version dispatch and
-historical outcome-definition contracts; common cross-strategy promotion remains unimplemented.
+historical outcome-definition contracts; manual recommendation promotion is now implemented under ADR-0062; automated evidence enforcement remains deferred.
 
 **Accepted direction (2026-09-06):** independent paper accounts evaluate complete strategies; comparable
 evidence and human review select the strategy for real-account recommendations, with separately approved
 Wealthsimple execution later. [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md)
 records that direction. The [repository alignment review](reviews/strategy-direction-alignment-20260906.md)
 finds that account isolation and Delphi Live's internal policy-promotion framework support it, but a common
-strategy identity/comparison/promotion route and broker execution are not yet implemented. The audit
+strategy identity/comparison/promotion route and broker execution were not yet implemented at that audit.
+ADR-0062 now implements manual recommendation approval/routing; broker execution remains future work. The audit
 identified model activation, training/inference feature parity and portfolio measurement defects; the
 stabilization work and later authorized model cutover are recorded above and in the audit checklist.
 The audit itself was static, with no operational validation or account activation. The build/test results

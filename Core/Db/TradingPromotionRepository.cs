@@ -1,0 +1,214 @@
+#nullable enable
+using Core.ML.Engine.Profit;
+using Core.Runtime;
+using Core.Trader;
+using Core.Trader.DelphiLive;
+using Core.Trader.Promotion;
+using Dapper;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Immutable;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using static Core.Db.TradingRecommendationStorage;
+
+namespace Core.Db;
+
+public sealed class TradingPromotionRepository : ITradingPromotionStore
+{
+    public async Task<TradingPromotionReview> ReviewAsync(Guid paperAccountId, TradingStrategyFamily family, string accountLabel, CancellationToken token = default)
+    {
+        string account = Account(accountLabel);
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, account, false);
+        var review = await Review(c, t, paperAccountId, family, account, token);
+        t.Commit(); return review;
+    }
+    public async Task<TradingStrategyAssignment?> ReadAssignmentAsync(string accountLabel, CancellationToken token = default)
+    {
+        await using var c = await Open(token);
+        return await Installed(c) ? await Assignment(c, Account(accountLabel)) : null;
+    }
+    public async Task<TradingPromotionReview> ReviewPreviousAsync(Guid promotionId, string accountLabel, CancellationToken token = default)
+    {
+        string account = Account(accountLabel);
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, account, false); await RequireInstalled(c, t);
+        var result = await PreviousReview(c, t, promotionId, account, token);
+        t.Commit(); return result;
+    }
+    private static async Task<TradingPromotionReview> PreviousReview(SqlConnection c, SqlTransaction t, Guid promotionId, string account, CancellationToken token)
+    {
+        string json = await c.QuerySingleOrDefaultAsync<string>("SELECT ReviewJson FROM dbo.TradingPromotion WHERE PromotionId=@Id AND AccountLabel=@Account", new { Id = promotionId, Account = account }, t)
+            ?? throw new InvalidOperationException("That historical promotion does not belong to this account.");
+        var old = Read<TradingPromotionReview>(json);
+        var report = await Report(c, account, t); var financial = await Financial(c, account, t);
+        var current = await Assignment(c, account, t);
+        var access = await TradingControlRepository.AccessAsync(c, t, EngineStrategySettings.Tracked);
+        var blocks = TradingPromotionPolicy.OperationalBlocks(true, access, report, financial.Fingerprint);
+        if (old.Strategy.ImplementationIdentity != ImplementationIdentity) blocks = blocks.Add("The saved implementation cannot be run by this build. Review the paper strategy with the current implementation.");
+        if (current?.Strategy.Fingerprint == old.Strategy.Fingerprint) blocks = blocks.Add("This complete strategy is already assigned.");
+        var limitations = old.Evidence.Limitations.Add("Reapproval uses the exact saved strategy and historical evidence. Its prior performance is not new evidence.");
+        Guid? activeDaily = await c.QuerySingleOrDefaultAsync<Guid?>("SELECT VersionId FROM dbo.StrategyVersion WHERE IsActive=1",transaction:t);
+        if (activeDaily != old.Strategy.Daily.StrategyVersionId)
+            limitations = limitations.Add("The saved daily version is not currently assigned. New entries will wait for that daily assignment and matching frozen evidence. This approval does not change shared daily settings.");
+        return old with
+        {
+            RequestId = Guid.NewGuid(),
+            PreviousReviewPromotionId = promotionId,
+            PriorPromotionId = current?.PromotionId,
+            AccountReportId = report?.SnapshotId,
+            PreparedUtc = DateTime.UtcNow,
+            OperationalBlocks = blocks,
+            Evidence = old.Evidence with { Limitations = limitations }
+        };
+    }
+    public async Task<ImmutableArray<TradingStrategyAssignment>> HistoryAsync(string accountLabel, CancellationToken token = default)
+    {
+        await using var c = await Open(token);
+        if (!await Installed(c)) return [];
+        var rows = await c.QueryAsync<string>("SELECT AssignmentJson FROM dbo.TradingPromotion WHERE AccountLabel=@Account ORDER BY Sequence DESC", new { Account = Account(accountLabel) });
+        return rows.Select(Read<TradingStrategyAssignment>).ToImmutableArray();
+    }
+    private static async Task<TradingPromotionReview> Review(SqlConnection c, SqlTransaction t, Guid paper, TradingStrategyFamily family, string account, CancellationToken token)
+    {
+        var daily = await c.QuerySingleOrDefaultAsync<StrategyVersionInfo>("SELECT * FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t)
+            ?? throw new InvalidOperationException("A preserved daily strategy assignment is required to identify the complete strategy.");
+        var binding = await c.QuerySingleOrDefaultAsync<Binding>("SELECT ModelSetJson,ModelSetSha256 FROM dbo.StrategyModelBinding WHERE StrategyVersionId=@Id", new { Id = daily.VersionId }, t)
+            ?? throw new InvalidOperationException("The daily strategy has no preserved model-set identity.");
+        var models = StoredProfitModelSet.Read(binding.ModelSetJson, binding.ModelSetSha256); models.Validate(daily.VersionId, daily.DecisionRef);
+        var inputs = new TradingDailyInputs(daily.VersionId, daily.ToConfig(), binding.ModelSetSha256, models.InputContract,
+            models.Models.OrderBy(m => m.Registry.TaskType, StringComparer.Ordinal).Select(m => new TradingModelIdentity(m.Registry.ModelId, m.Registry.TaskType, m.ArtifactSha256)).ToImmutableArray());
+        var notes = ImmutableArray.CreateBuilder<string>();
+        notes.Add("Returns describe this paper account's history. Periods, capital, prior policies, coverage and fill assumptions may differ from other accounts.");
+        notes.Add("Manual approval is your decision. No minimum performance, cohort count or automatic winner test is enforced for recommendation mode.");
+        string name, paperName, selection, facts; int maximum; Guid policyId; SystemShadowPolicyConfig? shadow = null; DelphiLivePolicyDefinition? live = null;
+        if (family == TradingStrategyFamily.DailyShadow)
+        {
+            var row = await c.QuerySingleOrDefaultAsync<ShadowSource>("SELECT PortfolioCode,DisplayName,Lens,CAST(MaximumPositions AS int) MaximumPositions FROM dbo.ShadowPortfolio WHERE PortfolioId=@Id", new { Id = paper }, t)
+                ?? throw new InvalidOperationException("The selected daily paper account is unavailable.");
+            var version = await c.QuerySingleOrDefaultAsync<EngineStrategyVersion>("""
+                SELECT TOP(1) v.VersionId,v.Family,v.Name,v.SettingsJson,v.SettingsHash,v.CreatedUtc
+                FROM dbo.EngineStrategyAssignment a JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId WHERE a.TargetId=@Id ORDER BY a.Sequence DESC
+                """, new { Id = paper }, t);
+            if (version is not null && version.Family != EngineStrategySettings.Shadow) throw new InvalidOperationException("Paper account policy family is inconsistent.");
+            shadow = version?.Read<SystemShadowPolicyConfig>() ?? SystemShadowPolicyConfig.Version1;
+            policyId = version?.VersionId ?? Id(SystemShadowVersions.Policy); maximum = row.MaximumPositions;
+            name = $"{row.Lens} Top {maximum} · {version?.Name ?? SystemShadowVersions.Policy}"; selection = CompleteTradingStrategy.ShadowSelectionPrefix + row.Lens;
+            paperName = row.DisplayName;
+            facts = await c.QuerySingleAsync<string>("""
+                SELECT (SELECT @Id PaperAccountId,
+                JSON_QUERY((SELECT PortfolioId,GenerationId,PortfolioCode,DisplayName,Status,CashBalance,HighestClosingValue FROM dbo.ShadowPortfolio WHERE PortfolioId=@Id FOR JSON PATH)) Account,
+                JSON_QUERY((SELECT SessionId,TradingDate,CalibrationRunId,Status,OpeningValue,ClosingValue,DailyLossGuardActive FROM dbo.ShadowPortfolioSession WHERE PortfolioId=@Id ORDER BY TradingDate FOR JSON PATH)) Sessions,
+                JSON_QUERY((SELECT AssignmentId,VersionId,AssignedUtc FROM dbo.EngineStrategyAssignment WHERE TargetId=@Id ORDER BY Sequence FOR JSON PATH)) PolicyHistory
+                FOR JSON PATH,WITHOUT_ARRAY_WRAPPER)
+                """, new { Id = paper }, t);
+            notes.Add("Daily Shadow uses later five-minute simulated fills, whole-share staged sizing and policy friction. Actual manual fills will differ.");
+            notes.Add("Early Shadow sessions include engineering shakedown. This review does not certify clean forward performance.");
+        }
+        else
+        {
+            string json = await c.QuerySingleOrDefaultAsync<string>("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id", new { Id = paper }, t)
+                ?? throw new InvalidOperationException("The selected Delphi Live paper account is unavailable.");
+            var portfolio = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
+            live = await DelphiLiveSessionRepository.ReadPolicyAsync(c, portfolio.PolicyVersionId, t, token);
+            policyId = live.PolicyVersionId; maximum = live.MaximumHoldings;
+            name = $"Delphi Live · {policyId.ToString("N")[..8]}"; selection = CompleteTradingStrategy.LiveSelection;
+            paperName = $"Delphi Live {portfolio.Role} · {portfolio.PortfolioId:D}";
+            bool researchIntervened = await c.ExecuteScalarAsync<int>("""
+                SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.TradingControlEvent WHERE SystemKey IN(N'Daily',N'DelphiLive') AND Paused=1)
+                    OR EXISTS(SELECT 1 FROM dbo.OperatorExitRequest WHERE Family=N'DelphiLive')
+                    OR EXISTS(SELECT 1 FROM dbo.EngineStrategyAssignment a JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId WHERE v.Family=N'DelphiLive')
+                    THEN 1 ELSE 0 END
+                """, transaction:t)==1;
+            facts = Json(new
+            {
+                portfolio.PortfolioId,
+                portfolio.GenerationId,
+                portfolio.PolicyVersionId,
+                portfolio.Role,
+                portfolio.Marks,
+                FillCount = portfolio.Fills.Length,
+                BroadResearchInterventionGuard = researchIntervened,
+                ResearchProtocolContexts = await c.QueryAsync("SELECT ProtocolId,OperationalPortfolioId,Revision,SnapshotJson FROM dbo.DelphiLiveExperimentProtocol ORDER BY UpdatedUtc", transaction:t),
+                PolicyHistory = await c.QueryAsync("SELECT AssignmentId,VersionId,AssignedUtc FROM dbo.EngineStrategyAssignment WHERE TargetId=@Id ORDER BY Sequence", new { Id = paper }, t)
+            });
+            notes.Add("Live's champion/control/challenger role applies only inside its paper research family. Live research eligibility is not universal approval.");
+            notes.Add(researchIntervened
+                ? "Live's broad research-intervention guard is active. Its internal research promotion remains restricted. You may still approve this separate manual recommendation assignment."
+                : "No broad Live research intervention is recorded. This review does not certify an untouched comparison or calculate a qualifying research score; inspect the saved protocol contexts separately.");
+            notes.Add("Live quotes and costs remain paper assumptions; actual reported fills retain their own prices. Its research rules and intervention history remain unchanged.");
+        }
+        notes.Add($"This snapshot binds current daily inputs {daily.VersionName}; earlier account sessions may use different daily inputs. Model files are not copied or trained.");
+        var strategy = new CompleteTradingStrategy(Id("TradingStrategy:" + family + ":" + selection + ":" + maximum), Guid.NewGuid(), name, family, inputs, policyId,
+            shadow, live, selection, maximum, ImplementationIdentity, CompleteTradingStrategy.Contract);
+        strategy = strategy with { VersionId = Id(strategy.Fingerprint) }; strategy.Validate();
+        bool installed = await Installed(c, t);
+        if (installed)
+        {
+            string? canonical = await c.QuerySingleOrDefaultAsync<string>("SELECT DefinitionJson FROM dbo.TradingStrategyVersion WHERE VersionId=@Id", new { Id = strategy.VersionId }, t);
+            if (canonical is not null) strategy = Read<CompleteTradingStrategy>(canonical);
+        }
+        var report = installed ? await Report(c, account, t) : null;
+        var financial = installed ? await Financial(c, account, t) : null;
+        var access = await TradingControlRepository.AccessAsync(c, t, EngineStrategySettings.Tracked);
+        var current = installed ? await Assignment(c, account, t) : null;
+        var blocks = TradingPromotionPolicy.OperationalBlocks(installed, access, report, financial?.Fingerprint ?? new string('0', 64));
+        if (current?.Strategy.Fingerprint == strategy.Fingerprint) blocks = blocks.Add("This complete strategy is already assigned to this account.");
+        return new(Guid.NewGuid(), account, strategy, new(paper, paperName, family.ToString(), facts, notes.ToImmutable()), current?.PromotionId,
+            report?.SnapshotId, DateTime.UtcNow, blocks);
+    }
+    public async Task<TradingStrategyAssignment> ApproveAsync(TradingPromotionApproval approval, CancellationToken token = default)
+    {
+        approval.Validate(); string account = Account(approval.Review.AccountLabel);
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, account, true); await RequireInstalled(c, t);
+        var saved = await c.QuerySingleOrDefaultAsync<StoredApproval>("SELECT RequestHash,AssignmentJson FROM dbo.TradingPromotion WHERE PromotionId=@Id", new { Id = approval.Review.RequestId }, t);
+        if (saved is not null) { var retry = TradingPromotionPolicy.Retry(saved.RequestHash, Read<TradingStrategyAssignment>(saved.AssignmentJson), approval); t.Commit(); return retry; }
+        var fresh = approval.Review.PreviousReviewPromotionId is Guid old
+            ? await PreviousReview(c, t, old, account, token)
+            : await Review(c, t, approval.Review.Evidence.PaperAccountId, approval.Review.Strategy.Family, account, token);
+        TradingPromotionPolicy.Recheck(approval, fresh);
+        DateTime now = DateTime.SpecifyKind(await c.ExecuteScalarAsync<DateTime>("SELECT SYSUTCDATETIME()", transaction: t), DateTimeKind.Utc);
+        var assignment = new TradingStrategyAssignment(approval.Review.RequestId, account, approval.Review.Strategy, approval.Review.Evidence.PaperAccountId,
+            approval.Review.RequestId, approval.Review.PriorPromotionId, now, approval.Reviewer, approval.Reason);
+        string definition = Json(assignment.Strategy);
+        await c.ExecuteAsync("""
+            IF EXISTS(SELECT 1 FROM dbo.TradingStrategyVersion WHERE VersionId=@Version AND (DefinitionJson<>@Definition OR Fingerprint<>@Fingerprint))
+                THROW 51502,'A complete strategy version cannot change in place.',1;
+            IF NOT EXISTS(SELECT 1 FROM dbo.TradingStrategyVersion WHERE VersionId=@Version)
+                INSERT dbo.TradingStrategyVersion(VersionId,StrategyId,DailyStrategyVersionId,Family,Fingerprint,DefinitionJson)
+                VALUES(@Version,@Strategy,@Daily,@Family,@Fingerprint,@Definition);
+            IF EXISTS(SELECT 1 FROM dbo.TradingPromotion WHERE AccountLabel=@Account AND EffectiveUtc>=@Now)
+                THROW 51504,'The approval clock must advance beyond the prior boundary. Retry when the clock is corrected.',1;
+            INSERT dbo.TradingPromotion(PromotionId,AccountLabel,StrategyVersionId,PaperAccountId,PriorPromotionId,AccountReportId,
+                EffectiveUtc,Reviewer,Reason,RequestHash,ReviewJson,AssignmentJson)
+                VALUES(@Id,@Account,@Version,@Paper,@Prior,@Report,@Now,@Reviewer,@Reason,@RequestHash,@Review,@Assignment);
+            """, new
+        {
+            Version = assignment.Strategy.VersionId,
+            Strategy = assignment.Strategy.StrategyId,
+            Daily = assignment.Strategy.Daily.StrategyVersionId,
+            Family = assignment.Strategy.Family.ToString(),
+            assignment.Strategy.Fingerprint,
+            Definition = definition,
+            Id = assignment.PromotionId,
+            Account = account,
+            Paper = assignment.PaperAccountId,
+            Prior = assignment.PriorPromotionId,
+            Report = approval.Review.AccountReportId,
+            Now = now,
+            approval.Reviewer,
+            approval.Reason,
+            approval.RequestHash,
+            Review = Json(approval.Review),
+            Assignment = Json(assignment)
+        }, t);
+        t.Commit(); return assignment;
+    }
+    private sealed record Binding(string ModelSetJson, string ModelSetSha256);
+    private sealed record ShadowSource(string PortfolioCode, string DisplayName, string Lens, int MaximumPositions);
+    private sealed record StoredApproval(string RequestHash, string AssignmentJson);
+}

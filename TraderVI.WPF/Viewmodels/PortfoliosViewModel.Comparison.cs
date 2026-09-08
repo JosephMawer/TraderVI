@@ -45,10 +45,10 @@ public sealed partial class PortfoliosViewModel
     public string WindowText { get; private set; } = "No saved closing dates";
     public string ReviewExplanation => !CanReview
         ? "Select a funded paper strategy in Compare to review it against the current recommendation source. Real and operator-selected holdings are reference accounts."
-        : "This paper account is the selected challenger. Its history may span earlier rule assignments. A matching paper account for the complete current recommendation strategy is not yet identified, so a return advantage cannot be established.";
-    public string PromotionStatus => "Promotion unavailable: a common strategy-to-Trading route is not implemented. Review assignments in Settings; this page does not change the primary strategy.";
+        : "This is the selected paper strategy. Its history may span earlier rule assignments. Prepare the complete review to see the exact rules being proposed; the chart alone cannot establish a return advantage for that version.";
+    public string PromotionStatus => "Prepare a review to see the complete strategy, exact versions, supporting paper history and account requirements. Performance evidence is advisory; approval is your explicit decision.";
     public string MetricNotes => "Period return uses matching saved closing dates and costs already recorded by each paper engine. Maximum closing decline is the largest observed peak-to-trough fall in this window; it excludes intraday moves. Missing values are not zero. Account history can span earlier rules. These figures do not certify promotion readiness.";
-    public string PrimaryPerformanceText => "Unavailable — no paper account is verified as the complete current recommendation strategy. Real-account performance is not substituted.";
+    public string PrimaryPerformanceText => "Version-specific performance is not established by these lifetime account returns. The approved source identifies its supporting paper account; review policy and daily-input histories before comparing.";
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
@@ -85,15 +85,15 @@ public sealed partial class PortfoliosViewModel
                     m.Complete && m.Reason != "CorporateActionUnsupported" ? m.Nav : null)).ToArray();
         try
         {
-            var active = await new StrategyVersionRepository().GetActiveVersion();
-            primaryStrategyName = active?.VersionName ?? "No active daily strategy";
-            primaryStrategyIdentity = active is null ? "No saved daily assignment was found."
-                : $"Daily models and gates · {active.VersionId:D}";
+            var active = await new TradingPromotionRepository().ReadAssignmentAsync("TFSA",token);
+            primaryStrategyName = active?.Strategy.Name ?? "No approved Trading strategy";
+            primaryStrategyIdentity = active is null ? "No saved Trading approval was found for TFSA."
+                : $"Complete version {active.Strategy.VersionId:D} · effective {active.EffectiveUtc:yyyy-MM-dd HH:mm:ss} UTC · paper account {active.PaperAccountId:D}";
         }
         catch (Exception error) when (error is Microsoft.Data.SqlClient.SqlException or InvalidOperationException)
         {
             primaryStrategyName = "Assignment unavailable";
-            primaryStrategyIdentity = "The current daily strategy could not be verified. Refresh to retry.";
+            primaryStrategyIdentity = "The current Trading approval could not be verified. Refresh to retry.";
             warnings.Add(primaryStrategyIdentity);
         }
         comparisonDataStatus = warnings.Count > 0 ? string.Join(" ", warnings)

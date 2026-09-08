@@ -250,26 +250,20 @@ public sealed class SystemShadowController
                         position.ProfitProtectionArmed,
                         position.TrailingStopPrice,
                         position.LastFifteenMinuteBarUtc);
-                    SystemShadowExitReason exitReason = SystemShadowPolicy.EvaluateFiveMinuteRisk(
-                        position.AverageCost,
-                        latestFive.TimestampUtc < portfolio.SettingsAssignedUtc ? latestFive.Close : latestFive.Low,
-                        position.TrailingStopPrice, portfolio.Settings);
+                    SystemShadowCompletedPrice? fifteenPrice = null;
                     if (fifteenMinute.TryGetValue(position.Symbol, out TmxIntradayBatch? fifteenBatch))
                     {
                         OhlcvBar? latestFifteen = Completed(fifteenBatch).LastOrDefault();
                         if (latestFifteen is not null)
                         {
-                            SystemShadowTrailingDecision trailingDecision =
-                                SystemShadowPolicy.EvaluateFifteenMinuteClose(
-                                    trailing,
-                                    latestFifteen.TimestampUtc,
-                                    latestFifteen.TimestampUtc < portfolio.SettingsAssignedUtc ? latestFifteen.Close : latestFifteen.Low,
-                                    latestFifteen.Close, portfolio.Settings);
-                            trailing = trailingDecision.State;
-                            if (exitReason == SystemShadowExitReason.None)
-                                exitReason = trailingDecision.ExitReason;
+                            fifteenPrice = new(latestFifteen.TimestampUtc, latestFifteen.Low, latestFifteen.Close);
                         }
                     }
+                    var protection = SystemShadowProtection.Evaluate(trailing,
+                        new(latestFive.TimestampUtc, latestFive.Low, latestFive.Close),
+                        fifteenPrice, portfolio.SettingsAssignedUtc, portfolio.Settings);
+                    trailing = protection.State;
+                    SystemShadowExitReason exitReason = protection.ExitReason;
                     await repository.UpdatePositionEvidenceAsync(
                         position.PositionId,
                         latestFive.Close,

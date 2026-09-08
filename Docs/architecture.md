@@ -11,6 +11,20 @@
 
 ## Components
 
+### Complete-strategy promotion boundary
+
+`Core/Trader/Promotion` separates immutable complete versions, shared daily inputs, typed family policies,
+reported Real financial facts, reviewed approvals and recommendation batches. Deterministic evaluation
+reuses existing policy calculations, including `SystemShadowProtection`; no SQL or WPF enters evaluation.
+`TradingRecommendationWorkflow` coordinates fenced publication and an explicit quote-observation boundary.
+Focused SQL repositories own approval, account reports/fills and evidence/batch persistence. WPF provides
+the review and Trading workflow. Paper ledgers and Athena remain independent.
+
+Migration 029 adds immutable history and ownership constraints; it has not been applied. Manual approval
+does not enforce statistical evidence tiers; it displays limitations. Existing operational/risk controls
+remain. See [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) for cutover, retries,
+implementation identities, prerequisites and the separate Wealthsimple automation work.
+
 ### Hermes (Market Data Collector)
 - Downloads historical daily OHLCV bars from TMX GraphQL API
 - Computes and stores the Advance-Decline line

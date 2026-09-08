@@ -16,7 +16,19 @@ public partial class PortfoliosView : UserControl
     private readonly SystemShadowController controller = new();
     private bool loadedOnce;
     private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading();
-    private void ReviewPromotion_Click(object sender, RoutedEventArgs e) { if (viewModel.CanReview) viewModel.SelectedView = 2; }
+    private async void ReviewPromotion_Click(object sender, RoutedEventArgs e)
+    {
+        if(!viewModel.CanReview || viewModel.SelectedPortfolio is not { } source)return;
+        try
+        {
+            viewModel.SelectedView=2;
+            var family=source.SystemPortfolioId.HasValue?Core.Trader.Promotion.TradingStrategyFamily.DailyShadow:Core.Trader.Promotion.TradingStrategyFamily.DelphiLive;
+            var review=await new Core.Db.TradingPromotionRepository().ReviewAsync(source.SystemPortfolioId??source.DelphiLivePortfolioId!.Value,family,PromotionAccount.Text);
+            new TradingPromotionDialog(Window.GetWindow(this),review).ShowDialog();
+            await viewModel.RefreshAsync();
+        }
+        catch(Exception error){MessageBox.Show(Window.GetWindow(this),error.Message,"Promotion review unavailable",MessageBoxButton.OK,MessageBoxImage.Warning);}
+    }
     private void BackToCompare_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = 0;
     private void ReviewAssignments_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Daily");
     private void InspectStrategy_Click(object sender, RoutedEventArgs e)

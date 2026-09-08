@@ -5,6 +5,14 @@
 - **Domains:** decision-engine, machine-learning, math-statistics, risk-management
 - **Related:** ADR-0010, ADR-0014, ADR-0016, ADR-0020, ADR-0021, ADR-0024
 
+## Scoped amendment — manual recommendations (2026-09-07)
+
+[ADR-0062](0062-complete-strategy-recommendation-promotion.md) records the operator's decision that manual
+complete-strategy approval may accept disclosed performance-evidence gaps. Its UI does not enforce the
+statistical tiers as an approval gate or certify that they passed. Existing internal research/evidence
+contracts remain intact. Enforced common evidence eligibility is deferred to Wealthsimple live trading
+and automation; operational pause/empty, account consistency and risk controls remain in force.
+
 ## Context
 
 The immediate problem is deciding when calibration evidence may change a strategy. The parent problem is preventing repeated experiments on overlapping cohorts from being mistaken for independent proof. The root goal is controlled learning that improves expected return without silently weakening capital protection.

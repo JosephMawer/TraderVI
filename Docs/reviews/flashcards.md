@@ -947,4 +947,19 @@ root safety and validation rules, avoiding irrelevant probe detail in every othe
 **A:** No. It measures the largest observed fall from a prior closing-value peak in the displayed period. Intraday moves and missing observations cannot be inferred from those closes.
 
 **Q:** Does Review promotion assign the selected paper strategy to Trading?
-**A:** No. It opens a review. Complete primary-account identity and a durable cross-family recommendation route remain future work; account history and current policy names alone do not establish promotion readiness. See ADR-0061.
+**A:** No. It prepares the complete review. You must explicitly approve with a reason to change Trading's source. Performance gaps are disclosed and advisory in manual mode; the existing paused/empty account rules remain. See ADR-0062.
+
+**Q:** What must a complete strategy identity add to the daily model assignment?
+**A:** Its selection, entry, exit, sizing, risk and execution/data contracts, with exact policy and code
+versions. Daily models are shared inputs. A Live champion is a role in its paper family, not Trading
+approval. The complete route is implemented in source under ADR-0062, awaiting separate migration/activation.
+
+**Q:** Why can missing account cash block a new recommendation without stopping protection?
+**A:** New risk requires current account capacity and risk baselines. A known holding can still be
+evaluated for protection using available evidence. Neither calculation makes a simulated fill real.
+
+
+**Q:** When do performance-evidence restrictions become enforced for common promotion?
+**A:** They are deferred to the Wealthsimple live trading/automation design. Manual recommendation
+approval may accept disclosed evidence gaps. This never makes paper fills real or waives internal Live
+research rules, and it grants no broker authority.

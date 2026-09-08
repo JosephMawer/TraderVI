@@ -152,7 +152,7 @@
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <WrapPanel><TextBlock Text="Daily recommendation source   " Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding PrimaryStrategyName}" Foreground="#74BBFF" FontWeight="SemiBold"/></WrapPanel>
+                    <WrapPanel><TextBlock Text="Trading source · TFSA   " Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding PrimaryStrategyName}" Foreground="#74BBFF" FontWeight="SemiBold"/></WrapPanel>
                     <TextBlock Text="{Binding WindowText}" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/>
                 </StackPanel>
                 <WrapPanel Grid.Column="1" VerticalAlignment="Center">
@@ -310,9 +310,12 @@
                                     <TextBlock Text="Promotion review" Style="{StaticResource Heading}"/>
                                     <TextBlock Text="{Binding ReviewExplanation}" TextWrapping="Wrap" Margin="0,0,0,18"/>
                                     <Border Background="#30291C" CornerRadius="8" Padding="12"><TextBlock Text="{Binding PromotionStatus}" Foreground="#F5CB83" TextWrapping="Wrap"/></Border>
+                                    <TextBlock Text="Target Real account" Margin="0,12,0,5"/>
+                                    <TextBox x:Name="PromotionAccount" Text="TFSA" MaxLength="64"/>
+                                    <Button Content="Prepare complete strategy review…" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}" Margin="0,12,0,0"/>
                                     <Button Content="Review current assignments" Click="ReviewAssignments_Click" Style="{StaticResource SecondaryButton}" Margin="0,18,0,8"/>
                                     <Button Content="Back to Compare" Click="BackToCompare_Click" Style="{StaticResource SecondaryButton}"/>
-                                    <TextBlock Text="Reviewing a challenger preserves account balances, holdings and history. A future promotion will require an explicit, compatible assignment." Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,18,0,0"/>
+                                    <TextBlock Text="Approval takes effect when saved; the next evaluation uses the Real account's reported state. Pause Trading and empty its holdings and outstanding orders before switching. Resume separately." Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,18,0,0"/>
                                 </StackPanel>
                             </Border>
                         </Grid>

@@ -94,6 +94,9 @@
 
     <TabControl x:Name="MainTabs" Background="Transparent" BorderThickness="0" Padding="0">
       <TabItem x:Name="PaperTradingTab" Header="Trading">
+       <TabControl>
+        <TabItem Header="Recommendations"><views:TradingRecommendationsView x:Name="TradingRecommendationsTabView"/></TabItem>
+        <TabItem Header="Tracked holdings and monitor">
        <Grid Margin="22">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -259,6 +262,8 @@
             </Grid>
         </Border>
        </Grid>
+        </TabItem>
+       </TabControl>
       </TabItem>
       <TabItem Header="Portfolios">
         <views:PortfoliosView x:Name="PortfoliosTabView"/>

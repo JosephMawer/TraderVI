@@ -126,6 +126,13 @@ flowchart LR
 This refinement is not installed by migration 027. The conservative guard remains active until the
 comparison lifecycle, shared-input dependencies and restart authority are agreed and implemented.
 
+## Common manual promotion is a separate approval
+
+The research promotion restrictions described above still govern Live experiments. They do not disable
+ADR-0062's human-approved Real recommendation assignment. That workflow displays incomplete evidence
+and requires the existing tracked-family pause/empty state. It never changes the paper account's policy,
+role or money. Enforced common evidence gates belong to future Wealthsimple automation.
+
 ## Review questions
 
 1. Why is an account's profit after a rule change different from proof of the new strategy's performance?

@@ -5,6 +5,14 @@
 - **Domains:** architecture, decision-engine, risk-management, market-microstructure
 - **Related:** ADR-0022, ADR-0039, ADR-0051, ADR-0053, ADR-0054
 
+## Scoped amendment — manual recommendations (2026-09-07)
+
+[ADR-0062](0062-complete-strategy-recommendation-promotion.md) records the operator's decision that manual
+complete-strategy approval may accept disclosed performance-evidence gaps. Its UI does not enforce the
+statistical tiers as an approval gate or certify that they passed. Existing internal research/evidence
+contracts remain intact. Enforced common evidence eligibility is deferred to Wealthsimple live trading
+and automation; operational pause/empty, account consistency and risk controls remain in force.
+
 ## Context
 
 The immediate problem is making the relationship between Delphi, Delphi Live, paper portfolios and the

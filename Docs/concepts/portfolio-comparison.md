@@ -27,11 +27,12 @@ Different fill assumptions, history lengths and earlier assignments remain mater
 
 ## Promotion boundary
 
-The stored active daily strategy identifies current daily models and gates. Tracked-position exit rules
-are separately assigned. Neither uniquely binds the complete recommendation strategy to a paper account.
-Review therefore shows that primary performance is unavailable instead of using the Real account or
-guessing a Shadow portfolio. It can inspect existing assignments in Settings, but cannot promote a paper
-strategy through a common adoption route yet. That remains future ADR-0055 work.
+ADR-0062 now binds the approved complete strategy to exact daily/model/policy/code versions and its
+supporting paper account. Portfolios prepares an explicit human review; Trading reads the approved source
+for the chosen Real account. Paper-account lifetime returns still do not establish the exact version's
+performance. The review explains those limitations. Statistical evidence is advisory in this manual
+mode; enforced eligibility is deferred to Wealthsimple automation. Existing pause/empty and financial
+risk controls remain. Migration 029 and actual activation require separate execution.
 
 ## Implementation and validation (2026-09-07)
 

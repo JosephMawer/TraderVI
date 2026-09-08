@@ -8,7 +8,11 @@
 We want several strategies to prove themselves in separate paper accounts. We then review their evidence,
 choose a strategy for real-account recommendations, and eventually allow a broker client to carry out its
 approved decisions. [ADR-0055](../adr/0055-independent-strategies-to-approved-live-execution.md) records
-this direction. The last two steps are future work.
+this direction. Manual recommendation promotion is now implemented in source under
+[ADR-0062](../adr/0062-complete-strategy-recommendation-promotion.md); its migration and actual activation
+remain separate. Wealthsimple execution is future work. You may approve despite incomplete performance
+evidence: the review explains the limitations, and enforced evidence gates are deferred to automated
+live trading. Existing account consistency and risk controls still apply.
 
 ## How the pieces relate
 
@@ -22,7 +26,7 @@ flowchart TD
     L --> LP[Independent Delphi Live paper accounts]
     SP --> E[Comparable evidence and human review]
     LP --> E
-    E -. future common promotion .-> R[Approved strategy: live recommendations]
+    E -->|Explicit manual approval| R[Approved strategy: Real-account recommendations]
     R -. separate execution permission .-> B[Future Wealthsimple adapter]
     B --> A[Actual broker orders and fills]
     A --> C[Reconciled real account state]

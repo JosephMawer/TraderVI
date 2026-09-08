@@ -22,12 +22,16 @@ defines the following prerequisites in order:
 - [x] Make Hercules candidate-only by default, retain exact data/source/model identities, and implement
   reviewed atomic model selection and rollback under [ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md).
 - [ ] Separate model training from activation and bind immutable model/policy inputs to the complete
-  strategy version. The model portion is complete for the supported daily tasks; risk-default ownership,
-  daily Shadow policy/version dispatch and remaining legacy mutation paths still need review without V1 retuning.
-- [ ] Define comparable evidence across daily and intraday strategy families, including capital, dates,
-  fill costs, coverage, downside guardrails and untouched evaluation. Reconcile ADR-0022/0053 explicitly.
-- [ ] Implement a durable human-approved strategy selection and recommendation route using the target
-  real account's state; preserve every independent paper account and its historical evidence.
+  strategy version. The model portion and saved daily Shadow policy dispatch are implemented. Initial
+  complete-strategy contracts are in source under [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md);
+  their persistence/routing are now implemented. Risk-default ownership and remaining legacy mutation paths still need work
+  without V1 retuning.
+- [ ] Before automated Wealthsimple trading, define and enforce comparable evidence across families,
+  including capital, dates, fills/costs, coverage, downside guardrails and untouched evaluation. ADR-0062
+  makes evidence advisory for manual recommendation approval; internal Live research rules remain unchanged.
+- [x] Implement durable human-approved complete-strategy selection and recommendation routing against
+  reported Real account state, preserving independent paper accounts/history (ADR-0062). Migration 029
+  and actual activation require separate execution; no broker integration was added.
 - [ ] Design and validate the Wealthsimple execution/reconciliation boundary before enabling any orders.
   The legacy client prototype is not an execution-ready integration.
 

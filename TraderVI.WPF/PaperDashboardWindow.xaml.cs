@@ -101,6 +101,7 @@ public partial class PaperDashboardWindow : Window
         // lease. Monitoring is independent of which tab the operator selected.
         await DelphiLiveTabView.TickAsync(shutdown.Token);
         await SettingsTabView.RefreshAccessAsync();
+        await TradingRecommendationsTabView.TickAsync(shutdown.Token);
 
         DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
         if (PaperTradingMonitor.IsAutomaticPollTime(localNow) &&

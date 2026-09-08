@@ -5,6 +5,14 @@ This document describes the current state of the TraderVI trading system — wha
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
+## Complete-strategy recommendations
+
+[ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) implements Portfolios review and
+account-specific Trading assignment. Pure family evaluation consumes an immutable complete strategy and
+reported Real state; SQL handles fenced, append-only review/publication history. It shares calculations
+and source evidence with paper engines, not their accounts or fills. Manual performance approval is the
+operator's decision. Broker automation and enforced common evidence gates remain future work.
+
 ## Philosophy
 
 The accepted product direction is [independent strategies to approved live execution](adr/0055-independent-strategies-to-approved-live-execution.md):

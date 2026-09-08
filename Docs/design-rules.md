@@ -3,6 +3,14 @@
 > This file is referenced by the repository-root `AGENTS.md`.
 > Rules here are authoritative for decision-engine, model, feature, and indicator changes.
 
+## Manual recommendation approval
+
+[ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) permits explicit human approval of a
+complete strategy despite disclosed performance-evidence gaps in recommendation-only mode. Do not add
+statistical promotion gates to this mode. Preserve existing internal Live research/untouched rules,
+Athena evidence, operational pause/empty requirements and financial risk checks. Enforced common evidence
+eligibility is deferred to Wealthsimple live trading/automation. A recommendation never creates a fill.
+
 ## Rule-Based vs ML-Based Components
 
 ### Strategy identity and adoption direction

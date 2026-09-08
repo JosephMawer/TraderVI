@@ -55,18 +55,19 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Tags:** architecture, machine-learning, data-pipeline, decision-engine
 
 ### Common strategy comparison, recommendation promotion and broker execution
-- **Accepted:** independent accounts prove complete strategies; a human selects the recommendation
-  strategy before separately permitting broker execution. [ADR-0055](../adr/0055-independent-strategies-to-approved-live-execution.md).
-- **Q:** What common evidence and identity contract lets daily Shadow and Delphi Live strategies compete
-  fairly while preserving ADR-0022 and ADR-0053's existing requirements? Resolve capital/cash-flow
-  normalization, paired periods, fill/cost differences, coverage, downside criteria and untouched evidence.
-- **Q:** How is the selected strategy bound to immutable model/policy inputs and routed against real
-  account state, with explicit effective boundaries and treatment of existing positions?
-- **Q:** Which reviewed Wealthsimple access mechanism and execution contract will support authentication,
-  approved accounts, permissions, idempotency, partial fills, fees, reconciliation, recovery and stopping?
-- **Status:** open implementation/design details; the direction itself is accepted. Do not reinterpret
-  Delphi Live's internal champion role, a successful training run, or a replay balance as this approval.
-  [Static findings and ordering](strategy-direction-alignment-20260906.md).
+- **Resolved/implemented in source:** immutable complete strategy identity, account-specific human approval,
+  auditable history, immediate committed boundary, paused/empty switching and Real recommendation routing.
+  [ADR-0062](../adr/0062-complete-strategy-recommendation-promotion.md). Migration 029 is not applied.
+- **Operator decision:** performance evidence is advisory in manual recommendation mode. A human may
+  accept incomplete evidence; this does not certify that ADR-0022 or Live research standards were met.
+  Live's internal untouched/research rules and Athena evidence are unchanged.
+- **Deferred to Wealthsimple live trading/automation:** decide which evidence tiers and family requirements
+  become enforced activation gates, including capital/cash-flow normalization, paired periods, costs/fill
+  assumptions, coverage, downside criteria and untouched validation. No universal winner score is agreed.
+- **Deferred:** reviewed Wealthsimple access/authentication, approved accounts, order authorization,
+  idempotency, partial fills, fees, reconciliation, cancellation, stale inputs, stopping and recovery.
+- **Operational validation outstanding:** separately authorized migration rehearsal, Real account
+  reconciliation, actual promotion and source/quote capacity checks. Do not run these as unit validation.
 - **Tags:** architecture, decision-engine, risk-management, market-microstructure
 
 ### Delphi Live short sessions and calendar extension
@@ -344,5 +345,5 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Accepted/implemented:** Compare as default, Performance, and one-challenger Strategy review; shared selection, period and account scope. Existing operational tools remain accessible in a collapsed section.
 - **Provisional display:** aligned saved closing-date returns, normalized charts and maximum observed closing decline. Account histories can span earlier rule assignments; observed dates do not prove complete TSX session coverage.
-- **Deferred:** common complete-strategy identity, prospective comparable evidence, verified primary paper-account mapping, and durable human-approved strategy-to-Trading routing. Review currently explains that promotion is unavailable.
+- **Implemented under ADR-0062:** complete-strategy identity, supporting paper-account mapping and durable human-approved Trading routing. Prospective statistically comparable evidence remains deferred to automated Wealthsimple activation; lifetime paper returns remain descriptive.
 - **Deferred:** historical daily Shadow generations, arbitrary date selection, benchmark overlay, period trade/fill statistics and reconciled Real cash-flow returns. These need explicit evidence contracts, not invented values.

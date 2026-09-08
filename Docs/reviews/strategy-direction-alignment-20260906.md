@@ -5,6 +5,13 @@
 **Direction:** [ADR-0055](../adr/0055-independent-strategies-to-approved-live-execution.md).  
 **Method:** repository-wide static review; documentation edits only. Existing modified/untracked work was preserved.
 
+## Later implementation update (2026-09-07)
+
+This remains the dated static audit, not a claim about current gaps. ADR-0062 now implements D1's common
+manual approval and Real recommendation route, on top of saved Shadow policy dispatch and preserved
+model candidates. Migration/activation remain separate. Performance evidence is advisory for manual
+approval by explicit operator decision; Wealthsimple automation and enforced evidence gates remain future.
+
 ## Verdict
 
 The independent paper-account foundation is aligned. The complete path from competing strategies to an
