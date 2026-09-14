@@ -50,6 +50,17 @@ compiler and pipeline health. Updating a package requires regenerating and revie
 Runtime model selection, market-data readiness, gates and thresholds are unchanged. Captured source,
 builds and package caches are ignored by Git; cleanup remains manual pending a retention policy.
 
+## Recovery exposed a historical-read retry gap
+
+The first authorized recovery proved isolated preparation, but Hermes then received a transient HTTP 502
+for a different symbol than the original scheduled failure. Its daily historical endpoint bypassed the
+three-attempt read-transport policy already used by intraday and quote reads. Historical queries now use
+that existing policy: up to three attempts with one- and two-second waits for transient HTTP/network
+failures. Query errors, permanent HTTP errors and caller cancellation are not retried. The identical
+request is repeated before mapping or database writes; no pipeline or official publication is replayed.
+Synthetic HTTP-handler tests exercise the actual historical method, including exhaustion and cancellation.
+The operator's recovery authorization covers the deliberate rerun after this correction.
+
 ## Review questions
 
 1. Which moment defines the latest source, and why can later edits continue safely?

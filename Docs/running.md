@@ -308,7 +308,7 @@ dotnet run --project DataAudit
 Hermes currently:
 
 1. Loads the TSX symbol universe.
-2. Downloads missing historical daily bars from TMX and upserts `DailyBars`.
+2. Downloads missing historical daily bars from TMX and upserts `DailyBars`. Historical read requests use the existing three-attempt transient-transport policy (one- and two-second waits); this does not retry database writes or an operational pipeline.
 3. Incrementally updates `AdvanceDeclineLine`.
 4. Incrementally updates and prunes per-symbol `SymbolObv` history.
 5. Computes the current market-wide `MarketClimax` record.

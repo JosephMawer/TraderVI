@@ -27,7 +27,7 @@ namespace Core.TMX
     {
         private readonly GraphQLHttpClient _graphClient;
         private readonly HttpClient _httpClient;
-        private readonly HttpClientHandler _handler;
+        private readonly HttpMessageHandler _handler;
         private static readonly Uri GraphQLEndpoint = new("https://app-money.tmx.com/graphql");
         private static readonly TimeZoneInfo TmxEasternTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
@@ -35,14 +35,16 @@ namespace Core.TMX
         private static readonly TimeSpan IntradayChunkWindow = TimeSpan.FromDays(5);
         private static readonly TimeSpan IntradayChunkPause = TimeSpan.FromMilliseconds(250);
 
-        public TmxClient()
+        public TmxClient() : this(new HttpClientHandler
         {
-            var cookieContainer = new CookieContainer();
-            _handler = new HttpClientHandler
-            {
-                CookieContainer = cookieContainer,
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            };
+            CookieContainer = new CookieContainer(),
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+        }) { }
+
+        internal TmxClient(HttpMessageHandler handler)
+        {
+            ArgumentNullException.ThrowIfNull(handler);
+            _handler = handler;
 
             _httpClient = new HttpClient(_handler, disposeHandler: false)
             {
@@ -450,7 +452,9 @@ namespace Core.TMX
                 Variables = new { symbol, freq, start = startDate, end = endDate }
             };
 
-            var response = await _graphClient.SendQueryAsync<TmxTimeSeriesResponse>(request, ct);
+            // Retry only the read transport; mapping, database writes and the pipeline are not replayed.
+            var transport = await SendQueryWithRetryAsync<TmxTimeSeriesResponse>(request, ct);
+            var response = transport.Value;
             if (response.Errors is { Length: > 0 })
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
