@@ -27,6 +27,8 @@ CREATE TABLE [dbo].[DelphiLivePolicyAssignment]
         OR
         ([PolicyRole] IN (N'ActiveShadowChallenger', N'ShadowBaseline') AND [RoleSlot] IN (1, 2))
         OR
+        ([PolicyRole] = N'GateComparison' AND [RoleSlot] BETWEEN 3 AND 99 AND [ExperimentId] IS NULL)
+        OR
         ([PolicyRole] = N'ResearchCounterfactual' AND [RoleSlot] >= 100)
     ),
     CONSTRAINT [CK_DelphiLivePolicyAssignment_EffectiveRange] CHECK

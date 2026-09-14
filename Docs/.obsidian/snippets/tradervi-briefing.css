@@ -1,0 +1,250 @@
+/* TraderVI briefing — local typography and color layer for Obsidian's base theme.
+   Supports Reading view, Live Preview, light/dark appearance, and printing.
+   Disable this snippet in Appearance to return to the original presentation. */
+
+body {
+  --font-text-theme: "Segoe UI", system-ui, sans-serif;
+  --font-monospace-theme: "Cascadia Code", Consolas, monospace;
+  --file-line-width: 900px;
+  --line-height-normal: 1.65;
+  --p-spacing: 1em;
+  --heading-spacing: 1.8em;
+  --h1-size: 1.9em;
+  --h2-size: 1.3em;
+  --h3-size: 1.08em;
+  --h1-weight: 650;
+  --h2-weight: 650;
+  --h3-weight: 600;
+  --h1-line-height: 1.22;
+  --h2-line-height: 1.35;
+  --h1-color: var(--text-normal);
+  --h2-color: var(--text-normal);
+  --h3-color: var(--text-normal);
+  --bold-color: var(--text-normal);
+  --table-header-weight: 650;
+  --table-border-color: var(--background-modifier-border);
+  --table-header-background: var(--background-secondary);
+  --table-row-alt-background: var(--brief-row);
+  --table-cell-padding: 11px 15px;
+  --callout-radius: 8px;
+  --callout-padding: 17px 20px;
+  --callout-border-width: 1px;
+  --callout-border-opacity: 0.3;
+}
+
+body.theme-dark {
+  --background-primary: #101722;
+  --background-primary-alt: #141e2b;
+  --background-secondary: #182333;
+  --background-secondary-alt: #1b293b;
+  --background-modifier-border: #354359;
+  --background-modifier-border-hover: #526681;
+  --text-normal: #e3eaf3;
+  --text-muted: #b1bed0;
+  --text-faint: #93a4bc;
+  --text-accent: #8ebbf4;
+  --text-accent-hover: #bad7fb;
+  --link-color: #8ebbf4;
+  --link-color-hover: #bad7fb;
+  --link-external-color: #8ebbf4;
+  --code-normal: #c1d9fa;
+  --code-background: #1c2a3e;
+  --brief-row: #141e2b;
+  --brief-summary: #182c43;
+  --brief-accent: #8ebbf4;
+  --brief-good: #93d1b5;
+  --brief-warning: #ebc783;
+  --brief-focus: #bad7fb;
+  --color-accent: #8ebbf4;
+  --color-accent-hsl: 214, 82%, 76%;
+  --text-on-accent: #101722;
+}
+
+body.theme-light {
+  --background-primary: #f6f8fb;
+  --background-primary-alt: #edf1f7;
+  --background-secondary: #e7edf5;
+  --background-secondary-alt: #e0e7f0;
+  --background-modifier-border: #c5cfdd;
+  --background-modifier-border-hover: #99abc2;
+  --text-normal: #1c2c40;
+  --text-muted: #4e6077;
+  --text-faint: #5c6d83;
+  --text-accent: #205b9d;
+  --text-accent-hover: #123f72;
+  --link-color: #205b9d;
+  --link-color-hover: #123f72;
+  --link-external-color: #205b9d;
+  --code-normal: #284e79;
+  --code-background: #e7edf5;
+  --brief-row: #edf1f7;
+  --brief-summary: #e6eef9;
+  --brief-accent: #205b9d;
+  --brief-good: #216046;
+  --brief-warning: #755015;
+  --brief-focus: #123f72;
+  --color-accent: #205b9d;
+  --color-accent-hsl: 212, 66%, 37%;
+  --text-on-accent: #ffffff;
+}
+
+.markdown-rendered {
+  color: var(--text-normal);
+}
+
+.markdown-rendered h1 {
+  letter-spacing: -0.025em;
+}
+
+.markdown-rendered h2 {
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.markdown-rendered :is(p, li) {
+  overflow-wrap: break-word;
+}
+
+.markdown-rendered table {
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+}
+
+.markdown-rendered :is(th, td) {
+  padding: var(--table-cell-padding);
+  vertical-align: top;
+  border-color: var(--table-border-color);
+}
+
+.markdown-rendered th {
+  color: var(--text-normal);
+  background: var(--table-header-background);
+}
+
+.markdown-rendered tbody tr:nth-child(even) {
+  background: var(--brief-row);
+}
+
+.markdown-rendered :is(.el-table, .table-wrapper) {
+  overflow-x: auto;
+}
+
+.markdown-rendered a {
+  text-underline-offset: 3px;
+}
+
+.markdown-rendered :is(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brief-focus);
+  outline-offset: 4px;
+}
+
+/* Native callouts keep their titles and fold controls. No plugin is required. */
+.markdown-rendered .callout {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: none;
+}
+
+.markdown-rendered .callout-title {
+  color: var(--text-normal);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.markdown-rendered .callout-content {
+  color: var(--text-normal);
+}
+
+.markdown-rendered .callout:is([data-callout="summary"], [data-callout="abstract"]) {
+  background: var(--brief-summary);
+  border-left: 3px solid var(--brief-accent);
+}
+
+.markdown-rendered .callout:is([data-callout="tip"], [data-callout="success"]) {
+  border-left: 3px solid var(--brief-good);
+}
+
+.markdown-rendered .callout:is([data-callout="warning"], [data-callout="caution"]) {
+  border-left: 3px solid var(--brief-warning);
+}
+
+.markdown-rendered .callout .callout-content > :first-child {
+  margin-top: 0.65em;
+}
+
+.markdown-rendered .callout .callout-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Opt-in executive layout; ordinary reference notes retain the common type scale. */
+.executive-brief {
+  --file-line-width: 940px;
+  --h1-size: 2em;
+}
+
+.executive-brief.markdown-preview-view .inline-title {
+  display: none; /* These briefs have an explicit H1, avoiding duplicate titles. */
+}
+
+.executive-brief .callout[data-callout="summary"] {
+  margin-block: 1.3em 1.7em;
+}
+
+.executive-brief .callout[data-callout="summary"] .callout-content {
+  font-size: 1.06em;
+}
+
+.executive-brief .callout.is-collapsible .callout-title {
+  min-height: 28px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  body {
+    --table-cell-padding: 9px 10px;
+    --callout-padding: 13px 15px;
+    --h1-size: 1.6em;
+  }
+
+  .executive-brief {
+    --h1-size: 1.7em;
+  }
+}
+
+@media print {
+  body:is(.theme-dark, .theme-light) {
+    --background-primary: #ffffff;
+    --background-secondary: #f0f2f5;
+    --text-normal: #172436;
+    --text-muted: #42536b;
+    --text-faint: #42536b;
+    --background-modifier-border: #b5bfce;
+    --brief-row: #f5f6f8;
+    --brief-summary: #edf2f8;
+    --brief-accent: #205b9d;
+    --brief-good: #216046;
+    --brief-warning: #755015;
+    --link-color: #205b9d;
+    --link-external-color: #205b9d;
+    --code-background: #f0f2f5;
+    --code-normal: #284e79;
+  }
+
+  .markdown-rendered {
+    background: white;
+    font-size: 10.5pt;
+  }
+
+  .markdown-rendered :is(h1, h2, h3, .callout-title) {
+    break-after: avoid;
+  }
+
+  .markdown-rendered tr {
+    break-inside: avoid;
+  }
+
+  .markdown-rendered .callout.is-collapsed .callout-content {
+    display: block !important;
+  }
+}

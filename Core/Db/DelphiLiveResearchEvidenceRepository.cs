@@ -73,6 +73,10 @@ WHERE review.ReviewedUtc IS NULL
  OR EXISTS(SELECT 1 FROM dbo.DelphiLiveCorporateActionAudit d JOIN dbo.DelphiLiveSessionSymbol m ON m.Symbol=d.Symbol AND m.SessionId=s.SessionId
            WHERE d.AffectedFrom<=h.ThroughDate AND d.AffectedThrough>=h.TradingDate
            AND d.RecordedUtc>review.ReviewedUtc AND d.RecordedUtc<=@AsOf)
+ OR EXISTS(SELECT 1 FROM dbo.DelphiLiveDailySourceRevision source WHERE source.SessionId=s.SessionId
+           AND source.AdoptedUtc>review.ReviewedUtc AND source.AdoptedUtc<=@AsOf)
+ OR EXISTS(SELECT 1 FROM dbo.PaperComparisonSourceRevision source WHERE source.SessionId=s.SessionId
+           AND source.AdoptedUtc>review.ReviewedUtc AND source.AdoptedUtc<=@AsOf)
 ORDER BY s.TradingDate;
 """, new { Horizons = JsonSerializer.Serialize(horizons), AsOf = asOfUtc }, cancellationToken: cancellationToken)))
             .Select(DateOnly.FromDateTime).ToArray();
@@ -116,6 +120,10 @@ FROM dbo.IntradayCollectionSlot WHERE SessionId=@Session AND ExpectedBarEndUtc<=
         }
         var metadata = await connection.QuerySingleAsync<SessionRow>(new CommandDefinition("""
 SELECT s.HostGapObserved,COALESCE(r.RunContextJson,N'{}') AS RunContextJson,
+ CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.DelphiLiveDailySourceRevision d WHERE d.SessionId=s.SessionId AND d.AdoptedUtc<=@AsOf)
+ THEN 1 ELSE 0 END AS bit) AS DailySourceChanged,
+ CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.PaperComparisonSourceRevision d WHERE d.SessionId=s.SessionId AND d.AdoptedUtc<=@AsOf)
+ THEN 1 ELSE 0 END AS bit) AS ComparisonAccountsActive,
  CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.DelphiLiveSessionPolicy sp JOIN dbo.DelphiLivePolicyVersion p
  ON p.DelphiLivePolicyVersionId=sp.DelphiLivePolicyVersionId WHERE sp.SessionId=s.SessionId AND
  (sp.PolicySettingsJson<>p.SettingsJson OR sp.PolicySettingsSha256<>p.SettingsSha256)) THEN 0 ELSE 1 END AS bit) AS StablePolicies,
@@ -196,6 +204,8 @@ WHERE Symbol IN @Symbols AND [Date] IN @Dates AND CreatedAt<=@AsOf ORDER BY [Dat
         {
             CorporateActionSymbols = affected,
             HasConflictingEvidence = conflicts.Count > 0,
+            DailySourceChanged = metadata.DailySourceChanged,
+            ComparisonAccountsActive = metadata.ComparisonAccountsActive,
             ConflictingAnchors = conflicts
         };
     }
@@ -204,7 +214,7 @@ WHERE Symbol IN @Symbols AND [Date] IN @Dates AND CreatedAt<=@AsOf ORDER BY [Dat
     private static DateTime Utc(DateTime date) => DateTime.SpecifyKind(date, DateTimeKind.Utc);
     private sealed record MemberRow(string Symbol, bool IsXiuBenchmark, DateTime RequiredFromBarEndUtc, DateTime RequiredThroughBarEndUtc);
     private sealed record SlotRow(string Symbol, DateTime ExpectedBarEndUtc, Guid? EvidenceBarId, string Disposition, bool OperationallyUsable);
-    private sealed record SessionRow(bool HostGapObserved, string RunContextJson, bool StablePolicies, bool HasOverlap, bool CorporateActionUnsupported);
+    private sealed record SessionRow(bool HostGapObserved, string RunContextJson, bool DailySourceChanged, bool ComparisonAccountsActive, bool StablePolicies, bool HasOverlap, bool CorporateActionUnsupported);
     private sealed record BarRow(Guid EvidenceBarId, string Symbol, DateTime EventUtc, decimal Open, decimal High, decimal Low, decimal Close, long Volume, DateTime ReceivedUtc, string Provider);
     private sealed record ConflictRow(string Symbol, DateTime BarEndUtc);
     private sealed record FrozenSessionRow(Guid SessionId, DateTime TradingDate, DateTime SessionOpenUtc, DateTime SessionCloseUtc);

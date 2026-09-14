@@ -1,6 +1,7 @@
 CREATE TABLE [dbo].[ShadowPortfolioGeneration]
 (
     [GenerationId]           UNIQUEIDENTIFIER NOT NULL,
+    [IsGateComparison]       BIT NOT NULL CONSTRAINT DF_ShadowPortfolioGeneration_GateComparison DEFAULT(0),
     [PolicyVersion]          NVARCHAR(32)     NOT NULL,
     [Status]                 NVARCHAR(32)     NOT NULL,
     [TotalAccountValue]      DECIMAL(19,6)    NOT NULL,
@@ -27,4 +28,3 @@ CREATE TABLE [dbo].[ShadowPortfolioGeneration]
     )
 );
 GO
-

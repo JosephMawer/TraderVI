@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using TraderVI.WPF.Viewmodels;
@@ -17,6 +18,18 @@ public partial class DelphiLiveView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) => viewModel.RefreshAsync(cancellationToken);
     public Task TickAsync(CancellationToken cancellationToken = default) => viewModel.TickAsync(cancellationToken);
     public Task StopAsync(CancellationToken cancellationToken = default) => viewModel.StopAsync(cancellationToken);
+    public async Task SelectAccountAsync(Guid? portfolioId, CancellationToken token = default)
+    {
+        await viewModel.RefreshAsync(token);
+        if (portfolioId.HasValue)
+            viewModel.SelectedPortfolio = viewModel.Portfolios.FirstOrDefault(p => p.PortfolioId == portfolioId)
+                ?? throw new InvalidOperationException("The requested intraday account is not available in this snapshot. Select an account explicitly to inspect another one.");
+        viewModel.DisplayModeIndex = 0;
+        MainSections.SelectedIndex = 0;
+    }
+    private void Portfolios_Click(object sender, RoutedEventArgs e) =>
+        (Window.GetWindow(this) as PaperDashboardWindow)?.OpenPortfolios(livePortfolio: viewModel.SelectedPortfolio?.PortfolioId);
+    private void DailySource_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenDelphi();
     private void SettingsButton_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings(EngineStrategySettings.Live);
     private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await viewModel.RefreshAsync();
     private void AdvancedButton_Click(object sender, RoutedEventArgs e) => MainSections.SelectedIndex = 2;

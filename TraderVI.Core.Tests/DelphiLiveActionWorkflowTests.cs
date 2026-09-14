@@ -355,6 +355,51 @@ public sealed class DelphiLiveActionWorkflowTests
         h.Store.State.Revision.ShouldBe(revision);
     }
 
+    [Fact]
+    public async Task DailySourceChangeCancelsPendingBuyWithoutAQuote_AndRestartDoesNotRepeatAdoption()
+    {
+        var h = new Harness();
+        h.Source.BeforeRequest = _ => throw new OperationCanceledException();
+        await Should.ThrowAsync<OperationCanceledException>(() => h.Workflow.RunCycleAsync(h.Input("AAA"), Policy, h.Lease));
+        h.Store.State.PendingActions.Single().Intent.Side.ShouldBe(DelphiLiveActionSide.Buy);
+        var source = new DelphiLiveDailySourceRevision(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Open.AddMinutes(10),
+            h.Clock.Now, global::Core.Trader.PaperDailySourcePolicy.EffectiveBoundary(h.Clock.Now), [],
+            new Dictionary<string, DelphiLiveFrozenBaseline>());
+        var after = await h.Workflow.SynchronizeDailySourceAsync(h.Store.State.PortfolioId, source, h.Lease);
+        after.PendingActions.ShouldBeEmpty();
+        after.Actions.Single().TerminalReason.ShouldBe("DailySourceSuperseded");
+        after.Cash.ShouldBe(1000m);
+        after.Fills.ShouldBeEmpty();
+        h.Source.Requests.ShouldBeEmpty();
+        var restarted = new DelphiLiveActionWorkflow(h.Store, h.Source, h.Clock);
+        (await restarted.SynchronizeDailySourceAsync(after.PortfolioId, source, h.Lease)).Revision.ShouldBe(after.Revision);
+        h.Store.Events.Count(e => e.Kind == "DailySourceAdopted").ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task DailySourceChangePreservesExistingCashPositionsFillsAndGuards()
+    {
+        var h = new Harness();
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        await h.Workflow.RunCycleAsync(h.Input("AAA"), Policy, h.Lease);
+        var prior = h.Store.State;
+        var position = prior.OpenPositions.Single();
+        var exit = new global::Core.Runtime.OperatorExitRequest(Guid.NewGuid(), global::Core.Runtime.EngineStrategySettings.Live,
+            prior.PortfolioId, position.PositionId, position.Symbol, h.Clock.Now, "operator", "Preserve queued protection", DelphiLiveLedgerJson.Serialize(position));
+        await h.Workflow.QueueOperatorExitAsync(exit, h.Lease);
+        prior = h.Store.State;
+        var source = new DelphiLiveDailySourceRevision(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Open.AddMinutes(10),
+            h.Clock.Now, global::Core.Trader.PaperDailySourcePolicy.EffectiveBoundary(h.Clock.Now), [],
+            new Dictionary<string, DelphiLiveFrozenBaseline>());
+        var after = await h.Workflow.SynchronizeDailySourceAsync(prior.PortfolioId, source, h.Lease);
+        after.Cash.ShouldBe(prior.Cash);
+        DelphiLiveLedgerJson.Serialize(after.Positions).ShouldBe(DelphiLiveLedgerJson.Serialize(prior.Positions));
+        DelphiLiveLedgerJson.Serialize(after.Fills).ShouldBe(DelphiLiveLedgerJson.Serialize(prior.Fills));
+        after.Guards.ShouldBe(prior.Guards);
+        after.PendingActions.Single().ShouldBe(prior.PendingActions.Single());
+        h.Source.Requests.Count.ShouldBe(1);
+    }
+
     private sealed class Harness
     {
         public readonly TestClock Clock = new() { Now = Open.AddMinutes(22) };

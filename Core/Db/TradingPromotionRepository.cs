@@ -74,6 +74,9 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
     }
     private static async Task<TradingPromotionReview> Review(SqlConnection c, SqlTransaction t, Guid paper, TradingStrategyFamily family, string account, CancellationToken token)
     {
+        if (await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
+            "SELECT COUNT(*) FROM dbo.PaperComparisonAccount WHERE AccountId=@Id;", new { Id = paper }, t) > 0)
+            throw new InvalidOperationException("Fixed-gate comparison accounts are paper experiments; their admission profile is not a recommendation approval.");
         var daily = await c.QuerySingleOrDefaultAsync<StrategyVersionInfo>("SELECT * FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t)
             ?? throw new InvalidOperationException("A preserved daily strategy assignment is required to identify the complete strategy.");
         var binding = await c.QuerySingleOrDefaultAsync<Binding>("SELECT ModelSetJson,ModelSetSha256 FROM dbo.StrategyModelBinding WHERE StrategyVersionId=@Id", new { Id = daily.VersionId }, t)
@@ -102,6 +105,7 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
                 SELECT (SELECT @Id PaperAccountId,
                 JSON_QUERY((SELECT PortfolioId,GenerationId,PortfolioCode,DisplayName,Status,CashBalance,HighestClosingValue FROM dbo.ShadowPortfolio WHERE PortfolioId=@Id FOR JSON PATH)) Account,
                 JSON_QUERY((SELECT SessionId,TradingDate,CalibrationRunId,Status,OpeningValue,ClosingValue,DailyLossGuardActive FROM dbo.ShadowPortfolioSession WHERE PortfolioId=@Id ORDER BY TradingDate FOR JSON PATH)) Sessions,
+                JSON_QUERY((SELECT r.* FROM dbo.ShadowDailySourceRevision r JOIN dbo.ShadowPortfolioSession s ON s.SessionId=r.SessionId WHERE s.PortfolioId=@Id ORDER BY r.AdoptedUtc,r.RevisionId FOR JSON PATH)) DailySourceAdoptions,
                 JSON_QUERY((SELECT AssignmentId,VersionId,AssignedUtc FROM dbo.EngineStrategyAssignment WHERE TargetId=@Id ORDER BY Sequence FOR JSON PATH)) PolicyHistory
                 FOR JSON PATH,WITHOUT_ARRAY_WRAPPER)
                 """, new { Id = paper }, t);

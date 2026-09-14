@@ -21,6 +21,8 @@ public sealed record DelphiLiveResearchSessionEvidence(
 {
     public ImmutableHashSet<string> CorporateActionSymbols { get; init; } = ImmutableHashSet<string>.Empty;
     public bool HasConflictingEvidence { get; init; }
+    public bool DailySourceChanged { get; init; }
+    public bool ComparisonAccountsActive { get; init; }
     public ImmutableHashSet<string> ConflictingAnchors { get; init; } = ImmutableHashSet<string>.Empty;
 }
 
@@ -60,6 +62,7 @@ public sealed class DelphiLiveResearchCoordinator(
     public async Task CheckpointAsync(DelphiLiveSessionContext context, DateTime endpoint,
         IReadOnlyList<DelphiLiveStoredEvaluation> evaluations, DelphiLiveLease lease, CancellationToken cancellationToken = default)
     {
+        if (context.SourceRevision is not null) return;
         if (endpoint.Kind != DateTimeKind.Utc || evaluations.Any(e => e.Input.SessionId != context.Session.SessionId || e.Input.BarEndUtc != endpoint))
             throw new ArgumentException("A research checkpoint must use one frozen session and endpoint.");
         var evidence = await evidenceSource.ReadAsync(context, endpoint, clock.UtcNow, cancellationToken);
@@ -89,6 +92,9 @@ public sealed class DelphiLiveResearchCoordinator(
     public async Task SessionClosedAsync(DelphiLiveSessionContext context, DelphiLiveLease lease,
         CancellationToken cancellationToken = default)
     {
+        if (context.SourceRevision is not null)
+            context = await sessions.ReadContextAsync(context.Session.TradingDate, cancellationToken)
+                ?? throw new InvalidOperationException("Original research freeze is unavailable.");
         if (clock.UtcNow <= context.Bounds.CloseUtc) return;
         DateTime reviewCutoff = clock.UtcNow;
         var evidence = await evidenceSource.ReadAsync(context, context.Bounds.CloseUtc, reviewCutoff, cancellationToken);
@@ -105,10 +111,13 @@ public sealed class DelphiLiveResearchCoordinator(
         {
             bool mature = existing.FiveSessionResearchMature || await IsResearchMature(context.Session.TradingDate, cancellationToken);
             if (mature != existing.FiveSessionResearchMature || evidence.CorporateActionUnsupported && !existing.CorporateActionUnsupported ||
-                evidence.HasConflictingEvidence && !existing.EvidenceConflict)
+                evidence.HasConflictingEvidence && !existing.EvidenceConflict || evidence.DailySourceChanged && !existing.DailySourceChanged ||
+                evidence.ComparisonAccountsActive && !existing.ComparisonAccountsActive)
                 await protocol.RecordCohortAsync(existing with { FiveSessionResearchMature = mature,
                     CorporateActionUnsupported = existing.CorporateActionUnsupported || evidence.CorporateActionUnsupported,
-                    EvidenceConflict = existing.EvidenceConflict || evidence.HasConflictingEvidence }, clock.UtcNow, lease, cancellationToken);
+                    EvidenceConflict = existing.EvidenceConflict || evidence.HasConflictingEvidence,
+                    DailySourceChanged = existing.DailySourceChanged || evidence.DailySourceChanged,
+                    ComparisonAccountsActive = existing.ComparisonAccountsActive || evidence.ComparisonAccountsActive }, clock.UtcNow, lease, cancellationToken);
             await research.RecordSessionReviewAsync(context.Session.SessionId, reviewCutoff, lease, cancellationToken);
             return;
         }
@@ -153,7 +162,8 @@ public sealed class DelphiLiveResearchCoordinator(
             evidence.StablePolicyIdentities && (state.Definition is null || state.Definition.CodeIdentity == currentCodeIdentity()),
             reconstructible, await IsResearchMature(context.Session.TradingDate, cancellationToken),
             evidence.CorporateActionUnsupported, capitalChanged, returns.ToImmutable(), drawdowns.ToImmutable())
-            { EvidenceConflict = evidence.HasConflictingEvidence };
+            { EvidenceConflict = evidence.HasConflictingEvidence, DailySourceChanged = evidence.DailySourceChanged,
+                ComparisonAccountsActive = evidence.ComparisonAccountsActive };
         await protocol.RecordCohortAsync(cohort, clock.UtcNow, lease, cancellationToken);
         await research.RecordSessionReviewAsync(context.Session.SessionId, reviewCutoff, lease, cancellationToken);
     }

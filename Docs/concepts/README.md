@@ -1,9 +1,14 @@
 # Concepts
 
+- [Wealthsimple authentication](wealthsimple-authentication.md) — observed password/OTP protocol, verified direct browser-session handoff, and remaining login integration work.
+
+- [Connected trading workspace design and implementation](trading-workspace-redesign-draft.md) — main-account overview, one grid for all paper portfolios, account activity, direct strategy review and collapsible navigation; latest WPF refinement verified offline, runtime rebuild/restart pending.
+- [Manual market-buy ticket](trading-workspace-redesign-draft.md#manual-market-buys--september-10-design-draft) — accepted editable-quantity ticket, shared selection actions and protected recovery; implemented under ADR-0075, native live submission unverified.
+
 - [Global settings design draft](global-settings-design-draft.md) — accepted central navigation, separate save/assign actions and immediate whole-account reassignment.
 - [Settings system map](settings-system-map.md) — current configuration paths, supporting services and proposed scoped research-comparison restarts.
 
-- [Strategy promotion and execution](strategy-promotion-and-execution.md) — independent paper strategies, comparable evidence, approved live recommendations, then separately authorized Wealthsimple execution.
+- [Strategy promotion and execution](strategy-promotion-and-execution.md) — independent paper strategies, current recommendation approval and the continuing permanent-TFSA execution/transition draft under ADR-0073.
 - [Strategy alignment stabilization draft](strategy-alignment-stabilization-draft.md) — accepted input/compatibility decisions, completed corrected-strategy selection and remaining policy/comparison work.
 
 - [Delphi Live](delphi-live.md) — frozen V1 design source accepted by ADR-0053 for five-minute reranking, explainable safety vetoes, separate Shadow challengers, and future calibration.

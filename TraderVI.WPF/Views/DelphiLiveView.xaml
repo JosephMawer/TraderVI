@@ -7,24 +7,33 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="DelphiLiveStyles.xaml"/></ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="VisibleIfTrue"/>
+            <Style x:Key="CandidateExplanation" TargetType="TextBlock">
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel><views:SystemControlBar DockPanel.Dock="Top" SystemKey="DelphiLive" Margin="22,8,22,0"/>
+    <DockPanel><Expander DockPanel.Dock="Bottom" Header="Intraday engine controls" Margin="22,8"><views:SystemControlBar SystemKey="DelphiLive" Margin="12"/></Expander>
     <Grid Margin="22,16">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid Margin="0,0,0,16">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="Delphi Live" FontSize="28" FontWeight="SemiBold"/>
-                <TextBlock Text="Follow Delphi's picks through the trading day." Foreground="{StaticResource LiveSecondaryText}" Margin="0,5,0,0"/>
+                <TextBlock Text="Intraday paper strategy · follow entry checks, decisions and simulated fills." Foreground="{StaticResource LiveSecondaryText}" TextWrapping="Wrap" Margin="0,5,12,0"/>
             </StackPanel>
             <Button Grid.Column="1" Content="Setup &amp; advanced" Click="AdvancedButton_Click" VerticalAlignment="Center"/>
         </Grid>
         <WrapPanel Grid.Row="1" Margin="0,0,0,12">
-            <ComboBox ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding DisplayModeIndex}" SelectionChanged="DisplayMode_SelectionChanged" Width="205" Margin="0,0,10,6"/>
+            <ComboBox x:Name="LiveAccountPicker" ItemsSource="{Binding Portfolios}" SelectedItem="{Binding SelectedPortfolio}" DisplayMemberPath="DisplayName" Width="315" Margin="0,0,10,6" AutomationProperties.Name="Paper account to inspect" ToolTip="{Binding SelectedPortfolio.DisplayName}">
+                <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}"><Style.Triggers><DataTrigger Binding="{Binding IsReplayMode}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></ComboBox.Style>
+            </ComboBox>
+            <ComboBox x:Name="LiveModePicker" ItemsSource="{Binding DisplayModes}" SelectedIndex="{Binding DisplayModeIndex}" SelectionChanged="DisplayMode_SelectionChanged" Width="205" Margin="0,0,10,6" AutomationProperties.Name="Current observation or historical replay"/>
             <Button Content="Settings…" Click="SettingsButton_Click" Margin="0,0,10,6"/>
             <Button Content="Refresh picks / saved state" IsEnabled="{Binding CanRefresh}" Click="RefreshButton_Click" Margin="0,0,10,6"/>
             <Button Content="{Binding ReplayButtonText}" Click="ReplayButton_Click" Margin="0,0,10,6"/>
+            <Button Content="This account in Portfolios" Click="Portfolios_Click" Margin="0,0,10,6"/>
+            <Button Content="Latest saved Delphi source" Click="DailySource_Click" Margin="0,0,10,6"/>
         </WrapPanel>
         <Border Grid.Row="2" Background="{StaticResource LiveSurface}" BorderBrush="{StaticResource LiveBorder}" BorderThickness="1" CornerRadius="7" Padding="14,12" Margin="0,0,0,14">
             <StackPanel>
@@ -47,18 +56,18 @@
             </StackPanel>
         </Border>
         <TabControl x:Name="MainSections" Grid.Row="3" SelectionChanged="MainSections_SelectionChanged">
-            <TabItem Header="Watchlist">
+            <TabItem Header="Candidates and reasons">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <DataGrid ItemsSource="{Binding WatchlistRows}" SelectedItem="{Binding SelectedWatchlistRow}">
+                    <DataGrid x:Name="CandidateWatchlist" ItemsSource="{Binding WatchlistRows}" SelectedItem="{Binding SelectedWatchlistRow}" RowHeight="NaN">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Order" Binding="{Binding Rank}" Width="55" MinWidth="55"/>
                             <DataGridTextColumn Header="Stock" Binding="{Binding Symbol}" Width="80" MinWidth="80"/>
-                            <DataGridTextColumn Header="Daily selection" Binding="{Binding DailySource}" Width="230" MinWidth="170"/>
+                            <DataGridTextColumn Header="Daily selection" Binding="{Binding DailySource}" Width="170" MinWidth="130"/>
                             <DataGridTextColumn Header="Since prior close" Binding="{Binding Change, StringFormat=P2}" Width="105" MinWidth="90"/>
-                            <DataGridTextColumn Header="Live strength" Binding="{Binding Momentum}" Width="160" MinWidth="135"/>
-                            <DataGridTextColumn Header="Status" Binding="{Binding State}" Width="155" MinWidth="120"/>
-                            <DataGridTextColumn Header="Why" Binding="{Binding Reason}" Width="*" MinWidth="210"/>
+                            <DataGridTextColumn Header="Intraday strength" Binding="{Binding Momentum}" Width="135" MinWidth="100"/>
+                            <DataGridTextColumn Header="Entry / holding state" Binding="{Binding State}" ElementStyle="{StaticResource CandidateExplanation}" Width="145" MinWidth="110"/>
+                            <DataGridTextColumn Header="Why" Binding="{Binding Reason}" ElementStyle="{StaticResource CandidateExplanation}" Width="*" MinWidth="210"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <Border Grid.Row="1" Background="{StaticResource LiveSurface}" CornerRadius="5" Padding="14,10" Margin="0,10,0,0">

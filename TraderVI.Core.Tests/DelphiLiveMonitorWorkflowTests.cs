@@ -1,6 +1,7 @@
 #nullable enable
 
 using Core.Trader.DelphiLive;
+using Core.Trader;
 using Core.TMX.Models.Domain;
 using Shouldly;
 using System;
@@ -17,6 +18,48 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DateOnly Date = new(2026, 9, 8);
     private static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
+
+    [Fact]
+    public async Task FixedGatePair_SharesCollectionButOnlyExperimentalAccountCanBuyFailedDailyCandidate()
+    {
+        var h = new Harness();
+        h.Sessions.AddComparisonPair(h.Ledger);
+        await h.Workflow.TickAsync();
+        for (int index = 1; index <= 6; index++)
+        {
+            h.Clock.Now = Open.AddMinutes(5 * index + 2);
+            await h.Workflow.TickAsync();
+        }
+        var normal = h.Ledger.Other.Single(p => p.ComparisonAccount!.Profile == PaperGateProfile.NormalV1);
+        var experimental = h.Ledger.Other.Single(p => p.ComparisonAccount!.Profile == PaperGateProfile.PortfolioRulesOnlyV1);
+        normal.Fills.ShouldBeEmpty(); normal.Cash.ShouldBe(1000m);
+        h.Ledger.State!.Fills.ShouldBeEmpty();
+        experimental.OpenPositions.Count().ShouldBe(1);
+        experimental.Cash.ShouldBeLessThan(1000m);
+        normal.DailySourceRevisionId.ShouldBe(experimental.DailySourceRevisionId);
+        h.Source.BarRequests.Count.ShouldBe(12);
+        var dossier = DelphiLiveLedgerJson.Deserialize<DelphiLiveDecisionDossier>(experimental.Positions.Single().OriginalEntryDossierJson);
+        dossier.SourceLenses.Single().Eligible.ShouldBeFalse();
+        dossier.SourceLenses.Single().FirstFailure.ShouldBe("Breadth");
+        dossier.ComparisonAdmission!.AccountId.ShouldBe(experimental.PortfolioId);
+        dossier.ComparisonAdmission.Profile.ShouldBe(PaperGateProfile.PortfolioRulesOnlyV1);
+    }
+
+    [Fact]
+    public async Task FutureComparisonBoundary_DoesNotAnnotateEarlierCollectedBarsOrInterruptProtection()
+    {
+        var h = new Harness();
+        h.Sessions.AddComparisonPair(h.Ledger, Open.AddMinutes(10));
+        h.Clock.Now = Open.AddMinutes(7);
+        await h.Workflow.TickAsync();
+        h.Clock.Now = Open.AddMinutes(12);
+        await h.Workflow.TickAsync();
+        h.Ledger.Other.ShouldAllBe(p => p.CandidateStates.Count == 0 && p.Fills.Length == 0);
+        h.Clock.Now = Open.AddMinutes(17);
+        await h.Workflow.TickAsync();
+        h.Ledger.Other.Single(p => p.ComparisonAccount!.Profile == PaperGateProfile.PortfolioRulesOnlyV1)
+            .CandidateStates.ShouldNotBeEmpty();
+    }
 
     [Fact]
     public async Task AssignmentReloadsPolicyAndRechecksHeldRiskBeforeNextScheduledBar()
@@ -336,6 +379,35 @@ public sealed class DelphiLiveMonitorWorkflowTests
         DelphiLiveMonitorWorkflow.IsWithinOwnEntryScope(control with { Positions = [historical with { ClosedUtc = null }] }, "XYZ", Date, false).ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task NewPublicationRestartsConfirmation_PreservesOpeningSnapshot_AndRemainsActiveAfterRestart()
+    {
+        var h = new Harness();
+        await h.Workflow.TickAsync();
+        for (int index = 1; index <= 4; index++)
+        {
+            h.Clock.Now = Open.AddMinutes(5 * index + 2);
+            await h.Workflow.TickAsync();
+        }
+        var frozen = (await h.Sessions.ReadContextAsync(Date))!.Session;
+        h.Clock.Now = Open.AddMinutes(23);
+        h.Sessions.Adopt(h.Clock.Now);
+        var snapshot = await h.Workflow.TickAsync();
+        snapshot.Status.ShouldBe("CurrentOfficialRun");
+        snapshot.Warnings.ShouldContain(w => w.Contains("Daily source"));
+        (await h.Sessions.ReadContextAsync(Date))!.Session.ShouldBe(frozen);
+        h.Clock.Now = Open.AddMinutes(27);
+        await h.Workflow.TickAsync();
+        h.Ledger.State!.Fills.ShouldBeEmpty();
+        var latest = h.Evaluations.All.Last().Input;
+        latest.Stock.OperationalContinuityStartUtc.ShouldBe(Open.AddMinutes(25));
+        latest.DailySetup!.DelphiRunId.ShouldBe(h.Sessions.AdoptedRunId);
+        await h.Workflow.StopAsync();
+        h.Clock.Now = Open.AddMinutes(28);
+        (await h.Workflow.TickAsync()).Status.ShouldBe("CurrentOfficialRun");
+        h.Ledger.State.Fills.ShouldBeEmpty();
+    }
+
     private sealed class Harness
     {
         public readonly TestClock Clock = new() { Now = Open };
@@ -368,6 +440,35 @@ public sealed class DelphiLiveMonitorWorkflowTests
         private readonly DelphiLiveSessionContext frozenContext;
         public int FreezeCount;
         public Action? BeforeFreeze;
+        public Guid AdoptedRunId;
+        public void AddComparisonPair(LedgerStore ledger, DateTime? sourceEffective = null)
+        {
+            Guid batch = Guid.NewGuid(), pair = Guid.NewGuid();
+            var failed = context.Candidates["AAA"] with { SourceLenses = context.Candidates["AAA"].SourceLenses.Select(l => l with { Eligible = false, FirstFailure = "Breadth" }).ToArray() };
+            var source = new PaperComparisonSource(Guid.NewGuid(), batch, context.Session.SessionId, context.Session.CalibrationRunId!.Value,
+                context.Session.DailyStrategyVersionId!.Value, Open.AddMinutes(-2), Open, sourceEffective ?? Open, [failed], context.Baselines);
+            var policies = context.Policies.ToDictionary(x => x.Key, x => x.Value);
+            var assignments = context.Assignments.ToList(); var accounts = new Dictionary<Guid, PaperComparisonAccount>();
+            foreach (var profile in Enum.GetValues<PaperGateProfile>())
+            {
+                var policy = Policy with { PolicyVersionId = Guid.NewGuid() };
+                var account = new PaperComparisonAccount(Guid.NewGuid(), batch, pair, "DelphiLive", profile, Open,
+                    source.DailyStrategyVersionId, policy.PolicyVersionId, null, null);
+                ledger.Other.Add(DelphiLiveLedgerIntegrity.Create(new(Guid.NewGuid(), account.AccountId, policy.PolicyVersionId,
+                    PaperGateComparison.LiveRole, null, 1000, "CAD", Date, Open, Open.AddDays(-1), "test", "Fixed profile fixture") { ComparisonAccount = account }));
+                policies[policy.PolicyVersionId] = policy; accounts[policy.PolicyVersionId] = account;
+                assignments.Add(new(Guid.NewGuid(), policy.PolicyVersionId, DelphiLivePolicyRole.GateComparison, Date));
+            }
+            context = context with { Candidates = new Dictionary<string, DelphiLiveFrozenCandidate>(), Policies = policies,
+                Assignments = assignments, ComparisonAccounts = accounts, ComparisonSources = new Dictionary<Guid, PaperComparisonSource> { [batch] = source } };
+        }
+        public void Adopt(DateTime now)
+        {
+            AdoptedRunId = Guid.NewGuid();
+            var revision = new DelphiLiveDailySourceRevision(Guid.NewGuid(), AdoptedRunId, context.Session.DailyStrategyVersionId!.Value,
+                now.AddSeconds(-1), now, global::Core.Trader.PaperDailySourcePolicy.EffectiveBoundary(now), context.Candidates.Values.ToArray(), context.Baselines);
+            context = context with { SourceRevision = revision, Session = context.Session with { CalibrationRunId = AdoptedRunId, Status = "CurrentOfficialRun" } };
+        }
         public void Reassign(DelphiLivePolicyDefinition policy) => context = context with
         {
             Assignments = [context.Assignments.Single() with { AssignmentId = Guid.NewGuid(), PolicyVersionId = policy.PolicyVersionId }],

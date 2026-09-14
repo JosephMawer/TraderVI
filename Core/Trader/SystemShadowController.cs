@@ -81,16 +81,15 @@ public sealed class SystemShadowController
                 cancellationToken);
 
             var sessions = new Dictionary<Guid, SystemShadowRuntimeSession>();
+            var preparedSources = new HashSet<Guid>();
             var candidatesByPortfolio = new Dictionary<Guid, IReadOnlyList<SystemShadowRuntimeCandidate>>();
             foreach (SystemShadowRuntimePortfolio portfolio in portfolios)
             {
-                IReadOnlyList<SystemShadowDelphiCandidate> frozen = run is null
+                var portfolioRun = await environment.GetRunForPortfolioAsync(portfolio, tradingDate, run, cancellationToken);
+                if (portfolioRun is not null) preparedSources.Add(portfolio.PortfolioId);
+                IReadOnlyList<SystemShadowDelphiCandidate> frozen = portfolioRun is null
                     ? Array.Empty<SystemShadowDelphiCandidate>()
-                    : await environment.GetCandidatesAsync(
-                        run.RunId,
-                        portfolio.Lens,
-                        portfolio.MaximumPositions,
-                        cancellationToken);
+                    : await environment.GetCandidatesForPortfolioAsync(portfolio, portfolioRun, cancellationToken);
                 DateTime openingUtc = cutoffUtc;
                 DateTime activationBaseline = portfolio.ActivatedUtc > openingUtc &&
                                                   PaperTradingMonitor.ToToronto(portfolio.ActivatedUtc).Date == tradingDate
@@ -99,7 +98,7 @@ public sealed class SystemShadowController
                 SystemShadowRuntimeSession session = await repository.EnsureSessionAsync(
                     portfolio,
                     tradingDate,
-                    run,
+                    portfolioRun,
                     frozen,
                     activationBaseline,
                     cancellationToken);
@@ -336,6 +335,8 @@ public sealed class SystemShadowController
                     cancellationToken);
 
                 bool currentDailySource = await environment.IsCurrentDailyRunAsync(session.CalibrationRunId);
+                if (portfolio.ComparisonAccount is not null)
+                    currentDailySource = currentDailySource && preparedSources.Contains(portfolio.PortfolioId) && session.CalibrationRunId == run?.RunId;
                 if (!currentDailySource && session.CalibrationRunId.HasValue)
                     warnings.Add($"{portfolio.PortfolioId}: today's frozen picks use an earlier daily strategy. New buys wait for a fresh session using the assigned daily version.");
                 bool buyingAllowed = !entriesPaused && currentDailySource && portfolio.Status == "Active" &&
@@ -557,7 +558,8 @@ public sealed class SystemShadowController
         OhlcvBar prior = completed[^2];
         OhlcvBar latest = completed[^1];
         DateTime latestEndUtc = latest.TimestampUtc.AddMinutes(5);
-        if (session.ActivationBaselineUtc.HasValue && latestEndUtc <= session.ActivationBaselineUtc.Value)
+        if (session.ActivationBaselineUtc.HasValue && !PaperDailySourcePolicy.HasFreshPair(
+                prior.TimestampUtc.AddMinutes(5), latestEndUtc, session.ActivationBaselineUtc.Value))
             return new(false, SystemShadowEntryReason.MissingEvidence);
         TimeSpan age = batch.ReceivedUtc - latestEndUtc;
         return SystemShadowPolicy.EvaluateEntry(new(

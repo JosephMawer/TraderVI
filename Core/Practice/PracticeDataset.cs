@@ -57,6 +57,9 @@ public sealed class PracticeDataset
         if (!Calendar.IsRegularSession(document.FirstSession) || !Calendar.IsRegularSession(document.LastSession) || Sessions.Count == 0)
             throw new InvalidDataException("The run boundaries must be covered regular sessions.");
         Calendar.GetImmediatelyPrecedingSession(document.FirstSession);
+        if (document.Daily.ExploratoryCurrentUniverse is { } current &&
+            (current.AsOf == default || current.AsOf.Kind != DateTimeKind.Utc))
+            throw new InvalidDataException("An exploratory current universe requires its actual UTC capture time.");
         SystemShadowPolicy.ValidateConfig(document.ShadowPolicy);
         if (document.PortfolioPolicies.Select(x => x.PortfolioCode).Distinct().Count() != document.PortfolioPolicies.Count ||
             document.PortfolioPolicies.Any(x => x.VersionId == Guid.Empty || !SystemShadowPortfolioDefinition.Version1.Any(p => p.Code == x.PortfolioCode)))

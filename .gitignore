@@ -52,6 +52,8 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+# Private session reports may be read inside the Obsidian vault, but never committed.
+Docs/reports/local/
 **/Properties/launchSettings.json
 
 # StyleCop
@@ -331,3 +333,6 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Browser captures can contain broker credentials and private account data.
+*.har

@@ -208,9 +208,11 @@ public static class DelphiLiveEvaluationEngine
                 .Concat(result.Safety.FiredExitRules.Select(rule => rule.ToString())).Distinct().ToArray(),
             requestedAction, actionState)
         {
-            OriginalEntryThesis = originalEntryThesis
+            OriginalEntryThesis = originalEntryThesis,
+            ComparisonAdmission = input.DailySetup?.ComparisonAdmission
         };
-        return DelphiLiveDecisionDossierBuilder.Validate(dossier, input.Policy);
+        return DelphiLiveDecisionDossierBuilder.Validate(
+            DelphiLiveDecisionDossierBuilder.AnnotateEngineeringAdmission(dossier), input.Policy);
     }
 
     private static ImmutableDictionary<string, decimal?> RawValues(

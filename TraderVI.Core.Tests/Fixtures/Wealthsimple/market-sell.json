@@ -1,0 +1,57 @@
+{
+  "request": {
+    "operationName": "SoOrdersOrderCreate",
+    "query": "mutation SoOrdersOrderCreate($input: SoOrders_CreateOrderInput!) {\n  soOrdersCreateOrder(input: $input) {\n    errors {\n      code\n      message\n      __typename\n    }\n    order {\n      orderId\n      createdAt\n      __typename\n    }\n    __typename\n  }\n}",
+    "variables": {
+      "input": {
+        "canonicalAccountId": "owned-tfsa",
+        "externalId": "order-11111111-2222-3333-4444-555555555555",
+        "executionType": "MARKET",
+        "orderType": "SELL_QUANTITY",
+        "quantity": 20,
+        "securityId": "cad-security",
+        "timeInForce": "DAY"
+      }
+    }
+  },
+  "acknowledgement": {
+    "data": {
+      "soOrdersCreateOrder": {
+        "__typename": "SoOrders_CreateOrderTransformedResponse",
+        "order": {
+          "createdAt": "2026-09-10T16:00:00Z",
+          "__typename": "SoOrders_OrderTransformedResponse",
+          "orderId": "broker-ack-fixture"
+        },
+        "errors": null
+      }
+    }
+  },
+  "detail": {
+    "data": {
+      "orderServiceExtendedOrderByExternalId": {
+        "id": "order-11111111-2222-3333-4444-555555555555",
+        "canonicalAccountId": "owned-tfsa",
+        "identityId": "identity-fixture",
+        "securityId": "cad-security",
+        "side": "SELL",
+        "orderType": "SELL_QUANTITY",
+        "executionType": "MARKET",
+        "timeInForce": "DAY",
+        "securityCurrency": "CAD",
+        "tradingSession": "REGULAR",
+        "status": "FILLED",
+        "submittedQuantity": "20",
+        "fillQuantity": "20",
+        "averageFillPrice": "10.25",
+        "filledValue": "205",
+        "filledNetValue": "205",
+        "filledTotalFee": "0",
+        "filledTaxWithholding": "0",
+        "createdAtUtc": "2026-09-10T16:00:00Z",
+        "lastFilledAtUtc": "2026-09-10T16:00:00Z",
+        "expiredAtUtc": "2026-09-10T16:00:00Z"
+      }
+    }
+  }
+}

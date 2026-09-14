@@ -10,6 +10,7 @@ architecture documentation.
 
 ## Conventions
 
+- **Reader experience:** start substantive decisions with a concise executive summary and practical consequence; follow the [briefing style](../briefing-style.md) and [template](../templates/executive-brief.md). Keep detailed rationale and stable section links available below.
 - **Filename:** `NNNN-kebab-title.md` (numeric prefix, zero-padded to 4).
 - **Status flow:** `Proposed` → `Accepted` → optionally `Superseded by ADR-XXXX`.
 - **Domains:** every ADR lists 1–4 domain tags (see taxonomy below). Tags
@@ -39,6 +40,15 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0069](0069-direct-wealthsimple-authentication.md) | Direct Wealthsimple authentication | Accepted; isolated browser-session handoff verified | architecture |
+| [0070](0070-wealthsimple-desktop-sign-in.md) | Wealthsimple desktop sign-in and session status | Implemented; embedded login and live refresh validation pending | architecture |
+| [0071](0071-native-wealthsimple-login.md) | Native Wealthsimple sign-in | Implemented; operator login confirmed | architecture |
+| [0075](0075-manual-market-buy-ticket.md) | Shared manual market-buy ticket and recoverable orders | Implemented; offline validation; native live order unverified | architecture, user-interface, risk-management |
+| [0074](0074-wealthsimple-market-buy-protocol.md) | Wealthsimple market-buy protocol and attempt recovery | Client implemented; WPF manual integration in ADR-0075 | architecture, risk-management, market-microstructure |
+| [0073](0073-permanent-tfsa-and-whole-share-execution.md) | Permanent TFSA and whole-share execution | Transition preview implemented; activation unfinished | architecture, risk-management, market-microstructure |
+| [0072](0072-wealthsimple-tfsa-account-display.md) | Read-only Wealthsimple TFSA landing page | Implemented; live account reads verified | architecture |
+| [0068](0068-main-account-trading-overview.md) | Main-account Trading overview | Accepted; workspace implemented; navigation follow-up verified offline | user-interface |
+| [0067](0067-fixed-gate-paper-comparison-pairs.md) | Fixed-gate paper comparison pairs | Accepted; implementation pending | architecture, decision-engine, risk-management, user-interface |
 | [0063](0063-historical-practice-environment-direction.md) | Historical practice environment direction | Accepted; first milestone implemented in source | architecture, data-pipeline, user-interface, machine-learning |
 | [0061](0061-portfolio-comparison-workspace.md) | Portfolio comparison workspace | Accepted navigation; descriptive display implemented | user-interface, architecture |
 | [0001](0001-granville-plugin-architecture.md) | Granville indicator plug-in architecture | Accepted | architecture, technical-indicators |
@@ -136,3 +146,5 @@ would tell us this decision was wrong?
 2. ...
 3. ...
 ```
+
+- [ADR-0066: Operational paper daily-source adoption](0066-operational-paper-daily-source-adoption.md) — newer valid same-session publications replace the operational source with preserved history and fresh confirmation.

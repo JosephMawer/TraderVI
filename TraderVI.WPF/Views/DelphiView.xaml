@@ -116,7 +116,7 @@
         </Style>
     </UserControl.Resources>
 
-    <DockPanel><views:SystemControlBar DockPanel.Dock="Top" SystemKey="Daily" Margin="22,8,22,0"/>
+    <DockPanel><Expander DockPanel.Dock="Bottom" Header="Daily engine controls" Margin="22,8"><views:SystemControlBar SystemKey="Daily" Margin="12"/></Expander>
     <Grid Margin="22,18,22,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -125,12 +125,15 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="The Oracle of Delphi" FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="Delphi · daily selection" FontSize="27" FontWeight="SemiBold"/>
+                <TextBlock Text="Published rankings, model evidence and daily gate reasons. Each portfolio applies its own admission profile and entry rules." Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,0"/>
+                <TextBlock Text="{Binding MarketDataDate, StringFormat={}Daily market data through {0}}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,0"/>
                 <WrapPanel Margin="0,5,0,0">
                     <TextBlock Text="Daily thesis · saved session for " Foreground="{StaticResource DelphiMuted}"/>
                     <TextBlock Text="{Binding RecommendationDate, Mode=OneWay}" FontWeight="SemiBold"/>
@@ -140,9 +143,9 @@
                     <TextBlock Text="{Binding SnapshotSource, Mode=OneWay}" Foreground="{StaticResource DelphiAccent}" FontWeight="SemiBold"/>
                 </WrapPanel>
             </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" VerticalAlignment="Center">
                 <Border Background="#2B2340" CornerRadius="12" Padding="12,7" Margin="0,0,12,0">
-                    <TextBlock Text="SAVED VIEW · PAPER ENTRY AND RUN REQUIRE CONFIRMATION"
+                    <TextBlock Text="SAVED DAILY PUBLICATION"
                                Foreground="#CEB5FF" FontWeight="SemiBold"/>
                 </Border>
                 <Button x:Name="RefreshButton" Content="Refresh saved" Click="RefreshButton_Click"
@@ -151,7 +154,8 @@
                 <Button x:Name="RunDelphiButton" Content="Run official Delphi" Click="RunDelphiButton_Click"
                         Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"
                         Padding="17,9" FontWeight="SemiBold" Cursor="Hand"/>
-            </StackPanel>
+                <Button Content="Paper portfolios" Click="Portfolios_Click" Style="{StaticResource WorkspaceButton}" Margin="8,0,0,0"/>
+            </WrapPanel>
         </Grid>
 
         <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0"
@@ -262,10 +266,10 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                             <StackPanel Margin="0,0,0,9">
                                 <TextBlock Text="Continuation lens" FontSize="18" FontWeight="SemiBold"/>
-                                <TextBlock Text="Primary daily thesis used for operational recommendations" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                                    <TextBlock Text="Continuation rankings · admission depends on the portfolio's gate profile" Foreground="{StaticResource DelphiMuted}" FontSize="12" TextWrapping="Wrap"/>
                             </StackPanel>
                             <DataGrid x:Name="ContinuationGrid" Grid.Row="1" ItemsSource="{Binding ContinuationPicks}" AlternationCount="2"
-                                      SelectionChanged="PickGrid_SelectionChanged">
+                                      SelectionChanged="PickGrid_SelectionChanged" FrozenColumnCount="2">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
                                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
@@ -286,10 +290,10 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                             <StackPanel Margin="0,0,0,9">
                                 <TextBlock Text="Breakout lens" FontSize="18" FontWeight="SemiBold"/>
-                                <TextBlock Text="Comparison journal · measured but not automatically executed" Foreground="{StaticResource DelphiMuted}" FontSize="12"/>
+                                    <TextBlock Text="Breakout rankings · used by independent paper strategies" Foreground="{StaticResource DelphiMuted}" FontSize="12" TextWrapping="Wrap"/>
                             </StackPanel>
                             <DataGrid x:Name="BreakoutGrid" Grid.Row="1" ItemsSource="{Binding BreakoutPicks}" AlternationCount="2"
-                                      SelectionChanged="PickGrid_SelectionChanged">
+                                      SelectionChanged="PickGrid_SelectionChanged" FrozenColumnCount="2">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="35"/>
                                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="68"/>
@@ -305,31 +309,30 @@
                         </Grid>
                     </Border>
                     <Border Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource DelphiCard}" Margin="0,14,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="78"/>
-                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="95"/><ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="90"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="95"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Track selected Delphi row" FontWeight="SemiBold" FontSize="15"/>
-                                <TextBlock Text="{Binding PaperEntryStatus}" Foreground="{StaticResource DelphiMuted}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" Text="Shares" VerticalAlignment="Center" Margin="18,0,7,0"/>
-                            <TextBox Grid.Column="2" Text="{Binding PaperShares, UpdateSourceTrigger=PropertyChanged}" Padding="8,6"/>
-                            <TextBlock Grid.Column="3" Text="Fill price" VerticalAlignment="Center" Margin="18,0,7,0"/>
-                            <TextBox Grid.Column="4" Text="{Binding PaperFillPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6"/>
-                            <TextBlock Grid.Column="5" Text="Mode" VerticalAlignment="Center" Margin="18,0,7,0"/>
-                            <ComboBox Grid.Column="6" ItemsSource="{Binding ExecutionModeOptions}"
-                                      SelectedItem="{Binding SelectedExecutionMode}" Padding="7,5"/>
-                            <TextBlock Grid.Column="7" Text="Account" VerticalAlignment="Center" Margin="18,0,7,0"/>
-                            <TextBox Grid.Column="8" Text="{Binding RealAccountLabel, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="Required for Real positions; ignored for Ghost" Padding="8,6"/>
-                            <Button x:Name="AddToPaperButton" Grid.Column="9" Content="Track position"
-                                    Click="AddToPaperButton_Click" Margin="18,0,0,0" Padding="16,8"
-                                    Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"/>
-                        </Grid>
+                        <StackPanel>
+                            <DockPanel LastChildFill="True">
+                                <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center">
+                                    <views:MarketBuyButton Origin="{Binding SelectedPaperPick.BuyOrigin}" Content="Manual buy…" Margin="12,0,8,0" Padding="16,8" Background="{StaticResource DelphiAccent}" Foreground="#120B20"/>
+                                    <Button Content="Manual orders…" Command="{x:Static views:ManualBuyCommands.Orders}" Padding="12,8"/>
+                                </WrapPanel>
+                                <StackPanel VerticalAlignment="Center"><TextBlock Text="Manual buy · self-directed TFSA" FontWeight="SemiBold" FontSize="15"/>
+                                    <TextBlock Text="{Binding PaperEntryStatus}" Foreground="{StaticResource DelphiMuted}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button Content="Record an existing fill…" Click="ExistingFill_Click" Padding="0,4,12,4" Background="Transparent" Foreground="{StaticResource DelphiMuted}" BorderThickness="0"/>
+                                <Button Content="Create Ghost position…" Click="GhostFill_Click" Padding="8,4" Background="Transparent" Foreground="{StaticResource DelphiMuted}" BorderThickness="0"/>
+                            </WrapPanel>
+                            <Expander x:Name="RecordedFillSection" Header="Existing-fill / Ghost entry · sends no broker order" IsExpanded="False" Visibility="Collapsed" Collapsed="RecordedFill_Collapsed" Margin="0,4,0,0" Foreground="{StaticResource DelphiMuted}">
+                                <WrapPanel Margin="0,8,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Shares" VerticalAlignment="Center" Margin="0,0,7,0"/><TextBox Text="{Binding PaperShares, UpdateSourceTrigger=PropertyChanged}" Width="78" Padding="8,6"/>
+                                    <TextBlock Text="Actual fill price" VerticalAlignment="Center" Margin="18,0,7,0"/><TextBox Text="{Binding PaperFillPrice, UpdateSourceTrigger=PropertyChanged}" Width="95" Padding="8,6"/>
+                                    <TextBlock Text="Mode" VerticalAlignment="Center" Margin="18,0,7,0"/><ComboBox ItemsSource="{Binding ExecutionModeOptions}" SelectedItem="{Binding SelectedExecutionMode}" Width="90" Padding="7,5"/>
+                                    <TextBlock Text="Account" VerticalAlignment="Center" Margin="18,0,7,0"/><TextBox Text="{Binding RealAccountLabel, UpdateSourceTrigger=PropertyChanged}" Width="95" ToolTip="Required for Real positions; ignored for Ghost" Padding="8,6"/>
+                                    <Button x:Name="AddToPaperButton" Content="Record position" Click="AddToPaperButton_Click" Margin="18,0,0,0" Padding="16,8" Background="{StaticResource DelphiAccent}" Foreground="#120B20" BorderThickness="0"/>
+                                </WrapPanel>
+                            </Expander>
+                        </StackPanel>
                     </Border>
                 </Grid>
             </TabItem>

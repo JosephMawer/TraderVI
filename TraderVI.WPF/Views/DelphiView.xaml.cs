@@ -11,6 +11,7 @@ namespace TraderVI.WPF.Views;
 
 public partial class DelphiView : UserControl
 {
+    private void Portfolios_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenPortfolios();
     private readonly DelphiViewModel viewModel = new();
     private bool loadedOnce;
 
@@ -65,8 +66,14 @@ public partial class DelphiView : UserControl
 
     private void PickGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is not DataGrid grid || grid.SelectedItem is not DelphiPickRow pick)
+        if (sender is not DataGrid grid)
             return;
+        if (grid.SelectedItem is not DelphiPickRow pick)
+        {
+            if (ContinuationGrid.SelectedItem == null && BreakoutGrid.SelectedItem == null)
+                viewModel.SelectPaperPick(null);
+            return;
+        }
         if (ReferenceEquals(grid, ContinuationGrid))
             BreakoutGrid.SelectedItem = null;
         else
@@ -151,4 +158,10 @@ public partial class DelphiView : UserControl
             RunDelphiButton.IsEnabled = true;
         }
     }
+
+    private void ExistingFill_Click(object sender, RoutedEventArgs e)
+    { viewModel.SelectedExecutionMode = TrackedExecutionMode.Real.ToStorageValue(); RecordedFillSection.Visibility = Visibility.Visible; RecordedFillSection.IsExpanded = true; }
+    private void GhostFill_Click(object sender, RoutedEventArgs e)
+    { viewModel.SelectedExecutionMode = TrackedExecutionMode.Ghost.ToStorageValue(); RecordedFillSection.Visibility = Visibility.Visible; RecordedFillSection.IsExpanded = true; }
+    private void RecordedFill_Collapsed(object sender, RoutedEventArgs e) => RecordedFillSection.Visibility = Visibility.Collapsed;
 }

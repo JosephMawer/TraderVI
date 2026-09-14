@@ -7,11 +7,41 @@ snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.m
 
 ## Complete-strategy recommendations
 
+Manual brokerage execution is now a separate WPF path under
+[ADR-0075](adr/0075-manual-market-buy-ticket.md). Reusable selection actions carry immutable context to one
+ticket/coordinator. The operator supplies the whole-share quantity; Core rechecks broker facts and
+existing pause/financial holds, saves a protected reviewed intent, then calls the one-attempt market-buy
+client. Recovery reads cumulative fills by the original request ID. This does not activate a portfolio,
+assign automatic exits or copy fills into the tracked-position SQL ledger. Native live order acceptance
+and complete-account reconciliation remain unverified/unfinished.
+
+[ADR-0076](adr/0076-wealthsimple-market-sell-protocol.md) extends the broker client with whole-share
+market sells. Buy and sell now share transport, scoped cumulative-fill parsing and compatible durable
+attempt markers, while checking `buyable` or `sellable` respectively. The buy API and protected manual
+order format remain intact. [ADR-0077](adr/0077-manual-holdings-market-sell.md) connects an explicit
+whole-holding sell action to fresh quote/holdings/order checks and protected durable sell records.
+Both manual workflows share their submission lock and block on unresolved buys or sells. Terminal
+sells require matching remaining holdings before releasing the local reservation. The limit ticket
+is a non-submitting preview; full account/SQL reconciliation and automatic exits remain separate.
+
 [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) implements Portfolios review and
 account-specific Trading assignment. Pure family evaluation consumes an immutable complete strategy and
 reported Real state; SQL handles fenced, append-only review/publication history. It shares calculations
 and source evidence with paper engines, not their accounts or fills. Manual performance approval is the
 operator's decision. Broker automation and enforced common evidence gates remain future work.
+
+## Fixed-gate paper comparisons
+
+[ADR-0067](adr/0067-fixed-gate-paper-comparison-pairs.md) adds five prospective account pairs without
+changing daily scoring or official outcomes. `PaperComparisonBatch` and `PaperComparisonAccount` pin
+the independent capital, profile and portfolio-rule identities. `PaperComparisonSourceRevision` stores
+one hashed publication/baseline snapshot for a whole batch. The leased Live source coordinator adopts
+that source and all eight Shadow candidate sets in one transaction; Live overlays candidate admission
+for each of its two comparison policies while sharing collection. Account cash, orders, lifecycle state
+and protection stay in their original engines' separate ledgers. A new publication resets pending entry
+qualification prospectively. Comparison activity is excluded from original clean research promotion
+cohorts. WPF presents fixed pair identities and aligned observed closing periods; these accounts cannot
+be assigned through Shared Settings or promoted through the recommendation review.
 
 ## Philosophy
 
@@ -399,3 +429,7 @@ architecture; do not duplicate volatile priority lists here.
 | **TraderVI.WPF** | Interactive tabbed shell; thirty-second Trading refresh, explicit Ghost/Real rows, read-only official Scorecards/Data Audit, six-view saved Delphi workspace, and native Project Docs reader | operational positions/trades, official calibration evidence, shared monitor/audit/Delphi workflows, saved presentation evidence, repository Markdown | Ghost auto-exits and confirmed manual Real reconciliation write SQL; Scorecards, Data Audit, saved-Delphi refresh, and Project Docs do not; a confirmed official Delphi run has Delphi's documented SQL effects; no broker integration |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
 | **Sentinel** | Future always-on/live-risk boundary | durable paper evidence and future explicitly authorized broker state | not implemented; ADR-0031 authorizes ghost exits only |
+
+## Operational daily-source revisions
+
+[ADR-0066](adr/0066-operational-paper-daily-source-adoption.md) separates original opening freezes from current operational revisions. Shadow retains candidate/order identity per source revision. Live overlays an immutable checksum-protected candidate/baseline snapshot. Both serialize adoption and retain protective state. Research reads the original context and excludes source-changed cohorts. Manual migration 032 defines the additive storage; DACPAC remains a reference artifact.

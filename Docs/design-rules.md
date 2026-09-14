@@ -11,7 +11,47 @@ statistical promotion gates to this mode. Preserve existing internal Live resear
 Athena evidence, operational pause/empty requirements and financial risk checks. Enforced common evidence
 eligibility is deferred to Wealthsimple live trading/automation. A recommendation never creates a fill.
 
+## Planned real TFSA execution
+
+[ADR-0075](adr/0075-manual-market-buy-ticket.md) now enables a separate operator-reviewed manual
+market-buy ticket in WPF. Manual quantity comes from the operator, not a portfolio. Preserve saved
+source/direction without rewriting gates or assigning strategy attribution. Fresh broker checks,
+applicable real-account holds, durable intent/recovery and explicit final submission remain mandatory.
+This manual path does not enable strategy activation, automatic selling or change the strategy's
+preferred limit-order policy.
+
+[ADR-0077](adr/0077-manual-holdings-market-sell.md) adds a separately authorized manual sell-all action
+on the broker holdings row. It pins the entire displayed whole-share quantity, verifies fresh matching
+holdings/session/orders, and saves protected intent before one transmission. This explicit sell-only
+choice does not remove buy review or authorize portfolio exits. Buying pauses/cash limits do not
+block manual exits. Uncertain sell outcomes and unconfirmed holdings reconciliation block new manual
+orders on either side. Limit placement remains disabled pending a verified broker contract.
+
+[ADR-0073](adr/0073-permanent-tfsa-and-whole-share-execution.md) records the accepted design for the
+future broker workflow: the permanent self-directed TFSA uses one reviewed primary strategy while
+paper accounts continue independently. TraderVI-originated orders must use positive whole-share
+quantities. Multiples of ten are a soft purchase preference; rounding must not increase risk or prevent
+closing another whole-share quantity. Preserve exact broker observations, including fractional
+exceptions, during reconciliation. The accepted promotion design retains overlapping holdings and
+transfers their management without selling solely to rebuy. Preserve actual cost basis and history;
+strategy handover is not a new fill. This section records design intent; it does not enable orders,
+change historical paper sizing, or supersede current runtime pause/empty checks. The future retained-
+holdings activation condition and transition details remain in the linked draft.
+
 ## Rule-Based vs ML-Based Components
+
+### Fixed-gate paper comparisons
+
+[ADR-0067](adr/0067-fixed-gate-paper-comparison-pairs.md) defines five fresh Normal/Portfolio rules only
+pairs, each account with CAD 1,000 and a lifetime-fixed admission profile. The experimental profile
+bypasses daily entry gates only within the existing published ranks. Preserve ranking, universe/input
+validity, portfolio entry/sizing/exit/risk rules, causal fills and original official/Athena evidence.
+New gate experiments need fresh pairs; no global or account edit may silently switch an existing
+comparison's gate profile. Existing accounts and research promotion roles remain separate. Migration
+033 and `PaperComparisonRepository` implement immutable batch/account/source records. Five pairs were
+activated September 9. Shared Settings cannot reassign their pinned portfolio rules; a daily strategy
+change pauses incompatible new entries until a separately reviewed pair is available. A session sharing
+comparison collection is excluded from the original Live clean promotion cohorts.
 
 ### Strategy identity and adoption direction
 
@@ -293,3 +333,7 @@ Pattern detectors (`Trend10`, `Trend30`, `MaCrossover`, and any detector listed 
 - Add pattern task types to `ProfitModelRegistry`.
 - Re-introduce a trainer for any `IPatternDetector`.
 - Write pattern `.zip` files to disk or `[ModelRegistry]` rows to the DB.
+
+## Operational paper daily-source refresh
+
+[ADR-0066](adr/0066-operational-paper-daily-source-adoption.md) supersedes the permanent 09:30 source block for operational System Shadow and Delphi Live. Adopt newer valid current-strategy publications prospectively, retain original freezes and fills, cancel old pending buys, and restart fresh confirmation. Keep historical replay cutoffs and clean-research exclusions. This does not bypass gates or assign strategies.

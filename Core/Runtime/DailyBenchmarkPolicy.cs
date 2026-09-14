@@ -66,6 +66,23 @@ public static class DailyBenchmarkPolicy
         return snapshot;
     }
 
+    public static IReadOnlyList<Core.Indicators.Granville.UsIndexBar> PrepareUsIndexHistory(
+        IReadOnlyList<Core.Indicators.Granville.UsIndexBar> history, DateTime marketDataAsOf) =>
+        history.Where(bar => bar.Date.Date <= marketDataAsOf.Date).OrderBy(bar => bar.Date).ToArray();
+
+    public static (DateTime From, DateTime Through) UsIndexRefreshRange(
+        DateTime localRunDate, DateTime? latestStoredDate, int backfillYears)
+    {
+        // Daily recovery can run while the market is open. Never persist today's preview.
+        DateTime through = localRunDate.Date.AddDays(-1);
+        // Refresh the last stored day as well, so a preview written by an older collector
+        // is replaced by its completed observation once that day is eligible.
+        DateTime from = latestStoredDate.HasValue
+            ? (latestStoredDate.Value.Date > through ? through : latestStoredDate.Value.Date)
+            : through.AddYears(-backfillYears);
+        return (from, through);
+    }
+
     public static bool IsValidBar(DailyBar bar) =>
         float.IsFinite(bar.Open) && float.IsFinite(bar.High) && float.IsFinite(bar.Low) && float.IsFinite(bar.Close) &&
         bar.Open > 0 && bar.High > 0 && bar.Low > 0 && bar.Close > 0 && bar.Volume >= 0 &&

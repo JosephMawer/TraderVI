@@ -42,7 +42,7 @@ public sealed class EngineSettingsRepository : SQLBase
                 CAST(NULL AS uniqueidentifier) VersionId,CAST(NULL AS uniqueidentifier) AssignmentId,
                 CONCAT(N'Version 1 · ',p.Lens,N' · ',p.MaximumPositions,N' slots') ActiveName
                 FROM dbo.ShadowPortfolio p JOIN dbo.ShadowPortfolioGeneration g ON g.GenerationId=p.GenerationId
-                WHERE g.Status<>N'Stopped' AND p.Status<>N'Stopped'
+                WHERE g.Status<>N'Stopped' AND p.Status<>N'Stopped' AND g.IsGateComparison=0
                 """));
         if (await c.ExecuteScalarAsync<int>("SELECT CASE WHEN OBJECT_ID(N'dbo.DelphiLivePortfolioLedger',N'U') IS NULL THEN 0 ELSE 1 END") == 1)
         {
@@ -52,6 +52,7 @@ public sealed class EngineSettingsRepository : SQLBase
                 """))
             {
                 var state = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>((string)row.SnapshotJson);
+                if (state.ComparisonAccount is not null) continue;
                 targets.Add(new(state.PortfolioId, EngineStrategySettings.Live, $"Delphi Live · {state.Role} · {state.PortfolioId.ToString("N")[..8]}",
                     $"{state.OpenPositions.Count()} holdings", state.PolicyVersionId, null, $"Policy {state.PolicyVersionId.ToString("N")[..8]}"));
                 if (versions.All(v => v.VersionId != state.PolicyVersionId))
@@ -114,6 +115,9 @@ public sealed class EngineSettingsRepository : SQLBase
             IF @r<0 THROW 51313,'An evaluation is still running. Retry the assignment after it completes.',1;
             """, transaction: t, commandTimeout: 40);
         await TradingControlRepository.RequireEditableAsync(c, t, target.Family);
+        if (await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
+            "SELECT COUNT(*) FROM dbo.PaperComparisonAccount WHERE AccountId=@Id;", new { Id = target.TargetId }, t) > 0)
+            throw new InvalidOperationException("Comparison profiles and their paired rules are fixed. Create a fresh pair for a new experiment.");
         var saved = await c.QuerySingleOrDefaultAsync<EngineStrategyVersion>("SELECT VersionId,Family,Name,SettingsJson,SettingsHash,CreatedUtc FROM dbo.EngineStrategyVersion WHERE VersionId=@Id", new { Id = version.VersionId }, t);
         if (saved is null || saved.Family != version.Family || saved.SettingsHash != version.SettingsHash || saved.SettingsJson != version.SettingsJson)
             throw new InvalidOperationException("Save this version before assigning it, then reload the catalog.");
@@ -245,6 +249,12 @@ public sealed class EngineSettingsRepository : SQLBase
 
     internal static async Task<bool> IsLivePolicyAssignedAsync(SqlConnection c, Guid session, Guid policy)
     {
+        if (await PaperComparisonRepository.InstalledAsync(c) && await c.ExecuteScalarAsync<int>("""
+            SELECT COUNT(*) FROM dbo.PaperComparisonAccount a JOIN dbo.PaperComparisonBatch b ON b.BatchId=a.BatchId
+            JOIN dbo.DelphiLiveSession s ON s.SessionId=@Session AND s.TradingDate>=b.TradingDate
+            JOIN dbo.DelphiLivePortfolioLedger l ON l.PortfolioId=a.LivePortfolioId AND l.DelphiLivePolicyVersionId=a.LivePolicyVersionId
+            WHERE a.LivePolicyVersionId=@Policy
+            """, new { Session = session, Policy = policy }) == 1) return true;
         if (!await Installed(c)) return false;
         return await c.ExecuteScalarAsync<int>("""
             SELECT COUNT(*) FROM dbo.DelphiLivePortfolioLedger l

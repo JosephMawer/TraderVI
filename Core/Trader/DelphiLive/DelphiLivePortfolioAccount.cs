@@ -24,7 +24,7 @@ public sealed record DelphiLivePortfolioAccount(DelphiLivePortfolioSnapshot Snap
         return Snapshot.CurrentSession is null ? "Awaiting first session" : "Enabled";
     }
 
-    public string DisplayName => $"Delphi Live — {Snapshot.Role switch
+    public string DisplayName => Snapshot.ComparisonAccount?.DisplayName ?? $"Delphi Live — {Snapshot.Role switch
     {
         "OperationalChampion" => "Main paper account",
         "ActiveShadowChallenger" => "Challenger",

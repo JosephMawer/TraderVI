@@ -102,6 +102,8 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
         return await connection.QuerySingleAsync<bool>(new CommandDefinition("""
 SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLiveSession',N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.DelphiLiveDailySourceRevision',N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.PaperComparisonSourceRevision',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.IntradayCollectionReceipt',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLivePortfolioLedger',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLiveEvaluation',N'U') IS NOT NULL
@@ -137,6 +139,8 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         string status = portfolios.Count == 0 ? queued > 0 ? "Activation queued for next session" : "Inactive" :
             session is null ? "Awaiting regular session" : $"{session.SessionState} · coverage {session.CoverageState}";
         if (session?.HostGapObserved == true) warnings.Add("This session contains a host coverage gap and cannot count as a clean cohort.");
+        if (sessions is not null && (await sessions.ReadOperationalContextAsync(date, cancellationToken))?.SourceRevision is { } adopted)
+            warnings.Add($"Daily source {adopted.RunId:D} published {adopted.PublishedUtc:u}; adopted {adopted.AdoptedUtc:u}. Fresh confirmation begins {adopted.EffectiveUtc:u}; session excluded from opening-source research.");
         return await WithExperimentAsync(new(status, date, sessionId,
             latest.Count == 0 ? null : latest.Max(e => e.Input.BarEndUtc), latest, portfolios, warnings), cancellationToken);
     }

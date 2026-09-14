@@ -1,9 +1,577 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-08
+**Snapshot date:** 2026-09-13
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
+**Manual holdings sells in WPF (2026-09-13):** the operator explicitly chose one-click sale of the
+entire holding. The main Wealthsimple holdings grid now has **Market sell all** and **Limit sell…**
+beside each row's share count. Market sell pins the displayed account/security/quantity, rechecks
+regular-session quote, exact holdings and pending orders, durably records intent, then submits once.
+Changed or fractional quantities stop the action; closed-market clicks never queue an order.
+
+Buy and sell share one local submission lock and protected journal lease. Unresolved orders block
+both sides; a terminal sell retains its reservation until fresh holdings confirm the expected remaining
+shares. **Manual sells…** supports restart/status recovery and actual proceeds. No automatic SQL
+position closure occurs. The limit dialog is explicitly a preview: placement remains disabled because
+the supplied HAR contains only market orders. See [ADR-0077](adr/0077-manual-holdings-market-sell.md).
+
+Validation: **293 focused tests passed**; the isolated WPF build and **16 synthetic renders** passed,
+including command routing, stale/fractional row checks, normal/narrow dialogs, clean bindings and
+Windows-encrypted sell recovery. Existing compiler warnings remain. Separately, cached dependency
+advisories include critical `System.Drawing.Common 5.0.0` and existing moderate/high advisories.
+No fresh dependency audit, full solution/SSDT build, live broker request, SQL operation, operational-host
+launch/restart or commit ran. The running app needs a rebuild/restart to use the controls; native sell
+acceptance remains unverified. Evidence: `artifacts/manual-market-sell-ui-20260913/`.
+
+**Wealthsimple market-sell client (2026-09-11):** the operator supplied a HAR of buying and selling
+one FEC share. Core now implements `WealthsimpleMarketSell`, `SubmitMarketSellAsync` and
+`ReadMarketSellOrderAsync` with the captured `SELL_QUANTITY` / `MARKET` / `DAY` contract. Sell preflight
+checks current sellability independently of buyability. Shared buy/sell transport and cumulative-fill
+parsing retain the existing buy API and protected manual-buy record format. Compatible local attempt
+markers prevent retransmission even if side or quantity changes under the same request ID.
+
+The new capture also confirms the existing market-buy request contract. Synthetic request/response
+fixtures preserve protocol fields while replacing identifiers, timestamps and financial values; privacy
+checks found no captured order/account/security identifiers or authentication headers in those fixtures.
+The original Downloads HAR is unchanged. See [ADR-0076](adr/0076-wealthsimple-market-sell-protocol.md).
+
+Validation: **235 focused tests passed**, including 53 new buy/sell protocol and safety cases, and an
+isolated WPF build succeeded. Existing nullable-context/unused-variable compiler warnings remain.
+Separately, cached package advisories include critical `System.Drawing.Common 5.0.0` and existing
+moderate/high advisories; no fresh dependency audit or full solution/SSDT build ran. No live broker call,
+SQL operation, operational-host launch/restart or commit occurred. Sell UI, durable reviewed sell
+workflow, available-share reservations and position/cash reconciliation remain unfinished; WPF's manual
+ticket remains buy-only. Local validation logs: `artifacts/wealthsimple-market-sell-20260911/`.
+
+**September 11 overnight verification (08:54 Toronto):** the 00:30 scheduled pipeline completed
+all three stages by 00:37:05. Release preflight, Hermes and Delphi succeeded. Hermes inserted 481 bars
+with zero collection failures and recorded a checksum-verified backup with a SHA-256-verified OneDrive
+local copy. SQL confirms a Valid September 11 official run `3fbcd615-a831-4ddf-9ded-64de8a9ff802`
+on `v3.4-observed-benchmarks`, using September 10 data: 211 candidates, 422 lens evaluations,
+zero observation mismatches, and 25 published Hold rows per lens blocked by Breadth. XIU/SPY and the
+checked derived series are current; four active symbols remain older and seven feature inputs are excluded.
+
+Athena completed with **Attention** after writing 154 valid outcomes and nine invalid delayed-intraday
+outcomes. Six invalid outcomes belong to the current strategy and three to earlier strategies; their
+required initial session/bar evidence is missing or mismatched. Research coverage remains insufficient
+for primary scores. Repeating the pipeline would not repair those historical first-received paths,
+so no recovery run was needed or launched. This was SELECT-only/log verification; evidence and the
+backup-verification limits are in ignored `artifacts/nightly-readiness-20260911/`.
+
+**Manual WPF market buys (2026-09-10):** the operator approved the shared ticket and explicitly
+required editable manual share quantities. After the operator's presentation follow-up, Delphi Picks
+uses one **Manual buy…** action for the stock selected in either lens, and broker holdings has one
+secondary **Buy more…** action for the selected position. Repeated row Buy columns were removed;
+clearing selection or refreshing holdings clears the buy target. Both actions open a compact dialog with a blank Shares field, optional ±10
+shortcuts, verified TFSA/instrument, current ask, estimated cost and available CAD cash. The final
+button states the exact shares and symbol. The old existing-fill/Ghost entries remain separate.
+Portfolio sizing, strategy activation and automatic selling are unchanged.
+
+The new workflow checks regular-session quotes, cash, pending orders and existing buying pauses/
+financial holds, then durably saves the reviewed intent before one explicit transmission. Protected
+Windows order records support restart/status recovery and cumulative actual fills; ambiguous outcomes
+block replacement orders. Holding launches pin their broker security identity. No automatic SQL
+tracked-position insertion occurs. See [ADR-0075](adr/0075-manual-market-buy-ticket.md) and
+[the operating steps](running.md#manual-market-buys-in-wpf).
+
+Validation: **164 focused tests passed** for the order workflow. The selection-action follow-up passed
+an isolated WPF build and **21 synthetic WPF renders**, checking normal/narrow layouts, editable
+quantity/cost/action bindings, selection changes/clearing and holdings refresh without a stale target,
+separate existing-fill entry and Windows-protected recovery. Existing compiler warnings remain.
+Separately, cached package advisories include critical `System.Drawing.Common 5.0.0` and existing
+moderate/high advisories. No fresh dependency audit, full solution/SSDT build, live broker call, SQL
+operation or operational-host restart ran. Native live submission remains unverified. The running app
+still needs a rebuild/restart to use this source. Local evidence: `artifacts/manual-market-buy-ui-20260910/`.
+
+**Wealthsimple market-buy client (2026-09-10):** the operator supplied a successful whole-share market
+buy HAR. The Core client now implements the captured `SoOrdersOrderCreate` request, current Canadian
+security eligibility checks, and a separate account/identity/security-scoped order-details read for
+actual cumulative fills. A write-once, hash-only local attempt marker prevents retransmission of the
+same request after ambiguity/restart. It does not substitute for a full execution journal, durable
+reviewed intent, cash/risk checks or broker-to-local reconciliation. Auth/read nonce retries remain;
+mutation retries are disabled. Exact Canadian ticker matching now recognizes venue-specific suffixes.
+
+All 125 GraphQL exchanges (124 with response bodies) are indexed under ignored
+`artifacts/wealthsimple-market-buy-20260910/README.md`; credentials/identifiers are redacted and financial
+values retained for the operator. The original Downloads HAR is unchanged. Checked-in fixtures are
+synthetic. No captured request, live broker mutation, database update or operational host run was made.
+The market-buy method is not connected to the WPF promotion/strategy execution flow; limit operations
+remain preferred and unfinished. See [ADR-0074](adr/0074-wealthsimple-market-buy-protocol.md).
+
+Validation: **141 focused tests passed**; the isolated WPF build succeeded without replacing the
+running application's files. All 250 exported request/response JSON files parse; known account,
+identity, security and external-order IDs are absent from the inspection copies. Existing compiler
+warnings remain. Separately, cached dependency advisories include critical `System.Drawing.Common
+5.0.0` plus prior moderate/high advisories; no fresh package audit or full solution/SSDT build ran.
+
+**September 10 opening engine verification (09:48 Toronto):** the operator-started Debug WPF host
+(PID 67296, started 09:12) is responsive. Delphi Live holds one current lease and has completed three
+scheduled cycles through the 09:45 endpoint, with 68 usable receipts and complete valuations for all
+three accounts. The account with holdings has changing saved values. Today's valid daily source is
+frozen and `HostGapObserved=false`, but session coverage is **Blocked** by 15 `NoCompletedBar` receipts
+across nine observed symbols; none is an open Live holding. A closing HostCoverageGap recovered at
+startup belongs to September 9, not today's session.
+
+All 12 Shadow portfolios/sessions are Active. The 09:47 poll saved valid five-/fifteen-minute evidence,
+filled three previously pending paper exits with zero timing violations, and refreshed all seven
+remaining open positions to today's prices. The tracked-position monitor also ran, but one fifteen-minute
+request still has `CompletedBarConflict`. No global buying pause or Live account capital-review hold
+is active. Paper displays read saved updates approximately every 30 seconds; collection uses delayed
+completed bars. The Wealthsimple TFSA panel still requires explicit Refresh for new account snapshots.
+This was SELECT-only/process/source verification, with no host restart, strategy/rule change, data repair,
+broker action or build. Evidence and display limitations are in ignored `artifacts/engine-readiness-20260910/`.
+
+**September 10 pre-open nightly recovery (09:11 Toronto):** the 00:30 task failed during the
+Hermes/Core build on three `Math.Min` namespace-resolution errors; none of Hermes, Delphi or Athena
+started overnight. The current source already contained the `System.Math.Min` correction. At the
+operator's request, the normal guarded runner rebuilt all three Release projects and completed the
+recovery by 09:09:12, before the open. Hermes succeeded with 481 daily bars plus one SPY observation
+and a checksum-verified backup whose staging/OneDrive local copies independently hash-match.
+XIU/SPY, derived data, sector indices and US indices are current through September 9; four active
+symbols remain older. OneDrive cloud synchronization and test restore remain unverified.
+
+Delphi saved Valid official run `3fbd701a-2547-4b09-a1fb-ea0ed1c31cd3` on
+`v3.4-observed-benchmarks`, recommendation date September 10 / market-data date September 9,
+with 210 candidates, 420 lens evaluations and zero candidate-observation mismatches. Both lenses
+publish 25 Hold rows blocked by Breadth. Athena completed with **Attention**: 486 valid outcomes
+and four invalid ten-session labels from old `v3.0` evidence with `MissingSymbolSession`.
+The current strategy's outcome report remains pending; today's Delphi run is Valid.
+
+No source correction, schema migration, model training, WPF/paper-monitor launch, broker order or
+commit occurred. The three focused builds passed with existing compiler warnings; no fresh dependency
+audit or full solution/SSDT build ran. The original overnight failure and verified recovery evidence
+are preserved under ignored `artifacts/nightly-readiness-20260910/`.
+
+**TFSA transition review implementation (2026-09-10):** Trading → Main account now shows
+paginated pending Wealthsimple orders and offers **Review TFSA strategy transition**. The review
+ranks active Delphi Live paper accounts on the same latest saved date, labels partial observations,
+shows the exact current strategy version, and resolves intended paper holdings to Canadian broker
+security identities. Matching holdings are retained at actual quantities; non-overlaps are identified
+for later exits. An unresolved instrument cannot trigger an inferred exit. Whole-share limit intents
+reject fractional quantities; buy sizing rounds down to tens when at least ten shares fit and allows
+smaller whole-share purchases within cash/risk limits. These are review/sizing components, not live
+execution. Pending orders block transition planning; cash ceilings exclude anticipated sale proceeds.
+
+The new pending-order query and a unique Canadian instrument match for an existing holding were
+verified through the saved session with an isolated read-only probe.
+No broker order, strategy activation, local fill, schema migration or operational Delphi run was made.
+Completed-fill reconciliation, durable broker-account binding/order journal, verified submit/cancel
+contracts and broker-backed Delphi Live execution remain unfinished. The login HAR contains no
+observed equity-order submission; another operator capture is pending. The latest saved Live results
+are September 9 partial observations at 15:55 Toronto: operational champion and normal comparison
+0.00%, portfolio-rules-only comparison −0.4855%. A flat winner is not a current entry signal.
+
+Validation: WPF build succeeded; 112 focused authentication, account, transition and presentation tests
+passed; ten synthetic account/transition renders had clean bindings. No operational WPF application
+or full SQL solution build was run. Existing nullable-context/unused-variable compiler warnings remain.
+No fresh dependency-security audit was performed; previously reported package advisories remain open.
+
+**TFSA execution design discussion (2026-09-10):** the operator accepted a permanent self-directed
+TFSA, independent paper accounts, primary strategy promotion as future real-order authority,
+reconciliation and whole-share-only TraderVI orders. Ten-share buy increments are a soft preference.
+[ADR-0073](adr/0073-permanent-tfsa-and-whole-share-execution.md) records these decisions. The
+[continuing draft](concepts/strategy-promotion-and-execution.md#tfsa-integration-draft--september-10-2026)
+now records the accepted overlap exception: retain existing holdings the incoming strategy intends to
+hold and transfer their management, avoiding a promotion sell/rebuy. Unconditional liquidation is
+superseded. Non-overlap exits, activation timing and the order lifecycle remain open.
+The design now has the limited review implementation above; the broker boundary remains read-only.
+
+**Wealthsimple TFSA landing page (2026-09-09 Toronto / September 10 UTC):** native sign-in is
+operator-confirmed. The main Trading page now reads the open self-directed TFSA through the saved
+native session, showing account value, cash, buying power, net deposits, provider return and holdings.
+The separate managed TFSA is excluded. Loading follows sign-in; Refresh updates the in-memory snapshot.
+Fractional shares and currency labels are preserved; missing values remain unavailable. Existing
+recorded holdings and strategy controls sit below it, without automatic SQL reconciliation.
+See [ADR-0072](adr/0072-wealthsimple-tfsa-account-display.md).
+
+A live isolated read using the operator's Windows-encrypted session succeeded for account discovery,
+financials, trading balances and holdings. No credentials or private account values were logged.
+**86 focused authentication/account/presentation tests passed**, and the normal WPF Debug output builds.
+Eight synthetic renders cover loaded, disconnected, unavailable and empty states at two widths.
+Existing compiler warnings and cached package-security advisories remain separate (including
+`System.Drawing.Common 5.0.0` critical severity). No fresh audit, complete solution/SSDT build,
+operational dashboard launch, SQL/trading/model workflow, order or commit ran. Live refresh rotation,
+broker-to-local reconciliation and order lifecycle remain unfinished.
+
+**Native Wealthsimple sign-in is now the default (2026-09-09 Toronto / September 10 UTC):** the
+operator rejected browser-first login. The WPF connection window now submits email/password directly,
+then asks for and submits a 2FA code when required. It uses the existing auth client and optional
+Windows-encrypted session storage. Passwords/codes are never persisted; closing/cancelling or a
+ten-minute timeout clears an unfinished attempt. Timer checks preserve pending 2FA. A browser is
+offered only for an explicit provider security challenge. See [ADR-0071](adr/0071-native-wealthsimple-login.md).
+
+The operator also demonstrated successful browser login with failed native handoff. A real offline
+WebView2 probe reproduced `NotImplementedException` on the COM request stream. The fix uses bounded
+zero-offset byte-array reads, clears buffers, and schedules browser closure after the callback.
+The passkey setup page was not the cause. At that earlier step, native password/2FA and refresh still needed operator live
+verification. TFSA data synchronization, reconciliation and order APIs remain separate unfinished work.
+
+Validation for this step: **54 focused auth tests pass**, the WPF build succeeds, and the actual
+browser stream adapter passes its offline probe, and 11 renders verify native/OTP/fallback/connected
+UI and sidebar bindings. Windows encryption and file ownership checks also pass. Existing compiler
+warnings and cached dependency-security advisories remain separate. No operational app, database,
+model workflow, live native login, live refresh, order, commit or full solution/SSDT build ran.
+
+**Earlier Wealthsimple desktop sign-in (2026-09-09 Toronto / September 10 UTC):** WPF now has
+a connection window opened from the bottom of the left sidebar. It displays the provider's login
+page in a private WebView2 browser, with password saving disabled, and accepts a supported bearer
+session only after native token-info verification. Optional remembered sessions use Windows
+CurrentUser encryption in LocalAppData; email/password/OTP values are not saved. The sidebar shows
+green verified, red disconnected, and amber checking/reconnecting/unavailable, including when
+collapsed. Checks run independently of SQL/trading work, refresh is serialized, and uncertain
+sessions are removed before they can be restored. The sidebar's compiled property bindings also
+now keep its icons and collapse toggle synchronized. See [ADR-0070](adr/0070-wealthsimple-desktop-sign-in.md).
+
+The normal WPF Debug build succeeds, **45 focused authentication/connection tests pass**, and eight
+offline renders verify status colors, labels, compact layouts and navigation bindings. A Windows
+fixture verifies actual encryption/decryption, corruption rejection, session deletion and exclusive
+storage ownership. Existing compiler warnings remain; cached dependency advisories reported by the
+test project are separate, including `System.Drawing.Common 5.0.0` critical severity. No full
+solution/SSDT build or fresh dependency audit ran. No app launch, DB/trading/model workflow, live
+password login, live refresh or commit ran during this UI step. The operator stopped debugging;
+the normal output is rebuilt for their next launch. Embedded-browser challenge compatibility and
+live refresh still need operator verification; account reconciliation and execution remain future work.
+
+**Earlier direct authentication proof (2026-09-09 Toronto / September 10 UTC):**
+the operator chose direct integration and supplied a local browser login capture. The isolated
+`Core/WSTrade/Authentication` client imported its bearer session and received HTTP 200 from a fresh
+Wealthsimple token-info request. The observed password/OTP flow issues a 1,800-second token; Turnstile
+is present and this login uses no DPoP. No raw capture or credential values were copied into notes or
+tests. The tool retains session values only in memory; HAR files are ignored by Git.
+
+The `Tools/Wealthsimple.Auth` host built under SDK 10.0.401 and its initial **31 focused auth tests passed**.
+Password/OTP methods, refresh rotation/failure handling and optional DPoP proofs are verified offline;
+live fresh login and refresh remain unverified. Login UI and protected persistence were subsequently
+implemented above. Account reconciliation remains future work; authentication grants no order authority.
+No database, trading, market-data, model workflow, app restart or commit ran. Existing compiler
+warnings and cached package-security advisories remain separate (including Drawing.Common critical
+severity); no fresh dependency audit or complete solution/SSDT build was run. See
+[ADR-0069](adr/0069-direct-wealthsimple-authentication.md) and
+[protocol/usage notes](concepts/wealthsimple-authentication.md).
+
+**Portfolio banner removed and filters localized (2026-09-09):** the page-wide Main Trading strategy
+banner is removed. Compact period/reference filters now sit at the top right of Strategy comparison,
+with its saved date range inside the card. Performance retains equivalent compact filters and date
+context; Trading and Strategy review retain the main assignment information. The selected-account
+panel starts higher on the page. Period, daily-date, account selection and refresh behavior are unchanged.
+Isolated WPF Release build and 22 offline renders/checks passed with clean bindings, including control
+placement, reclaimed height, filter behavior and Performance access. Existing compiler warnings remain.
+No Core test rerun for markup-only changes, fresh dependency audit, full solution/SSDT build, operational
+restart or database/external workflow. Evidence is in ignored `artifacts/portfolio-card-controls-20260909/`;
+the normal app needs a rebuild/restart.
+
+**Portfolio comparison layout simplified (2026-09-09):** Evidence and Max decline are removed from
+the grid. Both remain in the selected-account panel, which now receives one-third of the available
+column space instead of one-quarter, with a 320-unit minimum. Period-return cells retain evidence
+tooltips; evidence is grouped under the selected account's period return. The five remaining grid
+columns are Strategy / account, Daily gates, Day gain, Period return and Account value.
+Isolated WPF Release build and 21 offline renders/checks passed, including the retained detail values,
+tooltip and prior selection/refresh behavior; bindings are clean. Existing compiler warnings remain.
+No Core test rerun for this markup-only change, fresh dependency audit, full solution/SSDT build,
+database/external workflow or operational restart. Evidence is in ignored
+`artifacts/portfolio-details-layout-20260909/`; the normal app needs a rebuild/restart.
+
+**Portfolio refresh flicker corrected (2026-09-09):** the 30-second desktop timer previously reread
+portfolio/dashboard SQL and cleared/repopulated the grids and date picker after hours. Automatic
+display reads now use a weekday 09:30–16:10 Toronto window, with one final read on leaving it. Startup,
+reopening Portfolios, explicit actions and Refresh saved data can still read saved results at any time.
+Engine wakeups, pre-open liveness, close finalization and operator safety handling remain independent
+of this display policy. Background engine/status database checks still run; this is not a zero-I/O mode.
+
+Equal rows/dates now retain their objects and emit no collection notifications. Changed values update
+individual rows without resetting the collection; same-account activity stays visible during its read.
+Changing accounts clears the old details immediately. The desktop timer also avoids overlapping turns
+and runs engine work before portfolio display reads. No trading rules or Core engine schedules changed.
+Validation: 55 focused tests and isolated WPF Release build passed; offline repeated-refresh checks
+and bindings are recorded in ignored `artifacts/portfolio-refresh-20260909/`. Existing compiler warnings
+and cached dependency advisories remain. No operational restart, database/external workflow, or full
+solution/SSDT build ran. The running app needs a rebuild/restart to use this correction.
+
+**Portfolio day gains implemented (2026-09-09):** All portfolios now has a **Gains for** date selector
+and a **Day gain** column showing currency amounts and percentages. The selected-account panel shows
+the session opening, saved day value and evidence time. First-day accounts can show daily gains even
+when their shared-period return lacks an earlier endpoint. Cash-only valued days show zero; intraday
+observations are labelled Partial and missing valuations remain unavailable. Changing the selected
+day does not change the shared comparison period. Older date selections survive refresh.
+
+Shadow uses saved session openings/closes, with current same-day saved holdings/cash available for
+the latest unfinished session. Live uses saved openings and latest checkpoints/closes; incomplete
+latest marks never fall back to earlier values. The calculation follows existing engine opening
+baselines and recorded costs. It does not add a new snapshot cadence or unattended runtime host.
+Focused validation passed 31 Core tests and an isolated WPF Release build. Offline fixtures exercise
+all 15 accounts, historical dates, first-day/zero/partial results, selection preservation and existing
+profile/promotion guards, with clean bindings. Evidence is in ignored
+`artifacts/portfolio-day-gains-20260909/`. Existing compiler warnings and cached dependency-security
+advisories remain. No database/external workflow, operational restart or complete solution/SSDT build
+was run. A rebuild/restart of the user's app is needed to display this change.
+
+**Read-only portfolio activity verification (2026-09-09, 18:19 Toronto):** all 12 current Shadow
+portfolios and their generations are Active. All 12 have a completed September 9 session; Completed
+is the day's session state, not account retirement. The three Delphi Live generations/assignments
+remain open-ended and uncancelled, with no ledger daily-buying or capital-review holds. Their latest
+checkpoint is 15:55 Toronto. The rules-only Live account has two recorded fills and two open positions;
+the other two Live accounts remain cash-only. This confirms ongoing configuration, not uninterrupted
+daily coverage or guaranteed fills. The desktop host must remain running for scheduled processing.
+
+Today’s Live session is Incomplete / Blocked with HostGapObserved and no September 9 closing mark.
+Its stored finish time is 15:58:47 Toronto. Missing coverage was not repaired or relabelled. Shadow's
+eight fixed comparison accounts started September 9 at 13:15, have one saved closing date, and cannot
+show the grid's September 4–9 period return. Since-funding closing returns are available separately:
+four Normal controls 0%; rules-only Breakout Top 3 −0.2349%, Top 5 −0.2394%, Continuation Top 3 +0.4078%,
+Top 5 +0.1440%. All saved history will continue to lack a September 4 endpoint for these new accounts.
+An account-relative result and separate account/session status would resolve the display ambiguity;
+that UI correction is not implemented in this diagnostic turn. Evidence and read-only SQL are under
+ignored `artifacts/portfolio-running-status-20260909/`. No runtime, configuration, ledger or schema was
+changed; no external service or operational workflow was launched.
+
+**Unified portfolio grid implemented (2026-09-09):** the operator rejected separating fixed-gate pairs
+from the standard strategy grid. **All portfolios** now opens one list containing every standard,
+Normal and Portfolio rules only paper account. The category buttons and gate-only view are removed.
+Daily gates has an explicit column; matched rows stay adjacent in default ordering, with pair context
+in the selected-account details. Reference accounts are optional and never replace the paper list.
+
+The shared observed-date return calculation and promotion/profile guards remain unchanged. Newer
+accounts without matching period endpoints show unavailable returns. WPF Release builds successfully;
+15 focused comparison/gate tests pass. Offline fixtures verify 15 paper accounts (five standard plus
+ten paired), reference inclusion, gate labels, matching dates, promotion exclusions and the retained
+collapsible sidebar. Nineteen renders and checkbox/menu automation checks have clean bindings.
+Evidence is in ignored `artifacts/portfolio-unified-grid-20260909/`. Existing CS0168 compiler warnings
+remain; tests report cached dependency-security advisories separately. No fresh dependency audit,
+complete solution/SSDT build, operational restart, database workflow or external operation was run.
+The current session needs a rebuild/restart to display the unified grid.
+
+**Earlier navigation/discoverability follow-up (2026-09-09; category separation now superseded):** the operator's screenshot confirms
+the redesigned Portfolios workspace is running, with the standard Paper strategies scope selected.
+The fixed pairs were in a separate scope, which made the accounts that skip daily gates hard to find.
+The new **Daily gates on / off** shortcut displays the loaded bypass-account and matched-pair counts;
+each pair explicitly labels daily gates applied/skipped while retaining Normal / Portfolio rules only.
+The side menu now collapses from 178 to 56 layout units, keeps named icon shortcuts and restores through
+the menu button. Collapse state stays with the window and does not change account or workspace selection.
+
+The isolated Release build passes. Nineteen offline WPF renders and an automation-toggle check verify
+the 122-unit width gain, collapse/expand restoration, accessible names/tooltips, retained account
+selection, five bypass accounts/five complete pairs and clean bindings. Fixtures cover 980×680,
+1280×820 and 1600×1000; no operational app or database/external workflow was run. Existing CS0168 compiler
+warnings remain. No new dependency audit or complete solution/SSDT build was performed. Core tests
+were not repeated for these display changes; the preceding implementation passed 827 tests. Evidence
+and the build are in ignored `artifacts/workspace-navigation-20260909/`. The currently running Debug
+session needs to be rebuilt/restarted to display this follow-up.
+
+**Main-account workspace implemented (2026-09-09):** Trading now opens on the
+selected Real account's reported value/cash, recorded holdings, available gains and assigned strategy.
+Attention remains supporting content. Complete account gain is explicitly unavailable without full
+cash-flow/cost/income history; recorded sale gains over 30 Toronto calendar days and saved open-position
+gains are labelled separately. Wealthsimple remains disconnected and execution authority remains
+recommendations only.
+
+The four WPF workspaces share side navigation. Portfolios exposes separate ordinary-paper and fixed-pair
+scopes, adjacent Normal / Portfolio rules only results, account activity and direct guarded strategy
+review. Delphi identifies daily source and data dates; Delphi Live displays one selected paper account's
+candidates, with account-preserving navigation. Existing promotion eligibility and trading rules remain.
+
+Validation: isolated WPF Release build passed using SDK 10.0.401; **827 Core tests passed**. Fourteen
+synthetic offline WPF renders exercised 1280×820/1600×1000 layouts, unavailable and review states,
+compiled main-account markup, five complete pairs/ten accounts, ordinary-scope exclusion and disabled
+fixed-pair promotion, with no binding errors. Screens were visually inspected using fixtures, not
+operational records. The original build is in ignored `artifacts/workspace-ui-20260909/build/`; during
+that implementation the agent did not restart the host or replace its output. No database/market/model/broker workflows ran there.
+Existing compiler warnings remain; cached dependency-security advisories are recorded separately,
+including `System.Drawing.Common 5.0.0` critical severity. No fresh dependency audit, complete solution
+or SSDT build was performed in this UI turn. See [ADR-0068](adr/0068-main-account-trading-overview.md)
+and the [implementation record](concepts/trading-workspace-redesign-draft.md).
+
+**Fixed-gate comparisons implemented and active (2026-09-09, 13:58 Toronto):** five fresh matched pairs
+cover Continuation Top 3/Top 5, Breakout Top 3/Top 5 and Delphi Live. All ten accounts started with
+independent CAD 1,000 cash and empty holdings/orders. Each pair has lifetime-fixed Normal and Portfolio
+rules only profiles, identical pinned portfolio rules, and the same published selection scope. Existing
+accounts continue separately. Manual migration 033, a verified fresh backup and hash-matched secondary
+copy, rollback rehearsal and activation retry are complete. All 17 protected table hashes matched after
+migration; existing-account/source hashes also matched after activation. Four invalid identity/profile/
+settings writes were rejected transactionally.
+
+Batch `849334ad-1f09-4059-863e-159474d29d0f` has a common 13:15 funded start and adopted corrected run
+`9ab04fbc-e71d-4021-ba1f-20bfd5f23984` at 13:21:33 with a common 13:25 fresh-evidence boundary.
+The source contains 41 published stocks and 43 daily baselines including retained observation symbols.
+Normal admits zero; experimental Shadow accounts track exactly three/five published ranks, and
+experimental Live admits all 41. At 13:32, the first full collection cycle settled 43 slots with 39 usable
+bars and four missing observations. Both Live ledgers processed that cycle and Shadow evaluation advanced.
+No comparison fill had occurred at that checkpoint. Today's coverage is partial; portfolio entry,
+data/conflict checks, capital/risk guards, protective exits and the ordinary buying cutoff still apply.
+
+Final Release WPF PID 12424 started at 13:56 with the source-boundary fix and fixed-profile comparison
+view. An intermittent SQL 51246 interruption was traced to Dapper rounding evaluation timestamps into
+the future; explicit `datetime2` binding fixes it while preserving the causal guard. At 13:58, both Live
+comparison ledgers had processed the 13:55 checkpoint at revision 12, with one healthy lease. All 43
+collection slots settled; 35 were usable and eight lacked completed bars. No Live comparison fills yet.
+The four experimental Shadow accounts now hold five positions in total (1/2/1/1 across Breakout Top 3,
+Breakout Top 5, Continuation Top 3 and Continuation Top 5); all four matched Normal controls remain cash-only.
+The full Core suite passes 819 tests, and all 352 Delphi Live tests pass after the precision correction;
+WPF Release and SSDT builds pass. A read-only WPF presentation
+check verified ten distinct rows, five pairs, source explanations and disabled profile/promotion actions.
+Native screen capture was unavailable, so pixel-level visual verification remains unperformed. Existing
+compiler and cached dependency-security warnings remain; no fresh package audit or complete solution
+build was performed. No model training, broker action, commit or new nightly ingestion was run here.
+Operational evidence is in ignored `artifacts/gate-comparisons-20260909/`. See
+[ADR-0067](adr/0067-fixed-gate-paper-comparison-pairs.md) and the
+[design handoff](concepts/paper-source-refresh-and-gate-profiles-draft.md).
+
+**Automatic daily-source adoption deployed (2026-09-09, 11:10 Toronto):** first milestone of the
+operator's requested recovery/gate-comparison work is complete. Migration 032 and the updated Release
+WPF host (PID 29128, started 11:04) adopt newer valid official publications during the session.
+All four Shadow sessions and operational Delphi Live adopted corrected run
+`9ab04fbc-e71d-4021-ba1f-20bfd5f23984` at 11:04:58–59, with an 11:05 fresh-evidence boundary.
+Repeated refreshes retain exactly one source revision each. Shadow is Active; Live's original
+`NoValidDelphiRun` freeze remains as history alongside its operational `CurrentOfficialRun` source.
+Nine Live daily baselines were saved. The UI source banner and database identities agree.
+
+The first resumed 11:05 Live collection completed at 11:07:29: all nine slots settled, eight usable
+receipts and one `NoCompletedBar`; ledger revision 59 references that completed cycle. One current
+lease is healthy. Six Shadow positions remain and checked fill-timing violations are zero. Original
+frozen candidate/lens/baseline and capital evidence hashes match. Late host coverage remains excluded
+from clean research. No new Live positions or fills were created, and daily gates still admit zero
+candidates. Separate normal/portfolio-rules-only comparisons are the next milestone; no new gate
+profile or comparison account was activated here.
+
+A fresh checksum backup and its secondary copy match; cloud synchronization is unverified. Rollback
+rehearsal and migration application preserved all 17 protected table hashes. Initial adoption was
+safely rejected because Dapper rounded publication timestamps; explicit `datetime2` parameters fixed
+this before successful adoption. WPF now awaits lease release before closing. The full Core suite
+passed 806 tests, and the final focused suite passed 371; Release WPF and SSDT builds pass. Existing
+compiler and cached dependency-security warnings remain, including Drawing.Common critical severity.
+No fresh package audit, full solution build, commit, training or broker operation was performed.
+See [ADR-0066](adr/0066-operational-paper-daily-source-adoption.md) and ignored
+`artifacts/source-adoption-20260909/README.md`. Earlier cutoff-block descriptions below are historical.
+
+**September 9 nightly recovery and WPF readiness (10:07 Toronto):** the scheduled 00:30 run built
+successfully and refreshed September 8 data, but Hermes reported ARX/SES sector-detail failures and the
+guard correctly stopped before Delphi/Athena. The operator authorized recovery. A first morning pass
+completed Hermes/Delphi; Athena saved 284 valid outcomes and five invalid older-strategy outcomes with
+`MissingSymbolSession`, returning Attention. Its current strategy still has no matured scoring cohorts.
+Inspection then found unfinished September 9 US-index bars in the daily diagnostic context. Hermes now
+bounds requests before the local run date and refreshes its last stored observation; Delphi bounds US
+context and the saved report to the canonical market-data date. All 36 focused tests passed.
+
+The corrected full pipeline succeeded at 09:59. Official run `9ab04fbc-e71d-4021-ba1f-20bfd5f23984`
+is Valid on `v3.4-observed-benchmarks`, uses September 8 data, has 207 candidates and 414 lens facts,
+and publishes 25 Hold/Breadth failures per lens. All four model-file hashes match, and all candidate
+observations match stored bars. Athena's second pass wrote zero outcomes, verifying idempotence; earlier
+invalid evidence remains intact. Both recoveries produced verified checksum backups with hash-matched
+local OneDrive copies; cloud synchronization is unverified. ARX/SES remain unavailable and excluded,
+four malformed ETF daily bars are outside the evaluated universe, and leadership movers remain 0/12.
+
+WPF started at 09:54 (PID 25996) and is responding. Four Shadow sessions and Delphi Live have
+`NoValidDelphiRun` because neither recovery met the 09:30 cutoff. Yesterday's overrides are date-specific.
+Existing portfolio monitoring progresses: two nine-slot Live cycles each settled with nine usable receipts
+through the 10:00 bar endpoint and matching ledger cycle identity. Two carried Shadow exits filled with
+zero timing violations; fourteen holdings and eight pending protective sells remain. A tracked holding's
+15-minute request is rejected with
+`CompletedBarConflict`; automatic evaluation for that holding is blocked pending usable evidence.
+Thus today is suitable for continued monitoring with disclosed gaps, not a normal new-entry Live trial.
+No entry gates, model assignments or engineering overrides were changed. The running Debug host predates
+the daily-only correction; corrected Release WPF output is ready for the next launch. Its monitor code
+is unchanged, and corrected saved daily results are available through Delphi's Refresh control.
+Release WPF and focused CLI builds pass. Existing compiler warnings and cached dependency-security
+advisories remain (including Drawing.Common critical severity); no fresh package audit or full
+solution/SSDT build was run. No migration, model training, broker operation or commit was performed.
+Evidence and the detailed handoff are under ignored `artifacts/nightly-readiness-20260909/`.
+
+**Delphi Live engineering activation applied (2026-09-08, 14:50 Toronto):** the operator authorized
+today's Live test with CAD 1,000 simulated capital. Migration 031 creates one Operational Champion,
+admits the 38-stock union of today's published rows, preserves all fifty original Hold/Breadth lens
+facts, and freezes 39 valid daily baselines. Explicit trial references and `OperatorEngineeringTest`
+distinguish this exception; real timestamps and the mandatory late-start gap remain. Normal source
+selection, risk controls and causal execution are unchanged. Initial collection exposed a second
+dossier-eligibility guard: evaluations saved, but portfolio processing failed on the retained Breadth
+failures. A narrowly scoped Core correction admits and labels only this trial's exact source/session;
+all 344 focused Delphi Live tests pass. The rebuilt app started at 15:11 (PID 13920); the old lease
+expired normally at 15:24:56 and the replacement acquired fence 6 at 15:25. No lease was forced.
+At 15:36, two complete portfolio cycles are verified through the 15:30 bar endpoint: all 39 slots
+settled per cycle, 36 usable receipts and three missing completed bars, 38 saved candidate states,
+revision 8, three valuation marks and matching completed-cycle IDs. CAD 1,000 cash remains intact,
+with no Live actions/fills/positions. Confirmation restarted at 15:25 and may not mature before the
+15:45 buying cutoff. The late start and runtime gaps permanently exclude today from clean research.
+Shadow remains active with fourteen holdings, two ordinary reentry orders pending and zero checked
+fill timing violations; collection advanced through 15:32. The five-minute read-only watch covers both
+systems through closing persistence, ending at 16:15 today.
+The helper and SQL/SSDT Release builds pass. Rollback rehearsal matched fourteen protected tables and
+rejected five invalid states; application matched the same protected tables. Fresh checksum backup
+and hash-matched secondary copy verified; cloud sync is unverified. Existing compiler warnings remain;
+separately, the test build reports cached dependency-security advisories, including Drawing.Common
+critical severity. No fresh package audit or full solution build was performed. See [ADR-0065](adr/0065-one-session-live-engineering-activation.md).
+
+**Dashboard dark surfaces corrected and operator verified (2026-09-08):**
+the first correction covered the tracked Trading monitor and Portfolio activity/result panels but missed
+Recommendations' account-state and approval-history expanders. A shared dashboard expander style now
+provides dark surfaces; selected-tab label colors are confined to headers rather than inherited by page
+contents. Recommendations explicitly declares its page colors. Existing Delphi Live expander styles
+already provide their own dark surfaces. Trading text fields and disabled buttons remain readable.
+Synthetic offscreen renders now include Recommendations in its actual dashboard parent, both expanded
+panels, tracked Trading and Portfolios at 1600×1000 and 1280×820. Dark-surface/contrast checks and zero
+binding errors pass. The focused Debug WPF build passes with two existing compiler warnings. Updated
+output was isolated under `artifacts/dark-ui-preview/wpf-build/`. The operator restarted again at 12:20
+(PID 41948), confirmed the remaining colors look good, and valid collection resumed.
+The operator restarted the first update at 12:01 (PID 44516). Valid collection resumed by 12:02; all
+four Shadow sessions, sixteen candidates and fifteen open positions survived. The pending buy was
+cancelled with `StaleBuyRequiresRequalification`, as the restart policy requires. Monitoring continues.
+
+**September 8 Shadow engineering override applied (11:02 Toronto):** after the operator requested
+forcing today's Top 3/Top 5 to exercise the portfolios, reviewed data migration 030 adopted the recovered
+09:52 daily run into all four existing Shadow sessions. Sixteen ranked candidate assignments are now
+present, with four append-only override events and visible `[TEST 2026-09-08]` account-name suffixes.
+The late-source and failed daily-eligibility restrictions are bypassed for this date only; the first
+permitted five-minute bar starts at 11:05. Intraday momentum, data checks, cash/slot limits, risk holds,
+protective exits and causal fills remain. Existing holdings/cash and official Hold evidence are preserved.
+
+The rollback rehearsal and application matched all fourteen protected-table hashes, portfolio financial
+state and schema identity. A fresh checksum-verified full backup has a hash-matched OneDrive folder copy;
+cloud sync is unverified. The SQL/SSDT Release build passes without warnings/errors. No runtime code,
+model/strategy assignment, second host, app restart, broker operation or Delphi Live activation occurred.
+At 11:12 all sixteen candidates were evaluated and seven ordinary Initial buy orders became pending
+(Continuation Top-3/Top-5: two/three; Breakout Top-3/Top-5: one/one), with no timing violations.
+The remaining candidates have explicit price/evidence skips; later fill observation continues.
+The raw portfolio charts include this intervention
+and its carried effects; treat them as engineering evidence. Ordinary next-session selection resumes
+automatically. See [ADR-0064](adr/0064-one-session-shadow-engineering-override.md); evidence is under ignored
+`artifacts/shadow-engineering-20260908/`. The block described below was the pre-override state.
+
+**September 8 market-open observation and manual Delphi recovery:** the 00:30 pipeline stopped at the
+source-stability guard while development was in progress; its builds passed, but no operational stage ran.
+After the operator requested a manual recovery, a separately logged Delphi-only invocation rebuilt current
+Release source with matching before/after fingerprints and published at 09:52 Toronto. Run
+`9491e421-ef3e-48b4-bcb7-389c42ec25e9` is Valid, uses `v3.4-observed-benchmarks` and September 4 data,
+and records 209 candidates, 418 lens evaluations and 25 Hold entries per lens: no qualifying buys.
+The build passed with 258 existing compiler warnings; no dependency advisory appeared in that build log,
+and no new package audit or full solution/SSDT build was performed. The original failed nightly status
+remains intact; this was not a successful rerun of the full Hermes/Delphi/Athena pipeline.
+
+The operator-started Debug WPF app is responding. The 09:47 and 09:52 collection observations have
+28 Valid persisted receipts across tracked-position and Shadow monitoring. All four Shadow sessions are
+`NoValidDelphiRun`: their required same-date run did not exist by the 09:30 cutoff, and a later publication
+does not refreeze them. Carried holdings remain monitored. Delphi Live and Trading strategy approval are
+unactivated. A five-minute read-only watch runs through 16:15 today; full-session validation is pending.
+No settings, model assignment, schema, app restart or broker operation was performed during recovery.
+Hermes and Athena were not run; stored completed-session daily inputs were already current. Evidence is
+under ignored `artifacts/manual-delphi-20260908/` and `artifacts/market-open-watch-20260908/`.
+The proposed late-start recovery contract is recorded in [open questions](reviews/open-questions.md).
+
+**Historical Practice trial completed and deployed (2026-09-08):** the operator authorized rollout after
+commit `836c393` and explicitly accepted today's stock list/sector classifications with exploratory
+labels. Stored daily inputs, four preserved models and four Shadow policies were pinned. All 20 sessions
+published daily Delphi picks. TMX returned 44,792 bars in 964 successful requests; 5,336 requested slots
+were missing and retained. The four CAD 1,000 accounts produced 255 simulated fills, ending at CAD 950.73,
+957.01, 958.57 and 924.15 (Continuation Top-3/Top-5, Breakout Top-3/Top-5 respectively). Two positions remain
+open; no pending orders or forced liquidation. Incomplete held valuations withhold drawdown estimates.
+
+An independent audit passed all 7,940 frames, fill timing/source prices, cash/shares, marks and account
+isolation. Two real-data runs have identical frames, summaries and full checkpoints. The deployed Release
+WPF Practice window is open and responding; real playback previews have zero binding errors. Its first
+launch exposed a null-StartupUri error, which was fixed and verified by relaunch. All 76 TraderDB table
+counts and selected state hashes remain unchanged; no migration was needed. Release builds, all 792 Core
+tests and the final 18 focused Practice tests pass. Existing compiler/package warnings remain; full
+solution/SSDT validation was not repeated. Preparation/viewer fixes after the commit remain uncommitted.
+The exact runner and private data/evidence are preserved under ignored `artifacts/practice-rollout-20260908-0117/`.
+See [completed rollout](adr/0063-historical-practice-environment-direction.md#completed-trial-and-deployment--2026-09-08).
 
 **Historical Practice implemented in source (2026-09-08):** the shared daily Delphi workflow now accepts
 bounded historical inputs; the shared Shadow controller accepts isolated time/data/storage. A dedicated

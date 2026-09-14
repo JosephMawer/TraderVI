@@ -1,5 +1,6 @@
 using Core.Calibration;
 using Core.Trader;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,25 @@ namespace Core.Db;
 
 public sealed class CalibrationEvidenceRepository : SQLBase
 {
+    internal const string LatestOperationalRunSql = """
+SELECT TOP (1) r.RunId,r.RecommendationDate,r.MarketDataAsOf,r.CreatedUtc,r.StrategyVersionId
+FROM dbo.CalibrationRun r JOIN dbo.StrategyVersion s ON s.VersionId=r.StrategyVersionId AND s.IsActive=1
+WHERE r.RecommendationDate=@Date AND r.MarketDataAsOf=@Prior
+ AND r.RunPurpose=N'OfficialPaper' AND r.AuditState=N'Valid' AND r.CreatedUtc<=@Now
+ORDER BY r.CreatedUtc DESC,r.StartedUtc DESC,r.RunId;
+""";
+
+    public async Task<SystemShadowDelphiRun?> GetLatestOperationalRunAsync(DateTime date, DateOnly prior,
+        DateTime nowUtc, CancellationToken ct = default)
+    {
+        if (nowUtc.Kind != DateTimeKind.Utc) throw new ArgumentException("Availability must be UTC.");
+        await using var connection = new SqlConnection(ConnectionString);
+        var row = await connection.QuerySingleOrDefaultAsync(new CommandDefinition(LatestOperationalRunSql,
+            PaperSourceSqlParameters.Create(new { Date = date.Date, Prior = prior.ToDateTime(TimeOnly.MinValue) }, ("Now", nowUtc)), cancellationToken: ct));
+        return row is null ? null : new((Guid)row.RunId, (DateTime)row.RecommendationDate,
+            (DateTime)row.MarketDataAsOf, DateTime.SpecifyKind((DateTime)row.CreatedUtc, DateTimeKind.Utc));
+    }
+
     public async Task<SystemShadowDelphiRun?> GetLatestValidOfficialRunAsync(
         DateTime recommendationDate,
         DateTime createdNoLaterThanUtc,

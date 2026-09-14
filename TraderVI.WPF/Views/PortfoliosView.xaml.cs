@@ -14,8 +14,28 @@ public partial class PortfoliosView : UserControl
 {
     private readonly PortfoliosViewModel viewModel = new();
     private readonly SystemShadowController controller = new();
-    private bool loadedOnce;
-    private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading();
+    private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text);
+    public async Task NavigateAsync(string account, Guid? portfolioId = null)
+    {
+        PromotionAccount.Text = account;
+        viewModel.TradingAccountLabel = account;
+        await viewModel.RefreshAsync();
+        if (portfolioId.HasValue)
+        {
+            var found = System.Linq.Enumerable.FirstOrDefault(viewModel.Portfolios, p => p.DelphiLivePortfolioId == portfolioId);
+            if (found is null) throw new InvalidOperationException("That paper account is unavailable in the saved portfolio snapshot.");
+            viewModel.SelectedPortfolio = found;
+            viewModel.SelectedView = 3;
+        }
+        else viewModel.SelectedView = 0;
+    }
+    private void InspectAccount_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = 3;
+    private void DailySource_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenDelphi();
+    private async void LiveAccount_Click(object sender, RoutedEventArgs e)
+    {
+        if (viewModel.SelectedPortfolio?.DelphiLivePortfolioId is not Guid id) return;
+        await RunUiActionAsync(() => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenDelphiLiveAsync(id) ?? Task.CompletedTask);
+    }
     private async void ReviewPromotion_Click(object sender, RoutedEventArgs e)
     {
         if(!viewModel.CanReview || viewModel.SelectedPortfolio is not { } source)return;
@@ -36,7 +56,7 @@ public partial class PortfoliosView : UserControl
         if (sender is Button { DataContext: PortfolioComparisonRow row })
         {
             viewModel.SelectedComparison = row;
-            viewModel.SelectedView = 0;
+            viewModel.SelectedView = 3;
         }
     }
     private void SettingsButton_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Accounts");
@@ -67,8 +87,7 @@ public partial class PortfoliosView : UserControl
 
     private async void PortfoliosView_Loaded(object sender, RoutedEventArgs e)
     {
-        if (loadedOnce) return;
-        loadedOnce = true;
+        // Reopening the page reads saved data, including outside the automatic display window.
         await RunUiActionAsync(() => viewModel.RefreshAsync());
     }
 

@@ -1,5 +1,109 @@
 # Running TraderVI
 
+## Market-order client reference
+
+`Core/WSTrade/Orders` and `WealthsimpleAuthClient.MarketBuys.cs` implement a whole-share market-buy
+request and separate fill-status read from the operator's captured browser transaction. The WPF manual
+ticket is now wired through the protected workflow in [ADR-0075](adr/0075-manual-market-buy-ticket.md).
+Promotion activation and automatic engines remain separate. Market buys have no limit-price cap.
+Do not call submission as a connectivity probe or replay a HAR.
+
+The client also provides `WealthsimpleMarketSell`, `SubmitMarketSellAsync` and
+`ReadMarketSellOrderAsync` under [ADR-0076](adr/0076-wealthsimple-market-sell-protocol.md).
+It submits whole-share `SELL_QUANTITY` / `MARKET` / `DAY` orders and reads cumulative actual fills.
+Buy and sell share the durable attempt fence; never change side or generate a replacement request ID
+to recover an uncertain order. Sell checks `sellable` separately from `buyable`.
+The WPF holdings workflow now calls it through the protected coordinator in
+[ADR-0077](adr/0077-manual-holdings-market-sell.md). Native sell acceptance remains unverified.
+
+## Manual sells from Wealthsimple holdings
+
+After rebuilding/restarting WPF, open **Trading → Main account → Your Wealthsimple holdings**.
+Each supported CAD equity row has **Market sell all** beside its share count. **One click sells the
+entire displayed whole-share holding**, following fresh broker checks; there is no quantity ticket
+or second confirmation. Market execution may differ from the displayed value or checked bid.
+
+If the quantity changed, refresh holdings and click again for the new displayed quantity. Fractional
+holdings require Wealthsimple. The app requires a fresh regular-session quote and no pending broker
+or unresolved local order; after-hours clicks do not queue sales. Buying pauses and cash shortages
+do not prevent an otherwise eligible manual sell.
+
+The result window shows actual fills and proceeds when available. **Manual sells…** reopens saved
+history; **Check sell status** reads the original order and remaining holdings. An uncertain order or
+lagging holdings update keeps new manual orders blocked. Do not remove saved records or attempt
+markers to retry. Closing the results window does not cancel the order. Sell records share the
+Windows-encrypted `ManualOrders` directory with buys and remain available after restart.
+
+**Limit sell…** opens a quantity/minimum-price preview. Its submission button is disabled; limit
+placement still needs a verified broker contract. Use Wealthsimple to place a limit sell today.
+Manual sales do not close SQL tracked positions or activate automatic strategy exits.
+
+## Manual market buys in WPF
+
+After rebuilding/restarting WPF, select a stock in either **Delphi → Picks** grid and use the single
+**Manual buy…** action below the grids. To add to an existing broker position, select it in
+**Trading → Main account → Your Wealthsimple holdings** and use **Buy more…** below that grid.
+There are no per-row Buy buttons; selection alone never submits. Sign in if necessary,
+select the verified self-directed TFSA if more than one exists, and enter the exact whole-share
+quantity. **Refresh checks** loads the reference ask, estimate, cash/buying power, holdings and orders.
+The explicit **Buy N SYMBOL at market** button sends a real order. Quantity starts blank; ±10 is optional.
+
+The initial version requires an open regular broker session, a two-sided quote no older than two
+minutes, account checks no older than thirty seconds, sufficient estimated CAD cash/buying power,
+and no pending broker or unresolved local order. Applicable global/Trading pauses and TFSA financial
+holds block submission. A price increase during final checks returns an updated review for another
+explicit click; estimates never guarantee the fill cost.
+
+**Manual orders…** is available beside Delphi's selected-stock action and in Trading's broker panel.
+It reopens the saved order and reads cumulative broker results with **Check order status**. After an
+uncertain submission, retain that order; a missing result does not permit replacement. Closing the
+window does not cancel it. Filled/partial shares and actual costs are broker observations. Manual buys
+do not activate portfolios, assign automatic selling or insert a tracked position automatically.
+**Record an existing fill…** and **Create Ghost position…** retain their separate legacy workflows.
+
+Full intents/results are Windows CurrentUser encrypted under
+`%LOCALAPPDATA%\TraderVI\Wealthsimple\ManualOrders`; the existing `OrderAttempts` folder holds the
+transmission fences. Do not remove either to retry a trade. Corruption or contradictory observations
+requires recovery/reconciliation and blocks new buys. These local records are not a cross-device or
+complete-account transaction ledger. Native live submission still requires the operator's deliberate
+first use; offline tests do not prove broker acceptance.
+
+For the supplied reference, open the ignored local
+`artifacts/wealthsimple-market-buy-20260910/README.md` index. Each GraphQL exchange has separate
+request/response JSON files; stable redacted IDs preserve relationships. Financial values remain private.
+The original HAR retains every byte. See [ADR-0074](adr/0074-wealthsimple-market-buy-protocol.md) for
+acknowledgement/fill semantics, attempt markers and remaining integration work.
+
+## TFSA strategy transition preview
+
+After native Wealthsimple sign-in, open **Trading → Main account**. Refresh reads balances, holdings
+and paginated pending orders. **Review TFSA strategy transition** ranks Delphi Live paper sources on
+their latest common saved day, with partial results labelled. Choose a source, enter a purchase ceiling
+and select **Refresh account and prepare review** to see the exact strategy version and proposed
+retained/exit/await-entry holdings. The ceiling defaults to zero and never includes anticipated sale
+proceeds. Paper-held symbols must resolve to unique CAD TSX/TSXV broker instruments before an
+overlap is accepted. Fixed-gate comparison profiles remain unsupported by real strategy approval.
+
+This screen is a preview: it does not activate a strategy, change SQL records or send orders. A green
+Wealthsimple connection confirms authentication, not execution readiness. Completed-fill reconciliation,
+durable order tracking, verified limit submission/cancellation and real Delphi Live monitoring remain
+unfinished. Existing recorded-account recommendation approval continues to use its existing gates.
+
+## Wealthsimple authentication prototype
+
+The isolated `Tools/Wealthsimple.Auth` console host can verify a user-completed browser session
+from a local HAR. It does not start the trading app or connect its dashboards. See
+[authentication commands and limits](concepts/wealthsimple-authentication.md). A successful direct
+token-info check is verified. WPF's **Wealthsimple** sidebar button now opens native email/password
+inputs and prompts for 2FA when required. Browser verification is a conditional fallback, and saved
+sessions use optional Windows encryption. Native login is operator-confirmed; live refresh rotation
+still needs verification. Green denotes authentication only, not trading readiness.
+
+On **Trading → Main account**, the **TFSA** page loads the self-directed broker account after sign-in.
+Use **Refresh Wealthsimple** for a new snapshot. Multiple eligible self-directed TFSAs require a choice;
+managed accounts are excluded. The lower expander contains TraderVI records and the active strategy.
+Broker reads do not update SQL reports, recorded fills or recommendation inputs. See [ADR-0072](adr/0072-wealthsimple-tfsa-account-display.md).
+
 ## Historical Practice
 
 The **Practice** tab opens a saved `frames.ndjson` for labelled playback with a simulated Toronto clock,
@@ -59,7 +163,7 @@ now implements manual recommendation promotion under [ADR-0062](adr/0062-complet
 as described below. Delphi Live's separate research promotion control changes its own paper policy only.
 Hercules saves replacement model candidates without selecting them. Training still writes private artifacts
 and SQL and needs explicit authorization; model selection is a separate reviewed operation under
-[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Broker execution is not implemented.
+[ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md). Strategy-directed broker execution is not implemented; the separate manual-buy ticket does not activate a strategy.
 
 ## Manual strategy promotion to Trading
 
@@ -359,6 +463,31 @@ Even in ghost mode, `buy`, `sell`, and `paper-monitor` mutate SQL records. `pape
 **Project:** `TraderVI.WPF`
 **Startup window:** `TraderVI.WPF/PaperDashboardWindow.xaml`
 
+### Fixed-gate comparison accounts
+
+Migration 033 and the initial five comparison pairs are active from September 9; see
+[ADR-0067](adr/0067-fixed-gate-paper-comparison-pairs.md). In **Portfolios → Compare**, select
+**Gate comparison pairs** to view adjacent Normal and Portfolio rules only accounts for each of the
+four Shadow strategies and Delphi Live. Each has independent CAD 1,000 starting cash. Select an account
+to see its fixed profile, publication, funded start, fresh-evidence boundary and admitted candidate count.
+The candidate monitor explains the remaining entry conditions; missing data remains a block.
+
+Keep the WPF host running for scheduled shared Live and Shadow collection. Startup reads the existing
+accounts; it does not create accounts or add capital. A newer valid publication under the pinned daily
+strategy is adopted automatically by both members. Changing the active daily strategy pauses incompatible
+new entries; it does not mutate a pair. Global new-buy pauses in Settings continue to apply, with held
+protection retained. The original Shadow generation's controls do not target comparison selections.
+
+Profiles and paired rules are fixed, and their names identify the pair. Shared Settings and recommendation
+review cannot change or promote these accounts. A future experiment requires a separately reviewed fresh
+pair. The initial operator-only activation is `PaperComparisonRepository.ActivateInitialAsync`; the
+explicit helper and verification records are under ignored `artifacts/gate-comparisons-20260909/`.
+Activation retries return the existing ten identities without resetting cash or history. Do not replay
+the immutable migration against an already installed schema. Today's 13:25 source boundary and runtime
+gaps remain partial-session evidence; neither missing returns nor missing opening bars are fabricated.
+
+### Existing accounts and monitoring
+
 The WPF app is the tabbed interactive TraderVI shell. Its Tracked positions area shows open Delphi-linked positions plus operator-reported Real holdings that were enrolled without a Delphi pick; completed lifecycles remain available in Trade history. Unlinked Real holdings are labelled as historical, begin durable monitoring at their enrollment time, and cannot receive the fresh-Delphi loss exception. Unlinked Ghost rows remain excluded. The tab also shows separate Ghost/Real realized and unrealized P/L plus durable poll receipts. Rows use both an icon and a `GHOST`/`REAL` label. It refreshes SQL history every thirty seconds. During the Toronto regular monitoring window it runs once on startup and then collects every five minutes from the first safe 09:47 poll through 16:02. The exit policy still consumes only completed 15-minute bars; intermediate collection ticks do not create five-minute policy decisions. Outside that window it is history-only and makes no TMX request.
 
 The Portfolios tab adds ADR-0051's separately versioned Shadow V1 ledger. Enter the total TFSA value and
@@ -441,7 +570,7 @@ The Project Docs tab discovers Markdown throughout the repository except `.git`,
 dotnet run --project TraderVI.WPF
 ```
 
-Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The app has manual ledger-reconciliation controls but no broker connection and cannot place a real order; automatic actions are database-only Ghost exits.
+Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The tracked-position monitor has manual ledger-reconciliation controls; its automatic actions remain database-only Ghost exits. The separate manual-buy ticket can submit an explicitly reviewed broker order and does not give this monitor automatic broker authority.
 
 ## Delphi Live — explicit paper-monitor activation
 
@@ -602,3 +731,7 @@ Feature vectors must have fixed size. Training and inference must use matching s
 - Run the OBV backfill only when explicitly authorized.
 - Confirm `MarketClimax` exists and Hermes has written at least one row.
 - CLX is diagnostic-only; missing history should degrade reporting rather than alter ranking.
+
+## Automatic daily-source recovery (ADR-0066)
+
+After manual migration 032 and a WPF restart, active Shadow and Delphi Live sessions adopt newer Valid OfficialPaper results for today, the prior reviewed TSX session and the assigned daily strategy. No session reset is needed after a late Delphi run. Inspect the account explanation/activity and Live source warning for the active run and adoption time. Original freezes and coverage gaps remain; old pending buys are cancelled and confirmation restarts. Daily gates still apply. WPF waits for its monitor to release the durable lease when closing.

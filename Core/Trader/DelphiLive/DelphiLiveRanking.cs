@@ -99,6 +99,7 @@ public sealed record DelphiLiveDailySetupQuality
     public decimal CommonDelphiComposite { get; }
     public ImmutableArray<DelphiLiveSourceLensQuality> SourceLenses { get; }
     public int BestSelectedSourceRank { get; }
+    public PaperGateAdmission? ComparisonAdmission { get; init; }
 
     public int? RankFor(DelphiLiveSourceLens lens)
     {

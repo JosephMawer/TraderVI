@@ -392,7 +392,8 @@ public sealed class DelphiWorkflow
                 foreach (var usSymbol in Core.TMX.UsIndexSymbols.AllSymbols)
                 {
                     var bars = historical is null ? await usIndexBarsRepo!.GetBarsAsync(usSymbol, usIndexFrom) : historical.UsIndices.GetValueOrDefault(usSymbol, []).Where(x => x.Date >= usIndexFrom && x.Date.Date < recommendationDate).OrderBy(x => x.Date).ToArray();
-                    if (bars.Count > 0) usIndexBars[usSymbol] = bars;
+                    var completedBars = DailyBenchmarkPolicy.PrepareUsIndexHistory(bars, marketDataAsOf);
+                    if (completedBars.Count > 0) usIndexBars[usSymbol] = completedBars;
                 }
 
                 // Load XIU bars for the Market Tape (Light Volume indicators #25–#28 — see ADR-0006).

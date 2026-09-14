@@ -38,12 +38,12 @@ public sealed partial class DelphiLiveViewModel
     public string WatchlistSummary => IsReplayMode
         ? replayReport is null ? "No saved replay loaded. Open a replay file to inspect a past session." :
             $"{replayReport.SessionDate:dddd, MMMM d, yyyy} · {WatchlistRows.Count} stocks · historical simulation · estimated trades"
-        : AllObservations.Count > 0 ? $"{Status} · {WatchlistRows.Count} observed stocks · {Coverage}"
+        : SelectedPortfolio is not null ? $"{SelectedPortfolio.DisplayName} · {WatchlistRows.Count} observed stocks · {Coverage}"
         : dailyPreview.Run is null ? "No valid saved Delphi run is available yet."
         : $"{dailyPreview.Run.RecommendationDate:dddd, MMMM d, yyyy} · {dailyPreview.Picks.Count} published stocks · {dailyPreview.Picks.Count(p => p.Eligible)} daily-eligible · overlaps combined";
     public string WatchlistHelp => IsReplayMode
         ? "Move the time control to follow the day. Signals use five-minute bars; trade prices are estimates from historical minute bars."
-        : AllObservations.Count > 0 ? "Signals use saved live observations. Select a stock for its data quality and explanation."
+        : SelectedPortfolio is not null ? "Saved observations for this paper account only. Account selection changes the view, not the strategy running. Select a stock for its data quality and explanation."
         : dailyPreview.Run is null ? "Refresh picks to read the latest saved daily run. This does not start monitoring."
         : $"Saved Delphi picks using {dailyPreview.Run.MarketDataAsOf:MMM d} daily data. Live signals will appear here when monitoring begins.";
     public string WatchlistNotice => !IsReplayMode && (AllObservations.Count > 0 || Status.Contains("attention", StringComparison.OrdinalIgnoreCase)) ? Warning : "";
@@ -127,9 +127,9 @@ public sealed partial class DelphiLiveViewModel
                 r.ChangeFromPreviousClose, Words(r.Momentum), Words(r.State), r.Confidence, Words(r.Reason),
                 $"{Words(r.State)}. {Words(r.Reason)}. {string.Join("; ", r.Families.Select(f => $"{Words(f.Family.ToString())}: {Words(f.State.ToString())}"))}.",
                 JsonSerializer.Serialize(r, new JsonSerializerOptions { WriteIndented = true }))) ?? [];
-        else if (AllObservations.Count > 0)
-            rows = AllObservations.GroupBy(r => r.Symbol).Select(g => g.OrderBy(r => r.Role == "OperationalChampion" ? 0 : 1).First())
-                .Select(r => new DelphiLiveWatchlistRow(r.Symbol, r.DailySource, r.Rank, r.Price, r.ChangeFromPreviousClose, Words(r.Momentum), Words(r.Lifecycle),
+        else if (SelectedPortfolio is not null)
+            rows = DelphiLiveWatchlistScope.ForAccount(AllObservations, SelectedPortfolio.PortfolioId)
+                .Select((r, index) => new DelphiLiveWatchlistRow(r.Symbol, r.DailySource, index + 1, r.Price, r.ChangeFromPreviousClose, Words(r.Momentum), Words(r.Lifecycle),
                     Words(r.Confidence), Words(r.Reason), $"{Words(r.Momentum)} · {Words(r.Lifecycle)}. {Words(r.Reason)}.", r.EvidenceJson));
         else rows = dailyPreview.Picks.Select((p, index) => new DelphiLiveWatchlistRow(p.Symbol, p.Source, index + 1, p.PreviousClose,
             null, "Not observed yet", p.Eligible ? "Waiting for monitoring" : "Daily gate blocked", "Daily snapshot",

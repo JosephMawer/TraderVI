@@ -1,7 +1,22 @@
+---
+cssclasses:
+  - executive-brief
+---
 # Global settings: agreed operating workflow
 
 - **Status:** Accepted and implemented in source, 2026-09-07; migration 028 rollout tracked in project status.
 - **Related:** ADR-0060, [system map](settings-system-map.md), [implementation review](../reviews/central-settings-implementation-20260907.md).
+
+> [!summary] Operating decision
+> Change trading rules only after the affected system is paused and has no holdings or pending orders. Save a new strategy version, assign it, then explicitly resume buys. This keeps each trade's rules and history explainable.
+
+| Operator action | Result |
+|---|---|
+| Pause new buys | New entries stop; monitoring and protective exits continue. |
+| Close holdings and wait for pending orders to finish | Strategy editing and assignment become available for that system family. |
+| Save → Assign → Resume | Future eligible decisions use the assigned version; saving alone changes no active assignment. |
+
+**Key dependency:** Daily Delphi supplies all execution systems. Changing its models or gates requires every dependent family to be paused and empty.
 
 The immediate problem is changing trading rules without changing the rules underneath an open trade.
 The parent problem is clear configuration ownership. The root goal is dependable operation and an

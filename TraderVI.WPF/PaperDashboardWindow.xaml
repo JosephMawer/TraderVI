@@ -15,6 +15,13 @@
         <SolidColorBrush x:Key="PositiveBrush" Color="#55D68B"/>
         <SolidColorBrush x:Key="WarningBrush" Color="#F5B94C"/>
 
+        <!-- All dashboard pages inherit dark disclosure panels unless they supply a local style. -->
+        <Style TargetType="Expander" BasedOn="{StaticResource MaterialDesignExpander}">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
+            <Setter Property="Foreground" Value="#F4F7FB"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
             <Setter Property="CornerRadius" Value="12"/>
@@ -68,22 +75,55 @@
             <Setter Property="Padding" Value="18,9"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FFFFFF"/>
+                                <Setter TargetName="Chrome" Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Background" Value="#253245"/>
+                                <Setter Property="Foreground" Value="#A9B9CC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource PanelAltBrush}"/>
+            <Setter Property="Foreground" Value="#EAF0F8"/>
+            <Setter Property="CaretBrush" Value="#EAF0F8"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
         </Style>
         <Style TargetType="TabItem">
             <Setter Property="Background" Value="#1A2029"/>
-            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="Foreground" Value="#F4F7FB"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
                         <Border x:Name="TabBorder" Background="{TemplateBinding Background}"
                                 CornerRadius="9,9,0,0" Padding="20,10">
-                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"/>
+                            <ContentPresenter x:Name="TabHeader" ContentSource="Header" HorizontalAlignment="Center"
+                                              TextElement.Foreground="{StaticResource MutedBrush}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="#08111D"/>
+                                <Setter TargetName="TabHeader" Property="TextElement.Foreground" Value="#08111D"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -92,12 +132,13 @@
         </Style>
     </Window.Resources>
 
-    <TabControl x:Name="MainTabs" Background="Transparent" BorderThickness="0" Padding="0">
-      <TabItem x:Name="PaperTradingTab" Header="Trading">
-       <TabControl>
-        <TabItem Header="Recommendations"><views:TradingRecommendationsView x:Name="TradingRecommendationsTabView"/></TabItem>
-        <TabItem Header="Tracked holdings and monitor">
-       <Grid Margin="22">
+    <TabControl x:Name="MainTabs" Style="{StaticResource WorkspaceNavigation}" Background="Transparent" Foreground="#F4F7FB" BorderThickness="0" Padding="0">
+      <TabItem x:Name="PaperTradingTab" Header="Trading" views:WorkspaceNavigationState.Icon="&#xE80F;">
+       <!-- Nested tabs otherwise pick up the application's MaterialDesign Light surface and text. -->
+       <TabControl x:Name="TradingSections" Background="#11151B" Foreground="#F4F7FB" BorderThickness="0" Padding="0">
+        <TabItem Header="Main account"><views:TradingRecommendationsView x:Name="TradingRecommendationsTabView"/></TabItem>
+        <TabItem Header="Recorded trades &amp; monitor">
+       <Grid Margin="22" TextElement.Foreground="#F4F7FB">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -265,28 +306,28 @@
         </TabItem>
        </TabControl>
       </TabItem>
-      <TabItem Header="Portfolios">
+      <TabItem Header="Portfolios" views:WorkspaceNavigationState.Icon="&#xE821;">
         <views:PortfoliosView x:Name="PortfoliosTabView"/>
       </TabItem>
-      <TabItem Header="Practice">
-        <views:PracticeView/>
-      </TabItem>
-      <TabItem Header="Data Audit">
-        <views:DataAuditView/>
-      </TabItem>
-      <TabItem Header="Delphi">
+      <TabItem Header="Delphi" views:WorkspaceNavigationState.Icon="&#xE721;">
         <views:DelphiView x:Name="DelphiTabView"/>
       </TabItem>
-      <TabItem Header="Delphi Live">
+      <TabItem Header="Delphi Live" views:WorkspaceNavigationState.Icon="&#xE95E;">
         <views:DelphiLiveView x:Name="DelphiLiveTabView"/>
       </TabItem>
-      <TabItem Header="Scorecards">
+      <TabItem Header="Practice" views:WorkspaceNavigationState.Icon="&#xE768;">
+        <views:PracticeView/>
+      </TabItem>
+      <TabItem Header="Data Audit" views:WorkspaceNavigationState.Icon="&#xE9D9;">
+        <views:DataAuditView/>
+      </TabItem>
+      <TabItem Header="Scorecards" views:WorkspaceNavigationState.Icon="&#xE9D2;">
         <views:ScorecardsView/>
       </TabItem>
-      <TabItem Header="Settings" x:Name="SettingsTab">
+      <TabItem Header="Settings" x:Name="SettingsTab" views:WorkspaceNavigationState.Icon="&#xE713;">
         <views:GlobalSettingsView x:Name="SettingsTabView"/>
       </TabItem>
-      <TabItem Header="Project Docs">
+      <TabItem Header="Project Docs" views:WorkspaceNavigationState.Icon="&#xE8A5;">
         <views:ProjectDocsView/>
       </TabItem>
     </TabControl>

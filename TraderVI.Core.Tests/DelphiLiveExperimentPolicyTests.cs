@@ -145,6 +145,19 @@ public sealed class DelphiLiveExperimentPolicyTests
 
     private static DelphiLiveExperimentState State() => new(DelphiLiveExperimentWorkflow.ProtocolId, Guid.NewGuid(), Champion, 0,
         DelphiLiveExperimentPhase.EngineeringShakedown, Definition, null, [], [], [], [], null, Now.AddDays(-1), "Test");
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OperationalSourceOrComparisonsCanOnlyExcludeAnExistingCohort(bool comparison)
+    {
+        var original = Cohorts(0, 1)[0];
+        var store = new Store(State() with { Phase = DelphiLiveExperimentPhase.Discovery, DiscoveryCohorts = [original] });
+        var workflow = new DelphiLiveExperimentWorkflow(store);
+        var flagged = await workflow.RecordCohortAsync(original with { DailySourceChanged = !comparison, ComparisonAccountsActive = comparison }, Now, Lease);
+        flagged.DiscoveryCohorts.Single().IsClean.ShouldBeFalse();
+        await Should.ThrowAsync<InvalidOperationException>(() => workflow.RecordCohortAsync(original, Now, Lease));
+    }
+
     private static DelphiLiveCohortEvidence[] Cohorts(int start, int count, decimal champion = .001m, decimal challenger = .002m) =>
         Enumerable.Range(start, count).Select(i => new DelphiLiveCohortEvidence(new DateOnly(2026, 1, 1).AddDays(i), i,
             i % 2 == 0 ? "Bullish" : "Mixed", 156, 156, false, false, true, true, true, false, false,

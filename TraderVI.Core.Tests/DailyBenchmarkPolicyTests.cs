@@ -87,6 +87,34 @@ public class DailyBenchmarkPolicyTests
     }
 
     [Fact]
+    public void DaytimeRecoveryExcludesUnfinishedUsIndexDataFromTheDailyReport()
+    {
+        var completed = new UsIndexBar("^GSPC", Target, 100, 102, 99, 101, 1000);
+        var preview = new UsIndexBar("^GSPC", Target.AddDays(4), 101, 200, 1, 2, 10);
+        var snapshot = DailyBenchmarkPolicy.PrepareUsIndexHistory([preview, completed], Target);
+        snapshot.ShouldBe([completed]);
+    }
+
+    [Theory]
+    [InlineData(8, 8)]
+    [InlineData(9, 8)]
+    [InlineData(4, 4)]
+    public void UsIndexRecoveryFetchesOnlyCompletedDaysAndRefreshesTheLastStoredObservation(int storedDay, int expectedFromDay)
+    {
+        var range = DailyBenchmarkPolicy.UsIndexRefreshRange(new(2026, 9, 9, 9, 50, 0), new(2026, 9, storedDay), 10);
+        range.From.ShouldBe(new DateTime(2026, 9, expectedFromDay));
+        range.Through.ShouldBe(new DateTime(2026, 9, 8));
+    }
+
+    [Fact]
+    public void UsIndexPreviewIsRefreshedOnceItsSessionHasCompleted()
+    {
+        var range = DailyBenchmarkPolicy.UsIndexRefreshRange(new(2026, 9, 10), new(2026, 9, 9), 10);
+        range.From.ShouldBe(new DateTime(2026, 9, 9));
+        range.Through.ShouldBe(range.From);
+    }
+
+    [Fact]
     public void NewDecisionRequiresDatedModelsAndDoesNotChangeOldPolicyDispatch()
     {
         DailyBenchmarkPolicy.IsRequired("ADR-0056").ShouldBeFalse();

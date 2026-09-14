@@ -1,0 +1,22 @@
+<UserControl x:Class="TraderVI.WPF.Views.LimitSellTicketPanel"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Background="#1A2029" Foreground="#F4F7FB" FontFamily="Segoe UI">
+ <UserControl.Resources>
+  <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/></Style>
+  <Style TargetType="TextBox"><Setter Property="Background" Value="#111820"/><Setter Property="Foreground" Value="#F4F7FB"/><Setter Property="BorderBrush" Value="#465367"/><Setter Property="Padding" Value="10,8"/><Setter Property="MinHeight" Value="40"/></Style>
+ </UserControl.Resources>
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+  <TextBlock Text="Limit sell" FontSize="25" FontWeight="SemiBold"/>
+  <TextBlock Text="{Binding Symbol}" FontSize="21" Margin="0,14,0,5"/>
+  <TextBlock Text="{Binding Account}" Foreground="#AAB8CB"/>
+  <TextBlock Text="{Binding Held, StringFormat='Holding shown: {0} shares'}" Foreground="#AAB8CB" Margin="0,5,0,18"/>
+  <Border Background="#342C23" Padding="14" CornerRadius="6"><TextBlock Text="Limit selling is not available yet. This ticket is a preview and cannot submit an order." Foreground="#EAC58B"/></Border>
+  <TextBlock Text="Shares to sell" Margin="0,20,0,6"/>
+  <TextBox x:Name="SharesInput" Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Shares to sell"/>
+  <TextBlock Text="Minimum price per share · CAD" Margin="0,16,0,6"/>
+  <TextBox x:Name="LimitPriceInput" Text="{Binding LimitPriceText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Minimum limit price in CAD"/>
+  <TextBlock Text="{Binding Estimate}" Margin="0,18,0,8"/>
+  <TextBlock Text="A limit order may remain unfilled. Use Wealthsimple to place a limit sell today." Foreground="#AAB8CB" Margin="0,4,0,20"/>
+  <Button Content="Limit sell unavailable" IsEnabled="{Binding CanSubmit}" Style="{StaticResource WorkspaceButton}" HorizontalAlignment="Left"/>
+ </StackPanel></ScrollViewer>
+</UserControl>

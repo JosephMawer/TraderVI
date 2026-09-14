@@ -27,10 +27,12 @@ public sealed record DelphiLiveCohortEvidence(
     ImmutableDictionary<Guid, decimal?> MaximumCheckpointDrawdowns)
 {
     public bool EvidenceConflict { get; init; }
+    public bool DailySourceChanged { get; init; }
+    public bool ComparisonAccountsActive { get; init; }
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsClean => ExpectedOperationalSlots > 0 && UsableOperationalSlots == ExpectedOperationalSlots &&
         !HasHostGap && !HasOverlappingCycle && StablePolicyIdentities && ReconstructibleDecisionsAndFills &&
-        !CorporateActionUnsupported && !CapitalChanged && !EvidenceConflict;
+        !CorporateActionUnsupported && !CapitalChanged && !EvidenceConflict && !DailySourceChanged && !ComparisonAccountsActive;
 }
 
 public sealed record DelphiLivePromotionScore(

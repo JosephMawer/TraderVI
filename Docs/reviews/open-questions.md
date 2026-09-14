@@ -5,6 +5,66 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Remaining manual-sell integration
+
+- **Protocol implemented September 11:** [ADR-0076](../adr/0076-wealthsimple-market-sell-protocol.md)
+  adds captured whole-share market sell and scoped fill reading, validates market buy, and shares
+  compatible attempt fences across sides. Native sell acceptance is still unverified.
+- **Manual workflow resolved September 13:** [ADR-0077](../adr/0077-manual-holdings-market-sell.md)
+  implements the operator-chosen immediate sell-all row action, protected intent/recovery, exact
+  holdings/pending-order checks, cross-side reservations and remaining-holdings verification.
+- **Still deferred:** verified limit-sell placement (the dialog is only a preview), native live mutation
+  acceptance, cancel/replace, cross-device order coordination, full SQL position/cash reconciliation,
+  and ownership of manual versus strategy exits. No automatic sell engine is enabled.
+
+### Fixed-gate paper comparison follow-up
+
+- **Design resolved September 9:** [ADR-0067](../adr/0067-fixed-gate-paper-comparison-pairs.md) records
+  five fresh matched pairs: the four Shadow strategies plus Delphi Live, CAD 1,000 per account,
+  published selection limits, and lifetime-fixed Normal/Portfolio rules only profiles. Existing
+  accounts continue separately. Migration 033 and all ten accounts are now active, with a common
+  September 9 13:25 Toronto source boundary. Initial collection and both engines' processing are verified.
+- **Follow-up evidence:** observe paired closes over aligned sessions, preserving missing valuations
+  and today's partial coverage. No gate-performance conclusion exists on the activation day. The
+  accounts' pinned daily strategy must not be silently changed by global strategy selection.
+- **Deferred:** breadth-only variants, arbitrary per-gate editors and profile changes within existing
+  accounts. Provider conflicts and nightly Hermes mapping failures remain separate work.
+
+### Nightly reliability after source-adoption recovery
+
+- **Source/account recovery resolved September 9:** ADR-0066 automatic publication adoption and ADR-0067
+  fixed-gate pairs are implemented and active. Preserve the historical observations below; their proposed
+  late-start/account decisions are superseded. Hermes mapping failures and provider bar conflicts remain
+  independent operational follow-up work.
+
+- **September 9 revised user direction:** operational paper portfolios should automatically adopt a
+  newer valid Delphi publication, including the corrected current run, rather than permanently reject
+  publications after 09:30. Gate-profile/account details are being aligned in the
+  [source adoption and comparison draft](../concepts/paper-source-refresh-and-gate-profiles-draft.md).
+  A read-only evaluation of today's saved run found that breadth-only bypass still admits zero of 207
+  candidates per lens because Granville blocks next. Portfolio-rules-only comparison accounts are now
+  the recommended first experiment. No runtime adoption or new profile has been applied by this draft.
+
+- **September 8 bounded exception applied:** the operator subsequently requested forced Top 3/Top 5
+  paper candidates for engineering observation. [ADR-0064](../adr/0064-one-session-shadow-engineering-override.md)
+  and migration 030 record the 11:02 adoption, fresh 11:05 bar boundary, preserved financial/official
+  evidence, and visible test labels. This one-session exception does not implement a reusable late-start
+  control. Raw portfolio charts include the test and any carried effects.
+- **Observed September 8:** concurrent source edits stopped the nightly preflight before execution.
+  A user-authorized 09:52 Delphi run successfully published today's report from current completed-session
+  inputs, but Shadow's 09:30 availability cutoff and already-frozen `NoValidDelphiRun` sessions still block
+  ordinary entries. The operator challenged losing the rest of the day to this rule.
+- **Proposed direction, awaiting a decision:** an explicit, recorded late start may adopt the new daily
+  source prospectively, require fresh observations after that boundary, retain holdings/pending protective
+  exits/risk holds, and label the session incomplete for comparable performance evidence. Do not backdate
+  picks, replay missed fills, erase the original blocked session, or silently relax the ordinary cutoff.
+- **Resolve:** how to record the source transition within a frozen session, which account scopes can
+  resume, and whether late-start evidence is excluded or shown separately in comparison/research.
+- **Related retry risk resolved September 9:** authorized recovery exposed the unfinished-day US-index
+  issue. Hermes now requests before the local run date and refreshes its last stored observation;
+  Delphi bounds US diagnostic context to the completed TSX date. The corrected full pipeline passed.
+  See the daytime-recovery addendum to ADR-0058; this correction does not implement source adoption.
+
 ### Historical practice environment — follow-up milestones
 
 - **Accepted:** shared Core runner, separate saved historical dataset, and eventual WPF Practice display;
@@ -14,6 +74,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   August 4 and September 4, 2026; all 156 five-to-fifteen aggregation comparisons matched exactly.
 - **Accepted first model mode:** exploratory runs with today's preserved model set, pinned per run and
   visibly labelled; later-trained/unverified models do not establish honest historical forecasts.
+- **Accepted starter universe:** today's eligible stock list and sector classifications, explicitly
+  exploratory and retaining their actual capture date. Historical membership remains unverified;
+  prices and indicator histories still obey the historical cutoff.
 - **Accepted first milestone:** historical daily Delphi plus all four independent Shadow portfolios,
   carrying accounts across sessions; Delphi Live follows afterward.
 - **Accepted starter trial:** latest 20 consecutive completed TSX sessions, including source gaps. The
@@ -27,9 +90,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Implemented in source:** bounded historical daily inputs, the shared Shadow controller with isolated
   storage/time, pinned packages, 20-session scheduling, per-account CAD 1,000, gap diagnostics and WPF
   recorded playback. [Contracts and commands](../concepts/historical-practice-implementation.md).
-- **Open:** acquire/inspect the actual starter dataset under separate operator authority; establish
-  historical universe/sector membership provenance without backdating current membership. Missing
-  inputs remain permitted. No actual 20-session market-data trial has run yet.
+- **Starter trial completed and deployed:** 964 successful TMX requests supplied 44,792 bars, retaining
+  5,336 missing slots. Daily Delphi published on all 20 sessions; the four accounts produced 255 fills.
+  Two actual-data runs are byte-identical and the independent audit passed. WPF playback is open;
+  all 76 operational table counts and selected state hashes are unchanged. Exact historical membership
+  remains deferred, not backdated. See ADR-0063 for outcomes and assumptions.
 - **Deferred:** automatic checkpoint resume, real isolated SQL/time/lease integration, deliberate
   provider-failure injection, throughput testing, live runner controls in WPF and Delphi Live replay.
 - **Deferred:** broader acquisition, historical quote/corporate-action verification and walk-forward training.
@@ -330,6 +395,25 @@ Things we punted on and need to revisit. Cleared as decisions are made
   manual-fill boundary and ADR-0048 makes the current full exit atomic/retry-safe. Neither authorizes partial
   fills, commissions, a broker connection, or order routing.
 
+### Main-account overview — ADR-0068 follow-through
+
+- **Deferred: complete-account earnings periods.** The accepted UI direction is implemented and
+  verified offline, with total gain explicitly unavailable. The current useful measures are recorded
+  sale gains over the last 30 Toronto calendar days and saved open-position gains; neither is complete
+  broker earnings. Selectable full-account return periods and today's change await sufficient history.
+- **Open: complete earnings evidence.** Define supported account history, net contributions,
+  withdrawals/transfers, fees, income, open-position valuation and freshness before displaying a
+  real-account earnings total. Account reports alone do not establish complete cash-flow returns.
+  Distinguish closed-trade realized gains from unrealized changes in open holdings. Define strategy
+  attribution separately so a newly selected strategy does not inherit credit for all account history.
+- **Deferred behavior decisions:** changing strategy with holdings/orders still open, or making fixed
+  gate-comparison accounts promotable. Quick access to review is the accepted UI direction;
+  ADR-0062's paused/empty rule and ADR-0067's fixed-pair promotion exclusion remain unchanged.
+- **Deferred integration:** Wealthsimple connection, account reconciliation and autonomous execution
+  remain future work under ADR-0055. The UI must show its actual account-data and execution authority.
+
+See [the connected workspace draft](../concepts/trading-workspace-redesign-draft.md).
+
 ## Resolved
 
 - **Missing Friday data and SPY confirmation (S8/S9)** — resolved under ADR-0058 on 2026-09-06.
@@ -379,7 +463,62 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Portfolios comparison — follow-through after ADR-0061
 
+- **September 9 operational follow-up:** recovery published after 09:30, so normal Shadow and Live
+  source freezing correctly rejected it; all published rows also failed Breadth. The existing September 8
+  exceptions do not apply. A tracked holding's multi-day 15-minute request now reports immutable-bar
+  conflicts, blocking that holding's automatic policy evaluation. Provider correction/reconciliation
+  requires review; do not overwrite first-received evidence to clear a status. ARX/SES still have no
+  new TMX bars/detail responses; verify listing/universe treatment before the next weekly map refresh.
+
+- **September 8 operational follow-up:** ADR-0065 applies a specifically authorized, dated Live
+  engineering admission. A reusable late-start facility, UI test label and clean restart of the
+  resulting comparison history remain design work; the one-date SQL exception is not that facility.
+
 - **Accepted/implemented:** Compare as default, Performance, and one-challenger Strategy review; shared selection, period and account scope. Existing operational tools remain accessible in a collapsed section.
 - **Provisional display:** aligned saved closing-date returns, normalized charts and maximum observed closing decline. Account histories can span earlier rule assignments; observed dates do not prove complete TSX session coverage.
 - **Implemented under ADR-0062:** complete-strategy identity, supporting paper-account mapping and durable human-approved Trading routing. Prospective statistically comparable evidence remains deferred to automated Wealthsimple activation; lifetime paper returns remain descriptive.
 - **Deferred:** historical daily Shadow generations, arbitrary date selection, benchmark overlay, period trade/fill statistics and reconciled Real cash-flow returns. These need explicit evidence contracts, not invented values.
+
+
+**September 9, 11:10 update:** source adoption is deployed under [ADR-0066](../adr/0066-operational-paper-daily-source-adoption.md); four Shadow sessions and Live use the corrected current run. Earlier cutoff blocks above are historical. Separate normal/portfolio-rules-only comparisons are the next accepted milestone, with concrete account family/count and capital at activation. Gates remain unchanged. The tracked bar conflict, provider gaps and nightly Hermes map-failure handling remain separate follow-ups.
+
+### Direct Wealthsimple integration — ADR-0069 through ADR-0072
+
+- Native sign-in is operator-confirmed. Read-only self-directed TFSA discovery, balances, returns and
+  holdings are live-verified under ADR-0072. Managed TFSA accounts remain excluded.
+- Verify refresh rotation after actual expiry, reconnect behavior and any provider DPoP rollout.
+  Browser key handoff remains unsupported; protected bearer storage remains opt-in.
+- Design broker-to-local reconciliation of fractional holdings, security identities, fill history,
+  deposits/withdrawals, income, pending orders and valuation currency before feeding strategy inputs.
+- Design order submission/status/cancellation, duplicate prevention, account authority and reviewed
+  execution limits separately. The new account display has no order endpoint or SQL write path.
+
+### Permanent TFSA and primary execution — ADR-0073
+
+- **Manual market-buy UI, September 10:** [ADR-0075](../adr/0075-manual-market-buy-ticket.md) implements
+  the accepted editable whole-share ticket, compact dialog and operator-managed buys. The captured
+  broker quote/session contract, protected full-intent recovery and cumulative observations are wired
+  and tested offline. Native live acceptance, account-wide accounting reconciliation, conflict recovery
+  tooling, cross-device history and less restrictive pending-order reservations remain unfinished.
+  Portfolio automation, selling and automatic tracked-position/exit ownership remain deferred.
+
+- ADR-0074 supplies the market-buy client contract and cumulative fill-status read from an operator
+  capture. ADR-0075 adds protected reviewed intents, cumulative observations and recovery UI for manual
+  buys. Native live mutation acceptance and broker duplicate-ID behavior remain unverified; strategy
+  execution/account reconciliation remain unfinished. Preserve the strategy limit-order preference;
+  manual market buying does not authorize automatic market fallback or strategy activation.
+
+- Accepted: permanent self-directed TFSA, independent paper portfolios, primary strategy version as
+  future real-order authority, reconciliation and no TraderVI-originated fractional-share orders.
+- The ten-share buy increment is a preference, not a board-lot or guaranteed-fill rule. The implemented
+  sizing helper rounds down within risk/cash limits and permits smaller whole quantities below ten.
+  Its use in a real execution workflow remains unfinished; exits allow any positive whole quantity.
+- Accepted clarification: retain overlapping holdings and let the incoming strategy manage them;
+  do not sell solely to repurchase on promotion. An unconditional cash-start transition is superseded.
+- Define the incoming intended-holdings snapshot, treatment of stale paper state, quantity adjustments,
+  protection initialization, required non-overlap exits and activation timing. Preserve actual cost
+  basis/entry history and distinguish strategy handover from a new purchase.
+- Confirm limit pricing, unfilled-order behavior, cancellation and protection ownership throughout
+  transition. Retained holdings change the future activation condition from unconditional emptiness.
+- Continue the [integration draft](../concepts/strategy-promotion-and-execution.md#tfsa-integration-draft--september-10-2026).
+  Reconciliation, complete order lifecycle, evidence eligibility and operational activation remain work.

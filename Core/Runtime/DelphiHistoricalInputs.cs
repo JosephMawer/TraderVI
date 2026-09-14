@@ -26,6 +26,12 @@ public sealed record DelphiHistoricalInputs
     public Dictionary<string, List<OBV>> Obv { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     public List<MarketClimaxEntry> Climax { get; init; } = [];
     public List<DatedDelphiMembership> Membership { get; init; } = [];
+    // Explicit exploratory assumption, never disguised as an observed historical snapshot.
+    // Only membership/classification changes: prices and indicator series remain bounded before each day.
+    public DatedDelphiMembership? ExploratoryCurrentUniverse { get; init; }
+    public string UniverseTimingNote => ExploratoryCurrentUniverse is { } current
+        ? $"Exploratory current stock list and classifications, captured {current.AsOf:yyyy-MM-dd} UTC; historical membership unverified."
+        : "Dated historical membership only; absent snapshots remain unavailable.";
 
     public List<DailyBar> Bars(string symbol, DateTime before, DateTime? from = null) =>
         Daily.GetValueOrDefault(symbol, []).Where(x => x.Date.Date < before.Date && (!from.HasValue || x.Date >= from))
@@ -33,6 +39,7 @@ public sealed record DelphiHistoricalInputs
 
     public DatedDelphiMembership Members(DateTime before)
     {
+        if (ExploratoryCurrentUniverse is not null) return ExploratoryCurrentUniverse;
         var snapshot = Membership.Where(x => x.AsOf.Date < before.Date).OrderBy(x => x.AsOf).LastOrDefault()
             ?? new(before.AddDays(-1), [], [], []);
         return snapshot with { Sectors = snapshot.Sectors.Where(x => x.LastUpdated.Date < before.Date).ToArray() };

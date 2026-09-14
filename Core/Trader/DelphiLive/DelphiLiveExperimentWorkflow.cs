@@ -250,9 +250,11 @@ public sealed class DelphiLiveExperimentWorkflow(IDelphiLiveExperimentStore stor
         if (index < 0) return existing.Add(cohort).OrderBy(c => c.SessionDate).ToImmutableArray();
         var prior = existing[index];
         if (DelphiLiveLedgerJson.Serialize(prior with { FiveSessionResearchMature = cohort.FiveSessionResearchMature,
-                CorporateActionUnsupported = cohort.CorporateActionUnsupported, EvidenceConflict = cohort.EvidenceConflict }) !=
+                CorporateActionUnsupported = cohort.CorporateActionUnsupported, EvidenceConflict = cohort.EvidenceConflict,
+                DailySourceChanged = cohort.DailySourceChanged, ComparisonAccountsActive = cohort.ComparisonAccountsActive }) !=
                 DelphiLiveLedgerJson.Serialize(cohort) || prior.FiveSessionResearchMature && !cohort.FiveSessionResearchMature ||
-                prior.CorporateActionUnsupported && !cohort.CorporateActionUnsupported || prior.EvidenceConflict && !cohort.EvidenceConflict)
+                prior.CorporateActionUnsupported && !cohort.CorporateActionUnsupported || prior.EvidenceConflict && !cohort.EvidenceConflict ||
+                prior.DailySourceChanged && !cohort.DailySourceChanged || prior.ComparisonAccountsActive && !cohort.ComparisonAccountsActive)
             throw new InvalidOperationException("A cohort's operational facts and original policy returns cannot be rewritten by later research recovery.");
         return existing.SetItem(index, cohort);
     }

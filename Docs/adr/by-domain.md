@@ -4,6 +4,24 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0075](0075-manual-market-buy-ticket.md) — Shared manual ticket, protected order journal and recovery
+- [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Shared buy/sell transport and compatible attempt protection
+- [ADR-0077](0077-manual-holdings-market-sell.md) — Shared protected manual buy/sell journal and remaining-holdings verification
+
+- [ADR-0074](0074-wealthsimple-market-buy-protocol.md) — Market-buy protocol and attempt recovery
+
+- [ADR-0073](0073-permanent-tfsa-and-whole-share-execution.md) — Permanent TFSA and whole-share execution
+
+- [ADR-0072](0072-wealthsimple-tfsa-account-display.md) — Read-only TFSA landing page
+
+- [ADR-0071](0071-native-wealthsimple-login.md) — Native Wealthsimple sign-in
+
+- [ADR-0070](0070-wealthsimple-desktop-sign-in.md) — Wealthsimple desktop sign-in and session status
+
+- [ADR-0069](0069-direct-wealthsimple-authentication.md) — Direct Wealthsimple authentication
+
+- [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
+
 - [ADR-0063](0063-historical-practice-environment-direction.md) — Historical practice environment direction
 
 - [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
@@ -149,6 +167,12 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
+- [ADR-0074](0074-wealthsimple-market-buy-protocol.md) — Whole-share market orders and actual fill observations
+- [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Captured market sells and independent sell eligibility
+- [ADR-0077](0077-manual-holdings-market-sell.md) — Explicit whole-holding market execution and limit-ticket preview
+
+- [ADR-0073](0073-permanent-tfsa-and-whole-share-execution.md) — Permanent TFSA and whole-share execution
+
 - [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
 
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
@@ -175,6 +199,19 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0075](0075-manual-market-buy-ticket.md) — Reviewed manual quantities, fresh account checks and uncertain-order recovery
+- [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Preventing cross-side retransmission and preserving cumulative sell fills
+- [ADR-0077](0077-manual-holdings-market-sell.md) — Durable local share reservations across manual buys and sells
+
+- [ADR-0074](0074-wealthsimple-market-buy-protocol.md) — Durable attempt markers and uncertain submission outcomes
+
+- [ADR-0073](0073-permanent-tfsa-and-whole-share-execution.md) — Permanent TFSA and whole-share execution
+
+- [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
+
+- [ADR-0065](0065-one-session-live-engineering-activation.md) — One-session Delphi Live engineering activation
+- [ADR-0064](0064-one-session-shadow-engineering-override.md) — One-session Shadow engineering override
 
 - [ADR-0055](0055-independent-strategies-to-approved-live-execution.md) — Independent strategies to approved live execution
 
@@ -211,6 +248,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## decision-engine
+
+- [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
+
+- [ADR-0064](0064-one-session-shadow-engineering-override.md) — One-session Shadow engineering override
 
 - [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
 
@@ -282,6 +323,13 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## user-interface
 
+- [ADR-0075](0075-manual-market-buy-ticket.md) — Reusable grid Buy action and editable whole-share ticket
+- [ADR-0077](0077-manual-holdings-market-sell.md) — Immediate holdings-row sell-all controls and protected results window
+
+- [ADR-0068](0068-main-account-trading-overview.md) — Main real-account overview, separate paper portfolios and accessible strategy review
+
+- [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
+
 - [ADR-0063](0063-historical-practice-environment-direction.md) — Historical practice environment direction
 
 - [ADR-0061](0061-portfolio-comparison-workspace.md) — Linked comparison, performance and challenger review views
@@ -289,3 +337,5 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0060](0060-central-settings-and-scoped-configuration.md) — Central settings and scoped configuration
 
 - [ADR-0059](0059-delphi-model-and-threshold-settings.md) — Delphi model-set and threshold settings
+
+- Paper operations: [ADR-0066](0066-operational-paper-daily-source-adoption.md) — automatic source revisions and research separation.

@@ -95,43 +95,8 @@ WHERE [Symbol] = @Symbol
             Guid positionId = Guid.NewGuid();
             decimal amount = decimal.Round(request.Price * request.Shares, 2);
 
-            string tradeSql = trackedSchema ? """
-INSERT INTO [dbo].[TradeLog]
-([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
- [NetAmount],[PositionId],[Reason],[EntryComposite],[CreatedUtc],[Notes],
- [ExecutionMode],[AccountLabel])
-VALUES
-(@TradeId,@Symbol,N'BUY',@TradeDate,@Shares,@Price,@Amount,0,
- @Amount,@PositionId,@Reason,@EntryComposite,SYSUTCDATETIME(),@Notes,
- @ExecutionMode,@AccountLabel);
-""" : """
-INSERT INTO [dbo].[TradeLog]
-([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
- [NetAmount],[PositionId],[Reason],[EntryComposite],[CreatedUtc],[Notes])
-VALUES
-(@TradeId,@Symbol,N'BUY',@TradeDate,@Shares,@Price,@Amount,0,
- @Amount,@PositionId,@Reason,@EntryComposite,SYSUTCDATETIME(),@Notes);
-""";
-            await using (var insertTrade = new SqlCommand(tradeSql, connection, transaction))
-            {
-                insertTrade.Parameters.AddRange(
-                [
-                    P("@TradeId", SqlDbType.UniqueIdentifier, tradeId),
-                    P("@Symbol", SqlDbType.NVarChar, symbol, 16),
-                    P("@TradeDate", SqlDbType.DateTime2, request.TradeDate),
-                    P("@Shares", SqlDbType.Int, request.Shares),
-                    DecimalParameter("@Price", request.Price, 18, 4),
-                    DecimalParameter("@Amount", amount, 18, 2),
-                    P("@PositionId", SqlDbType.UniqueIdentifier, positionId),
-                    P("@Reason", SqlDbType.NVarChar, request.Reason.Trim(), 64),
-                    P("@EntryComposite", SqlDbType.Float, request.EntryComposite),
-                    P("@Notes", SqlDbType.NVarChar, request.Notes, 512),
-                    P("@ExecutionMode", SqlDbType.NVarChar, request.ExecutionMode.ToStorageValue(), 8),
-                    P("@AccountLabel", SqlDbType.NVarChar, normalizedAccount, 64)
-                ]);
-                await insertTrade.ExecuteNonQueryAsync(cancellationToken);
-            }
-
+            // SQL Server checks FK_TradeLog_Position on each statement. Create the
+            // parent first; both inserts still commit or roll back together.
             string positionSql = trackedSchema ? """
 INSERT INTO [dbo].[ActivePosition]
 ([PositionId],[Symbol],[EntryDate],[EntryPrice],[Shares],[CostBasis],[OriginalPickId],
@@ -167,6 +132,43 @@ VALUES
                     P("@AccountLabel", SqlDbType.NVarChar, normalizedAccount, 64)
                 ]);
                 await insertPosition.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            string tradeSql = trackedSchema ? """
+INSERT INTO [dbo].[TradeLog]
+([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
+ [NetAmount],[PositionId],[Reason],[EntryComposite],[CreatedUtc],[Notes],
+ [ExecutionMode],[AccountLabel])
+VALUES
+(@TradeId,@Symbol,N'BUY',@TradeDate,@Shares,@Price,@Amount,0,
+ @Amount,@PositionId,@Reason,@EntryComposite,SYSUTCDATETIME(),@Notes,
+ @ExecutionMode,@AccountLabel);
+""" : """
+INSERT INTO [dbo].[TradeLog]
+([TradeId],[Symbol],[TradeType],[TradeDate],[Shares],[Price],[Amount],[Commission],
+ [NetAmount],[PositionId],[Reason],[EntryComposite],[CreatedUtc],[Notes])
+VALUES
+(@TradeId,@Symbol,N'BUY',@TradeDate,@Shares,@Price,@Amount,0,
+ @Amount,@PositionId,@Reason,@EntryComposite,SYSUTCDATETIME(),@Notes);
+""";
+            await using (var insertTrade = new SqlCommand(tradeSql, connection, transaction))
+            {
+                insertTrade.Parameters.AddRange(
+                [
+                    P("@TradeId", SqlDbType.UniqueIdentifier, tradeId),
+                    P("@Symbol", SqlDbType.NVarChar, symbol, 16),
+                    P("@TradeDate", SqlDbType.DateTime2, request.TradeDate),
+                    P("@Shares", SqlDbType.Int, request.Shares),
+                    DecimalParameter("@Price", request.Price, 18, 4),
+                    DecimalParameter("@Amount", amount, 18, 2),
+                    P("@PositionId", SqlDbType.UniqueIdentifier, positionId),
+                    P("@Reason", SqlDbType.NVarChar, request.Reason.Trim(), 64),
+                    P("@EntryComposite", SqlDbType.Float, request.EntryComposite),
+                    P("@Notes", SqlDbType.NVarChar, request.Notes, 512),
+                    P("@ExecutionMode", SqlDbType.NVarChar, request.ExecutionMode.ToStorageValue(), 8),
+                    P("@AccountLabel", SqlDbType.NVarChar, normalizedAccount, 64)
+                ]);
+                await insertTrade.ExecuteNonQueryAsync(cancellationToken);
             }
 
             await transaction.CommitAsync(cancellationToken);

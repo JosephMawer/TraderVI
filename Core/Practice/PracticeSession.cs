@@ -72,7 +72,7 @@ public sealed class PracticeSession : ISystemShadowEnvironment
         var trained = models.Select(x => x.Registry.TrainedToUtc).OfType<DateTime>().ToArray();
         modelTiming = $"Latest model creation (UTC): {(created.Length == 0 ? "unknown" : created.Max().ToString("yyyy-MM-dd"))}; " +
             $"latest recorded training end: {(trained.Length == 0 ? "unknown" : trained.Max().ToString("yyyy-MM-dd"))}. " +
-            "Training-label timing remains unverified.";
+            "Training-label timing remains unverified. " + dataset.Document.Daily.UniverseTimingNote;
         bars = dataset.Document.Intraday.GroupBy(x => (x.Symbol.ToUpperInvariant(), x.IntervalMinutes))
             .ToDictionary(g => g.Key, g => g.SelectMany(x => x.Bars).OrderBy(x => x.TimestampUtc).ToArray());
     }

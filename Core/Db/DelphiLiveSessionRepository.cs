@@ -103,11 +103,12 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
 
     private async Task FreezeBaselinesAsync(SqlConnection connection, SqlTransaction transaction,
         Guid sessionId, DateOnly tradingDate, DateOnly priorDate, DateTime cutoffUtc, DateTime now,
-        IReadOnlyList<string> symbols, CancellationToken cancellationToken)
+        IReadOnlyList<string> symbols, CancellationToken cancellationToken,
+        IDictionary<string, DelphiLiveFrozenBaseline>? snapshot = null)
     {
         var canonicalDates = (await connection.QueryAsync<DateTime>(new CommandDefinition(
             "SELECT TOP (21) [Date] FROM dbo.DailyBars WHERE Symbol='XIU' AND [Date]<=@Prior AND CreatedAt<=@Cutoff ORDER BY [Date] DESC;",
-            new { Prior = Date(priorDate), Cutoff = cutoffUtc }, transaction, cancellationToken: cancellationToken))).Reverse().Select(DateOnly.FromDateTime).ToArray();
+            PaperSourceSqlParameters.Create(new { Prior = Date(priorDate) }, ("Cutoff", cutoffUtc)), transaction, cancellationToken: cancellationToken))).Reverse().Select(DateOnly.FromDateTime).ToArray();
         // A missing official XIU date cannot be compressed into an older ruler.
         bool canonicalContiguous = canonicalDates.Length > 0 && canonicalDates[^1] == priorDate;
         try
@@ -125,7 +126,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         {
             var rows = (await connection.QueryAsync(new CommandDefinition(
                 "SELECT Id,[Date],[Open],High,Low,[Close],Volume FROM dbo.DailyBars WHERE Symbol=@Symbol AND [Date] IN @Dates AND CreatedAt<=@Cutoff ORDER BY [Date];",
-                new { Symbol = symbol, Dates = canonicalDates.Select(Date).ToArray(), Cutoff = cutoffUtc }, transaction, cancellationToken: cancellationToken))).ToArray();
+                PaperSourceSqlParameters.Create(new { Symbol = symbol, Dates = canonicalDates.Select(Date).ToArray() }, ("Cutoff", cutoffUtc)), transaction, cancellationToken: cancellationToken))).ToArray();
             var bars = new List<DelphiLiveDailyBar>();
             foreach (var row in rows)
             {
@@ -140,6 +141,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
             var volumes = bars.Where(b => canonicalDates.TakeLast(20).Contains(b.SessionDate)).Select(b => (decimal)b.Volume).Order().ToArray();
             decimal? medianVolume = canonicalContiguous && volumes.Length == 20 ? (volumes[9] + volumes[10]) / 2m : null;
             var baseline = new DelphiLiveFrozenBaseline(previous, bars, canonicalContiguous ? canonicalDates : [], rulers);
+            if (snapshot is not null) { snapshot.Add(symbol, baseline); continue; }
             bool complete = bars.Count == 21 && medianVolume > 0 && new[] { rulers.FiveSession, rulers.TenSession, rulers.FourteenSession, rulers.TwentySession }.All(r => r.MedianTrueRangePct.Value > 0);
             await connection.ExecuteAsync(new CommandDefinition(FreezeBaselineSql, new
             {
@@ -213,7 +215,18 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
                 assignments.Add(new((Guid)control.AssignmentId, policy, DelphiLivePolicyRole.ChampionControl, date));
             if (!policies.ContainsKey(policy)) policies[policy] = await ReadPolicyAsync(connection, policy, null, cancellationToken);
         }
-        return frozen with { Assignments = assignments, Policies = policies };
+        var revision = await ReadSourceRevisionAsync(connection, frozen.Session.SessionId, null, cancellationToken);
+        var operational = revision is null ? frozen with { Assignments = assignments, Policies = policies } : frozen with
+        {
+            Assignments = assignments, Policies = policies, SourceRevision = revision,
+            Session = frozen.Session with { CalibrationRunId = revision.RunId, DailyStrategyVersionId = revision.StrategyVersionId,
+                Status = "CurrentOfficialRun" },
+            Candidates = revision.Candidates.ToDictionary(c => c.Symbol, StringComparer.Ordinal),
+            // Symbols added later for holding protection keep their separately persisted baseline.
+            Baselines = frozen.Baselines.Concat(revision.Baselines).GroupBy(p => p.Key, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
+        };
+        return await WithComparisonsAsync(connection, operational, date, cancellationToken);
     }
 
     private static async Task<DelphiLiveFrozenSession?> ReadFrozenAsync(SqlConnection connection, DateOnly date, SqlTransaction? transaction, CancellationToken ct)
@@ -270,6 +283,7 @@ DECLARE @Run UNIQUEIDENTIFIER, @Strategy UNIQUEIDENTIFIER;
 SELECT TOP (1) @Run=RunId,@Strategy=StrategyVersionId FROM dbo.CalibrationRun WITH(HOLDLOCK)
 WHERE RunPurpose=N'OfficialPaper' AND AuditState=N'Valid' AND RecommendationDate=@TradingDate
  AND MarketDataAsOf=@Prior AND CreatedUtc<=@Open AND StrategyVersionId IS NOT NULL
+ AND StrategyVersionId IN(SELECT VersionId FROM dbo.StrategyVersion WHERE IsActive=1)
 ORDER BY CreatedUtc DESC,StartedUtc DESC,RunId;
 INSERT dbo.DelphiLiveSession
 (SessionId,TradingDate,SessionOpenUtc,SessionCloseUtc,FreezeBoundaryUtc,FrozenUtc,ExpectedPriorCanonicalSessionDate,

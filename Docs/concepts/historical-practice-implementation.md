@@ -3,6 +3,8 @@
 **Implemented in source, September 8, 2026.** The operator authorized implementation after accepting
 daily Delphi plus four independent Shadow accounts, today's pinned models, August 10–September 4,
 CAD 1,000 per account, and ordinary missing-data conditions. See [ADR-0063](../adr/0063-historical-practice-environment-direction.md).
+The authorized starter trial is now completed and deployed; see the
+[actual results and validation](../adr/0063-historical-practice-environment-direction.md#completed-trial-and-deployment--2026-09-08).
 
 ## What runs
 
@@ -96,11 +98,36 @@ dotnet run --project Practice -- pack artifacts/practice-with-intraday.json arti
 dotnet run --project Practice -- run artifacts/practice-package-01 artifacts/practice-run-01
 ```
 
-Use a new output directory for every run. No actual dataset/model package or 20-session market replay was
-prepared during implementation. The real data acquisition and historical membership remain operational
-follow-up work; incomplete inputs can already run without a completeness gate.
+Use a new output directory for every run. No actual dataset/model package or market replay was prepared
+during initial implementation. The subsequent authorized rollout completed the starter trial under
+`artifacts/practice-rollout-20260908-0117/`, including an exact preserved `runner/` build. To reproduce
+that run after later source changes, use `dotnet <rollout>/runner/Practice.dll run <rollout>/trial-package
+<new-run-directory>` without rebuilding the pinned runner. Historical membership remains unverified;
+the operator accepted today's list/classifications as a disclosed exploratory assumption.
 
 ## Saved results and WPF
+
+### Rollout preparation additions (September 8)
+
+`capture-current-universe <new-membership.json>` reads the current eligible stock list, sector mappings
+and the static XIU constituent list. It records the actual UTC capture time in an explicit
+`ExploratoryCurrentUniverse` field, never a backdated historical snapshot. This opt-in mode uses current
+membership/classifications while all prices and indicator histories retain their historical cutoffs.
+The assumption appears in every playback frame and in dataset/run provenance. Leaving this field absent
+keeps the original dated-membership behavior. The operator explicitly approved using current membership
+in the starter trial; the captured list does not establish historical membership.
+
+For a smaller acquisition, first run the daily-only package into a fresh planning directory, then use
+`acquire-selected <package> <completed-run> <new-input.json> <logical-request-budget>`. It verifies that
+the completed run belongs to the exact package and has one bounded daily result per session. It requests
+both intervals for eligible Top-5 candidates in either lens, retaining each possible holding through the
+last session, including days without daily publication. The daily stock scan is unchanged. The acquisition
+report saves the complete request plan and its source package identity. Pack the acquired input and run
+the resulting package into a separate directory for the actual trial.
+
+The Release WPF executable also accepts `--practice <absolute-path-to-frames.ndjson>`. This opens only
+the recorded playback window; it does not construct the operational dashboard or start its monitors.
+The normal app entry point and its Practice tab remain available.
 
 - `run.json`: Practice / Exploratory identity, fixed dates, model hashes/training dates, policy settings,
   CAD capital, code identity, execution and recovery assumptions.

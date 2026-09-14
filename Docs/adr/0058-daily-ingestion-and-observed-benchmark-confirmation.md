@@ -67,3 +67,13 @@ retained with review files. All 676 Core tests and the complete Release solution
 passed. Actual benchmark/bootstrap checks and both transaction rehearsals passed. All 232 model rows and
 38 historical evidence tables remain unchanged. No new Delphi run, Athena run or broker operation occurred.
 The [repair review](../reviews/model-input-cutover-20260906.md) retains evidence and remaining limitations.
+
+## Daytime recovery correction — 2026-09-09
+
+The authorized morning recovery exposed an unfinished-session leak in US confirming-index diagnostics:
+Hermes requested through the current date and daily Delphi loaded the latest US rows without its TSX
+as-of boundary. Hermes now requests only dates before the local run date and refreshes the last stored
+observation so an older collector's preview can be replaced after that session completes. Delphi bounds
+both operational and historical US-index context to its canonical completed market date before scoring
+and constructing the saved report. Existing observations and official run history are retained. This is
+a correction to the completed-daily-input contract; model assignments, formulas and thresholds are unchanged.

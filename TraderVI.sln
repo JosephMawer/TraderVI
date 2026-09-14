@@ -42,6 +42,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3E6D-46FD-99F2-40E624C12E09}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\architecture.md = Docs\architecture.md
+		Docs\briefing-style.md = Docs\briefing-style.md
+		Docs\templates\executive-brief.md = Docs\templates\executive-brief.md
 		Docs\calibration-implementation-checklist.md = Docs\calibration-implementation-checklist.md
 		Docs\delphi-live-implementation-checklist.md = Docs\delphi-live-implementation-checklist.md
 		Docs\data-audit.md = Docs\data-audit.md
@@ -127,6 +129,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0061-portfolio-comparison-workspace.md = Docs\adr\0061-portfolio-comparison-workspace.md
 		Docs\adr\0062-complete-strategy-recommendation-promotion.md = Docs\adr\0062-complete-strategy-recommendation-promotion.md
 		Docs\adr\0063-historical-practice-environment-direction.md = Docs\adr\0063-historical-practice-environment-direction.md
+		Docs\adr\0064-one-session-shadow-engineering-override.md = Docs\adr\0064-one-session-shadow-engineering-override.md
+		Docs\adr\0065-one-session-live-engineering-activation.md = Docs\adr\0065-one-session-live-engineering-activation.md
+		Docs\adr\0066-operational-paper-daily-source-adoption.md = Docs\adr\0066-operational-paper-daily-source-adoption.md
+		Docs\adr\0067-fixed-gate-paper-comparison-pairs.md = Docs\adr\0067-fixed-gate-paper-comparison-pairs.md
+		Docs\adr\0068-main-account-trading-overview.md = Docs\adr\0068-main-account-trading-overview.md
+		Docs\adr\0069-direct-wealthsimple-authentication.md = Docs\adr\0069-direct-wealthsimple-authentication.md
+		Docs\adr\0070-wealthsimple-desktop-sign-in.md = Docs\adr\0070-wealthsimple-desktop-sign-in.md
+		Docs\adr\0071-native-wealthsimple-login.md = Docs\adr\0071-native-wealthsimple-login.md
+		Docs\adr\0072-wealthsimple-tfsa-account-display.md = Docs\adr\0072-wealthsimple-tfsa-account-display.md
+		Docs\adr\0073-permanent-tfsa-and-whole-share-execution.md = Docs\adr\0073-permanent-tfsa-and-whole-share-execution.md
+		Docs\adr\0074-wealthsimple-market-buy-protocol.md = Docs\adr\0074-wealthsimple-market-buy-protocol.md
+		Docs\adr\0075-manual-market-buy-ticket.md = Docs\adr\0075-manual-market-buy-ticket.md
+		Docs\adr\0076-wealthsimple-market-sell-protocol.md = Docs\adr\0076-wealthsimple-market-sell-protocol.md
+		Docs\adr\0077-manual-holdings-market-sell.md = Docs\adr\0077-manual-holdings-market-sell.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
@@ -135,7 +151,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 	ProjectSection(SolutionItems) = preProject
 		Docs\concepts\delphi-live.md = Docs\concepts\delphi-live.md
 		Docs\concepts\global-settings-design-draft.md = Docs\concepts\global-settings-design-draft.md
+		Docs\concepts\paper-source-refresh-and-gate-profiles-draft.md = Docs\concepts\paper-source-refresh-and-gate-profiles-draft.md
 		Docs\concepts\portfolio-comparison.md = Docs\concepts\portfolio-comparison.md
+		Docs\concepts\trading-workspace-redesign-draft.md = Docs\concepts\trading-workspace-redesign-draft.md
+		Docs\concepts\wealthsimple-authentication.md = Docs\concepts\wealthsimple-authentication.md
 		Docs\concepts\settings-system-map.md = Docs\concepts\settings-system-map.md
 		Docs\concepts\delphi-live-watchlist-and-replay.md = Docs\concepts\delphi-live-watchlist-and-replay.md
 		Docs\concepts\historical-practice-environment-draft.md = Docs\concepts\historical-practice-environment-draft.md
@@ -181,6 +200,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelLifecycle", "Tools\Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice", "Practice\Practice.csproj", "{B5AB40BA-874E-4235-B46E-E665F02E92F6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wealthsimple.Auth", "Tools\Wealthsimple.Auth\Wealthsimple.Auth.csproj", "{9C0A426E-B74B-4E29-A67F-2F71E6132988}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,6 +216,26 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|ARM.Build.0 = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|x64.Build.0 = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Debug|x86.Build.0 = Debug|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|ARM.ActiveCfg = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|ARM.Build.0 = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|ARM64.Build.0 = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|x64.ActiveCfg = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|x64.Build.0 = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|x86.ActiveCfg = Release|Any CPU
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988}.Release|x86.Build.0 = Release|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -490,6 +531,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{9C0A426E-B74B-4E29-A67F-2F71E6132988} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 		{0190B9F4-990C-433A-863D-7CAACDD5DCD2} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{7C5E7C28-321A-466B-9AF8-37550627E066} = {41685814-8E63-4A11-9064-2A7449DAC076}
 		{3E18DB1C-7F54-4012-8CEF-89193D40DCD9} = {41685814-8E63-4A11-9064-2A7449DAC076}

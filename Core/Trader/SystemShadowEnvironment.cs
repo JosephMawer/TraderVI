@@ -6,6 +6,7 @@ using Core.TMX;
 using Core.TMX.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +25,10 @@ public interface ISystemShadowEnvironment
     Task<bool> IsCurrentDailyRunAsync(Guid? runId);
     Task<SystemShadowDelphiRun?> GetDailyRunAsync(DateTime date, DateTime cutoffUtc, CancellationToken cancellationToken);
     Task<IReadOnlyList<SystemShadowDelphiCandidate>> GetCandidatesAsync(Guid runId, string lens, int maximumRank, CancellationToken cancellationToken);
+    Task<SystemShadowDelphiRun?> GetRunForPortfolioAsync(SystemShadowRuntimePortfolio portfolio, DateTime date,
+        SystemShadowDelphiRun? current, CancellationToken ct) => Task.FromResult(current);
+    Task<IReadOnlyList<SystemShadowDelphiCandidate>> GetCandidatesForPortfolioAsync(SystemShadowRuntimePortfolio portfolio,
+        SystemShadowDelphiRun run, CancellationToken ct) => GetCandidatesAsync(run.RunId, portfolio.Lens, portfolio.MaximumPositions, ct);
     Task<TmxIntradayBatch?> CollectAsync(IntradayPollContext context, string symbol, int intervalMinutes,
         DateTime requestStartUtc, List<string> warnings, CancellationToken cancellationToken);
 }
@@ -35,10 +40,22 @@ internal sealed class OperationalSystemShadowEnvironment : ISystemShadowEnvironm
     public CodeProvenance Code => CalibrationProvenance.ResolveCode();
     public ISystemShadowStore Store { get; } = new SystemShadowRepository();
     private TmxClient? client;
+    private IReadOnlyList<PaperComparisonAccount>? comparisonAccounts;
+    private readonly Dictionary<Guid, PaperComparisonSource?> comparisonSources = new();
     public async Task<IAsyncDisposable?> AcquireLeaseAsync(CancellationToken cancellationToken)
     {
         var lease = await EngineSettingsLease.AcquireAsync(cancellationToken);
-        return new PollLease(this, lease);
+        try
+        {
+            comparisonAccounts = await new PaperComparisonRepository().ReadAccountsAsync(cancellationToken);
+            comparisonSources.Clear();
+            return new PollLease(this, lease);
+        }
+        catch
+        {
+            await lease.DisposeAsync();
+            throw;
+        }
     }
     private sealed class PollLease(OperationalSystemShadowEnvironment owner, IAsyncDisposable lease) : IAsyncDisposable
     {
@@ -54,12 +71,32 @@ internal sealed class OperationalSystemShadowEnvironment : ISystemShadowEnvironm
     public Task<bool> IsCurrentDailyRunAsync(Guid? runId) => new TradingControlRepository().IsCurrentDailyRunAsync(runId);
     public async Task<SystemShadowRuntimePortfolio> ConfigureAsync(SystemShadowRuntimePortfolio portfolio)
     {
+        var comparison = comparisonAccounts?.SingleOrDefault(a => a.AccountId == portfolio.PortfolioId);
+        if (comparison is not null)
+            return portfolio with { ComparisonAccount = comparison, SettingsAssignedUtc = comparison.EffectiveUtc,
+                StrategyVersionId = comparison.ShadowStrategyVersionId,
+                Settings = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, comparison.ShadowSettingsJson!) };
         var assignment = await new EngineSettingsRepository().ReadAsync(portfolio.PortfolioId,
             EngineStrategySettings.Shadow, SystemShadowPolicyConfig.Version1);
         return portfolio with { Settings = assignment.Settings, SettingsAssignedUtc = assignment.AssignedUtc, StrategyVersionId = assignment.VersionId };
     }
-    public Task<SystemShadowDelphiRun?> GetDailyRunAsync(DateTime date, DateTime cutoffUtc, CancellationToken cancellationToken) =>
-        new CalibrationEvidenceRepository().GetLatestValidOfficialRunAsync(date, cutoffUtc, cancellationToken);
+    public async Task<SystemShadowDelphiRun?> GetRunForPortfolioAsync(SystemShadowRuntimePortfolio portfolio, DateTime date, SystemShadowDelphiRun? current, CancellationToken ct)
+    {
+        if (portfolio.ComparisonAccount is not { } account) return current;
+        if (!comparisonSources.TryGetValue(account.BatchId, out var source))
+            comparisonSources[account.BatchId] = source = await new PaperComparisonRepository().ReadSourceAsync(account.BatchId, date, ct);
+        return source is null || current?.RunId != source.RunId ? null : current;
+    }
+    public Task<IReadOnlyList<SystemShadowDelphiCandidate>> GetCandidatesForPortfolioAsync(SystemShadowRuntimePortfolio portfolio, SystemShadowDelphiRun run, CancellationToken ct) =>
+        // Comparison tracking rows are created atomically for both members by the common source coordinator.
+        portfolio.ComparisonAccount is not null ? Task.FromResult<IReadOnlyList<SystemShadowDelphiCandidate>>([]) :
+        GetCandidatesAsync(run.RunId, portfolio.Lens, portfolio.MaximumPositions, ct);
+    public async Task<SystemShadowDelphiRun?> GetDailyRunAsync(DateTime date, DateTime cutoffUtc, CancellationToken cancellationToken)
+    {
+        var prior = DailyBenchmarkPolicy.LoadCalendar().GetImmediatelyPrecedingSession(DateOnly.FromDateTime(date));
+        var run = await new CalibrationEvidenceRepository().GetLatestOperationalRunAsync(date, prior, UtcNow, cancellationToken);
+        return run is null ? null : run with { AllowIntradayAdoption = true };
+    }
     public Task<IReadOnlyList<SystemShadowDelphiCandidate>> GetCandidatesAsync(Guid runId, string lens, int maximumRank, CancellationToken cancellationToken) =>
         new CalibrationEvidenceRepository().GetPublishedCandidatesAsync(runId, lens, maximumRank, cancellationToken);
     public async Task<TmxIntradayBatch?> CollectAsync(

@@ -16,6 +16,22 @@ namespace Core.Trader.DelphiLive;
 /// </summary>
 public sealed class DelphiLiveActionWorkflow
 {
+    public async Task<DelphiLivePortfolioSnapshot> SynchronizeDailySourceAsync(Guid portfolioId,
+        DelphiLiveDailySourceRevision revision, DelphiLiveLease lease, CancellationToken ct = default)
+    {
+        var state = await store.LoadPortfolioAsync(portfolioId, ct) ?? throw new InvalidOperationException("Portfolio disappeared.");
+        if (state.DailySourceRevisionId == revision.RevisionId) return state;
+        foreach (var buy in state.PendingActions.Where(a => a.Intent.Side == DelphiLiveActionSide.Buy).ToArray())
+            state = await EndBuy(state, buy, "DailySourceSuperseded", lease, ct);
+        var states = state.CandidateStates.ToImmutableDictionary(p => p.Key, p => p.Value with
+        {
+            Lifecycle = DelphiLiveLifecyclePolicy.AfterProcessContinuityGap(p.Value.Lifecycle,
+                revision.Candidates.Any(c => c.Symbol == p.Key))
+        });
+        return await Commit(state, state with { DailySourceRevisionId = revision.RevisionId, CandidateStates = states },
+            "DailySourceAdopted", new { revision.RevisionId, revision.RunId, revision.AdoptedUtc, revision.EffectiveUtc }, lease, ct);
+    }
+
     private readonly IDelphiLiveLedgerStore store;
     private readonly IDelphiLiveMarketDataSource source;
     private readonly IDelphiLiveClock clock;
@@ -387,6 +403,19 @@ public sealed class DelphiLiveActionWorkflow
             return "InsufficientCashForOneShare";
         if (state.OpeningNav is null || !CurrentNav(state, input).IsComplete)
             return "PortfolioNavUnavailable";
+        using var comparisonEvidence = System.Text.Json.JsonDocument.Parse(candidate.DossierJson);
+        var admission = comparisonEvidence.RootElement.TryGetProperty("comparisonAdmission", out var admissionJson) &&
+            admissionJson.ValueKind == System.Text.Json.JsonValueKind.Object
+            ? DelphiLiveLedgerJson.Deserialize<PaperGateAdmission>(admissionJson.GetRawText()) : null;
+        if (state.ComparisonAccount is { } account)
+        {
+            if (admission is null || admission.AccountId != state.PortfolioId || admission.BatchId != account.BatchId ||
+                admission.PairId != account.PairId || admission.Profile != account.Profile ||
+                admission.DailyStrategyVersionId != account.DailyStrategyVersionId || admission.PolicyVersionId != state.PolicyVersionId ||
+                admission.SourceRevisionId != state.DailySourceRevisionId || input.CheckpointBarEndUtc < admission.EffectiveUtc || clock.UtcNow < account.EffectiveUtc)
+                return "ComparisonAdmissionMismatch";
+        }
+        else if (admission is not null) return "ComparisonAdmissionMismatch";
         return null;
     }
 

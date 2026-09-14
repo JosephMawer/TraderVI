@@ -363,11 +363,7 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
     }
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
-    {
-        target.Clear();
-        foreach (T item in source)
-            target.Add(item);
-    }
+        => StableDisplayRows.Apply(target, source);
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

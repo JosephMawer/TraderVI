@@ -16,6 +16,7 @@ public static class PracticeCoverage
         var source = dataset.Document.Intraday.GroupBy(x => (x.Symbol.ToUpperInvariant(), x.IntervalMinutes))
             .ToDictionary(g => g.Key, g => g.SelectMany(x => x.Bars).ToArray());
         var symbols = dataset.Document.Daily.Membership.SelectMany(x => x.Equities.Select(e => e.Symbol))
+            .Concat(dataset.Document.Daily.ExploratoryCurrentUniverse?.Equities.Select(x => x.Symbol) ?? [])
             .Concat(dataset.Document.Intraday.Select(x => x.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase);
         var result = new List<PracticeCoverageRow>();
         foreach (var day in dataset.Sessions)

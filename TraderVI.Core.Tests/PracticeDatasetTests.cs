@@ -21,6 +21,41 @@ namespace TraderVI.Core.Tests;
 
 public class PracticeDatasetTests
 {
+    [Fact]
+    public void CurrentUniverseRequiresExplicitOptInAndDoesNotUnboundHistoricalPrices()
+    {
+        var day = new DateTime(2026, 8, 10);
+        var captured = new DateTime(2026, 9, 8, 5, 0, 0, DateTimeKind.Utc);
+        var snapshot = new DatedDelphiMembership(captured, [new SymbolInfo { Symbol = "CURRENT" }],
+            [new("CURRENT", "Financials", null, null, captured)], []);
+        var input = PracticeSessionTests.Fixture().Document.Daily with { Membership = [snapshot] };
+        input.Members(day).Equities.ShouldBeEmpty();
+        var optedIn = input with { ExploratoryCurrentUniverse = snapshot };
+        optedIn.Members(day).AsOf.ShouldBe(captured);
+        optedIn.Members(day).Sectors.Single().LastUpdated.ShouldBe(captured);
+        optedIn.Members(day).Equities.Single().Symbol.ShouldBe("CURRENT");
+        optedIn.UniverseTimingNote.ShouldContain("2026-09-08");
+        foreach (var symbol in input.Daily.Keys) optedIn.Bars(symbol, day).ShouldAllBe(x => x.Date < day);
+    }
+
+    [Fact]
+    public void AcquisitionPlanPreservesCarryAcrossGapsWithoutIncludingFutureCandidates()
+    {
+        var dataset = PracticeSessionTests.Fixture();
+        var daily = dataset.Sessions.Select(day => new PracticeDailyResult(day, false, "Missing", null, [], null)).ToArray();
+        daily[0] = daily[0] with { Published = true, Picks = [new("Continuation", "EARLY", 5, true, 10m),
+            new("Breakout", "INELIGIBLE", 1, false, 10m), new("Continuation", "LOWRANK", 6, true, 10m)] };
+        daily[2] = daily[2] with { Published = true, Picks = [new("Breakout", "LATER", 1, true, 10m)] };
+        var plan = PracticeAcquisitionPlan.Create(dataset, daily);
+        plan.Where(x => x.Symbol == "EARLY").Count().ShouldBe(40);
+        plan.Where(x => x.Symbol == "LATER").Count().ShouldBe(36);
+        plan.ShouldNotContain(x => x.Session < daily[2].Session && x.Symbol == "LATER");
+        plan.ShouldNotContain(x => x.Symbol == "INELIGIBLE" || x.Symbol == "LOWRANK");
+        Should.Throw<InvalidDataException>(() => PracticeAcquisitionPlan.Create(dataset, daily.Skip(1).ToArray()));
+        daily[0] = daily[0] with { MarketDataAsOf = daily[0].Session.ToDateTime(TimeOnly.MinValue) };
+        Should.Throw<InvalidDataException>(() => PracticeAcquisitionPlan.Create(dataset, daily));
+    }
+
     private static DelphiHistoricalInputs Inputs(string modelPath)
     {
         var source = PracticeSessionTests.Fixture().Document.Daily;

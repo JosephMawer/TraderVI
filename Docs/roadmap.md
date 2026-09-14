@@ -34,6 +34,15 @@ defines the following prerequisites in order:
   is installed and verified; actual account reconciliation and explicit approval remain. No broker integration was added.
 - [ ] Design and validate the Wealthsimple execution/reconciliation boundary before enabling any orders.
   The legacy client prototype is not an execution-ready integration.
+  The current client now has captured market buy and sell protocols (ADRs 0074/0076), and the separate
+  manual-buy workflow is implemented (ADR-0075). Manual sell-all, protected recovery and local share
+  reservations are implemented (ADR-0077). Limit placement, native mutation verification and complete
+  account reconciliation remain prerequisites for broader execution.
+  ADR-0069 adds an isolated direct-auth prototype with a verified browser-session handoff.
+  ADR-0070 adds optional Windows-encrypted sessions and sidebar connection status. ADR-0071 makes
+  native password/2FA the default with browser verification only for a required challenge. Native login
+  is operator-confirmed; ADR-0072 adds the TFSA landing page with live account reads verified.
+  Live refresh rotation, broker-to-local reconciliation and order lifecycle remain to validate/design.
 
 ## Now — restore a dependable advisory loop
 

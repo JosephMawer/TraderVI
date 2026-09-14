@@ -1,0 +1,413 @@
+# Connected trading workspace — design and implementation
+
+- **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
+- **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
+- **Domains:** desktop, explainability, portfolios
+- **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
+  [0061](../adr/0061-portfolio-comparison-workspace.md),
+  [0062](../adr/0062-complete-strategy-recommendation-promotion.md),
+  [0066](../adr/0066-operational-paper-daily-source-adoption.md),
+  [0067](../adr/0067-fixed-gate-paper-comparison-pairs.md),
+  [0068](../adr/0068-main-account-trading-overview.md)
+
+The operator accepted the main-account direction and explicitly requested implementation. This record
+now covers the implemented WPF presentation and its remaining evidence/integration work under ADR-0068.
+The request did not authorize changes to trading rules, broker execution, model training or schema
+deployment. Conversation concepts remain illustrative; the WPF implementation reads existing records.
+
+## Problem and outcome
+
+**Immediate problem:** the operator cannot consistently tell what information Trading, Portfolios,
+Delphi and Delphi Live show, particularly after adding fixed gate-comparison accounts.
+
+**Parent problem:** navigation and information hierarchy have grown around individual components,
+while the product now connects daily selection, intraday evaluation, independent paper accounts,
+comparison evidence and approved real-account recommendations.
+
+**Root goal:** see the main real account's earnings, understand independently running paper portfolios,
+compare strategies meaningfully, and deliberately select the main strategy on the accepted path toward
+separately designed automated Wealthsimple execution.
+
+## Evidence from the UI before this implementation
+
+Source inspection covered `PaperDashboardWindow.xaml` and the Portfolios, Delphi and Delphi Live
+views. Existing synthetic WPF preview images were inspected; they are older fixtures, not screenshots
+of the current running app or proof of its current state.
+
+- Trading separates Recommendations from Tracked holdings and monitor. The latter places Ghost and
+  Real totals together and gives data collection history substantial space.
+- Portfolios puts holdings, candidate monitoring and operational controls beneath Account tools and
+  saved activity. Gate pairs are a scope within Compare, which makes their importance easy to miss.
+- Delphi presents published Picks alongside model probabilities and gates. Static descriptions still
+  describe Breakout as a comparison journal and Continuation as the operational thesis; those labels
+  need review against the newer independent-account and approved-strategy routing contracts.
+- Delphi Live combines current watchlists, replay accounts and advanced research. Its name alone
+  does not explain that Live describes intraday observation and a paper strategy.
+- Dates, data freshness, account scope and reasons are available in places, but lack one consistent
+  presentation across the workflow.
+
+## Decision record
+
+| State | Direction |
+| --- | --- |
+| Accepted user scope | Redesign Trading, Portfolios, Delphi and Delphi Live together; explore visual concepts along the way. |
+| Existing accepted contract | Independent paper accounts, fixed comparison profiles, deliberate recommendation approval and separate real execution authority remain authoritative. |
+| Implemented | Keep the four familiar names and give each a plain-language purpose. |
+| Accepted user clarification / ADR-0068 | Trading opens on the main real account's overview: earnings, value, cash, holdings and the active promoted strategy. Attention is important supporting content, not the landing page's main purpose. |
+| Accepted user clarification / ADR-0068 | Portfolios has clear boundaries from the main account, lets the operator watch and inspect paper portfolios, and provides direct access to reviewing an eligible portfolio as the main strategy. |
+| Accepted user clarification; implemented | Portfolios lists every paper account in one strategy comparison grid. Gate profiles are row facts; matched profiles remain adjacent by default. Separate standard/gate-only destinations are superseded. Intraday links preserve the selected account. |
+| Implemented | Delphi owns the saved daily publication, ranks, model evidence and daily gate explanations, with market-data date separate from saved time. |
+| Implemented | Delphi Live owns intraday candidate progression and account-specific entry explanations, explicitly labelled paper. |
+| Implemented | Common side navigation, readable tables and scoped details; operational controls remain available in secondary sections. |
+| Superseded | The initial attention-first opening recommendation was rejected in favor of the main-account overview. The operator retained the overview itself. |
+| Implemented evidence boundary | Total gain remains unavailable. Display reported value/cash, saved holding values, recorded sale gains over 30 Toronto calendar days and open-position gains separately. Show the actual strategy and start date. |
+| Deferred | Complete-account earnings history, selectable return periods, strategy attribution and broker synchronization/execution. |
+
+The first concept opened on matched pairs to illustrate the immediate example. The revised concept
+opens on Trading's main account, as the operator requested. ADR-0068 records this accepted product
+direction; the four-screen implementation follows the operator's subsequent authorization. The original visual is preserved.
+
+## Main account and promotion — September 9 clarification
+
+Trading is the enduring real account. Its assigned strategy can change; its financial history does
+not restart or become the paper account's history. Show total account results independently from the
+current strategy's identity and effective time. Any future performance attribution by strategy needs
+a documented period and evidence contract, including the treatment of holdings crossing a change.
+
+The revised mockup leads with account gain, with account value, cash and holdings value underneath.
+A breakdown distinguishes realized gains (closed trades) from unrealized changes (open holdings).
+The current strategy and the link to compare/change it are immediately visible. A compact attention
+summary supports the page; urgent issues should also appear beside the affected holding or account.
+
+Portfolios lists ordinary-paper and fixed-pair accounts together. A visible **Use as main strategy…**
+action opens a concise review for an ordinary eligible strategy; it does not perform a one-click
+assignment. The example review explains the existing paused/empty requirement because its fictional
+target account has holdings. Fixed gate pairs currently cannot be promoted. The operator's desire for
+quick access does not settle whether those rules should change.
+
+Display the actual account source and execution authority. Today these are operator-reported account
+facts and recommendations only. Wealthsimple connection and autonomous orders are the long-term
+direction; this UI work neither implements nor authorizes them. A future connected design must show
+account synchronization and broker-confirmed fills without treating recommendations as execution.
+
+Full real-account earnings need a dedicated evidence contract. The existing account report/value and
+tracked-fill records do not by themselves prove complete net contributions, fees, income or returns.
+Preserve unavailable values until the required evidence is present. See the linked open questions.
+
+## Explanation contract
+
+Every screen should make its purpose and scope clear before presenting detailed numbers:
+
+1. Identify the selected account, mode (paper or operator-reported Real), strategy and gate profile
+   wherever those affect interpretation. A shared daily source is not a selected account.
+2. Distinguish recommendation session, daily data date, publication/adoption time, completed-bar time,
+   last successful evaluation and display refresh time. Show the relevant times with a timezone;
+   do not let refreshing the screen make old evidence appear current.
+3. Explain the current result in ordinary language. Preserve the underlying reason and identity in
+   an inspectable detail view. Do not infer a specific entry failure merely from zero fills.
+4. Distinguish daily admission from portfolio qualification, pending orders and completed fills.
+   "Published," "eligible," "waiting," "blocked," "cannot evaluate" and "filled" are different facts.
+5. Preserve account, source and date context on cross-screen links. If the target cannot show the same
+   scope, disclose the change. UI selection must never change the account running in the background.
+6. Make replay and historical evidence visibly distinct from the current session. An unavailable value
+   is not zero; stale evidence is not fresh; a late partial day is not a complete comparison period.
+
+Normal and Portfolio rules only appear as adjacent rows within each matched strategy pair by default.
+Explain that the experimental profile bypasses daily entry gates while preserving portfolio entry,
+data, sizing, exit and risk rules. Keep each account's independent capital and results visible; do
+not present the sum of hypothetical accounts as the operator's actual capital.
+
+Performance measures need explicit period, units, valuation time and coverage. A first-day position
+count measures activity, not success. The initial concept intentionally supplies no invented returns,
+current account values or price history. Later performance screens need actual supported metrics.
+
+## Initial concept and verification boundary
+
+The conversation concept uses the user's September 9 update and the documented 13:58 snapshot:
+five pairs, CAD 1,000 per account, Shadow experimental holdings of 1/2/1/1 in Breakout Top 3/Top 5
+and Continuation Top 3/Top 5, cash-only Normal controls, and 41 experimental Live candidates with no
+Live fills. These are historical reference facts, not refreshed account data. Candidate examples
+EX1/EX2/EX3 are explicitly synthetic. Real account state is unavailable in the concept.
+
+The concepts are stored in the task's conversation visualization directory as
+`tradervi-workspace-concept.html` (initial) and `tradervi-main-account-concept.html` (revised).
+The revised Trading and ordinary-paper examples use explicitly fictional financial amounts, stock
+identifiers and strategy assignments. They are layout examples, not reported financial facts. The
+fixed-pair screen retains its separately labelled historical snapshot. This document is the durable
+repository handoff.
+The original design turn checked markup only. The subsequent implementation validation is recorded
+below; fixture screenshots are not live financial records or proof of operational runtime state.
+
+## Implemented scope
+
+- **Shell / Trading:** `WorkspaceStyles.xaml`, `PaperDashboardWindow` and `TradingRecommendationsView`
+  provide side navigation and the main-account landing. The pure `TradingAccountOverview` model and
+  `TradingAccountOverviewPanel` show only matching Real-account records, evidence times, available
+  gains and the actual assigned strategy. Reporting, recorded fills and prior approvals remain available.
+- **Portfolios:** `PortfoliosView` and its view model expose All portfolios, Performance, Strategy review and
+  Account activity. One grid contains ordinary paper portfolios and both profiles of every fixed pair.
+  Daily gate behavior is a column; reference accounts are optional additions. Holdings, candidates and decision audit are visible in activity;
+  setup and engine controls are secondary. `TradingPromotionDialog` retains the current guarded review.
+- **Daily / intraday:** `DelphiView` and `DelphiViewModel` identify the daily market-data date and saved
+  publication time. `DelphiLiveView`, its view model and pure `DelphiLiveWatchlistScope` restrict the
+  current candidate display to the selected paper account; replay remains distinct. Account-name lookup
+  cannot prevent the existing scheduled tick. Links labelled "Latest saved Delphi source" disclose
+  that the destination is the latest publication, rather than pretending to open a historical source.
+
+Total earnings remain unavailable because the ledger lacks complete cash-flow/cost/income history.
+The 30-day sale subtotal requires recorded realized profit on every selected sale. Open gains require
+matching saved marks for every selected-account holding. Reported NAV and cash are labelled as
+operator reports, with stale-session or changed-ledger context. Saved position update time is distinct
+from a guaranteed market quote time. Wealthsimple remains visibly disconnected/recommendations only.
+
+## Initial implementation validation and remaining work
+
+- WPF Release build passed with .NET SDK 10.0.401 into isolated
+  `artifacts/workspace-ui-20260909/build/`; existing operational output was not replaced.
+- Full Core suite: **827 passed**, zero failures/skips. Eight new presentation tests cover account/mode
+  isolation, incomplete/stale/mismatched evidence, recorded sale boundaries and same-symbol observations
+  belonging to different Live accounts.
+- **14 offline WPF renders** cover the four primary areas, adjacent pairs and activity at 1280×820
+  and 1600×1000, plus unavailable-account and strategy-review states. The compiled main-account panel
+  loads successfully; other views use stripped XAML to avoid operational constructors/handlers.
+  Binding diagnostics are clean. Fixtures verify five complete pairs/ten accounts, ordinary-paper scope
+  exclusion and fixed-pair promotion disabled. Visual inspection caught and corrected gain formatting,
+  row sizing, inherited text color and wrapping issues.
+- Existing compiler warnings remain (unused exception local and test nullability). Test logs contain
+  cached dependency-security advisories, including critical `System.Drawing.Common 5.0.0`; no fresh
+  package audit or dependency upgrade was performed. The complete solution/SSDT was not built here.
+- No operational app, database workflow, model training, market service or broker operation was run.
+  The existing running host remains separate from this build. Updating it is a remaining operational
+  step because starting the host can resume collectors and paper monitors.
+
+Preview sources, logs and labelled synthetic images are in ignored `artifacts/workspace-ui-20260909/`.
+Database-backed interaction, exhaustive keyboard navigation and all DPI/display-scaling settings have
+not been verified by these fixtures. Full-account earnings, attribution and broker integration remain
+explicitly deferred in [open questions](../reviews/open-questions.md).
+
+## September 9 navigation/discoverability follow-up
+
+This was an intermediate design; the separate gate-only destination is superseded below. The
+collapsible sidebar remains accepted and implemented.
+
+The operator's screenshot selected ordinary Paper strategies, so the separate gate-comparison accounts
+were not visible. The shortcut and scope dropdown now say **Daily gates on / off**, with the shortcut
+showing loaded bypass-account and matched-pair counts. The paired view retains the exact Normal and
+Portfolio rules only profile names and explicitly labels **Daily gates applied** / **Daily gates skipped**.
+Descriptions make clear that portfolio entry conditions, data checks and risk limits still apply.
+This changes discoverability, not the account filter, profiles or trading behavior.
+
+`WorkspaceStyles.xaml`, `WorkspaceNavigationState.cs` and the main window provide a collapsible side
+menu: 178 layout units expanded, 56 collapsed, all nine named icon links retained. The toggle has
+collapse/expand tooltips and accessibility names, keyboard focus feedback and the standard toggle
+automation action. State lasts for the current window; it does not reset the page or selected account.
+
+The Release build passed, with existing CS0168 warnings. Nineteen offline renders and automation checks
+cover collapse/expand, retained selection, 122 extra layout units for content, labelled icons and the
+five matched pairs; bindings remain clean. Visual checks include 980×680, 1280×820 and 1600×1000.
+The preview uses compiled navigation styles and synthetic account data; no operational host/database/
+external-service workflow ran. Core tests were not rerun for this presentation-only refinement.
+Logs, images and isolated output are under `artifacts/workspace-navigation-20260909/`.
+
+## September 9 unified portfolio list
+
+The immediate problem was hidden gate-bypass accounts. The parent problem was using category
+navigation where the operator expected one portfolio inventory. The root goal remains inspecting
+every paper strategy and selecting the main real-account strategy with clear financial boundaries.
+The operator explicitly preferred all portfolios in the strategy comparison grid. The separate gate-only
+view is removed; **All portfolios** is the opening section. Standard, Normal and Portfolio rules only
+accounts appear together, with a Daily gates column and full account names/tooltips. Matched rows remain
+adjacent in default ordering; selecting either shows its own activity, pair identity and profile rules.
+
+The grid expands with the account list and scrolls with the page, replacing the five-row fixed-height
+view. The selected-account panel retains holdings/activity and guarded strategy review. An optional
+**Include reference accounts** checkbox adds operator-reported references without changing the paper
+inventory or comparison period. The original Gate comparison pairs / Daily gates on / off category
+buttons and scope dropdown no longer exist.
+
+Ordinary accounts are labelled Per strategy because their actual admission depends on their assignment
+and current source; the UI does not infer Normal merely from absence of fixed-pair metadata. Fixed
+Normal means daily gates Applied; Portfolio rules only means Skipped, while portfolio entry conditions,
+data and risk checks still apply. Fixed pair promotion and editing exclusions remain unchanged.
+Returns still use matching observed endpoints across the shared period; newer accounts remain
+unavailable rather than silently switching to a different return period.
+
+Validation: isolated WPF Release build and 15 focused Core comparison/gate tests passed. Nineteen
+offline renders plus automation checks cover 15 paper accounts (five standard plus five complete pairs),
+correct labels/default adjacency, ordinary strategy-name fallback, reference checkbox inclusion,
+selection continuity, unavailable younger-account returns, fixed-profile promotion/edit exclusions
+and menu collapse/expand. Bindings are clean. Existing compiler warnings and cached dependency-security
+advisories remain; no fresh audit or complete solution/SSDT build was performed. No operational app,
+database workflow or external operation ran. Sources/logs/images are in ignored
+`artifacts/portfolio-unified-grid-20260909/`; the running session needs a rebuild/restart.
+
+## Daily gains follow-up
+
+The operator requested gains for each portfolio within a given day. The immediate problem is that
+shared-period blanks conceal first-day performance; the parent problem is making independent account
+activity understandable; the root goal is comparing paper strategies before approving the main
+account's strategy. All portfolios now exposes a selected-day money/percentage gain alongside the
+existing shared-period return. Details show the day's saved opening, ending value and evidence time.
+Partial Live/Shadow values remain labelled, cash-only valued days show zero, and no pre-activation
+history is inferred. [ADR-0068](../adr/0068-main-account-trading-overview.md#daily-portfolio-gains--selected-trading-day)
+records calculation and data boundaries. This does not implement a new snapshot schedule or host.
+
+## Review questions
+
+1. What is the difference between a published daily candidate, an eligible entry and a filled position?
+2. How should the screen show which paper account and gate profile a result belongs to?
+3. Why must the evidence time remain visible even when the display has just refreshed?
+
+## Manual market buys — September 10 design draft
+
+**Status:** The original exploration below led to the operator's request to implement, with an
+explicit editable share quantity for manual buys. [ADR-0075](../adr/0075-manual-market-buy-ticket.md)
+records the accepted implementation and exact execution boundaries. This section preserves the
+design's progression; the ADR supersedes its provisional alternatives. Offline tests and isolated
+WPF renders passed. No live order or operational-host restart was requested or performed.
+
+The implemented compact dialog opens from a single action for the selected stock across both Delphi
+lenses, or a secondary **Buy more…** action for the selected broker holding. The operator's subsequent
+UI review removed the initially implemented row Buy columns because they repeated the selection
+action and distracted from reviewing existing holdings. The original row-button proposals below are
+historical; the current presentation is recorded in ADR-0075.
+Shares starts blank and accepts any positive whole quantity within the account checks. Optional ±10
+shortcuts do not enforce ten-share lots. Manual orders remain operator-managed, and Orders retains
+protected recovery records across restart. Portfolio execution and automatic selling remain deferred.
+
+**Immediate problem:** the Delphi Picks strip asks for shares, an actual fill price, Ghost/Real mode
+and a free-text account. It records an existing fill; it cannot initiate the newly supported market buy.
+**Parent problem:** expose one understandable manual-order workflow consistently across WPF grids.
+**Root goal:** deliberately buy a selected stock in the permanent self-directed TFSA, with reliable
+order recovery and broker-confirmed results, before adding portfolio-directed trading.
+
+### Evidence at the start of the exploration
+
+- `DelphiView.xaml` contains Continuation/Breakout grids and the tracking strip. Its code-behind
+  explicitly asks the operator to confirm a Real fill already happened. `DelphiViewModel` feeds the
+  existing position-opening workflow; changing that button's label would not implement a broker buy.
+- `WealthsimpleConnection` owns desktop authentication and serializes account, pending-order and
+  security reads. It does not expose a submission/status workflow to WPF yet.
+- `WealthsimpleAuthClient.SubmitMarketBuyAsync` implements the captured whole-share CAD market-buy
+  mutation and checks instrument eligibility. `ReadMarketBuyOrderAsync` validates the order's scope
+  and reports cumulative fills. Native submission from TraderVI remains unverified.
+- The existing attempt marker contains hashes only. It fences duplicate transmission but cannot
+  recover the reviewed account/security/quantity/request ID after restart by itself.
+- The inspected account/security contracts expose no current bid/ask or timestamped quote. The
+  saved Delphi source and operator-entered fill price cannot stand in for a fresh order estimate.
+
+See [ADR-0074](../adr/0074-wealthsimple-market-buy-protocol.md) for the implemented broker contract and
+[ADR-0073](../adr/0073-permanent-tfsa-and-whole-share-execution.md) for existing account/quantity rules.
+
+### Decision record
+
+| State | Direction |
+| --- | --- |
+| Accepted user scope | Explore and then implement the WPF overhaul and reusable quick market-buy actions, with manual buys and editable exact share quantities first. |
+| Existing accepted contract | Permanent self-directed TFSA; positive whole-share orders; multiples of ten are a soft preference; broker acknowledgement is not a fill. |
+| Provisional recommendation | A compact `Buy…` action in each eligible stock row opens one shared ticket. The row itself never submits an order. |
+| Implemented UI preference | Compact dialog for a stable review target. A panel beside the grid remains a possible future presentation variant. |
+| Provisional recommendation | Replace the editable tracking strip with a selected-stock summary and `Market buy…`, opening the same ticket. |
+| Provisional recommendation | Keep `Record an existing fill…` and `Create Ghost position…` as separate secondary actions. A real order ticket has no Ghost/Real mode toggle or editable actual fill price. |
+| Provisional recommendation | Show the verified self-directed TFSA as fixed account context. No free-text account routing. If account discovery is ambiguous, require explicit verified account selection. |
+| Provisional recommendation | Treat a manual purchase as operator-directed and operator-managed. Display the source/date/direction, including Hold, without changing recommendations or implying strategy authority. |
+| Provisional recommendation | Initial placements in both Delphi Picks grids; share the component with Trading and, later, other stock grids. Placement in a paper grid must still identify the real destination. |
+| Deferred | Strategy-directed entries, portfolio promotion/activation, market sells, limit/cancel/replace and automatic exit ownership. These are not small extensions of the buy button. |
+
+The provisional recommendations in this original decision table were adopted in ADR-0075, with
+broker holdings included as the first additional grid. The existing ability to record a discretionary
+Real Hold purchase informed the design; the new broker execution checks are now defined by ADR-0075.
+No daily gate, ranking, policy threshold or portfolio strategy permission changed.
+
+### Proposed ticket and states
+
+The ticket contains the resolved stock/exchange/currency, verified TFSA, whole-share quantity,
+timestamped reference price and source, estimated cost, current buying power and relevant existing
+orders/holdings. The final action states `Buy {quantity} {symbol} at market`. This ticket is the explicit
+order review; avoid a second generic confirmation box that repeats it. No implicit default-button or
+double-click submission. Quantity shortcuts may add/subtract ten without excluding smaller quantities.
+The mockup's twenty shares and prices are illustrative, not an accepted remembered quantity or price.
+
+Show `Manual purchase · managed by you` and the source publication/direction. A Hold remains visible
+as a manual departure from the saved recommendation. Preserve the source as context, not as an
+eligible strategy entry or future automatic-sell assignment.
+
+States are Draft → Checking → Ready → Submitting → Submitted → Partially filled/Filled, with explicit
+Rejected, Blocked and Status unavailable outcomes. Any account, symbol or quantity edit invalidates
+the reviewed draft. Freeze its resolved scope when submission begins. Grid refresh/selection cannot
+retarget an open order; closing the ticket does not cancel a submitted order. Read-only status checks
+can continue and the order remains accessible in Trading → Orders and after application restart.
+
+When submission is ambiguous, reopen the same saved order. Do not offer a replacement or generate a
+new request ID to retry. A null/delayed lookup is inconclusive. Submitted and partial quantities remain
+distinct; cumulative fill reads replace an observation rather than add duplicate fills. Unknown broker
+statuses remain unresolved. Terminal cancellation/expiry can still contain real partial fills.
+
+### Shared implementation boundary
+
+1. A reusable WPF buy button/template passes a stock reference and immutable source context to one
+   application-scoped coordinator. Grids have no broker credentials, pricing rules or submit code.
+2. A shared ticket view model owns validation, review and order state. The coordinator uses an explicit
+   order interface through the existing connection owner, preserving serialized authentication and
+   session revision checks. Authentication refresh must not retry a mutation.
+3. Before transmission, save the complete reviewed intent and stable request ID in a protected,
+   durable local journal. Define atomic writes, exclusive access, schema versioning and account/identity
+   rebinding after restart. Retain the existing hash attempt marker as a separate transmission fence.
+   Account objects are scoped to a verified client; recovery must revalidate exact identities, not
+   deserialize them into trusted account objects or resolve a changed ticker as the same instrument.
+4. Obtain fresh broker account facts, pending orders, holdings and instrument eligibility, plus a
+   timestamped quote/reference from a verified supported source. Define the manual cash/risk policy
+   and freshness bounds before enabling submission; no arbitrary buffer is accepted by this draft.
+5. A submitted quantity market order has no guaranteed maximum cost. Estimated affordability and
+   any cash cushion are preflight checks, not a price cap. Do not label an estimate `maximum spend`
+   or size from proceeds of an uncompleted sale.
+6. Reconcile order-specific broker fills and refresh account facts before showing success. Do not
+   create a local Real fill from a submission acknowledgement, estimate or arbitrary user price.
+   Defer automatic tracked-position insertion until broker fills can be linked idempotently and
+   ownership/exit behavior is settled. Broker-confirmed manual orders and the refreshed account
+   remain visible without claiming a complete synchronized account ledger.
+
+First-version simplifications, subsequently implemented in ADR-0075: allow submission only within a verified
+regular Canadian trading session; block stale/missing required checks, unknown local order outcomes,
+unavailable pending-order reads and outstanding broker orders until reservation/conflict handling is
+defined. Preserve applicable global buying pauses and financial holds. Paper-account-specific gates
+must not accidentally become the real manual account's policy. These restrictions must be visible
+beside the ticket action, with a reason, rather than silently disabling it.
+
+### Acceptance criteria and verification
+
+- Both Delphi lenses open the same ticket for the clicked row; later selection/refresh cannot change
+  the reviewed stock. No order is transmitted by row selection, refresh, reopening, timers or startup.
+- The account is broker-resolved. Shares are positive whole numbers. Missing price/account evidence
+  never becomes zero or a fresh-looking estimate. Stale/changed checks invalidate readiness.
+- A final explicit buy action saves the intent before one transmission. Double-click, concurrent
+  tickets, storage failure, disconnect, timeout and restart do not create duplicate transmissions.
+- Partial fills, rejection, no result and terminal-with-partial-fill cases display honestly. Repeated
+  observations do not duplicate shares/cost. Broker failure text is sanitized.
+- Real existing-fill and Ghost workflows remain accessible and distinct. Manual buys do not alter
+  paper ledgers, activate a strategy or acquire automatic sell authority.
+- Verify with focused tests using fake broker/clock/storage, protected-storage fixtures and isolated
+  WPF renders at normal/narrow widths. Test restart recovery and selection/session races. Build the
+  affected project without replacing the running host. A live broker test needs an explicitly chosen
+  order; it is not routine validation for this UI work.
+
+### Implemented sequence and remaining decisions
+
+Compact dialog placement and operator-managed ownership were adopted. The captured broker quote and
+regular-session metadata provide market evidence; quotes expire after two minutes and account/review
+checks after thirty seconds. Estimated ask cost must fit the lower of CAD cash and buying power.
+Outstanding broker orders, unresolved local orders and existing account/global protection block buys.
+Protected intent/recovery and the shared coordinator are implemented. Both Delphi grids share one
+selection action; broker holdings has a separate selection action. Other surfaces can reuse the same
+command without enabling portfolio automation.
+
+Native live acceptance still requires an operator-selected order. Cross-device recovery, resolution of
+contradictory broker observations, complete account reconciliation and portfolio-directed execution
+remain deferred. Exact behavior and offline validation are recorded in ADR-0075 and project status.
+
+The concept is `manual-market-buy.html` in the conversation's visualization directory. Source symbols
+and saved rankings illustrate the supplied screenshot; prices, balances and order outcomes are demo
+values. The initial exploration changed only design documentation and that mockup. The subsequent
+approved implementation added WPF/Core code, focused tests and isolated synthetic render fixtures under
+`artifacts/manual-market-buy-ui-20260910/`. No live broker call, SQL operation, operational host restart,
+model workflow or commit was performed. The running WPF app still needs a rebuild/restart.

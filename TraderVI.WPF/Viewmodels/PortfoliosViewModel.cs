@@ -19,6 +19,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
     private readonly SystemShadowRepository repository = new();
     private SystemShadowGenerationInfo? generation;
     private PortfolioOverviewRow? selectedPortfolio;
+    private string? displayedDetailsCode;
     private string totalTfsaValue = "";
     private string availableTfsaCash = "";
     private string status = "Loading portfolio ledger…";
@@ -80,11 +81,11 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
 
     public bool CanStart => !IsLiveSelected && schemaInstalled && !busy && generation is null;
     public bool CanStartDailyShadow => schemaInstalled && !busy && generation is null;
-    public bool CanPause => !IsLiveSelected && schemaInstalled && !busy && generation?.Status == SystemShadowGenerationStatus.Active;
+    public bool CanPause => SelectedPortfolio?.ComparisonPairId is null && !IsLiveSelected && schemaInstalled && !busy && generation?.Status == SystemShadowGenerationStatus.Active;
     public bool CanResume => !IsLiveSelected && schemaInstalled && !busy &&
         SelectedPortfolio?.Status == "CapitalReviewRequired";
     public bool CanRecordSnapshot => schemaInstalled && !busy && generation is not null;
-    public bool CanRename => schemaInstalled && !busy && SelectedPortfolio?.SystemPortfolioId is not null;
+    public bool CanRename => SelectedPortfolio?.ComparisonPairId is null && schemaInstalled && !busy && SelectedPortfolio?.SystemPortfolioId is not null;
 
     private async Task RefreshCoreAsync(CancellationToken cancellationToken = default)
     {
@@ -123,6 +124,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         rows.AddRange(await BuildTrackedRowsAsync(generation, accountSnapshot));
         rows.AddRange(await ReadDelphiLiveRowsAsync(cancellationToken));
         rows.AddRange(system.Select(PortfolioOverviewRow.FromSystem));
+        rows.AddRange((await new PaperComparisonRepository().ReadShadowOverviewsAsync(cancellationToken)).Select(PortfolioOverviewRow.FromSystem));
         var settingsNames = await new EngineSettingsRepository().ReadAssignedNamesAsync();
         trackedStrategyName = settingsNames.GetValueOrDefault(Core.Runtime.EngineStrategySettings.TrackedTargetId)
             ?? "Default tracked-position exit rules";
@@ -132,6 +134,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             if (target.HasValue && settingsNames.TryGetValue(target.Value, out string? strategy))
                 rows[i] = rows[i] with { StrategyName = strategy, Explanation = rows[i].Explanation + $" Assigned strategy: {strategy}. Lifetime results include history under earlier rules; see Settings for the current assignment." };
         }
+        await DescribeGateComparisonsAsync(rows, cancellationToken);
         selectedCode = SelectedPortfolio?.StableCode;
         Replace(Portfolios, rows);
         if (selectedCode is not null)
@@ -187,6 +190,8 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
 
     public async Task PauseAsync(CancellationToken cancellationToken = default)
     {
+        if (SelectedPortfolio?.ComparisonPairId is not null)
+            throw new InvalidOperationException("Use the global new-buy pause in Settings for fixed-gate comparisons.");
         RequireDailySelection();
         if (generation is null)
             return;
@@ -225,6 +230,8 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
 
     public async Task RenameSelectedAsync(CancellationToken cancellationToken = default)
     {
+        if (SelectedPortfolio?.ComparisonPairId is not null)
+            throw new InvalidOperationException("Comparison names identify the fixed profile and pair.");
         if (SelectedPortfolio?.SystemPortfolioId is not Guid portfolioId)
             return;
         await BusyAsync(() => repository.UpdateDisplayNameAsync(
@@ -239,7 +246,13 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
     {
         int request = ++detailRequest;
         string? selection = SelectedPortfolio?.StableCode;
-        ClearDetails();
+        // Retain the same account's rows while awaiting SQL. Clear immediately only when the
+        // account changes, so old holdings can never appear under a different account's name.
+        if (displayedDetailsCode != selection)
+        {
+            ClearDetails();
+            displayedDetailsCode = selection;
+        }
         if (IsLiveSelected) { ShowDelphiLiveDetails(); return; }
         if (SelectedPortfolio?.SystemPortfolioId is not Guid portfolioId)
             return;
@@ -362,10 +375,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> rows)
-    {
-        target.Clear();
-        foreach (T row in rows) target.Add(row);
-    }
+        => StableDisplayRows.Apply(target, rows);
 
     private void ClearDetails()
     {
@@ -399,7 +409,11 @@ public sealed record PortfolioOverviewRow(
     public string Currency { get; init; } = "CAD";
     public string Explanation { get; init; } = "";
     public string StrategyName { get; init; } = "Operator selected";
-    public string FreshnessText => FreshnessUtc?.ToLocalTime().ToString("MMM d HH:mm") ?? "—";
+    public Guid? ComparisonPairId { get; init; }
+    public PaperGateProfile? GateProfile { get; init; }
+    public string GateStrategyName { get; init; } = "";
+    public Guid? SystemGenerationId { get; init; }
+    public string FreshnessText => FreshnessUtc.HasValue ? TradingAccountOverview.Local(FreshnessUtc.Value) : "—";
 
     public static PortfolioOverviewRow FromSystem(SystemShadowPortfolioOverview x) =>
         new(x.PortfolioCode, x.PortfolioId, x.DisplayName, "System", "Ghost",
@@ -409,7 +423,9 @@ public sealed record PortfolioOverviewRow(
             Latest(x.FreshestPriceEventUtc, x.LatestCandidateEvaluationUtc) ?? x.UpdatedUtc)
         {
             StrategyName = $"{x.Lens} · {x.MaximumPositions} positions",
-            Explanation = "Daily Shadow paper account. Current value uses saved holding marks. Account lifetime results can include earlier strategy assignments."
+            SystemGenerationId = x.GenerationId,
+            Explanation = "Daily Shadow paper account. Current value uses saved holding marks. Account lifetime results can include earlier strategy assignments." +
+                (x.SourceSummary is null ? "" : " " + x.SourceSummary)
         };
 
     public static PortfolioOverviewRow ForTracked(

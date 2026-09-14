@@ -25,6 +25,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private string status = "Loading the latest saved recommendations…";
     private string recommendationDate = "—";
     private string savedAt = "—";
+    private string marketDataDate = "Unavailable";
     private string topPick = "—";
     private string snapshotSource = "DETAILS UNAVAILABLE";
     private string recommendationAction = "—";
@@ -48,7 +49,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     private string paperFillPrice = "";
     private string selectedExecutionMode = TrackedExecutionMode.Ghost.ToStorageValue();
     private string realAccountLabel = "TFSA";
-    private string paperEntryStatus = "Select a saved pick, then choose Ghost or Real tracking.";
+    private string paperEntryStatus = "Select a saved stock, then enter your share quantity in the buy ticket.";
 
     public ObservableCollection<DelphiPickRow> ContinuationPicks { get; } = [];
     public ObservableCollection<DelphiPickRow> BreakoutPicks { get; } = [];
@@ -68,6 +69,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     public string Status { get => status; private set => Set(ref status, value); }
     public string RecommendationDate { get => recommendationDate; private set => Set(ref recommendationDate, value); }
     public string SavedAt { get => savedAt; private set => Set(ref savedAt, value); }
+    public string MarketDataDate { get => marketDataDate; private set => Set(ref marketDataDate, value); }
     public string TopPick { get => topPick; private set => Set(ref topPick, value); }
     public string SnapshotSource { get => snapshotSource; private set => Set(ref snapshotSource, value); }
     public string RecommendationAction { get => recommendationAction; private set => Set(ref recommendationAction, value); }
@@ -100,7 +102,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
     {
         SelectedPaperPick = pick;
         PaperEntryStatus = pick is null
-            ? "Select a saved pick, then choose Ghost or Real tracking."
+            ? "Select a saved stock, then enter your share quantity in the buy ticket."
             : $"Selected {pick.Lens} #{pick.Rank}: {pick.Symbol}";
     }
 
@@ -314,7 +316,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
         DateTime savedUtc = DateTime.SpecifyKind(published.LatestCreatedUtc, DateTimeKind.Utc);
         SavedAt = published.LatestCreatedUtc == DateTime.MinValue
             ? "—"
-            : savedUtc.ToLocalTime().ToString("MMM d · HH:mm:ss");
+            : TradingAccountOverview.Local(savedUtc);
         TopPick = published.Continuation.Count > 0
             ? published.Continuation[0].Symbol
             : published.Breakout.Count > 0 ? published.Breakout[0].Symbol : "—";
@@ -332,6 +334,7 @@ public sealed class DelphiViewModel : INotifyPropertyChanged
 
     private void ApplyPresentation(DelphiPresentationSnapshot? snapshot)
     {
+        MarketDataDate = snapshot?.MarketDataAsOf.ToString("MMM d, yyyy") ?? "Unavailable";
         ClearPresentationCollections();
         if (snapshot is null)
         {
@@ -587,6 +590,7 @@ public sealed record DelphiPickRow(
     string BreakoutProbability, string VolumeExpansion, string ExpectedReturn,
     string SuggestedSize, string Notes)
 {
+    public global::Core.WSTrade.Orders.ManualBuyOrigin BuyOrigin => new(Symbol, $"Delphi {Lens} #{Rank} · saved {PickDate:MMM d, yyyy}", Direction);
     public static DelphiPickRow Create(DailyPickInfo pick) => new(
         pick.PickId, pick.PickDate, pick.Lens,
         pick.Rank, pick.Symbol, pick.Direction, pick.CompositeScore.ToString("P1"),

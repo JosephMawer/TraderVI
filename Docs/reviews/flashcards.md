@@ -1,5 +1,11 @@
 # Review Flashcards
 
+### ADR-0069 — Direct Wealthsimple authentication
+
+- **Q:** Does a verified broker login permit strategy orders? **A:** No. Account reconciliation and explicit execution authority are separate boundaries.
+- **Q:** Why can a captured DPoP token not be treated as bearer? **A:** It requires proofs from the original private signing key; our new client's key cannot substitute for it.
+- **Q:** Why stop after an uncertain refresh failure? **A:** The server may already have rotated the refresh token. An automatic retry can reuse invalid credentials and lose session state.
+
 Question/answer pairs distilled from ADRs and concepts. Used in review
 sessions ("quiz me" / "review").
 
@@ -11,6 +17,107 @@ sessions ("quiz me" / "review").
 - Keep answers short — 1–4 sentences. The point is recall, not exposition.
 
 ## Cards
+### Q: What does future primary promotion change for the TFSA?
+
+**A:** It assigns the reviewed strategy version authority to trade the permanent real account once
+activation requirements hold. Paper cash, positions and fills remain separate from the TFSA's history.
+Source: ADR-0073. Tags: architecture.
+
+### Q: What happens to overlapping TFSA holdings during primary promotion?
+
+**A:** Retain the actual position and transfer management to the incoming strategy. Do not sell just
+to buy it back, copy the paper quantity, or rewrite the real purchase history. Record handover separately;
+transition timing and initialization of the new strategy's protection rules still require design.
+Source: ADR-0073. Tags: architecture.
+
+### Q: Do multiples of ten guarantee whole-order execution?
+
+**A:** No. Ten is a sizing preference, not the TSX standard board lot. A partial fill can leave another
+whole-share quantity, and exits must be able to close that remainder without increasing exposure.
+Source: ADR-0073. Tags: market-microstructure.
+
+### Q: Why must the TFSA display exclude a managed TFSA?
+
+**A:** Wealthsimple groups accounts by tax wrapper. TraderVI selects the open self-directed account
+explicitly so managed assets do not change its displayed trading balance or holdings.
+Source: ADR-0072. Tags: architecture.
+
+### Q: Does loading broker holdings reconcile TraderVI's trading records?
+
+**A:** No. A broker snapshot displays current balances and positions. Reconciliation must separately
+map holdings, fractional quantities, fills, cash movements and pending orders before strategy inputs change.
+Source: ADR-0072. Tags: architecture.
+
+### Q: Does TraderVI normally need an open Wealthsimple browser after signing in?
+
+**A:** No. Native email/password and 2FA establish the HTTP client's session. Browser verification is
+offered only for an explicit provider challenge and closes after a supported token handoff.
+Source: ADR-0071. Tags: architecture.
+
+### Q: Why did ordinary parser tests miss the first browser handoff failure?
+
+**A:** MemoryStream supports operations that WebView2's COM stream does not. The regression now uses
+restricted streams and a real offline WebView2 probe, with bounded zero-offset reads before parsing.
+Source: ADR-0071. Tags: architecture.
+
+### Q: Where does TraderVI remember a Wealthsimple login?
+
+**A:** It optionally stores access/refresh session tokens encrypted for the current Windows user in
+LocalAppData. Email, password and verification codes are not saved.
+Source: ADR-0070. Tags: architecture.
+
+### Q: What does the green Wealthsimple sidebar dot prove?
+
+**A:** The session was recently verified and has not expired. It does not prove instantaneous remote
+state, account reconciliation or permission to trade; the connection window shows verification time.
+Source: ADR-0070. Tags: architecture.
+
+### Q: Why delete a saved session before refreshing it?
+
+**A:** Refresh may rotate the credential. Removing the old copy prevents a crash or ambiguous response
+from causing the next app launch to reuse a consumed refresh token.
+Source: ADR-0070. Tags: architecture.
+
+### Q: Why do gate comparisons start with two fresh accounts for each strategy?
+- **Tags:** decision-engine, risk-management
+- **Source:** ADR-0067
+- **A:** Equal starting cash, source and timing make the daily gate profile the intended difference.
+  Existing accounts have earlier holdings and interventions. Each new account independently receives
+  CAD 1,000; the ten accounts are alternative outcomes, not one combined investment portfolio.
+
+### Q: Does Portfolio rules only require a purchase when daily gates would block it?
+- **Tags:** decision-engine, risk-management
+- **Source:** ADR-0067
+- **A:** No. It admits the accepted published ranks without daily admission gates, but preserves data
+  checks, portfolio entry conditions, cash/position limits, risk holds and protective exits. It cannot
+  expand Top 3/Top 5 to lower ranks, backdate a fill or turn the official Hold evidence into a pass.
+
+### Q: Can a comparison account switch to another gate profile after it starts?
+- **Tags:** architecture, decision-engine
+- **Source:** ADR-0067
+- **A:** No. The account's gate profile is fixed for its lifetime. A different gate experiment uses
+  a fresh matched pair so historical results retain their original rules and interpretation.
+
+### Q: Does forcing a Shadow candidate for an engineering test also force its purchase?
+- **Tags:** decision-engine, risk-management
+- **Source:** ADR-0064
+- **A:** No. The September 8 exception admits published Top 3/5 candidates despite the late run and
+  daily eligibility failure. Fresh post-adoption prices must still pass intraday entry checks, cash/slot
+  limits and risk holds; a signal needs a later observed fill bar. Skips remain valid test outcomes.
+
+### Q: Can returns from an operator-forced paper session validate the ordinary strategy?
+- **Tags:** decision-engine, risk-management
+- **Source:** ADR-0064
+- **A:** No. The override and carried effects are engineering evidence. Existing portfolio charts still
+  include those results, so retain visible dated test labels and the audit record; official daily
+  recommendation evidence is not rewritten to make the candidates appear eligible.
+
+### Q: What changes when an exploratory trial uses today's stock list and sector classifications?
+- **Tags:** data-pipeline, machine-learning
+- **Source:** ADR-0063
+- **A:** Membership becomes an explicit present-day assumption with its real capture date, not a claimed
+  historical observation. Prices and indicators still obey each historical cutoff. Survivorship and
+  classification uncertainty remain alongside the newer-model limitation.
 
 ### Q: Does the first practice runner test SQL recovery or prove historical provider delivery timing?
 - **Tags:** architecture, data-pipeline
@@ -1008,3 +1115,71 @@ evaluated for protection using available evidence. Neither calculation makes a s
 **A:** They are deferred to the Wealthsimple live trading/automation design. Manual recommendation
 approval may accept disclosed evidence gaps. This never makes paper fills real or waives internal Live
 research rules, and it grants no broker authority.
+
+**Q:** Does the September 8 Delphi Live engineering admission make the daily Hold candidates eligible?
+**A:** No. ADR-0065 records a distinct admission and preserves all original eligibility and gate facts.
+Live still needs fresh confirmation and its ordinary safety and execution evidence.
+
+**Q:** Can a late-start Live test become a clean session after several successful polls?
+**A:** No. Fresh observations can rebuild rolling confirmation, but cannot repair missing opening
+coverage or session VWAP. The host gap remains and excludes the session from clean research evidence.
+
+### Q: Why can a successful morning recovery still be unsuitable for today's new paper entries?
+
+**A:** Daily inputs must stop at the prior completed session; the publication must also meet the strategy's
+pre-open cutoff. Late recovery cannot erase missed host coverage or convert a Hold into an eligible Buy.
+
+Source: ADR-0058; ADR-0065. Tags: operations, data-quality, execution.
+
+### Q: Does bypassing the first failed daily gate establish that a candidate can be bought?
+
+**A:** No. Delphi's normal pipeline stops at its first failure. A selected-gate experiment must evaluate
+the remaining gates; portfolio entry and execution checks still apply afterward. On September 9,
+bypassing Breadth exposed a Granville block for all 207 candidates in each lens.
+
+Source: concepts/paper-source-refresh-and-gate-profiles-draft.md (design in progress).
+Tags: decision-engine, risk-management.
+
+### ADR-0066 — Daily source adoption
+
+- **Q:** Why does adopting a late Delphi publication not repair opening coverage? **A:** Adoption changes the current source prospectively; original freezes, missing observations and actual receipt times remain evidence.
+- **Q:** What survives a source change? **A:** Cash, holdings, completed fills, protective sells, risk guards and exit history. Pending buys requalify from fresh evidence.
+- **Q:** Does source refresh bypass daily gates? **A:** No. Separate, explicitly labelled paper profiles are needed to compare portfolio rules without those gates.
+
+### ADR-0068 — Main-account Trading overview
+
+- **Q:** Does stopping portfolio-screen refreshes after hours stop its trading engine? **A:** No. Display refreshes and engine wakeups are separate. The grid can retain saved results while scheduling, session finalization and safety checks continue.
+- **Q:** Can a new portfolio show a daily gain when its shared-period return is unavailable? **A:** Yes. Daily gain compares the selected session's saved value with its own opening value. One session is enough; an intraday checkpoint is labelled Partial, and missing valuations remain unavailable.
+- **Q:** Do fixed gate-comparison accounts need their own destination? **A:** No. All paper portfolios appear in one grid, with explicit gate-profile labels. Sharing a list does not remove the need for matching performance periods or change promotion eligibility.
+- **Q:** What leads the Trading overview? **A:** The main real account's earnings, value, holdings and active strategy. Attention items support that overview; independent paper portfolios have their own workspace.
+- **Q:** Does promoting a paper strategy transfer its profits or holdings to Trading? **A:** No. The approved rules use the real account's own state. Its financial history continues across strategy changes, while paper accounts and results remain separate.
+
+### ADR-0073 — TFSA transition preview
+
+- **Q:** Does a verified empty pending-order feed prove the account is reconciled? **A:** No. Completed fills, cash movements and TraderVI's durable records still need reconciliation. Submitted quantity also differs from remaining quantity after a partial fill.
+- **Q:** If risk permits 37 shares but cash permits 27 at the limit, how many does the ten-share preference propose? **A:** 20. Rounding is downward within both limits. If only seven fit, seven is allowed; a whole-share exit need not be a multiple of ten.
+
+### ADR-0074 — Market-buy acknowledgement and recovery
+
+- **Q:** Does `soOrdersCreateOrder.order.orderId` mean the shares filled? **A:** No. It acknowledges creation. A separate, scoped order-details response reports cumulative fill quantity, price, value and fees.
+- **Q:** What should happen after an uncertain submission? **A:** Keep the original request ID and read/reconcile its broker state. A local attempt marker prevents automatic replay; a missing or delayed lookup is not proof that the original order failed.
+
+### ADR-0075 — Manual market-buy ticket
+
+- **Q:** Why does the current Real tracking form require a fill price, while a market-buy ticket should not? **A:** Tracking records an already completed broker trade. Select a stock and use Manual buy (or Buy more for a holding) to review a quantity order; the broker later supplies actual fill quantities and prices. Selection and an estimated cost are not a completed fill.
+- **Q:** Does buying manually from a Delphi Hold row make it a strategy trade? **A:** No. The ticket preserves the saved source and Hold direction as context, labels the order Manual, and leaves strategy attribution and automatic management unchanged. The operator chooses the exact whole-share quantity; portfolio sizing is separate.
+- **Q:** Does an affordable estimated market order guarantee the final cost? **A:** No. Current ask, cash and buying power are preflight checks. The submitted quantity order has no limit price; actual cumulative fills supply the final price and costs.
+
+Source: ADR-0075; concepts/trading-workspace-redesign-draft.md#manual-market-buys--september-10-design-draft.
+
+### ADR-0076 — Market-sell protocol
+
+- **Q:** Can an instrument be sellable when it is not buyable? **A:** Yes. Sell preflight checks the broker's `sellable` flag independently; a restriction on new purchases must not be mistaken for a sell restriction.
+- **Q:** Can changing order side bypass an uncertain attempt? **A:** No. Buy and sell share an identity/request-ID fence. Preserve the original intent and reconcile its broker state before making another trading decision.
+- **Q:** Does a successful sell eligibility check prove enough shares are available? **A:** No. It verifies the instrument. A sell workflow must also verify available holdings, pending orders and durable reviewed authority before submitting.
+
+### ADR-0077 — Manual holdings sell-all
+
+- **Q:** Does Market sell all silently adopt a changed broker quantity? **A:** No. The click authorizes the entire displayed whole-share quantity. A mismatch stops submission and requires refresh plus a new click.
+- **Q:** Why can Filled still block another manual order? **A:** The holdings snapshot may lag the fill. The saved sell remains reserved until fresh owned-account holdings show exactly the expected remaining shares and no pending orders.
+- **Q:** Can the current Limit sell ticket place an order? **A:** No. It is an editable preview with disabled submission; the HAR verified market orders only.

@@ -8,6 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Input;
+using TraderVI.WPF.Services;
+using TraderVI.WPF.Views;
 using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF;
@@ -20,12 +23,65 @@ public partial class PaperDashboardWindow : Window
     private readonly DispatcherTimer timer;
     private readonly SemaphoreSlim cycleGate = new(1, 1);
     private readonly CancellationTokenSource shutdown = new();
+    private readonly PortfolioDisplayRefreshSchedule displayRefresh = new();
+    private bool timerTickRunning;
+    private readonly WealthsimpleConnection wealthsimple = new(new WindowsWealthsimpleSessionStore());
+    private readonly ManualBuyCoordinator manualBuys;
+    private readonly DispatcherTimer authTimer = new() { Interval = TimeSpan.FromSeconds(10) };
+    private WealthsimpleConnectionWindow? connectionWindow;
     private DateTime nextAutomaticPollLocal;
 
     public PaperDashboardWindow()
     {
+        manualBuys = new(wealthsimple);
         InitializeComponent();
         DataContext = viewModel;
+        WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
+        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple);
+        CommandBindings.Add(new CommandBinding(ManualBuyCommands.Open, async (_, e) =>
+        {
+            if (e.Parameter is not Core.WSTrade.Orders.ManualBuyOrigin origin) return;
+            manualBuys.Open(this, origin);
+            await TradingRecommendationsTabView.RefreshWealthsimpleAsync();
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Orders.ManualBuyOrigin));
+        CommandBindings.Add(new CommandBinding(ManualBuyCommands.Orders, async (_, _) =>
+        {
+            manualBuys.Open(this, null);
+            await TradingRecommendationsTabView.RefreshWealthsimpleAsync();
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting));
+        CommandBindings.Add(new CommandBinding(ManualSellCommands.Market, async (_, e) =>
+        {
+            if (e.Parameter is not Core.WSTrade.Orders.ManualSellSelection selection ||
+                !TradingRecommendationsTabView.IsCurrentManualSellSelection(selection)) return;
+            await manualBuys.SellAllAsync(this, selection, TradingRecommendationsTabView.RefreshWealthsimpleAsync);
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Orders.ManualSellSelection { IsWholeHolding: true } selection &&
+            TradingRecommendationsTabView.IsCurrentManualSellSelection(selection)));
+        CommandBindings.Add(new CommandBinding(ManualSellCommands.Limit, (_, e) =>
+        {
+            if (e.Parameter is Core.WSTrade.Orders.ManualSellSelection selection) manualBuys.OpenLimit(this, selection);
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Orders.ManualSellSelection selection &&
+            TradingRecommendationsTabView.IsCurrentManualSellSelection(selection)));
+        CommandBindings.Add(new CommandBinding(ManualSellCommands.Orders, async (_, _) =>
+            await manualBuys.OpenSellsAsync(this, TradingRecommendationsTabView.RefreshWealthsimpleAsync),
+            (_, e) => e.CanExecute = !manualBuys.IsSubmitting));
+        CommandBindings.Add(new CommandBinding(WorkspaceNavigationState.OpenWealthsimple, (_, _) =>
+        {
+            if (connectionWindow != null) { connectionWindow.Activate(); return; }
+            connectionWindow = new WealthsimpleConnectionWindow(wealthsimple) { Owner = this };
+            connectionWindow.Closed += (_, _) => connectionWindow = null;
+            connectionWindow.Show();
+        }));
+        Loaded += async (_, _) =>
+        {
+            try { await wealthsimple.StartAsync(shutdown.Token); }
+            catch (OperationCanceledException) { }
+            if (!shutdown.IsCancellationRequested) authTimer.Start();
+        };
+        authTimer.Tick += async (_, _) =>
+        {
+            try { await wealthsimple.CheckAsync(ct: shutdown.Token); }
+            catch (OperationCanceledException) { }
+        };
         DelphiTabView.PaperPositionOpened += DelphiTabView_PaperPositionOpened;
         SettingsTabView.PreferencesChanged = enabled => viewModel.AutomaticGhostExitsEnabled = enabled;
         SettingsTabView.InitializePreferences(viewModel.AutomaticGhostExitsEnabled);
@@ -43,7 +99,29 @@ public partial class PaperDashboardWindow : Window
     {
         SettingsTabView.Navigate(section); MainTabs.SelectedItem = SettingsTab;
     }
-    public void OpenTrading() => MainTabs.SelectedItem = PaperTradingTab;
+    public async void OpenTrading(string? account = null)
+    {
+        MainTabs.SelectedItem = PaperTradingTab; TradingSections.SelectedIndex = 0;
+        if (account is not null) await TradingRecommendationsTabView.ShowAccountAsync(account);
+    }
+    public void OpenTradingMonitor() { MainTabs.SelectedItem = PaperTradingTab; TradingSections.SelectedIndex = 1; }
+    public async void OpenPortfolios(string account = "TFSA", Guid? livePortfolio = null)
+    {
+        SelectWorkspace(PortfoliosTabView);
+        try { await PortfoliosTabView.NavigateAsync(account, livePortfolio); }
+        catch (Exception error) { MessageBox.Show(this, error.Message, "Portfolio view unavailable", MessageBoxButton.OK, MessageBoxImage.Information); }
+    }
+    public void OpenDelphi() => SelectWorkspace(DelphiTabView);
+    public async Task OpenDelphiLiveAsync(Guid? portfolioId)
+    {
+        SelectWorkspace(DelphiLiveTabView);
+        await DelphiLiveTabView.SelectAccountAsync(portfolioId, shutdown.Token);
+    }
+    private void SelectWorkspace(FrameworkElement view)
+    {
+        foreach (System.Windows.Controls.TabItem tab in MainTabs.Items)
+            if (ReferenceEquals(tab.Content, view)) { MainTabs.SelectedItem = tab; break; }
+    }
     public async Task TradingControlsChangedAsync()
     {
         await DelphiLiveTabView.TickAsync(shutdown.Token);
@@ -95,22 +173,29 @@ public partial class PaperDashboardWindow : Window
 
     private async void Timer_Tick(object? sender, EventArgs e)
     {
-        viewModel.RefreshClock();
-        await RefreshSafelyAsync();
-        // The shared Core workflow owns its own exact schedule and durable
-        // lease. Monitoring is independent of which tab the operator selected.
-        await DelphiLiveTabView.TickAsync(shutdown.Token);
-        await SettingsTabView.RefreshAccessAsync();
-        await TradingRecommendationsTabView.TickAsync(shutdown.Token);
-
-        DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
-        if (PaperTradingMonitor.IsAutomaticPollTime(localNow) &&
-            localNow >= nextAutomaticPollLocal)
+        if (timerTickRunning || shutdown.IsCancellationRequested) return;
+        timerTickRunning = true;
+        try
         {
-            nextAutomaticPollLocal =
-                PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
-            await RunMonitorCycleAsync("Scheduled");
+            viewModel.RefreshClock();
+            // Engine wakeups and safety commands continue independently of display refreshes,
+            // including pre-open liveness and after-close finalization. Do these before display I/O.
+            await DelphiLiveTabView.TickAsync(shutdown.Token);
+            await SettingsTabView.RefreshAccessAsync();
+            await TradingRecommendationsTabView.TickAsync(shutdown.Token);
+
+            DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
+            if (PaperTradingMonitor.IsAutomaticPollTime(localNow) && localNow >= nextAutomaticPollLocal)
+            {
+                nextAutomaticPollLocal = PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
+                await RunMonitorCycleAsync("Scheduled");
+            }
+            if (displayRefresh.ShouldRefresh(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
+                await RefreshSafelyAsync();
         }
+        catch (OperationCanceledException) when (shutdown.IsCancellationRequested) { }
+        catch (Exception error) { viewModel.AddEvent(DateTime.UtcNow, $"Dashboard update: {error.Message}", "Error"); }
+        finally { timerTickRunning = false; }
     }
 
     private async void PollNowButton_Click(object sender, RoutedEventArgs e) =>
@@ -297,19 +382,21 @@ public partial class PaperDashboardWindow : Window
         MainTabs.SelectedItem = PaperTradingTab;
     }
 
-    private async void Window_Closed(object? sender, EventArgs e)
+    private void Window_Closed(object? sender, EventArgs e)
     {
         timer.Stop();
+        authTimer.Stop();
         shutdown.Cancel();
-        try { await DelphiLiveTabView.StopAsync(); }
-        catch (Exception ex)
-        {
-            viewModel.AddEvent(DateTime.UtcNow, $"Delphi Live shutdown: {ex.GetType().Name}", "Error");
-        }
+        manualBuys.Dispose();
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    private bool closingMonitor;
+    private bool monitorStopped;
+    protected override async void OnClosing(CancelEventArgs e)
     {
+        if (manualBuys.IsSubmitting) { e.Cancel = true; return; }
+        if (monitorStopped) { base.OnClosing(e); return; }
+        if (closingMonitor) { e.Cancel = true; return; }
         if (DelphiTabView.IsRunning || SettingsTabView.IsBusy)
         {
             e.Cancel = true;
@@ -325,6 +412,22 @@ public partial class PaperDashboardWindow : Window
             "There are unsaved strategy drafts. Close and discard them? Choose Cancel to return to Settings and save them.",
             "Unsaved strategy drafts", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel)!=MessageBoxResult.OK)
         { e.Cancel=true; return; }
-        base.OnClosing(e);
+        if (e.Cancel) { base.OnClosing(e); return; }
+        // WPF can terminate the process immediately after Closed. Keep the
+        // window alive until the durable lease has been released.
+        e.Cancel = true;
+        closingMonitor = true;
+        timer.Stop();
+        authTimer.Stop();
+        shutdown.Cancel();
+        connectionWindow?.Close();
+        TradingRecommendationsTabView.StopWealthsimple();
+        await wealthsimple.StopAsync();
+        try { await DelphiLiveTabView.StopAsync(); }
+        catch (Exception ex)
+        {
+            viewModel.AddEvent(DateTime.UtcNow, $"Delphi Live shutdown: {ex.GetType().Name}; its lease must expire before another host can run.", "Error");
+        }
+        finally { monitorStopped = true; _ = Dispatcher.BeginInvoke(new Action(Close)); }
     }
 }

@@ -99,6 +99,11 @@
     <Build Include="dbo/Tables/ShadowPortfolioGeneration.sql" />
     <Build Include="dbo/Tables/ShadowPortfolio.sql" />
     <Build Include="dbo/Tables/ShadowPortfolioSession.sql" />
+    <Build Include="dbo/Tables/ShadowDailySourceRevision.sql" />
+    <Build Include="dbo/Tables/DelphiLiveDailySourceRevision.sql" />
+    <Build Include="dbo/Tables/PaperComparisonBatch.sql" />
+    <Build Include="dbo/Tables/PaperComparisonAccount.sql" />
+    <Build Include="dbo/Tables/PaperComparisonSourceRevision.sql" />
     <Build Include="dbo/Tables/ShadowPortfolioCandidate.sql" />
     <Build Include="dbo/Tables/ShadowPosition.sql" />
     <Build Include="dbo/Tables/ShadowOrder.sql" />
@@ -108,6 +113,7 @@
     <Build Include="dbo/Tables/DelphiLivePolicyAssignment.sql" />
     <Build Include="dbo/Tables/DelphiLiveHostLease.sql" />
     <Build Include="dbo/Tables/DelphiLiveSession.sql" />
+    <Build Include="dbo/Tables/DelphiLiveEngineeringTrial.sql" />
     <Build Include="dbo/Tables/DelphiLiveSessionPolicy.sql" />
     <Build Include="dbo/Tables/DelphiLiveContinuityEpoch.sql" />
     <Build Include="dbo/Tables/DelphiLiveSessionSymbol.sql" />
@@ -185,6 +191,10 @@
     <Build Include="dbo/Tables/TradingReportedFill.sql" />
     <Build Include="dbo/Triggers/TradingReportedFill_Immutable.sql" />
     <None Include="Migrations/20260907_029_AddTradingPromotion.sql" />
+    <None Include="Migrations/20260908_030_AdoptShadowEngineeringCandidates.sql" />
+    <None Include="Migrations/20260908_031_ActivateLiveEngineeringTrial.sql" />
+    <None Include="Migrations/20260909_032_PaperDailySourceAdoption.sql" />
+    <None Include="Migrations/20260909_033_FixedGatePaperComparisons.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />

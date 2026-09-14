@@ -16,8 +16,11 @@ CREATE TABLE [dbo].[DelphiLiveFrozenCandidateLens]
     [CalibrationLensCreatedUtc]   DATETIME2        NOT NULL,
     [FrozenUtc]                   DATETIME2        NOT NULL,
     [CreatedUtc]                  DATETIME2        NOT NULL CONSTRAINT [DF_DelphiLiveFrozenCandidateLens_CreatedUtc] DEFAULT (SYSUTCDATETIME()),
+    [EngineeringTrialId]          UNIQUEIDENTIFIER NULL,
 
     CONSTRAINT [PK_DelphiLiveFrozenCandidateLens] PRIMARY KEY CLUSTERED ([FrozenCandidateLensId]),
+    CONSTRAINT [FK_DelphiLiveFrozenCandidateLens_Trial] FOREIGN KEY ([EngineeringTrialId])
+        REFERENCES [dbo].[DelphiLiveEngineeringTrial] ([TrialId]),
     CONSTRAINT [FK_DelphiLiveFrozenCandidateLens_FrozenCandidate] FOREIGN KEY
         ([FrozenCandidateId], [CalibrationCandidateId])
         REFERENCES [dbo].[DelphiLiveFrozenCandidate] ([FrozenCandidateId], [CalibrationCandidateId]),
@@ -32,7 +35,9 @@ CREATE TABLE [dbo].[DelphiLiveFrozenCandidateLens]
     CONSTRAINT [CK_DelphiLiveFrozenCandidateLens_Identity] CHECK
     (
         [Lens] IN (N'Continuation', N'Breakout')
-        AND [IsEligible] = 1
+        AND (([EngineeringTrialId] IS NULL AND [IsEligible] = 1)
+          OR ([EngineeringTrialId] IS NOT NULL AND [EngineeringTrialId] = 'c6d4639d-9c06-4c61-bde3-d76a6fdf1908' AND [IsEligible] = 0
+            AND [Direction] = N'Hold' AND [FirstFailedGate] = N'Breadth'))
         AND [IsPublished] = 1
         AND [FrozenRank] BETWEEN 1 AND 25
     ),

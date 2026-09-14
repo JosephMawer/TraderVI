@@ -46,7 +46,7 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
         using var expectedPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(storedPolicy));
         if (!JsonElement.DeepEquals(actualPolicy.RootElement, expectedPolicy.RootElement))
             throw new InvalidOperationException("Evaluation settings differ from the immutable stored policy identity.");
-        await connection.ExecuteAsync(new CommandDefinition(PersistSql, new
+        await connection.ExecuteAsync(new CommandDefinition(PersistSql, PaperSourceSqlParameters.Create(new
         {
             Id = input.EvaluationId, Session = input.SessionId, Policy = input.Policy.PolicyVersionId,
             Symbol = input.Stock.Symbol, End = input.BarEndUtc, Epoch = continuityEpoch,
@@ -55,7 +55,7 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
             SettingsAuthorized = await EngineSettingsRepository.IsLivePolicyAssignedAsync(connection, input.SessionId, input.Policy.PolicyVersionId),
             Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc,
             Input = DelphiLiveLedgerJson.Serialize(input), Result = DelphiLiveLedgerJson.Serialize(result)
-        }, cancellationToken: cancellationToken));
+        }, ("Evaluated", input.EvaluatedUtc), ("End", input.BarEndUtc)), cancellationToken: cancellationToken));
     }
 
     internal static void ValidateEnvelope(DelphiLiveEvaluationInput input, DelphiLiveEvaluationResult result,

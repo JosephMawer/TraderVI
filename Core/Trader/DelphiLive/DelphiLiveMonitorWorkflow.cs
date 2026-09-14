@@ -30,7 +30,13 @@ public sealed class DelphiLiveMonitorWorkflow
     private DateTime? nextEnd;
     private DateTime continuityStart;
     private readonly Dictionary<Guid, DateTime> policyAssignmentBoundaries = new();
-    private DateTime ContinuityStartFor(Guid policy) => policyAssignmentBoundaries.TryGetValue(policy, out var boundary) && boundary > continuityStart ? boundary : continuityStart;
+    private DateTime ContinuityStartFor(Guid policy)
+    {
+        DateTime start = policyAssignmentBoundaries.TryGetValue(policy, out var boundary) && boundary > continuityStart ? boundary : continuityStart;
+        if (context?.ComparisonAccounts.TryGetValue(policy, out var account) == true && account.EffectiveUtc > start) start = account.EffectiveUtc;
+        if (context?.ForPolicy(policy).SourceRevision is { } source && source.EffectiveUtc > start) start = source.EffectiveUtc;
+        return start;
+    }
     private bool sessionProtectionStarted;
     private PreOpenHeartbeat? preOpenHeartbeat;
     private DateOnly? warningSession;
@@ -69,6 +75,10 @@ public sealed class DelphiLiveMonitorWorkflow
     {
         DateOnly date = LocalDate(clock.UtcNow);
         var frozen = await sessions.GetFrozenSessionAsync(date, ct);
+        var operational = frozen is null ? null : await sessions.ReadOperationalContextAsync(date, ct);
+        frozen = operational?.Session ?? frozen;
+        if (operational?.SourceRevision is { } source)
+            AddWarning($"Daily source {source.RunId:D} published {source.PublishedUtc:u}; adopted {source.AdoptedUtc:u}. Fresh confirmation begins {source.EffectiveUtc:u}; opening research freeze is retained.");
         var values = frozen is null ? Array.Empty<DelphiLiveStoredEvaluation>() :
             await evaluations.GetLatestSnapshotAsync(frozen.SessionId, ct);
         var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
@@ -142,6 +152,7 @@ public sealed class DelphiLiveMonitorWorkflow
                 if (recovery.HostGapObserved) AddWarning("Host coverage gap: this session cannot support clean shakedown or promotion.");
             }
             var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
+            await sessions.RefreshDailySourceAsync(date, lease, ct);
             var refreshedContext = await sessions.ReadOperationalContextAsync(date, ct) ?? throw new InvalidOperationException("Session context is unavailable.");
             if (!context.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId)).SequenceEqual(
                     refreshedContext.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId))))
@@ -152,9 +163,16 @@ public sealed class DelphiLiveMonitorWorkflow
                 AddWarning("Strategy reassigned: protection reevaluates now; confirmation restarts with fresh evidence. Research promotion is paused.");
             }
             context = refreshedContext;
+            foreach (var portfolio in portfolios)
+            {
+                // Durable portfolio marker makes restart between adoption and cancellation safe.
+                if (context.ForPolicy(portfolio.PolicyVersionId).SourceRevision is { } ownRevision)
+                    await actions.SynchronizeDailySourceAsync(portfolio.PortfolioId, ownRevision, lease, ct);
+            }
+            if (context.SourceRevision is { } revision && revision.EffectiveUtc > continuityStart) continuityStart = revision.EffectiveUtc;
             bool dailyCompatible = IsDailyStrategyCurrentAsync is null || await IsDailyStrategyCurrentAsync(context.Session.DailyStrategyVersionId, ct);
             actions.NewBuysPaused = operatorEntriesPaused || !dailyCompatible;
-            if (!dailyCompatible) AddWarning("New buys wait for a fresh session: frozen daily picks do not use the currently assigned daily strategy.");
+            if (!dailyCompatible) AddWarning("New buys wait for a valid Delphi publication under the currently assigned daily strategy.");
             // Opening protection runs once immediately, before the first 09:37
             // collection. Later protection is first in each scheduled cycle.
             if (!sessionProtectionStarted)
@@ -202,13 +220,24 @@ public sealed class DelphiLiveMonitorWorkflow
             foreach (var assignment in context.Assignments.DistinctBy(a => a.PolicyVersionId))
             {
                 var policy = context.Policies[assignment.PolicyVersionId];
+                var policyContext = context.ForPolicy(policy.PolicyVersionId);
                 DateTime policyStart = ContinuityStartFor(policy.PolicyVersionId);
                 var rolePortfolios = portfolios.Where(p => p.PolicyVersionId == policy.PolicyVersionId).ToArray();
                 foreach (string symbol in targets.Where(t => t.Symbol != "XIU").Select(t => t.Symbol))
                 {
-                    var prior = previous.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId && e.Input.Stock.Symbol == symbol && e.Input.EvaluatedUtc >= policyStart);
+                    var prior = previous.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId && e.Input.Stock.Symbol == symbol && e.Input.EvaluatedUtc >= policyStart &&
+                        (policyContext.SourceRevision is null || e.Input.EvaluatedUtc > policyContext.SourceRevision.AdoptedUtc));
                     if (prior?.Input.BarEndUtc >= end) { saved.Add(prior); continue; }
-                    context.Candidates.TryGetValue(symbol, out var candidate);
+                    policyContext.Candidates.TryGetValue(symbol, out var candidate);
+                    if (context.ComparisonAccounts.ContainsKey(policy.PolicyVersionId) &&
+                        (policyContext.SourceRevision is null || end <= policyContext.SourceRevision.EffectiveUtc ||
+                         clock.UtcNow < policyContext.SourceRevision.EffectiveUtc))
+                    {
+                        // A newly adopted comparison publication cannot annotate an earlier checkpoint.
+                        // Held symbols still get protection using their original entry provenance.
+                        if (!rolePortfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol)) continue;
+                        candidate = null;
+                    }
                     bool carry = candidate is null && rolePortfolios.SelectMany(p => p.Positions).Any(p => p.Symbol == symbol &&
                         (p.ClosedUtc is null || LocalDate(p.ClosedUtc.Value) == date));
                     var state = prior?.Result.NextState ?? DelphiLiveEvaluationState.Initial(candidate is not null);
@@ -225,15 +254,15 @@ public sealed class DelphiLiveMonitorWorkflow
                     }
                     var stockBars = bars.Where(b => b.Symbol == symbol).ToArray();
                     var xiuBars = bars.Where(b => b.Symbol == "XIU").ToArray();
-                    var baseline = context.Baselines[symbol];
+                    var baseline = policyContext.Baselines[symbol];
                     var input = new DelphiLiveEvaluationInput
                     {
                         EvaluationId = Guid.NewGuid(), SessionId = context.Session.SessionId, BarEndUtc = end,
                         EvaluatedUtc = clock.UtcNow, Stock = new(symbol, date, bounds.OpenUtc, policyStart, stockBars),
                         Xiu = new("XIU", date, bounds.OpenUtc, policyStart, xiuBars), Policy = policy,
                         VolatilityRulers = baseline.Rulers, PreviousState = state, PreviousStockSessionClose = baseline.PreviousClose,
-                        PreviousXiuSessionClose = context.Baselines["XIU"].PreviousClose,
-                        DailySetup = candidate is null ? null : DailySetup(context, candidate), IsSessionCarryCandidate = carry,
+                        PreviousXiuSessionClose = policyContext.Baselines["XIU"].PreviousClose,
+                        DailySetup = candidate is null ? null : DailySetup(policyContext, candidate) with { ComparisonAdmission = context.AdmissionFor(policy.PolicyVersionId) }, IsSessionCarryCandidate = carry,
                         // Shared market and research judgments cannot inherit
                         // any portfolio's ownership, pending actions or exits.
                         ExactPairPersistedOnTime = OnTime(stockBars, end) && OnTime(xiuBars, end), IsHeld = false,
@@ -246,12 +275,16 @@ public sealed class DelphiLiveMonitorWorkflow
                     saved.Add(new(input, result, recovery.EpochNumber));
                 }
             }
-            if (PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
+            if (context.SourceRevision is null && context.ComparisonAccounts.Count == 0 && PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
             DelphiLivePortfolioSnapshot? operationalAfterActions = null;
             foreach (var portfolio in portfolios)
             {
                 var currentPortfolio = await ledger.LoadPortfolioAsync(portfolio.PortfolioId, ct) ?? throw new InvalidOperationException("Portfolio disappeared.");
                 var policy = context.Policies[portfolio.PolicyVersionId];
+                var policyContext = context.ForPolicy(policy.PolicyVersionId);
+                actions.NewBuysPaused = operatorEntriesPaused || !dailyCompatible ||
+                    (portfolio.ComparisonAccount is not null && (policyContext.SourceRevision is null ||
+                        policyContext.Session.CalibrationRunId != context.Session.CalibrationRunId || clock.UtcNow < portfolio.ComparisonAccount.EffectiveUtc));
                 var ordered = saved.Where(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId)
                     .OrderBy(e => e.Result.RankCandidate, RankComparer).ToArray();
                 var candidates = new List<DelphiLiveActionCandidate>();
@@ -299,11 +332,11 @@ public sealed class DelphiLiveMonitorWorkflow
                         NextState = value.Result.NextState with { Lifecycle = lifecycle.Snapshot }, Lifecycle = lifecycle,
                         ConfirmationStartedBarEndUtc = confirmationStart, SafetyInput = safetyInput, Safety = safety
                     };
-                    var attribution = context.Candidates.TryGetValue(value.Input.Stock.Symbol, out var daily) ? Lenses(daily) : [];
+                    var attribution = value.Input.DailySetup is not null && policyContext.Candidates.TryGetValue(value.Input.Stock.Symbol, out var daily) ? Lenses(daily) : [];
                     var dossier = DelphiLiveEvaluationEngine.CreateDossier(ownInput, ownResult, Guid.NewGuid(), clock.UtcNow,
                         "Observe", "Evaluated", attribution, OriginalThesis(originalPosition));
                     portfolioDossiers.Add(dossier);
-                    bool eligible = context.Session.CalibrationRunId is not null && value.Result.ObservationIsValid &&
+                    bool eligible = policyContext.Session.CalibrationRunId is not null && value.Result.ObservationIsValid &&
                         value.Result.FamiliesMature && value.Result.NextState.Confidence.AllowsNewRisk &&
                         value.Result.NextState.Momentum.IsEntryEligibleStrong && !safety.EntrySafetyVetoActive &&
                         lifecycle.MayCreateBuyDecision;
@@ -434,7 +467,12 @@ public sealed class DelphiLiveMonitorWorkflow
             (membership.RequiredFromBarEndUtc <= end && membership.RequiredThroughBarEndUtc >= end)).Select(symbol =>
         {
             bool holding = held.Any(h => h.Symbol == symbol) || portfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol);
-            bool current = context.Candidates.TryGetValue(symbol, out var daily);
+        bool current = context.Candidates.TryGetValue(symbol, out var daily);
+        if (!current)
+        {
+            daily = context.ComparisonSources.Values.SelectMany(s => s.Candidates).FirstOrDefault(c => c.Symbol == symbol);
+            current = daily is not null;
+        }
             ordered.TryGetValue(symbol, out var prior);
             bool active = prior.value is null || prior.value.Result.Lifecycle.PresentationActivity == DelphiLivePresentationActivity.Active;
             return new DelphiLiveObservationTarget(symbol,
@@ -460,7 +498,7 @@ public sealed class DelphiLiveMonitorWorkflow
         if (position is null) return null;
         var dossier = DelphiLiveLedgerJson.Deserialize<DelphiLiveDecisionDossier>(position.OriginalEntryDossierJson);
         return dossier.OriginalEntryThesis ?? new(dossier.DecisionId, dossier.CalibrationRunId!.Value,
-            dossier.CalibrationCandidateId!.Value, dossier.DailyStrategyVersionId!.Value, dossier.SourceLenses);
+            dossier.CalibrationCandidateId!.Value, dossier.DailyStrategyVersionId!.Value, dossier.SourceLenses) { ComparisonAdmission = dossier.ComparisonAdmission };
     }
 
     private static List<DelphiLivePositionMark> Marks(IEnumerable<DelphiLiveLedgerPosition> positions,

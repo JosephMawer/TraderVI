@@ -14,7 +14,10 @@ public sealed record DelphiLiveGenerationRequest(
     Guid GenerationId, Guid PortfolioId, Guid PolicyVersionId, string Role,
     Guid? ExperimentId, decimal StartingCapital, string Currency,
     DateOnly EffectiveSession, DateTime EffectiveSessionOpenUtc,
-    DateTime AuthorizedUtc, string AuthorizedBy, string Reason);
+    DateTime AuthorizedUtc, string AuthorizedBy, string Reason)
+{
+    public PaperComparisonAccount? ComparisonAccount { get; init; }
+}
 
 public sealed record DelphiLiveLedgerPosition(
     Guid PositionId, string Symbol, int Quantity, decimal AveragePurchasePrice,
@@ -63,6 +66,8 @@ public sealed record DelphiLivePortfolioSnapshot(
     ImmutableArray<DelphiLiveLedgerMark> Marks,
     Guid? LastCompletedCycleId, DateTime UpdatedUtc)
 {
+    public Guid? DailySourceRevisionId { get; init; }
+    public PaperComparisonAccount? ComparisonAccount { get; init; }
     public ImmutableDictionary<string, DelphiLivePortfolioCandidateState> CandidateStates { get; init; } =
         ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty;
     [System.Text.Json.Serialization.JsonIgnore]
@@ -150,17 +155,28 @@ public static class DelphiLiveLedgerIntegrity
         if (request.AuthorizedUtc.Kind != DateTimeKind.Utc || request.EffectiveSessionOpenUtc.Kind != DateTimeKind.Utc ||
             request.AuthorizedUtc >= request.EffectiveSessionOpenUtc)
             throw new ArgumentException("Activation must be authorized before its next regular-session boundary.");
-        if (request.Role is not ("OperationalChampion" or "ActiveShadowChallenger" or "ShadowBaseline" or "ChampionControl") ||
-            (request.Role != "OperationalChampion" && request.ExperimentId is null))
+        if (request.Role is not ("OperationalChampion" or "ActiveShadowChallenger" or "ShadowBaseline" or "ChampionControl" or "GateComparison") ||
+            (request.Role is not ("OperationalChampion" or "GateComparison") && request.ExperimentId is null))
             throw new ArgumentException("A non-operational portfolio requires an explicit experiment identity.");
+        if (request.Role == PaperGateComparison.LiveRole)
+        {
+            var a = request.ComparisonAccount;
+            if (a is null || a.AccountId != request.PortfolioId || a.LivePolicyVersionId != request.PolicyVersionId ||
+                a.EffectiveUtc != request.EffectiveSessionOpenUtc || a.BatchId == Guid.Empty || a.PairId == Guid.Empty ||
+                a.DailyStrategyVersionId == Guid.Empty || !Enum.IsDefined(a.Profile) || a.StrategyCode != "DelphiLive" ||
+                request.ExperimentId is not null || request.StartingCapital != PaperGateComparison.InitialCapital || request.Currency != "CAD")
+                throw new ArgumentException("Comparison generation requires its fixed account identity and CAD 1,000 capital.");
+        }
+        else if (request.ComparisonAccount is not null) throw new ArgumentException("Only comparison accounts may carry a gate profile.");
         return new(request.PortfolioId, request.GenerationId, request.PolicyVersionId, request.Role, request.ExperimentId,
             request.EffectiveSession, request.StartingCapital, request.Currency, 0, request.StartingCapital,
-            null, null, null, request.StartingCapital, [], new(false, false, null, null, request.StartingCapital), [], [], [], [], [], null, request.AuthorizedUtc);
+            null, null, null, request.StartingCapital, [], new(false, false, null, null, request.StartingCapital), [], [], [], [], [], null, request.AuthorizedUtc)
+            { ComparisonAccount = request.ComparisonAccount };
     }
 
     public static void ValidateTransition(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next)
     {
-        if (next.PortfolioId != prior.PortfolioId || next.GenerationId != prior.GenerationId ||
+        if (next.ComparisonAccount != prior.ComparisonAccount || next.PortfolioId != prior.PortfolioId || next.GenerationId != prior.GenerationId ||
             next.PolicyVersionId != prior.PolicyVersionId || next.StartingCapital != prior.StartingCapital ||
             next.Currency != prior.Currency || next.Role != prior.Role || next.ExperimentId != prior.ExperimentId ||
             next.EffectiveSession != prior.EffectiveSession || next.Revision != prior.Revision + 1 ||

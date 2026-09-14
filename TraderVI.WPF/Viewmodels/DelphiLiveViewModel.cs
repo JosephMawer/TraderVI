@@ -36,6 +36,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private string selectedDossier = "Select an observation or action to inspect its persisted deterministic evidence.";
     private string policyText = "DelphiLivePolicyV1 · installed inactive";
     private IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios = Array.Empty<DelphiLivePortfolioSnapshot>();
+    private IReadOnlyDictionary<Guid, string> accountNames = new Dictionary<Guid, string>();
 
     public DelphiLiveViewModel(DelphiLiveDesktopService service)
     {
@@ -83,7 +84,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     public DelphiLivePortfolioRow? SelectedPortfolio
     {
         get => selectedPortfolio;
-        set { if (Set(ref selectedPortfolio, value)) { ShowPortfolio(); RefreshCommandAvailability(); } }
+        set { if (Set(ref selectedPortfolio, value)) { ShowPortfolio(); RefreshCommandAvailability(); RebuildWatchlist(); } }
     }
 
     public Task RefreshAsync(CancellationToken cancellationToken = default) => UpdateAsync(false, cancellationToken);
@@ -122,7 +123,14 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
                 Coverage = "No operational session has started";
                 return;
             }
-            Apply(tick ? await service.TickAsync(cancellationToken) : await service.SnapshotAsync(cancellationToken));
+            var snapshot = tick ? await service.TickAsync(cancellationToken) : await service.SnapshotAsync(cancellationToken);
+            // Optional display labels must never prevent the engine's scheduled work.
+            if (!tick || accountNames.Count == 0)
+            {
+                try { accountNames = (await new Core.Db.PaperComparisonRepository().ReadAccountsAsync(cancellationToken)).ToDictionary(a => a.AccountId, a => a.DisplayName); }
+                catch (Exception error) when (error is Microsoft.Data.SqlClient.SqlException or InvalidOperationException) { /* Stable account IDs remain visible. */ }
+            }
+            Apply(snapshot);
             if (!tick || dailyPreview.Run is null) await RefreshDailyPreviewAsync(cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
@@ -171,7 +179,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
             p.Cash, p.OpenPositions.Count(), p.Marks.LastOrDefault(m => m.Complete)?.Nav,
             p.Guards.CapitalReviewRequired ? "Capital review required" : p.Guards.DailyBuyingPaused ? "Daily buying paused" :
             p.Marks.LastOrDefault() is { Complete: false } incomplete ? incomplete.Reason : "Protecting and observing",
-            p.PolicyVersionId.ToString(), p.Revision)));
+            p.PolicyVersionId.ToString(), p.Revision) { AccountName = accountNames.GetValueOrDefault(p.PortfolioId) ?? $"Delphi Live · {Words(p.Role)}" }));
         SelectedPortfolio = Portfolios.FirstOrDefault(p => p.PortfolioId == portfolioSelection) ?? Portfolios.FirstOrDefault();
         ShowPortfolio();
         OnPropertyChanged(nameof(CanActivate));
@@ -261,18 +269,12 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new(name));
 }
 
-public sealed record DelphiLiveObservationRow(string SelectionKey, Guid PolicyVersionId, int Rank, string Symbol,
-    string DailySource, decimal? DailyComposite, string Momentum, string Confidence, string Lifecycle, string Activity,
-    string Persistence, string PriceMovement, string VolumeSupport, string PriceStructure, int? PersistenceScore,
-    string Checkpoint, bool IsHeld, bool IsExitPending, string EvidenceJson, string Reason)
-{
-    public string Role { get; init; } = "";
-    public Guid? PortfolioId { get; init; }
-    public decimal? Price { get; init; }
-    public decimal? ChangeFromPreviousClose { get; init; }
-}
 public sealed record DelphiLivePortfolioRow(Guid PortfolioId, string Role, string Currency, decimal Cash,
-    int Holdings, decimal? LastCompleteNav, string Guard, string Policy, long Revision);
+    int Holdings, decimal? LastCompleteNav, string Guard, string Policy, long Revision)
+{
+    public string AccountName { get; init; } = "Delphi Live";
+    public string DisplayName => $"{AccountName} · {PortfolioId.ToString("N")[..8]}";
+}
 public sealed record DelphiLivePositionRow(string Symbol, int Quantity, decimal AverageCost, decimal? ProfitFloor,
     string Protection, string State, string Opened)
 {

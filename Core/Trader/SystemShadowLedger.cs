@@ -63,7 +63,10 @@ public sealed record SystemShadowPortfolioOverview(
     DateTime? FreshestPriceEventUtc,
     DateTime? LatestCandidateEvaluationUtc,
     DateTime UpdatedUtc,
-    string? SessionStatus);
+    string? SessionStatus)
+{
+    public string? SourceSummary { get; init; }
+}
 
 public sealed record SystemShadowCandidateMonitorInfo(
     Guid CandidateTrackingId,
@@ -122,6 +125,7 @@ public sealed record SystemShadowRuntimePortfolio(
     public SystemShadowPolicyConfig Settings { get; init; } = SystemShadowPolicyConfig.Version1;
     public DateTime? SettingsAssignedUtc { get; init; }
     public Guid? StrategyVersionId { get; init; }
+    public PaperComparisonAccount? ComparisonAccount { get; init; }
 }
 
 public sealed record SystemShadowRuntimeSession(
@@ -180,7 +184,10 @@ public sealed record SystemShadowDelphiRun(
     Guid RunId,
     DateTime RecommendationDate,
     DateTime MarketDataAsOf,
-    DateTime CreatedUtc);
+    DateTime CreatedUtc)
+{
+    public bool AllowIntradayAdoption { get; init; }
+}
 
 public sealed record SystemShadowDelphiCandidate(
     Guid CandidateId,

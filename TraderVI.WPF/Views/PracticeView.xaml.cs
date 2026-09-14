@@ -26,10 +26,15 @@ public partial class PracticeView : UserControl
         Pause();
         var dialog = new OpenFileDialog { Title = "Open a Practice / Exploratory playback", Filter = "Practice frames|frames.ndjson" };
         if (dialog.ShowDialog() != true) return;
+        await OpenPlaybackAsync(dialog.FileName);
+    }
+    public async Task OpenPlaybackAsync(string path)
+    {
+        Pause();
         OpenButton.IsEnabled = false;
         try
         {
-            var loaded = await Task.Run(() => PracticePlayback.Load(dialog.FileName));
+            var loaded = await Task.Run(() => PracticePlayback.Load(path));
             frames = loaded;
             index = 0;
             ShowFrame();

@@ -11,18 +11,20 @@ using System.Threading.Tasks;
 
 namespace Core.Db;
 
-public sealed class SystemShadowRepository : SQLBase, ISystemShadowStore
+public sealed partial class SystemShadowRepository : SQLBase, ISystemShadowStore
 {
-    public const string MigrationFileName = "20260904_021_HardenSystemShadowExecutionCausality.sql";
+    public const string MigrationFileName = PaperComparisonRepository.Migration;
 
     public async Task<bool> HasSchemaAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
 SELECT CAST(CASE WHEN
     OBJECT_ID(N'dbo.ShadowPortfolioGeneration', N'U') IS NOT NULL AND
+    COL_LENGTH(N'dbo.ShadowPortfolioGeneration',N'IsGateComparison') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowPortfolio', N'U') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowPortfolioSession', N'U') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowPortfolioCandidate', N'U') IS NOT NULL AND
+    OBJECT_ID(N'dbo.ShadowDailySourceRevision', N'U') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowPosition', N'U') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowOrder', N'U') IS NOT NULL AND
     OBJECT_ID(N'dbo.ShadowPortfolioEvent', N'U') IS NOT NULL AND
@@ -43,6 +45,7 @@ THEN 1 ELSE 0 END AS bit);
 SELECT TOP (1) [GenerationId],[PolicyVersion],[Status],[TotalAccountValue],
        [AvailableAccountCash],[RealSnapshotUtc],[ActivatedUtc],[UpdatedUtc]
 FROM [dbo].[ShadowPortfolioGeneration]
+WHERE IsGateComparison=0
 ORDER BY [CreatedUtc] DESC,[GenerationId];
 """;
         await using var connection = new SqlConnection(ConnectionString);
@@ -132,7 +135,7 @@ VALUES
             const string existingSql = """
 SELECT COUNT(*)
 FROM [dbo].[ShadowPortfolioGeneration] WITH (UPDLOCK, HOLDLOCK)
-WHERE [Status] <> N'Stopped';
+WHERE [Status] <> N'Stopped' AND IsGateComparison=0;
 """;
             await using (var existing = new SqlCommand(existingSql, connection, transaction))
             {
@@ -413,7 +416,7 @@ SELECT p.[PortfolioId],p.[GenerationId],p.[PortfolioCode],p.[DisplayName],p.[Len
             THEN (p.[CashBalance] + COALESCE(a.[OpenMarketValue],0)) / s.[OpeningValue] - 1
             ELSE NULL END AS [DailyReturn],
        (p.[CashBalance] + COALESCE(a.[OpenMarketValue],0)) / NULLIF(p.[HighestClosingValue],0) - 1 AS [Drawdown],
-       a.[FreshestPriceEventUtc],s.[LatestCandidateEvaluationUtc],p.[UpdatedUtc],s.[Status]
+       a.[FreshestPriceEventUtc],s.[LatestCandidateEvaluationUtc],p.[UpdatedUtc],s.[Status],s.SourceSummary
 FROM [dbo].[ShadowPortfolio] p
 JOIN [dbo].[ShadowPortfolioGeneration] g ON g.[GenerationId] = p.[GenerationId]
 OUTER APPLY
@@ -430,6 +433,9 @@ OUTER APPLY
 OUTER APPLY
 (
     SELECT TOP (1) z.[OpeningValue],z.[Status],
+      (SELECT TOP (1) CONCAT(N'Daily source ',CONVERT(nvarchar(36),r.CalibrationRunId),N'; published ',CONVERT(nvarchar(19),r.PublishedUtc,120),
+        N' UTC; adopted ',CONVERT(nvarchar(19),r.AdoptedUtc,120),N' UTC; fresh entry evidence from ',CONVERT(nvarchar(19),r.EffectiveUtc,120),N' UTC.')
+       FROM dbo.ShadowDailySourceRevision r WHERE r.SessionId=z.SessionId ORDER BY r.AdoptedUtc DESC,r.RevisionId) AS SourceSummary,
       (SELECT MAX(candidate.[LastEvaluatedUtc])
        FROM [dbo].[ShadowPortfolioCandidate] candidate
        WHERE candidate.[SessionId] = z.[SessionId]) AS [LatestCandidateEvaluationUtc]
@@ -456,7 +462,7 @@ ORDER BY p.[Lens],p.[MaximumPositions];
                 reader.IsDBNull(15) ? null : DateTime.SpecifyKind(reader.GetDateTime(15), DateTimeKind.Utc),
                 reader.IsDBNull(16) ? null : DateTime.SpecifyKind(reader.GetDateTime(16), DateTimeKind.Utc),
                 DateTime.SpecifyKind(reader.GetDateTime(17), DateTimeKind.Utc),
-                reader.IsDBNull(18) ? null : reader.GetString(18)));
+                reader.IsDBNull(18) ? null : reader.GetString(18)) { SourceSummary = reader.IsDBNull(19) ? null : reader.GetString(19) });
         }
         return rows.AsReadOnly();
     }
@@ -563,6 +569,8 @@ OUTER APPLY
       AND CONVERT(date,bar.[EventUtc] AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time') = session.[TradingDate]
     ORDER BY bar.[EventUtc] DESC
 ) priorBar
+WHERE (candidate.SourceRevisionId=(SELECT TOP (1) RevisionId FROM dbo.ShadowDailySourceRevision WHERE SessionId=candidate.SessionId ORDER BY AdoptedUtc DESC,RevisionId)
+ OR (candidate.SourceRevisionId IS NULL AND NOT EXISTS(SELECT 1 FROM dbo.ShadowDailySourceRevision WHERE SessionId=candidate.SessionId)))
 ORDER BY candidate.[Rank],candidate.[Symbol];
 """;
         var rows = new List<SystemShadowCandidateMonitorInfo>();
@@ -644,12 +652,17 @@ ORDER BY p.[Lens],p.[MaximumPositions];
                 cancellationToken);
             if (existing is not null)
             {
+                if (run?.AllowIntradayAdoption == true)
+                    existing = await AdoptSourceAsync(connection, transaction, portfolio, existing, run, candidates, cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return existing;
             }
 
             Guid sessionId = Guid.NewGuid();
             DateTime nowUtc = DateTime.UtcNow;
+            var operationalRun = run?.AllowIntradayAdoption == true ? run : null;
+            var operationalCandidates = candidates;
+            if (operationalRun is not null) { run = null; candidates = Array.Empty<SystemShadowDelphiCandidate>(); }
             const string sessionSql = """
 DECLARE @OpeningValue decimal(19,6) =
 (
@@ -732,6 +745,8 @@ VALUES
                 tradingDate.Date,
                 cancellationToken)
                 ?? throw new InvalidOperationException("Shadow session was not created.");
+            if (operationalRun is not null)
+                created = await AdoptSourceAsync(connection, transaction, portfolio, created, operationalRun, operationalCandidates, cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return created;
         }
@@ -752,6 +767,8 @@ SELECT x.[CandidateTrackingId],x.[SessionId],x.[CalibrationCandidateId],x.[Symbo
 FROM [dbo].[ShadowPortfolioCandidate] x
 JOIN [dbo].[CalibrationCandidate] c ON c.[CandidateId] = x.[CalibrationCandidateId]
 WHERE x.[SessionId] = @SessionId
+ AND (x.SourceRevisionId=(SELECT TOP (1) RevisionId FROM dbo.ShadowDailySourceRevision WHERE SessionId=x.SessionId ORDER BY AdoptedUtc DESC,RevisionId)
+   OR (x.SourceRevisionId IS NULL AND NOT EXISTS(SELECT 1 FROM dbo.ShadowDailySourceRevision WHERE SessionId=x.SessionId)))
 ORDER BY x.[Rank],x.[Symbol];
 """;
         var rows = new List<SystemShadowRuntimeCandidate>();
@@ -1438,10 +1455,12 @@ WHERE o.[Status] = N'Pending' AND o.[Side] = N'Buy' AND s.[TradingDate] < @Curre
         CancellationToken cancellationToken)
     {
         const string sql = """
-SELECT [SessionId],[PortfolioId],[TradingDate],[CalibrationRunId],[Status],
-       [ActivationBaselineUtc],[OpeningValue],[DailyLossGuardActive]
-FROM [dbo].[ShadowPortfolioSession] WITH (UPDLOCK,HOLDLOCK)
-WHERE [PortfolioId] = @PortfolioId AND [TradingDate] = @TradingDate;
+SELECT s.SessionId,s.PortfolioId,s.TradingDate,COALESCE(r.CalibrationRunId,s.CalibrationRunId),s.Status,
+       COALESCE(r.EffectiveUtc,s.ActivationBaselineUtc),s.OpeningValue,s.DailyLossGuardActive
+FROM dbo.ShadowPortfolioSession s WITH (UPDLOCK,HOLDLOCK)
+OUTER APPLY(SELECT TOP (1) CalibrationRunId,EffectiveUtc FROM dbo.ShadowDailySourceRevision
+ WHERE SessionId=s.SessionId ORDER BY AdoptedUtc DESC,RevisionId) r
+WHERE s.PortfolioId=@PortfolioId AND s.TradingDate=@TradingDate;
 """;
         await using var command = new SqlCommand(sql, connection, transaction);
         command.Parameters.AddRange([

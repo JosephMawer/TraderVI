@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,9 +14,36 @@ public sealed record DelphiLiveSessionContext(
     IReadOnlyDictionary<string, DelphiLiveFrozenCandidate> Candidates,
     IReadOnlyDictionary<string, DelphiLiveFrozenBaseline> Baselines)
 {
+    public DelphiLiveDailySourceRevision? SourceRevision { get; init; }
+    public IReadOnlyDictionary<Guid, PaperComparisonAccount> ComparisonAccounts { get; init; } = new Dictionary<Guid, PaperComparisonAccount>();
+    public IReadOnlyDictionary<Guid, PaperComparisonSource> ComparisonSources { get; init; } = new Dictionary<Guid, PaperComparisonSource>();
+
+    public DelphiLiveSessionContext ForPolicy(Guid policy)
+    {
+        if (!ComparisonAccounts.TryGetValue(policy, out var account)) return this;
+        if (!ComparisonSources.TryGetValue(account.BatchId, out var source) || source.DailyStrategyVersionId != account.DailyStrategyVersionId)
+            return this with { Session = Session with { CalibrationRunId = null, DailyStrategyVersionId = account.DailyStrategyVersionId },
+                Candidates = new Dictionary<string, DelphiLiveFrozenCandidate>(), SourceRevision = null };
+        var candidates = PaperGateComparison.SelectLive(source, account.Profile);
+        return this with { Session = Session with { CalibrationRunId = source.RunId, DailyStrategyVersionId = source.DailyStrategyVersionId },
+            Candidates = candidates, Baselines = Baselines.Concat(source.Baselines).GroupBy(x => x.Key).ToDictionary(g => g.Key, g => g.Last().Value),
+            SourceRevision = new(source.RevisionId, source.RunId, source.DailyStrategyVersionId, source.PublishedUtc,
+                source.AdoptedUtc, source.EffectiveUtc, candidates.Values.ToArray(), source.Baselines) };
+    }
+
+    public PaperGateAdmission? AdmissionFor(Guid policy)
+    {
+        if (!ComparisonAccounts.TryGetValue(policy, out var account) || !ComparisonSources.TryGetValue(account.BatchId, out var source)) return null;
+        return PaperGateComparison.Admission(account, source, policy);
+    }
     public IReadOnlyDictionary<string, DelphiLiveObservationMembership> ObservationMembership { get; init; } =
         new Dictionary<string, DelphiLiveObservationMembership>(StringComparer.Ordinal);
 }
+
+public sealed record DelphiLiveDailySourceRevision(Guid RevisionId, Guid RunId, Guid StrategyVersionId,
+    DateTime PublishedUtc, DateTime AdoptedUtc, DateTime EffectiveUtc,
+    IReadOnlyList<DelphiLiveFrozenCandidate> Candidates,
+    IReadOnlyDictionary<string, DelphiLiveFrozenBaseline> Baselines);
 
 public sealed record DelphiLiveObservationMembership(
     string Symbol, bool IsFrozenDailyCandidate, bool IsXiuBenchmark, bool IsTrackedHolding,
@@ -31,6 +59,7 @@ public sealed record DelphiLiveStoredEvaluation(
 
 public interface IDelphiLiveSessionContextStore : IDelphiLiveSessionStore, IDelphiLivePolicyAssignmentSource
 {
+    Task RefreshDailySourceAsync(DateOnly date, DelphiLiveLease lease, CancellationToken cancellationToken = default) => Task.CompletedTask;
     Task<DelphiLiveSessionContext?> ReadContextAsync(DateOnly date, CancellationToken cancellationToken = default);
     Task<DelphiLiveSessionContext?> ReadOperationalContextAsync(DateOnly date, CancellationToken cancellationToken = default) =>
         ReadContextAsync(date, cancellationToken);

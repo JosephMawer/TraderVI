@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[DelphiLiveSessionSymbol]
     [SessionId]                   UNIQUEIDENTIFIER NOT NULL,
     [Symbol]                      NVARCHAR(20)     NOT NULL,
     [IsFrozenDailyCandidate]      BIT              NOT NULL,
+    [IsAdoptedDailyCandidate]     BIT              NOT NULL CONSTRAINT DF_DelphiLiveSessionSymbol_Adopted DEFAULT(0),
     [IsXiuBenchmark]              BIT              NOT NULL,
     [IsTrackedHolding]            BIT              NOT NULL,
     [IsDelphiLiveHolding]         BIT              NOT NULL,
@@ -28,6 +29,7 @@ CREATE TABLE [dbo].[DelphiLiveSessionSymbol]
     CONSTRAINT [CK_DelphiLiveSessionSymbol_Source] CHECK
     (
         [IsFrozenDailyCandidate] = 1
+        OR [IsAdoptedDailyCandidate] = 1
         OR [IsXiuBenchmark] = 1
         OR [IsTrackedHolding] = 1
         OR [IsDelphiLiveHolding] = 1

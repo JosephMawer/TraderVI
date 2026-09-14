@@ -210,17 +210,14 @@ static async Task UpdateUsIndexBarsAsync(int backfillYearsIfEmpty)
     var repo = new UsIndexBarsRepository();
     using var source = new YahooChartUsIndexDataSource();
 
-    var endDate = DateTime.Today;
-
     foreach (var symbol in UsIndexSymbols.AllSymbols)
     {
         try
         {
             var latest = await repo.GetLatestBarDateAsync(symbol);
 
-            DateTime startDate = latest.HasValue
-                ? latest.Value.Date.AddDays(1)
-                : endDate.AddYears(-backfillYearsIfEmpty);
+            var (startDate, endDate) = DailyBenchmarkPolicy.UsIndexRefreshRange(
+                DateTime.Today, latest, backfillYearsIfEmpty);
 
             if (startDate > endDate)
             {

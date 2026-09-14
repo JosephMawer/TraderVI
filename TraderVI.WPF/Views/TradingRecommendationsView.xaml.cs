@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF.Views;
 
@@ -22,9 +23,31 @@ public partial class TradingRecommendationsView : UserControl
     private TradingAccountView? displayed;
     private TradingAccountReportRequest? reportRequest;
     private TradingReportedBuyRequest? buyRequest;
+    private WealthsimpleAccountViewModel? broker;
+    private WealthsimpleConnection? brokerConnection;
+    public void InitializeWealthsimple(WealthsimpleConnection connection)
+    {
+        broker?.Dispose();
+        brokerConnection = connection;
+        broker = new WealthsimpleAccountViewModel(connection);
+        BrokerPanel.DataContext = broker;
+        _ = broker.RefreshAsync();
+    }
+    public void StopWealthsimple() => broker?.Dispose();
+    public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
+    public bool IsCurrentManualSellSelection(Core.WSTrade.Orders.ManualSellSelection selection) => broker?.IsCurrentSellSelection(selection) == true;
     public TradingRecommendationsView()
     {
         InitializeComponent();
+        BrokerPanel.ReviewTransitionRequested += async (_, _) => await Run(async () =>
+        {
+            if (broker == null || brokerConnection?.IsConnected != true) return;
+            var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
+            var candidates = TfsaLiveStrategySelection.Rank(portfolios);
+            new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates).ShowDialog();
+        });
+        Account.TextChanged += (_, _) => BrokerPanel.Visibility = string.Equals(Account.Text.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)
+            ? Visibility.Visible : Visibility.Collapsed;
         Loaded += async (_,_) => await Run(async () =>
         {
             if(snapshot is null) await LoadAsync();
@@ -33,6 +56,11 @@ public partial class TradingRecommendationsView : UserControl
     }
     private async Task LoadAsync(CancellationToken token = default)
     {
+        displayed = null;
+        OverviewPanel.DataContext = null;
+        Recommendations.ItemsSource = null;
+        History.ItemsSource = null;
+        Source.Text = "Loading the selected account…";
         snapshot = await accounts.ReadAsync(Account.Text, token);
         await PresentAsync(snapshot,token);
         HoldingsText.Text = snapshot.Holdings.IsEmpty ? "Recorded Real holdings: none." : "Recorded Real holdings: " + string.Join(", ", snapshot.Holdings.Select(h => $"{h.Symbol} {h.Quantity} shares"));
@@ -45,10 +73,16 @@ public partial class TradingRecommendationsView : UserControl
         }
         else Cash.Text=Nav.Text=Opening.Text=High.Text=Pending.Text="";
     }
+    public Task ShowAccountAsync(string account) => Run(async () => { Account.Text = account; await LoadAsync(); reportRequest = null; });
     private async Task RefreshDisplayAsync(string account,CancellationToken token=default) =>
         await PresentAsync(await accounts.ReadAsync(account,token),token);
     private async Task PresentAsync(TradingAccountView current,CancellationToken token)
     {
+        var now = DateTime.UtcNow;
+        var marks = current.Installed ? await new ActivePositionRepository().GetActivePositions() : [];
+        var local = PaperTradingMonitor.ToToronto(now);
+        var trades = current.Installed ? await new TradeLogRepository().GetTradesByDateRange(local.Date.AddDays(-29), local) : null;
+        OverviewPanel.DataContext = TradingAccountOverview.Create(current, marks, now, trades);
         displayed=current;
         Source.Text=current.Assignment is { } a?$"{a.AccountLabel}: {a.Strategy.Name}\nComplete version {a.Strategy.VersionId:D} · approved {a.EffectiveUtc:yyyy-MM-dd HH:mm:ss} UTC by {a.Reviewer}"
             :$"{current.AccountLabel}: no approved recommendation source. Review a paper strategy in Portfolios.";
@@ -85,7 +119,9 @@ public partial class TradingRecommendationsView : UserControl
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await Run(async () => { await LoadAsync(); reportRequest = null; });
     private async void Evaluate_Click(object sender, RoutedEventArgs e) => await Run(async () =>
     {
-        await new TradingRecommendationWorkflow(recommendations, new TradingRecommendationQuoteSource()).EvaluateAsync(Account.Text);
+        if (displayed is null || !string.Equals(displayed.AccountLabel, Account.Text.Trim(), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Load the selected account before evaluating its strategy.");
+        await new TradingRecommendationWorkflow(recommendations, new TradingRecommendationQuoteSource()).EvaluateAsync(displayed.AccountLabel);
         await LoadAsync();
     });
     private static decimal Money(TextBox field) => decimal.TryParse(field.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : throw new ArgumentException("Enter CAD values using a decimal point.");

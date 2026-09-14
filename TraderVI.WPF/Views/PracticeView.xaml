@@ -30,7 +30,7 @@
   </WrapPanel>
   <TextBlock x:Name="StatusText" Grid.Row="2" Text="Playback reads local practice files. Use the Practice runner to generate a run."
    TextWrapping="Wrap" Foreground="#AAB8CC" Margin="0,0,0,10"/>
-  <DataGrid x:Name="Accounts" Grid.Row="3" Height="155" IsReadOnly="True" AutoGenerateColumns="False" CanUserAddRows="False">
+  <DataGrid x:Name="Accounts" Grid.Row="3" Height="175" IsReadOnly="True" AutoGenerateColumns="False" CanUserAddRows="False">
    <DataGrid.Columns>
     <DataGridTextColumn Header="Practice account" Binding="{Binding Account}" Width="1.3*"/>
     <DataGridTextColumn Header="Cash (CAD)" Binding="{Binding Cash, StringFormat=N2}" Width="*"/>

@@ -23,7 +23,10 @@ public sealed record DelphiLiveOriginalEntryThesis(
     Guid CalibrationRunId,
     Guid CalibrationCandidateId,
     Guid DailyStrategyVersionId,
-    IReadOnlyList<DelphiLiveDossierLensAttribution> SourceLenses);
+    IReadOnlyList<DelphiLiveDossierLensAttribution> SourceLenses)
+{
+    public PaperGateAdmission? ComparisonAdmission { get; init; }
+}
 
 public sealed record DelphiLiveDecisionDossier(
     int SchemaVersion,
@@ -61,11 +64,37 @@ public sealed record DelphiLiveDecisionDossier(
     // The original entry thesis is immutable position provenance, never today's
     // rank. Carried holdings may have no current run or source-lens attribution.
     public DelphiLiveOriginalEntryThesis? OriginalEntryThesis { get; init; }
+    public PaperGateAdmission? ComparisonAdmission { get; init; }
     public IReadOnlyList<Guid> EvidenceQuoteIds { get; init; } = Array.Empty<Guid>();
 }
 
 public static class DelphiLiveDecisionDossierBuilder
 {
+    // ADR-0065 is one specifically admitted session, never a general gate waiver.
+    public static readonly Guid EngineeringTrialId = Guid.Parse("c6d4639d-9c06-4c61-bde3-d76a6fdf1908");
+    public static readonly Guid EngineeringSessionId = Guid.Parse("dec4c9e0-f069-48bc-903b-c344fc5f1908");
+    public static readonly Guid EngineeringRunId = Guid.Parse("9491e421-ef3e-48b4-bcb7-389c42ec25e9");
+    public static readonly Guid EngineeringStrategyId = Guid.Parse("48864449-92f4-4e33-99cf-40039210786e");
+
+    private static bool IsEngineeringSource(Guid? run, Guid? strategy) =>
+        run == EngineeringRunId && strategy == EngineeringStrategyId;
+
+    private static bool IsEngineeringSession(DelphiLiveDecisionDossier dossier) =>
+        dossier.DelphiLiveSessionId == EngineeringSessionId &&
+        IsEngineeringSource(dossier.CalibrationRunId, dossier.DailyStrategyVersionId) &&
+        dossier.DecisionUtc >= new DateTime(2026, 9, 8, 18, 50, 36, DateTimeKind.Utc) &&
+        dossier.DecisionUtc < new DateTime(2026, 9, 9, 4, 0, 0, DateTimeKind.Utc);
+
+    public static DelphiLiveDecisionDossier AnnotateEngineeringAdmission(DelphiLiveDecisionDossier dossier)
+    {
+        if (!IsEngineeringSession(dossier) && !(dossier.OriginalEntryThesis is { } original &&
+            IsEngineeringSource(original.CalibrationRunId, original.DailyStrategyVersionId))) return dossier;
+        var facts = dossier.DerivedFacts.ToDictionary(pair => pair.Key, pair => pair.Value);
+        facts["OperatorEngineeringTrialId"] = EngineeringTrialId.ToString("D");
+        facts["OperatorEngineeringAdmission"] = "ADR-0065: original failed daily gates retained; incomplete session excluded from clean research";
+        return dossier with { DerivedFacts = facts };
+    }
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -115,17 +144,26 @@ public static class DelphiLiveDecisionDossierBuilder
         bool hasCurrentThesis = dossier.CalibrationRunId.HasValue ||
             dossier.CalibrationCandidateId.HasValue || dossier.DailyStrategyVersionId.HasValue ||
             dossier.SourceLenses.Count > 0;
+        bool labelledTrial = dossier.DerivedFacts.TryGetValue("OperatorEngineeringTrialId", out string? trial) &&
+            trial == EngineeringTrialId.ToString("D");
         if (hasCurrentThesis)
         {
+            dossier.ComparisonAdmission?.Validate(dossier.CalibrationRunId, dossier.DailyStrategyVersionId,
+                dossier.DelphiLivePolicyVersionId, dossier.DecisionUtc);
             ValidateThesis(dossier.CalibrationRunId, dossier.CalibrationCandidateId,
-                dossier.DailyStrategyVersionId, dossier.SourceLenses);
+                dossier.DailyStrategyVersionId, dossier.SourceLenses, labelledTrial && IsEngineeringSession(dossier),
+                dossier.ComparisonAdmission?.Profile == PaperGateProfile.PortfolioRulesOnlyV1);
         }
         if (dossier.OriginalEntryThesis is { } original)
         {
             if (original.EntryDecisionId == Guid.Empty)
                 throw new ArgumentException("Original entry-decision identity is required.", nameof(dossier));
+            original.ComparisonAdmission?.Validate(original.CalibrationRunId, original.DailyStrategyVersionId,
+                dossier.DelphiLivePolicyVersionId, dossier.DecisionUtc);
             ValidateThesis(original.CalibrationRunId, original.CalibrationCandidateId,
-                original.DailyStrategyVersionId, original.SourceLenses);
+                original.DailyStrategyVersionId, original.SourceLenses,
+                labelledTrial && IsEngineeringSource(original.CalibrationRunId, original.DailyStrategyVersionId),
+                original.ComparisonAdmission?.Profile == PaperGateProfile.PortfolioRulesOnlyV1);
         }
         if (!hasCurrentThesis && dossier.OriginalEntryThesis is null)
             throw new ArgumentException("A consequential decision requires current or original daily thesis provenance.", nameof(dossier));
@@ -152,7 +190,8 @@ public static class DelphiLiveDecisionDossierBuilder
         Guid? runId,
         Guid? candidateId,
         Guid? strategyId,
-        IReadOnlyList<DelphiLiveDossierLensAttribution> lenses)
+        IReadOnlyList<DelphiLiveDossierLensAttribution> lenses,
+        bool admittedEngineeringSource, bool admittedComparisonSource = false)
     {
         if (!runId.HasValue || runId == Guid.Empty ||
             !candidateId.HasValue || candidateId == Guid.Empty ||
@@ -163,7 +202,8 @@ public static class DelphiLiveDecisionDossierBuilder
             lenses.Select(lens => lens.Lens).Distinct(StringComparer.Ordinal).Count() != lenses.Count ||
             lenses.Any(lens => lens.CalibrationLensEvaluationId == Guid.Empty ||
                 lens.Lens is not ("Continuation" or "Breakout") ||
-                lens.Rank is < 1 or > 25 || !lens.Published || !lens.Eligible ||
+                lens.Rank is < 1 or > 25 || !lens.Published ||
+                (!lens.Eligible && !admittedComparisonSource && !(admittedEngineeringSource && lens.FirstFailure == "Breadth")) ||
                 string.IsNullOrWhiteSpace(lens.GateTraceJson)))
             throw new ArgumentException("Daily thesis requires complete and distinct published lens attribution.");
     }
