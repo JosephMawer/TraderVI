@@ -237,14 +237,31 @@ Install the Windows task once, or rerun the installer when changing its schedule
 ./Operations/Install-TraderVINightlyTask.ps1
 ```
 
-The task invokes the repository runner and configuration directly. At every scheduled start, the runner
-fingerprints the current tracked and untracked non-ignored source, builds the three focused projects in
-Release with no restore and no incremental compilation, verifies that the source did not change during the
-build, and hashes each resulting output directory. Each stage's output is verified again immediately before
-execution. Therefore source and runner edits apply on the next run without reinstalling the task. A build
-failure or concurrent source edit stops before Hermes, Delphi, or Athena starts. Dependency restores remain
-a separate reviewed operation; run an appropriate `dotnet restore` before night when package references or
-restore inputs change.
+The task invokes the repository runner and configuration directly. ADR-0078 captures the latest tracked
+and untracked non-ignored source into a verified private copy at run start. Later edits belong to the next
+run. It restores the reviewed Core/Hermes/Delphi/Athena lock files with `--locked-mode` into a dedicated
+cache, then builds the three Release projects inside that copy. Neither intermediate nor executable files
+are shared with development builds. Source and runner edits apply without reinstalling the task.
+
+Capture and transient restore failures get at most three preparation attempts, with ten-second pauses.
+A restore attempt has five minutes; a thirty-minute preparation budget is checked before each process.
+Compiler errors, missing/changed dependency locks and package integrity failures stop before any stage.
+The copied source is verified after building and executable hashes are checked before every stage.
+Commit and working-tree provenance passed to Delphi identify the captured source.
+
+Run offline regression checks or actual build-only validation without starting operational programs:
+
+```powershell
+./Operations/Test-TraderVINightly.ps1
+./Operations/Invoke-TraderVINightly.ps1 -BuildOnly -StateDirectory C:\src\TraderVI\artifacts\nightly-build-check
+```
+
+Build-only status is separate from operational status and records `Prepared`. Run copies and their full
+source manifests live under ignored `artifacts/nightly/<run-id>/`; the dedicated package cache is
+`artifacts/nightly/packages`. Cleanup is currently manual. When dependency declarations change, generate
+and review the affected Core/Hermes/Delphi/Athena `packages.lock.json` files with `dotnet restore
+--use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
+audits are separate from the unattended build and must be reported independently.
 
 The task uses the current user's interactive token, stores no Windows password, wakes the computer, and
 starts when available; the user must remain signed in.
@@ -259,10 +276,10 @@ The runner writes atomic `status.json` state and per-run logs beneath
 `%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all three stages passed.
 `Attention` includes Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
 working tree by itself remains recorded provenance and does not change the run audit state. `Failed` includes build failures,
-source changes during preflight, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
+unstable source capture, dependency-lock failures, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
 provenance, or any unexpected exit code. Hermes failure stops later stages; Delphi failure
-does not prevent Athena from maturing earlier evidence. Neither the runner nor Task Scheduler retries a
-failed pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
+does not prevent Athena from maturing earlier evidence. Only source capture and transient dependency restore may retry before any stage starts. Neither the runner
+nor Task Scheduler retries a failed operational pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
 `-Force` after reviewing it.
 
 The daily 07:00 Codex supervisor is read-only. It may inspect `status.json` and its referenced log, explain a

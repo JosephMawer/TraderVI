@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "task": {
     "name": "TraderVI Nightly",
     "localTime": "00:30",
@@ -17,7 +17,11 @@
   "build": {
     "configuration": "Release",
     "timeoutMinutes": 30,
-    "restoreDependencies": false
+    "restoreDependencies": true,
+    "captureAttempts": 3,
+    "restoreAttempts": 3,
+    "retryDelaySeconds": 10,
+    "restoreTimeoutMinutes": 5
   },
   "stages": [
     {

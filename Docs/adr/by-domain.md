@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
+
 - [ADR-0075](0075-manual-market-buy-ticket.md) — Shared manual ticket, protected order journal and recovery
 - [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Shared buy/sell transport and compatible attempt protection
 - [ADR-0077](0077-manual-holdings-market-sell.md) — Shared protected manual buy/sell journal and remaining-holdings verification
@@ -76,6 +78,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
 
 - [ADR-0063](0063-historical-practice-environment-direction.md) — Historical practice environment direction
 

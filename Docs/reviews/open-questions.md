@@ -522,3 +522,7 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
   transition. Retained holdings change the future activation condition from unconditional emptiness.
 - Continue the [integration draft](../concepts/strategy-promotion-and-execution.md#tfsa-integration-draft--september-10-2026).
   Reconciliation, complete order lifecycle, evidence eligibility and operational activation remain work.
+
+## Nightly build retention (ADR-0078, 2026-09-14)
+
+Choose retention limits for ignored captured-source/build directories and the dedicated NuGet cache. Cleanup is manual until this policy is reviewed; operational logs and source identities must remain attributable.

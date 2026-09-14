@@ -12,10 +12,10 @@ architecture documentation.
 
 - **Reader experience:** start substantive decisions with a concise executive summary and practical consequence; follow the [briefing style](../briefing-style.md) and [template](../templates/executive-brief.md). Keep detailed rationale and stable section links available below.
 - **Filename:** `NNNN-kebab-title.md` (numeric prefix, zero-padded to 4).
-- **Status flow:** `Proposed` → `Accepted` → optionally `Superseded by ADR-XXXX`.
-- **Domains:** every ADR lists 1–4 domain tags (see taxonomy below). Tags
+- **Status flow:** `Proposed` â†’ `Accepted` â†’ optionally `Superseded by ADR-XXXX`.
+- **Domains:** every ADR lists 1â€“4 domain tags (see taxonomy below). Tags
   drive the [by-domain index](by-domain.md) and review-mode filtering.
-- **Review questions:** every ADR ends with 2–4 questions that will be used
+- **Review questions:** every ADR ends with 2â€“4 questions that will be used
   to quiz the author in future review sessions.
 
 ## Domain taxonomy
@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
 | [0069](0069-direct-wealthsimple-authentication.md) | Direct Wealthsimple authentication | Accepted; isolated browser-session handoff verified | architecture |
 | [0070](0070-wealthsimple-desktop-sign-in.md) | Wealthsimple desktop sign-in and session status | Implemented; embedded login and live refresh validation pending | architecture |
 | [0071](0071-native-wealthsimple-login.md) | Native Wealthsimple sign-in | Implemented; operator login confirmed | architecture |
@@ -53,18 +54,18 @@ architecture documentation.
 | [0061](0061-portfolio-comparison-workspace.md) | Portfolio comparison workspace | Accepted navigation; descriptive display implemented | user-interface, architecture |
 | [0001](0001-granville-plugin-architecture.md) | Granville indicator plug-in architecture | Accepted | architecture, technical-indicators |
 | [0002](0002-xiu-as-benchmark-index.md) | XIU as the system benchmark index | Accepted | finance-fundamentals, decision-engine |
-| [0003](0003-weighting-indicator-narrow-advance.md) | Weighting indicator (Granville #15–#16) — narrow-advance warning gate | Accepted | technical-indicators, decision-engine, math-statistics, finance-fundamentals |
-| [0004](0004-genuity-us-confirming-indices.md) | Genuity indicators (Granville #17–#20) — US confirming-index source & staleness gate | Accepted | technical-indicators, decision-engine, data-sources, finance-fundamentals |
+| [0003](0003-weighting-indicator-narrow-advance.md) | Weighting indicator (Granville #15â€“#16) â€” narrow-advance warning gate | Accepted | technical-indicators, decision-engine, math-statistics, finance-fundamentals |
+| [0004](0004-genuity-us-confirming-indices.md) | Genuity indicators (Granville #17â€“#20) â€” US confirming-index source & staleness gate | Accepted | technical-indicators, decision-engine, data-sources, finance-fundamentals |
 | [0005](0005-defer-granville-dullness-21-22.md) | Defer Granville Dullness indicators (#21 and #22) | Accepted | technical-indicators, decision-engine, data-pipeline, math-statistics |
-| [0006](0006-granville-light-volume-25-28.md) | Granville Light Volume indicators (#25–#28) — tape × leadership-quality | Accepted | technical-indicators, decision-engine, market-microstructure |
-| [0007](0007-liquidity-floor-universe-filter.md) | Liquidity floor on Delphi's universe filter (price ≥ $1, 20d vol ≥ 50k) | Accepted | decision-engine, market-microstructure, risk-management, data-pipeline |
-| [0008](0008-genuity-19-magnitude-tolerance-band.md) | Genuity #19 magnitude-ratio ±5% tolerance buffer (refines ADR-0004) | Accepted | technical-indicators, decision-engine, math-statistics |
+| [0006](0006-granville-light-volume-25-28.md) | Granville Light Volume indicators (#25â€“#28) â€” tape Ã— leadership-quality | Accepted | technical-indicators, decision-engine, market-microstructure |
+| [0007](0007-liquidity-floor-universe-filter.md) | Liquidity floor on Delphi's universe filter (price â‰¥ $1, 20d vol â‰¥ 50k) | Accepted | decision-engine, market-microstructure, risk-management, data-pipeline |
+| [0008](0008-genuity-19-magnitude-tolerance-band.md) | Genuity #19 magnitude-ratio Â±5% tolerance buffer (refines ADR-0004) | Accepted | technical-indicators, decision-engine, math-statistics |
 | [0009](0009-exclude-leveraged-inverse-etps-from-delphi-universe.md) | Exclude leveraged/inverse ETPs from Delphi's ranking universe | Accepted | decision-engine, data-pipeline, risk-management, market-microstructure |
-| [0010](0010-rs-z-score-composite-additive.md) | RS Z-score composite (`CompositeScoreZ`) — additive only, no ranking change | Accepted | technical-indicators, decision-engine, math-statistics |
+| [0010](0010-rs-z-score-composite-additive.md) | RS Z-score composite (`CompositeScoreZ`) â€” additive only, no ranking change | Accepted | technical-indicators, decision-engine, math-statistics |
 | [0011](0011-rs-equal-weighted-with-direction-edge-in-ranking.md) | RS equal-weighted with `DirectionEdge` in Delphi pick ranking | Accepted (scoped to Breakouts lens by ADR-0013/0014) | decision-engine, technical-indicators, math-statistics |
 | [0012](0012-sector-index-historical-backfill.md) | Sector-index historical backfill from TMX `getTimeSeriesData` | Accepted | data-pipeline, technical-indicators, decision-engine |
-| [0013](0013-multi-lens-decision-architecture.md) | Multi-lens decision architecture (lens = thesis × gate stack × ranking key) | Accepted | architecture, decision-engine |
-| [0014](0014-continuations-lens-trend-confirmation.md) | Continuations lens — trend-confirmation gate + RS-primary ranking (executed) | Accepted | decision-engine, technical-indicators, risk-management |
+| [0013](0013-multi-lens-decision-architecture.md) | Multi-lens decision architecture (lens = thesis Ã— gate stack Ã— ranking key) | Accepted | architecture, decision-engine |
+| [0014](0014-continuations-lens-trend-confirmation.md) | Continuations lens â€” trend-confirmation gate + RS-primary ranking (executed) | Accepted | decision-engine, technical-indicators, risk-management |
 | [0015](0015-trade-logging-ghost-execution-and-position-lifecycle.md) | Manual trade logging with ghost execution and position lifecycle | Accepted | architecture, risk-management, market-microstructure |
 | [0016](0016-obv-per-symbol-soft-ranking-signal.md) | On-Balance Volume as a per-symbol soft ranking signal | Accepted | decision-engine, technical-indicators, data-pipeline, time-series |
 | [0017](0017-codex-native-instructions-and-project-status.md) | Codex-native instructions and explicit project-status structure | Accepted | architecture |
@@ -134,8 +135,8 @@ What problem are we solving? What did we know going in?
 What did we choose? Stated as an imperative ("Use X for Y").
 
 ## Alternatives considered
-- **Option A** — pros/cons, why rejected.
-- **Option B** — pros/cons, why rejected.
+- **Option A** â€” pros/cons, why rejected.
+- **Option B** â€” pros/cons, why rejected.
 
 ## Consequences
 What does this lock us into? What's harder now? What's easier? What
@@ -147,4 +148,4 @@ would tell us this decision was wrong?
 3. ...
 ```
 
-- [ADR-0066: Operational paper daily-source adoption](0066-operational-paper-daily-source-adoption.md) — newer valid same-session publications replace the operational source with preserved history and fresh confirmation.
+- [ADR-0066: Operational paper daily-source adoption](0066-operational-paper-daily-source-adoption.md) â€” newer valid same-session publications replace the operational source with preserved history and fresh confirmation.

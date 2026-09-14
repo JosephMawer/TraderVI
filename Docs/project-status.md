@@ -1,9 +1,26 @@
 # TraderVI Project Status
 
-**Snapshot date:** 2026-09-13
+**Snapshot date:** 2026-09-14
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
+**Nightly preparation repair (2026-09-14):** ADR-0078 retains the latest-source requirement while
+capturing a verified private source copy, restoring locked dependencies into a dedicated cache, and
+building Hermes/Delphi/Athena outside development output directories. Source capture and transient
+restore failures have bounded retries; operational stages are never automatically repeated. The
+existing scheduled task reads the updated runner directly and does not need reinstallation.
+
+All **1,141 Core tests** and **36 offline runner assertions** passed. An actual isolated three-project
+build and a deliberately mismatched-lock rejection passed; lock files preserve existing resolved package
+versions. WPF built with zero errors and 261 existing compiler warnings. No full solution/SSDT build or
+fresh dependency-security audit ran. Known dependency advisories remain tracked separately.
+
+SQL confirms Friday September 11 is present: 480 daily bars, XIU/SPY through that session, and a Valid
+September 12 official run. September 14's original 00:30 attempt built successfully but Hermes received
+one BadGateway collection error, stopping Delphi/Athena after a verified backup. The operator authorized
+a recovery through the updated runner; its result will be recorded after verification. Outstanding source
+work was preserved in commit `ea8d9d5e` (215 files); generated/private artifacts remain excluded.
+
 **Manual holdings sells in WPF (2026-09-13):** the operator explicitly chose one-click sale of the
 entire holding. The main Wealthsimple holdings grid now has **Market sell all** and **Limit sell…**
 beside each row's share count. Market sell pins the displayed account/security/quantity, rechecks

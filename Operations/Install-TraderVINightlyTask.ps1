@@ -20,7 +20,7 @@ if ([string]::IsNullOrWhiteSpace($StateDirectory)) {
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $resolvedConfigurationPath = (Resolve-Path -LiteralPath $ConfigurationPath).Path
 $configuration = Get-Content -LiteralPath $resolvedConfigurationPath -Raw | ConvertFrom-Json
-if ($configuration.schemaVersion -ne 2) {
+if ($configuration.schemaVersion -ne 3) {
     throw "Unsupported nightly-runner configuration schema '$($configuration.schemaVersion)'."
 }
 
@@ -81,5 +81,5 @@ $task = New-ScheduledTask `
 
 Register-ScheduledTask -TaskName $taskName -InputObject $task -Force | Out-Null
 Write-Host "Registered Windows task '$taskName' for $($configuration.task.localTime) on $($days -join ', ')."
-Write-Host 'Each run builds the current source without restoring dependencies, verifies source stability, and then runs those exact artifacts.'
+Write-Host 'Each run captures current source, restores locked dependencies, builds in isolation, and runs those exact artifacts.'
 Write-Host 'The task runs only while this Windows user is signed in; WakeToRun and StartWhenAvailable are enabled.'

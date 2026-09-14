@@ -1183,3 +1183,21 @@ Source: ADR-0075; concepts/trading-workspace-redesign-draft.md#manual-market-buy
 - **Q:** Does Market sell all silently adopt a changed broker quantity? **A:** No. The click authorizes the entire displayed whole-share quantity. A mismatch stops submission and requires refresh plus a new click.
 - **Q:** Why can Filled still block another manual order? **A:** The holdings snapshot may lag the fill. The saved sell remains reserved until fresh owned-account holdings show exactly the expected remaining shares and no pending orders.
 - **Q:** Can the current Limit sell ticket place an order? **A:** No. It is an editable preview with disabled submission; the HAR verified market orders only.
+
+### Q: What does latest source mean for an isolated nightly run?
+
+**A:** The verified source captured at attempt start, including uncommitted edits and deletions. Later edits belong to the next run; the captured build stays unchanged.
+
+Tags: architecture, data-pipeline. Source: ADR-0078.
+
+### Q: Why can nightly preparation retry without retrying Delphi?
+
+**A:** Source capture and dependency download precede operational stages. Repeating preparation cannot duplicate official recommendations; repeating Delphi can require a separate reviewed publication decision.
+
+Tags: architecture, data-pipeline. Source: ADR-0078.
+
+### Q: What happens when a dependency changes but its lock file does not?
+
+**A:** Locked restore fails before Hermes. Regenerate and review the lock file with the dependency change; the night must not silently select another package graph.
+
+Tags: architecture, data-pipeline. Source: ADR-0078.

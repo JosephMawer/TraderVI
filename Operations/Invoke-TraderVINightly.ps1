@@ -6,7 +6,9 @@ param(
 
     [switch] $Force,
 
-    [switch] $ValidateOnly
+    [switch] $ValidateOnly,
+
+    [switch] $BuildOnly
 )
 
 Set-StrictMode -Version Latest
@@ -87,47 +89,6 @@ function Get-Sha256ForText {
     }
 }
 
-function Get-SourceSnapshot {
-    param([Parameter(Mandatory = $true)] [string] $RepoRoot)
-
-    $paths = @(& git -C $RepoRoot ls-files --cached --others --exclude-standard)
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Unable to enumerate the Git working tree for the source fingerprint.'
-    }
-
-    $records = New-Object System.Collections.Generic.List[string]
-    foreach ($relativePath in @($paths | Sort-Object -Unique)) {
-        if ([string]::IsNullOrWhiteSpace([string] $relativePath)) {
-            continue
-        }
-
-        $fullPath = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot ([string] $relativePath)))
-        if (Test-Path -LiteralPath $fullPath -PathType Leaf) {
-            $fileHash = (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash
-            $records.Add("$relativePath`t$fileHash")
-        }
-        else {
-            $records.Add("$relativePath`tMISSING")
-        }
-    }
-
-    $commit = @(& git -C $RepoRoot rev-parse HEAD 2>$null)
-    if ($LASTEXITCODE -ne 0 -or @($commit).Count -eq 0) {
-        $commit = @('unavailable')
-    }
-    $workingTree = @(& git -C $RepoRoot status --porcelain 2>$null)
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Unable to inspect the Git working-tree state.'
-    }
-
-    return [pscustomobject] [ordered]@{
-        sha256 = Get-Sha256ForText -Text ($records -join "`n")
-        fileCount = $records.Count
-        gitCommit = [string] $commit[0]
-        workingTreeState = if ($workingTree.Count -gt 0) { 'Dirty' } else { 'Clean' }
-    }
-}
-
 function Get-ArtifactSnapshot {
     param(
         [Parameter(Mandatory = $true)] [string] $RepoRoot,
@@ -166,7 +127,8 @@ function Invoke-CapturedProcess {
         [Parameter(Mandatory = $true)] [object[]] $Arguments,
         [Parameter(Mandatory = $true)] [string] $WorkingDirectory,
         [Parameter(Mandatory = $true)] [int] $TimeoutMinutes,
-        [Parameter(Mandatory = $true)] [string] $Label
+        [Parameter(Mandatory = $true)] [string] $Label,
+        [hashtable] $EnvironmentOverrides = @{}
     )
 
     $process = New-Object System.Diagnostics.Process
@@ -180,6 +142,9 @@ function Invoke-CapturedProcess {
     $process.StartInfo.RedirectStandardError = $true
     $process.StartInfo.EnvironmentVariables['DOTNET_NOLOGO'] = '1'
     $process.StartInfo.EnvironmentVariables['DOTNET_CLI_TELEMETRY_OPTOUT'] = '1'
+    foreach ($key in $EnvironmentOverrides.Keys) {
+        $process.StartInfo.EnvironmentVariables[$key] = [string] $EnvironmentOverrides[$key]
+    }
 
     if (-not $process.Start()) {
         throw "Failed to start $Label."
@@ -191,10 +156,12 @@ function Invoke-CapturedProcess {
     $completed = $process.WaitForExit([int] $timeoutMilliseconds)
     if (-not $completed) {
         try {
-            Stop-Process -Id $process.Id -Force -ErrorAction Stop
+            # Windows PowerShell lacks Process.Kill(entireProcessTree). Stop compiler children too.
+            & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 2>$null | Out-Null
+            if (-not $process.WaitForExit(10000)) { throw 'Process tree did not stop.' }
         }
         catch {
-            Write-RunLog "Could not terminate timed-out $Label`: $($_.Exception.Message)"
+            throw "Could not terminate timed-out $Label`: $($_.Exception.Message)"
         }
         $process.WaitForExit()
     }
@@ -202,6 +169,9 @@ function Invoke-CapturedProcess {
         $process.WaitForExit()
     }
 
+    if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]] @($stdoutTask, $stderrTask), 10000)) {
+        throw "Output capture did not close for $Label."
+    }
     $stdout = $stdoutTask.GetAwaiter().GetResult()
     $stderr = $stderrTask.GetAwaiter().GetResult()
     if (-not [string]::IsNullOrWhiteSpace($stdout)) {
@@ -225,17 +195,26 @@ function Test-Configuration {
         [Parameter(Mandatory = $true)] [string] $RepoRoot
     )
 
-    if ($Configuration.schemaVersion -ne 2) {
+    if ($Configuration.schemaVersion -ne 3) {
         throw "Unsupported nightly-runner configuration schema '$($Configuration.schemaVersion)'."
     }
     if ([string] $Configuration.build.configuration -ne 'Release') {
         throw 'The unattended runner requires the Release build configuration.'
     }
-    if ([bool] $Configuration.build.restoreDependencies) {
-        throw 'Unattended dependency restore is disabled. Restore reviewed dependencies separately before the nightly run.'
+    if (-not [bool] $Configuration.build.restoreDependencies) {
+        throw 'The isolated nightly build requires locked dependency restore.'
     }
     if ([int] $Configuration.build.timeoutMinutes -le 0) {
         throw 'The build timeout must be positive.'
+    }
+    foreach ($setting in @('captureAttempts', 'restoreAttempts')) {
+        if ([int] $Configuration.build.$setting -lt 1 -or [int] $Configuration.build.$setting -gt 3) {
+            throw "$setting must be between 1 and 3."
+        }
+    }
+    if ([int] $Configuration.build.retryDelaySeconds -lt 0 -or [int] $Configuration.build.retryDelaySeconds -gt 60 -or
+        [int] $Configuration.build.restoreTimeoutMinutes -lt 1) {
+        throw 'Invalid preparation retry delay or restore timeout.'
     }
     if (@($Configuration.stages).Count -eq 0) {
         throw 'The nightly configuration contains no stages.'
@@ -254,95 +233,6 @@ function Test-Configuration {
             throw "Stage '$($stage.name)' has no success exit code."
         }
     }
-}
-
-function Invoke-LatestSourceBuild {
-    param(
-        [Parameter(Mandatory = $true)] [object] $Configuration,
-        [Parameter(Mandatory = $true)] [string] $RepoRoot,
-        [Parameter(Mandatory = $true)] [string] $DotnetPath,
-        [Parameter(Mandatory = $true)] [object] $Status
-    )
-
-    $buildStartedUtc = [DateTimeOffset]::UtcNow
-    $sourceBefore = Get-SourceSnapshot -RepoRoot $RepoRoot
-    $Status.build.state = 'Running'
-    $Status.build.startedUtc = $buildStartedUtc.ToString('O')
-    $Status.build.sourceBefore = $sourceBefore
-    $Status.build.message = 'Building the current Git working tree.'
-    Write-JsonAtomically -Value $Status -Path $script:StatusPath
-    Write-RunLog "Source fingerprint before build: $($sourceBefore.sha256) ($($sourceBefore.workingTreeState))."
-
-    $builtProjects = @{}
-    foreach ($stage in $Configuration.stages) {
-        $projectPath = Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $stage.project)
-        if ($builtProjects.ContainsKey($projectPath)) {
-            continue
-        }
-
-        $projectStartedUtc = [DateTimeOffset]::UtcNow
-        Write-RunLog "Building current source for '$($stage.name)': $projectPath"
-        $result = Invoke-CapturedProcess `
-            -FileName $DotnetPath `
-            -Arguments @('build', $projectPath, '--configuration', 'Release', '--no-restore', '--no-incremental', '--nologo', '--verbosity', 'minimal') `
-            -WorkingDirectory $RepoRoot `
-            -TimeoutMinutes ([int] $Configuration.build.timeoutMinutes) `
-            -Label "build for '$($stage.name)'"
-
-        $projectCompletedUtc = [DateTimeOffset]::UtcNow
-        $projectStatus = [pscustomobject] [ordered]@{
-            stage = [string] $stage.name
-            project = Get-RepoRelativePath -BasePath $RepoRoot -TargetPath $projectPath
-            startedUtc = $projectStartedUtc.ToString('O')
-            completedUtc = $projectCompletedUtc.ToString('O')
-            durationSeconds = [Math]::Round(($projectCompletedUtc - $projectStartedUtc).TotalSeconds, 3)
-            exitCode = $result.ExitCode
-            state = if ($result.Completed -and $result.ExitCode -eq 0) { 'Succeeded' } else { 'Failed' }
-        }
-        $Status.build.projects += $projectStatus
-        Write-JsonAtomically -Value $Status -Path $script:StatusPath
-        if ($projectStatus.state -eq 'Failed') {
-            $Status.build.state = 'Failed'
-            $Status.build.message = if ($result.Completed) {
-                "Release build failed for '$($stage.name)' with exit code $($result.ExitCode). No operational stage was started."
-            }
-            else {
-                "Release build for '$($stage.name)' timed out. No operational stage was started."
-            }
-            throw $Status.build.message
-        }
-        $builtProjects[$projectPath] = $true
-    }
-
-    $sourceAfter = Get-SourceSnapshot -RepoRoot $RepoRoot
-    $Status.build.sourceAfter = $sourceAfter
-    if (-not [string]::Equals([string] $sourceBefore.sha256, [string] $sourceAfter.sha256, [StringComparison]::OrdinalIgnoreCase)) {
-        $Status.build.state = 'Failed'
-        $Status.build.message = 'The source tree changed while the preflight build was running. No operational stage was started.'
-        throw $Status.build.message
-    }
-
-    $artifactSnapshots = @{}
-    foreach ($stage in $Configuration.stages) {
-        $entryAssembly = Resolve-ConfiguredPath -RepoRoot $RepoRoot -ConfiguredPath ([string] $stage.entryAssembly)
-        $snapshot = Get-ArtifactSnapshot -RepoRoot $RepoRoot -EntryAssembly $entryAssembly
-        $artifactSnapshots[[string] $stage.name] = $snapshot
-        $Status.build.artifacts += [pscustomobject] [ordered]@{
-            stage = [string] $stage.name
-            path = $snapshot.path
-            sha256 = $snapshot.sha256
-            fileCount = $snapshot.fileCount
-        }
-    }
-
-    $buildCompletedUtc = [DateTimeOffset]::UtcNow
-    $Status.build.state = 'Succeeded'
-    $Status.build.completedUtc = $buildCompletedUtc.ToString('O')
-    $Status.build.durationSeconds = [Math]::Round(($buildCompletedUtc - $buildStartedUtc).TotalSeconds, 3)
-    $Status.build.message = 'Current source built successfully and remained unchanged during preflight.'
-    Write-JsonAtomically -Value $Status -Path $script:StatusPath
-    Write-RunLog $Status.build.message
-    return $artifactSnapshots
 }
 
 function Invoke-NightlyStage {
@@ -380,7 +270,11 @@ function Invoke-NightlyStage {
         -Arguments @($entryAssembly) `
         -WorkingDirectory $RepoRoot `
         -TimeoutMinutes ([int] $Stage.timeoutMinutes) `
-        -Label "stage '$($Stage.name)'"
+        -Label "stage '$($Stage.name)'" `
+        -EnvironmentOverrides @{
+            TRADERVI_CODE_VERSION = $Status.build.sourceBefore.gitCommit
+            TRADERVI_WORKING_TREE_STATE = $Status.build.sourceBefore.workingTreeState
+        }
 
     $stageCompletedUtc = [DateTimeOffset]::UtcNow
     $stageStatus.completedUtc = $stageCompletedUtc.ToString('O')
@@ -428,6 +322,8 @@ function Invoke-NightlyStage {
     return $stageStatus
 }
 
+. (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
+
 $resolvedConfigurationPath = (Resolve-Path -LiteralPath $ConfigurationPath).Path
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $resolvedConfigurationPath) '..'))
 $configuration = Get-Content -LiteralPath $resolvedConfigurationPath -Raw | ConvertFrom-Json
@@ -444,6 +340,9 @@ if ($ValidateOnly) {
 }
 
 $stateDirectory = [System.IO.Path]::GetFullPath($StateDirectory)
+if ($BuildOnly -and -not $stateDirectory.StartsWith((Join-Path $repoRoot 'artifacts\'), [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'BuildOnly requires a separate StateDirectory under repository artifacts; it cannot overwrite operational status.'
+}
 [System.IO.Directory]::CreateDirectory($stateDirectory) | Out-Null
 $logsDirectory = Join-Path $stateDirectory 'logs'
 [System.IO.Directory]::CreateDirectory($logsDirectory) | Out-Null
@@ -473,7 +372,7 @@ try {
     }
 
     $status = [pscustomobject] [ordered]@{
-        schemaVersion = 2
+        schemaVersion = 3
         runId = $runId
         state = 'Running'
         localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
@@ -493,6 +392,12 @@ try {
             sourceAfter = $null
             projects = @()
             artifacts = @()
+            restores = @()
+            runDirectory = $null
+            sourceDirectory = $null
+            packageDirectory = $null
+            sdkVersion = $null
+            captureAttempts = 0
             message = 'Build preflight has not started.'
         }
         stages = @()
@@ -507,12 +412,21 @@ try {
         -DotnetPath $dotnetPath `
         -Status $status
 
+    if ($BuildOnly) {
+        $status.state = 'Prepared'
+        $status.completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
+        $status.message = 'Build-only validation completed. No operational stage was started.'
+        Write-JsonAtomically -Value $status -Path $script:StatusPath
+        Write-RunLog $status.message
+        exit 0
+    }
+
     $hasFailure = $false
     $hasAttention = $false
     foreach ($stage in $configuration.stages) {
         $result = Invoke-NightlyStage `
             -Stage $stage `
-            -RepoRoot $repoRoot `
+            -RepoRoot $status.build.sourceDirectory `
             -DotnetPath $dotnetPath `
             -ExpectedArtifact $artifactSnapshots[[string] $stage.name] `
             -Status $status
@@ -558,7 +472,7 @@ catch {
         try {
             if ($null -eq $status) {
                 $status = [pscustomobject] [ordered]@{
-                    schemaVersion = 2
+                    schemaVersion = 3
                     runId = $runId
                     state = 'Failed'
                     localRunDate = [DateTimeOffset]::Now.ToString('yyyy-MM-dd')
