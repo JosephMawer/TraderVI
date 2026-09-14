@@ -1,6 +1,6 @@
 # ADR-0078: Isolated latest-source nightly builds
 
-- **Status:** Accepted; implemented and build-validated
+- **Status:** Accepted; implemented and operationally verified
 - **Date:** 2026-09-14
 - **Domains:** architecture, data-pipeline
 - **Supersedes:** ADR-0046's shared build directory, no-restore and source-stability-during-compilation rules
@@ -60,6 +60,15 @@ failures. Query errors, permanent HTTP errors and caller cancellation are not re
 request is repeated before mapping or database writes; no pipeline or official publication is replayed.
 Synthetic HTTP-handler tests exercise the actual historical method, including exhaustion and cancellation.
 The operator's recovery authorization covers the deliberate rerun after this correction.
+
+## Operational verification
+
+The September 14 recovery completed all three stages successfully at 07:36:41 Toronto from clean
+commit `a806b556`. Hermes processed 485 symbols with zero failures and a verified backup/local copy.
+SQL confirms one Valid official run for September 14 using September 11 data, 214 candidates,
+428 lens evaluations, zero observation mismatches and 50 published Hold rows under unchanged Breadth
+rules. Athena exited zero with no newly invalid or matured candidate outcomes. Existing research
+coverage limitations remain. All 1,146 Core tests and 36 offline runner assertions passed.
 
 ## Review questions
 

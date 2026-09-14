@@ -4,24 +4,34 @@
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
-**Nightly preparation repair (2026-09-14):** ADR-0078 retains the latest-source requirement while
-capturing a verified private source copy, restoring locked dependencies into a dedicated cache, and
-building Hermes/Delphi/Athena outside development output directories. Source capture and transient
-restore failures have bounded retries; operational stages are never automatically repeated. The
-existing scheduled task reads the updated runner directly and does not need reinstallation.
+**Nightly preparation repair and recovery (2026-09-14):** ADR-0078 retains latest-source builds while
+capturing a verified private copy, restoring locked dependencies into a dedicated cache and building
+outside development output folders. Preparation retries are bounded. Historical TMX reads now use the
+existing bounded transport retry policy; no database write or operational stage is automatically replayed.
+The installed daily task reads the updated runner directly; next scheduled attempt is September 15 at
+00:30 Toronto. Source changes need no task reinstallation.
 
-All **1,146 Core tests** and **36 offline runner assertions** passed. An actual isolated three-project
-build and a deliberately mismatched-lock rejection passed; lock files preserve existing resolved package
-versions. WPF built with zero errors and 261 existing compiler warnings. No full solution/SSDT build or
-fresh dependency-security audit ran. Known dependency advisories remain tracked separately.
+The deliberate recovery **Succeeded at 07:36:41 Toronto** from clean commit `a806b556`. Hermes processed
+485 symbols with **zero failures**, confirmed Friday's existing data and completed a checksum-verified
+backup with a SHA-256-matched local OneDrive copy. SQL confirms exactly one Valid September 14 official
+run `d6a0b728-5f35-423f-8fb1-c60c7298864b`, using September 11 data on `v3.4-observed-benchmarks`:
+214 candidates, 428 lens evaluations, zero observation mismatches and 50 published Hold rows. Breadth
+remains the first failed gate; gate profiles, model selection and formulas were not changed. XIU/SPY and
+checked derived series reach Friday. Six active symbols retain older last bars. Athena completed with
+exit zero, zero new invalid outcomes and no newly matured candidate outcomes; existing research coverage
+limitations remain. Friday was already collected by the successful September 12 pipeline.
 
-SQL confirms Friday September 11 is present: 480 daily bars, XIU/SPY through that session, and a Valid
-September 12 official run. September 14's original 00:30 attempt built successfully but Hermes received
-one BadGateway collection error, stopping Delphi/Athena after a verified backup. The operator authorized
-a recovery through the updated runner. Its first isolated build and backup passed, but another symbol
-returned HTTP 502. The historical TMX read now uses the existing bounded transport retry policy; an
-explicit recovery after this correction is pending. Outstanding source
-work was preserved in commit `ea8d9d5e` (215 files); generated/private artifacts remain excluded.
+All **1,146 Core tests** and **36 offline runner assertions** passed. Cold/warm isolated three-project
+builds and real dependency-lock mismatch rejection passed; lock files preserve prior package versions.
+WPF built with zero errors and 261 existing compiler warnings before the transport-only correction.
+No full solution/SSDT build or fresh dependency-security audit ran; existing package advisories remain.
+No model training, migration, WPF restart, broker action or push occurred. Windows Task Scheduler still
+shows its original 00:30 failure as its last scheduled result; the separately invoked recovery is verified
+by the durable Succeeded status. This does not claim remote OneDrive sync verification.
+
+Outstanding work was preserved in `ea8d9d5e` (215 files), build hardening in `d637c96`, and historical-read
+retry correction in `a806b556`. The initial updated-runner recovery exposed another HTTP 502 and correctly
+stopped before Delphi/Athena. Ignored evidence is in `artifacts/nightly-hardening-20260914/`.
 
 **Manual holdings sells in WPF (2026-09-13):** the operator explicitly chose one-click sale of the
 entire holding. The main Wealthsimple holdings grid now has **Market sell all** and **Limit sell…**
