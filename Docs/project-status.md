@@ -1,5 +1,10 @@
 # TraderVI Project Status
 
+**Local commit policy (September 20):** reviewed project work now has standing local-commit authority:
+commit validated increments, review checkpoints roughly every 45 minutes during sustained editing,
+and commit remaining ready work before handoff. Review older pending changes in coherent groups;
+preserve unfinished/concurrent work. Pushing and operational actions still need separate authority.
+
 **Snapshot date:** 2026-09-14
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 

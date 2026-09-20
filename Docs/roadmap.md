@@ -70,6 +70,13 @@ defines the following prerequisites in order:
 - [x] Make root `AGENTS.md` the repository-wide Codex instruction source.
 - [x] Move Sandbox-specific guidance to `Sandbox/AGENTS.md`.
 - [x] Replace stale status/TODO material with `Docs/project-status.md` and this roadmap.
+- [x] Establish standing local-commit authority and a cadence of validated increments, roughly
+  45-minute checkpoint reviews during sustained editing, and a final ready-work check before handoff
+  (September 20). Review and stage explicit groups; pushing still requires separate authorization.
+- [x] Require each work session to reconcile this roadmap, project status and the relevant implementation
+  checklist after meaningful milestones and before handoff (September 20). The
+  [session completion rules](../AGENTS.md#session-completion-and-project-tracking) distinguish source/test
+  completion from installation and operational verification, and require a clear remaining next step.
 - [ ] Review the June/August feature sequence as a stabilization release boundary and decide whether it needs a tag or release notes.
 
 ### 2. Database deployment safety
