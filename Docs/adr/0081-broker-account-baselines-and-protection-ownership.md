@@ -106,6 +106,12 @@ build ran. Evidence is under `artifacts/tfsa-baseline-20260917/`.
 
 ## Remaining design and implementation boundaries
 
+- **September 21 source checkpoint:** the shared boundary valuator and append-only daily reference/
+  hold continuation are tested for positively verified intervals without capital flows. Initial
+  baseline evidence now retains the actual broker observation time separately from save time.
+  Migration 039 is prepared/uninstalled. Cash-flow arithmetic/evidence, native qualification and
+  operational wiring remain open; see [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md).
+
 - **September 20 sequencing clarification:** a dedicated baseline review screen is not required.
   Develop and test continuation against the existing baseline contracts first; a concise summary in
   account setup can support explicit review/apply later. Separately installed/verified storage and an

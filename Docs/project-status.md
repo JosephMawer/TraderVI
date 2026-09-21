@@ -1,12 +1,18 @@
 # TraderVI Project Status
 
-**Opening-value increment (September 21):** local capture inspection confirms regular-session broker
-account values at five-minute timestamps including 09:30. A shared Core reader now retrieves the exact
-selected account's dated values without substituting previous close or a later point. All 1,488 Core
-tests pass, including 25 new cases. This is source/offline validation; native morning availability,
-strategy-valuation alignment and saved daily-reference integration remain next. The future host is a
-standalone engine started before the session by Windows Task Scheduler, reusing this shared path.
-No new morning-pause rule or scheduled task was installed. [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md).
+**Risk-continuation increment (September 21):** the shared Core valuator now uses the actual boundary
+book and each strategy family's existing price definition. Append-only daily references/holds and
+restart/duplicate recovery are implemented for positively verified intervals without capital flows.
+All **1,552 Core tests** pass, including 64 new cases; isolated SSDT, migration parsing and canonical
+parity checks pass. The reviewed broker/baseline prerequisite checkpoint also passes **1,465 tests**
+from a separate staged-source copy. Existing compiler warnings remain; no new dependency audit ran.
+
+**Item 1 remains open:** the user has been asked whether deposits/withdrawals should preserve the
+measured loss percentage (recommended) or only the dollar loss. Neither formula is implemented.
+Complete cash-event evidence, native morning qualification and operational wiring remain. Migrations
+035 and 039 are prepared/uninstalled; no operational baseline, engine cutover or automatic trading
+has been enabled. Reuse Core for the future pre-session standalone host; no scheduled task or new
+morning-pause rule was added. [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 **Local commit policy (September 20):** reviewed project work now has standing local-commit authority:
 commit validated increments, review checkpoints roughly every 45 minutes during sustained editing,

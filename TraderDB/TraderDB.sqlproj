@@ -203,6 +203,9 @@
     <Build Include="dbo/Tables/BrokerAccountRiskBaseline.sql" />
     <Build Include="dbo/Triggers/BrokerAccountRiskBaseline_Immutable.sql" />
     <None Include="Migrations/20260917_035_AddBrokerAccountRiskBaseline.sql" />
+    <Build Include="dbo/Tables/BrokerAccountRiskContinuation.sql" />
+    <Build Include="dbo/Triggers/BrokerAccountRiskContinuation_Immutable.sql" />
+    <None Include="Migrations/20260921_039_AddBrokerAccountRiskContinuation.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />

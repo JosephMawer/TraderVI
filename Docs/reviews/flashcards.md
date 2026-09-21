@@ -18,6 +18,18 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can a noon holdings read and a 09:30 price reconstruct the opening account value?
+
+Only if complete account evidence establishes which shares and cash were actually present at 09:30.
+The price timestamp alone cannot undo intervening trades or cash movements. Source: ADR-0083.
+Tags: architecture, risk-management.
+
+### Q: Does an unchanged cumulative net-deposit total prove there were no cash movements?
+
+No. A deposit and withdrawal can offset. Continuing a no-flow interval requires complete reconciled
+event evidence; pending or unexplained movements cannot be treated as zero. Source: ADR-0083.
+Tags: risk-management, data-sources.
+
 ### Q: Does a late engine start require resetting the TFSA opening value or adding a morning pause?
 
 No. Reuse the saved correct reference or recover a precisely dated, validated value. A later value or

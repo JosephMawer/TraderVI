@@ -1,12 +1,13 @@
 # TraderVI Roadmap
 
-**September 21 opening-value checkpoint:** the captured daily broker graph supplies dated morning
-values; the small shared Core reader and 25 new tests are implemented (1,488 Core tests pass).
-Next verify native morning availability and alignment with the chosen strategy, then finish durable
-session/cash-flow tracking. Plan standalone engine extraction and pre-session Windows Task Scheduler
-startup as the operational host; reuse Core collection, reference handling and single-host ownership.
-A late start alone is not an accepted new buy-pause rule. No separate WPF recovery flow or scheduler
-was added. [Decision and limits](adr/0083-opening-account-values-and-shared-engine-hosting.md).
+**September 21 risk-continuation checkpoint:** shared Core boundary valuation and durable daily
+references/holds are tested for positively verified intervals without deposits or withdrawals.
+All 1,552 Core tests and isolated SSDT checks pass; migrations 035/039 remain uninstalled.
+Next settle the pending cash-flow percentage-versus-dollar question, implement confirmed-flow
+handling/evidence, then qualify native opening values and verify operational setup/continuation.
+Item 1 is still open. Reuse this Core path for the eventual standalone engine started before the
+session by Windows Task Scheduler. No new late-start pause or scheduler was added.
+[Decision and limits](adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 This is the authoritative priority list. Keep detailed rationale in ADRs and deferred design questions in `Docs/reviews/open-questions.md`.
 

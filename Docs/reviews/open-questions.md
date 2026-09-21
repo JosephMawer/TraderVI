@@ -10,13 +10,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted September 21:** prefer dependable pre-session engine startup and shared Core reference
   handling; investigate actual recovery data before adding a blanket late-start buy pause. A future
   Windows scheduled task will host the extracted engine, not a separate WPF recovery workflow.
-- **Implemented offline:** the captured ONE_DAY/REGULAR graph has five-minute values from 09:30;
-  the selected-account reader and exact dated lookup pass 25 new tests (1,488 Core tests total).
-- **Next:** verify native morning publication timing and broker value scope against the chosen
-  strategy's opening definition. Delphi Live uses first-bar Open; Daily Shadow currently uses stored
-  LastPrice at session creation. Preserve existing behavior until any required alignment is explicit.
-- Then save/reuse daily references and reconcile cash events through the same shared path. Host
-  extraction, task installation, engine input cutover and order authority remain separate work.
+- **Implemented offline:** the dated reader is joined by boundary-book valuation and durable daily
+  references/holds for positively reconciled intervals without capital flows. All 1,552 Core tests
+  and isolated SSDT checks pass. Migration 039 is prepared/uninstalled.
+- **Pending user answer:** should a confirmed deposit/withdrawal preserve the measured loss percentage
+  (recommended), or preserve only the dollar loss? Existing holds persist either way. No cash-flow
+  formula is implemented; its timed event/value evidence must be defined after this choice.
+- **Next:** complete confirmed-flow handling/evidence and verify native morning publication timing and
+  broker value scope. Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its
+  saved-price book definition. A graph point alone is not source qualification.
+- Operational setup/continuation, host extraction, task installation, engine input cutover and order
+  authority remain separate unfinished work. No new blanket morning-pause rule is approved.
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 ### Remaining manual-sell integration

@@ -1,11 +1,15 @@
 # From independent paper strategies to live execution
 
-**September 21 hosting constraint:** normal operation should use a standalone engine started before
-market activity by Windows Task Scheduler. Keep reference acquisition in Core for that host and the
-current app to share. Dated broker morning values are present in the supplied capture and a small
-reader is now tested offline; native availability, valuation alignment and daily persistence remain.
-Do not add a WPF-specific recovery system or treat late startup as an automatic new pause condition.
-See [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
+**September 21 risk/hosting checkpoint:** use shared Core code for the current app and the eventual
+standalone engine started before market by Windows Task Scheduler. Dated broker reads, strategy-defined
+boundary valuation and saved daily-reference/hold continuation are now tested offline. Continuation
+currently needs positive evidence of no external cash flows; an unchanged net-deposit total cannot
+prove that. Confirmed-flow handling, native qualification and operational wiring remain unfinished.
+
+The pending cash-flow question is whether an account down 2% should remain down 2% immediately after a
+deposit (recommended), or retain the dollar loss while its percentage changes. No formula is implemented
+yet. Cash movements must preserve existing holds. No WPF-specific recovery system or new late-start
+pause was added. See [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 - **Domains:** architecture, decision-engine, risk-management, market-microstructure
 - **Related ADRs:** ADR-0022, ADR-0039, ADR-0051, ADR-0053, ADR-0055, ADR-0062, ADR-0072, ADR-0073

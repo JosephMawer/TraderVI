@@ -13,12 +13,42 @@ eligibility is deferred to Wealthsimple live trading/automation. A recommendatio
 
 ## Planned real TFSA execution
 
+[ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md) permits first risk-reference
+setup from verified current account value where no earlier applicable reference exists, with explicit
+provenance and preservation of known references/holds. A setup observation is not a historical session
+open or lifetime closing high. Retained holdings keep their current protection owner through required
+exits/reconciliation and transfer at activation with established protective levels. Missing protection
+starts from real cost and fresh observed evidence, never paper state or invented historical highs.
+Purchase availability is capped by the lower of fresh broker CAD cash/buying power, strategy sizing
+and reservations; unfinished sales supply no funds. Confirmed deposits/withdrawals adjust loss references;
+unexplained cash movements pause new buys. Initial setup/store is implemented in source, with migration
+035 uninstalled and no operator UI or engine cutover. Daily/flow continuation and actual protection
+handover remain unfinished; no strategy is activated and no execution is enabled.
+September 21 adds offline boundary valuation and append-only daily continuation for positively
+reconciled intervals without capital flows (ADR-0083). Daily Shadow keeps its saved-book price
+definition; Delphi Live keeps first-bar Open/exact final-bar Close. A broker chart timestamp alone
+cannot change those definitions. Confirmed-flow adjustment and native integration remain open;
+migration 039 is prepared/uninstalled. No new late-start buy-pause rule is authorized.
+
+[ADR-0080](adr/0080-reviewed-broker-history-import.md) stores reviewed broker observations in separate
+SQL history. `CanImport` is not strategy readiness or execution authority. Do not sum cumulative orders
+across observations or reinterpret a last-fill timestamp as every individual fill. Legacy position IDs,
+financial records and risk/protection state remain preserved until an explicit source-aware projection
+and baseline design is implemented. Initial matching is reviewed; ambiguous or changed facts block import.
+
+[ADR-0079](adr/0079-broker-reconciliation-and-market-handover.md) records the September 14 first-version
+choice: regular-session whole-share market orders; promotion initiates required non-overlap exits and
+waits for confirmed fills and reconciliation before new buys. Retain overlaps and actual cost/history.
+This supersedes the earlier unfinalized limit preference for the first portfolio execution version.
+The implemented reconciliation and transition preview grant no order authority and do not replace
+SQL positions, risk baselines, research eligibility or ADR-0062's recommendation-only approval gates.
+
 [ADR-0075](adr/0075-manual-market-buy-ticket.md) now enables a separate operator-reviewed manual
 market-buy ticket in WPF. Manual quantity comes from the operator, not a portfolio. Preserve saved
 source/direction without rewriting gates or assigning strategy attribution. Fresh broker checks,
 applicable real-account holds, durable intent/recovery and explicit final submission remain mandatory.
-This manual path does not enable strategy activation, automatic selling or change the strategy's
-preferred limit-order policy.
+This manual path does not enable strategy activation or automatic selling. The separate September 14
+portfolio market-order decision is recorded in ADR-0079.
 
 [ADR-0077](adr/0077-manual-holdings-market-sell.md) adds a separately authorized manual sell-all action
 on the broker holdings row. It pins the entire displayed whole-share quantity, verifies fresh matching

@@ -5,19 +5,96 @@ records the opening-value investigation and future standalone engine constraint.
 
 - [x] Confirm dated morning values in the supplied broker capture and implement a shared daily-value
   reader with exact timestamp lookup; 25 new cases and all 1,488 Core tests pass offline.
-- [ ] Verify native morning availability and strategy-compatible valuation, then persist/reuse the
-  daily reference with confirmed cash-flow tracking. A late start alone adds no new buy-pause rule.
+- [x] Implement/test real boundary-book valuation using each family's existing price definition,
+  plus append-only daily references/holds for verified intervals without deposits or withdrawals.
+  There are 64 new tests; all 1,552 Core tests and the isolated SSDT build pass. Migration 039 is
+  prepared, not installed. This does not provide the broker cash-event evidence or a production caller.
+- [ ] Finish confirmed deposit/withdrawal handling; the percentage-versus-dollar adjustment question
+  is pending. Then qualify native morning timing/value compatibility and verify operational saving/
+  recovery. A late start alone adds no new buy-pause rule. **Item 1 is still open.**
 - [ ] Extract the shared engine into a standalone host and arrange pre-session Windows Task Scheduler
   startup, retaining one active owner. This is future operational work; no task was installed.
 
-**Started:** 2026-09-06. **Scope:** the [September 6 alignment audit](reviews/strategy-direction-alignment-20260906.md).
-**Authority:** phased source changes, isolated tests, restores and affected-project builds are authorized.
+**Started:** 2026-09-06. **Current goal checkpoint:** 2026-09-21 (valuation/daily continuation tested offline; operational evidence unchanged).
+**Scope:** the [September 6 alignment audit](reviews/strategy-direction-alignment-20260906.md) and its
+continuing goal of independent paper strategies followed by deliberately approved real-account execution.
+Priorities remain in [the roadmap](roadmap.md); dated operational evidence remains in
+[project status](project-status.md).
+
+## Paper strategy to real TFSA — current checklist
+
+**Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
+while keeping paper and real histories independent. **Automatic strategy trading is still off.**
+
+A checked item means the action named is complete. Built/tested code is explicitly distinguished from
+installed or broker-verified behavior; agreeing a rule does not mean its execution is implemented.
+
+### Done
+
+- [x] Build independent paper portfolios and exact strategy selection for real-account recommendations
+  ([ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md)); this does not place broker orders.
+- [x] Connect the Wealthsimple TFSA and read its balances, holdings and pending orders.
+- [x] Build market buy/sell functions and manual controls. Native order/lifecycle verification remains below.
+- [x] Link the permanent TFSA, import its broker history and verify the native refresh: 32 orders,
+  all already saved, no blockers on September 16 at 22:06 Toronto. Migration 034 is installed; the
+  reviewed correction, ticker/ETF compatibility and timestamp readback fixes are complete
+  ([ADR-0080](adr/0080-reviewed-broker-history-import.md)).
+- [x] Agree promotion behavior: retain overlapping holdings at actual quantities/costs, sell unwanted
+  holdings during regular hours, and confirm/reconcile those exits before new buys
+  ([ADR-0079](adr/0079-broker-reconciliation-and-market-handover.md)).
+- [x] Agree account/protection rules: preserve known loss references and holds; establish missing first
+  references from verified current value; use confirmed broker funds; transfer protection at activation;
+  initialize missing protection from real cost/fresh evidence; adjust references for confirmed cash flows
+  ([ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md)).
+- [x] Build and test initial risk-reference preparation, reviewed SQL saving and recovery after an
+  uncertain save. This increment passed 58 new cases and all 1,441 then-current Core tests, plus SSDT
+  and migration syntax/schema checks. Migration 035 is prepared **but not installed**; no operational
+  baseline or setup screen exists yet. Later unrelated work reports 1,463 passing Core tests.
+
+### Left to do — development order (updated September 20)
+
+- [ ] **Continue risk tracking:** carry references and holds across sessions; account for confirmed
+  deposits/withdrawals; pause new buys when cash movements or required evidence are unexplained.
+  Daily continuation is built/tested for verified no-flow intervals; confirmed-flow handling and its
+  evidence remain unfinished. The pending question is whether a cash movement preserves the measured
+  loss percentage (recommended) or only the dollar loss. A separate review screen is not a dependency.
+- [ ] **Finish initial account setup before operational use:** present the initial references and
+  preserved holds within account setup, separately authorize/install migration 035, and verify
+  saving/recovering the real account's initial risk references. A dedicated screen is unnecessary.
+- [ ] **Use the actual broker account for strategy decisions:** replace legacy reported account inputs
+  with reconciled holdings, costs, cash/buying power and order state. Preserve position identity through
+  partial sales and distinguish a fully closed/reopened holding from its earlier history.
+- [ ] **Keep the account synchronized:** handle manual/external trades, new fills, stale data and
+  conflicting observations. Account for pending orders and reserve available cash/shares once.
+- [ ] **Complete protection handover:** keep the current owner through transition, then transfer
+  retained holdings at activation without losing existing protective levels or inventing past prices.
+- [ ] **Connect promotion to execution:** save the exact approved strategy and transition progress;
+  use the existing market buy/sell functions; handle partial fills, uncertain submissions, duplicate
+  prevention and restart recovery. Required non-overlap exits must reconcile before any new buy.
+- [ ] **Qualify and verify automation:** establish strategy/evidence readiness, perform separately
+  authorized native order/lifecycle tests, then explicitly authorize enabling real execution.
+
+**Immediate next increment:** settle the pending loss-percentage question, then implement/test confirmed
+cash-flow continuation and its required evidence. Native opening qualification and operational wiring remain.
+The starting baseline remains a runtime prerequisite; its UI is not a prerequisite to developing this logic.
+The [continuing design draft](concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation)
+holds the remaining detailed decisions. Preserve the linked history, installed migration 034 and all
+existing protections. Neither the proposed optional older-history mode nor this checklist authorizes a reset.
+
+## Original audit phases and evidence
+
+The sections below retain the original audit identifiers and historical validation. The goal checklist
+above is the current execution workstream; historical phase numbering is not a new priority order.
+
+**Original phase authority:** phased source changes, isolated tests, restores and affected-project builds were authorized.
 The operator subsequently authorized private-model compatibility checks, separate replacement training,
 the required model-storage/strategy database changes, and the corrected daily selection. The later
 missing-Friday/SPY repair explicitly authorized schedule correction, market-data refresh and the necessary
 benchmark-source/policy repair under ADR-0058. The first standalone official Delphi run was subsequently
-authorized and completed on September 6 at 22:43 Eastern. Unrelated
-application workflows, market collection, paper-monitor activation and broker work remain unauthorized.
+authorized and completed on September 6 at 22:43 Eastern. At that phase, unrelated
+application workflows, market collection, paper-monitor activation and broker work were unauthorized.
+Later explicit authorizations and their completed operations are recorded in project status and the
+relevant ADRs; this checklist grants no fresh database, market-service or live-order authority.
 
 This is the durable implementation record. A decision or documentation edit does not resolve a code defect.
 `Validated` means the listed checks passed; operational adoption is stated explicitly where verified.
@@ -29,25 +106,25 @@ authorization required for the specific item. Findings not yet reverified here r
 | Finding | Implementation status | Validation / remaining work | Dependency and reason |
 |---|---|---|---|
 | F1 — training overwrites and activates models | Implemented and validated for the supported daily training/selection workflow | Hercules defaults to separate immutable candidates and disabled rows; data/source/model evidence is retained. Stored strategy/model assignments, transactional selection events and reviewed rollback are implemented. Four candidates trained; all 228 old registry rows remain unchanged. | Legacy explicit repository mutation APIs remain for phase-3 entry-path review; complete policy dispatch/risk ownership remains D2/S1. No automatic performance promotion is introduced. |
-| F2 — training/inference feature parity | Implemented, validated and adopted for the active daily strategy | One dated builder serves real training-window and prediction-input paths. The accepted fallback trained four new models because old artifact semantics could not be proven. Initial v3.3 and current v3.4 use the same four artifacts and dated contract; actual bootstrap verification passed. [Cutover review](reviews/model-input-cutover-20260906.md). | The first complete scheduled corrected run has not been exercised here. ADR-0058 now independently checks the latest expected XIU endpoint; full historical calendar continuity remains separate. Old evidence retains its legacy identity. |
+| F2 — training/inference feature parity | Implemented, validated and adopted for the active daily strategy | One dated builder serves real training-window and prediction-input paths. The accepted fallback trained four new models because old artifact semantics could not be proven. Initial v3.3 and current v3.4 use the same four artifacts and dated contract; actual bootstrap verification passed. [Cutover review](reviews/model-input-cutover-20260906.md). | Later scheduled operation is verified in project status, including September 18's Valid v3.4 run with zero source-observation mismatches. Full historical calendar continuity remains separate. Old evidence retains its legacy identity. |
 | F3 — provenance reread after inference | Implemented and validated | Same captured bytes are hashed and loaded; engine carries actual instance provenance; official audit compares tasks and verifies artifact identities. Synthetic replacement, missing identity and wrong-task cases pass; actual corrected bootstrap hashes match the stored assignment. | F1 now supplies preserved files and strategy-bound selection/rollback for the supported daily workflow. This does not prove historical artifact semantics or performance superiority. |
 | F4 — post-fill Live positions/exposure | Implemented and validated in source | Saved marks now use the same positions as NAV. Two full-session workflow fixtures cover a buy held through close and a full liquidation, consuming marks through account valuation and exposure reports. | Restores frozen V1 valuation; no thresholds, fill prices or historical ledger rows changed. |
 | F5 — unsupported unlinked Ghost CLI entry | Deferred: phase 3 | Reverify saved-pick entry consumers before changing or retiring the route. | Preserve the monitored-position scope and operator Real workflows. |
 | F6 — Hermes completion semantics | Partly implemented; broader contract deferred to phase 3 | SPY is now a required collection/validation step that fails explicitly. General per-source classification and typed completion remain unfinished. | Preserve stock-only exclusions; the schedule correction does not resolve every partial-ingestion path. |
 | F7 — CI loses earlier native-command failures | Implemented and validated locally | Every focused restore/build immediately checks its exit code. Twelve native-command fixture scenarios cover all five failure positions and success for both blocks. | Hosted GitHub Actions was not invoked; broader host coverage remains S6. |
 | F8 — current labels evaluate historical pending outcomes | Deferred: phase 3 | Reverify Athena dispatch and cohort definition storage before introducing immutable label dispatch. | Preserve existing definitions and pending historical evidence; semantic label changes require a new definition. |
-| D1 — common comparison and approved recommendation selection | Implemented; migration installed under ADR-0062 | Complete versions, manual evidence review, immutable approval/history and account-specific Real recommendation routing; no universal winner score. Migration 029 and read-only installed Shadow/account paths verified. | Actual account reconciliation and explicit approval remain. Operator explicitly made statistical evidence advisory for manual mode; enforced gates are deferred to Wealthsimple automation. Live internal research and operational risk controls remain unchanged. |
+| D1 — common comparison and approved recommendation selection | Implemented; migration installed under ADR-0062 | Complete versions, manual evidence review, immutable approval/history and account-specific Real recommendation routing; no universal winner score. Migration 029 and read-only installed Shadow/account paths verified. | Broker history is now linked/reconciled under ADR-0080, but recommendation inputs remain the legacy reported account. Broker-input cutover, durable execution approval and automation qualification remain. Evidence is advisory for manual recommendation mode; Live research/risk controls remain unchanged. |
 | D2 — daily Shadow version labels do not dispatch behavior | Deferred: phases 2–3 | Reverify generation/pending-order loading, policy dispatch and persisted friction. | Immutable strategy/policy ownership; preserve V1 and all prior fills. |
-| D3 — dormant broker prototype | Deferred: quarantine with phase 3 legacy-path work; execution remains future | No broker adapter implemented or exercised. Reverify public entry paths before quarantine. | Broker design/access mechanism and execution authorization remain separate; preserve manual Real tracking. |
+| D3 — dormant broker prototype | Native integration now partly implemented; legacy-path review and automatic execution unfinished | Native login/account reads and linked history refresh are verified. Market buy/sell clients and manual controls are implemented; initial baseline setup/store is tested in source. See the current checklist above and ADRs 0079–0081. | Migration 035, setup UI, ongoing risk/account synchronization, protection handover and durable strategy execution remain. Native order tests and enabling real execution need separate authority. |
 
 Secondary identifiers below are local checklist identifiers; they do not rename audit findings.
 
 | Finding | Status | Dependency / reason |
 |---|---|---|
-| S1 — risk-default ownership | Deferred: phase 2 | Classify strategy settings versus position-lifecycle defaults before changing any number; preserve existing positions. Existing [open question](reviews/open-questions.md) remains. |
+| S1 — risk-default ownership | Partly resolved for broker setup under ADR-0081; broader ownership work remains | Initial risk-reference setup/store is implemented in source; protection ownership transfers at activation and existing levels/holds survive. Complete position mapping, session/cash-flow continuation and actual handover before broker-input cutover. Preserve strategy thresholds and existing positions. |
 | S2 — published/eligible source mismatch | Deferred: phase 3 | Reconcile producer, SQL selector and pure selector against frozen V1, without changing entry gates. The first official v3.4 run saved 25 entries per lens with zero eligible in either lens; all published rows are Hold. Publication is not evidence of buy eligibility. |
 | S3 — Oracle cache identity and non-atomic replacement | Deferred: phase 3 bounded advisory work | Include generation settings in identity and make replacement atomic after reverifying current source; Oracle retains no trading authority. |
-| S4 — UI refresh before collection / unbounded account reads | Deferred: phase 3 source work; measurements blocked on operational authority | Scheduling and bounded history reads can be isolated; real deadline/capacity claims require authorized shakedown. |
+| S4 — UI refresh before collection / unbounded account reads | Partly addressed and measured September 17; bounded-history work remains | Compact storage and the installed UI-worker fix reduce reconstruction/display stalls; project status records the authorized native profiles and resumed monitoring writes. Full-history reconstruction still grows in background CPU/memory; broader deadline/capacity guarantees remain unproven. |
 | S5 — broad Core / concrete composition | Deferred: incremental after consequential seams | Extract interfaces only where needed for a concrete workflow contract and meaningful tests. No broad module rewrite. |
 | S6 — omitted focused host builds in CI | Deferred: phase 3 CI coverage | F7 preserves existing five-host coverage. Hercules, Oracle, DataAudit, Sandbox and Tools coverage remains separately tracked. |
 | S7 — short sessions / calendar extension | Deferred: reviewed behavior required before 2026-12-24 | Preserve full-session V1 and the existing calendar boundary. No calendar deployment or external lookup performed. |
@@ -111,7 +188,9 @@ passed with Visual Studio MSBuild/SSDT; `git diff --check` reports no whitespace
   50 published rows are Hold; no trade qualifies. Seven stock input exclusions and missing leadership
   movers are reported. All 38 prior evidence/account snapshots match after excluding only the new rows.
   The affected Release build passed; application source and thresholds were unchanged.
-- [ ] Observe the first normal scheduled corrected cohort; the full nightly pipeline was not manually launched.
+- [x] Observe subsequent normal scheduled operation: September 18's Hermes, Delphi and Athena stages
+  completed. The official run was Valid; Athena retained Attention for incomplete historical evidence.
+  See [project status](project-status.md) for the dated read-only verification and its limits.
 
 ## Boundary and next step
 
@@ -126,7 +205,8 @@ The active strategy now owns the corrected model assignment, while the previous 
 available for reviewed rollback. Existing labels and historical evidence remain intact; observed XIU
 dates still do not prove independent exchange-calendar completeness.
 
-The next concrete source phase is D2/S1: make stored paper-policy versions dispatch their actual behavior
-and resolve ownership of risk defaults, followed by F8's historical outcome-definition dispatch and the
-remaining phase-3 contracts. Preserve frozen V1 and existing positions. Common cross-strategy comparison
-and human-approved recommendation selection remain phase 4, with no new promotion criteria invented here.
+The original next-phase recommendation was D2/S1 followed by F8 and the remaining phase-3 contracts.
+Those unresolved audit findings remain tracked above, but current work is the broker integration sequence
+at the top of this checklist and in the roadmap. Human-approved recommendation selection is implemented
+under ADR-0062; broker-backed execution and enforced automation qualification are still unfinished.
+Preserve frozen V1, existing positions and independent paper evidence throughout.
