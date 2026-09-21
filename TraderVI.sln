@@ -149,6 +149,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0077-manual-holdings-market-sell.md = Docs\adr\0077-manual-holdings-market-sell.md
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md = Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md
+		Docs\adr\0079-broker-reconciliation-and-market-handover.md = Docs\adr\0079-broker-reconciliation-and-market-handover.md
+		Docs\adr\0080-reviewed-broker-history-import.md = Docs\adr\0080-reviewed-broker-history-import.md
+		Docs\adr\0081-broker-account-baselines-and-protection-ownership.md = Docs\adr\0081-broker-account-baselines-and-protection-ownership.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
 EndProject

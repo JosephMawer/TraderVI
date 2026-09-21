@@ -195,6 +195,14 @@
     <None Include="Migrations/20260908_031_ActivateLiveEngineeringTrial.sql" />
     <None Include="Migrations/20260909_032_PaperDailySourceAdoption.sql" />
     <None Include="Migrations/20260909_033_FixedGatePaperComparisons.sql" />
+    <Build Include="dbo/Tables/BrokerAccountImportBinding.sql" />
+    <Build Include="dbo/Tables/BrokerAccountImport.sql" />
+    <Build Include="dbo/Triggers/BrokerAccountImportBinding_Immutable.sql" />
+    <Build Include="dbo/Triggers/BrokerAccountImport_Immutable.sql" />
+    <None Include="Migrations/20260916_034_AddBrokerAccountImport.sql" />
+    <Build Include="dbo/Tables/BrokerAccountRiskBaseline.sql" />
+    <Build Include="dbo/Triggers/BrokerAccountRiskBaseline_Immutable.sql" />
+    <None Include="Migrations/20260917_035_AddBrokerAccountRiskBaseline.sql" />
     <None Include="Operations/Backup-TraderDB.sql" />
     <None Include="Operations/Snapshot-ModelSelectionHistory.sql" />
     <None Include="Operations/Check-TraderDB-Integrity.sql" />

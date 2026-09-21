@@ -1,0 +1,27 @@
+{
+  "activity": {
+    "data": {
+      "activityFeedItems": {
+        "edges": [{ "node": {
+          "accountId": "tfsa-fixture-id", "canonicalId": "activity-expired-fixture",
+          "externalCanonicalId": "order-expired-fixture", "type": "DIY_SELL", "subType": "STOP_LIMIT_ORDER",
+          "status": "EXPIRED", "securityId": "security-fixture", "assetSymbol": "FIX", "assetQuantity": "10"
+        }}],
+        "pageInfo": { "hasNextPage": false, "endCursor": null }
+      }
+    }
+  },
+  "detail": {
+    "data": {
+      "orderServiceExtendedOrderByExternalId": {
+        "id": "order-expired-fixture", "canonicalAccountId": "tfsa-fixture-id", "identityId": "identity-fixture",
+        "securityId": "security-fixture", "side": "SELL", "status": "EXPIRED",
+        "securityCurrency": "CAD", "submittedQuantity": "10", "fillQuantity": null,
+        "averageFillPrice": null, "filledValue": null, "filledNetValue": null,
+        "filledTotalFee": null, "filledTaxWithholding": null,
+        "createdAtUtc": "2026-09-09T13:00:00Z", "lastFilledAtUtc": null,
+        "security": { "id": "security-fixture", "securityType": "EQUITY" }
+      }
+    }
+  }
+}

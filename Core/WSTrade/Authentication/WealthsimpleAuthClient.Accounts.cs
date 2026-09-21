@@ -108,7 +108,7 @@ public sealed partial class WealthsimpleAuthClient
                 DateText(returns, "referenceDate"), Timestamp(returns, "asOf"), holdings.AsReadOnly());
         }, ct);
 
-    private async Task<WealthsimpleReadResult<T>> ReadLockedAsync<T>(Func<Task<T>> read, CancellationToken ct)
+    private async Task<WealthsimpleReadResult<T>> ReadLockedAsync<T>(Func<Task<T>> read, CancellationToken ct, string context = "account read")
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         await gate.WaitAsync(ct);
@@ -120,12 +120,12 @@ public sealed partial class WealthsimpleAuthClient
             if (session == null || session.ExpiresAt <= clock.GetUtcNow()) return new(WealthsimpleReadStatus.NotAuthenticated);
             return new(WealthsimpleReadStatus.Success, data);
         }
-        catch (ReadFailure failure) { return new(failure.Status, Stage: failure.Stage); }
+        catch (ReadFailure failure) { return new(failure.Status, Stage: context + " / " + failure.Stage); }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw new OperationCanceledException("Account read cancelled.", ct); }
         catch (Exception e) when (e is HttpRequestException or IOException or OperationCanceledException)
-        { return new(WealthsimpleReadStatus.Unavailable); }
+        { return new(WealthsimpleReadStatus.Unavailable, Stage: context + " / transport interrupted"); }
         catch (Exception e) when (e is JsonException or InvalidOperationException or FormatException or OverflowException or KeyNotFoundException)
-        { return new(WealthsimpleReadStatus.UnsupportedResponse); }
+        { return new(WealthsimpleReadStatus.UnsupportedResponse, Stage: context + " / malformed response"); }
         finally { gate.Release(); }
     }
 
@@ -138,9 +138,11 @@ public sealed partial class WealthsimpleAuthClient
         { session = null; tfsaAccounts.Clear(); throw new ReadFailure(WealthsimpleReadStatus.NotAuthenticated, operation); }
         if (response.StatusCode == HttpStatusCode.Forbidden) throw new ReadFailure(WealthsimpleReadStatus.Forbidden, operation);
         if ((int)response.StatusCode == 429) throw new ReadFailure(WealthsimpleReadStatus.RateLimited, operation);
-        if (!response.IsSuccessStatusCode) throw new ReadFailure((int)response.StatusCode >= 500 ? WealthsimpleReadStatus.Unavailable : WealthsimpleReadStatus.UnsupportedResponse, operation);
+        string responseStage = operation + " / HTTP " + (int)response.StatusCode;
+        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.BadRequest)
+            throw new ReadFailure((int)response.StatusCode >= 500 ? WealthsimpleReadStatus.Unavailable : WealthsimpleReadStatus.UnsupportedResponse, responseStage);
         var json = ReadJson(response);
-        if (json == null) throw new ReadFailure(WealthsimpleReadStatus.UnsupportedResponse, operation);
+        if (json == null) throw new ReadFailure(WealthsimpleReadStatus.UnsupportedResponse, responseStage + " / invalid JSON");
         var errors = Optional(json.RootElement, "errors");
         if (errors.ValueKind != JsonValueKind.Undefined && errors.ValueKind != JsonValueKind.Null &&
             (errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0))
@@ -148,23 +150,57 @@ public sealed partial class WealthsimpleAuthClient
             // Discard partial GraphQL data. Classify only standardized error codes, not arbitrary text.
             var expired = errors.ValueKind == JsonValueKind.Array && errors.EnumerateArray().Any(e =>
                 StringValue(Optional(e, "extensions"), "code") is "UNAUTHENTICATED" or "UNAUTHORIZED");
+            string detail = GraphQlDiagnostic(errors, query);
             json.Dispose();
             if (expired) { session = null; tfsaAccounts.Clear(); }
-            throw new ReadFailure(expired ? WealthsimpleReadStatus.NotAuthenticated : WealthsimpleReadStatus.UnsupportedResponse, operation);
+            throw new ReadFailure(expired ? WealthsimpleReadStatus.NotAuthenticated : WealthsimpleReadStatus.UnsupportedResponse, responseStage + " / " + detail);
         }
+        if (!response.IsSuccessStatusCode) { json.Dispose(); throw new ReadFailure(WealthsimpleReadStatus.UnsupportedResponse, responseStage); }
         return json;
+    }
+
+    // Only fixed categories and validated locations in our own query are exposed. Never include
+    // server messages, response paths, variable values, identifiers, headers or response bodies.
+    private static string GraphQlDiagnostic(JsonElement errors, string query)
+    {
+        if (errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() == 0) return "invalid GraphQL errors";
+        var error = errors[0];
+        string category = StringValue(Optional(error, "extensions"), "code") switch
+        {
+            "GRAPHQL_VALIDATION_FAILED" => "GraphQL validation failed",
+            "GRAPHQL_PARSE_FAILED" => "GraphQL query parsing failed",
+            "BAD_USER_INPUT" => "GraphQL input rejected",
+            "UNAUTHENTICATED" or "UNAUTHORIZED" => "GraphQL authentication rejected",
+            "FORBIDDEN" => "GraphQL access denied",
+            "INTERNAL_SERVER_ERROR" => "GraphQL server error",
+            _ => "GraphQL request rejected"
+        };
+        var locations = Optional(error, "locations");
+        if (locations.ValueKind == JsonValueKind.Array && locations.GetArrayLength() > 0)
+        {
+            var lineValue = Optional(locations[0], "line"); var columnValue = Optional(locations[0], "column");
+            var lines = query.Split('\n');
+            if (lineValue.ValueKind == JsonValueKind.Number && lineValue.TryGetInt32(out int line) && line > 0 && line <= lines.Length &&
+                columnValue.ValueKind == JsonValueKind.Number && columnValue.TryGetInt32(out int column) && column > 0 && column <= lines[line - 1].Length)
+                category += $" at query line {line}, column {column}";
+        }
+        return category;
     }
 
     private static JsonElement Optional(JsonElement value, string name) => value.ValueKind == JsonValueKind.Object && value.TryGetProperty(name, out var child) ? child : default;
     private static JsonElement Required(JsonElement value, params string[] path)
     {
-        foreach (var part in path) { value = Optional(value, part); if (value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) throw Invalid(); }
+        foreach (var part in path) { value = Optional(value, part); if (value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) throw Invalid("missing field " + string.Join(".", path)); }
         return value;
     }
-    private static JsonElement[] RequiredArray(JsonElement value, string name) => Required(value, name).EnumerateArray().ToArray();
-    private static string RequiredText(JsonElement value, string name) => StringValue(value, name) is { Length: > 0 and <= 512 } text ? text : throw Invalid();
+    private static JsonElement[] RequiredArray(JsonElement value, string name)
+    {
+        var array = Required(value, name);
+        return array.ValueKind == JsonValueKind.Array ? array.EnumerateArray().ToArray() : throw Invalid("invalid array " + name);
+    }
+    private static string RequiredText(JsonElement value, string name) => StringValue(value, name) is { Length: > 0 and <= 512 } text ? text : throw Invalid("missing or invalid text " + name);
     private static bool IsNull(JsonElement value, string name) => Optional(value, name).ValueKind is JsonValueKind.Null; // missing fields are not proof of an open account
-    private static void RequireId(JsonElement value, string id) { if (RequiredText(value, "id") != id) throw Invalid(); }
+    private static void RequireId(JsonElement value, string id) { if (RequiredText(value, "id") != id) throw Invalid("response identity mismatch"); }
     private static string CleanLabel(string value) => new(value.Take(120).Where(c => !char.IsControl(c)).ToArray());
     private static string? NextCursor(JsonElement page, HashSet<string> seen)
     {
@@ -196,9 +232,9 @@ public sealed partial class WealthsimpleAuthClient
     private static DateTimeOffset? Timestamp(JsonElement parent, string name)
     {
         var text = StringValue(parent, name); if (text == null) return null;
-        return DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var time) ? time : throw Invalid();
+        return DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var time) ? time : throw Invalid("invalid timestamp " + name);
     }
-    private static ReadFailure Invalid() => new(WealthsimpleReadStatus.UnsupportedResponse, "account data");
+    private static ReadFailure Invalid(string stage = "account data validation") => new(WealthsimpleReadStatus.UnsupportedResponse, stage);
     private sealed class ReadFailure(WealthsimpleReadStatus status, string stage) : Exception("Account data unavailable.")
     { internal WealthsimpleReadStatus Status { get; } = status; internal string Stage { get; } = stage; }
 }
