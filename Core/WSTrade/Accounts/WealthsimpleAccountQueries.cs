@@ -4,6 +4,23 @@ namespace Core.WSTrade.Accounts;
 // Only these fixed query documents can reach the authenticated resource endpoint.
 internal static class WealthsimpleAccountQueries
 {
+    // Minimal read from the September 16 account-activity capture. Keep previous close
+    // separate from timed points; neither a sampled maximum nor a later point is an opening.
+    internal const string DayValues = """
+        query TraderVITfsaDayValues($id: ID!, $currency: Currency!, $timeRange: GraphTimeRange!, $marketSession: GraphMarketSession!) {
+          account(id: $id) { id financials { currentCombined(currency: $currency) {
+            graphData(timeRange: $timeRange, marketSession: $marketSession) {
+              previousClose { dateTime netLiquidationValue { amount currency } }
+              data {
+                dateTime
+                netLiquidationValue { amount currency }
+                netDeposits { amount currency }
+              }
+            }
+          } } }
+        }
+        """;
+
     internal const string Accounts = """
         query TraderVITfsaAccounts($identityId: ID!, $cursor: String) {
           identity(id: $identityId) { id accounts(first: 25, after: $cursor) {

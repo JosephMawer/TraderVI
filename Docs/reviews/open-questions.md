@@ -5,6 +5,20 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Morning account values and the future standalone engine
+
+- **Accepted September 21:** prefer dependable pre-session engine startup and shared Core reference
+  handling; investigate actual recovery data before adding a blanket late-start buy pause. A future
+  Windows scheduled task will host the extracted engine, not a separate WPF recovery workflow.
+- **Implemented offline:** the captured ONE_DAY/REGULAR graph has five-minute values from 09:30;
+  the selected-account reader and exact dated lookup pass 25 new tests (1,488 Core tests total).
+- **Next:** verify native morning publication timing and broker value scope against the chosen
+  strategy's opening definition. Delphi Live uses first-bar Open; Daily Shadow currently uses stored
+  LastPrice at session creation. Preserve existing behavior until any required alignment is explicit.
+- Then save/reuse daily references and reconcile cash events through the same shared path. Host
+  extraction, task installation, engine input cutover and order authority remain separate work.
+  [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
+
 ### Remaining manual-sell integration
 
 - **Protocol implemented September 11:** [ADR-0076](../adr/0076-wealthsimple-market-sell-protocol.md)

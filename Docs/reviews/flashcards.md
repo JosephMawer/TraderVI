@@ -17,6 +17,12 @@ sessions ("quiz me" / "review").
 - Keep answers short — 1–4 sentences. The point is recall, not exposition.
 
 ## Cards
+
+### Q: Does a late engine start require resetting the TFSA opening value or adding a morning pause?
+
+No. Reuse the saved correct reference or recover a precisely dated, validated value. A later value or
+previous close is not automatically the opening. Keep this logic in Core so the future scheduled engine
+uses the same path; existing strategy risk checks still apply. Source: ADR-0083. Tags: architecture, data-sources.
 ### Q: What does future primary promotion change for the TFSA?
 
 **A:** It assigns the reviewed strategy version authority to trade the permanent real account once

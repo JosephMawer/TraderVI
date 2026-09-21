@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Shared morning account-value recovery for a future scheduled engine
+
 - [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
 
 - [ADR-0075](0075-manual-market-buy-ticket.md) — Shared manual ticket, protected order journal and recovery
@@ -121,6 +123,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-sources
+
+- [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Exact dated broker account values; native morning alignment remains unverified
 
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — US confirming-index source and staleness gate
 - [ADR-0028](0028-delayed-intraday-swing-monitor-and-exit-policy.md) — Delayed intraday swing monitor and exit policy

@@ -1,5 +1,13 @@
 # TraderVI Project Status
 
+**Opening-value increment (September 21):** local capture inspection confirms regular-session broker
+account values at five-minute timestamps including 09:30. A shared Core reader now retrieves the exact
+selected account's dated values without substituting previous close or a later point. All 1,488 Core
+tests pass, including 25 new cases. This is source/offline validation; native morning availability,
+strategy-valuation alignment and saved daily-reference integration remain next. The future host is a
+standalone engine started before the session by Windows Task Scheduler, reusing this shared path.
+No new morning-pause rule or scheduled task was installed. [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md).
+
 **Local commit policy (September 20):** reviewed project work now has standing local-commit authority:
 commit validated increments, review checkpoints roughly every 45 minutes during sustained editing,
 and commit remaining ready work before handoff. Review older pending changes in coherent groups;

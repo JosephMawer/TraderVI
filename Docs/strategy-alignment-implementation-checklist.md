@@ -1,5 +1,15 @@
 # Strategy alignment implementation checklist
 
+**September 21 checkpoint:** [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md)
+records the opening-value investigation and future standalone engine constraint.
+
+- [x] Confirm dated morning values in the supplied broker capture and implement a shared daily-value
+  reader with exact timestamp lookup; 25 new cases and all 1,488 Core tests pass offline.
+- [ ] Verify native morning availability and strategy-compatible valuation, then persist/reuse the
+  daily reference with confirmed cash-flow tracking. A late start alone adds no new buy-pause rule.
+- [ ] Extract the shared engine into a standalone host and arrange pre-session Windows Task Scheduler
+  startup, retaining one active owner. This is future operational work; no task was installed.
+
 **Started:** 2026-09-06. **Scope:** the [September 6 alignment audit](reviews/strategy-direction-alignment-20260906.md).
 **Authority:** phased source changes, isolated tests, restores and affected-project builds are authorized.
 The operator subsequently authorized private-model compatibility checks, separate replacement training,

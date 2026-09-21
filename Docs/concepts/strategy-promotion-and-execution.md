@@ -1,5 +1,12 @@
 # From independent paper strategies to live execution
 
+**September 21 hosting constraint:** normal operation should use a standalone engine started before
+market activity by Windows Task Scheduler. Keep reference acquisition in Core for that host and the
+current app to share. Dated broker morning values are present in the supplied capture and a small
+reader is now tested offline; native availability, valuation alignment and daily persistence remain.
+Do not add a WPF-specific recovery system or treat late startup as an automatic new pause condition.
+See [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
+
 - **Domains:** architecture, decision-engine, risk-management, market-microstructure
 - **Related ADRs:** ADR-0022, ADR-0039, ADR-0051, ADR-0053, ADR-0055, ADR-0062, ADR-0072, ADR-0073
 

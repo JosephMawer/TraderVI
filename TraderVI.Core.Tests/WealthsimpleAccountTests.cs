@@ -14,7 +14,7 @@ using Xunit;
 
 namespace TraderVI.Core.Tests;
 
-public class WealthsimpleAccountTests
+public partial class WealthsimpleAccountTests
 {
     [Theory]
     [InlineData(false)]
