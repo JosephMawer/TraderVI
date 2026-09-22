@@ -71,8 +71,11 @@ defines the following prerequisites in order:
   v3.4 used September 4 data, evaluated 209 stocks and saved valid provenance plus 418 lens rows. All 50
   published entries are Hold; no trade qualifies. Seven input exclusions and unavailable leadership-movers
   evidence are explicit. Earlier evidence/account snapshots are unchanged.
-- [ ] Observe subsequent normal nightly completion. Leadership movers still lack the required contiguous
-  history; full common-strategy comparison and policy-history work remain.
+- [x] Observe subsequent normal scheduled completion: all three September 18 stages completed with a
+  Valid Delphi publication. Recover the missed September 22 run under operator authority: all stages
+  completed by 09:25:33, with valid September 21 inputs; Athena flagged seven historical outcome gaps.
+  [Operational evidence](project-status.md) separates completed processing from research readiness.
+- [ ] Verify contiguous leadership-mover history; complete common-strategy comparison and policy-history work.
 
 ### 1. Repository orientation and working agreements
 
@@ -96,7 +99,10 @@ defines the following prerequisites in order:
 - [x] Create and verify the first full backup, copy it to the approved OneDrive folder, and measure its compressed size (31.00 MB).
 - [x] Run the first integrity check and change the live database to SIMPLE recovery.
 - [x] Integrate verified backup-and-copy behavior as an internal post-success Hermes stage, independent of its launcher.
-- [ ] Observe several automatic post-Hermes backups and confirm OneDrive synchronization before relying on the routine unattended (first successful run confirmed 2026-08-22).
+- [x] Observe repeated automatic post-Hermes backup/copy completion (verified September 11 and 18).
+  The September 22 recovery also completed SQL checksum and local-copy SHA-256 verification.
+- [ ] Confirm OneDrive cloud synchronization before relying on the backup routine unattended; local-copy
+  verification does not establish cloud synchronization.
 - [ ] Confirm the retention count against actual OneDrive quota and measured backup growth.
 - [ ] Perform and document a test restore into a differently named temporary database.
 - [ ] Reconcile remaining project/deployed index, default, foreign-key, and database-option drift without broad DACPAC publish.

@@ -190,7 +190,11 @@ passed with Visual Studio MSBuild/SSDT; `git diff --check` reports no whitespace
   The affected Release build passed; application source and thresholds were unchanged.
 - [x] Observe subsequent normal scheduled operation: September 18's Hermes, Delphi and Athena stages
   completed. The official run was Valid; Athena retained Attention for incomplete historical evidence.
-  See [project status](project-status.md) for the dated read-only verification and its limits.
+- [x] Recover the missed September 22 run under explicit operator authority. All three stages completed
+  by 09:25:33 Toronto; Delphi's publication is Valid with September 21 inputs and zero observation
+  mismatches. Athena saved 1,124 valid outcomes and seven invalid historical outcomes. This does not
+  qualify research coverage or enable real execution. See [project status](project-status.md) and
+  ignored `artifacts/nightly-readiness-20260922/` for stage and SELECT-only verification evidence.
 
 ## Boundary and next step
 

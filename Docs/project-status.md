@@ -19,10 +19,25 @@ commit validated increments, review checkpoints roughly every 45 minutes during 
 and commit remaining ready work before handoff. Review older pending changes in coherent groups;
 preserve unfinished/concurrent work. Pushing and operational actions still need separate authority.
 
-**Snapshot date:** 2026-09-14
+**Snapshot date:** 2026-09-22
 **Purpose:** Fast orientation to what is implemented, operational, and currently blocked. Update this document after major milestones or when the daily workflow changes.
 
 ## Executive summary
+
+**September 22 missed-night recovery (completed 09:25:33 Toronto):** the latest recorded run was
+September 21; no September 22 completion was present. At the operator's request, the guarded runner
+captured current source, restored locked dependencies and built all three isolated Release engines.
+Hermes inserted 482 daily bars with zero collection failures and completed the checksum/SHA-256-verified
+backup/copy (842.05 MB). Delphi saved a **Valid** September 22 publication at **09:25:23**, before the open,
+using September 21 data: 211 candidates, 422 lens evaluations, zero source-observation mismatches and
+25 Hold rows per lens blocked by Breadth. XIU/SPY and checked derived series are current; one active
+symbol remains older. Athena completed with **Attention**, writing 1,124 valid outcomes and seven
+invalid outcomes with `MissingSymbolSession` (three current-strategy ten-session labels and four older
+v3.0 twenty-session paths). No stage failed; historical gaps and research coverage remain separate
+limitations. SQL verification completed at 09:30. Evidence: `artifacts/nightly-readiness-20260922/`.
+No strategy/model change, schema migration, broker action or WPF restart was performed. Existing
+compiler warnings remain; no fresh dependency-security audit, tests or full solution/SSDT build ran.
+
 **Nightly preparation repair and recovery (2026-09-14):** ADR-0078 retains latest-source builds while
 capturing a verified private copy, restoring locked dependencies into a dedicated cache and building
 outside development output folders. Preparation retries are bounded. Historical TMX reads now use the
