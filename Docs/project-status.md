@@ -24,6 +24,18 @@ preserve unfinished/concurrent work. Pushing and operational actions still need 
 
 ## Executive summary
 
+**September 22 app health (read-only checks through 09:59 Toronto):** the single Release WPF host
+responded, its Live lease/heartbeat advanced, and Live plus all 12 Shadow sessions use today's Valid
+publication. The latest two five-minute Live cycles each returned 40/40 usable receipts; all three
+Live portfolios saved complete 09:55 checkpoint values, including a changed value for the held
+comparison account. All 13 open Shadow positions advanced to the bar ending 09:55. **Attention remains:**
+that held account lacks an exact opening NAV, so today's return is unavailable and existing entry
+rules block new buys. Live retains blocked coverage/host-gap evidence after seven missing-bar and
+three collection-failure receipts; one tracked symbol's 15-minute bar was rejected for a conflict on
+three polls. Current collection recovery does not qualify the whole session. Investigate the opening
+evidence and tracked-bar conflict without clearing the recorded gaps. No repair, restart, broker call,
+build or test was performed. Private aggregate evidence: artifacts/app-health-20260922/.
+
 **September 22 missed-night recovery (completed 09:25:33 Toronto):** the latest recorded run was
 September 21; no September 22 completion was present. At the operator's request, the guarded runner
 captured current source, restored locked dependencies and built all three isolated Release engines.

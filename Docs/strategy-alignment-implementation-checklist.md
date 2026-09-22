@@ -195,6 +195,13 @@ passed with Visual Studio MSBuild/SSDT; `git diff --check` reports no whitespace
   mismatches. Athena saved 1,124 valid outcomes and seven invalid historical outcomes. This does not
   qualify research coverage or enable real execution. See [project status](project-status.md) and
   ignored `artifacts/nightly-readiness-20260922/` for stage and SELECT-only verification evidence.
+- [x] Verify current Live/Shadow ingestion after recovery (September 22, through 09:59 Toronto):
+  two Live cycles returned 40/40 usable receipts, all three portfolios saved complete 09:55 marks,
+  and all 13 open Shadow positions advanced. The held Live account's saved value changed.
+- [ ] Resolve that account's missing opening NAV and the repeated tracked 15-minute bar conflict.
+  Today's return/new-entry availability and blocked session coverage remain limitations; the host
+  gap and earlier failed receipts are preserved. No full-session reliability qualification or repair
+  is implied. Evidence: [project status](project-status.md), artifacts/app-health-20260922/.
 
 ## Boundary and next step
 

@@ -75,6 +75,10 @@ defines the following prerequisites in order:
   Valid Delphi publication. Recover the missed September 22 run under operator authority: all stages
   completed by 09:25:33, with valid September 21 inputs; Athena flagged seven historical outcome gaps.
   [Operational evidence](project-status.md) separates completed processing from research readiness.
+- [ ] Investigate the September 22 missing opening valuation and repeated tracked 15-minute bar
+  conflict. Read-only checks through 09:59 confirm current Live/Shadow prices and complete latest
+  checkpoint valuations; opening-return/entry and session-coverage limitations remain. Preserve
+  recorded gaps; see [app health evidence](project-status.md).
 - [ ] Verify contiguous leadership-mover history; complete common-strategy comparison and policy-history work.
 
 ### 1. Repository orientation and working agreements
