@@ -1,8 +1,8 @@
 # ADR-0085: Portfolio-wide ongoing TFSA management
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
-**Status:** Scope, duration and manual-holding handover accepted; detailed design continues,
-implementation incomplete. Manual ownership was clarified September 23.
+**Status:** Scope, duration and manual-holding handover accepted; common-path implementation resumed
+September 23 at the operator's request. Implementation incomplete; unusual same-security cases deferred.
 **Domains:** architecture, risk-management, user-interface
 **Related:** ADR-0062, ADR-0073, ADR-0079–0084
 
@@ -65,8 +65,10 @@ assistant's proposal to wait until the total managed count falls below three.
 
 All actual holdings still belong to the same TFSA cash and risk accounting. Extra holdings consume
 real funds and their gains/losses affect account-wide checks. This role split does not authorize
-bypassing unresolved orders, stale facts, cash/sizing limits or loss holds. Same-security ownership,
-capital-allocation implications and the effective transfer boundary still need detailed design.
+bypassing unresolved orders, stale facts, cash/sizing limits or loss holds. The operator will not manually
+add shares of a stock already among the strategy's positions and asked to stop expanding this edge case.
+Split ownership of one security is outside the first version; preserve existing conflict checks if an
+unexpected overlap occurs. Capital and effective-transfer checks remain necessary for actual handover.
 
 This adds explicit manual ownership inside the permanent TFSA. A holding designated manual is not
 implicitly enrolled in the selected strategy. Applying ADR-0079's promotion exits to such holdings,
@@ -75,11 +77,16 @@ do not silently classify older holdings or rewrite historical attribution. Cash 
 still cover the actual TFSA. Automatic entry/sizing and account loss rules do not change implicitly;
 the explicit real-account manual exception must remain visible in history and performance attribution.
 
-The operator also requested regular account synchronization while retaining **Refresh now**. Five
-minutes is the proposed background interval. Shared account/order updates, immediate post-trade
-refresh, final order preflight, uncertain-order recovery and stale/error handling remain design details;
-background polling is not a substitute for the existing execution freshness checks. No timer or broker
-automation was enabled by this design decision.
+The operator also requested regular account synchronization while retaining **Refresh now**. The first
+source implementation uses a five-minute interval while connected and the app is open, independent of
+the visible tab. The display and managed-account source reuse the same reconciliation/import workflow;
+only an already reviewed account link may append saved history. Return the final reconciled read to
+the display instead of fetching independent balances. Existing post-trade refresh uses this same path.
+Background ticks defer while an order runs. Manual/post-trade requests during a read coalesce into one
+later read; failures retain prior history and back off at 5/10/20/30 minutes. Logout or shutdown cancels
+in-flight work and replaced-account/login results are discarded. Pending orders and conflicts remain
+visible blocks; polling does not recover or resubmit an uncertain order, clear holds, qualify risk
+inputs or replace fresh order preflight. This source change is not installed or operationally enabled.
 
 ## Relationship to the first-session implementation
 
@@ -97,13 +104,14 @@ Their September 22 installation does not create a baseline, assignment or enable
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes, pause/resume behavior, restart eligibility and replacement transitions.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
-trade ownership, automatic continuation after known in-app orders, same-security ownership, transfer
-boundaries and detailed polling behavior remain open/proposed in the draft. Do not silently extend the current blanket
+trade ownership, automatic continuation after known in-app orders and transfer boundaries remain
+open/proposed in the draft; same-security split ownership is deferred. Do not silently extend the current blanket
 invalidated-review behavior into the general workflow or assume a five-minute-old snapshot can authorize
 an order.
 
-Before implementation, express these transitions as acceptance criteria, including multi-day recovery,
-switching between families and retained-position protection. Native cash/opening evidence, SQL runtime
+Proceed with the agreed common path under the original implementation request. Express remaining
+consequential transitions as acceptance criteria, including multi-day recovery, switching between
+families and retained-position protection. Native cash/opening evidence, SQL runtime
 recovery, broker lifecycle verification and explicit activation approval remain required.
 
 ## Alternatives and consequences

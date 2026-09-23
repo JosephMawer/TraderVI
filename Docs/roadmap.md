@@ -23,8 +23,9 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    cash adjustments and the broker projection/synchronization/protection/durable-session source path
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
    and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
-   and SQL runtime recovery still need verification. Finish ongoing-promotion design, including manual
-   holding handover constraints, shared regular broker refresh and known in-app order reconciliation, then extend both
+   and SQL runtime recovery still need verification. Shared regular account/history refresh is now source/tested;
+   native rollout remains pending. The operator ended the edge-case design pass and deferred same-stock
+   manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
    families and replacement/restart transitions, then verify the host before actual execution approval. Follow the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.

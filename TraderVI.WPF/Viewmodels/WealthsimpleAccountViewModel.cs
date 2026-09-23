@@ -19,19 +19,29 @@ public interface IWealthsimpleAccountSource : INotifyPropertyChanged
     Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(WealthsimpleTfsaAccount account, CancellationToken ct);
 }
 
-// Broker display only. There is deliberately no reference to a SQL repository, strategy or order workflow.
+// Scheduling/presentation only; the host injects the shared reconciliation/history workflow.
 public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly IWealthsimpleAccountSource source;
     private readonly TimeProvider clock;
     private readonly CancellationTokenSource lifetime = new();
+    private readonly Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize;
+    private readonly Func<bool> canSynchronize;
+    private CancellationTokenSource? activeRead;
+    private TaskCompletionSource? refreshCompletion;
+    private bool refreshRequested;
+    private DateTimeOffset nextRefresh;
+    private int failures;
     private long revision;
     private bool attempted, disposed;
     private string message = "Sign in with Wealthsimple to load your self-directed TFSA.";
     public event PropertyChangedEventHandler? PropertyChanged;
-    public WealthsimpleAccountViewModel(IWealthsimpleAccountSource source, TimeProvider? clock = null)
+    public WealthsimpleAccountViewModel(IWealthsimpleAccountSource source, TimeProvider? clock = null,
+        Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize = null,
+        Func<bool>? canSynchronize = null)
     {
         this.source = source; this.clock = clock ?? TimeProvider.System;
+        this.synchronize = synchronize; this.canSynchronize = canSynchronize ?? (() => true);
         revision = source.SessionRevision;
         source.PropertyChanged += ConnectionChanged;
     }
@@ -85,32 +95,79 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
     public string ReturnAsOf => Snapshot?.ReturnAsOf is { } at ? $"Return as of {TradingAccountOverview.Local(at.UtcDateTime)}" : "Return valuation time was not supplied.";
     public string HoldingsStatus => Snapshot == null ? "Holdings have not been loaded." : Snapshot.Holdings.Count == 0 ? "No holdings in this TFSA." : $"{Snapshot.Holdings.Count} holdings · values include their currency.";
 
-    public async Task RefreshAsync()
+    public Task PollAsync()
     {
-        if (disposed || IsBusy || !source.IsConnected) return;
+        Notify(); // Refresh the visible age even while waiting or disconnected.
+        return !disposed && !IsBusy && source.IsConnected && canSynchronize() && clock.GetUtcNow() >= nextRefresh
+            ? RefreshAsync() : Task.CompletedTask;
+    }
+    public Task RefreshAsync()
+    {
+        if (disposed || !source.IsConnected) return Task.CompletedTask;
+        if (refreshCompletion != null)
+        {
+            // A post-trade/manual request needs a read AFTER the current one, not its older result.
+            refreshRequested = true;
+            return refreshCompletion.Task;
+        }
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        refreshCompletion = completion;
+        _ = RefreshLoopAsync(completion);
+        return completion.Task;
+    }
+    private async Task RefreshLoopAsync(TaskCompletionSource completion)
+    {
+        try
+        {
+            do
+            {
+                refreshRequested = false;
+                await RefreshOnceAsync();
+            } while (!disposed && source.IsConnected && (refreshRequested || !attempted));
+        }
+        finally { refreshCompletion = null; completion.TrySetResult(); }
+    }
+    private async Task RefreshOnceAsync()
+    {
         var expected = source.SessionRevision;
+        bool succeeded = false;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+        activeRead = cancellation;
         IsBusy = true; attempted = true; PendingOrders = null; rowSnapshot = null; holdingRows = [];
         message = "Reading your TFSA from Wealthsimple…"; Notify();
         try
         {
             if (Accounts.Count == 0)
             {
-                var catalog = await source.ReadTfsaAccountsAsync(lifetime.Token);
+                var catalog = await source.ReadTfsaAccountsAsync(cancellation.Token);
                 if (!IsCurrent(expected)) return;
                 if (catalog.Status != WealthsimpleReadStatus.Success || catalog.Data == null) { Failure(catalog.Status, catalog.Stage); return; }
                 Accounts = catalog.Data;
                 selected = Accounts.Count == 1 ? Accounts[0] : null;
-                if (selected == null) { message = Accounts.Count == 0 ? "No open self-directed TFSA was found." : "Choose which self-directed TFSA to load."; return; }
+                if (selected == null) { succeeded = true; message = Accounts.Count == 0 ? "No open self-directed TFSA was found." : "Choose which self-directed TFSA to load."; return; }
             }
             if (selected == null) { message = "Choose a self-directed TFSA."; return; }
-            var result = await source.ReadTfsaSnapshotAsync(selected, lifetime.Token);
+            if (synchronize != null)
+            {
+                var synchronized = await synchronize(selected, expected, cancellation.Token);
+                if (!IsCurrent(expected)) return;
+                if (!ReferenceEquals(synchronized.Read.Snapshot.Account, selected) ||
+                    !ReferenceEquals(synchronized.Read.PendingOrders.Account, selected))
+                    throw new InvalidOperationException("The refreshed account changed.");
+                Snapshot = synchronized.Read.Snapshot; PendingOrders = synchronized.Read.PendingOrders;
+                message = synchronized.Saved != null ? "Account and saved history updated. Automatic refresh every five minutes."
+                    : "Account read; saved history needs attention. " + string.Join(" ", synchronized.Blocks);
+                succeeded = true;
+                return;
+            }
+            var result = await source.ReadTfsaSnapshotAsync(selected, cancellation.Token);
             if (!IsCurrent(expected)) return;
             if (result.Status == WealthsimpleReadStatus.Success && result.Data != null)
             {
                 Snapshot = result.Data; message = "Loaded from Wealthsimple. Use Refresh to update.";
-                var orders = await source.ReadTfsaPendingOrdersAsync(selected, lifetime.Token);
+                var orders = await source.ReadTfsaPendingOrdersAsync(selected, cancellation.Token);
                 if (!IsCurrent(expected)) return;
-                if (orders.Status == WealthsimpleReadStatus.Success && orders.Data != null) PendingOrders = orders.Data;
+                if (orders.Status == WealthsimpleReadStatus.Success && orders.Data != null) { PendingOrders = orders.Data; succeeded = true; }
                 else if (orders.Status is WealthsimpleReadStatus.NotAuthenticated or WealthsimpleReadStatus.Forbidden or WealthsimpleReadStatus.AccountUnavailable)
                     Failure(orders.Status, orders.Stage);
                 else message += " Pending orders could not be verified; transition review is blocked.";
@@ -118,12 +175,18 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
             else Failure(result.Status, result.Stage);
         }
         catch (OperationCanceledException) { if (IsCurrent(expected)) message = "Account refresh cancelled."; }
-        catch { if (IsCurrent(expected)) message = "Account data could not be loaded. Try Refresh again."; }
+        catch { if (IsCurrent(expected)) message = "Account refresh could not complete. Previous saved history is retained; new orders still need fresh checks. Use Refresh to retry."; }
         finally
         {
+            activeRead = null;
+            if (IsCurrent(expected))
+            {
+                failures = succeeded ? 0 : Math.Min(failures + 1, 4);
+                var delay = TimeSpan.FromMinutes(succeeded ? 5 : Math.Min(30, 5 * Math.Pow(2, failures - 1)));
+                nextRefresh = clock.GetUtcNow() + delay;
+                if (!succeeded) message += $" Automatic retry in {delay.TotalMinutes:0} minutes.";
+            }
             IsBusy = false; Notify();
-            // A replacement login may have completed while an older request was being discarded.
-            if (!disposed && !attempted && source.IsConnected) _ = RefreshAsync();
         }
     }
     private bool IsCurrent(long expected) => !disposed && source.HasSession && expected == source.SessionRevision;
@@ -147,14 +210,20 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
         if (disposed) return;
         if (revision != source.SessionRevision || !source.HasSession)
         {
+            activeRead?.Cancel();
             revision = source.SessionRevision; Accounts = []; selected = null; Snapshot = null; PendingOrders = null; attempted = false;
+            failures = 0; nextRefresh = default;
             message = "Sign in with Wealthsimple to load your self-directed TFSA.";
         }
         Notify();
         if (source.IsConnected && !attempted) _ = RefreshAsync();
     }
     private void Notify() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-    public void Dispose() { disposed = true; source.PropertyChanged -= ConnectionChanged; lifetime.Cancel(); lifetime.Dispose(); }
+    public void Dispose()
+    {
+        if (disposed) return;
+        disposed = true; source.PropertyChanged -= ConnectionChanged; lifetime.Cancel(); lifetime.Dispose();
+    }
 }
 
 public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, WealthsimpleTfsaSnapshot? snapshot = null, long revision = 0)

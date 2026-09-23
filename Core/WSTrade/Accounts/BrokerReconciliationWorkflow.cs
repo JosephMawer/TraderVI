@@ -23,12 +23,22 @@ public interface IBrokerReconciliationJournal
     void SaveReconciliation(BrokerAccountReconciliation reconciliation);
 }
 
+/// <summary>The display and reconciliation share these exact completed broker reads.</summary>
+public sealed record BrokerAccountRead(BrokerAccountReconciliation Reconciliation,
+    WealthsimpleTfsaSnapshot Snapshot, WealthsimplePendingOrders PendingOrders)
+{
+    public override string ToString() => "Broker account read (financial data omitted)";
+}
+
 /// <summary>Explicit read/reconcile action. Shares the manual-order gate; contains no order-submission or SQL dependency.</summary>
 public sealed class BrokerReconciliationWorkflow(IBrokerReconciliationSource source, IManualBuyJournal orders,
     IBrokerReconciliationJournal journal, SemaphoreSlim orderGate, TimeProvider? time = null)
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
-    public async Task<BrokerAccountReconciliation> RefreshAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default)
+    public async Task<BrokerAccountReconciliation> RefreshAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default) =>
+        (await ReadAsync(account, revision, ct)).Reconciliation;
+
+    public async Task<BrokerAccountRead> ReadAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default)
     {
         if (!await orderGate.WaitAsync(0, ct)) throw new InvalidOperationException("An order or reconciliation is already running.");
         try
@@ -58,7 +68,7 @@ public sealed class BrokerReconciliationWorkflow(IBrokerReconciliationSource sou
                 "Broker history is missing or contradicts an order already observed in the saved manual journal.").Distinct().ToArray() };
             ct.ThrowIfCancellationRequested();
             journal.SaveReconciliation(result);
-            return result;
+            return new(result, snapshot, pending);
         }
         finally { orderGate.Release(); }
         void CheckSession()

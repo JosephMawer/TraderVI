@@ -27,17 +27,20 @@ public partial class TradingRecommendationsView : UserControl
     private WealthsimpleConnection? brokerConnection;
     private Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcileAccount;
     public void InitializeWealthsimple(WealthsimpleConnection connection,
-        Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null)
+        Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null,
+        Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountSynchronization>>? synchronize = null,
+        Func<bool>? canSynchronize = null)
     {
         broker?.Dispose();
         brokerConnection = connection;
         reconcileAccount = reconcile;
-        broker = new WealthsimpleAccountViewModel(connection);
+        broker = new WealthsimpleAccountViewModel(connection, synchronize: synchronize, canSynchronize: canSynchronize);
         BrokerPanel.DataContext = broker;
         _ = broker.RefreshAsync();
     }
     public void StopWealthsimple() => broker?.Dispose();
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
+    public Task PollWealthsimpleAsync() => broker?.PollAsync() ?? Task.CompletedTask;
     public bool IsCurrentManualSellSelection(Core.WSTrade.Orders.ManualSellSelection selection) => broker?.IsCurrentSellSelection(selection) == true;
     public bool IsCurrentBrokerAccount(Core.WSTrade.Accounts.WealthsimpleTfsaAccount account) =>
         broker?.CanRefresh == true && ReferenceEquals(broker.SelectedAccount, account);

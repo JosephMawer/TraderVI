@@ -12,7 +12,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Breakout Top 3 is an initial candidate, not the product scope.
 - **Accepted September 23:** manual purchases through TraderVI stay outside the active strategy by
   default. Add a later holding handover action and an optional purchase-dialog strategy-management choice.
-  Regular account synchronization with manual refresh is requested; five minutes is the proposed interval.
+  Regular account synchronization with manual refresh is requested; the first source implementation
+  uses five minutes. Native rollout remains pending.
 - **Accepted direction:** manual handover may exceed the normal position count (Breakout 3 can manage
   four). Apply existing sell/protection rules and preserve explicit manual attribution; no forced exit
   solely to restore the count. This replaces the assistant's proposed wait-for-a-slot restriction.
@@ -20,11 +21,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   extras receive sell/protection management only. Extras do not occupy automatic slots; selling one
   creates no replacement authority. This rejects counting extras against the normal automatic target.
   Actual cash, account-wide valuation/risk and existing sizing rules still apply.
+- **Deferred September 23:** same-stock manual additions and split ownership. The operator will not
+  manually add to a strategy holding and asked to stop the edge-case design pass. Preserve conflict
+  checks; resume the main implementation without building a special ownership mechanism.
 - **Open:** direct-Wealthsimple trade ownership, manual holdings at promotion/switching, shared
-  capital/limits, same-symbol ownership, transfer timing/protection and re-entry after a manual sale.
-- **Proposed polling detail:** one shared five-minute account/history refresh while connected,
-  immediate post-trade recovery, fresh final preflight, no overlapping refreshes and visible stale/failure
-  state. Source inspection found connection/selection/manual refresh and a stale warning, but no account timer.
+  capital/limits, transfer timing/protection and re-entry after a manual sale.
+- **Polling implemented/tested, not installed:** shared five-minute account/history refresh while
+  connected, manual/post-trade refresh coalescing, cancellation and bounded backoff. Only reviewed
+  existing links update; original-order recovery and fresh final preflight remain separate requirements.
 - **Revised proposal:** reconcile known in-app orders and continue automatically when ownership,
   account and risk checks pass. Pending/uncertain orders retain reservations; human review addresses
   unresolved facts or authority. The earlier blanket manual-fill review recommendation was too broad.

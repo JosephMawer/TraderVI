@@ -4,7 +4,9 @@
 
 **Continuing draft:** the accepted scope/duration and September 23 manual-handover subset is recorded in
 [ADR-0085](../adr/0085-portfolio-wide-ongoing-tfsa-management.md). The remaining workflow below is not
-an accepted ADR, implementation-ready specification or operational authorization. The operator
+an accepted ADR or operational authorization. On September 23 the operator ended the edge-case design
+pass and asked to refocus; the agreed common path is ready for bounded implementation under the original
+request. Remaining consequential transitions still need acceptance criteria. The operator
 separately authorized necessary database migrations; 035/039/040 were installed and verified at
 23:34 Toronto. That installation creates no real-account baseline or trading authority.
 
@@ -20,17 +22,18 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted, existing contracts | One active owner, retain overlaps/protection, reconcile required exits before buys, preserve references/holds and original uncertain order IDs. |
 | Open — refined September 23 | Distinguish manual orders placed through TraderVI from orders placed directly in Wealthsimple; the operator wants both cases addressed. Recommend automatic reconciliation and continuation for known in-app orders when ownership and risk checks pass; reserve human review for unresolved facts/authority, rather than every manual fill. |
 | Accepted September 23 | Manual purchases through TraderVI stay outside the active strategy by default. Provide a later holding action to hand over management and an optional purchase-dialog choice targeting the active strategy. |
-| Accepted request; interval provisional | Add regular broker-account synchronization and retain immediate manual refresh. Five minutes is the proposed background interval; fresh order checks remain separate. |
+| Accepted request; first implementation | Shared broker-account/history synchronization every five minutes while connected, plus immediate manual/post-trade refresh. Fresh order checks remain separate; rollout is pending. |
 | Accepted direction, September 23 | Explicit manual handover can add an extra managed holding: Breakout 3 may manage four. Apply existing sell/protection rules; do not force an exit solely to restore the count. Record the manual exception separately from strategy-generated selection. |
 | Accepted clarification, September 23 | Keep three normal strategy positions plus manual extras managed for exits only. Extras do not consume automatic position slots or block normal rotation by their count; they receive applicable sell/protection rules without automatic additions or replacement. Actual cash and account risk still constrain all trades. |
 | Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
+| Deferred September 23 | Same-stock manual additions/split ownership. The operator will not manually add to a strategy holding and asked to return to the main goal; preserve existing conflict checks if it occurs unexpectedly. |
 
 **Implementation gap:** the current broker workflow expires after one session, refuses replacement
 of an existing session, and transfers protection only into Daily Shadow. Its exact comparison-profile
 handling is reusable; it is not an implementation of every portfolio family. No new execution logic
-was added during this design exchange.
+was added during the design exchange; shared account synchronization is the first subsequent code increment.
 
 **September 23 manual-trade clarification:** choosing who places
 an order and choosing who subsequently manages the holding are separate decisions. A manually chosen
@@ -55,9 +58,9 @@ automatic continuation or separate protection behavior. No execution code change
 
 With manual holdings accepted, define their treatment during promotion/switching explicitly: the
 existing non-overlap exit contract does not yet exempt them. Also settle shared cash/sizing and position
-limits, protection responsibility, same-symbol ownership and whether manually selling a managed stock
-allows later strategy re-entry. Recommend one owner per security for the first version; a manual add to
-a managed security must not silently create a second owner. These details remain open and cannot waive
+limits, protection responsibility and whether manually selling a managed stock allows later strategy
+re-entry. Keep one owner per security for the first version; do not add a split-ownership mechanism for
+the deferred same-stock case. The remaining details cannot waive
 existing account-wide risk rules.
 
 ### Handover controls and account synchronization — September 23 draft
@@ -72,10 +75,10 @@ operation under its existing controls. Preserve pending fills/intent if a post-f
 The handover preview should show actual quantity/cost, incoming owner, carried protection, count exception
 and compatibility blocks, and any immediate exit the incoming rules would require. Keep the existing
 owner responsible until a durable transfer succeeds. Handover itself creates no broker fill. Partial-fill
-transfer timing, shared-security ownership and manual exclusions on a later
+transfer timing and manual exclusions on a later
 portfolio switch remain open; the presence of a button does not waive these checks.
 
-Recommended synchronization behavior (not yet implemented or activated):
+Synchronization acceptance criteria (first source increment implemented/tested; not installed):
 
 - Poll every five minutes while the app is open and the account is connected, independently of the
   visible tab; refresh on connection/reconnection and retain **Refresh now**.
@@ -90,11 +93,14 @@ Recommended synchronization behavior (not yet implemented or activated):
   after rate limits. A failed read keeps the last valid snapshot visibly stale; it cannot clear holdings,
   orders or risk holds or qualify new risk. Show the last successful synchronization time and failures.
 
-Source inspection: `WealthsimpleAccountViewModel` loads on connection/account selection and explicit
-refresh, with a five-minute stale warning; it has no recurring account timer. The source display is
-separate from linked-history import. This draft must join them deliberately rather than adding a timer
-that only repaints holdings. Manual and external trade attribution and the detailed polling/recovery
-failure policy remain part of the implementation acceptance criteria.
+The shared `BrokerAccountSynchronizationWorkflow` now appends only already-linked, freshly rechecked
+history and returns the same final broker read to the display. Both desktop and managed-account source
+reuse it. The app's separate clock checks five-minute refresh eligibility independent of the visible tab;
+overlapping explicit requests schedule one follow-up read and failure retries back off at 5/10/20/30
+minutes. Logout/shutdown cancels reads. Conflicting or uncertain orders preserve saved history and show
+blocks. Original-order recovery remains in its existing workflows; polling cannot clear those reservations.
+Manual/external attribution and automatic continuation after in-app fills remain unfinished. No app
+restart, native poll or SQL history write ran during this source increment.
 
 **Accepted role separation:** the strategy's own positions follow its normal entry/addition/rotation
 rules and occupy its automatic slots. Manually added extras receive its applicable sell/protection
@@ -116,12 +122,14 @@ for account valuation, protective evaluation, candidate ownership and automatic 
 separate role-aware decisions over one reconciled account book: value every actual holding, protect
 strategy positions plus enrolled extras, and count only normal strategy positions toward automatic
 capacity. Merely filtering extras out of the engine input would lose their value and protection.
-Same-security ownership, automatic sizing with capital tied up in extras, transfer timing and role
+Automatic sizing with capital tied up in extras, transfer timing and role
 behavior during a strategy switch still require coherent acceptance criteria.
 
-The draft is ready for continued dialogue, not implementation handoff. Complete the open transitions
-first, then express acceptance cases for Daily Shadow and Delphi Live, multi-day continuation, cross-family
-switching, overlap protection, partial/unknown fills, outside changes and restart. Reuse existing broker,
+The operator asked to end the edge-case design pass and resume the main implementation. Do not gate the
+agreed common path on a split-ownership design. Next qualify native risk inputs and installed storage
+runtime, then complete ongoing assignment and both family adapters. Express acceptance cases for
+multi-day continuation, cross-family switching, overlap protection, partial/unknown fills, outside
+changes and restart as each consequential transition is implemented. Reuse existing broker,
 reconciliation, risk and durable-order components. Qualification and a concrete activation review precede
 any explicitly approved live session; the September 23 target cannot bypass missing evidence.
 

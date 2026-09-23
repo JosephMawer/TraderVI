@@ -45,7 +45,11 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Agree manual buys remain outside the active strategy by default, with optional purchase-dialog
   handover and a later holding action, including explicitly adopted extra positions managed under
   existing sell rules without consuming automatic strategy slots (Sep 23, ADR-0085). Controls and role
-  separation are not implemented; shared-security, capital and transfer details remain open.
+  separation are not implemented; capital and transfer checks remain. Same-stock manual additions and
+  split ownership are deferred at the operator's request; continue the agreed common path.
+- [x] Implement/test shared account/history synchronization, five-minute background scheduling,
+  manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
+  no native rollout or automatic order recovery implied.
 
 ### Left to do — development order
 
@@ -65,16 +69,17 @@ record them. A prepared migration or passing test never proves broker readiness.
   closed/reopened holdings. Preserve linked history, installed migration 034 and existing protections.
 - [ ] **4. Verify synchronization natively.** Offline tests cover manual/external changes, partial/new fills, stale or
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
-  Design and implement the requested shared recurring account/history refresh (proposed five minutes),
-  immediate post-trade recovery and manual refresh; preserve fresh preflight and visible stale/error states.
+  Shared recurring account/history refresh (five minutes), manual/post-trade refresh and visible
+  stale/error states are source/tested. Verify native cadence, rate limits and original-order recovery;
+  preserve fresh preflight. The running app has not been replaced with this build.
 - [ ] **5. Verify actual protection handover.** Source transfer/replay is tested. Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
 - [ ] **6. Verify the supervised execution host.** Source persists the exact approved strategy and transition state;
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
-- [ ] **6a. Complete portfolio-wide ongoing management.** Finish the guided design for outside changes,
-  separate automatic positions from extras managed for exits, same-symbol/transfer boundaries and known in-app orders,
+- [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
+  separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
   pause/resume, restart and replacement. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend current Daily Shadow-only, single-session execution
@@ -83,8 +88,10 @@ record them. A prepared migration or passing test never proves broker readiness.
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate next increment:** finish the ongoing-promotion design while qualifying the native
-cash-event/boundary-book evidence producer and opening values. Storage is installed; SQL runtime
+**Immediate next increment:** qualify the native cash-event/boundary-book evidence producer and
+opening values, alongside the installed SQL runtime recovery rehearsal. Shared background synchronization
+is source/tested; next extend durable assignment and family adapters without reopening deferred rare cases.
+Storage is installed; SQL runtime
 recovery rehearsal remains distinct from the completed schema/immutability checks.
 The orchestration and production composition exist; they cannot manufacture those inputs.
 Then complete the fresh financial activation packet and supervised host rollout. See

@@ -1303,3 +1303,4 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Can a five-minute background refresh replace the account checks immediately before an order? **A:** No. Account changes can happen between polls; current cash, holdings, reservations and order state still need verification. (ADRs 0079, 0084–0085)
 
 - **Q:** Does a manual extra consume one of Breakout 3's automatic positions? **A:** No. It receives the strategy's sell/protection rules while the strategy manages its own three positions. The extra still uses cash and contributes to TFSA risk; selling it creates no automatic replacement. (ADR-0085)
+- **Q:** Does a successful background account read resolve an uncertain order or establish risk references? **A:** No. It refreshes observed facts and can append already-linked history only when reconciliation passes. The original order and risk workflows still own recovery and reference checks. (ADR-0085)

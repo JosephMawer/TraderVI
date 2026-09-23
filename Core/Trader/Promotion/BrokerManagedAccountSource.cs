@@ -46,11 +46,10 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
             else await sells.CheckOrderAsync(order.RequestId, ct);
         }
         long revision = sessionRevision();
-        Task<BrokerAccountReconciliation> Read(CancellationToken token) => reconciliation.RefreshAsync(brokerAccount, revision, token);
-        var plan = await imports.PreviewAsync(await Read(ct), ct);
-        if (!plan.CanImport || plan.PreviousRequestId is null)
-            throw new InvalidOperationException("Use the reviewed permanent account link and resolve broker history before strategy synchronization.");
-        var saved = await imports.ApplyAsync(plan, Guid.NewGuid(), "Managed strategy synchronization", Read, ct);
+        var synchronized = await new BrokerAccountSynchronizationWorkflow(imports).RefreshAsync(
+            token => reconciliation.ReadAsync(brokerAccount, revision, token), ct);
+        var saved = synchronized.Saved ?? throw new InvalidOperationException(
+            "Use the reviewed permanent account link and resolve broker history before strategy synchronization.");
         var baselineState = await baselines.ReadAsync(ct);
         var baseline = baselineState.RiskHistory.ExistingBaseline ?? throw new InvalidOperationException("Establish the reviewed initial risk references first.");
         var state = await continuationStore.ReadAsync(baseline.BaselineId, ct);

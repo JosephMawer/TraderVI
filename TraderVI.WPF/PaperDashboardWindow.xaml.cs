@@ -28,6 +28,7 @@ public partial class PaperDashboardWindow : Window
     private readonly WealthsimpleConnection wealthsimple = new(new WindowsWealthsimpleSessionStore());
     private readonly ManualBuyCoordinator manualBuys;
     private readonly DispatcherTimer authTimer = new() { Interval = TimeSpan.FromSeconds(10) };
+    private readonly DispatcherTimer brokerTimer = new() { Interval = TimeSpan.FromSeconds(30) };
     private WealthsimpleConnectionWindow? connectionWindow;
     private DateTime nextAutomaticPollLocal;
 
@@ -37,7 +38,8 @@ public partial class PaperDashboardWindow : Window
         InitializeComponent();
         DataContext = viewModel;
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
-        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync);
+        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
+            manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
         CommandBindings.Add(new CommandBinding(ManualBuyCommands.Open, async (_, e) =>
         {
             if (e.Parameter is not Core.WSTrade.Orders.ManualBuyOrigin origin) return;
@@ -94,7 +96,10 @@ public partial class PaperDashboardWindow : Window
             try { await wealthsimple.StartAsync(shutdown.Token); }
             catch (OperationCanceledException) { }
             if (!shutdown.IsCancellationRequested) authTimer.Start();
+            if (!shutdown.IsCancellationRequested) brokerTimer.Start();
         };
+        brokerTimer.Tick += async (_, _) => await TradingRecommendationsTabView.PollWealthsimpleAsync();
+        Closed += (_, _) => brokerTimer.Stop();
         authTimer.Tick += async (_, _) =>
         {
             try { await wealthsimple.CheckAsync(ct: shutdown.Token); }
