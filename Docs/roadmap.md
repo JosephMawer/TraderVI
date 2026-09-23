@@ -27,6 +27,8 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    native rollout remains pending. The operator ended the edge-case design pass and deferred same-stock
    manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
    families and replacement/restart transitions, then verify the host before actual execution approval. Follow the
+   accepted stop behavior: no further automatic purchases while ordinary exits continue, retaining the
+   existing Market sell all row action. The current full execution pause is not that purchase control. See the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
 2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening

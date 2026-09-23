@@ -50,6 +50,8 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Implement/test shared account/history synchronization, five-minute background scheduling,
   manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
   no native rollout or automatic order recovery implied.
+- [x] Agree stopping new automatic purchases while ordinary exits continue, retaining Market sell all
+  on real holding rows (Sep 23, ADR-0085). This is a design decision; current Paused also stops managed sells.
 
 ### Left to do — development order
 
@@ -80,7 +82,8 @@ record them. A prepared migration or passing test never proves broker readiness.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
   separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
-  pause/resume, restart and replacement. The current
+  the accepted purchase-only stop/resume control, restart and replacement. Reuse the existing manual
+  row sale and verify no replacement buys while stopped. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend current Daily Shadow-only, single-session execution
   to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.

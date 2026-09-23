@@ -41,8 +41,11 @@ explicitly permits manually adopted extras under existing sell/protection rules,
 strategy's normal automatic position slots. Breakout 3 continues managing its own three positions;
 extras neither consume those slots nor receive automatic additions/replacements. Keep the manual
 exception identifiable and all holdings in actual account valuation; automatic buying limits, account-wide
-risk rules and paper attribution do not change implicitly. Detailed manual
-ownership, handover compatibility and regular broker synchronization remain in design; no new order
+risk rules and paper attribution do not change implicitly. September 23 also accepts a strategy control
+that stops new automatic purchases while ordinary sell/protection rules continue, plus the existing
+manual Market sell all row action. The current supervised-session Paused phase blocks automatic exits
+too; the new purchase-only control still needs implementation. Manual ownership/handover compatibility
+remain unfinished; shared recurring synchronization is source/tested but not installed. No new order
 or automation authority follows from these decisions.
 
 [ADR-0080](adr/0080-reviewed-broker-history-import.md) stores reviewed broker observations in separate

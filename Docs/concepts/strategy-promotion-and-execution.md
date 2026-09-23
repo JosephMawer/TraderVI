@@ -6,7 +6,8 @@
 [ADR-0085](../adr/0085-portfolio-wide-ongoing-tfsa-management.md). The remaining workflow below is not
 an accepted ADR or operational authorization. On September 23 the operator ended the edge-case design
 pass and asked to refocus; the agreed common path is ready for bounded implementation under the original
-request. Remaining consequential transitions still need acceptance criteria. The operator
+request. The operator resumed guided dialogue for the next priorities and accepted the stop-control
+behavior below. Remaining consequential transitions still need acceptance criteria. The operator
 separately authorized necessary database migrations; 035/039/040 were installed and verified at
 23:34 Toronto. That installation creates no real-account baseline or trading authority.
 
@@ -25,7 +26,9 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted request; first implementation | Shared broker-account/history synchronization every five minutes while connected, plus immediate manual/post-trade refresh. Fresh order checks remain separate; rollout is pending. |
 | Accepted direction, September 23 | Explicit manual handover can add an extra managed holding: Breakout 3 may manage four. Apply existing sell/protection rules; do not force an exit solely to restore the count. Record the manual exception separately from strategy-generated selection. |
 | Accepted clarification, September 23 | Keep three normal strategy positions plus manual extras managed for exits only. Extras do not consume automatic position slots or block normal rotation by their count; they receive applicable sell/protection rules without automatic additions or replacement. Actual cash and account risk still constrain all trades. |
-| Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
+| Accepted September 23 | Stop further automatic purchases while existing managed holdings continue under normal sell/protection rules. Retain Market sell all on each real holding row using the existing manual sell workflow. |
+| Proposed presentation | Stop new buys / Resume buying, with New buys stopped · exits active as the status. Resume removes only the operator buy restriction; existing account/risk checks still apply. |
+| Open | Automatic resumption after app restart and durable recovery of the selected strategy and buying mode. Recommend restoring the same mode after fresh checks, never turning stopped buys back on merely because the app reopened. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
 | Deferred September 23 | Same-stock manual additions/split ownership. The operator will not manually add to a strategy holding and asked to return to the main goal; preserve existing conflict checks if it occurs unexpectedly. |
@@ -62,6 +65,23 @@ limits, protection responsibility and whether manually selling a managed stock a
 re-entry. Keep one owner per security for the first version; do not add a split-ownership mechanism for
 the deferred same-stock case. The remaining details cannot waive
 existing account-wide risk rules.
+
+### Stop control and row exits — September 23 accepted behavior
+
+The control stops automatic purchases, including additions and replacements, while the active strategy
+continues its ordinary exits for the holdings it manages. A stop is not a liquidation request. Keep the
+existing owner, risk references and protection; outstanding orders still require original-ID recovery.
+The manual row action remains independent of this buying mode. Reuse **Market sell all** from the
+current broker holdings panel, retaining exact displayed quantity, fresh checks, one-click intent and
+the existing whole-share CAD-equity scope. Unsupported/pending/stale cases explain why the action is
+unavailable; do not add a second confirmation or a new broker implementation.
+
+Acceptance cases for the ongoing workflow: no Buy/Add submission after the stop takes effect; normal
+sell rules still run; a confirmed sale while stopped causes no replacement buy; a manual row sale uses
+the same order fence and reconciles before further action; resume cannot clear account risk holds.
+Pending submissions are recovered, never assumed cancelled or sent again. Current `Paused` in the
+first-session engine also blocks automatic exits; the new purchase control is not implemented yet.
+Restart restoration remains the next decision. See ADR-0085 for the authoritative accepted scope.
 
 ### Handover controls and account synchronization — September 23 draft
 

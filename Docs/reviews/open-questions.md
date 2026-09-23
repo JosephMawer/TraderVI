@@ -34,8 +34,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   unresolved facts or authority. The earlier blanket manual-fill review recommendation was too broad.
   Current first-session source still invalidates any changed fill outside its own session order list,
   including manual in-app orders; this is a source finding, not an operational test or accepted new rule.
-- **Open:** precise pause/resume and restart authority, replacement/cancellation, and recovery of
-  invalidated reviews. Preserve family rules, account holds, causal protection and original order IDs.
+- **Accepted September 23:** stopping prevents new strategy purchases while ordinary exits continue.
+  Retain the existing Market sell all row action for manual exits. Proposed labels: Stop new buys /
+  Resume buying; status: New buys stopped · exits active. Current supervised Paused blocks exits too,
+  so the accepted purchase control requires implementation, not relabelling.
+- **Next decision:** restore the same selected strategy and buying mode after an app restart, once
+  account/order checks pass? Recommended; reopening must not turn stopped buys back on.
+- **Open:** restart/resumption authority, replacement/cancellation, and recovery of invalidated reviews.
+  Preserve family rules, account holds, causal protection and original order IDs.
 - **Implementation gap:** Daily Shadow-only protection and one-session authority cannot yet satisfy
   the accepted ongoing scope. Follow the [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
 

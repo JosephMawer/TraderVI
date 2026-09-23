@@ -1,8 +1,8 @@
 # ADR-0085: Portfolio-wide ongoing TFSA management
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
-**Status:** Scope, duration and manual-holding handover accepted; common-path implementation resumed
-September 23 at the operator's request. Implementation incomplete; unusual same-security cases deferred.
+**Status:** Scope, duration, manual-holding handover and stopping new buys while exits continue accepted.
+Implementation incomplete; unusual same-security cases deferred. Guided dialogue resumed September 23.
 **Domains:** architecture, risk-management, user-interface
 **Related:** ADR-0062, ADR-0073, ADR-0079–0084
 
@@ -88,6 +88,33 @@ in-flight work and replaced-account/login results are discarded. Pending orders 
 visible blocks; polling does not recover or resubmit an uncertain order, clear holds, qualify risk
 inputs or replace fresh order preflight. This source change is not installed or operationally enabled.
 
+## Stop new buys and manual exits — accepted September 23
+
+For the initial ongoing-management workflow, the operator chose one simple stop control: prevent
+further automatic purchases while existing managed holdings continue through the strategy's normal
+sell and protection rules. This includes no automatic additions or replacement purchases; stopping
+does not liquidate holdings, remove their owner or alter exit rules. Manual holdings outside the
+strategy remain outside its automatic management. Existing submitted orders retain their identities
+and recovery requirements; pressing stop is not evidence that a broker order was cancelled.
+
+Use **Stop new buys** as the proposed label, with **New buys stopped · exits active** as the status.
+The complementary **Resume buying** action removes only this operator restriction; it cannot clear
+risk holds, skip account/order checks or change the selected strategy. Keeping this mode across app
+restarts is recommended; automatic restart/resumption authority is the next dialogue decision.
+
+The operator also reaffirmed **Market sell all** on each real holding row for an explicit immediate
+exit, whether buying is enabled or stopped and whether the holding is strategy-managed or manual.
+Reuse ADR-0077 and the existing `WealthsimpleAccountPanel` command: the click pins the entire displayed
+quantity, performs fresh checks and uses the durable manual-sell workflow without another quantity
+ticket or confirmation dialog. Keep the action visible and explain when it cannot run; this does not
+bypass market hours, unresolved orders, changed quantities or unsupported fractional holdings.
+The current client supports whole-share CAD equities; no broader broker contract is implied.
+
+This accepts product behavior, not live order/activation authority. The existing supervised-session
+`Paused` phase stops all new managed submissions, including exits, after synchronization/recovery.
+It must not simply be relabelled as **Stop new buys**. Implement and test a distinct purchase control
+within ongoing assignment while retaining existing execution blocks and session-authority limits.
+
 ## Relationship to the first-session implementation
 
 ADR-0084 describes the source implementation, which expires authority after one supervised session,
@@ -102,7 +129,8 @@ Their September 22 installation does not create a baseline, assignment or enable
 ## Open design and acceptance boundary
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
-tracks outside/manual changes, pause/resume behavior, restart eligibility and replacement transitions.
+tracks outside/manual changes, restart eligibility and replacement transitions. Stopping new buys
+while ordinary exits continue is accepted above; durable control and resume integration remain unimplemented.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
 trade ownership, automatic continuation after known in-app orders and transfer boundaries remain
 open/proposed in the draft; same-security split ownership is deferred. Do not silently extend the current blanket
