@@ -1298,3 +1298,6 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 
 - **Q:** Does promoting a portfolio copy its paper cash and positions into the TFSA? **A:** No. It selects the reviewed rules; real cash, holdings, costs and fills remain the account facts. (ADR-0085)
 - **Q:** Does ongoing strategy selection guarantee that it can trade tomorrow? **A:** No. Selection persists, but that day's account, source and risk checks still determine whether orders are allowed. (ADR-0085)
+
+- **Q:** Does handing a manual holding to the strategy create a new purchase? **A:** No. Actual shares, cost and entry history remain; management and protection responsibility transfer at an explicit boundary. (ADR-0085)
+- **Q:** Can a five-minute background refresh replace the account checks immediately before an order? **A:** No. Account changes can happen between polls; current cash, holdings, reservations and order state still need verification. (ADRs 0079, 0084–0085)

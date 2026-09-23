@@ -10,11 +10,20 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy
   managing across days until pause or switch, subject to each day's account/risk checks (ADR-0085).
   Breakout Top 3 is an initial candidate, not the product scope.
-- **Open, clarified September 23:** address manual trades through TraderVI and directly in Wealthsimple.
-  Recommend manual
-  management by default with an explicit compatible strategy-handover option; ownership choice is
-  awaiting the operator. Define manual holdings at promotion/switching, shared capital/limits,
-  same-symbol ownership, protection and strategy re-entry after a manual sale.
+- **Accepted September 23:** manual purchases through TraderVI stay outside the active strategy by
+  default. Add a later holding handover action and an optional purchase-dialog strategy-management choice.
+  Regular account synchronization with manual refresh is requested; five minutes is the proposed interval.
+- **Accepted direction:** manual handover may exceed the normal position count (Breakout 3 can manage
+  four). Apply existing sell/protection rules and preserve explicit manual attribution; no forced exit
+  solely to restore the count. This replaces the assistant's proposed wait-for-a-slot restriction.
+- **Open, question sent:** retain the automatic new-position target, counting manual extras, so
+  Breakout 3 opens no further stock position until fewer than three remain? Recommended yes; this
+  does not impose a new rule on existing-policy add-ons to held stocks.
+- **Open:** direct-Wealthsimple trade ownership, manual holdings at promotion/switching, shared
+  capital/limits, same-symbol ownership, transfer timing/protection and re-entry after a manual sale.
+- **Proposed polling detail:** one shared five-minute account/history refresh while connected,
+  immediate post-trade recovery, fresh final preflight, no overlapping refreshes and visible stale/failure
+  state. Source inspection found connection/selection/manual refresh and a stale warning, but no account timer.
 - **Revised proposal:** reconcile known in-app orders and continue automatically when ownership,
   account and risk checks pass. Pending/uncertain orders retain reservations; human review addresses
   unresolved facts or authority. The earlier blanket manual-fill review recommendation was too broad.

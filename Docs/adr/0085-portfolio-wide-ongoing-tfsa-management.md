@@ -1,7 +1,8 @@
 # ADR-0085: Portfolio-wide ongoing TFSA management
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
-**Status:** Scope and duration accepted; detailed design continues, implementation incomplete.
+**Status:** Scope, duration and manual-holding handover accepted; detailed design continues,
+implementation incomplete. Manual ownership was clarified September 23.
 **Domains:** architecture, risk-management, user-interface
 **Related:** ADR-0062, ADR-0073, ADR-0079–0084
 
@@ -35,6 +36,40 @@ silently change the real account's pinned strategy. Only one strategy owns TFSA 
 - Preserve original order identities and reservations through uncertain submission and restart.
 - Keep recommendation-only approval distinct from actual execution/automation authority.
 
+## Manual holdings and deliberate handover — accepted September 23
+
+A holding manually purchased through TraderVI stays outside the active trading strategy by default.
+The operator requested both an **Assign to active strategy** action on an existing holding and an
+optional **Let the active strategy manage this holding** choice in the purchase dialog. Keep that
+purchase option off by default. Handover changes management of actual shares; it does not copy paper
+state, sell/rebuy the holding, erase its manual origin or create a fictional new entry.
+
+Show the exact active strategy in either action. Preserve existing account risk references, holds,
+actual costs and known protection. The operator explicitly wants manual handover to be allowed beyond
+the normal position count: Breakout 3 may manage four holdings after a manual addition. The added
+holding receives the strategy's existing sell/protection rules and can leave through an ordinary exit.
+Do not manufacture an immediate sale solely to restore the count. This is a recorded manual exception,
+not evidence that the paper strategy itself selected a fourth stock.
+
+The recommended automatic-entry contract remains a three-position target: count adopted extras and
+open no additional stock position until fewer than three remain. That detail is awaiting confirmation;
+it concerns new stock positions, not a new blanket prohibition on existing-policy add-ons. The manual
+handover exception does not authorize bypassing unresolved orders, stale facts, cash limits or loss
+holds. Same-security ownership, compatibility and the effective transfer boundary still need design.
+
+This adds explicit manual ownership inside the permanent TFSA. A holding designated manual is not
+implicitly enrolled in the selected strategy. Applying ADR-0079's promotion exits to such holdings,
+including during later strategy replacement, needs the scope clarification in the continuing draft;
+do not silently classify older holdings or rewrite historical attribution. Cash and account-wide risk
+still cover the actual TFSA. Automatic entry/sizing and account loss rules do not change implicitly;
+the explicit real-account manual exception must remain visible in history and performance attribution.
+
+The operator also requested regular account synchronization while retaining **Refresh now**. Five
+minutes is the proposed background interval. Shared account/order updates, immediate post-trade
+refresh, final order preflight, uncertain-order recovery and stale/error handling remain design details;
+background polling is not a substitute for the existing execution freshness checks. No timer or broker
+automation was enabled by this design decision.
+
 ## Relationship to the first-session implementation
 
 ADR-0084 describes the source implementation, which expires authority after one supervised session,
@@ -50,11 +85,12 @@ Their September 22 installation does not create a baseline, assignment or enable
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes, pause/resume behavior, restart eligibility and replacement transitions.
-On September 23 the operator asked about manual trades placed through TraderVI as well as directly in
-Wealthsimple, and whether holdings should join the strategy or remain manually managed. Ownership and automatic
-continuation after known in-app orders are still proposals in the draft, awaiting agreement. Do not
-treat either as accepted or silently extend the current invalidated-review behavior into the general
-workflow. A manual-holdings exception to promotion exits would require an explicit decision.
+Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
+trade ownership, automatic continuation after known in-app orders, automatic entry after above-target
+handover and detailed
+polling behavior remain open/proposed in the draft. Do not silently extend the current blanket
+invalidated-review behavior into the general workflow or assume a five-minute-old snapshot can authorize
+an order.
 
 Before implementation, express these transitions as acceptance criteria, including multi-day recovery,
 switching between families and retained-position protection. Native cash/opening evidence, SQL runtime

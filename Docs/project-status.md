@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 22, 2026; broker reads at 22:25 and storage installation at 23:34 Toronto.
+**Current record:** September 23, 2026; latest Delphi Live/process read at 00:21 Toronto.
 Operational evidence is dated per row; source implementation does not imply installation.
 
 ## Executive summary
@@ -26,8 +26,9 @@ what has actually been implemented, installed or observed.
 |---|---|---|
 | Nightly pipeline | Sep 22, completed 09:25:33; SQL checked 09:30 | Missed run recovered under operator authority. Hermes inserted 482 daily bars with no collection failures; Delphi saved a Valid publication using Sep 21 data. Athena completed with Attention: 1,124 valid outcomes and seven missing historical outcomes. |
 | Delphi inputs | Sep 22, 09:30 | Active daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. XIU/SPY and checked derived series are current; one active symbol is older. Publication is not buy eligibility. |
-| Live and Shadow | Sep 22, 09:59 | One responding Release WPF host and one advancing Live lease. Latest two Live cycles each had 40/40 usable receipts; three portfolios saved complete 09:55 values. All 12 Shadow sessions adopted today's publication; all 13 open positions advanced to the bar ending 09:55. |
-| Live limitations | Sep 22, 09:59 | Held comparison account lacks opening NAV (net asset value): today's return is unavailable and existing entry rules block new buys. Coverage remains Blocked with a host gap and earlier missing/failed receipts. One tracked symbol's 15-minute bar conflicted on three polls. Latest-cycle recovery does not establish uninterrupted coverage. |
+| Delphi Live | Sep 23, 00:21:18 read of Sep 22 session | A responding WPF process is open (started Sep 22, 22:16:53). The last three Live cycles, through the 16:00 bar, each had 40/40 usable receipts; final collection completed at 16:02:12. All three portfolios saved complete 16:00 values. No current collection lease at this pre-open check; last stored heartbeat Sep 22, 16:06:34. Source does not acquire the collection lease before the open. Today's market-session operation is not yet verified. |
+| System Shadow | Sep 22, 09:59 | All 12 sessions adopted that day's publication; all 13 open positions advanced to the bar ending 09:55. Not rechecked in the Sep 23 Live-only inspection. |
+| Live limitations | Sep 23, 00:21 read of Sep 22 session | Session remains Incomplete/Blocked with a host gap; one comparison portfolio still lacks opening NAV (net asset value), despite a complete closing value. No clean full-session qualification. The tracked 15-minute conflict last observed Sep 22 at 09:59 was not rechecked. |
 | Broker connection/history | Sep 22, 22:25:27 | Signed-in read-only history, holdings, pending orders and regular day graph succeeded; activity checkpoint stable and observed holdings match. No import or order ran. Local journal, complete effective cash history, native opening method and order lifecycle remain unqualified. Sep 16 remains the last saved linked-history refresh evidence. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
 | Broker risk/session storage | Sep 22, 23:34:11 | Authorized migrations 035/039/040 installed after a fresh verified backup/copy. Three empty tables, three enabled immutable triggers, eight trusted foreign keys, three trusted checks and six native zero-row update/delete rejections verified. Linked binding/import and report/promotion counts and hashes unchanged. No baseline/session created. |
@@ -47,7 +48,8 @@ Detailed dated accounts remain in the [status history](project-status-history-20
 | Daily risk continuation | Boundary valuation/references/holds tested. Broker orchestration calls the existing continuation workflow. Migration 039 installed; qualified native source and operational verification absent. |
 | Cash-flow continuation | Accepted percentage preservation implemented/tested. Broker projection adopts the continued reference and preserves holds. Complete event/effective timing and matched native books remain unqualified; the default source blocks new risk. |
 | Broker inputs and execution | Exact comparison profile, real position cycles/costs, synchronization, preserved protection, immutable approval/order intent and restart recovery implemented/tested. Production composition reuses existing clients, journal and gates. Migration 040 installed. No qualified execution host, native mutation evidence or automation activation. |
-| Portfolio-wide ongoing promotion | Scope/duration accepted in ADR-0085; detailed design continues. Current execution source supports a bounded Daily Shadow session, with no ongoing renewal/replacement or incoming Delphi Live protection adapter. Sep 23 source inspection confirms in-app manual fills also invalidate the session review; ownership and automatic reconciliation proposals remain undecided. No new operational verification. |
+| Portfolio-wide ongoing promotion | Scope/duration and manual-buy default ownership with purchase/later handover controls accepted in ADR-0085; detailed design continues. Current source has only a bounded Daily Shadow session and invalidates in-app manual fills. Ongoing renewal/replacement, Delphi Live handover, ownership controls and automatic continuation remain unfinished. |
+| Broker background synchronization | Regular polling requested; five-minute interval proposed. Current account view refreshes on connection/selection or explicit action and warns after five minutes; it has no recurring account timer. Display refresh and linked-history reconciliation remain separate. No polling activation. |
 | Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; Sep 22 required recovery. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
 
 ## Verified development baseline
@@ -63,6 +65,8 @@ evidence list. Local ignored evidence is in that worktree's `artifacts/launch-va
 Read-only broker verification ran in the source increment. Later operator-authorized migrations
 035/039/040 installed empty storage at 23:34; no order, app restart or automation ran. Native storage
 and preservation receipts are in `artifacts/promotion-storage-20260923/` in the isolated worktree.
+The Sep 23 read-only Live/process check is in `artifacts/promotion-design-20260923/live-status.json`;
+it ran no broker request, collection, order, restart or SQL mutation.
 SQL crash/lease/readback rehearsal and operational setup remain unverified. The prior 1,595-test
 cash-flow baseline remains under `artifacts/tfsa-cash-flow-20260922/`.
 See [ADR-0084](adr/0084-supervised-broker-strategy-session.md) and

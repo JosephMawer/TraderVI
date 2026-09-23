@@ -42,6 +42,9 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Install migrations 035/039/040 under operator authority after a verified backup/copy; verify empty
   storage, trusted constraints, immutable triggers and preserved account records (Sep 22, 23:34 Toronto).
 - [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
+- [x] Agree manual buys remain outside the active strategy by default, with optional purchase-dialog
+  handover and a later holding action, including explicitly adopted extra positions managed under
+  existing sell rules (Sep 23, ADR-0085). Automatic-entry details remain open; controls are not implemented.
 
 ### Left to do — development order
 
@@ -61,6 +64,8 @@ record them. A prepared migration or passing test never proves broker readiness.
   closed/reopened holdings. Preserve linked history, installed migration 034 and existing protections.
 - [ ] **4. Verify synchronization natively.** Offline tests cover manual/external changes, partial/new fills, stale or
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
+  Design and implement the requested shared recurring account/history refresh (proposed five minutes),
+  immediate post-trade recovery and manual refresh; preserve fresh preflight and visible stale/error states.
 - [ ] **5. Verify actual protection handover.** Source transfer/replay is tested. Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
@@ -68,7 +73,8 @@ record them. A prepared migration or passing test never proves broker readiness.
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Finish the guided design for outside changes,
-  manual holding ownership and known in-app orders, pause/resume, restart and replacement. The current
+  automatic entry after manual extras, same-symbol/transfer boundaries and known in-app orders,
+  pause/resume, restart and replacement. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend current Daily Shadow-only, single-session execution
   to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.

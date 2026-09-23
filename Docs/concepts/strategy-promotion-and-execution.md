@@ -2,7 +2,7 @@
 
 ## Portfolio-wide ongoing management — September 22
 
-**Continuing draft:** the accepted scope/duration subset is recorded in
+**Continuing draft:** the accepted scope/duration and September 23 manual-handover subset is recorded in
 [ADR-0085](../adr/0085-portfolio-wide-ongoing-tfsa-management.md). The remaining workflow below is not
 an accepted ADR, implementation-ready specification or operational authorization. The operator
 separately authorized necessary database migrations; 035/039/040 were installed and verified at
@@ -19,7 +19,10 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted, existing contracts | Pin the reviewed rules, gate profile, policy/model/build identities. Use actual TFSA cash/holdings; paper financial history stays separate. |
 | Accepted, existing contracts | One active owner, retain overlaps/protection, reconcile required exits before buys, preserve references/holds and original uncertain order IDs. |
 | Open — refined September 23 | Distinguish manual orders placed through TraderVI from orders placed directly in Wealthsimple; the operator wants both cases addressed. Recommend automatic reconciliation and continuation for known in-app orders when ownership and risk checks pass; reserve human review for unresolved facts/authority, rather than every manual fill. |
-| Open — recommendation awaiting choice | Give a manual buy an explicit owner: manual management by default, or reviewed handover to the active strategy when compatible with its rules. Manual holdings remain part of TFSA cash and account risk. |
+| Accepted September 23 | Manual purchases through TraderVI stay outside the active strategy by default. Provide a later holding action to hand over management and an optional purchase-dialog choice targeting the active strategy. |
+| Accepted request; interval provisional | Add regular broker-account synchronization and retain immediate manual refresh. Five minutes is the proposed background interval; fresh order checks remain separate. |
+| Accepted direction, September 23 | Explicit manual handover can add an extra managed holding: Breakout 3 may manage four. Apply existing sell/protection rules; do not force an exit solely to restore the count. Record the manual exception separately from strategy-generated selection. |
+| Open — question sent | Recommend retaining the normal automatic new-position target: with four managed stocks in Breakout 3, open no additional stock position until fewer than three remain. Existing-policy additions to already-held stocks are distinct. |
 | Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
@@ -29,12 +32,14 @@ of an existing session, and transfers protection only into Daily Shadow. Its exa
 handling is reusable; it is not an implementation of every portfolio family. No new execution logic
 was added during this design exchange.
 
-**September 23 manual-trade clarification (proposal, not accepted behavior):** choosing who places
+**September 23 manual-trade clarification:** choosing who places
 an order and choosing who subsequently manages the holding are separate decisions. A manually chosen
 stock under strategy management can later be sold by that strategy. Under manual management, the
-operator owns exit decisions; no automatic strategy protection is implied. Proposed default: manual
-management, with an explicit strategy-management choice and compatibility preview. Do not silently
-expand a three-position strategy to four positions or treat a manual entry as a strategy-generated pick.
+operator owns exit decisions; no automatic strategy protection is implied. The operator accepted manual
+management by default, with a later holding action and an optional purchase-dialog handover choice.
+Compatibility and ownership-transfer details remain draft. The operator then explicitly requested
+allowing a manual handover above the normal position count; do not treat that manual entry as a
+strategy-generated pick or silently increase the automatic buying target.
 
 For an identified in-app order, reserve cash/shares before submission, recover its original ID,
 reconcile confirmed fills and cash, then recheck existing limits before continuing. Pending/uncertain
@@ -48,12 +53,56 @@ outside its own saved order list as an outside change, including a manual order 
 It invalidates the review and blocks all further managed orders; it does not implement the proposed
 automatic continuation or separate protection behavior. No execution code changed in this dialogue.
 
-If manual holdings are accepted, define their treatment during promotion/switching explicitly: the
+With manual holdings accepted, define their treatment during promotion/switching explicitly: the
 existing non-overlap exit contract does not yet exempt them. Also settle shared cash/sizing and position
 limits, protection responsibility, same-symbol ownership and whether manually selling a managed stock
 allows later strategy re-entry. Recommend one owner per security for the first version; a manual add to
 a managed security must not silently create a second owner. These details remain open and cannot waive
 existing account-wide risk rules.
+
+### Handover controls and account synchronization — September 23 draft
+
+Place **Assign to active strategy…** beside a manual holding in the TFSA holdings view. In the buy
+dialog, add an unchecked **Let [active strategy name] manage this holding** option. The selected exact
+strategy/version is part of the reviewed intent. If it changes before submission or handover, explain
+the change and require a fresh choice; do not silently redirect to whichever strategy exists at fill
+time. When no strategy is active, explain why handover is unavailable; a manual buy remains a separate
+operation under its existing controls. Preserve pending fills/intent if a post-fill handover cannot finish.
+
+The handover preview should show actual quantity/cost, incoming owner, carried protection, count exception
+and compatibility blocks, and any immediate exit the incoming rules would require. Keep the existing
+owner responsible until a durable transfer succeeds. Handover itself creates no broker fill. Automatic
+entry after above-target handover, partial-fill transfer timing, shared-security ownership and manual exclusions on a later
+portfolio switch remain open; the presence of a button does not waive these checks.
+
+Recommended synchronization behavior (not yet implemented or activated):
+
+- Poll every five minutes while the app is open and the account is connected, independently of the
+  visible tab; refresh on connection/reconnection and retain **Refresh now**.
+- Use one coordinated account view for balances, buying power, holdings, pending/completed order
+  changes and linked history. Refreshing display balances alone is not reconciliation or proof of
+  complete cash-event history. Reuse the current native clients, importer and original-order journal.
+- Refresh after an in-app trade and recover outstanding orders using their existing workflow rather
+  than waiting five minutes. Keep final order preflight fresh under the existing rules. A broker order
+  placed elsewhere between polls remains possible; polling does not make broker reads atomic.
+- Share completed observations across screens and strategy inputs. Serialize/coalesce overlapping
+  refresh requests, preserve order fences, discard results from a replaced login/account, and back off
+  after rate limits. A failed read keeps the last valid snapshot visibly stale; it cannot clear holdings,
+  orders or risk holds or qualify new risk. Show the last successful synchronization time and failures.
+
+Source inspection: `WealthsimpleAccountViewModel` loads on connection/account selection and explicit
+refresh, with a five-minute stale warning; it has no recurring account timer. The source display is
+separate from linked-history import. This draft must join them deliberately rather than adding a timer
+that only repaints holdings. Manual and external trade attribution and the detailed polling/recovery
+failure policy remain part of the implementation acceptance criteria.
+
+**Superseded recommendation:** the assistant first proposed refusing handover until a position slot
+was free. The operator rejected that limitation and prefers an explicit manual extra managed under
+the normal sell rules. The remaining question is how automatic new entries behave afterward. The
+suggested no-new-position rule counts all managed holdings, including manual extras, while preserving
+existing cash/account holds, sizing and eligible add-on rules. A manual holding that remains outside
+the strategy still contributes to actual TFSA value and account-wide risk; ownership must not make
+its cash usage or exposure disappear from account accounting.
 
 The draft is ready for continued dialogue, not implementation handoff. Complete the open transitions
 first, then express acceptance cases for Daily Shadow and Delphi Live, multi-day continuation, cross-family

@@ -12,7 +12,8 @@ TFSA, and enable real execution only after the required account, protection and 
 [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) distinguish recommendation approval
 from automatic trading. The operator's September 23 real-trading target is an aspiration, not verified
 readiness or order authority. Any portfolio must be promotable, with ongoing management until pause
-or switch ([ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md)); ungated Breakout Top 3 is an
+or switch. Manual buys stay outside by default, with explicit purchase-time or later handover
+([ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md)); ungated Breakout Top 3 is an
 initial candidate. The [September 23 activation review](reviews/supervised-session-20260923.md) says NO-GO.
 
 ## Now — restore a dependable advisory loop
@@ -22,7 +23,7 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
    and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
    and SQL runtime recovery still need verification. Finish ongoing-promotion design, including manual
-   holding ownership and known in-app order reconciliation, then extend both
+   holding handover constraints, shared regular broker refresh and known in-app order reconciliation, then extend both
    families and replacement/restart transitions, then verify the host before actual execution approval. Follow the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.

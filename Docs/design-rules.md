@@ -21,8 +21,9 @@ exits/reconciliation and transfer at activation with established protective leve
 starts from real cost and fresh observed evidence, never paper state or invented historical highs.
 Purchase availability is capped by the lower of fresh broker CAD cash/buying power, strategy sizing
 and reservations; unfinished sales supply no funds. Confirmed deposits/withdrawals adjust loss references;
-unexplained cash movements pause new buys. Initial setup/store is implemented in source, with migration
-035 uninstalled and no operator UI or engine cutover. Daily/flow continuation is tested offline;
+unexplained cash movements pause new buys. Initial setup/store and operator UI are implemented in
+source; storage 035/039/040 is installed, while operational setup/UI rollout and engine cutover remain.
+Daily/flow continuation is tested offline;
 source qualification, operational integration and actual protection handover remain unfinished.
 No strategy is activated and no execution is enabled. Confirmed cash movements preserve the measured
 loss percentage by scaling both references from matched before/after books (ADR-0083, September 22);
@@ -31,7 +32,16 @@ September 21 adds offline boundary valuation and append-only daily continuation 
 reconciled intervals without capital flows (ADR-0083). Daily Shadow keeps its saved-book price
 definition; Delphi Live keeps first-bar Open/exact final-bar Close. A broker chart timestamp alone
 cannot change those definitions. Confirmed-flow adjustment and native integration remain open;
-migration 039 is prepared/uninstalled. No new late-start buy-pause rule is authorized.
+migration 039 is installed without an operational baseline. No new late-start buy-pause rule is authorized.
+
+[ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md) accepts any portfolio with ongoing
+assignment until pause/switch. September 23 accepts manual purchases through TraderVI staying outside
+the active strategy by default, plus explicit purchase-time or later management handover. The operator
+explicitly permits manually adopted extras above the normal position count, managed under existing
+sell/protection rules. Keep the manual exception identifiable; automatic buying limits, account-wide
+risk rules and paper attribution do not change implicitly. Detailed manual
+ownership, handover compatibility and regular broker synchronization remain in design; no new order
+or automation authority follows from these decisions.
 
 [ADR-0080](adr/0080-reviewed-broker-history-import.md) stores reviewed broker observations in separate
 SQL history. `CanImport` is not strategy readiness or execution authority. Do not sum cumulative orders
