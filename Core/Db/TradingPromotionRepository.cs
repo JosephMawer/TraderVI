@@ -116,7 +116,7 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         {
             string json = await c.QuerySingleOrDefaultAsync<string>("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id", new { Id = paper }, t)
                 ?? throw new InvalidOperationException("The selected Delphi Live paper account is unavailable.");
-            var portfolio = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
+            var portfolio = await DelphiLiveSnapshotStorage.ReadAsync(c, t, json, token);
             live = await DelphiLiveSessionRepository.ReadPolicyAsync(c, portfolio.PolicyVersionId, t, token);
             policyId = live.PolicyVersionId; maximum = live.MaximumHoldings;
             name = $"Delphi Live · {policyId.ToString("N")[..8]}"; selection = CompleteTradingStrategy.LiveSelection;

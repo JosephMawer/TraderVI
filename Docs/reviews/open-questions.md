@@ -23,6 +23,70 @@ Things we punted on and need to revisit. Cleared as decisions are made
   authority remain separate unfinished work. No new blanket morning-pause rule is approved.
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
+### Active-listing maintenance and partial sector refreshes
+
+- September 17 recovery applied migration 036 to deactivate verified acquired/delisted ARX and SES.
+  Existing active-universe filtering now excludes them; historical rows are preserved.
+- Decide how to surface listing/corporate-action review before retired symbols block nightly collection,
+  and how weekly sector refresh should track unsuccessful rows independently of its global timestamp.
+  No automatic deactivation from provider errors or relaxed data/trading gates is approved.
+
+### Backup capacity and retention
+
+- September 17 recovery hit a full C: drive during the post-Hermes backup. The latest compressed
+  backup was about 15 GiB, with both staging and local OneDrive copies consuming space.
+- Resolved September 17: the user selected **two completed backups per location**, after new-backup
+  and copy verification. ADR-0082 implements retention and compact Live storage. Migrations
+  037/038 and lossless conversion are installed and verified. The full backup fell from 16.27 GB to
+  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes. Consider a separately reviewed
+  one-time data-file shrink only if Windows needs that space; no automatic shrink is approved.
+
+### Broker history import and strategy-input cutover
+
+- **Implemented in source September 16:** ADR-0080 adds a concrete initial review, fixed TFSA binding,
+  append-only SQL observations, duplicate-safe cumulative order reads, preserved legacy references and
+  fresh/transactional rechecks. Migration 034, the linked 32-order import and the September 16 22:06
+  Toronto native refresh are verified. The alias/ETF compatibility, approved legacy correction and
+  timestamp readback follow-ups are complete; do not replay the migration/correction or relink history.
+- **Provisional:** review the first link, then update supported history on explicit import refresh.
+  This is not a background broker polling schedule or authority to activate a strategy.
+- **Accepted in ADR-0081:** first missing risk references can use verified current account value during
+  setup, recording the actual starting boundary and preserving known baselines/holds. Use the lower of
+  fresh broker CAD cash/buying power, constrained by sizing/reservations; unfinished sales supply no funds.
+  Current protection ownership remains until activation. Carry established protective levels; initialize
+  missing protection from actual cost/fresh evidence, never paper state or invented historical highs.
+  Confirmed deposits/withdrawals adjust loss references; unexplained cash movements pause new buys.
+- **Initial setup implemented in source:** pure risk-reference preparation and reviewed SQL save/recovery,
+  with source identities, explicit unknown-history blocking and no reinitialization of an established
+  baseline. Migration 035 is prepared/uninstalled. No operator UI or operational baseline exists yet;
+  the engine still reads legacy reported financial state.
+- **Next (September 22):** daily and percentage-preserving cash-flow continuation are tested. Qualify
+  complete cash-event evidence/effective timing and native opening values, then integrate continuation.
+  Do not wait for a dedicated review screen. Minimal setup review and separately verified storage
+  remain prerequisites for operational use. Then complete position-cycle mapping and causal
+  protection handover, followed by source-aware strategy inputs and ongoing synchronization. See the
+  [continuing draft](../concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation).
+- **Native read follow-up:** the September 16 activity capture verifies POSTED completed-order details
+  and supplies account-chart and cash-flow-total read contracts. The subsequent screenshot identifies
+  an empty EXPIRED response, then a CANCELLED response on retry. A narrow compatibility fix retains
+  either order (including the CANCELED spelling) with explicit null provenance
+  and zero accounting quantity, subject to absent execution evidence and unchanged prior fills. Offline
+  tests cover partial fills and conflicting execution evidence; the later native import/refresh succeeded.
+  See the [contract review](../concepts/wealthsimple-account-history-contracts.md).
+- **Proposed simplification, September 16:** the operator asked whether full historical import is
+  necessary. Recommend an explicitly verified current-account baseline with forward synchronization
+  and optional older-history import. Optional history remains unimplemented; ADR-0081 accepts initial
+  reference rules while preserving history/protection. It does not bypass the existing importer.
+- **Native preview now reached, September 16:** a read-only HAR/protected-preview/SQL comparison finds
+  completed ETF history rejected by EQUITY-only validation, a symbol-only `.TO` candidate mismatch and
+  a recorded-sale gross/net disagreement beyond rounding. Historical ETF accounting, verified listing
+  aliases and side-by-side amount comparisons are now implemented. Strategy eligibility remains unchanged;
+  missing listing evidence and amount differences still block. Matched-only subsets no longer produce
+  a false position warning. The financial disagreement was subsequently resolved by the separately
+  approved, audited single-row correction; the account was imported and its native refresh verified.
+- **Deferred:** ambiguous/split-fill matching, broker corrections/relinking, individual execution
+  timestamps, retention and refresh cadence. No force-match or automatic legacy rewrite exists.
+
 ### Remaining manual-sell integration
 
 - **Protocol implemented September 11:** [ADR-0076](../adr/0076-wealthsimple-market-sell-protocol.md)
@@ -512,6 +576,14 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
   execution limits separately. The new account display has no order endpoint or SQL write path.
 
 ### Permanent TFSA and primary execution — ADR-0073
+
+- **September 14 / ADR-0079:** regular-session market orders and promotion-initiated non-overlap exits
+  before new buys are accepted for the first version. Account-history reconstruction and protected
+  observations now gate the transition preview. Still open: broker-to-SQL mapping of existing Real
+  records, full cash/settlement coverage and risk baselines, correction of disputed history, individual
+  fill sequencing for overlapping orders, observation-journal retention, inherited protection, exact
+  intended-holdings evidence and automation qualification. Native validation and execution activation
+  remain separate operations. The earlier limit preference below is historical.
 
 - **Manual market-buy UI, September 10:** [ADR-0075](../adr/0075-manual-market-buy-ticket.md) implements
   the accepted editable whole-share ticket, compact dialog and operator-managed buys. The captured

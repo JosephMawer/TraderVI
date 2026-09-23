@@ -174,6 +174,7 @@ VALUES(NEWID(),@Account,@Now,N'Lifecycle',N'ComparisonActivated',@Json);
                     var request = new DelphiLiveGenerationRequest(generation, accountId, liveId.Value, PaperGateComparison.LiveRole,
                         null, 1000, "CAD", date, effective, now, Environment.UserName, "ADR-0067 fixed-gate paper comparison") { ComparisonAccount = account };
                     var snapshot = DelphiLiveLedgerIntegrity.Create(request);
+                    string stored = await DelphiLiveSnapshotStorage.SaveAsync(c, t, snapshot, ct);
                     await c.ExecuteAsync(new CommandDefinition("""
 DECLARE @Slot tinyint=(SELECT MIN(v.n) FROM (SELECT TOP(97) ROW_NUMBER() OVER(ORDER BY object_id)+2 n FROM sys.all_objects) v
  WHERE NOT EXISTS(SELECT 1 FROM dbo.DelphiLivePolicyAssignment a WHERE a.RoleSlot=v.n AND a.EndExclusiveTradingDate IS NULL AND a.CancelledUtc IS NULL));
@@ -189,7 +190,7 @@ INSERT dbo.DelphiLiveLedgerEvent(EventId,PortfolioId,Revision,EventKind,Recorded
 VALUES(NEWID(),@Account,0,N'ComparisonActivated',@Now,@Authorization);
 """, PaperSourceSqlParameters.Create(new { Assignment = assignment, Policy = liveId, Date = date.ToDateTime(TimeOnly.MinValue), Now = now,
                         By = Environment.UserName, Generation = generation, Effective = effective, Authorization = DelphiLiveLedgerJson.Serialize(request), Batch = batch,
-                        Account = accountId, Json = DelphiLiveLedgerJson.Serialize(snapshot) }, ("Now", now), ("Effective", effective)), t, cancellationToken: ct));
+                        Account = accountId, Json = stored }, ("Now", now), ("Effective", effective)), t, cancellationToken: ct));
                 }
                 await c.ExecuteAsync(new CommandDefinition("""
 INSERT dbo.PaperComparisonAccount(AccountId,BatchId,PairId,StrategyCode,GateProfile,ShadowPortfolioId,LivePortfolioId,LivePolicyVersionId,ShadowStrategyVersionId,ShadowSettingsJson)

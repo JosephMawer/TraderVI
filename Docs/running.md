@@ -1,5 +1,89 @@
 # Running TraderVI
 
+## Initial broker risk baseline (source only, ADR-0081)
+
+The initial-baseline preparation, reviewed save/recovery workflow and SQL repository are implemented
+in source. There is no WPF/CLI entry point or operational baseline yet. Installing storage alone does
+not establish a baseline, change recommendation inputs or enable orders.
+
+`TraderDB/Migrations/20260917_035_AddBrokerAccountRiskBaseline.sql` is prepared and build-checked,
+**not installed**. It adds one empty immutable table and trigger, preserving all existing history,
+account reports, positions, holds and strategy assignments. It requires individual review, a fresh
+verified full backup and separate operator authorization before installation. Do not replay migration
+034 or the completed legacy correction. Never publish the DACPAC.
+
+Next wire an explicit operator review, then verify setup storage separately. The workflow requires a
+fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
+treated as an empty history. Request recovery can read an already committed result without repeating
+setup. Daily/confirmed-cash-flow continuation, position protection handover and strategy-input cutover
+remain later work. See [ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md).
+
+## Broker account history import (source milestone, September 16)
+
+After a planned WPF rebuild/restart, open **Trading → Main account → Import account history…**.
+The first invocation reconciles the owned broker account and previews matches to recorded TFSA trades,
+new orders, current account facts and any blocks. **Link TFSA and save history** rechecks the observations
+and saved ledger before atomically saving the account binding and history. After linking, opening this
+window or using **Refresh and update saved history** updates supported observations. There is no
+unattended broker polling timer in this milestone.
+
+Missing migration 034 permits preview but disables saving. Review
+`TraderDB/Migrations/20260916_034_AddBrokerAccountImport.sql`, obtain a fresh verified backup and explicit
+installation authority before applying it manually; never deploy its DACPAC. The migration adds empty
+history tables and does not link an account or enable trading. Native history calls remain to verify.
+
+Migration 034 was installed and verified on the current TraderDB at 10:08 Toronto on September 16,
+after the separately authorized verified backup. Both tables remain empty and the running WPF instance
+was not restarted. Do not replay this migration against the installed schema. Restart WPF when ready
+to expose the new source controls; native reconciliation/import verification is a separate next step.
+
+If reconciliation stops with `UnsupportedResponse`, capture the failed-read description and
+`Diagnostic:` line from the import window. These identify the request, response field, or safe
+HTTP/GraphQL category/query location without account identifiers or raw server messages. A failure
+before the preview leaves saving disabled. The September 16 follow-up identified a missing/invalid
+`status` value. The reader now preserves null/empty activity-feed status as checkpoint metadata,
+while requiring the actual historical order status. This correction requires a rebuild/restart and
+another preview attempt. Later diagnostics identified EXPIRED, then CANCELLED, with absent execution
+details. The latest reader retains an empty expired or cancelled order only when average price and every
+other selected execution field are explicitly null and activity reports no fill. It records that the
+broker quantity was blank and adds no shares or proceeds. Partial fills and previously saved fills
+remain protected. Rebuild/restart WPF and retry **Refresh preview** to verify the native response;
+no new migration is needed for this fix. The cancellation screenshot also reports absent average price.
+A successful native import is still unverified. Do not omit orders or create a cancelled/expired test
+order. See the [capture reference](concepts/wealthsimple-account-history-contracts.md).
+
+The operator subsequently reached the 32-order preview. Latest source supports completed historical
+ETF orders and verified Canadian listing aliases, without enabling ETF strategy orders. Rebuild/restart
+and reopen the import to apply these fixes. An amount mismatch now shows TraderVI and Wealthsimple
+values side by side below the order grid; scroll the window if needed. Saving stays disabled while a
+financial difference remains. Review that concrete comparison before any correction; repeated refresh
+does not change the saved ledger. No migration is required for these compatibility/display changes.
+
+If an import response is uncertain, refresh to inspect saved history. The repository retains request
+receipts and uses each order once per observation. Do not sum cumulative orders across snapshots or
+delete saved records to recover. Ambiguous/split-fill matches, changed legacy history, broker corrections
+or a different account identity require explicit resolution; there is no force-match/relink shortcut.
+
+The first native TFSA link and 32-order save were confirmed in SQL. Its subsequent "Saved broker import
+identity or content is inconsistent" error was a timestamp-precision bug: the default SQL parameter
+rounded the snapshot while the saved JSON kept all digits. Latest source writes precise timestamps and
+reads the exact older encoding without rewriting history. Rebuild/restart WPF, then reopen **Import
+account history…**; a linked account will refresh/update saved history. No migration, database repair
+or second account link is needed. Other identity/content errors still require investigation.
+The operator confirmed the rebuilt native refresh at 22:06 Toronto on September 16: history saved,
+32 cumulative orders, all already saved and no remaining import blocker. This checkpoint is complete.
+
+Saving broker history preserves the existing tracked ledger and does not activate or change a strategy.
+The engine's account inputs, risk baselines and inherited-position protection are the next integration
+boundary. See [ADR-0080](adr/0080-reviewed-broker-history-import.md).
+Starting from a verified current-account baseline with optional older history is a proposed next
+design, not a currently available mode. It would still need ongoing synchronization and explicitly
+preserved holdings, costs and account/position protection; it is not a database reset.
+
+Background development uses isolated artifact build directories. The operator allows coordinated
+restarts when useful, but Delphi Live records interruptions as coverage gaps and requires fresh entry
+confirmation; prefer grouped changes outside collection when practical.
+
 ## Market-order client reference
 
 `Core/WSTrade/Orders` and `WealthsimpleAuthClient.MarketBuys.cs` implement a whole-share market-buy
@@ -76,18 +160,33 @@ acknowledgement/fill semantics, attempt markers and remaining integration work.
 
 ## TFSA strategy transition preview
 
+**September 14 / account reconciliation:** **Reconcile account…** on the main Wealthsimple account
+reads the selected owned TFSA's activity/order history and compares reconstructed shares and book
+values with fresh holdings. It saves protected observations locally and shows missing/conflicting
+history, partial-fill costs and fractional exceptions. Complete the existing manual-order status checks
+when a saved order is unresolved. A failed or changing read saves no partial result. Historical
+conflicts remain blocked for explicit recovery; deleting journals is not a recovery procedure.
+
+Matching holdings do not establish complete cash-flow history, account loss baselines or execution
+authority. The check does not write SQL positions or send orders. Initial native validation of the
+new history query remains separate from the offline tests. Account observations are appended under
+`%LOCALAPPDATA%\TraderVI\Wealthsimple\ManualOrders\account-<hash>-<sequence>.reconciliation` using
+the same exclusive lease and Windows protection as manual orders. Preserve that history.
+
 After native Wealthsimple sign-in, open **Trading → Main account**. Refresh reads balances, holdings
 and paginated pending orders. **Review TFSA strategy transition** ranks Delphi Live paper sources on
 their latest common saved day, with partial results labelled. Choose a source, enter a purchase ceiling
-and select **Refresh account and prepare review** to see the exact strategy version and proposed
+and select **Reconcile account and prepare review** to see the exact strategy version and proposed
 retained/exit/await-entry holdings. The ceiling defaults to zero and never includes anticipated sale
 proceeds. Paper-held symbols must resolve to unique CAD TSX/TSXV broker instruments before an
 overlap is accepted. Fixed-gate comparison profiles remain unsupported by real strategy approval.
 
-This screen is a preview: it does not activate a strategy, change SQL records or send orders. A green
-Wealthsimple connection confirms authentication, not execution readiness. Completed-fill reconciliation,
-durable order tracking, verified limit submission/cancellation and real Delphi Live monitoring remain
-unfinished. Existing recorded-account recommendation approval continues to use its existing gates.
+The review now requires reconciliation, stable broker cash/holdings and an unchanged source portfolio.
+The accepted first execution version retains overlaps, uses regular-session market sells for required
+non-overlaps and waits for confirmed exits to reconcile before new buys. This screen remains a preview:
+it does not activate a strategy, change SQL records or send orders. Broker-to-SQL binding, cash/risk
+baselines, inherited protection and the durable execution coordinator remain unfinished. Existing
+recorded-account recommendation approval continues to use its existing gates. See ADR-0079.
 
 ## Wealthsimple authentication prototype
 
@@ -332,7 +431,7 @@ Migration 018 was manually applied and verified on 2026-09-03 after a fresh chec
 and hash-matched OneDrive copy. The two Leadership value checks and `FK_Quotes_Symbols` are enabled and
 trusted, with zero invalid Leadership rows and zero Quote orphans. No DACPAC was deployed.
 
-The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates or cleans these directories and never overwrites a backup generation.
+The backup behavior is part of Hermes itself, so it applies whether Hermes starts from Visual Studio or `dotnet run`. By default, the destination resolves to `$env:OneDrive\Joseph\Tradervi\backups`. Override the existing directories with `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` when needed. Hermes never creates these directories or overwrites a backup generation. Updated source keeps the latest two completed full backups in each location, with cleanup only after the new backup and its copy verify (ADR-0082). Partial/unrelated files are ignored; cleanup warnings are reported separately from backup failure.
 
 If the data update completes but backup creation, verification, or copying fails, Hermes prints a prominent warning and exits with code `2`. The updated database remains intact, and any completed staging backup is preserved for diagnosis or manual copying. A successful copy still requires the OneDrive client to finish cloud synchronization.
 
@@ -741,6 +840,13 @@ Feature vectors must have fixed size. Training and inference must use matching s
 - Check `SectorIndices` coverage before debugging relative-strength calculations.
 - Verify stock-sector mappings and the `TsxSectorMap` normalization aliases.
 - Verify external benchmark symbols still resolve before changing indicator logic.
+- A TMX quote `404` can mean a retired listing, rather than a temporary outage. Review issuer/exchange
+  corporate-action evidence and the symbol's last stored price before changing its active flag; never
+  deactivate automatically from a provider error alone. Migration 036 retires ARX and SES after their
+  September 2026 acquisitions, preserving price and sector history. It was applied September 17.
+- A partially successful weekly sector refresh advances the current global refresh timestamp. A later
+  rerun can skip that refresh, so a successful rerun alone does not prove failed lookups were repaired.
+  Verify each failed symbol explicitly before closing the incident.
 
 ### OBV or CLX unavailable
 

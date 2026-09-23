@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -18,7 +19,8 @@ namespace TraderVI.WPF.Views;
 public sealed class TfsaTransitionReviewDialog : Window
 {
     public TfsaTransitionReviewDialog(Window owner, WealthsimpleConnection connection, WealthsimpleAccountViewModel account,
-        IReadOnlyList<TfsaLiveStrategyCandidate> candidates)
+        IReadOnlyList<TfsaLiveStrategyCandidate> candidates,
+        Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountReconciliation>>? reconcile = null)
     {
         Owner = owner; Title = "Review TFSA strategy transition"; Width = 980; Height = 780; MinWidth = 700; MinHeight = 500;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -31,12 +33,12 @@ public sealed class TfsaTransitionReviewDialog : Window
             body.Children.Add(block); return block;
         }
         Text("Permanent TFSA · incoming strategy", 24);
-        Text("Your TFSA keeps its actual financial history. The paper portfolio continues independently. Matching broker securities are retained at their actual quantity.");
+        Text("Your TFSA keeps its actual financial history. The paper portfolio continues independently. Matching broker securities are retained at their actual quantity. The first execution version uses regular-session market orders; required exits must reconcile before new buys.");
         Text("Delphi Live portfolios · highest daily percentage first");
         var sources = new ComboBox { ItemsSource = candidates, MinHeight = 38, FontSize = 14, Margin = new Thickness(0, 0, 0, 14) }; body.Children.Add(sources);
         Text("Maximum CAD for new purchases (0 means no purchase budget)");
         var budget = new TextBox { Text = "0", Width = 160, MinHeight = 34, FontSize = 14, MaxLength = 32, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 14) }; body.Children.Add(budget);
-        var refresh = new Button { Content = "Refresh account and prepare review", HorizontalAlignment = HorizontalAlignment.Left,
+        var refresh = new Button { Content = "Reconcile account and prepare review", HorizontalAlignment = HorizontalAlignment.Left,
             Style = (Style)FindResource("WorkspaceButton"), Margin = new Thickness(0, 0, 0, 14) }; body.Children.Add(refresh);
         var status = Text("Choose a source and prepare the review.");
         var detail = Text("");
@@ -91,7 +93,20 @@ public sealed class TfsaTransitionReviewDialog : Window
                         ? TfsaIncomingHolding.FromSecurity(found.Data[0]) : new(symbol, null));
                 }
                 if (closed || revision != connection.SessionRevision || !connection.IsConnected || account.Snapshot == null) return;
-                var preview = TfsaTransitionPlanning.Preview(account.Snapshot, account.PendingOrders, incoming, cap, DateTimeOffset.UtcNow);
+                if (reconcile == null) { status.Text = "Account reconciliation is not connected. Reopen this review from the main account."; return; }
+                var reviewedAccount = account.Snapshot.Account;
+                status.Text = "Reconciling confirmed order history before handover review…";
+                var reconciliation = await reconcile(reviewedAccount, revision, lifetime.Token);
+                await account.RefreshAsync();
+                if (closed || revision != connection.SessionRevision || !connection.IsConnected || account.Snapshot == null ||
+                    !ReferenceEquals(account.Snapshot.Account, reviewedAccount)) return;
+                var currentSource = await new DelphiLiveLedgerRepository().LoadPortfolioAsync(ledger.PortfolioId, lifetime.Token);
+                if (closed || revision != connection.SessionRevision || !connection.IsConnected) return;
+                if (account.Snapshot == null || !ReferenceEquals(account.Snapshot.Account, reviewedAccount))
+                { status.Text = "The selected TFSA changed. Prepare a fresh review for the current account."; return; }
+                if (currentSource == null || currentSource.Revision != ledger.Revision || currentSource.PolicyVersionId != ledger.PolicyVersionId)
+                { status.Text = "The source portfolio changed during reconciliation. Reopen the review to use its current intended holdings."; return; }
+                var preview = TfsaTransitionPlanning.PreviewReconciled(account.Snapshot, account.PendingOrders, incoming, cap, DateTimeOffset.UtcNow, reconciliation);
                 grid.ItemsSource = preview.Rows;
                 detail.Text = $"{selected.DailySummary}\nComplete strategy version: {exact.Strategy.VersionId:D}\n" +
                     $"Source observation: {ledger.UpdatedUtc:yyyy-MM-dd HH:mm:ss} UTC · {ledger.OpenPositions.Count()} held securities\n" +

@@ -3,6 +3,7 @@
 using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
@@ -81,7 +82,10 @@ public sealed class TraderDbBackupService
             throw new IOException($"Refusing to overwrite existing backup file: {stagingFile}");
 
         reportProgress?.Invoke($"Creating compressed checksum backup: {stagingFile}");
-        await CreateAndVerifySqlBackupAsync(stagingFile, cancellationToken);
+        string incompleteFile = stagingFile + ".partial";
+        if (File.Exists(incompleteFile)) throw new IOException("An incomplete backup already uses this timestamp.");
+        await CreateAndVerifySqlBackupAsync(incompleteFile, cancellationToken);
+        File.Move(incompleteFile, stagingFile, overwrite: false);
 
         var stagingInfo = new FileInfo(stagingFile);
         if (!stagingInfo.Exists || stagingInfo.Length == 0)
@@ -93,12 +97,45 @@ public sealed class TraderDbBackupService
             _paths.DestinationDirectory,
             cancellationToken);
 
+        // A failed backup or copy never reaches retention. Keep the latest two in each location.
+        // Cleanup failure must be visible without misreporting a verified backup as a failed backup.
+        try
+        {
+            var completed = await ReadCompletedBackupNamesAsync(_connectionString, cancellationToken);
+            TraderDbBackupRetention.Apply(stagingFile, copy.DestinationFile, copy.SizeBytes, completed, reportProgress);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException or SqlException or OperationCanceledException)
+        {
+            reportProgress?.Invoke($"WARNING: Backup verified, but retention did not complete: {exception.Message}");
+        }
+
         return new TraderDbBackupResult(
             stagingFile,
             copy.DestinationFile,
             copy.SizeBytes,
             copy.Sha256,
             DateTimeOffset.Now);
+    }
+
+    public static async Task<IReadOnlySet<string>> ReadCompletedBackupNamesAsync(string connectionString, CancellationToken token = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(token);
+        await using var command = new SqlCommand("""
+SELECT DISTINCT f.physical_device_name
+FROM msdb.dbo.backupset b JOIN msdb.dbo.backupmediafamily f ON f.media_set_id=b.media_set_id
+WHERE b.database_name=N'TraderDB' AND b.type='D' AND b.backup_finish_date IS NOT NULL
+ AND b.has_backup_checksums=1 AND b.is_damaged=0 AND f.device_type=2;
+""", connection);
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        await using var reader = await command.ExecuteReaderAsync(token);
+        while (await reader.ReadAsync(token))
+        {
+            string name = Path.GetFileName(reader.GetString(0));
+            if (name.EndsWith(".bak.partial", StringComparison.Ordinal)) name = name[..^8];
+            names.Add(name);
+        }
+        return names;
     }
 
     private async Task CreateAndVerifySqlBackupAsync(

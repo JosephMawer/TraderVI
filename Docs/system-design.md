@@ -5,7 +5,46 @@ This document describes the current state of the TraderVI trading system — wha
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
+## Compact Live storage (ADR-0082)
+
+Source now reconstructs Live portfolios from compact roots, immutable content and revision-scoped
+item versions. Reports and unchanged observations are stored once; fingerprints preserve exact
+historical reconstruction. All SQL portfolio readers/writers use this boundary. Migrations 037/038
+are installed; authorized historical conversion, all-snapshot preservation checks and native restart
+acceptance are complete. New WPF writes use the compact representation. See
+[ADR-0082](adr/0082-compact-live-snapshots-and-backup-retention.md) and
+[the maintenance procedure](../Operations/StorageMaintenance/README.md).
+
 ## Complete-strategy recommendations
+
+[ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md) adds initial broker risk
+baseline preparation and a reviewed save/recovery workflow in source. The repository reads existing
+import/report/recommendation state under the same account fences, preserves known holds/protection,
+and prepares one immutable initial record with source provenance. Migration 035 is build-checked but
+uninstalled; operator UI, ongoing session/cash-flow risk state and broker-input cutover remain unfinished.
+Confirmed capital flows will adjust references, and retained-position protection transfers at activation
+with established protective levels. This baseline subsystem neither evaluates a strategy nor sends orders.
+
+[ADR-0080](adr/0080-reviewed-broker-history-import.md) adds an explicit first import review and repeatable
+SQL broker history, under the existing account transaction fences. BrokerAccountImportBinding pins the
+permanent TFSA identity and legacy ledger fingerprint; BrokerAccountImport preserves complete cumulative
+order/holding observations, reviewed legacy references and request receipts. Stable order IDs prevent
+double counting within a snapshot; readers must never add totals across snapshots. Existing tracked
+positions, individual trade records, account reports and protection memory remain unchanged. Migration
+034 is installed; the account's 32-order import and linked native refresh are verified. The engine's source-aware account projection and baseline/protection
+work are still required before using these facts for strategy execution.
+
+[ADR-0079](adr/0079-broker-reconciliation-and-market-handover.md) adds an explicit broker reconciliation
+workflow. It discovers historical order IDs from the owned TFSA activity feed, validates cumulative
+order details, reconstructs shares/costs and compares them with fresh holdings. A final activity-page
+checkpoint rejects changes during the read. Previous protected observations and saved manual orders
+are checked for missing or changed facts. The shared order gate and encrypted directory lease cover
+reads and append-only reconciliation snapshots. Transition review consumes this result and rechecks
+the source portfolio and broker snapshot. No SQL position or trading authority is changed.
+
+The first portfolio execution policy is now regular-session whole-share market orders, with required
+non-overlap sells reconciled before new buys. Broker-to-strategy account projection, complete cash/risk baselines,
+inherited protection, automation qualification and a durable activation/execution coordinator remain.
 
 Manual brokerage execution is now a separate WPF path under
 [ADR-0075](adr/0075-manual-market-buy-ticket.md). Reusable selection actions carry immutable context to one

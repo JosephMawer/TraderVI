@@ -92,7 +92,7 @@ public sealed class TradingControlRepository : SQLBase
         {
             foreach(var json in await c.QueryAsync<string>("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger",transaction:t))
             {
-                var state=DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
+                var state=await DelphiLiveSnapshotStorage.ReadAsync(c,t,json);
                 held+=state.OpenPositions.Count(); pending+=state.PendingActions.Count();
             }
         }
@@ -116,7 +116,7 @@ public sealed class TradingControlRepository : SQLBase
         if(family==EngineStrategySettings.Live)
         {
             var snapshot=await c.QuerySingleAsync<string>("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id",new {Id=targetId},t);
-            var position=DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(snapshot).OpenPositions.SingleOrDefault(p=>p.PositionId==positionId)
+            var position=(await DelphiLiveSnapshotStorage.ReadAsync(c,t,snapshot)).OpenPositions.SingleOrDefault(p=>p.PositionId==positionId)
                 ?? throw new InvalidOperationException("This holding has already closed. Refresh the account.");
             json=System.Text.Json.JsonSerializer.Serialize(position); symbol=position.Symbol;
         }

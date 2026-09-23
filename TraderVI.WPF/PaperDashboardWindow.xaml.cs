@@ -37,7 +37,7 @@ public partial class PaperDashboardWindow : Window
         InitializeComponent();
         DataContext = viewModel;
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
-        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple);
+        TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync);
         CommandBindings.Add(new CommandBinding(ManualBuyCommands.Open, async (_, e) =>
         {
             if (e.Parameter is not Core.WSTrade.Orders.ManualBuyOrigin origin) return;
@@ -64,6 +64,18 @@ public partial class PaperDashboardWindow : Window
         CommandBindings.Add(new CommandBinding(ManualSellCommands.Orders, async (_, _) =>
             await manualBuys.OpenSellsAsync(this, TradingRecommendationsTabView.RefreshWealthsimpleAsync),
             (_, e) => e.CanExecute = !manualBuys.IsSubmitting));
+        CommandBindings.Add(new CommandBinding(BrokerReconciliationCommands.Refresh, async (_, e) =>
+        {
+            if (e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account && TradingRecommendationsTabView.IsCurrentBrokerAccount(account))
+                await manualBuys.ReconcileAsync(this, account);
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account &&
+            TradingRecommendationsTabView.IsCurrentBrokerAccount(account)));
+        CommandBindings.Add(new CommandBinding(BrokerImportCommands.Open, async (_, e) =>
+        {
+            if (e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account && TradingRecommendationsTabView.IsCurrentBrokerAccount(account))
+                await manualBuys.ImportHistoryAsync(this, account, () => TradingRecommendationsTabView.IsCurrentBrokerAccount(account));
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account &&
+            TradingRecommendationsTabView.IsCurrentBrokerAccount(account)));
         CommandBindings.Add(new CommandBinding(WorkspaceNavigationState.OpenWealthsimple, (_, _) =>
         {
             if (connectionWindow != null) { connectionWindow.Activate(); return; }

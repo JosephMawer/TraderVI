@@ -1,6 +1,7 @@
 # Concepts
 
 - [Wealthsimple authentication](wealthsimple-authentication.md) — observed password/OTP protocol, verified direct browser-session handoff, and remaining login integration work.
+- [Wealthsimple account-history contracts](wealthsimple-account-history-contracts.md) — September 16 capture findings, POSTED history support, reusable account-baseline queries and the unresolved null fill quantity.
 
 - [Connected trading workspace design and implementation](trading-workspace-redesign-draft.md) — main-account overview, one grid for all paper portfolios, account activity, direct strategy review and collapsible navigation; latest WPF refinement verified offline, runtime rebuild/restart pending.
 - [Manual market-buy ticket](trading-workspace-redesign-draft.md#manual-market-buys--september-10-design-draft) — accepted editable-quantity ticket, shared selection actions and protected recovery; implemented under ADR-0075, native live submission unverified.

@@ -40,11 +40,12 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Reader/valuation/no-flow continuation tested; cash flows and native integration pending | architecture, data-sources |
+| [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Daily/cash-flow continuation tested; native qualification/integration pending | architecture, data-sources |
+| [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
 | [0079](0079-broker-reconciliation-and-market-handover.md) | Broker reconciliation and first market-order handover | Reconciliation implemented; execution pending | architecture, risk-management, market-microstructure, user-interface |
 | [0080](0080-reviewed-broker-history-import.md) | Reviewed broker history import | Implemented; migration and native linked refresh verified | architecture, risk-management, user-interface |
+| [0082](0082-compact-live-snapshots-and-backup-retention.md) | Compact Live snapshots and verified backup retention | Installed and verified September 17; bounded history reads remain | architecture, data-pipeline |
 | [0081](0081-broker-account-baselines-and-protection-ownership.md) | Broker account baselines and protection ownership | Accepted; initial setup/store implemented; migration 035 not installed | architecture, risk-management |
-| [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
 | [0069](0069-direct-wealthsimple-authentication.md) | Direct Wealthsimple authentication | Accepted; isolated browser-session handoff verified | architecture |
 | [0070](0070-wealthsimple-desktop-sign-in.md) | Wealthsimple desktop sign-in and session status | Implemented; embedded login and live refresh validation pending | architecture |
 | [0071](0071-native-wealthsimple-login.md) | Native Wealthsimple sign-in | Implemented; operator login confirmed | architecture |

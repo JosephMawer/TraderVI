@@ -46,6 +46,50 @@ Tags: risk-management, data-sources.
 No. Reuse the saved correct reference or recover a precisely dated, validated value. A later value or
 previous close is not automatically the opening. Keep this logic in Core so the future scheduled engine
 uses the same path; existing strategy risk checks still apply. Source: ADR-0083. Tags: architecture, data-sources.
+### Q: Must a separate baseline review screen precede ongoing risk-tracking development?
+
+No. Develop and test continuation against the existing baseline contracts. A concise summary within
+account setup can support explicit saving later; an established baseline and verified storage are still
+required before operational use. Source: ADR-0081. Tags: architecture, risk-management.
+
+### Q: Does a first broker risk baseline require waiting for missing lifetime history?
+
+No. Setup can use verified current account value where no earlier applicable baseline exists, recording
+when measurement starts. It must preserve known references and holds, distinguish a failed history read
+from absent records, and never label a setup value as a historical opening or lifetime high.
+Source: ADR-0081. Tags: architecture, risk-management.
+
+### Q: Who protects retained holdings during a strategy transition?
+
+Their current owner remains responsible until required exits reconcile and activation transfers ownership.
+Existing protective levels carry forward. Missing protection is initialized from actual cost and fresh
+observations, not the paper holding's history; none of this independently grants order authority.
+Source: ADR-0081. Tags: architecture, risk-management.
+
+### Q: Can expected sale proceeds fund a promotion's new buys?
+
+No. Required exits must be confirmed and reconciled first. Use the lower of fresh broker CAD cash and
+buying power, then apply strategy sizing and reservations without deducting a broker-reflected reserve twice.
+Source: ADR-0081. Tags: risk-management.
+
+### Q: Why must cumulative broker totals not be summed across imports?
+
+Each import is a complete observation of the same orders plus any new orders. Select the latest consistent
+observation and use each external order ID once; summing snapshots would invent repeated purchases or sales.
+Source: ADR-0080. Tags: architecture, risk-management.
+
+### Q: Does saving broker history switch the strategy engine to the broker account?
+
+No. The initial SQL import preserves observations and reviewed legacy references. Strategy-input ownership,
+cash and risk baselines, inherited position protection and execution authority remain separate work.
+Source: ADR-0080. Tags: architecture, risk-management.
+
+### Q: How does an uncertain broker-history import response recover?
+
+The database retains the request ID and content hash with the committed observation. The same request
+can recover its receipt; a different request or changed facts must pass a fresh plan and predecessor check.
+Source: ADR-0080. Tags: architecture.
+
 ### Q: What does future primary promotion change for the TFSA?
 
 **A:** It assigns the reviewed strategy version authority to trade the permanent real account once
@@ -1219,6 +1263,19 @@ Source: ADR-0075; concepts/trading-workspace-redesign-draft.md#manual-market-buy
 
 Tags: architecture, data-pipeline. Source: ADR-0078.
 
+### ADR-0079 — Reconciliation before portfolio execution
+
+- **Q:** Why must repeated order-status reads not create new fills? **A:** Each response is a cumulative total. Rebuild or apply only a verified change; applying the total repeatedly would invent shares and costs.
+- **Q:** What does a matching reconciliation establish? **A:** Reconstructed shares and book values match observed holdings within the stated scope. It does not establish complete cash history, account risk baselines, strategy qualification or trading authority.
+- **Q:** What is the accepted first portfolio handover sequence? **A:** Retain overlapping holdings, market-sell required non-overlaps during regular hours, reconcile confirmed exits, then consider new buys under the approved strategy and real-account risk rules.
+
+- **Q:** Why can completed activity say FILLED while historical order details say POSTED? **A:** The captured broker views use different status representations. Preserve the source status and require complete fill facts; a status-only posting advance must not create a second fill.
+- **Q:** When can the history reader retain an expired or cancelled order with a blank quantity? **A:** Only for EXPIRED, CANCELLED or CANCELED when all selected execution fields are explicitly null, activity reports no fill and prior confirmed fills are preserved. Save the blank-source flag; never omit the order or treat arbitrary missing quantities as zero.
+- **Q:** Would starting from today's verified account remove the need for synchronization? **A:** No. A baseline can avoid reconstructing every old order, but future fills and account changes still need synchronization, and current holdings, costs and risk/protection state must carry forward.
+- **Q:** Does accepting historical ETF fills allow the strategy to buy ETFs? **A:** No. Accounting for completed history and eligibility for new trades are separate checks; current unsupported holdings still block handover.
+- **Q:** Why can a ticker suffix match while a proceeds difference cannot? **A:** A unique Canadian listing tied to the same broker security can verify the spelling difference. Conflicting financial values remain separate evidence and require explicit resolution; similarity cannot overwrite either source.
+- **Q:** Can a high-precision SQL timestamp column still receive a rounded value? **A:** Yes. A lower-precision parameter can round the value before storage. Bind `DateTime2` explicitly; recover existing receipts only through the exact known old encoding while preserving their original JSON and strict financial checks.
+
 ### Q: Why can nightly preparation retry without retrying Delphi?
 
 **A:** Source capture and dependency download precede operational stages. Repeating preparation cannot duplicate official recommendations; repeating Delphi can require a separate reviewed publication decision.
@@ -1230,3 +1287,7 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 **A:** Locked restore fails before Hermes. Regenerate and review the lock file with the dependency change; the night must not silently select another package graph.
 
 Tags: architecture, data-pipeline. Source: ADR-0078.
+
+- **Q:** How can compact storage preserve historical portfolio state? **A:** Select immutable item versions at or before the original revision, use its saved array counts and verify the fully reconstructed fingerprint. Never join a historical root to current holdings. (ADR-0082)
+- **Q:** When may backup retention delete older generations? **A:** Only after the new SQL backup passes checksum verification and its destination copy matches SHA-256; keep the latest two completed backups in each location. (ADR-0082)
+- **Q:** Does releasing SQL pages immediately free Windows disk space? **A:** No. SQL can reuse those pages internally; physical file shrinking is a separate reviewed operation. (ADR-0082)

@@ -33,13 +33,13 @@ Do not delete or shrink the existing transaction log as part of this transition.
 Hermes automatically performs the backup after its data-update stages return successfully. The implementation is inside Hermes rather than a Visual Studio or terminal wrapper, so it follows every normal launch path. It:
 
 - uses the narrow shared staging directory `C:\ProgramData\TraderVI\Backups`;
-- creates a unique `TraderDB_FULL_yyyyMMdd_HHmmss_fff.bak` file;
+- creates a uniquely named `.bak.partial` staging file and publishes its final `TraderDB_FULL_yyyyMMdd_HHmmss_fff.bak` name only after SQL verification;
 - enables backup compression and checksums;
 - refuses to overwrite a file;
 - runs `RESTORE VERIFYONLY WITH CHECKSUM`;
 - copies through a uniquely named `.partial` file and publishes the final OneDrive file only after its SHA-256 matches the staging backup;
 - reports both completed paths, compressed size, and SHA-256;
-- performs no retention cleanup.
+- after both verifications, keeps the latest **two completed full backups per location** (ADR-0082); failed cleanup reports a warning without misreporting the verified backup as failed.
 
 The default destination is `$env:OneDrive\Joseph\Tradervi\backups`. `TRADERVI_BACKUP_STAGING_DIRECTORY` and `TRADERVI_BACKUP_DESTINATION_DIRECTORY` may override the defaults, but both configured directories must already exist. Hermes does not create storage or broaden permissions.
 
@@ -56,7 +56,7 @@ Use this flow:
 3. Wait for OneDrive to report that synchronization is complete.
 4. Keep uniquely named generations; do not replace a fixed `latest.bak` file.
 
-Initial retention target: 30 successful full backups, subject to measured compressed size and available OneDrive quota. Cleanup is deliberately manual until the first several backup sizes are known. OneDrive is synchronized storage, so deletions also propagate; an occasional separate external-drive copy adds protection from account loss, mistaken cleanup, or ransomware.
+Retention decision (September 17): **two completed backups in each location**. Updated Hermes source cleans only after a new checksum-verified backup and hash-verified copy. It preserves the new backup, one prior backup and any newer potentially concurrent files, requires SQL backup-history evidence of completion, ignores partial/unrelated or unregistered files, and rejects redirecting links. The running executable is not updated until rebuilt. A standalone SQL backup does not invoke this retention helper; the explicitly authorized `StorageMaintenance backup` command uses the complete backup/copy/retention service without running Hermes collection. OneDrive is synchronized storage, so deletions also propagate; an occasional separate external-drive copy adds protection from account loss, mistaken cleanup, or ransomware.
 
 Never place `.bak`, `.dif`, or `.trn` files in Git. They are changing binary artifacts that can contain private application data and permanently inflate repository history.
 

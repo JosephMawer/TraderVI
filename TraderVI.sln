@@ -1,4 +1,4 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11123.170
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -150,11 +150,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0075-manual-market-buy-ticket.md = Docs\adr\0075-manual-market-buy-ticket.md
 		Docs\adr\0076-wealthsimple-market-sell-protocol.md = Docs\adr\0076-wealthsimple-market-sell-protocol.md
 		Docs\adr\0077-manual-holdings-market-sell.md = Docs\adr\0077-manual-holdings-market-sell.md
-		Docs\adr\by-domain.md = Docs\adr\by-domain.md
-		Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md = Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md
 		Docs\adr\0079-broker-reconciliation-and-market-handover.md = Docs\adr\0079-broker-reconciliation-and-market-handover.md
 		Docs\adr\0080-reviewed-broker-history-import.md = Docs\adr\0080-reviewed-broker-history-import.md
 		Docs\adr\0081-broker-account-baselines-and-protection-ownership.md = Docs\adr\0081-broker-account-baselines-and-protection-ownership.md
+		Docs\adr\0082-compact-live-snapshots-and-backup-retention.md = Docs\adr\0082-compact-live-snapshots-and-backup-retention.md
+		Operations\StorageMaintenance\README.md = Operations\StorageMaintenance\README.md
+		Operations\StorageMaintenance\StorageMaintenance.csproj = Operations\StorageMaintenance\StorageMaintenance.csproj
+		Operations\StorageMaintenance\Program.cs = Operations\StorageMaintenance\Program.cs
+		Operations\StorageMaintenance\SnapshotConversion.cs = Operations\StorageMaintenance\SnapshotConversion.cs
+		Operations\StorageMaintenance\NativeStorageVerification.cs = Operations\StorageMaintenance\NativeStorageVerification.cs
+		Operations\StorageMaintenance\CompactSnapshotVerification.cs = Operations\StorageMaintenance\CompactSnapshotVerification.cs
+		Docs\adr\by-domain.md = Docs\adr\by-domain.md
+		Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md = Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
 EndProject
@@ -166,6 +173,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65
 		Docs\concepts\portfolio-comparison.md = Docs\concepts\portfolio-comparison.md
 		Docs\concepts\trading-workspace-redesign-draft.md = Docs\concepts\trading-workspace-redesign-draft.md
 		Docs\concepts\wealthsimple-authentication.md = Docs\concepts\wealthsimple-authentication.md
+		Docs\concepts\wealthsimple-account-history-contracts.md = Docs\concepts\wealthsimple-account-history-contracts.md
 		Docs\concepts\settings-system-map.md = Docs\concepts\settings-system-map.md
 		Docs\concepts\delphi-live-watchlist-and-replay.md = Docs\concepts\delphi-live-watchlist-and-replay.md
 		Docs\concepts\historical-practice-environment-draft.md = Docs\concepts\historical-practice-environment-draft.md

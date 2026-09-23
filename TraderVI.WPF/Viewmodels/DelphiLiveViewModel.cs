@@ -37,6 +37,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private string policyText = "DelphiLivePolicyV1 · installed inactive";
     private IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios = Array.Empty<DelphiLivePortfolioSnapshot>();
     private IReadOnlyDictionary<Guid, string> accountNames = new Dictionary<Guid, string>();
+    private (Guid PortfolioId, long Revision)? shownPortfolio;
 
     public DelphiLiveViewModel(DelphiLiveDesktopService service)
     {
@@ -74,7 +75,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     public DelphiLiveActionRow? SelectedAction
     {
         get => selectedAction;
-        set { if (Set(ref selectedAction, value) && value is not null) SelectedDossier = value.DossierJson; }
+        set { if (Set(ref selectedAction, value) && value is not null) SelectedDossier = FormatJson(value.DossierJson); }
     }
     public DelphiLiveQuoteRow? SelectedQuote
     {
@@ -226,18 +227,21 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private void ShowPortfolio()
     {
         var portfolio = portfolios.FirstOrDefault(p => p.PortfolioId == SelectedPortfolio?.PortfolioId);
+        var identity = portfolio is null ? ((Guid, long)?)null : (portfolio.PortfolioId, portfolio.Revision);
+        if (shownPortfolio == identity) return;
+        shownPortfolio = identity;
         Replace(Positions, portfolio?.Positions.Select(p => new DelphiLivePositionRow(p.Symbol, p.Quantity, p.AveragePurchasePrice,
             p.Protection.FloorPrice, p.Protection.Stage.ToString(), p.ClosedUtc.HasValue ? "Closed" : "Held", TorontoTime(p.OpenedUtc))
             { PositionId=p.PositionId, PortfolioId=portfolio.PortfolioId }) ?? []);
         Replace(Actions, portfolio?.Actions.Reverse().Select(a => new DelphiLiveActionRow(a.Intent.Symbol, a.Intent.Side.ToString(),
             a.Status, a.PrimaryReason, a.TerminalReason ?? "", a.AttemptCount, TorontoTime(a.Intent.DecisionUtc),
-            FormatJson(a.DossierJson))) ?? []);
+            a.DossierJson)) ?? []);
         Replace(Fills, portfolio?.Fills.Reverse().Select(f => new DelphiLiveFillRow(f.Symbol, f.Side.ToString(), f.Quantity,
             f.Price, f.Confidence.ToString(), f.Field.ToString(), TorontoTime(f.FilledUtc))) ?? []);
         Replace(Quotes, portfolio?.Quotes.Reverse().Select(q => new DelphiLiveQuoteRow(q.Observation.Symbol, q.Purpose,
             q.Observation.Bid, q.Observation.Ask, q.Observation.Price, q.Disposition,
             TorontoTime(q.Observation.RequestStartedUtc), TorontoTime(q.Observation.ReceivedUtc),
-            FormatJson(DelphiLiveLedgerJson.Serialize(q)))) ?? []);
+            q)) ?? []);
     }
 
     private static string FormatEvidence(DelphiLiveStoredEvaluation stored, DelphiLivePortfolioSnapshot? portfolio,
@@ -262,7 +266,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private bool TryCapital(out decimal amount) => decimal.TryParse(StartingCapital, NumberStyles.Number,
         CultureInfo.CurrentCulture, out amount) && amount > 0m && decimal.Round(amount, 6) == amount;
     private void SetBusy(bool value) { busy = value; OnPropertyChanged(nameof(CanActivate)); OnPropertyChanged(nameof(CanRefresh)); RefreshCommandAvailability(); }
-    private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> items) { target.Clear(); foreach (var item in items) target.Add(item); }
+    private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> items) => StableDisplayRows.Apply(target, items);
     private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
     { if (EqualityComparer<T>.Default.Equals(field, value)) return false; field = value; OnPropertyChanged(name); return true; }
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -285,5 +289,3 @@ public sealed record DelphiLivePositionRow(string Symbol, int Quantity, decimal 
 public sealed record DelphiLiveActionRow(string Symbol, string Side, string State, string Reason, string TerminalReason,
     int Attempts, string DecisionTime, string DossierJson);
 public sealed record DelphiLiveFillRow(string Symbol, string Side, int Quantity, decimal Price, string Confidence, string Field, string Time);
-public sealed record DelphiLiveQuoteRow(string Symbol, string Purpose, decimal? Bid, decimal? Ask, decimal? Price,
-    string Disposition, string Requested, string Received, string EvidenceJson);

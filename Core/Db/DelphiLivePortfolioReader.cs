@@ -31,13 +31,16 @@ JOIN dbo.DelphiLivePolicyAssignment a ON a.AssignmentId=g.AssignmentId
 ORDER BY CASE WHEN g.EndExclusiveTradingDate IS NULL AND a.CancelledUtc IS NULL THEN 0 ELSE 1 END,
  g.AuthorizedUtc DESC,l.PortfolioId;
 """, connection);
-        var accounts = new List<DelphiLivePortfolioAccount>();
+        var saved = new List<(string Json, DateTime Open, DateOnly? End, DateTime? Cancelled)>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
-            accounts.Add(new(DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(reader.GetString(0)),
-                DateTime.SpecifyKind(reader.GetDateTime(1), DateTimeKind.Utc),
+            saved.Add((reader.GetString(0), DateTime.SpecifyKind(reader.GetDateTime(1), DateTimeKind.Utc),
                 reader.IsDBNull(2) ? null : DateOnly.FromDateTime(reader.GetDateTime(2)),
                 reader.IsDBNull(3) ? null : DateTime.SpecifyKind(reader.GetDateTime(3), DateTimeKind.Utc)));
+        await reader.DisposeAsync();
+        var accounts = new List<DelphiLivePortfolioAccount>();
+        foreach (var row in saved)
+            accounts.Add(new(await DelphiLiveSnapshotStorage.ReadAsync(connection, null, row.Json, cancellationToken), row.Open, row.End, row.Cancelled));
         return new(true, accounts);
     }
 }

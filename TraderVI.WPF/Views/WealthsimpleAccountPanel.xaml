@@ -62,10 +62,14 @@
     </DataGrid.Columns>
    </DataGrid>
    <TextBlock Text="Broker balances, holdings and pending orders. Manual buys and sells have saved order histories. Strategy execution and the tracked-position ledger still require reconciliation." Style="{StaticResource WorkspaceLabel}" Margin="0,14,0,0"/>
-   <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+   <WrapPanel Margin="0,14,0,0">
     <Button Content="Manual buys…" Command="{x:Static views:ManualBuyCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"/>
     <Button Content="Manual sells…" Command="{x:Static views:ManualSellCommands.Orders}" Style="{StaticResource WorkspaceButton}"/>
-   </StackPanel>
+    <Button Content="Reconcile account…" Command="{x:Static views:BrokerReconciliationCommands.Refresh}" CommandParameter="{Binding SelectedAccount}"
+     Style="{StaticResource WorkspaceButton}" Margin="10,0,0,0" ToolTip="Compare confirmed order history with current Wealthsimple holdings and save the result."/>
+    <Button Content="Import account history…" Command="{x:Static views:BrokerImportCommands.Open}" CommandParameter="{Binding SelectedAccount}"
+     Style="{StaticResource WorkspaceButton}" Margin="10,0,0,0" ToolTip="Preview the first database import; refresh saved broker history after linking the account."/>
+   </WrapPanel>
    <Button Content="Review TFSA strategy transition…" Click="ReviewTransition_Click" IsEnabled="{Binding CanRefresh}" Style="{StaticResource WorkspaceButton}" HorizontalAlignment="Left" Margin="0,14,0,0"/>
   </StackPanel>
  </Border>

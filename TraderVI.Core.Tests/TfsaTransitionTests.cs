@@ -63,6 +63,24 @@ public class TfsaTransitionTests
     }
 
     [Fact]
+    public void ReconciledPreviewRequiresSameCurrentFinancialFactsAndUsesMarketHandoverPolicy()
+    {
+        var snapshot = Snapshot(Holding("same", "FIX", 17), Holding("exit", "EXIT", 7));
+        var reconciliation = new BrokerAccountReconciliation("identity", Account.Id, Now, Now, 100, 70, 500, [],
+            [new("same", "FIX", 17, 17, 90, 90, Now.AddDays(-1), 0), new("exit", "EXIT", 7, 7, 90, 90, Now.AddDays(-1), 0)], [], []);
+        var incoming = new[] { new TfsaIncomingHolding("FIX", "same"), new TfsaIncomingHolding("NEW", "new") };
+        var result = TfsaTransitionPlanning.PreviewReconciled(snapshot, EmptyOrders(), incoming, 100, Now, reconciliation);
+        Assert.Empty(result.Blocks);
+        Assert.Contains("at market", result.Rows.Single(r => r.Action == "Exit at transition").Explanation);
+        Assert.Contains("New buys wait", result.Rows.Single(r => r.Action == "Exit at transition").Explanation);
+        foreach (var changed in new[] {
+            reconciliation with { AccountId = "other" }, reconciliation with { CheckedAt = Now.AddMinutes(-3) },
+            reconciliation with { Cash = 99 }, reconciliation with { Holdings = [] },
+            reconciliation with { HistoryConflicts = ["Missing historical fill"] } })
+            Assert.NotEmpty(TfsaTransitionPlanning.PreviewReconciled(snapshot, EmptyOrders(), incoming, 100, Now, changed).Blocks);
+    }
+
+    [Fact]
     public void SameSymbolDifferentBrokerInstrumentDoesNotOverlap()
     {
         var p = TfsaTransitionPlanning.Preview(Snapshot(Holding("actual", "FIX", 20)), EmptyOrders(), [new("FIX", "different")], 50, Now);

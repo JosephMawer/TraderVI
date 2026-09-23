@@ -35,10 +35,10 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     private readonly string codeIdentity;
     private readonly List<string> notifications = [];
     private DateOnly notificationDate;
-    private DelphiLiveResearchPresentation? cachedResearch;
-    private DateOnly? researchFrom;
-    private DateOnly? researchThrough;
-    private DateTime? researchReadUtc;
+    // Research can finish while a background Live tick reads presentation state.
+    // Publish its report and range together so the UI never receives mismatched metadata.
+    private sealed record ResearchCache(DelphiLiveResearchPresentation Report, DateOnly From, DateOnly Through, DateTime ReadUtc);
+    private volatile ResearchCache? cachedResearch;
     private long? scoredProtocolRevision;
     private DelphiLivePromotionScore? cachedPromotionScore;
     public bool CalendarAvailable => calendar is not null;
@@ -106,6 +106,8 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.PaperComparisonSourceRevision',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.IntradayCollectionReceipt',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLivePortfolioLedger',N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.DelphiLiveSnapshotContent',N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.DelphiLiveSnapshotItem',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLiveEvaluation',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLiveExpectedResearchSlot',N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLiveRankingCheckpoint',N'U') IS NOT NULL
@@ -118,7 +120,12 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 """, cancellationToken: cancellationToken));
     }
 
-    public async Task<DelphiLiveRuntimeSnapshot> SnapshotAsync(CancellationToken cancellationToken = default)
+    // An async SQL call can complete synchronously, and otherwise captures WPF's dispatcher.
+    // Keep the entire engine/read operation (including ledger validation and JSON) on a worker.
+    public Task<DelphiLiveRuntimeSnapshot> SnapshotAsync(CancellationToken cancellationToken = default) =>
+        Task.Run(() => ReadSnapshotAsync(cancellationToken), cancellationToken);
+
+    private async Task<DelphiLiveRuntimeSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
         DateOnly date = Today();
         ResetNotificationsFor(date);
@@ -145,7 +152,10 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
             latest.Count == 0 ? null : latest.Max(e => e.Input.BarEndUtc), latest, portfolios, warnings), cancellationToken);
     }
 
-    public async Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken cancellationToken = default)
+    public Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken cancellationToken = default) =>
+        Task.Run(() => TickCoreAsync(cancellationToken), cancellationToken);
+
+    private async Task<DelphiLiveRuntimeSnapshot> TickCoreAsync(CancellationToken cancellationToken)
     {
         await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
         ResetNotificationsFor(Today());
@@ -264,7 +274,6 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
                 affectedFrom, affectedThrough, DateTime.UtcNow, Environment.UserName, reason), lease, token);
             await research!.RecoverAndMatureAsync(Today(), lease, token);
             cachedResearch = null;
-            researchReadUtc = null;
         }, cancellationToken);
 
     public async Task<DelphiLiveResearchPresentation> LoadResearchAsync(DateOnly from, DateOnly through,
@@ -278,10 +287,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         // Report aggregation can span many saved sessions. Keep its I/O and
         // CPU continuation off WPF's dispatcher so scheduled monitoring still ticks.
         var result = await Task.Run(() => research.ReadPresentationAsync(from, through, cancellationToken), cancellationToken);
-        cachedResearch = result;
-        researchFrom = from;
-        researchThrough = through;
-        researchReadUtc = DateTime.UtcNow;
+        cachedResearch = new(result, from, through, DateTime.UtcNow);
         return result;
     }
 
@@ -326,8 +332,10 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
                 ? DelphiLiveExperimentPolicy.Score(definition, selected, state.DiscoveryCohorts, state.UntouchedCohorts, champion) : null;
             scoredProtocolRevision = state?.Revision;
         }
+        var researchSnapshot = cachedResearch;
         return snapshot with { Experiment = state, PromotionScore = cachedPromotionScore, ChampionPolicy = champion,
-            Research = cachedResearch, ResearchFrom = researchFrom, ResearchThrough = researchThrough, ResearchReadUtc = researchReadUtc };
+            Research = researchSnapshot?.Report, ResearchFrom = researchSnapshot?.From,
+            ResearchThrough = researchSnapshot?.Through, ResearchReadUtc = researchSnapshot?.ReadUtc };
     }
 
     private static DateOnly Today() => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ReviewedTsxSessionCalendar.Toronto));

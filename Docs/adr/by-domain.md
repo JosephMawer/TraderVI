@@ -6,6 +6,12 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Shared morning account-value recovery for a future scheduled engine
 
+- [ADR-0082](0082-compact-live-snapshots-and-backup-retention.md) — Lossless compact portfolio revisions and two verified backups per location
+
+- [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Protected broker-history reconstruction before SQL and execution integration
+- [ADR-0080](0080-reviewed-broker-history-import.md) — Reviewed account binding and append-only SQL broker observations
+- [ADR-0081](0081-broker-account-baselines-and-protection-ownership.md) — Initial account risk references and protection ownership at activation
+
 - [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
 
 - [ADR-0075](0075-manual-market-buy-ticket.md) — Shared manual ticket, protected order journal and recovery
@@ -175,6 +181,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
+- [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Regular-session market handover direction and cumulative-fill accounting
+
 - [ADR-0074](0074-wealthsimple-market-buy-protocol.md) — Whole-share market orders and actual fill observations
 - [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Captured market sells and independent sell eligibility
 - [ADR-0077](0077-manual-holdings-market-sell.md) — Explicit whole-holding market execution and limit-ticket preview
@@ -207,6 +215,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Reconciliation blocks, retained holdings and exits before new buys
+- [ADR-0080](0080-reviewed-broker-history-import.md) — Preserve legacy protection while preparing broker account history
+- [ADR-0081](0081-broker-account-baselines-and-protection-ownership.md) — Preserve known holds and references; initialize missing baselines from observed real value
 
 - [ADR-0075](0075-manual-market-buy-ticket.md) — Reviewed manual quantities, fresh account checks and uncertain-order recovery
 - [ADR-0076](0076-wealthsimple-market-sell-protocol.md) — Preventing cross-side retransmission and preserving cumulative sell fills
@@ -330,6 +342,9 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Account-history reconciliation and regular-session market handover direction
+- [ADR-0080](0080-reviewed-broker-history-import.md) — Initial import review and explicit refresh of linked broker history
 
 - [ADR-0075](0075-manual-market-buy-ticket.md) — Reusable grid Buy action and editable whole-share ticket
 - [ADR-0077](0077-manual-holdings-market-sell.md) — Immediate holdings-row sell-all controls and protected results window

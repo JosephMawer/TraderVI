@@ -1,6 +1,7 @@
 #nullable enable
 using Core.Db;
 using Core.WSTrade.Orders;
+using Core.WSTrade.Accounts;
 using System;
 using System.IO;
 using System.Threading;
@@ -13,11 +14,13 @@ using TraderVI.WPF.Views;
 
 namespace TraderVI.WPF.Services;
 
-public sealed class ManualBuyCoordinator : IDisposable
+public sealed partial class ManualBuyCoordinator : IDisposable
 {
     private readonly ManualBuyFileJournal journal;
     private readonly ManualMarketBuyWorkflow workflow;
     private readonly WealthsimpleConnection connection;
+    private readonly BrokerReconciliationWorkflow reconciliation;
+    private bool reconciling;
     private ManualBuyWindow? window;
     private ManualSellWindow? sellWindow;
     public ManualSellViewModel Sells { get; }
@@ -29,9 +32,44 @@ public sealed class ManualBuyCoordinator : IDisposable
         var orderGate = new SemaphoreSlim(1, 1);
         workflow = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
         Sells = new(new ManualMarketSellWorkflow(connection, journal, orderGate: orderGate));
+        reconciliation = new(connection, journal, journal, orderGate);
         Sells.PropertyChanged += (_, _) => CommandManager.InvalidateRequerySuggested();
     }
-    public bool IsSubmitting => window?.IsSubmitting == true || Sells.IsBusy;
+    public bool IsSubmitting => window?.IsSubmitting == true || Sells.IsBusy || reconciling;
+    public async Task<BrokerAccountReconciliation> ReconcileForTransitionAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct)
+    {
+        if (IsSubmitting) throw new InvalidOperationException("Finish the current order or reconciliation first.");
+        reconciling = true; CommandManager.InvalidateRequerySuggested();
+        try { return await reconciliation.RefreshAsync(account, revision, ct); }
+        finally { reconciling = false; CommandManager.InvalidateRequerySuggested(); }
+    }
+    public async Task ReconcileAsync(Window owner, WealthsimpleTfsaAccount account)
+    {
+        if (IsSubmitting) return;
+        reconciling = true; CommandManager.InvalidateRequerySuggested();
+        var revision = connection.SessionRevision;
+        var dialog = new BrokerReconciliationWindow(owner, account.DisplayName);
+        using var cancellation = new CancellationTokenSource();
+        bool closed = false, reading = true;
+        dialog.Closed += (_, _) => { closed = true; if (reading) cancellation.Cancel(); };
+        void Changed(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (connection.SessionRevision != revision || !connection.IsConnected)
+            { if (reading) cancellation.Cancel(); dialog.Message("Login changed", "Close this result and reconcile the current account again."); }
+        }
+        connection.PropertyChanged += Changed;
+        dialog.Closed += (_, _) => connection.PropertyChanged -= Changed;
+        try
+        {
+            dialog.Show();
+            var result = await reconciliation.RefreshAsync(account, revision, cancellation.Token);
+            if (!closed && connection.SessionRevision == revision && connection.IsConnected) dialog.Present(result);
+        }
+        catch (OperationCanceledException) { if (!closed) dialog.Message("Reconciliation stopped", "No completed result was applied. Reconcile the current account again."); }
+        catch (InvalidOperationException error) { if (!closed) dialog.Message("Reconciliation could not complete", error.Message); }
+        catch { if (!closed) dialog.Message("Reconciliation could not complete", "The account read or protected history needs attention. No partial result was saved. Check the connection and saved manual-order statuses, then try again."); }
+        finally { reading = false; reconciling = false; CommandManager.InvalidateRequerySuggested(); }
+    }
     public void Open(Window owner, ManualBuyOrigin? origin)
     {
         if (Sells.IsBusy) { sellWindow?.Activate(); return; }

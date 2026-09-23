@@ -51,7 +51,7 @@ public sealed class EngineSettingsRepository : SQLBase
                 JOIN dbo.DelphiLivePortfolioGeneration g ON g.GenerationId=l.GenerationId WHERE g.EndExclusiveTradingDate IS NULL
                 """))
             {
-                var state = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>((string)row.SnapshotJson);
+                var state = await DelphiLiveSnapshotStorage.ReadAsync(c, null, (string)row.SnapshotJson);
                 if (state.ComparisonAccount is not null) continue;
                 targets.Add(new(state.PortfolioId, EngineStrategySettings.Live, $"Delphi Live · {state.Role} · {state.PortfolioId.ToString("N")[..8]}",
                     $"{state.OpenPositions.Count()} holdings", state.PolicyVersionId, null, $"Policy {state.PolicyVersionId.ToString("N")[..8]}"));
@@ -131,7 +131,8 @@ public sealed class EngineSettingsRepository : SQLBase
         if (target.Family == EngineStrategySettings.Live)
         {
             prior = await c.QuerySingleAsync<string>("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WITH(UPDLOCK,HOLDLOCK) WHERE PortfolioId=@Id", new { Id = target.TargetId }, t);
-            live = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(prior);
+            live = await DelphiLiveSnapshotStorage.ReadAsync(c, t, prior);
+            prior = DelphiLiveLedgerJson.Serialize(live);
             if (live.PolicyVersionId != target.VersionId) throw new InvalidOperationException("The portfolio policy changed. Reload settings.");
             if (await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.DelphiLivePortfolioGeneration WHERE GenerationId=@Id AND EndExclusiveTradingDate IS NULL", new { Id = live.GenerationId }, t) != 1)
                 throw new InvalidOperationException("This portfolio generation has ended.");
@@ -158,7 +159,7 @@ public sealed class EngineSettingsRepository : SQLBase
         if (live is not null)
         {
             var next = EngineStrategyReassignment.Rebase(live, (DelphiLivePolicyDefinition)settings, now);
-            string json = DelphiLiveLedgerJson.Serialize(next);
+            string json = await DelphiLiveSnapshotStorage.SaveAsync(c, t, next);
             await c.ExecuteAsync("""
                 UPDATE dbo.DelphiLivePortfolioLedger SET DelphiLivePolicyVersionId=@Version,Revision=@Revision,SnapshotJson=@Json,UpdatedUtc=@Now WHERE PortfolioId=@Target;
                 INSERT dbo.DelphiLivePortfolioRevision(PortfolioId,Revision,SnapshotJson,SettingsAssignmentId) VALUES(@Target,@Revision,@Json,@Assignment);

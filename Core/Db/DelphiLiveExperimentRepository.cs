@@ -272,9 +272,10 @@ WHERE s.TradingDate BETWEEN @From AND @Through ORDER BY s.TradingDate,s.BarEndUt
         DelphiLiveExperimentState next, DelphiLiveExperimentBoundaryPlan plan, DateOnly date, DelphiLiveLease lease, CancellationToken token)
     {
         await using var read = Command(c, t, "SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WITH(UPDLOCK,HOLDLOCK) WHERE PortfolioId=@Id;", P("@Id", prior.OperationalPortfolioId));
-        var portfolio = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>((string)(await read.ExecuteScalarAsync(token))!);
+        var portfolio = await DelphiLiveSnapshotStorage.ReadAsync(c, t, (string)(await read.ExecuteScalarAsync(token))!, token);
         var promoted = portfolio with { PolicyVersionId = next.ChampionPolicyVersionId, Revision = portfolio.Revision + 1, UpdatedUtc = next.UpdatedUtc };
         DelphiLiveLedgerIntegrity.ValidatePolicyPromotion(portfolio, promoted);
+        string stored = await DelphiLiveSnapshotStorage.SaveAsync(c, t, promoted, token);
         await Execute(c, t, """
 UPDATE dbo.DelphiLivePolicyAssignment SET EndExclusiveTradingDate=@Date
  WHERE RoleSlot=0 AND EndExclusiveTradingDate IS NULL AND CancelledUtc IS NULL;
@@ -286,7 +287,7 @@ INSERT dbo.DelphiLiveLedgerEvent (EventId,PortfolioId,Revision,EventKind,Recorde
 VALUES(@Event,@Portfolio,@Revision,N'HumanApprovedPolicyPromotion',@Now,@Plan);
 """, token, P("@Date", date), P("@Assignment", Guid.NewGuid()), P("@Policy", next.ChampionPolicyVersionId),
             P("@Authorized", plan.AuthorizedUtc), P("@By", plan.AuthorizedBy, 128), P("@Reason", plan.Reason, 1024),
-            P("@Portfolio", portfolio.PortfolioId), P("@Revision", promoted.Revision), P("@Json", Json(promoted)),
+            P("@Portfolio", portfolio.PortfolioId), P("@Revision", promoted.Revision), P("@Json", stored),
             P("@Now", next.UpdatedUtc), P("@Lease", lease.LeaseId), P("@Fence", lease.FencingToken), P("@Event", Guid.NewGuid()), P("@Plan", Json(plan)));
     }
 
@@ -314,6 +315,7 @@ VALUES(@Assignment,@Policy,@Role,@Slot,@Experiment,@Date,@Authorized,@By,@Reason
             definition.ExperimentId, definition.StartingCapital, definition.Currency, date, openUtc,
             plan.AuthorizedUtc, plan.AuthorizedBy, plan.Reason);
         var state = DelphiLiveLedgerIntegrity.Create(request);
+        string stored = await DelphiLiveSnapshotStorage.SaveAsync(c, t, state, token);
         await Execute(c, t, """
 INSERT dbo.DelphiLivePortfolioGeneration (GenerationId,AssignmentId,DelphiLivePolicyVersionId,PortfolioRole,ExperimentId,StartingCapital,Currency,EffectiveTradingDate,EffectiveSessionOpenUtc,AuthorizedUtc,AuthorizedBy,AuthorizationReason,AuthorizationJson)
 VALUES(@Generation,@Assignment,@Policy,@Role,@Experiment,@Capital,@Currency,@Date,@Open,@Authorized,@By,@Reason,@Authorization);
@@ -324,7 +326,7 @@ INSERT dbo.DelphiLiveLedgerEvent (EventId,PortfolioId,Revision,EventKind,Recorde
 """, token, P("@Generation", request.GenerationId), P("@Assignment", assignment), P("@Policy", policyId), P("@Role", role, 32),
             P("@Experiment", definition.ExperimentId), P("@Capital", definition.StartingCapital), P("@Currency", definition.Currency, 3),
             P("@Date", date), P("@Open", openUtc), P("@Authorized", plan.AuthorizedUtc), P("@By", plan.AuthorizedBy, 128), P("@Reason", plan.Reason, 1024),
-            P("@Authorization", Json(request)), P("@Portfolio", state.PortfolioId), P("@Json", Json(state)), P("@Event", Guid.NewGuid()));
+            P("@Authorization", Json(request)), P("@Portfolio", state.PortfolioId), P("@Json", stored), P("@Event", Guid.NewGuid()));
     }
 
     private static async Task WriteState(SqlConnection c, SqlTransaction t, DelphiLiveExperimentState next,

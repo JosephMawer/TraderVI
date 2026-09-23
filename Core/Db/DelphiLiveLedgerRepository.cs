@@ -17,7 +17,7 @@ namespace Core.Db;
 /// </summary>
 public sealed class DelphiLiveLedgerRepository : SQLBase, IDelphiLiveLedgerStore
 {
-    public const string MigrationFileName = "20260905_023_AddDelphiLivePortfolioLedger.sql";
+    public const string MigrationFileName = DelphiLiveSnapshotStorage.Migration;
 
     public async Task<bool> HasSchemaAsync(CancellationToken cancellationToken = default)
     {
@@ -27,7 +27,9 @@ public sealed class DelphiLiveLedgerRepository : SQLBase, IDelphiLiveLedgerStore
 SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePortfolioGeneration', N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLivePortfolioLedger', N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.DelphiLivePortfolioRevision', N'U') IS NOT NULL
- AND OBJECT_ID(N'dbo.DelphiLiveLedgerEvent', N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit);
+ AND OBJECT_ID(N'dbo.DelphiLiveLedgerEvent', N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.DelphiLiveSnapshotContent', N'U') IS NOT NULL
+ AND OBJECT_ID(N'dbo.DelphiLiveSnapshotItem', N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit);
 """, connection);
         return (bool)(await command.ExecuteScalarAsync(cancellationToken))!;
     }
@@ -52,10 +54,13 @@ WHERE g.[EffectiveTradingDate] <= @Date
 ORDER BY l.[PortfolioId];
 """, connection);
         command.Parameters.Add(P("@Date", SqlDbType.Date, tradingDate.ToDateTime(TimeOnly.MinValue)));
+        var saved = new List<string>();
         var rows = new List<DelphiLivePortfolioSnapshot>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
-            rows.Add(DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(reader.GetString(0)));
+            saved.Add(reader.GetString(0));
+        await reader.DisposeAsync();
+        foreach (var json in saved) rows.Add(await DelphiLiveSnapshotStorage.ReadAsync(connection, null, json, cancellationToken));
         return rows.AsReadOnly();
     }
 
@@ -87,7 +92,7 @@ IF @result < 0 THROW 51232, 'Another Delphi Live activation is in progress.', 1;
             return existing;
         }
         Guid assignmentId = Guid.NewGuid();
-        string json = DelphiLiveLedgerJson.Serialize(state);
+        string json = await DelphiLiveSnapshotStorage.SaveAsync(connection, transaction, state, cancellationToken);
         await using (var command = new SqlCommand("""
 IF SYSUTCDATETIME() >= @EffectiveOpen OR @Authorized > SYSUTCDATETIME()
     THROW 51233, 'Initial activation must be authorized before the next session boundary.', 1;
@@ -147,6 +152,7 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
         if (prior.Revision != expectedRevision)
             throw new InvalidOperationException("Portfolio revision changed; reload before taking an action.");
         DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);
+        json = await DelphiLiveSnapshotStorage.SaveAsync(connection, transaction, next, cancellationToken);
         await using (var command = new SqlCommand("""
 UPDATE [dbo].[DelphiLivePortfolioLedger]
 SET [Revision] = @Revision, [SnapshotJson] = @Json, [UpdatedUtc] = @Updated
@@ -204,7 +210,7 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[DelphiLiveHostLease] WITH (UPDLOCK, HOLDLOCK
         await using var command = new SqlCommand(sql, connection, transaction);
         command.Parameters.Add(P("@Id", SqlDbType.UniqueIdentifier, portfolioId));
         return await command.ExecuteScalarAsync(cancellationToken) is string json
-            ? DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json) : null;
+            ? await DelphiLiveSnapshotStorage.ReadAsync(connection, transaction, json, cancellationToken) : null;
     }
 
     private static SqlParameter P(string name, SqlDbType type, object value, int size = 0)

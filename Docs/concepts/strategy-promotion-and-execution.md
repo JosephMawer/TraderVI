@@ -82,6 +82,13 @@ controls in addition to an API call.
 
 ## TFSA integration draft — September 10, 2026
 
+**September 14 update:** [ADR-0079](../adr/0079-broker-reconciliation-and-market-handover.md) records the
+accepted first version: regular-session market orders, automatic non-overlap exits on promotion, then
+confirmed fills and reconciliation before new buys. Retain overlaps. The account-history reconstruction
+and protected observation journal now run from the account screen and transition preview. SQL binding,
+cash/risk baselines, protection ownership and actual automatic execution are unfinished. The remaining
+proposal below is a continuing draft, not authorization to trade or deploy a migration.
+
 **Draft status:** continuing design, not implementation-ready. The accepted subset is recorded in
 [ADR-0073](../adr/0073-permanent-tfsa-and-whole-share-execution.md). Proposed behavior below is not an
 accepted ADR or authorization to implement, deploy, train, migrate data, liquidate or place trades.
@@ -106,13 +113,122 @@ separate from the operator-reported SQL account and strategy evaluation inputs.
 | Accepted | Use reconciled broker holdings, cash, orders and completed trades as account facts. |
 | Accepted | No TraderVI-originated fractional-share orders in the initial execution version. |
 | Accepted preference | Prefer whole-share buys in multiples of ten, subject to sizing/risk constraints; exact rounding and fallback remain open. |
-| User preference, not finalized | Generally use limit orders for buys and sells. |
+| Accepted, September 14 first version | Use market orders during regular hours. Limit execution is deferred. |
 | Accepted, September 10 clarification | Retain overlapping TFSA holdings so promotion does not sell stocks merely to buy them back; the incoming strategy manages the actual inherited position. |
 | Superseded proposal | Require every TFSA holding to be sold before promotion. The operator explicitly chose an overlap exception. |
-| Open | Confirm which non-overlapping holdings must exit before activation, whether promotion initiates those exits, and the ownership/timing of protection for retained holdings. |
+| Accepted, September 14 | Promotion initiates required non-overlap sells; confirmed exits and reconciliation precede new buys. |
+| Accepted, ADR-0081 | Current protection owner remains responsible through required exits/reconciliation; ownership transfers at activation with established protective levels. Missing protection starts from actual cost and fresh observed evidence. |
+| Open | Exact intended-holdings evidence, position-cycle identity mapping and causal protection-state handover across strategy families. |
 | Open | Limit pricing, expiry, partial fills, protective-exit urgency, cancellation/replace semantics, uncertain submissions and transition cancellation. |
 | Open | Reconciliation identity mapping, fill/activity history, cash/valuation baselines, polling cadence and fractional residual exceptions. |
 | Open detail within accepted retention | Define intended holdings at review/activation, quantity adjustments and protection initialization. Do not require equality with paper quantities or a fresh buy signal merely to retain a wanted position. |
+
+### Broker history integration — September 14 design dialogue
+
+**September 16 implementation update:** [ADR-0080](../adr/0080-reviewed-broker-history-import.md)
+implements the preview and repeatable SQL history repository. The first link requires explicit review
+in this provisional version; subsequent explicit import refreshes update supported observations.
+Migration 034 is installed; the account link, 32-order save and subsequent native WPF refresh are
+operator-confirmed as of September 16 at 22:06 Toronto. This establishes a separate broker history, preserving legacy trades
+and position identities. The strategy engine is not switched to it until baseline/protection work is
+complete. No individual execution timestamps are invented from cumulative order totals.
+
+**September 16 proposed simplification:** the operator questioned whether all old orders are necessary.
+Recommend initializing from verified current holdings/costs, cash/buying power and resolved pending
+orders, then synchronizing activity from an explicit starting boundary. Older history import would
+be optional. This is a proposal, not an implemented mode or a reset of account history/risk controls.
+The retained holdings' protection, existing loss holds, valuation baseline and handling of unknown
+entry dates still require definition. Current manual buy/sell controls do not depend on full-history
+import; durable automatic promotion and execution still need these account inputs.
+
+The next milestone connects reconciled Wealthsimple observations to the saved real-account history
+used by strategy evaluation. Today those sources remain separate. The immediate problem is identifying
+existing manually recorded trades that describe the same broker transactions, without duplicating
+exposure, rewriting prior evidence or resetting position protection and account risk holds.
+
+- **Accepted operating constraint, updated September 15–16:** the operator is starting WPF for collection
+  and authorizes background implementation. Preserve running outputs and use isolated build/test paths.
+  Coordinate a restart when tested changes are useful; live database changes still need separate authority.
+- **Provisional first-link behavior implemented September 16:** present one initial account-link/import
+  review showing matched existing records, proposed additions and unresolved conflicts. Following an
+  approved link, subsequent explicit import refreshes save supported broker updates automatically. Ambiguous
+  matches remain explicit and prevent new-buy eligibility; no uncertain match silently merges history.
+- **Open:** whether to relax the initial review after testing the concrete preview. ADR-0080 defines the
+  initial identity/match and transaction checks; corrections, polling cadence, individual-fill history,
+  strategy-input projection and risk/protection baselines remain unfinished.
+- **Boundary:** connecting account facts does not activate a strategy or submit an order. This remains
+  a draft proposal, not an accepted ADR or authorization to implement, migrate data or trade.
+
+The Delphi Live monitor has persisted-state recovery, but an interruption records a coverage gap,
+expires pending buys and rebuilds entry confirmation using fresh observations. It does not replay
+missed actions. This is a code/documentation finding, not a test of today's running instance.
+
+### Account baselines and protection ownership — September 16 continuation
+
+**Draft completeness:** the five bounded decisions below are accepted in
+[ADR-0081](../adr/0081-broker-account-baselines-and-protection-ownership.md). The initial risk-reference
+preparation and reviewed SQL save/recovery workflow are implemented and tested offline, with migration
+035 prepared but uninstalled and no operator UI yet. The complete account-input and protection
+handover design is still a draft, not implementation-ready for activation, and grants no authority
+to mutate the database, change account history, restart the application or trade.
+
+The immediate problem is defining the account facts and protective obligations that survive setup
+and promotion. This supports broker-backed strategy evaluation and the root goal of one reviewed
+strategy managing the permanent real TFSA without contaminating independent paper evidence.
+
+| State | Decision |
+|---|---|
+| Accepted | If an applicable risk reference does not exist, establish the first reference from verified current account value during setup. No arbitrary waiting period; record the actual measurement boundary. |
+| Accepted | Preserve known account references and effective holds. A failed history read is not evidence of absence. Repeated setup and promotion cannot reset established baselines. |
+| Accepted | Purchase availability starts at the lower of fresh CAD cash and buying power, subject to strategy sizing and reservations. Unfinished sales and pending funding supply no assumed funds. |
+| Accepted | Keep the current protection owner through transition; transfer retained holdings' protection once at activation, carrying established protective exit levels. |
+| Accepted | Initialize previously missing protection from actual cost and fresh evidence at activation. Never copy paper highs/protection or invent unseen historical highs. |
+| Accepted | Confirmed deposits/withdrawals adjust loss references; unexplained cash movements pause new buys. Cash movement alone does not release holds. |
+| Open | Daily opening/closing reference continuation, cash-event evidence/timing and coverage gaps. The setup boundary does not manufacture these observations. |
+| Open | Exact real position-cycle mapping, protection timestamps and translation across strategy families, intended-holdings freshness and behavior after manual/external changes. |
+| Deferred to execution increment | Durable transition/reservations, partial fills, uncertain submissions, restart recovery and automation qualification. |
+
+The earlier proposal to make older-history import optional is still separate. These accepted baseline
+rules do not bypass the existing import checks or delete/relink the saved account/history.
+
+Source ownership recovered from the implementation:
+
+| Fact or state | Authority and current gap |
+|---|---|
+| Current shares, costs, cash, buying power and account value | Saved, reconciled observations for the fixed broker binding. Legacy SQL remains historical evidence; it is still the engine's active input until explicit cutover. |
+| Risk references and account holds | Effective `TradingAccountReport` and `TradingRecommendationBatch` memory, plus future persisted broker baselines. An explicit prior capital review remains valid; setup cannot itself release a hold. |
+| Tracked-position protection | Existing tracked monitor evidence/highs and recommendation symbol memory. These are separate owners/state formats; identify the current owner per real position before transfer. |
+| Pending and uncertain orders | Fresh broker order reads plus the durable local manual-order journal. Neither a timeout nor a cancellation request proves zero remaining exposure. |
+| Paper positions and protection | Independent evidence only. Paper quantities, entry dates, highs and simulated fills are never real-account facts. |
+
+`BrokerAccountRiskBaselinePolicy.Prepare` now preserves existing applicable session/high references
+and labels new initial references as `SetupObservation`, with import/binding IDs and evidence times.
+It requires a complete risk-history read and fresh valid saved broker evidence. It carries account
+holds and existing recommendation symbol memory without transferring position ownership. It rejects
+initialization when a baseline already exists. The reviewed workflow and repository now recheck source
+and risk state under account fences and save one immutable baseline with request recovery. Migration
+035 is uninstalled, and no runtime UI/CLI caller or operational baseline has been created.
+
+The current repository clears recommendation symbol memory on strategy changes because its accepted
+recommendation-only path requires an empty account. Keep that path intact. Broker promotion must use
+an explicit handover that preserves retained positions; it cannot reuse the empty-account assumption.
+
+Next acceptance criteria and implementation order (September 20 sequencing clarification):
+
+1. Session continuation for verified no-flow intervals is tested (September 21); finish the pending
+   cash-flow percentage-versus-dollar decision, its event evidence and adjustment handling. A dedicated
+   baseline review screen is not a development dependency. Define real position identities; preserve
+   legacy references only for the same cycle, not a fully closed/reopened holding.
+2. Before operational use, present a concise reference/hold summary within account setup and wire its
+   explicit apply to the implemented consistent-read/setup repository, then separately
+   verify/install migration 035 and exercise native setup. A missing/failed read cannot initialize a
+   replacement; a fresh observation cannot lower a known reference. The source save and repeat-request
+   recovery contracts are covered offline, not yet by a SQL transaction rehearsal.
+3. Project broker account facts and implement ongoing synchronization with visible stale/conflict states.
+   Deduct each order reservation once. Retain unknown entry timing instead of creating a new purchase date.
+4. Implement activation-time protection handover, carrying protective levels and causal timestamps.
+   New protection cannot trigger against a pre-activation low. Then implement the durable transition
+   and execution coordinator, and separately qualify/verify real execution.
 
 ### Proposed promotion transition
 
@@ -124,10 +240,11 @@ separate from the operator-reported SQL account and strategy evaluation inputs.
    before assuming its shares will remain available for handover.
 3. Preserve overlapping holdings and their actual quantities, cost basis and purchase history.
    A transition executor closes non-overlapping holdings using the agreed order policy. Every holding
-   retains an explicit protection owner; incoming-buy timing remains to be finalized.
+   retains its current protection owner until activation, as accepted in ADR-0081.
 4. Wait for required broker-confirmed fills and cancellation/expiry outcomes. A required exit that
-   remains unfilled leaves transition work outstanding. Do not invent a market-order fallback or
-   reprice without bounds. Whether this delays all activation or only new entries remains open.
+   remains unfilled leaves transition work outstanding. The first version deliberately uses market
+   orders; any future limit version requires a separate bounded fallback policy. New entries wait for
+   required exits to reconcile; existing protection remains with its current owner until activation.
 5. Reconcile the agreed retained holdings, resolved outstanding/uncertain orders and usable broker
    buying power. Activate the reviewed strategy at a recorded boundary and transfer management of
    retained positions after rechecking inputs, account holds and incoming protection state.

@@ -25,10 +25,13 @@ public partial class TradingRecommendationsView : UserControl
     private TradingReportedBuyRequest? buyRequest;
     private WealthsimpleAccountViewModel? broker;
     private WealthsimpleConnection? brokerConnection;
-    public void InitializeWealthsimple(WealthsimpleConnection connection)
+    private Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcileAccount;
+    public void InitializeWealthsimple(WealthsimpleConnection connection,
+        Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null)
     {
         broker?.Dispose();
         brokerConnection = connection;
+        reconcileAccount = reconcile;
         broker = new WealthsimpleAccountViewModel(connection);
         BrokerPanel.DataContext = broker;
         _ = broker.RefreshAsync();
@@ -36,6 +39,8 @@ public partial class TradingRecommendationsView : UserControl
     public void StopWealthsimple() => broker?.Dispose();
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
     public bool IsCurrentManualSellSelection(Core.WSTrade.Orders.ManualSellSelection selection) => broker?.IsCurrentSellSelection(selection) == true;
+    public bool IsCurrentBrokerAccount(Core.WSTrade.Accounts.WealthsimpleTfsaAccount account) =>
+        broker?.CanRefresh == true && ReferenceEquals(broker.SelectedAccount, account);
     public TradingRecommendationsView()
     {
         InitializeComponent();
@@ -44,7 +49,7 @@ public partial class TradingRecommendationsView : UserControl
             if (broker == null || brokerConnection?.IsConnected != true) return;
             var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
             var candidates = TfsaLiveStrategySelection.Rank(portfolios);
-            new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates).ShowDialog();
+            new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount).ShowDialog();
         });
         Account.TextChanged += (_, _) => BrokerPanel.Visibility = string.Equals(Account.Text.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)
             ? Visibility.Visible : Visibility.Collapsed;

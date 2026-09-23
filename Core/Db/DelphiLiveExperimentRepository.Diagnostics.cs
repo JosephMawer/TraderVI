@@ -29,15 +29,13 @@ public sealed partial class DelphiLiveExperimentRepository : IDelphiLiveDiagnost
         await using var connection = await Open(cancellationToken);
         await using var command = Command(connection, null, PortfolioHistorySql, P("@From", from), P("@Through", through));
         await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancellationToken);
-        var result = new List<DelphiLivePortfolioHistoryItem>();
+        var saved = new List<(string Json, DateOnly? End)>();
         while (await reader.ReadAsync(cancellationToken))
-        {
-            // The snapshot already respects the historical report cutoff. The
-            // generation boundary also clips the calculator's expected sessions.
-            var portfolio = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(reader.GetString(0));
-            DateOnly? ended = reader.IsDBNull(1) ? null : DateOnly.FromDateTime(reader.GetDateTime(1));
-            result.Add(new(portfolio, ended));
-        }
+            saved.Add((reader.GetString(0), reader.IsDBNull(1) ? null : DateOnly.FromDateTime(reader.GetDateTime(1))));
+        await reader.DisposeAsync();
+        var result = new List<DelphiLivePortfolioHistoryItem>();
+        foreach (var row in saved)
+            result.Add(new(await DelphiLiveSnapshotStorage.ReadAsync(connection, null, row.Json, cancellationToken), row.End));
         return result.AsReadOnly();
     }
 
