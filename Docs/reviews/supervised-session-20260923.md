@@ -4,6 +4,11 @@
 Review finalized September 22 evening Toronto. This is a concrete readiness review, not order authority.
 Do not turn the date target into an exception to a failed check.
 
+**23:34 Toronto update:** operator-authorized migrations 035/039/040 are installed and verified.
+The operator also clarified that promotion must support any portfolio and persist until pause/switch
+([ADR-0085](../adr/0085-portfolio-wide-ongoing-tfsa-management.md)). The broader workflow is in design;
+this document's Breakout target remains an initial candidate. The launch verdict remains NO-GO.
+
 ## Exact target and decision
 
 The operator selected the ungated Breakout three-position portfolio:
@@ -34,8 +39,8 @@ cash-event coverage are mandatory. A net total or occurrence timestamp alone is 
 | Signed-in native broker reads | September 22 **22:25:27 Toronto**: history, holdings, pending orders and regular day graph succeeded; stable activity checkpoint and matching holdings | Local order journal not independently checked; no mutation/lifecycle test |
 | Historical day points | 79 points, September 22 09:30–16:00 Toronto | Does not prove September 23 morning publication timing or the Shadow valuation method |
 | Core regression suite | **1,640 tests passed**, including 45 new managed-session/transport cases | Synthetic qualification, account/order transport and store; no SQL crash rehearsal or native fill proof |
-| Desktop and database projects | WPF builds (261 existing compiler warnings, zero errors); separate Visual Studio SSDT project builds | No full-solution health claim; no database installation or app restart |
-| Migration 040 | Offline ScriptDom syntax and canonical table/trigger parity pass | Prepared only; no runtime installation or crash/lease rehearsal |
+| Desktop and database projects | WPF builds (261 existing compiler warnings, zero errors); separate Visual Studio SSDT project builds | No full-solution health claim or app restart |
+| Migrations 035/039/040 | Installed at 23:34:11 Toronto after a checksum-verified full backup and SHA-256-matched copy; three empty tables, enabled immutable triggers, trusted constraints and six native zero-row update/delete rejections | No operational baseline/session; no SQL crash/lease/high-precision readback rehearsal |
 | Durable workflow | Tested approval, intent before send, uncertain/lost responses, concurrent ticks, partial terminal exit/residual, exit-to-buy sequence, restart protection, scope/stale/conflict blocks and reference continuation | No production host is enabled |
 
 Private, ignored evidence: original checkout `artifacts/first-real-session-20260923/`; isolated
@@ -43,17 +48,23 @@ worktree `artifacts/launch-validation/` including `native-readonly.json`, `strat
 `all-tests.log`, `managed-tests.log`, `wpf.log` and `sql-build.log`. No account identifiers, balances,
 credentials, raw broker responses or model artifacts are committed in this review.
 
+Installation receipts are in isolated-worktree `artifacts/promotion-storage-20260923/`:
+`backup-receipt.json`, individual migration logs, `verification.json`, before/after preservation
+hashes and `installation-receipt.json`. Binding/import and account-report/promotion rows were unchanged.
+Backup size: 1,049,611,264 bytes; local SQL checksum and destination SHA-256 passed. Cloud synchronization
+and a restore drill were not verified. The manual fallback created a new generation without retention
+cleanup. No trading records were inserted by installation.
+
 ## Shortest remaining dependency route
 
 1. **Qualify the native risk source.** Produce complete external-cash event intervals, effective cash
    timing and matching books. Verify Shadow's existing saved-price boundary method and morning
    availability; recover missing closes in sequence. The supplied capture/current graph do not establish
    this. Implement the qualified native `IBrokerRiskEvidenceSource`; the shipped default blocks it.
-2. **Install and verify storage separately.** Individually review migrations 035, 039, then 040 against
-   the actual schema. Take/verify the required backup, apply only under explicit installation authority,
-   test append-only permissions, high-precision readback, competing SQL leases, interrupted saves and
-   recovery in an isolated database first. Native read-only inspection at 22:55 Toronto found all
-   three tables absent. No migration ran during this work.
+2. **Qualify installed storage at runtime.** Migrations 035, 039 and 040 are installed; do not replay them.
+   Schema, immutable-trigger rejection and preservation checks passed at 23:34. Still rehearse real
+   repository append/readback, high-precision timestamps, competing SQL leases, interrupted saves and
+   recovery in an isolated database before operational setup. Installation alone does not prove these.
 3. **Establish account setup.** In the built app's TFSA account panel, use **Account risk setup…** to
    refresh the linked account and review preserved references, holds and protection. Save explicitly
    only after storage is installed. Verify recovery returns the original saved request and confirm daily
@@ -78,7 +89,8 @@ credentials, raw broker responses or model artifacts are committed in this revie
 SQL-backed runtime rehearsal, native source implementation/qualification, supervised host rollout and
 the fresh financial activation packet remain development/verification work. These are not completed
 merely by introducing interfaces. Session renewal, strategy replacement and resolving externally
-invalidated reviews are deliberately not automatic recovery paths in this first-session implementation.
+invalidated reviews are absent from this first-session implementation. ADR-0085 now requires a general
+ongoing workflow; its detailed design and Delphi Live protection adapter remain unfinished.
 
 ## Demonstration without operational effects
 
@@ -110,6 +122,7 @@ availability; the first-session adapter cannot silently renew authority overnigh
 Market orders have no guaranteed price.
 Explicitly approving that packet is separate from selecting this paper strategy or signing in.
 
-No broker order, automation activation, SQL mutation, model training, market-data collection, app
-restart, scheduler installation, push or PR accompanied this increment. Dependency-security advisories
+No broker order, automation activation, model training, market-data collection, app restart, scheduler
+installation, push or PR ran. The later authorized SQL changes installed only the three empty storage
+tables and their constraints/triggers; no baseline or assignment was created. Dependency-security advisories
 were not freshly audited; existing compiler warnings are not test failures.

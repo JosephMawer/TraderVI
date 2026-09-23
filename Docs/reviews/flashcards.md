@@ -1295,3 +1295,6 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Can an uncertain order be retried with a new request ID after restart? **A:** No. Recover the original ID; only confirmed terminal state and reconciled holdings can release its reservation. (ADR-0084)
 - **Q:** Why must continued references replace cached engine references? **A:** Keeping a pre-withdrawal high in memory would turn withdrawn capital into a false loss despite correct database continuation. Holds still persist. (ADR-0084)
 - **Q:** Does a successful day graph qualify the real opening? **A:** No. It does not prove first publication timing, the strategy's valuation method, effective cash events or matching boundary books. (ADRs 0083–0084)
+
+- **Q:** Does promoting a portfolio copy its paper cash and positions into the TFSA? **A:** No. It selects the reviewed rules; real cash, holdings, costs and fills remain the account facts. (ADR-0085)
+- **Q:** Does ongoing strategy selection guarantee that it can trade tomorrow? **A:** No. Selection persists, but that day's account, source and risk checks still determine whether orders are allowed. (ADR-0085)

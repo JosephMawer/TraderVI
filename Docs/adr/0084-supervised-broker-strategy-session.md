@@ -1,8 +1,12 @@
 # ADR-0084: Durable supervised broker strategy session
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
-**Status:** Implementation of the accepted first-session contract; source and offline tests only.
-Production evidence remains incomplete; no installation or execution approval.
+**Status:** First-session source and offline tests complete; migrations 035/039/040 installed and
+storage verified September 22 at 23:34 Toronto under separate authority. Production evidence remains
+incomplete; no operational baseline, host rollout or execution approval.
+**Scope clarification:** [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) accepts any portfolio
+and ongoing management. The first-session expiry and family limits below remain enforced in source
+until that broader workflow is implemented and verified.
 **Domains:** architecture, risk-management, market-microstructure
 **Related:** ADR-0062, ADR-0066, ADR-0067, ADR-0079–0083
 

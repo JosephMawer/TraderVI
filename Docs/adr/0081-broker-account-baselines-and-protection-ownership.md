@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-16 Toronto (September 17 UTC)  
 **Status:** Accepted behavior; initial risk-reference preparation, reviewed save/recovery workflow and
-SQL repository implemented in source. Migration 035 is prepared, not installed. Operator UI,
+SQL repository implemented in source. Migration 035 was installed September 22 at 23:34 Toronto;
+no operational baseline has been created. Operator UI,
 continuation orchestration, projection and protection handover are now source/tested under
 [ADR-0084](0084-supervised-broker-strategy-session.md); native qualification and rollout remain unfinished.
 **Domains:** architecture, risk-management  
@@ -99,7 +100,8 @@ fingerprints sort symbol-state keys so dictionary order does not change request 
 Stored JSON has its own full-content hash; readback also checks relational identities and exact
 `datetime2(7)` timestamps. Preparation time may advance at save, but source evidence times remain fixed.
 
-Migration 035 is source only and requires separate installation authority and a verified backup.
+At the September 17 source checkpoint, migration 035 was prepared only. It was subsequently installed
+under operator authority with a verified backup on September 22; see the current status above.
 There is no WPF/CLI caller or saved operational baseline in this increment. No account-input cutover,
 broker operation, SQL transaction rehearsal or app restart has run. All 1,441 Core tests pass, including
 58 baseline policy/workflow/readback cases. SQL parsing/canonical parity and an isolated SSDT build
@@ -110,7 +112,8 @@ build ran. Evidence is under `artifacts/tfsa-baseline-20260917/`.
 
 - **September 22 source checkpoint:** shared boundary valuation, daily references/holds and
   percentage-preserving cash-flow adjustments are tested offline. Initial baseline evidence retains
-  actual broker observation time separately from save time. Migrations 035/039 remain uninstalled.
+  actual broker observation time separately from save time. Migrations 035/039 were subsequently
+  installed at 23:34 Toronto; storage verification is distinct from operational setup.
   Complete broker event/book evidence, native qualification and operational wiring remain open;
   see [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md).
 

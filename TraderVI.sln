@@ -166,6 +166,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md = Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md
 		Docs\adr\0084-supervised-broker-strategy-session.md = Docs\adr\0084-supervised-broker-strategy-session.md
+		Docs\adr\0085-portfolio-wide-ongoing-tfsa-management.md = Docs\adr\0085-portfolio-wide-ongoing-tfsa-management.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
 EndProject

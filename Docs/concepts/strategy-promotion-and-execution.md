@@ -1,5 +1,39 @@
 # From independent paper strategies to live execution
 
+## Portfolio-wide ongoing management — September 22
+
+**Continuing draft:** the accepted scope/duration subset is recorded in
+[ADR-0085](../adr/0085-portfolio-wide-ongoing-tfsa-management.md). The remaining workflow below is not
+an accepted ADR, implementation-ready specification or operational authorization. The operator
+separately authorized necessary database migrations; 035/039/040 were installed and verified at
+23:34 Toronto. That installation creates no real-account baseline or trading authority.
+
+The immediate problem is one promotion flow for any portfolio. The parent problem is handing over
+real-account management between exact strategies. The root goal is continuous TFSA management with
+independent paper evidence and preserved real-account history and protection.
+
+| State | Decision or question |
+|---|---|
+| Accepted | Any portfolio is in scope, including current Daily Shadow and Delphi Live variants. Breakout Top 3 is an initial candidate, not the only supported portfolio. |
+| Accepted | After promotion, keep managing on future trading days until the operator pauses or switches; account and risk checks still apply each day. |
+| Accepted, existing contracts | Pin the reviewed rules, gate profile, policy/model/build identities. Use actual TFSA cash/holdings; paper financial history stays separate. |
+| Accepted, existing contracts | One active owner, retain overlaps/protection, reconcile required exits before buys, preserve references/holds and original uncertain order IDs. |
+| Open — question sent | After an outside/manual trade, should new buys pause for operator review or automatically adapt? Recommended: pause new buys, preserve reliable protection for already-managed holdings, then review the changed account. |
+| Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
+| Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
+| Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
+
+**Implementation gap:** the current broker workflow expires after one session, refuses replacement
+of an existing session, and transfers protection only into Daily Shadow. Its exact comparison-profile
+handling is reusable; it is not an implementation of every portfolio family. No new execution logic
+was added during this design exchange.
+
+The draft is ready for continued dialogue, not implementation handoff. Complete the open transitions
+first, then express acceptance cases for Daily Shadow and Delphi Live, multi-day continuation, cross-family
+switching, overlap protection, partial/unknown fills, outside changes and restart. Reuse existing broker,
+reconciliation, risk and durable-order components. Qualification and a concrete activation review precede
+any explicitly approved live session; the September 23 target cannot bypass missing evidence.
+
 **September 22 risk/hosting checkpoint:** use shared Core code for the current app and the eventual
 standalone engine started before market by Windows Task Scheduler. Dated reads, boundary valuation,
 daily references/holds and confirmed cash-flow adjustment are tested offline.

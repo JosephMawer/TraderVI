@@ -1,22 +1,25 @@
 # Running TraderVI
 
-## Initial broker risk baseline (source only, ADR-0081)
+## Broker risk and managed-session storage (ADRs 0081, 0083, 0084)
 
 The initial-baseline preparation, reviewed save/recovery workflow and SQL repository are implemented
-in source. There is no WPF/CLI entry point or operational baseline yet. Installing storage alone does
+in source, with an account setup screen built in the isolated branch. That UI is not installed and
+there is no operational baseline yet. Installing storage alone does
 not establish a baseline, change recommendation inputs or enable orders.
 
-`TraderDB/Migrations/20260917_035_AddBrokerAccountRiskBaseline.sql` is prepared and build-checked,
-**not installed**. It adds one empty immutable table and trigger, preserving all existing history,
-account reports, positions, holds and strategy assignments. It requires individual review, a fresh
-verified full backup and separate operator authorization before installation. Do not replay migration
-034 or the completed legacy correction. Never publish the DACPAC.
+Migrations `035_AddBrokerAccountRiskBaseline`, `039_AddBrokerAccountRiskContinuation` and
+`040_AddBrokerManagedSession` were individually reviewed and installed on September 22 at 23:34 Toronto
+under explicit operator authority, after a fresh checksum-verified full backup and hash-matched
+OneDrive-folder copy. Three empty tables and immutable triggers, trusted constraints and preserved
+account records were verified. **Do not replay these migrations**, migration 034 or the legacy correction.
+Never publish the DACPAC. See the [installation evidence](reviews/supervised-session-20260923.md).
 
-Next wire an explicit operator review, then verify setup storage separately. The workflow requires a
+Next qualify repository runtime recovery and install the reviewed setup UI. The workflow requires a
 fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
 treated as an empty history. Request recovery can read an already committed result without repeating
-setup. Daily/confirmed-cash-flow continuation, position protection handover and strategy-input cutover
-remain later work. See [ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md).
+setup. Daily/cash-flow continuation, Daily Shadow protection handover and broker projection are source
+tested; native risk evidence and operational verification remain. Portfolio-wide ongoing management
+is still in design under [ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md).
 
 ## Broker account history import (source milestone, September 16)
 

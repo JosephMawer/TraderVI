@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
+
 - [ADR-0084](0084-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery
 
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Shared morning account-value recovery for a future scheduled engine
@@ -220,6 +222,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Preserve strategy and account risk rules across days and portfolio switches
+
 - [ADR-0084](0084-supervised-broker-strategy-session.md) — Continued references, protection transfer and recovery
 
 - [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Reconciliation blocks, retained holdings and exits before new buys
@@ -348,6 +352,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — One portfolio promotion flow with persistent selection
 
 - [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Account-history reconciliation and regular-session market handover direction
 - [ADR-0080](0080-reviewed-broker-history-import.md) — Initial import review and explicit refresh of linked broker history

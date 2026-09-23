@@ -11,16 +11,18 @@ TFSA, and enable real execution only after the required account, protection and 
 [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) and
 [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) distinguish recommendation approval
 from automatic trading. The operator's September 23 real-trading target is an aspiration, not verified
-readiness or order authority. The operator selected the ungated Breakout three-position portfolio for
-review; the [September 23 activation review](reviews/supervised-session-20260923.md) currently says NO-GO.
+readiness or order authority. Any portfolio must be promotable, with ongoing management until pause
+or switch ([ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md)); ungated Breakout Top 3 is an
+initial candidate. The [September 23 activation review](reviews/supervised-session-20260923.md) says NO-GO.
 
 ## Now — restore a dependable advisory loop
 
 1. **Complete the real-account foundation and execution path in dependency order.** Percentage-preserving
    cash adjustments and the broker projection/synchronization/protection/durable-session source path
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
-   then separately install/verify migrations 035/039/040 and setup, qualify native orders/strategy
-   evidence and verify the supervised host before requesting actual execution approval. Follow the
+   and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
+   and SQL runtime recovery still need verification. Finish the ongoing-promotion design, extend both
+   families and replacement/restart transitions, then verify the host before actual execution approval. Follow the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
 2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening

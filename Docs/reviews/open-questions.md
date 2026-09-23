@@ -5,6 +5,18 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Portfolio-wide ongoing TFSA management
+
+- **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy
+  managing across days until pause or switch, subject to each day's account/risk checks (ADR-0085).
+  Breakout Top 3 is an initial candidate, not the product scope.
+- **Open, question sent:** after an outside/manual trade, pause new buys for a reviewed account change
+  or adapt automatically? Recommended: require review while preserving valid existing protection.
+- **Open:** precise pause/resume and restart authority, replacement/cancellation, and recovery of
+  invalidated reviews. Preserve family rules, account holds, causal protection and original order IDs.
+- **Implementation gap:** Daily Shadow-only protection and one-session authority cannot yet satisfy
+  the accepted ongoing scope. Follow the [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
+
 ### Morning account values and the future standalone engine
 
 - **Accepted September 21:** prefer dependable pre-session engine startup and shared Core reference
@@ -12,7 +24,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Windows scheduled task will host the extracted engine, not a separate WPF recovery workflow.
 - **Accepted September 22:** confirmed deposits/withdrawals preserve the measured loss percentage and
   existing holds. That behavior is implemented with matched books, complete event-interval contracts
-  and durable duplicate checks. All 1,595 Core tests pass; migrations 035/039 remain uninstalled.
+  and durable duplicate checks. The later full suite passes 1,640 tests; migrations 035/039/040 are
+  installed, with native schema/preservation checks at 23:34 Toronto. Operational setup remains absent.
 - **Open source qualification:** the supplied activity capture shows completed/pending events and
   occurrence times but does not establish effective cash timing or matching account-value books.
   Qualify a complete evidence producer before using these calculations on the real account.
@@ -21,7 +34,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   definition. A graph point alone is not source qualification.
 - Shared broker orchestration, projection, setup UI and durable sessions are source/tested under
   [ADR-0084](../adr/0084-supervised-broker-strategy-session.md). Native risk evidence production,
-  installation/verification, supervised host rollout and order authority remain unfinished. No new
+  SQL runtime recovery verification, supervised host rollout and order authority remain unfinished. No new
   blanket morning-pause rule is approved. See the [no-go review](supervised-session-20260923.md).
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 

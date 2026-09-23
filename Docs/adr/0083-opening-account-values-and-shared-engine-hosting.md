@@ -107,8 +107,9 @@ Each append pins its preceding revision. SQL account fences and unique predecess
 competing continuations. Request recovery returns the same saved event after a lost response, even
 when a new read fails. Altered evidence cannot reuse a request. Exact timestamp/content readback checks
 accompany the immutable event history. Initial baselines, imported history, paper accounts, legacy
-account reports and symbol protection are not rewritten. Migration 039 is additive and prepared only;
-both 035 and 039 require separate installation authority and verified backups.
+account reports and symbol protection are not rewritten. Additive migrations 035/039 were prepared
+with this source increment and subsequently installed under operator authority at 23:34 Toronto on
+September 22 after a verified backup. Storage checks passed; operational continuation remains unverified.
 
 **September 21 source contract:** that increment accepted only intervals with positively reconciled
 evidence of no external deposits or withdrawals. Equal cumulative net-deposit totals are insufficient:

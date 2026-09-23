@@ -10,7 +10,8 @@ The September 22 documentation cleanup preserves the
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **Automatic strategy trading is still off.**
-The operator selected ungated Breakout Top 3 for the September 23 review. The
+Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).
+Ungated Breakout Top 3 is the initial September 23 review candidate. The
 [current launch verdict is NO-GO](reviews/supervised-session-20260923.md).
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
@@ -38,6 +39,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   original-order recovery and concurrency/duplicate prevention; prepare migration 040.
 - [x] Add an account setup review screen and production composition reusing existing broker clients,
   journal and gates. Build source only; no host/UI installation or activation.
+- [x] Install migrations 035/039/040 under operator authority after a verified backup/copy; verify empty
+  storage, trusted constraints, immutable triggers and preserved account records (Sep 22, 23:34 Toronto).
+- [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
 
 ### Left to do — development order
 
@@ -48,8 +52,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   alone are insufficient. This item remains open for source qualification and integration.
   Existing holds persist. No new late-start-only buy pause is agreed.
 - [ ] **2. Finish initial operational setup.** The source screen presents references and preserved
-  holds. Separately authorize/install prepared migrations 035/039/040 and verify saving/recovery of
-  initial and daily references. The source screen does not establish an operational baseline.
+  holds. Migrations 035/039/040 are installed. Rehearse SQL runtime readback/leases/interrupted-save
+  recovery separately, then verify saving/recovery of initial and daily references. The source screen
+  does not establish an operational baseline.
   Verified initial setup remains mandatory before operational use.
 - [ ] **3. Verify the broker-input cutover operationally.** The isolated source now projects reconciled holdings,
   actual costs, cash/buying power and orders. Preserve position identity through partial sales; distinguish
@@ -62,12 +67,16 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [ ] **6. Verify the supervised execution host.** Source persists the exact approved strategy and transition state;
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
+- [ ] **6a. Complete portfolio-wide ongoing management.** Finish the guided design for outside changes,
+  pause/resume, restart and replacement. Extend current Daily Shadow-only, single-session execution
+  to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.
 - [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate next increment:** qualify and implement the native cash-event/boundary-book evidence
-producer, verify native opening values and rehearse SQL storage/recovery under separate authority.
+**Immediate next increment:** finish the ongoing-promotion design while qualifying the native
+cash-event/boundary-book evidence producer and opening values. Storage is installed; SQL runtime
+recovery rehearsal remains distinct from the completed schema/immutability checks.
 The orchestration and production composition exist; they cannot manufacture those inputs.
 Then complete the fresh financial activation packet and supervised host rollout. See
 [ADR-0084](adr/0084-supervised-broker-strategy-session.md) and the
