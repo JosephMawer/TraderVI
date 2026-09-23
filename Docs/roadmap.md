@@ -12,7 +12,8 @@ TFSA, and enable real execution only after the required account, protection and 
 [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) distinguish recommendation approval
 from automatic trading. The operator's September 23 real-trading target is an aspiration, not verified
 readiness or order authority. Any portfolio must be promotable, with ongoing management until pause
-or switch. Manual buys stay outside by default, with explicit purchase-time or later handover
+or switch. Manual buys stay outside by default, with explicit purchase-time or later handover into
+exit management alongside the strategy's normal automatic positions
 ([ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md)); ungated Breakout Top 3 is an
 initial candidate. The [September 23 activation review](reviews/supervised-session-20260923.md) says NO-GO.
 

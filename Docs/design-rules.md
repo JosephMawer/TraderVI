@@ -37,8 +37,10 @@ migration 039 is installed without an operational baseline. No new late-start bu
 [ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md) accepts any portfolio with ongoing
 assignment until pause/switch. September 23 accepts manual purchases through TraderVI staying outside
 the active strategy by default, plus explicit purchase-time or later management handover. The operator
-explicitly permits manually adopted extras above the normal position count, managed under existing
-sell/protection rules. Keep the manual exception identifiable; automatic buying limits, account-wide
+explicitly permits manually adopted extras under existing sell/protection rules, separate from the
+strategy's normal automatic position slots. Breakout 3 continues managing its own three positions;
+extras neither consume those slots nor receive automatic additions/replacements. Keep the manual
+exception identifiable and all holdings in actual account valuation; automatic buying limits, account-wide
 risk rules and paper attribution do not change implicitly. Detailed manual
 ownership, handover compatibility and regular broker synchronization remain in design; no new order
 or automation authority follows from these decisions.

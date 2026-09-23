@@ -16,9 +16,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted direction:** manual handover may exceed the normal position count (Breakout 3 can manage
   four). Apply existing sell/protection rules and preserve explicit manual attribution; no forced exit
   solely to restore the count. This replaces the assistant's proposed wait-for-a-slot restriction.
-- **Open, question sent:** retain the automatic new-position target, counting manual extras, so
-  Breakout 3 opens no further stock position until fewer than three remain? Recommended yes; this
-  does not impose a new rule on existing-policy add-ons to held stocks.
+- **Accepted clarification:** the strategy continues its own three automatic positions while manual
+  extras receive sell/protection management only. Extras do not occupy automatic slots; selling one
+  creates no replacement authority. This rejects counting extras against the normal automatic target.
+  Actual cash, account-wide valuation/risk and existing sizing rules still apply.
 - **Open:** direct-Wealthsimple trade ownership, manual holdings at promotion/switching, shared
   capital/limits, same-symbol ownership, transfer timing/protection and re-entry after a manual sale.
 - **Proposed polling detail:** one shared five-minute account/history refresh while connected,

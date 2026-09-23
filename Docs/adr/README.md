@@ -40,7 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0085](0085-portfolio-wide-ongoing-tfsa-management.md) | Portfolio-wide ongoing TFSA management | Scope/duration/manual handover accepted; automatic-entry and polling details open | architecture, risk-management, user-interface |
+| [0085](0085-portfolio-wide-ongoing-tfsa-management.md) | Portfolio-wide ongoing TFSA management | Scope/duration/manual exit-management roles accepted; transfer and polling details open | architecture, risk-management, user-interface |
 | [0084](0084-supervised-broker-strategy-session.md) | Durable supervised broker strategy session | Source/offline tests and installed storage; launch NO-GO pending native qualification and rollout | architecture, risk-management, market-microstructure |
 | [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Continuation and orchestration tested; native source qualification pending | architecture, data-sources |
 | [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |

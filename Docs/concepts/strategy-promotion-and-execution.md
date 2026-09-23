@@ -22,7 +22,7 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted September 23 | Manual purchases through TraderVI stay outside the active strategy by default. Provide a later holding action to hand over management and an optional purchase-dialog choice targeting the active strategy. |
 | Accepted request; interval provisional | Add regular broker-account synchronization and retain immediate manual refresh. Five minutes is the proposed background interval; fresh order checks remain separate. |
 | Accepted direction, September 23 | Explicit manual handover can add an extra managed holding: Breakout 3 may manage four. Apply existing sell/protection rules; do not force an exit solely to restore the count. Record the manual exception separately from strategy-generated selection. |
-| Open — question sent | Recommend retaining the normal automatic new-position target: with four managed stocks in Breakout 3, open no additional stock position until fewer than three remain. Existing-policy additions to already-held stocks are distinct. |
+| Accepted clarification, September 23 | Keep three normal strategy positions plus manual extras managed for exits only. Extras do not consume automatic position slots or block normal rotation by their count; they receive applicable sell/protection rules without automatic additions or replacement. Actual cash and account risk still constrain all trades. |
 | Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
@@ -71,8 +71,8 @@ operation under its existing controls. Preserve pending fills/intent if a post-f
 
 The handover preview should show actual quantity/cost, incoming owner, carried protection, count exception
 and compatibility blocks, and any immediate exit the incoming rules would require. Keep the existing
-owner responsible until a durable transfer succeeds. Handover itself creates no broker fill. Automatic
-entry after above-target handover, partial-fill transfer timing, shared-security ownership and manual exclusions on a later
+owner responsible until a durable transfer succeeds. Handover itself creates no broker fill. Partial-fill
+transfer timing, shared-security ownership and manual exclusions on a later
 portfolio switch remain open; the presence of a button does not waive these checks.
 
 Recommended synchronization behavior (not yet implemented or activated):
@@ -96,13 +96,28 @@ separate from linked-history import. This draft must join them deliberately rath
 that only repaints holdings. Manual and external trade attribution and the detailed polling/recovery
 failure policy remain part of the implementation acceptance criteria.
 
-**Superseded recommendation:** the assistant first proposed refusing handover until a position slot
-was free. The operator rejected that limitation and prefers an explicit manual extra managed under
-the normal sell rules. The remaining question is how automatic new entries behave afterward. The
-suggested no-new-position rule counts all managed holdings, including manual extras, while preserving
-existing cash/account holds, sizing and eligible add-on rules. A manual holding that remains outside
-the strategy still contributes to actual TFSA value and account-wide risk; ownership must not make
-its cash usage or exposure disappear from account accounting.
+**Accepted role separation:** the strategy's own positions follow its normal entry/addition/rotation
+rules and occupy its automatic slots. Manually added extras receive its applicable sell/protection
+rules only; no automatic purchase/addition or replacement is authorized by that role. Unassigned manual
+holdings remain under operator management. Keep origin separate from current management role.
+
+Example: A/B/C are the three strategy positions; D is a manually added extra. Selling A and buying
+qualifying E after confirmed/reconciled funds are available leaves B/C/E plus D. Selling D leaves
+B/C/E and creates no automatic vacancy. A later independent entry into D must satisfy normal entry,
+re-entry and capacity rules; the manual handover itself creates no future buy authority.
+
+**Superseded recommendations:** neither waiting for a free slot before handover nor counting extras
+against the three automatic positions matches the operator's intent. Both suggestions are rejected.
+All holdings still share actual cash and account risk. Do not fabricate available funds or remove
+manual/unassigned holdings from valuation to make automatic buying continue.
+
+**Implementation boundary:** `TradingRecommendationEngine` currently uses one holdings collection
+for account valuation, protective evaluation, candidate ownership and automatic capacity. Implement
+separate role-aware decisions over one reconciled account book: value every actual holding, protect
+strategy positions plus enrolled extras, and count only normal strategy positions toward automatic
+capacity. Merely filtering extras out of the engine input would lose their value and protection.
+Same-security ownership, automatic sizing with capital tied up in extras, transfer timing and role
+behavior during a strategy switch still require coherent acceptance criteria.
 
 The draft is ready for continued dialogue, not implementation handoff. Complete the open transitions
 first, then express acceptance cases for Daily Shadow and Delphi Live, multi-day continuation, cross-family

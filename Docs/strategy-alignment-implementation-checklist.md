@@ -44,7 +44,8 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
 - [x] Agree manual buys remain outside the active strategy by default, with optional purchase-dialog
   handover and a later holding action, including explicitly adopted extra positions managed under
-  existing sell rules (Sep 23, ADR-0085). Automatic-entry details remain open; controls are not implemented.
+  existing sell rules without consuming automatic strategy slots (Sep 23, ADR-0085). Controls and role
+  separation are not implemented; shared-security, capital and transfer details remain open.
 
 ### Left to do — development order
 
@@ -73,7 +74,7 @@ record them. A prepared migration or passing test never proves broker readiness.
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Finish the guided design for outside changes,
-  automatic entry after manual extras, same-symbol/transfer boundaries and known in-app orders,
+  separate automatic positions from extras managed for exits, same-symbol/transfer boundaries and known in-app orders,
   pause/resume, restart and replacement. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend current Daily Shadow-only, single-session execution

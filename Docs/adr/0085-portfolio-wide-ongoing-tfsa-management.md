@@ -51,11 +51,22 @@ holding receives the strategy's existing sell/protection rules and can leave thr
 Do not manufacture an immediate sale solely to restore the count. This is a recorded manual exception,
 not evidence that the paper strategy itself selected a fourth stock.
 
-The recommended automatic-entry contract remains a three-position target: count adopted extras and
-open no additional stock position until fewer than three remain. That detail is awaiting confirmation;
-it concerns new stock positions, not a new blanket prohibition on existing-policy add-ons. The manual
-handover exception does not authorize bypassing unresolved orders, stale facts, cash limits or loss
-holds. Same-security ownership, compatibility and the effective transfer boundary still need design.
+The operator rejected counting manual extras against the strategy's normal positions. Keep the
+strategy's own automatic positions distinct from manually added holdings managed for exits only.
+Breakout 3 continues buying, selling and replacing its own three positions while an extra holding can
+remain under the same applicable sell/protection rules. Selling an extra does not create a strategy
+vacancy or cause an automatic replacement. The exit-only role does not authorize automatic purchases
+or additions to that holding. A later independent strategy entry must qualify under its normal rules.
+
+For example, strategy positions A/B/C plus manual extra D can become B/C/E plus D after A's confirmed,
+reconciled sale and a qualifying E purchase. D's presence does not consume one of the three automatic
+positions. If D sells, the remaining B/C/E continue without an extra replacement. This supersedes the
+assistant's proposal to wait until the total managed count falls below three.
+
+All actual holdings still belong to the same TFSA cash and risk accounting. Extra holdings consume
+real funds and their gains/losses affect account-wide checks. This role split does not authorize
+bypassing unresolved orders, stale facts, cash/sizing limits or loss holds. Same-security ownership,
+capital-allocation implications and the effective transfer boundary still need detailed design.
 
 This adds explicit manual ownership inside the permanent TFSA. A holding designated manual is not
 implicitly enrolled in the selected strategy. Applying ADR-0079's promotion exits to such holdings,
@@ -86,9 +97,8 @@ Their September 22 installation does not create a baseline, assignment or enable
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes, pause/resume behavior, restart eligibility and replacement transitions.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
-trade ownership, automatic continuation after known in-app orders, automatic entry after above-target
-handover and detailed
-polling behavior remain open/proposed in the draft. Do not silently extend the current blanket
+trade ownership, automatic continuation after known in-app orders, same-security ownership, transfer
+boundaries and detailed polling behavior remain open/proposed in the draft. Do not silently extend the current blanket
 invalidated-review behavior into the general workflow or assume a five-minute-old snapshot can authorize
 an order.
 
