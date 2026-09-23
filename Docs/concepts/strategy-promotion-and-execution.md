@@ -18,7 +18,8 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted | After promotion, keep managing on future trading days until the operator pauses or switches; account and risk checks still apply each day. |
 | Accepted, existing contracts | Pin the reviewed rules, gate profile, policy/model/build identities. Use actual TFSA cash/holdings; paper financial history stays separate. |
 | Accepted, existing contracts | One active owner, retain overlaps/protection, reconcile required exits before buys, preserve references/holds and original uncertain order IDs. |
-| Open — question sent | After an outside/manual trade, should new buys pause for operator review or automatically adapt? Recommended: pause new buys, preserve reliable protection for already-managed holdings, then review the changed account. |
+| Open — refined September 23 | Distinguish manual orders placed through TraderVI from orders placed directly in Wealthsimple; the operator wants both cases addressed. Recommend automatic reconciliation and continuation for known in-app orders when ownership and risk checks pass; reserve human review for unresolved facts/authority, rather than every manual fill. |
+| Open — recommendation awaiting choice | Give a manual buy an explicit owner: manual management by default, or reviewed handover to the active strategy when compatible with its rules. Manual holdings remain part of TFSA cash and account risk. |
 | Open | Exact pause/resume and restart eligibility, including which protective actions retain authority. Reuse governing accepted controls; do not interpret pause as a new liquidation rule. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
@@ -27,6 +28,32 @@ independent paper evidence and preserved real-account history and protection.
 of an existing session, and transfers protection only into Daily Shadow. Its exact comparison-profile
 handling is reusable; it is not an implementation of every portfolio family. No new execution logic
 was added during this design exchange.
+
+**September 23 manual-trade clarification (proposal, not accepted behavior):** choosing who places
+an order and choosing who subsequently manages the holding are separate decisions. A manually chosen
+stock under strategy management can later be sold by that strategy. Under manual management, the
+operator owns exit decisions; no automatic strategy protection is implied. Proposed default: manual
+management, with an explicit strategy-management choice and compatibility preview. Do not silently
+expand a three-position strategy to four positions or treat a manual entry as a strategy-generated pick.
+
+For an identified in-app order, reserve cash/shares before submission, recover its original ID,
+reconcile confirmed fills and cash, then recheck existing limits before continuing. Pending/uncertain
+orders still block conflicting actions. A second operator approval is proposed only when an unresolved
+ownership decision, conflicting facts or an existing risk rule requires it. This replaces the assistant's
+overbroad recommendation to require review after every manual fill; the operator has not accepted the
+replacement yet. An order found directly at the broker still needs attribution and reconciliation.
+
+Source inspection on September 23 confirms `BrokerManagedSessionWorkflow` classifies a changed fill
+outside its own saved order list as an outside change, including a manual order sent through TraderVI.
+It invalidates the review and blocks all further managed orders; it does not implement the proposed
+automatic continuation or separate protection behavior. No execution code changed in this dialogue.
+
+If manual holdings are accepted, define their treatment during promotion/switching explicitly: the
+existing non-overlap exit contract does not yet exempt them. Also settle shared cash/sizing and position
+limits, protection responsibility, same-symbol ownership and whether manually selling a managed stock
+allows later strategy re-entry. Recommend one owner per security for the first version; a manual add to
+a managed security must not silently create a second owner. These details remain open and cannot waive
+existing account-wide risk rules.
 
 The draft is ready for continued dialogue, not implementation handoff. Complete the open transitions
 first, then express acceptance cases for Daily Shadow and Delphi Live, multi-day continuation, cross-family

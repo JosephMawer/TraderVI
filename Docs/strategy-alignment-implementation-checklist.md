@@ -68,7 +68,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Finish the guided design for outside changes,
-  pause/resume, restart and replacement. Extend current Daily Shadow-only, single-session execution
+  manual holding ownership and known in-app orders, pause/resume, restart and replacement. The current
+  session invalidates even an in-app manual fill; automatic continuation remains a proposal.
+  Extend current Daily Shadow-only, single-session execution
   to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.
 - [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only

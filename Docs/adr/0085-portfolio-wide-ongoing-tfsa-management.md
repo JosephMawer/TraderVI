@@ -50,8 +50,11 @@ Their September 22 installation does not create a baseline, assignment or enable
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes, pause/resume behavior, restart eligibility and replacement transitions.
-The proposed treatment of manual trades is still awaiting the operator's answer. Do not treat it as
-accepted or silently extend the current invalidated-review behavior into the general workflow.
+On September 23 the operator asked about manual trades placed through TraderVI as well as directly in
+Wealthsimple, and whether holdings should join the strategy or remain manually managed. Ownership and automatic
+continuation after known in-app orders are still proposals in the draft, awaiting agreement. Do not
+treat either as accepted or silently extend the current invalidated-review behavior into the general
+workflow. A manual-holdings exception to promotion exits would require an explicit decision.
 
 Before implementation, express these transitions as acceptance criteria, including multi-day recovery,
 switching between families and retained-position protection. Native cash/opening evidence, SQL runtime

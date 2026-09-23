@@ -10,8 +10,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy
   managing across days until pause or switch, subject to each day's account/risk checks (ADR-0085).
   Breakout Top 3 is an initial candidate, not the product scope.
-- **Open, question sent:** after an outside/manual trade, pause new buys for a reviewed account change
-  or adapt automatically? Recommended: require review while preserving valid existing protection.
+- **Open, clarified September 23:** address manual trades through TraderVI and directly in Wealthsimple.
+  Recommend manual
+  management by default with an explicit compatible strategy-handover option; ownership choice is
+  awaiting the operator. Define manual holdings at promotion/switching, shared capital/limits,
+  same-symbol ownership, protection and strategy re-entry after a manual sale.
+- **Revised proposal:** reconcile known in-app orders and continue automatically when ownership,
+  account and risk checks pass. Pending/uncertain orders retain reservations; human review addresses
+  unresolved facts or authority. The earlier blanket manual-fill review recommendation was too broad.
+  Current first-session source still invalidates any changed fill outside its own session order list,
+  including manual in-app orders; this is a source finding, not an operational test or accepted new rule.
 - **Open:** precise pause/resume and restart authority, replacement/cancellation, and recovery of
   invalidated reviews. Preserve family rules, account holds, causal protection and original order IDs.
 - **Implementation gap:** Daily Shadow-only protection and one-session authority cannot yet satisfy
