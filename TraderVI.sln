@@ -17,6 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0078-isolated-latest-source-nightly-builds.md = Docs\adr\0078-isolated-latest-source-nightly-builds.md
 		Operations\nightly-nuget.config = Operations\nightly-nuget.config
 		Operations\Test-TraderVINightly.ps1 = Operations\Test-TraderVINightly.ps1
+		Operations\BrokerReadiness\README.md = Operations\BrokerReadiness\README.md
+		Operations\BrokerReadiness\BrokerReadiness.csproj = Operations\BrokerReadiness\BrokerReadiness.csproj
+		Operations\BrokerReadiness\Program.cs = Operations\BrokerReadiness\Program.cs
 		Operations\NightlyBuild.ps1 = Operations\NightlyBuild.ps1
 		readme.md = readme.md
 		TraderVI.txt = TraderVI.txt
@@ -162,6 +165,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Operations\StorageMaintenance\CompactSnapshotVerification.cs = Operations\StorageMaintenance\CompactSnapshotVerification.cs
 		Docs\adr\by-domain.md = Docs\adr\by-domain.md
 		Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md = Docs\adr\0083-opening-account-values-and-shared-engine-hosting.md
+		Docs\adr\0084-supervised-broker-strategy-session.md = Docs\adr\0084-supervised-broker-strategy-session.md
 		Docs\adr\README.md = Docs\adr\README.md
 	EndProjectSection
 EndProject
@@ -197,6 +201,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviews", "reviews", "{FDB8
 		Docs\reviews\delphi-live-migrations-20260906.json = Docs\reviews\delphi-live-migrations-20260906.json
 		Docs\reviews\central-settings-implementation-20260907.md = Docs\reviews\central-settings-implementation-20260907.md
 		Docs\reviews\flashcards.md = Docs\reviews\flashcards.md
+		Docs\reviews\supervised-session-20260923.md = Docs\reviews\supervised-session-20260923.md
 		Docs\reviews\open-questions.md = Docs\reviews\open-questions.md
 		Docs\reviews\review-log.md = Docs\reviews\review-log.md
 	EndProjectSection

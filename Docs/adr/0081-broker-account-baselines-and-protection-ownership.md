@@ -2,8 +2,9 @@
 
 **Date:** 2026-09-16 Toronto (September 17 UTC)  
 **Status:** Accepted behavior; initial risk-reference preparation, reviewed save/recovery workflow and
-SQL repository implemented in source. Migration 035 is prepared, not installed. Operator UI, ongoing
-risk-state continuation, broker strategy-input projection and protection handover remain unfinished.  
+SQL repository implemented in source. Migration 035 is prepared, not installed. Operator UI,
+continuation orchestration, projection and protection handover are now source/tested under
+[ADR-0084](0084-supervised-broker-strategy-session.md); native qualification and rollout remain unfinished.
 **Domains:** architecture, risk-management  
 **Related:** ADR-0062, ADR-0073, ADR-0079, ADR-0080
 

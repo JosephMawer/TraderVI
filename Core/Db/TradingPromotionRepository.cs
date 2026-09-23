@@ -18,6 +18,19 @@ namespace Core.Db;
 
 public sealed class TradingPromotionRepository : ITradingPromotionStore
 {
+    // Read-only strategy definition for broker setup. This never uses the recommendation-only approval exception.
+    public async Task<BrokerStrategyReview> ReviewBrokerAsync(Guid paperAccountId, TradingStrategyFamily family,
+        CancellationToken token = default)
+    {
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, "TFSA", false);
+        var review = await Review(c, t, paperAccountId, family, "TFSA", token, brokerReview: true);
+        var comparison = (await PaperComparisonRepository.ReadAccountsAsync(c, t, token)).SingleOrDefault(a => a.AccountId == paperAccountId);
+        var strategy = new BrokerManagedStrategy(review.Strategy, paperAccountId, comparison?.Profile ?? PaperGateProfile.NormalV1, comparison);
+        strategy.Validate();
+        t.Commit();
+        return new(strategy, review.Evidence, review.PreparedUtc, review.OperationalBlocks);
+    }
     public async Task<TradingPromotionReview> ReviewAsync(Guid paperAccountId, TradingStrategyFamily family, string accountLabel, CancellationToken token = default)
     {
         string account = Account(accountLabel);
@@ -72,11 +85,13 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         var rows = await c.QueryAsync<string>("SELECT AssignmentJson FROM dbo.TradingPromotion WHERE AccountLabel=@Account ORDER BY Sequence DESC", new { Account = Account(accountLabel) });
         return rows.Select(Read<TradingStrategyAssignment>).ToImmutableArray();
     }
-    private static async Task<TradingPromotionReview> Review(SqlConnection c, SqlTransaction t, Guid paper, TradingStrategyFamily family, string account, CancellationToken token)
+    private static async Task<TradingPromotionReview> Review(SqlConnection c, SqlTransaction t, Guid paper, TradingStrategyFamily family, string account, CancellationToken token, bool brokerReview = false)
     {
-        if (await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
+        if (!brokerReview && await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM dbo.PaperComparisonAccount WHERE AccountId=@Id;", new { Id = paper }, t) > 0)
             throw new InvalidOperationException("Fixed-gate comparison accounts are paper experiments; their admission profile is not a recommendation approval.");
+        var comparison = brokerReview
+            ? (await PaperComparisonRepository.ReadAccountsAsync(c, t, token)).SingleOrDefault(a => a.AccountId == paper) : null;
         var daily = await c.QuerySingleOrDefaultAsync<StrategyVersionInfo>("SELECT * FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t)
             ?? throw new InvalidOperationException("A preserved daily strategy assignment is required to identify the complete strategy.");
         var binding = await c.QuerySingleOrDefaultAsync<Binding>("SELECT ModelSetJson,ModelSetSha256 FROM dbo.StrategyModelBinding WHERE StrategyVersionId=@Id", new { Id = daily.VersionId }, t)
@@ -84,9 +99,12 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         var models = StoredProfitModelSet.Read(binding.ModelSetJson, binding.ModelSetSha256); models.Validate(daily.VersionId, daily.DecisionRef);
         var inputs = new TradingDailyInputs(daily.VersionId, daily.ToConfig(), binding.ModelSetSha256, models.InputContract,
             models.Models.OrderBy(m => m.Registry.TaskType, StringComparer.Ordinal).Select(m => new TradingModelIdentity(m.Registry.ModelId, m.Registry.TaskType, m.ArtifactSha256)).ToImmutableArray());
+        if (comparison is not null && comparison.DailyStrategyVersionId != daily.VersionId)
+            throw new InvalidOperationException("The comparison's pinned daily version differs from the active daily version. Do not substitute current settings.");
         var notes = ImmutableArray.CreateBuilder<string>();
         notes.Add("Returns describe this paper account's history. Periods, capital, prior policies, coverage and fill assumptions may differ from other accounts.");
-        notes.Add("Manual approval is your decision. No minimum performance, cohort count or automatic winner test is enforced for recommendation mode.");
+        notes.Add(brokerReview ? "Broker execution needs separate evidence qualification and explicit authority; this definition review grants neither."
+            : "Manual approval is your decision. No minimum performance, cohort count or automatic winner test is enforced for recommendation mode.");
         string name, paperName, selection, facts; int maximum; Guid policyId; SystemShadowPolicyConfig? shadow = null; DelphiLivePolicyDefinition? live = null;
         if (family == TradingStrategyFamily.DailyShadow)
         {
@@ -98,7 +116,10 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
                 """, new { Id = paper }, t);
             if (version is not null && version.Family != EngineStrategySettings.Shadow) throw new InvalidOperationException("Paper account policy family is inconsistent.");
             shadow = version?.Read<SystemShadowPolicyConfig>() ?? SystemShadowPolicyConfig.Version1;
+            if (comparison is not null)
+                shadow = Read<SystemShadowPolicyConfig>(comparison.ShadowSettingsJson ?? throw new InvalidOperationException("The comparison's pinned policy is missing."));
             policyId = version?.VersionId ?? Id(SystemShadowVersions.Policy); maximum = row.MaximumPositions;
+            if (comparison is not null) policyId = comparison.ShadowStrategyVersionId ?? Id(SystemShadowVersions.Policy);
             name = $"{row.Lens} Top {maximum} · {version?.Name ?? SystemShadowVersions.Policy}"; selection = CompleteTradingStrategy.ShadowSelectionPrefix + row.Lens;
             paperName = row.DisplayName;
             facts = await c.QuerySingleAsync<string>("""
@@ -159,7 +180,8 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         var financial = installed ? await Financial(c, account, t) : null;
         var access = await TradingControlRepository.AccessAsync(c, t, EngineStrategySettings.Tracked);
         var current = installed ? await Assignment(c, account, t) : null;
-        var blocks = TradingPromotionPolicy.OperationalBlocks(installed, access, report, financial?.Fingerprint ?? new string('0', 64));
+        var blocks = brokerReview ? ImmutableArray<string>.Empty
+            : TradingPromotionPolicy.OperationalBlocks(installed, access, report, financial?.Fingerprint ?? new string('0', 64));
         if (current?.Strategy.Fingerprint == strategy.Fingerprint) blocks = blocks.Add("This complete strategy is already assigned to this account.");
         return new(Guid.NewGuid(), account, strategy, new(paper, paperName, family.ToString(), facts, notes.ToImmutable()), current?.PromotionId,
             report?.SnapshotId, DateTime.UtcNow, blocks);

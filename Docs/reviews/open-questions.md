@@ -19,8 +19,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Next:** verify that cash source plus native morning publication timing and broker value scope.
   Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its saved-price book
   definition. A graph point alone is not source qualification.
-- Operational setup/continuation, host extraction, task installation, engine input cutover and order
-  authority remain separate unfinished work. No new blanket morning-pause rule is approved.
+- Shared broker orchestration, projection, setup UI and durable sessions are source/tested under
+  [ADR-0084](../adr/0084-supervised-broker-strategy-session.md). Native risk evidence production,
+  installation/verification, supervised host rollout and order authority remain unfinished. No new
+  blanket morning-pause rule is approved. See the [no-go review](supervised-session-20260923.md).
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 ### Active-listing maintenance and partial sector refreshes
@@ -58,10 +60,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Confirmed deposits/withdrawals adjust loss references; unexplained cash movements pause new buys.
 - **Initial setup implemented in source:** pure risk-reference preparation and reviewed SQL save/recovery,
   with source identities, explicit unknown-history blocking and no reinitialization of an established
-  baseline. Migration 035 is prepared/uninstalled. No operator UI or operational baseline exists yet;
-  the engine still reads legacy reported financial state.
-- **Next (September 22):** daily and percentage-preserving cash-flow continuation are tested. Qualify
-  complete cash-event evidence/effective timing and native opening values, then integrate continuation.
+  baseline. Migration 035 is prepared/uninstalled. Operator setup UI and broker projection are now
+  implemented in the isolated source branch; no operational baseline or installed cutover exists yet.
+- **Next (September 22 evening):** qualify complete cash-event evidence/effective timing and native
+  opening values for the implemented continuation caller. Rehearse/install 035/039/040 separately.
   Do not wait for a dedicated review screen. Minimal setup review and separately verified storage
   remain prerequisites for operational use. Then complete position-cycle mapping and causal
   protection handover, followed by source-aware strategy inputs and ongoing synchronization. See the

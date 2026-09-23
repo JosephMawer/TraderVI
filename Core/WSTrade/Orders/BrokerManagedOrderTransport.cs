@@ -1,0 +1,122 @@
+#nullable enable
+using Core.Trader.Promotion;
+using Core.WSTrade.Accounts;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Core.WSTrade.Orders;
+
+/// <summary>Strategy intent uses the existing manual preflight, encrypted journal and one-attempt broker client.</summary>
+public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSellBroker sells,
+    IManualSellJournal journal, IManualBuySafetySource safety, IBrokerAccountRiskContinuationStore riskStore, WealthsimpleTfsaAccount account,
+    SemaphoreSlim orderGate, TimeProvider? time = null) : IBrokerManagedOrderTransport
+{
+    private readonly TimeProvider clock = time ?? TimeProvider.System;
+    public async Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection projected, CancellationToken ct)
+    {
+        if (!await orderGate.WaitAsync(0, ct)) throw new InvalidOperationException("Another broker operation owns the account.");
+        IManualBuySafetyLease? safetyLease = null;
+        try
+        {
+            if (!buys.IsConnected || !sells.IsConnected || order.Quantity < 1 || order.Side is not ("BUY" or "SELL") ||
+                journal.HasUnresolvedOrders() || journal.ReadAll().Any(o => o.Intent.RequestId == order.RequestId) ||
+                journal.ReadSells().Any(o => o.Intent.RequestId == order.RequestId))
+                throw new InvalidOperationException("Recover saved orders before a new strategy transmission.");
+            long revision = buys.SessionRevision;
+            if (order.Side == "BUY")
+            {
+                safetyLease = await safety.AcquireAsync(ct);
+                if (safetyLease.BlockReason is not null) throw new InvalidOperationException(safetyLease.BlockReason);
+                // The existing shared TFSA read fence also excludes continuation writers until transmission finishes.
+                var currentRisk = await riskStore.ReadAsync(projected.Risk.BaselineId, ct);
+                if (BrokerAccountImport.Hash(currentRisk) != BrokerAccountImport.Hash(projected.Risk))
+                    throw new InvalidOperationException("Account risk advanced after evaluation. Synchronize before buying.");
+                var read = await buys.ReadManualBuyContextAsync(account, order.Symbol, ct);
+                var context = read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
+                if (context is null) throw new InvalidOperationException("Fresh broker buy checks are unavailable.");
+                string? error = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
+                if (error is not null) throw new InvalidOperationException(error);
+                RequireSameAccount(projected, context.Snapshot, context.Security.Id, order.SecurityId);
+                if (context.Quote.Ask > order.ReferencePrice || order.Quantity * context.Quote.Ask > projected.Account.AvailableCash ||
+                    projected.Risk.DailyLossHold || projected.Risk.CapitalReviewRequired || !projected.NewRiskBlocks.IsEmpty)
+                    throw new InvalidOperationException("The current ask or account risk no longer fits the strategy decision.");
+                var intent = new ManualBuyIntent(order.RequestId, context.Security.SourceIdentity!, account.Id, order.SecurityId,
+                    account.DisplayName, order.Symbol, context.Security.Exchange, order.Quantity,
+                    new(order.Symbol, "Reviewed real strategy · " + order.DecisionId.ToString("D"), "Buy")
+                        { ExpectedBrokerSecurityId = order.SecurityId },
+                    order.ReferencePrice, context.Quote, context.AvailableCash!.Value, clock.GetUtcNow());
+                return new Preflight(orderGate, safetyLease, async token =>
+                {
+                    CheckRevision(revision);
+                    var recheck = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
+                    if (recheck is not null) throw new InvalidOperationException(recheck);
+                    var saved = new ManualBuyRecord(intent, null, []);
+                    journal.Save(saved);
+                    WealthsimpleSubmissionStatus status;
+                    try { status = (await buys.SubmitManualBuyAsync(new(account, context.Security, order.Quantity, order.RequestId), token)).Status; }
+                    catch { status = WealthsimpleSubmissionStatus.OutcomeUnknown; }
+                    journal.Save(saved with { Submission = status }); return status;
+                });
+            }
+            else
+            {
+                var read = await sells.ReadManualSellContextAsync(account, order.Symbol, ct);
+                var context = read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
+                if (context is null) throw new InvalidOperationException("Fresh broker sell checks are unavailable.");
+                var selection = new ManualSellSelection(account, order.SecurityId, order.Symbol, order.Quantity,
+                    projected.Import.Plan.Observation.SnapshotAt, revision);
+                string? error = ManualSellChecks.Validate(selection, context, clock.GetUtcNow());
+                if (error is not null) throw new InvalidOperationException(error);
+                RequireSameAccount(projected, context.Snapshot, context.Security.Id, order.SecurityId);
+                var intent = new ManualSellIntent(order.RequestId, context.Security.SourceIdentity!, account.Id, order.SecurityId,
+                    account.DisplayName, order.Symbol, context.Security.Exchange, order.Quantity, selection.SnapshotAt, context.Quote, clock.GetUtcNow());
+                return new Preflight(orderGate, null, async token =>
+                {
+                    CheckRevision(revision);
+                    var recheck = ManualSellChecks.Validate(selection, context, clock.GetUtcNow());
+                    if (recheck is not null) throw new InvalidOperationException(recheck);
+                    var saved = new ManualSellRecord(intent, null, []); journal.SaveSell(saved);
+                    WealthsimpleSubmissionStatus status;
+                    try { status = (await sells.SubmitManualSellAsync(new(account, context.Security, order.Quantity, order.RequestId), token)).Status; }
+                    catch { status = WealthsimpleSubmissionStatus.OutcomeUnknown; }
+                    journal.SaveSell(saved with { Submission = status }); return status;
+                });
+            }
+        }
+        catch { if (safetyLease is not null) await safetyLease.DisposeAsync(); orderGate.Release(); throw; }
+    }
+    private void CheckRevision(long revision)
+    {
+        if (!buys.IsConnected || !sells.IsConnected || buys.SessionRevision != revision || sells.SessionRevision != revision)
+            throw new InvalidOperationException("Broker login changed. Recover the saved intent before further execution.");
+    }
+    private static void RequireSameAccount(BrokerAccountProjection projected, WealthsimpleTfsaSnapshot snapshot, string actualSecurity, string expectedSecurity)
+    {
+        var observed = projected.Import.Plan.Observation;
+        if (snapshot.Account.Id != observed.AccountId || actualSecurity != expectedSecurity ||
+            snapshot.Cash?.Currency != "CAD" || snapshot.BuyingPower?.Currency != "CAD" ||
+            snapshot.Cash?.Amount != observed.Cash || snapshot.BuyingPower?.Amount != observed.BuyingPower ||
+            snapshot.Holdings.Count(h => h.Quantity > 0) != projected.Positions.Length ||
+            projected.Positions.Any(p => !snapshot.Holdings.Any(h => h.SecurityId == p.SecurityId && h.Quantity == p.Quantity &&
+                h.BookValue?.Currency == "CAD" && h.BookValue.Amount == p.CostBasis)))
+            throw new InvalidOperationException("Broker funds, holdings or instrument changed after strategy evaluation. Reconcile again.");
+    }
+    private sealed class Preflight(SemaphoreSlim gate, IManualBuySafetyLease? safety, Func<CancellationToken, Task<WealthsimpleSubmissionStatus>> submit)
+        : IBrokerManagedOrderPreflight
+    {
+        private int attempted, disposed;
+        public Task<WealthsimpleSubmissionStatus> SubmitOnceAsync(CancellationToken ct)
+        {
+            if (Volatile.Read(ref disposed) != 0 || Interlocked.Exchange(ref attempted, 1) != 0)
+                throw new InvalidOperationException("This prepared strategy order cannot be sent again.");
+            return submit(ct);
+        }
+        public async ValueTask DisposeAsync()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) != 0) return;
+            try { if (safety is not null) await safety.DisposeAsync(); } finally { gate.Release(); }
+        }
+    }
+}

@@ -40,7 +40,8 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Daily/cash-flow continuation tested; native qualification/integration pending | architecture, data-sources |
+| [0084](0084-supervised-broker-strategy-session.md) | Durable supervised broker strategy session | Source/offline tests; launch NO-GO pending native qualification, storage and rollout | architecture, risk-management, market-microstructure |
+| [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Continuation and orchestration tested; native source qualification pending | architecture, data-sources |
 | [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
 | [0079](0079-broker-reconciliation-and-market-handover.md) | Broker reconciliation and first market-order handover | Reconciliation implemented; execution pending | architecture, risk-management, market-microstructure, user-interface |
 | [0080](0080-reviewed-broker-history-import.md) | Reviewed broker history import | Implemented; migration and native linked refresh verified | architecture, risk-management, user-interface |

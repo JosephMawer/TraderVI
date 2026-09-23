@@ -76,6 +76,12 @@ public partial class PaperDashboardWindow : Window
                 await manualBuys.ImportHistoryAsync(this, account, () => TradingRecommendationsTabView.IsCurrentBrokerAccount(account));
         }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account &&
             TradingRecommendationsTabView.IsCurrentBrokerAccount(account)));
+        CommandBindings.Add(new CommandBinding(BrokerRiskSetupCommands.Open, async (_, e) =>
+        {
+            if (e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account && TradingRecommendationsTabView.IsCurrentBrokerAccount(account))
+                await manualBuys.RiskSetupAsync(this, account, () => TradingRecommendationsTabView.IsCurrentBrokerAccount(account));
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account &&
+            TradingRecommendationsTabView.IsCurrentBrokerAccount(account)));
         CommandBindings.Add(new CommandBinding(WorkspaceNavigationState.OpenWealthsimple, (_, _) =>
         {
             if (connectionWindow != null) { connectionWindow.Activate(); return; }

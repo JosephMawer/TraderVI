@@ -201,6 +201,9 @@
     <Build Include="dbo/Triggers/BrokerAccountImport_Immutable.sql" />
     <None Include="Migrations/20260916_034_AddBrokerAccountImport.sql" />
     <Build Include="dbo/Tables/BrokerAccountRiskBaseline.sql" />
+    <Build Include="dbo/Tables/BrokerManagedSessionRevision.sql" />
+    <Build Include="dbo/Triggers/BrokerManagedSessionRevision_Immutable.sql" />
+    <None Include="Migrations/20260923_040_AddBrokerManagedSession.sql" />
     <Build Include="dbo/Triggers/BrokerAccountRiskBaseline_Immutable.sql" />
     <None Include="Migrations/20260917_035_AddBrokerAccountRiskBaseline.sql" />
     <Build Include="dbo/Tables/BrokerAccountRiskContinuation.sql" />

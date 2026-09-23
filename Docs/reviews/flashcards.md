@@ -1291,3 +1291,7 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** How can compact storage preserve historical portfolio state? **A:** Select immutable item versions at or before the original revision, use its saved array counts and verify the fully reconstructed fingerprint. Never join a historical root to current holdings. (ADR-0082)
 - **Q:** When may backup retention delete older generations? **A:** Only after the new SQL backup passes checksum verification and its destination copy matches SHA-256; keep the latest two completed backups in each location. (ADR-0082)
 - **Q:** Does releasing SQL pages immediately free Windows disk space? **A:** No. SQL can reuse those pages internally; physical file shrinking is a separate reviewed operation. (ADR-0082)
+
+- **Q:** Can an uncertain order be retried with a new request ID after restart? **A:** No. Recover the original ID; only confirmed terminal state and reconciled holdings can release its reservation. (ADR-0084)
+- **Q:** Why must continued references replace cached engine references? **A:** Keeping a pre-withdrawal high in memory would turn withdrawn capital into a false loss despite correct database continuation. Holds still persist. (ADR-0084)
+- **Q:** Does a successful day graph qualify the real opening? **A:** No. It does not prove first publication timing, the strategy's valuation method, effective cash events or matching boundary books. (ADRs 0083–0084)

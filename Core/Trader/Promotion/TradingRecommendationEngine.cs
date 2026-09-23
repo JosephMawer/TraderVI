@@ -54,7 +54,7 @@ public static class TradingRecommendationEngine
         decimal? nav = input.Account is {Currency:"CAD"} reported && reported.TradingDate==input.TradingDate &&
             string.Equals(reported.AccountLabel,input.Assignment.AccountLabel,StringComparison.OrdinalIgnoreCase) &&
             reported.ReportedUtc<=input.EvaluatedUtc && reported.LedgerFingerprint==input.CurrentLedgerFingerprint
-            ? reported.AvailableCash : null;
+            ? reported.ValuationCash ?? reported.AvailableCash : null;
         foreach (var holding in input.CurrentHoldings)
         {
             var price = Latest(input, holding.Symbol, 5);
@@ -108,6 +108,7 @@ public static class TradingRecommendationEngine
             var five = Latest(input, holding.Symbol, 5);
             var fifteen = Latest(input, holding.Symbol, 15);
             DateTime entered = LastEntry(input, holding.PositionId) ?? input.Assignment.EffectiveUtc;
+            if (input.ProtectionBoundaries.TryGetValue(holding.PositionId, out var boundary) && boundary > entered) entered = boundary;
             if(five?.StartUtc.AddMinutes(5)<=entered)five=null;
             if(fifteen?.StartUtc.AddMinutes(15)<=entered)fifteen=null;
             string? exit = prior?.PositionId == holding.PositionId ? prior.ExitReason : null;
@@ -172,7 +173,7 @@ public static class TradingRecommendationEngine
                 var today=input.ActualFills.Where(f=>Same(f.Symbol,candidate.Symbol)&&f.TradingDate==input.TradingDate).ToArray();
                 int entries=today.Count(f=>f.Side=="BUY" && f.RecommendationKind!="AddOn");
                 string? reason=today.Where(f=>f.Side=="SELL").OrderByDescending(f=>f.FillUtc).FirstOrDefault()?.ExitReason;
-                if(!SystemShadowPolicy.CanEnterAgainToday(entries,reason is "HardLoss" or "TrailingProfit" or "SessionTwoUnprofitable" or "SessionTwoRotation",policy)) continue;
+                if(!SystemShadowPolicy.CanEnterAgainToday(entries,reason is "HardLoss" or "TrailingProfit" or "SessionTwoUnprofitable" or "SessionTwoRotation" or "CarriedProtectionFloor",policy)) continue;
                 target=SystemShadowPolicy.PositionTarget(nav.Value,input.Assignment.Strategy.MaximumHoldings);
                 budget=SystemShadowPolicy.InitialBudget(target,policy); kind=entries==0?"Initial":"Reentry";
             }
@@ -287,7 +288,8 @@ public static class TradingRecommendationEngine
         var latest=Latest(i,candidate.Symbol,5);
         var bars=i.Bars.GetValueOrDefault(candidate.Symbol);
         var prior=bars.IsDefault?null:bars.LastOrDefault(b=>b.Minutes==5&&latest is not null&&b.StartUtc==latest.StartUtc.AddMinutes(-5)&&b.ReceivedUtc<=i.EvaluatedUtc);
-        if(latest is null||prior is null||latest.StartUtc.AddMinutes(5)<=i.Assignment.EffectiveUtc) return new(false,SystemShadowEntryReason.MissingEvidence);
+        if(latest is null||prior is null||latest.StartUtc.AddMinutes(5)<=i.Assignment.EffectiveUtc ||
+            latest.StartUtc.AddMinutes(5)<=i.CandidateEffectiveUtc) return new(false,SystemShadowEntryReason.MissingEvidence);
         return SystemShadowPolicy.EvaluateEntry(new(candidate.PreviousClose,prior.Close,latest.Close,latest.StartUtc.AddMinutes(5),latest.ReceivedUtc));
     }
     private static ImmutableArray<string> AddAndReturn(this ImmutableArray<string>.Builder b,string message) { b.Add(message); return b.ToImmutable(); }

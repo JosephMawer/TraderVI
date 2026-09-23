@@ -207,7 +207,9 @@ It requires a complete risk-history read and fresh valid saved broker evidence. 
 holds and existing recommendation symbol memory without transferring position ownership. It rejects
 initialization when a baseline already exists. The reviewed workflow and repository now recheck source
 and risk state under account fences and save one immutable baseline with request recovery. Migration
-035 is uninstalled, and no runtime UI/CLI caller or operational baseline has been created.
+035 is uninstalled. The later September 22 source increment adds a setup UI and broker execution
+composition under [ADR-0084](../adr/0084-supervised-broker-strategy-session.md); no operational baseline
+or enabled host has been created. The [launch review](../reviews/supervised-session-20260923.md) is NO-GO.
 
 The current repository clears recommendation symbol memory on strategy changes because its accepted
 recommendation-only path requires an empty account. Keep that path intact. Broker promotion must use
@@ -215,8 +217,8 @@ an explicit handover that preserves retained positions; it cannot reuse the empt
 
 Next acceptance criteria and implementation order (September 20 sequencing clarification):
 
-1. Session continuation for verified no-flow intervals is tested (September 21); finish the pending
-   cash-flow percentage-versus-dollar decision, its event evidence and adjustment handling. A dedicated
+1. Percentage-preserving cash adjustments were accepted September 22 and implemented/tested alongside
+   no-flow session continuation. Native effective event timing and matching books remain unqualified. A dedicated
    baseline review screen is not a development dependency. Define real position identities; preserve
    legacy references only for the same cycle, not a fully closed/reopened holding.
 2. Before operational use, present a concise reference/hold summary within account setup and wire its

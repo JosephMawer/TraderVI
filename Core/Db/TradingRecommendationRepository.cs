@@ -36,11 +36,37 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             if (assignment is null) { t.Rollback(); t.Dispose(); await c.DisposeAsync(); return null; }
             var previous = await Batch(c, account, t);
             var report = await Report(c, account, t); var financial = await Financial(c, account, t);
+            var input = await BuildInput(c, t, account, assignment, report, financial, previous, null, PaperGateProfile.NormalV1);
+            return new Session(c, t, input, previous?.BatchId);
+        }
+        catch { t?.Dispose(); await c.DisposeAsync(); throw; }
+    }
+
+    public async Task<TradingRecommendationInput> ReadBrokerInputAsync(BrokerManagedSession session, CancellationToken token = default)
+    {
+        session.Strategy.Validate();
+        if (session.ActivatedAt is null) throw new InvalidOperationException("Protection must transfer before strategy evaluation.");
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, "TFSA", false);
+        var assignment = new TradingStrategyAssignment(session.SessionId, "TFSA", session.Strategy.Strategy,
+            session.Strategy.PaperAccountId, session.SessionId, null, session.ActivatedAt.Value.UtcDateTime,
+            session.Approval.Reviewer, session.Approval.Reason);
+        var account = session.Account.Account;
+        var input = await BuildInput(c, t, "TFSA", assignment, account,
+            new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory, session.Strategy.GateProfile, session.Strategy.Comparison);
+        token.ThrowIfCancellationRequested(); t.Commit(); return input;
+    }
+
+    private static async Task<TradingRecommendationInput> BuildInput(SqlConnection c, SqlTransaction t, string account,
+        TradingStrategyAssignment assignment, ReportedTradingAccount? report, FinancialState financial,
+        TradingRecommendationBatch? previous, TradingRecommendationMemory? brokerMemory, PaperGateProfile gateProfile,
+        PaperComparisonAccount? comparison = null)
+    {
             var now = DateTime.UtcNow; var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now));
             var warnings = ImmutableArray.CreateBuilder<string>();
-            var memory = TradingRecommendationMemory.Reconcile(previous, report);
+            var memory = brokerMemory ?? TradingRecommendationMemory.Reconcile(previous, report);
             // Switching strategy requires an empty account. Retain financial risk holds, discard only derived symbol policy state.
-            if (previous is not null && previous.PromotionId != assignment.PromotionId) memory = memory with { Symbols = TradingRecommendationMemory.Empty.Symbols };
+            if (brokerMemory is null && previous is not null && previous.PromotionId != assignment.PromotionId) memory = memory with { Symbols = TradingRecommendationMemory.Empty.Symbols };
             var calendarPath = Environment.GetEnvironmentVariable(DelphiLiveDesktopService.CalendarPathEnvironmentVariable);
             ReviewedTsxSessionCalendar? calendar = null; DelphiLiveSessionBounds? bounds = null;
             try
@@ -54,19 +80,26 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             { warnings.Add("A reviewed TSX calendar with coverage for this session is required."); }
             Guid? daily = await c.QuerySingleOrDefaultAsync<Guid?>("SELECT VersionId FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t);
             Guid? run = null;
+            DateTime? candidateEffective = null;
             var candidates = ImmutableArray<TradingCandidate>.Empty;
             if (bounds is not null && calendar is not null)
             {
-                var runRow = await c.QuerySingleOrDefaultAsync<RunRow>("""
+                var adopted = comparison is null ? null : await PaperComparisonRepository.ReadSourceAsync(c, t, comparison.BatchId, date.ToDateTime(TimeOnly.MinValue), default);
+                bool sourceMatches = comparison is null || adopted is not null && adopted.DailyStrategyVersionId == assignment.Strategy.Daily.StrategyVersionId &&
+                    adopted.PublishedUtc <= now && adopted.AdoptedUtc <= now && adopted.EffectiveUtc <= now;
+                if (adopted is not null) candidateEffective = adopted.EffectiveUtc > comparison!.EffectiveUtc ? adopted.EffectiveUtc : comparison.EffectiveUtc;
+                if (!sourceMatches) warnings.Add("The comparison strategy needs its compatible, prospectively adopted source for this session.");
+                var runRow = !sourceMatches ? null : await c.QuerySingleOrDefaultAsync<RunRow>("""
                     SELECT TOP(1) RunId,StrategyConfigJson,ModelSnapshotJson FROM dbo.CalibrationRun WHERE RunPurpose=N'OfficialPaper' AND AuditState=N'Valid'
-                    AND RecommendationDate=@Date AND MarketDataAsOf=@Prior AND StrategyVersionId=@Strategy AND CreatedUtc<=@Open
+                    AND RecommendationDate=@Date AND MarketDataAsOf=@Prior AND StrategyVersionId=@Strategy
+                    AND ((@Source IS NULL AND CreatedUtc<=@Open) OR RunId=@Source)
                     ORDER BY CreatedUtc DESC,RunId
                     """, new
                 {
                     Date = date.ToDateTime(TimeOnly.MinValue),
                     Prior = calendar.GetImmediatelyPrecedingSession(date).ToDateTime(TimeOnly.MinValue),
                     Strategy = assignment.Strategy.Daily.StrategyVersionId,
-                    Open = bounds.OpenUtc
+                    Open = bounds.OpenUtc, Source = adopted?.RunId
                 }, t);
                 if (runRow is not null)
                 {
@@ -80,9 +113,9 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
                     candidates = (await c.QueryAsync<TradingCandidate>("""
                         SELECT c.CandidateId,c.RunId,c.Symbol,l.Rank,CAST(c.ObservationClose AS decimal(19,6)) PreviousClose
                         FROM dbo.CalibrationCandidate c JOIN dbo.CalibrationLensEvaluation l ON l.CandidateId=c.CandidateId
-                        WHERE c.RunId=@Run AND l.Lens=@Lens AND l.IsEligible=1 AND l.IsPublished=1 AND l.Direction=N'Buy' AND l.Rank BETWEEN 1 AND @Maximum
+                        WHERE c.RunId=@Run AND l.Lens=@Lens AND l.IsPublished=1 AND (@Ungated=1 OR (l.IsEligible=1 AND l.Direction=N'Buy')) AND l.Rank BETWEEN 1 AND @Maximum
                         ORDER BY l.Rank,c.Symbol
-                        """, new { Run = run, Lens = assignment.Strategy.Selection[CompleteTradingStrategy.ShadowSelectionPrefix.Length..], Maximum = assignment.Strategy.MaximumHoldings }, t)).ToImmutableArray();
+                        """, new { Ungated = gateProfile == PaperGateProfile.PortfolioRulesOnlyV1, Run = run, Lens = assignment.Strategy.Selection[CompleteTradingStrategy.ShadowSelectionPrefix.Length..], Maximum = assignment.Strategy.MaximumHoldings }, t)).ToImmutableArray();
             }
             var liveInputs = ImmutableArray<TradingLiveObservation>.Empty;
             if (bounds is not null && assignment.Strategy.Family == TradingStrategyFamily.DelphiLive)
@@ -124,10 +157,8 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             bool paused = await TradingControlRepository.IsPausedAsync(c, t, EngineStrategySettings.Tracked);
             var input = new TradingRecommendationInput(Guid.NewGuid(), assignment, now, date, bounds?.OpenUtc ?? now.AddDays(1), bounds?.CloseUtc ?? now.AddDays(1).AddHours(6.5),
                 daily, run, ImplementationIdentity, report, financial.Fingerprint, paused, financial.Holdings, financial.Fills, candidates, bars.ToImmutable(),
-                liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable());
-            return new Session(c, t, input, previous?.BatchId);
-        }
-        catch { t?.Dispose(); await c.DisposeAsync(); throw; }
+                liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable()) { CandidateEffectiveUtc = candidateEffective };
+            return input;
     }
     private sealed class Session(SqlConnection c, SqlTransaction t, TradingRecommendationInput input, Guid? prior) : ITradingRecommendationSession
     {

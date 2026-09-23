@@ -10,6 +10,8 @@ The September 22 documentation cleanup preserves the
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **Automatic strategy trading is still off.**
+The operator selected ungated Breakout Top 3 for the September 23 review. The
+[current launch verdict is NO-GO](reviews/supervised-session-20260923.md).
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)
@@ -30,6 +32,12 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Agree and implement percentage-preserving cash-flow adjustments using matched account books,
   preserving holds and preventing duplicate application/restart resets (ADR-0083).
   [Validation and source limits](project-status.md#verified-development-baseline).
+- [x] Implement/test exact comparison-profile review, actual broker position/cash projection and
+  shared synchronization/continuation orchestration; native risk source remains unqualified.
+- [x] Implement/test protection transfer/replay, immutable supervised approval, exit-before-buy,
+  original-order recovery and concurrency/duplicate prevention; prepare migration 040.
+- [x] Add an account setup review screen and production composition reusing existing broker clients,
+  journal and gates. Build source only; no host/UI installation or activation.
 
 ### Left to do — development order
 
@@ -39,27 +47,31 @@ record them. A prepared migration or passing test never proves broker readiness.
   The activity capture does not establish effective cash timing; cumulative totals and chart points
   alone are insufficient. This item remains open for source qualification and integration.
   Existing holds persist. No new late-start-only buy pause is agreed.
-- [ ] **2. Finish initial operational setup.** Present references and preserved holds within account
-  setup; separately authorize/install prepared migrations 035/039 and verify saving/recovery of initial
-  and daily references. A dedicated screen is unnecessary and is not a prerequisite to developing item 1.
+- [ ] **2. Finish initial operational setup.** The source screen presents references and preserved
+  holds. Separately authorize/install prepared migrations 035/039/040 and verify saving/recovery of
+  initial and daily references. The source screen does not establish an operational baseline.
   Verified initial setup remains mandatory before operational use.
-- [ ] **3. Use the actual broker account.** Replace legacy reported inputs with reconciled holdings,
+- [ ] **3. Verify the broker-input cutover operationally.** The isolated source now projects reconciled holdings,
   actual costs, cash/buying power and orders. Preserve position identity through partial sales; distinguish
   closed/reopened holdings. Preserve linked history, installed migration 034 and existing protections.
-- [ ] **4. Keep synchronization correct.** Handle manual/external trades, partial/new fills, stale or
+- [ ] **4. Verify synchronization natively.** Offline tests cover manual/external changes, partial/new fills, stale or
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
-- [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
+- [ ] **5. Verify actual protection handover.** Source transfer/replay is tested. Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
-- [ ] **6. Connect promotion to execution.** Persist the exact approved strategy and transition state;
+- [ ] **6. Verify the supervised execution host.** Source persists the exact approved strategy and transition state;
   use existing market-order functions with duplicate prevention, uncertain-response and restart recovery.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate next increment:** qualify complete cash-event evidence/effective timing and matching account
-books, plus native opening values, then connect and verify the setup/continuation caller.
+**Immediate next increment:** qualify and implement the native cash-event/boundary-book evidence
+producer, verify native opening values and rehearse SQL storage/recovery under separate authority.
+The orchestration and production composition exist; they cannot manufacture those inputs.
+Then complete the fresh financial activation packet and supervised host rollout. See
+[ADR-0084](adr/0084-supervised-broker-strategy-session.md) and the
+[concrete activation review](reviews/supervised-session-20260923.md).
 The [current design draft](concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation)
 and [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md) hold detailed reasoning.
 Optional older-history import remains a proposal; no historical reset is approved.
@@ -86,10 +98,10 @@ source before implementation; historical phase labels are not new priorities or 
 | F5 | Reverify or retire the unsupported unlinked Ghost CLI route while preserving operator Real monitoring. |
 | F6 | Complete typed Hermes per-source completion semantics; required SPY failure handling alone is insufficient. |
 | F8 | Bind pending Athena outcomes to immutable historical label/cohort definitions; preserve prior meanings. |
-| D1 | Common strategy recommendation routing exists; broker inputs, durable approval/execution and automation eligibility remain. |
+| D1 | Broker projection and durable supervised workflow source/tested; qualified native inputs and operational rollout remain. |
 | D2 | Reverify saved Shadow policy dispatch, generation/pending-order loading and persisted friction; preserve V1 and prior fills. |
-| D3 | Native broker reads/history exist; full execution, native order tests and account synchronization remain. |
-| S1 | Complete risk-default/protection ownership, real position mapping and daily/cash-flow continuation before broker-input cutover. |
+| D3 | Read-only native reads pass; synchronization/order recovery tested offline. Native order and SQL runtime qualification remain. |
+| S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
 | S4 | Bound growing account-history CPU/memory and establish collection/display capacity; installed UI fix is only partial coverage. |
@@ -112,4 +124,5 @@ behavioral work. The [original authority/evidence record](strategy-alignment-his
 preserves past approvals and limits; it grants no fresh database, training, market-service or order
 authority. Existing positions, rule identities, historical labels and independent paper evidence remain
 intact. Keep detailed new validation in linked reports and current state in project status, rather than
-appending another chronology here. No tests, installation or operational checks ran for this cleanup.
+appending another chronology here. The earlier documentation cleanup performed no operational checks;
+the later execution increment has separately dated test/native-read evidence in project status.

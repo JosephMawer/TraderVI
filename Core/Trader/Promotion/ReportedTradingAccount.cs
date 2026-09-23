@@ -15,6 +15,9 @@ public sealed record ReportedTradingAccount(Guid SnapshotId, string AccountLabel
     decimal? HighestClosingValue, int? PendingOrderCount,
     bool DailyLossHold, bool CapitalReviewRequired, ImmutableArray<ReportedTradingHolding> Holdings)
 {
+    // Purchase availability can be below cash. Do not subtract reservations from account value a second time.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public decimal? ValuationCash { get; init; }
     public string? CapitalReviewReason { get; init; }
     public void Validate()
     {
@@ -22,7 +25,7 @@ public sealed record ReportedTradingAccount(Guid SnapshotId, string AccountLabel
             Currency is not { Length: 3 } || Currency.Any(c => c is < 'A' or > 'Z') ||
             ReportedUtc.Kind != DateTimeKind.Utc || string.IsNullOrWhiteSpace(ReportedBy) ||
             !CompleteTradingStrategy.IsHash(LedgerFingerprint) || Holdings.IsDefault ||
-            AvailableCash is < 0m || NetAssetValue is < 0m || SessionOpeningValue is <= 0m ||
+            AvailableCash is < 0m || ValuationCash is < 0m || NetAssetValue is < 0m || SessionOpeningValue is <= 0m ||
             HighestClosingValue is <= 0m || PendingOrderCount is < 0 ||
             Holdings.Select(h => h.PositionId).Distinct().Count() != Holdings.Length ||
             Holdings.Select(h => h.Symbol).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Holdings.Length ||

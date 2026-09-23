@@ -57,6 +57,8 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
     TradingRecommendationMemory PreviousMemory, ImmutableArray<string> SourceWarnings)
 {
     public ImmutableArray<TradingQuote> Quotes { get; init; } = [];
+    public ImmutableDictionary<Guid, DateTime> ProtectionBoundaries { get; init; } = ImmutableDictionary<Guid, DateTime>.Empty;
+    public DateTime? CandidateEffectiveUtc { get; init; }
 }
 
 public sealed record TradingRecommendationResult(string Status, ImmutableArray<TradingRecommendation> Recommendations,
