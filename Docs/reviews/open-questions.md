@@ -10,15 +10,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted September 21:** prefer dependable pre-session engine startup and shared Core reference
   handling; investigate actual recovery data before adding a blanket late-start buy pause. A future
   Windows scheduled task will host the extracted engine, not a separate WPF recovery workflow.
-- **Implemented offline:** the dated reader is joined by boundary-book valuation and durable daily
-  references/holds for positively reconciled intervals without capital flows. All 1,552 Core tests
-  and isolated SSDT checks pass. Migration 039 is prepared/uninstalled.
-- **Pending user answer:** should a confirmed deposit/withdrawal preserve the measured loss percentage
-  (recommended), or preserve only the dollar loss? Existing holds persist either way. No cash-flow
-  formula is implemented; its timed event/value evidence must be defined after this choice.
-- **Next:** complete confirmed-flow handling/evidence and verify native morning publication timing and
-  broker value scope. Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its
-  saved-price book definition. A graph point alone is not source qualification.
+- **Accepted September 22:** confirmed deposits/withdrawals preserve the measured loss percentage and
+  existing holds. That behavior is implemented with matched books, complete event-interval contracts
+  and durable duplicate checks. All 1,595 Core tests pass; migrations 035/039 remain uninstalled.
+- **Open source qualification:** the supplied activity capture shows completed/pending events and
+  occurrence times but does not establish effective cash timing or matching account-value books.
+  Qualify a complete evidence producer before using these calculations on the real account.
+- **Next:** verify that cash source plus native morning publication timing and broker value scope.
+  Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its saved-price book
+  definition. A graph point alone is not source qualification.
 - Operational setup/continuation, host extraction, task installation, engine input cutover and order
   authority remain separate unfinished work. No new blanket morning-pause rule is approved.
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).

@@ -18,6 +18,17 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does a deposit make a previously measured account loss smaller?
+
+No. A confirmed cash movement adjusts both risk references proportionally, so a 2% loss remains 2%.
+Existing holds stay in place. Source: ADR-0083.
+
+### Q: Why does a completed cash activity still need matching account-value evidence?
+
+Its occurrence time may differ from when cash affected the balance. Adjustments need that effective
+boundary and matching books; otherwise market movement could be mistaken for the deposit's effect.
+Source: ADR-0083.
+
 ### Q: Can a noon holdings read and a 09:30 price reconstruct the opening account value?
 
 Only if complete account evidence establishes which shares and cash were actually present at 09:30.

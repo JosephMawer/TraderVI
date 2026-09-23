@@ -1,15 +1,16 @@
 # From independent paper strategies to live execution
 
-**September 21 risk/hosting checkpoint:** use shared Core code for the current app and the eventual
-standalone engine started before market by Windows Task Scheduler. Dated broker reads, strategy-defined
-boundary valuation and saved daily-reference/hold continuation are now tested offline. Continuation
-currently needs positive evidence of no external cash flows; an unchanged net-deposit total cannot
-prove that. Confirmed-flow handling, native qualification and operational wiring remain unfinished.
+**September 22 risk/hosting checkpoint:** use shared Core code for the current app and the eventual
+standalone engine started before market by Windows Task Scheduler. Dated reads, boundary valuation,
+daily references/holds and confirmed cash-flow adjustment are tested offline.
 
-The pending cash-flow question is whether an account down 2% should remain down 2% immediately after a
-deposit (recommended), or retain the dollar loss while its percentage changes. No formula is implemented
-yet. Cash movements must preserve existing holds. No WPF-specific recovery system or new late-start
-pause was added. See [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
+The user accepted keeping an account down 2% at the same 2% immediately after adding or removing money.
+The new calculation scales both reference values using the confirmed cash movement and matching account
+books, preserving existing holds. It processes individual events and prevents duplicate application after
+restart. An unchanged net-deposit total cannot prove no cash moved. The broker source still needs complete
+event coverage and verified effective timing; native morning qualification and operational wiring remain.
+No WPF-specific recovery system or new late-start pause was added.
+See [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
 
 - **Domains:** architecture, decision-engine, risk-management, market-microstructure
 - **Related ADRs:** ADR-0022, ADR-0039, ADR-0051, ADR-0053, ADR-0055, ADR-0062, ADR-0072, ADR-0073

@@ -22,8 +22,11 @@ starts from real cost and fresh observed evidence, never paper state or invented
 Purchase availability is capped by the lower of fresh broker CAD cash/buying power, strategy sizing
 and reservations; unfinished sales supply no funds. Confirmed deposits/withdrawals adjust loss references;
 unexplained cash movements pause new buys. Initial setup/store is implemented in source, with migration
-035 uninstalled and no operator UI or engine cutover. Daily/flow continuation and actual protection
-handover remain unfinished; no strategy is activated and no execution is enabled.
+035 uninstalled and no operator UI or engine cutover. Daily/flow continuation is tested offline;
+source qualification, operational integration and actual protection handover remain unfinished.
+No strategy is activated and no execution is enabled. Confirmed cash movements preserve the measured
+loss percentage by scaling both references from matched before/after books (ADR-0083, September 22);
+they never clear existing holds. A feed occurrence time or net-deposit delta is not sufficient proof.
 September 21 adds offline boundary valuation and append-only daily continuation for positively
 reconciled intervals without capital flows (ADR-0083). Daily Shadow keeps its saved-book price
 definition; Delphi Live keeps first-bar Open/exact final-bar Close. A broker chart timestamp alone

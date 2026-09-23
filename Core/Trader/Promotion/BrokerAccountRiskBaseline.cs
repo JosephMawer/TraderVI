@@ -13,7 +13,8 @@ public enum BrokerRiskReferenceSource
     ReportedClosingHigh,
     RecommendationClosingHigh,
     VerifiedSessionOpening,
-    VerifiedSessionClosing
+    VerifiedSessionClosing,
+    ConfirmedCashFlowAdjustment
 }
 
 /// <summary>A risk reference with its actual evidence boundary; setup is not a historical session open/close.</summary>

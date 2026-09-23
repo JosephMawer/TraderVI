@@ -51,6 +51,19 @@ public sealed class BrokerAccountRiskContinuationRepository(ITsxSessionCalendar 
         var previous = await State(c, t, request.BaselineId);
         var now = DateTimeOffset.UtcNow;
         var state = BrokerAccountRiskContinuation.Apply(previous, request, calendar, now);
+        if (request.CashFlows is not null)
+        {
+            // Stable broker identity also prevents replay under a new request or changed timestamp.
+            // The existing account fence serializes this check with all continuation appends.
+            var savedKeys = await c.QueryAsync<string>("""
+                SELECT events.EventKey
+                FROM dbo.BrokerAccountRiskContinuation AS history
+                CROSS APPLY OPENJSON(history.ReceiptJson, '$.Request.CashFlows.Events')
+                  WITH (EventKey nvarchar(64) '$.EventKey') AS events
+                WHERE history.BaselineId=@BaselineId
+                """, new { request.BaselineId }, t);
+            BrokerAccountCashFlowContinuation.RequireUnseenEvents(request, savedKeys);
+        }
         var receipt = new BrokerRiskContinuationReceipt(request, state, now);
         string json = Json(receipt);
         if (System.Text.Encoding.UTF8.GetByteCount(json) > 256 * 1024)

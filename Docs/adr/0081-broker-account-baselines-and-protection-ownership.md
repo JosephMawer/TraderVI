@@ -44,9 +44,10 @@ September 16 at 22:06 Toronto. Repeating import setup is not this milestone.
    a real blocker, rather than a reason to fabricate a default.
 5. **Adjust loss references for confirmed deposits and withdrawals.** A withdrawal is not a trading
    loss, and a deposit must not conceal one. Confirmed external cash movements adjust the applicable
-   reference values; unexplained movements pause new buys until reconciled. Existing holds do not
-   clear merely because cash moves. Cash-event evidence, timing and continuation are next-phase work;
-   the initial-baseline table does not claim to implement those events.
+   reference values while preserving the measured loss percentage (explicitly accepted September 22);
+   unexplained movements pause new buys until reconciled. Existing holds do not clear merely because
+   cash moves. The append-only adjustment is tested under ADR-0083; complete broker cash evidence and
+   effective timing remain to be qualified. The initial-baseline table does not store later events.
 
 The operator's first question about why buys would wait clarified decision 1: waiting for an undefined
 historical reference is not mandatory. Establish a documented first reference during setup where none
@@ -106,19 +107,19 @@ build ran. Evidence is under `artifacts/tfsa-baseline-20260917/`.
 
 ## Remaining design and implementation boundaries
 
-- **September 21 source checkpoint:** the shared boundary valuator and append-only daily reference/
-  hold continuation are tested for positively verified intervals without capital flows. Initial
-  baseline evidence now retains the actual broker observation time separately from save time.
-  Migration 039 is prepared/uninstalled. Cash-flow arithmetic/evidence, native qualification and
-  operational wiring remain open; see [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md).
+- **September 22 source checkpoint:** shared boundary valuation, daily references/holds and
+  percentage-preserving cash-flow adjustments are tested offline. Initial baseline evidence retains
+  actual broker observation time separately from save time. Migrations 035/039 remain uninstalled.
+  Complete broker event/book evidence, native qualification and operational wiring remain open;
+  see [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md).
 
 - **September 20 sequencing clarification:** a dedicated baseline review screen is not required.
   Develop and test continuation against the existing baseline contracts first; a concise summary in
   account setup can support explicit review/apply later. Separately installed/verified storage and an
   established baseline remain prerequisites for operational continuation, not for its development.
-- Continue references across sessions; define observed session opening/closing evidence, confirmed
-  deposit/withdrawal adjustments, gaps and explicit capital-review transitions. Keep the selected
-  strategy family's valuation/timing rules rather than substituting an arbitrary late-day snapshot.
+- Qualify session opening/closing and cash-flow evidence, integrate the tested continuation, and
+  finish gap recovery and explicit capital-review transitions. Keep the selected strategy family's
+  valuation/timing rules rather than substituting an arbitrary late-day snapshot.
 - Define stable real position identities across partial exits, manual additions and full close/reopen
   cycles. Existing reviewed legacy references must not transfer protection onto a different cycle.
 - Preserve inherited protection levels with their causal timestamps. A floor established at activation

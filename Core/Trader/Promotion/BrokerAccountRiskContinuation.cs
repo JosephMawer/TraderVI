@@ -20,11 +20,11 @@ public sealed record BrokerAccountRiskState(Guid BaselineId, Guid BindingId, str
     public override string ToString() => "Continuing account risk state (financial data omitted)";
 }
 
-public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation }
+public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows }
 
 /// <summary>
-/// A successful cash-flow reconciliation of this interval is required. Until confirmed-flow handling
-/// is implemented, this contract supports ONLY intervals with no external deposits or withdrawals.
+/// A successful cash-flow reconciliation of this interval is required. This contract supports ONLY
+/// intervals with no external deposits or withdrawals; use CashFlows when confirmed flows exist.
 /// It must never be asserted from equal aggregate net-deposit totals (opposing flows can cancel).
 /// </summary>
 public sealed record BrokerRiskNoFlowEvidence(Guid EvidenceId, Guid BindingId,
@@ -43,6 +43,9 @@ public sealed record BrokerRiskContinuationRequest(Guid RequestId, Guid Baseline
     BrokerRiskContinuationKind Kind, BrokerRiskBoundaryValue? Boundary,
     BrokerRiskNoFlowEvidence? NoFlows, BrokerRiskHoldObservation? Holds)
 {
+    // Omit absent evidence to preserve hashes of previously saved requests.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerRiskCashFlowInterval? CashFlows { get; init; }
     [JsonIgnore]
     public string RequestHash => EngineStrategySettings.Hash(JsonSerializer.Serialize(this));
     public override string ToString() => "Account risk continuation request (no order authority)";
@@ -95,6 +98,9 @@ public static class BrokerAccountRiskContinuation
                 CapitalReviewRequired = state.CapitalReviewRequired || holds.CapitalReviewRequired };
         }
 
+        if (request.Kind == BrokerRiskContinuationKind.CashFlows)
+            return BrokerAccountCashFlowContinuation.Apply(state, request, calendar, now);
+
         var boundary = request.Boundary!;
         var bounds = calendar.GetSessionBounds(boundary.TradingDate);
         bool opening = request.Kind == BrokerRiskContinuationKind.Opening;
@@ -117,7 +123,7 @@ public static class BrokerAccountRiskContinuation
         if (!opening && (boundary.TradingDate != state.TradingDate || state.LastCompletedSession == state.TradingDate))
             throw new InvalidOperationException("Only the current, not-yet-completed risk session can close.");
         if (opening && calendar.IsRegularSession(state.TradingDate) &&
-            state.Through < calendar.GetSessionBounds(state.TradingDate).CloseUtc && state.LastCompletedSession != state.TradingDate)
+            state.Through <= calendar.GetSessionBounds(state.TradingDate).CloseUtc && state.LastCompletedSession != state.TradingDate)
             throw new InvalidOperationException("Recover the preceding session's closing evidence before advancing its risk history.");
         if (boundary.At < state.Through)
             throw new InvalidOperationException("A historical boundary cannot replace newer account risk evidence.");
@@ -141,9 +147,14 @@ public static class BrokerAccountRiskContinuation
         if (request.RequestId == Guid.Empty || request.BaselineId == Guid.Empty ||
             request.PreviousRevisionId == Guid.Empty || request.PreviousRevisionId == request.RequestId ||
             !Enum.IsDefined(request.Kind) ||
-            (request.Kind == BrokerRiskContinuationKind.HoldObservation
-                ? request.Holds is null || request.Boundary is not null || request.NoFlows is not null
-                : request.Holds is not null || request.Boundary is null || request.NoFlows is null))
+            (request.Kind switch
+            {
+                BrokerRiskContinuationKind.HoldObservation => request.Holds is null || request.Boundary is not null ||
+                    request.NoFlows is not null || request.CashFlows is not null,
+                BrokerRiskContinuationKind.CashFlows => request.CashFlows is null || request.Holds is not null ||
+                    request.Boundary is not null || request.NoFlows is not null,
+                _ => request.Holds is not null || request.CashFlows is not null || request.Boundary is null || request.NoFlows is null
+            }))
             throw new ArgumentException("Risk continuation needs an immutable request and exactly one supported event.");
     }
 

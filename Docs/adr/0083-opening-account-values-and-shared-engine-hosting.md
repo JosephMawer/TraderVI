@@ -3,8 +3,8 @@
 **Date:** 2026-09-21
 
 **Status:** Accepted direction; broker day-value reader, strategy-defined boundary valuation and
-durable continuation for verified intervals without capital flows are implemented/tested offline.
-Cash-flow adjustment, native source qualification and operational integration remain unfinished.
+durable daily/cash-flow continuation are implemented/tested offline. Percentage preservation was
+accepted September 22. Native source qualification and operational integration remain unfinished.
 
 **Domains:** architecture, data-sources
 
@@ -110,18 +110,14 @@ accompany the immutable event history. Initial baselines, imported history, pape
 account reports and symbol protection are not rewritten. Migration 039 is additive and prepared only;
 both 035 and 039 require separate installation authority and verified backups.
 
-**Limited source contract:** continuation currently accepts only intervals with positively reconciled
+**September 21 source contract:** that increment accepted only intervals with positively reconciled
 evidence of no external deposits or withdrawals. Equal cumulative net-deposit totals are insufficient:
 an intervening deposit and withdrawal can cancel. The current order importer and day graph do not
 produce this complete cash-event proof. There is no production caller, no engine-input cutover and no
 new morning-pause rule. This is a tested development increment, not completed operational item 1.
 
-**Open cash-flow decision:** recommend preserving the measured loss percentage across a confirmed
-deposit/withdrawal (an account down 2% remains down 2%). The alternative preserves the dollar loss but
-changes its percentage and therefore the remaining distance to the existing guard. The user has been
-asked this single question; neither formula has been accepted or implemented in this increment. After
-the answer, define the necessary event/value evidence and implement confirmed-flow continuation,
-including unexplained movements and existing holds. Do not mistake cumulative totals for timed events.
+**Cash-flow decision history:** percentage preservation was proposed September 21 and accepted by the
+user September 22. The implementation and source limits are recorded below.
 
 Validation: 64 new valuation/continuation cases and all **1,552 Core tests** pass with isolated outputs.
 The isolated SSDT build, SQL parsing and canonical/migration parity checks pass. A separate source copy
@@ -132,10 +128,53 @@ dependency-security audit or complete solution build ran. Evidence is under
 `artifacts/tfsa-risk-continuation-20260921/`. No database mutation, native broker call, order, scheduled
 task, operational host launch or app restart was performed.
 
-Next finish the cash-flow behavior and its evidence source, qualify native morning publication and
-valuation compatibility, and integrate/verify setup and continuation under their separate operational
-authorizations. Keep source/projection work in Core for the eventual standalone host. Item 1 remains
-open; pure calculations and prepared storage do not establish an operational account reference.
+## September 22 confirmed cash-flow increment
+
+**Accepted:** a confirmed deposit or withdrawal preserves the measured loss percentage and all
+existing holds. For each movement, let B be the positive account value immediately before its cash
+effect and A the positive value immediately after, using identical holdings and price evidence.
+Each applicable reference R becomes R × A / B, without rounding to cents. Therefore A / adjusted-R
+equals B / R to decimal precision. For example, a CAD 10,000 reference and CAD 9,800 value show a 2%
+loss. A CAD 1,000 deposit changes the value to CAD 10,800 and the reference to approximately
+CAD 11,020.408163; the measured loss remains 2%. This changes neither the strategy's thresholds nor
+the holding's purchase cost.
+
+`BrokerAccountCashFlowContinuation` extends the existing immutable continuation request. A complete
+interval covers (previous saved boundary, new boundary], with every confirmed external capital event
+in effective order. Matched before/after books must have identical actual holdings and identified
+marks, with only the signed cash amount changing. Simultaneous events require a linked book chain.
+Each event has a stable, account-scoped broker-identity hash; the store checks prior event keys under
+the existing account fence, including replay under a new request or altered timestamp. Exact retries
+recover the original receipt. Prior request hashes remain compatible when cash-flow evidence is absent.
+No new schema is needed beyond the already prepared migration 039.
+
+Both daily and drawdown references adjust; cash movement alone cannot release holds, replace the
+initial baseline or alter position protection. Opposing flows are processed individually even if their
+net total is zero. A zero/negative resulting account value does not authorize resetting history.
+Overnight movements preserve holds until the normal daily boundary; a flow at the close cannot skip
+that closing record. Missing, incomplete or conflicting evidence leaves saved references intact. The
+future broker projection must apply the already accepted unexplained-cash restriction; this increment
+adds no generic morning pause or execution caller.
+
+**Source evidence:** privacy-safe inspection of the supplied capture found completed/pending deposits,
+withdrawals and transfers, canonical event identities, signed CAD amounts and offset-bearing occurrence
+times. The selected fields provide no separate effective cash timestamp; settlement indicators were
+absent in these examples. Occurrence time and completion status alone do not prove when the movement
+entered account value. Nor do the graph or cumulative totals establish matching before/after books.
+The evidence contract therefore remains unqualified for production; no raw capture data is committed.
+
+**Validation:** 43 new cases and all **1,595 Core tests** pass with isolated outputs, including both
+existing strategy families' guard decisions at/around their loss thresholds, matched books, opposing/
+simultaneous events, malformed evidence, close/overnight ordering, duplicate identity, lost responses
+and JSON/hash readback. Repository SQL syntax is checked offline. Existing compiler warnings remain;
+no fresh dependency-security audit or WPF/full-solution build ran. Evidence:
+`artifacts/tfsa-cash-flow-20260922/`. No database mutation, broker request/order, host launch/restart
+or scheduled task was performed.
+
+Next qualify the broker source's complete cash evidence and valuation timing, native morning publication
+and strategy compatibility, then wire and verify setup/continuation under separate operational authority.
+Keep this path in Core for the eventual standalone host. Item 1 remains open for source qualification
+and operational integration; tested arithmetic and prepared storage do not establish a real baseline.
 
 ## Review questions
 
