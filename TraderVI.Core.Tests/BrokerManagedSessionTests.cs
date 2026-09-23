@@ -15,7 +15,7 @@ using Xunit;
 
 namespace TraderVI.Core.Tests;
 
-public sealed class BrokerManagedSessionTests
+public sealed partial class BrokerManagedSessionTests
 {
     [Fact]
     public void ExactUngatedStrategyKeepsPublishedTopThreeAndAllPortfolioRules()
@@ -356,6 +356,8 @@ public sealed class BrokerManagedSessionTests
         internal readonly BrokerManagedStrategy Strategy;
         internal bool Pending;
         internal bool OfferBuy;
+        internal int Synchronizations;
+        internal Func<TradingRecommendationInput, TradingRecommendationInput>? TransformInput;
         internal decimal Cash = 1000;
         private readonly Guid candidateId = Guid.NewGuid(), runId = Guid.NewGuid();
         internal Fixture()
@@ -405,6 +407,7 @@ public sealed class BrokerManagedSessionTests
         internal BrokerManagedSessionWorkflow Workflow() => new(Store, this, Transport, new Clock(this));
         public Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct)
         {
+            Synchronizations++;
             if (Pending) throw new InvalidOperationException("Partial fill still pending");
             return Task.FromResult(Project());
         }
@@ -416,7 +419,7 @@ public sealed class BrokerManagedSessionTests
         {
             var assignment = new TradingStrategyAssignment(session.SessionId, "TFSA", Strategy.Strategy, Strategy.PaperAccountId,
                 session.SessionId, null, session.ActivatedAt!.Value.UtcDateTime, "fixture", "offline");
-            return Task.FromResult(new TradingRecommendationInput(Guid.NewGuid(), assignment, Now.UtcDateTime,
+            var input = new TradingRecommendationInput(Guid.NewGuid(), assignment, Now.UtcDateTime,
                 session.Account.Account.TradingDate, Now.UtcDateTime.Date.AddHours(13.5), Now.UtcDateTime.Date.AddHours(20),
                 Strategy.Strategy.Daily.StrategyVersionId, runId, Strategy.Strategy.ImplementationIdentity,
                 session.Account.Account, session.Account.Account.LedgerFingerprint, false, session.Account.Account.Holdings,
@@ -425,7 +428,8 @@ public sealed class BrokerManagedSessionTests
                     [new(Guid.NewGuid(), Now.UtcDateTime.AddMinutes(-11), Now.UtcDateTime.AddMinutes(-6), 5, 10, 10, 10, 10),
                      new(Guid.NewGuid(), Now.UtcDateTime.AddMinutes(-6), Now.UtcDateTime.AddMinutes(-1), 5, 10, 10, 10, 10)])
                     : ImmutableDictionary<string, ImmutableArray<TradingPriceBar>>.Empty, [],
-                ImmutableDictionary<Guid, int>.Empty, session.Memory, []));
+                ImmutableDictionary<Guid, int>.Empty, session.Memory, []);
+            return Task.FromResult(TransformInput?.Invoke(input) ?? input);
         }
         private sealed class Clock(Fixture f) : TimeProvider { public override DateTimeOffset GetUtcNow() => f.Now; }
     }

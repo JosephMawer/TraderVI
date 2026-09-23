@@ -39,16 +39,19 @@ cash-event coverage are mandatory. A net total or occurrence timestamp alone is 
 | Exact selected strategy resolved | Native read-only SQL review identifies the comparison portfolio, daily identity and pinned policy | Definition identity is not strategy performance qualification |
 | Signed-in native broker reads | September 22 **22:25:27 Toronto**: history, holdings, pending orders and regular day graph succeeded; stable activity checkpoint and matching holdings | Local order journal not independently checked; no mutation/lifecycle test |
 | Historical day points | 79 points, September 22 09:30–16:00 Toronto | Does not prove September 23 morning publication timing or the Shadow valuation method |
-| Core regression suite | Sep 23: **1,656 tests passed**, including 16 new synchronization/polling cases and the prior 45 managed-session/transport cases; focused run 357 passed | Synthetic qualification, account/order transport and store; no SQL crash rehearsal or native fill proof |
+| Core regression suite | Sep 23: **1,672 tests passed**, including 16 new buying-mode/restart cases and the prior 16 synchronization/polling cases; latest managed-session/transport run 61 passed (preceding synchronization/broker run 357 passed) | Synthetic qualification, account/order transport and store; no SQL crash rehearsal or native fill proof |
 | Shared account refresh | Sep 23 source/tested: same completed broker read for display and linked history; five-minute cadence, immediate/manual requests, coalescing, cancellation and failure backoff | Not installed; no native rate/cadence proof or risk-evidence qualification. No automatic first link, order submission or uncertain-order recovery. |
 | Desktop and database projects | WPF builds (261 existing compiler warnings, zero errors); separate Visual Studio SSDT project builds | No full-solution health claim or app restart |
 | Migrations 035/039/040 | Installed at 23:34:11 Toronto after a checksum-verified full backup and SHA-256-matched copy; three empty tables, enabled immutable triggers, trusted constraints and six native zero-row update/delete rejections | No operational baseline/session; no SQL crash/lease/high-precision readback rehearsal |
 | Durable workflow | Tested approval, intent before send, uncertain/lost responses, concurrent ticks, partial terminal exit/residual, exit-to-buy sequence, restart protection, scope/stale/conflict blocks and reference continuation | No production host is enabled |
+| Stop/resume and restart | Sep 23 source/tested: saved purchase mode, fresh synchronization before acting, ordinary exits while buys are stopped, lost-save recovery and in-flight/uncertain original-order preservation | Same-session Core only; full pause, invalidated reviews and expiry still block. No WPF controls/startup, cross-day assignment or activation. |
 
 Private, ignored evidence: original checkout `artifacts/first-real-session-20260923/`; isolated
 worktree `artifacts/launch-validation/` including `native-readonly.json`, `strategy-review.json`,
 `all-tests.log`, `managed-tests.log`, `wpf.log` and `sql-build.log`. Sep 23 adds
-`synchronization-tests.log`, `synchronization-all-tests.log` and `synchronization-wpf.log`. No account identifiers, balances,
+`synchronization-tests.log`, `synchronization-all-tests.log` and `synchronization-wpf.log`, followed by
+`buying-mode-tests.log`, `buying-mode-all-tests.log` and `buying-mode-wpf.log`. The purchase mode uses
+existing JSON snapshots; no migration or native operation was needed. No account identifiers, balances,
 credentials, raw broker responses or model artifacts are committed in this review.
 
 Installation receipts are in isolated-worktree `artifacts/promotion-storage-20260923/`:
@@ -94,7 +97,8 @@ the fresh financial activation packet remain development/verification work. Thes
 merely by introducing interfaces. Session renewal, strategy replacement and resolving externally
 invalidated reviews are absent from this first-session implementation. ADR-0085 now requires a general
 ongoing workflow; its implementation and Delphi Live protection adapter remain unfinished. The operator
-ended rare-case design and asked to resume this path; shared synchronization is the next completed source increment.
+ended rare-case design and asked to resume this path; shared synchronization and durable purchase-mode
+control are completed source increments. They do not complete ongoing assignment or its app integration.
 
 ## Demonstration without operational effects
 
@@ -110,6 +114,14 @@ prospective evidence → reserve/send synthetic buy → restart → recover the 
 synthetic fill. Other cases demonstrate blocking partial/unknown orders, duplicate prevention, stale
 and conflicting data, external changes, session expiry and preserved loss references. No SQL/broker
 service is called by these tests.
+
+`BrokerManagedSessionTests.BuyingMode.cs` adds a stop/restart demonstration: persist the purchase mode
+and strategy → reconstruct the saved session → synchronize current facts → continue applicable exits
+without replacement buys. It also exercises restart with buying enabled, blocked fresh reads, lost
+mode-save replies, partial required exits, protection breaches and a stop during an in-flight buy.
+The original uncertain order is never resent; a confirmed fill still acquires protection. Legacy
+snapshots retain their previous buying behavior, while restart/resume cannot clear holds, invalidate
+history or extend the current session's authority. WPF controls/startup remain unimplemented.
 
 The read-only console in `Operations/BrokerReadiness` resolves the chosen strategy and verifies the
 saved signed-in broker session. It has no order, refresh-token, import, migration or activation mode.

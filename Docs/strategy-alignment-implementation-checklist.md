@@ -51,7 +51,12 @@ record them. A prepared migration or passing test never proves broker readiness.
   manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
   no native rollout or automatic order recovery implied.
 - [x] Agree stopping new automatic purchases while ordinary exits continue, retaining Market sell all
-  on real holding rows (Sep 23, ADR-0085). This is a design decision; current Paused also stops managed sells.
+  on real holding rows (Sep 23, ADR-0085). Full execution pause remains distinct.
+- [x] Agree restoring the same approved strategy and saved buying mode after fresh account/order checks
+  on app restart; stopped buying stays stopped (Sep 23, ADR-0085).
+- [x] Implement/test Core purchase-mode persistence and same-session recovery: 16 added cases cover
+  stopped buys with active exits, failed checks, partial fills, lost saves, concurrent stop and original-ID
+  recovery. Existing JSON storage needs no migration. No WPF/startup integration or cross-day authority.
 
 ### Left to do — development order
 
@@ -82,8 +87,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
   separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
-  the accepted purchase-only stop/resume control, restart and replacement. Reuse the existing manual
-  row sale and verify no replacement buys while stopped. The current
+  app controls/startup for the tested Core purchase mode, cross-day restart and replacement. Reuse the
+  existing manual row sale and verify coordination with managed orders. Core tests already prove no
+  replacement buys while stopped within a supervised session. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend current Daily Shadow-only, single-session execution
   to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.
@@ -93,7 +99,8 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 **Immediate next increment:** qualify the native cash-event/boundary-book evidence producer and
 opening values, alongside the installed SQL runtime recovery rehearsal. Shared background synchronization
-is source/tested; next extend durable assignment and family adapters without reopening deferred rare cases.
+and same-session purchase-mode recovery are source/tested; next extend durable assignment and family
+adapters without reopening deferred rare cases.
 Storage is installed; SQL runtime
 recovery rehearsal remains distinct from the completed schema/immutability checks.
 The orchestration and production composition exist; they cannot manufacture those inputs.

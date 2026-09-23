@@ -45,6 +45,24 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         return await Save(lease, state with { Phase = BrokerManagedPhase.Paused, Blocks = ["Execution paused by operator. Outstanding orders still require recovery."] }, "OperatorPaused", ct);
     }
 
+    public Task<BrokerManagedSession> StopNewBuysAsync(Guid bindingId, CancellationToken ct = default) =>
+        SetNewBuysStoppedAsync(bindingId, true, ct);
+
+    public Task<BrokerManagedSession> ResumeBuyingAsync(Guid bindingId, CancellationToken ct = default) =>
+        SetNewBuysStoppedAsync(bindingId, false, ct);
+
+    private async Task<BrokerManagedSession> SetNewBuysStoppedAsync(Guid bindingId, bool stopped, CancellationToken ct)
+    {
+        // Serialize with transmission: an order already sent still needs normal status recovery.
+        await using var lease = await store.AcquireAsync(bindingId, ct);
+        var state = lease.Current ?? throw new InvalidOperationException("No managed session exists.");
+        if (state.NewBuysStopped == stopped) return state;
+        // Change only the operator's purchase control. A later tick must synchronize afresh;
+        // resume neither sends an order nor clears execution blocks, references or protection.
+        return await Save(lease, state with { NewBuysStopped = stopped },
+            stopped ? "OperatorStoppedNewBuys" : "OperatorResumedBuying", ct);
+    }
+
     public async Task<BrokerManagedSession> TickAsync(Guid bindingId, CancellationToken ct = default)
     {
         await using var lease = await store.AcquireAsync(bindingId, ct);
@@ -146,7 +164,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             input.CurrentLedgerFingerprint != account.Account.LedgerFingerprint || input.Account != account.Account ||
             input.Assignment.PromotionId != state.SessionId || input.TradingDate != account.Account.TradingDate)
             throw new InvalidOperationException("Strategy evaluation must use this exact approved strategy and reconciled broker account.");
-        input = input with { EntriesPaused = input.EntriesPaused || !account.NewRiskBlocks.IsEmpty,
+        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || !account.NewRiskBlocks.IsEmpty,
             PreviousMemory = state.Memory, ActualFills = account.Fills,
             ProtectionBoundaries = state.Protection.ToImmutableDictionary(p => p.PositionId, p => p.EstablishedAt.UtcDateTime) };
         var replay = BrokerProtectionHandover.Replay(input, state.Protection);
@@ -158,7 +176,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             .OrderBy(r => r.Action == "Sell" ? 0 : 1).FirstOrDefault();
         if (recommendation is null) return state;
         bool sell = recommendation.Action == "Sell";
-        if (!sell && (!account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
+        if (!sell && (state.NewBuysStopped || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
         var security = account.Positions.SingleOrDefault(p => p.Symbol == recommendation.Symbol)?.SecurityId ??
             await source.ResolveSecurityAsync(recommendation.Symbol, ct);
         Guid decisionId = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{recommendation.Symbol}:{recommendation.Action}:{recommendation.Kind}:{recommendation.PositionId}:{recommendation.EvidenceId}:{recommendation.CandidateId}");

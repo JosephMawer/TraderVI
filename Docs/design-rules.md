@@ -43,9 +43,12 @@ extras neither consume those slots nor receive automatic additions/replacements.
 exception identifiable and all holdings in actual account valuation; automatic buying limits, account-wide
 risk rules and paper attribution do not change implicitly. September 23 also accepts a strategy control
 that stops new automatic purchases while ordinary sell/protection rules continue, plus the existing
-manual Market sell all row action. The current supervised-session Paused phase blocks automatic exits
-too; the new purchase-only control still needs implementation. Manual ownership/handover compatibility
-remain unfinished; shared recurring synchronization is source/tested but not installed. No new order
+manual Market sell all row action. Restore the same approved strategy and saved buying mode after
+restart only after fresh account/order checks; stopped buying stays stopped and risk history persists.
+Core now saves a distinct purchase-only control; the supervised-session Paused phase still blocks
+automatic exits too. One-session expiry remains enforced. Ongoing assignment, host/UI integration and
+manual ownership/handover compatibility remain unfinished; recurring synchronization and purchase-mode
+recovery are source/tested but not installed. No new order
 or automation authority follows from these decisions.
 
 [ADR-0080](adr/0080-reviewed-broker-history-import.md) stores reviewed broker observations in separate

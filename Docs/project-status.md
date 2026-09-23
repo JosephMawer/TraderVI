@@ -49,14 +49,15 @@ Detailed dated accounts remain in the [status history](project-status-history-20
 | Cash-flow continuation | Accepted percentage preservation implemented/tested. Broker projection adopts the continued reference and preserves holds. Complete event/effective timing and matched native books remain unqualified; the default source blocks new risk. |
 | Broker inputs and execution | Exact comparison profile, real position cycles/costs, synchronization, preserved protection, immutable approval/order intent and restart recovery implemented/tested. Production composition reuses existing clients, journal and gates. Migration 040 installed. No qualified execution host, native mutation evidence or automation activation. |
 | Portfolio-wide ongoing promotion | ADR-0085 accepts ongoing assignment, manual-buy default ownership and purchase/later handover into exit-only management separate from normal automatic positions. Operator ended edge-case design and deferred same-stock manual additions on Sep 23; common-path implementation resumed. Current source has only a bounded Daily Shadow session, one holdings list for valuation/protection/capacity and invalidation of in-app manual fills. Role separation, renewal/replacement, Delphi Live handover and automatic continuation remain unfinished. |
-| Strategy stop control | Sep 23 guided decision: stop new purchases while ordinary exits continue; retain manual Market sell all on real holding rows. Current row command is implemented under ADR-0077 with whole-share/freshness/order checks. The supervised-session Paused state also blocks automatic sells; the accepted purchase-only control is not implemented. Restart restoration is the next design decision. No new operational action or test run. |
+| Strategy stop/restart control | Sep 23 accepted: stop new purchases while ordinary exits continue; restore the same approved strategy and buying mode after fresh account/order checks on restart. Core now persists the purchase mode, checks it during evaluation/submission and recovers it with original order IDs; 16 added offline cases pass. Full pause and one-session expiry remain enforced. WPF controls/startup and ongoing cross-day assignment are unfinished. Existing Market sell all remains under ADR-0077. No installation or activation. |
 | Broker background synchronization | Sep 23 source/tested: shared reconciliation/history workflow used by display and managed source, five-minute background refresh independent of tab, explicit/post-trade refresh, coalescing, cancellation and 5/10/20/30-minute failure backoff. Only an existing reviewed account link can append history; uncertain/conflicting facts remain blocked. No app installation, native polling or history write in this increment. |
 | Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; Sep 22 required recovery. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
 
 ## Verified development baseline
 
-September 23: **1,656 Core tests passed**, including 16 new synchronization/polling cases and the prior
-45 managed-session/transport cases. The focused synchronization/broker run passed 357 tests. WPF builds with
+September 23: **1,672 Core tests passed**, including 16 new buying-mode/restart cases and the prior
+16 synchronization/polling cases. The focused managed-session/transport run passed 61 tests; the preceding
+synchronization/broker increment passed 357 focused tests. WPF builds with
 261 existing compiler warnings and zero errors; the database project separately builds using Visual
 Studio SSDT on September 22 (no schema change in this increment). No full-solution health claim or fresh dependency-security audit. Existing reviewed work
 was checkpointed as `761fb78`; the new work is isolated in `codex/supervised-tfsa-20260923` under
@@ -64,7 +65,9 @@ was checkpointed as `761fb78`; the new work is isolated in `codex/supervised-tfs
 
 The [activation review](reviews/supervised-session-20260923.md) owns detailed validation and the no-go
 evidence list. Local ignored evidence is in that worktree's `artifacts/launch-validation/`, including
-`synchronization-tests.log`, `synchronization-all-tests.log` and `synchronization-wpf.log` for Sep 23.
+`buying-mode-tests.log`, `buying-mode-all-tests.log` and `buying-mode-wpf.log` for the latest Sep 23 increment;
+the preceding synchronization logs remain. Purchase mode uses existing JSON snapshot storage; no migration
+or native operation ran for this increment.
 Read-only broker verification ran in the source increment. Later operator-authorized migrations
 035/039/040 installed empty storage at 23:34; no order, app restart or automation ran. Native storage
 and preservation receipts are in `artifacts/promotion-storage-20260923/` in the isolated worktree.

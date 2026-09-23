@@ -36,11 +36,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   including manual in-app orders; this is a source finding, not an operational test or accepted new rule.
 - **Accepted September 23:** stopping prevents new strategy purchases while ordinary exits continue.
   Retain the existing Market sell all row action for manual exits. Proposed labels: Stop new buys /
-  Resume buying; status: New buys stopped · exits active. Current supervised Paused blocks exits too,
-  so the accepted purchase control requires implementation, not relabelling.
-- **Next decision:** restore the same selected strategy and buying mode after an app restart, once
-  account/order checks pass? Recommended; reopening must not turn stopped buys back on.
-- **Open:** restart/resumption authority, replacement/cancellation, and recovery of invalidated reviews.
+  Resume buying; status: New buys stopped · exits active. Core now persists a separate purchase control;
+  the existing full execution pause still blocks exits too.
+- **Accepted September 23:** restore the same approved strategy and saved buying mode after app restart
+  once fresh account/order checks pass. Stopped buying stays stopped; failed checks preserve state
+  without authorizing orders. Core same-session recovery is tested; host/UI and cross-day integration remain.
+- **Open:** replacement/cancellation and recovery of invalidated reviews.
   Preserve family rules, account holds, causal protection and original order IDs.
 - **Implementation gap:** Daily Shadow-only protection and one-session authority cannot yet satisfy
   the accepted ongoing scope. Follow the [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).

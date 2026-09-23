@@ -7,7 +7,7 @@
 an accepted ADR or operational authorization. On September 23 the operator ended the edge-case design
 pass and asked to refocus; the agreed common path is ready for bounded implementation under the original
 request. The operator resumed guided dialogue for the next priorities and accepted the stop-control
-behavior below. Remaining consequential transitions still need acceptance criteria. The operator
+and checked restart behavior below. Remaining consequential transitions still need acceptance criteria. The operator
 separately authorized necessary database migrations; 035/039/040 were installed and verified at
 23:34 Toronto. That installation creates no real-account baseline or trading authority.
 
@@ -28,15 +28,15 @@ independent paper evidence and preserved real-account history and protection.
 | Accepted clarification, September 23 | Keep three normal strategy positions plus manual extras managed for exits only. Extras do not consume automatic position slots or block normal rotation by their count; they receive applicable sell/protection rules without automatic additions or replacement. Actual cash and account risk still constrain all trades. |
 | Accepted September 23 | Stop further automatic purchases while existing managed holdings continue under normal sell/protection rules. Retain Market sell all on each real holding row using the existing manual sell workflow. |
 | Proposed presentation | Stop new buys / Resume buying, with New buys stopped · exits active as the status. Resume removes only the operator buy restriction; existing account/risk checks still apply. |
-| Open | Automatic resumption after app restart and durable recovery of the selected strategy and buying mode. Recommend restoring the same mode after fresh checks, never turning stopped buys back on merely because the app reopened. |
+| Accepted September 23 | Restore the same approved strategy and saved buying mode after app restart once fresh account/order checks pass. Stopped buying stays stopped; restarting cannot reset risk history or unresolved orders. |
 | Open | Detailed ongoing replacement/cancellation transitions and resolving an invalidated review without resetting history. |
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
 | Deferred September 23 | Same-stock manual additions/split ownership. The operator will not manually add to a strategy holding and asked to return to the main goal; preserve existing conflict checks if it occurs unexpectedly. |
 
 **Implementation gap:** the current broker workflow expires after one session, refuses replacement
 of an existing session, and transfers protection only into Daily Shadow. Its exact comparison-profile
-handling is reusable; it is not an implementation of every portfolio family. No new execution logic
-was added during the design exchange; shared account synchronization is the first subsequent code increment.
+handling is reusable; it is not an implementation of every portfolio family. Shared account synchronization
+and durable purchase-mode control are source/tested increments; ongoing assignment and app rollout remain.
 
 **September 23 manual-trade clarification:** choosing who places
 an order and choosing who subsequently manages the holding are separate decisions. A manually chosen
@@ -80,8 +80,19 @@ Acceptance cases for the ongoing workflow: no Buy/Add submission after the stop 
 sell rules still run; a confirmed sale while stopped causes no replacement buy; a manual row sale uses
 the same order fence and reconciles before further action; resume cannot clear account risk holds.
 Pending submissions are recovered, never assumed cancelled or sent again. Current `Paused` in the
-first-session engine also blocks automatic exits; the new purchase control is not implemented yet.
-Restart restoration remains the next decision. See ADR-0085 for the authoritative accepted scope.
+first-session engine also blocks automatic exits and remains a distinct full execution pause.
+
+**Restart accepted:** restore the exact approved strategy and saved buying mode after fresh account/order
+checks. Failed checks retain the selection/mode without permitting orders. Restore original uncertain
+order IDs, reservations, references, holds and protection; stopping buys cannot be undone by reopening.
+
+**Source/tested September 23:** Core now persists a separate purchase mode through the existing session
+revision store. Stop/resume serializes with transmission; a sent order retains normal recovery. Each
+execution tick synchronizes first, suppresses Buy/Add when stopped and still evaluates ordinary exits.
+Sixteen added cases cover mode recovery, failed checks, partial required exits, protective sells, lost
+save replies, concurrent stop, uncertain orders and legacy snapshots. No schema change is needed.
+The controls are not connected to WPF or app startup. One-session authority still expires; cross-day
+assignment, family adapters and host recovery remain unfinished. See ADR-0085 for the accepted scope.
 
 ### Handover controls and account synchronization — September 23 draft
 

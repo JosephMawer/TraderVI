@@ -65,6 +65,9 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     ImmutableArray<BrokerStrategyOrder> Orders, ImmutableArray<string> Blocks)
 {
     public bool ReviewInvalidated { get; init; }
+    // Absent in earlier snapshots: those sessions retain their existing buying behavior.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool NewBuysStopped { get; init; }
     [JsonIgnore] public BrokerManagedStrategy Strategy => Approval.Review.Strategy;
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")
         .Sum(o => o.Reconciled ? o.Latest?.NetValue ?? 0 : o.Quantity * o.ReferencePrice);

@@ -1,7 +1,7 @@
 # ADR-0085: Portfolio-wide ongoing TFSA management
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
-**Status:** Scope, duration, manual-holding handover and stopping new buys while exits continue accepted.
+**Status:** Scope, duration, manual-holding handover, stopping new buys while exits continue and checked restart restoration accepted.
 Implementation incomplete; unusual same-security cases deferred. Guided dialogue resumed September 23.
 **Domains:** architecture, risk-management, user-interface
 **Related:** ADR-0062, ADR-0073, ADR-0079–0084
@@ -99,8 +99,13 @@ and recovery requirements; pressing stop is not evidence that a broker order was
 
 Use **Stop new buys** as the proposed label, with **New buys stopped · exits active** as the status.
 The complementary **Resume buying** action removes only this operator restriction; it cannot clear
-risk holds, skip account/order checks or change the selected strategy. Keeping this mode across app
-restarts is recommended; automatic restart/resumption authority is the next dialogue decision.
+risk holds, skip account/order checks or change the selected strategy.
+
+The operator accepted restoring the **same approved strategy and saved buying mode after an app
+restart, once fresh account/order checks pass**. Stopped buying stays stopped; enabled buying can
+continue only when the existing checks allow it. A failed check preserves the selection and mode,
+but cannot authorize an order. Restore protection, references, holds, reservations and original order
+identities along with the selection. Restart is not a strategy switch or a reset of risk history.
 
 The operator also reaffirmed **Market sell all** on each real holding row for an explicit immediate
 exit, whether buying is enabled or stopped and whether the holding is strategy-managed or manual.
@@ -112,8 +117,18 @@ The current client supports whole-share CAD equities; no broader broker contract
 
 This accepts product behavior, not live order/activation authority. The existing supervised-session
 `Paused` phase stops all new managed submissions, including exits, after synchronization/recovery.
-It must not simply be relabelled as **Stop new buys**. Implement and test a distinct purchase control
-within ongoing assignment while retaining existing execution blocks and session-authority limits.
+It must not simply be relabelled as **Stop new buys**. A separate Core purchase control is now
+implemented/tested in the bounded session: append-only stop/resume events save the mode in the existing
+session snapshot, and a checked tick permits exits while suppressing Buy/Add. The account lease orders
+stop against in-flight transmission; an already submitted order is still recovered and protected.
+Lost save responses recover the saved mode without another event. Resume changes only the mode and
+submits nothing; the next execution tick synchronizes before acting. Older snapshots retain their
+previous buying behavior and full-pause semantics. No schema migration is required.
+
+This source increment has no stop/resume UI or app startup integration. The one-session expiry,
+invalidated-review block and full execution pause remain enforced. Restoring an ongoing assignment
+across trading days still requires the broader workflow below; the bounded recovery tests do not
+qualify that workflow or authorize its activation.
 
 ## Relationship to the first-session implementation
 
@@ -129,8 +144,9 @@ Their September 22 installation does not create a baseline, assignment or enable
 ## Open design and acceptance boundary
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
-tracks outside/manual changes, restart eligibility and replacement transitions. Stopping new buys
-while ordinary exits continue is accepted above; durable control and resume integration remain unimplemented.
+tracks outside/manual changes and replacement transitions. Stopping new buys and checked restart
+restoration are accepted above; Core mode persistence is tested, while ongoing assignment and host/UI
+integration remain unfinished.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
 trade ownership, automatic continuation after known in-app orders and transfer boundaries remain
 open/proposed in the draft; same-security split ownership is deferred. Do not silently extend the current blanket

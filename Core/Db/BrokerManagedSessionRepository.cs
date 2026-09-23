@@ -69,6 +69,11 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             next.Approval.Review.Validate(next.Account, next.SavedAt);
             return;
         }
+        if (prior.NewBuysStopped != next.NewBuysStopped &&
+            (next.Event != (next.NewBuysStopped ? "OperatorStoppedNewBuys" : "OperatorResumedBuying") ||
+             next.Orders.Length != prior.Orders.Length) ||
+            (prior.NewBuysStopped || next.NewBuysStopped) && next.Orders.Skip(prior.Orders.Length).Any(o => o.Side == "BUY"))
+            throw new InvalidOperationException("Only an explicit buying-control event may change the saved mode; stopped sessions cannot reserve a purchase.");
         if (prior.BindingId != next.BindingId || prior.SessionId != next.SessionId || prior.Approval.Fingerprint != next.Approval.Fingerprint ||
             next.Revision != prior.Revision + 1 || next.PreviousRevisionId != prior.RevisionId || next.SavedAt < prior.SavedAt ||
             prior.ActivatedAt is not null && prior.ActivatedAt != next.ActivatedAt || next.Orders.Length < prior.Orders.Length ||
