@@ -33,10 +33,11 @@ independent paper evidence and preserved real-account history and protection.
 | Deferred | Limit orders, new strategy/risk rules and unsupported future policy types; current accepted market-order and risk rules remain. |
 | Deferred September 23 | Same-stock manual additions/split ownership. The operator will not manually add to a strategy holding and asked to return to the main goal; preserve existing conflict checks if it occurs unexpectedly. |
 
-**Implementation gap:** the current broker workflow expires after one session, refuses replacement
-of an existing session, and transfers protection only into Daily Shadow. Its exact comparison-profile
-handling is reusable; it is not an implementation of every portfolio family. Shared account synchronization
-and durable purchase-mode control are source/tested increments; ongoing assignment and app rollout remain.
+**Implementation boundary:** Core supports explicitly approved ongoing assignments with checked daily
+continuation; existing one-session approvals still expire. Replacement is unsupported and protection
+transfers only into Daily Shadow. Its exact comparison-profile handling is reusable; this does not
+implement every portfolio family. Shared synchronization, purchase controls and saved selection
+restoration in WPF are source/tested; execution-host startup, native qualification and rollout remain.
 
 **September 23 manual-trade clarification:** choosing who places
 an order and choosing who subsequently manages the holding are separate decisions. A manually chosen
@@ -91,8 +92,12 @@ revision store. Stop/resume serializes with transmission; a sent order retains n
 execution tick synchronizes first, suppresses Buy/Add when stopped and still evaluates ordinary exits.
 Sixteen added cases cover mode recovery, failed checks, partial required exits, protective sells, lost
 save replies, concurrent stop, uncertain orders and legacy snapshots. No schema change is needed.
-The controls are not connected to WPF or app startup. One-session authority still expires; cross-day
-assignment, family adapters and host recovery remain unfinished. See ADR-0085 for the accepted scope.
+The next increment connects the controls to the TFSA panel and restores saved strategy/mode after a
+successful linked-account refresh, including startup. No approval or execution tick runs from these
+controls. Core now retains explicitly approved ongoing assignments across verified risk days and
+replays missed prior-day protection bars. Existing one-session approvals keep their expiry, and the
+approved purchase ceiling never refills automatically. Native qualification, execution-host startup,
+family adapters and switching remain unfinished. See ADR-0085 for the accepted scope and exact limits.
 
 ### Handover controls and account synchronization — September 23 draft
 

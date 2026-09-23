@@ -28,6 +28,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         }
         var account = await source.SynchronizeAsync([], ct);
         approval.Review.Validate(account, clock.GetUtcNow());
+        if (approval.Review.Strategy.Strategy.Family != TradingStrategyFamily.DailyShadow)
+            throw new InvalidOperationException("The selected portfolio needs its qualified execution/protection adapter before approval.");
+        if (source.ImplementationIdentity != approval.Review.Strategy.Strategy.ImplementationIdentity)
+            throw new InvalidOperationException("Execution approval must identify the running strategy implementation.");
         var state = new BrokerManagedSession(approval.Review.RequestId, approval.Review.BindingId, 0,
             approval.Review.RequestId, null, "ExecutionApproved", clock.GetUtcNow(), approval,
             BrokerManagedPhase.Transition, null, account, approval.Review.CurrentProtection,
@@ -55,12 +59,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     {
         // Serialize with transmission: an order already sent still needs normal status recovery.
         await using var lease = await store.AcquireAsync(bindingId, ct);
-        var state = lease.Current ?? throw new InvalidOperationException("No managed session exists.");
-        if (state.NewBuysStopped == stopped) return state;
         // Change only the operator's purchase control. A later tick must synchronize afresh;
         // resume neither sends an order nor clears execution blocks, references or protection.
-        return await Save(lease, state with { NewBuysStopped = stopped },
-            stopped ? "OperatorStoppedNewBuys" : "OperatorResumedBuying", ct);
+        return await BrokerManagedSessionControls.ChangeAsync(lease, stopped, clock.GetUtcNow(), ct);
     }
 
     public async Task<BrokerManagedSession> TickAsync(Guid bindingId, CancellationToken ct = default)
@@ -78,6 +79,14 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         }
         if (account.Risk.BindingId != bindingId || account.Risk.BaselineId != state.Approval.Review.BaselineId)
             throw new InvalidOperationException("The account or initial risk baseline changed. No execution is allowed.");
+        var now = clock.GetUtcNow();
+        var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        if (account.Account.TradingDate != today || account.Account.ReportedUtc > now.UtcDateTime ||
+            now.UtcDateTime - account.Account.ReportedUtc > TimeSpan.FromSeconds(30) ||
+            account.Risk.TradingDate > today || account.Risk.TradingDate < state.Account.Risk.TradingDate ||
+            account.Risk.Through < state.Account.Risk.Through || account.Risk.Through > now)
+            return await Save(lease, state with { Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
+                Blocks = ["Current account facts and forward-only risk history are required before execution can resume."] }, "AccountContinuationBlocked", ct);
         var orders = state.Orders.ToBuilder();
         for (int i = 0; i < orders.Count; i++)
         {
@@ -115,7 +124,11 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             Phase = paused ? BrokerManagedPhase.Paused : state.ActivatedAt.HasValue ? BrokerManagedPhase.Active : BrokerManagedPhase.Transition,
             Blocks = paused ? state.Blocks : account.NewRiskBlocks }, "AccountSynchronized", ct);
         if (paused || state.Orders.Any(o => !o.Reconciled)) return state;
-        if (state.Approval.Review.Session != account.Account.TradingDate)
+        if (source.ImplementationIdentity != state.Strategy.Strategy.ImplementationIdentity)
+            return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
+                Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
+        if (account.Account.TradingDate < state.Approval.Review.Session ||
+            !state.IsOngoing && state.Approval.Review.Session != account.Account.TradingDate)
             return await Save(lease, state with { Phase = BrokerManagedPhase.Paused,
                 Blocks = ["The approved supervised session ended. Continue risk tracking and review the next execution session explicitly."] }, "SessionAuthorityEnded", ct);
         if (!state.ActivatedAt.HasValue)
@@ -159,24 +172,48 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 null, p.EntryCompletedAt, new(p.PositionId, SystemShadowTrailingState.Open(p.CostBasis / p.Quantity), null, null, null, null, null)));
             state = await Save(lease, state with { Protection = state.Protection.AddRange(protections) }, "FilledPositionsProtected", ct);
         }
-        var input = await source.ReadStrategyInputAsync(state, ct);
+        TradingRecommendationInput input;
+        try { input = await source.ReadStrategyInputAsync(state, ct); }
+        catch (OperationCanceledException) { throw; }
+        catch
+        {
+            return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
+                Blocks = ["Current strategy and protection-recovery evidence could not be read. Preserve the saved assignment and retry the read."] }, "StrategyEvidenceUnavailable", ct);
+        }
         if (input.Assignment.Strategy.Fingerprint != state.Strategy.Strategy.Fingerprint ||
             input.CurrentLedgerFingerprint != account.Account.LedgerFingerprint || input.Account != account.Account ||
             input.Assignment.PromotionId != state.SessionId || input.TradingDate != account.Account.TradingDate)
             throw new InvalidOperationException("Strategy evaluation must use this exact approved strategy and reconciled broker account.");
-        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || !account.NewRiskBlocks.IsEmpty,
+        // Recommendation-only mode may still advise protection after a build change. Real execution
+        // must use the exact implementation that received operational approval, on every trading day.
+        if (input.ImplementationIdentity != state.Strategy.Strategy.ImplementationIdentity)
+            return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
+                Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
+        bool currentRiskDay = account.Risk.TradingDate == account.Account.TradingDate;
+        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
             PreviousMemory = state.Memory, ActualFills = account.Fills,
             ProtectionBoundaries = state.Protection.ToImmutableDictionary(p => p.PositionId, p => p.EstablishedAt.UtcDateTime) };
+        if (!currentRiskDay)
+            // Keep protective exits available without treating yesterday's reference as today's opening
+            // or allowing the recommendation engine's date rollover to release the saved daily hold.
+            input = input with { Account = input.Account! with { SessionOpeningValue = null },
+                PreviousMemory = state.Memory with { TradingDate = input.TradingDate } };
+        var recoveryBlocks = BrokerProtectionHandover.RecoveryBlocks(input, state.Protection);
+        if (!recoveryBlocks.IsEmpty)
+            return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention, Blocks = recoveryBlocks }, "ProtectionRecoveryBlocked", ct);
         var replay = BrokerProtectionHandover.Replay(input, state.Protection);
         input = input with { PreviousMemory = replay.Memory };
         var result = TradingRecommendationEngine.Evaluate(input);
+        if (!currentRiskDay)
+            result = result with { Memory = result.Memory with { TradingDate = state.Memory.TradingDate,
+                DailyLossHold = state.Memory.DailyLossHold || result.Memory.DailyLossHold } };
         await source.PreserveRiskHoldsAsync(account, result.Memory, ct);
         state = await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection }, "StrategyEvaluated", ct);
         var recommendation = result.Recommendations.Where(r => r.Action is "Sell" or "Buy" or "Add")
             .OrderBy(r => r.Action == "Sell" ? 0 : 1).FirstOrDefault();
         if (recommendation is null) return state;
         bool sell = recommendation.Action == "Sell";
-        if (!sell && (state.NewBuysStopped || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
+        if (!sell && (state.NewBuysStopped || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
         var security = account.Positions.SingleOrDefault(p => p.Symbol == recommendation.Symbol)?.SecurityId ??
             await source.ResolveSecurityAsync(recommendation.Symbol, ct);
         Guid decisionId = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{recommendation.Symbol}:{recommendation.Action}:{recommendation.Kind}:{recommendation.PositionId}:{recommendation.EvidenceId}:{recommendation.CandidateId}");

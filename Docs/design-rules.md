@@ -46,9 +46,12 @@ that stops new automatic purchases while ordinary sell/protection rules continue
 manual Market sell all row action. Restore the same approved strategy and saved buying mode after
 restart only after fresh account/order checks; stopped buying stays stopped and risk history persists.
 Core now saves a distinct purchase-only control; the supervised-session Paused phase still blocks
-automatic exits too. One-session expiry remains enforced. Ongoing assignment, host/UI integration and
-manual ownership/handover compatibility remain unfinished; recurring synchronization and purchase-mode
-recovery are source/tested but not installed. No new order
+automatic exits too. Existing one-session approvals still expire; new explicitly scoped ongoing
+approvals retain their exact strategy, protection, cumulative purchase ceiling and original orders
+across checked days. Only verified risk continuation clears the prior daily hold. Source/tested TFSA
+controls restore the saved selection after linked-account refresh but start no execution loop.
+Native qualification, execution-host rollout, Delphi Live handover, switching and manual ownership
+remain unfinished. No new order
 or automation authority follows from these decisions.
 
 [ADR-0080](adr/0080-reviewed-broker-history-import.md) stores reviewed broker observations in separate

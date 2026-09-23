@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace Core.Trader.Promotion;
 
 public enum BrokerManagedPhase { Transition, Active, Paused, NeedsAttention }
+public enum BrokerExecutionDuration { SingleSession, Ongoing }
 public sealed record BrokerQualification(string Check, Guid BindingId, string StrategyFingerprint,
     DateTimeOffset VerifiedAt, string EvidenceHash, string EvidenceReference);
 public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, BrokerManagedStrategy Strategy,
@@ -19,13 +20,16 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
     ImmutableArray<BrokerPositionProtection> CurrentProtection, ImmutableArray<BrokerQualification> Qualifications)
 {
     public ImmutableArray<BrokerPositionCycle> ReviewedPositions { get; init; } = [];
+    // Older approvals remain limited to their reviewed session. Duration is part of the immutable fingerprint.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public BrokerExecutionDuration Duration { get; init; }
     public static ImmutableArray<string> RequiredChecks { get; } =
         ["cash-events", "opening-values", "native-order-lifecycle", "strategy-evidence", "restart-recovery", "installed-storage"];
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     public void Validate(BrokerAccountProjection account, DateTimeOffset now)
     {
         Strategy.Validate();
-        if (RequestId == Guid.Empty || BindingId != account.Risk.BindingId || BaselineId != account.Risk.BaselineId ||
+        if (!Enum.IsDefined(Duration) || RequestId == Guid.Empty || BindingId != account.Risk.BindingId || BaselineId != account.Risk.BaselineId ||
             AccountFingerprint != account.Fingerprint || PreparedAt > now || now - PreparedAt > TimeSpan.FromMinutes(2) ||
             Session != account.Account.TradingDate || PurchaseCeiling < 0 || !account.NewRiskBlocks.IsEmpty ||
             account.Import.Plan.Observation.SnapshotAt > now || now - account.Import.Plan.Observation.SnapshotAt > TimeSpan.FromSeconds(30) ||
@@ -69,8 +73,13 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool NewBuysStopped { get; init; }
     [JsonIgnore] public BrokerManagedStrategy Strategy => Approval.Review.Strategy;
+    [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
+    // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")
         .Sum(o => o.Reconciled ? o.Latest?.NetValue ?? 0 : o.Quantity * o.ReferencePrice);
+    [JsonIgnore] public DateTime? ProtectionReplayFromUtc => Protection
+        .Where(p => Account.Positions.Any(h => h.PositionId == p.PositionId))
+        .Select(p => (DateTime?)(p.ThroughUtc ?? p.EstablishedAt.UtcDateTime)).Min();
 }
 
 /// <summary>The lease serializes review, durable intent and transmission across hosts. Each append commits before returning.</summary>
@@ -85,6 +94,7 @@ public interface IBrokerManagedSessionStore
 }
 public interface IBrokerManagedAccountSource
 {
+    string ImplementationIdentity { get; }
     // Recover original order statuses before reconciliation/import. Failed reads must throw, never return an empty account.
     Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct);
     Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct);

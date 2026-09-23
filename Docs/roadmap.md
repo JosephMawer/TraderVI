@@ -26,10 +26,11 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    and SQL runtime recovery still need verification. Shared regular account/history refresh is now source/tested;
    native rollout remains pending. The operator ended the edge-case design pass and deferred same-stock
    manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
-   families and replacement/restart transitions, then verify the host before actual execution approval. Follow the
+   families and replacement transitions, then verify the host before actual execution approval. Follow the
    accepted stop/restart behavior: no further automatic purchases while ordinary exits continue; restore
-   the same strategy and saved buying mode after fresh account/order checks. Core purchase-mode persistence
-   and same-session recovery are source/tested; app controls/startup and cross-day assignment remain.
+   the same strategy and saved buying mode after fresh account/order checks. Core ongoing duration,
+   daily/restart recovery and saved TFSA controls are source/tested. Execution-host startup, family
+   coverage, native qualification and rollout remain.
    Retain the existing Market sell all row action and distinct full execution pause. See the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.

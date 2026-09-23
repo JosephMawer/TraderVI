@@ -53,14 +53,15 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             session.Approval.Reviewer, session.Approval.Reason);
         var account = session.Account.Account;
         var input = await BuildInput(c, t, "TFSA", assignment, account,
-            new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory, session.Strategy.GateProfile, session.Strategy.Comparison);
+            new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory,
+            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc);
         token.ThrowIfCancellationRequested(); t.Commit(); return input;
     }
 
     private static async Task<TradingRecommendationInput> BuildInput(SqlConnection c, SqlTransaction t, string account,
         TradingStrategyAssignment assignment, ReportedTradingAccount? report, FinancialState financial,
         TradingRecommendationBatch? previous, TradingRecommendationMemory? brokerMemory, PaperGateProfile gateProfile,
-        PaperComparisonAccount? comparison = null)
+        PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null)
     {
             var now = DateTime.UtcNow; var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now));
             var warnings = ImmutableArray.CreateBuilder<string>();
@@ -139,13 +140,16 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
                 var source = await c.QueryAsync<BarRow>("""
                     SELECT b.Symbol,b.EvidenceBarId EvidenceId,b.EventUtc StartUtc,o.ReceivedUtc,b.IntervalMinutes Minutes,b.[Open],b.High,b.Low,b.[Close]
                     FROM dbo.IntradayEvidenceBar b JOIN dbo.IntradayPollObservation o ON o.ObservationId=b.FirstObservationId
-                    WHERE b.Symbol IN @Symbols AND b.EventUtc>=@Open AND b.EventUtc<@Close AND o.ReceivedUtc<=@Now
+                    WHERE b.Symbol IN @Symbols AND b.EventUtc>=@ReplayFrom AND b.EventUtc<@Close AND o.ReceivedUtc<=@Now
                         AND o.AuditState IN(N'Valid',N'Degraded') AND o.EvidenceSchemaVersion=1 AND o.Provider=N'TMX'
                         AND b.CreatedUtc<=@Now AND DATEADD(minute,b.IntervalMinutes,b.EventUtc)<=o.ReceivedUtc
                         AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
                             WHERE sl.Symbol=b.Symbol AND sl.ExpectedBarEndUtc=DATEADD(minute,b.IntervalMinutes,b.EventUtc))
                     ORDER BY b.EventUtc
-                    """, new { Symbols = symbols, Open = bounds.OpenUtc, Close = bounds.CloseUtc, Now = now }, t);
+                    """, new { Symbols = symbols,
+                        ReplayFrom = protectionReplayFromUtc is { } replay && replay < bounds.OpenUtc
+                            ? replay.AddMinutes(-15) : bounds.OpenUtc,
+                        Close = bounds.CloseUtc, Now = now }, t);
                 foreach (var group in source.GroupBy(b => b.Symbol, StringComparer.OrdinalIgnoreCase))
                     bars[group.Key] = group.Select(b => new TradingPriceBar(b.EvidenceId, Utc(b.StartUtc), Utc(b.ReceivedUtc), b.Minutes, b.Open, b.High, b.Low, b.Close)).ToImmutableArray();
             }
@@ -155,9 +159,19 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
                     try { ordinals[h.PositionId] = calendar.GetSessionOrdinal(date) - calendar.GetSessionOrdinal(h.EntryDate) + 1; }
                     catch (InvalidOperationException) { warnings.Add($"{h.Symbol}: entry-session calendar coverage is unavailable."); }
             bool paused = await TradingControlRepository.IsPausedAsync(c, t, EngineStrategySettings.Tracked);
+            var priorProtectionSessions = ImmutableArray.CreateBuilder<TradingProtectionSession>();
+            if (protectionReplayFromUtc is { } from && calendar is not null && bounds is not null)
+                for (var priorDate = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(from)); priorDate < date; priorDate = priorDate.AddDays(1))
+                    if (calendar.IsRegularSession(priorDate))
+                    {
+                        var close = calendar.GetSessionBounds(priorDate).CloseUtc;
+                        if (close > from)
+                            priorProtectionSessions.Add(new(close, calendar.GetSessionOrdinal(date) - calendar.GetSessionOrdinal(priorDate)));
+                    }
             var input = new TradingRecommendationInput(Guid.NewGuid(), assignment, now, date, bounds?.OpenUtc ?? now.AddDays(1), bounds?.CloseUtc ?? now.AddDays(1).AddHours(6.5),
                 daily, run, ImplementationIdentity, report, financial.Fingerprint, paused, financial.Holdings, financial.Fills, candidates, bars.ToImmutable(),
-                liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable()) { CandidateEffectiveUtc = candidateEffective };
+                liveInputs, ordinals.ToImmutable(), memory, warnings.ToImmutable())
+                { CandidateEffectiveUtc = candidateEffective, PriorProtectionSessions = priorProtectionSessions.ToImmutable() };
             return input;
     }
     private sealed class Session(SqlConnection c, SqlTransaction t, TradingRecommendationInput input, Guid? prior) : ITradingRecommendationSession

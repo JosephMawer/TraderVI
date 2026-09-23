@@ -40,11 +40,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   the existing full execution pause still blocks exits too.
 - **Accepted September 23:** restore the same approved strategy and saved buying mode after app restart
   once fresh account/order checks pass. Stopped buying stays stopped; failed checks preserve state
-  without authorizing orders. Core same-session recovery is tested; host/UI and cross-day integration remain.
+  without authorizing orders. Core now supports explicitly approved ongoing assignments across checked
+  days; TFSA saved-mode controls restore after a linked refresh. No execution host starts from these controls.
 - **Open:** replacement/cancellation and recovery of invalidated reviews.
   Preserve family rules, account holds, causal protection and original order IDs.
-- **Implementation gap:** Daily Shadow-only protection and one-session authority cannot yet satisfy
-  the accepted ongoing scope. Follow the [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
+- **Implementation gap:** native risk/order qualification, Delphi Live protection, manual ownership,
+  switching and execution-host startup remain. Existing single-session approvals still expire; the
+  new ongoing scope cannot silently extend them or replenish their purchase ceilings. Follow the
+  [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
 
 ### Morning account values and the future standalone engine
 

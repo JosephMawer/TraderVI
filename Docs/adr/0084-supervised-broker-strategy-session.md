@@ -5,8 +5,9 @@
 storage verified September 22 at 23:34 Toronto under separate authority. Production evidence remains
 incomplete; no operational baseline, host rollout or execution approval.
 **Scope clarification:** [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) accepts any portfolio
-and ongoing management. The first-session expiry and family limits below remain enforced in source
-until that broader workflow is implemented and verified.
+and ongoing management. Its September 23 source increment adds explicitly scoped ongoing approvals
+and checked multi-day continuation; older/single-session approvals retain the expiry below. Family
+limits, execution-host rollout and native qualification remain unfinished.
 **Domains:** architecture, risk-management, market-microstructure
 **Related:** ADR-0062, ADR-0066, ADR-0067, ADR-0079–0083
 
@@ -60,7 +61,8 @@ Synchronization replaces cached daily/high references with the authoritative con
 including accepted percentage-preserving cash adjustments. It preserves daily and capital holds.
 Unexplained cash restricts new risk; it does not fabricate a daily opening or release protection.
 Pause still allows read/reconciliation recovery. The supervised authority expires at the session
-boundary; a new session or strategy replacement requires a separately implemented reviewed renewal.
+boundary for SingleSession approvals. ADR-0085 adds separate, explicit ongoing scope without
+upgrading those approvals; strategy replacement remains unfinished.
 
 ## Production boundary
 

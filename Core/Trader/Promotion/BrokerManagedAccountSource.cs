@@ -36,6 +36,7 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
     ManualMarketBuyWorkflow buys, ManualMarketSellWorkflow sells, IManualSellBroker broker,
     Func<string, CancellationToken, Task<string>> resolveSecurity, TimeProvider? time = null) : IBrokerManagedAccountSource
 {
+    public string ImplementationIdentity => TradingRecommendationStorage.ImplementationIdentity;
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     private readonly BrokerAccountRiskContinuationWorkflow continuation = new(continuationStore, calendar, time);
     public async Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct)

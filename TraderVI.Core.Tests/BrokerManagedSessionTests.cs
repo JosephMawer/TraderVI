@@ -358,6 +358,9 @@ public sealed partial class BrokerManagedSessionTests
         internal bool OfferBuy;
         internal int Synchronizations;
         internal Func<TradingRecommendationInput, TradingRecommendationInput>? TransformInput;
+        internal Func<BrokerAccountProjection, BrokerAccountProjection>? TransformAccount;
+        internal string? RunningImplementation;
+        public string ImplementationIdentity => RunningImplementation ?? Strategy.Strategy.ImplementationIdentity;
         internal decimal Cash = 1000;
         private readonly Guid candidateId = Guid.NewGuid(), runId = Guid.NewGuid();
         internal Fixture()
@@ -393,7 +396,7 @@ public sealed partial class BrokerManagedSessionTests
             var receipt = new BrokerImportReceipt(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Binding.BindingId, Hash, Now, plan);
             return BrokerAccountProjector.Project(Binding, receipt, Risk, Coverage(), Now);
         }
-        internal BrokerExecutionApproval Approval(bool retain = false)
+        internal BrokerExecutionApproval Approval(bool retain = false, bool ongoing = false)
         {
             var account = Project();
             return new(new(Guid.NewGuid(), Binding.BindingId, Strategy, Risk.BaselineId, account.Fingerprint,
@@ -402,14 +405,15 @@ public sealed partial class BrokerManagedSessionTests
                 retain ? account.Positions.Select(p => p.PositionId).ToImmutableArray() : [], [],
                 BrokerActivationReview.RequiredChecks.Select(c => new BrokerQualification(c, Binding.BindingId, Strategy.Fingerprint,
                     Now, Hash, "Synthetic offline fixture; not operational evidence")).ToImmutableArray())
-                { ReviewedPositions = account.Positions }, "fixture", "Offline demonstration");
+                { ReviewedPositions = account.Positions, Duration = ongoing ? BrokerExecutionDuration.Ongoing : BrokerExecutionDuration.SingleSession }, "fixture", "Offline demonstration");
         }
         internal BrokerManagedSessionWorkflow Workflow() => new(Store, this, Transport, new Clock(this));
         public Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct)
         {
             Synchronizations++;
             if (Pending) throw new InvalidOperationException("Partial fill still pending");
-            return Task.FromResult(Project());
+            var account = Project();
+            return Task.FromResult(TransformAccount?.Invoke(account) ?? account);
         }
         public Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct) =>
             Task.FromResult(account.Positions.Select(p => new BrokerProtectionMark(p.PositionId, 11, Now, Hash)).ToImmutableArray());

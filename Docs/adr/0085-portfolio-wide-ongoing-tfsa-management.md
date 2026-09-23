@@ -125,18 +125,49 @@ Lost save responses recover the saved mode without another event. Resume changes
 submits nothing; the next execution tick synchronizes before acting. Older snapshots retain their
 previous buying behavior and full-pause semantics. No schema migration is required.
 
-This source increment has no stop/resume UI or app startup integration. The one-session expiry,
-invalidated-review block and full execution pause remain enforced. Restoring an ongoing assignment
-across trading days still requires the broader workflow below; the bounded recovery tests do not
-qualify that workflow or authorize its activation.
+The TFSA panel now has saved strategy/mode display and Stop new buys / Resume buying controls in source.
+Startup and recurring linked-account refresh restore that saved selection. An unlinked account, failed
+read, changed login, stale display or uncertain save cannot enable the controls. The write pins the
+displayed assignment identity under the same account lease; an uncertain response requires readback.
+This control path has no approval or order transport and starts no execution loop. Its display explicitly
+says that execution is not enabled. The running app has not been replaced.
+
+## Ongoing assignment continuation — September 23 source increment
+
+Execution review now records an explicit duration: **SingleSession** (the compatible default) or
+**Ongoing**. Duration is immutable and part of the approved fingerprint. The existing durable session
+identity represents the ongoing assignment; its dated account/risk snapshots advance separately.
+Existing one-day approvals cannot silently acquire ongoing authority. No initial approval or strategy
+is created by startup, account refresh or a buying-mode control.
+
+For an explicitly approved ongoing assignment, checked Core ticks keep the original strategy,
+activation/protection boundary, buying mode, order identities, reservations and risk baseline across
+days. Continued risk records own daily-reference changes and clearing the prior daily hold. If those
+records have not advanced, new risk remains blocked, the prior daily hold stays latched, and ordinary
+protective exits can still be evaluated without misusing yesterday's opening as today's value.
+Backward/future risk state or stale account facts block execution. Restart recovery reads protective
+bars since the last saved position boundary, including missed prior-day bars; a breach followed by a
+rebound must not disappear. Replay also applies the existing Session-2 closing-exit rule using reviewed
+calendar boundaries and real position age. Missing required closing bars block further strategy orders
+without advancing protection's recovery boundary. This does not manufacture missing market evidence.
+
+The reviewed purchase ceiling remains cumulative across this assignment. A day change, sale or
+restart never replenishes its unused authorization; actual committed costs and unresolved reservations
+still count. Ongoing duration is not extra spending authority. The exact running implementation is
+checked before any new order, including transition exits; current unsupported families are rejected
+before approval can begin liquidation. The recommendation-only contract is unchanged.
+
+Existing JSON snapshots carry the duration and buying mode; no migration or database change is needed.
+Core continuation and control restoration are tested offline. Automatic host startup, native risk/order
+qualification, account setup, portfolio-family adapters and switching remain distinct unfinished work.
 
 ## Relationship to the first-session implementation
 
-ADR-0084 describes the source implementation, which expires authority after one supervised session,
-does not renew or replace an existing session, and has only a Daily Shadow protection adapter. Those
-limits remain enforced until the broader design is implemented and verified. This decision changes
-the intended product scope and duration; it does not claim the current source already supports them
-or authorize bypassing its expiry check.
+ADR-0084 describes the original single-session implementation. The explicit Ongoing duration above
+supersedes its expiry only for new approvals containing that scope. Older/single-session approvals
+still expire. Replacement remains unsupported and the only execution/protection adapter is Daily
+Shadow; Delphi Live cannot receive execution approval yet. The full execution pause and invalidated
+review remain blocks. No running assignment or automation has been enabled.
 
 Migrations 035/039/040 are shared account/session foundations, independent of the chosen portfolio.
 Their September 22 installation does not create a baseline, assignment or enabled trading host.
@@ -145,8 +176,8 @@ Their September 22 installation does not create a baseline, assignment or enable
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes and replacement transitions. Stopping new buys and checked restart
-restoration are accepted above; Core mode persistence is tested, while ongoing assignment and host/UI
-integration remain unfinished.
+restoration are accepted above; Core continuation and saved UI controls are tested, while execution
+host integration, family coverage and replacement remain unfinished.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
 trade ownership, automatic continuation after known in-app orders and transfer boundaries remain
 open/proposed in the draft; same-security split ownership is deferred. Do not silently extend the current blanket

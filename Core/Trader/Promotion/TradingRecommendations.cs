@@ -45,6 +45,8 @@ public sealed record TradingRecommendation(string Symbol, string Action, int Qua
     string Reason, Guid? PositionId, Guid? CandidateId, Guid? EvidenceId, DateTime? EvidenceUtc,
     string Kind, decimal? PositionTarget = null);
 
+public sealed record TradingProtectionSession(DateTime CloseUtc, int SessionsBeforeCurrent);
+
 public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAssignment Assignment,
     DateTime EvaluatedUtc, DateOnly TradingDate, DateTime SessionOpenUtc, DateTime SessionCloseUtc,
     Guid? CurrentDailyStrategyId, Guid? FrozenRunId, string ImplementationIdentity,
@@ -58,6 +60,7 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
 {
     public ImmutableArray<TradingQuote> Quotes { get; init; } = [];
     public ImmutableDictionary<Guid, DateTime> ProtectionBoundaries { get; init; } = ImmutableDictionary<Guid, DateTime>.Empty;
+    public ImmutableArray<TradingProtectionSession> PriorProtectionSessions { get; init; } = [];
     public DateTime? CandidateEffectiveUtc { get; init; }
 }
 

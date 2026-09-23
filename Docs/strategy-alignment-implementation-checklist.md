@@ -56,7 +56,13 @@ record them. A prepared migration or passing test never proves broker readiness.
   on app restart; stopped buying stays stopped (Sep 23, ADR-0085).
 - [x] Implement/test Core purchase-mode persistence and same-session recovery: 16 added cases cover
   stopped buys with active exits, failed checks, partial fills, lost saves, concurrent stop and original-ID
-  recovery. Existing JSON storage needs no migration. No WPF/startup integration or cross-day authority.
+  recovery. Existing JSON storage needs no migration; the following increments extend this milestone.
+- [x] Implement/test explicitly scoped ongoing Daily Shadow assignment, checked daily continuation,
+  preserved cumulative ceiling, prior-day protection/closing-exit recovery, build-identity checks and
+  rejection of unsupported families before execution approval (Sep 23). Existing one-day approvals expire.
+- [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
+  refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
+  This control path has no approval/order transport and starts no execution loop. No installation.
 
 ### Left to do — development order
 
@@ -87,20 +93,20 @@ record them. A prepared migration or passing test never proves broker readiness.
   Confirm/reconcile required non-overlap exits before new buys. Preserve independent paper history.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
   separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
-  app controls/startup for the tested Core purchase mode, cross-day restart and replacement. Reuse the
-  existing manual row sale and verify coordination with managed orders. Core tests already prove no
-  replacement buys while stopped within a supervised session. The current
+  qualified automatic execution-host startup and replacement. Saved TFSA controls and Core ongoing
+  recovery are source/tested; install and verify their native operation. Reuse the existing manual
+  row sale and verify coordination with managed orders. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
-  Extend current Daily Shadow-only, single-session execution
-  to both portfolio families and durable ongoing assignment; verify cross-family handover and multiple days.
+  Extend the current Daily Shadow execution/protection adapter to both portfolio families; verify
+  cross-family handover and native multi-day recovery. No silent upgrades of one-day approvals.
 - [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
 **Immediate next increment:** qualify the native cash-event/boundary-book evidence producer and
 opening values, alongside the installed SQL runtime recovery rehearsal. Shared background synchronization
-and same-session purchase-mode recovery are source/tested; next extend durable assignment and family
-adapters without reopening deferred rare cases.
+and ongoing recovery/TFSA controls are source/tested; next extend family adapters and qualified
+execution-host startup without reopening deferred rare cases.
 Storage is installed; SQL runtime
 recovery rehearsal remains distinct from the completed schema/immutability checks.
 The orchestration and production composition exist; they cannot manufacture those inputs.

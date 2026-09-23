@@ -20,10 +20,18 @@ acceptance are complete. New WPF writes use the compact representation. See
 [ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md) adds initial broker risk
 baseline preparation and a reviewed save/recovery workflow in source. The repository reads existing
 import/report/recommendation state under the same account fences, preserves known holds/protection,
-and prepares one immutable initial record with source provenance. Migration 035 is build-checked but
-uninstalled; operator UI, ongoing session/cash-flow risk state and broker-input cutover remain unfinished.
-Confirmed capital flows will adjust references, and retained-position protection transfers at activation
-with established protective levels. This baseline subsystem neither evaluates a strategy nor sends orders.
+and prepares one immutable initial record with source provenance. Migrations 035/039/040 are installed;
+operational baseline setup and native risk-source qualification remain unfinished. Source/tested
+continuation adjusts confirmed capital flows while preserving loss percentages and holds. Protection
+transfers at activation with established levels. The baseline subsystem itself sends no orders.
+
+[ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md) adds an immutable explicit duration to the
+existing broker execution approval. The same durable assignment/order history can span checked days
+without upgrading old single-session approvals or replenishing the reviewed purchase ceiling. Core
+recovery replays missed protection and required closing exits; missing evidence blocks execution.
+Separate saved-mode controls reuse the account lease and have no order transport. WPF restores those
+controls only after linked-account refresh. Execution-host startup, Delphi Live protection, ownership
+roles, replacement and native qualification remain unfinished; no automation is enabled.
 
 [ADR-0080](adr/0080-reviewed-broker-history-import.md) adds an explicit first import review and repeatable
 SQL broker history, under the existing account transaction fences. BrokerAccountImportBinding pins the

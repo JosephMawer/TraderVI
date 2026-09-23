@@ -12,6 +12,21 @@
    </Grid>
    <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="DisplayName" IsEnabled="{Binding CanSelect}" MinHeight="36" Margin="0,14,0,6" HorizontalAlignment="Left" MinWidth="300"/>
    <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,18" AutomationProperties.LiveSetting="Polite"/>
+   <Border BorderBrush="#344354" BorderThickness="1" CornerRadius="5" Padding="12" Margin="0,0,0,18">
+    <StackPanel DataContext="{Binding ManagedStrategy}">
+     <TextBlock Text="Strategy management" FontSize="18" FontWeight="SemiBold"/>
+     <TextBlock Text="{Binding StrategyName}" Margin="0,6,0,2" FontWeight="SemiBold"/>
+     <TextBlock Text="{Binding Duration}" Style="{StaticResource WorkspaceLabel}"/>
+     <TextBlock Text="{Binding BuyingMode}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0" AutomationProperties.LiveSetting="Polite"/>
+     <WrapPanel Margin="0,10,0,0">
+      <Button Content="Stop new buys" IsEnabled="{Binding CanStopBuying}" Click="StopBuying_Click" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"
+       ToolTip="Save a stop on new automatic purchases. Existing sell rules and outstanding orders remain."/>
+      <Button Content="Resume buying" IsEnabled="{Binding CanResumeBuying}" Click="ResumeBuying_Click" Style="{StaticResource WorkspaceButton}"
+       ToolTip="Remove your saved buying stop. This does not clear risk holds or activate execution."/>
+     </WrapPanel>
+    </StackPanel>
+   </Border>
    <UniformGrid Columns="3">
     <StackPanel Margin="0,0,16,0"><TextBlock Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ValueText, FallbackValue=—}" FontSize="30" Margin="0,5"/></StackPanel>
     <StackPanel Margin="0,0,16,0"><TextBlock Text="Cash · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding CashText, FallbackValue=—}" FontSize="24" Margin="0,5"/></StackPanel>

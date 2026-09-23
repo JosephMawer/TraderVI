@@ -38,14 +38,16 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
     public event PropertyChangedEventHandler? PropertyChanged;
     public WealthsimpleAccountViewModel(IWealthsimpleAccountSource source, TimeProvider? clock = null,
         Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountSynchronization>>? synchronize = null,
-        Func<bool>? canSynchronize = null)
+        Func<bool>? canSynchronize = null, BrokerManagedStrategyViewModel? managedStrategy = null)
     {
         this.source = source; this.clock = clock ?? TimeProvider.System;
         this.synchronize = synchronize; this.canSynchronize = canSynchronize ?? (() => true);
+        ManagedStrategy = managedStrategy;
         revision = source.SessionRevision;
         source.PropertyChanged += ConnectionChanged;
     }
     public IReadOnlyList<WealthsimpleTfsaAccount> Accounts { get; private set; } = [];
+    public BrokerManagedStrategyViewModel? ManagedStrategy { get; }
     private WealthsimpleTfsaAccount? selected;
     public WealthsimpleTfsaAccount? SelectedAccount
     {
@@ -54,6 +56,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
         {
             if (ReferenceEquals(selected, value) || IsBusy || (value != null && !Accounts.Contains(value))) return;
             selected = value; Snapshot = null; PendingOrders = null; message = value == null ? "Choose a self-directed TFSA." : "Ready to load the selected TFSA.";
+            ManagedStrategy?.Invalidate(true);
             Notify();
             if (value != null) _ = RefreshAsync();
         }
@@ -98,7 +101,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
     public Task PollAsync()
     {
         Notify(); // Refresh the visible age even while waiting or disconnected.
-        return !disposed && !IsBusy && source.IsConnected && canSynchronize() && clock.GetUtcNow() >= nextRefresh
+        return !disposed && !IsBusy && ManagedStrategy?.IsBusy != true && source.IsConnected && canSynchronize() && clock.GetUtcNow() >= nextRefresh
             ? RefreshAsync() : Task.CompletedTask;
     }
     public Task RefreshAsync()
@@ -133,6 +136,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
         bool succeeded = false;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         activeRead = cancellation;
+        ManagedStrategy?.Invalidate();
         IsBusy = true; attempted = true; PendingOrders = null; rowSnapshot = null; holdingRows = [];
         message = "Reading your TFSA from Wealthsimple…"; Notify();
         try
@@ -157,6 +161,12 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
                 Snapshot = synchronized.Read.Snapshot; PendingOrders = synchronized.Read.PendingOrders;
                 message = synchronized.Saved != null ? "Account and saved history updated. Automatic refresh every five minutes."
                     : "Account read; saved history needs attention. " + string.Join(" ", synchronized.Blocks);
+                if (ManagedStrategy is { } strategy)
+                {
+                    if (synchronized.Saved is { } saved) await strategy.RestoreAsync(saved.BindingId, cancellation.Token);
+                    else strategy.Invalidate(true);
+                }
+                if (!IsCurrent(expected)) return;
                 succeeded = true;
                 return;
             }
@@ -202,7 +212,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
             _ => "Wealthsimple could not be reached. Use Refresh to try again."
         };
         if (status is WealthsimpleReadStatus.NotAuthenticated or WealthsimpleReadStatus.Forbidden or WealthsimpleReadStatus.AccountUnavailable)
-        { Snapshot = null; PendingOrders = null; Accounts = []; selected = null; }
+        { Snapshot = null; PendingOrders = null; Accounts = []; selected = null; ManagedStrategy?.Invalidate(true); }
         else if (Snapshot != null) message += " Showing the previous snapshot.";
     }
     private void ConnectionChanged(object? sender, PropertyChangedEventArgs e)
@@ -211,6 +221,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
         if (revision != source.SessionRevision || !source.HasSession)
         {
             activeRead?.Cancel();
+            ManagedStrategy?.Invalidate(true);
             revision = source.SessionRevision; Accounts = []; selected = null; Snapshot = null; PendingOrders = null; attempted = false;
             failures = 0; nextRefresh = default;
             message = "Sign in with Wealthsimple to load your self-directed TFSA.";
@@ -223,6 +234,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
     {
         if (disposed) return;
         disposed = true; source.PropertyChanged -= ConnectionChanged; lifetime.Cancel(); lifetime.Dispose();
+        ManagedStrategy?.Dispose();
     }
 }
 

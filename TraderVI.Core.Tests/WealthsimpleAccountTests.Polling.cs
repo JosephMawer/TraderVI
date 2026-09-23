@@ -1,4 +1,5 @@
 using Core.WSTrade.Accounts;
+using Core.Trader.Promotion;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,36 @@ public partial class WealthsimpleAccountTests
     private static BrokerAccountSynchronization SynchronizedRead(WealthsimpleTfsaAccount account, DateTimeOffset at) => new(
         new(new("fixture-identity", account.Id, at, at, 100, 100, 100, [], [], [], []),
             Snapshot(account) with { RetrievedAt = at }, new(account, at, [])), null, ["First link requires review."]);
+
+    [Fact]
+    public async Task SavedStrategyRestoresOnlyAfterLinkedRefreshAndClearsOnLogout()
+    {
+        var source = new Source(); var clock = new Clock();
+        var f = new BrokerManagedSessionTests.Fixture(); await f.Workflow().ApproveAsync(f.Approval(ongoing: true));
+        await f.Workflow().StopNewBuysAsync(f.Binding.BindingId);
+        var controls = new BrokerManagedStrategyViewModel(new BrokerManagedSessionControls(f.Store), clock);
+        var deferred = new TaskCompletionSource<BrokerAccountSynchronization>();
+        using var vm = new WealthsimpleAccountViewModel(source, clock, (_, _, _) => deferred.Task, managedStrategy: controls);
+        var read = vm.RefreshAsync(); Assert.False(controls.CanResumeBuying);
+        deferred.SetResult(SynchronizedRead(source.Accounts[0], clock.Now) with { Saved = f.Project().Import, Blocks = [] });
+        await read; Assert.True(controls.CanResumeBuying); Assert.Equal(f.Strategy.Strategy.Name, controls.StrategyName);
+        Assert.Equal(0, f.Transport.Sent);
+        source.Disconnect(); Assert.False(controls.CanResumeBuying); Assert.Equal("No approved strategy loaded", controls.StrategyName);
+    }
+
+    [Fact]
+    public async Task UnlinkedOrFailedAccountRefreshCannotRestoreStrategyControls()
+    {
+        var source = new Source(); var clock = new Clock();
+        var f = new BrokerManagedSessionTests.Fixture(); await f.Workflow().ApproveAsync(f.Approval());
+        var controls = new BrokerManagedStrategyViewModel(new BrokerManagedSessionControls(f.Store), clock);
+        bool failed = false;
+        using var vm = new WealthsimpleAccountViewModel(source, clock, (a, _, _) => failed
+            ? throw new InvalidOperationException("synthetic failed read") : Task.FromResult(SynchronizedRead(a, clock.Now)), managedStrategy: controls);
+        await vm.RefreshAsync(); Assert.False(controls.CanStopBuying);
+        failed = true; await vm.RefreshAsync(); Assert.False(controls.CanStopBuying);
+        Assert.Equal("No approved strategy loaded", controls.StrategyName); Assert.Equal(0, f.Transport.Sent);
+    }
 
     [Fact]
     public async Task BackgroundAccountPollRunsEveryFiveMinutesAndUsesSharedFactsWithoutExtraDisplayReads()

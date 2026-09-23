@@ -18,8 +18,16 @@ Next qualify repository runtime recovery and install the reviewed setup UI. The 
 fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
 treated as an empty history. Request recovery can read an already committed result without repeating
 setup. Daily/cash-flow continuation, Daily Shadow protection handover and broker projection are source
-tested; native risk evidence and operational verification remain. Portfolio-wide ongoing management
-is still in design under [ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md).
+tested; native risk evidence and operational verification remain. Core now supports explicitly approved
+ongoing Daily Shadow assignments under [ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md).
+Older one-day approvals still expire, and ongoing scope does not replenish the approved purchase ceiling.
+
+The source TFSA panel restores its saved strategy and buying mode after a successful linked-account
+refresh at startup or during polling. **Stop new buys** and **Resume buying** save only that assignment's
+purchase control; they do not approve a strategy or start an execution loop. An uncertain save requires
+Refresh to read back the saved mode. Logout, failed/stale account checks and changed assignments disable
+the controls. **Market sell all** retains its existing separate workflow. This source UI is not installed;
+automatic execution-host startup, native risk/order qualification and Delphi Live handover remain unfinished.
 
 ## Broker account history import (source milestone, September 16)
 

@@ -15,6 +15,27 @@ public sealed record BrokerProtectionMark(Guid PositionId, decimal Price, DateTi
 
 public static class BrokerProtectionHandover
 {
+    public static ImmutableArray<string> RecoveryBlocks(TradingRecommendationInput input, ImmutableArray<BrokerPositionProtection> protection)
+    {
+        var blocks = ImmutableArray.CreateBuilder<string>();
+        foreach (var saved in protection)
+        {
+            var holding = input.CurrentHoldings.SingleOrDefault(h => h.PositionId == saved.PositionId);
+            if (holding is null) continue;
+            foreach (var session in input.PriorProtectionSessions.Where(s => s.CloseUtc > (saved.ThroughUtc ?? saved.EstablishedAt.UtcDateTime)))
+            {
+                if (session.CloseUtc.Kind != DateTimeKind.Utc || session.CloseUtc >= input.SessionOpenUtc || session.SessionsBeforeCurrent < 1 ||
+                    !input.HoldingSessionOrdinals.TryGetValue(holding.PositionId, out int currentOrdinal))
+                { blocks.Add("Protection recovery needs reviewed session boundaries and the actual holding age."); continue; }
+                if (currentOrdinal - session.SessionsBeforeCurrent >= 2 &&
+                    (!input.Bars.TryGetValue(holding.Symbol, out var bars) || !bars.Any(b => Valid(b, input.EvaluatedUtc) &&
+                        b.Minutes == 5 && b.StartUtc.AddMinutes(5) == session.CloseUtc)))
+                    blocks.Add($"{holding.Symbol}: recover the missed session closing bar before further strategy orders.");
+            }
+        }
+        return blocks.Distinct().ToImmutableArray();
+    }
+
     public static ImmutableArray<BrokerPositionProtection> Transfer(BrokerManagedStrategy incoming,
         ImmutableArray<BrokerPositionCycle> holdings, ImmutableArray<BrokerPositionProtection> prior,
         ImmutableArray<BrokerProtectionMark> marks, DateTimeOffset activation)
@@ -77,6 +98,11 @@ public static class BrokerProtectionHandover
                 if (decision.ExitReason != SystemShadowExitReason.None) reason ??= decision.ExitReason.ToString();
                 if (saved.CarriedFloor is { } floor && (five.StartUtc < boundary ? five.Close : five.Low) <= floor)
                     reason ??= "CarriedProtectionFloor";
+                var closedSession = input.PriorProtectionSessions.SingleOrDefault(s => s.CloseUtc == five.StartUtc.AddMinutes(5));
+                if (closedSession is not null && input.HoldingSessionOrdinals.TryGetValue(holding.PositionId, out int ordinal) &&
+                    SystemShadowPolicy.ShouldExitAtSessionTwoClose(five.Close, holding.CostBasis / holding.Quantity,
+                        ordinal - closedSession.SessionsBeforeCurrent, input.Assignment.Strategy.ReadShadowPolicy()))
+                    reason ??= "SessionTwoUnprofitable";
                 state = state with { ShadowProtection = trail, ExitReason = reason };
                 updated[index] = saved with { State = state, ThroughUtc = five.StartUtc.AddMinutes(5) };
             }
