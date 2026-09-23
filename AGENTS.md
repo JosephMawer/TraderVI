@@ -6,12 +6,20 @@ TraderVI is a TSX-focused daily-stock advisory system for short-term momentum ro
 
 ## Authoritative project references
 
-- Read `Docs/project-status.md` first when orienting to the current implementation and operational state.
-- Read `Docs/design-rules.md` before changing model selection, features, scoring, ranking lenses, gates, thresholds, or decision-engine behavior.
-- Use `Docs/system-design.md` for architecture and `Docs/adr/` for prior decisions and their rationale.
-- Use `Docs/running.md` for Hermes, Hercules, Delphi, TraderVI, Oracle, and Sandbox workflows.
-- Use `Docs/roadmap.md` for Now/Next/Later priorities. Do not infer current priorities from old comments or commit dates.
-- At the start of each work session, read project status, the relevant roadmap entries, and the linked implementation checklist before choosing the next increment.
+- Start every session with `Docs/project-status.md`, the relevant entries in `Docs/roadmap.md`, and the linked implementation checklist. Status owns dated facts; roadmap owns priorities; checklists own dependencies and completion criteria. Do not infer current priorities from old comments or commit dates.
+- Read `Docs/design-rules.md` before changing model selection, features, scoring, ranking lenses, gates, thresholds, or decision-engine behavior. Its exact rules and applicable accepted ADRs remain required even when the current summary is short.
+- Use `Docs/system-design.md` for architecture and the relevant sections of `Docs/running.md` for workflows and side effects. Use `Docs/adr/README.md` and `Docs/adr/by-domain.md` to locate decisions; read those governing the affected behavior, including their explicit supersession links. There is no requirement to read every ADR for every task.
+- The dated `*-history-20260922.md` documents preserve prior tracking and evidence, including superseded statements. Open them when tracing a fact, audit identifier or prior boundary; they are not startup reading or fresh operational authority. A later documentation edit is not later operational verification. Surface conflicting facts instead of silently choosing a convenient summary.
+
+### Task reading routes
+
+After the common startup above, use the route matching the work; follow additional governing links as needed.
+
+| Work | Read next |
+|---|---|
+| App / nightly reliability | `Docs/running.md` sections for the affected host, `Docs/delphi-live-implementation-checklist.md` operational prerequisites, and the relevant calibration/Shadow checklist sections. Read design rules when changing evidence, valuation or policy behavior. |
+| Strategy / gate analysis | `Docs/design-rules.md`, `Docs/calibration-implementation-checklist.md`, and applicable comparison contracts (ADRs 0051, 0053, 0062, 0067). Read current source/evidence definitions before drawing performance conclusions. |
+| Real TFSA execution | `Docs/strategy-alignment-implementation-checklist.md`, `Docs/design-rules.md`, then the affected ADRs 0079–0083 and referenced broker/order contracts. Use the broker/setup sections of `Docs/running.md` for operational steps. |
 
 ## Safety and authorization
 
@@ -59,10 +67,10 @@ TraderVI is a TSX-focused daily-stock advisory system for short-term momentum ro
 ## Session completion and project tracking
 
 - Keeping project tracking current is part of completing the work. Do not wait for the user to request a documentation update. After each meaningful milestone and before the final handoff, reconcile the affected entries in `Docs/roadmap.md`, `Docs/project-status.md`, and the relevant implementation checklist.
-- Keep their roles distinct: the roadmap records priorities and next steps; project status records dated implementation, validation and operational evidence; the checklist records completed and remaining work in dependency order. For paper-strategy promotion and real TFSA execution, use `Docs/strategy-alignment-implementation-checklist.md`.
+- Keep each detailed fact in its owning document: roadmap for priorities, project status for dated implementation/validation/operational evidence, and checklist for dependencies and completion criteria. Reconcile short status labels and links across all three without copying milestone narratives. For paper-strategy promotion and real TFSA execution, use `Docs/strategy-alignment-implementation-checklist.md`.
 - Update completed work, partial progress, remaining dependencies, blockers and the immediate next step. Record accepted decisions and newly discovered follow-up work even when no code changed. Preserve unrelated priorities and edits; re-read affected sections before writing when other sessions may be working in the repository.
 - Distinguish agreed, implemented, tested, installed and operationally verified. Check off only the action actually completed; split mixed items when necessary. A passing test or prepared migration does not prove installation, broker verification or enabled execution. Include the evidence date and a reference to validation where applicable.
-- Correct affected stale summaries as well as adding new evidence. Keep historical events clearly dated; do not refresh an operational verification date merely because documentation was edited. Keep detailed rationale in ADRs and unresolved behavior in `Docs/reviews/open-questions.md`, with links from tracking documents.
+- Replace affected stale current summaries after new evidence. Keep long run/build narratives in linked reports or dated history, preserving prior evidence and important section links; do not append a running journal to the current snapshot or checklist. Do not refresh an operational verification date merely because documentation was edited. Keep detailed rationale in ADRs and unresolved behavior in `Docs/reviews/open-questions.md`, with links from tracking documents.
 - Before finishing, check that the three records agree on the affected work. In the final response, briefly identify the tracking documents updated, or state that no tracking changes were needed. For a question-only session with no new decision, finding or project change, do not create artificial progress or date-only edits.
 - Save a checkpoint after meaningful progress during long sessions so an interruption leaves useful state on disk, following the local commit cadence above. Documentation maintenance does not authorize database mutations, external services, live orders or pushes.
 

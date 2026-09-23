@@ -1,0 +1,336 @@
+# Historical tracking snapshot — September 22, 2026
+
+This file preserves the complete pre-cleanup working document below, including dated and superseded
+statements. It is historical evidence, not the current plan or new operational authorization.
+Use [current priorities](roadmap.md) for current orientation. Older commands, next steps and authority
+statements retain their original context; this archive does not renew them.
+
+The original document starts below and is preserved byte-for-byte after this notice.
+
+---
+
+# TraderVI Roadmap
+
+**September 21 risk-continuation checkpoint:** shared Core boundary valuation and durable daily
+references/holds are tested for positively verified intervals without deposits or withdrawals.
+All 1,552 Core tests and isolated SSDT checks pass; migrations 035/039 remain uninstalled.
+Next settle the pending cash-flow percentage-versus-dollar question, implement confirmed-flow
+handling/evidence, then qualify native opening values and verify operational setup/continuation.
+Item 1 is still open. Reuse this Core path for the eventual standalone engine started before the
+session by Windows Task Scheduler. No new late-start pause or scheduler was added.
+[Decision and limits](adr/0083-opening-account-values-and-shared-engine-hosting.md).
+
+This is the authoritative priority list. Keep detailed rationale in ADRs and deferred design questions in `Docs/reviews/open-questions.md`.
+
+For the current done/remaining checklist from paper strategy selection through real TFSA execution,
+use the [strategy alignment implementation checklist](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist),
+reconciled with project status on September 18, with development sequencing updated September 20.
+It distinguishes built code from installed/verified behavior.
+
+## Accepted direction — prove strategies, then adopt one deliberately
+
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) records the 2026-09-06 direction:
+independent paper portfolios, comparable evidence, human promotion of a complete strategy to real-account
+recommendations, then separately approved Wealthsimple execution. Preserve the current observation and
+data-quality priorities below. The [alignment review](reviews/strategy-direction-alignment-20260906.md)
+defines the following prerequisites in order:
+
+- [x] Document the direction and review repository-wide alignment without changing trading behavior.
+- [x] Implement and locally validate audit F3 loaded-byte provenance, F4 post-fill marks and F7 CI failure
+  propagation. The [durable checklist](strategy-alignment-implementation-checklist.md) records validation limits.
+- [x] Implement and locally validate the dated training/prediction input path and explicit compatibility
+  binding under [ADR-0056](adr/0056-dated-profit-model-input-contract.md).
+- [x] Complete the operator-authorized daily input cutover: inspect old artifacts, use the accepted
+  retraining fallback when compatibility cannot be proven, preserve prior files, and select the new
+  `v3.3-dated-profit-inputs` identity. All hosts use the shared stored assignment. Actual bootstrap checks,
+  655 Core tests and the full Release solution build (including SSDT) pass; the nightly pipeline was not run.
+- [x] Make Hercules candidate-only by default, retain exact data/source/model identities, and implement
+  reviewed atomic model selection and rollback under [ADR-0057](adr/0057-preserved-model-sets-and-explicit-selection.md).
+- [ ] Separate model training from activation and bind immutable model/policy inputs to the complete
+  strategy version. The model portion and saved daily Shadow policy dispatch are implemented. Initial
+  complete-strategy contracts are in source under [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md);
+  their persistence/routing are now implemented. Risk-default ownership and remaining legacy mutation paths still need work
+  without V1 retuning.
+- [ ] Before automated Wealthsimple trading, define and enforce comparable evidence across families,
+  including capital, dates, fills/costs, coverage, downside guardrails and untouched evaluation. ADR-0062
+  makes evidence advisory for manual recommendation approval; internal Live research rules remain unchanged.
+- [x] Implement durable human-approved complete-strategy selection and recommendation routing against
+  reported Real account state, preserving independent paper accounts/history (ADR-0062). Migration 029
+  is installed and verified; actual account reconciliation and explicit approval remain. No broker integration was added.
+- [ ] Design and validate the Wealthsimple execution/reconciliation boundary before enabling any orders.
+  September 14: captured activity/order-history reads, protected account observations, holdings/cost
+  reconstruction and reconciliation-gated transition review are implemented under ADR-0079. The first
+  portfolio version is to use regular-session market orders and finish required non-overlap exits
+  before new buys. Broker-to-SQL import/binding, account risk baselines, protection handover, automation
+  qualification and the durable execution coordinator remain; matching holdings alone is insufficient.
+  The legacy client prototype is not an execution-ready integration.
+  September 16: ADR-0080 implements the first import preview, audited TFSA binding and repeatable
+  append-only broker history in SQL. Migration 034 is installed; the initial account link and 32-order
+  save are verified. At 22:06 Toronto the rebuilt WPF app successfully refreshed saved history, with
+  all 32 orders recognized as already saved. Timestamp readback compatibility is verified; no current
+  import blocker remains. Next are broker-backed account inputs, cash/settlement and account risk
+  baselines, inherited-position protection, forward synchronization and durable activation/execution.
+  Existing recommendation inputs are unchanged pending source/protection and account-baseline design.
+  September 16 continuation (ADR-0081): accepted immediate first-baseline setup with known references/
+  holds preserved, broker-confirmed purchase availability, protection transfer at activation and
+  initialization of missing protection from real cost/fresh evidence. Confirmed capital flows adjust
+  references; unexplained cash changes pause new buys. Initial setup/store is implemented offline;
+  migration 035 is prepared, not installed. Operator review, native storage verification, daily/flow
+  continuation, position protection handover and broker-input projection remain; no strategy or order
+  path is activated.
+  September 20 sequencing clarification: develop and test daily/cash-flow continuation next, using the
+  existing baseline contracts. A dedicated baseline review screen is not a prerequisite. A concise
+  summary within account setup can present the saved references and holds; verified baseline storage
+  and explicit setup still precede operational use. Migration/order authorization is unchanged.
+  September 21: daily-reference persistence is now tested for verified no-flow intervals. Finish the
+  pending percentage-versus-dollar cash-flow decision and confirmed-flow evidence/handling, followed
+  by native qualification and operational wiring. Migrations 035/039 remain uninstalled.
+  The current client now has captured market buy and sell protocols (ADRs 0074/0076), and the separate
+  manual-buy workflow is implemented (ADR-0075). Manual sell-all, protected recovery and local share
+  reservations are implemented (ADR-0077). Limit placement, native mutation verification and complete
+  account reconciliation remain prerequisites for broader execution.
+  ADR-0069 adds an isolated direct-auth prototype with a verified browser-session handoff.
+  ADR-0070 adds optional Windows-encrypted sessions and sidebar connection status. ADR-0071 makes
+  native password/2FA the default with browser verification only for a required challenge. Native login
+  is operator-confirmed; ADR-0072 adds the TFSA landing page with live account reads verified.
+  Live refresh rotation, broker-to-local reconciliation and order lifecycle remain to validate/design.
+
+## Now — restore a dependable advisory loop
+
+- [x] Implement the first historical Practice milestone in source: shared daily Delphi and four isolated
+  Shadow accounts, missing-data tolerance, fixed CAD 1,000 starts, pinned inputs/models and WPF recorded
+  playback. [Contracts and limits](concepts/historical-practice-implementation.md).
+- [ ] Prepare and exercise the actual 20-session Practice dataset under explicit acquisition authority;
+  preserve missing inputs and record historical membership provenance. Delphi Live and isolated SQL
+  recovery/load tests follow the first daily/Shadow milestone.
+
+- [x] Resolve the September 6 missing-Friday/SPY findings under ADR-0058: install all-seven-day 00:30
+  execution and 07:00 supervision, refresh Friday and actual SPY history, and select v3.4 with required
+  observed benchmark inputs and the same four models. All 676 tests, full solution/SSDT, active bootstrap,
+  transaction rehearsals and preservation checks pass. No Delphi publication was launched.
+  [Results](reviews/model-input-cutover-20260906.md), checklist S8/S9.
+- [x] Run and verify the first corrected official Delphi evaluation under operator authority. September 6
+  v3.4 used September 4 data, evaluated 209 stocks and saved valid provenance plus 418 lens rows. All 50
+  published entries are Hold; no trade qualifies. Seven input exclusions and unavailable leadership-movers
+  evidence are explicit. Earlier evidence/account snapshots are unchanged.
+- [x] Observe subsequent normal scheduled completion: all three September 18 stages completed with a
+  Valid Delphi publication. Recover the missed September 22 run under operator authority: all stages
+  completed by 09:25:33, with valid September 21 inputs; Athena flagged seven historical outcome gaps.
+  [Operational evidence](project-status.md) separates completed processing from research readiness.
+- [ ] Investigate the September 22 missing opening valuation and repeated tracked 15-minute bar
+  conflict. Read-only checks through 09:59 confirm current Live/Shadow prices and complete latest
+  checkpoint valuations; opening-return/entry and session-coverage limitations remain. Preserve
+  recorded gaps; see [app health evidence](project-status.md).
+- [ ] Verify contiguous leadership-mover history; complete common-strategy comparison and policy-history work.
+
+### 1. Repository orientation and working agreements
+
+- [x] Make root `AGENTS.md` the repository-wide Codex instruction source.
+- [x] Move Sandbox-specific guidance to `Sandbox/AGENTS.md`.
+- [x] Replace stale status/TODO material with `Docs/project-status.md` and this roadmap.
+- [x] Establish standing local-commit authority and a cadence of validated increments, roughly
+  45-minute checkpoint reviews during sustained editing, and a final ready-work check before handoff
+  (September 20). Review and stage explicit groups; pushing still requires separate authorization.
+- [x] Require each work session to reconcile this roadmap, project status and the relevant implementation
+  checklist after meaningful milestones and before handoff (September 20). The
+  [session completion rules](../AGENTS.md#session-completion-and-project-tracking) distinguish source/test
+  completion from installation and operational verification, and require a clear remaining next step.
+- [ ] Review the June/August feature sequence as a stabilization release boundary and decide whether it needs a tag or release notes.
+
+### 2. Database deployment safety
+
+- [x] Align the SQL project with the deployed SQL Server 2019 provider and disable project deployment.
+- [x] Establish dated manual migrations with additive-by-default, no-unapproved-deletion rules.
+- [x] Add checksum full-backup, integrity-check, and guarded SIMPLE-recovery operational scripts.
+- [x] Create and verify the first full backup, copy it to the approved OneDrive folder, and measure its compressed size (31.00 MB).
+- [x] Run the first integrity check and change the live database to SIMPLE recovery.
+- [x] Integrate verified backup-and-copy behavior as an internal post-success Hermes stage, independent of its launcher.
+- [x] Observe repeated automatic post-Hermes backup/copy completion (verified September 11 and 18).
+  The September 22 recovery also completed SQL checksum and local-copy SHA-256 verification.
+- [ ] Confirm OneDrive cloud synchronization before relying on the backup routine unattended; local-copy
+  verification does not establish cloud synchronization.
+- [x] Choose backup retention: latest two completed backups in each location, after new SQL/copy verification (ADR-0082, September 17).
+- [x] Complete compact Live storage acceptance (September 17): migrations 037/038 installed; all 4,472 historical/current snapshots verified; original metadata/events preserved; WPF restarted and compact writes confirmed. Full backup fell from 16.27 GB to 535 MB, with two completed backups retained per location.
+- [ ] Perform and document a test restore into a differently named temporary database.
+- [ ] Reconcile remaining project/deployed index, default, foreign-key, and database-option drift without broad DACPAC publish.
+
+### 3. Delphi restart
+
+- [x] Inventory Delphi's database writes, artifact writes, and optional external calls.
+- [x] Confirm ordinary operation is a deliberate persisted run; use builds/tests for harmless validation rather than launching Delphi as a smoke test.
+- [x] Run one controlled Delphi evaluation against current data.
+- [x] Review Continuation and Breakout outputs, gate traces, OBV coverage, and CLX interpretation.
+- [x] Confirm persisted picks, dossiers, and Granville logs match the console report when writes are enabled.
+- [x] Correct diagnostic ambiguity around lens ranking, model-signal versus strategy-gate thresholds, RS fallbacks, and recommendation-date versus market-data-date semantics.
+
+### 4. Observation baseline
+
+Design background: [`Docs/concepts/paper-calibration-and-outcome-feedback.md`](concepts/paper-calibration-and-outcome-feedback.md).
+Implementation tracker: [`Docs/calibration-implementation-checklist.md`](calibration-implementation-checklist.md).
+
+- [x] Resume daily paper recommendations without live execution; the 2026-08-26 Delphi run supplied the first ADR-0029 ghost pilot cohort.
+- [x] Define the evidence, outcomes, primary swing direction, initial three-session marks/excursions, separate lens scorecards, cohort aggregation, coverage contract, promotion tiers, delayed intraday swing-management challenger, non-calibration ghost-entry pilot, durable intraday ledger, automatic ghost exits, and live dashboard (ADR-0020 through ADR-0032).
+- [x] Repair and revalidate the TMX intraday request: current short-window XIU calls return clean 15-minute bars; wide responses are capped and require bounded chunks.
+- [x] Run the prepared `tmx-xiu-market-hours` sequence and lower-resolution comparison: completed bars advanced reliably, forming bars were mutable, five-minute evidence stayed gap-free, and one-minute evidence showed occasional gaps.
+- [x] Select completed five-minute bars as version-1 evidence and add the replay-only ADR-0029 ghost-entry/advisory-monitor bridge.
+- [x] Add and source-validate the ADR-0030 canonical intraday schema, additive migration, transactional repository, and conflict/idempotence tests.
+- [x] Back up and apply migration 012 with explicit authorization, verify the objects, and replace the pilot replay path with the shared durable collector-backed monitor.
+- [x] Add a live WPF paper dashboard and database-guarded automatic ghost exits that cannot place broker orders.
+- [x] Begin the ADR-0033 tabbed desktop shell with Paper Trading and read-only Data Audit tabs; preserve the DataAudit CLI over the same shared workflow and reduce display refresh to thirty seconds.
+- [x] Add ADR-0034's Delphi tab over a shared `DelphiWorkflow`; safely display persisted lenses by default and require confirmation before an official database-writing run.
+- [x] Add ADR-0035's six-view Delphi operator workspace and immutable typed presentation snapshot, with labelled date-aligned reconstruction for older saved runs.
+- [x] Add ADR-0036's native read-only Project Docs tab with repository-wide discovery, search, folder navigation, safe links, and refresh.
+- [x] Observe the first market-hours durable dashboard cycle: the 2026-08-27 09:47 Toronto cycle persisted valid receipts and completed evidence for NDM/ALK; no exit rule triggered.
+- [x] Add ADR-0038's advanced official prediction scorecards with cohort-weighted model calibration, lens rank quality, diagnostic slices, integrity checks, and versioned CSV artifacts.
+- [x] Add ADR-0039's read-only WPF Scorecards workspace and explicit Ghost/Real source model with separate P/L, account labels, manual fills, audited reconciliation, and Ghost-only automation.
+- [x] Add ADR-0044's honest scope for historical Real holdings: display and monitor unlinked Real rows, keep unlinked Ghost rows excluded, deny the fresh-Delphi loss exception without original-pick provenance, and retain manual-only Real exits.
+- [x] Add ADR-0047's explicit discretionary-Real override: a confirmed broker fill selected from a non-Buy Delphi row is tracked unlinked with the row retained only as notes context; Ghost entries remain Buy-only.
+- [x] Add ADR-0045's five-minute WPF collection cadence while retaining completed 15-minute policy bars, and replace overlapping wide TMX chunks with minute-contiguous request windows that cannot ask for the same boundary bar twice.
+- [x] Accept ADR-0040's reconstructible delayed-intraday fill contract, add the pure calculator, and make future WPF monitor cycles collect aligned XIU five-/fifteen-minute evidence once per cycle.
+- [x] Complete ADR-0040 in source with immutable-evidence queries, Athena persistence, separate raw/sensitivity lens reports, and guarded migration 015; leave migration application and Athena execution as explicit operational steps.
+- [x] Add ADR-0040's continuity guard so proven missing policy sessions/bars, receipt-order conflicts, and missing exact fill bars are audited invalid rather than silently bridged; preserve pending for an unproven tail.
+- [x] Apply and verify migration 015's fifth active definition, then run Athena: 112 valid three-session marks and 112 valid excursions matured; prediction and delayed-intraday outcomes remain at zero.
+- [x] Accept and implement ADR-0051's System Shadow V1: four independent, capital-constrained Continuation/Breakout Top-3/Top-5 Ghost alternatives; frozen daily Delphi evidence; causal pending fills; 5% hard loss, protected-profit trail, daily loss and drawdown guards; durable ledger; and a WPF Portfolios workspace. Athena remains separate.
+- [x] Take and verify a fresh checksum backup, manually apply migration 019, and verify all eight Shadow
+  tables, constraints, indexes, and empty/off initial state without deploying a DACPAC or starting an
+  operational application.
+- [x] Preserve the 2026-09-04 Shadow ledger as shakedown evidence and fix both discovered causality defects
+  in source: consume each fifteen-minute trailing bar at most once, and cancel/requalify a pending buy after
+  its exact immediate fill window is missed.
+- [x] Take a fresh verified backup, explicitly authorize and manually apply migration 021, and verify the
+  additive last-consumed-bar column before running Shadow again. Every Shadow row count and financial/order
+  aggregate remained unchanged.
+- [x] Back up, apply, and verify migration 014 so the read-only Scorecards workspace can load the canonical outcome definitions without running Athena prematurely.
+- [x] Review, back up, manually apply, and verify migration 013 with explicit authorization; preserve all legacy rows as Ghost and verify the empty immutable execution audit.
+- [x] Close the EDR reconciliation decision without changing its audited Ghost history: on 2026-08-28 the operator chose not to add a separate `REAL / TFSA` row because EDR is no longer in the current Delphi picks. The broker holding remains outside TraderVI unless deliberately re-entered from a future saved pick.
+- [x] Verify the five-share EDR Ghost position joins a valid scheduled durable cycle and observe its automatic $15.62 `Policy TrailingProfit` exit end to end.
+- [ ] Record enough forecast/pick outcomes to compare changes against a stable baseline. Collection has begun with 112 valid three-session marks and 112 valid excursions across a ledger of 8 official runs/6 market-data cohorts and 1,729 candidates; longer prediction and delayed-intraday outcomes are still unavailable.
+- [x] Review and correct the 19 fallback symbols: 14 funds reclassified as ETFs, four obsolete TSX listings made inactive, and GDI mapped to Industrials.
+- [x] Add a reusable, read-only full-local-universe audit with session-based freshness and structural integrity checks.
+- [x] Triage the full-audit candidates using official sources and apply only reviewed manual corrections; final audit passed with zero findings on 2026-08-22.
+- [x] Add a Delphi pre-scoring eligibility gate that excludes symbol histories not matching the canonical XIU market-data session.
+
+### 5. Correctness and change-safety stabilization
+
+- [x] Reconcile the frozen Delphi Live V1 design into ADR-0053 and review aids without retuning it.
+- [x] Complete and validate the small source phases in the [Delphi Live checklist](delphi-live-implementation-checklist.md): 581 Core tests passed and the complete Release solution, including SSDT, built successfully.
+- [x] Separately review, back up, apply and verify Delphi Live migrations 022–025. Applied on 2026-09-06;
+  all 27 new tables installed inactive, existing table preservation checks matched, and database integrity passed.
+- [x] Review and install the [bounded TSX calendar](../Operations/Calendars/README.md), completed
+  2026-09-06 with eight focused tests passing; coverage ends on 2026-12-23 before the short session.
+- [x] Run the authorized [closed-market source trial](reviews/delphi-live-closed-market-trial-20260906.md):
+  nine of nine historical exact bars retrieved on 2026-09-06, no SQL or portfolio actions.
+- [x] Simplify Delphi Live around the saved daily picks and complete the authorized isolated Friday
+  signal/account replay under ADR-0054: 78 checkpoints, six estimated fills, 592 Core tests passing.
+- [ ] Complete the controlled trial during a regular session: live freshness, SQL durability and
+  full-watchlist/provider capacity. Separately authorize explicit simulation-capital activation.
+- [ ] Resolve short-session operation and extend reviewed calendar coverage before 2026-12-24,
+  including protective monitoring for carried positions.
+
+The 2026-09-01 static changeability audit found correctness and integrity risks inside the existing
+advisory loop. This tranche preserves the observation-first strategy: it corrects measurement and
+publication contracts without tuning weights, thresholds, ranking theses, or automatic execution.
+
+- [x] Keep new official Delphi publication/evidence cohorts paused through the separately authorized
+  migration-016 activation and verification. Normal Hermes ingestion and single-instance WPF evidence
+  collection remain separate operational workflows. No operational application ran during activation.
+- [x] Replace undated, minimum-length relative-strength inputs with explicit alignment to canonical XIU
+  sessions; surface missing/degraded coverage and add source-level regression fixtures for unequal
+  histories, exact depth boundaries, and interior gaps (ADR-0041; source completed 2026-09-01).
+- [x] Validate ADR-0041 under the separately authorized build/test boundary: 20 focused tests and all
+  170 Core tests passed; Core, Delphi, WPF, and Hermes focused builds succeeded; and the complete Release
+  solution built with Visual Studio 18.10 MSBuild plus SSDT on 2026-09-01.
+- [x] Record ADR-0042's `v3.1-rs-date-aligned` strategy/code identity and immutable legacy-evidence
+  treatment; implement publication guards and scope comparative reports/exports to the explicitly
+  identified active strategy. No threshold, model, gate, ranking, or policy was tuned.
+- [x] Validate ADR-0042 source: all 174 Core tests passed in Debug and Release; affected-project builds
+  succeeded; and the complete Release solution built with Visual Studio 18.10 MSBuild plus SSDT on
+  2026-09-02 without database deployment or launching an operational application.
+- [x] After a fresh verified, synchronized backup and separate authorization, apply and verify manual
+  migration 016. `v3.1-rs-date-aligned` became the sole active identity at that boundary; its
+  thresholds/model mappings matched `v3.0`, all calibration counts were preserved, and its scope began at
+  0 included / 7 excluded runs before migration 017 superseded it.
+- [x] Preserve leadership-source missingness so an unavailable movers layer cannot be persisted or scored
+  as genuine zero/falling breadth (ADR-0043; source completed at `fad4b96`). The implementation requires
+  an exact same-date XIU anchor, a complete 50-symbol movers basket, contiguous canonical XIU sessions,
+  and explicit neutral/no-data reporting; all 202 Core tests passed in Debug and Release.
+- [x] After a fresh verified and synchronized backup plus separate authorization, apply and verify manual
+  migration 017. The nullable leadership contract and strengthened paired strategy-identity constraint are
+  trusted, `v3.2-leadership-missingness` is solely active, and all protected counts/references are preserved.
+  No DACPAC deployment or application workflow ran.
+- [x] After migration 017, run Hermes once after market close and inspect the newest `LeadershipData` row
+  and post-success backup. The 2026-09-01 row preserved unavailable movers breadth as null, the constraint
+  remained enabled/trusted, and both backup copies independently hash-matched. Athena remains evidence-driven
+  and does not repair or initialize leadership data.
+- [x] Run the first deliberate official `v3.2-leadership-missingness` Delphi cohort. The 2026-09-02 run is
+  valid against market data through 2026-09-01 and persisted 219 candidates, 438 lens rows, and 50 published
+  picks; the ledger now contains 8 runs across 6 distinct market-data cohorts and 1,729 candidates.
+- [x] Complete fresh post-2026-08-28 SGY/XIU market-hours evidence. The 2026-09-02 09:47 and 10:02 cycles
+  produced valid XIU and historical-Real receipts, but SGY failed because adjacent five-day chunks returned
+  conflicting values for their shared 09:30 boundary bar. ADR-0045 removes the overlap and the corrected
+  read-only production-window probe succeeded. The rebuilt WPF app then stored six valid collector-v2
+  receipts at both 10:22 and 10:27, proving SGY recovery and the five-minute runtime cadence. Athena remains
+  a separate evidence-driven run.
+- [x] Restore ADR-0013's score-once contract and add direct decision-engine/lens characterization tests
+  before adding another lens. Delphi now computes one shared candidate score per symbol, applies independent
+  Continuation/Breakout gates and ranking over it, and reuses each profit-model prediction for both composite
+  calculation and reporting. All 204 Core tests passed in Debug and Release; the affected Delphi build and
+  complete Release solution plus SSDT build succeeded without deployment or operational workflows.
+- [x] Complete ADR-0049's canonical SQL/repository reconciliation before any broad database work. Source now
+  mirrors the live identity/default/relationship/index contracts, symbol writers name canonical columns,
+  and Leadership validation rejects impossible stored facts. Guarded migration 018 was manually applied and
+  verified after a fresh checksum backup and hash-matched secondary copy. No DACPAC was deployed.
+- [x] Record and implement ADR-0048's explicit transaction boundaries for same-day Delphi operational publication and
+  tracked-position opening. A successful zero-result rerun must replace stale same-date operational picks,
+  and retry behavior must not expose empty or partially replaced projections. BUY/position creation is now
+  one serializable commit, and append-only calibration evidence remains semantically distinct.
+- [x] Establish basic Windows CI for all Core tests and focused .NET application builds after the bounded
+  correctness fixes and before large workflow extraction. ADR-0050 separately adds the build-only SSDT job.
+- [ ] Introduce immutable Delphi evaluation facts and typed load/evaluate/evidence/publish stages while
+  preserving ADR-0035 presentation compatibility.
+- [ ] Separate Hermes completion semantics and Hercules training/evaluation/artifact-promotion responsibilities.
+- [x] Add ADR-0046's guarded weekday operations runner: latest-source Release preflight, source-stability
+  and per-run artifact validation, single-instance and same-date guards, explicit stage exit semantics,
+  Windows Task Scheduler hosting, atomic local status, and read-only Codex failure supervision.
+- [ ] Phase in clearer module boundaries, nullable/analyzer enforcement, dormant-code removal, and public-surface
+  reduction after the consequential seams above are protected.
+
+### 6. Development hygiene
+
+- [x] Add GitHub Actions for focused .NET builds and `TraderVI.Core.Tests` as ordered in the stabilization tranche.
+- [x] Keep SSDT in the same Windows workflow as a separate build-only job under ADR-0050. The pinned
+  Visual Studio 2026 runner verifies its SSDT targets, builds only `TraderDB.sqlproj`, receives no database
+  credentials, and neither uploads nor deploys the DACPAC.
+- [ ] Address dependency-security advisories separately from compiler cleanup.
+
+## Next — improve data and model evidence
+
+- [ ] After migration 021, observe Shadow V1 across several uninterrupted complete sessions and review
+  skipped entries, causal fills, Session-2 rotations, and provisional risk thresholds before changing its
+  policy or hosting it headlessly. Exclude the 2026-09-04 shakedown session from performance conclusions.
+- [ ] Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics.
+- [ ] Compare raw relative-strength and Z-score rank orderings before changing the executed lens.
+- [ ] Integrate historical RS features into Hercules only after the backfill is validated.
+- [ ] Audit enabled historical `ModelRegistry` rows and model artifacts; retire obsolete entries deliberately.
+- [ ] Calibrate `ObvSignalWeight` from paper outcomes rather than intuition.
+- [ ] Accumulate enough CLX history to assess confirmation/divergence usefulness.
+- [ ] Run the Granville cross-family overlap audit before changing point weights.
+
+## Later — expand system capability
+
+- Always-on paper-monitor hosting through a Windows service or scheduled process; v1 requires the WPF app or console watch to remain running.
+- Extend the Scorecards workspace with charts only after enough matured official cohorts make them useful; retain Athena and its optional CSV export.
+- Consider Hermes status/run and System Log tabs as shared-workflow operator surfaces, with consequential runs explicitly confirmed and the existing CLIs preserved.
+- Consider broker import/reconciliation only after the manual ADR-0039 Real workflow is operated and audited; do not infer that `Real` means broker-verified.
+- Any future live-broker Sentinel stop-loss and rotation workflows require a new decision, independent authentication, limits, previews, partial-fill handling, reconciliation proof, and a kill switch.
+- Oracle Phase 3 debate loop and evaluation harness.
+- Granville Overdueness (#23–#24), Heavy Volume, and later groups.
+- Broader walk-forward strategy simulation and version comparison.
+- Automated order execution only after paper-trade validation, risk controls, and broker integration are independently verified.
+
+## Explicitly deferred
+
+- Dullness (#21–#22) remains deferred under ADR-0005 pending longer history or a better universe.
+- Promoting CLX from diagnostics to a gate/ranking input requires evidence and a new ADR.
+- Promoting relative-strength Z-score to the executed ranking requires the backfill and comparison described above.
+- New ML features, thresholds, or models require design-rule review and an ADR when they change decision behavior.
