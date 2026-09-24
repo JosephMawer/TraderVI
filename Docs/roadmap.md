@@ -21,6 +21,8 @@ readiness or order authority. No strategy is selected by this roadmap.
    protection handover, durable activation/execution and qualification. Follow the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
+   The September 24 [external-trade check](project-status.md#latest-operational-evidence) confirms a
+   current synchronization gap; reconcile the reported exit and saved history under checklist item 4.
 2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening
    value and repeated tracked 15-minute conflict. Preserve immutable evidence and coverage flags.
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow

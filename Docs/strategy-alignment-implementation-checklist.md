@@ -48,6 +48,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   closed/reopened holdings. Preserve linked history, installed migration 034 and existing protections.
 - [ ] **4. Keep synchronization correct.** Handle manual/external trades, partial/new fills, stale or
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
+  September 24 read-only verification found an operator-reported external sale missing from saved history
+  while its tracked position remained active; reconcile the reported exit and broker history without
+  bypassing pinned legacy-ledger checks. [Evidence](project-status.md#latest-operational-evidence).
 - [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
