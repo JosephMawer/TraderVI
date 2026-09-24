@@ -16,8 +16,12 @@ the synchronization path, not new broker orders, strategy activation or a financ
 
 Use the existing complete, owned-account reconciliation and reviewed account binding. While the desktop
 is running and signed in, refresh every two minutes and on the existing Refresh action. No detached
-scheduler is installed. Changed observations require the existing second read before saving; unchanged
-financial observations with a committed synchronization receipt need no further SQL snapshot.
+scheduler is installed. Automatic continuation of an already reviewed binding saves the latest complete
+reconciliation, which checks orders against holdings and a final activity checkpoint. It does not repeat
+the manual approval workflow's second read: changing quoted market values can otherwise invalidate
+identical trade facts. The exact observation is still revalidated against the binding, prior history and
+ledger inside the saving transaction. Initial/manual approval retains its second-read requirement;
+unchanged financial observations with a committed synchronization receipt need no further SQL snapshot.
 
 After reviewed migration 040 is installed, append the import, missing real trade records, changed real
 positions and an immutable synchronization receipt in one serializable transaction. Existing import

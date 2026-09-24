@@ -21,7 +21,7 @@ record them. A prepared migration or passing test never proves broker readiness.
   (ADR-0062); this does not submit orders.
 - [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
 - [x] Implement/test resolved external-order projection, atomic real-ledger receipts and signed-in
-  desktop synchronization (ADR-0084). Migration 040 installation and native acceptance remain pending.
+  desktop synchronization (ADR-0084). Migration 040 installed; corrected desktop native acceptance remains pending.
 - [x] Build manual market buy/sell clients and controls; native mutation/lifecycle verification remains.
 - [x] Agree regular-session whole-share market handover: preserve overlaps and reconcile required exits
   before new buys (ADR-0079); preserve known references/holds, real costs and protection ownership (ADR-0081).
@@ -52,8 +52,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
   September 24 read-only verification found an operator-reported external sale missing from saved history
   while its tracked position remained active. Resolved whole-share projection and desktop polling are now
-  implemented/tested; separately authorize/install migration 040 and the updated app, then verify the
-  fresh broker-confirmed exit, duplicate prevention and propagation. Working partial orders, corrections
+  implemented/tested and migration 040 installed with verified backup. Fresh broker evidence confirms the
+  exit; install the tested market-value refresh correction, then verify SQL recording, duplicate prevention
+  and propagation. Working partial orders, corrections
   and unsupported financial representations remain blocked. Preserve pinned legacy-ledger checks.
   [Evidence](project-status.md#verified-development-baseline).
 - [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
@@ -68,8 +69,8 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 **Immediate next increment:** qualify complete cash-event evidence/effective timing and matching account
 books, plus native opening values, then connect and verify the setup/continuation caller. The separately
-requested external-trade synchronization implementation is ready for reviewed migration 040/app rollout
-and verification of the reported exit; source completion has not reconciled that live sale.
+requested external-trade synchronization rollout has installed migration 040; finish corrected desktop
+installation and verify the broker-confirmed exit in the ledger and UI.
 The [current design draft](concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation)
 and [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md) hold detailed reasoning.
 Optional older-history import remains a proposal; no historical reset is approved.

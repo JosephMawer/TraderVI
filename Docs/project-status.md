@@ -24,7 +24,7 @@ what has actually been implemented, installed or observed.
 | Live and Shadow | Sep 22, 09:59 | One responding Release WPF host and one advancing Live lease. Latest two Live cycles each had 40/40 usable receipts; three portfolios saved complete 09:55 values. All 12 Shadow sessions adopted today's publication; all 13 open positions advanced to the bar ending 09:55. |
 | Live limitations | Sep 22, 09:59 | Held comparison account lacks opening NAV (net asset value): today's return is unavailable and existing entry rules block new buys. Coverage remains Blocked with a host gap and earlier missing/failed receipts. One tracked symbol's 15-minute bar conflicted on three polls. Latest-cycle recovery does not establish uninterrupted coverage. |
 | Broker connection/history | Sep 16, 22:06 | Native TFSA reads and linked history refresh verified: 32 orders already saved, no current import blocker. This does not prove complete cash-event history or strategy execution readiness. |
-| External-trade synchronization | Sep 24, 09:56 read-only SQL check | An operator-reported external sale was absent from both the saved trade ledger and latest broker import; the tracked real position remained active. Latest saved import was still Sep 16, 22:08 Toronto, matching the latest local reconciliation-file timestamp. No broker request or financial-record change ran. Operator-triggered import and separate legacy position tracking do not provide automatic external-trade synchronization; checklist item 4 remains open. Private trade details omitted. |
+| External-trade synchronization | Sep 24, installation 10:41; reconciliation 10:51 | Authorized migration 040 installed after a fresh checksum-verified COPY_ONLY backup and SHA-256-matching local mirror. Migration preserved existing financial records exactly. Updated desktop loaded and Live resumed. Fresh broker evidence confirms the reported exit and matches reconstructed holdings, but a market-value change between reads blocked SQL synchronization. The correction is tested and awaits installation/native acceptance. Private evidence: `artifacts/broker-sync-20260924/`. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
 | WPF memory investigation | Sep 24, 09:08:49–09:10:45 pre-install sample | Previous Release PID 24492 responded in all 24 samples: 2.58–3.75 GB working set and 3.25–4.90 GB private committed memory (decimal GB). Full-history JSON expansion and separate display snapshots were identified as likely contributors; no runtime allocation/heap attribution was captured. Superseded by the authorized installation below. Private evidence: `artifacts/wpf-memory-20260924/`. |
 | WPF memory-fix installation | Sep 24, restarted 09:30:32; SQL checked 09:32:09; process sampled through 09:33:14 | Normal close of PID 24492, five backed-up/replaced binaries with matching SHA-256, and one new Release PID 31052 loading the installed Core/WPF modules. All 24 post-restart samples responded: 0.66–1.33 GB working set and 0.57–1.32 GB private committed memory. This short fresh-process sample is not a matched workload or sustained memory bound. One renewed Live lease, nine new compact revisions/events and three updated portfolios confirm runtime resumption. Session is Monitoring with Blocked coverage and a host gap; uninterrupted collection is not established. Evidence: `artifacts/wpf-memory-20260924/installation.md`. |
@@ -55,7 +55,7 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 |---|---|
 | Paper strategies and manual recommendation selection | Implemented; migrations through the comparison/selection milestones are installed. Recommendation approval under ADR-0062 does not submit broker orders. |
 | Broker history | Migration 034 installed; permanent account link and native refresh verified. Existing paper/legacy records remain independent. |
-| External broker trade synchronization | Sep 24 source implementation under ADR-0084: resolved broker orders atomically update real trades/positions with immutable receipts; desktop checks every two minutes and on refresh, then refreshes dependent views. Migration 040 is prepared, uninstalled. Existing saved import passes read-only projection compatibility; fresh broker confirmation, SQL transaction acceptance and installation remain pending. The reported sale is not yet recorded. |
+| External broker trade synchronization | Migration 040 and initial desktop implementation installed Sep 24 under ADR-0084. Resolved orders project atomically into real trades/positions with immutable receipts and dependent-view refresh. Fresh broker exit confirmed; SQL acceptance awaits installation of the tested automatic-refresh correction for moving market values. |
 | Initial real-account risk references | Preparation, reviewed saving and uncertain-save recovery implemented/tested. Migration 035 is prepared, uninstalled; initial operational setup and broker-input cutover are absent. |
 | Daily risk continuation | Boundary-book valuation and append-only references/holds implemented/tested for positively verified intervals without deposits/withdrawals. Migration 039 is prepared, uninstalled; no production caller. |
 | Cash-flow continuation | Percentage preservation accepted Sep 22 and implemented/tested with matched books, preserved holds and durable duplicate protection. Complete broker event coverage/effective cash timing and native morning-value qualification remain unverified; no production caller. |
@@ -65,16 +65,18 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 
 ## Verified development baseline
 
-September 24 external-trade synchronization: **1,619 Core tests passed**, including 18 new projection,
+September 24 external-trade synchronization: **1,622 Core tests passed**, including 21 new projection,
 account-refresh and current-ledger presentation cases. Coverage includes full/partial sales, weighted
 cost after additions, distinct reopened lifecycles, stable replay identities, terminal partial fills,
 unsupported facts, changed legacy ledgers, login changes and visible failures. Isolated Release WPF
 and SSDT schema builds pass; migration 040 parses and matches its canonical table/trigger definitions.
 Read-only evaluation of the existing saved broker import confirms compatible projection and an
-unchanged original ledger. No current broker read, financial SQL mutation, migration or app restart
-ran. Existing compiler warnings remain; dependency auditing was disabled and advisories are unresolved.
+unchanged original ledger. Three additional automatic-continuation tests cover moving market value,
+duplicate recovery, mandatory prior binding, invalid observations, ledger changes and cancellation.
+Authorized installation and fresh broker reads are recorded above. Existing compiler warnings remain;
+dependency auditing was disabled and advisories are unresolved.
 Evidence: private `artifacts/broker-sync-20260924/`, including `test-results/core-tests.trx`.
-See [ADR-0084](adr/0084-external-broker-trade-synchronization.md). Installation/native acceptance is next.
+See [ADR-0084](adr/0084-external-broker-trade-synchronization.md). Corrected desktop installation/native acceptance is next.
 
 September 24: **1,601 Core tests passed**, including six added snapshot-memory cases. A synthetic
 1,000-quote history sharing one 16 KiB report allocated 9,579,504 bytes per direct typed read versus

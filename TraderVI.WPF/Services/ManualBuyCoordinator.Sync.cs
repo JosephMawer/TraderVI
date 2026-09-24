@@ -36,7 +36,7 @@ public sealed partial class ManualBuyCoordinator
             if (state.Latest is { } latest && status.LatestImportId == latest.RequestId &&
                 BrokerAccountImport.FinancialFingerprint(latest.Plan.Observation) == BrokerAccountImport.FinancialFingerprint(observation))
                 return "Broker trades and recorded positions agree. No new completed orders.";
-            await new BrokerImportWorkflow(repository).ApplyAsync(plan, Guid.NewGuid(), Environment.UserName, Read, ct);
+            await new BrokerImportWorkflow(repository).SynchronizeAsync(plan, Guid.NewGuid(), Environment.UserName, ct);
             BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
             return "Broker trades saved; recorded positions and trade history updated.";
         }

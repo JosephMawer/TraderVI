@@ -22,9 +22,9 @@ readiness or order authority. No strategy is selected by this roadmap.
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
    The September 24 [external-trade check](project-status.md#latest-operational-evidence) confirms a
-   current synchronization gap. Resolved-order synchronization is now implemented/tested under ADR-0084;
-   next authorize/install migration 040 and the updated desktop, then verify the reported exit and saved
-   history under checklist item 4. Cash/risk input qualification and working partial-order handling remain.
+   synchronization gap. Migration 040 is installed under ADR-0084; fresh broker evidence confirms the exit.
+   Install the tested automatic-refresh correction and verify the ledger and dependent views under
+   checklist item 4. Cash/risk input qualification and working partial-order handling remain.
 2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening
    value and repeated tracked 15-minute conflict. Preserve immutable evidence and coverage flags.
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
