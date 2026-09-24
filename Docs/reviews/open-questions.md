@@ -10,8 +10,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - ADR-0084 implements resolved whole-share order projection and signed-in desktop polling. Pending
   partial executions, overlapping order sequences, broker corrections, nonzero withholding, sub-cent
   amounts and fractional positions remain blocked pending explicit representation/recovery contracts.
-- Native installation/transaction acceptance and the reported external exit still need verification.
-  Complete broker-backed cash/risk recommendation inputs remain separate; preserve risk references.
+- Native installation/transaction acceptance, the reported external exit and repeat-refresh duplicate
+  prevention were verified September 24. Complete broker-backed cash/risk recommendation inputs remain
+  separate; preserve risk references.
   [ADR-0084](../adr/0084-external-broker-trade-synchronization.md).
 
 ### Morning account values and the future standalone engine

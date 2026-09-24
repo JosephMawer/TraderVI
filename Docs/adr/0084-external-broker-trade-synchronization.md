@@ -1,6 +1,6 @@
 # ADR-0084: External broker trade synchronization
 
-- **Status:** Implemented in source; installation and native acceptance pending.
+- **Status:** Implemented, installed and natively verified for resolved supported orders.
 - **Date:** 2026-09-24
 - **Domains:** architecture, data-sources, risk-management, user-interface
 
@@ -71,14 +71,16 @@ protected-journal lease. Independent app instances still serialize financial upd
 
 Migration 040 adds one immutable receipt table and trigger with foreign keys to imports and prior
 receipts; it writes no trades by itself. It does not require or install migrations 035/039. Installation
-requires separate explicit authority and a verified full backup under TraderDB/AGENTS.md. Native
-broker confirmation of the operator's reported sale remains outstanding until that rollout.
+requires separate explicit authority and a verified full backup under TraderDB/AGENTS.md. That authority
+was subsequently granted; dated installation and native acceptance evidence belongs to project status.
 
 ## Validation
 
 Focused offline import, projection and account-view tests pass. Isolated Release desktop and SSDT
 schema builds pass. Detailed final counts and limits are in project status and private
-`artifacts/broker-sync-20260924/`. Source tests do not establish installation or live database behavior.
+`artifacts/broker-sync-20260924/`. Separately authorized native acceptance verified the reported exit,
+original-record preservation, current holdings and repeat-refresh duplicate prevention. Working partial
+orders and full strategy execution remain outside this acceptance.
 
 ## Review questions
 
