@@ -139,7 +139,7 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
                 throw new InvalidOperationException("Evaluation snapshot changed outside the transaction boundary.");
             string json = Json(evaluated); string hash = EngineStrategySettings.Hash(json);
             var batch = new TradingRecommendationBatch(input.BatchId, input.Assignment.AccountLabel, input.Assignment.PromotionId,
-                input.Account?.SnapshotId, prior, input.EvaluatedUtc, hash, result);
+                input.Account?.SnapshotId, prior, input.EvaluatedUtc, hash, result) { LedgerFingerprint = input.CurrentLedgerFingerprint };
             await c.ExecuteAsync("""
                 IF (SELECT TOP(1) PromotionId FROM dbo.TradingPromotion WHERE AccountLabel=@Account ORDER BY Sequence DESC)<>@Promotion
                     THROW 51503,'Promotion changed during evaluation. Discard this result and retry.',1;

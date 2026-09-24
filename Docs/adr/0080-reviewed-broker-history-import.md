@@ -25,6 +25,11 @@ the background implementation request authorizes a database migration or a live 
 
 ## Decision and implemented scope
 
+**September 24 supersession:** [ADR-0084](0084-external-broker-trade-synchronization.md) adds atomic
+projection into the real trade ledger plus signed-in desktop refresh after migration 040 installation.
+Its immutable synchronization receipts preserve this ADR's original binding and matching evidence.
+The history-only descriptions below remain the migration-034 behavior without that installed extension.
+
 Add **Import account history…** to the main Wealthsimple account panel. It runs the existing owned-account
 reconciliation, reads the legacy TFSA ledger and previews proposed matches and new broker records.
 The first save explicitly links this broker identity/account to TraderVI's permanent `TFSA` label.

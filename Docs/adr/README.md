@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0084](0084-external-broker-trade-synchronization.md) | External broker trade synchronization | Implemented/tested; installation pending | architecture, data-sources, risk-management, user-interface |
 | [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Daily/cash-flow continuation tested; native qualification/integration pending | architecture, data-sources |
 | [0078](0078-isolated-latest-source-nightly-builds.md) | Isolated latest-source nightly builds | Accepted; implemented | architecture, data-pipeline |
 | [0079](0079-broker-reconciliation-and-market-handover.md) | Broker reconciliation and first market-order handover | Reconciliation implemented; execution pending | architecture, risk-management, market-microstructure, user-interface |

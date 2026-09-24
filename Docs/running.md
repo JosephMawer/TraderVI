@@ -20,6 +20,20 @@ remain later work. See [ADR-0081](adr/0081-broker-account-baselines-and-protecti
 
 ## Broker account history import (source milestone, September 16)
 
+**September 24 source extension (ADR-0084):** after separate installation of migration 040 and the
+updated desktop, signed-in TFSA refresh also synchronizes supported completed broker orders into real
+positions and trade history. The desktop checks every two minutes, including while another tab is
+selected, and on **Refresh Wealthsimple**. The broker panel reports success, pending work or a blocked
+reason. Closing/signing out stops these checks. The first link still requires review; already-linked
+history is checked automatically. Unchanged financial observations add no duplicate SQL snapshot.
+
+The new import/ledger changes commit together. Existing imports and matched legacy trades stay intact;
+partial sales retain their position, full exits close it and later purchases create a new identity.
+Cash/risk reports are not fabricated: stale reported values/advice become unavailable until reconciled
+or reevaluated, and broker balances remain visible separately. Pending or ambiguous orders, corrections,
+fractions, withholding and sub-cent amounts require attention. No trade is inferred just because a
+holding disappeared. This extension is source-tested, not yet installed or broker-verified.
+
 After a planned WPF rebuild/restart, open **Trading → Main account → Import account history…**.
 The first invocation reconciles the owned broker account and previews matches to recorded TFSA trades,
 new orders, current account facts and any blocks. **Link TFSA and save history** rechecks the observations

@@ -5,6 +5,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 ## architecture
 
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Shared morning account-value recovery for a future scheduled engine
+- [ADR-0084](0084-external-broker-trade-synchronization.md) — Atomic external-trade recording and desktop synchronization
 
 - [ADR-0082](0082-compact-live-snapshots-and-backup-retention.md) — Lossless compact portfolio revisions and two verified backups per location
 

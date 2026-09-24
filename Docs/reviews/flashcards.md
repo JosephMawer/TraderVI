@@ -18,6 +18,18 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why does a broker order need a synchronization receipt?
+
+A: The same cumulative order appears in many refreshes. A stable order identity and atomic receipt
+ensure its financial effects are recorded once, including after an interrupted response or restart.
+Source: ADR-0084. Tags: architecture, risk-management.
+
+### Q: Does a confirmed external sale establish new account risk references?
+
+A: No. It updates holdings and trade history, while prior reports become stale. Existing protection and
+loss holds remain; opening values and cash-flow adjustments need their own qualified evidence.
+Source: ADR-0084. Tags: risk-management.
+
 ### Q: Does a deposit make a previously measured account loss smaller?
 
 No. A confirmed cash movement adjusts both risk references proportionally, so a 2% loss remains 2%.

@@ -55,6 +55,7 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 |---|---|
 | Paper strategies and manual recommendation selection | Implemented; migrations through the comparison/selection milestones are installed. Recommendation approval under ADR-0062 does not submit broker orders. |
 | Broker history | Migration 034 installed; permanent account link and native refresh verified. Existing paper/legacy records remain independent. |
+| External broker trade synchronization | Sep 24 source implementation under ADR-0084: resolved broker orders atomically update real trades/positions with immutable receipts; desktop checks every two minutes and on refresh, then refreshes dependent views. Migration 040 is prepared, uninstalled. Existing saved import passes read-only projection compatibility; fresh broker confirmation, SQL transaction acceptance and installation remain pending. The reported sale is not yet recorded. |
 | Initial real-account risk references | Preparation, reviewed saving and uncertain-save recovery implemented/tested. Migration 035 is prepared, uninstalled; initial operational setup and broker-input cutover are absent. |
 | Daily risk continuation | Boundary-book valuation and append-only references/holds implemented/tested for positively verified intervals without deposits/withdrawals. Migration 039 is prepared, uninstalled; no production caller. |
 | Cash-flow continuation | Percentage preservation accepted Sep 22 and implemented/tested with matched books, preserved holds and durable duplicate protection. Complete broker event coverage/effective cash timing and native morning-value qualification remain unverified; no production caller. |
@@ -63,6 +64,17 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 | WPF snapshot memory | Sep 24 direct typed reads, shared report strings and streaming fingerprint checks implemented/tested under ADR-0082, installed with explicit restart authority at 09:30:32. Loaded-binary hashes and resumed compact writes verified. Full lifetime collections/repeated reads and sustained memory/capacity qualification remain (S4). |
 
 ## Verified development baseline
+
+September 24 external-trade synchronization: **1,619 Core tests passed**, including 18 new projection,
+account-refresh and current-ledger presentation cases. Coverage includes full/partial sales, weighted
+cost after additions, distinct reopened lifecycles, stable replay identities, terminal partial fills,
+unsupported facts, changed legacy ledgers, login changes and visible failures. Isolated Release WPF
+and SSDT schema builds pass; migration 040 parses and matches its canonical table/trigger definitions.
+Read-only evaluation of the existing saved broker import confirms compatible projection and an
+unchanged original ledger. No current broker read, financial SQL mutation, migration or app restart
+ran. Existing compiler warnings remain; dependency auditing was disabled and advisories are unresolved.
+Evidence: private `artifacts/broker-sync-20260924/`, including `test-results/core-tests.trx`.
+See [ADR-0084](adr/0084-external-broker-trade-synchronization.md). Installation/native acceptance is next.
 
 September 24: **1,601 Core tests passed**, including six added snapshot-memory cases. A synthetic
 1,000-quote history sharing one 16 KiB report allocated 9,579,504 bytes per direct typed read versus

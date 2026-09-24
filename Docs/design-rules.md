@@ -13,6 +13,13 @@ eligibility is deferred to Wealthsimple live trading/automation. A recommendatio
 
 ## Planned real TFSA execution
 
+[ADR-0084](adr/0084-external-broker-trade-synchronization.md) adds source-aware projection of resolved
+broker orders into the Real ledger, atomically with imports and immutable receipts. Preserve original
+binding/matched trades and verify the last committed ledger before each continuation. Whole-share
+partial sales retain identity; close/reopen starts a new lifecycle. Cumulative orders remain explicitly
+labelled aggregates. This supersedes ADR-0080's history-only boundary when migration 040 is installed;
+it does not complete risk baselines, cash-event qualification or enable strategy execution.
+
 [ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md) permits first risk-reference
 setup from verified current account value where no earlier applicable reference exists, with explicit
 provenance and preservation of known references/holds. A setup observation is not a historical session

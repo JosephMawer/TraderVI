@@ -25,7 +25,8 @@ public sealed record TradingAccountOverview(string Account, decimal? ReportedVal
             .GroupBy(p => p.PositionId).ToDictionary(g => g.Key, g => g.OrderByDescending(p => p.LastUpdatedUtc).First());
         var batch = account.Latest;
         bool currentBatch = account.Assignment is not null && batch?.PromotionId == account.Assignment.PromotionId &&
-            string.Equals(batch.AccountLabel, account.AccountLabel, StringComparison.OrdinalIgnoreCase);
+            string.Equals(batch.AccountLabel, account.AccountLabel, StringComparison.OrdinalIgnoreCase) &&
+            MatchesLedger(account);
         var holdings = account.Holdings.Select(h =>
         {
             owned.TryGetValue(h.PositionId, out var mark);
@@ -42,13 +43,14 @@ public sealed record TradingAccountOverview(string Account, decimal? ReportedVal
         }).ToArray();
         var report = account.Report;
         bool ownsReport = report is not null && string.Equals(report.AccountLabel, account.AccountLabel, StringComparison.OrdinalIgnoreCase);
+        bool currentLedger = ownsReport && report!.LedgerFingerprint == account.LedgerFingerprint;
         string context = !ownsReport ? "No account report saved. Report your account's current CAD value and cash."
             : $"Reported {Local(report!.ReportedUtc)} · " +
                 (report.LedgerFingerprint != account.LedgerFingerprint ? "Holdings or fills changed; reconcile this report."
                 : report.TradingDate != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(utcNow)) ? "Prior-session account report."
                 : "Operator-reported account facts; not broker synchronized.");
         bool complete = account.Installed && holdings.All(h => h.Value.HasValue);
-        return new(account.AccountLabel, ownsReport ? report!.NetAssetValue : null, ownsReport ? report!.AvailableCash : null,
+        return new(account.AccountLabel, currentLedger ? report!.NetAssetValue : null, currentLedger ? report!.AvailableCash : null,
             context, account.Assignment?.Strategy.Name ?? "No main strategy approved",
             account.Assignment is { } assignment ? $"Active since {Local(assignment.EffectiveUtc)}" : "Choose a paper portfolio to review its strategy.",
             "Total account gain is unavailable: complete contribution, withdrawal, income and cost history is not recorded. Open-position gains below cover only this account's recorded holdings.",
@@ -57,6 +59,9 @@ public sealed record TradingAccountOverview(string Account, decimal? ReportedVal
             $"Recorded sales · {from:MMM d}–{localNow:MMM d, yyyy} · TraderVI records only; not complete broker earnings.");
     }
     public static string Local(DateTime utc) => $"{PaperTradingMonitor.ToToronto(DateTime.SpecifyKind(utc, DateTimeKind.Utc)):MMM d, yyyy HH:mm:ss} Toronto";
+    public static bool MatchesLedger(TradingAccountView account) => account.Latest?.LedgerFingerprint is { } fingerprint
+        ? fingerprint == account.LedgerFingerprint
+        : account.Report is { } report && report.LedgerFingerprint == account.LedgerFingerprint && account.Latest?.AccountReportId == report.SnapshotId;
 }
 
 public sealed record TradingOverviewHolding(Guid PositionId, string Symbol, int Quantity, decimal CostBasis,
