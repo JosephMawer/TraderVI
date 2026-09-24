@@ -24,7 +24,9 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
    and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
    and SQL runtime recovery still need verification. Shared regular account/history refresh is now source/tested;
-   native rollout remains pending. The operator ended the edge-case design pass and deferred same-stock
+   native rollout remains pending. The Release build and its regression checks are ready; the normal
+   app launch still opens the older installed build, so switch to the reviewed build before native UI checks.
+   The operator ended the edge-case design pass and deferred same-stock
    manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
    families and replacement transitions, then verify the host before actual execution approval. Follow the
    accepted stop/restart behavior: no further automatic purchases while ordinary exits continue; restore

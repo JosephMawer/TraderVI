@@ -1,6 +1,7 @@
 # TraderVI Project Status
 
-**Current record:** September 23, 2026; latest Delphi Live/process read at 00:21 Toronto.
+**Current record:** September 23, 2026; latest Delphi Live data read at 00:21 Toronto;
+desktop rollout checked in the evening.
 Operational evidence is dated per row; source implementation does not imply installation.
 
 ## Executive summary
@@ -31,6 +32,7 @@ what has actually been implemented, installed or observed.
 | Live limitations | Sep 23, 00:21 read of Sep 22 session | Session remains Incomplete/Blocked with a host gap; one comparison portfolio still lacks opening NAV (net asset value), despite a complete closing value. No clean full-session qualification. The tracked 15-minute conflict last observed Sep 22 at 09:59 was not rechecked. |
 | Broker connection/history | Sep 22, 22:25:27 | Signed-in read-only history, holdings, pending orders and regular day graph succeeded; activity checkpoint stable and observed holdings match. No import or order ran. Local journal, complete effective cash history, native opening method and order lifecycle remain unqualified. Sep 16 remains the last saved linked-history refresh evidence. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
+| Desktop rollout preparation | Sep 23, evening | The operator restarted the normal Release executable; process-path and binary checks confirm that this is still the older installed build. The isolated branch's Release build is now prepared, with all 1,702 Core tests passing in Release and a 118-file SHA-256 manifest. The normal launch path has not been updated; no agent restart, new account setup or execution activation ran. |
 | Broker risk/session storage | Sep 22, 23:34:11 | Authorized migrations 035/039/040 installed after a fresh verified backup/copy. Three empty tables, three enabled immutable triggers, eight trusted foreign keys, three trusted checks and six native zero-row update/delete rejections verified. Linked binding/import and report/promotion counts and hashes unchanged. No baseline/session created. |
 | Backups | Sep 22, 23:32:39 | Fresh pre-migration full backup passed SQL checksum verification; local OneDrive-folder copy SHA-256 matched (1,049,611,264 bytes). Latest-two automatic retention installed Sep 17; manual fallback used here. Cloud synchronization and a test restore remain unverified. |
 
@@ -55,7 +57,7 @@ Detailed dated accounts remain in the [status history](project-status-history-20
 
 ## Verified development baseline
 
-September 23: **1,702 Core tests passed**, including 30 new ongoing-recovery/control cases after the
+September 23: **1,702 Core tests passed in both Debug and Release**, including 30 new ongoing-recovery/control cases after the
 prior buying-mode and synchronization increments. WPF builds with
 261 existing compiler warnings and zero errors; the database project separately builds using Visual
 Studio SSDT on September 22 (no schema change in this increment). No full-solution health claim or fresh dependency-security audit. Existing reviewed work
@@ -65,7 +67,9 @@ was checkpointed as `761fb78`; the new work is isolated in `codex/supervised-tfs
 The [activation review](reviews/supervised-session-20260923.md) owns detailed validation and the no-go
 evidence list. Local ignored evidence is in that worktree's `artifacts/launch-validation/`, including
 `ongoing-all-tests.log` and `ongoing-wpf.log` for the latest Sep 23 increment;
-the preceding focused, buying-mode and synchronization logs remain. Duration and purchase mode use existing JSON snapshot storage; no migration
+the evening rollout preparation adds `rollout-release-tests.log` and `rollout-release-wpf.log`.
+The prepared Release file manifest is `artifacts/desktop-rollout-20260923/prepared-build.json`.
+The preceding focused, buying-mode and synchronization logs remain. Duration and purchase mode use existing JSON snapshot storage; no migration
 or native operation ran for this increment.
 Read-only broker verification ran in the source increment. Later operator-authorized migrations
 035/039/040 installed empty storage at 23:34; no order, app restart or automation ran. Native storage

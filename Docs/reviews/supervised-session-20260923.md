@@ -10,6 +10,26 @@ The operator also clarified that promotion must support any portfolio and persis
 September 23 after the operator deferred rare same-stock manual cases;
 this document's Breakout target remains an initial candidate. The launch verdict remains NO-GO.
 
+## Desktop rollout preparation — September 23 evening
+
+The operator restarted `C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`.
+Read-only process-path and binary checks confirmed that this remains the older installed build.
+No update had been installed before that restart. The normal launch path is unchanged.
+
+A Release build from source commit `114e093294ae1ba0d077dc9b6e89c6c692e7616e` is now prepared in
+the isolated worktree at `artifacts/launch-validation/wpf/bin/TraderVI.WPF/release/`.
+WPF compiled with 261 existing compiler warnings and zero errors; all 1,702 Core tests also passed
+in Release. There was no fresh dependency-security audit or complete-solution validation.
+Logs are `artifacts/launch-validation/rollout-release-wpf.log` and `rollout-release-tests.log`.
+The private `artifacts/desktop-rollout-20260923/prepared-build.json` records all 118 output-file hashes.
+
+Keep the executable in its isolated checkout and use that checkout as its working directory when
+switching hosts: repository-discovered documentation and code provenance must match the source.
+Do not merely copy these binaries into the older checkout. Close the older host before opening the
+updated one. No agent restart, normal-shortcut change, broker call, database mutation or execution
+activation ran during preparation. Required migrations remain installed and must not be replayed.
+Native account setup, refresh and recovery checks remain pending, and the launch verdict remains NO-GO.
+
 ## Exact target and decision
 
 The operator selected the ungated Breakout three-position portfolio:

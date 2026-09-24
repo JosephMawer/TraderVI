@@ -84,7 +84,8 @@ record them. A prepared migration or passing test never proves broker readiness.
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
   Shared recurring account/history refresh (five minutes), manual/post-trade refresh and visible
   stale/error states are source/tested. Verify native cadence, rate limits and original-order recovery;
-  preserve fresh preflight. The running app has not been replaced with this build.
+  preserve fresh preflight. Release build/tests and a file manifest are ready. The operator's Sep 23
+  restart used the older normal launch path; the running app has not been replaced with this build.
 - [ ] **5. Verify actual protection handover.** Source transfer/replay is tested. Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
