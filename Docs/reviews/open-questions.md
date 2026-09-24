@@ -38,11 +38,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - Resolved September 17: the user selected **two completed backups per location**, after new-backup
   and copy verification. ADR-0082 implements retention and compact Live storage. Migrations
   037/038 and lossless conversion are installed and verified. The full backup fell from 16.27 GB to
-  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes. Consider a separately reviewed
-  one-time data-file shrink only if Windows needs that space; no automatic shrink is approved.
-- September 23 read-only inspection confirms substantial reusable SQL allocation remains. See the
-  [current storage measurements](../project-status.md#latest-operational-evidence). No shrink or cleanup
-  was performed; select retained growth headroom and review recovery prerequisites before any shrink.
+  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes.
+- Resolved September 23, 23:55: the user separately authorized reclaiming unused SQL capacity while
+  preserving all stock/application data. The one-time shrink is complete with a verified backup,
+  growth headroom and preservation checks; see [current evidence](../project-status.md#latest-operational-evidence).
+  No automatic shrink is approved, and no existing backups were deleted. An independent backup
+  download and documented restore drill remain outstanding; no application performance benchmark ran.
 
 ### Broker history import and strategy-input cutover
 

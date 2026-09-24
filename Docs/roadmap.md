@@ -39,8 +39,9 @@ readiness or order authority. No strategy is selected by this roadmap.
 
 ### Reliability and correctness prerequisites
 
-- Confirm OneDrive cloud synchronization and perform a documented restore into a separate test database.
-  Retention is already installed; retain the latest two completed backups per location.
+- Perform a documented restore into a separate test database and continue checking backup synchronization.
+  OneDrive reports the September 23 pre-shrink backup IN_SYNC; no restore drill has run. Routine latest-two
+  retention is installed; the additional manual recovery checkpoint and all existing backups were preserved.
 - Reconcile remaining deployed/project schema drift using reviewed manual migrations, never broad DACPAC
   deployment. Continue universe/listing checks after ingestion changes, including acquired/delisted symbols.
 - Resolve short-session behavior and extend reviewed calendar coverage before **2026-12-24**, including
@@ -86,8 +87,9 @@ readiness or order authority. No strategy is selected by this roadmap.
 - Nightly captured-source/build/cache retention: reviewed policy remains open in
   [open questions](reviews/open-questions.md#nightly-build-retention-adr-0078-2026-09-14); the
   [September 23 one-time compiled-output cleanup](project-status.md#latest-operational-evidence) is
-  complete. Recurring retention and any one-time SQL shrink still require their own review;
-  installed database-backup retention does not cover build artifacts.
+  complete. The separately authorized one-time SQL shrink is also complete with preservation checks;
+  recurring build retention remains undecided, and automatic SQL shrinking remains off.
+  Installed database-backup retention does not cover build artifacts.
 
 ## Completed work and history
 

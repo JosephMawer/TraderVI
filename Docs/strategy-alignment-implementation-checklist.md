@@ -71,8 +71,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained
   evidence and model/source hashes (September 23; [evidence](project-status.md#latest-operational-evidence)).
 - [ ] Review recurring build/artifact retention; the one-time cleanup did not install a policy.
-- [ ] Decide whether to reclaim unused SQL file capacity; review retained growth headroom and recovery
-  prerequisites, and obtain separate shrink authority before changing database files.
+- [x] Complete the separately user-authorized one-time SQL shrink after a fresh verified backup and
+  integrity check; retain growth headroom and verify every table count afterward (September 23, 23:55;
+  [evidence](project-status.md#latest-operational-evidence)). No automatic shrink enabled.
+- [ ] Perform a documented restore into a separate test database. The pre-shrink backup is checksum/hash
+  verified and OneDrive reports IN_SYNC; neither an independent download nor restore drill has run.
 - [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
   complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
   [Last health evidence](project-status.md#latest-operational-evidence).
