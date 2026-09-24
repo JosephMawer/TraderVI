@@ -27,9 +27,16 @@ public static class DelphiLiveSnapshotCodec
     public static string Fingerprint(string json)
     {
         using var document = JsonDocument.Parse(json);
-        using var stream = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(stream)) WriteCanonical(writer, document.RootElement);
-        return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
+        return Fingerprint(writer => WriteCanonical(writer, document.RootElement));
+    }
+
+    private static string Fingerprint(Action<Utf8JsonWriter> write)
+    {
+        using var hash = SHA256.Create();
+        using var stream = new CryptoStream(Stream.Null, hash, CryptoStreamMode.Write);
+        using (var writer = new Utf8JsonWriter(stream)) write(writer);
+        stream.FlushFinalBlock();
+        return Convert.ToHexString(hash.Hash!);
     }
     public static bool IsCompact(string json) => JsonNode.Parse(json)?.AsObject().ContainsKey(Marker) == true;
 
@@ -73,17 +80,66 @@ public static class DelphiLiveSnapshotCodec
     }
 
     public static DelphiLivePortfolioSnapshot Unpack(string json, IReadOnlyList<DelphiLiveSnapshotItem> items,
-        IReadOnlyDictionary<string, string> contents) =>
-        DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(RestoreJson(json, items, contents));
+        IReadOnlyDictionary<string, string> contents)
+    {
+        var root = RestoreRoot(json, items, contents);
+        // Legacy JSON keeps the original deserializer's optional-property handling.
+        if (!IsCompact(json)) return Read<DelphiLivePortfolioSnapshot>(root);
+
+        // The verified tree shares each decoded report. Deserialize small records without
+        // their reports, then attach those same immutable strings; never expand all reports
+        // into one giant JSON string or allocate a fresh report for every historical quote.
+        var arrays = Collections.ToDictionary(name => name, name => root[name]!.AsArray());
+        foreach (string name in Collections) root[name] = new JsonArray();
+        return Read<DelphiLivePortfolioSnapshot>(root) with
+        {
+            SessionOpeningPositions = ReadArray(arrays["sessionOpeningPositions"], ReadPosition),
+            Positions = ReadArray(arrays["positions"], ReadPosition),
+            Actions = ReadArray(arrays["actions"], node => ReadWithReport<DelphiLiveLedgerAction>(node,
+                "dossierJson", (item, report) => item with { DossierJson = report })),
+            Fills = ReadArray(arrays["fills"], Read<DelphiLiveLedgerFill>),
+            Quotes = ReadArray(arrays["quotes"], node => ReadWithReport<DelphiLiveLedgerQuote>(node,
+                "dossierJson", (item, report) => item with { DossierJson = report })),
+            Marks = ReadArray(arrays["marks"], Read<DelphiLiveLedgerMark>)
+        };
+    }
+
+    private static T Read<T>(JsonNode node) => node.Deserialize<T>(DelphiLiveLedgerJson.Options)
+        ?? throw new InvalidOperationException("Stored Delphi Live ledger JSON is empty.");
+
+    private static ImmutableArray<T> ReadArray<T>(JsonArray array, Func<JsonNode, T> read) =>
+        array.Select(node => read(node!)).ToImmutableArray();
+
+    private static DelphiLiveLedgerPosition ReadPosition(JsonNode node) =>
+        ReadWithReport<DelphiLiveLedgerPosition>(node, "originalEntryDossierJson",
+            (item, report) => item with { OriginalEntryDossierJson = report });
+
+    private static T ReadWithReport<T>(JsonNode node, string field, Func<T, string, T> attach)
+    {
+        var item = node.AsObject();
+        string? report = item[field]?.GetValue<string>();
+        if (item.ContainsKey(field)) item[field] = null;
+        return attach(Read<T>(item), report!);
+    }
+
+    public static void Validate(string json, IReadOnlyList<DelphiLiveSnapshotItem> items,
+        IReadOnlyDictionary<string, string> contents) => _ = RestoreRoot(json, items, contents);
 
     public static string RestoreJson(string json, IReadOnlyList<DelphiLiveSnapshotItem> items,
+        IReadOnlyDictionary<string, string> contents)
+    {
+        var root = RestoreRoot(json, items, contents);
+        return IsCompact(json) ? root.ToJsonString(DelphiLiveLedgerJson.Options) : json;
+    }
+
+    private static JsonObject RestoreRoot(string json, IReadOnlyList<DelphiLiveSnapshotItem> items,
         IReadOnlyDictionary<string, string> contents)
     {
         var root = JsonNode.Parse(json)!.AsObject();
         if (!root.ContainsKey(Marker))
         {
             if (items.Count != 0) throw new InvalidOperationException("Legacy snapshots cannot reference compact items.");
-            return json;
+            return root;
         }
         var metadata = root[Marker]!.AsObject();
         if (metadata["version"]?.GetValue<int>() != 2 || metadata.Count != 3)
@@ -128,10 +184,9 @@ public static class DelphiLiveSnapshotCodec
         if (expected != items.Count) throw new InvalidOperationException("Snapshot contains unexpected collection items.");
         string expectedHash = metadata["fullHash"]!.GetValue<string>();
         root.Remove(Marker);
-        string restored = root.ToJsonString(DelphiLiveLedgerJson.Options);
-        if (!string.Equals(Fingerprint(restored), expectedHash, StringComparison.Ordinal))
+        if (!string.Equals(Fingerprint(writer => WriteCanonical(writer, root)), expectedHash, StringComparison.Ordinal))
             throw new InvalidOperationException("Reconstructed portfolio snapshot fingerprint does not match.");
-        return restored;
+        return root;
     }
 
     public static IReadOnlyDictionary<string, int> ReadCounts(string json)
@@ -171,5 +226,28 @@ public static class DelphiLiveSnapshotCodec
             writer.WriteStartArray(); foreach (var child in element.EnumerateArray()) WriteCanonical(writer, child); writer.WriteEndArray();
         }
         else element.WriteTo(writer);
+        // Utf8JsonWriter buffers until flushed, even when its destination is a stream.
+        // Bound the hash buffer to roughly one scalar value instead of the full history.
+        if (writer.BytesPending >= 16 * 1024) writer.Flush();
+    }
+
+    private static void WriteCanonical(Utf8JsonWriter writer, JsonNode? node)
+    {
+        if (node is JsonObject obj)
+        {
+            writer.WriteStartObject();
+            foreach (var property in obj.OrderBy(p => p.Key, StringComparer.Ordinal))
+            { writer.WritePropertyName(property.Key); WriteCanonical(writer, property.Value); }
+            writer.WriteEndObject();
+        }
+        else if (node is JsonArray array)
+        {
+            writer.WriteStartArray();
+            foreach (var child in array) WriteCanonical(writer, child);
+            writer.WriteEndArray();
+        }
+        else if (node is null) writer.WriteNullValue();
+        else node.WriteTo(writer, DelphiLiveLedgerJson.Options);
+        if (writer.BytesPending >= 16 * 1024) writer.Flush();
     }
 }

@@ -25,7 +25,7 @@ what has actually been implemented, installed or observed.
 | Live limitations | Sep 22, 09:59 | Held comparison account lacks opening NAV (net asset value): today's return is unavailable and existing entry rules block new buys. Coverage remains Blocked with a host gap and earlier missing/failed receipts. One tracked symbol's 15-minute bar conflicted on three polls. Latest-cycle recovery does not establish uninterrupted coverage. |
 | Broker connection/history | Sep 16, 22:06 | Native TFSA reads and linked history refresh verified: 32 orders already saved, no current import blocker. This does not prove complete cash-event history or strategy execution readiness. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
-| WPF memory investigation | Sep 24, 09:08:49–09:10:45 process sample | Release PID 24492 responded in all 24 samples: 2.58–3.75 GB working set and 3.25–4.90 GB private committed memory (decimal GB), with rises and falls. Source still expands full snapshot JSON, hashes it and deserializes repeated reports; Live and Portfolios retain separate full snapshots. These are likely contributors, not measured attribution or proof of a retained-object leak. S4 remains open; no code fix/restart or runtime heap capture performed. Private evidence: `artifacts/wpf-memory-20260924/`. |
+| WPF memory investigation | Sep 24, 09:08:49–09:10:45 process sample | Release PID 24492 responded in all 24 samples: 2.58–3.75 GB working set and 3.25–4.90 GB private committed memory (decimal GB). Full-history JSON expansion and separate display snapshots were identified as likely contributors; no runtime allocation/heap attribution was captured. The source improvement below is not installed in this host. Private evidence: `artifacts/wpf-memory-20260924/`. |
 | Database allocation | Sep 23, 23:55 verified | User-authorized one-time file shrink reclaimed 54.88 GiB. Data file is 16 GiB with about 6.40 GiB used; log is 1.008 GiB. Full integrity checks before/after found zero errors; all 89 application tables retained their exact row counts (1,210,867 total). Database remains ONLINE, SIMPLE, CHECKSUM, with automatic shrink off. |
 | Build storage cleanup | Sep 23, 21:53 verified | User-authorized one-time removal of 11,514 old compiled files reclaimed 29.66 GiB. Artifacts now total about 7.03 GiB. All 23,438 retained inventory files have unchanged sizes/timestamps; 48 model/archive and source-manifest hashes match. Latest two nightly builds, package cache, recent work and worktree retained. |
 | Backups | Sep 24, nightly receipt; hashes checked 09:03 | Hermes created a 1,091,843,072-byte full backup and recorded successful SQL checksum verification; independent morning SHA-256 reads match both local files and the runner receipt. Routine retention removed the Sep 22 standard backup in both locations. The separate Sep 23 pre-shrink COPY_ONLY checkpoint remains. Its earlier IN_SYNC observation does not establish cloud synchronization of today's backup; independent download and test restore remain unverified. |
@@ -58,8 +58,20 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 | Cash-flow continuation | Percentage preservation accepted Sep 22 and implemented/tested with matched books, preserved holds and durable duplicate protection. Complete broker event coverage/effective cash timing and native morning-value qualification remain unverified; no production caller. |
 | Orders and protection | Manual buy/sell clients and controls exist. Native mutation/lifecycle verification, strategy protection handover, durable activation/execution and automation qualification remain. |
 | Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; the Sep 24 scheduled chain completed with Athena Attention. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
+| WPF snapshot memory | Sep 24 direct typed reads, shared report strings and streaming fingerprint checks implemented/tested under ADR-0082; isolated Release WPF build passed. No installation/restart or live-memory acceptance. Full lifetime collections and repeated reads remain (S4). |
 
 ## Verified development baseline
+
+September 24: **1,601 Core tests passed**, including six added snapshot-memory cases. A synthetic
+1,000-quote history sharing one 16 KiB report allocated 9,579,504 bytes per direct typed read versus
+75,733,312 bytes through expanded JSON (about 87% fewer allocated bytes). The comparison path already
+uses the improved streaming validator; this is not a measured reduction in the running app's RAM.
+Tests preserve all six collections, exact report text, legacy optional fields, original fingerprint
+compatibility and corruption rejection. Isolated Release WPF build passed with existing compiler
+warnings; no SQL/full-solution build or operational workflow ran. Dependency-security auditing was
+disabled for restore and advisories remain unresolved. No database/schema, market/broker or deployment
+operation accompanied this change. Evidence: `artifacts/wpf-memory-20260924/implementation.md` and
+`test-results/core-tests.trx`. [Implementation contract](adr/0082-compact-live-snapshots-and-backup-retention.md#runtime-reconstruction-refinement--september-24-2026).
 
 September 22: **1,595 Core tests passed**, including 43 new cash-flow cases covering both strategy
 families' existing loss thresholds, matched books, conflicting evidence, daily boundaries and durable
