@@ -620,6 +620,8 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 
 Choose retention limits for ignored captured-source/build directories and the dedicated NuGet cache. Cleanup is manual until this policy is reviewed; operational logs and source identities must remain attributable.
 
-The September 23 [storage inspection](../project-status.md#latest-operational-evidence) confirms this
-also warrants reviewing accumulated diagnostic builds. Classify reproducible binaries separately from
-private evidence, model artifacts and active worktrees before proposing an explicit deletion list.
+The September 23 user-authorized [one-time cleanup](../project-status.md#latest-operational-evidence)
+removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
+builds, package cache, recent work and the separate worktree. This was not a recurring-retention decision
+or installation. Future policy must preserve attributable evidence and active work, and distinguish
+rebuildable binaries from models and private captures; older pruned builds require rebuilding before reuse.

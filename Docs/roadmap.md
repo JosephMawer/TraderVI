@@ -85,8 +85,8 @@ readiness or order authority. No strategy is selected by this roadmap.
 - New ML features, thresholds or models: design-rule review and an ADR for behavioral changes.
 - Nightly captured-source/build/cache retention: reviewed policy remains open in
   [open questions](reviews/open-questions.md#nightly-build-retention-adr-0078-2026-09-14); the
-  [September 23 storage inspection](project-status.md#latest-operational-evidence) confirms accumulated
-  artifacts and unused SQL file capacity. Review cleanup and any one-time shrink separately;
+  [September 23 one-time compiled-output cleanup](project-status.md#latest-operational-evidence) is
+  complete. Recurring retention and any one-time SQL shrink still require their own review;
   installed database-backup retention does not cover build artifacts.
 
 ## Completed work and history

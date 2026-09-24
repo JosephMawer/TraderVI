@@ -362,6 +362,12 @@ and review the affected Core/Hermes/Delphi/Athena `packages.lock.json` files wit
 --use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
 audits are separate from the unattended build and must be reported independently.
 
+The authorized September 23 one-time storage cleanup removed compiled binaries from older artifact
+builds while preserving their source snapshots, manifests and evidence. Directories with
+`COMPILED-BINARIES-REMOVED-20260923.md` require rebuilding before reuse; historical executable hashes
+remain evidence of the original run, not proof that its binaries are still present. The latest two
+nightly builds and package cache were retained. No automatic retention policy was installed.
+
 The task uses the current user's interactive token, stores no Windows password, wakes the computer, and
 starts when available; the user must remain signed in.
 

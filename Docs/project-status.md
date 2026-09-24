@@ -1,7 +1,7 @@
 # TraderVI Project Status
 
 **Current record:** September 23, 2026. Operational evidence is dated per row below;
-the storage inspection did not rerun or reverify application behavior.
+the storage inspection and compiled-output cleanup did not rerun or reverify application behavior.
 
 ## Executive summary
 
@@ -25,7 +25,8 @@ what has actually been implemented, installed or observed.
 | Live limitations | Sep 22, 09:59 | Held comparison account lacks opening NAV (net asset value): today's return is unavailable and existing entry rules block new buys. Coverage remains Blocked with a host gap and earlier missing/failed receipts. One tracked symbol's 15-minute bar conflicted on three polls. Latest-cycle recovery does not establish uninterrupted coverage. |
 | Broker connection/history | Sep 16, 22:06 | Native TFSA reads and linked history refresh verified: 32 orders already saved, no current import blocker. This does not prove complete cash-event history or strategy execution readiness. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
-| Disk capacity | Sep 23, read-only inspection | TraderDB files reserve 71.891 GiB: data uses 6.496 of 67.508 GiB, log uses 0.058 of 4.383 GiB. The repository occupies about 45.49 GiB, including 36.66 GiB of artifacts (14.35 GiB nightly). Staging and local OneDrive each have two completed backup files totaling 1.96 GiB per location. No cleanup or shrink performed. |
+| Database allocation | Sep 23, read-only inspection | TraderDB files reserve 71.891 GiB: data uses 6.496 of 67.508 GiB, log uses 0.058 of 4.383 GiB. Staging and local OneDrive each have two completed backup files totaling 1.96 GiB per location. No SQL shrink performed. |
+| Build storage cleanup | Sep 23, 21:53 verified | User-authorized one-time removal of 11,514 old compiled files reclaimed 29.66 GiB. Artifacts now total about 7.03 GiB. All 23,438 retained inventory files have unchanged sizes/timestamps; 48 model/archive and source-manifest hashes match. Latest two nightly builds, package cache, recent work and worktree retained. |
 | Backups | Sep 22 recovery | SQL checksum and local-copy SHA-256 verified; 842.05 MB backup/copy. Latest-two retention installed Sep 17. OneDrive cloud synchronization and a test restore remain unverified. |
 
 Private evidence directories: `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,
@@ -35,8 +36,12 @@ Detailed dated accounts remain in the [status history](project-status-history-20
 Storage inventory: private `artifacts/disk-audit-20260923/`; filesystem allocation estimates and
 SELECT-only SQL catalog/space queries. About 61.012 GiB is reusable inside the data file; this is not
 Windows free space or a guaranteed shrink yield. Backup verification dates above remain unchanged.
-Build/artifact retention and any separately reviewed one-time shrink remain
-[open](reviews/open-questions.md#backup-capacity-and-retention); no trading records were inspected.
+Cleanup evidence: `tradervi-cleanup-verification.json` and `tradervi-build-cleanup.md` in that private
+directory. Old diagnostic/nightly compiled output is now incomplete and must be rebuilt before reuse;
+source snapshots, manifests, logs, captures, model files and current development outputs were retained.
+Recurring build/artifact retention and any separately reviewed SQL shrink remain
+[open](reviews/open-questions.md#backup-capacity-and-retention). No application/build/test workflow,
+SQL mutation, model operation, service restart or market/broker request accompanied this cleanup.
 
 ## Implemented versus operational
 

@@ -68,8 +68,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 - [x] Measure database allocation, staging backups and repository storage without changing production
   data (September 23; [evidence](project-status.md#latest-operational-evidence)).
-- [ ] Review build/artifact retention and whether to reclaim unused SQL file capacity; preserve required
-  evidence and active work, and obtain separate cleanup/shrink authority before operational changes.
+- [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained
+  evidence and model/source hashes (September 23; [evidence](project-status.md#latest-operational-evidence)).
+- [ ] Review recurring build/artifact retention; the one-time cleanup did not install a policy.
+- [ ] Decide whether to reclaim unused SQL file capacity; review retained growth headroom and recovery
+  prerequisites, and obtain separate shrink authority before changing database files.
 - [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
   complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
   [Last health evidence](project-status.md#latest-operational-evidence).
