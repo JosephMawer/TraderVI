@@ -41,6 +41,11 @@ readiness or order authority. No strategy is selected by this roadmap.
 
 ### Reliability and correctness prerequisites
 
+- Bound WPF account-history memory (S4). The September 24 process check confirms a multi-GB
+  footprint; full-history JSON reconstruction and separate display snapshots are likely contributors,
+  but a retained-object leak is unproven. Profile allocations/retention, then reduce reconstruction
+  and display payloads while preserving immutable history and fingerprint validation.
+  Evidence: [project status](project-status.md#latest-operational-evidence).
 - Perform a documented restore into a separate test database and continue checking backup synchronization.
   OneDrive reports the September 23 pre-shrink backup IN_SYNC; no restore drill has run. Routine latest-two
   retention is installed; the additional manual recovery checkpoint and all existing backups were preserved.

@@ -106,7 +106,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | Complete risk-default/protection ownership, real position mapping and daily/cash-flow continuation before broker-input cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound growing account-history CPU/memory and establish collection/display capacity; installed UI fix is only partial coverage. |
+| S4 | Bound growing account-history CPU/memory and establish collection/display capacity. Sep 24 process/source inspection confirms a multi-GB footprint and full-history reconstruction paths; leak attribution remains unproven. Next profile allocations/retention and reduce reconstruction/display payloads with history/integrity preserved. No memory fix installed; evidence in project status and private `artifacts/wpf-memory-20260924/`. |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |
