@@ -66,6 +66,10 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
+- [x] Verify the September 24 scheduled nightly chain and saved daily publication without rerunning it
+  ([dated evidence and Attention limit](project-status.md#latest-operational-evidence)).
+- [ ] Review Athena's older missing-session outcomes separately from successful daily collection;
+  preserve invalid evidence and do not infer intraday or strategy-performance qualification from nightly completion.
 - [x] Measure database allocation, staging backups and repository storage without changing production
   data (September 23; [evidence](project-status.md#latest-operational-evidence)).
 - [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained

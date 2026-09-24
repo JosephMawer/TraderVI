@@ -26,6 +26,8 @@ readiness or order authority. No strategy is selected by this roadmap.
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
+   The [latest nightly check](project-status.md#latest-operational-evidence) confirms overnight
+   completion; Athena's historical-input warning and full-session qualification remain separate follow-ups.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,
    causal fills, Session-2 rotation and risk exits across clean Shadow sessions; exclude Sep 4 shakedown

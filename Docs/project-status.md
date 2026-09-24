@@ -1,7 +1,7 @@
 # TraderVI Project Status
 
-**Current record:** September 23, 2026. Operational evidence is dated per row below;
-the storage work did not rerun or reverify application behavior.
+**Current record:** September 24, 2026. Operational evidence is dated per row below;
+the latest read-only nightly check does not reverify intraday or broker behavior.
 
 ## Executive summary
 
@@ -19,17 +19,17 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
-| Nightly pipeline | Sep 22, completed 09:25:33; SQL checked 09:30 | Missed run recovered under operator authority. Hermes inserted 482 daily bars with no collection failures; Delphi saved a Valid publication using Sep 21 data. Athena completed with Attention: 1,124 valid outcomes and seven missing historical outcomes. |
-| Delphi inputs | Sep 22, 09:30 | Active daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. XIU/SPY and checked derived series are current; one active symbol is older. Publication is not buy eligibility. |
+| Nightly pipeline | Sep 24, completed 00:36:48; SQL checked 09:01 | Scheduled current-source build and all three stages completed. Hermes inserted 483 daily bars with zero collection failures; Delphi published Valid using Sep 23 data. Athena wrote 864 valid outcomes and four invalid older `v3.0` 20-session outcomes (`MissingSymbolSession`), producing Attention/exit 2. No recovery rerun was needed. |
+| Delphi inputs | Sep 24, 09:01 | Daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. All 483 active symbols, XIU/SPY and checked derived series reach Sep 23. ALYA is excluded for an invalid older feature bar; fresh endpoint coverage does not prove complete historical inputs. Publication is not buy eligibility. |
 | Live and Shadow | Sep 22, 09:59 | One responding Release WPF host and one advancing Live lease. Latest two Live cycles each had 40/40 usable receipts; three portfolios saved complete 09:55 values. All 12 Shadow sessions adopted today's publication; all 13 open positions advanced to the bar ending 09:55. |
 | Live limitations | Sep 22, 09:59 | Held comparison account lacks opening NAV (net asset value): today's return is unavailable and existing entry rules block new buys. Coverage remains Blocked with a host gap and earlier missing/failed receipts. One tracked symbol's 15-minute bar conflicted on three polls. Latest-cycle recovery does not establish uninterrupted coverage. |
 | Broker connection/history | Sep 16, 22:06 | Native TFSA reads and linked history refresh verified: 32 orders already saved, no current import blocker. This does not prove complete cash-event history or strategy execution readiness. |
 | Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
 | Database allocation | Sep 23, 23:55 verified | User-authorized one-time file shrink reclaimed 54.88 GiB. Data file is 16 GiB with about 6.40 GiB used; log is 1.008 GiB. Full integrity checks before/after found zero errors; all 89 application tables retained their exact row counts (1,210,867 total). Database remains ONLINE, SIMPLE, CHECKSUM, with automatic shrink off. |
 | Build storage cleanup | Sep 23, 21:53 verified | User-authorized one-time removal of 11,514 old compiled files reclaimed 29.66 GiB. Artifacts now total about 7.03 GiB. All 23,438 retained inventory files have unchanged sizes/timestamps; 48 model/archive and source-manifest hashes match. Latest two nightly builds, package cache, recent work and worktree retained. |
-| Backups | Sep 23, 23:56 verified | Fresh pre-shrink COPY_ONLY full backup (1,118,155,776 bytes) passed SQL checksum verification; staging and OneDrive copies have matching SHA-256. OneDrive reports this copy IN_SYNC. Existing backups were preserved and no retention ran. An independent download and test restore remain unverified. |
+| Backups | Sep 24, nightly receipt; hashes checked 09:03 | Hermes created a 1,091,843,072-byte full backup and recorded successful SQL checksum verification; independent morning SHA-256 reads match both local files and the runner receipt. Routine retention removed the Sep 22 standard backup in both locations. The separate Sep 23 pre-shrink COPY_ONLY checkpoint remains. Its earlier IN_SYNC observation does not establish cloud synchronization of today's backup; independent download and test restore remain unverified. |
 
-Private evidence directories: `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,
+Private evidence directories: `artifacts/nightly-readiness-20260924/`, `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,
 `artifacts/broker-import-20260916/`, `artifacts/live-storage-20260917/`, and `artifacts/ui-freeze-20260917/`.
 Detailed dated accounts remain in the [status history](project-status-history-20260922.md#executive-summary).
 
@@ -56,7 +56,7 @@ these storage operations. SQL backup/checkpoint/file maintenance ran only in the
 | Daily risk continuation | Boundary-book valuation and append-only references/holds implemented/tested for positively verified intervals without deposits/withdrawals. Migration 039 is prepared, uninstalled; no production caller. |
 | Cash-flow continuation | Percentage preservation accepted Sep 22 and implemented/tested with matched books, preserved holds and durable duplicate protection. Complete broker event coverage/effective cash timing and native morning-value qualification remain unverified; no production caller. |
 | Orders and protection | Manual buy/sell clients and controls exist. Native mutation/lifecycle verification, strategy protection handover, durable activation/execution and automation qualification remain. |
-| Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; Sep 22 required recovery. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
+| Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; the Sep 24 scheduled chain completed with Athena Attention. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
 
 ## Verified development baseline
 
