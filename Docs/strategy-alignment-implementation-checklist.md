@@ -66,6 +66,10 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
+- [x] Measure database allocation, staging backups and repository storage without changing production
+  data (September 23; [evidence](project-status.md#latest-operational-evidence)).
+- [ ] Review build/artifact retention and whether to reclaim unused SQL file capacity; preserve required
+  evidence and active work, and obtain separate cleanup/shrink authority before operational changes.
 - [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
   complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
   [Last health evidence](project-status.md#latest-operational-evidence).

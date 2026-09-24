@@ -40,6 +40,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   037/038 and lossless conversion are installed and verified. The full backup fell from 16.27 GB to
   535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes. Consider a separately reviewed
   one-time data-file shrink only if Windows needs that space; no automatic shrink is approved.
+- September 23 read-only inspection confirms substantial reusable SQL allocation remains. See the
+  [current storage measurements](../project-status.md#latest-operational-evidence). No shrink or cleanup
+  was performed; select retained growth headroom and review recovery prerequisites before any shrink.
 
 ### Broker history import and strategy-input cutover
 
@@ -616,3 +619,7 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 ## Nightly build retention (ADR-0078, 2026-09-14)
 
 Choose retention limits for ignored captured-source/build directories and the dedicated NuGet cache. Cleanup is manual until this policy is reviewed; operational logs and source identities must remain attributable.
+
+The September 23 [storage inspection](../project-status.md#latest-operational-evidence) confirms this
+also warrants reviewing accumulated diagnostic builds. Classify reproducible binaries separately from
+private evidence, model artifacts and active worktrees before proposing an explicit deletion list.
