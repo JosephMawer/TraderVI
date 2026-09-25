@@ -90,6 +90,26 @@ captured fingerprints match. The verified full backup fell from 16.27 GB to 535 
 files retained in each location. Updated WPF resumed at 12:54 Toronto and saved four new compact
 revisions by 12:55. Today's coverage remains blocked with a recorded host gap; no gate was relaxed.
 
+## Runtime reconstruction refinement — September 24, 2026
+
+The immediate problem is the desktop's multi-GB memory footprint; the parent problem is
+full-history reconstruction on repeated engine/display reads. The root goal remains dependable
+operation with complete reconstructible evidence. Keep the storage format and domain snapshot
+contract, but avoid materializing the expanded full JSON document during typed runtime reads.
+
+Reconstruct and validate the shared-report JSON tree, stream the original canonical bytes into
+SHA-256 in bounded chunks, then deserialize individual records and attach their shared immutable
+report strings. Validate all referenced content and the complete saved fingerprint before returning
+any snapshot. The write path's post-save verification uses the same validation without creating a
+discarded full JSON string. Explicit maintenance/export reads still support full JSON reconstruction.
+No process-wide report cache or weaker integrity check is introduced.
+
+This reduces intermediate buffers and repeated retained report text. It does not remove lifetime
+collections from the engine, bound account history, cache unchanged portfolio revisions or reduce
+SQL read frequency. Those are separate follow-ups requiring explicit freshness and completeness
+contracts. Source tests/builds and installation status belong to [project status](../project-status.md);
+the September 17 installation evidence above does not verify this newer implementation.
+
 ## Review questions
 
 1. Why must a historical read choose item versions using the saved revision rather than current state?

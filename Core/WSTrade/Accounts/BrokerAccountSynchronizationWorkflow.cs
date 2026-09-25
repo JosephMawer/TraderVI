@@ -9,6 +9,7 @@ namespace Core.WSTrade.Accounts;
 public sealed record BrokerAccountSynchronization(BrokerAccountRead Read, BrokerImportReceipt? Saved,
     IReadOnlyList<string> Blocks)
 {
+    public string? TradeSyncStatus { get; init; }
     public override string ToString() => "Broker account synchronization (financial data omitted)";
 }
 
@@ -25,13 +26,10 @@ public sealed class BrokerAccountSynchronizationWorkflow(BrokerImportWorkflow im
         if (plan.PreviousRequestId is null)
             return new(current, null, ["Review Import account history to link this TFSA before automatic history updates."]);
 
-        // The existing import workflow rechecks facts and the SQL predecessor before appending.
-        // Return that same final read to the display; do not fetch a separate set of balances.
-        var saved = await imports.ApplyAsync(plan, Guid.NewGuid(), "Account synchronization", async token =>
-        {
-            current = await read(token);
-            return current.Reconciliation;
-        }, ct);
+        // Reconciliation already checks holdings/orders and the final activity checkpoint.
+        // Use the linked-account save: a second human-review read wrongly rejects moving prices.
+        // SQL still revalidates the binding, history and ledger and projects trades atomically.
+        var saved = await imports.SynchronizeAsync(plan, Guid.NewGuid(), "Account synchronization", ct);
         ct.ThrowIfCancellationRequested();
         return new(current, saved, []);
     }

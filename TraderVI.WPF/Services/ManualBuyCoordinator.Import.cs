@@ -56,6 +56,7 @@ public sealed partial class ManualBuyCoordinator
             if (plan.PreviousRequestId.HasValue && plan.CanImport)
             {
                 var saved = await imports.ApplyAsync(plan, requestId, Environment.UserName, Read, cancellation.Token);
+                BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
                 if (!closed) dialog.Present(saved.Plan, saved);
             }
             else { reviewed = plan; if (!closed) dialog.Present(plan); }
@@ -65,6 +66,7 @@ public sealed partial class ManualBuyCoordinator
         {
             if (reviewed is null) return;
             var saved = await imports.ApplyAsync(reviewed, requestId, Environment.UserName, Read, cancellation.Token);
+            BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
             reviewed = null; if (!closed) dialog.Present(saved.Plan, saved);
         });
         void Changed(object? sender, PropertyChangedEventArgs e)

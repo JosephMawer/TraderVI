@@ -28,10 +28,10 @@ public partial class BrokerAccountImportTests
     public async Task LinkedSynchronizationReturnsTheExactFinalReadThatWasSaved()
     {
         var store = new Store { State = Linked(Plan()) }; int reads = 0;
-        var first = AccountRead(); var final = AccountRead();
+        var final = AccountRead(Observation() with { AccountValue = 310 });
         var sync = new BrokerAccountSynchronizationWorkflow(new(store, new Clock()));
-        var result = await sync.RefreshAsync(_ => Task.FromResult(++reads == 1 ? first : final));
-        Assert.Equal(2, reads); Assert.Same(final, result.Read);
+        var result = await sync.RefreshAsync(_ => { reads++; return Task.FromResult(final); });
+        Assert.Equal(1, reads); Assert.Same(final, result.Read);
         Assert.Same(final.Reconciliation, result.Saved!.Plan.Observation);
         Assert.Same(result.Saved, store.State.Latest); Assert.Empty(result.Blocks);
         Assert.Single(result.Saved.Plan.Observation.Orders); Assert.Single(store.Receipts);
@@ -56,11 +56,12 @@ public partial class BrokerAccountImportTests
     }
 
     [Fact]
-    public async Task ChangingFinancialFactsBetweenReadsCannotBeSavedOrPresentedAsSynchronized()
+    public async Task ChangedLedgerAtSaveCannotBePresentedAsSynchronized()
     {
-        var store = new Store { State = Linked(Plan()) }; int reads = 0;
+        var store = new Store { State = Linked(Plan()) };
+        store.BeforeSave = () => store.State = store.State with { Legacy = store.State.Legacy with { Fingerprint = "changed" } };
         await Assert.ThrowsAsync<InvalidOperationException>(() => new BrokerAccountSynchronizationWorkflow(new(store, new Clock()))
-            .RefreshAsync(_ => Task.FromResult(AccountRead(++reads == 1 ? Observation() : Observation() with { Cash = 198 }))));
+            .RefreshAsync(_ => Task.FromResult(AccountRead())));
         Assert.Empty(store.Receipts);
     }
 

@@ -27,6 +27,7 @@
      </WrapPanel>
     </StackPanel>
    </Border>
+   <TextBlock Text="{Binding TradeSyncStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,0,18" AutomationProperties.LiveSetting="Polite"/>
    <UniformGrid Columns="3">
     <StackPanel Margin="0,0,16,0"><TextBlock Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ValueText, FallbackValue=—}" FontSize="30" Margin="0,5"/></StackPanel>
     <StackPanel Margin="0,0,16,0"><TextBlock Text="Cash · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding CashText, FallbackValue=—}" FontSize="24" Margin="0,5"/></StackPanel>
@@ -76,7 +77,7 @@
      <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
     </DataGrid.Columns>
    </DataGrid>
-   <TextBlock Text="Broker balances, holdings and pending orders. Manual buys and sells have saved order histories. Strategy execution and the tracked-position ledger still require reconciliation." Style="{StaticResource WorkspaceLabel}" Margin="0,14,0,0"/>
+   <TextBlock Text="While signed in, completed broker trades are checked every two minutes and on Refresh. Supported trades update real positions and trade history together. Unresolved orders or conflicting records appear above. Automatic strategy trading remains off." Style="{StaticResource WorkspaceLabel}" Margin="0,14,0,0"/>
    <WrapPanel Margin="0,14,0,0">
     <Button Content="Manual buys…" Command="{x:Static views:ManualBuyCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"/>
     <Button Content="Manual sells…" Command="{x:Static views:ManualSellCommands.Orders}" Style="{StaticResource WorkspaceButton}"/>

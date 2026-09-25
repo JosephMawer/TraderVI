@@ -283,14 +283,48 @@ public partial class BrokerAccountImportTests
         Assert.Equal(2, store.Receipts.Count); Assert.Single(store.State.Latest!.Plan.Observation.Orders);
     }
     private sealed class Clock : TimeProvider { public override DateTimeOffset GetUtcNow() => Now; }
+    [Fact] public async Task AutomaticSyncAcceptsLatestMarketValueAndRecoversWithoutDuplicating()
+    {
+        var store = new Store(); var workflow = new BrokerImportWorkflow(store, new Clock());
+        await workflow.ApplyAsync(Plan(), Guid.NewGuid(), "fixture", _ => Task.FromResult(Observation()));
+        var fresh = await workflow.PreviewAsync(Observation() with { AccountValue = 350 });
+        var id = Guid.NewGuid();
+        var saved = await workflow.SynchronizeAsync(fresh, id, "fixture");
+        Assert.Equal(350, saved.Plan.Observation.AccountValue);
+        Assert.Equal(saved, await workflow.SynchronizeAsync(fresh, id, "fixture"));
+        Assert.Equal(2, store.Receipts.Count);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workflow.SynchronizeAsync(fresh, id, "different"));
+    }
+    [Fact] public async Task AutomaticSyncCannotCreateBindingOrSaveBlockedObservation()
+    {
+        var store = new Store(); var workflow = new BrokerImportWorkflow(store, new Clock());
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workflow.SynchronizeAsync(Plan(), Guid.NewGuid(), "fixture"));
+        Assert.Empty(store.Receipts);
+        await workflow.ApplyAsync(Plan(), Guid.NewGuid(), "fixture", _ => Task.FromResult(Observation()));
+        var blocked = await workflow.PreviewAsync(Observation() with { Cash = null });
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workflow.SynchronizeAsync(blocked, Guid.NewGuid(), "fixture"));
+        Assert.Single(store.Receipts);
+    }
+    [Fact] public async Task AutomaticSyncStillRejectsConcurrentLedgerChangesAndCancellation()
+    {
+        var store = new Store(); var workflow = new BrokerImportWorkflow(store, new Clock());
+        await workflow.ApplyAsync(Plan(), Guid.NewGuid(), "fixture", _ => Task.FromResult(Observation()));
+        var fresh = await workflow.PreviewAsync(Observation());
+        await Assert.ThrowsAsync<OperationCanceledException>(() => workflow.SynchronizeAsync(fresh, Guid.NewGuid(), "fixture", new CancellationToken(true)));
+        store.State = store.State with { Legacy = store.State.Legacy with { Fingerprint = new string('D', 64) } };
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workflow.SynchronizeAsync(fresh, Guid.NewGuid(), "fixture"));
+        Assert.Single(store.Receipts);
+    }
     private sealed class Store : IBrokerImportStore
     {
         public BrokerImportState State = BrokerAccountImportTests.State();
         public readonly Dictionary<Guid, BrokerImportReceipt> Receipts = [];
+        public Action? BeforeSave;
         public Task<BrokerImportState> ReadAsync(CancellationToken ct) => Task.FromResult(State);
         public Task<BrokerImportReceipt?> FindAsync(Guid id, CancellationToken ct) => Task.FromResult(Receipts.GetValueOrDefault(id));
         public Task<BrokerImportReceipt> SaveAsync(BrokerImportRequest request, CancellationToken ct)
         {
+            BeforeSave?.Invoke();
             var plan = BrokerAccountImport.Prepare(request, State, Now); ct.ThrowIfCancellationRequested();
             var binding = State.Binding ?? new(Guid.NewGuid(), "TFSA", plan.BrokerKey, plan.LegacyFingerprint, Now, request.ReviewedBy);
             var receipt = new BrokerImportReceipt(request.RequestId, binding.BindingId, request.RequestHash, Now, plan);

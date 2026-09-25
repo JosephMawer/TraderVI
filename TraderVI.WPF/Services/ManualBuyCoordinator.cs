@@ -20,7 +20,6 @@ public sealed partial class ManualBuyCoordinator : IDisposable
     private readonly ManualMarketBuyWorkflow workflow;
     private readonly WealthsimpleConnection connection;
     private readonly BrokerReconciliationWorkflow reconciliation;
-    private readonly BrokerAccountSynchronizationWorkflow synchronization = new(new(new BrokerAccountImportRepository()));
     private bool reconciling;
     private ManualBuyWindow? window;
     private ManualSellWindow? sellWindow;
@@ -37,13 +36,6 @@ public sealed partial class ManualBuyCoordinator : IDisposable
         Sells.PropertyChanged += (_, _) => CommandManager.InvalidateRequerySuggested();
     }
     public bool IsSubmitting => window?.IsSubmitting == true || Sells.IsBusy || reconciling;
-    public async Task<BrokerAccountSynchronization> SynchronizeAccountAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct)
-    {
-        if (IsSubmitting) throw new InvalidOperationException("Finish the current order or reconciliation first.");
-        reconciling = true; CommandManager.InvalidateRequerySuggested();
-        try { return await synchronization.RefreshAsync(token => reconciliation.ReadAsync(account, revision, token), ct); }
-        finally { reconciling = false; CommandManager.InvalidateRequerySuggested(); }
-    }
     public async Task<BrokerAccountReconciliation> ReconcileForTransitionAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct)
     {
         if (IsSubmitting) throw new InvalidOperationException("Finish the current order or reconciliation first.");

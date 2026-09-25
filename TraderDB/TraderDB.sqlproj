@@ -209,6 +209,9 @@
     <Build Include="dbo/Tables/BrokerAccountRiskContinuation.sql" />
     <Build Include="dbo/Triggers/BrokerAccountRiskContinuation_Immutable.sql" />
     <None Include="Migrations/20260921_039_AddBrokerAccountRiskContinuation.sql" />
+    <Build Include="dbo/Tables/BrokerTradeSync.sql" />
+    <Build Include="dbo/Triggers/BrokerTradeSync_Immutable.sql" />
+    <None Include="Migrations/20260924_040_AddBrokerTradeSync.sql" />
     <None Include="Migrations/20260917_036_DeactivateArxAndSesAfterAcquisitions.sql" />
     <None Include="Migrations/20260917_037_AddCompactDelphiLiveSnapshots.sql" />
     <None Include="Migrations/20260917_038_ValidateLegacySnapshotsBeforeReplacement.sql" />

@@ -1,9 +1,29 @@
 # Running TraderVI
 
-## Broker risk and managed-session storage (ADRs 0081, 0083, 0084)
+## Build and run the local desktop checkout
+
+After the reviewed strategy branch is merged into the main checkout, close the running TraderVI
+window and use the normal source command:
+
+```powershell
+Set-Location C:\src\TraderVI
+dotnet run --project TraderVI.WPF -c Release
+```
+
+This builds and runs that checkout. It does not merge another branch/worktree or replace an already
+running process. No separate installer or manual binary copy is needed. The September 25 integration
+combines the strategy controls with the September 24 memory and broker-trade synchronization fixes.
+
+In **Trading**, leave **Real account** set to **TFSA**. The Wealthsimple panel should show
+**Strategy management** and **Account risk setup…**. With no approved managed assignment, disabled
+stop/resume controls and an execution-not-enabled message are expected. First verify sign-in, fresh
+holdings/cash/pending orders and refresh status. Risk setup can be reviewed, but native storage recovery
+and risk-input qualification still precede the operational baseline and trading activation.
+
+## Broker risk and managed-session storage (ADRs 0081, 0083, 0086)
 
 The initial-baseline preparation, reviewed save/recovery workflow and SQL repository are implemented
-in source, with an account setup screen built in the isolated branch. That UI is not installed and
+in source, with an account setup screen included in the integrated checkout. Its native use is unverified and
 there is no operational baseline yet. Installing storage alone does
 not establish a baseline, change recommendation inputs or enable orders.
 
@@ -14,7 +34,7 @@ OneDrive-folder copy. Three empty tables and immutable triggers, trusted constra
 account records were verified. **Do not replay these migrations**, migration 034 or the legacy correction.
 Never publish the DACPAC. See the [installation evidence](reviews/supervised-session-20260923.md).
 
-Next qualify repository runtime recovery and install the reviewed setup UI. The workflow requires a
+Next qualify repository runtime recovery and verify the rebuilt setup UI. The workflow requires a
 fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
 treated as an empty history. Request recovery can read an already committed result without repeating
 setup. Daily/cash-flow continuation, Daily Shadow protection handover and broker projection are source
@@ -26,10 +46,33 @@ The source TFSA panel restores its saved strategy and buying mode after a succes
 refresh at startup or during polling. **Stop new buys** and **Resume buying** save only that assignment's
 purchase control; they do not approve a strategy or start an execution loop. An uncertain save requires
 Refresh to read back the saved mode. Logout, failed/stale account checks and changed assignments disable
-the controls. **Market sell all** retains its existing separate workflow. This source UI is not installed;
+the controls. **Market sell all** retains its existing separate workflow. The integrated UI needs a fresh launch;
 automatic execution-host startup, native risk/order qualification and Delphi Live handover remain unfinished.
 
 ## Broker account history import (source milestone, September 16)
+
+**September 24 source extension (ADR-0084):** after separate installation of migration 040 and the
+updated desktop, signed-in TFSA refresh also synchronizes supported completed broker orders into real
+positions and trade history. The September 25 integration uses the agreed five-minute cadence, including while another tab is
+selected, and on **Refresh Wealthsimple**. The broker panel reports success, pending work or a blocked
+reason. Closing/signing out stops these checks. The first link still requires review; already-linked
+history is checked automatically. Each saved observation can refresh account-value evidence while
+the atomic trade projection applies repeated cumulative order totals only once. One shared read supplies
+the display and saved history; the prior two-minute timer is removed. Failed reads use the existing
+5/10/20/30-minute retry backoff. First-link/manual approval still rechecks its reviewed facts separately.
+
+The new import/ledger changes commit together. Existing imports and matched legacy trades stay intact;
+partial sales retain their position, full exits close it and later purchases create a new identity.
+Cash/risk reports are not fabricated: stale reported values/advice become unavailable until reconciled
+or reevaluated, and broker balances remain visible separately. Pending or ambiguous orders, corrections,
+fractions, withholding and sub-cent amounts require attention. No trade is inferred just because a
+holding disappeared. The September 24 resolved-order extension was installed and broker-verified;
+the combined five-minute/control path is tested offline and still needs native verification.
+
+Two independently applied scripts have the historical numeric suffix 040:
+`20260923_040_AddBrokerManagedSession.sql` and `20260924_040_AddBrokerTradeSync.sql`.
+Use their full filenames/table names to distinguish them. Both scripts remain byte-for-byte unchanged;
+source integration adds no migration and is not authority to replay either one.
 
 After a planned WPF rebuild/restart, open **Trading → Main account → Import account history…**.
 The first invocation reconciles the owned broker account and previews matches to recorded TFSA trades,
@@ -372,6 +415,12 @@ source manifests live under ignored `artifacts/nightly/<run-id>/`; the dedicated
 and review the affected Core/Hermes/Delphi/Athena `packages.lock.json` files with `dotnet restore
 --use-lock-file` before the next night. Restore uses `Operations/nightly-nuget.config`; package-security
 audits are separate from the unattended build and must be reported independently.
+
+The authorized September 23 one-time storage cleanup removed compiled binaries from older artifact
+builds while preserving their source snapshots, manifests and evidence. Directories with
+`COMPILED-BINARIES-REMOVED-20260923.md` require rebuilding before reuse; historical executable hashes
+remain evidence of the original run, not proof that its binaries are still present. The latest two
+nightly builds and package cache were retained. No automatic retention policy was installed.
 
 The task uses the current user's interactive token, stores no Windows password, wakes the computer, and
 starts when available; the user must remain signed in.

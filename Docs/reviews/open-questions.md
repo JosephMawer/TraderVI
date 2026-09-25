@@ -48,6 +48,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   switching and execution-host startup remain. Existing single-session approvals still expire; the
   new ongoing scope cannot silently extend them or replenish their purchase ceilings. Follow the
   [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22).
+### External broker trade synchronization extensions
+
+- ADR-0084 implements resolved whole-share order projection and signed-in desktop polling. Pending
+  partial executions, overlapping order sequences, broker corrections, nonzero withholding, sub-cent
+  amounts and fractional positions remain blocked pending explicit representation/recovery contracts.
+- Native installation/transaction acceptance, the reported external exit and repeat-refresh duplicate
+  prevention were verified September 24. Complete broker-backed cash/risk recommendation inputs remain
+  separate; preserve risk references.
+  [ADR-0084](../adr/0084-external-broker-trade-synchronization.md).
 
 ### Morning account values and the future standalone engine
 
@@ -65,7 +74,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Delphi Live retains first-bar Open/exact final-bar Close; Shadow retains its saved-price book
   definition. A graph point alone is not source qualification.
 - Shared broker orchestration, projection, setup UI and durable sessions are source/tested under
-  [ADR-0084](../adr/0084-supervised-broker-strategy-session.md). Native risk evidence production,
+  [ADR-0086](../adr/0086-supervised-broker-strategy-session.md). Native risk evidence production,
   SQL runtime recovery verification, supervised host rollout and order authority remain unfinished. No new
   blanket morning-pause rule is approved. See the [no-go review](supervised-session-20260923.md).
   [ADR-0083](../adr/0083-opening-account-values-and-shared-engine-hosting.md).
@@ -85,8 +94,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - Resolved September 17: the user selected **two completed backups per location**, after new-backup
   and copy verification. ADR-0082 implements retention and compact Live storage. Migrations
   037/038 and lossless conversion are installed and verified. The full backup fell from 16.27 GB to
-  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes. Consider a separately reviewed
-  one-time data-file shrink only if Windows needs that space; no automatic shrink is approved.
+  535 MB; every historical/current snapshot reconstructed and WPF resumed compact writes.
+- Resolved September 23, 23:55: the user separately authorized reclaiming unused SQL capacity while
+  preserving all stock/application data. The one-time shrink is complete with a verified backup,
+  growth headroom and preservation checks; see [current evidence](../project-status.md#latest-operational-evidence).
+  No automatic shrink is approved, and no existing backups were deleted. An independent backup
+  download and documented restore drill remain outstanding; no application performance benchmark ran.
 
 ### Broker history import and strategy-input cutover
 
@@ -663,3 +676,9 @@ See [the connected workspace draft](../concepts/trading-workspace-redesign-draft
 ## Nightly build retention (ADR-0078, 2026-09-14)
 
 Choose retention limits for ignored captured-source/build directories and the dedicated NuGet cache. Cleanup is manual until this policy is reviewed; operational logs and source identities must remain attributable.
+
+The September 23 user-authorized [one-time cleanup](../project-status.md#latest-operational-evidence)
+removed reviewed old compiled outputs while retaining source/evidence, models, the latest two nightly
+builds, package cache, recent work and the separate worktree. This was not a recurring-retention decision
+or installation. Future policy must preserve attributable evidence and active work, and distinguish
+rebuildable binaries from models and private captures; older pruned builds require rebuilding before reuse.

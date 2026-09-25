@@ -40,6 +40,17 @@ public partial class PaperDashboardWindow : Window
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
         TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
+        manualBuys.BrokerLedgerChanged += async (_, _) =>
+        {
+            try
+            {
+                await TradingRecommendationsTabView.RefreshRecordedAccountAsync();
+                await viewModel.RefreshAsync(shutdown.Token);
+                await PortfoliosTabView.RefreshAsync(shutdown.Token);
+            }
+            catch (OperationCanceledException) { }
+            catch { /* The normal dashboard refresh retries display reads; committed broker receipts remain durable. */ }
+        };
         CommandBindings.Add(new CommandBinding(ManualBuyCommands.Open, async (_, e) =>
         {
             if (e.Parameter is not Core.WSTrade.Orders.ManualBuyOrigin origin) return;

@@ -4,7 +4,7 @@
 **Status:** Scope, duration, manual-holding handover, stopping new buys while exits continue and checked restart restoration accepted.
 Implementation incomplete; unusual same-security cases deferred. Guided dialogue resumed September 23.
 **Domains:** architecture, risk-management, user-interface
-**Related:** ADR-0062, ADR-0073, ADR-0079–0084
+**Related:** ADR-0062, ADR-0073, ADR-0079–0084, ADR-0086
 
 ## Problem and decision
 
@@ -81,7 +81,9 @@ The operator also requested regular account synchronization while retaining **Re
 source implementation uses a five-minute interval while connected and the app is open, independent of
 the visible tab. The display and managed-account source reuse the same reconciliation/import workflow;
 only an already reviewed account link may append saved history. Return the final reconciled read to
-the display instead of fetching independent balances. Existing post-trade refresh uses this same path.
+the display instead of fetching independent balances. September 25 integrates ADR-0084's atomic
+trade projection and linked-account save without a second market-value read. First-link/manual
+approval retains its reviewed-facts recheck. Existing post-trade refresh uses this same path.
 Background ticks defer while an order runs. Manual/post-trade requests during a read coalesce into one
 later read; failures retain prior history and back off at 5/10/20/30 minutes. Logout or shutdown cancels
 in-flight work and replaced-account/login results are discarded. Pending orders and conflicts remain
@@ -163,7 +165,7 @@ qualification, account setup, portfolio-family adapters and switching remain dis
 
 ## Relationship to the first-session implementation
 
-ADR-0084 describes the original single-session implementation. The explicit Ongoing duration above
+ADR-0086 describes the original single-session implementation. The explicit Ongoing duration above
 supersedes its expiry only for new approvals containing that scope. Older/single-session approvals
 still expire. Replacement remains unsupported and the only execution/protection adapter is Daily
 Shadow; Delphi Live cannot receive execution approval yet. The full execution pause and invalidated

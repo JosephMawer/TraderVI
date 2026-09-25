@@ -55,8 +55,17 @@ public sealed class TradingWorkspacePresentationTests
         var account = Account();
         var report = new ReportedTradingAccount(Guid.NewGuid(), "TFSA", "CAD", new(2026,9,9), Now.AddHours(-1), "fixture", "previous-ledger", 100m, 120m, 110m, 120m, 0, false, false, account.Holdings);
         var result = TradingAccountOverview.Create(account with { Report = report }, [Mark()], Now);
-        Assert.Equal(120m, result.ReportedValue); Assert.Contains("reconcile", result.ReportContext);
+        Assert.Null(result.ReportedValue); Assert.Null(result.ReportedCash); Assert.Contains("reconcile", result.ReportContext);
         Assert.Null(TradingAccountOverview.Create(account with { Report = report with { AccountLabel = "RRSP" } }, [Mark()], Now).ReportedValue);
+    }
+    [Fact]
+    public void FreshLedgerEvaluationRemainsDisplayableWithoutInventingACashReport()
+    {
+        var batch = new TradingRecommendationBatch(Guid.NewGuid(), "TFSA", Guid.NewGuid(), null, null, Now, "input",
+            new("Protective checks", [], [], TradingRecommendationMemory.Empty)) { LedgerFingerprint = "ledger" };
+        Assert.True(TradingAccountOverview.MatchesLedger(Account() with { Latest = batch }));
+        Assert.False(TradingAccountOverview.MatchesLedger(Account() with { Latest = batch, LedgerFingerprint = "after-sale" }));
+        Assert.Null(TradingAccountOverview.Create(Account() with { Latest = batch }, [Mark()], Now).ReportedCash);
     }
     [Fact]
     public void SaleGainsAreAccountModeAndPeriodScopedAndIncompleteSalesRemainUnavailable()

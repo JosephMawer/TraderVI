@@ -19,6 +19,27 @@ public sealed class BrokerImportWorkflow(IBrokerImportStore store, TimeProvider?
     public async Task<BrokerImportPlan> PreviewAsync(BrokerAccountReconciliation observation, CancellationToken ct = default) =>
         BrokerAccountImport.Preview(observation, await store.ReadAsync(ct), clock.GetUtcNow());
 
+    /// <summary>Saves a freshly reconciled observation for an already reviewed binding; no human preview is being approved.</summary>
+    public async Task<BrokerImportReceipt> SynchronizeAsync(BrokerImportPlan observed, Guid requestId, string recordedBy,
+        CancellationToken ct = default)
+    {
+        Validate(requestId, recordedBy);
+        if (observed.PreviousRequestId is null || !observed.CanImport)
+            throw new InvalidOperationException("Link and reconcile the account before automatic trade synchronization.");
+        var request = new BrokerImportRequest(requestId, observed.Fingerprint, recordedBy, observed);
+        var saved = await store.FindAsync(requestId, ct);
+        if (saved is not null)
+        {
+            if (saved.RequestHash != request.RequestHash) throw new InvalidOperationException("This import request already has different saved content.");
+            return saved;
+        }
+        // Reconciliation already checks complete orders against holdings and a final activity checkpoint.
+        // A second market-value read would invalidate sound trade facts whenever quoted prices move.
+        // SaveAsync revalidates this exact plan against binding/history/ledger under its SQL transaction.
+        ct.ThrowIfCancellationRequested();
+        return await store.SaveAsync(request, ct);
+    }
+
     public async Task<BrokerImportReceipt> ApplyAsync(BrokerImportPlan reviewed, Guid requestId, string reviewedBy,
         Func<CancellationToken, Task<BrokerAccountReconciliation>> refresh, CancellationToken ct = default)
     {

@@ -377,7 +377,7 @@ holds and existing recommendation symbol memory without transferring position ow
 initialization when a baseline already exists. The reviewed workflow and repository now recheck source
 and risk state under account fences and save one immutable baseline with request recovery. Migration
 035 is uninstalled. The later September 22 source increment adds a setup UI and broker execution
-composition under [ADR-0084](../adr/0084-supervised-broker-strategy-session.md); no operational baseline
+composition under [ADR-0086](../adr/0086-supervised-broker-strategy-session.md); no operational baseline
 or enabled host has been created. The [launch review](../reviews/supervised-session-20260923.md) is NO-GO.
 
 The current repository clears recommendation symbol memory on strategy changes because its accepted

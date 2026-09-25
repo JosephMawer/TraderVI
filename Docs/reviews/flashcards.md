@@ -18,6 +18,18 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why does a broker order need a synchronization receipt?
+
+A: The same cumulative order appears in many refreshes. A stable order identity and atomic receipt
+ensure its financial effects are recorded once, including after an interrupted response or restart.
+Source: ADR-0084. Tags: architecture, risk-management.
+
+### Q: Does a confirmed external sale establish new account risk references?
+
+A: No. It updates holdings and trade history, while prior reports become stale. Existing protection and
+loss holds remain; opening values and cash-flow adjustments need their own qualified evidence.
+Source: ADR-0084. Tags: risk-management.
+
 ### Q: Does a deposit make a previously measured account loss smaller?
 
 No. A confirmed cash movement adjusts both risk references proportionally, so a 2% loss remains 2%.
@@ -1292,9 +1304,9 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** When may backup retention delete older generations? **A:** Only after the new SQL backup passes checksum verification and its destination copy matches SHA-256; keep the latest two completed backups in each location. (ADR-0082)
 - **Q:** Does releasing SQL pages immediately free Windows disk space? **A:** No. SQL can reuse those pages internally; physical file shrinking is a separate reviewed operation. (ADR-0082)
 
-- **Q:** Can an uncertain order be retried with a new request ID after restart? **A:** No. Recover the original ID; only confirmed terminal state and reconciled holdings can release its reservation. (ADR-0084)
-- **Q:** Why must continued references replace cached engine references? **A:** Keeping a pre-withdrawal high in memory would turn withdrawn capital into a false loss despite correct database continuation. Holds still persist. (ADR-0084)
-- **Q:** Does a successful day graph qualify the real opening? **A:** No. It does not prove first publication timing, the strategy's valuation method, effective cash events or matching boundary books. (ADRs 0083–0084)
+- **Q:** Can an uncertain order be retried with a new request ID after restart? **A:** No. Recover the original ID; only confirmed terminal state and reconciled holdings can release its reservation. (ADR-0086)
+- **Q:** Why must continued references replace cached engine references? **A:** Keeping a pre-withdrawal high in memory would turn withdrawn capital into a false loss despite correct database continuation. Holds still persist. (ADR-0086)
+- **Q:** Does a successful day graph qualify the real opening? **A:** No. It does not prove first publication timing, the strategy's valuation method, effective cash events or matching boundary books. (ADRs 0083, 0086)
 
 - **Q:** Does promoting a portfolio copy its paper cash and positions into the TFSA? **A:** No. It selects the reviewed rules; real cash, holdings, costs and fills remain the account facts. (ADR-0085)
 - **Q:** Does ongoing strategy selection guarantee that it can trade tomorrow? **A:** No. Selection persists, but that day's account, source and risk checks still determine whether orders are allowed. (ADR-0085)
@@ -1308,3 +1320,6 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Does restarting TraderVI turn stopped buying back on? **A:** No. Restore the same approved strategy and saved buying mode after fresh account/order checks. Preserve risk holds and original uncertain order IDs; restart does not renew expired authority. (ADR-0085)
 - **Q:** Does an ongoing assignment reset risk or spending limits each morning? **A:** No. Verified risk continuation owns the new daily reference; capital holds, protection and order history persist. The reviewed cumulative purchase ceiling is not refilled by a restart or date change. (ADR-0085)
 - **Q:** Can a rebound erase a required exit missed while the app was closed? **A:** No. Replay protection and closing rules from the saved boundary. Missing required closing evidence blocks further strategy orders without moving that boundary forward. (ADR-0085)
+- **Q:** Does verifying a complete portfolio fingerprint require keeping a second full JSON document in memory? **A:** No. Stream the same canonical bytes into the hash, then materialize records with shared immutable report strings. Preserve every historical item and the original fingerprint contract; bounded history loading is a separate change. (ADR-0082)
+
+- **Q:** Why does automatic linked-account synchronization avoid a second human-review read? **A:** Market prices can change account value while completed trade facts stay identical. Save the latest complete reconciliation and revalidate binding, history and ledger transactionally; first/manual approval retains its separate second-read check. (ADR-0084)

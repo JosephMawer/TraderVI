@@ -23,6 +23,10 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Build independent paper portfolios and manual complete-strategy selection for recommendations
   (ADR-0062); this does not submit orders.
 - [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
+- [x] Implement/test resolved external-order projection, atomic real-ledger receipts and signed-in
+  desktop synchronization (ADR-0084).
+- [x] Install migration 040 after verified backup and the corrected desktop; verify the reported
+  broker-confirmed exit, historical completion, repeat-refresh duplicate prevention and current holdings.
 - [x] Build manual market buy/sell clients and controls; native mutation/lifecycle verification remains.
 - [x] Agree regular-session whole-share market handover: preserve overlaps and reconcile required exits
   before new buys (ADR-0079); preserve known references/holds, real costs and protection ownership (ADR-0081).
@@ -83,10 +87,16 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [ ] **4. Verify synchronization natively.** Offline tests cover manual/external changes, partial/new fills, stale or
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
   Shared recurring account/history refresh (five minutes), manual/post-trade refresh and visible
-  stale/error states are source/tested. Verify native cadence, rate limits and original-order recovery;
-  preserve fresh preflight. Release build/tests and a file manifest are ready. The operator's Sep 23
-  restart used the older normal launch path; the running app has not been replaced with this build.
-- [ ] **5. Verify actual protection handover.** Source transfer/replay is tested. Retain the existing owner through transition; at activation
+  stale/error states are source/tested. September 25 integrates the newer resolved-trade/memory fixes
+  with these controls; rebuild/reopen from the combined main checkout, then verify native cadence,
+  rate limits and original-order recovery. Preserve fresh preflight. The merged path has not been run.
+  September 24 resolved whole-share projection and signed-in desktop polling were verified: the reported
+  external exit is recorded once, its tracked holding is closed, historical missing trades are completed
+  and repeat refresh preserves trade counts. Working partial orders, corrections and unsupported financial
+  representations remain blocked; incremental-fill/correction handling and broader cash/order reservation
+  integration remain. Preserve pinned legacy-ledger checks.
+  [Evidence](project-status.md#verified-development-baseline).
+- [ ] **5. Complete protection handover.** Retain the existing owner through transition; at activation
   transfer overlaps without losing established levels. Initialize missing protection only from real cost
   and fresh evidence; no invented historical highs or reset of known holds.
 - [ ] **6. Verify the supervised execution host.** Source persists the exact approved strategy and transition state;
@@ -95,7 +105,7 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
   separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
   qualified automatic execution-host startup and replacement. Saved TFSA controls and Core ongoing
-  recovery are source/tested; install and verify their native operation. Reuse the existing manual
+  recovery are source/tested; rebuild/reopen and verify their native operation. Reuse the existing manual
   row sale and verify coordination with managed orders. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend the current Daily Shadow execution/protection adapter to both portfolio families; verify
@@ -112,7 +122,7 @@ Storage is installed; SQL runtime
 recovery rehearsal remains distinct from the completed schema/immutability checks.
 The orchestration and production composition exist; they cannot manufacture those inputs.
 Then complete the fresh financial activation packet and supervised host rollout. See
-[ADR-0084](adr/0084-supervised-broker-strategy-session.md) and the
+[ADR-0086](adr/0086-supervised-broker-strategy-session.md) and the
 [concrete activation review](reviews/supervised-session-20260923.md).
 The [current design draft](concepts/strategy-promotion-and-execution.md#account-baselines-and-protection-ownership--september-16-continuation)
 and [ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md) hold detailed reasoning.
@@ -120,6 +130,20 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
+- [x] Verify the September 24 scheduled nightly chain and saved daily publication without rerunning it
+  ([dated evidence and Attention limit](project-status.md#latest-operational-evidence)).
+- [ ] Review Athena's older missing-session outcomes separately from successful daily collection;
+  preserve invalid evidence and do not infer intraday or strategy-performance qualification from nightly completion.
+- [x] Measure database allocation, staging backups and repository storage without changing production
+  data (September 23; [evidence](project-status.md#latest-operational-evidence)).
+- [x] Complete the user-authorized one-time cleanup of obsolete artifact binaries; verify retained
+  evidence and model/source hashes (September 23; [evidence](project-status.md#latest-operational-evidence)).
+- [ ] Review recurring build/artifact retention; the one-time cleanup did not install a policy.
+- [x] Complete the separately user-authorized one-time SQL shrink after a fresh verified backup and
+  integrity check; retain growth headroom and verify every table count afterward (September 23, 23:55;
+  [evidence](project-status.md#latest-operational-evidence)). No automatic shrink enabled.
+- [ ] Perform a documented restore into a separate test database. The pre-shrink backup is checksum/hash
+  verified and OneDrive reports IN_SYNC; neither an independent download nor restore drill has run.
 - [ ] Resolve the current held Live opening-value gap and tracked 15-minute conflict; verify subsequent
   complete monitoring sessions without rewriting first-received evidence or clearing historical gaps.
   [Last health evidence](project-status.md#latest-operational-evidence).
@@ -146,7 +170,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound growing account-history CPU/memory and establish collection/display capacity; installed UI fix is only partial coverage. |
+| S4 | Bound growing account-history CPU/memory and establish collection/display capacity. Sep 24 direct typed reconstruction, report sharing and streaming integrity checks implemented/tested and installed at 09:30:32; loaded binaries and resumed compact writes verified. Sustained memory/capacity qualification remains. Next bound display/history loads and avoid unchanged-revision reconstruction with explicit freshness/integrity rules. Repeated reads and full lifetime collections remain; evidence in project status and private `artifacts/wpf-memory-20260924/`. |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |

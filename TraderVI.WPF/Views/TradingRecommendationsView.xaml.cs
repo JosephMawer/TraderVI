@@ -40,6 +40,7 @@ public partial class TradingRecommendationsView : UserControl
         _ = broker.RefreshAsync();
     }
     public void StopWealthsimple() => broker?.Dispose();
+    public Task RefreshRecordedAccountAsync() => Run(() => RefreshDisplayAsync(Account.Text));
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
     public Task PollWealthsimpleAsync() => broker?.PollAsync() ?? Task.CompletedTask;
     public bool IsCurrentManualSellSelection(Core.WSTrade.Orders.ManualSellSelection selection) => broker?.IsCurrentSellSelection(selection) == true;
@@ -92,13 +93,17 @@ public partial class TradingRecommendationsView : UserControl
         var local = PaperTradingMonitor.ToToronto(now);
         var trades = current.Installed ? await new TradeLogRepository().GetTradesByDateRange(local.Date.AddDays(-29), local) : null;
         OverviewPanel.DataContext = TradingAccountOverview.Create(current, marks, now, trades);
+        HoldingsText.Text = current.Holdings.IsEmpty ? "Recorded Real holdings: none." : "Recorded Real holdings: " + string.Join(", ", current.Holdings.Select(h => $"{h.Symbol} {h.Quantity} shares"));
+        if (current.Report is { } savedReport) HoldingsText.Text += $"\nLast report: {savedReport.ReportedUtc:yyyy-MM-dd HH:mm:ss} UTC by {savedReport.ReportedBy}.";
         displayed=current;
         Source.Text=current.Assignment is { } a?$"{a.AccountLabel}: {a.Strategy.Name}\nComplete version {a.Strategy.VersionId:D} · approved {a.EffectiveUtc:yyyy-MM-dd HH:mm:ss} UTC by {a.Reviewer}"
             :$"{current.AccountLabel}: no approved recommendation source. Review a paper strategy in Portfolios.";
         var batch=current.Latest;
         Status.Text=!current.Installed?"Promotion migration 029 has not been installed.":batch is null?"No recommendation evaluation has been saved.":
             $"{(batch.PromotionId!=current.Assignment?.PromotionId?"Previous assignment's result — evaluate the new source. ":"")}{batch.Result.Status} · evaluated {batch.EvaluatedUtc:yyyy-MM-dd HH:mm:ss} UTC\n"+string.Join("\n",batch.Result.Warnings);
-        Recommendations.ItemsSource=batch?.PromotionId==current.Assignment?.PromotionId?batch?.Result.Recommendations:null;
+        bool currentLedger = TradingAccountOverview.MatchesLedger(current);
+        Recommendations.ItemsSource=currentLedger && batch?.PromotionId==current.Assignment?.PromotionId?batch?.Result.Recommendations:null;
+        if (!currentLedger && batch is not null) Status.Text += "\nAccount facts changed or are unavailable. Previous recommendations are retained as history; evaluate again using the current holdings. New purchases also require reconciled account values.";
         History.ItemsSource=await promotions.HistoryAsync(current.AccountLabel,token);
         if(snapshot is not null && snapshot.LedgerFingerprint!=current.LedgerFingerprint)
             Status.Text+="\nFinancial facts changed since the account form was loaded. Load account again before confirming its state.";

@@ -5,7 +5,7 @@
 SQL repository implemented in source. Migration 035 was installed September 22 at 23:34 Toronto;
 no operational baseline has been created. Operator UI,
 continuation orchestration, projection and protection handover are now source/tested under
-[ADR-0084](0084-supervised-broker-strategy-session.md); native qualification and rollout remain unfinished.
+[ADR-0086](0086-supervised-broker-strategy-session.md); native qualification and rollout remain unfinished.
 **Domains:** architecture, risk-management  
 **Related:** ADR-0062, ADR-0073, ADR-0079, ADR-0080
 

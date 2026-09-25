@@ -1,4 +1,10 @@
-# ADR-0084: Durable supervised broker strategy session
+# ADR-0086: Durable supervised broker strategy session
+
+**Numbering reconciliation, September 25:** this decision was authored as ADR-0084 in the isolated
+strategy branch while the main checkout independently assigned 0084 to external-trade synchronization.
+Only this decision's number changed at integration; its accepted behavior is unchanged. The already
+applied `20260923_040_AddBrokerManagedSession.sql` retains its original filename and historical comment.
+It is distinct from `20260924_040_AddBrokerTradeSync.sql`; neither script should be replayed.
 
 **Date:** September 22, 2026 Toronto (September 23 UTC)
 **Status:** First-session source and offline tests complete; migrations 035/039/040 installed and

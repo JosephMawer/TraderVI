@@ -83,7 +83,8 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
             write.Parameters.AddWithValue("@Revision", identity["revision"]!.GetValue<long>());
             await write.ExecuteNonQueryAsync(token);
             // This also catches a missing part or an incorrect historical revision selection before commit.
-            await ReadJsonCoreAsync(connection, transaction, package.SnapshotJson, token);
+            var verified = await ReadPartsAsync(connection, transaction, package.SnapshotJson, token);
+            DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
             saved = true;
             return package.SnapshotJson;
         }
@@ -99,8 +100,13 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
     // also protects display readers when SQL completes synchronously on the UI dispatcher.
     public static Task<DelphiLivePortfolioSnapshot> ReadAsync(SqlConnection connection, SqlTransaction? transaction,
         string json, CancellationToken token = default)
-        => Task.Run(async () => DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(
-            await ReadJsonCoreAsync(connection, transaction, json, token)), token);
+        => Task.Run(async () =>
+        {
+            if (!DelphiLiveSnapshotCodec.IsCompact(json))
+                return DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
+            var saved = await ReadPartsAsync(connection, transaction, json, token);
+            return DelphiLiveSnapshotCodec.Unpack(json, saved.Items, saved.Contents);
+        }, token);
 
     public static Task<string> ReadJsonAsync(SqlConnection connection, SqlTransaction? transaction,
         string json, CancellationToken token = default) =>
@@ -110,6 +116,13 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
         string json, CancellationToken token = default)
     {
         if (!DelphiLiveSnapshotCodec.IsCompact(json)) return json;
+        var saved = await ReadPartsAsync(connection, transaction, json, token);
+        return DelphiLiveSnapshotCodec.RestoreJson(json, saved.Items, saved.Contents);
+    }
+
+    private static async Task<(List<DelphiLiveSnapshotItem> Items, Dictionary<string, string> Contents)> ReadPartsAsync(
+        SqlConnection connection, SqlTransaction? transaction, string json, CancellationToken token)
+    {
         var root = JsonNode.Parse(json)!.AsObject();
         var counts = DelphiLiveSnapshotCodec.ReadCounts(json);
         await using var read = new SqlCommand("""
@@ -159,7 +172,7 @@ JOIN OPENJSON(@Hashes) h ON c.ContentHash=CONVERT(char(64),h.value) COLLATE Lati
             await using var reader = await reportRead.ExecuteReaderAsync(CommandBehavior.SequentialAccess, token);
             while (await reader.ReadAsync(token)) contents[reader.GetString(0)] = reader.GetString(1);
         }
-        return DelphiLiveSnapshotCodec.RestoreJson(json, items, contents);
+        return (items, contents);
     }
 
     private static async Task Bulk(SqlConnection connection, SqlTransaction transaction, string table, DataTable data, CancellationToken token)

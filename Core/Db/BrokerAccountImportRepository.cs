@@ -13,10 +13,18 @@ using static Core.Db.TradingRecommendationStorage;
 
 namespace Core.Db;
 
-/// <summary>Append-only SQL account observations and reviewed legacy references. Never writes tracked positions, fills, reports or approvals.</summary>
+/// <summary>Append-only observations; migration 040 enables atomic projection into the real trade ledger.</summary>
 public sealed class BrokerAccountImportRepository : IBrokerImportStore
 {
     public const string RequiredMigration = "20260916_034_AddBrokerAccountImport.sql";
+    public async Task<(bool Installed, Guid? LatestImportId)> ReadTradeSyncStatusAsync(CancellationToken ct = default)
+    {
+        await using var c = await Open(ct);
+        using var t = c.BeginTransaction(IsolationLevel.Serializable); await Fence(c, t, "TFSA", false);
+        bool installed = await BrokerTradeSyncStorage.Installed(c, t);
+        Guid? id = installed ? await c.QuerySingleOrDefaultAsync<Guid?>("SELECT TOP(1) ImportId FROM dbo.BrokerTradeSync ORDER BY Sequence DESC", transaction: t) : null;
+        t.Commit(); return (installed, id);
+    }
     public async Task<BrokerImportState> ReadAsync(CancellationToken ct = default)
     {
         await using var c = await Open(ct);
@@ -63,6 +71,8 @@ public sealed class BrokerAccountImportRepository : IBrokerImportStore
             """, TimestampParameters(new { request.RequestId, binding.BindingId, PriorRequestId = plan.PreviousRequestId, request.RequestHash,
                 PlanFingerprint = plan.Fingerprint, request.ReviewedBy, PlanJson = json },
                 ("SnapshotUtc", plan.Observation.SnapshotAt.UtcDateTime), ("SavedUtc", now.UtcDateTime)), t);
+        if (await BrokerTradeSyncStorage.Installed(c, t))
+            await BrokerTradeSyncStorage.Apply(c, t, request.RequestId, binding, plan, state.Legacy);
         // Cancellation before commit rolls back both the binding and observation. An uncertain response can be read by RequestId.
         ct.ThrowIfCancellationRequested(); t.Commit();
         return new(request.RequestId, binding.BindingId, request.RequestHash, now, plan);
@@ -75,6 +85,19 @@ public sealed class BrokerAccountImportRepository : IBrokerImportStore
                 AND OBJECT_ID(N'dbo.BrokerAccountImport_Immutable',N'TR') IS NOT NULL THEN 1 ELSE 0 END
             """, transaction: t) == 1;
     internal static async Task<BrokerImportState> State(SqlConnection c, SqlTransaction t)
+    {
+        var ledger = await Ledger(c, t);
+        if (!await ImportInstalled(c, t)) return new(false, ledger, null, null);
+        var b = await c.QuerySingleOrDefaultAsync<BindingRow>("SELECT BindingId,AccountLabel,BrokerKey,LegacyFingerprint,CreatedUtc,ReviewedBy FROM dbo.BrokerAccountImportBinding WHERE AccountLabel=N'TFSA'", transaction: t);
+        var binding = b is null ? null : new BrokerImportBinding(b.BindingId, b.AccountLabel, b.BrokerKey, b.LegacyFingerprint, Utc(b.CreatedUtc), b.ReviewedBy);
+        if (binding is not null) ledger = await BrokerTradeSyncStorage.ReviewedBaseline(c, t, binding, ledger);
+        var latest = binding is null ? null : await c.QuerySingleOrDefaultAsync<ReceiptRow>("""
+            SELECT TOP(1) RequestId,BindingId,RequestHash,PlanFingerprint,SnapshotUtc,SavedUtc,PlanJson FROM dbo.BrokerAccountImport
+            WHERE BindingId=@Id ORDER BY Sequence DESC
+            """, new { Id = binding.BindingId }, t);
+        return new(true, ledger, binding, Decode(latest));
+    }
+    internal static async Task<BrokerImportLegacyLedger> Ledger(SqlConnection c, SqlTransaction t)
     {
         var positions = (await c.QueryAsync<PositionRow>("""
             SELECT PositionId,Symbol,EntryDate,Shares,CostBasis,IsActive FROM dbo.ActivePosition
@@ -90,15 +113,7 @@ public sealed class BrokerAccountImportRepository : IBrokerImportStore
                 f.Shares, f.Amount, f.Commission, f.NetAmount)).ToArray();
         // Include the existing engine fingerprint and broker-match fields such as NetAmount that it does not contain.
         var financial = await Financial(c, "TFSA", t);
-        var ledger = new BrokerImportLegacyLedger("TFSA", BrokerAccountImport.Hash(new { financial.Fingerprint, positions, trades }), positions, trades);
-        if (!await ImportInstalled(c, t)) return new(false, ledger, null, null);
-        var b = await c.QuerySingleOrDefaultAsync<BindingRow>("SELECT BindingId,AccountLabel,BrokerKey,LegacyFingerprint,CreatedUtc,ReviewedBy FROM dbo.BrokerAccountImportBinding WHERE AccountLabel=N'TFSA'", transaction: t);
-        var binding = b is null ? null : new BrokerImportBinding(b.BindingId, b.AccountLabel, b.BrokerKey, b.LegacyFingerprint, Utc(b.CreatedUtc), b.ReviewedBy);
-        var latest = binding is null ? null : await c.QuerySingleOrDefaultAsync<ReceiptRow>("""
-            SELECT TOP(1) RequestId,BindingId,RequestHash,PlanFingerprint,SnapshotUtc,SavedUtc,PlanJson FROM dbo.BrokerAccountImport
-            WHERE BindingId=@Id ORDER BY Sequence DESC
-            """, new { Id = binding.BindingId }, t);
-        return new(true, ledger, binding, Decode(latest));
+        return new("TFSA", BrokerAccountImport.Hash(new { financial.Fingerprint, positions, trades }), positions, trades);
     }
     private static async Task<BrokerImportReceipt?> Receipt(SqlConnection c, Guid id, SqlTransaction? t = null) => Decode(
         await c.QuerySingleOrDefaultAsync<ReceiptRow>("""

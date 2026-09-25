@@ -24,8 +24,9 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
    and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
    and SQL runtime recovery still need verification. Shared regular account/history refresh is now source/tested;
-   native rollout remains pending. The Release build and its regression checks are ready; the normal
-   app launch still opens the older installed build, so switch to the reviewed build before native UI checks.
+   September 25 combines this work with the newer main-checkout memory and resolved-trade fixes.
+   Rebuild/reopen from the integrated main checkout using the normal `dotnet run` command before native
+   setup/control checks; copying isolated binaries is unnecessary. The merged path still needs native verification.
    The operator ended the edge-case design pass and deferred same-stock
    manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
    families and replacement transitions, then verify the host before actual execution approval. Follow the
@@ -36,11 +37,17 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    Retain the existing Market sell all row action and distinct full execution pause. See the
    [current checklist](strategy-alignment-implementation-checklist.md#left-to-do--development-order).
    A dedicated setup screen is not a prerequisite for developing the continuation logic.
+   The September 24 [external-trade rollout](project-status.md#latest-operational-evidence) installed
+   migration 040 and verified resolved-order synchronization, the reported exit and repeat-refresh
+   duplicate prevention under ADR-0084. Cash/risk input qualification and working partial-order handling
+   remain under checklist items 1–4.
 2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening
    value and repeated tracked 15-minute conflict. Preserve immutable evidence and coverage flags.
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
+   The [latest nightly check](project-status.md#latest-operational-evidence) confirms overnight
+   completion; Athena's historical-input warning and full-session qualification remain separate follow-ups.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,
    causal fills, Session-2 rotation and risk exits across clean Shadow sessions; exclude Sep 4 shakedown
@@ -54,8 +61,16 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ### Reliability and correctness prerequisites
 
-- Confirm OneDrive cloud synchronization and perform a documented restore into a separate test database.
-  Retention is already installed; retain the latest two completed backups per location.
+- Bound WPF account-history memory (S4). The September 24 process check confirms a multi-GB
+  footprint. Direct typed reconstruction, shared reports and streaming validation are implemented/tested
+  and installed; resumed compact writes are verified. Qualify sustained memory/capacity, then bound
+  display/history payloads and avoid unchanged-revision reconstruction under explicit freshness rules,
+  preserving immutable history and fingerprint validation. Repeated reads and lifetime engine
+  collections remain.
+  Evidence: [project status](project-status.md#latest-operational-evidence).
+- Perform a documented restore into a separate test database and continue checking backup synchronization.
+  OneDrive reports the September 23 pre-shrink backup IN_SYNC; no restore drill has run. Routine latest-two
+  retention is installed; the additional manual recovery checkpoint and all existing backups were preserved.
 - Reconcile remaining deployed/project schema drift using reviewed manual migrations, never broad DACPAC
   deployment. Continue universe/listing checks after ingestion changes, including acquired/delisted symbols.
 - Resolve short-session behavior and extend reviewed calendar coverage before **2026-12-24**, including
@@ -99,7 +114,11 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 - Executed RS Z-score: validated backfill and rank comparison first.
 - New ML features, thresholds or models: design-rule review and an ADR for behavioral changes.
 - Nightly captured-source/build/cache retention: reviewed policy remains open in
-  [open questions](reviews/open-questions.md); this is separate from installed database-backup retention.
+  [open questions](reviews/open-questions.md#nightly-build-retention-adr-0078-2026-09-14); the
+  [September 23 one-time compiled-output cleanup](project-status.md#latest-operational-evidence) is
+  complete. The separately authorized one-time SQL shrink is also complete with preservation checks;
+  recurring build retention remains undecided, and automatic SQL shrinking remains off.
+  Installed database-backup retention does not cover build artifacts.
 
 ## Completed work and history
 

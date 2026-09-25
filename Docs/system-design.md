@@ -17,6 +17,16 @@ acceptance are complete. New WPF writes use the compact representation. See
 
 ## Complete-strategy recommendations
 
+[ADR-0084](adr/0084-external-broker-trade-synchronization.md) adds an atomic projection from validated
+broker order aggregates into the Real trade/position ledger. Immutable synchronization receipts retain
+the original reviewed baseline plus the expected resulting financial fingerprint. Desktop refresh
+checks every five minutes while signed in and updates dependent account/history views after commit.
+September 25 joins this projection with the shared broker-account read and strategy controls. A single
+scheduler handles manual/post-trade coalescing and failed-read backoff; display and history use the same
+completed reconciliation. Linked-account saves retain the moving-price fix; manual review still rechecks facts.
+Migration 040 is prepared; installation/native acceptance remain pending. This extends the history-only
+ADR-0080 boundary below while preserving original imports, risk state and paper accounts.
+
 [ADR-0081](adr/0081-broker-account-baselines-and-protection-ownership.md) adds initial broker risk
 baseline preparation and a reviewed save/recovery workflow in source. The repository reads existing
 import/report/recommendation state under the same account fences, preserves known holds/protection,

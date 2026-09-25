@@ -10,7 +10,29 @@ The operator also clarified that promotion must support any portfolio and persis
 September 23 after the operator deferred rare same-stock manual cases;
 this document's Breakout target remains an initial candidate. The launch verdict remains NO-GO.
 
+## Source integration — September 25
+
+The root checkout had newer memory and broker-trade synchronization fixes, while the strategy controls
+remained in `codex/supervised-tfsa-20260923`. Restarting the root checkout could not load work from the
+other branch. The integration preserves both parents, combines the account refresh paths and retains
+one five-minute scheduler. It uses the already-reviewed automatic import operation rather than the
+manual review operation's second market-value read, with SQL revalidation and atomic trade projection.
+
+All 1,729 Core tests pass in Release; WPF passes with 261 existing compiler warnings and no errors;
+the combined SSDT project builds. No migration contents changed. Both independently numbered 040
+scripts are retained under their full original filenames. The supervised-session ADR is renumbered
+0086 to distinguish it from the independently accepted external-trade ADR-0084; behavior is unchanged.
+This pass includes no broker call, SQL mutation, app restart or trading activation. The earlier
+native acceptance dates apply to their earlier builds. Combined native refresh/control verification,
+risk source qualification and SQL recovery remain open; real-order launch remains NO-GO.
+
 ## Desktop rollout preparation — September 23 evening
+
+**Superseded launch instruction, September 25:** the source integration combines this branch with the
+newer main-checkout memory and trade-synchronization fixes. After merging into the main checkout, use
+`dotnet run --project TraderVI.WPF -c Release` from `C:\src\TraderVI`; a separate binary installation is
+unnecessary. The September 23 isolated executable below lacks those newer fixes and should not be
+used as the current combined build. See the [running instructions](../running.md#build-and-run-the-local-desktop-checkout).
 
 The operator restarted `C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`.
 Read-only process-path and binary checks confirmed that this remains the older installed build.

@@ -6,9 +6,10 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
 
-- [ADR-0084](0084-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery
+- [ADR-0086](0086-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery
 
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Shared morning account-value recovery for a future scheduled engine
+- [ADR-0084](0084-external-broker-trade-synchronization.md) — Atomic external-trade recording and desktop synchronization
 
 - [ADR-0082](0082-compact-live-snapshots-and-backup-retention.md) — Lossless compact portfolio revisions and two verified backups per location
 
@@ -185,7 +186,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
-- [ADR-0084](0084-supervised-broker-strategy-session.md) — Reconciled exits before buys and one-attempt market orders
+- [ADR-0086](0086-supervised-broker-strategy-session.md) — Reconciled exits before buys and one-attempt market orders
 
 - [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Regular-session market handover direction and cumulative-fill accounting
 
@@ -224,7 +225,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Preserve strategy and account risk rules across days and portfolio switches
 
-- [ADR-0084](0084-supervised-broker-strategy-session.md) — Continued references, protection transfer and recovery
+- [ADR-0086](0086-supervised-broker-strategy-session.md) — Continued references, protection transfer and recovery
 
 - [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Reconciliation blocks, retained holdings and exits before new buys
 - [ADR-0080](0080-reviewed-broker-history-import.md) — Preserve legacy protection while preparing broker account history

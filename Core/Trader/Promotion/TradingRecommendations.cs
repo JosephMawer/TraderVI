@@ -68,7 +68,10 @@ public sealed record TradingRecommendationResult(string Status, ImmutableArray<T
     ImmutableArray<string> Warnings, TradingRecommendationMemory Memory);
 public sealed record TradingRecommendationBatch(Guid BatchId, string AccountLabel, Guid PromotionId,
     Guid? AccountReportId, Guid? PriorBatchId, DateTime EvaluatedUtc, string InputFingerprint,
-    TradingRecommendationResult Result);
+    TradingRecommendationResult Result)
+{
+    public string? LedgerFingerprint { get; init; }
+}
 
 /// <summary>A session holds the account/assignment fence through publication; disposal rolls back failures.</summary>
 public interface ITradingRecommendationSession : IAsyncDisposable

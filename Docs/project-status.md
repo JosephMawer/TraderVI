@@ -1,8 +1,7 @@
 # TraderVI Project Status
 
-**Current record:** September 23, 2026; latest Delphi Live data read at 00:21 Toronto;
-desktop rollout checked in the evening.
-Operational evidence is dated per row; source implementation does not imply installation.
+**Current record:** September 25, 2026. Source integration verified offline; operational
+evidence retains its original dates below.
 
 ## Executive summary
 
@@ -10,9 +9,9 @@ TraderVI runs independent paper strategies and has a connected Wealthsimple TFSA
 broker history. **Automatic real strategy trading is off; September 23 launch is NO-GO.** The operator
 selected the ungated Breakout three-position portfolio as an initial review candidate, then clarified
 that any portfolio must be promotable with ongoing management until pause or switch (ADR-0085).
-Broker projection, setup UI,
-synchronization, protection handover and durable supervised execution are implemented in an isolated
-source branch and tested offline. Storage migrations 035/039/040 are now installed and verified.
+Broker projection, setup UI, synchronization, protection handover and durable supervised execution
+are combined with the main-checkout reliability fixes and tested offline. Storage migrations
+035/039/040 are installed; their verification dates remain below.
 Qualified native risk evidence, portfolio-wide ongoing management, native order
 qualification and supervised host rollout remain unfinished. The root goal is one deliberately approved complete strategy
 managing the permanent TFSA while paper and real histories remain independent.
@@ -25,20 +24,37 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
-| Nightly pipeline | Sep 22, completed 09:25:33; SQL checked 09:30 | Missed run recovered under operator authority. Hermes inserted 482 daily bars with no collection failures; Delphi saved a Valid publication using Sep 21 data. Athena completed with Attention: 1,124 valid outcomes and seven missing historical outcomes. |
-| Delphi inputs | Sep 22, 09:30 | Active daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. XIU/SPY and checked derived series are current; one active symbol is older. Publication is not buy eligibility. |
+| Nightly pipeline | Sep 24, completed 00:36:48; SQL checked 09:01 | Scheduled current-source build and all three stages completed. Hermes inserted 483 daily bars with zero collection failures; Delphi published Valid using Sep 23 data. Athena wrote 864 valid outcomes and four invalid older `v3.0` 20-session outcomes (`MissingSymbolSession`), producing Attention/exit 2. No recovery rerun was needed. |
+| Delphi inputs | Sep 24, 09:01 | Daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. All 483 active symbols, XIU/SPY and checked derived series reach Sep 23. ALYA is excluded for an invalid older feature bar; fresh endpoint coverage does not prove complete historical inputs. Publication is not buy eligibility. |
+| Broker connection/history | Sep 24, 11:01 | Saved session restored after restart; native TFSA reconciliation and linked history refresh succeeded, including the newly reported exit. This does not prove complete cash-event history or strategy execution readiness. |
+| External-trade synchronization | Sep 24, migration 10:41; corrected desktop 10:59; repeat SQL 11:01; UI 11:02 | Authorized migration 040 installed after a fresh checksum-verified COPY_ONLY backup and SHA-256-matching local mirror. Financial records were preserved by migration. Corrected Core/WPF loaded with matching hashes; fresh broker reconciliation saved the reported exit exactly once and closed its tracked position. Later automatic refresh retained identical trade counts; the UI reports successful synchronization and current recorded holdings exclude the exited symbol. Original trades, binding and account reports retain exact hashes. One Live lease resumed. Evidence: `artifacts/broker-sync-20260924/`; this does not establish continuous coverage, cloud backup durability or complete cash-event/risk inputs. |
+| Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
+| WPF memory investigation | Sep 24, 09:08:49–09:10:45 pre-install sample | Previous Release PID 24492 responded in all 24 samples: 2.58–3.75 GB working set and 3.25–4.90 GB private committed memory (decimal GB). Full-history JSON expansion and separate display snapshots were identified as likely contributors; no runtime allocation/heap attribution was captured. Superseded by the authorized installation below. Private evidence: `artifacts/wpf-memory-20260924/`. |
+| WPF memory-fix installation | Sep 24, restarted 09:30:32; SQL checked 09:32:09; process sampled through 09:33:14 | Normal close of PID 24492, five backed-up/replaced binaries with matching SHA-256, and one new Release PID 31052 loading the installed Core/WPF modules. All 24 post-restart samples responded: 0.66–1.33 GB working set and 0.57–1.32 GB private committed memory. This short fresh-process sample is not a matched workload or sustained memory bound. One renewed Live lease, nine new compact revisions/events and three updated portfolios confirm runtime resumption. Session is Monitoring with Blocked coverage and a host gap; uninterrupted collection is not established. Evidence: `artifacts/wpf-memory-20260924/installation.md`. |
+| Database allocation | Sep 23, 23:55 verified | User-authorized one-time file shrink reclaimed 54.88 GiB. Data file is 16 GiB with about 6.40 GiB used; log is 1.008 GiB. Full integrity checks before/after found zero errors; all 89 application tables retained their exact row counts (1,210,867 total). Database remains ONLINE, SIMPLE, CHECKSUM, with automatic shrink off. |
+| Build storage cleanup | Sep 23, 21:53 verified | User-authorized one-time removal of 11,514 old compiled files reclaimed 29.66 GiB. Artifacts now total about 7.03 GiB. All 23,438 retained inventory files have unchanged sizes/timestamps; 48 model/archive and source-manifest hashes match. Latest two nightly builds, package cache, recent work and worktree retained. |
+| Backups | Sep 24, nightly receipt; hashes checked 09:03 | Hermes created a 1,091,843,072-byte full backup and recorded successful SQL checksum verification; independent morning SHA-256 reads match both local files and the runner receipt. Routine retention removed the Sep 22 standard backup in both locations. The separate Sep 23 pre-shrink COPY_ONLY checkpoint remains. Its earlier IN_SYNC observation does not establish cloud synchronization of today's backup; independent download and test restore remain unverified. |
 | Delphi Live | Sep 23, 00:21:18 read of Sep 22 session | A responding WPF process is open (started Sep 22, 22:16:53). The last three Live cycles, through the 16:00 bar, each had 40/40 usable receipts; final collection completed at 16:02:12. All three portfolios saved complete 16:00 values. No current collection lease at this pre-open check; last stored heartbeat Sep 22, 16:06:34. Source does not acquire the collection lease before the open. Today's market-session operation is not yet verified. |
 | System Shadow | Sep 22, 09:59 | All 12 sessions adopted that day's publication; all 13 open positions advanced to the bar ending 09:55. Not rechecked in the Sep 23 Live-only inspection. |
 | Live limitations | Sep 23, 00:21 read of Sep 22 session | Session remains Incomplete/Blocked with a host gap; one comparison portfolio still lacks opening NAV (net asset value), despite a complete closing value. No clean full-session qualification. The tracked 15-minute conflict last observed Sep 22 at 09:59 was not rechecked. |
-| Broker connection/history | Sep 22, 22:25:27 | Signed-in read-only history, holdings, pending orders and regular day graph succeeded; activity checkpoint stable and observed holdings match. No import or order ran. Local journal, complete effective cash history, native opening method and order lifecycle remain unqualified. Sep 16 remains the last saved linked-history refresh evidence. |
-| Storage and desktop | Sep 17, installed and observed | Compact snapshot migrations 037/038 and UI-worker fix installed. All 4,472 historical/current snapshots verified; subsequent compact writes observed. Full-history reconstruction still consumes background CPU/memory. |
-| Desktop rollout preparation | Sep 23, evening | The operator restarted the normal Release executable; process-path and binary checks confirm that this is still the older installed build. The isolated branch's Release build is now prepared, with all 1,702 Core tests passing in Release and a 118-file SHA-256 manifest. The normal launch path has not been updated; no agent restart, new account setup or execution activation ran. |
 | Broker risk/session storage | Sep 22, 23:34:11 | Authorized migrations 035/039/040 installed after a fresh verified backup/copy. Three empty tables, three enabled immutable triggers, eight trusted foreign keys, three trusted checks and six native zero-row update/delete rejections verified. Linked binding/import and report/promotion counts and hashes unchanged. No baseline/session created. |
-| Backups | Sep 22, 23:32:39 | Fresh pre-migration full backup passed SQL checksum verification; local OneDrive-folder copy SHA-256 matched (1,049,611,264 bytes). Latest-two automatic retention installed Sep 17; manual fallback used here. Cloud synchronization and a test restore remain unverified. |
 
-Private evidence directories: `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,
+Private evidence directories: `artifacts/nightly-readiness-20260924/`, `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,
 `artifacts/broker-import-20260916/`, `artifacts/live-storage-20260917/`, and `artifacts/ui-freeze-20260917/`.
 Detailed dated accounts remain in the [status history](project-status-history-20260922.md#executive-summary).
+
+Storage inventory: private `artifacts/disk-audit-20260923/`. Subsequent SQL maintenance evidence is in
+`artifacts/sql-storage-reclaim-20260923/report.md`: verified backup, physical file shrink, full integrity
+checks and exact per-table counts. About 9.60 GiB remains reusable inside the data file for growth.
+No application records/schema were deleted or changed by the maintenance scripts; row counts and
+integrity checks do not constitute an independent byte-for-byte comparison or a restore drill.
+Cleanup evidence: `tradervi-cleanup-verification.json` and `tradervi-build-cleanup.md` in that private
+directory. Old diagnostic/nightly compiled output is now incomplete and must be rebuilt before reuse;
+source snapshots, manifests, logs, captures, model files and current development outputs were retained.
+Recurring build/artifact retention remains [open](reviews/open-questions.md#nightly-build-retention-adr-0078-2026-09-14).
+The separately authorized one-time SQL shrink is complete; automatic shrinking remains disabled.
+No application/build/test workflow, model operation, service restart or market/broker request accompanied
+these storage operations. SQL backup/checkpoint/file maintenance ran only in the later database step.
 
 ## Implemented versus operational
 
@@ -52,34 +68,41 @@ Detailed dated accounts remain in the [status history](project-status-history-20
 | Broker inputs and execution | Exact comparison profile, real position cycles/costs, synchronization, preserved protection, immutable approval/order intent and restart recovery implemented/tested. Production composition reuses existing clients, journal and gates. Migration 040 installed. No qualified execution host, native mutation evidence or automation activation. |
 | Portfolio-wide ongoing promotion | Sep 23 source/tested: explicit Ongoing approval retains assignment identity across checked Daily Shadow sessions, continued references, protection and original orders. Existing one-day approvals still expire; cumulative purchase ceilings never refill automatically. Recovery reads missed prior-day bars and preserves closing-exit obligations; missing required closing evidence blocks further orders. Role separation, replacement, Delphi Live adapter and continuation after in-app manual fills remain unfinished. Unsupported families are rejected before approval can trigger exits. |
 | Strategy stop/restart control | Sep 23 source/tested: saved purchase control plus TFSA panel display/buttons. Startup and recurring linked-account refresh restore the saved strategy/mode; stale reads, logout, changed assignment and uncertain saves cannot enable controls. The panel starts no execution loop and explicitly shows execution disabled. Current build identity is checked before all managed orders. Existing Market sell all remains under ADR-0077. No installation or activation. |
-| Broker background synchronization | Sep 23 source/tested: shared reconciliation/history workflow used by display and managed source, five-minute background refresh independent of tab, explicit/post-trade refresh, coalescing, cancellation and 5/10/20/30-minute failure backoff. Only an existing reviewed account link can append history; uncertain/conflicting facts remain blocked. No app installation, native polling or history write in this increment. |
+| Broker background synchronization | Sep 25 source/tested: shared account/history read plus atomic resolved-trade projection, five-minute cadence, manual/post-trade refresh, coalescing and 5/10/20/30-minute failure backoff. The newer moving-market-value fix and dependent-view updates are retained. Sep 24 native projection evidence remains valid for that earlier build; combined polling and strategy controls need native verification. |
 | Hosting | Nightly 00:30 schedule and 07:00 supervision were installed previously; Sep 22 required recovery. Intraday monitoring depends on the desktop/console host. Standalone pre-session hosting is future work, with one active owner. |
+| External broker trade synchronization | Migration 040 and corrected desktop installed and natively verified Sep 24 under ADR-0084. Resolved orders project atomically into real trades/positions with immutable receipts and dependent-view refresh. Reported exit, historical completion, repeat-refresh duplicate prevention and current-holdings presentation verified. Polling requires the app running and signed in; working partial orders and unsupported/corrected facts remain blocked. |
+| WPF snapshot memory | Sep 24 direct typed reads, shared report strings and streaming fingerprint checks implemented/tested under ADR-0082, installed with explicit restart authority at 09:30:32. Loaded-binary hashes and resumed compact writes verified. Full lifetime collections/repeated reads and sustained memory/capacity qualification remain (S4). |
 
 ## Verified development baseline
 
-September 23: **1,702 Core tests passed in both Debug and Release**, including 30 new ongoing-recovery/control cases after the
-prior buying-mode and synchronization increments. WPF builds with
-261 existing compiler warnings and zero errors; the database project separately builds using Visual
-Studio SSDT on September 22 (no schema change in this increment). No full-solution health claim or fresh dependency-security audit. Existing reviewed work
-was checkpointed as `761fb78`; the new work is isolated in `codex/supervised-tfsa-20260923` under
-`artifacts/worktrees/supervised-tfsa-20260923`.
+September 25 integration: **1,729 Core tests passed in Release**. The combined WPF build passes
+with 261 existing compiler warnings and zero errors; the SQL project builds separately with Visual
+Studio SSDT. No full-solution health claim or fresh dependency-security audit. Source changes combine
+`a8aae80` (strategy work) and `7faa6eb` (main-checkout reliability/broker synchronization).
+The root command builds its own checkout; separate worktrees are not included until merged.
 
-The [activation review](reviews/supervised-session-20260923.md) owns detailed validation and the no-go
-evidence list. Local ignored evidence is in that worktree's `artifacts/launch-validation/`, including
-`ongoing-all-tests.log` and `ongoing-wpf.log` for the latest Sep 23 increment;
-the evening rollout preparation adds `rollout-release-tests.log` and `rollout-release-wpf.log`.
-The prepared Release file manifest is `artifacts/desktop-rollout-20260923/prepared-build.json`.
-The preceding focused, buying-mode and synchronization logs remain. Duration and purchase mode use existing JSON snapshot storage; no migration
-or native operation ran for this increment.
-Read-only broker verification ran in the source increment. Later operator-authorized migrations
-035/039/040 installed empty storage at 23:34; no order, app restart or automation ran. Native storage
-and preservation receipts are in `artifacts/promotion-storage-20260923/` in the isolated worktree.
-The Sep 23 read-only Live/process check is in `artifacts/promotion-design-20260923/live-status.json`;
-it ran no broker request, collection, order, restart or SQL mutation.
-SQL crash/lease/readback rehearsal and operational setup remain unverified. The prior 1,595-test
-cash-flow baseline remains under `artifacts/tfsa-cash-flow-20260922/`.
-See [ADR-0084](adr/0084-supervised-broker-strategy-session.md) and
-[ADR-0083](adr/0083-opening-account-values-and-shared-engine-hosting.md).
+The shared refresh keeps ADR-0084's single reconciled automatic save and atomic trade projection,
+with ADR-0085's five-minute scheduling, cancellation and saved strategy controls. Tests cover moving
+market values, concurrent ledger changes, terminal partial fills/replays, failed reads, changed logins,
+coalesced refreshes, stopped buying, ongoing recovery and original uncertain order IDs. The September
+24 memory reconstruction and stale-ledger recommendation fixes remain in the combined source.
+
+Evidence in the isolated worktree: `artifacts/launch-validation/integrated-tests.log`,
+`integrated-wpf.log` and `integrated-sql.log`. The [activation review](reviews/supervised-session-20260923.md)
+and [normal source-run instructions](running.md#build-and-run-the-local-desktop-checkout) distinguish
+source integration from a fresh launch and native account verification. Earlier 1,702-test strategy
+and 1,622-test external-trade checkpoints remain dated evidence, not proof of this combined runtime.
+Memory/native synchronization evidence remains under the root checkout's
+`artifacts/wpf-memory-20260924/` and `artifacts/broker-sync-20260924/`.
+
+Migrations retain their exact applied contents, including the two distinct full filenames ending in
+040: `20260923_040_AddBrokerManagedSession.sql` and `20260924_040_AddBrokerTradeSync.sql`.
+No migration, broker request/order, application restart or automation activation ran during integration.
+The managed-session ADR is now [0086](adr/0086-supervised-broker-strategy-session.md), resolving its
+independent numbering collision with external-trade ADR-0084 without changing either decision.
+Storage 035/039 and managed-session 040 installation evidence remains September 22 at 23:34;
+the older main-checkout statements that 035/039 were uninstalled were stale branch summaries.
+Native SQL crash/lease/readback rehearsal, risk evidence and operational setup remain unverified.
 
 ## Known gaps and risks
 
