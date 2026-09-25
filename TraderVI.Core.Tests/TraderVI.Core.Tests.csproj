@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <None Include="..\TraderDB\dbo\Tables\BrokerManagedSessionRevision.sql" Link="SqlRehearsal\BrokerManagedSessionRevision.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\TraderDB\dbo\Triggers\BrokerManagedSessionRevision_Immutable.sql" Link="SqlRehearsal\BrokerManagedSessionRevision_Immutable.sql" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveWatchlistScope.cs" Link="Presentation\DelphiLiveWatchlistScope.cs" />

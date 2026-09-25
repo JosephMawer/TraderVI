@@ -23,10 +23,12 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
    cash adjustments and the broker projection/synchronization/protection/durable-session source path
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
    and native orders/strategy evidence. Storage migrations 035/039/040 are installed; operational setup
-   and SQL runtime recovery still need verification. Shared regular account/history refresh is now source/tested;
+   and baseline/continuation SQL runtime recovery still need verification. Managed-session SQL recovery
+   is rehearsed in isolation; shared regular account/history refresh is source/tested and observed natively.
    September 25 combines this work with the newer main-checkout memory and resolved-trade fixes.
-   Rebuild/reopen from the integrated main checkout using the normal `dotnet run` command before native
-   setup/control checks; copying isolated binaries is unnecessary. The merged path still needs native verification.
+   The operator confirms the integrated controls and successful account refresh in the normal checkout;
+   no further restart is needed for this check. Next verify account risk setup and qualified risk inputs.
+   Populated assignment recovery and broader native synchronization remain unverified.
    The operator ended the edge-case design pass and deferred same-stock
    manual additions. Complete the agreed ongoing-promotion path and known in-app order reconciliation, then extend both
    families and replacement transitions, then verify the host before actual execution approval. Follow the

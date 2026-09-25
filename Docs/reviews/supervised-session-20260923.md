@@ -23,8 +23,55 @@ the combined SSDT project builds. No migration contents changed. Both independen
 scripts are retained under their full original filenames. The supervised-session ADR is renumbered
 0086 to distinguish it from the independently accepted external-trade ADR-0084; behavior is unchanged.
 This pass includes no broker call, SQL mutation, app restart or trading activation. The earlier
-native acceptance dates apply to their earlier builds. Combined native refresh/control verification,
-risk source qualification and SQL recovery remain open; real-order launch remains NO-GO.
+native acceptance dates apply to their earlier builds. The later observations below qualify part of
+the combined native refresh/control path and isolated SQL recovery; real-order launch remains NO-GO.
+
+## Native desktop and isolated SQL recovery — September 25
+
+The operator confirms the Strategy management panel in the normal checkout. Their screenshot reports
+successful account/history refresh at 16:40:55 Toronto and successful trade synchronization, with no
+approved strategy and disabled stop/resume controls. The running executable is the normal
+`C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`. No further restart or
+binary copy is needed for this observation.
+
+Read-only SQL at 17:02:22 Toronto confirms one linked account, zero initial baselines, zero risk
+continuations and zero managed-session revisions. All three immutable triggers remain enabled.
+Eight imports between 16:18 and 16:57 each have a trade-sync receipt, spaced approximately 5m30s apart.
+This supports recurring persistence in the integrated app; it does not qualify uninterrupted
+coverage, rate limits, real partial orders, the setup dialog or a populated assignment's restart.
+
+The opt-in `BrokerManagedSessionSqlTests` rehearsal at 16:55 Toronto uses the actual session repository, canonical
+session table and immutable trigger in a newly named, retained SQL database on localhost. It passes:
+
+- Exact JSON and seven-digit timestamp readback, exclusive lease contention and release.
+- Same approved strategy, account references and stopped-buy mode after repository recreation.
+- SQL connection loss while an insert is uncommitted: rollback, ownership release and recovery of
+  the last committed revision. The test verifies the connection's database/application before killing it.
+- A committed intent followed by a lost caller acknowledgement: recovery keeps its ID and sends nothing.
+- An uncertain synthetic submission: restart reads the original ID without a duplicate or buy.
+- A partial exit across restarts: a residual sale follows terminal reconciliation; all required exits
+  reconcile before the first purchase; an unresolved purchase is not duplicated.
+- Rejection by the canonical immutable trigger.
+
+**Limits:** parent binding/baseline tables contain synthetic IDs only. Baseline/continuation repositories,
+production schema compatibility, process/machine power loss and real broker lifecycle are not qualified
+by this rehearsal. Broker account facts and transport are the existing synthetic fixtures. Production
+connections remain unchanged; only an internal, instance-scoped repository constructor accepts a test
+connection factory. No risk policy, strategy selection, production financial record, migration or
+automation activation changes.
+
+Validation: 71 focused offline cases pass; the one opt-in native case passes all checks above. The
+ordinary test run skips native SQL unless explicitly enabled. Existing compiler warnings remain;
+there was no new full-suite/WPF/SSDT run or dependency-security audit for this narrow test increment.
+The first sandbox connection failed before database creation; the unchanged encryption settings worked
+when the same prepared test ran with approved local SQL access. Two isolated test databases are retained
+from the initial and expanded rehearsals; no cleanup/drop was performed.
+
+Private evidence: `artifacts/launch-validation/sql-rehearsal-offline-tests.log`,
+`native-session-sql.log` and `native-setup-state.json` in the isolated worktree.
+See [running instructions](../running.md#isolated-managed-session-sql-rehearsal).
+The next storage check is baseline/continuation save and recovery, alongside native cash-event and
+boundary-value qualification. Initial setup and an exact activation review follow those checks.
 
 ## Desktop rollout preparation — September 23 evening
 
@@ -81,12 +128,12 @@ cash-event coverage are mandatory. A net total or occurrence timestamp alone is 
 | Exact selected strategy resolved | Native read-only SQL review identifies the comparison portfolio, daily identity and pinned policy | Definition identity is not strategy performance qualification |
 | Signed-in native broker reads | September 22 **22:25:27 Toronto**: history, holdings, pending orders and regular day graph succeeded; stable activity checkpoint and matching holdings | Local order journal not independently checked; no mutation/lifecycle test |
 | Historical day points | 79 points, September 22 09:30–16:00 Toronto | Does not prove September 23 morning publication timing or the Shadow valuation method |
-| Core regression suite | Sep 23: **1,702 tests passed**, including 30 new ongoing-recovery/control cases after prior buying-mode and synchronization increments | Synthetic qualification, account/order transport and store; no SQL crash rehearsal or native fill proof |
-| Shared account refresh | Sep 23 source/tested: same completed broker read for display and linked history; five-minute cadence, immediate/manual requests, coalescing, cancellation and failure backoff | Not installed; no native rate/cadence proof or risk-evidence qualification. No automatic first link, order submission or uncertain-order recovery. |
+| Core regression suite | Sep 25 integration: **1,729 tests passed**. Later recovery increment: 71 focused offline cases plus one opt-in SQL case pass | Full-suite result precedes the narrow repository test increment; synthetic broker transport does not prove native fills |
+| Shared account refresh | Sep 25: same completed broker read for display/history; native imports and trade-sync receipts observed about 5m30s apart | Bounded observation; native rate/failure coverage and risk-evidence qualification remain. No automatic first link, order submission or uncertain-order recovery. |
 | Desktop and database projects | WPF builds (261 existing compiler warnings, zero errors); separate Visual Studio SSDT project builds | No full-solution health claim or app restart |
-| Migrations 035/039/040 | Installed at 23:34:11 Toronto after a checksum-verified full backup and SHA-256-matched copy; three empty tables, enabled immutable triggers, trusted constraints and six native zero-row update/delete rejections | No operational baseline/session; no SQL crash/lease/high-precision readback rehearsal |
+| Migrations 035/039/040 | Installed at 23:34:11 Toronto after a checksum-verified full backup and SHA-256-matched copy; three empty tables, enabled immutable triggers, trusted constraints and six native zero-row update/delete rejections | No operational baseline/session; Sep 25 rehearses managed-session SQL only, with baseline/continuation integration still pending |
 | Durable workflow | Tested approval, intent before send, uncertain/lost responses, concurrent ticks, partial terminal exit/residual, exit-to-buy sequence, restart protection, scope/stale/conflict blocks and reference continuation | No production host is enabled |
-| Stop/resume and restart | Sep 23 source/tested: explicit ongoing approval, checked multi-day risk/protection/order recovery; TFSA saved-selection display and purchase controls restore after linked-account refresh. Missed closing exits survive rebound; missing closing evidence blocks further orders. | Existing one-day approvals still expire; full pause/invalidated reviews remain. The cumulative purchase ceiling persists. No automatic execution-host startup, family-wide adapter, installation or activation. |
+| Stop/resume and restart | Source/tested ongoing approval, checked multi-day recovery and saved TFSA controls. Sep 25 native empty-assignment panel and synthetic SQL stopped-mode recovery observed. Missed closing exits survive rebound; missing closing evidence blocks further orders. | Existing one-day approvals still expire; full pause/invalidated reviews remain. The cumulative ceiling persists. Populated real-assignment recovery, automatic execution-host startup and family-wide adapters remain; no activation. |
 
 Private, ignored evidence: original checkout `artifacts/first-real-session-20260923/`; isolated
 worktree `artifacts/launch-validation/` including `native-readonly.json`, `strategy-review.json`,
@@ -111,13 +158,15 @@ cleanup. No trading records were inserted by installation.
    availability; recover missing closes in sequence. The supplied capture/current graph do not establish
    this. Implement the qualified native `IBrokerRiskEvidenceSource`; the shipped default blocks it.
 2. **Qualify installed storage at runtime.** Migrations 035, 039 and 040 are installed; do not replay them.
-   Schema, immutable-trigger rejection and preservation checks passed at 23:34. Still rehearse real
-   repository append/readback, high-precision timestamps, competing SQL leases, interrupted saves and
-   recovery in an isolated database before operational setup. Installation alone does not prove these.
+   Schema, immutable-trigger rejection and preservation checks passed at 23:34. September 25 rehearses
+   managed-session append/readback, precise timestamps, competing leases and interrupted/uncertain saves
+   in isolated SQL. Still rehearse baseline/continuation repositories before operational setup;
+   the session rehearsal's ID-only parents do not qualify that integration.
 3. **Establish account setup.** In the built app's TFSA account panel, use **Account risk setup…** to
    refresh the linked account and review preserved references, holds and protection. Save explicitly
    only after storage is installed. Verify recovery returns the original saved request and confirm daily
-   and cash-flow continuations use real source evidence. This source UI has not been installed/launched.
+   and cash-flow continuations use real source evidence. The integrated strategy panel is observed;
+   the setup dialog and baseline save remain unverified.
 4. **Complete a current transition review.** Use the target session's compatible adopted publication
    and current broker facts to identify exact non-overlap exits and retained cycles/quantities/costs.
    Name the current protection owner for each retained position and verify its carried floor/state.
@@ -135,13 +184,14 @@ cleanup. No trading records were inserted by installation.
    Prepare the final exact activation packet and only then request explicit execution/activation
    approval. Do not schedule or start automation in this preparation step.
 
-SQL-backed runtime rehearsal, native source implementation/qualification, supervised host rollout and
+Baseline/continuation SQL runtime rehearsal, native source implementation/qualification, supervised host rollout and
 the fresh financial activation packet remain development/verification work. These are not completed
 merely by introducing interfaces. Core supports new explicitly approved ongoing Daily Shadow assignments;
 existing one-day approvals retain their expiry. Strategy replacement, resolving externally invalidated
 reviews, manual ownership and the Delphi Live protection adapter remain unfinished. Shared synchronization,
 ongoing recovery and TFSA saved-mode controls are source/tested. The controls restore selection but
-start no execution loop; native qualification and automatic host recovery are still required.
+start no execution loop. September 25 confirms their native empty state and recurring account persistence;
+populated assignment recovery, native qualification and automatic host recovery are still required.
 
 ## Demonstration without operational effects
 
@@ -190,7 +240,9 @@ regular-session order availability. Ongoing scope cannot replenish spending or q
 Market orders have no guaranteed price.
 Explicitly approving that packet is separate from selecting this paper strategy or signing in.
 
-No broker order, automation activation, model training, market-data collection, app restart, scheduler
-installation, push or PR ran. The later authorized SQL changes installed only the three empty storage
-tables and their constraints/triggers; no baseline or assignment was created. Dependency-security advisories
-were not freshly audited; existing compiler warnings are not test failures.
+No real broker order, automation activation, model training, market-data collection, agent-initiated app
+restart, scheduler installation, push or PR ran. The operator restarted the integrated app themselves.
+Production storage installation created the three empty risk/session tables and constraints/triggers;
+no operational baseline or assignment was created. September 25 adds writes only to new synthetic
+rehearsal databases and read-only production verification. Dependency-security advisories were not
+freshly audited; existing compiler warnings are not test failures.

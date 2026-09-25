@@ -19,6 +19,12 @@ public sealed record BrokerManagedStorageReadiness(bool BaselineInstalled, bool 
 /// <summary>One session lease per permanent broker binding; durable appends commit before broker transmission.</summary>
 public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
 {
+    private readonly Func<CancellationToken, Task<SqlConnection>> open;
+    public BrokerManagedSessionRepository() : this(Open) { }
+    // Instance-scoped seam for isolated SQL rehearsals; never changes the application's connection.
+    internal BrokerManagedSessionRepository(Func<CancellationToken, Task<SqlConnection>> open) =>
+        this.open = open ?? throw new ArgumentNullException(nameof(open));
+
     public const string RequiredMigration = "20260923_040_AddBrokerManagedSession.sql";
     public static async Task<BrokerManagedStorageReadiness> ReadStorageAsync(CancellationToken ct = default)
     {
@@ -32,7 +38,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.BrokerAccountRiskBaseline',N'U') IS NOT NU
     public async Task<IBrokerManagedSessionLease> AcquireAsync(Guid bindingId, CancellationToken ct)
     {
         if (bindingId == Guid.Empty) throw new ArgumentException("A permanent broker binding is required.");
-        var c = await Open(ct);
+        var c = await open(ct);
         try
         {
             await c.ExecuteAsync(new CommandDefinition("""

@@ -42,7 +42,7 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Implement/test protection transfer/replay, immutable supervised approval, exit-before-buy,
   original-order recovery and concurrency/duplicate prevention; prepare migration 040.
 - [x] Add an account setup review screen and production composition reusing existing broker clients,
-  journal and gates. Build source only; no host/UI installation or activation.
+  journal and gates. Source integrated into the normal checkout; native setup review and activation remain.
 - [x] Install migrations 035/039/040 under operator authority after a verified backup/copy; verify empty
   storage, trusted constraints, immutable triggers and preserved account records (Sep 22, 23:34 Toronto).
 - [x] Agree portfolio-wide promotion and ongoing assignment until pause/switch (ADR-0085); design only.
@@ -53,7 +53,7 @@ record them. A prepared migration or passing test never proves broker readiness.
   split ownership are deferred at the operator's request; continue the agreed common path.
 - [x] Implement/test shared account/history synchronization, five-minute background scheduling,
   manual/post-trade refresh coalescing, cancellation and failure backoff (Sep 23). Existing link only;
-  no native rollout or automatic order recovery implied.
+  native refresh/persistence is observed September 25; automatic order recovery remains separate.
 - [x] Agree stopping new automatic purchases while ordinary exits continue, retaining Market sell all
   on real holding rows (Sep 23, ADR-0085). Full execution pause remains distinct.
 - [x] Agree restoring the same approved strategy and saved buying mode after fresh account/order checks
@@ -66,7 +66,13 @@ record them. A prepared migration or passing test never proves broker readiness.
   rejection of unsupported families before execution approval (Sep 23). Existing one-day approvals expire.
 - [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
   refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
-  This control path has no approval/order transport and starts no execution loop. No installation.
+  This control path has no approval/order transport and starts no execution loop. The native panel's
+  empty-assignment state is observed September 25; populated assignment recovery remains unverified.
+- [x] Rehearse the actual managed-session SQL repository in a separate synthetic database: precise
+  snapshot readback, exclusive ownership, stopped-buy restoration, interrupted append rollback and
+  original-ID recovery after uncertain saves/submissions, and partial-exit reconciliation before buys.
+  Parent tables are ID-only fixtures; this
+  does not qualify baseline/continuation storage or actual broker fills.
 
 ### Left to do — development order
 
@@ -77,8 +83,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   alone are insufficient. This item remains open for source qualification and integration.
   Existing holds persist. No new late-start-only buy pause is agreed.
 - [ ] **2. Finish initial operational setup.** The source screen presents references and preserved
-  holds. Migrations 035/039/040 are installed. Rehearse SQL runtime readback/leases/interrupted-save
-  recovery separately, then verify saving/recovery of initial and daily references. The source screen
+  holds. Migrations 035/039/040 are installed. Managed-session SQL readback/leases/interrupted-save
+  recovery is rehearsed; next exercise baseline/continuation repositories and verify saving/recovery of
+  initial and daily references. The source screen
   does not establish an operational baseline.
   Verified initial setup remains mandatory before operational use.
 - [ ] **3. Verify the broker-input cutover operationally.** The isolated source now projects reconciled holdings,
@@ -88,8 +95,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   conflicting observations and uncertain orders. Reserve cash/shares once; unconfirmed sales supply no funds.
   Shared recurring account/history refresh (five minutes), manual/post-trade refresh and visible
   stale/error states are source/tested. September 25 integrates the newer resolved-trade/memory fixes
-  with these controls; rebuild/reopen from the combined main checkout, then verify native cadence,
-  rate limits and original-order recovery. Preserve fresh preflight. The merged path has not been run.
+  with these controls. The operator confirms the native panel and a successful combined refresh;
+  SQL shows repeated imports with trade-sync receipts about 5m30s apart. Rate limits, failures,
+  longer coverage and original-order recovery remain. Preserve fresh preflight.
   September 24 resolved whole-share projection and signed-in desktop polling were verified: the reported
   external exit is recorded once, its tracked holding is closed, historical missing trades are completed
   and repeat refresh preserves trade counts. Working partial orders, corrections and unsupported financial
@@ -105,7 +113,8 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [ ] **6a. Complete portfolio-wide ongoing management.** Implement the agreed common path:
   separate automatic positions from extras managed for exits, transfer boundaries and known in-app orders,
   qualified automatic execution-host startup and replacement. Saved TFSA controls and Core ongoing
-  recovery are source/tested; rebuild/reopen and verify their native operation. Reuse the existing manual
+  recovery are source/tested; the panel's empty state is observed, but populated real-assignment
+  recovery remains unverified. Reuse the existing manual
   row sale and verify coordination with managed orders. The current
   session invalidates even an in-app manual fill; automatic continuation remains a proposal.
   Extend the current Daily Shadow execution/protection adapter to both portfolio families; verify
@@ -115,11 +124,12 @@ record them. A prepared migration or passing test never proves broker readiness.
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
 **Immediate next increment:** qualify the native cash-event/boundary-book evidence producer and
-opening values, alongside the installed SQL runtime recovery rehearsal. Shared background synchronization
-and ongoing recovery/TFSA controls are source/tested; next extend family adapters and qualified
+opening values, alongside baseline/continuation SQL runtime recovery. Managed-session SQL recovery is
+rehearsed; background synchronization and the TFSA panel's empty state are observed natively.
+Ongoing recovery remains source/tested; next extend family adapters and qualified
 execution-host startup without reopening deferred rare cases.
-Storage is installed; SQL runtime
-recovery rehearsal remains distinct from the completed schema/immutability checks.
+Storage is installed; baseline/continuation runtime recovery remains distinct from the completed
+schema/immutability checks and managed-session rehearsal.
 The orchestration and production composition exist; they cannot manufacture those inputs.
 Then complete the fresh financial activation packet and supervised host rollout. See
 [ADR-0086](adr/0086-supervised-broker-strategy-session.md) and the

@@ -34,7 +34,9 @@ OneDrive-folder copy. Three empty tables and immutable triggers, trusted constra
 account records were verified. **Do not replay these migrations**, migration 034 or the legacy correction.
 Never publish the DACPAC. See the [installation evidence](reviews/supervised-session-20260923.md).
 
-Next qualify repository runtime recovery and verify the rebuilt setup UI. The workflow requires a
+The integrated strategy panel and recurring account/history persistence were observed September 25.
+The isolated managed-session SQL rehearsal below passed; next qualify baseline/continuation repository
+runtime recovery and verify the setup dialog. The workflow requires a
 fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
 treated as an empty history. Request recovery can read an already committed result without repeating
 setup. Daily/cash-flow continuation, Daily Shadow protection handover and broker projection are source
@@ -67,7 +69,8 @@ Cash/risk reports are not fabricated: stale reported values/advice become unavai
 or reevaluated, and broker balances remain visible separately. Pending or ambiguous orders, corrections,
 fractions, withholding and sub-cent amounts require attention. No trade is inferred just because a
 holding disappeared. The September 24 resolved-order extension was installed and broker-verified;
-the combined five-minute/control path is tested offline and still needs native verification.
+the combined five-minute/control path has September 25 native empty-assignment and recurring-import
+evidence. Longer coverage, rate/failure behavior and populated assignment recovery remain unverified.
 
 Two independently applied scripts have the historical numeric suffix 040:
 `20260923_040_AddBrokerManagedSession.sql` and `20260924_040_AddBrokerTradeSync.sql`.
@@ -362,6 +365,33 @@ dotnet build <project.csproj> --no-restore
 ```
 
 The complete solution must be built with installed Visual Studio MSBuild plus SSDT because it contains `TraderDB/TraderDB.sqlproj`. A successful SQL-project build produces a DACPAC; it does not deploy the database.
+
+## Isolated managed-session SQL rehearsal
+
+`BrokerManagedSessionSqlTests` is skipped during ordinary tests. Run it only with authority to create
+a separate synthetic database and interrupt its own test connection on local SQL Server. It never
+opens `TraderDB`, loads broker credentials or constructs a broker client. It creates and retains a
+database named `TraderVI_BrokerRecovery_<random GUID>`; the detailed test output records its name.
+The SQL identity needs database-creation, session-inspection and connection-termination permissions.
+
+```powershell
+$env:TRADERVI_RUN_BROKER_SQL_REHEARSAL = '1'
+try {
+    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --configuration Release --artifacts-path artifacts/sql-recovery-tests --filter FullyQualifiedName~BrokerManagedSessionSqlTests --logger 'console;verbosity=detailed'
+} finally {
+    Remove-Item Env:TRADERVI_RUN_BROKER_SQL_REHEARSAL
+}
+```
+
+It executes the actual managed-session repository against the canonical session table/trigger,
+with synthetic ID-only parent tables. It verifies precise readback, competing leases, buying-mode
+restoration, interrupted transactions, uncertain acknowledgements, original order IDs and reconciled
+partial exits before purchases. The interruption targets only a positively identified connection
+owned by this test in its new database. No migration or automatic database cleanup runs.
+
+This qualifies the session journal under these scenarios, not baseline/continuation repositories,
+production schema compatibility, power-loss recovery or native broker fills. The separate production
+risk/setup and execution approval requirements remain. See the [dated result and limitations](reviews/supervised-session-20260923.md#native-desktop-and-isolated-sql-recovery--september-25).
 
 ## Database prerequisites
 
