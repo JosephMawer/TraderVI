@@ -5,6 +5,28 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### AI-managed portfolio and proposed live adoption — September 26, 2026
+
+- **Requested direction, not implemented:** an AI-managed portfolio with a mandate, discretionary
+  decisions and enforced boundaries. The operator supports this framework and logging decisions,
+  supporting evidence, reasons for rule overrides and conditions for reconsideration.
+- **Requested live scope:** short-term momentum, with the AI portfolio also managing the real TFSA
+  in real time by Monday, September 28. This is a launch target; native risk/order qualification,
+  host readiness and an exact supported strategy remain prerequisites under the existing contracts.
+- **Requested discretion:** the AI may use or ignore existing portfolio rules when it records why.
+  The distinction between overridable trading rules and non-overridable account/protection boundaries
+  is unresolved. No existing protection contract is superseded by this proposal.
+- **Additional paper experiment:** freedom to choose investing style, including longer holdings.
+  Keep its identity and evidence separate from the proposed live momentum strategy; changing paper
+  behavior cannot silently change the live assignment.
+- **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
+  guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
+  evaluation objective and period remain to be agreed.
+- **Next discussion:** settle the override boundary first, then numerical limits, evaluation cadence,
+  AI provider/model and data access, missing-data/model-outage behavior, decision record and version
+  identity. Record the resolved contract in an ADR before behavior changes. No code, model calls,
+  broker operations or activation accompanied this proposal record.
+
 ### Portfolio-wide ongoing TFSA management
 
 - **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy

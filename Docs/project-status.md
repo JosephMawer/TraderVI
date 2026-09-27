@@ -112,6 +112,13 @@ reproduction instructions are in the [activation review](reviews/supervised-sess
 
 ## Known gaps and risks
 
+September 26 design discussion: the operator requested an AI-managed portfolio and Monday,
+September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
+Live short-term momentum and a broader paper experiment are proposed; override limits and evaluation
+objectives remain unresolved. No AI portfolio is implemented or activated by this discussion, and
+operational evidence dates above are unchanged. See the
+[proposal and next decision](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
+
 Current launch blockers are the Live opening/conflict findings and the real-account boundaries above.
 Research still needs comparable complete-session evidence, historical/leadership continuity and mature
 outcomes; no dependable strategy winner is established. Broader backlog: RS feature backfill, registry

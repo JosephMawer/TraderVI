@@ -19,6 +19,12 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
+September 26 requested direction: add an AI-managed momentum portfolio and use it for real trading,
+targeting September 28; also explore a separate paper strategy with freedom over investing style.
+This is a proposal pending rule-override and hard-boundary decisions, not a verified launch commitment
+or completed replacement of the execution work below. See the
+[open scope](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
+
 1. **Complete the real-account foundation and execution path in dependency order.** Percentage-preserving
    cash adjustments and the broker projection/synchronization/protection/durable-session source path
    are implemented/tested. Next qualify native cash-event coverage/effective timing and boundary books,
