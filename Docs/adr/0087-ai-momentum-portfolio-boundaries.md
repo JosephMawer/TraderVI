@@ -30,8 +30,8 @@ TFSA with preserved cash, execution and risk history.
 - Log meaningful decisions, evidence, reasons for overrides and conditions for reconsideration.
   A persuasive explanation is not proof of predictive value or permission to breach a boundary.
 - Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
-  Retain the session's lowest scale multiplier; next-session recovery and real-account reference
-  qualification remain unresolved.
+  Restore allowance gradually as measured losses recover across days, without a calendar reset.
+  The continuous loss reference and recovery details remain unresolved.
 - Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
   room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
@@ -41,6 +41,9 @@ TFSA with preserved cash, execution and risk history.
   cannot silently overwrite real holdings, protection or the live assignment.
 
 ## Daily buying pause — September 26 decision
+
+**Partly superseded for AI Momentum:** the [continuous-recovery amendment](#continuous-recovery--september-27-amendment)
+below replaces the daily framing. The existing engine templates implemented here remain unchanged.
 
 The operator selects **7%** as AI Momentum's non-overridable daily buying-pause threshold and
 requests the same default in the existing engines. This supersedes the proposed 3% AI threshold
@@ -56,7 +59,7 @@ With the new templates, the engines pause new buys at a session return of -7% or
 portfolio value. Protective exits continue; the threshold does not change position stops or the
 10% capital-review threshold and cannot clear an existing pause. The AI cannot waive its accepted
 7% boundary by selecting a more permissive strategy. Wiring that boundary into AI execution is
-Step 4 work. Real-account reference qualification and next-session recovery remain unresolved.
+Step 4 work. The amendment below now governs the unresolved AI loss-reference/recovery design.
 A buying pause is not a guaranteed maximum realized loss.
 
 ## Gradual allocation scale — September 27 decision
@@ -64,9 +67,9 @@ A buying pause is not a guaranteed maximum realized loss.
 The immediate problem is reducing new buying before the 7% pause; the parent problem is bounding
 AI discretion within its selected strategy. The root goal remains protected, auditable paper and
 intended real-account management. The operator accepts a linear reduction in each stock's permitted
-allocation: 100% of its normal strategy allowance at no daily loss, 50% at a 3.5% loss and zero at
-7% or worse. For a nonnegative daily loss fraction `loss`, the multiplier is
-`max(0, 1 - loss / 0.07)`, capped at 1. Daily gains do not enlarge the normal allowance.
+allocation: 100% of its normal strategy allowance at no measured loss, 50% at a 3.5% loss and zero at
+7% or worse. For a nonnegative measured loss fraction `loss`, the multiplier is
+`max(0, 1 - loss / 0.07)`, capped at 1. Gains do not enlarge the normal allowance.
 
 This is a ceiling on the stock's combined allocation for buying, including initial purchases and
 additions, not a fresh allowance for each order. Splitting purchases cannot bypass it. The AI may
@@ -76,10 +79,14 @@ Existing exposure at or above the reduced allowance leaves no room for an additi
 
 This is an accepted AI Momentum design, not an implemented or installed allocation control, and
 does not add the scale to other engines automatically. Step 4 must enforce it and account for
-holdings and outstanding buy commitments. Step 2 still must settle next-session recovery and
-qualified loss references. The existing 7% pause cannot be cleared just by recalculating a positive allowance.
+holdings and outstanding buy commitments. Step 2 still must settle the continuous loss reference
+and recovery details under the amendment below. Existing engine holds remain authoritative until
+an explicit integration contract is implemented.
 
 ### Same-session recovery — September 27 decision
+
+**Superseded:** [continuous recovery](#continuous-recovery--september-27-amendment) replaces the
+session-minimum decision below. It was recorded as design only and was never implemented.
 
 The operator accepts retaining the session's lowest allocation multiplier as the MVP behavior.
 At each valid observation, use the lower of the saved session multiplier and the newly calculated
@@ -93,6 +100,26 @@ Revisit the choice through reviewed paper evidence. Preserve the session minimum
 and portfolio-context switches so neither can reset this boundary. This design is not yet implemented
 or installed. Next-session reset conditions remain unresolved; retaining a same-day minimum does
 not authorize clearing capital-review, account-validity or other independent holds.
+
+### Continuous recovery — September 27 amendment
+
+The operator prefers ongoing portfolio management over daily boundaries and endorses allowance
+falling with losses and gradually returning as those losses recover, across trading days. This
+supersedes the same-session minimum above and the earlier daily framing of the AI scale. A new
+session alone does not reset allowance. The proposed next-day reset was never accepted.
+
+Retain the gradual 0–7% scale and combined per-stock buying ceiling, including additions. Restoration
+must follow verified portfolio-value recovery, not AI confidence, a restart or switching portfolio
+context. Protective exits and hard position stops continue independently. This direction better
+matches the requested ongoing behavior; it is not evidence of superior trading returns.
+
+The reference value for measuring continuous loss is still undecided: starting capital and a
+recorded portfolio peak have different consequences. Define cash-flow adjustments, qualified
+valuation, interaction with existing daily/capital-review holds and resumption at the zero-allowance
+boundary before implementation. If no holdings remain and buying is stopped, market gains cannot
+restore value; recovery from that state also needs an explicit rule. No automatic rebase, clearing of
+independent holds or change to the existing engines' 7% daily templates is authorized by this design.
+This remains Step 2 agreement; source enforcement, tests and activation are pending.
 
 ## Client direction and current evidence
 

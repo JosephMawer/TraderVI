@@ -126,14 +126,16 @@ comparison collection is excluded from the original Live clean promotion cohorts
 ### Strategy identity and adoption direction
 
 [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md#daily-buying-pause--september-26-decision)
-sets the AI hard daily buying pause and new Delphi Live/System Shadow templates to 7%. Preserve
+sets new Delphi Live/System Shadow daily buying-pause templates to 7%. Preserve
 frozen V1 settings, saved policy identities, existing holds and explicit assignment. AI enforcement
 integration remains pending; changing a template does not activate it on an account.
 The September 27 AI Momentum allocation scale is agreed in ADR-0087: reduce the combined per-stock
 buying allowance linearly toward the 7% pause, including additions. It must not create a fresh
-allowance per order or force liquidation solely because the allowance shrank. The session's lowest
-multiplier persists through rebounds, restart and context switches. Implementation and next-session
-recovery remain pending; this design does not change existing engine execution.
+allowance per order or force liquidation solely because the allowance shrank. The later continuous
+recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
+and verified recovery across days without a calendar reset. The loss reference, resumption details
+and interaction with existing holds remain unresolved. Implementation is pending; this design does
+not change existing engine execution or authorize resetting loss history.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not

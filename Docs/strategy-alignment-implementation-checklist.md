@@ -100,12 +100,12 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 2. **Set the operating contract — in progress.** Specify hard limits, the decreasing risk scale, profit protection,
    discretionary rule classification, portfolio eligibility/switching, review cadence and outage
    behavior. Define lesson evaluation/admission criteria. This step requires operator
-   decisions on trading limits; implementation must not invent them. **Accepted:** 7% daily buying
-   pause, with the same default implemented in new Delphi Live/System Shadow templates. Frozen and
-   assigned versions are preserved. **Agreed September 27:** gradual per-stock allocation reduction
-   covering initial buys and additions, without forced sales, retaining the session's lowest multiplier
-   through rebounds (ADR-0087). AI enforcement integration remains Step 4. **Next:** settle next-session
-   recovery conditions.
+   decisions on trading limits; implementation must not invent them. New Delphi Live/System Shadow
+   daily templates use 7%; frozen and assigned versions are preserved. **Agreed September 27:** the AI
+   gradual per-stock scale covers buys/additions without forced sales and now follows continuous
+   losses/recovery across days, superseding its daily framing and session-minimum lock (ADR-0087).
+   AI enforcement integration remains Step 4. **Next:** settle the continuous loss reference and
+   resumption details, including interaction with existing engine holds.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.

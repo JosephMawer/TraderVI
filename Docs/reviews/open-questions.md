@@ -7,13 +7,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **Step 2 / MVP discussion in progress:** the operator accepts a **7% daily buying pause** as an
-  AI non-overridable boundary and the default for new Delphi Live/System Shadow templates (ADR-0087).
-  Source templates implement it; frozen V1 and saved assignments remain unchanged. AI execution
-  enforcement is still pending. The gradual per-stock allocation scale is accepted September 27
-  (ADR-0087), including retention of the session's lowest multiplier through rebounds. Next settle
-  next-session recovery; real-account references still require qualification. Reuse existing behavior where
-  appropriate and settle one necessary decision at a time.
+- **Step 2 / MVP discussion in progress:** the AI gradual 0–7% allocation scale now follows continuous
+  losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
+  supersedes its daily framing and session-minimum lock. Next select the loss reference: starting
+  capital or a recorded portfolio peak. Define cash-flow adjustments, valuation and resumption at
+  zero allowance, including a fully cash portfolio that cannot recover through market gains.
+  Resolve interaction with existing daily/capital-review holds before integration. Existing engine
+  7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.
 
 - **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
   decisions and enforced boundaries. The operator supports this framework and logging decisions,
@@ -30,7 +30,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   in paper and intended live use.
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  next-session recovery, profit activation and permitted giveback remain open. The gradual allocation
+  continuous loss reference/recovery details, profit activation and permitted giveback remain open. The gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
