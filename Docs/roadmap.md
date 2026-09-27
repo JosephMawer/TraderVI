@@ -36,7 +36,8 @@ Step 1 is complete offline; Step 2 is in progress. Existing engine daily templat
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.
 The accepted 5% / 3% / 1% cycle schedule replaces the AI 7% boundary and stops new buying after
-three failed rounds that day. Failed-round closure and confirmed exits before another attempt are
+the sequence's third failed round for the remainder of that session. The sequence and attempt count
+carry across days without morning refill or renumbering. Failed-round closure and confirmed exits before another attempt are
 agreed. Fresh qualifying entry signals from the selected engine permit AI-reviewed re-entry without
 an added fixed delay. Proportional buying allowance within each round, with recovery before its
 hard limit, is agreed. Round limits and allowance now trail the highest verified value within each
@@ -50,8 +51,8 @@ remains pending. Budget pacing is settled: no daily allocations or future-consul
 shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
 An exhausted, closed/reconciled sequence may restart next trading session with fresh entry evidence
 and AI review; carried rounds and approval holds persist. Step 8 must make these states and restart
-conditions explicit, including the rising round trigger. Next settle cadence ownership, remaining
-counter interactions and valuation/cash-flow treatment. Reuse existing protection; Step 8 owns the threshold display.
+conditions explicit, including the rising round trigger. Next settle cadence ownership,
+successful-round handling and valuation/cash-flow treatment. Reuse existing protection; Step 8 owns the threshold display.
 Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen
 or remove established stops. Record blocked alternatives for evaluated learning; enforce boundaries
 in code. Initial switching behavior is agreed: retain compatible holdings/protection, reconcile

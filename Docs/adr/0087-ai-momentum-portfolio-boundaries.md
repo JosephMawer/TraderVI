@@ -111,7 +111,8 @@ not authorize clearing capital-review, account-validity or other independent hol
 ### Continuous recovery — September 27 amendment
 
 **Later refinement:** the [cycle schedule](#three-cycle-loss-schedule--september-27-decision) replaces
-the 7% AI boundary and introduces a daily limit on failed attempts. It does not erase cumulative history.
+the 7% AI boundary. The later continuous-sequence decision makes the three attempts span sessions,
+with a pause after exhaustion; it does not erase cumulative history.
 
 The operator prefers ongoing portfolio management over daily boundaries and endorses allowance
 falling with losses and gradually returning as those losses recover, across trading days. This
@@ -178,7 +179,8 @@ account/data/capital-review holds. The later cumulative-review decision below re
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
-qualified valuation/cash-flow treatment, successful-round handling and remaining counter interactions.
+qualified valuation/cash-flow treatment and successful-round handling. The later continuous-sequence
+decision settles attempt counting across sessions.
 The later decisions govern trailing round references, carried rounds, exhausted-sequence restart
 and session-start consultation.
 These decisions do not authorize running liquidation or changing real trading in this session.
@@ -201,7 +203,7 @@ loss allowance while its old positions remain open. Shrinking the gradual allowa
 not force a sale: reaching the round's hard loss threshold is the accepted closure trigger.
 
 This is design agreement only, not broker authority or an installed workflow. The later next-session
-decision covers exhausted sequences; other counter interactions remain open.
+decision covers exhausted sequences; the continuous-sequence amendment below settles carried counts.
 
 ### Fresh-entry qualification — September 27 decision
 
@@ -238,7 +240,7 @@ allowance. A new permitted round requires confirmed closure and a fresh qualifyi
 
 This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
 It does not erase original capital/peak history. The later trailing decision resolves the round's
-loss reference; successful-round handling and remaining daily counter interactions are still open.
+loss reference; successful-round handling remains open. Cross-session counting is settled below.
 The formula and examples are accepted design, not implemented/tested runtime behavior.
 
 ### Round limits trail verified gains — September 27 decision
@@ -340,7 +342,7 @@ validation remain Step 5 work; no broker, database, assignment or runtime change
 The operator accepts retaining the existing 10% drawdown review for AI Momentum: when portfolio
 value falls 10% or more below its highest recorded completed-session closing value, pause new buys
 and require explicit operator approval before they may resume. Protective exits continue. This
-guard takes precedence even when a daily attempt remains. Neither a new day, a new round, a fresh
+guard takes precedence even when a sequence attempt remains. Neither a new day, a new round, a fresh
 entry signal, an AI decision nor a subsequent rebound clears the review hold. Reuse the established
 review/audit and reference-handling contracts; approval is not a bypass of other hard checks. The
 review pause itself does not add a liquidation rule; reaching a round's loss limit still requires
@@ -388,8 +390,8 @@ Exact clock times and detailed rule-to-checkpoint mapping remain to be chosen. A
 existing AI spending ceiling. Budget exhaustion/provider failure cannot bypass protection or risk
 holds; the accepted unavailable-review fallback is recorded below.
 
-The exhausted-sequence restart is agreed below; other counter interactions with a carried round
-remain open. Do not silently reset an active round's limit when the counter is renewed. This is Step 2
+The exhausted-sequence restart and continuous attempt counting are agreed below. A new session
+does not renew attempts or reset an active round's limit. This is Step 2
 design agreement. Step 7 must implement and qualify scheduling, including restart/missed-checkpoint
 handling. No scheduler, automation, paid call, runtime change or trading action is installed here.
 
@@ -404,11 +406,11 @@ the open. Use the actual next market session, including weekends/holidays, not a
 An unfinished round carried overnight keeps its existing loss reference, applicable limit and
 protective levels. The overall 10% review hold still requires explicit operator approval; a new
 session or renewed attempts cannot clear it. Preserve capital/peak history and other independent
-holds. This decision covers a fully failed, reconciled sequence; counter treatment after fewer than
-three failures, successful rounds or a carried round completing next session remains unresolved.
+holds. The continuous-sequence amendment below settles counting after fewer failures and a carried
+round failing in a later session. Successful-round handling remains unresolved.
 
 The operator explicitly requires the UI to explain this behavior. Show attempts used/remaining for
-the applicable session, active round number and loss limit/reference, and the reason buying is
+the continuous sequence, active round number and loss limit/reference, and the reason buying is
 paused. Distinguish "Paused until next trading session" (three failed attempts, exits reconciled),
 "Unfinished round carried forward" (same limit/reference), and "Your approval required" (10% hold).
 If closure/reconciliation is incomplete, show that pending state rather than restart eligibility.
@@ -417,6 +419,31 @@ and AI review are still required. If multiple holds apply, show them together; t
 must not imply approval or override budget/data/order/risk blocks. Display enforced state and source
 freshness, not independently calculated UI permission. This is a Step 8 requirement, not built UI.
 State-machine enforcement and restart validation remain pending in Steps 4/7; no runtime changed.
+
+### Continuous attempt sequence — September 27 amendment
+
+The immediate issue is whether opening a new session refills attempts. The parent problem is a
+consistent round lifecycle for continuous AI management; the root goal is auditable paper and
+intended live trading within enforced protection. The operator accepts carrying the entire
+5% / 3% / 1% sequence across sessions, without daily renumbering or a fresh daily allowance.
+This supersedes earlier daily-counter wording; the proposed morning renumbering was not implemented.
+
+Round 2 carried overnight remains round 2 at 3%, with the same opening reference, saved peak,
+trigger, holdings and protection. If it fails in a later session, confirmed/reconciled closure and
+a fresh qualifying signal may permit round 3 at 1%, subject to all other checks. The sequence can
+span several trading days; one or two failures do not disappear at a session boundary. Session-start
+consultation updates trading context without resetting round identity, limits or attempts.
+
+After the third failure of that sequence, pause new buying for the remainder of that trading
+session. Retain the accepted next-session restart conditions above: all failed-round exits and
+commitments must be reconciled, with fresh entry evidence, a successful fresh AI review and all
+other limits satisfied before a new 5% / 3% / 1% sequence can begin. Monitoring/protection continue.
+The separate 10% approval hold and original capital/peak history persist. UI counters must describe
+the sequence, not imply three new attempts every morning.
+
+This resolves cross-session failure counting only. Qualified valuation/cash-flow treatment and
+successful-round handling remain open. Enforcement, recovery tests and UI remain Steps 4/7/8 work;
+this documentation decision does not change runtime or authorize orders.
 
 ### Scheduled consults and adaptive intraday attention — September 27 clarification
 

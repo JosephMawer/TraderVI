@@ -146,7 +146,8 @@ frozen V1 settings, saved policy identities, existing holds and explicit assignm
 integration remains pending; changing a template does not activate it on an account.
 The September 27 AI Momentum design retains gradual reduction of the combined per-stock buying
 allowance, including additions. The later accepted 5% / 3% / 1% cycle schedule replaces the fixed
-7% AI pause, with no new buys after the third failed round that day. Within each round, the normal
+7% AI pause, with no new buys for the rest of the session after the sequence's third failed round.
+The sequence and its attempt count carry across sessions without a daily reset. Within each round, the normal
 per-stock allowance is multiplied by `max(0, min(1, 1 - loss / roundLimit))`. Initialize the round
 peak `H` at its opening value and raise it only with higher verified portfolio values; use
 `loss = max(0, (H - currentValue) / H)` and exit trigger `H * (1 - roundLimit)` for positive `H`.
@@ -161,7 +162,7 @@ orders or partial exits cannot create a fresh round. Re-entry requires a fresh q
 from the selected engine after confirmed closure, with its existing confirmation checks and no
 additional fixed delay. The AI may choose to wait. This is pending implementation. The continuous
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
-and verified recovery across days; the later retry cap is daily, without erasing loss history.
+and verified recovery across days; the three-attempt sequence also spans days without erasing loss history.
 Both starting balance and recorded
 portfolio peak must be tracked. The accepted cumulative guard pauses new buys at 10% below the
 highest recorded completed-session closing value and requires explicit operator approval to resume;
@@ -184,10 +185,12 @@ the selected strategy's existing exit rules. At a new trading session, consult q
 entry guidance and relevant evaluated learning without resetting protection or bypassing market hours.
 After three failed attempts with confirmed/reconciled closure, a fresh 5% / 3% / 1% sequence is
 eligible next trading session, subject to a fresh qualifying signal, successful AI review and all
-other limits. Carried unfinished rounds retain their limit/reference; the 10% hold still requires
+other limits. A carried round 2 remains round 2 at 3%; its failure advances to round 3 at 1% after
+required reconciliation and entry checks. No morning refill or renumbering is permitted.
+Carried unfinished rounds retain their limit/reference/peak; the 10% hold still requires
 operator approval. UI must distinguish the session pause, carried round and approval hold, showing
-attempts, active limit/reference, next eligible session and unmet restart conditions. Other counter
-interactions remain open; this decision is not implemented.
+attempts used/remaining in the sequence, active limit/reference, next eligible session and unmet
+restart conditions. Successful-round handling remains open; this decision is not implemented.
 The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
 intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
 minutes during market hours, subject to the shared budget. Separate collection, protection and
@@ -198,7 +201,7 @@ Resumption requires a successful fresh AI review and all other limits to permit 
 cannot clear a risk hold. Show the reason in the UI. Initial earlier-review triggers are a new
 qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted actions.
 Combine events arriving together, preserve the one-minute minimum interval and check the shared
-budget. Future hooks must use the same constraints. Exact cadence ownership, remaining counter interactions and
+budget. Future hooks must use the same constraints. Exact cadence ownership, successful-round handling and
 detailed timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 

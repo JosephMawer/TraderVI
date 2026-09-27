@@ -21,8 +21,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
   conditions. Round limits and buying allowance now trail the highest verified round value,
   initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
-  specify qualified valuation/cash-flow treatment, successful-round handling and counter
-  treatment after fewer failures or a carried round completes. Preserve original capital/peak records and independent holds; day/round changes cannot
+  specify qualified valuation/cash-flow treatment and successful-round handling. Cross-session
+  failure counting is settled: the whole sequence carries, round 2 remains at 3% next session,
+  and its failure advances to round 3 at 1% after required checks. No daily refill/renumbering.
+  Preserve original capital/peak records and independent holds; day/round changes cannot
   clear the cumulative review. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
   [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
@@ -44,13 +46,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
   before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
   without blocking protective handling or clearing independent holds. Next-session restart after a
-  fully failed/reconciled sequence is agreed; other daily counter interactions remain unresolved.
+  fully failed/reconciled sequence is agreed; the sequence and attempt count otherwise carry across
+  sessions unchanged. Successful-round handling remains unresolved.
   No scheduler is implemented.
 
 - **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
   supersedes its original daily framing and session-minimum lock; the later cycle schedule above
-  adds a daily retry cap and replaces the fixed 7% AI pause. Both starting capital and recorded portfolio
+  adds a continuous three-attempt sequence with a pause after exhaustion and replaces the fixed 7%
+  AI pause. Both starting capital and recorded portfolio
   peak are selected references. The round reference now trails its highest verified value, initialized
   at the opening value, and drives both its trigger and allowance. Define cash-flow adjustments and
   qualified valuation cadence/source; retain the independent overall closing-peak guard.

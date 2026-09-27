@@ -72,7 +72,8 @@ is one to fifteen minutes during market hours, subject to budget. Source: ADR-00
 
 ### Q: Does a new trading day start a fresh AI round automatically?
 
-A: No. An unfinished round keeps its loss reference, limit and protective levels across closures.
+A: No. The entire sequence and attempt count carry across sessions. Round 2 stays round 2 at 3%,
+with the same reference, peak and protection; its failure advances to round 3 at 1% after required checks.
 After three failed, reconciled attempts, a fresh sequence is eligible next trading session with a
 fresh signal and AI review, subject to other limits. The UI must distinguish this eligibility from
 a carried round or approval hold. Source: ADR-0087. Tags: risk-management, architecture, user-interface.
@@ -88,8 +89,9 @@ limit and the review hold even if value recovers. Source: ADR-0087. Tags: risk-m
 A: Only after the failed round's AI-managed holdings are closed, fills and cash are reconciled,
 outstanding commitments are resolved, and a fresh post-closure signal from the selected engine
 qualifies for a permitted attempt. There is no extra fixed delay; the AI can take it or wait.
-An acknowledgement or partial sale is insufficient. No fourth attempt is allowed after three
-failed rounds that day. Source: ADR-0087. Tags: risk-management, decision-engine.
+An acknowledgement or partial sale is insufficient. After the sequence's third failure, no new
+attempt is allowed that session, even if earlier failures occurred on other days.
+Source: ADR-0087. Tags: risk-management, decision-engine.
 
 ### Q: What does the AI Momentum gradual allocation scale constrain?
 

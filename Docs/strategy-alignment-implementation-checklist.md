@@ -109,8 +109,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
    rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
    before another permitted attempt. After all three fail and closure is reconciled, a fresh
-   5% / 3% / 1% sequence is eligible next trading session with fresh entry evidence and AI review;
-   carried rounds and the 10% approval hold retain their existing constraints.
+   5% / 3% / 1% sequence is eligible next trading session with fresh entry evidence and AI review.
+   The entire sequence and count carry across sessions: round 2 remains round 2 at 3%, followed
+   by round 3 at 1% if it fails. No daily refill/renumbering, even when failures span days.
+   Carried rounds and the 10% approval hold retain their existing constraints.
    Re-entry requires a fresh qualifying signal from the selected
    engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
    within each round can recover before the hard limit, after which closure is required. Both that
@@ -127,7 +129,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    within the one-minute minimum and shared budget. Later hooks use the same path.
    Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
-   **Next:** settle cadence ownership, remaining counter interactions and valuation/cash-flow treatment, including
+   **Next:** settle cadence ownership, successful-round handling and valuation/cash-flow treatment, including
    interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
@@ -146,6 +148,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    model/learning availability. Reject any established-stop loosening/removal, including undoing an
    AI tightening; recheck current protection at execution. Support distinct non-executable blocked
    alternatives for learning without accepting invalid actions. Validate enforcement and audit paths.
+   Persist continuous sequence/round identity and attempt counts across sessions/restarts; verify
+   round 2 remains at 3% next session, advances to 1% only after failure/reconciliation, and grants
+   no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.
@@ -190,7 +195,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    a review hold that still needs operator approval. Explicitly distinguish a three-failure session
    pause, an unfinished carried round, pending exit reconciliation and an operator-approval hold.
    Show round opening/current values, saved peak, trailing exit trigger and remaining room.
-   Show attempts used/remaining, active round limit/reference, actual next eligible market session
+   Show attempts used/remaining in the continuous sequence (not a daily allowance), active round
+   number and limit/reference, actual next eligible market session
    and unmet restart conditions (fresh signal/review and other holds). Display simultaneous holds;
    a session countdown cannot imply automatic buying or approval. This UI is not implemented.
 9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,
