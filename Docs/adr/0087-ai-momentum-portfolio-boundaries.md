@@ -44,6 +44,39 @@ TFSA with preserved cash, execution and risk history.
 - Retain independent paper/live histories and approved strategy identity. Paper outcomes or changes
   cannot silently overwrite real holdings, protection or the live assignment.
 
+## Shared risk authority and strategy responsibilities — September 27 decision
+
+The immediate problem is avoiding competing engine/AI risk decisions. The parent problem is
+composing discretionary AI with existing portfolios and Delphi Live; the root goal remains one
+auditable strategy managing its account within enforced protection. The operator accepts one
+shared risk authority with an explicit approved risk configuration for each portfolio.
+
+- The portfolio records holdings, cash, trades and risk history, separately for paper and live.
+- Delphi and strategy engines supply signals, rankings and trading rules with their versions.
+- The AI supervisor chooses proposed actions and records permitted discretionary exceptions.
+- Shared deterministic risk controls enforce stops, exposure/cash limits, loss thresholds and holds.
+- The execution coordinator rechecks permission against current state and uses the existing single
+  execution path. Protective exits can proceed without waiting for AI or learning consultation.
+
+Shared enforcement does not require identical settings or a global shared balance. The AI-managed
+profile uses the accepted continuous 5% / 3% / 1% rounds in place of the selected engine's daily
+buying-pause calculation. Ordinary portfolios retain their existing daily rules and saved versions.
+This is explicit policy composition, not permission for the AI to waive a hard rule. The overall
+10% approval hold, per-stock protection and all independent account/data/order controls still apply.
+Engine switches preserve portfolio risk state and cannot select a looser profile or reset attempts.
+
+Extract only the protection boundary needed for this MVP, reusing existing calculations, journals,
+account checks and execution contracts. Keep engine-specific signal semantics and existing ordinary
+portfolio behavior. Avoid creating competing risk ledgers or a second order-submission path.
+Existing saved holds require their established release/transition rules; choosing an AI profile
+cannot silently discard them. Test profile composition and preserved behavior before integration.
+
+Read-only source inspection finds family-specific guard calls in `TradingRecommendationEngine`
+and common checks in `BrokerManagedSessionWorkflow`. `AiPortfolioExecutionCoordinator` remains
+learning-aware preparation only. Shared authority extraction, AI profile integration and order-path
+connection are pending Steps 4/5 work. No runtime behavior, assignment or execution authority changes
+in this documentation increment. Remaining discretionary-rule classification stays open.
+
 ## Daily buying pause — September 26 decision
 
 **Partly superseded for AI Momentum:** the [continuous-recovery amendment](#continuous-recovery--september-27-amendment)

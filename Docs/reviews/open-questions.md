@@ -7,6 +7,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
+- **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
+  explicit portfolio risk configuration and the existing single execution path. AI continuous
+  rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.
+  Preserve independent controls, existing holds and separate paper/live state. Engines supply
+  versioned signals/rules; AI proposes actions; execution rechecks permission. Focused extraction,
+  saved-hold transition integration and regression validation remain pending. The remaining
+  discretionary-rule classification, eligible strategy set and lesson admission still need decisions.
+
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
   7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
   continue. Failed-round closure is agreed: close remaining AI-managed holdings and confirm/reconcile
@@ -74,7 +82,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   The operator wants continued monitoring and automatic pickup after recovery while in cash; the
   fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
   all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
-  Resolve interaction with existing daily/capital-review holds before integration. Existing engine
+  The AI risk profile replaces the daily-pause calculation; existing saved holds retain their
+  established release rules. Implement this transition without silently clearing holds. Existing engine
   7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.
 
 - **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary

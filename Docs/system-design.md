@@ -7,6 +7,15 @@ snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.m
 
 ## AI Momentum learning and proposal boundary (ADR-0087)
 
+Accepted target composition: portfolios own cash/holdings/history; engines supply versioned
+signals/rules; AI proposes discretionary actions; one shared deterministic risk authority enforces
+approved limits; one execution path rechecks current permission and submits orders. Each portfolio
+has an explicit risk configuration and independent state. AI continuous rounds replace its engine's
+daily-pause calculation; ordinary portfolios retain existing behavior. Stock stops, overall review
+holds and account/data/order controls persist. Engine switches cannot reset risk or loosen the profile.
+Extract only this needed boundary, reusing existing workflows. Protective exits do not wait for AI.
+This architecture is agreed, not implemented; saved holds require their established release rules.
+
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
 gets an explicit assessment. `AiPortfolioExecutionCoordinator` rereads the saved decision and consults

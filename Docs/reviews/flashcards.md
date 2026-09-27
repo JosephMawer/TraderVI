@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does shared risk enforcement mean every portfolio must use identical rules?
+
+A: No. Each portfolio has an explicit approved risk configuration and its own history. AI uses
+continuous rounds while ordinary portfolios retain daily rules; shared controls enforce the selected
+profile and independent boundaries through one execution path. Switching engines cannot reset risk.
+Source: ADR-0087. Tags: architecture, risk-management.
+
 ### Q: Does adding money erase an AI portfolio's measured trading loss?
 
 A: No. Confirmed deposits and withdrawals adjust effective references to preserve the measured

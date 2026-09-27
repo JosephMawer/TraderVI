@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI portfolio cash-flow percentage preservation agreed; source qualification and AI integration pending.
+**Current record:** September 27, 2026. Shared risk authority and explicit AI/ordinary risk profiles agreed; extraction and integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -181,6 +181,12 @@ before/after reference scaling, applied to AI round protection and overall drawd
 and round-opening history remain recorded; attempts, holds and per-stock stops do not reset.
 Read-only inspection confirms existing broker continuation arithmetic; AI integration and native
 cash-event source qualification remain pending. No new runtime validation or operational action ran.
+The operator agrees to shared risk authority with one explicit risk configuration per portfolio:
+AI continuous rounds replace its engine daily-pause calculation; ordinary portfolios retain their
+rules. Existing holds, stock protection and account/order checks persist. Read-only inspection
+finds family-specific guard calls in `TradingRecommendationEngine`, common broker workflow checks,
+and an AI coordinator that only prepares proposals. Focused extraction and single-path execution
+integration remain pending; no runtime implementation or new tests accompany this design decision.
 Proportional sizing within each round is agreed, including recovery before its hard limit.
 The operator confirms capturing original allocated capital and calculating each round's initial
 threshold from its actual verified opening capital. Later-round previews are estimates; the 3%/1%

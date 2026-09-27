@@ -58,6 +58,9 @@ AI review timing cannot slow protection. Qualify valuation sources/collection fo
 confirmed deposits/withdrawals now reuse percentage-preserving reference adjustment without resetting
 attempts or holds. Cash-event qualification and AI integration remain pending. Reuse existing protection;
 Step 8 owns the threshold display.
+Shared risk authority is agreed: use an explicit portfolio risk configuration, AI continuous rounds
+in place of its daily-pause calculation, and the existing single execution path. Extract only the
+needed boundary in Steps 4/5 while preserving ordinary portfolios, saved holds and risk history.
 Starting-capital capture and upfront initial thresholds are confirmed: later rounds use actual
 reconciled opening capital, with any earlier previews labelled estimates (ADR-0087).
 Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen

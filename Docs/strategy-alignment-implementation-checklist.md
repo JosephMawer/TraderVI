@@ -139,6 +139,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Confirmed deposits/withdrawals preserve loss percentages through ADR-0083 reference scaling;
    retain original capital/history, round/attempt state, holds and per-stock protection.
    **Next:** qualify valuation/cash-event sources and integrate existing engine holds.
+   Shared risk authority and explicit portfolio risk configuration are agreed. The AI profile uses
+   continuous rounds in place of its engine daily-pause calculation; ordinary portfolios retain
+   existing rules. Preserve independent controls, saved holds and state across engine switches.
    Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
@@ -161,6 +164,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    model/learning availability. Reject any established-stop loosening/removal, including undoing an
    AI tightening; recheck current protection at execution. Support distinct non-executable blocked
    alternatives for learning without accepting invalid actions. Validate enforcement and audit paths.
+   Extract the shared protection boundary with explicit AI/ordinary portfolio risk configurations.
+   Verify AI rounds replace the daily-pause calculation without bypassing independent controls or
+   clearing existing holds. Regression-check ordinary portfolios and preserve immutable versions;
+   engine switching cannot alter the approved risk profile or reset its state.
    Persist continuous sequence/round identity and attempt counts across sessions/restarts; verify
    round 2 remains at 3% next session, advances to 1% only after failure/reconciliation, and grants
    no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
@@ -181,6 +188,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    attempts or review holds, even when the switch passes through cash. Preserve protection ownership
    until recorded handover, carry tighter stops and log exact portfolio versions/reason/outcome.
    Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
+   Use one execution path with current shared-risk rechecks; prevent independent engine/AI order
+   submission and retain protective exits when AI/learning is unavailable.
 6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
    hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
    Run one logical post-session review, recording helpful/harmful outcomes with evidence and retaining

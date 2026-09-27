@@ -23,6 +23,15 @@ authority. Learning cannot rewrite policy or block independent protection. AI ha
 agreed below; eligible strategy mapping, enforcement integration and automatic lesson qualification
 remain unresolved.
 
+The accepted composition uses one shared deterministic risk authority and an explicit approved
+risk configuration per portfolio. Engines provide versioned signals/rules; the AI proposes actions;
+the execution coordinator rechecks current permission through the existing single execution path.
+For AI-managed trading, continuous rounds replace the engine daily-pause calculation; ordinary
+portfolios retain existing settings/behavior. Preserve the overall 10% hold, established stock stops,
+account/data/order checks and existing saved holds. Switching engines cannot change the risk profile
+or reset its state. Extract only the needed boundary; no shared paper/live balances or competing
+order/risk owners. Protective exits remain independent of AI. This is agreed, not implemented (ADR-0087).
+
 The MVP learning cadence is one review after each trading session: evaluate completed trades and
 blocked alternatives with enough follow-up evidence, preserve inconclusive cases as pending and
 record evidence for helpful/harmful outcomes. Only qualified evaluated lessons inform subsequent
