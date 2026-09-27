@@ -43,8 +43,8 @@ public static class EngineStrategySettings
     public static string Hash(string json) => Convert.ToHexString(SHA256.HashData(Encoding.Unicode.GetBytes(json)));
     public static object Defaults(string family) => family switch
     {
-        Live => DelphiLivePolicyDefinition.Version1,
-        Shadow => SystemShadowPolicyConfig.Version1,
+        Live => DelphiLivePolicyDefinition.Default,
+        Shadow => SystemShadowPolicyConfig.Default,
         Tracked => DelayedIntradaySwingPolicyConfig.Version1,
         _ => throw new ArgumentException("Unknown strategy family.")
     };

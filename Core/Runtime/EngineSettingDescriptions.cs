@@ -28,7 +28,7 @@ public static class EngineSettingDescriptions
         "MaximumHoldings" => "Maximum simultaneous holdings in this portfolio; a lower whole number concentrates capital in fewer positions.",
         "EntryTargetNavFraction" => "Target fraction of current portfolio value for a new holding, subject to available cash; 0.25 means 25%.",
         "MaximumSameSessionEntriesPerSymbol" or "MaximumSameDayEntriesPerSymbol" => "Maximum entries into the same symbol in one session, including re-entry; use a whole number.",
-        "DailyLossGuardFraction" => "Session loss fraction that pauses new buys; 0.03 means 3%. Existing exits continue and changing rules does not erase the hold.",
+        "DailyLossGuardFraction" => "Session loss fraction that pauses new buys; 0.07 means 7% (the new-strategy default). Existing exits continue and changing rules does not erase the hold.",
         "CapitalReviewDrawdownFraction" or "DrawdownReviewFraction" => "Decline from the account high that requires an explicit capital review before new buys can resume; 0.10 means 10%.",
         "InitialAllocationFraction" => "Fraction of a position's target budget allocated to its initial purchase; 0.75 means 75%, not 75% of the whole account.",
         "AddOnAllocationFraction" => "Fraction of the position target reserved for an eligible add-on purchase; 0.25 means 25%.",

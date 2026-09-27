@@ -1,5 +1,9 @@
 # ADR-0053: Delphi Live V1
 
+**Default-template amendment (September 26, 2026):** [ADR-0087](0087-ai-momentum-portfolio-boundaries.md#daily-buying-pause--september-26-decision)
+sets a 7% daily buying pause for new engine templates. The frozen V1 definition and historical evidence
+below retain 3%; saved policies require explicit version creation and assignment to adopt the new default.
+
 - **Status:** Accepted
 - **Date:** 2026-09-05
 - **Domains:** architecture, data-pipeline, decision-engine, machine-learning, market-microstructure, risk-management, technical-indicators

@@ -132,7 +132,18 @@ handling has no dependency on this new path. See ADR-0087 for precise limits.
 The [ten-step delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence)
 groups commits `720c780a` and `07928730` as Step 1, complete offline. Step 2 is in progress; steps 3–10
 remain pending. The operator requests this same list for future "progress" queries and an MVP focus
-without tangents or unnecessary complexity. No new numerical trading limit is accepted or activated.
+without tangents or unnecessary complexity. September 26: the operator accepts a 7% hard daily
+buying pause for AI Momentum and the same default for new Delphi Live/System Shadow templates.
+Source templates and settings help are updated; frozen V1, saved strategies and active assignments
+retain their settings. AI enforcement integration and the risk-reduction/recovery scale remain pending.
+No numerical limit has been operationally activated by this change.
+Validation: 14 engine-settings cases pass, including six added boundary/preservation cases; the
+full Core suite passes **1,798 tests, one SQL opt-in skipped, zero failures**. The desktop builds
+to an isolated artifact directory with zero errors and two existing CS0168 compiler warnings;
+the focused test build also reports existing CS8632 warnings. Separate dependency-security warnings
+NU1902/NU1903/NU1904 remain. Logs: `artifacts/daily-buy-pause-focused-tests.log`,
+`artifacts/daily-buy-pause-core-tests.log`, `artifacts/daily-buy-pause-desktop-build.log`.
+No app launch, SQL mutation, API request, broker operation or installation ran.
 September 26 local configuration check confirms Oracle has a saved API key and OpenAI provider
 selection. Secret contents were not displayed; remote authentication, Astra access and account credit
 balance remain unverified. No paid request ran.

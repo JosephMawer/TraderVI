@@ -39,6 +39,25 @@ TFSA with preserved cash, execution and risk history.
 - Retain independent paper/live histories and approved strategy identity. Paper outcomes or changes
   cannot silently overwrite real holdings, protection or the live assignment.
 
+## Daily buying pause — September 26 decision
+
+The operator selects **7%** as AI Momentum's non-overridable daily buying-pause threshold and
+requests the same default in the existing engines. This supersedes the proposed 3% AI threshold
+and the 3% default for newly created Delphi Live and System Shadow strategy templates. It does
+not rewrite frozen V1 definitions or stored/assigned strategies under ADR-0053 and ADR-0060.
+
+The settings editor now uses explicit `Default` templates with `DailyLossGuardFraction = 0.07`.
+Delphi Live's template has a distinct policy identity; saving still creates an immutable version,
+and assignment remains a separate operation. Legacy V1 runtime fallbacks and historical replay
+retain their original settings. No active assignment or database is changed by this source update.
+
+With the new templates, the engines pause new buys at a session return of -7% or worse against session-opening
+portfolio value. Protective exits continue; the threshold does not change position stops or the
+10% capital-review threshold and cannot clear an existing pause. The AI cannot waive its accepted
+7% boundary by selecting a more permissive strategy. Wiring that boundary into AI execution is
+Step 4 work. The risk-reduction scale below 7%, real-account reference qualification and recovery
+contract remain Step 2 decisions. A buying pause is not a guaranteed maximum realized loss.
+
 ## Client direction and current evidence
 
 The operator prefers GPT-6 Astra, is open to API billing and sets an initial incremental AI budget

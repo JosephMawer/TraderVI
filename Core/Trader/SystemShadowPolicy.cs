@@ -24,6 +24,9 @@ public sealed record SystemShadowPolicyConfig
     public int MaximumSameDayEntriesPerSymbol { get; init; } = 2;
 
     public static SystemShadowPolicyConfig Version1 { get; } = new();
+
+    // New strategy template. Keep Version1 and legacy deserialization defaults frozen.
+    public static SystemShadowPolicyConfig Default { get; } = Version1 with { DailyLossGuardFraction = 0.07m };
 }
 
 public enum SystemShadowEntryReason

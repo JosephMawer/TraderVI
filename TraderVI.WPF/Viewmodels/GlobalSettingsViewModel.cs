@@ -115,7 +115,7 @@ public sealed class GlobalSettingsViewModel : INotifyPropertyChanged
             foreach (var item in catalog.Targets.Where(t => t.Family == Family)) Targets.Add(item);
         }
         string json = EngineStrategySettings.Serialize(EngineStrategySettings.Defaults(Family));
-        Versions.Add(new(Guid.Empty, Family, "Version 1 template · save before assigning", json, EngineStrategySettings.Hash(json), DateTime.MinValue));
+        Versions.Add(new(Guid.Empty, Family, "Default template · save before assigning", json, EngineStrategySettings.Hash(json), DateTime.MinValue));
         Target = Targets.FirstOrDefault(t => t.TargetId == priorTarget) ?? Targets.FirstOrDefault();
         Selected = Versions.FirstOrDefault(v => v.VersionId == Target?.VersionId) ?? Versions.First();
     }

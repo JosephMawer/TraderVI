@@ -15,6 +15,54 @@ public sealed class EngineSettingsTests
     private static readonly DateTime Now = new(2026, 9, 8, 15, 0, 0, DateTimeKind.Utc);
 
     [Theory]
+    [InlineData(9700, false)]
+    [InlineData(9301, false)]
+    [InlineData(9300, true)]
+    [InlineData(9299, true)]
+    public void NewEngineDefaultsPauseBuyingAtSevenPercent(int nav, bool paused)
+    {
+        var live = (DelphiLivePolicyDefinition)EngineStrategySettings.Defaults(EngineStrategySettings.Live);
+        var shadow = (SystemShadowPolicyConfig)EngineStrategySettings.Defaults(EngineStrategySettings.Shadow);
+        var liveGuard = DelphiLivePortfolioPolicy.EvaluateGuards(nav, 10_000m, 10_000m, false, false, live);
+        var shadowGuard = SystemShadowPolicy.EvaluateGuards(nav, 10_000m, 10_000m, shadow);
+        liveGuard.DailyBuyingPaused.ShouldBe(paused);
+        shadowGuard.DailyBuyingPaused.ShouldBe(paused);
+        liveGuard.CapitalReviewRequired.ShouldBeFalse();
+        shadowGuard.CapitalReviewRequired.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void NewDefaultsPreserveFrozenPoliciesAndAllOtherSettings()
+    {
+        var live = (DelphiLivePolicyDefinition)EngineStrategySettings.Defaults(EngineStrategySettings.Live);
+        var shadow = (SystemShadowPolicyConfig)EngineStrategySettings.Defaults(EngineStrategySettings.Shadow);
+        live.DailyLossGuardFraction.ShouldBe(.07m);
+        shadow.DailyLossGuardFraction.ShouldBe(.07m);
+        live.PolicyVersionId.ShouldNotBe(DelphiLivePolicyDefinition.Version1.PolicyVersionId);
+        (live with { PolicyVersionId = DelphiLivePolicyDefinition.Version1.PolicyVersionId, DailyLossGuardFraction = .03m })
+            .ShouldBe(DelphiLivePolicyDefinition.Version1);
+        (shadow with { DailyLossGuardFraction = .03m }).ShouldBe(SystemShadowPolicyConfig.Version1);
+
+        var savedLive = (DelphiLivePolicyDefinition)EngineStrategySettings.Read(EngineStrategySettings.Live,
+            EngineStrategySettings.Serialize(DelphiLivePolicyDefinition.Version1));
+        var savedShadow = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow,
+            EngineStrategySettings.Serialize(SystemShadowPolicyConfig.Version1));
+        DelphiLivePortfolioPolicy.EvaluateGuards(9700m, 10_000m, 10_000m, false, false, savedLive).DailyBuyingPaused.ShouldBeTrue();
+        SystemShadowPolicy.EvaluateGuards(9700m, 10_000m, 10_000m, savedShadow).DailyBuyingPaused.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void SevenPercentDefaultDoesNotClearExistingBuyingPause()
+    {
+        var live = (DelphiLivePolicyDefinition)EngineStrategySettings.Defaults(EngineStrategySettings.Live);
+        DelphiLivePortfolioPolicy.EvaluateGuards(9900m, 10_000m, 10_000m, true, false, live).DailyBuyingPaused.ShouldBeTrue();
+        var prior = DelphiLiveLedgerIntegrity.Create(new(Guid.NewGuid(), Guid.NewGuid(), DelphiLivePolicyDefinition.Version1.PolicyVersionId,
+            "OperationalChampion", null, 10_000m, "CAD", DateOnly.FromDateTime(Now), Now, Now.AddDays(-1), "test", "fixture"));
+        prior = prior with { Guards = new(true, false, -.03m, -.03m, 10_000m) };
+        EngineStrategyReassignment.Rebase(prior, live, Now).Guards.ShouldBe(prior.Guards);
+    }
+
+    [Theory]
     [InlineData(EngineStrategySettings.Live)]
     [InlineData(EngineStrategySettings.Shadow)]
     [InlineData(EngineStrategySettings.Tracked)]

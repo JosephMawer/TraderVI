@@ -100,7 +100,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 2. **Set the operating contract — in progress.** Specify hard limits, the decreasing risk scale, profit protection,
    discretionary rule classification, portfolio eligibility/switching, review cadence and outage
    behavior. Define lesson evaluation/admission criteria. This step requires operator
-   decisions on trading limits; implementation must not invent them.
+   decisions on trading limits; implementation must not invent them. **Accepted:** 7% daily buying
+   pause, with the same default implemented in new Delphi Live/System Shadow templates. Frozen and
+   assigned versions are preserved; AI enforcement integration remains Step 4. **Next:** agree the
+   risk-reduction scale below 7% and recovery conditions.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.

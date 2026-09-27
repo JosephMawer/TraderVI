@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does the new 7% daily buying-pause default change an existing portfolio automatically?
+
+A: No. New engine templates use 7%; saved versions and historical V1 policies retain their settings.
+Adoption requires an explicit saved version and assignment, preserving existing holds. AI Momentum's
+accepted 7% boundary cannot be waived by the model. Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: How should learning reach both the AI supervisor and execution coordinator?
 
 A: Both consult versioned evaluated lessons periodically and record their use. The coordinator reads

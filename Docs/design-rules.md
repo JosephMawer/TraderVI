@@ -125,6 +125,11 @@ comparison collection is excluded from the original Live clean promotion cohorts
 
 ### Strategy identity and adoption direction
 
+[ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md#daily-buying-pause--september-26-decision)
+sets the AI hard daily buying pause and new Delphi Live/System Shadow templates to 7%. Preserve
+frozen V1 settings, saved policy identities, existing holds and explicit assignment. AI enforcement
+integration remains pending; changing a template does not activate it on an account.
+
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not
 mutate an existing version's evidence identity. Preserve the source input-policy dispatch and immutable

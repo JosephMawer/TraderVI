@@ -121,6 +121,13 @@ public sealed record DelphiLivePolicyDefinition
 
     public static DelphiLivePolicyDefinition Version1 { get; } = CreateVersion1();
 
+    // New strategy template; never reinterpret the persisted V1 policy identity.
+    public static DelphiLivePolicyDefinition Default { get; } = (Version1 with
+    {
+        PolicyVersionId = new Guid("8dcf3254-379a-4837-a780-ead67d3f05fa"),
+        DailyLossGuardFraction = 0.07m
+    }).Validate();
+
     public DelphiLivePolicyDefinition Validate()
     {
         DelphiLivePolicyValidator.Validate(this);

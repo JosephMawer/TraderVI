@@ -7,12 +7,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **Step 2 / MVP discussion in progress:** reuse existing behavior where appropriate and settle one
-  necessary decision at a time. First parameter for review: retain the engines' default 3% daily-loss
-  buying pause as an AI non-overridable threshold, with risk reduction before that point. This is a
-  proposal, not an accepted setting or a guarantee on realized loss. Source defaults:
-  `Core/Trader/SystemShadowPolicy.cs` and `Core/Trader/DelphiLive/DelphiLivePolicyDefinition.cs`.
-  Exact risk scale, account reference and pause/recovery behavior still require agreement/qualification.
+- **Step 2 / MVP discussion in progress:** the operator accepts a **7% daily buying pause** as an
+  AI non-overridable boundary and the default for new Delphi Live/System Shadow templates (ADR-0087).
+  Source templates implement it; frozen V1 and saved assignments remain unchanged. AI execution
+  enforcement is still pending. Next settle the risk-reduction scale below 7%; real-account reference
+  and pause/recovery behavior still require agreement/qualification. Reuse existing behavior where
+  appropriate and settle one necessary decision at a time.
 
 - **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
   decisions and enforced boundaries. The operator supports this framework and logging decisions,
