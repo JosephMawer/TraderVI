@@ -13,16 +13,23 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Requested live scope:** short-term momentum, with the AI portfolio also managing the real TFSA
   in real time by Monday, September 28. This is a launch target; native risk/order qualification,
   host readiness and an exact supported strategy remain prerequisites under the existing contracts.
-- **Requested discretion:** the AI may use or ignore existing portfolio rules when it records why.
-  The distinction between overridable trading rules and non-overridable account/protection boundaries
-  is unresolved. No existing protection contract is superseded by this proposal.
-- **Additional paper experiment:** freedom to choose investing style, including longer holdings.
-  Keep its identity and evidence separate from the proposed live momentum strategy; changing paper
-  behavior cannot silently change the live assignment.
+- **Accepted framework:** the AI may use or ignore discretionary trading rules when it records why;
+  separately enforced hard boundaries cover cash, exposure, emergency protection and account/data/order
+  validity. Exact limits and rule classification remain unresolved; no existing protection contract is
+  superseded by this discussion.
+- **Deferred by the operator:** AI Explorer, the separate paper experiment with freedom over investing
+  style, is outside the first pass and may be revisited in a future session. Current scope is AI Momentum
+  in paper and intended live use.
+- **Open sliding-scale proposal:** the operator wants to consider adaptive stop-loss and portfolio-loss
+  limits instead of a single fixed number. Discuss AI-selected stop distance inside approved bounds,
+  sizing against a planned monetary risk budget, and reducing permitted exposure as portfolio losses
+  deepen. These are proposals, not accepted formulas or thresholds. Whether protection can widen after
+  entry remains unresolved; the initial recommendation is entry-time selection and subsequent tightening
+  only. Stop triggers do not guarantee realized loss limits when prices gap or execution is delayed.
 - **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
   guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
   evaluation objective and period remain to be agreed.
-- **Next discussion:** settle the override boundary first, then numerical limits, evaluation cadence,
+- **Next discussion:** settle adaptive protection and post-entry widening first, then numerical limits, evaluation cadence,
   AI provider/model and data access, missing-data/model-outage behavior, decision record and version
   identity. Record the resolved contract in an ADR before behavior changes. No code, model calls,
   broker operations or activation accompanied this proposal record.

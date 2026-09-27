@@ -114,8 +114,9 @@ reproduction instructions are in the [activation review](reviews/supervised-sess
 
 September 26 design discussion: the operator requested an AI-managed portfolio and Monday,
 September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
-Live short-term momentum and a broader paper experiment are proposed; override limits and evaluation
-objectives remain unresolved. No AI portfolio is implemented or activated by this discussion, and
+The first pass is AI Momentum in paper and intended live use; AI Explorer is explicitly deferred.
+Discretionary trading rules and enforced boundaries are agreed in principle; sliding-scale protection,
+exact limits and evaluation objectives remain unresolved. No AI portfolio is implemented or activated, and
 operational evidence dates above are unchanged. See the
 [proposal and next decision](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
 
