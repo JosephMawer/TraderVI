@@ -129,7 +129,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    within the one-minute minimum and shared budget. Later hooks use the same path.
    Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
-   **Next:** settle cadence ownership, successful-round handling and valuation/cash-flow treatment, including
+   Ordinary sales, profit-taking and all-cash periods retain the same round/peak/limit and count;
+   only reaching its hard loss limit consumes an attempt. There is no separate success reset.
+   **Next:** settle cadence ownership and valuation/cash-flow treatment, including
    interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
@@ -151,6 +153,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Persist continuous sequence/round identity and attempt counts across sessions/restarts; verify
    round 2 remains at 3% next session, advances to 1% only after failure/reconciliation, and grants
    no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
+   Verify profitable sales, full cash exits and subsequent purchases preserve that round's peak,
+   trigger and count; a limit hit while already cash still requires failed-round reconciliation.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.

@@ -21,7 +21,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
   conditions. Round limits and buying allowance now trail the highest verified round value,
   initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
-  specify qualified valuation/cash-flow treatment and successful-round handling. Cross-session
+  specify qualified valuation/cash-flow treatment. Ordinary-sale handling is settled: profitable
+  exits and all-cash periods retain the same round/peak/limit and count; only a hard-limit hit
+  consumes an attempt, with no separate success reset. Cross-session
   failure counting is settled: the whole sequence carries, round 2 remains at 3% next session,
   and its failure advances to round 3 at 1% after required checks. No daily refill/renumbering.
   Preserve original capital/peak records and independent holds; day/round changes cannot
@@ -47,7 +49,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
   without blocking protective handling or clearing independent holds. Next-session restart after a
   fully failed/reconciled sequence is agreed; the sequence and attempt count otherwise carry across
-  sessions unchanged. Successful-round handling remains unresolved.
+  sessions unchanged. Ordinary sales and profit-taking retain the same round, even entirely in cash.
   No scheduler is implemented.
 
 - **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous

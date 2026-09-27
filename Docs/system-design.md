@@ -65,8 +65,10 @@ the round, initialized at its opening value. Carry its saved peak/trigger across
 the independent overall closing-peak reference and operator-controlled review holds.
 The UI must expose session pause, carried round, pending reconciliation and approval hold distinctly,
 with attempts, opening/current values, round peak/trigger, next eligible session and unmet restart requirements. Enforcement
-and UI remain pending; successful-round handling is unresolved (ADR-0087). UI attempt counts describe
-the continuous sequence, not a new daily allowance.
+and UI remain pending (ADR-0087). Ordinary sales, profitable exits and all-cash periods preserve
+the same round/peak/trigger and count. Only a round-limit hit consumes an attempt, including when
+already in cash; reconcile before another round. UI attempt counts describe the continuous sequence,
+not a new daily allowance. Selling/rebuying grants no success reset.
 
 ## Compact Live storage (ADR-0082)
 

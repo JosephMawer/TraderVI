@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does taking profit or selling everything start a fresh AI risk round?
+
+A: No. Keep the same round, saved peak, limit/trigger and attempt count, even entirely in cash.
+Buying again uses that round's allowance. Only hitting its hard loss limit consumes an attempt;
+selling/rebuying cannot reset protection. Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: Does an end-of-session learning review replace intraday learning consultation?
 
 A: No. The post-session review evaluates completed outcomes and leaves inconclusive cases pending.

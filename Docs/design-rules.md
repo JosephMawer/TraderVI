@@ -190,7 +190,10 @@ required reconciliation and entry checks. No morning refill or renumbering is pe
 Carried unfinished rounds retain their limit/reference/peak; the 10% hold still requires
 operator approval. UI must distinguish the session pause, carried round and approval hold, showing
 attempts used/remaining in the sequence, active limit/reference, next eligible session and unmet
-restart conditions. Successful-round handling remains open; this decision is not implemented.
+restart conditions. Ordinary sales, taking profit and holding only cash preserve the same round,
+saved peak, limit/trigger and attempt count. Buying again uses that round's current allowance;
+only reaching its hard loss limit consumes an attempt. No separate success reset is permitted.
+A limit hit still commits to failed-round reconciliation if already in cash. This is not implemented.
 The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
 intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
 minutes during market hours, subject to the shared budget. Separate collection, protection and
@@ -201,7 +204,7 @@ Resumption requires a successful fresh AI review and all other limits to permit 
 cannot clear a risk hold. Show the reason in the UI. Initial earlier-review triggers are a new
 qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted actions.
 Combine events arriving together, preserve the one-minute minimum interval and check the shared
-budget. Future hooks must use the same constraints. Exact cadence ownership, successful-round handling and
+budget. Future hooks must use the same constraints. Exact cadence ownership and
 detailed timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 

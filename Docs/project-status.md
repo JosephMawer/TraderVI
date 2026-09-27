@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum continuous attempt sequence agreed; enforcement and host integration pending.
+**Current record:** September 27, 2026. AI Momentum ordinary-sale/cash continuity agreed; enforcement and host integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -172,8 +172,10 @@ sequence and attempt count across days: round 2 remains round 2 at 3%, and its f
 to round 3 at 1% after required checks. No morning refill or renumbering; the third failure may
 occur days after the first. The 10% approval hold persists. UI must distinguish these states
 and show attempts, active limit/reference, next eligible session and remaining restart requirements
-(ADR-0087; Step 8), with attempts labelled for the sequence. Successful-round handling remains
-unresolved; no UI or enforcement changed. This increment is documentation only, checked by diff review.
+(ADR-0087; Step 8), with attempts labelled for the sequence. The operator also accepts keeping the
+same round/peak/limit and count through ordinary sales, taking profits or holding only cash.
+Only a round-limit hit consumes an attempt; there is no success reset. No UI or enforcement changed.
+This increment is documentation only, checked by diff review.
 Proportional sizing within each round is agreed, including recovery before its hard limit.
 The operator now accepts trailing each round's highest verified value, initialized at its opening
 value, for both the 5% / 3% / 1% trigger and buying-allowance loss fraction. Price declines cannot
@@ -199,7 +201,7 @@ rejecting CAD 100 or more; the journal also retains the month's lowest ceiling. 
 extension path is not implemented (ADR-0087).
 Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
-collection offset (ADR-0087). Valuation/cash-flow treatment, successful-round handling, event integration and budget-aware
+collection offset (ADR-0087). Valuation/cash-flow treatment, event integration and budget-aware
 scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran

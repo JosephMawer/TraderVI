@@ -179,8 +179,8 @@ account/data/capital-review holds. The later cumulative-review decision below re
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
-qualified valuation/cash-flow treatment and successful-round handling. The later continuous-sequence
-decision settles attempt counting across sessions.
+qualified valuation/cash-flow treatment. The later continuous-sequence and ordinary-sale decisions
+settle attempt counting across sessions and profitable/all-cash transitions.
 The later decisions govern trailing round references, carried rounds, exhausted-sequence restart
 and session-start consultation.
 These decisions do not authorize running liquidation or changing real trading in this session.
@@ -240,7 +240,7 @@ allowance. A new permitted round requires confirmed closure and a fresh qualifyi
 
 This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
 It does not erase original capital/peak history. The later trailing decision resolves the round's
-loss reference; successful-round handling remains open. Cross-session counting is settled below.
+loss reference; ordinary-sale handling and cross-session counting are settled below.
 The formula and examples are accepted design, not implemented/tested runtime behavior.
 
 ### Round limits trail verified gains — September 27 decision
@@ -407,7 +407,7 @@ An unfinished round carried overnight keeps its existing loss reference, applica
 protective levels. The overall 10% review hold still requires explicit operator approval; a new
 session or renewed attempts cannot clear it. Preserve capital/peak history and other independent
 holds. The continuous-sequence amendment below settles counting after fewer failures and a carried
-round failing in a later session. Successful-round handling remains unresolved.
+round failing in a later session. The ordinary-sale decision below settles profitable/all-cash transitions.
 
 The operator explicitly requires the UI to explain this behavior. Show attempts used/remaining for
 the continuous sequence, active round number and loss limit/reference, and the reason buying is
@@ -441,9 +441,29 @@ other limits satisfied before a new 5% / 3% / 1% sequence can begin. Monitoring/
 The separate 10% approval hold and original capital/peak history persist. UI counters must describe
 the sequence, not imply three new attempts every morning.
 
-This resolves cross-session failure counting only. Qualified valuation/cash-flow treatment and
-successful-round handling remain open. Enforcement, recovery tests and UI remain Steps 4/7/8 work;
+This resolves cross-session failure counting. Qualified valuation/cash-flow treatment remains open;
+ordinary-sale handling is settled below. Enforcement, recovery tests and UI remain Steps 4/7/8 work;
 this documentation decision does not change runtime or authorize orders.
+
+### Ordinary sales preserve the round — September 27 decision
+
+The immediate issue is whether taking profit or becoming entirely cash starts a new risk round.
+The parent problem is a consistent continuous lifecycle; the root goal remains auditable AI
+management within enforced protection. The operator accepts keeping the same round and saved peak
+through ordinary stock sales, including profitable exits and selling all holdings. A completed
+stock trade is not a completed portfolio risk round.
+
+Retain round identity, opening reference, peak, loss limit, trailing trigger and attempt count.
+Buying again uses the same round and its current allowance, subject to existing entry, account,
+order and other hard checks. Selling/rebuying cannot reset protection or refill attempts. Only
+reaching the round's hard loss limit consumes an attempt; a hit remains a failed round even if
+the portfolio is already in cash or subsequently recovers. Confirm/reconcile remaining orders,
+holdings and cash before the next permitted round under the existing closure contract.
+
+This resolves the previously open successful-round handling: there is no separate success reset.
+Qualified gains can still raise the peak and recovery before a limit hit can restore allowance
+under the existing formula. Valuation/cash-flow treatment remains open. Enforcement and tests are
+Step 4 work; no runtime or trading action changed in this documentation increment.
 
 ### Scheduled consults and adaptive intraday attention — September 27 clarification
 
