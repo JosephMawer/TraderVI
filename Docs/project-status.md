@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum 5% / 3% / 1% cycle schedule agreed; execution transitions pending.
+**Current record:** September 27, 2026. AI Momentum failed-round closure agreed; execution implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -145,8 +145,10 @@ existing position trailing floors and separate portfolio guards; the new AI allo
 is not implemented. Exact reference combination/valuation and restart conditions remain open (ADR-0087).
 September 27 follow-up accepts 5% / 3% / 1% cycle-loss thresholds, replacing the earlier AI 7%
 pause, with new buying stopped for the day after three failed rounds. ADR-0087 owns the decision
-and comparison assumptions. Failed-round handling, re-entry, gradual sizing and cumulative safeguards
-remain open. No source changes or new operational validation accompany this decision.
+and comparison assumptions. Failed-round closure is now agreed: close AI-managed holdings, confirm
+and reconcile sales, then monitor for fresh entries before another permitted round. Partial or
+uncertain exits cannot start a new round. Exact entry qualification, gradual sizing and cumulative
+safeguards remain open. No source changes or new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran
 for this decision. The source-validation evidence below retains its original scope.
 No numerical limit has been operationally activated by this change.

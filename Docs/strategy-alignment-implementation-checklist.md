@@ -107,7 +107,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Both starting balance and recorded portfolio peak must be tracked; monitoring continues while in
    cash with intended automatic re-entry on recovery. AI enforcement integration remains Step 4.
    **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
-   rounds. **Next:** define failed-round handling, then reference combination/valuation, gradual sizing
+   rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
+   before another permitted attempt. **Next:** define fresh-entry qualification, reference combination/valuation, gradual sizing
    within cycles and the re-entry trigger/allowance, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical

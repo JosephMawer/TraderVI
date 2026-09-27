@@ -133,7 +133,10 @@ The September 27 AI Momentum design retains gradual reduction of the combined pe
 allowance, including additions. The later accepted 5% / 3% / 1% cycle schedule replaces the fixed
 7% AI pause, with no new buys after the third failed round that day. Mapping gradual sizing onto
 these cycle limits remains open. It must not create a fresh
-allowance per order or force liquidation solely because the allowance shrank. The later continuous
+allowance per order or force liquidation solely because the allowance shrank. The later
+failed-round closure decision separately requires closing remaining AI-managed holdings at the
+round's loss threshold and confirming/reconciling exits before a new permitted attempt. Unresolved
+orders or partial exits cannot create a fresh round. This is pending implementation. The continuous
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
 and verified recovery across days; the later retry cap is daily, without erasing loss history.
 Both starting balance and recorded

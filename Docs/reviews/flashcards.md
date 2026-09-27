@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: When can another AI round begin after a loss threshold is reached?
+
+A: Only after the failed round's AI-managed holdings are closed, fills and cash are reconciled,
+outstanding commitments are resolved, and fresh entry signals qualify for a permitted attempt.
+An acknowledgement or partial sale is insufficient. No fourth attempt is allowed after three
+failed rounds that day. Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: What does the AI Momentum gradual allocation scale constrain?
 
 A: Each stock's combined buying allowance reduces as losses deepen. Initial buys and additions share that allowance; splitting orders

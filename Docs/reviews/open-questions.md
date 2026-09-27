@@ -9,8 +9,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
   7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
-  continue. Next define what happens at a failed round: remaining AI-managed holdings, pending
-  orders and confirmed exits before re-entry. Also specify fresh-entry qualification, gradual sizing
+  continue. Failed-round closure is agreed: close remaining AI-managed holdings and confirm/reconcile
+  exits and commitments before a new permitted round. Next specify fresh-entry qualification, gradual sizing
   within rounds, peak/starting-reference interaction, successful/carried rounds and daily counter
   reset. Preserve original capital/peak records and independent holds; the daily retry cap does not
   settle the cumulative loss safeguard. Existing engine templates remain unchanged.

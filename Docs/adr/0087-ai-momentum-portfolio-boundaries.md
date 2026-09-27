@@ -172,11 +172,30 @@ the parent goal remains AI discretion within enforceable protection. Keep origin
 portfolio peaks and actual loss history across cycles. A retry counter cannot clear independent
 account/data/capital-review holds. The overall cumulative safeguard is still to be specified.
 
-This is an accepted Step 2 design, not implemented or activated. Next define the failed-round
-transition: whether remaining AI-managed holdings must close, treatment of pending orders and
-confirmation of exits before starting another round. Then define fresh-entry qualification, gradual
-sizing within each round, peak/starting-reference interaction, successful/carried rounds and the
-daily retry-counter reset. No liquidation or change to real trading is authorized by this decision.
+This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
+accepted below. Next define fresh-entry qualification, gradual sizing within each round,
+peak/starting-reference interaction, successful/carried rounds and the daily retry-counter reset.
+These decisions do not authorize running liquidation or changing real trading in this session.
+
+### Failed-round closure — September 27 decision
+
+The operator accepts closing the remaining positions managed by the AI when the round reaches its
+loss threshold. Stop new buys for that round, reconcile its pending orders and close the managed
+holdings through the existing execution path. Wait for confirmed fills and reconciled holdings/cash
+before establishing another round. An order acknowledgement, partial sale or uncertain outcome is
+not completion; keep the failed round in its closing state until remaining exposure and commitments
+are resolved. Reuse the exit-before-buy and original-order recovery contracts rather than creating
+another execution mechanism. Positions outside AI management are outside this liquidation scope.
+
+After confirmed closure, continue monitoring and require fresh entry signals before another permitted
+attempt. After the third failure, monitoring/protection continue but no new buying is allowed that
+day. Preserve original capital, portfolio peaks and actual losses; the next round's starting value
+reflects confirmed results. This gives the failed round a definite end and prevents granting a new
+loss allowance while its old positions remain open. Shrinking the gradual allowance alone still does
+not force a sale: reaching the round's hard loss threshold is the accepted closure trigger.
+
+This is design agreement only, not broker authority or an installed workflow. Exact fresh-entry
+qualification, failure recovery across sessions and the daily counter's reset remain to be settled.
 
 ## Client direction and current evidence
 
