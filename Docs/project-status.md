@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum per-stock stop boundary and blocked-alternative learning agreed; integration pending.
+**Current record:** September 27, 2026. AI Momentum switching with retained holdings, protection and risk history agreed; integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -127,6 +127,11 @@ evaluation are not implemented. Remaining rule classification and learning crite
 The operator sets an initial AI budget below CAD 100
 monthly and requests portfolio selection/switching plus self-improvement. API-first Oracle adaptation
 is selected for the first source increment; subscription-backed Codex remains an alternative.
+Initial switching behavior is now agreed: keep mutually permitted holdings and stops, close others,
+and confirm/reconcile required sales before replacements. Preserve round peak/reference/limit,
+attempts and review holds across the switch, including all-cash transitions, and log the reason.
+This reuses existing handover contracts; AI replacement, eligible-set mapping and adapter
+qualification remain unfinished (ADR-0087; Step 5). No assignment or execution changed.
 The budgeted Responses client, durable private call journal and versioned portfolio-proposal reviewer
 are implemented/tested offline. They have no production composition or trading authority. Full
 supervision, automatic outcome evaluation, packet adapters and paper/live integration remain unfinished.

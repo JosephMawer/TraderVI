@@ -131,6 +131,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
+   Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
+   reconcile other AI-managed exits before replacements, preserve round/risk state and log the reason.
+   The eligible strategy set and compatibility mapping still need qualification.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
@@ -143,6 +146,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.
+   Implement the agreed keep/sell/replace behavior without resetting the round's reference/peak/limit,
+   attempts or review holds, even when the switch passes through cash. Preserve protection ownership
+   until recorded handover, carry tighter stops and log exact portfolio versions/reason/outcome.
    Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
 6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
    hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.

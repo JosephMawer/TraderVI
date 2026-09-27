@@ -104,8 +104,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
   evaluation objective and period remain to be agreed.
 - **Expanded requested role:** select an existing portfolio, operate within its strategy context,
-  monitor alternatives and switch in real time. Define eligible portfolios and durable handover before
-  enabling selection. Separate agents/conversations are a hypothesis, not yet chosen.
+  monitor alternatives and switch in real time. Initial handover is agreed: retain mutually permitted
+  holdings/stops, sell other AI-managed holdings and confirm/reconcile required exits before replacements.
+  Preserve round reference/peak/limit, attempts and independent holds, including all-cash transitions;
+  log why the AI switched. Define the eligible set and compatibility mapping, and implement durable
+  handover/recovery before activation. Separate agents/conversations are a hypothesis, not yet chosen.
 - **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
   changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
   implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.

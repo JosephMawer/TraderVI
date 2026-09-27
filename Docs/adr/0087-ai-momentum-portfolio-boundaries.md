@@ -307,6 +307,34 @@ That foundation handles portfolio proposals only. It does not implement stock-st
 structured blocked-alternative record, outcome comparisons or live enforcement of these new actions.
 Those remain Steps 4/6 integration and validation work. No runtime, provider or broker action ran.
 
+### Portfolio switching with open holdings — September 27 decision
+
+The operator accepts the initial AI switching behavior: retain holdings permitted by both the
+outgoing and incoming portfolio, preserve their established stops, and sell AI-managed holdings
+the incoming portfolio does not permit. Confirm and reconcile required sales before buying
+replacements; anticipated proceeds or an order acknowledgement are not available funds. Reuse
+the established handover contracts in ADR-0079/0081/0085/0086, including actual position identity,
+quantities, costs and history. This is not permission to copy paper holdings into the live account.
+
+A switch does not reset the active round's opening reference, saved peak, loss limit, attempts used,
+overall review hold or other risk history, even if no holdings overlap and the transition passes
+through cash. A strategy change alone does not create a new round. Existing buying allowance and
+independent holds still constrain the incoming strategy. Preserve tighter stops already established
+by either the engine or AI; a looser incoming setting cannot replace them.
+
+Retained holdings keep their existing protection owner during required exits and reconciliation;
+transfer responsibility once at the recorded activation boundary. Preserve original order identities
+and reservations through partial/uncertain outcomes, with protective handling continuing. Use the
+existing execution checks and supported engine contracts; changing AI context is not activation.
+Log the outgoing/incoming portfolio versions, reason for switching, retained/exited holdings and
+handover outcome. The accepted unavailable-review fallback still blocks new switches.
+
+The exact eligible strategy set, rule-to-holding compatibility mapping and execution adapters remain
+to be qualified. This decision does not supersede manual policy-edit pause/empty rules or broaden
+management authority to unrelated manual holdings. Existing source provides handover foundations;
+automatic AI strategy replacement is not implemented or activated. Integration and offline recovery
+validation remain Step 5 work; no broker, database, assignment or runtime change ran here.
+
 ### Cumulative review and visible thresholds — September 27 decision
 
 The operator accepts retaining the existing 10% drawdown review for AI Momentum: when portfolio
@@ -592,8 +620,9 @@ The operator now requests an AI supervisor that selects an existing portfolio as
 context, exercises discretion inside that context, monitors alternatives and may switch in real time.
 This changes the proposed role from only picking stocks to managing strategy selection. A portfolio
 instance, its rule set and its execution engine are related but distinct existing contracts; do not
-treat switching as merely changing a prompt. Eligibility, authorized strategy set, handover, retained
-protection, costs and history still require a defined contract under ADR-0085/0086.
+treat switching as merely changing a prompt. The open-holdings switching decision above now defines
+the initial handover behavior; eligibility, the authorized strategy set and adapter qualification
+remain open under ADR-0085/0086.
 
 Self-improvement is a requested integral mandate. Define persistent lessons, outcome evaluation and
 versioned strategy changes; no model-weight training, self-editing code, risk-boundary changes or

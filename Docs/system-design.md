@@ -26,6 +26,12 @@ actual and simulated outcomes stay distinct, and lessons cannot rewrite protecti
 rejects hard-rule portfolio overrides and journals rejections; stock-action integration and outcome
 comparison remain unimplemented (ADR-0087).
 
+Planned AI switching reuses the existing handover contracts: retain mutually permitted holdings
+and their protection, confirm/reconcile required exits before replacement buys, and preserve actual
+costs/history plus the same round peak/reference/limit, attempts and review holds. Transfer protection
+ownership once at the recorded activation boundary and log the switch reason/versions/outcome.
+An all-cash transition does not reset risk. AI replacement and eligibility mapping remain pending.
+
 Planned attention model (September 27): three scheduled rule consults coexist with ordinary Delphi
 Live intraday monitoring and budgeted AI reviews of its evidence. The operator requests adaptive
 AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented

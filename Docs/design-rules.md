@@ -19,8 +19,16 @@ contract has no assignment/order/protection mutation interface. Hard-rule overri
 existing engine scores, gates and protections remain authoritative until an explicit integration
 contract is implemented. Version-2 reviews consult scoped evaluated lessons and explain each use or
 disregard. Execution preparation rechecks the saved review against current learning; this is not order
-authority. Learning cannot rewrite policy or block independent protection. Numerical protection,
-handover and automatic lesson qualification remain unresolved.
+authority. Learning cannot rewrite policy or block independent protection. AI handover behavior is
+agreed below; eligible strategy mapping, enforcement integration and automatic lesson qualification
+remain unresolved.
+
+For an AI portfolio switch, retain holdings permitted by both strategies with their existing stops,
+actual costs and history; confirm/reconcile required non-overlap exits before replacement buys.
+Carry the same round reference/peak/limit, attempts and independent holds even through an all-cash
+transition. Keep protection with its current owner until the recorded handover; incoming rules
+cannot loosen retained stops. Log why the AI switched. Reuse ADR-0079/0081/0085/0086; this accepted
+behavior is not implemented AI replacement and does not change manual policy-edit rules.
 
 [ADR-0084](adr/0084-external-broker-trade-synchronization.md) adds source-aware projection of resolved
 broker orders into the Real ledger, atomically with imports and immutable receipts. Preserve original

@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does switching AI portfolios create fresh risk allowance?
+
+A: No. Keep the round reference, peak, limit, attempts and review holds, even if the switch passes
+through cash. Retain mutually permitted holdings and stops; confirm/reconcile required exits before
+replacements and log the switch reason. Source: ADR-0087. Tags: risk-management, architecture.
+
 ### Q: Can the AI learn from a stop change it is forbidden to execute?
 
 A: Yes. Log the desired alternative, evidence and rejection, then compare actual outcomes with a
