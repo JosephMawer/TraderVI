@@ -287,7 +287,7 @@ management to current context without making the AI responsible for every protec
 later clarification below accepts three consult checkpoints plus continuing intraday monitoring.
 Exact clock times and detailed rule-to-checkpoint mapping remain to be chosen. All reviews and learning share the
 existing AI spending ceiling. Budget exhaustion/provider failure cannot bypass protection or risk
-holds; exact discretionary-review fallback belongs to the remaining outage contract.
+holds; the accepted unavailable-review fallback is recorded below.
 
 The daily failed-attempt counter and its interaction with a carried round remain separate decisions:
 do not silently reset an active round's limit when that counter is later renewed. This is Step 2
@@ -300,14 +300,16 @@ The operator accepts the three proposed consults: session start with fresh daily
 mid-session reassessment of holdings/opportunities, and a pre-close review of exits/overnight
 holdings. These are additional rule consultations, not a replacement for ordinary intraday Delphi
 Live checks. Keep the regular intraday monitor running and feed its dated observations and signals
-to the AI throughout the session. Exact checkpoint times and provider/budget fallback remain open.
+to the AI throughout the session. Exact checkpoint times remain open; provider/budget fallback is
+agreed below.
 
 The operator requests AI input into intraday frequency: increasing attention when activity warrants
 it and reducing it when conditions are quiet. On September 27, the operator confirms one minute as
 the fastest permitted AI review interval and fifteen minutes as the slowest during market hours,
 subject to the shared budget. These replace the earlier illustrative intervals with accepted bounds
 for scheduled AI reviews. They do not guarantee a completed review every fifteen minutes when budget,
-provider or data availability prevents one; exact fallback and event handling remain open.
+provider or data availability prevents one. The provider/budget fallback is agreed below; event and
+stale-data timing details remain open.
 
 Separate market collection, deterministic monitoring/protection and paid AI review scheduling.
 Source inspection finds a 30-second host tick in `DelphiLiveDesktopService` composition, while the
@@ -329,6 +331,25 @@ changes or rejects a request. Show the actual review cadence and next scheduled 
 status UI. All intraday reviews, scheduled consults, learning and any retries use the same spending
 ledger and below-CAD-100 ceiling. Independent protection continues if no paid review can run. This
 is design/source inspection only: no monitor, timer, provider request or runtime configuration changed.
+
+### AI unavailable or budget exhausted — September 27 decision
+
+The operator accepts the MVP fallback when the AI cannot review because the provider is unavailable
+or the shared AI budget is exhausted: pause new buys, additions and portfolio switches. Continue
+intraday monitoring, stop-loss handling and the selected engine's existing exit rules independently
+of the AI. The outage itself does not introduce a sell-all instruction or relax any existing hold.
+
+Resume discretionary decisions only after a successful fresh AI review and only when every other
+applicable limit permits them. Provider recovery or budget renewal alone is insufficient; an old
+decision cannot authorize resumption. This review does not clear operator-controlled risk holds,
+reset loss references or bypass the spending ceiling. Show the blocking reason clearly in the UI
+and journal the fallback and recovery decisions under the existing audit requirement.
+
+Detailed timeout/retry timing, freshness qualification and treatment of already-submitted orders or
+partially completed handovers remain integration work. Preserve existing order reconciliation and
+protection contracts; this decision does not authorize cancelling or resubmitting uncertain orders.
+This is accepted Step 2 behavior, pending enforcement, host integration, UI and offline validation.
+No application, provider call, database change or trading action accompanies this documentation.
 
 ## Client direction and current evidence
 

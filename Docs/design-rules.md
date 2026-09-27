@@ -160,8 +160,12 @@ The session-start, mid-session and pre-close consults are agreed alongside ongoi
 intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
 minutes during market hours, subject to the shared budget. Separate collection, protection and
 paid reviews; no AI request can change versioned bar semantics, weaken protection or bypass the
-shared spending cap. Exact cadence ownership, event triggers, retry renewal and outage
-behavior remain open. Protective handling never waits for a scheduled review.
+shared spending cap. If provider unavailability or budget exhaustion prevents AI review, pause new
+buys, additions and portfolio switches while monitoring, stops and existing engine exits continue.
+Resumption requires a successful fresh AI review and all other limits to permit it; recovery alone
+cannot clear a risk hold. Show the reason in the UI. Exact cadence ownership, event triggers, retry
+renewal and detailed timeout/recovery handling remain open. Protective handling never waits for a
+scheduled review. This fallback is agreed, not yet implemented.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not

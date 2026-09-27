@@ -32,8 +32,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   review scheduling or any discretionary collection cadence. The recommended MVP uses AI-proposed
   next-review intervals validated by the host, with defined local events requesting earlier reviews;
   it cannot weaken protection or change five-minute bar semantics. Specify these events and shared
-  budget handling. Define missed/stale review behavior without
-  blocking protective handling. Daily attempt-counter renewal remains separate from active-round
+  budget handling. Provider/budget fallback is now agreed: pause new buys, additions and switches,
+  continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
+  before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
+  without blocking protective handling or clearing independent holds. Daily attempt-counter renewal remains separate from active-round
   continuity, and its interaction with carried rounds is unresolved. No scheduler is implemented.
 
 - **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous

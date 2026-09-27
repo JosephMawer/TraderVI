@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: What happens when the AI cannot review because its provider or budget is unavailable?
+
+A: Pause new buys, additions and portfolio switches; monitoring, stops and existing engine exits
+continue. Resume only after a successful fresh AI review with all other limits satisfied. Restored
+API access or budget alone does not clear the pause or other holds. Source: ADR-0087. Tags: architecture, llm, reliability.
+
 ### Q: Do the three AI consults replace Delphi Live intraday monitoring?
 
 A: No. Intraday monitoring continues and feeds the AI; scheduled consults are additional reviews.

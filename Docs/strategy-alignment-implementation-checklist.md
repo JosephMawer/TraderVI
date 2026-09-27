@@ -115,7 +115,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    references, limits and protection across closures; new sessions prompt review of fresh engine entry
    guidance. Session-start, mid-session and pre-close consults complement ongoing intraday monitoring
    and AI receipt of its data. AI review intervals of one to fifteen minutes during market hours are
-   agreed, subject to budget. **Next:** settle cadence ownership and event/budget handling, daily counter renewal and reference
+   agreed, subject to budget. Provider/budget fallback pauses new buys, additions and switching while
+   monitoring/stops/engine exits continue; recovery requires a successful fresh AI review and all
+   other limits to permit it. **Next:** settle cadence ownership and event/budget handling, daily counter renewal and reference
    combination/valuation, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
@@ -138,7 +140,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    adaptive AI review requests within the agreed one-to-fifteen-minute market-hours bounds and budget,
    once ownership is settled; preserve collection semantics and
    protective cadence, audit requested/applied intervals, and qualify event-driven earlier reviews,
-   missed-review, stale-source and budget-exhaustion behavior. Configure
+   missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
+   fallback and fresh-review recovery, including preservation of independent holds and protection.
+   Configure
    the CAD budget with FX/tax headroom. Qualify API authentication, model access, latency and cost
    through a bounded separately authorized call before model-backed operation.
 8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
@@ -147,7 +151,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    **Required September 27:** show current measurement, limit and remaining room for the cumulative
    10% review guard, active round limit, buying allowance, attempts remaining, position stops/trailing
    floors, applicable cash/exposure constraints and AI spend cap. Show actual AI review cadence and
-   next-review status. Use enforcement values, clear reference/freshness labels and explicit blocking
+   next-review status and the reason for an unavailable-review pause. Use enforcement values, clear reference/freshness labels and explicit blocking
    reasons/actions; recovered values cannot hide
    a review hold that still needs operator approval. This UI is not implemented.
 9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,

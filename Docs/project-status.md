@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum market-hours review interval of one to fifteen minutes agreed, subject to budget; implementation pending.
+**Current record:** September 27, 2026. AI Momentum provider/budget fallback and fresh-review recovery agreed; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -158,7 +158,10 @@ protection across market closures. A new trading session requires consultation o
 guidance. The operator now accepts session-start, mid-session and pre-close consults alongside
 ongoing intraday Delphi Live monitoring and AI receipt of its data. The operator confirms one minute
 as the fastest AI review interval and fifteen minutes as the slowest during market hours, subject to
-the shared budget. Cadence ownership and unavailable-review fallback remain open.
+the shared budget. Provider unavailability or exhausted budget now has an agreed fallback: pause
+new buys, additions and portfolio switches, retain monitoring/stops/engine exits, and resume only
+after a successful fresh AI review with all other limits satisfied. The UI must show the reason.
+Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
 collection offset (ADR-0087). Reference combination, retry renewal, event triggers and budget-aware
 scheduling remain unfinished. No source changes or
