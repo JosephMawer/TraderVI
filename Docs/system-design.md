@@ -19,6 +19,13 @@ this path yet. The existing broker workflow and independent protection remain se
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.
 
+Planned stock-action boundary: reuse engine hard-stop/trailing-profit settings, allow earlier sells
+or tighter stops, and reject any loosening/removal in application validation and execution rechecks.
+A separate non-executable record captures blocked alternatives and evidence for later learning;
+actual and simulated outcomes stay distinct, and lessons cannot rewrite protection. Existing source
+rejects hard-rule portfolio overrides and journals rejections; stock-action integration and outcome
+comparison remain unimplemented (ADR-0087).
+
 Planned attention model (September 27): three scheduled rule consults coexist with ordinary Delphi
 Live intraday monitoring and budgeted AI reviews of its evidence. The operator requests adaptive
 AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented

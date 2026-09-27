@@ -33,11 +33,13 @@ TFSA with preserved cash, execution and risk history.
   Restore allowance gradually as measured losses recover across days, without a calendar reset.
   Track starting capital and portfolio peaks. The later round-trailing decision uses the round's
   highest verified value for its limit and allowance; valuation/cash-flow details remain unresolved.
-- Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
-  room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
+- Reuse the selected engine's existing per-stock hard-stop and trailing-profit settings. The AI may
+  tighten an established stop or sell earlier, but cannot loosen or remove it. Record a desired
+  relaxation as a blocked learning hypothesis under the position-protection decision below.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
   giveback (decline from an observed peak), not a promise that every trade avoids losses. Those
-  details remain open. A trigger cannot guarantee a fill price or realized loss bound.
+  per-stock settings now come from the selected engine; round protection is defined below. A trigger
+  cannot guarantee a fill price or realized loss bound.
 - Retain independent paper/live histories and approved strategy identity. Paper outcomes or changes
   cannot silently overwrite real holdings, protection or the live assignment.
 
@@ -267,6 +269,43 @@ flows. This decision does not authorize treating deposits as profit or withdrawa
 The Step 8 UI must show the round's opening value, current verified value, recorded round peak,
 trailing exit trigger, drawdown and remaining room using enforcement values and freshness labels.
 This is accepted design only: enforcement, tests and UI implementation remain pending.
+
+### Per-stock protection and blocked alternatives for learning — September 27 decision
+
+The operator accepts reusing the selected portfolio engine's existing hard-stop and trailing-profit
+settings for individual holdings. These are separate from the portfolio round's 5% / 3% / 1% limits;
+do not copy the round percentages onto each stock. The AI may propose selling earlier or tightening
+a stock's established stop, but may never loosen or remove that stop. An accepted tighter stop
+becomes the retained protection floor; a later proposal cannot restore the earlier, looser level.
+Other exit signals may be discretionary only where explicitly classified that way.
+
+Enforce this boundary in TraderVI code, independently of prompts, model reasoning and learning.
+The proposal validator and execution path must check the currently enforced stop and policy before
+applying a change, preserve engine-required protection and reject prohibited proposals. Recheck at
+execution so an older proposal cannot loosen a stop that has since tightened. The AI proposes;
+it has no direct path to changing protection or submitting an unchecked action. Existing account,
+data, order, quantity and execution checks still apply to early sells and tightening proposals.
+
+The operator also wants to learn from discretion the boundary prevents. Permit a separate,
+non-executable statement that the AI wanted to loosen/remove a stop, including its specific
+alternative, reason and contemporaneous evidence. Log the holding/strategy identity, current stop,
+requested change, blocking rule and time, and the actual enforced outcome. Explicitly label it
+blocked/not executed. An executable hard-rule override remains invalid; recording the desire must
+not turn it into an allowed action or bypass the validator.
+
+Feed these records to the learning workflow for later evaluation of what would have happened under
+the proposed alternative. Preserve actual outcomes separately from simulated alternatives, with
+the comparison horizon/exit assumptions fixed before judging results and missing evidence marked
+unevaluable. Assess frequency of improvement and magnitude of gains/losses; a majority of small
+wins alone does not establish an improvement. Exact qualification/expiry criteria remain Step 2
+learning work. Evaluated lessons may inform permitted future choices or an operator's later policy
+review, but cannot automatically loosen stops, remove protection or rewrite hard boundaries.
+
+Source inspection confirms `AiPortfolioReviewer` rejects overrides of `IsHardBoundary` rules and
+`AiLearningAwareSupervisor` journals rejected reviews, with raw responses in the call journal.
+That foundation handles portfolio proposals only. It does not implement stock-stop actions, a
+structured blocked-alternative record, outcome comparisons or live enforcement of these new actions.
+Those remain Steps 4/6 integration and validation work. No runtime, provider or broker action ran.
 
 ### Cumulative review and visible thresholds — September 27 decision
 

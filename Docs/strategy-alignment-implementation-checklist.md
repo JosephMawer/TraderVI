@@ -128,21 +128,28 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
    **Next:** settle cadence ownership, remaining counter interactions and valuation/cash-flow treatment, including
-   interaction with existing engine holds. Reuse existing position trailing protection.
+   interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
+   settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
+   relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
 4. **Implement trading decisions and enforced protection.** Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
    the selected engine and approved boundaries in C#. Keep protective monitoring independent of
-   model/learning availability and prevent losing-stop relaxation.
+   model/learning availability. Reject any established-stop loosening/removal, including undoing an
+   AI tightening; recheck current protection at execution. Support distinct non-executable blocked
+   alternatives for learning without accepting invalid actions. Validate enforcement and audit paths.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.
    Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
 6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
    hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
-   Verify supervisor/coordinator consultation and preserve hard limits and budget policy.
+   Include blocked stop-relaxation hypotheses and compare actual outcomes with clearly labelled
+   simulated alternatives using declared horizons/assumptions. Account for outcome magnitude and
+   missing evidence, not only win frequency. Verify supervisor/coordinator consultation and preserve
+   hard limits and budget policy; lessons cannot automatically change protection.
 7. **Build and qualify the runtime host.** Compose shared clients/journals and the independent protection
    and discretionary-review loops. Configure intervals, restart recovery, protected storage, retention
    and the three agreed consult checkpoints alongside ordinary intraday monitoring. Implement

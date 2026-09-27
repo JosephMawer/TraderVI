@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can the AI learn from a stop change it is forbidden to execute?
+
+A: Yes. Log the desired alternative, evidence and rejection, then compare actual outcomes with a
+clearly labelled simulation under defined assumptions. TraderVI code still forbids loosening or
+removing the established stop; learning can inform permitted choices but cannot change that boundary.
+Source: ADR-0087. Tags: risk-management, llm, learning.
+
 ### Q: What raises an AI round's exit trigger as it gains value?
 
 A: Its highest verified portfolio value within that round. At a 5% limit, CAD 10,000 gives a

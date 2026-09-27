@@ -73,10 +73,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Deferred by the operator:** AI Explorer, the separate paper experiment with freedom over investing
   style, is outside the first pass and may be revisited in a future session. Current scope is AI Momentum
   in paper and intended live use.
-- **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
-  stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  position profit activation/giveback, qualified valuation/cash-flow treatment and remaining recovery
-  details remain open. Round-level trailing protection is now agreed; the gradual allocation
+- **Accepted protection direction:** reduce permitted risk as portfolio losses deepen. Reuse the
+  selected engine's existing per-stock hard-stop/trailing-profit settings; AI may tighten or sell
+  earlier, never loosen/remove an established stop. Application code must enforce this and recheck
+  current protection at execution. Qualified valuation/cash-flow treatment and remaining recovery
+  details remain open. Round-level trailing protection is agreed; the gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Budget pacing settled (September 27, ADR-0087):** use the shared monthly allowance as needed,
@@ -108,6 +109,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
   changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
   implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.
+- **Blocked discretion learning (September 27):** record desired stop loosening/removal as a
+  non-executable hypothesis with the requested alternative, evidence, blocking rule and actual
+  outcome. Compare later with clearly labelled simulated alternatives, evaluating gain/loss magnitude
+  as well as frequency. Define comparison horizons/assumptions and lesson qualification/expiry;
+  missing evidence must remain unevaluable. No learned result can automatically change a hard
+  boundary. Stock-level records and outcome comparisons are not implemented.
 - **Accepted learning consultation:** both supervisor and execution coordinator must consult evaluated
   lessons periodically (ADR-0087). Journal, version-2 assessments and execution-preparation rechecks
   are implemented in source. Configure refresh/review intervals, implement lesson qualification and

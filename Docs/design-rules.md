@@ -155,7 +155,13 @@ show current measures, thresholds, remaining room and binding holds using enforc
 including round limits/allowance, attempts, stops and spending; stale data must not appear as capacity.
 The round reference and allowance now trail its verified peak, separately from the overall closing
 peak. Exact valuation/cash-flow treatment and interaction with existing holds remain unresolved.
-Show opening/current values, round peak and rising trigger in the UI. Reuse existing position trailing protection;
+Show opening/current values, round peak and rising trigger in the UI. Reuse the selected engine's
+per-stock hard-stop and trailing-profit settings. AI may sell earlier or tighten an established
+stop, never loosen/remove it, including a prior AI-tightened stop. Enforce this in application code
+and recheck current protection at execution. Record desired relaxations separately as blocked,
+non-executable learning hypotheses with evidence and actual outcomes; later comparisons must label
+simulated outcomes and cannot change hard boundaries. Stock-level integration/evaluation remain pending.
+Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
 Unfinished AI rounds retain references, limits and protective levels across market closures under

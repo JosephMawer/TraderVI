@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum round limits and buying allowance trail verified round peaks by agreement; implementation pending.
+**Current record:** September 27, 2026. AI Momentum per-stock stop boundary and blocked-alternative learning agreed; integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -117,8 +117,14 @@ September 26 design discussion: the operator requested an AI-managed portfolio a
 September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
 The first pass is AI Momentum in paper and intended live use; AI Explorer is explicitly deferred.
 Discretionary rules, enforced boundaries, declining risk capacity and no loosening stops to prolong
-losses are agreed ([ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md)); exact protection/profit
-limits and evaluation objectives remain open. The operator sets an initial AI budget below CAD 100
+losses are agreed ([ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md)). The selected engine's
+per-stock hard-stop/trailing-profit settings are now retained: AI may tighten or sell earlier,
+never loosen/remove an established stop. Desired relaxations must be logged as blocked learning
+hypotheses for later actual-versus-simulated outcome comparison. Application code must enforce
+the boundary; learning cannot change it. Source inspection confirms existing portfolio-review
+hard-rule rejection and rejected-review journaling, but stock-stop actions and alternative-outcome
+evaluation are not implemented. Remaining rule classification and learning criteria are open.
+The operator sets an initial AI budget below CAD 100
 monthly and requests portfolio selection/switching plus self-improvement. API-first Oracle adaptation
 is selected for the first source increment; subscription-backed Codex remains an alternative.
 The budgeted Responses client, durable private call journal and versioned portfolio-proposal reviewer

@@ -26,7 +26,7 @@ discretion, enforced boundaries, reducing risk as losses deepen and no loosening
 losing trades. The first API client, shared spending journal and portfolio-proposal contract are
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
 access remains an alternative. Next define portfolio selection/handover and evaluated learning, exact
-protection/profit limits, authoritative packet adapters and production budget/storage configuration.
+remaining rule classification, authoritative packet adapters and production budget/storage configuration.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 next connect qualified outcome evaluation and periodic host scheduling under ADR-0087.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
@@ -50,7 +50,9 @@ An exhausted, closed/reconciled sequence may restart next trading session with f
 and AI review; carried rounds and approval holds persist. Step 8 must make these states and restart
 conditions explicit, including the rising round trigger. Next settle cadence ownership, remaining
 counter interactions and valuation/cash-flow treatment. Reuse existing protection; Step 8 owns the threshold display.
-Scale enforcement remains Step 4 work. Keep the MVP focus and
+Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen
+or remove established stops. Record blocked alternatives for evaluated learning; enforce boundaries
+in code. Stop/action enforcement remains Step 4 and outcome comparison Step 6 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.
 Integrate and qualify the client and independent protective host before enabling any paper/live actions.
