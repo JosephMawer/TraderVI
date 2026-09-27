@@ -20,18 +20,23 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Deferred by the operator:** AI Explorer, the separate paper experiment with freedom over investing
   style, is outside the first pass and may be revisited in a future session. Current scope is AI Momentum
   in paper and intended live use.
-- **Open sliding-scale proposal:** the operator wants to consider adaptive stop-loss and portfolio-loss
-  limits instead of a single fixed number. Discuss AI-selected stop distance inside approved bounds,
-  sizing against a planned monetary risk budget, and reducing permitted exposure as portfolio losses
-  deepen. These are proposals, not accepted formulas or thresholds. Whether protection can widen after
-  entry remains unresolved; the initial recommendation is entry-time selection and subsequent tightening
-  only. Stop triggers do not guarantee realized loss limits when prices gap or execution is delayed.
+- **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
+  stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
+  risk scale/recovery, profit activation and permitted giveback remain open. See
+  [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
+- **Preferred client:** GPT-6 Astra using the existing ChatGPT Pro/Codex subscription where supported.
+  Official documentation supports programmatic Codex and saved subscription authentication, but no
+  TraderVI connection, account/model access, latency or quota qualification has run. API-key use is a
+  separate usage-based option. The operator explicitly authorizes adapting the existing Oracle client;
+  define the new portfolio's decision contract and scoped narration-rule changes before implementation.
+  Historical Phase 2 narration exists, but the September 26 bounded process/schedule inspection found
+  no running Oracle or directly named scheduled action; current nightly configuration excludes Oracle.
 - **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
   guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
   evaluation objective and period remain to be agreed.
-- **Next discussion:** settle adaptive protection and post-entry widening first, then numerical limits, evaluation cadence,
-  AI provider/model and data access, missing-data/model-outage behavior, decision record and version
-  identity. Record the resolved contract in an ADR before behavior changes. No code, model calls,
+- **Next discussion:** define profit protection and numerical limits, evaluation cadence,
+  client transport and data access, missing-data/model-outage behavior, decision record and version
+  identity. ADR-0087 records accepted principles; details remain open. No code, model calls,
   broker operations or activation accompanied this proposal record.
 
 ### Portfolio-wide ongoing TFSA management

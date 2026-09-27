@@ -18,6 +18,16 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can an AI Momentum rule override bypass the hard protection boundary?
+
+A: No. The AI may reject discretionary trading rules with a recorded reason, but TraderVI enforces
+the approved cash, exposure, protection and validity limits. Source: ADR-0087. Tags: llm, risk-management.
+
+### Q: Does using the operator's Codex subscription establish a working trading client?
+
+A: No. Authentication, exact model access, quotas, latency and recovery still need qualification.
+Direct API use has separate usage-based access. Source: ADR-0087. Tags: architecture, llm.
+
 ### Q: Why does a broker order need a synchronization receipt?
 
 A: The same cumulative order appears in many refreshes. A stable order identity and atomic receipt

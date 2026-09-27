@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope and proposed client boundary
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
 
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery
@@ -160,7 +161,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## llm
 
-*(none yet)*
+- [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — Discretionary AI decisions with enforced protection and audit evidence
 
 ## time-series
 
@@ -223,6 +224,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — Declining risk capacity, hard stops and profit-protection direction
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Preserve strategy and account risk rules across days and portfolio switches
 
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Continued references, protection transfer and recovery

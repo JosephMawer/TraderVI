@@ -115,8 +115,15 @@ reproduction instructions are in the [activation review](reviews/supervised-sess
 September 26 design discussion: the operator requested an AI-managed portfolio and Monday,
 September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
 The first pass is AI Momentum in paper and intended live use; AI Explorer is explicitly deferred.
-Discretionary trading rules and enforced boundaries are agreed in principle; sliding-scale protection,
-exact limits and evaluation objectives remain unresolved. No AI portfolio is implemented or activated, and
+Discretionary rules, enforced boundaries, declining risk capacity and no loosening stops to prolong
+losses are agreed ([ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md)); exact protection/profit
+limits and evaluation objectives remain open. Documentation supports a candidate subscription-backed
+Codex client for the preferred Astra model; TraderVI integration and access remain unverified.
+The operator authorizes adapting the existing Oracle client, whose Astra integration is unvalidated.
+Oracle Phase 2 narration and a May manual run are documented historically. September 26, 21:07 Toronto
+read-only inspection found no Oracle process or scheduled task directly naming it; the repository's
+nightly stages are Hermes, Delphi and Athena. No Oracle database history was queried.
+No AI portfolio is implemented or activated, and
 operational evidence dates above are unchanged. See the
 [proposal and next decision](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
 

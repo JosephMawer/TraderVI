@@ -21,8 +21,11 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 September 26 requested direction: add an AI-managed momentum portfolio and use it for real trading,
 targeting September 28. AI Explorer is deferred to a future session; the first pass is AI Momentum
-in paper and intended live use. Discretion plus enforced boundaries is agreed; adaptive protection
-and exact limits remain open. This is not a verified launch commitment
+in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) accepts
+discretion, enforced boundaries, reducing risk as losses deepen and no loosening stops to prolong
+losing trades. Reuse/adapt the Oracle client, define exact protection/profit limits and qualify the
+preferred Astra/Codex connection.
+This is not a verified launch commitment
 or completed replacement of the execution work below. See the
 [open scope](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
 
