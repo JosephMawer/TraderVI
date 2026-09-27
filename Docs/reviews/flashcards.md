@@ -21,7 +21,8 @@ sessions ("quiz me" / "review").
 ### Q: When can another AI round begin after a loss threshold is reached?
 
 A: Only after the failed round's AI-managed holdings are closed, fills and cash are reconciled,
-outstanding commitments are resolved, and fresh entry signals qualify for a permitted attempt.
+outstanding commitments are resolved, and a fresh post-closure signal from the selected engine
+qualifies for a permitted attempt. There is no extra fixed delay; the AI can take it or wait.
 An acknowledgement or partial sale is insufficient. No fourth attempt is allowed after three
 failed rounds that day. Source: ADR-0087. Tags: risk-management, decision-engine.
 

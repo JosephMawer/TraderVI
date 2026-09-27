@@ -150,8 +150,8 @@ recover. Preserve that intent; the exact qualifying market signal and permitted 
 remain open. A recovery in watched stocks can produce a new opportunity but cannot increase an
 all-cash portfolio's trading value. Therefore market-based re-entry requires an explicit recovery
 transition at zero allowance, without erasing actual losses, lowering retained protective stops or
-bypassing independent holds. Reusing the selected engine's entry checks for this transition is a
-candidate, not a settled trigger or permission to resume full-size buying.
+bypassing independent holds. The later fresh-entry decision below selects the existing engine's
+entry checks for this transition; it does not settle restart sizing or permit bypassing hard limits.
 
 ### Three-cycle loss schedule — September 27 decision
 
@@ -173,7 +173,7 @@ portfolio peaks and actual loss history across cycles. A retry counter cannot cl
 account/data/capital-review holds. The overall cumulative safeguard is still to be specified.
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
-accepted below. Next define fresh-entry qualification, gradual sizing within each round,
+accepted below, along with fresh-entry qualification. Next define gradual sizing within each round,
 peak/starting-reference interaction, successful/carried rounds and the daily retry-counter reset.
 These decisions do not authorize running liquidation or changing real trading in this session.
 
@@ -194,8 +194,24 @@ reflects confirmed results. This gives the failed round a definite end and preve
 loss allowance while its old positions remain open. Shrinking the gradual allowance alone still does
 not force a sale: reaching the round's hard loss threshold is the accepted closure trigger.
 
-This is design agreement only, not broker authority or an installed workflow. Exact fresh-entry
-qualification, failure recovery across sessions and the daily counter's reset remain to be settled.
+This is design agreement only, not broker authority or an installed workflow. Failure recovery
+across sessions and the daily counter's reset remain to be settled.
+
+### Fresh-entry qualification — September 27 decision
+
+The operator accepts reusing the selected engine's entry logic for another permitted round. After
+the failed round's sales are confirmed and reconciled, wait for a fresh qualifying entry signal
+from that engine, based on post-closure evidence. A stale signal from before the sales cannot
+restart trading. Preserve the engine's existing evidence freshness and confirmation requirements;
+do not add a separate fixed waiting period. The AI may take the qualified opportunity or continue
+waiting; a signal is eligibility, not an instruction to buy.
+
+This resolves the immediate restart-trigger question while reusing existing components for the
+parent goal of a small, protected AI execution workflow. Re-entry still needs an available attempt,
+valid account/data/order state and all hard protection checks. A signal cannot override the
+third-failure daily stop or erase independent holds. Rule classification and sizing remain separate
+decisions. This is accepted design only; signal adapters, enforcement and host integration remain
+unfinished, with no runtime, database or broker change in this increment.
 
 ## Client direction and current evidence
 

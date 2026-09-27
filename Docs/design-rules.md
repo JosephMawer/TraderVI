@@ -136,11 +136,13 @@ these cycle limits remains open. It must not create a fresh
 allowance per order or force liquidation solely because the allowance shrank. The later
 failed-round closure decision separately requires closing remaining AI-managed holdings at the
 round's loss threshold and confirming/reconciling exits before a new permitted attempt. Unresolved
-orders or partial exits cannot create a fresh round. This is pending implementation. The continuous
+orders or partial exits cannot create a fresh round. Re-entry requires a fresh qualifying signal
+from the selected engine after confirmed closure, with its existing confirmation checks and no
+additional fixed delay. The AI may choose to wait. This is pending implementation. The continuous
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
 and verified recovery across days; the later retry cap is daily, without erasing loss history.
 Both starting balance and recorded
-portfolio peak must be tracked. Exact combination/valuation, market-based re-entry from cash and
+portfolio peak must be tracked. Exact combination/valuation, restart sizing and
 interaction with existing holds remain unresolved. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.

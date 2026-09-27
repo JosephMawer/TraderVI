@@ -35,7 +35,8 @@ The AI gradual scale now follows continuous losses/recovery across days, replaci
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.
 The accepted 5% / 3% / 1% cycle schedule replaces the AI 7% boundary and stops new buying after
 three failed rounds that day. Failed-round closure and confirmed exits before another attempt are
-agreed. Next define fresh-entry qualification, then reconcile gradual
+agreed. Fresh qualifying entry signals from the selected engine permit AI-reviewed re-entry without
+an added fixed delay. Next reconcile gradual
 sizing/reference combination with the schedule while reusing existing protection.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes

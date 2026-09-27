@@ -10,7 +10,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
   7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
   continue. Failed-round closure is agreed: close remaining AI-managed holdings and confirm/reconcile
-  exits and commitments before a new permitted round. Next specify fresh-entry qualification, gradual sizing
+  exits and commitments before a new permitted round. Fresh-entry qualification is agreed: a new
+  qualifying signal from the selected engine after closure, no extra fixed delay, and AI choice to
+  take it or wait. Next specify gradual sizing
   within rounds, peak/starting-reference interaction, successful/carried rounds and daily counter
   reset. Preserve original capital/peak records and independent holds; the daily retry cap does not
   settle the cumulative loss safeguard. Existing engine templates remain unchanged.
@@ -22,8 +24,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   supersedes its original daily framing and session-minimum lock; the later cycle schedule above
   adds a daily retry cap and replaces the fixed 7% AI pause. Both starting capital and recorded portfolio
   peak are now selected references. Define their combination, cash-flow adjustments and peak valuation.
-  The operator wants continued monitoring and automatic pickup after recovery while in cash; define
-  the qualifying market signal and restart allowance. Market recovery alone does not restore an
+  The operator wants continued monitoring and automatic pickup after recovery while in cash; the
+  fresh engine signal is agreed, while restart allowance remains open. Market recovery alone does not restore an
   all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
   Resolve interaction with existing daily/capital-review holds before integration. Existing engine
   7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.
