@@ -651,6 +651,27 @@ Protective exits and emergency handling must never wait for learning refresh or 
 Exact intervals, lesson qualification/expiry and stale/unavailable-learning behavior for discretionary
 actions require host qualification. No timer or automation is created by this ADR.
 
+### End-of-session learning review — September 27 decision
+
+The operator accepts one learning review after each trading session for the MVP. Review completed
+trades and blocked alternatives with sufficient follow-up evidence under their declared comparison
+horizons. Record what helped, what hurt and the supporting evidence; retain inconclusive or immature
+cases as pending for a later session review. Session close alone does not complete a comparison
+horizon or prove a hypothesis. Preserve actual and simulated outcomes as distinct evidence.
+
+Feed evaluated lessons into subsequent AI decisions through the shared learning journal. The
+supervisor and execution coordinator still consult saved lessons throughout the trading day as
+already agreed; creating/evaluating lessons after the session does not replace those consultations.
+An AI-written observation remains a hypothesis until it meets the lesson admission criteria.
+The review cannot change hard boundaries, edit code or train model weights.
+
+All paid learning work uses the same monthly allowance, with no reserved learning budget. If budget,
+provider or required evidence is unavailable, record the deferred/incomplete review and retain pending
+cases; do not fabricate lessons or block independent protection. Exact post-close timing, restart/
+missed-review handling and lesson qualification/expiry remain implementation/design work. This is
+one logical session review, not a new scheduled task or implemented evaluator. Steps 6/7 must wire
+and validate it, including avoiding duplicate processing after restart. No runtime or paid call ran.
+
 ### Learning source increment — September 26
 
 `AiLearningJournal` now stores immutable evaluated-lesson snapshots, consumer consultations,

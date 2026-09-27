@@ -134,6 +134,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
    reconcile other AI-managed exits before replacements, preserve round/risk state and log the reason.
    The eligible strategy set and compatibility mapping still need qualification.
+   One learning review after each trading session is agreed for completed trades and blocked
+   alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
+   saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
@@ -152,6 +155,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
 6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
    hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
+   Run one logical post-session review, recording helpful/harmful outcomes with evidence and retaining
+   immature/inconclusive cases for later reviews. Do not treat session close as outcome maturity.
    Include blocked stop-relaxation hypotheses and compare actual outcomes with clearly labelled
    simulated alternatives using declared horizons/assumptions. Account for outcome magnitude and
    missing evidence, not only win frequency. Verify supervisor/coordinator consultation and preserve
@@ -166,6 +171,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    one-minute minimum and shared budget. Qualify event-driven earlier reviews, duplicate/concurrent events,
    missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
    fallback and fresh-review recovery, including preservation of independent holds and protection.
+   Schedule the agreed post-session learning review with shared-budget checks, persisted pending/
+   deferred cases and restart-safe processing; preserve intraday saved-lesson consultation.
    Configure the shared CAD budget with FX/tax headroom and per-call reservations, without daily
    pacing or future-consult reserves. Implement explicit operator allowance extensions while retaining
    month-to-date spend and outstanding reservations; current source rejects CAD 100 or more and

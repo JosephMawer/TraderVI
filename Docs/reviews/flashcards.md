@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does an end-of-session learning review replace intraday learning consultation?
+
+A: No. The post-session review evaluates completed outcomes and leaves inconclusive cases pending.
+The supervisor and execution coordinator still consult saved evaluated lessons throughout the day.
+All paid learning shares the monthly budget and cannot rewrite hard boundaries. Source: ADR-0087. Tags: learning, architecture, llm.
+
 ### Q: Does switching AI portfolios create fresh risk allowance?
 
 A: No. Keep the round reference, peak, limit, attempts and review holds, even if the switch passes

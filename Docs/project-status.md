@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum switching with retained holdings, protection and risk history agreed; integration pending.
+**Current record:** September 27, 2026. AI Momentum end-of-session learning review agreed; evaluator and host integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -138,6 +138,10 @@ supervision, automatic outcome evaluation, packet adapters and paper/live integr
 September 26 clarification: both the supervisor and execution coordinator must periodically consult
 evaluated learning. Source now connects the learning journal to the supervisor and execution-preparation
 coordinator, with versioned lessons, per-lesson assessments and restart-safe consultation intervals.
+One post-session learning review is now agreed: completed trades and blocked alternatives with
+sufficient follow-up evidence, evidence-backed helpful/harmful findings, and inconclusive cases
+retained pending. Evaluated lessons feed subsequent decisions; saved-lesson consultation continues
+intraday. All paid learning shares the monthly allowance (ADR-0087; Steps 6/7).
 Production scheduling, lesson qualification and broker integration are not implemented. Protective
 handling has no dependency on this new path. See ADR-0087 for precise limits.
 The [ten-step delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence)

@@ -28,7 +28,9 @@ implemented offline under the operator's initial below-CAD-100 monthly ceiling. 
 access remains an alternative. Next define eligible portfolios and evaluated learning, remaining
 rule classification, authoritative packet adapters and production budget/storage configuration.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
-next connect qualified outcome evaluation and periodic host scheduling under ADR-0087.
+one post-session learning review is now agreed alongside intraday saved-lesson consultation.
+Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
+or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 Step 1 is complete offline; Step 2 is in progress. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing

@@ -23,6 +23,13 @@ authority. Learning cannot rewrite policy or block independent protection. AI ha
 agreed below; eligible strategy mapping, enforcement integration and automatic lesson qualification
 remain unresolved.
 
+The MVP learning cadence is one review after each trading session: evaluate completed trades and
+blocked alternatives with enough follow-up evidence, preserve inconclusive cases as pending and
+record evidence for helpful/harmful outcomes. Only qualified evaluated lessons inform subsequent
+decisions; supervisor/coordinator consultation of saved lessons continues intraday. Learning uses
+the same budget and cannot change hard boundaries. Session-close timing does not qualify immature
+evidence. This evaluator/scheduler is not implemented (ADR-0087).
+
 For an AI portfolio switch, retain holdings permitted by both strategies with their existing stops,
 actual costs and history; confirm/reconcile required non-overlap exits before replacement buys.
 Carry the same round reference/peak/limit, attempts and independent holds even through an all-cash

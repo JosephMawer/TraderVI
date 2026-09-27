@@ -19,6 +19,12 @@ this path yet. The existing broker workflow and independent protection remain se
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.
 
+Planned learning production runs once after each trading session, reviewing completed trades and
+blocked alternatives with sufficient follow-up evidence and leaving inconclusive cases pending.
+Publish only qualified evaluated lessons for later decisions; supervisor/coordinator consultation
+of saved lessons continues intraday. The review shares the monthly budget and cannot change hard
+boundaries. Outcome evaluation, scheduling and restart qualification remain pending (ADR-0087).
+
 Planned stock-action boundary: reuse engine hard-stop/trailing-profit settings, allow earlier sells
 or tighter stops, and reject any loosening/removal in application validation and execution rechecks.
 A separate non-executable record captures blocked alternatives and evidence for later learning;
