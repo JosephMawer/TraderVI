@@ -14,7 +14,17 @@ has an explicit risk configuration and independent state. AI continuous rounds r
 daily-pause calculation; ordinary portfolios retain existing behavior. Stock stops, overall review
 holds and account/data/order controls persist. Engine switches cannot reset risk or loosen the profile.
 Extract only this needed boundary, reusing existing workflows. Protective exits do not wait for AI.
-This architecture is agreed, not implemented; saved holds require their established release rules.
+The offline round core below starts this work; shared engine/execution integration remains pending.
+Saved holds require their established release rules.
+
+`Core.Trader.Risk` now supplies `PortfolioRiskAssessment` and explicit profile identifiers, plus
+`AiPortfolioRiskPolicy` for immutable AI round transitions. Complete current no-flow valuations
+advance peaks and protection independently of model calls; closure and fresh re-entry evidence
+are tied to the same portfolio/round, and exhausted sequences use `ITsxSessionCalendar`.
+Independent blocks and a missing fresh AI review suppress allowance without cancelling closure.
+The assessment is not executable permission. Input qualification, cash-flow adjustment, full
+account/position controls, state journaling and adapters to existing engines remain pending.
+The serializable state is a working snapshot; a future journal must preserve transitions/history.
 
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson

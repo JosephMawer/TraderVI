@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Budgeted client, portfolio proposals and learning-consultation foundation implemented offline; outcome evaluation, host integration and protection parameters pending.
+**Status:** Client/learning foundation and continuous-round risk core implemented offline; shared engine integration, outcome evaluation and host qualification pending.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -75,7 +75,36 @@ Read-only source inspection finds family-specific guard calls in `TradingRecomme
 and common checks in `BrokerManagedSessionWorkflow`. `AiPortfolioExecutionCoordinator` remains
 learning-aware preparation only. Shared authority extraction, AI profile integration and order-path
 connection are pending Steps 4/5 work. No runtime behavior, assignment or execution authority changes
-in this documentation increment. Remaining discretionary-rule classification stays open.
+in that documentation increment. The discretion principle is settled; map concrete engine rules
+during implementation and escalate only genuine ambiguities.
+
+## Implementation checkpoint — September 27
+
+Step 2 has enough agreed framework to proceed with code. The remaining feature decisions are the
+eligible portfolio set and evaluated-lesson admission criteria; resolve these before enabling their
+respective features. Do not reopen ordinary-rule discretion. Data/feed qualification, concrete
+rule mapping, storage and execution wiring are implementation dependencies, not additional broad
+design interviews. Step 4 now has an offline risk-core increment while Step 3 adapters remain pending.
+
+`Core/Trader/Risk/PortfolioRiskAssessment.cs` establishes the shared output contract and explicit
+engine-daily/AI-continuous profile identifiers. It is a risk assessment, never order authority.
+`AiPortfolioRiskPolicy` implements immutable state transitions for initial capital, round peaks,
+5%/3%/1% limits, proportional allowance, latched failure, reconciled closure and fresh-entry restart.
+Round/sequence identity carries across sessions; exhausted sequences consult the existing reviewed
+market calendar. Re-entry evidence is bound to the preceding round. Independent holds and missing
+fresh AI review block new allowance without suppressing a committed protective closure.
+
+Valuations must have identity, scope, complete/current whole-portfolio evidence and a confirmed
+no-capital-flow interval. Duplicate observations are idempotent; stale/conflicting observations
+cannot advance the peak. Adapters must qualify these inputs and surface rejected observations as
+new-risk blocks. Serialization preserves working state, but is not a durable journal or audit.
+The journal must retain prior states/rounds when integration is added.
+
+This increment deliberately cannot adjust cash flows or qualify a feed. Matched cash-event
+integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure
+checks, ordinary-engine adapters, persistence and execution remain separate dependencies. Existing
+holds are supplied as independent blocks; this core cannot clear them. Existing runtime engines
+are unchanged and no production caller is connected. Validation evidence belongs in project status.
 
 ## Daily buying pause — September 26 decision
 

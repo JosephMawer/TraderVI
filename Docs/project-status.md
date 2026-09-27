@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. Shared risk authority and explicit AI/ordinary risk profiles agreed; extraction and integration pending.
+**Current record:** September 27, 2026. Offline AI continuous-round risk core implemented; 21 focused tests pass. Engine/feed/host integration remains pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -113,6 +113,25 @@ reproduction instructions are in the [activation review](reviews/supervised-sess
 
 ## Known gaps and risks
 
+**September 27 implementation checkpoint:** Step 2's core framework is agreed and sufficient to
+build. Portfolio eligibility and evaluated-lesson admission remain two feature follow-ups; concrete
+rule mapping belongs in implementation. Step 4 has begun with `Core/Trader/Risk` and
+`AiPortfolioRiskPolicyTests`: shared assessment/profile contracts, continuous round transitions,
+trailing peaks/allowance, failure/closure and calendar-aware fresh-entry restart. Independent
+holds and unavailable AI suppress new allowance while failed-round closure remains required.
+
+Validation with .NET SDK 10.0.401: **21 focused tests passed, zero failures/skips**. Core and the
+test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
+`artifacts/ai-risk-20260927/focused-tests.log`. Existing CS8632 nullable-context compiler warnings
+remain. NuGet restore needed approved network access after a sandbox denial; package-security
+auditing was disabled for this run, so there is no fresh vulnerability assessment. The full Core
+suite, WPF and SQL builds were not rerun. No application, SQL, model, market or broker operation ran.
+
+Scope: synthetic qualified no-flow inputs, immutable working state and serialization only. There
+is no durable risk journal, feed/cash-event adapter, overall-guard or stock-action integration,
+ordinary-engine replacement or execution caller. Invalid observations must become caller risk
+blocks. These tests establish round behavior, not native data qualification or live readiness.
+
 September 26 design discussion: the operator requested an AI-managed portfolio and Monday,
 September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
 The first pass is AI Momentum in paper and intended live use; AI Explorer is explicitly deferred.
@@ -123,7 +142,8 @@ never loosen/remove an established stop. Desired relaxations must be logged as b
 hypotheses for later actual-versus-simulated outcome comparison. Application code must enforce
 the boundary; learning cannot change it. Source inspection confirms existing portfolio-review
 hard-rule rejection and rejected-review journaling, but stock-stop actions and alternative-outcome
-evaluation are not implemented. Remaining rule classification and learning criteria are open.
+evaluation are not implemented. Concrete rule mapping is implementation work; lesson admission and
+the eligible portfolio set remain feature decisions.
 The operator sets an initial AI budget below CAD 100
 monthly and requests portfolio selection/switching plus self-improvement. API-first Oracle adaptation
 is selected for the first source increment; subscription-backed Codex remains an alternative.
@@ -145,7 +165,8 @@ intraday. All paid learning shares the monthly allowance (ADR-0087; Steps 6/7).
 Production scheduling, lesson qualification and broker integration are not implemented. Protective
 handling has no dependency on this new path. See ADR-0087 for precise limits.
 The [ten-step delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence)
-groups commits `720c780a` and `07928730` as Step 1, complete offline. Step 2 is in progress; steps 3–10
+groups commits `720c780a` and `07928730` as Step 1, complete offline. Step 2's core framework is agreed
+with two feature follow-ups; Step 4's offline risk core is in progress, and the other delivery steps
 remain pending. The operator requests this same list for future "progress" queries and an MVP focus
 without tangents or unnecessary complexity. September 26: the operator accepts a 7% hard daily
 buying pause for AI Momentum and the same default for new Delphi Live/System Shadow templates.

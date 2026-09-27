@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does the tested AI round core mean the AI portfolio can trade yet?
+
+A: No. It calculates round transitions from qualified synthetic inputs and produces risk assessments.
+Feed/cash-event qualification, durable history, full account/position controls and execution wiring
+remain pending. A risk assessment alone is not order permission.
+Source: ADR-0087. Tags: architecture, risk-management, validation.
+
 ### Q: Does shared risk enforcement mean every portfolio must use identical rules?
 
 A: No. Each portfolio has an explicit approved risk configuration and its own history. AI uses

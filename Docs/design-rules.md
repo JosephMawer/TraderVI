@@ -30,7 +30,12 @@ For AI-managed trading, continuous rounds replace the engine daily-pause calcula
 portfolios retain existing settings/behavior. Preserve the overall 10% hold, established stock stops,
 account/data/order checks and existing saved holds. Switching engines cannot change the risk profile
 or reset its state. Extract only the needed boundary; no shared paper/live balances or competing
-order/risk owners. Protective exits remain independent of AI. This is agreed, not implemented (ADR-0087).
+order/risk owners. Protective exits remain independent of AI. The offline AI round core and common
+assessment contract now exist; shared engine/host/execution integration remains pending (ADR-0087).
+Discretion is settled: map concrete rules during implementation, asking only about genuine ambiguity.
+The new core accepts qualified no-flow valuation intervals only; cash-flow adjustment and feed
+adapters remain pending. Rejected evidence must block new risk in the caller. An assessment grants
+no order authority and cannot replace the existing overall review hold or stock protection.
 
 The MVP learning cadence is one review after each trading session: evaluate completed trades and
 blocked alternatives with enough follow-up evidence, preserve inconclusive cases as pending and

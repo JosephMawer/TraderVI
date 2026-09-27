@@ -87,17 +87,22 @@ record them. A prepared migration or passing test never proves broker readiness.
 ### AI Momentum delivery sequence
 
 This is the end-to-end sequence requested September 26. Step 1 groups the completed source increments
-(`720c780a`, `07928730`); steps 2–10 remain unfinished. Existing broker prerequisites below still apply,
+(`720c780a`, `07928730`); Step 2's core framework is agreed and Step 4's offline risk core has begun.
+Feature follow-ups and remaining delivery work are recorded below. Existing broker prerequisites still apply,
 and this plan authorizes no deployment, paid qualification call or live order. AI Explorer stays deferred.
 When the operator asks for "progress", show this same numbered list with current completion states.
-Keep its numbering stable and update it at each meaningful milestone. Step 2 is now in progress.
+Keep its numbering stable and update it at each meaningful milestone. Step 2 no longer blocks coding.
 MVP approach: reuse existing engines and contracts, resolve one necessary decision at a time, and
 introduce complexity only when needed. Do not silently drop accepted discretion, learning or protection.
 
 1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
    journals, learning consultation and execution-preparation checks. This is reusable Core source,
    not an operating AI portfolio. Dated validation is in project status.
-2. **Set the operating contract — in progress.** Specify hard limits, the decreasing risk scale, profit protection,
+2. **Operating contract — core framework agreed; two feature follow-ups.** The remaining choices are
+   portfolio eligibility and evaluated-lesson admission criteria, before those features are enabled.
+   Map concrete discretionary/hard rules during implementation; only genuine ambiguities need another
+   decision. The agreed contract below is sufficient to build; retain all remaining integration work.
+   Specify hard limits, the decreasing risk scale, profit protection,
    discretionary rule classification, portfolio eligibility/switching, review cadence and outage
    behavior. Define lesson evaluation/admission criteria. This step requires operator
    decisions on trading limits; implementation must not invent them. New Delphi Live/System Shadow
@@ -158,7 +163,12 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
    Qualify confirmed effective cash events and matched before/after books under ADR-0083; a net
    balance delta or occurrence timestamp alone is insufficient.
-4. **Implement trading decisions and enforced protection.** Extend portfolio-only proposals to
+4. **Implement trading decisions and enforced protection — in progress, offline core.**
+   Implemented/tested: `AiPortfolioRiskPolicy` and shared assessment/profile contracts cover round
+   peaks, allowance, latched closure, cross-session continuity and qualified re-entry. See project
+   status for the 21-test evidence and limits. Working-state serialization is not durable storage;
+   feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
+   Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
    the selected engine and approved boundaries in C#. Keep protective monitoring independent of
    model/learning availability. Reject any established-stop loosening/removal, including undoing an

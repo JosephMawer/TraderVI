@@ -25,14 +25,18 @@ in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-bounda
 discretion, enforced boundaries, reducing risk as losses deepen and no loosening stops to prolong
 losing trades. The first API client, shared spending journal and portfolio-proposal contract are
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
-access remains an alternative. Next define eligible portfolios and evaluated learning, remaining
-rule classification, authoritative packet adapters and production budget/storage configuration.
+access remains an alternative. Proceed with implementation of the agreed framework. Portfolio
+eligibility and evaluated-lesson admission remain two feature follow-ups; concrete rule mapping,
+authoritative packet adapters and production budget/storage configuration are implementation work.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 one post-session learning review is now agreed alongside intraday saved-lesson consultation.
 Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
-Step 1 is complete offline; Step 2 is in progress. Existing engine daily templates use 7%.
+Step 1 is complete offline; Step 2's core framework is agreed with two feature follow-ups. Step 4
+has begun with the tested offline continuous-round risk core and shared assessment contract.
+Next connect qualified inputs, durable state and existing risk/execution adapters; source qualification
+and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.
 The accepted 5% / 3% / 1% cycle schedule replaces the AI 7% boundary and stops new buying after

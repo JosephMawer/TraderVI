@@ -7,13 +7,21 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
+- **Step 2 checkpoint (September 27):** core framework is sufficient to implement. Two feature
+  follow-ups remain: eligible portfolio set and evaluated-lesson admission criteria. Resolve them
+  before enabling selection/automatic lessons; they do not block offline risk code. Discretion is
+  already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
+  Step 4 now has a tested offline continuous-round core; qualified data/cash-flow inputs, durable
+  journal, complete risk adapters and execution/host connection remain unfinished.
+
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous
   rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.
   Preserve independent controls, existing holds and separate paper/live state. Engines supply
   versioned signals/rules; AI proposes actions; execution rechecks permission. Focused extraction,
   saved-hold transition integration and regression validation remain pending. The remaining
-  discretionary-rule classification, eligible strategy set and lesson admission still need decisions.
+  eligible strategy set and lesson admission need feature decisions; concrete rule mapping is
+  implementation work under the already agreed discretion boundary.
 
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
   7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
@@ -94,8 +102,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   host readiness and an exact supported strategy remain prerequisites under the existing contracts.
 - **Accepted framework:** the AI may use or ignore discretionary trading rules when it records why;
   separately enforced hard boundaries cover cash, exposure, emergency protection and account/data/order
-  validity. Exact limits and rule classification remain unresolved; no existing protection contract is
-  superseded by this discussion.
+  validity. Use the accepted limits above; concrete rule mapping remains implementation work.
+  The explicit AI risk profile replaces its daily-pause calculation when integrated, preserving
+  independent controls and existing saved holds.
 - **Deferred by the operator:** AI Explorer, the separate paper experiment with freedom over investing
   style, is outside the first pass and may be revisited in a future session. Current scope is AI Momentum
   in paper and intended live use.
