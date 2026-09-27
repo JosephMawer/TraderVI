@@ -22,8 +22,9 @@ sessions ("quiz me" / "review").
 
 A: Each stock's combined buying allowance shrinks from its normal limit at no daily loss to half
 at 3.5% loss and zero at 7%. Initial buys and additions share that allowance; splitting orders
-cannot bypass it. Shrinking the allowance alone does not force a sale. Recovery behavior remains
-unresolved. Source: ADR-0087. Tags: risk-management, decision-engine.
+cannot bypass it. Shrinking the allowance alone does not force a sale. The session's lowest
+multiplier survives rebounds; next-session recovery remains unresolved. Source: ADR-0087.
+Tags: risk-management, decision-engine.
 
 ### Q: Does the new 7% daily buying-pause default change an existing portfolio automatically?
 

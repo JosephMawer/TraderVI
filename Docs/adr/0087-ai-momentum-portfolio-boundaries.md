@@ -30,7 +30,8 @@ TFSA with preserved cash, execution and risk history.
 - Log meaningful decisions, evidence, reasons for overrides and conditions for reconsideration.
   A persuasive explanation is not proof of predictive value or permission to breach a boundary.
 - Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
-  Recovery conditions and real-account reference qualification remain unresolved.
+  Retain the session's lowest scale multiplier; next-session recovery and real-account reference
+  qualification remain unresolved.
 - Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
   room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
@@ -55,7 +56,7 @@ With the new templates, the engines pause new buys at a session return of -7% or
 portfolio value. Protective exits continue; the threshold does not change position stops or the
 10% capital-review threshold and cannot clear an existing pause. The AI cannot waive its accepted
 7% boundary by selecting a more permissive strategy. Wiring that boundary into AI execution is
-Step 4 work. Real-account reference qualification and recovery remain unresolved.
+Step 4 work. Real-account reference qualification and next-session recovery remain unresolved.
 A buying pause is not a guaranteed maximum realized loss.
 
 ## Gradual allocation scale — September 27 decision
@@ -75,9 +76,23 @@ Existing exposure at or above the reduced allowance leaves no room for an additi
 
 This is an accepted AI Momentum design, not an implemented or installed allocation control, and
 does not add the scale to other engines automatically. Step 4 must enforce it and account for
-holdings and outstanding buy commitments. Step 2 still must settle whether an intraday recovery
-can increase a previously reduced allowance, along with next-session recovery and qualified loss
-references. The existing 7% pause cannot be cleared just by recalculating a positive allowance.
+holdings and outstanding buy commitments. Step 2 still must settle next-session recovery and
+qualified loss references. The existing 7% pause cannot be cleared just by recalculating a positive allowance.
+
+### Same-session recovery — September 27 decision
+
+The operator accepts retaining the session's lowest allocation multiplier as the MVP behavior.
+At each valid observation, use the lower of the saved session multiplier and the newly calculated
+multiplier. A rebound after a 3.5% loss therefore leaves the ceiling at 50% of the normal allowance;
+deeper losses can reduce it further. Reaching 7% keeps new buying paused for the rest of that session.
+This applies to the risk multiplier, not a promise of constant dollar buying power: other limits,
+account value, holdings and buy commitments still govern availability.
+
+The reason is predictable behavior and straightforward validation, not demonstrated profitability.
+Revisit the choice through reviewed paper evidence. Preserve the session minimum across restart
+and portfolio-context switches so neither can reset this boundary. This design is not yet implemented
+or installed. Next-session reset conditions remain unresolved; retaining a same-day minimum does
+not authorize clearing capital-review, account-validity or other independent holds.
 
 ## Client direction and current evidence
 

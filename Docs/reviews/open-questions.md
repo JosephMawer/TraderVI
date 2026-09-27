@@ -11,8 +11,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   AI non-overridable boundary and the default for new Delphi Live/System Shadow templates (ADR-0087).
   Source templates implement it; frozen V1 and saved assignments remain unchanged. AI execution
   enforcement is still pending. The gradual per-stock allocation scale is accepted September 27
-  (ADR-0087). Next decide whether same-day recovery can restore a reduced allowance; real-account
-  references and next-session recovery still require agreement/qualification. Reuse existing behavior where
+  (ADR-0087), including retention of the session's lowest multiplier through rebounds. Next settle
+  next-session recovery; real-account references still require qualification. Reuse existing behavior where
   appropriate and settle one necessary decision at a time.
 
 - **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
@@ -30,7 +30,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   in paper and intended live use.
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  recovery behavior, profit activation and permitted giveback remain open. The gradual allocation
+  next-session recovery, profit activation and permitted giveback remain open. The gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling

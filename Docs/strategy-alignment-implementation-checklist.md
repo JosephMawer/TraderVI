@@ -103,8 +103,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    decisions on trading limits; implementation must not invent them. **Accepted:** 7% daily buying
    pause, with the same default implemented in new Delphi Live/System Shadow templates. Frozen and
    assigned versions are preserved. **Agreed September 27:** gradual per-stock allocation reduction
-   covering initial buys and additions, without forced sales (ADR-0087). AI enforcement integration
-   remains Step 4. **Next:** settle same-day recovery, then next-session recovery conditions.
+   covering initial buys and additions, without forced sales, retaining the session's lowest multiplier
+   through rebounds (ADR-0087). AI enforcement integration remains Step 4. **Next:** settle next-session
+   recovery conditions.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
