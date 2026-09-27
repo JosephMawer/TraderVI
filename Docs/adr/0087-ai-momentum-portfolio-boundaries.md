@@ -284,8 +284,8 @@ wait for a model call. No exact clock time or new stale-data exception is select
 The operator also requests deliberate review points at key parts of the trading day, where the AI
 consults the relevant rule sets and records which apply and why. This connects continuous portfolio
 management to current context without making the AI responsible for every protective tick. The
-additional checkpoints, rule-to-checkpoint mapping and event-driven reviews remain to be chosen;
-only the new-session consultation is agreed at this stage. All reviews and learning share the
+later clarification below accepts three consult checkpoints plus continuing intraday monitoring.
+Exact clock times and detailed rule-to-checkpoint mapping remain to be chosen. All reviews and learning share the
 existing AI spending ceiling. Budget exhaustion/provider failure cannot bypass protection or risk
 holds; exact discretionary-review fallback belongs to the remaining outage contract.
 
@@ -293,6 +293,40 @@ The daily failed-attempt counter and its interaction with a carried round remain
 do not silently reset an active round's limit when that counter is later renewed. This is Step 2
 design agreement. Step 7 must implement and qualify scheduling, including restart/missed-checkpoint
 handling. No scheduler, automation, paid call, runtime change or trading action is installed here.
+
+### Scheduled consults and adaptive intraday attention — September 27 clarification
+
+The operator accepts the three proposed consults: session start with fresh daily entry guidance,
+mid-session reassessment of holdings/opportunities, and a pre-close review of exits/overnight
+holdings. These are additional rule consultations, not a replacement for ordinary intraday Delphi
+Live checks. Keep the regular intraday monitor running and feed its dated observations and signals
+to the AI throughout the session. Exact checkpoint times and provider/budget fallback remain open.
+
+The operator requests AI input into intraday frequency: increasing attention when activity warrants
+it and reducing it when conditions are quiet, with one-minute and fifteen-minute intervals given
+as examples. The examples are not yet fixed minimum/maximum settings. This is accepted adaptive
+attention intent; its mechanism and exact bounds remain to be agreed and implemented.
+
+Separate market collection, deterministic monitoring/protection and paid AI review scheduling.
+Source inspection finds a 30-second host tick in `DelphiLiveDesktopService` composition, while the
+versioned Delphi Live signal policy uses completed five-minute bars and a two-minute collection
+offset. A faster scheduler tick is not a fresh one-minute signal bar, and a one-minute AI review
+cannot manufacture unavailable evidence. Do not silently change the policy's bar interval, data
+source contract or protective cadence under an AI frequency request.
+
+The recommended MVP mechanism is for each AI review to propose its next review interval and reason,
+with the host enforcing approved interval bounds, fresh-data availability, concurrency and the shared
+monthly budget. Exact ownership of discretionary collection cadence versus AI review cadence needs
+confirmation. Slower AI attention cannot slow required protection. Because the model is not reasoning
+between calls, the local monitor must be able to request an earlier review when defined material
+events occur; event definitions and priority/budget handling remain design work. No promise of one
+paid call every minute, guaranteed response latency or full-session minute-level coverage is made.
+
+Log requested and applied intervals, reasons, evidence times and any budget/data constraint that
+changes or rejects a request. Show the actual review cadence and next scheduled review in the AI
+status UI. All intraday reviews, scheduled consults, learning and any retries use the same spending
+ledger and below-CAD-100 ceiling. Independent protection continues if no paid review can run. This
+is design/source inspection only: no monitor, timer, provider request or runtime configuration changed.
 
 ## Client direction and current evidence
 

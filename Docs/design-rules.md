@@ -156,8 +156,12 @@ not change existing engine execution or authorize resetting loss history.
 Unfinished AI rounds retain references, limits and protective levels across market closures under
 the selected strategy's existing exit rules. At a new trading session, consult qualified fresh engine
 entry guidance and relevant evaluated learning without resetting protection or bypassing market hours.
-Other intraday rule-review checkpoints, retry-counter renewal and outage behavior remain undecided;
-all AI calls share the spending cap and protective handling never waits for a scheduled review.
+The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
+intraday monitoring and AI receipt of its evidence. AI input into review frequency is accepted in
+principle; one/fifteen-minute examples are not fixed bounds. Separate collection, protection and
+paid reviews; no AI request can change versioned bar semantics, weaken protection or bypass the
+shared spending cap. Exact cadence ownership/bounds, event triggers, retry renewal and outage
+behavior remain open. Protective handling never waits for a scheduled review.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not

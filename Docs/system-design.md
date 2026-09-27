@@ -19,6 +19,13 @@ this path yet. The existing broker workflow and independent protection remain se
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.
 
+Planned attention model (September 27): three scheduled rule consults coexist with ordinary Delphi
+Live intraday monitoring and budgeted AI reviews of its evidence. The operator requests adaptive
+AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented
+composition. Collection/bar timing, independent protective checks and paid model review cadence are
+distinct. Exact bounds and material-event triggers remain open; faster AI calls do not create fresher
+source bars. All roles share the existing durable spending ledger.
+
 ## Compact Live storage (ADR-0082)
 
 Source now reconstructs Live portfolios from compact roots, immutable content and revision-scoped

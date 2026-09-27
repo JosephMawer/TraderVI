@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Do the three AI consults replace Delphi Live intraday monitoring?
+
+A: No. Intraday monitoring continues and feeds the AI; scheduled consults are additional reviews.
+Adaptive AI attention cannot weaken protective checks or exceed the shared budget, and faster
+AI reviews do not create fresh bars between source updates. Source: ADR-0087. Tags: architecture, llm, reliability.
+
 ### Q: Does a new trading day start a fresh AI round automatically?
 
 A: No. An unfinished round keeps its loss reference, limit and protective levels across closures.

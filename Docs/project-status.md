@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum round continuity and new-session engine consultation agreed; implementation pending.
+**Current record:** September 27, 2026. AI Momentum three consults plus adaptive intraday attention agreed in principle; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -155,8 +155,12 @@ from highest recorded closing value as a cumulative buying pause requiring opera
 with protective exits continuing. Explicit UI distance to this and other thresholds is required
 (ADR-0087; checklist Step 8). Unfinished rounds now explicitly carry their references, limits and
 protection across market closures. A new trading session requires consultation of fresh engine entry
-guidance; additional rule-review checkpoints are requested but not yet selected. Reference combination,
-daily retry-counter renewal and exact review cadence remain open. No source changes or
+guidance. The operator now accepts session-start, mid-session and pre-close consults alongside
+ongoing intraday Delphi Live monitoring and AI receipt of its data. AI input into attention frequency
+is requested, with one/fifteen-minute examples; exact bounds and cadence ownership remain open.
+Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
+collection offset (ADR-0087). Reference combination, retry renewal, event triggers and budget-aware
+scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran
 for this decision. The source-validation evidence below retains its original scope.

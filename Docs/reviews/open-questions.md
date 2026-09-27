@@ -26,8 +26,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Round continuity and rule consultation (September 27, ADR-0087):** unfinished rounds retain
   holdings, loss references, round limits and protection across nights/weekends under existing exit
   rules. New sessions require review of qualified fresh entry-engine guidance. The operator wants
-  additional rule consultations at key parts of the day; choose those checkpoints and relevant rule
-  sets, keeping all calls within the shared AI budget. Define missed/stale review behavior without
+  session-start, mid-session and pre-close consults alongside regular Delphi Live intraday checks
+  and AI receipt of their data. Adaptive AI attention is requested, with one/fifteen-minute examples.
+  Set exact checkpoint times, relevant rules, frequency bounds and whether the AI controls only paid
+  review scheduling or any discretionary collection cadence. The recommended MVP uses AI-proposed
+  next-review intervals validated by the host, with defined local events requesting earlier reviews;
+  it cannot weaken protection or change five-minute bar semantics. Specify these events and shared
+  budget handling. Define missed/stale review behavior without
   blocking protective handling. Daily attempt-counter renewal remains separate from active-round
   continuity, and its interaction with carried rounds is unresolved. No scheduler is implemented.
 
