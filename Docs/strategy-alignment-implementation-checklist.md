@@ -89,13 +89,17 @@ record them. A prepared migration or passing test never proves broker readiness.
 This is the end-to-end sequence requested September 26. Step 1 groups the completed source increments
 (`720c780a`, `07928730`); steps 2–10 remain unfinished. Existing broker prerequisites below still apply,
 and this plan authorizes no deployment, paid qualification call or live order. AI Explorer stays deferred.
+When the operator asks for "progress", show this same numbered list with current completion states.
+Keep its numbering stable and update it at each meaningful milestone. Step 2 is now in progress.
+MVP approach: reuse existing engines and contracts, resolve one necessary decision at a time, and
+introduce complexity only when needed. Do not silently drop accepted discretion, learning or protection.
 
 1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
    journals, learning consultation and execution-preparation checks. This is reusable Core source,
    not an operating AI portfolio. Dated validation is in project status.
-2. **Set the operating contract.** Specify hard limits, the decreasing risk scale, profit protection,
+2. **Set the operating contract — in progress.** Specify hard limits, the decreasing risk scale, profit protection,
    discretionary rule classification, portfolio eligibility/switching, review cadence and outage
-   behavior. Define lesson evaluation/admission criteria. This is the next step and requires operator
+   behavior. Define lesson evaluation/admission criteria. This step requires operator
    decisions on trading limits; implementation must not invent them.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
