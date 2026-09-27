@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum three consults plus adaptive intraday attention agreed in principle; implementation pending.
+**Current record:** September 27, 2026. AI Momentum market-hours review interval of one to fifteen minutes agreed, subject to budget; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -156,8 +156,9 @@ with protective exits continuing. Explicit UI distance to this and other thresho
 (ADR-0087; checklist Step 8). Unfinished rounds now explicitly carry their references, limits and
 protection across market closures. A new trading session requires consultation of fresh engine entry
 guidance. The operator now accepts session-start, mid-session and pre-close consults alongside
-ongoing intraday Delphi Live monitoring and AI receipt of its data. AI input into attention frequency
-is requested, with one/fifteen-minute examples; exact bounds and cadence ownership remain open.
+ongoing intraday Delphi Live monitoring and AI receipt of its data. The operator confirms one minute
+as the fastest AI review interval and fifteen minutes as the slowest during market hours, subject to
+the shared budget. Cadence ownership and unavailable-review fallback remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
 collection offset (ADR-0087). Reference combination, retry renewal, event triggers and budget-aware
 scheduling remain unfinished. No source changes or

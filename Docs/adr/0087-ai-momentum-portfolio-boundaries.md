@@ -303,9 +303,11 @@ Live checks. Keep the regular intraday monitor running and feed its dated observ
 to the AI throughout the session. Exact checkpoint times and provider/budget fallback remain open.
 
 The operator requests AI input into intraday frequency: increasing attention when activity warrants
-it and reducing it when conditions are quiet, with one-minute and fifteen-minute intervals given
-as examples. The examples are not yet fixed minimum/maximum settings. This is accepted adaptive
-attention intent; its mechanism and exact bounds remain to be agreed and implemented.
+it and reducing it when conditions are quiet. On September 27, the operator confirms one minute as
+the fastest permitted AI review interval and fifteen minutes as the slowest during market hours,
+subject to the shared budget. These replace the earlier illustrative intervals with accepted bounds
+for scheduled AI reviews. They do not guarantee a completed review every fifteen minutes when budget,
+provider or data availability prevents one; exact fallback and event handling remain open.
 
 Separate market collection, deterministic monitoring/protection and paid AI review scheduling.
 Source inspection finds a 30-second host tick in `DelphiLiveDesktopService` composition, while the
@@ -315,7 +317,7 @@ cannot manufacture unavailable evidence. Do not silently change the policy's bar
 source contract or protective cadence under an AI frequency request.
 
 The recommended MVP mechanism is for each AI review to propose its next review interval and reason,
-with the host enforcing approved interval bounds, fresh-data availability, concurrency and the shared
+with the host enforcing the accepted one-to-fifteen-minute bounds, fresh-data availability, concurrency and the shared
 monthly budget. Exact ownership of discretionary collection cadence versus AI review cadence needs
 confirmation. Slower AI attention cannot slow required protection. Because the model is not reasoning
 between calls, the local monitor must be able to request an earlier review when defined material

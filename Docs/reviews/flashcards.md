@@ -22,7 +22,8 @@ sessions ("quiz me" / "review").
 
 A: No. Intraday monitoring continues and feeds the AI; scheduled consults are additional reviews.
 Adaptive AI attention cannot weaken protective checks or exceed the shared budget, and faster
-AI reviews do not create fresh bars between source updates. Source: ADR-0087. Tags: architecture, llm, reliability.
+AI reviews do not create fresh bars between source updates. The accepted scheduled review interval
+is one to fifteen minutes during market hours, subject to budget. Source: ADR-0087. Tags: architecture, llm, reliability.
 
 ### Q: Does a new trading day start a fresh AI round automatically?
 

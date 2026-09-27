@@ -39,8 +39,8 @@ agreed. Fresh qualifying entry signals from the selected engine permit AI-review
 an added fixed delay. Proportional buying allowance within each round, with recovery before its
 hard limit, is agreed. The 10% cumulative review hold requiring operator approval and explicit UI
 threshold visibility are agreed. Round continuity across closures and new-session engine consultation
-are agreed. Three consults now complement ongoing intraday monitoring; AI input into review frequency
-is accepted in principle. Next settle cadence ownership/bounds and budget-aware event reviews, daily
+are agreed. Three consults complement ongoing intraday monitoring; AI review intervals of one to
+fifteen minutes during market hours are agreed, subject to budget. Next settle cadence ownership and budget-aware event reviews, daily
 counter renewal and reference combination. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes

@@ -23,8 +23,9 @@ Planned attention model (September 27): three scheduled rule consults coexist wi
 Live intraday monitoring and budgeted AI reviews of its evidence. The operator requests adaptive
 AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented
 composition. Collection/bar timing, independent protective checks and paid model review cadence are
-distinct. Exact bounds and material-event triggers remain open; faster AI calls do not create fresher
-source bars. All roles share the existing durable spending ledger.
+distinct. Accepted scheduled AI review bounds are one to fifteen minutes during market hours, subject
+to budget; material-event triggers and unavailable-review fallback remain open. Faster AI calls do
+not create fresher source bars. All roles share the existing durable spending ledger.
 
 ## Compact Live storage (ADR-0082)
 

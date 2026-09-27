@@ -157,10 +157,10 @@ Unfinished AI rounds retain references, limits and protective levels across mark
 the selected strategy's existing exit rules. At a new trading session, consult qualified fresh engine
 entry guidance and relevant evaluated learning without resetting protection or bypassing market hours.
 The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
-intraday monitoring and AI receipt of its evidence. AI input into review frequency is accepted in
-principle; one/fifteen-minute examples are not fixed bounds. Separate collection, protection and
+intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
+minutes during market hours, subject to the shared budget. Separate collection, protection and
 paid reviews; no AI request can change versioned bar semantics, weaken protection or bypass the
-shared spending cap. Exact cadence ownership/bounds, event triggers, retry renewal and outage
+shared spending cap. Exact cadence ownership, event triggers, retry renewal and outage
 behavior remain open. Protective handling never waits for a scheduled review.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
