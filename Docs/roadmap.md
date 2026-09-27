@@ -29,6 +29,9 @@ access remains an alternative. Next define portfolio selection/handover and eval
 protection/profit limits, authoritative packet adapters and production budget/storage configuration.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 next connect qualified outcome evaluation and periodic host scheduling under ADR-0087.
+Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
+Step 1 is complete offline; next specify the operating contract in Step 2. The sequence includes
+data/decision/execution integration, learning, host/UI, paper validation and native live qualification.
 Integrate and qualify the client and independent protective host before enabling any paper/live actions.
 This is not a verified launch commitment
 or completed replacement of the execution work below. See the

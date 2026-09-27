@@ -84,6 +84,49 @@ record them. A prepared migration or passing test never proves broker readiness.
   Parent tables are ID-only fixtures; this
   does not qualify baseline/continuation storage or actual broker fills.
 
+### AI Momentum delivery sequence
+
+This is the end-to-end sequence requested September 26. Step 1 groups the completed source increments
+(`720c780a`, `07928730`); steps 2–10 remain unfinished. Existing broker prerequisites below still apply,
+and this plan authorizes no deployment, paid qualification call or live order. AI Explorer stays deferred.
+
+1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
+   journals, learning consultation and execution-preparation checks. This is reusable Core source,
+   not an operating AI portfolio. Dated validation is in project status.
+2. **Set the operating contract.** Specify hard limits, the decreasing risk scale, profit protection,
+   discretionary rule classification, portfolio eligibility/switching, review cadence and outage
+   behavior. Define lesson evaluation/admission criteria. This is the next step and requires operator
+   decisions on trading limits; implementation must not invent them.
+3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
+   summaries, current market observations and actual account/portfolio state. Produce immutable,
+   dated decision packets with source/version identity, freshness and missing-data checks.
+4. **Implement trading decisions and enforced protection.** Extend portfolio-only proposals to
+   stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
+   the selected engine and approved boundaries in C#. Keep protective monitoring independent of
+   model/learning availability and prevent losing-stop relaxation.
+5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
+   and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
+   required exits before buys and preserve original order identities through uncertain outcomes.
+   Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
+6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
+   hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
+   Verify supervisor/coordinator consultation and preserve hard limits and budget policy.
+7. **Build and qualify the runtime host.** Compose shared clients/journals and the independent protection
+   and discretionary-review loops. Configure intervals, restart recovery, protected storage, retention
+   and the CAD budget with FX/tax headroom. Qualify API authentication, model access, latency and cost
+   through a bounded separately authorized call before model-backed operation.
+8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
+   exceptions, lessons, health and spending. Provide clear controls for stopping new buys, continued
+   protection, strategy switching and explicit live activation, using the existing execution contracts.
+9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,
+   budget exhaustion, stale data, outages and restart without real orders. Measure actual API costs
+   and decision quality; synthetic tests alone do not establish either or a performance edge.
+10. **Qualify and activate live execution.** Finish the existing native account/risk/broker prerequisites
+    below, including cash events, opening/drawdown references, protection ownership, order lifecycle
+    and recovery. Review the concrete activation evidence and exact account/strategy/limits, then
+    enable the authorized supervised live run and verify outcomes. Completion of earlier steps alone
+    does not establish live readiness or a September 28 launch.
+
 ### Left to do — development order
 
 - [ ] **AI Momentum integration (September 26):** complete

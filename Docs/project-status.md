@@ -129,6 +129,9 @@ evaluated learning. Source now connects the learning journal to the supervisor a
 coordinator, with versioned lessons, per-lesson assessments and restart-safe consultation intervals.
 Production scheduling, lesson qualification and broker integration are not implemented. Protective
 handling has no dependency on this new path. See ADR-0087 for precise limits.
+The [ten-step delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence)
+groups commits `720c780a` and `07928730` as Step 1, complete offline. Steps 2–10 remain unfinished;
+Step 2 defines the operating contract. This planning record adds no operational verification.
 September 26 local configuration check confirms Oracle has a saved API key and OpenAI provider
 selection. Secret contents were not displayed; remote authentication, Astra access and account credit
 balance remain unverified. No paid request ran.
