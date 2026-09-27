@@ -16,9 +16,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   before the round limit; hitting it commits to closure. The 10% decline from highest recorded
   completed-session closing value now requires operator approval before new buys resume, regardless
   of attempts remaining; protective exits continue. Threshold proximity must be explicit in the UI
-  (ADR-0087, checklist Step 8). Next specify
-  peak/starting-reference interaction, successful-round handling and daily counter
-  reset. Preserve original capital/peak records and independent holds; day/round changes cannot
+  (ADR-0087, checklist Step 8). A fresh sequence after three failed, closed/reconciled attempts is
+  now eligible next trading session with fresh entry evidence and AI review; carried round limits
+  and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
+  conditions. Next specify peak/starting-reference interaction, successful-round handling and counter
+  treatment after fewer failures or a carried round completes. Preserve original capital/peak records and independent holds; day/round changes cannot
   clear the cumulative review. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
   [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
@@ -39,8 +41,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   reserves. Provider/budget fallback is now agreed: pause new buys, additions and switches,
   continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
   before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
-  without blocking protective handling or clearing independent holds. Daily attempt-counter renewal remains separate from active-round
-  continuity, and its interaction with carried rounds is unresolved. No scheduler is implemented.
+  without blocking protective handling or clearing independent holds. Next-session restart after a
+  fully failed/reconciled sequence is agreed; other daily counter interactions remain unresolved.
+  No scheduler is implemented.
 
 - **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This

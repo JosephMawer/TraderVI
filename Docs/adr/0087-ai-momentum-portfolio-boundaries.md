@@ -289,10 +289,35 @@ Exact clock times and detailed rule-to-checkpoint mapping remain to be chosen. A
 existing AI spending ceiling. Budget exhaustion/provider failure cannot bypass protection or risk
 holds; the accepted unavailable-review fallback is recorded below.
 
-The daily failed-attempt counter and its interaction with a carried round remain separate decisions:
-do not silently reset an active round's limit when that counter is later renewed. This is Step 2
+The exhausted-sequence restart is agreed below; other counter interactions with a carried round
+remain open. Do not silently reset an active round's limit when the counter is renewed. This is Step 2
 design agreement. Step 7 must implement and qualify scheduling, including restart/missed-checkpoint
 handling. No scheduler, automation, paid call, runtime change or trading action is installed here.
+
+### Next-session restart and UI explanation — September 27 decision
+
+After all three attempts have failed and their AI-managed positions are closed with orders/fills/cash
+reconciled, the operator accepts eligibility for a fresh 5% / 3% / 1% sequence at the next trading
+session. Restart still requires a fresh qualifying entry signal and a successful fresh AI review,
+with all other limits satisfied. This is permission to reconsider entry, not an automatic order at
+the open. Use the actual next market session, including weekends/holidays, not a midnight reset.
+
+An unfinished round carried overnight keeps its existing loss reference, applicable limit and
+protective levels. The overall 10% review hold still requires explicit operator approval; a new
+session or renewed attempts cannot clear it. Preserve capital/peak history and other independent
+holds. This decision covers a fully failed, reconciled sequence; counter treatment after fewer than
+three failures, successful rounds or a carried round completing next session remains unresolved.
+
+The operator explicitly requires the UI to explain this behavior. Show attempts used/remaining for
+the applicable session, active round number and loss limit/reference, and the reason buying is
+paused. Distinguish "Paused until next trading session" (three failed attempts, exits reconciled),
+"Unfinished round carried forward" (same limit/reference), and "Your approval required" (10% hold).
+If closure/reconciliation is incomplete, show that pending state rather than restart eligibility.
+For an exhausted sequence show the actual next eligible market session and that fresh entry evidence
+and AI review are still required. If multiple holds apply, show them together; the session countdown
+must not imply approval or override budget/data/order/risk blocks. Display enforced state and source
+freshness, not independently calculated UI permission. This is a Step 8 requirement, not built UI.
+State-machine enforcement and restart validation remain pending in Steps 4/7; no runtime changed.
 
 ### Scheduled consults and adaptive intraday attention — September 27 clarification
 

@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum unpaced monthly budget policy agreed; runtime and manual-extension integration pending.
+**Current record:** September 27, 2026. AI Momentum exhausted-sequence next-session restart and explicit UI states agreed; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -149,6 +149,11 @@ and comparison assumptions. Failed-round closure is now agreed: close AI-managed
 and reconcile sales, then monitor for fresh entries before another permitted round. Partial or
 uncertain exits cannot start a new round. Re-entry now requires a fresh qualifying signal from the
 selected engine after confirmed closure, with no additional fixed delay; the AI can take it or wait.
+After three failed, closed/reconciled attempts, a fresh 5% / 3% / 1% sequence is eligible next trading
+session with fresh entry evidence and AI review, subject to all other limits. Carried unfinished
+rounds retain their limit/reference; the 10% approval hold persists. UI must distinguish these states
+and show attempts, active limit/reference, next eligible session and remaining restart requirements
+(ADR-0087; Step 8). Other counter interactions remain unresolved; no UI or enforcement changed.
 Proportional sizing within each round is now agreed, including recovery before its hard limit;
 reaching the limit commits that round to closure. The operator now accepts retaining the 10% decline
 from highest recorded closing value as a cumulative buying pause requiring operator approval,
@@ -171,7 +176,7 @@ rejecting CAD 100 or more; the journal also retains the month's lowest ceiling. 
 extension path is not implemented (ADR-0087).
 Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
-collection offset (ADR-0087). Reference combination, retry renewal, event integration and budget-aware
+collection offset (ADR-0087). Reference combination, remaining counter interactions, event integration and budget-aware
 scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran

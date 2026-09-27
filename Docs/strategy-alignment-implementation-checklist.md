@@ -108,7 +108,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    cash with intended automatic re-entry on recovery. AI enforcement integration remains Step 4.
    **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
    rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
-   before another permitted attempt. Re-entry requires a fresh qualifying signal from the selected
+   before another permitted attempt. After all three fail and closure is reconciled, a fresh
+   5% / 3% / 1% sequence is eligible next trading session with fresh entry evidence and AI review;
+   carried rounds and the 10% approval hold retain their existing constraints.
+   Re-entry requires a fresh qualifying signal from the selected
    engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
    within each round can recover before the hard limit, after which closure is required. Retaining
    the 10% cumulative buying pause with operator approval to resume is agreed. Unfinished rounds keep
@@ -122,7 +125,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    within the one-minute minimum and shared budget. Later hooks use the same path.
    Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
-   **Next:** settle cadence ownership, daily counter renewal and reference
+   **Next:** settle cadence ownership, remaining counter interactions and reference
    combination/valuation, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
@@ -163,7 +166,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    floors, applicable cash/exposure constraints and AI spend cap. Show actual AI review cadence and
    next-review status and the reason for an unavailable-review pause. Use enforcement values, clear reference/freshness labels and explicit blocking
    reasons/actions; recovered values cannot hide
-   a review hold that still needs operator approval. This UI is not implemented.
+   a review hold that still needs operator approval. Explicitly distinguish a three-failure session
+   pause, an unfinished carried round, pending exit reconciliation and an operator-approval hold.
+   Show attempts used/remaining, active round limit/reference, actual next eligible market session
+   and unmet restart conditions (fresh signal/review and other holds). Display simultaneous holds;
+   a session countdown cannot imply automatic buying or approval. This UI is not implemented.
 9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,
    budget exhaustion, stale data, outages and restart without real orders. Measure actual API costs
    and decision quality; synthetic tests alone do not establish either or a performance edge.

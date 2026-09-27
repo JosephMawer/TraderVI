@@ -156,6 +156,12 @@ not change existing engine execution or authorize resetting loss history.
 Unfinished AI rounds retain references, limits and protective levels across market closures under
 the selected strategy's existing exit rules. At a new trading session, consult qualified fresh engine
 entry guidance and relevant evaluated learning without resetting protection or bypassing market hours.
+After three failed attempts with confirmed/reconciled closure, a fresh 5% / 3% / 1% sequence is
+eligible next trading session, subject to a fresh qualifying signal, successful AI review and all
+other limits. Carried unfinished rounds retain their limit/reference; the 10% hold still requires
+operator approval. UI must distinguish the session pause, carried round and approval hold, showing
+attempts, active limit/reference, next eligible session and unmet restart conditions. Other counter
+interactions remain open; this decision is not implemented.
 The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
 intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
 minutes during market hours, subject to the shared budget. Separate collection, protection and
@@ -166,7 +172,7 @@ Resumption requires a successful fresh AI review and all other limits to permit 
 cannot clear a risk hold. Show the reason in the UI. Initial earlier-review triggers are a new
 qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted actions.
 Combine events arriving together, preserve the one-minute minimum interval and check the shared
-budget. Future hooks must use the same constraints. Exact cadence ownership, retry renewal and
+budget. Future hooks must use the same constraints. Exact cadence ownership, remaining counter interactions and
 detailed timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 

@@ -45,8 +45,10 @@ fresh-review recovery are agreed (ADR-0087). Initial entry-signal, holding-closu
 review hooks are agreed; shared timing/budget checks also apply to later hooks. Implementation
 remains pending. Budget pacing is settled: no daily allocations or future-consult reserves; use the
 shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
-Next settle cadence ownership, daily
-counter renewal and reference combination. Reuse existing protection; Step 8 owns the threshold display.
+An exhausted, closed/reconciled sequence may restart next trading session with fresh entry evidence
+and AI review; carried rounds and approval holds persist. Step 8 must make these states and restart
+conditions explicit. Next settle cadence ownership, remaining counter interactions and reference
+combination. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.

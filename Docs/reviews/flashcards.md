@@ -47,8 +47,9 @@ is one to fifteen minutes during market hours, subject to budget. Source: ADR-00
 ### Q: Does a new trading day start a fresh AI round automatically?
 
 A: No. An unfinished round keeps its loss reference, limit and protective levels across closures.
-Fresh session entry guidance prompts a new AI review, not a reset or mandatory trade. Daily retry
-counter renewal is a separate unresolved rule. Source: ADR-0087. Tags: risk-management, architecture.
+After three failed, reconciled attempts, a fresh sequence is eligible next trading session with a
+fresh signal and AI review, subject to other limits. The UI must distinguish this eligibility from
+a carried round or approval hold. Source: ADR-0087. Tags: risk-management, architecture, user-interface.
 
 ### Q: Can a remaining AI attempt bypass the overall 10% loss review?
 
