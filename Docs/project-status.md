@@ -117,8 +117,13 @@ September 28 live adoption, with a mandate/discretion/boundaries framework and d
 The first pass is AI Momentum in paper and intended live use; AI Explorer is explicitly deferred.
 Discretionary rules, enforced boundaries, declining risk capacity and no loosening stops to prolong
 losses are agreed ([ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md)); exact protection/profit
-limits and evaluation objectives remain open. Documentation supports a candidate subscription-backed
-Codex client for the preferred Astra model; TraderVI integration and access remain unverified.
+limits and evaluation objectives remain open. The operator sets an initial AI budget below CAD 100
+monthly and requests portfolio selection/switching plus self-improvement. API-first Oracle adaptation
+is recommended; subscription-backed Codex remains an alternative. No spending controls, supervisor,
+learning mechanism or Astra connection are implemented or verified.
+September 26 local configuration check confirms Oracle has a saved API key and OpenAI provider
+selection. Secret contents were not displayed; remote authentication, Astra access and account credit
+balance remain unverified. No paid request ran.
 The operator authorizes adapting the existing Oracle client, whose Astra integration is unvalidated.
 Oracle Phase 2 narration and a May manual run are documented historically. September 26, 21:07 Toronto
 read-only inspection found no Oracle process or scheduled task directly naming it; the repository's

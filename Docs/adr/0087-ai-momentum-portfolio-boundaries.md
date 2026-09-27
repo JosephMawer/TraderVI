@@ -41,8 +41,10 @@ TFSA with preserved cash, execution and risk history.
 
 ## Client direction and current evidence
 
-The operator prefers GPT-6 Astra and use of their existing ChatGPT Pro/Codex subscription. A
-subscription-backed local Codex integration is a candidate, not a verified TraderVI connection.
+The operator prefers GPT-6 Astra, is open to API billing and sets an initial incremental AI budget
+below CAD 100 per month. With that ceiling, the recommended first implementation adapts Oracle for
+API access; the earlier subscription-first exploration is an alternative if measured costs justify it.
+A subscription-backed local Codex integration remains a candidate, not a verified TraderVI connection.
 Official documentation checked September 26 describes ChatGPT subscription sign-in, programmatic
 Codex integrations and reuse of saved CLI authentication; API-key use is a separate usage-based path.
 Sources: [authentication](https://learn.chatgpt.com/docs/auth),
@@ -73,6 +75,31 @@ independently of model availability; exact outage and stale-response behavior re
 These implementation details are proposals, not completed or operationally tested capabilities.
 
 ## Open work and validation
+
+### Spending and expanded discretionary role
+
+The budget covers all AI Momentum model roles, reviews, learning calls and retries together, separate
+from the operator's existing Pro subscription. Proposed enforcement reserves bounded input/output
+cost, including reasoning, before each call and reconciles actual usage afterward. Use a lower working
+allowance with conservative currency/tax headroom to stay below the CAD ceiling; exact conversion,
+tax treatment and reservation settings remain to be specified. A dashboard alert alone is insufficient.
+At the limit, stop discretionary model calls while independent deterministic protection continues.
+The operator accepts independent protection while AI reviews run less often. No cost control is
+implemented yet. Profits may justify a later reviewed increase, not an automatic spending escalation.
+
+The operator now requests an AI supervisor that selects an existing portfolio as its active strategy
+context, exercises discretion inside that context, monitors alternatives and may switch in real time.
+This changes the proposed role from only picking stocks to managing strategy selection. A portfolio
+instance, its rule set and its execution engine are related but distinct existing contracts; do not
+treat switching as merely changing a prompt. Eligibility, authorized strategy set, handover, retained
+protection, costs and history still require a defined contract under ADR-0085/0086.
+
+Self-improvement is a requested integral mandate. Define persistent lessons, outcome evaluation and
+versioned strategy changes; no model-weight training, self-editing code, risk-boundary changes or
+unlimited learning calls are implied. Separate agents/chat histories are a user hypothesis to assess,
+not a selected implementation or an instruction to launch subagents. All would share the same budget.
+Discuss portfolio selection/switching and then learning separately; the operator requests short,
+single-topic responses. AI Explorer remains deferred.
 
 Define numerical protection, profit giveback, decision cadence, data/history selection and provider
 transport. Then specify audit persistence, versioning, output validation and failure/restart behavior.

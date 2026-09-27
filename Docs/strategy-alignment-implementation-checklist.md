@@ -78,8 +78,10 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 - [ ] **AI Momentum design (September 26):** implement the accepted principles in
   [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) only after defining exact adaptive protection,
-  profit giveback and client/data contracts. Adapt the Oracle client and qualify the preferred Astra/Codex subscription connection
-  and scope the decision contract separately from Oracle narration; then complete decision evidence and paper/live
+  profit giveback and client/data contracts. Define portfolio selection/handover and learning scope.
+  Adapt Oracle for the recommended API-first route and implement the shared monthly spending ceiling
+  below CAD 100, including learning/retries and currency/tax headroom; subscription access stays optional.
+  Scope the decision contract separately from Oracle narration; then complete decision evidence and paper/live
   integration contract. AI Explorer is deferred to a future session. The requested September 28 real-trading
   target depends on the native risk/order/host requirements below; no AI behavior is implemented yet.
   [Open decisions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).

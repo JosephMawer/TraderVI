@@ -24,7 +24,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
   risk scale/recovery, profit activation and permitted giveback remain open. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
-- **Preferred client:** GPT-6 Astra using the existing ChatGPT Pro/Codex subscription where supported.
+- **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
+  below CAD 100 monthly. Recommendation is API first using Oracle's abstraction; subscription access
+  remains an alternative if measured savings justify integration. All roles and learning share the cap;
+  reserve call costs including reasoning/retries and currency/tax headroom. Exact enforcement and
+  cadence remain unimplemented. Deterministic protection continues independently of model calls.
   Official documentation supports programmatic Codex and saved subscription authentication, but no
   TraderVI connection, account/model access, latency or quota qualification has run. API-key use is a
   separate usage-based option. The operator explicitly authorizes adapting the existing Oracle client;
@@ -34,7 +38,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
   guaranteed, and is not an accepted trading obligation or qualification criterion. A meaningful
   evaluation objective and period remain to be agreed.
-- **Next discussion:** define profit protection and numerical limits, evaluation cadence,
+- **Expanded requested role:** select an existing portfolio, operate within its strategy context,
+  monitor alternatives and switch in real time. Define eligible portfolios and durable handover before
+  enabling selection. Separate agents/conversations are a hypothesis, not yet chosen.
+- **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
+  changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
+  implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.
+- **Next discussion, one topic at a time:** portfolio selection/switching, then learning; subsequently
+  define profit protection and numerical limits, evaluation cadence,
   client transport and data access, missing-data/model-outage behavior, decision record and version
   identity. ADR-0087 records accepted principles; details remain open. No code, model calls,
   broker operations or activation accompanied this proposal record.
