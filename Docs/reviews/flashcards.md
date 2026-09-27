@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: How should learning reach both the AI supervisor and execution coordinator?
+
+A: Both consult versioned evaluated lessons periodically and record their use. The coordinator reads
+saved lessons without requiring another model call; protective exits never wait for learning.
+Source: ADR-0087. Tags: architecture, llm, risk-management.
+
 ### Q: Can an AI Momentum rule override bypass the hard protection boundary?
 
 A: No. The AI may reject discretionary trading rules with a recorded reason, but TraderVI enforces

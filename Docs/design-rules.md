@@ -17,7 +17,10 @@ eligibility is deferred to Wealthsimple live trading/automation. A recommendatio
 reviewer to propose existing portfolio versions and explain discretionary exceptions. Its current
 contract has no assignment/order/protection mutation interface. Hard-rule overrides are rejected;
 existing engine scores, gates and protections remain authoritative until an explicit integration
-contract is implemented. Numerical protection, handover and evaluated learning are still unresolved.
+contract is implemented. Version-2 reviews consult scoped evaluated lessons and explain each use or
+disregard. Execution preparation rechecks the saved review against current learning; this is not order
+authority. Learning cannot rewrite policy or block independent protection. Numerical protection,
+handover and automatic lesson qualification remain unresolved.
 
 [ADR-0084](adr/0084-external-broker-trade-synchronization.md) adds source-aware projection of resolved
 broker orders into the Real ledger, atomically with imports and immutable receipts. Preserve original

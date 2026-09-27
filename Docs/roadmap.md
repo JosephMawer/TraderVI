@@ -27,6 +27,8 @@ losing trades. The first API client, shared spending journal and portfolio-propo
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
 access remains an alternative. Next define portfolio selection/handover and evaluated learning, exact
 protection/profit limits, authoritative packet adapters and production budget/storage configuration.
+Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
+next connect qualified outcome evaluation and periodic host scheduling under ADR-0087.
 Integrate and qualify the client and independent protective host before enabling any paper/live actions.
 This is not a verified launch commitment
 or completed replacement of the execution work below. See the

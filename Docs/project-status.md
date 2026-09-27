@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 26, 2026. AI Momentum client/proposal foundation validated offline.
+**Current record:** September 26, 2026. AI Momentum client/proposal and learning-consultation source validated offline.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -123,7 +123,12 @@ monthly and requests portfolio selection/switching plus self-improvement. API-fi
 is selected for the first source increment; subscription-backed Codex remains an alternative.
 The budgeted Responses client, durable private call journal and versioned portfolio-proposal reviewer
 are implemented/tested offline. They have no production composition or trading authority. Full
-supervision, evaluated learning, packet adapters and paper/live integration remain unfinished.
+supervision, automatic outcome evaluation, packet adapters and paper/live integration remain unfinished.
+September 26 clarification: both the supervisor and execution coordinator must periodically consult
+evaluated learning. Source now connects the learning journal to the supervisor and execution-preparation
+coordinator, with versioned lessons, per-lesson assessments and restart-safe consultation intervals.
+Production scheduling, lesson qualification and broker integration are not implemented. Protective
+handling has no dependency on this new path. See ADR-0087 for precise limits.
 September 26 local configuration check confirms Oracle has a saved API key and OpenAI provider
 selection. Secret contents were not displayed; remote authentication, Astra access and account credit
 balance remain unverified. No paid request ran.
@@ -132,13 +137,17 @@ Oracle Phase 2 narration and a May manual run are documented historically. Septe
 read-only inspection found no Oracle process or scheduled task directly naming it; the repository's
 nightly stages are Hermes, Delphi and Athena. No Oracle database history was queried.
 
-September 26 source validation: .NET SDK 10.0.401; 40 new synthetic AI cases included in the full
-Core result of **1,769 passed, one skipped, zero failed**. Oracle builds with zero warnings/errors.
+September 26 source validation: .NET SDK 10.0.401; 63 synthetic AI cases (40 client/proposal plus
+23 learning cases) included in the full Core result of **1,792 passed, one skipped, zero failed**.
+The skipped test requires explicit SQL-database opt-in. Oracle builds with zero warnings/errors.
 Commands: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet -p:NuGetAudit=false`
 and `dotnet build Oracle/Oracle.csproj --no-restore --verbosity quiet -p:NuGetAudit=false`.
-The final initialization-marker hardening also passes all 40 AI cases in a focused rerun.
-Local ignored logs: `artifacts/ai-momentum-core-tests.log`, `artifacts/ai-momentum-focused-tests.log`,
-`artifacts/ai-momentum-oracle-build.log`.
+Local ignored logs: `artifacts/ai-learning-core-tests.log`, `artifacts/ai-learning-oracle-build.log`.
+After final publication-time hardening, all 23 learning cases also pass in
+`artifacts/ai-learning-final-tests.log`.
+Learning validation includes per-consumer/restart cadence, paper/live and version scope, required
+assessments, pending/rejected review recovery, changed/expired learning, concurrent publication,
+tampered/lost/interrupted storage and preparation without model calls. Tests use synthetic facts only.
 The test build emits existing compiler warnings, principally nullable annotations, plus separate
 NU1902/NU1903/NU1904 dependency-security warnings for System.Data.SqlClient 4.8.1,
 System.DirectoryServices.Protocols 5.0.0, System.Drawing.Common 5.0.0 and

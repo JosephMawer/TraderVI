@@ -45,6 +45,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
   changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
   implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.
+- **Accepted learning consultation:** both supervisor and execution coordinator must consult evaluated
+  lessons periodically (ADR-0087). Journal, version-2 assessments and execution-preparation rechecks
+  are implemented in source. Configure refresh/review intervals, implement lesson qualification and
+  expiry policy, and qualify host handling of stale/unavailable learning. Preparation fails closed;
+  local consultation needs no model call and has no connection to protective handling.
 - **Next discussion, one topic at a time:** portfolio selection/switching, then learning; subsequently
   define profit protection and numerical limits, evaluation cadence,
   production data access, missing-data/model-outage behavior and durable proposal dispositions.

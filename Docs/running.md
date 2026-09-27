@@ -893,7 +893,7 @@ Running Oracle does not start it; Oracle's `--dry-run` can still contact the mod
 tests for offline validation:
 
 ```powershell
-dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests'
+dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests|FullyQualifiedName~AiLearningWorkflowTests'
 ```
 
 Before any future AI Momentum composition, review billing and expiring currency/tax bounds, establish
@@ -902,6 +902,14 @@ one protected private journal directory outside the checkout, and qualify model 
 file during reviewed recovery; deleting them or creating a new directory would bypass local history.
 Never put the journal's private prompts/responses in commits or ordinary application logs. Numerical
 risk and handover approval plus the existing execution prerequisites still precede live activation.
+
+Learning-aware composition uses `AiLearningAwareSupervisor` and `AiPortfolioExecutionCoordinator`
+with one `AiLearningJournal`. Preserve its `ai-learning.json`, `ai-learning.lock` and any `.pending`
+file under the same private-storage rules. Snapshot publication belongs to a trusted outcome evaluator;
+do not mark model hypotheses as evaluated lessons. Both periodic refresh hooks need explicit host
+intervals. Neither hook creates a timer, runs a model or enables orders. A Current preparation check
+still requires fresh broker/strategy/risk validation at execution time. No production learning journal
+has been initialized, and outcome evaluation, host integration and recovery tooling remain unfinished.
 
 **Project:** `Oracle`
 **Entry point:** `Oracle/Program.cs`

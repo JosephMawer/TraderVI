@@ -5,9 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Oracle.Llm;
+using Core.Oracle.Learning;
 
 namespace Core.Oracle;
 
@@ -18,10 +20,12 @@ public sealed record AiMarketEvidence(string Id, DateTimeOffset ObservedUtc, str
 public sealed record AiRuleOverride(string RuleId, string Reason);
 public sealed record AiPortfolioPacket(Guid PacketId, int SchemaVersion, DateTimeOffset AsOfUtc,
     DateTimeOffset ExpiresUtc, string? ActivePortfolioId, AiPortfolioCandidate[] Candidates,
-    AiMarketEvidence[] Evidence, string[] EvaluatedLessons);
+    AiMarketEvidence[] Evidence, string[] EvaluatedLessons,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiLearningContext? Learning = null);
 public sealed record AiPortfolioProposal(Guid PacketId, string Action, string? PortfolioId,
     string? StrategyVersion, string Rationale, string[] EvidenceIds, AiRuleOverride[] RuleOverrides,
-    string ReconsiderWhen, string[] LessonHypotheses);
+    string ReconsiderWhen, string[] LessonHypotheses,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiLessonAssessment[]? LessonAssessments = null);
 
 /// <summary>
 /// Proposal-only supervisor. It has no assignment, broker, trading-engine or protection mutation API.
@@ -51,7 +55,8 @@ public sealed class AiPortfolioReviewer
         string input = JsonSerializer.Serialize(packet, Json);
         var frozen = JsonSerializer.Deserialize<AiPortfolioPacket>(input, Json)!;
         ValidatePacket(frozen, clock.GetUtcNow());
-        var request = new LlmRequest(SystemPrompt, input, CallId: frozen.PacketId, OutputSchema: OutputSchema);
+        var request = new LlmRequest(SystemPrompt, input, CallId: frozen.PacketId,
+            OutputSchema: frozen.SchemaVersion == 2 ? LearningOutputSchema : OutputSchema);
         var response = await client.CompleteAsync(request, ct);
         ct.ThrowIfCancellationRequested();
         ValidatePacket(frozen, clock.GetUtcNow());
@@ -60,7 +65,7 @@ public sealed class AiPortfolioReviewer
 
     public static void ValidatePacket(AiPortfolioPacket packet, DateTimeOffset now)
     {
-        if (packet.PacketId == Guid.Empty || packet.SchemaVersion != 1 || packet.AsOfUtc > now ||
+        if (packet.PacketId == Guid.Empty || packet.SchemaVersion is not (1 or 2) || packet.AsOfUtc > now ||
             packet.ExpiresUtc <= now || packet.ExpiresUtc <= packet.AsOfUtc ||
             packet.Candidates is null || packet.Candidates.Length > 100 ||
             packet.Evidence is null || packet.Evidence.Length > 1000 || packet.EvaluatedLessons is null ||
@@ -77,6 +82,18 @@ public sealed class AiPortfolioReviewer
                 e.ObservedUtc > packet.AsOfUtc) ||
             packet.Evidence.Select(e => e.Id).Distinct(StringComparer.Ordinal).Count() != packet.Evidence.Length)
             throw new InvalidDataException("AI decision packet contains ambiguous or future evidence.");
+        if (packet.SchemaVersion == 1 && packet.Learning != null || packet.SchemaVersion == 2 && packet.Learning is null)
+            throw new InvalidDataException("Learning context requires the version-2 decision contract.");
+        if (packet.Learning is { } learning)
+        {
+            AiLearningContracts.Validate(new(learning.SnapshotId, learning.SnapshotVersion,
+                learning.PublishedUtc, learning.ExpiresUtc, learning.Lessons));
+            if (packet.EvaluatedLessons.Length != 0 || learning.ConsultationId == Guid.Empty ||
+                !AiLearningContracts.ValidMode(learning.AccountMode) || learning.PublishedUtc > packet.AsOfUtc ||
+                learning.ExpiresUtc <= now || learning.Lessons.Any(l => l.AccountMode != learning.AccountMode || l.ExpiresUtc <= now ||
+                    !packet.Candidates.Any(c => c.Id == l.Scope.PortfolioId && c.StrategyVersion == l.Scope.StrategyVersion)))
+                throw new InvalidDataException("Learning context is stale, out of scope or mixed with unversioned lessons.");
+        }
     }
 
     public static AiPortfolioProposal ParseAndValidate(string json, AiPortfolioPacket packet)
@@ -90,6 +107,11 @@ public sealed class AiPortfolioReviewer
             result = JsonSerializer.Deserialize<AiPortfolioProposal>(json, Json) ?? throw new JsonException();
         }
         catch (JsonException) { throw new InvalidDataException("AI proposal does not match the decision contract."); }
+
+        if (packet.SchemaVersion == 2 && packet.Learning is { } learning)
+            AiLearningContracts.ValidateAssessments(learning, result.LessonAssessments);
+        else if (result.LessonAssessments != null)
+            throw new InvalidDataException("Lesson assessments require the version-2 decision contract.");
 
         if (result.PacketId != packet.PacketId || result.Action is not ("wait" or "keep" or "select" or "switch") ||
             string.IsNullOrWhiteSpace(result.Rationale) || string.IsNullOrWhiteSpace(result.ReconsiderWhen) ||
@@ -140,6 +162,9 @@ public sealed class AiPortfolioReviewer
         Cite supplied evidence IDs, summarize your decision and state what would make you reconsider.
         Learn from evaluated lessons; new lesson_hypotheses are provisional observations, not proven
         improvements or permission to change a strategy. Never promise a daily return.
+        For version-2 packets, assess every learning.lessons item exactly once in lesson_assessments:
+        use its lesson_id, disposition apply/disregard/not_applicable and a specific reason. An apply
+        assessment means it informed this proposal, never permission to change execution policy.
         Return only JSON matching the supplied schema.
         """;
 
@@ -163,4 +188,18 @@ public sealed class AiPortfolioReviewer
             "evidence_ids","rule_overrides","reconsider_when","lesson_hypotheses"]
         }
         """));
+
+    private static readonly LlmJsonSchema LearningOutputSchema = CreateLearningOutputSchema();
+    private static LlmJsonSchema CreateLearningOutputSchema()
+    {
+        var schema = JsonNode.Parse(OutputSchema.Schema.GetRawText())!.AsObject();
+        schema["properties"]!["lesson_assessments"] = JsonNode.Parse("""
+            {"type":"array","items":{"type":"object","additionalProperties":false,
+              "properties":{"lesson_id":{"type":"string"},
+                "disposition":{"type":"string","enum":["apply","disregard","not_applicable"]},"reason":{"type":"string"}},
+              "required":["lesson_id","disposition","reason"]}}
+            """);
+        schema["required"]!.AsArray().Add("lesson_assessments");
+        return new("tradervi_portfolio_proposal_v2", JsonSerializer.Deserialize<JsonElement>(schema.ToJsonString()));
+    }
 }

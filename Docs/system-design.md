@@ -5,6 +5,20 @@ This document describes the current state of the TraderVI trading system — wha
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
+## AI Momentum learning and proposal boundary (ADR-0087)
+
+Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
+pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
+gets an explicit assessment. `AiPortfolioExecutionCoordinator` rereads the saved decision and consults
+current learning before preparing a proposal; changed context requires another review. Both expose
+periodic consultation hooks with persisted last-consultation times. The budgeted API client remains
+behind `ILlmClient`; routine learning consultation is local and incurs no model call.
+
+There is no runtime host, automatic outcome evaluator, portfolio-data adapter or order transport on
+this path yet. The existing broker workflow and independent protection remain separate. A learning
+check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
+storage, provenance and operational prerequisites; project status owns validation evidence.
+
 ## Compact Live storage (ADR-0082)
 
 Source now reconstructs Live portfolios from compact roots, immutable content and revision-scoped

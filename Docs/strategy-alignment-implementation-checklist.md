@@ -25,6 +25,11 @@ record them. A prepared migration or passing test never proves broker readiness.
   portfolio proposals with explained discretionary exceptions. Forty synthetic cases are included
   in the Core suite; [status](project-status.md) records validation. This does not run a portfolio.
 
+- [x] Implement/test the shared learning journal, supervisor consultation and execution-preparation recheck
+  (September 26, ADR-0087). Version-2 decisions assess every consulted lesson; consumer intervals and
+  review state persist across restart; 23 synthetic cases pass in the full Core suite. This source
+  has no order transport or installed scheduler.
+
 - [x] Build independent paper portfolios and manual complete-strategy selection for recommendations
   (ADR-0062); this does not submit orders.
 - [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
@@ -90,6 +95,12 @@ record them. A prepared migration or passing test never proves broker readiness.
   Continuous protection, outage handling and decision cadence remain host work. AI Explorer is deferred.
   The requested September 28 target still depends on the native risk/order/host requirements below.
   [Open decisions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
+
+- [ ] **Learning operational integration (ADR-0087):** implement/qualify the outcome evaluator and
+  its lesson admission/expiry policy, configure consultation intervals and connect both periodic
+  hooks to the runtime host. Prepare a protected shared journal and recovery/retention procedures.
+  Connect preparation to the approved execution path with fresh source/account/risk checks. Verify
+  protective exits remain independent through outages; no installed coordinator or broker path yet.
 
 - [ ] **1. Complete risk-tracking source qualification.** Daily and percentage-preserving cash-flow
   continuation are implemented/tested. Qualify complete broker event coverage, effective cash timing

@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Principles accepted; API budget and portfolio-proposal foundation implemented offline; host integration and protection parameters pending.
+**Status:** Budgeted client, portfolio proposals and learning-consultation foundation implemented offline; outcome evaluation, host integration and protection parameters pending.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -99,7 +99,7 @@ concurrent reservations share one UTC calendar-month budget. Unknown outcomes re
 reservation across restart/month boundaries; settlements spanning months count conservatively in
 both months. A lower ceiling cannot be raised within its starting month. Missing/corrupt storage or
 an interrupted write blocks further calls; usage overruns or unexpected billing identity block them
-durably. Recovery/retention tooling and domain acceptance/rejection dispositions remain host work.
+durably. Recovery/retention tooling remains host work; the learning increment below adds domain review dispositions.
 The private JSON is not encrypted: production needs a protected directory outside the checkout,
 one stable shared journal for every AI Momentum role, backups and reviewed recovery. Do not create
 another journal to reset spending. The SHA-256 is an integrity check, not tamper-proof attestation.
@@ -145,6 +145,61 @@ unlimited learning calls are implied. Separate agents/chat histories are a user 
 not a selected implementation or an instruction to launch subagents. All would share the same budget.
 Discuss portfolio selection/switching and then learning separately; the operator requests short,
 single-topic responses. AI Explorer remains deferred.
+
+### Required learning consultation — September 26 clarification
+
+The operator requires both the AI supervisor and execution coordinator to consult the learning
+module periodically. This connects evaluated outcomes to future judgment and execution while
+preserving the root goal of protected, auditable account management. The source increment below
+implements consultation and its audit. Production scheduling and outcome evaluation remain unfinished.
+
+Implement consultation through a shared, versioned snapshot of evaluated lessons, separate from
+unproven hypotheses. The supervisor includes relevant lessons in each decision review, with periodic
+reviews governed by the shared budget. The coordinator refreshes its lesson snapshot periodically
+and checks relevant execution lessons before a portfolio switch or a new discretionary trading action.
+These coordinator checks read saved lessons; they do not require a paid model call each time or grant
+the coordinator independent AI discretion. Record the consulted version, relevant lesson IDs and
+whether each was applied or disregarded, with reasons. Advisory lessons cannot rewrite approved
+execution policy, hard boundaries or budget limits.
+
+Protective exits and emergency handling must never wait for learning refresh or model availability.
+Exact intervals, lesson qualification/expiry and stale/unavailable-learning behavior for discretionary
+actions require host qualification. No timer or automation is created by this ADR.
+
+### Learning source increment — September 26
+
+`AiLearningJournal` now stores immutable evaluated-lesson snapshots, consumer consultations,
+supervisor review state and execution-preparation checks. Lesson scope pins portfolio ID, strategy
+version and paper/live mode. Publication requires evaluation results and outcome references, rejects
+future/backdated publication and changed content under an existing lesson ID, and advances snapshot
+versions. An explicitly published empty snapshot supports the initial no-lessons state. These checks
+validate provenance fields and scope, not truth or statistical merit: a trusted outcome evaluator and
+its qualification criteria still need implementation. Model-generated hypotheses cannot publish lessons.
+
+`AiLearningAwareSupervisor` consults the journal before every model review, persists a pending review
+before calling the client, and records Reviewed or Rejected afterward. Pending/rejected IDs cannot be
+retried automatically, including after restart. Version-2 packets carry dated, scoped lessons; structured
+responses must assess every lesson exactly once as apply, disregard or not_applicable with a reason.
+Apply means the lesson informed the proposal, not that execution policy changed. Version-1 reviewer
+callers remain compatible but are not the learning-aware integration path.
+
+`AiPortfolioExecutionCoordinator` reads the saved review rather than caller-supplied output and
+consults learning afresh. Changed/expired learning or decision evidence yields ReviewRequired with
+no prepared proposal. A Current check is recorded only after an atomic journal recheck of the snapshot;
+it is a dated learning observation, not trading authority. Mode/assignment mismatches and missing or
+unavailable learning fail preparation. Both consumers expose `RefreshLearningIfDue` with explicit
+interval configuration; last consultation survives restart, while a new snapshot or lesson expiry
+causes an earlier refresh. These calls read local saved lessons and do not invoke the model.
+
+The coordinator is decision preparation only. It has no order transport, broker-session composition,
+assignment mutation or protective-exit dependency. A future host must recheck current source/account/
+policy authority through the established execution workflow before acting; a saved Current check
+cannot authorize a later order. No learning failure can block existing protection through this increment.
+
+The private journal uses exclusive ownership, an initialization marker, write-through replacement and
+an integrity checksum. Missing/corrupt/interrupted storage fails closed; it must not be silently recreated.
+It is not encrypted or tamper-proof. Protect its directory, backups and retention like the API call
+journal. No production files or lessons have been installed. See project status for synthetic validation.
 
 Define numerical protection, profit giveback, decision cadence, source adapters and production
 composition. Complete audit dispositions, outcome evaluation and execution failure/restart behavior.
