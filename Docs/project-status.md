@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum cumulative review and visible risk thresholds agreed; implementation pending.
+**Current record:** September 27, 2026. AI Momentum round continuity and new-session engine consultation agreed; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -153,7 +153,10 @@ Proportional sizing within each round is now agreed, including recovery before i
 reaching the limit commits that round to closure. The operator now accepts retaining the 10% decline
 from highest recorded closing value as a cumulative buying pause requiring operator approval,
 with protective exits continuing. Explicit UI distance to this and other thresholds is required
-(ADR-0087; checklist Step 8). Reference combination and cross-session behavior remain open. No source changes or
+(ADR-0087; checklist Step 8). Unfinished rounds now explicitly carry their references, limits and
+protection across market closures. A new trading session requires consultation of fresh engine entry
+guidance; additional rule-review checkpoints are requested but not yet selected. Reference combination,
+daily retry-counter renewal and exact review cadence remain open. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran
 for this decision. The source-validation evidence below retains its original scope.

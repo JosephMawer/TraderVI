@@ -111,8 +111,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    before another permitted attempt. Re-entry requires a fresh qualifying signal from the selected
    engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
    within each round can recover before the hard limit, after which closure is required. Retaining
-   the 10% cumulative buying pause with operator approval to resume is agreed. **Next:** settle
-   reference combination/valuation and cross-session behavior, including
+   the 10% cumulative buying pause with operator approval to resume is agreed. Unfinished rounds keep
+   references, limits and protection across closures; new sessions prompt review of fresh engine entry
+   guidance. **Next:** choose other rule-review checkpoints, daily counter renewal and reference
+   combination/valuation, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
@@ -130,7 +132,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Verify supervisor/coordinator consultation and preserve hard limits and budget policy.
 7. **Build and qualify the runtime host.** Compose shared clients/journals and the independent protection
    and discretionary-review loops. Configure intervals, restart recovery, protected storage, retention
-   and the CAD budget with FX/tax headroom. Qualify API authentication, model access, latency and cost
+   and the agreed new-session engine consultation; implement the remaining rule-review checkpoints
+   once selected, with explicit missed-review and stale-source behavior. Configure
+   the CAD budget with FX/tax headroom. Qualify API authentication, model access, latency and cost
    through a bounded separately authorized call before model-backed operation.
 8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
    exceptions, lessons, health and spending. Provide clear controls for stopping new buys, continued

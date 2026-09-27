@@ -38,8 +38,9 @@ three failed rounds that day. Failed-round closure and confirmed exits before an
 agreed. Fresh qualifying entry signals from the selected engine permit AI-reviewed re-entry without
 an added fixed delay. Proportional buying allowance within each round, with recovery before its
 hard limit, is agreed. The 10% cumulative review hold requiring operator approval and explicit UI
-threshold visibility are agreed. Next settle reference combination and cross-session behavior while
-reusing existing protection; Step 8 owns the threshold display.
+threshold visibility are agreed. Round continuity across closures and new-session engine consultation
+are agreed; next choose the remaining rule-review checkpoints, daily counter renewal and reference
+combination. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.

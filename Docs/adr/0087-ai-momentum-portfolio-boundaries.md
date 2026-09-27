@@ -175,7 +175,8 @@ account/data/capital-review holds. The later cumulative-review decision below re
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
-peak/starting-reference interaction, successful/carried rounds and the daily retry-counter reset.
+peak/starting-reference interaction, successful-round handling and the daily retry-counter reset.
+The later continuity decision governs carried rounds and session-start consultation.
 These decisions do not authorize running liquidation or changing real trading in this session.
 
 ### Failed-round closure — September 27 decision
@@ -232,7 +233,7 @@ allowance. A new permitted round requires confirmed closure and a fresh qualifyi
 
 This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
 It does not erase original capital/peak history or resolve how portfolio-wide trailing protection
-combines with cycle-start loss, successful/carried rounds or daily retry
+combines with cycle-start loss, successful-round handling or daily retry
 resets. The formula and examples are accepted design, not implemented/tested runtime behavior.
 
 ### Cumulative review and visible thresholds — September 27 decision
@@ -262,6 +263,36 @@ especially "Review required — new buys paused; protective exits active" for th
 A recovered value must not make an uncleared hold appear ready. Expose freshness/unavailable state
 instead of showing missing or stale measurements as unused risk capacity. These are requirements,
 not a rendered or implemented UI; tests, installation and operational qualification remain pending.
+
+### Continuous rounds and timed rule consultation — September 27 decision
+
+The operator accepts carrying an unfinished round across nights, weekends and market closures with
+its existing holdings, round-start loss reference, applicable 5%/3%/1% limit and protective levels,
+subject to the selected strategy's existing exit rules. A date change alone does not end a round,
+reset its loss reference, loosen a trailing stop or clear a review hold. This is continuity of saved
+state, not permission to trade while the market is closed or to treat old prices as current evidence.
+Existing market-hours, valuation, order-reconciliation and protection contracts still apply.
+
+At the beginning of a fresh trading session, the AI must consult the engine's current entry guidance
+when qualified fresh results are available and reconsider its decisions using that information.
+Use the selected portfolio's authoritative engine/source and current holdings, risk and evaluated
+learning context. The review may support holding, waiting, taking an eligible opportunity or proposing
+a supported change; the new session itself creates no order, forced switch or new loss allowance.
+Missing/stale entry guidance cannot be presented as a fresh review, and protective handling must not
+wait for a model call. No exact clock time or new stale-data exception is selected here.
+
+The operator also requests deliberate review points at key parts of the trading day, where the AI
+consults the relevant rule sets and records which apply and why. This connects continuous portfolio
+management to current context without making the AI responsible for every protective tick. The
+additional checkpoints, rule-to-checkpoint mapping and event-driven reviews remain to be chosen;
+only the new-session consultation is agreed at this stage. All reviews and learning share the
+existing AI spending ceiling. Budget exhaustion/provider failure cannot bypass protection or risk
+holds; exact discretionary-review fallback belongs to the remaining outage contract.
+
+The daily failed-attempt counter and its interaction with a carried round remain separate decisions:
+do not silently reset an active round's limit when that counter is later renewed. This is Step 2
+design agreement. Step 7 must implement and qualify scheduling, including restart/missed-checkpoint
+handling. No scheduler, automation, paid call, runtime change or trading action is installed here.
 
 ## Client direction and current evidence
 

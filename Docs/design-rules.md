@@ -153,6 +153,11 @@ Exact reference combination/valuation and
 interaction with existing holds remain unresolved. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
+Unfinished AI rounds retain references, limits and protective levels across market closures under
+the selected strategy's existing exit rules. At a new trading session, consult qualified fresh engine
+entry guidance and relevant evaluated learning without resetting protection or bypassing market hours.
+Other intraday rule-review checkpoints, retry-counter renewal and outage behavior remain undecided;
+all AI calls share the spending cap and protective handling never waits for a scheduled review.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not

@@ -17,11 +17,19 @@ Things we punted on and need to revisit. Cleared as decisions are made
   completed-session closing value now requires operator approval before new buys resume, regardless
   of attempts remaining; protective exits continue. Threshold proximity must be explicit in the UI
   (ADR-0087, checklist Step 8). Next specify
-  peak/starting-reference interaction, successful/carried rounds and daily counter
+  peak/starting-reference interaction, successful-round handling and daily counter
   reset. Preserve original capital/peak records and independent holds; day/round changes cannot
   clear the cumulative review. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
   [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
+
+- **Round continuity and rule consultation (September 27, ADR-0087):** unfinished rounds retain
+  holdings, loss references, round limits and protection across nights/weekends under existing exit
+  rules. New sessions require review of qualified fresh entry-engine guidance. The operator wants
+  additional rule consultations at key parts of the day; choose those checkpoints and relevant rule
+  sets, keeping all calls within the shared AI budget. Define missed/stale review behavior without
+  blocking protective handling. Daily attempt-counter renewal remains separate from active-round
+  continuity, and its interaction with carried rounds is unresolved. No scheduler is implemented.
 
 - **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This

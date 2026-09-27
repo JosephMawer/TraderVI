@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does a new trading day start a fresh AI round automatically?
+
+A: No. An unfinished round keeps its loss reference, limit and protective levels across closures.
+Fresh session entry guidance prompts a new AI review, not a reset or mandatory trade. Daily retry
+counter renewal is a separate unresolved rule. Source: ADR-0087. Tags: risk-management, architecture.
+
 ### Q: Can a remaining AI attempt bypass the overall 10% loss review?
 
 A: No. A 10% decline from the highest recorded completed-session closing value pauses new buys
