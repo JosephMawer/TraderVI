@@ -23,8 +23,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
   specify qualified valuation/cash-flow treatment. Original-capital capture and initial thresholds
   from actual round opening capital are confirmed; later rounds use actual reconciled remaining
-  capital, with upfront forecasts labelled estimates. This does not yet accept the proposed
-  completed five-minute cash-plus-holdings valuation source/cadence. Ordinary-sale handling is settled: profitable
+  capital, with upfront forecasts labelled estimates. Independent protection on every fresh verified
+  portfolio update now supersedes five-minute-only checks; qualify sources/collection before claiming
+  one-minute coverage. Ordinary-sale handling is settled: profitable
   exits and all-cash periods retain the same round/peak/limit and count; only a hard-limit hit
   consumes an attempt, with no separate success reset. Cross-session
   failure counting is settled: the whole sequence carries, round 2 remains at 3% next session,
@@ -39,8 +40,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   rules. New sessions require review of qualified fresh entry-engine guidance. The operator wants
   session-start, mid-session and pre-close consults alongside regular Delphi Live intraday checks
   and AI receipt of their data. One-to-fifteen-minute AI review intervals during market hours are now
-  accepted, subject to the shared budget. Set exact checkpoint times, relevant rules and whether the AI controls only paid
-  review scheduling or any discretionary collection cadence. The recommended MVP uses AI-proposed
+  accepted, subject to the shared budget. Ownership is settled: the AI controls review attention;
+  app-owned protection checks every fresh verified portfolio valuation without an AI call. Slower
+  reviews cannot slow required collection/protection. Qualify a fresher source for minute-level
+  coverage; current five-minute bars are insufficient. Set exact checkpoint times and relevant rules.
+  The recommended MVP uses AI-proposed
   next-review intervals validated by the host, with defined local events requesting earlier reviews;
   it cannot weaken protection or change five-minute bar semantics. Initial events are now agreed:
   new qualifying entry signals, confirmed holding closures and risk-limit changes to permitted actions.
@@ -62,7 +66,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   AI pause. Both starting capital and recorded portfolio
   peak are selected references. The round reference now trails its highest verified value, initialized
   at the opening value, and drives both its trigger and allowance. Define cash-flow adjustments and
-  qualified valuation cadence/source; retain the independent overall closing-peak guard.
+  qualified valuation sources/collection frequency; checking every fresh verified update is agreed.
+  Retain the independent overall closing-peak guard.
   The operator wants continued monitoring and automatic pickup after recovery while in cash; the
   fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
   all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.

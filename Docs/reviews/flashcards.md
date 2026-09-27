@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does a fifteen-minute AI review interval delay portfolio loss checks?
+
+A: No. The app checks every fresh verified portfolio valuation independently, with no AI call.
+That includes qualified one-minute updates; repeated cached prices or failed polls provide no new
+valuation. Current five-minute bars alone cannot establish fresh one-minute protection.
+Source: ADR-0087. Tags: risk-management, architecture, reliability.
+
 ### Q: Does taking profit or selling everything start a fresh AI risk round?
 
 A: No. Keep the same round, saved peak, limit/trigger and attempt count, even entirely in cash.

@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum starting-capital/initial-threshold handling confirmed; enforcement and host integration pending.
+**Current record:** September 27, 2026. Independent AI portfolio protection on fresh verified updates agreed; data/enforcement/host integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -179,8 +179,11 @@ This increment is documentation only, checked by diff review.
 Proportional sizing within each round is agreed, including recovery before its hard limit.
 The operator confirms capturing original allocated capital and calculating each round's initial
 threshold from its actual verified opening capital. Later-round previews are estimates; the 3%/1%
-thresholds use actual reconciled capital when those rounds start. Valuation source/cadence remains
-unsettled; the five-minute cash-plus-holdings proposal is not yet accepted or implemented.
+thresholds use actual reconciled capital when those rounds start. The operator now accepts independent
+threshold checks on every fresh verified portfolio valuation, including qualified one-minute updates,
+without an AI call. This supersedes five-minute-only checks; slower AI reviews cannot slow protection.
+Source/collection qualification remains pending; current five-minute bars do not prove minute-level
+coverage. No feed, enforcement, runtime or UI changed; this is documentation agreement only.
 The operator now accepts trailing each round's highest verified value, initialized at its opening
 value, for both the 5% / 3% / 1% trigger and buying-allowance loss fraction. Price declines cannot
 lower that trigger; hitting it commits the round to closure. UI must show the saved round peak,
@@ -203,7 +206,8 @@ allowance as needed, then apply the accepted pause or explicitly authorize more 
 The initial budget is unchanged. Source inspection confirms the CAD 90 default and a validator
 rejecting CAD 100 or more; the journal also retains the month's lowest ceiling. An explicit manual
 extension path is not implemented (ADR-0087).
-Cadence ownership and detailed timeout/recovery handling remain open.
+Cadence ownership is agreed: AI review attention is separate from app-owned protection and required
+collection. Source qualification and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
 collection offset (ADR-0087). Valuation/cash-flow treatment, event integration and budget-aware
 scheduling remain unfinished. No source changes or

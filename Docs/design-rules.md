@@ -199,7 +199,12 @@ only reaching its hard loss limit consumes an attempt. No separate success reset
 A limit hit still commits to failed-round reconciliation if already in cash. This is not implemented.
 The session-start, mid-session and pre-close consults are agreed alongside ongoing Delphi Live
 intraday monitoring and AI receipt of its evidence. The accepted AI review interval is one to fifteen
-minutes during market hours, subject to the shared budget. Separate collection, protection and
+minutes during market hours, subject to the shared budget. Check the round loss threshold on every
+fresh verified whole-portfolio valuation, including one-minute updates when qualified data exists.
+These deterministic checks need no AI call and cannot wait for or slow with AI reviews. Repeated
+cached prices, failed polls and incomplete readings do not establish fresh protection coverage.
+Qualify a fresher price source before claiming one-minute checks; current five-minute signal bars
+alone are insufficient. Keep per-stock protection and versioned bar semantics. Separate collection, protection and
 paid reviews; no AI request can change versioned bar semantics, weaken protection or bypass the
 shared spending cap. If provider unavailability or budget exhaustion prevents AI review, pause new
 buys, additions and portfolio switches while monitoring, stops and existing engine exits continue.
@@ -207,8 +212,9 @@ Resumption requires a successful fresh AI review and all other limits to permit 
 cannot clear a risk hold. Show the reason in the UI. Initial earlier-review triggers are a new
 qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted actions.
 Combine events arriving together, preserve the one-minute minimum interval and check the shared
-budget. Future hooks must use the same constraints. Exact cadence ownership and
-detailed timeout/recovery handling remain open. Protective handling never waits for a
+budget. Future hooks must use the same constraints. The app owns independent protection; the AI
+controls review attention within approved bounds. Source/collection qualification and detailed
+timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 
 Use one shared monthly AI budget without daily allocations, trading-day pacing or reserves for

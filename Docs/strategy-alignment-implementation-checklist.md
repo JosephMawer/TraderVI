@@ -134,7 +134,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Initial thresholds are confirmed: capture original allocated capital, record actual opening
    capital for each round and calculate its initial trigger upfront. Later rounds use actual
    reconciled remaining capital; any upfront later-round previews are estimates only.
-   **Next:** settle cadence ownership and valuation/cash-flow treatment, including
+   Independent checks on every fresh verified portfolio valuation are agreed, including qualified
+   one-minute updates. AI attention cannot slow app-owned protection or required collection.
+   **Next:** qualify valuation sources/collection and settle cash-flow treatment, including
    interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
@@ -147,6 +149,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
+   Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
+   cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
 4. **Implement trading decisions and enforced protection.** Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
    the selected engine and approved boundaries in C#. Keep protective monitoring independent of
@@ -160,6 +164,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    trigger and count; a limit hit while already cash still requires failed-round reconciliation.
    Verify initial triggers use actual round opening capital and retain original-capital history;
    forecast later-round amounts cannot supply enforced references.
+   Check thresholds on every new qualified portfolio valuation without an AI call. Verify that
+   one-minute updates are checked during a fifteen-minute AI review interval, unavailable AI does
+   not delay checks, and cached/failed/incomplete updates do not masquerade as fresh valuations.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.
@@ -179,12 +186,14 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    and discretionary-review loops. Configure intervals, restart recovery, protected storage, retention
    and the three agreed consult checkpoints alongside ordinary intraday monitoring. Implement
    adaptive AI review requests within the agreed one-to-fifteen-minute market-hours bounds and budget,
-   once ownership is settled; preserve collection semantics and
+   with protection and required collection owned independently by the app; preserve collection semantics and
    protective cadence and audit requested/applied intervals. Implement the three agreed event hooks
    through one extensible review request path, combine events arriving together, and preserve the
    one-minute minimum and shared budget. Qualify event-driven earlier reviews, duplicate/concurrent events,
    missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
    fallback and fresh-review recovery, including preservation of independent holds and protection.
+   Keep qualified valuation delivery and deterministic threshold checks independent of paid reviews;
+   qualify feed freshness/coverage and recovery before claiming one-minute protection.
    Schedule the agreed post-session learning review with shared-budget checks, persisted pending/
    deferred cases and restart-safe processing; preserve intraday saved-lesson consultation.
    Configure the shared CAD budget with FX/tax headroom and per-call reservations, without daily

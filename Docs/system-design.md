@@ -47,6 +47,11 @@ to budget. Initial earlier-review hooks are new qualifying entry signals, confir
 and risk-limit changes to permitted actions. One extensible request path combines events arriving
 together and applies the one-minute minimum and shared budget to current and future hooks.
 These hooks are not implemented. Faster AI calls do not create fresher source bars.
+Independent deterministic protection consumes every fresh verified whole-portfolio valuation,
+including one-minute updates when qualified data exists, without waiting for an AI call. The app
+owns protection and required collection; slower AI attention cannot throttle them. Failed polls or
+repeated cached prices are not fresh evidence. Current five-minute bars alone cannot deliver
+minute-level coverage; a suitable source/valuation path must be qualified in Steps 3/7.
 All roles share the existing durable spending ledger, with no daily allocations or future-consult
 reserves. Keep per-call cost reservations and token limits. An explicit operator allowance extension
 must preserve recorded spend; a path above the current below-CAD-100 source limit is not implemented.
@@ -65,7 +70,7 @@ the round, initialized at its opening value. Carry its saved peak/trigger across
 the independent overall closing-peak reference and operator-controlled review holds.
 Record original allocated capital plus each round's actual opening capital and initial trigger.
 Later-round forecasts, if displayed, remain estimates; initialize enforced 3%/1% triggers from
-actual reconciled capital when those rounds start. Valuation source/cadence remains unresolved.
+actual reconciled capital when those rounds start. Valuation source/collection qualification remains unresolved.
 The UI must expose session pause, carried round, pending reconciliation and approval hold distinctly,
 with attempts, opening/current values, round peak/trigger, next eligible session and unmet restart requirements. Enforcement
 and UI remain pending (ADR-0087). Ordinary sales, profitable exits and all-cash periods preserve

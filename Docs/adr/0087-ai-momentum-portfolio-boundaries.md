@@ -265,7 +265,8 @@ highest recorded completed-session closing value and retains its explicit-approv
 position trailing stops and engine holds remain separate constraints.
 
 Use qualified portfolio valuations, not an unverified tick, AI estimate or a high from an unrelated
-period. Exact valuation cadence/source and cash-flow adjustment remain to be defined under the
+period. The later independent-protection decision checks every fresh verified portfolio update.
+Source qualification, collection frequency and cash-flow adjustment remain to be defined under the
 existing accounting contracts; the simple formulas above describe intervals without external cash
 flows. This decision does not authorize treating deposits as profit or withdrawals as trading loss.
 The Step 8 UI must show the round's opening value, current verified value, recorded round peak,
@@ -286,9 +287,9 @@ and reconciliation, at 3% and 1% respectively. Any later-round thresholds shown 
 estimates, not enforceable values or assumptions about future fills. Retain the original capital
 alongside each round's opening record; no daily, ordinary-sale or portfolio-switch reset is added.
 
-This confirms initialization and trailing behavior only. The proposed use of engine cash-plus-holdings
-valuations at each completed five-minute Delphi Live interval is still awaiting agreement; exact
-qualified source/cadence and cash-flow adjustments remain open. Enforcement and UI remain pending.
+This confirms initialization and trailing behavior. The later independent-protection decision
+supersedes the proposed five-minute-only threshold checks. Qualified valuation sources, collection
+frequency and cash-flow adjustments remain open. Enforcement and UI remain pending.
 
 ### Per-stock protection and blocked alternatives for learning — September 27 decision
 
@@ -509,8 +510,8 @@ source contract or protective cadence under an AI frequency request.
 
 The recommended MVP mechanism is for each AI review to propose its next review interval and reason,
 with the host enforcing the accepted one-to-fifteen-minute bounds, fresh-data availability, concurrency and the shared
-monthly budget. Exact ownership of discretionary collection cadence versus AI review cadence needs
-confirmation. Slower AI attention cannot slow required protection. Because the model is not reasoning
+monthly budget. The independent-protection decision below settles ownership: AI review timing cannot
+control or slow required protection or its data collection. Because the model is not reasoning
 between calls, the local monitor must be able to request an earlier review when defined material
 events occur; the initial triggers and unpaced shared-budget policy are agreed below. Checkpoint
 priority remains an implementation detail. No promise of one
@@ -522,6 +523,31 @@ status UI. All intraday reviews, scheduled consults, learning and any retries us
 ledger and initial below-CAD-100 ceiling, subject only to an explicit operator increase as described
 below. Independent protection continues if no paid review can run. This
 is design/source inspection only: no monitor, timer, provider request or runtime configuration changed.
+
+### Independent protection on fresh portfolio updates — September 27 decision
+
+The immediate issue is whether loss checks wait for AI polling. The parent problem is timely
+protection during adaptive AI attention; the root goal remains continuous management within
+application-enforced boundaries. The operator accepts an independent deterministic check of the
+round loss threshold whenever fresh, verified portfolio data produces a qualified valuation.
+This supersedes the proposed restriction to completed five-minute Delphi Live valuations.
+
+Include every qualified one-minute update when such data is available. The check requires no AI
+call and does not wait for the next paid review. Slower AI reviews, provider failure or exhausted
+AI budget cannot slow required protection or its collection. Existing per-stock stops and engine
+exit checks retain their own contracts; this decision does not change their bar semantics.
+
+Run checks on new qualified portfolio evidence, not a busy loop over unchanged prices. A poll
+attempt, failed read, repeated cached value or isolated holding quote is not by itself a new
+verified whole-portfolio valuation. Data freshness and coverage must remain explicit; stale or
+incomplete evidence cannot manufacture a new peak or imply fresh protection coverage.
+
+The current five-minute Delphi Live bars do not supply fresh one-minute portfolio evidence.
+Steps 3/7 must qualify a suitable price source, whole-portfolio valuation coverage, collection
+frequency and recovery before claiming minute-level protection. Faster AI reviews alone do not
+satisfy this dependency or authorize external collection. Preserve versioned signal-bar behavior.
+The AI controls its review attention within accepted bounds; the app owns independent protection.
+This is accepted design only; source/feed integration, enforcement tests and UI remain pending.
 
 ### Initial intraday review triggers — September 27 decision
 
