@@ -32,7 +32,8 @@ next connect qualified outcome evaluation and periodic host scheduling under ADR
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 Step 1 is complete offline; Step 2 is in progress. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
-and session-minimum lock (ADR-0087). Next settle the continuous loss reference and resumption details.
+and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.
+Next settle reference combination and automatic re-entry conditions while reusing existing protection.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.

@@ -31,7 +31,8 @@ TFSA with preserved cash, execution and risk history.
   A persuasive explanation is not proof of predictive value or permission to breach a boundary.
 - Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
   Restore allowance gradually as measured losses recover across days, without a calendar reset.
-  The continuous loss reference and recovery details remain unresolved.
+  Track both starting capital and the recorded portfolio peak; exact valuation, combination and
+  recovery details remain unresolved.
 - Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
   room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
@@ -113,13 +114,37 @@ must follow verified portfolio-value recovery, not AI confidence, a restart or s
 context. Protective exits and hard position stops continue independently. This direction better
 matches the requested ongoing behavior; it is not evidence of superior trading returns.
 
-The reference value for measuring continuous loss is still undecided: starting capital and a
-recorded portfolio peak have different consequences. Define cash-flow adjustments, qualified
-valuation, interaction with existing daily/capital-review holds and resumption at the zero-allowance
-boundary before implementation. If no holdings remain and buying is stopped, market gains cannot
-restore value; recovery from that state also needs an explicit rule. No automatic rebase, clearing of
-independent holds or change to the existing engines' 7% daily templates is authorized by this design.
+The operator subsequently selects both starting capital and the recorded portfolio peak as loss
+references; see the clarification below. Define cash-flow adjustments, qualified valuation,
+combination of the two measures, interaction with existing daily/capital-review holds and resumption
+at the zero-allowance boundary before implementation. No automatic rebase, clearing of independent
+holds or change to the existing engines' 7% daily templates is authorized by this design.
 This remains Step 2 agreement; source enforcement, tests and activation are pending.
+
+### Both loss references and continued monitoring — September 27 clarification
+
+The operator requires tracking losses against both starting balance and the highest recorded
+portfolio value, preserving protection as profits increase. This resolves the earlier either/or
+question; it does not yet specify how the two measures determine the allocation multiplier or
+authorize a new portfolio-wide liquidation threshold. Peak sampling and cash-flow adjustment must
+be explicit. A starting balance is not the current day's opening balance.
+
+Source inspection confirms existing position protection to reuse: `SystemShadowPolicy.HardStopPrice`
+uses acquisition cost, and `EvaluateFifteenMinuteClose` raises an armed trailing floor from completed
+15-minute close highs without lowering it. `DelphiLiveSafetyPolicy` similarly raises its profit floor
+using completed five-minute closes after activation. Portfolio guards are separate: System Shadow
+and `DelphiLivePortfolioPolicy.EvaluateGuards` measure daily loss from opening value and drawdown
+from the highest completed closing value; the latter triggers capital review. These are not already
+the new AI continuous allowance or a portfolio-wide trailing sell rule. This is read-only source
+verification, not a new test run or operational verification.
+
+The operator wants monitoring to continue while in cash and automatic pickup when conditions
+recover. Preserve that intent; the exact qualifying market signal and permitted restart allocation
+remain open. A recovery in watched stocks can produce a new opportunity but cannot increase an
+all-cash portfolio's trading value. Therefore market-based re-entry requires an explicit recovery
+transition at zero allowance, without erasing actual losses, lowering retained protective stops or
+bypassing independent holds. Reusing the selected engine's entry checks for this transition is a
+candidate, not a settled trigger or permission to resume full-size buying.
 
 ## Client direction and current evidence
 

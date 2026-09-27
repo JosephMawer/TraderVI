@@ -9,9 +9,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Step 2 / MVP discussion in progress:** the AI gradual 0–7% allocation scale now follows continuous
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
-  supersedes its daily framing and session-minimum lock. Next select the loss reference: starting
-  capital or a recorded portfolio peak. Define cash-flow adjustments, valuation and resumption at
-  zero allowance, including a fully cash portfolio that cannot recover through market gains.
+  supersedes its daily framing and session-minimum lock. Both starting capital and recorded portfolio
+  peak are now selected references. Define their combination, cash-flow adjustments and peak valuation.
+  The operator wants continued monitoring and automatic pickup after recovery while in cash; define
+  the qualifying market signal and restart allowance. Market recovery alone does not restore an
+  all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
   Resolve interaction with existing daily/capital-review holds before integration. Existing engine
   7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.
 
@@ -30,7 +32,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   in paper and intended live use.
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  continuous loss reference/recovery details, profit activation and permitted giveback remain open. The gradual allocation
+  reference combination/valuation and recovery details, profit activation and permitted giveback remain open. The gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling

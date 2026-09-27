@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum continuous allowance recovery agreed; loss reference and enforcement pending.
+**Current record:** September 27, 2026. AI Momentum both-reference protection and continued monitoring agreed; recovery enforcement pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -139,8 +139,11 @@ retain their settings. September 27: the operator accepts the gradual per-stock 
 in ADR-0087, covering initial buys and additions together without scale-triggered forced sales.
 The later September 27 clarification replaces the AI daily framing and session-minimum lock with
 continuous allowance reduction/recovery across days, without a calendar reset (ADR-0087).
-The loss reference, resumption details and AI enforcement remain pending. Existing engine daily
-templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran
+The operator clarifies that both starting balance and recorded portfolio peak must be tracked, with
+continued monitoring and intended automatic re-entry after market recovery. Source inspection confirms
+existing position trailing floors and separate portfolio guards; the new AI allowance/re-entry path
+is not implemented. Exact reference combination/valuation and restart conditions remain open (ADR-0087).
+Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran
 for this decision. The source-validation evidence below retains its original scope.
 No numerical limit has been operationally activated by this change.
 Validation: 14 engine-settings cases pass, including six added boundary/preservation cases; the

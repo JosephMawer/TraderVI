@@ -104,8 +104,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    daily templates use 7%; frozen and assigned versions are preserved. **Agreed September 27:** the AI
    gradual per-stock scale covers buys/additions without forced sales and now follows continuous
    losses/recovery across days, superseding its daily framing and session-minimum lock (ADR-0087).
-   AI enforcement integration remains Step 4. **Next:** settle the continuous loss reference and
-   resumption details, including interaction with existing engine holds.
+   Both starting balance and recorded portfolio peak must be tracked; monitoring continues while in
+   cash with intended automatic re-entry on recovery. AI enforcement integration remains Step 4.
+   **Next:** settle reference combination/valuation and the re-entry trigger/allowance, including
+   interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.

@@ -23,8 +23,15 @@ sessions ("quiz me" / "review").
 A: Each stock's combined buying allowance shrinks from its normal limit at no measured loss to half
 at 3.5% loss and zero at 7%. Initial buys and additions share that allowance; splitting orders
 cannot bypass it. Shrinking the allowance alone does not force a sale. Allowance follows continuous
-losses and recovery across days; the loss reference and resumption details remain unresolved. Source: ADR-0087.
+losses and recovery across days; both starting balance and portfolio peak are tracked, with their
+combination and resumption details unresolved. Source: ADR-0087.
 Tags: risk-management, decision-engine.
+
+### Q: Does an existing trailing sell rule automatically restore AI buying allowance while in cash?
+
+A: No. Position trailing floors and portfolio buying limits are separate controls. Watched stocks
+can recover while an all-cash portfolio's trading value stays unchanged; automatic re-entry needs
+an explicit qualifying signal and restart allowance. Source: ADR-0087. Tags: risk-management, decision-engine.
 
 ### Q: Does the new 7% daily buying-pause default change an existing portfolio automatically?
 

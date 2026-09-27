@@ -133,8 +133,10 @@ The September 27 AI Momentum allocation scale is agreed in ADR-0087: reduce the 
 buying allowance linearly toward the 7% pause, including additions. It must not create a fresh
 allowance per order or force liquidation solely because the allowance shrank. The later continuous
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
-and verified recovery across days without a calendar reset. The loss reference, resumption details
-and interaction with existing holds remain unresolved. Implementation is pending; this design does
+and verified recovery across days without a calendar reset. Both starting balance and recorded
+portfolio peak must be tracked. Exact combination/valuation, market-based re-entry from cash and
+interaction with existing holds remain unresolved. Reuse existing position trailing protection;
+it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
