@@ -34,8 +34,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   it cannot weaken protection or change five-minute bar semantics. Initial events are now agreed:
   new qualifying entry signals, confirmed holding closures and risk-limit changes to permitted actions.
   Combine events arriving together, respect the one-minute minimum and shared budget, and allow
-  later hooks through the same path. Event identity/duplicates, checkpoint priority and budget
-  allocation remain implementation/design work. Provider/budget fallback is now agreed: pause new buys, additions and switches,
+  later hooks through the same path. Event identity/duplicates and checkpoint priority remain
+  implementation details. Monthly spending is now agreed without daily allocations or future-consult
+  reserves. Provider/budget fallback is now agreed: pause new buys, additions and switches,
   continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
   before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
   without blocking protective handling or clearing independent holds. Daily attempt-counter renewal remains separate from active-round
@@ -70,6 +71,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   reference combination/valuation and recovery details, profit activation and permitted giveback remain open. The gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
+- **Budget pacing settled (September 27, ADR-0087):** use the shared monthly allowance as needed,
+  without daily allocations or reserves for later consults; retain per-call reservations, token limits
+  and combined event requests. At exhaustion pause, unless the operator explicitly extends the
+  allowance/provides funding as needed. No specific increase or purchase is authorized now. The
+  current validator rejects CAD 100 or more and the journal retains the month's lowest ceiling;
+  implement the manual extension path without resetting
+  spend, automatic top-ups or bypassing fresh-review recovery. Provider funds alone do not change
+  TraderVI's cap. Production accounting/qualification remain pending.
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
   below CAD 100 monthly. Recommendation is API first using Oracle's abstraction; subscription access
   remains an alternative if measured savings justify integration. All roles and learning share the cap;

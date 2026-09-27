@@ -323,14 +323,15 @@ with the host enforcing the accepted one-to-fifteen-minute bounds, fresh-data av
 monthly budget. Exact ownership of discretionary collection cadence versus AI review cadence needs
 confirmation. Slower AI attention cannot slow required protection. Because the model is not reasoning
 between calls, the local monitor must be able to request an earlier review when defined material
-events occur; the initial triggers are agreed below, while priority/budget allocation remains design
-work. No promise of one
+events occur; the initial triggers and unpaced shared-budget policy are agreed below. Checkpoint
+priority remains an implementation detail. No promise of one
 paid call every minute, guaranteed response latency or full-session minute-level coverage is made.
 
 Log requested and applied intervals, reasons, evidence times and any budget/data constraint that
 changes or rejects a request. Show the actual review cadence and next scheduled review in the AI
 status UI. All intraday reviews, scheduled consults, learning and any retries use the same spending
-ledger and below-CAD-100 ceiling. Independent protection continues if no paid review can run. This
+ledger and initial below-CAD-100 ceiling, subject only to an explicit operator increase as described
+below. Independent protection continues if no paid review can run. This
 is design/source inspection only: no monitor, timer, provider request or runtime configuration changed.
 
 ### Initial intraday review triggers — September 27 decision
@@ -370,6 +371,31 @@ partially completed handovers remain integration work. Preserve existing order r
 protection contracts; this decision does not authorize cancelling or resubmitting uncertain orders.
 This is accepted Step 2 behavior, pending enforcement, host integration, UI and offline validation.
 No application, provider call, database change or trading action accompanies this documentation.
+
+### Simple monthly spending policy — September 27 decision
+
+The operator rejects daily spending allocations, spreading usage across remaining trading days,
+and setting aside budget for later consults. For the MVP, use the shared monthly budget as needed
+for useful scheduled/event reviews and learning until it is exhausted. There is no guarantee that
+it lasts the month. Retain the agreed review intervals, combined event requests, bounded input/output
+and per-call cost reservations; these prevent excessive or unaccounted calls without daily rationing.
+Per-call reservations cover calls already admitted, not money withheld for future checkpoints.
+
+When the budget is exhausted, apply the accepted unavailable-review fallback. The operator may stop
+paid AI activity for the rest of the month or manually provide additional funding/authorize a higher
+TraderVI allowance as needed. Provider funding and the app's spending cap are distinct: funding alone
+does not raise the app cap. The AI cannot increase its allowance or purchase credits. No extra amount,
+purchase or actual cap change is authorized now. Any explicit later cap increase must retain the
+month's recorded spend; it is not a reset of usage. Resumption still requires a successful fresh
+review and satisfaction of all other limits.
+
+The initial below-CAD-100 budget remains, with the existing CAD 90 working default and per-call
+token limits unchanged. Source inspection shows `AiSpendPolicy.Validate` currently rejects a monthly
+limit of CAD 100 or more, and `AiCallJournal` retains the lowest ceiling used in the month. A manual
+extension therefore needs an explicit policy/journal update path, preserving spend and outstanding
+reservations; changing settings alone cannot refill the allowance. This decision does not claim that path or the runtime
+scheduler exists. Keep the existing currency/tax cost accounting and shared journal. Implementation,
+UI and qualification remain pending; no paid call, funding transaction or runtime change ran here.
 
 ## Client direction and current evidence
 
@@ -429,14 +455,16 @@ single-transmission behavior and must not redirect credentials or add retries.
 conservative usage estimate. A stable call ID cannot be reused. One process owns the journal and
 concurrent reservations share one UTC calendar-month budget. Unknown outcomes retain their full
 reservation across restart/month boundaries; settlements spanning months count conservatively in
-both months. A lower ceiling cannot be raised within its starting month. Missing/corrupt storage or
+both months. Current source prevents raising a lower ceiling within its starting month; the accepted
+manual-extension design above is pending implementation. Missing/corrupt storage or
 an interrupted write blocks further calls; usage overruns or unexpected billing identity block them
 durably. Recovery/retention tooling remains host work; the learning increment below adds domain review dispositions.
 The private JSON is not encrypted: production needs a protected directory outside the checkout,
 one stable shared journal for every AI Momentum role, backups and reviewed recovery. Do not create
 another journal to reset spending. The SHA-256 is an integrity check, not tamper-proof attestation.
 
-The default working ceiling is CAD 90, with any policy ceiling required to remain below CAD 100.
+Current source defaults to CAD 90 and requires policy ceilings below CAD 100; the manual-extension
+decision above changes the planned operator contract, not this implementation evidence.
 Currency/tax/fee upper bounds and their expiration are mandatory explicit inputs; none are activated.
 Default per-call limits are 32,000 input and 4,096 total output tokens. Input is conservatively charged
 at USD 12.50/million and output at USD 50/million, with no anticipated cache savings. Input above

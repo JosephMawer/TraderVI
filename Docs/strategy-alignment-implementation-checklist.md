@@ -120,7 +120,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    other limits to permit it. Initial earlier-review hooks are agreed for new qualifying entry signals,
    confirmed holding closures and risk-limit changes to permitted actions; combine nearby events
    within the one-minute minimum and shared budget. Later hooks use the same path.
-   **Next:** settle cadence ownership and budget allocation, daily counter renewal and reference
+   Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
+   allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
+   **Next:** settle cadence ownership, daily counter renewal and reference
    combination/valuation, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
@@ -147,11 +149,14 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    one-minute minimum and shared budget. Qualify event-driven earlier reviews, duplicate/concurrent events,
    missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
    fallback and fresh-review recovery, including preservation of independent holds and protection.
-   Configure
-   the CAD budget with FX/tax headroom. Qualify API authentication, model access, latency and cost
+   Configure the shared CAD budget with FX/tax headroom and per-call reservations, without daily
+   pacing or future-consult reserves. Implement explicit operator allowance extensions while retaining
+   month-to-date spend and outstanding reservations; current source rejects CAD 100 or more and
+   retains the month's lowest ceiling. Qualify API authentication, model access, latency and cost
    through a bounded separately authorized call before model-backed operation.
 8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
-   exceptions, lessons, health and spending. Provide clear controls for stopping new buys, continued
+   exceptions, lessons, health and spending. Show exhausted budget and support an explicit operator
+   allowance update without implying provider funding or clearing other holds. Provide clear controls for stopping new buys, continued
    protection, strategy switching and explicit live activation, using the existing execution contracts.
    **Required September 27:** show current measurement, limit and remaining room for the cumulative
    10% review guard, active round limit, buying allowance, attempts remaining, position stops/trailing

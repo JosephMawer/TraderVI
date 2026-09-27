@@ -170,6 +170,13 @@ budget. Future hooks must use the same constraints. Exact cadence ownership, ret
 detailed timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 
+Use one shared monthly AI budget without daily allocations, trading-day pacing or reserves for
+future consults. Keep per-call cost reservations, token limits and combined event requests. The
+initial below-CAD-100 budget remains; only an explicit later operator decision may extend the app
+allowance, preserving recorded spend. The AI cannot raise the cap or buy credits. Exhaustion uses
+the agreed fallback; extra provider funding alone does not change the app cap. A manual extension
+path above the current source limit is not implemented (ADR-0087).
+
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not
 mutate an existing version's evidence identity. Preserve the source input-policy dispatch and immutable

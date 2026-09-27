@@ -28,7 +28,10 @@ to budget. Initial earlier-review hooks are new qualifying entry signals, confir
 and risk-limit changes to permitted actions. One extensible request path combines events arriving
 together and applies the one-minute minimum and shared budget to current and future hooks.
 These hooks are not implemented. Faster AI calls do not create fresher source bars.
-All roles share the existing durable spending ledger. The agreed provider/budget fallback pauses
+All roles share the existing durable spending ledger, with no daily allocations or future-consult
+reserves. Keep per-call cost reservations and token limits. An explicit operator allowance extension
+must preserve recorded spend; a path above the current below-CAD-100 source limit is not implemented.
+The agreed provider/budget fallback pauses
 new buys, additions and switches while monitoring and existing exits continue. Recovery requires
 a successful fresh review with all other limits satisfied; show the reason in the UI. This fallback
 and its detailed timeout/recovery handling are not implemented.

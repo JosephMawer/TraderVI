@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum initial intraday review triggers agreed; implementation pending.
+**Current record:** September 27, 2026. AI Momentum unpaced monthly budget policy agreed; runtime and manual-extension integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -164,6 +164,11 @@ after a successful fresh AI review with all other limits satisfied. The UI must 
 Initial earlier-review triggers are agreed: a new qualifying entry signal, a confirmed holding
 closure, or a risk-limit change to permitted actions. Combine events arriving together and retain
 the one-minute minimum and shared budget; more hooks may be added later through the same path.
+The operator rejects daily budget allocations and reserves for later consults: use the monthly
+allowance as needed, then apply the accepted pause or explicitly authorize more allowance/funding.
+The initial budget is unchanged. Source inspection confirms the CAD 90 default and a validator
+rejecting CAD 100 or more; the journal also retains the month's lowest ceiling. An explicit manual
+extension path is not implemented (ADR-0087).
 Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
 collection offset (ADR-0087). Reference combination, retry renewal, event integration and budget-aware

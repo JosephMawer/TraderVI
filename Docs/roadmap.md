@@ -43,7 +43,9 @@ are agreed. Three consults complement ongoing intraday monitoring; AI review int
 fifteen minutes during market hours are agreed, subject to budget. Provider/budget fallback and
 fresh-review recovery are agreed (ADR-0087). Initial entry-signal, holding-closure and risk-limit
 review hooks are agreed; shared timing/budget checks also apply to later hooks. Implementation
-remains pending. Next settle cadence ownership and budget allocation, daily
+remains pending. Budget pacing is settled: no daily allocations or future-consult reserves; use the
+shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
+Next settle cadence ownership, daily
 counter renewal and reference combination. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes

@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does AI Momentum ration its monthly budget across trading days?
+
+A: No. Useful reviews and learning share the monthly allowance without daily allocations or future
+consult reserves; per-call reservations and token limits still apply. At exhaustion the agreed pause
+applies unless the operator explicitly extends the allowance, with a fresh review still required
+before resuming decisions. Source: ADR-0087. Tags: architecture, llm, budget.
+
 ### Q: Which initial events can bring an AI review forward?
 
 A: A new qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted
