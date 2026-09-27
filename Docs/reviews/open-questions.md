@@ -13,10 +13,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   exits and commitments before a new permitted round. Fresh-entry qualification is agreed: a new
   qualifying signal from the selected engine after closure, no extra fixed delay, and AI choice to
   take it or wait. Proportional sizing within rounds is agreed in ADR-0087: allowance can recover
-  before the round limit; hitting it commits to closure. Next specify cumulative safeguards,
+  before the round limit; hitting it commits to closure. The 10% decline from highest recorded
+  completed-session closing value now requires operator approval before new buys resume, regardless
+  of attempts remaining; protective exits continue. Threshold proximity must be explicit in the UI
+  (ADR-0087, checklist Step 8). Next specify
   peak/starting-reference interaction, successful/carried rounds and daily counter
-  reset. Preserve original capital/peak records and independent holds; the daily retry cap does not
-  settle the cumulative loss safeguard. Existing engine templates remain unchanged.
+  reset. Preserve original capital/peak records and independent holds; day/round changes cannot
+  clear the cumulative review. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
   [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
 

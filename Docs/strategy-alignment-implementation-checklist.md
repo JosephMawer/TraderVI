@@ -110,8 +110,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
    before another permitted attempt. Re-entry requires a fresh qualifying signal from the selected
    engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
-   within each round can recover before the hard limit, after which closure is required. **Next:**
-   define cumulative safeguards, reference combination/valuation and cross-session behavior, including
+   within each round can recover before the hard limit, after which closure is required. Retaining
+   the 10% cumulative buying pause with operator approval to resume is agreed. **Next:** settle
+   reference combination/valuation and cross-session behavior, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
@@ -134,6 +135,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
    exceptions, lessons, health and spending. Provide clear controls for stopping new buys, continued
    protection, strategy switching and explicit live activation, using the existing execution contracts.
+   **Required September 27:** show current measurement, limit and remaining room for the cumulative
+   10% review guard, active round limit, buying allowance, attempts remaining, position stops/trailing
+   floors, applicable cash/exposure constraints and AI spend cap. Use enforcement values, clear
+   reference/freshness labels and explicit blocking reasons/actions; recovered values cannot hide
+   a review hold that still needs operator approval. This UI is not implemented.
 9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,
    budget exhaustion, stale data, outages and restart without real orders. Measure actual API costs
    and decision quality; synthetic tests alone do not establish either or a performance edge.

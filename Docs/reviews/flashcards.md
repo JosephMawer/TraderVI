@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can a remaining AI attempt bypass the overall 10% loss review?
+
+A: No. A 10% decline from the highest recorded completed-session closing value pauses new buys
+until explicit operator approval; protective exits continue. The UI must show proximity to that
+limit and the review hold even if value recovers. Source: ADR-0087. Tags: risk-management, user-interface.
+
 ### Q: When can another AI round begin after a loss threshold is reached?
 
 A: Only after the failed round's AI-managed holdings are closed, fills and cash are reconciled,

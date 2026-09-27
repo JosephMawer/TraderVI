@@ -170,7 +170,8 @@ at 7%; integrating the AI schedule with underlying engine holds still requires a
 The immediate purpose is to bound repeated attempts while continuing to watch for new entries;
 the parent goal remains AI discretion within enforceable protection. Keep original starting balance,
 portfolio peaks and actual loss history across cycles. A retry counter cannot clear independent
-account/data/capital-review holds. The overall cumulative safeguard is still to be specified.
+account/data/capital-review holds. The later cumulative-review decision below retains the existing
+10% capital-review safeguard for AI Momentum.
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
@@ -231,8 +232,36 @@ allowance. A new permitted round requires confirmed closure and a fresh qualifyi
 
 This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
 It does not erase original capital/peak history or resolve how portfolio-wide trailing protection
-combines with cycle-start loss, cumulative safeguards, successful/carried rounds or daily retry
+combines with cycle-start loss, successful/carried rounds or daily retry
 resets. The formula and examples are accepted design, not implemented/tested runtime behavior.
+
+### Cumulative review and visible thresholds — September 27 decision
+
+The operator accepts retaining the existing 10% drawdown review for AI Momentum: when portfolio
+value falls 10% or more below its highest recorded completed-session closing value, pause new buys
+and require explicit operator approval before they may resume. Protective exits continue. This
+guard takes precedence even when a daily attempt remains. Neither a new day, a new round, a fresh
+entry signal, an AI decision nor a subsequent rebound clears the review hold. Reuse the established
+review/audit and reference-handling contracts; approval is not a bypass of other hard checks. The
+review pause itself does not add a liquidation rule; reaching a round's loss limit still requires
+the separately accepted round closure. Existing engine settings are unchanged.
+
+The immediate UI requirement is to make distance to the enforced limits visible, so the operator
+can understand the AI portfolio's available discretion and why it is paused. Include an explicit
+threshold summary in the AI portfolio/live-strategy UI (Step 8), with the current measurement,
+limit, remaining room, reference value and action at the boundary. Keep paper/live context clear.
+At minimum cover the overall 10% review threshold, the active round's 5%/3%/1% threshold, current
+buying-allowance multiplier, failed rounds and attempts remaining, and relevant per-position hard
+stops/trailing floors. Show applicable cash/exposure constraints and shared monthly AI spending
+against its configured cap in the appropriate portfolio/holding/budget views.
+
+Use plain labels and explicit numbers; color alone is insufficient. Show percentage-point distance
+for percentage loss comparisons and a monetary/price distance where meaningful, using the same
+references and calculations as enforcement. Identify any blocking rule and its required next action,
+especially "Review required — new buys paused; protective exits active" for the cumulative hold.
+A recovered value must not make an uncleared hold appear ready. Expose freshness/unavailable state
+instead of showing missing or stale measurements as unused risk capacity. These are requirements,
+not a rendered or implemented UI; tests, installation and operational qualification remain pending.
 
 ## Client direction and current evidence
 

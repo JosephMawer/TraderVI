@@ -144,7 +144,12 @@ additional fixed delay. The AI may choose to wait. This is pending implementatio
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
 and verified recovery across days; the later retry cap is daily, without erasing loss history.
 Both starting balance and recorded
-portfolio peak must be tracked. Exact reference combination/valuation, cumulative safeguards and
+portfolio peak must be tracked. The accepted cumulative guard pauses new buys at 10% below the
+highest recorded completed-session closing value and requires explicit operator approval to resume;
+round/day transitions, signals or rebounds cannot clear it. Protective exits continue. AI UI must
+show current measures, thresholds, remaining room and binding holds using enforcement calculations,
+including round limits/allowance, attempts, stops and spending; stale data must not appear as capacity.
+Exact reference combination/valuation and
 interaction with existing holds remain unresolved. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
