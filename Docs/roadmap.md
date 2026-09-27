@@ -31,7 +31,8 @@ Learning consultation is source-integrated into the supervisor and execution-pre
 next connect qualified outcome evaluation and periodic host scheduling under ADR-0087.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 Step 1 is complete offline; Step 2 is in progress. The 7% daily buying pause is accepted and new
-engine templates updated; next agree risk reduction below that boundary. Keep the MVP focus and
+engine templates updated. The gradual allocation scale is agreed; next settle same-day recovery.
+Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.
 Integrate and qualify the client and independent protective host before enabling any paper/live actions.

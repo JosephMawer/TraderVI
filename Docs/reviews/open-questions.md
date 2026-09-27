@@ -10,8 +10,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Step 2 / MVP discussion in progress:** the operator accepts a **7% daily buying pause** as an
   AI non-overridable boundary and the default for new Delphi Live/System Shadow templates (ADR-0087).
   Source templates implement it; frozen V1 and saved assignments remain unchanged. AI execution
-  enforcement is still pending. Next settle the risk-reduction scale below 7%; real-account reference
-  and pause/recovery behavior still require agreement/qualification. Reuse existing behavior where
+  enforcement is still pending. The gradual per-stock allocation scale is accepted September 27
+  (ADR-0087). Next decide whether same-day recovery can restore a reduced allowance; real-account
+  references and next-session recovery still require agreement/qualification. Reuse existing behavior where
   appropriate and settle one necessary decision at a time.
 
 - **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
@@ -29,7 +30,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   in paper and intended live use.
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  risk scale/recovery, profit activation and permitted giveback remain open. See
+  recovery behavior, profit activation and permitted giveback remain open. The gradual allocation
+  scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
   below CAD 100 monthly. Recommendation is API first using Oracle's abstraction; subscription access

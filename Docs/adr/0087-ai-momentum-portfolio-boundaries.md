@@ -29,8 +29,8 @@ TFSA with preserved cash, execution and risk history.
   and the full classification of existing rules remain open.
 - Log meaningful decisions, evidence, reasons for overrides and conditions for reconsideration.
   A persuasive explanation is not proof of predictive value or permission to breach a boundary.
-- Reduce permitted risk as portfolio losses deepen. The scale, loss reference, recovery conditions
-  and protective responses are not yet specified.
+- Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
+  Recovery conditions and real-account reference qualification remain unresolved.
 - Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
   room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
@@ -55,8 +55,29 @@ With the new templates, the engines pause new buys at a session return of -7% or
 portfolio value. Protective exits continue; the threshold does not change position stops or the
 10% capital-review threshold and cannot clear an existing pause. The AI cannot waive its accepted
 7% boundary by selecting a more permissive strategy. Wiring that boundary into AI execution is
-Step 4 work. The risk-reduction scale below 7%, real-account reference qualification and recovery
-contract remain Step 2 decisions. A buying pause is not a guaranteed maximum realized loss.
+Step 4 work. Real-account reference qualification and recovery remain unresolved.
+A buying pause is not a guaranteed maximum realized loss.
+
+## Gradual allocation scale — September 27 decision
+
+The immediate problem is reducing new buying before the 7% pause; the parent problem is bounding
+AI discretion within its selected strategy. The root goal remains protected, auditable paper and
+intended real-account management. The operator accepts a linear reduction in each stock's permitted
+allocation: 100% of its normal strategy allowance at no daily loss, 50% at a 3.5% loss and zero at
+7% or worse. For a nonnegative daily loss fraction `loss`, the multiplier is
+`max(0, 1 - loss / 0.07)`, capped at 1. Daily gains do not enlarge the normal allowance.
+
+This is a ceiling on the stock's combined allocation for buying, including initial purchases and
+additions, not a fresh allowance for each order. Splitting purchases cannot bypass it. The AI may
+choose less; cash, exposure and other hard limits can further restrict buying. Existing holdings
+continue under their exit/protection rules; the reduced allowance alone does not force a sale.
+Existing exposure at or above the reduced allowance leaves no room for an additional purchase.
+
+This is an accepted AI Momentum design, not an implemented or installed allocation control, and
+does not add the scale to other engines automatically. Step 4 must enforce it and account for
+holdings and outstanding buy commitments. Step 2 still must settle whether an intraday recovery
+can increase a previously reduced allowance, along with next-session recovery and qualified loss
+references. The existing 7% pause cannot be cleared just by recalculating a positive allowance.
 
 ## Client direction and current evidence
 

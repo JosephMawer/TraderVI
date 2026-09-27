@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: What does the AI Momentum gradual allocation scale constrain?
+
+A: Each stock's combined buying allowance shrinks from its normal limit at no daily loss to half
+at 3.5% loss and zero at 7%. Initial buys and additions share that allowance; splitting orders
+cannot bypass it. Shrinking the allowance alone does not force a sale. Recovery behavior remains
+unresolved. Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: Does the new 7% daily buying-pause default change an existing portfolio automatically?
 
 A: No. New engine templates use 7%; saved versions and historical V1 policies retain their settings.

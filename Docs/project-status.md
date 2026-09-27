@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 26, 2026. AI Momentum client/proposal and learning-consultation source validated offline.
+**Current record:** September 27, 2026. AI Momentum gradual allocation scale agreed; enforcement pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -135,7 +135,9 @@ remain pending. The operator requests this same list for future "progress" queri
 without tangents or unnecessary complexity. September 26: the operator accepts a 7% hard daily
 buying pause for AI Momentum and the same default for new Delphi Live/System Shadow templates.
 Source templates and settings help are updated; frozen V1, saved strategies and active assignments
-retain their settings. AI enforcement integration and the risk-reduction/recovery scale remain pending.
+retain their settings. September 27: the operator accepts the gradual per-stock allocation scale
+in ADR-0087, covering initial buys and additions together without scale-triggered forced sales.
+This is design agreement only; AI enforcement integration and recovery behavior remain pending.
 No numerical limit has been operationally activated by this change.
 Validation: 14 engine-settings cases pass, including six added boundary/preservation cases; the
 full Core suite passes **1,798 tests, one SQL opt-in skipped, zero failures**. The desktop builds

@@ -129,6 +129,10 @@ comparison collection is excluded from the original Live clean promotion cohorts
 sets the AI hard daily buying pause and new Delphi Live/System Shadow templates to 7%. Preserve
 frozen V1 settings, saved policy identities, existing holds and explicit assignment. AI enforcement
 integration remains pending; changing a template does not activate it on an account.
+The September 27 AI Momentum allocation scale is agreed in ADR-0087: reduce the combined per-stock
+buying allowance linearly toward the 7% pause, including additions. It must not create a fresh
+allowance per order or force liquidation solely because the allowance shrank. Implementation and
+recovery behavior remain pending; this design does not change existing engine execution.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection
 and eight persisted decision-gate settings. A threshold edit creates a new strategy version; it must not
