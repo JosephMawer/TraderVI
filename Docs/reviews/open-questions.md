@@ -7,7 +7,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **Requested direction, not implemented:** an AI-managed portfolio with a mandate, discretionary
+- **Requested direction, foundation only:** an AI-managed portfolio with a mandate, discretionary
   decisions and enforced boundaries. The operator supports this framework and logging decisions,
   supporting evidence, reasons for rule overrides and conditions for reconsideration.
 - **Requested live scope:** short-term momentum, with the AI portfolio also managing the real TFSA
@@ -27,12 +27,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Client/budget:** GPT-6 Astra; operator allows API usage and sets an initial incremental ceiling
   below CAD 100 monthly. Recommendation is API first using Oracle's abstraction; subscription access
   remains an alternative if measured savings justify integration. All roles and learning share the cap;
-  reserve call costs including reasoning/retries and currency/tax headroom. Exact enforcement and
-  cadence remain unimplemented. Deterministic protection continues independently of model calls.
+  reserve call costs including reasoning/retries and currency/tax headroom. The library implements
+  reservations and a default CAD 90 working ceiling; production FX/tax bounds, endpoint billing,
+  journal protection/recovery and cadence remain unqualified. Protection must operate independently.
   Official documentation supports programmatic Codex and saved subscription authentication, but no
   TraderVI connection, account/model access, latency or quota qualification has run. API-key use is a
   separate usage-based option. The operator explicitly authorizes adapting the existing Oracle client;
-  define the new portfolio's decision contract and scoped narration-rule changes before implementation.
+  proposal-only version-1 output and narration-rule scope are implemented under ADR-0087.
   Historical Phase 2 narration exists, but the September 26 bounded process/schedule inspection found
   no running Oracle or directly named scheduled action; current nightly configuration excludes Oracle.
 - **Return aspiration:** the operator asked for at least 1% daily gains. This is unproven, cannot be
@@ -46,9 +47,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   implicitly authorized. See ADR-0087 for the proposed boundaries and unresolved scope.
 - **Next discussion, one topic at a time:** portfolio selection/switching, then learning; subsequently
   define profit protection and numerical limits, evaluation cadence,
-  client transport and data access, missing-data/model-outage behavior, decision record and version
-  identity. ADR-0087 records accepted principles; details remain open. No code, model calls,
-  broker operations or activation accompanied this proposal record.
+  production data access, missing-data/model-outage behavior and durable proposal dispositions.
+  ADR-0087 records the implemented client/audit/proposal foundation and remaining dependencies.
+  No real model calls, broker operations or activation have run.
 
 ### Portfolio-wide ongoing TFSA management
 

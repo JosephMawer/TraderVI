@@ -1,7 +1,8 @@
 # TraderVI Project Status
 
-**Current record:** September 25, 2026. Integrated desktop controls and saved account refreshes
-observed; other operational evidence retains its original dates below.
+**Current record:** September 26, 2026. AI Momentum client/proposal foundation validated offline.
+Desktop controls and saved account refreshes were observed September 25; operational evidence retains
+its original dates below.
 
 ## Executive summary
 
@@ -119,8 +120,10 @@ Discretionary rules, enforced boundaries, declining risk capacity and no looseni
 losses are agreed ([ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md)); exact protection/profit
 limits and evaluation objectives remain open. The operator sets an initial AI budget below CAD 100
 monthly and requests portfolio selection/switching plus self-improvement. API-first Oracle adaptation
-is recommended; subscription-backed Codex remains an alternative. No spending controls, supervisor,
-learning mechanism or Astra connection are implemented or verified.
+is selected for the first source increment; subscription-backed Codex remains an alternative.
+The budgeted Responses client, durable private call journal and versioned portfolio-proposal reviewer
+are implemented/tested offline. They have no production composition or trading authority. Full
+supervision, evaluated learning, packet adapters and paper/live integration remain unfinished.
 September 26 local configuration check confirms Oracle has a saved API key and OpenAI provider
 selection. Secret contents were not displayed; remote authentication, Astra access and account credit
 balance remain unverified. No paid request ran.
@@ -128,7 +131,22 @@ The operator authorizes adapting the existing Oracle client, whose Astra integra
 Oracle Phase 2 narration and a May manual run are documented historically. September 26, 21:07 Toronto
 read-only inspection found no Oracle process or scheduled task directly naming it; the repository's
 nightly stages are Hermes, Delphi and Athena. No Oracle database history was queried.
-No AI portfolio is implemented or activated, and
+
+September 26 source validation: .NET SDK 10.0.401; 40 new synthetic AI cases included in the full
+Core result of **1,769 passed, one skipped, zero failed**. Oracle builds with zero warnings/errors.
+Commands: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet -p:NuGetAudit=false`
+and `dotnet build Oracle/Oracle.csproj --no-restore --verbosity quiet -p:NuGetAudit=false`.
+The final initialization-marker hardening also passes all 40 AI cases in a focused rerun.
+Local ignored logs: `artifacts/ai-momentum-core-tests.log`, `artifacts/ai-momentum-focused-tests.log`,
+`artifacts/ai-momentum-oracle-build.log`.
+The test build emits existing compiler warnings, principally nullable annotations, plus separate
+NU1902/NU1903/NU1904 dependency-security warnings for System.Data.SqlClient 4.8.1,
+System.DirectoryServices.Protocols 5.0.0, System.Drawing.Common 5.0.0 and
+System.Security.Cryptography.Xml 5.0.0. This is not full-solution/SQL-project validation.
+No paid model request, production journal initialization, database mutation, app launch or broker
+operation ran. Default working budget is CAD 90; reviewed expiring FX/tax bounds, billing qualification,
+protected storage and shared host composition remain required. See ADR-0087 for enforcement limits.
+No operating AI portfolio is connected or activated, and
 operational evidence dates above are unchanged. See the
 [proposal and next decision](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
 

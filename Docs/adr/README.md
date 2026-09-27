@@ -40,7 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0087](0087-ai-momentum-portfolio-boundaries.md) | AI Momentum mandate and enforced protection | Principles accepted; parameters, integration and implementation pending | architecture, llm, risk-management |
+| [0087](0087-ai-momentum-portfolio-boundaries.md) | AI Momentum mandate and enforced protection | API budget/proposal foundation implemented offline; integration and protection parameters pending | architecture, llm, risk-management |
 | [0085](0085-portfolio-wide-ongoing-tfsa-management.md) | Portfolio-wide ongoing TFSA management | Ongoing Core recovery and saved TFSA controls source/tested; native qualification, family coverage and execution host unfinished | architecture, risk-management, user-interface |
 | [0086](0086-supervised-broker-strategy-session.md) | Durable supervised broker strategy session | Source/offline tests and installed storage; launch NO-GO pending native qualification and rollout | architecture, risk-management, market-microstructure |
 | [0083](0083-opening-account-values-and-shared-engine-hosting.md) | Opening account values and shared engine hosting | Continuation and orchestration tested; native source qualification pending | architecture, data-sources |

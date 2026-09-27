@@ -4,7 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
-- [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope and proposed client boundary
+- [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope, budgeted client and proposal-only boundary
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
 
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Durable supervised broker session and original-order recovery

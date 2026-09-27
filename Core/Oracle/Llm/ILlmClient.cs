@@ -1,7 +1,9 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Core.Oracle.Llm;
 
@@ -35,8 +37,14 @@ public sealed record LlmRequest(
     double Temperature = 0.2,
     int? MaxOutputTokens = null,
     int? Seed = null,
-    IReadOnlyDictionary<string, string>? Tags = null
+    IReadOnlyDictionary<string, string>? Tags = null,
+    Guid? CallId = null,
+    LlmJsonSchema? OutputSchema = null,
+    string ReasoningEffort = "medium"
 );
+
+/// <summary>Trusted application schema; model output still requires domain validation.</summary>
+public sealed record LlmJsonSchema(string Name, JsonElement Schema);
 
 /// <summary>
 /// Provider-neutral response. <see cref="Usage"/> drives cost tracking + R4 guardrails.

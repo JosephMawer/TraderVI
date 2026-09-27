@@ -1,12 +1,25 @@
 # Oracle (LLM Layer) — Binding Rules
 
-These rules govern every interaction with the LLM layer in TraderVI.
+These rules govern Oracle's narration, critique and Q&A interactions in TraderVI.
 They are **binding constraints**, not suggestions. Every prompt template,
 client implementation, and persistence path must respect them.
 
 The goal is to use an LLM as a *narration, critique, and Q&A* layer over the
 deterministic trading pipeline — never as a decision-maker, computer of
 numbers, or unverifiable source of truth.
+
+### AI Momentum scope (ADR-0087)
+
+The separately composed `AiPortfolioReviewer` may propose a portfolio selection and explained
+discretionary exceptions under [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md). This is the
+explicit exception to narration-only R1: proposals do not modify Delphi scores, rankings, engines,
+assignments or orders. Existing Oracle prompts, providers and narration behavior keep these rules.
+For AI Momentum, a versioned packet and its exact serialized request in `AiCallJournal` are the
+audit unit instead of an Oracle `DecisionDossier` SQL row (R9). The shared monthly reservation limit
+and per-call caps replace narration's daily cap (R4). R3 records supported reasoning/output settings,
+request/response identity, timestamps and conservative cost; unsupported sampling settings are omitted.
+Numerical facts must still be precomputed and historical bars summarized. Contract tests cover
+proposal validation; measured model quality and durable domain dispositions remain unqualified.
 
 ---
 

@@ -23,9 +23,11 @@ September 26 requested direction: add an AI-managed momentum portfolio and use i
 targeting September 28. AI Explorer is deferred to a future session; the first pass is AI Momentum
 in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) accepts
 discretion, enforced boundaries, reducing risk as losses deepen and no loosening stops to prolong
-losing trades. Reuse/adapt Oracle with API access recommended under the operator's initial CAD 100
-monthly AI ceiling; Codex subscription access remains an alternative. Define the newly requested
-portfolio selection/switching and learning roles, then exact protection/profit and spending controls.
+losing trades. The first API client, shared spending journal and portfolio-proposal contract are
+implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
+access remains an alternative. Next define portfolio selection/handover and evaluated learning, exact
+protection/profit limits, authoritative packet adapters and production budget/storage configuration.
+Integrate and qualify the client and independent protective host before enabling any paper/live actions.
 This is not a verified launch commitment
 or completed replacement of the execution work below. See the
 [open scope](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).

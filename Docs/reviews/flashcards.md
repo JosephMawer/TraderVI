@@ -28,6 +28,11 @@ the approved cash, exposure, protection and validity limits. Source: ADR-0087. T
 A: No. Authentication, exact model access, quotas, latency and recovery still need qualification.
 Direct API use has separate usage-based access. Source: ADR-0087. Tags: architecture, llm.
 
+### Q: Why does a lost AI response keep its spending reservation after restart?
+
+A: A timeout does not prove the provider did no work. Keeping the bounded cost reserved prevents
+uncertain calls and retries from silently exceeding the shared allowance. Source: ADR-0087. Tags: llm, reliability.
+
 ### Q: Why does a broker order need a synchronization receipt?
 
 A: The same cumulative order appears in many refreshes. A stable order identity and atomic receipt

@@ -20,6 +20,11 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### Done
 
+- [x] Implement/test the AI Momentum API/proposal foundation (September 26, ADR-0087): explicit
+  disabled factory, bounded Astra Responses client, shared durable spending reservations and strict
+  portfolio proposals with explained discretionary exceptions. Forty synthetic cases are included
+  in the Core suite; [status](project-status.md) records validation. This does not run a portfolio.
+
 - [x] Build independent paper portfolios and manual complete-strategy selection for recommendations
   (ADR-0062); this does not submit orders.
 - [x] Connect TFSA reads, link the permanent account and verify native saved-history refresh (ADR-0080).
@@ -76,14 +81,14 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### Left to do — development order
 
-- [ ] **AI Momentum design (September 26):** implement the accepted principles in
-  [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) only after defining exact adaptive protection,
-  profit giveback and client/data contracts. Define portfolio selection/handover and learning scope.
-  Adapt Oracle for the recommended API-first route and implement the shared monthly spending ceiling
-  below CAD 100, including learning/retries and currency/tax headroom; subscription access stays optional.
-  Scope the decision contract separately from Oracle narration; then complete decision evidence and paper/live
-  integration contract. AI Explorer is deferred to a future session. The requested September 28 real-trading
-  target depends on the native risk/order/host requirements below; no AI behavior is implemented yet.
+- [ ] **AI Momentum integration (September 26):** complete
+  [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) by defining exact adaptive protection,
+  profit giveback, portfolio eligibility/handover and evaluated learning. Build authoritative packet
+  adapters, durable domain dispositions and the paper/live host contract. Qualify Astra access/billing,
+  review expiring FX/tax bounds and install one protected shared spending journal for all model roles.
+  The library defaults to CAD 90 and rejects ceilings at or above CAD 100; it is not operational.
+  Continuous protection, outage handling and decision cadence remain host work. AI Explorer is deferred.
+  The requested September 28 target still depends on the native risk/order/host requirements below.
   [Open decisions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
 
 - [ ] **1. Complete risk-tracking source qualification.** Daily and percentage-preserving cash-flow

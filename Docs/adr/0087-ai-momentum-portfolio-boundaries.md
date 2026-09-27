@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Scope and protection principles accepted; parameters, integration and implementation pending.
+**Status:** Principles accepted; API budget and portfolio-proposal foundation implemented offline; host integration and protection parameters pending.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -12,7 +12,7 @@ short-term momentum as its mandate. The AI may use or reject discretionary tradi
 recorded explanation, but TraderVI enforces the approved hard boundaries. AI Explorer, a separate
 paper strategy free to choose its investing style, is deferred to a future session.
 
-This is an accepted design direction, not implemented behavior or a verified Monday launch.
+The client/proposal foundation is implemented; an operating AI portfolio and Monday launch are not verified.
 The requested September 28 launch still depends on the existing native risk, broker and host checks.
 
 ## Problem
@@ -58,8 +58,8 @@ Chat Completions and older model-family parameter handling; it has not been vali
 The operator explicitly authorizes reusing and adapting Oracle's client for AI Momentum. Reuse its
 useful client/prompt/usage components while defining the new structured decision and transport contracts.
 Oracle's existing rules forbid LLM influence on decisions and constrain historical prompt inputs.
-The requested new decision role requires a separately specified AI Momentum contract and explicit
-scoping of those rules before implementation. This ADR does not change Oracle's narration behavior
+The new proposal-only contract below is separately scoped in `Docs/oracle-rules.md`.
+This ADR does not change Oracle's narration behavior
 or authorize unrestricted raw history, tools, credentials or broker access for a model.
 
 `Docs/oracle-phases.md` records a successful manual Phase 2 narration run in May; this is historical
@@ -69,23 +69,68 @@ inspection found no task name/action directly mentioning Oracle; the matching Tr
 does not mention it, and `Operations/nightly-runner.json` contains Hermes, Delphi and Athena only.
 This bounded check does not establish all past runs or rule out arbitrary indirect launchers.
 
-Proposed architecture: persist a dated decision packet, request a structured action, validate it in
-TraderVI, and submit only through the established execution path. Protective monitoring must operate
-independently of model availability; exact outage and stale-response behavior remains to be designed.
-These implementation details are proposals, not completed or operationally tested capabilities.
+Architecture: persist a dated decision packet, request a structured proposal and validate it in
+TraderVI. The implemented reviewer has no execution interface. Eventual submission must use the
+established execution path. Protective monitoring must operate independently of model availability;
+host integration and outage behavior remain to be designed.
+
+## First source increment — September 26
+
+`AiPortfolioReviewer` accepts a version-1 packet of dated evidence, eligible portfolio versions,
+classified rules and evaluated lessons. It freezes the packet before requesting strict JSON and
+checks freshness again after the response. Allowed proposals are wait, keep, select and switch;
+unknown references, changed versions, unsupported actions and hard-rule overrides are rejected.
+Each discretionary exception needs its own reason. New learning observations are hypotheses only.
+The host still must build authoritative packets, classify rules, evaluate lessons and recheck current
+assignment, evidence and risk before acting. A cited evidence ID does not prove the model's rationale.
+
+`OpenAiResponsesLlmClient` reuses `ILlmClient` and Oracle's API-key configuration through an explicit,
+disabled-by-default factory entry point. Existing Oracle composition is unchanged. The new path uses
+GPT-6 Astra, standard reasoning/billing, strict structured output, no tools, no server conversation,
+`store=false` and disabled truncation. These request settings are not a zero-retention guarantee.
+It counts the matching input before reserving the bounded response cost, including reasoning tokens.
+No automatic retries, model fallback or response-generated tools are allowed. Authentication, model
+access, provider billing and live latency are still unverified. Injected HTTP transports must preserve
+single-transmission behavior and must not redirect credentials or add retries.
+
+`AiCallJournal` persists the exact request and hash before generation, then the raw response and
+conservative usage estimate. A stable call ID cannot be reused. One process owns the journal and
+concurrent reservations share one UTC calendar-month budget. Unknown outcomes retain their full
+reservation across restart/month boundaries; settlements spanning months count conservatively in
+both months. A lower ceiling cannot be raised within its starting month. Missing/corrupt storage or
+an interrupted write blocks further calls; usage overruns or unexpected billing identity block them
+durably. Recovery/retention tooling and domain acceptance/rejection dispositions remain host work.
+The private JSON is not encrypted: production needs a protected directory outside the checkout,
+one stable shared journal for every AI Momentum role, backups and reviewed recovery. Do not create
+another journal to reset spending. The SHA-256 is an integrity check, not tamper-proof attestation.
+
+The default working ceiling is CAD 90, with any policy ceiling required to remain below CAD 100.
+Currency/tax/fee upper bounds and their expiration are mandatory explicit inputs; none are activated.
+Default per-call limits are 32,000 input and 4,096 total output tokens. Input is conservatively charged
+at USD 12.50/million and output at USD 50/million, with no anticipated cache savings. Input above
+272,000 tokens is forbidden to avoid the higher price bracket. Rates, conversion and other charges
+must be requalified before activation; this local estimate is not a provider invoice or an account-wide
+cap on unrelated clients. Sources checked September 26:
+[model pricing](https://developers.openai.com/api/docs/models/gpt-6-astra),
+[exact token counting](https://developers.openai.com/api/docs/guides/token-counting),
+[structured output](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+Synthetic transport/packet tests cover budget exhaustion, concurrency, restarts, month rollover,
+cancellation, interrupted saves, response failures and unsafe proposals. See project status for the
+validation result. No real API requests, production journal, database changes or broker operations
+are part of this increment. It does not run a portfolio or implement continuous learning.
 
 ## Open work and validation
 
 ### Spending and expanded discretionary role
 
 The budget covers all AI Momentum model roles, reviews, learning calls and retries together, separate
-from the operator's existing Pro subscription. Proposed enforcement reserves bounded input/output
-cost, including reasoning, before each call and reconciles actual usage afterward. Use a lower working
-allowance with conservative currency/tax headroom to stay below the CAD ceiling; exact conversion,
-tax treatment and reservation settings remain to be specified. A dashboard alert alone is insufficient.
+from the operator's existing Pro subscription. The library now reserves bounded input/output cost
+and reconciles returned usage; production conversion, tax treatment and cadence still need review.
+A dashboard alert alone is insufficient.
 At the limit, stop discretionary model calls while independent deterministic protection continues.
 The operator accepts independent protection while AI reviews run less often. No cost control is
-implemented yet. Profits may justify a later reviewed increase, not an automatic spending escalation.
+operationally installed yet. Profits may justify a later reviewed increase, not an automatic spending escalation.
 
 The operator now requests an AI supervisor that selects an existing portfolio as its active strategy
 context, exercises discretion inside that context, monitors alternatives and may switch in real time.
@@ -101,11 +146,11 @@ not a selected implementation or an instruction to launch subagents. All would s
 Discuss portfolio selection/switching and then learning separately; the operator requests short,
 single-topic responses. AI Explorer remains deferred.
 
-Define numerical protection, profit giveback, decision cadence, data/history selection and provider
-transport. Then specify audit persistence, versioning, output validation and failure/restart behavior.
+Define numerical protection, profit giveback, decision cadence, source adapters and production
+composition. Complete audit dispositions, outcome evaluation and execution failure/restart behavior.
 See [open questions](../reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
 and the [implementation checklist](../strategy-alignment-implementation-checklist.md#left-to-do--development-order).
-No runtime code, model calls, database changes or broker operations accompany this decision record.
+Runtime library code exists; no model calls, database changes or broker operations have been performed.
 
 ## Review questions
 

@@ -888,6 +888,21 @@ daily pipeline. Hermes and Delphi do not launch it directly.
 
 ## Oracle — LLM narration
 
+AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
+Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic
+tests for offline validation:
+
+```powershell
+dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests'
+```
+
+Before any future AI Momentum composition, review billing and expiring currency/tax bounds, establish
+one protected private journal directory outside the checkout, and qualify model access. Preserve
+`ai-calls.json`, its initialization/ownership marker `ai-calls.lock` and any interrupted `.pending`
+file during reviewed recovery; deleting them or creating a new directory would bypass local history.
+Never put the journal's private prompts/responses in commits or ordinary application logs. Numerical
+risk and handover approval plus the existing execution prerequisites still precede live activation.
+
 **Project:** `Oracle`
 **Entry point:** `Oracle/Program.cs`
 

@@ -19,6 +19,16 @@ namespace Core.Oracle.Llm;
 /// </summary>
 public static class LlmClientFactory
 {
+    /// <summary>Explicit AI Momentum composition; legacy Oracle remains narration-only.</summary>
+    public static OpenAiResponsesLlmClient CreateAiMomentum(
+        IConfiguration cfg, AiCallJournal journal, AiSpendPolicy policy, bool enabled = false)
+    {
+        if (!enabled) throw new InvalidOperationException("AI Momentum model calls are disabled.");
+        var key = Get(cfg, "Oracle:OpenAi:ApiKey", "OPENAI_API_KEY")
+            ?? throw new InvalidOperationException("Oracle's OpenAI API key is not configured.");
+        return new OpenAiResponsesLlmClient(key, journal, policy);
+    }
+
     /// <summary>
     /// Builds a client from an explicit configuration (user-secrets, appsettings, env, etc.).
     /// </summary>
