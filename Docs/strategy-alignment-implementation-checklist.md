@@ -136,8 +136,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    reconciled remaining capital; any upfront later-round previews are estimates only.
    Independent checks on every fresh verified portfolio valuation are agreed, including qualified
    one-minute updates. AI attention cannot slow app-owned protection or required collection.
-   **Next:** qualify valuation sources/collection and settle cash-flow treatment, including
-   interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
+   Confirmed deposits/withdrawals preserve loss percentages through ADR-0083 reference scaling;
+   retain original capital/history, round/attempt state, holds and per-stock protection.
+   **Next:** qualify valuation/cash-event sources and integrate existing engine holds.
+   Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
    Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
@@ -151,6 +153,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    dated decision packets with source/version identity, freshness and missing-data checks.
    Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
    cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
+   Qualify confirmed effective cash events and matched before/after books under ADR-0083; a net
+   balance delta or occurrence timestamp alone is insufficient.
 4. **Implement trading decisions and enforced protection.** Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
    the selected engine and approved boundaries in C#. Keep protective monitoring independent of
@@ -167,6 +171,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Check thresholds on every new qualified portfolio valuation without an AI call. Verify that
    one-minute updates are checked during a fifteen-minute AI review interval, unavailable AI does
    not delay checks, and cached/failed/incomplete updates do not masquerade as fresh valuations.
+   Reuse percentage-preserving cash-flow adjustment for effective round/overall references while
+   retaining original capital/opening history. Verify deposits, withdrawals, opposing flows, replay,
+   incomplete evidence and nonpositive values; no adjustment may reset attempts, holds or stock stops.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.

@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. Independent AI portfolio protection on fresh verified updates agreed; data/enforcement/host integration pending.
+**Current record:** September 27, 2026. AI portfolio cash-flow percentage preservation agreed; source qualification and AI integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -157,8 +157,8 @@ continuous allowance reduction/recovery across days, without a calendar reset (A
 The operator clarifies that both starting balance and recorded portfolio peak must be tracked, with
 continued monitoring and intended automatic re-entry after market recovery. Source inspection confirms
 existing position trailing floors and separate portfolio guards; the new AI allowance/re-entry path
-is not implemented. Round references are now settled below; exact valuation/cash-flow treatment
-and remaining lifecycle interactions remain open (ADR-0087).
+is not implemented. Round references and confirmed cash-flow adjustment are now settled below;
+valuation/cash-event source qualification and integration remain open (ADR-0087).
 September 27 follow-up accepts 5% / 3% / 1% cycle-loss thresholds, replacing the earlier AI 7%
 pause, with new buying stopped for the day after three failed rounds. ADR-0087 owns the decision
 and comparison assumptions. Failed-round closure is now agreed: close AI-managed holdings, confirm
@@ -176,6 +176,11 @@ and show attempts, active limit/reference, next eligible session and remaining r
 same round/peak/limit and count through ordinary sales, taking profits or holding only cash.
 Only a round-limit hit consumes an attempt; there is no success reset. No UI or enforcement changed.
 This increment is documentation only, checked by diff review.
+Confirmed deposits/withdrawals now preserve measured loss percentages under ADR-0083's matched
+before/after reference scaling, applied to AI round protection and overall drawdown. Original capital
+and round-opening history remain recorded; attempts, holds and per-stock stops do not reset.
+Read-only inspection confirms existing broker continuation arithmetic; AI integration and native
+cash-event source qualification remain pending. No new runtime validation or operational action ran.
 Proportional sizing within each round is agreed, including recovery before its hard limit.
 The operator confirms capturing original allocated capital and calculating each round's initial
 threshold from its actual verified opening capital. Later-round previews are estimates; the 3%/1%
@@ -209,7 +214,7 @@ extension path is not implemented (ADR-0087).
 Cadence ownership is agreed: AI review attention is separate from app-owned protection and required
 collection. Source qualification and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
-collection offset (ADR-0087). Valuation/cash-flow treatment, event integration and budget-aware
+collection offset (ADR-0087). Valuation/cash-event qualification, AI adjustment integration, event integration and budget-aware
 scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran

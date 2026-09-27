@@ -21,7 +21,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
   conditions. Round limits and buying allowance now trail the highest verified round value,
   initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
-  specify qualified valuation/cash-flow treatment. Original-capital capture and initial thresholds
+  qualify valuation/cash-event sources. Confirmed transfers now preserve measured loss percentages
+  through ADR-0083 reference scaling, without resetting round/attempt state, holds or stock stops;
+  AI integration remains pending. Original-capital capture and initial thresholds
   from actual round opening capital are confirmed; later rounds use actual reconciled remaining
   capital, with upfront forecasts labelled estimates. Independent protection on every fresh verified
   portfolio update now supersedes five-minute-only checks; qualify sources/collection before claiming
@@ -65,8 +67,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   adds a continuous three-attempt sequence with a pause after exhaustion and replaces the fixed 7%
   AI pause. Both starting capital and recorded portfolio
   peak are selected references. The round reference now trails its highest verified value, initialized
-  at the opening value, and drives both its trigger and allowance. Define cash-flow adjustments and
-  qualified valuation sources/collection frequency; checking every fresh verified update is agreed.
+  at the opening value, and drives both its trigger and allowance. Confirmed cash-flow percentage
+  preservation is agreed; qualify matched cash-event evidence and valuation sources/collection
+  frequency, then integrate the adjustment. Checking every fresh verified update is agreed.
   Retain the independent overall closing-peak guard.
   The operator wants continued monitoring and automatic pickup after recovery while in cash; the
   fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
@@ -90,7 +93,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen. Reuse the
   selected engine's existing per-stock hard-stop/trailing-profit settings; AI may tighten or sell
   earlier, never loosen/remove an established stop. Application code must enforce this and recheck
-  current protection at execution. Qualified valuation/cash-flow treatment and remaining recovery
+  current protection at execution. Valuation/cash-event qualification, adjustment integration and remaining recovery
   details remain open. Round-level trailing protection is agreed; the gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.

@@ -32,7 +32,8 @@ TFSA with preserved cash, execution and risk history.
 - Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
   Restore allowance gradually as measured losses recover across days, without a calendar reset.
   Track starting capital and portfolio peaks. The later round-trailing decision uses the round's
-  highest verified value for its limit and allowance; valuation/cash-flow details remain unresolved.
+  highest verified value for its limit and allowance, adjusted for confirmed capital flows as below;
+  valuation and cash-event source qualification remain unresolved.
 - Reuse the selected engine's existing per-stock hard-stop and trailing-profit settings. The AI may
   tighten an established stop or sell earlier, but cannot loosen or remove it. Record a desired
   relaxation as a blocked learning hypothesis under the position-protection decision below.
@@ -179,7 +180,8 @@ account/data/capital-review holds. The later cumulative-review decision below re
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
-qualified valuation/cash-flow treatment. The later continuous-sequence and ordinary-sale decisions
+qualified valuation/cash-event sources. Cash-flow percentage preservation is accepted below.
+The later continuous-sequence and ordinary-sale decisions
 settle attempt counting across sessions and profitable/all-cash transitions.
 The later decisions govern trailing round references, carried rounds, exhausted-sequence restart
 and session-start consultation.
@@ -266,8 +268,8 @@ position trailing stops and engine holds remain separate constraints.
 
 Use qualified portfolio valuations, not an unverified tick, AI estimate or a high from an unrelated
 period. The later independent-protection decision checks every fresh verified portfolio update.
-Source qualification, collection frequency and cash-flow adjustment remain to be defined under the
-existing accounting contracts; the simple formulas above describe intervals without external cash
+Source qualification and collection frequency remain open; confirmed cash-flow adjustment is
+accepted below under the existing accounting contract. The simple formulas above describe intervals without external cash
 flows. This decision does not authorize treating deposits as profit or withdrawals as trading loss.
 The Step 8 UI must show the round's opening value, current verified value, recorded round peak,
 trailing exit trigger, drawdown and remaining room using enforcement values and freshness labels.
@@ -289,7 +291,40 @@ alongside each round's opening record; no daily, ordinary-sale or portfolio-swit
 
 This confirms initialization and trailing behavior. The later independent-protection decision
 supersedes the proposed five-minute-only threshold checks. Qualified valuation sources, collection
-frequency and cash-flow adjustments remain open. Enforcement and UI remain pending.
+frequency and cash-event qualification remain open; the adjustment rule is accepted below.
+Enforcement and UI remain pending.
+
+### Confirmed capital flows preserve loss percentages — September 27 decision
+
+The immediate issue is distinguishing deposits/withdrawals from trading performance. The parent
+problem is maintaining continuous risk references; the root goal remains protected AI management
+without resetting loss history. Reuse ADR-0083's accepted percentage-preserving adjustment for
+confirmed external capital movements affecting the AI portfolio. A portfolio 2% below its adjusted
+peak remains 2% below after a deposit or withdrawal, with prices and holdings otherwise unchanged.
+
+For each confirmed movement, let `B` and `A` be positive portfolio values immediately before and
+after its cash effect, using identical holdings and price evidence. Each applicable effective risk
+reference `R` becomes `R * A / B`, without rounding the stored reference to cents. Apply this to
+the active round's effective peak and the independent overall drawdown reference; derive the round
+trigger and allowance from the adjusted reference. Retain original allocated capital, original
+round-opening records and historical observations, alongside an auditable adjustment record.
+
+A transfer alone changes neither measured drawdown nor the allocation multiplier. It cannot
+consume/refill attempts, change round identity or percentage limits, cancel a failed-round closure,
+clear a pause (including the 10% approval hold), or alter per-stock costs/stops. A withdrawal can
+lower the capital-adjusted dollar reference/trigger; this is accounting normalization, not permitted
+stop loosening. Price declines still cannot lower the trailing reference. Actual available cash
+and all other execution checks continue to constrain buying.
+
+Reuse matched before/after books, confirmed effective events, ordered processing and replay
+protection from ADR-0083. Opposing flows cannot be replaced by their net total. Missing/conflicting
+evidence or nonpositive values do not authorize invented adjustments or a reset; retain the
+existing unexplained-cash restriction on new buying until reconciliation. Deposits are not gains
+and withdrawals are not trading losses.
+
+Read-only inspection confirms the existing `BrokerAccountCashFlowContinuation` scaling contract.
+Its AI round integration and native cash-event source qualification remain pending in Steps 3/4/7;
+no new runtime tests, database or broker operations accompany this documentation decision.
 
 ### Per-stock protection and blocked alternatives for learning — September 27 decision
 
@@ -460,7 +495,7 @@ other limits satisfied before a new 5% / 3% / 1% sequence can begin. Monitoring/
 The separate 10% approval hold and original capital/peak history persist. UI counters must describe
 the sequence, not imply three new attempts every morning.
 
-This resolves cross-session failure counting. Qualified valuation/cash-flow treatment remains open;
+This resolves cross-session failure counting. Qualified valuation/cash-event sources remain open;
 ordinary-sale handling is settled below. Enforcement, recovery tests and UI remain Steps 4/7/8 work;
 this documentation decision does not change runtime or authorize orders.
 
@@ -481,7 +516,7 @@ holdings and cash before the next permitted round under the existing closure con
 
 This resolves the previously open successful-round handling: there is no separate success reset.
 Qualified gains can still raise the peak and recovery before a limit hit can restore allowance
-under the existing formula. Valuation/cash-flow treatment remains open. Enforcement and tests are
+under the existing formula. Valuation/cash-event qualification remains open. Enforcement and tests are
 Step 4 work; no runtime or trading action changed in this documentation increment.
 
 ### Scheduled consults and adaptive intraday attention — September 27 clarification

@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does adding money erase an AI portfolio's measured trading loss?
+
+A: No. Confirmed deposits and withdrawals adjust effective references to preserve the measured
+loss percentage: 2% below the peak stays 2% below. Round identity, attempts, pauses and stock stops
+remain unchanged; original capital/history and the adjustment are recorded.
+Source: ADR-0083, ADR-0087. Tags: risk-management, accounting.
+
 ### Q: Does a fifteen-minute AI review interval delay portfolio loss checks?
 
 A: No. The app checks every fresh verified portfolio valuation independently, with no AI call.

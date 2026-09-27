@@ -71,6 +71,10 @@ the independent overall closing-peak reference and operator-controlled review ho
 Record original allocated capital plus each round's actual opening capital and initial trigger.
 Later-round forecasts, if displayed, remain estimates; initialize enforced 3%/1% triggers from
 actual reconciled capital when those rounds start. Valuation source/collection qualification remains unresolved.
+Confirmed external capital flows reuse ADR-0083's matched after/before reference scaling for
+effective round and overall drawdown references. Keep original capital/opening records and an
+adjustment audit; derive the trigger from the adjusted peak. Preserve round/attempt state, holds
+and stock protection. Cash-event source qualification and AI integration remain pending.
 The UI must expose session pause, carried round, pending reconciliation and approval hold distinctly,
 with attempts, opening/current values, round peak/trigger, next eligible session and unmet restart requirements. Enforcement
 and UI remain pending (ADR-0087). Ordinary sales, profitable exits and all-cash periods preserve

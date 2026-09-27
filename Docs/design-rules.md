@@ -173,7 +173,12 @@ round/day transitions, signals or rebounds cannot clear it. Protective exits con
 show current measures, thresholds, remaining room and binding holds using enforcement calculations,
 including round limits/allowance, attempts, stops and spending; stale data must not appear as capacity.
 The round reference and allowance now trail its verified peak, separately from the overall closing
-peak. Exact valuation/cash-flow treatment and interaction with existing holds remain unresolved.
+peak. Confirmed deposits/withdrawals preserve measured loss percentages using ADR-0083: scale
+applicable effective references by matched after/before portfolio value, with identical holdings
+and marks. Preserve original capital/opening history plus adjustment records. No transfer resets
+round identity, attempts, holds or per-stock protection. A withdrawal may lower the capital-adjusted
+dollar trigger without loosening its percentage limit. Unexplained flows retain the existing buying
+restriction. Valuation/cash-event qualification and integration with engine holds remain unresolved.
 Show opening/current values, round peak and rising trigger in the UI. Reuse the selected engine's
 per-stock hard-stop and trailing-profit settings. AI may sell earlier or tighten an established
 stop, never loosen/remove it, including a prior AI-tightened stop. Enforce this in application code

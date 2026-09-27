@@ -55,7 +55,9 @@ conditions explicit, including the rising round trigger. Ordinary sales, profits
 keep the same round/peak and count; only a round-limit hit consumes an attempt. Independent threshold
 checks on every fresh verified portfolio update are agreed, including qualified one-minute data.
 AI review timing cannot slow protection. Qualify valuation sources/collection for that coverage;
-cash-flow treatment remains open. Reuse existing protection; Step 8 owns the threshold display.
+confirmed deposits/withdrawals now reuse percentage-preserving reference adjustment without resetting
+attempts or holds. Cash-event qualification and AI integration remain pending. Reuse existing protection;
+Step 8 owns the threshold display.
 Starting-capital capture and upfront initial thresholds are confirmed: later rounds use actual
 reconciled opening capital, with any earlier previews labelled estimates (ADR-0087).
 Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen
