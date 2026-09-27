@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. Offline AI continuous-round risk core implemented; 21 focused tests pass. Engine/feed/host integration remains pending.
+**Current record:** September 27, 2026. Offline AI continuous-round risk core and local recovery journal implemented; 37 focused tests pass. Engine/feed/host integration remains pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -120,15 +120,26 @@ rule mapping belongs in implementation. Step 4 has begun with `Core/Trader/Risk`
 trailing peaks/allowance, failure/closure and calendar-aware fresh-entry restart. Independent
 holds and unavailable AI suppress new allowance while failed-round closure remains required.
 
-Validation with .NET SDK 10.0.401: **21 focused tests passed, zero failures/skips**. Core and the
+`AiPortfolioRiskJournal` now persists accepted commands and states with account/portfolio/paper-live
+scope, single-writer ownership and explicit initialization. Replay-validated recovery preserves round
+identities, peaks, allowance inputs and closure/sequence pauses; stale/conflicting commands and
+missing/corrupt/interrupted history cannot reset them. Existing overall holds and stock stops remain
+outside this journal. No production directory or host was configured.
+
+Validation with .NET SDK 10.0.401: **37 focused tests passed, zero failures/skips** (21 policy and
+16 journal cases). Tests cover restart phases/peaks/second rounds, exhausted-sequence restart,
+exact retries, stale revisions, scope/evidence conflicts, competing writers, invalid/missing/pending
+history, same-process rollback and failed writes. Core and the
 test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
-`artifacts/ai-risk-20260927/focused-tests.log`. Existing CS8632 nullable-context compiler warnings
-remain. NuGet restore needed approved network access after a sandbox denial; package-security
-auditing was disabled for this run, so there is no fresh vulnerability assessment. The full Core
+`artifacts/ai-risk-20260927/journal-tests.log`. Existing CS8632 nullable-context compiler warnings
+remain; no warnings originate in the new journal/test files. The journal increment reused restored
+dependencies; package-security auditing was disabled, so there is no fresh vulnerability assessment. The full Core
 suite, WPF and SQL builds were not rerun. No application, SQL, model, market or broker operation ran.
 
-Scope: synthetic qualified no-flow inputs, immutable working state and serialization only. There
-is no durable risk journal, feed/cash-event adapter, overall-guard or stock-action integration,
+Scope: synthetic qualified no-flow inputs and offline local journal/recovery. Production storage,
+retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten
+with a 32 MB cap; checksums are not tamper-proof or proof against old backups between restarts.
+There is no feed/cash-event adapter, overall-guard or stock-action integration,
 ordinary-engine replacement or execution caller. Invalid observations must become caller risk
 blocks. These tests establish round behavior, not native data qualification or live readiness.
 

@@ -34,8 +34,9 @@ Next connect qualified outcome evaluation and host scheduling under ADR-0087, le
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 Step 1 is complete offline; Step 2's core framework is agreed with two feature follow-ups. Step 4
-has begun with the tested offline continuous-round risk core and shared assessment contract.
-Next connect qualified inputs, durable state and existing risk/execution adapters; source qualification
+has begun with the tested offline continuous-round risk core, shared assessment contract and scoped
+local transition journal/recovery. Step 7 storage/host qualification remains pending.
+Next connect qualified inputs and existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.

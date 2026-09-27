@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Client/learning foundation and continuous-round risk core implemented offline; shared engine integration, outcome evaluation and host qualification pending.
+**Status:** Client/learning foundation, continuous-round risk core and local risk journal implemented offline; shared engine integration, outcome evaluation and host qualification pending.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -97,12 +97,25 @@ fresh AI review block new allowance without suppressing a committed protective c
 Valuations must have identity, scope, complete/current whole-portfolio evidence and a confirmed
 no-capital-flow interval. Duplicate observations are idempotent; stale/conflicting observations
 cannot advance the peak. Adapters must qualify these inputs and surface rejected observations as
-new-risk blocks. Serialization preserves working state, but is not a durable journal or audit.
-The journal must retain prior states/rounds when integration is added.
+new-risk blocks. `AiPortfolioRiskJournal` now retains every accepted command, recording time and
+resulting state in a private local history scoped to account, portfolio and paper/live mode. It
+wraps policy transitions; callers cannot replace the saved state or start over within the history.
+Expected revisions reject stale writes; exact command retries return the current state, while
+changed command/evidence contents are rejected. Recovery replays the history through the policy
+and verifies saved financial/lifecycle fields, keeping original round and sequence identities.
+
+Initialization is explicit and leaves a persistent ownership marker. A single writer flushes a
+pending file before replacing committed history; missing, corrupt or pending history requires
+reviewed recovery, never an automatic reset. Checksum/replay checks detect corruption and invalid
+transitions; they do not establish authenticity or detect a valid old backup restored between
+process lifetimes. Same-owner external history changes are rejected. This bounded MVP journal
+replays/rewrites complete history (32 MB maximum); protected storage, backups, retention/performance
+qualification and host failure handling remain Step 7 work. Keep the reviewed calendar's historical
+coverage available for replay. Independent holds and stock stops remain in their existing owners.
 
 This increment deliberately cannot adjust cash flows or qualify a feed. Matched cash-event
 integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure
-checks, ordinary-engine adapters, persistence and execution remain separate dependencies. Existing
+checks, ordinary-engine adapters, production storage/host integration and execution remain separate dependencies. Existing
 holds are supplied as independent blocks; this core cannot clear them. Existing runtime engines
 are unchanged and no production caller is connected. Validation evidence belongs in project status.
 

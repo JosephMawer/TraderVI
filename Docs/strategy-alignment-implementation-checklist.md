@@ -166,7 +166,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 4. **Implement trading decisions and enforced protection — in progress, offline core.**
    Implemented/tested: `AiPortfolioRiskPolicy` and shared assessment/profile contracts cover round
    peaks, allowance, latched closure, cross-session continuity and qualified re-entry. See project
-   status for the 21-test evidence and limits. Working-state serialization is not durable storage;
+   status for the focused risk-core/journal evidence and limits. A scoped local journal now retains
+   commands and prior states, replay-validates recovery and rejects stale/conflicting writes;
    feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
    Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
@@ -178,7 +179,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Verify AI rounds replace the daily-pause calculation without bypassing independent controls or
    clearing existing holds. Regression-check ordinary portfolios and preserve immutable versions;
    engine switching cannot alter the approved risk profile or reset its state.
-   Persist continuous sequence/round identity and attempt counts across sessions/restarts; verify
+   Local journal persistence/recovery of sequence/round identity and attempts is implemented/tested.
+   Production host recovery remains pending; verify
    round 2 remains at 3% next session, advances to 1% only after failure/reconciliation, and grants
    no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
    Verify profitable sales, full cash exits and subsequent purchases preserve that round's peak,
@@ -209,7 +211,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    missing evidence, not only win frequency. Verify supervisor/coordinator consultation and preserve
    hard limits and budget policy; lessons cannot automatically change protection.
 7. **Build and qualify the runtime host.** Compose shared clients/journals and the independent protection
-   and discretionary-review loops. Configure intervals, restart recovery, protected storage, retention
+   and discretionary-review loops. The local risk journal is implemented/tested offline; production
+   directory security, backups, retention/performance and failure handling remain unqualified.
+   Configure intervals, restart recovery, protected storage, retention
    and the three agreed consult checkpoints alongside ordinary intraday monitoring. Implement
    adaptive AI review requests within the agreed one-to-fifteen-minute market-hours bounds and budget,
    with protection and required collection owned independently by the app; preserve collection semantics and

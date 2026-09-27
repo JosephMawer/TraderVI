@@ -15,7 +15,7 @@ public sealed record PortfolioRiskValuation(Guid PortfolioId, Guid EvidenceId, D
 
 public enum AiRiskRoundPhase { Active, Closing, AwaitingEntry, SequencePaused }
 
-/// <summary>Immutable working state. A future journal must retain every transition and prior round.</summary>
+/// <summary>Immutable working state. AiPortfolioRiskJournal retains every accepted transition and prior round.</summary>
 public sealed record AiPortfolioRiskState(Guid PortfolioId, Guid SequenceId, Guid RoundId,
     int SequenceNumber, int RoundNumber, decimal OriginalCapital, decimal RoundOpeningCapital,
     decimal RoundPeak, PortfolioRiskValuation LastValuation, AiRiskRoundPhase Phase,

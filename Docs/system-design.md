@@ -23,8 +23,15 @@ advance peaks and protection independently of model calls; closure and fresh re-
 are tied to the same portfolio/round, and exhausted sequences use `ITsxSessionCalendar`.
 Independent blocks and a missing fresh AI review suppress allowance without cancelling closure.
 The assessment is not executable permission. Input qualification, cash-flow adjustment, full
-account/position controls, state journaling and adapters to existing engines remain pending.
-The serializable state is a working snapshot; a future journal must preserve transitions/history.
+account/position controls and adapters to existing engines remain pending.
+`AiPortfolioRiskJournal` supplies a private local account/portfolio/mode-scoped transition history,
+exclusive writer, explicit initialization, revision checks and idempotent command retries. Recovery
+replays policy transitions and rejects inconsistent state or missing/corrupt/pending storage.
+Writes flush before replacement/return; recovery restores round/sequence identity and peaks without
+renewing AI review or execution authority. The host must block new risk on failure and still recover
+independent protections. Full-history replay/rewrite is bounded at 32 MB; protected storage, retention,
+backup rollback detection and production host integration remain unqualified. A checksum is not
+tamper-proof storage. Existing overall holds, stock stops and broker/order history stay separate.
 
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson

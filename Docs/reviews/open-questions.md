@@ -11,8 +11,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   follow-ups remain: eligible portfolio set and evaluated-lesson admission criteria. Resolve them
   before enabling selection/automatic lessons; they do not block offline risk code. Discretion is
   already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
-  Step 4 now has a tested offline continuous-round core; qualified data/cash-flow inputs, durable
-  journal, complete risk adapters and execution/host connection remain unfinished.
+  Step 4 now has a tested offline continuous-round core and scoped local transition journal with
+  replay-validated recovery. Qualified data/cash-flow inputs, complete risk adapters, production
+  storage/retention/backup qualification and execution/host connection remain unfinished.
 
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous

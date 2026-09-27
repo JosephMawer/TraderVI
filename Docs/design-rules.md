@@ -36,6 +36,11 @@ Discretion is settled: map concrete rules during implementation, asking only abo
 The new core accepts qualified no-flow valuation intervals only; cash-flow adjustment and feed
 adapters remain pending. Rejected evidence must block new risk in the caller. An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
+The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays
+accepted transitions rather than resetting peaks/attempts. Missing, corrupt or pending history must
+block new risk and require reviewed recovery. Retrying a saved command returns current state, never
+old permission. Local journal recovery does not renew AI review, clear independent holds or authorize
+orders; host/storage qualification and protection recovery remain separate dependencies.
 
 The MVP learning cadence is one review after each trading session: evaluate completed trades and
 blocked alternatives with enough follow-up evidence, preserve inconclusive cases as pending and

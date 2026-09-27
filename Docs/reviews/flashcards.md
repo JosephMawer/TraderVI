@@ -1483,3 +1483,6 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Does verifying a complete portfolio fingerprint require keeping a second full JSON document in memory? **A:** No. Stream the same canonical bytes into the hash, then materialize records with shared immutable report strings. Preserve every historical item and the original fingerprint contract; bounded history loading is a separate change. (ADR-0082)
 
 - **Q:** Why does automatic linked-account synchronization avoid a second human-review read? **A:** Market prices can change account value while completed trade facts stay identical. Save the latest complete reconciliation and revalidate binding, history and ledger transactionally; first/manual approval retains its separate second-read check. (ADR-0084)
+
+- **Q:** Can missing AI round history be replaced with a fresh round on restart? **A:** No. Missing, corrupt or interrupted history requires reviewed recovery. Restore the saved round, peak and attempt count; fresh inputs and independent risk checks still govern trading. (ADR-0087)
+- **Q:** Does retrying a saved risk command return its old buying allowance? **A:** No. An exact retry returns current state without another transition. Reusing its identity with changed input is rejected. (ADR-0087)
