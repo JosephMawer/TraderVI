@@ -12,8 +12,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   continue. Failed-round closure is agreed: close remaining AI-managed holdings and confirm/reconcile
   exits and commitments before a new permitted round. Fresh-entry qualification is agreed: a new
   qualifying signal from the selected engine after closure, no extra fixed delay, and AI choice to
-  take it or wait. Next specify gradual sizing
-  within rounds, peak/starting-reference interaction, successful/carried rounds and daily counter
+  take it or wait. Proportional sizing within rounds is agreed in ADR-0087: allowance can recover
+  before the round limit; hitting it commits to closure. Next specify cumulative safeguards,
+  peak/starting-reference interaction, successful/carried rounds and daily counter
   reset. Preserve original capital/peak records and independent holds; the daily retry cap does not
   settle the cumulative loss safeguard. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
@@ -25,7 +26,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   adds a daily retry cap and replaces the fixed 7% AI pause. Both starting capital and recorded portfolio
   peak are now selected references. Define their combination, cash-flow adjustments and peak valuation.
   The operator wants continued monitoring and automatic pickup after recovery while in cash; the
-  fresh engine signal is agreed, while restart allowance remains open. Market recovery alone does not restore an
+  fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
   all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
   Resolve interaction with existing daily/capital-review holds before integration. Existing engine
   7% daily templates, frozen V1 and saved assignments are unchanged. AI enforcement remains pending.

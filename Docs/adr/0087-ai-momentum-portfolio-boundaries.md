@@ -66,8 +66,8 @@ A buying pause is not a guaranteed maximum realized loss.
 ## Gradual allocation scale — September 27 decision
 
 **Numeric boundary superseded:** the [cycle schedule](#three-cycle-loss-schedule--september-27-decision)
-below replaces the fixed 7% AI pause. Gradual sizing remains intended; its mapping to the new cycle
-limits must be specified before implementation. The original formula below is historical.
+below replaces the fixed 7% AI pause. The later within-round sizing decision maps the gradual scale
+to those cycle limits. The original fixed-7% formula below is historical.
 
 The immediate problem is reducing new buying before the 7% pause; the parent problem is bounding
 AI discretion within its selected strategy. The root goal remains protected, auditable paper and
@@ -173,7 +173,7 @@ portfolio peaks and actual loss history across cycles. A retry counter cannot cl
 account/data/capital-review holds. The overall cumulative safeguard is still to be specified.
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
-accepted below, along with fresh-entry qualification. Next define gradual sizing within each round,
+accepted below, along with fresh-entry qualification and within-round sizing. Next define
 peak/starting-reference interaction, successful/carried rounds and the daily retry-counter reset.
 These decisions do not authorize running liquidation or changing real trading in this session.
 
@@ -212,6 +212,27 @@ valid account/data/order state and all hard protection checks. A signal cannot o
 third-failure daily stop or erase independent holds. Rule classification and sizing remain separate
 decisions. This is accepted design only; signal adapters, enforcement and host integration remain
 unfinished, with no runtime, database or broker change in this increment.
+
+### Gradual sizing within rounds — September 27 decision
+
+The operator accepts applying the proportional buying scale separately within each round. For a
+nonnegative round loss fraction `loss` and that round's limit `limit` (0.05, 0.03 or 0.01), use
+`max(0, min(1, 1 - loss / limit))` as the multiplier on the selected strategy's normal per-stock
+allocation. A 2.5% loss in round 1, 1.5% in round 2 or 0.5% in round 3 therefore leaves 50% of the
+normal allowance. Initial buys and additions share that ceiling, accounting for existing holdings
+and outstanding buy commitments; splitting orders cannot create another allowance.
+
+Before the round's hard limit is reached, a reduction in measured losses restores allowance
+proportionally, up to 100% of normal. Gains never increase the multiplier above 1. The AI can choose
+less, and other hard limits can reduce or block buying. Shrinking the ceiling alone does not force
+a sale. Reaching the hard limit instead ends the round and starts its accepted closure workflow;
+a subsequent rebound does not cancel that failed-round state or permit immediate reuse of its
+allowance. A new permitted round requires confirmed closure and a fresh qualifying entry signal.
+
+This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
+It does not erase original capital/peak history or resolve how portfolio-wide trailing protection
+combines with cycle-start loss, cumulative safeguards, successful/carried rounds or daily retry
+resets. The formula and examples are accepted design, not implemented/tested runtime behavior.
 
 ## Client direction and current evidence
 

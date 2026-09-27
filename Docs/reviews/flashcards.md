@@ -32,7 +32,9 @@ A: Each stock's combined buying allowance reduces as losses deepen. Initial buys
 cannot bypass it. Shrinking the allowance alone does not force a sale. Allowance follows continuous
 losses and recovery across days; both starting balance and portfolio peak are tracked, with their
 combination and resumption details unresolved. The accepted 5% / 3% / 1% cycle schedule replaces
-the earlier fixed 7% pause; its gradual-sizing mapping remains open. Source: ADR-0087.
+the earlier fixed 7% pause. Allowance is proportional to the unused fraction of that round's loss
+limit: half the limit lost leaves half the normal allowance. Recovery can restore allowance before
+the limit, but reaching it commits to closure despite a later rebound. Source: ADR-0087.
 Tags: risk-management, decision-engine.
 
 ### Q: Does an existing trailing sell rule automatically restore AI buying allowance while in cash?

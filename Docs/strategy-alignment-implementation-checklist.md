@@ -109,8 +109,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
    rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
    before another permitted attempt. Re-entry requires a fresh qualifying signal from the selected
-   engine after closure, with no extra fixed delay; the AI can take it or wait. **Next:** define gradual
-   sizing within cycles, reference combination/valuation and the restart allowance, including
+   engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
+   within each round can recover before the hard limit, after which closure is required. **Next:**
+   define cumulative safeguards, reference combination/valuation and cross-session behavior, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,

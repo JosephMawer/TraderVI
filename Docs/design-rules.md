@@ -131,8 +131,10 @@ frozen V1 settings, saved policy identities, existing holds and explicit assignm
 integration remains pending; changing a template does not activate it on an account.
 The September 27 AI Momentum design retains gradual reduction of the combined per-stock buying
 allowance, including additions. The later accepted 5% / 3% / 1% cycle schedule replaces the fixed
-7% AI pause, with no new buys after the third failed round that day. Mapping gradual sizing onto
-these cycle limits remains open. It must not create a fresh
+7% AI pause, with no new buys after the third failed round that day. Within each round, the normal
+per-stock allowance is multiplied by `max(0, min(1, 1 - loss / roundLimit))`; it can recover before
+the hard limit is hit, but a hit commits the round to closure even if value then rebounds.
+The scale must not create a fresh
 allowance per order or force liquidation solely because the allowance shrank. The later
 failed-round closure decision separately requires closing remaining AI-managed holdings at the
 round's loss threshold and confirming/reconciling exits before a new permitted attempt. Unresolved
@@ -142,7 +144,7 @@ additional fixed delay. The AI may choose to wait. This is pending implementatio
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
 and verified recovery across days; the later retry cap is daily, without erasing loss history.
 Both starting balance and recorded
-portfolio peak must be tracked. Exact combination/valuation, restart sizing and
+portfolio peak must be tracked. Exact reference combination/valuation, cumulative safeguards and
 interaction with existing holds remain unresolved. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
