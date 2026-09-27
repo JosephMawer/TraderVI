@@ -323,7 +323,8 @@ with the host enforcing the accepted one-to-fifteen-minute bounds, fresh-data av
 monthly budget. Exact ownership of discretionary collection cadence versus AI review cadence needs
 confirmation. Slower AI attention cannot slow required protection. Because the model is not reasoning
 between calls, the local monitor must be able to request an earlier review when defined material
-events occur; event definitions and priority/budget handling remain design work. No promise of one
+events occur; the initial triggers are agreed below, while priority/budget allocation remains design
+work. No promise of one
 paid call every minute, guaranteed response latency or full-session minute-level coverage is made.
 
 Log requested and applied intervals, reasons, evidence times and any budget/data constraint that
@@ -331,6 +332,25 @@ changes or rejects a request. Show the actual review cadence and next scheduled 
 status UI. All intraday reviews, scheduled consults, learning and any retries use the same spending
 ledger and below-CAD-100 ceiling. Independent protection continues if no paid review can run. This
 is design/source inspection only: no monitor, timer, provider request or runtime configuration changed.
+
+### Initial intraday review triggers — September 27 decision
+
+The operator accepts three initial events that can bring an AI review forward:
+
+- A new qualifying entry signal appears from the selected engine.
+- A holding closes, freeing cash or a portfolio slot; use confirmed/reconciled closure evidence.
+- A risk limit changes what the portfolio is allowed to do.
+
+Combine events arriving together into a review request, respect the one-minute minimum review
+interval and check the shared budget. These events request reconsideration, not an automatic buy,
+switch or override. Protective actions continue immediately under existing execution contracts
+without waiting for the AI. Record the triggering evidence with the review and any deferral reason.
+
+The operator expects more hooks later. Keep this initial list extensible through the same review
+request path and shared timing/budget checks; the MVP does not require a separate framework or
+independent AI caller for each event. No additional trigger is selected here. Exact event identity,
+duplicate handling, concurrency and checkpoint priority remain host implementation/qualification
+details. This is agreed Step 2 behavior; runtime integration and tests remain pending in Step 7.
 
 ### AI unavailable or budget exhausted — September 27 decision
 

@@ -117,7 +117,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    and AI receipt of its data. AI review intervals of one to fifteen minutes during market hours are
    agreed, subject to budget. Provider/budget fallback pauses new buys, additions and switching while
    monitoring/stops/engine exits continue; recovery requires a successful fresh AI review and all
-   other limits to permit it. **Next:** settle cadence ownership and event/budget handling, daily counter renewal and reference
+   other limits to permit it. Initial earlier-review hooks are agreed for new qualifying entry signals,
+   confirmed holding closures and risk-limit changes to permitted actions; combine nearby events
+   within the one-minute minimum and shared budget. Later hooks use the same path.
+   **Next:** settle cadence ownership and budget allocation, daily counter renewal and reference
    combination/valuation, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
@@ -139,7 +142,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    and the three agreed consult checkpoints alongside ordinary intraday monitoring. Implement
    adaptive AI review requests within the agreed one-to-fifteen-minute market-hours bounds and budget,
    once ownership is settled; preserve collection semantics and
-   protective cadence, audit requested/applied intervals, and qualify event-driven earlier reviews,
+   protective cadence and audit requested/applied intervals. Implement the three agreed event hooks
+   through one extensible review request path, combine events arriving together, and preserve the
+   one-minute minimum and shared budget. Qualify event-driven earlier reviews, duplicate/concurrent events,
    missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
    fallback and fresh-review recovery, including preservation of independent holds and protection.
    Configure

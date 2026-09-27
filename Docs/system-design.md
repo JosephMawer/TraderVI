@@ -24,7 +24,10 @@ Live intraday monitoring and budgeted AI reviews of its evidence. The operator r
 AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented
 composition. Collection/bar timing, independent protective checks and paid model review cadence are
 distinct. Accepted scheduled AI review bounds are one to fifteen minutes during market hours, subject
-to budget; material-event triggers remain open. Faster AI calls do not create fresher source bars.
+to budget. Initial earlier-review hooks are new qualifying entry signals, confirmed holding closures
+and risk-limit changes to permitted actions. One extensible request path combines events arriving
+together and applies the one-minute minimum and shared budget to current and future hooks.
+These hooks are not implemented. Faster AI calls do not create fresher source bars.
 All roles share the existing durable spending ledger. The agreed provider/budget fallback pauses
 new buys, additions and switches while monitoring and existing exits continue. Recovery requires
 a successful fresh review with all other limits satisfied; show the reason in the UI. This fallback

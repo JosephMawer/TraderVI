@@ -31,8 +31,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   accepted, subject to the shared budget. Set exact checkpoint times, relevant rules and whether the AI controls only paid
   review scheduling or any discretionary collection cadence. The recommended MVP uses AI-proposed
   next-review intervals validated by the host, with defined local events requesting earlier reviews;
-  it cannot weaken protection or change five-minute bar semantics. Specify these events and shared
-  budget handling. Provider/budget fallback is now agreed: pause new buys, additions and switches,
+  it cannot weaken protection or change five-minute bar semantics. Initial events are now agreed:
+  new qualifying entry signals, confirmed holding closures and risk-limit changes to permitted actions.
+  Combine events arriving together, respect the one-minute minimum and shared budget, and allow
+  later hooks through the same path. Event identity/duplicates, checkpoint priority and budget
+  allocation remain implementation/design work. Provider/budget fallback is now agreed: pause new buys, additions and switches,
   continue monitoring/stops/engine exits, and require a successful fresh review plus all other limits
   before resuming. Define missed/stale review timing, retries and in-flight order/handover recovery
   without blocking protective handling or clearing independent holds. Daily attempt-counter renewal remains separate from active-round

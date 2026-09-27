@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum provider/budget fallback and fresh-review recovery agreed; implementation pending.
+**Current record:** September 27, 2026. AI Momentum initial intraday review triggers agreed; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -161,9 +161,12 @@ as the fastest AI review interval and fifteen minutes as the slowest during mark
 the shared budget. Provider unavailability or exhausted budget now has an agreed fallback: pause
 new buys, additions and portfolio switches, retain monitoring/stops/engine exits, and resume only
 after a successful fresh AI review with all other limits satisfied. The UI must show the reason.
+Initial earlier-review triggers are agreed: a new qualifying entry signal, a confirmed holding
+closure, or a risk-limit change to permitted actions. Combine events arriving together and retain
+the one-minute minimum and shared budget; more hooks may be added later through the same path.
 Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
-collection offset (ADR-0087). Reference combination, retry renewal, event triggers and budget-aware
+collection offset (ADR-0087). Reference combination, retry renewal, event integration and budget-aware
 scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran

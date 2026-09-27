@@ -41,8 +41,9 @@ hard limit, is agreed. The 10% cumulative review hold requiring operator approva
 threshold visibility are agreed. Round continuity across closures and new-session engine consultation
 are agreed. Three consults complement ongoing intraday monitoring; AI review intervals of one to
 fifteen minutes during market hours are agreed, subject to budget. Provider/budget fallback and
-fresh-review recovery are agreed (ADR-0087); enforcement remains pending. Next settle cadence
-ownership and budget-aware event reviews, daily
+fresh-review recovery are agreed (ADR-0087). Initial entry-signal, holding-closure and risk-limit
+review hooks are agreed; shared timing/budget checks also apply to later hooks. Implementation
+remains pending. Next settle cadence ownership and budget allocation, daily
 counter renewal and reference combination. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes

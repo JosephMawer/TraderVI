@@ -163,8 +163,11 @@ paid reviews; no AI request can change versioned bar semantics, weaken protectio
 shared spending cap. If provider unavailability or budget exhaustion prevents AI review, pause new
 buys, additions and portfolio switches while monitoring, stops and existing engine exits continue.
 Resumption requires a successful fresh AI review and all other limits to permit it; recovery alone
-cannot clear a risk hold. Show the reason in the UI. Exact cadence ownership, event triggers, retry
-renewal and detailed timeout/recovery handling remain open. Protective handling never waits for a
+cannot clear a risk hold. Show the reason in the UI. Initial earlier-review triggers are a new
+qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted actions.
+Combine events arriving together, preserve the one-minute minimum interval and check the shared
+budget. Future hooks must use the same constraints. Exact cadence ownership, retry renewal and
+detailed timeout/recovery handling remain open. Protective handling never waits for a
 scheduled review. This fallback is agreed, not yet implemented.
 
 [ADR-0059](adr/0059-delphi-model-and-threshold-settings.md) exposes preserved daily model-set selection

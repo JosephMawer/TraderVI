@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Which initial events can bring an AI review forward?
+
+A: A new qualifying entry signal, a confirmed holding closure, or a risk-limit change to permitted
+actions. Combine events arriving together and retain the one-minute minimum and shared budget;
+protection does not wait for the review. Later hooks use the same path. Source: ADR-0087. Tags: architecture, llm, reliability.
+
 ### Q: What happens when the AI cannot review because its provider or budget is unavailable?
 
 A: Pause new buys, additions and portfolio switches; monitoring, stops and existing engine exits
