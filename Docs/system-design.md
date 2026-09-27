@@ -63,6 +63,9 @@ a fresh 5% / 3% / 1% sequence only with fresh qualifying entry evidence, AI revi
 limits satisfied. The round loss fraction and exit trigger trail the highest verified value within
 the round, initialized at its opening value. Carry its saved peak/trigger across closures and retain
 the independent overall closing-peak reference and operator-controlled review holds.
+Record original allocated capital plus each round's actual opening capital and initial trigger.
+Later-round forecasts, if displayed, remain estimates; initialize enforced 3%/1% triggers from
+actual reconciled capital when those rounds start. Valuation source/cadence remains unresolved.
 The UI must expose session pause, carried round, pending reconciliation and approval hold distinctly,
 with attempts, opening/current values, round peak/trigger, next eligible session and unmet restart requirements. Enforcement
 and UI remain pending (ADR-0087). Ordinary sales, profitable exits and all-cash periods preserve

@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum ordinary-sale/cash continuity agreed; enforcement and host integration pending.
+**Current record:** September 27, 2026. AI Momentum starting-capital/initial-threshold handling confirmed; enforcement and host integration pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -177,6 +177,10 @@ same round/peak/limit and count through ordinary sales, taking profits or holdin
 Only a round-limit hit consumes an attempt; there is no success reset. No UI or enforcement changed.
 This increment is documentation only, checked by diff review.
 Proportional sizing within each round is agreed, including recovery before its hard limit.
+The operator confirms capturing original allocated capital and calculating each round's initial
+threshold from its actual verified opening capital. Later-round previews are estimates; the 3%/1%
+thresholds use actual reconciled capital when those rounds start. Valuation source/cadence remains
+unsettled; the five-minute cash-plus-holdings proposal is not yet accepted or implemented.
 The operator now accepts trailing each round's highest verified value, initialized at its opening
 value, for both the 5% / 3% / 1% trigger and buying-allowance loss fraction. Price declines cannot
 lower that trigger; hitting it commits the round to closure. UI must show the saved round peak,

@@ -152,6 +152,9 @@ per-stock allowance is multiplied by `max(0, min(1, 1 - loss / roundLimit))`. In
 peak `H` at its opening value and raise it only with higher verified portfolio values; use
 `loss = max(0, (H - currentValue) / H)` and exit trigger `H * (1 - roundLimit)` for positive `H`.
 This supersedes the fixed round-start reference. Price declines never lower the trigger.
+Capture original allocated capital at portfolio start. Each permitted round records actual verified
+opening capital and calculates its initial trigger upfront; later rounds use actual reconciled
+remaining capital, not an earlier forecast. Label any later-round previews as estimates (ADR-0087).
 Buying allowance can recover before
 the hard limit is hit, but a hit commits the round to closure even if value then rebounds.
 The scale must not create a fresh

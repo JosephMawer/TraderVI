@@ -54,6 +54,8 @@ and AI review; carried rounds and approval holds persist. Step 8 must make these
 conditions explicit, including the rising round trigger. Ordinary sales, profits and all-cash periods
 keep the same round/peak and count; only a round-limit hit consumes an attempt. Next settle cadence
 ownership and valuation/cash-flow treatment. Reuse existing protection; Step 8 owns the threshold display.
+Starting-capital capture and upfront initial thresholds are confirmed: later rounds use actual
+reconciled opening capital, with any earlier previews labelled estimates (ADR-0087).
 Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen
 or remove established stops. Record blocked alternatives for evaluated learning; enforce boundaries
 in code. Initial switching behavior is agreed: retain compatible holdings/protection, reconcile

@@ -50,6 +50,13 @@ CAD 9,500 trigger; a rise to CAD 11,000 raises it to CAD 10,450, which a price d
 The same round drawdown drives buying allowance; the overall 10% closing-peak guard keeps its
 separate history. Source: ADR-0087. Tags: risk-management, decision-engine.
 
+### Q: Can an upfront forecast set a later AI round's enforced loss threshold?
+
+A: No. Preserve original allocated capital, but calculate each round's initial trigger from its
+actual verified opening capital. Later rounds use reconciled remaining capital; upfront forecasts
+are estimates only. Verified gains then raise the active trailing trigger.
+Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: Does AI Momentum ration its monthly budget across trading days?
 
 A: No. Useful reviews and learning share the monthly allowance without daily allocations or future

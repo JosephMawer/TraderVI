@@ -21,7 +21,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
   conditions. Round limits and buying allowance now trail the highest verified round value,
   initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
-  specify qualified valuation/cash-flow treatment. Ordinary-sale handling is settled: profitable
+  specify qualified valuation/cash-flow treatment. Original-capital capture and initial thresholds
+  from actual round opening capital are confirmed; later rounds use actual reconciled remaining
+  capital, with upfront forecasts labelled estimates. This does not yet accept the proposed
+  completed five-minute cash-plus-holdings valuation source/cadence. Ordinary-sale handling is settled: profitable
   exits and all-cash periods retain the same round/peak/limit and count; only a hard-limit hit
   consumes an attempt, with no separate success reset. Cross-session
   failure counting is settled: the whole sequence carries, round 2 remains at 3% next session,

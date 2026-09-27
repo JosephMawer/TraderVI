@@ -131,6 +131,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
    Ordinary sales, profit-taking and all-cash periods retain the same round/peak/limit and count;
    only reaching its hard loss limit consumes an attempt. There is no separate success reset.
+   Initial thresholds are confirmed: capture original allocated capital, record actual opening
+   capital for each round and calculate its initial trigger upfront. Later rounds use actual
+   reconciled remaining capital; any upfront later-round previews are estimates only.
    **Next:** settle cadence ownership and valuation/cash-flow treatment, including
    interaction with existing engine holds. Per-stock protection reuses engine hard-stop/trailing-profit
    settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
@@ -155,6 +158,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
    Verify profitable sales, full cash exits and subsequent purchases preserve that round's peak,
    trigger and count; a limit hit while already cash still requires failed-round reconciliation.
+   Verify initial triggers use actual round opening capital and retain original-capital history;
+   forecast later-round amounts cannot supply enforced references.
 5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
    and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
    required exits before buys and preserve original order identities through uncertain outcomes.

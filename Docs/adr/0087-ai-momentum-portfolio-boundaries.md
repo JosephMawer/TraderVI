@@ -272,6 +272,24 @@ The Step 8 UI must show the round's opening value, current verified value, recor
 trailing exit trigger, drawdown and remaining room using enforcement values and freshness labels.
 This is accepted design only: enforcement, tests and UI implementation remain pending.
 
+### Starting capital and initial thresholds — September 27 clarification
+
+The immediate issue is calculating the initial dollar limits, within the continuous-round contract
+for protected AI management. Capture the actual capital allocated when the portfolio starts and
+preserve it as original-capital history. At each permitted round's start, record its actual verified
+opening capital and calculate its initial trigger as `openingCapital * (1 - roundLimit)`.
+For CAD 10,000 in round 1, the 5% limit initially gives CAD 9,500.
+
+The operator confirms that verified gains raise the active threshold under the existing trailing
+formula. Rounds 2 and 3 use the actual remaining capital when they start, after required closure
+and reconciliation, at 3% and 1% respectively. Any later-round thresholds shown upfront are labelled
+estimates, not enforceable values or assumptions about future fills. Retain the original capital
+alongside each round's opening record; no daily, ordinary-sale or portfolio-switch reset is added.
+
+This confirms initialization and trailing behavior only. The proposed use of engine cash-plus-holdings
+valuations at each completed five-minute Delphi Live interval is still awaiting agreement; exact
+qualified source/cadence and cash-flow adjustments remain open. Enforcement and UI remain pending.
+
 ### Per-stock protection and blocked alternatives for learning — September 27 decision
 
 The operator accepts reusing the selected portfolio engine's existing hard-stop and trailing-profit
