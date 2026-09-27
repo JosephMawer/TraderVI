@@ -106,9 +106,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    losses/recovery across days, superseding its daily framing and session-minimum lock (ADR-0087).
    Both starting balance and recorded portfolio peak must be tracked; monitoring continues while in
    cash with intended automatic re-entry on recovery. AI enforcement integration remains Step 4.
-   **Under review:** three failed cycles per day with equal or decreasing loss thresholds; no schedule
-   selected. **Next:** reconcile that proposal with the earlier 7% AI boundary, then settle reference
-   combination/valuation and the re-entry trigger/allowance, including
+   **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
+   rounds. **Next:** define failed-round handling, then reference combination/valuation, gradual sizing
+   within cycles and the re-entry trigger/allowance, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,

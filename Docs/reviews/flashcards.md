@@ -20,11 +20,11 @@ sessions ("quiz me" / "review").
 
 ### Q: What does the AI Momentum gradual allocation scale constrain?
 
-A: Each stock's combined buying allowance shrinks from its normal limit at no measured loss to half
-at 3.5% loss and zero at 7%. Initial buys and additions share that allowance; splitting orders
+A: Each stock's combined buying allowance reduces as losses deepen. Initial buys and additions share that allowance; splitting orders
 cannot bypass it. Shrinking the allowance alone does not force a sale. Allowance follows continuous
 losses and recovery across days; both starting balance and portfolio peak are tracked, with their
-combination and resumption details unresolved. Source: ADR-0087.
+combination and resumption details unresolved. The accepted 5% / 3% / 1% cycle schedule replaces
+the earlier fixed 7% pause; its gradual-sizing mapping remains open. Source: ADR-0087.
 Tags: risk-management, decision-engine.
 
 ### Q: Does an existing trailing sell rule automatically restore AI buying allowance while in cash?
@@ -37,7 +37,7 @@ an explicit qualifying signal and restart allowance. Source: ADR-0087. Tags: ris
 
 A: No. New engine templates use 7%; saved versions and historical V1 policies retain their settings.
 Adoption requires an explicit saved version and assignment, preserving existing holds. AI Momentum's
-accepted 7% boundary cannot be waived by the model. Source: ADR-0087. Tags: risk-management, decision-engine.
+later cycle schedule is separate and not yet implemented. Source: ADR-0087. Tags: risk-management, decision-engine.
 
 ### Q: How should learning reach both the AI supervisor and execution coordinator?
 

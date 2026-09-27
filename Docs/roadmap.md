@@ -33,8 +33,9 @@ Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-che
 Step 1 is complete offline; Step 2 is in progress. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.
-Next resolve the proposed three-cycle loss schedule against the earlier 7% AI boundary, then settle
-reference combination and automatic re-entry conditions while reusing existing protection.
+The accepted 5% / 3% / 1% cycle schedule replaces the AI 7% boundary and stops new buying after
+three failed rounds that day. Next define failed-round handling and re-entry, then reconcile gradual
+sizing/reference combination with the schedule while reusing existing protection.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.

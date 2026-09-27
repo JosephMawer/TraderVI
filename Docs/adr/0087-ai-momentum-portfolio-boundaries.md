@@ -65,6 +65,10 @@ A buying pause is not a guaranteed maximum realized loss.
 
 ## Gradual allocation scale — September 27 decision
 
+**Numeric boundary superseded:** the [cycle schedule](#three-cycle-loss-schedule--september-27-decision)
+below replaces the fixed 7% AI pause. Gradual sizing remains intended; its mapping to the new cycle
+limits must be specified before implementation. The original formula below is historical.
+
 The immediate problem is reducing new buying before the 7% pause; the parent problem is bounding
 AI discretion within its selected strategy. The root goal remains protected, auditable paper and
 intended real-account management. The operator accepts a linear reduction in each stock's permitted
@@ -103,6 +107,9 @@ or installed. Next-session reset conditions remain unresolved; retaining a same-
 not authorize clearing capital-review, account-validity or other independent holds.
 
 ### Continuous recovery — September 27 amendment
+
+**Later refinement:** the [cycle schedule](#three-cycle-loss-schedule--september-27-decision) replaces
+the 7% AI boundary and introduces a daily limit on failed attempts. It does not erase cumulative history.
 
 The operator prefers ongoing portfolio management over daily boundaries and endorses allowance
 falling with losses and gradually returning as those losses recover, across trading days. This
@@ -145,6 +152,31 @@ all-cash portfolio's trading value. Therefore market-based re-entry requires an 
 transition at zero allowance, without erasing actual losses, lowering retained protective stops or
 bypassing independent holds. Reusing the selected engine's entry checks for this transition is a
 candidate, not a settled trigger or permission to resume full-size buying.
+
+### Three-cycle loss schedule — September 27 decision
+
+The operator accepts 5% / 3% / 1% for successive failed portfolio rounds, replacing the earlier
+7% AI buying-pause boundary. Measure the stated cycle percentages against each round's starting
+portfolio value, as presented in the comparison. After the third failed round, stop new buying for
+the remainder of the trading day; independent protective exits continue. Monitoring may continue
+without granting another attempt. The equal 5% / 5% / 5% alternative is not selected.
+
+For three consecutive losses exactly at these triggers, with no intervening gains, cash flows or
+additional execution costs, the remaining fraction is `0.95 * 0.97 * 0.99 = 0.912285`: an 8.7715%
+combined loss. This is illustrative arithmetic, not a guaranteed maximum loss or performance evidence.
+Cycle thresholds do not rewrite individual position stops. Existing engine daily templates remain
+at 7%; integrating the AI schedule with underlying engine holds still requires an explicit contract.
+
+The immediate purpose is to bound repeated attempts while continuing to watch for new entries;
+the parent goal remains AI discretion within enforceable protection. Keep original starting balance,
+portfolio peaks and actual loss history across cycles. A retry counter cannot clear independent
+account/data/capital-review holds. The overall cumulative safeguard is still to be specified.
+
+This is an accepted Step 2 design, not implemented or activated. Next define the failed-round
+transition: whether remaining AI-managed holdings must close, treatment of pending orders and
+confirmation of exits before starting another round. Then define fresh-entry qualification, gradual
+sizing within each round, peak/starting-reference interaction, successful/carried rounds and the
+daily retry-counter reset. No liquidation or change to real trading is authorized by this decision.
 
 ## Client direction and current evidence
 

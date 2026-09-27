@@ -7,23 +7,20 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **Cycle-loss proposal for review (September 27):** the operator proposes at most three failed
-  portfolio cycles per day, then stopping for the day; compares 5%/5%/5% with 5%/3%/1% loss
-  thresholds. Neither sequence is selected yet. Assuming each percentage applies to that cycle's
-  starting portfolio value, three consecutive losses exactly at their thresholds, and no intervening
-  gains/flows or additional execution costs, cumulative losses are 14.2625% and 8.7715%, respectively.
-  The decreasing sequence better matches the accepted direction of reducing risk after losses;
-  it is not performance evidence or a guaranteed realized-loss ceiling. First resolve whether it
-  replaces the earlier 7% AI buying-pause/scale boundary. Both can exceed that boundary; do not
-  silently remove it. Also define a failed cycle, closing/resumption behavior, how the gradual scale
-  applies within cycles and when the daily counter resets. Preserve original capital/peak records
-  and independent protective exits; a daily retry cap does not settle the cumulative loss safeguard.
-  Existing engine templates remain unchanged. Stop execution can exceed a trigger price:
+- **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
+  7% AI pause; stop new buys for the day after three failed portfolio rounds while protective exits
+  continue. Next define what happens at a failed round: remaining AI-managed holdings, pending
+  orders and confirmed exits before re-entry. Also specify fresh-entry qualification, gradual sizing
+  within rounds, peak/starting-reference interaction, successful/carried rounds and daily counter
+  reset. Preserve original capital/peak records and independent holds; the daily retry cap does not
+  settle the cumulative loss safeguard. Existing engine templates remain unchanged.
+  Stop execution can exceed a trigger price:
   [FINRA stop-order guidance](https://www.finra.org/investors/insights/stop-orders-factors-consider-during-volatile-markets).
 
-- **Step 2 / MVP discussion in progress:** the AI gradual 0–7% allocation scale now follows continuous
+- **Step 2 / MVP discussion in progress:** the AI gradual allocation design follows continuous
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
-  supersedes its daily framing and session-minimum lock. Both starting capital and recorded portfolio
+  supersedes its original daily framing and session-minimum lock; the later cycle schedule above
+  adds a daily retry cap and replaces the fixed 7% AI pause. Both starting capital and recorded portfolio
   peak are now selected references. Define their combination, cash-flow adjustments and peak valuation.
   The operator wants continued monitoring and automatic pickup after recovery while in cash; define
   the qualifying market signal and restart allowance. Market recovery alone does not restore an

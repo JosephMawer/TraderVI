@@ -129,11 +129,14 @@ comparison collection is excluded from the original Live clean promotion cohorts
 sets new Delphi Live/System Shadow daily buying-pause templates to 7%. Preserve
 frozen V1 settings, saved policy identities, existing holds and explicit assignment. AI enforcement
 integration remains pending; changing a template does not activate it on an account.
-The September 27 AI Momentum allocation scale is agreed in ADR-0087: reduce the combined per-stock
-buying allowance linearly toward the 7% pause, including additions. It must not create a fresh
+The September 27 AI Momentum design retains gradual reduction of the combined per-stock buying
+allowance, including additions. The later accepted 5% / 3% / 1% cycle schedule replaces the fixed
+7% AI pause, with no new buys after the third failed round that day. Mapping gradual sizing onto
+these cycle limits remains open. It must not create a fresh
 allowance per order or force liquidation solely because the allowance shrank. The later continuous
 recovery amendment replaces the AI daily framing and session-minimum lock: allowance follows losses
-and verified recovery across days without a calendar reset. Both starting balance and recorded
+and verified recovery across days; the later retry cap is daily, without erasing loss history.
+Both starting balance and recorded
 portfolio peak must be tracked. Exact combination/valuation, market-based re-entry from cash and
 interaction with existing holds remain unresolved. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
