@@ -31,8 +31,8 @@ TFSA with preserved cash, execution and risk history.
   A persuasive explanation is not proof of predictive value or permission to breach a boundary.
 - Reduce permitted risk as portfolio losses deepen using the accepted gradual allocation scale below.
   Restore allowance gradually as measured losses recover across days, without a calendar reset.
-  Track both starting capital and the recorded portfolio peak; exact valuation, combination and
-  recovery details remain unresolved.
+  Track starting capital and portfolio peaks. The later round-trailing decision uses the round's
+  highest verified value for its limit and allowance; valuation/cash-flow details remain unresolved.
 - Keep hard stop limits. Do not loosen a stop to prolong a losing trade or repeatedly grant more
   room as its price falls. Exact initial-stop selection and subsequent tightening remain to be defined.
 - Protect profit as an objective. This requires a measurable activation threshold and allowed
@@ -156,8 +156,9 @@ entry checks for this transition; it does not settle restart sizing or permit by
 ### Three-cycle loss schedule — September 27 decision
 
 The operator accepts 5% / 3% / 1% for successive failed portfolio rounds, replacing the earlier
-7% AI buying-pause boundary. Measure the stated cycle percentages against each round's starting
-portfolio value, as presented in the comparison. After the third failed round, stop new buying for
+7% AI buying-pause boundary. The original round-start reference is superseded by the round-trailing
+decision below: use the highest verified value within the round, initialized at its start.
+After the third failed round, stop new buying for
 the remainder of the trading day; independent protective exits continue. Monitoring may continue
 without granting another attempt. The equal 5% / 5% / 5% alternative is not selected.
 
@@ -175,8 +176,9 @@ account/data/capital-review holds. The later cumulative-review decision below re
 
 This is an accepted Step 2 design, not implemented or activated. The failed-round transition is
 accepted below, along with fresh-entry qualification and within-round sizing. Next define
-peak/starting-reference interaction, successful-round handling and the daily retry-counter reset.
-The later continuity decision governs carried rounds and session-start consultation.
+qualified valuation/cash-flow treatment, successful-round handling and remaining counter interactions.
+The later decisions govern trailing round references, carried rounds, exhausted-sequence restart
+and session-start consultation.
 These decisions do not authorize running liquidation or changing real trading in this session.
 
 ### Failed-round closure — September 27 decision
@@ -196,8 +198,8 @@ reflects confirmed results. This gives the failed round a definite end and preve
 loss allowance while its old positions remain open. Shrinking the gradual allowance alone still does
 not force a sale: reaching the round's hard loss threshold is the accepted closure trigger.
 
-This is design agreement only, not broker authority or an installed workflow. Failure recovery
-across sessions and the daily counter's reset remain to be settled.
+This is design agreement only, not broker authority or an installed workflow. The later next-session
+decision covers exhausted sequences; other counter interactions remain open.
 
 ### Fresh-entry qualification — September 27 decision
 
@@ -218,7 +220,8 @@ unfinished, with no runtime, database or broker change in this increment.
 ### Gradual sizing within rounds — September 27 decision
 
 The operator accepts applying the proportional buying scale separately within each round. For a
-nonnegative round loss fraction `loss` and that round's limit `limit` (0.05, 0.03 or 0.01), use
+nonnegative round loss fraction `loss`, measured from the round's highest verified value under the
+later trailing decision, and that round's limit `limit` (0.05, 0.03 or 0.01), use
 `max(0, min(1, 1 - loss / limit))` as the multiplier on the selected strategy's normal per-stock
 allocation. A 2.5% loss in round 1, 1.5% in round 2 or 0.5% in round 3 therefore leaves 50% of the
 normal allowance. Initial buys and additions share that ceiling, accounting for existing holdings
@@ -232,9 +235,38 @@ a subsequent rebound does not cancel that failed-round state or permit immediate
 allowance. A new permitted round requires confirmed closure and a fresh qualifying entry signal.
 
 This resolves how the earlier gradual-sizing principle applies to the selected three-round schedule.
-It does not erase original capital/peak history or resolve how portfolio-wide trailing protection
-combines with cycle-start loss, successful-round handling or daily retry
-resets. The formula and examples are accepted design, not implemented/tested runtime behavior.
+It does not erase original capital/peak history. The later trailing decision resolves the round's
+loss reference; successful-round handling and remaining daily counter interactions are still open.
+The formula and examples are accepted design, not implemented/tested runtime behavior.
+
+### Round limits trail verified gains — September 27 decision
+
+The operator accepts measuring each round's 5% / 3% / 1% limit from its highest verified portfolio
+value during that round, initialized with its opening value. This supersedes the fixed round-start
+reference in the original cycle schedule. Preserve the opening value as history; for a positive
+round reference `H` and qualified current value `V`, update `H = max(H, V)` and calculate
+`loss = max(0, (H - V) / H)`. The round exit trigger is `H * (1 - limit)`. This same loss fraction
+drives the accepted buying-allowance multiplier `max(0, min(1, 1 - loss / limit))`.
+
+For a 5% round starting at CAD 10,000, the trigger is CAD 9,500. A verified rise to CAD 11,000 raises
+it to CAD 10,450; subsequent price declines do not lower it. At CAD 10,725 the drawdown is 2.5%
+and the buying multiplier is 50%. Recovery before the hard limit restores allowance, while a hit
+commits to the existing failed-round closure even if value later rebounds. A trigger is not a
+guaranteed fill value. The no-intervening-gains three-loss illustration above remains conditional.
+
+Carry the round's peak and trigger across nights/weekends and process restarts without a calendar
+reset. A new permitted round initializes a new reference only after confirmed closure/reconciliation;
+retain original capital and all prior round history. The independent 10% guard continues to use the
+highest recorded completed-session closing value and retains its explicit-approval hold. Existing
+position trailing stops and engine holds remain separate constraints.
+
+Use qualified portfolio valuations, not an unverified tick, AI estimate or a high from an unrelated
+period. Exact valuation cadence/source and cash-flow adjustment remain to be defined under the
+existing accounting contracts; the simple formulas above describe intervals without external cash
+flows. This decision does not authorize treating deposits as profit or withdrawals as trading loss.
+The Step 8 UI must show the round's opening value, current verified value, recorded round peak,
+trailing exit trigger, drawdown and remaining room using enforcement values and freshness labels.
+This is accepted design only: enforcement, tests and UI implementation remain pending.
 
 ### Cumulative review and visible thresholds — September 27 decision
 
@@ -267,7 +299,7 @@ not a rendered or implemented UI; tests, installation and operational qualificat
 ### Continuous rounds and timed rule consultation — September 27 decision
 
 The operator accepts carrying an unfinished round across nights, weekends and market closures with
-its existing holdings, round-start loss reference, applicable 5%/3%/1% limit and protective levels,
+its existing holdings, saved round peak/reference, applicable 5%/3%/1% limit and protective levels,
 subject to the selected strategy's existing exit rules. A date change alone does not end a round,
 reset its loss reference, loosen a trailing stop or clear a review hold. This is continuity of saved
 state, not permission to trade while the market is closed or to treat old prices as current evidence.

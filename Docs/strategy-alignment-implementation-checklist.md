@@ -113,7 +113,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    carried rounds and the 10% approval hold retain their existing constraints.
    Re-entry requires a fresh qualifying signal from the selected
    engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
-   within each round can recover before the hard limit, after which closure is required. Retaining
+   within each round can recover before the hard limit, after which closure is required. Both that
+   allowance and the round's exit trigger now trail its highest verified value, initialized at the
+   opening value; price declines cannot lower the trigger. Retaining
    the 10% cumulative buying pause with operator approval to resume is agreed. Unfinished rounds keep
    references, limits and protection across closures; new sessions prompt review of fresh engine entry
    guidance. Session-start, mid-session and pre-close consults complement ongoing intraday monitoring
@@ -125,8 +127,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    within the one-minute minimum and shared budget. Later hooks use the same path.
    Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
    allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
-   **Next:** settle cadence ownership, remaining counter interactions and reference
-   combination/valuation, including
+   **Next:** settle cadence ownership, remaining counter interactions and valuation/cash-flow treatment, including
    interaction with existing engine holds. Reuse existing position trailing protection.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
@@ -168,6 +169,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    reasons/actions; recovered values cannot hide
    a review hold that still needs operator approval. Explicitly distinguish a three-failure session
    pause, an unfinished carried round, pending exit reconciliation and an operator-approval hold.
+   Show round opening/current values, saved peak, trailing exit trigger and remaining room.
    Show attempts used/remaining, active round limit/reference, actual next eligible market session
    and unmet restart conditions (fresh signal/review and other holds). Display simultaneous holds;
    a session countdown cannot imply automatic buying or approval. This UI is not implemented.

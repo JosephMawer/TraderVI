@@ -19,7 +19,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   (ADR-0087, checklist Step 8). A fresh sequence after three failed, closed/reconciled attempts is
   now eligible next trading session with fresh entry evidence and AI review; carried round limits
   and the 10% approval hold persist. UI must clearly distinguish those states and unmet restart
-  conditions. Next specify peak/starting-reference interaction, successful-round handling and counter
+  conditions. Round limits and buying allowance now trail the highest verified round value,
+  initialized at its opening value; the overall 10% closing-peak guard retains its history. Next
+  specify qualified valuation/cash-flow treatment, successful-round handling and counter
   treatment after fewer failures or a carried round completes. Preserve original capital/peak records and independent holds; day/round changes cannot
   clear the cumulative review. Existing engine templates remain unchanged.
   Stop execution can exceed a trigger price:
@@ -49,7 +51,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   losses/recovery across days without a calendar reset (ADR-0087, September 27 amendment). This
   supersedes its original daily framing and session-minimum lock; the later cycle schedule above
   adds a daily retry cap and replaces the fixed 7% AI pause. Both starting capital and recorded portfolio
-  peak are now selected references. Define their combination, cash-flow adjustments and peak valuation.
+  peak are selected references. The round reference now trails its highest verified value, initialized
+  at the opening value, and drives both its trigger and allowance. Define cash-flow adjustments and
+  qualified valuation cadence/source; retain the independent overall closing-peak guard.
   The operator wants continued monitoring and automatic pickup after recovery while in cash; the
   fresh engine signal and round-relative sizing are agreed. Market recovery alone does not restore an
   all-cash portfolio's value, so this requires an explicit recovery transition at zero allowance.
@@ -71,7 +75,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   in paper and intended live use.
 - **Accepted protection direction:** reduce permitted risk as portfolio losses deepen; retain hard
   stop limits and do not loosen stops to prolong losing trades. Protect profits. Exact initial stops,
-  reference combination/valuation and recovery details, profit activation and permitted giveback remain open. The gradual allocation
+  position profit activation/giveback, qualified valuation/cash-flow treatment and remaining recovery
+  details remain open. Round-level trailing protection is now agreed; the gradual allocation
   scale is agreed but not implemented. See
   [ADR-0087](../adr/0087-ai-momentum-portfolio-boundaries.md). Triggers do not guarantee fill prices.
 - **Budget pacing settled (September 27, ADR-0087):** use the shared monthly allowance as needed,

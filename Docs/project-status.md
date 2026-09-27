@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI Momentum exhausted-sequence next-session restart and explicit UI states agreed; implementation pending.
+**Current record:** September 27, 2026. AI Momentum round limits and buying allowance trail verified round peaks by agreement; implementation pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -142,7 +142,8 @@ continuous allowance reduction/recovery across days, without a calendar reset (A
 The operator clarifies that both starting balance and recorded portfolio peak must be tracked, with
 continued monitoring and intended automatic re-entry after market recovery. Source inspection confirms
 existing position trailing floors and separate portfolio guards; the new AI allowance/re-entry path
-is not implemented. Exact reference combination/valuation and restart conditions remain open (ADR-0087).
+is not implemented. Round references are now settled below; exact valuation/cash-flow treatment
+and remaining lifecycle interactions remain open (ADR-0087).
 September 27 follow-up accepts 5% / 3% / 1% cycle-loss thresholds, replacing the earlier AI 7%
 pause, with new buying stopped for the day after three failed rounds. ADR-0087 owns the decision
 and comparison assumptions. Failed-round closure is now agreed: close AI-managed holdings, confirm
@@ -154,9 +155,12 @@ session with fresh entry evidence and AI review, subject to all other limits. Ca
 rounds retain their limit/reference; the 10% approval hold persists. UI must distinguish these states
 and show attempts, active limit/reference, next eligible session and remaining restart requirements
 (ADR-0087; Step 8). Other counter interactions remain unresolved; no UI or enforcement changed.
-Proportional sizing within each round is now agreed, including recovery before its hard limit;
-reaching the limit commits that round to closure. The operator now accepts retaining the 10% decline
-from highest recorded closing value as a cumulative buying pause requiring operator approval,
+Proportional sizing within each round is agreed, including recovery before its hard limit.
+The operator now accepts trailing each round's highest verified value, initialized at its opening
+value, for both the 5% / 3% / 1% trigger and buying-allowance loss fraction. Price declines cannot
+lower that trigger; hitting it commits the round to closure. UI must show the saved round peak,
+trigger, opening/current values and remaining room. The separate 10% decline from highest recorded
+closing value still triggers a cumulative buying pause requiring operator approval,
 with protective exits continuing. Explicit UI distance to this and other thresholds is required
 (ADR-0087; checklist Step 8). Unfinished rounds now explicitly carry their references, limits and
 protection across market closures. A new trading session requires consultation of fresh engine entry
@@ -176,7 +180,7 @@ rejecting CAD 100 or more; the journal also retains the month's lowest ceiling. 
 extension path is not implemented (ADR-0087).
 Cadence ownership and detailed timeout/recovery handling remain open.
 Source inspection distinguishes the 30-second host tick from five-minute signal bars/two-minute
-collection offset (ADR-0087). Reference combination, remaining counter interactions, event integration and budget-aware
+collection offset (ADR-0087). Valuation/cash-flow treatment, remaining counter interactions, event integration and budget-aware
 scheduling remain unfinished. No source changes or
 new operational validation accompany this decision.
 Existing engine daily templates are unchanged. Documentation was checked; no new runtime tests or operational actions ran

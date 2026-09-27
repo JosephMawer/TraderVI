@@ -37,7 +37,8 @@ The accepted 5% / 3% / 1% cycle schedule replaces the AI 7% boundary and stops n
 three failed rounds that day. Failed-round closure and confirmed exits before another attempt are
 agreed. Fresh qualifying entry signals from the selected engine permit AI-reviewed re-entry without
 an added fixed delay. Proportional buying allowance within each round, with recovery before its
-hard limit, is agreed. The 10% cumulative review hold requiring operator approval and explicit UI
+hard limit, is agreed. Round limits and allowance now trail the highest verified value within each
+round; preserve the separate overall closing-peak history. The 10% cumulative review hold requiring operator approval and explicit UI
 threshold visibility are agreed. Round continuity across closures and new-session engine consultation
 are agreed. Three consults complement ongoing intraday monitoring; AI review intervals of one to
 fifteen minutes during market hours are agreed, subject to budget. Provider/budget fallback and
@@ -47,8 +48,8 @@ remains pending. Budget pacing is settled: no daily allocations or future-consul
 shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
 An exhausted, closed/reconciled sequence may restart next trading session with fresh entry evidence
 and AI review; carried rounds and approval holds persist. Step 8 must make these states and restart
-conditions explicit. Next settle cadence ownership, remaining counter interactions and reference
-combination. Reuse existing protection; Step 8 owns the threshold display.
+conditions explicit, including the rising round trigger. Next settle cadence ownership, remaining
+counter interactions and valuation/cash-flow treatment. Reuse existing protection; Step 8 owns the threshold display.
 Scale enforcement remains Step 4 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.

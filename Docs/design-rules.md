@@ -132,7 +132,11 @@ integration remains pending; changing a template does not activate it on an acco
 The September 27 AI Momentum design retains gradual reduction of the combined per-stock buying
 allowance, including additions. The later accepted 5% / 3% / 1% cycle schedule replaces the fixed
 7% AI pause, with no new buys after the third failed round that day. Within each round, the normal
-per-stock allowance is multiplied by `max(0, min(1, 1 - loss / roundLimit))`; it can recover before
+per-stock allowance is multiplied by `max(0, min(1, 1 - loss / roundLimit))`. Initialize the round
+peak `H` at its opening value and raise it only with higher verified portfolio values; use
+`loss = max(0, (H - currentValue) / H)` and exit trigger `H * (1 - roundLimit)` for positive `H`.
+This supersedes the fixed round-start reference. Price declines never lower the trigger.
+Buying allowance can recover before
 the hard limit is hit, but a hit commits the round to closure even if value then rebounds.
 The scale must not create a fresh
 allowance per order or force liquidation solely because the allowance shrank. The later
@@ -149,8 +153,9 @@ highest recorded completed-session closing value and requires explicit operator 
 round/day transitions, signals or rebounds cannot clear it. Protective exits continue. AI UI must
 show current measures, thresholds, remaining room and binding holds using enforcement calculations,
 including round limits/allowance, attempts, stops and spending; stale data must not appear as capacity.
-Exact reference combination/valuation and
-interaction with existing holds remain unresolved. Reuse existing position trailing protection;
+The round reference and allowance now trail its verified peak, separately from the overall closing
+peak. Exact valuation/cash-flow treatment and interaction with existing holds remain unresolved.
+Show opening/current values, round peak and rising trigger in the UI. Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.
 Unfinished AI rounds retain references, limits and protective levels across market closures under

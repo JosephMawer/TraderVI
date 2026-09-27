@@ -38,9 +38,11 @@ and its detailed timeout/recovery handling are not implemented.
 
 Planned round lifecycle: after three failed and reconciled attempts, next-session eligibility permits
 a fresh 5% / 3% / 1% sequence only with fresh qualifying entry evidence, AI review and all other
-limits satisfied. Carry unfinished rounds unchanged and retain operator-controlled review holds.
+limits satisfied. The round loss fraction and exit trigger trail the highest verified value within
+the round, initialized at its opening value. Carry its saved peak/trigger across closures and retain
+the independent overall closing-peak reference and operator-controlled review holds.
 The UI must expose session pause, carried round, pending reconciliation and approval hold distinctly,
-with attempts, limit/reference, next eligible session and unmet restart requirements. Enforcement
+with attempts, opening/current values, round peak/trigger, next eligible session and unmet restart requirements. Enforcement
 and UI remain pending; other counter interactions are unresolved (ADR-0087).
 
 ## Compact Live storage (ADR-0082)

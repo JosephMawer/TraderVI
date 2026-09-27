@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: What raises an AI round's exit trigger as it gains value?
+
+A: Its highest verified portfolio value within that round. At a 5% limit, CAD 10,000 gives a
+CAD 9,500 trigger; a rise to CAD 11,000 raises it to CAD 10,450, which a price decline cannot lower.
+The same round drawdown drives buying allowance; the overall 10% closing-peak guard keeps its
+separate history. Source: ADR-0087. Tags: risk-management, decision-engine.
+
 ### Q: Does AI Momentum ration its monthly budget across trading days?
 
 A: No. Useful reviews and learning share the monthly allowance without daily allocations or future
@@ -69,8 +76,8 @@ failed rounds that day. Source: ADR-0087. Tags: risk-management, decision-engine
 
 A: Each stock's combined buying allowance reduces as losses deepen. Initial buys and additions share that allowance; splitting orders
 cannot bypass it. Shrinking the allowance alone does not force a sale. Allowance follows continuous
-losses and recovery across days; both starting balance and portfolio peak are tracked, with their
-combination and resumption details unresolved. The accepted 5% / 3% / 1% cycle schedule replaces
+losses and recovery across days. The round loss fraction now measures drawdown from its highest
+verified value, initialized at its opening value. The accepted 5% / 3% / 1% cycle schedule replaces
 the earlier fixed 7% pause. Allowance is proportional to the unused fraction of that round's loss
 limit: half the limit lost leaves half the normal allowance. Recovery can restore allowance before
 the limit, but reaching it commits to closure despite a later rebound. Source: ADR-0087.
