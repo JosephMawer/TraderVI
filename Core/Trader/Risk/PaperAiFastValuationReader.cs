@@ -40,7 +40,7 @@ public sealed record AiPaperValuationRead(AiPaperAccountValuation? Valuation, st
 /// <summary>
 /// Reads the owned book, collects prices, and reads the book again. A changed book or any missing,
 /// stale or differently timed price rejects the entire result. No source/account/journal mutations.
-/// Production age limits, persistence, cross-observation continuity and runtime qualification remain host work.
+/// Route preparations through PaperAiFastRiskMonitor for persistence/continuity checks. Runtime qualification remains open.
 /// </summary>
 public sealed class PaperAiFastValuationReader
 {
@@ -48,8 +48,8 @@ public sealed class PaperAiFastValuationReader
     private sealed record Account(string Family, decimal Cash, ImmutableArray<Holding> Holdings,
         ImmutableArray<string> Blocks, string EvidenceJson, string IdentityJson, DateTime ReadStartedUtc,
         DateTime ReadCompletedUtc, Action<DateTime> ValidateAt);
-    private sealed record BookEvidence(string Family, string BookJson, DateTime ReadStartedUtc, DateTime ReadCompletedUtc);
-    private sealed record Evidence(string Contract, Guid PortfolioId, DateOnly TradingDate, DateTime AtUtc,
+    internal sealed record BookEvidence(string Family, string BookJson, DateTime ReadStartedUtc, DateTime ReadCompletedUtc);
+    internal sealed record Evidence(string Contract, Guid PortfolioId, DateOnly TradingDate, DateTime AtUtc,
         DateTime CheckedUtc, DateTime ValidUntilUtc, decimal Cash, decimal HoldingsValue,
         ImmutableArray<string> SavedBlocks, BookEvidence Before, BookEvidence After, AiRiskPriceRead? Prices);
     private sealed class Rejected(string reason) : Exception(reason);
@@ -131,6 +131,7 @@ public sealed class PaperAiFastValuationReader
     }
 
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
+    internal Guid PortfolioId => portfolioId;
 
     public async Task<AiPaperValuationRead> ReadAsync(DateOnly date, CancellationToken ct = default)
     {

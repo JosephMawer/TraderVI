@@ -31,14 +31,14 @@ public static class AiPortfolioPacketBuilder
             throw new InvalidDataException("The current catalogue and unambiguous engine contexts are required.");
         foreach (var entry in catalog.Entries) entry.Validate();
         var current = managedJournal.ReadCurrent();
-        if (!observation.Accepted || observation.Snapshot != current || current.State is not { } state ||
+        if (!observation.Accepted || observation.Snapshot != current || current.SourceBlock is not null || current.State is not { } state ||
             state.PortfolioId != managedJournal.Scope.PortfolioId || state.LastValuation.Source is not { } source ||
             state.LastValuation.At > now || state.LastValuation.ValidUntil <= now ||
             source.Sha256 != Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(source.EvidenceJson))))
             throw new InvalidDataException("Use a fresh accepted observation from this managed account's current risk journal.");
         bool paper = managedJournal.Scope.Mode == AiRiskAccountMode.Paper;
         if (paper ? managedJournal.Scope.AccountScopeId != managedJournal.Scope.PortfolioId ||
-                source.Contract is not (DelphiLiveAiPortfolioRiskMonitor.ValuationContract or SystemShadowAiPortfolioRiskMonitor.ValuationContract)
+                source.Contract is not (DelphiLiveAiPortfolioRiskMonitor.ValuationContract or SystemShadowAiPortfolioRiskMonitor.ValuationContract or AiPaperAccountValuation.Contract)
             : source.Contract != BrokerAiPortfolioRiskMonitor.ValuationContract)
             throw new InvalidDataException("The managed book must use its reviewed paper/live source contract.");
         using var savedBook = JsonDocument.Parse(source.EvidenceJson);

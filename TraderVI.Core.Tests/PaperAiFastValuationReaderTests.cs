@@ -17,7 +17,7 @@ using Xunit;
 
 namespace TraderVI.Core.Tests;
 
-public sealed class PaperAiFastValuationReaderTests
+public sealed partial class PaperAiFastValuationReaderTests
 {
     private static readonly DateOnly Date = new(2026, 9, 28);
     private static readonly DateTime Open = ReviewedTsxSessionCalendar.At(Date, new(9, 30));

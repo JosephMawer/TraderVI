@@ -47,8 +47,12 @@ This does not refresh market evidence or reset risk history/holds (ADR-0087). Na
 mapping/arithmetic is checked; source/freshness/concurrency qualification and cash-flow adjustment remain
 pending. A separate faster paper-value preparer now combines verified cash/holding history with
 actual one-minute prices ending at the same boundary. It rereads the whole account after collection,
-rejects changes and stale/incomplete prices, and carries saved holds and source evidence. It supplies
-no risk permission: durable source continuity/conflict checks and journal handover remain pending.
+rejects changes and stale/incomplete prices, and carries saved holds and source evidence. The faster
+paper monitor now validates continuity and persists qualified values through the shared risk journal.
+An explicit same-account/family source handover preserves the existing round; strategy/account switches
+cannot use it. Repeated prices retain their original expiry. Conflicting accepted minute bars create a
+durable source block across restart without erasing required closure; reviewed recovery remains pending.
+Native source/freshness/host qualification remains required and assessments grant no order authority.
 Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
 fall back. Existing engine valuation semantics are unchanged.
 The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate

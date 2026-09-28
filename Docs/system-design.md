@@ -33,6 +33,13 @@ independent protections. Full-history replay/rewrite is bounded at 32 MB; protec
 backup rollback detection and production host integration remain unqualified. A checksum is not
 tamper-proof storage. Existing overall holds, stock stops and broker/order history stay separate.
 
+`PaperAiFastValuationReader` joins verified paper cash/history to one-minute prices with two complete
+account reads. `PaperAiFastRiskMonitor` revalidates that evidence, checks continuity and persists it
+through the same writer/journal. Its explicit same-family saved-price handover observes the existing
+round without resetting it. Repeated bars retain their first expiry; changed accepted bar contents
+save a durable conflict block in the journal. Shared monitors and AI packet creation honor the block;
+confirmed closure can still be saved. Source-conflict recovery and native operation remain unqualified.
+
 `BrokerAiPortfolioRiskMonitor` connects existing reconciled broker book/no-flow contracts to the
 local journal offline. It validates scope, exact-time holding prices, uninterrupted flow coverage
 and configured evidence age, derives portfolio value and retains canonical source provenance.

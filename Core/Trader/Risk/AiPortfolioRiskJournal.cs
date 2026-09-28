@@ -18,7 +18,10 @@ public sealed record AiRiskCommand(Guid CommandId, long ExpectedRevision, AiRisk
     PortfolioRiskValuation? Valuation = null, AiRoundClosure? Closure = null, AiRoundEntry? Entry = null);
 public sealed record AiRiskTransition(long Revision, DateTimeOffset RecordedAt, AiRiskCommand Command,
     AiPortfolioRiskState State);
-public sealed record AiRiskJournalSnapshot(long Revision, AiPortfolioRiskState? State);
+public sealed record AiRiskJournalSnapshot(long Revision, AiPortfolioRiskState? State)
+{
+    public string? SourceBlock { get; init; }
+}
 
 /// <summary>
 /// Private local history, not execution authority. Explicit initialization and exclusive ownership;
@@ -28,7 +31,13 @@ public sealed record AiRiskJournalSnapshot(long Revision, AiPortfolioRiskState? 
 /// </summary>
 public sealed class AiPortfolioRiskJournal : IDisposable
 {
-    private sealed record History(int Version, AiRiskJournalScope Scope, List<AiRiskTransition> Transitions);
+    private sealed record SourceConflict(long Revision, DateTimeOffset RecordedAt, PortfolioRiskValuationSource Evidence);
+    private sealed record History(int Version, AiRiskJournalScope Scope, List<AiRiskTransition> Transitions)
+    {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public SourceConflict? Conflict { get; set; }
+    }
+    internal const string SourceConflictBlock = "RiskSourceConflictRequiresReview";
     private sealed record Envelope(string Payload, string Sha256);
     private static readonly JsonSerializerOptions Json = new()
     {
@@ -91,6 +100,8 @@ public sealed class AiPortfolioRiskJournal : IDisposable
         {
             var history = Read();
             ArgumentNullException.ThrowIfNull(command);
+            if (history.Conflict is not null && command.Kind != AiRiskTransitionKind.ConfirmClosure)
+                throw new InvalidOperationException("Conflicted source evidence requires reviewed recovery before new risk observations.");
             var existing = history.Transitions.Find(t => t.Command.CommandId == command.CommandId);
             if (existing is not null)
             {
@@ -107,6 +118,22 @@ public sealed class AiPortfolioRiskJournal : IDisposable
             Validate(history);
             Save(history);
             return Snapshot(history);
+        }
+    }
+
+    // Keep a conflicting receipt in the same durable file as the risk history. No automatic clear/reset path.
+    internal void LatchSourceConflict(long expectedRevision, PortfolioRiskValuationSource evidence, DateTimeOffset now)
+    {
+        lock (sync)
+        {
+            var history = Read();
+            if (history.Conflict is not null) return;
+            if (history.Transitions.Count != expectedRevision || now == default ||
+                history.Transitions.Count > 0 && now < history.Transitions[^1].RecordedAt ||
+                evidence.Contract != AiPaperAccountValuation.Contract || evidence.Sha256 != Hash(evidence.EvidenceJson))
+                throw new InvalidOperationException("Conflict evidence must match the current journal and source.");
+            history.Conflict = new(expectedRevision, now, evidence);
+            Save(history);
         }
     }
 
@@ -135,6 +162,11 @@ public sealed class AiPortfolioRiskJournal : IDisposable
     {
         if (history.Version != 1 || history.Scope != scope || history.Transitions is null)
             throw new InvalidDataException("Risk history scope or version does not match.");
+        if (history.Conflict is { } conflict && (conflict.Revision < 0 || conflict.Revision > history.Transitions.Count ||
+            conflict.RecordedAt == default || conflict.Evidence is null ||
+            conflict.Evidence.Contract != AiPaperAccountValuation.Contract ||
+            conflict.Evidence.EvidenceJson is null || conflict.Evidence.Sha256 != Hash(conflict.Evidence.EvidenceJson)))
+            throw new InvalidDataException("Saved source-conflict evidence is invalid.");
         AiPortfolioRiskState? previous = null;
         DateTimeOffset lastAt = default;
         var commands = new HashSet<Guid>();
@@ -147,6 +179,10 @@ public sealed class AiPortfolioRiskJournal : IDisposable
             if (t is null || t.Command is null || t.State is null || t.Revision != i + 1L ||
                 t.Command.ExpectedRevision != i || t.RecordedAt < lastAt || !commands.Add(t.Command.CommandId))
                 throw new InvalidDataException("Risk history ordering is inconsistent.");
+            if (history.Conflict is { } savedConflict &&
+                (i < savedConflict.Revision ? t.RecordedAt > savedConflict.RecordedAt :
+                    t.RecordedAt < savedConflict.RecordedAt || t.Command.Kind != AiRiskTransitionKind.ConfirmClosure))
+                throw new InvalidDataException("Risk history bypasses its saved source conflict.");
             var expected = Execute(previous, t.Command, t.RecordedAt);
             // Only policy-created identifiers are nondeterministic; all financial/lifecycle fields must replay exactly.
             if (t.Command.Kind is AiRiskTransitionKind.Start or AiRiskTransitionKind.BeginNextRound)
@@ -210,7 +246,8 @@ public sealed class AiPortfolioRiskJournal : IDisposable
         knownHash = hash;
     }
 
-    private static AiRiskJournalSnapshot Snapshot(History history) => new(history.Transitions.Count, history.Transitions.LastOrDefault()?.State);
+    private static AiRiskJournalSnapshot Snapshot(History history) => new(history.Transitions.Count, history.Transitions.LastOrDefault()?.State)
+        { SourceBlock = history.Conflict is null ? null : SourceConflictBlock };
     private static string Serialize<T>(T value) => JsonSerializer.Serialize(value, Json);
     private static string Hash(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
     public void Dispose() { lock (sync) { if (disposed) return; disposed = true; lease.Dispose(); } }

@@ -914,8 +914,12 @@ no saved timestamp is rewritten. Serial reads do not qualify production lock dur
 Construction makes no requests. A caller must supply the reviewed calendar, canonical target symbols,
 price/receipt age limits and a bounded request timeout, and retain ownership of its `TmxClient`.
 It returns price evidence and per-symbol outcomes, not a reconciled portfolio valuation. Do not substitute
-it directly for the current paper risk readers: complete-account joining, evidence persistence and
-operating qualification remain pending. No normal app/nightly host invokes it yet.
+it directly for the current paper risk readers. `PaperAiFastValuationReader` now joins the complete
+account and `PaperAiFastRiskMonitor` persists qualified evidence through the existing risk journal;
+the faster overload of `PaperAiPortfolioRiskReader` connects them. Native timing/concurrency and
+operating qualification remain pending. No normal app/nightly host invokes this path yet. A saved
+source conflict blocks new observations across restart and requires reviewed recovery; do not remove
+the journal or initialize a new round to bypass it. Existing account history and protection persist.
 
 `AiRiskReadersSqlTests` reads the installed catalogue and both saved paper risk books using SQL SELECTs.
 It reconciles cash, holdings and saved marks, then exercises valuation and stale/altered-evidence

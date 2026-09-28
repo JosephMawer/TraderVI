@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Faster prices now combine with verified cash and all holdings for both paper-account families in source/tests. The reader rejects changing accounts and missing, stale or differently timed prices, and retains source evidence. Durable risk-journal integration and native qualification are next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The consolidated ten-step checklist tracks the three delivery milestones without duplicate AI task lists.
+**Current record:** September 28, 2026. Combined faster paper-account values now feed the existing risk journal and AI review inputs in source/tests. History continuity, explicit same-account source handover, repeat-price expiry, persistent price-conflict blocks and restart recovery are tested. Native connected-source qualification is next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The consolidated ten-step checklist tracks the three delivery milestones without duplicate AI task lists.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -378,11 +378,10 @@ that boundary reject the value. Quiet stocks with mismatched latest minutes rema
 Cash-only accounts need no market request and must reconcile complete closed history. Saved holds,
 both account reads and original price/receipt times are retained in hashed evidence. Expiry is the
 earliest account/price/receipt/session bound, rechecked after I/O; receipt time cannot renew market time.
-The result is a preparation record, not a risk permission or persisted journal transition. Existing
-rounds/peaks, account balances, stops and engine marks are untouched. Next implement durable source
-conflict detection and history continuity/handover before assessing combined values through the risk
-journal, then qualify native timing/concurrency and operating freshness. No production age limits
-were selected and no schedule or application wiring was enabled.
+The reader returns a preparation record; the subsequent journal integration below now owns its durable
+risk assessment. Account balances, stops and engine marks are untouched. Native timing/concurrency
+and operating freshness remain unqualified. No production age limits were selected and no schedule
+or application wiring was enabled.
 Validation: 163 focused tests pass, including 34 new combined-reader cases and regressions for the
 price adapter, saved readers and both paper risk monitors. Cases cover arithmetic, account ownership,
 missing history/prices, stale/mixed times, changed accounts and intervening trades, slow reads,
@@ -391,6 +390,29 @@ Core/test compilation succeeds; existing CS8632 compiler warnings remain. No fre
 audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No native TMX/SQL operation,
 database mutation, AI/broker call, order, deployment or app restart ran in this increment.
 Evidence: `artifacts/ai-risk-values-20260928/fast-account-tests.log`.
+
+**Combined-value risk journal, September 28 (source/tested only):** `PaperAiFastRiskMonitor` revalidates
+the retained whole-account/price evidence and configured age bounds, then uses the existing shared
+persist-before-assess writer. `PaperAiPortfolioRiskReader` composes collection through that monitor;
+accepted values also feed `AiPortfolioPacketBuilder`. Continuation preserves original capital,
+generation, exact strategy and recorded position/fill history. An explicit same-account, same-family
+handover can adopt the faster source from saved five-minute evidence without replacing the round,
+peak or attempt history; ordinary observation never silently changes source contracts.
+Repeated prices keep the original journal identity and expiry. All previously accepted minute bars
+are checked for changed OHLCV; a conflict is saved in the same journal and blocks further valuations,
+new rounds and usable AI packets across restart. Existing required closure remains latched and its
+reconciliation can still be recorded. No automatic conflict-clear path exists; reviewed operational
+recovery remains Step 7 work. Journals without a conflict retain the prior format; older binaries
+reject the new conflict field rather than silently ignoring its block.
+Validation: 284 focused tests pass, including 24 new journal/packet cases and existing risk-policy,
+broker/paper monitor, saved-reader, price-source, journal and packet regressions. Tests exercise both
+paper families, expiry without renewal, capital/history/strategy replacement rejection, altered evidence,
+explicit handover, sale-to-cash continuity, conflict recovery and preserved exits. Core/test compilation
+succeeds with existing CS8632 compiler warnings; no new warnings remain. No fresh dependency-security
+audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No SQL/TMX operation, database
+change, paid AI/broker call, deployment, app restart or order ran. Test journals use synthetic temporary
+accounts only. Native timing/concurrency, full-session coverage, storage size/retention and production
+freshness remain unqualified. Evidence: `artifacts/ai-risk-values-20260928/fast-risk-journal-tests.log`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

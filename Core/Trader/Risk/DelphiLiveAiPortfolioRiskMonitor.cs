@@ -17,9 +17,9 @@ namespace Core.Trader.Risk;
 public sealed class DelphiLiveAiPortfolioRiskMonitor
 {
     public const string ValuationContract = "DelphiLivePaperExactCheckpointV1";
-    private sealed record Held(Guid PositionId, string Symbol, int Quantity, decimal Cost,
+    internal sealed record Held(Guid PositionId, string Symbol, int Quantity, decimal Cost,
         DateTime OpenedUtc, Guid EntryActionId, DateTime? ClosedUtc, Guid? ExitActionId);
-    private sealed record Source(Guid GenerationId, Guid PolicyVersionId, string Role, PaperComparisonAccount? ComparisonAccount,
+    internal sealed record Source(Guid GenerationId, Guid PolicyVersionId, string Role, PaperComparisonAccount? ComparisonAccount,
         long Revision, decimal StartingCapital, DateTime UpdatedUtc, decimal Cash,
         ImmutableArray<Held> Positions, ImmutableArray<DelphiLiveLedgerFill> Fills, DelphiLiveLedgerMark Mark);
     private readonly AiRiskJournalScope scope;

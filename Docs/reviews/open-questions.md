@@ -18,6 +18,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Qualified data/cash-flow inputs, complete risk adapters, production
   storage/retention/backup qualification and execution/host connection remain unfinished.
 
+- **Faster-source recovery (September 28):** combined paper values now have tested journal continuity,
+  explicit same-family source handover and durable repeated-bar conflict blocking. Define/qualify the
+  operational reconciliation and audited release of a saved source conflict before host rollout.
+  Never clear it by deleting risk history or resetting a round. Native timing/coverage and storage
+  retention/performance remain Step 3/7 dependencies.
+
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous
   rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.

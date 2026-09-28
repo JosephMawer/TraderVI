@@ -196,10 +196,26 @@ after that boundary. Differing latest minutes remain unavailable; no inferred no
 Cash-only accounts reconcile original capital and closed history without requesting market prices.
 Retain both reads, actual bar/receipt times, cash, calculated holdings value and holds in hashed source
 evidence. Expiry is bounded by the earliest account, market-price, receipt or session limit; no operating
-age defaults are selected. This is a prepared value, not a `PortfolioRiskValuation` or journal write.
-Durable repeated-bar conflict handling, cross-observation capital/history continuity and handover to
-the existing risk journal remain required before risk assessment. Existing engine marks, account records,
-rounds, peaks and stops are unchanged. Native concurrency/feed qualification and scheduling remain open.
+age defaults are selected. This reader produces a prepared value; the subsequent source increment
+below connects it to risk assessment. Existing engine marks, account records and stops are unchanged.
+Native concurrency/feed qualification and scheduling remain open.
+
+**Durable faster-value integration — September 28 implementation:** `PaperAiFastRiskMonitor` rechecks
+the complete retained evidence, ownership, arithmetic, source holds and explicit age bounds before
+using the shared journal writer. Preserve generation, fixed capital, exact strategy and completed
+position/fill history between observations. The explicit `Handover` operation permits transition from
+the same paper family's saved-price contract only after those continuity checks; it observes the
+existing round rather than initializing another. It does not implement strategy switching or broker
+cash-flow handling. Repeated market time with an unchanged book retains the first journal value,
+identity and expiry; a newer fetch cannot refresh it. Compare selected minute-bar contents against all
+accepted faster-source history, including earlier rounds and after restart. A changed bar saves its
+conflicting evidence alongside the risk history and exposes `RiskSourceConflictRequiresReview`.
+All shared monitors and the packet builder respect that block. It prevents new valuations/rounds and
+usable review packets while preserving already-required closure and allowing confirmed closure to be
+recorded. Recovery cannot automatically clear it; source reconciliation and an audited release path
+remain operational work. Missing/corrupt/pending storage still fails closed. The normal faster reader
+composition now writes accepted values and their evidence before returning an assessment. This is
+offline-tested integration, not native source qualification, a running host or execution authority.
 
 `AiPortfolioCatalogRepository` now reads maintained account choices and exact complete definitions:
 daily strategy/model identity, policy, position count, gate profile and implementation identity. Fixed

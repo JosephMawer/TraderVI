@@ -28,6 +28,8 @@ internal sealed class AiPortfolioRiskObservationWriter(AiPortfolioRiskJournal jo
             PortfolioRiskValuation value;
             try
             {
+                if (current.SourceBlock is not null)
+                    throw new InvalidOperationException("Saved source conflict requires reviewed recovery.");
                 if (initialize != (current.State is null))
                     throw new InvalidOperationException("Explicit initialization and an existing round cannot be interchanged.");
                 value = qualify(current.State?.LastValuation);
@@ -62,6 +64,7 @@ internal sealed class AiPortfolioRiskObservationWriter(AiPortfolioRiskJournal jo
     private AiRiskObservationResult Result(AiRiskJournalSnapshot snapshot, bool accepted, bool advanced,
         DateTimeOffset now, bool hasFreshAiReview, ImmutableArray<string> blocks)
     {
+        if (snapshot.SourceBlock is { } sourceBlock) blocks = blocks.Add(sourceBlock);
         var assessment = snapshot.State is { } state
             ? policy.Assess(state, now, hasFreshAiReview, blocks)
             : new PortfolioRiskAssessment(PortfolioRiskProfile.AiContinuousRounds, 0m, false,

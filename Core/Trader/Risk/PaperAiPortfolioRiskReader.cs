@@ -13,10 +13,25 @@ public interface ISystemShadowRiskReader
         CancellationToken cancellationToken = default);
 }
 
-/// <summary>Reads saved paper records and persists qualified risk checks. No collection, model or order calls.</summary>
+/// <summary>Persists qualified paper risk checks. The explicit faster-source overload collects prices; no model or order calls.</summary>
 public sealed class PaperAiPortfolioRiskReader
 {
     private readonly Func<DateOnly, bool, bool, ImmutableArray<string>, CancellationToken, Task<AiRiskObservationResult>> read;
+
+    public PaperAiPortfolioRiskReader(PaperAiFastValuationReader source, PaperAiFastRiskMonitor monitor, TimeProvider? clock = null)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(monitor);
+        if (source.PortfolioId != monitor.PortfolioId) throw new ArgumentException("Reader and journal must own the same paper account.");
+        clock ??= TimeProvider.System;
+        read = async (date, initialize, reviewed, blocks, ct) =>
+        {
+            var result = await source.ReadAsync(date, ct);
+            ct.ThrowIfCancellationRequested();
+            var now = clock.GetUtcNow();
+            return initialize ? monitor.Start(result.Valuation, now, reviewed, blocks) : monitor.Observe(result.Valuation, now, reviewed, blocks);
+        };
+    }
 
     public PaperAiPortfolioRiskReader(IDelphiLivePortfolioReader source, DelphiLiveAiPortfolioRiskMonitor monitor,
         TimeProvider? clock = null)

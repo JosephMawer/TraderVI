@@ -137,7 +137,8 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status.md#latest-operational-evidence).
    - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
    - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
-   - [ ] Save combined evidence through the risk journal and qualify connected freshness, coverage and recovery.
+   - [x] Save combined values through the risk journal; test history preservation, explicit source handover, repeat prices, lasting conflict blocks and restart recovery.
+   - [ ] Verify the connected path against real paper-account reads and market prices; qualify freshness, coverage and recovery before scheduling it.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
@@ -174,7 +175,7 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [ ] Schedule session-start, mid-session and pre-close reviews, plus adaptive one-to-fifteen-minute and event-driven reviews.
    - [ ] Combine nearby events; preserve the one-minute review minimum and keep protection independent of paid reviews.
    - [ ] Handle outages, exhausted budgets and restart recovery; resume new risk only after fresh review and all other checks.
-   - [ ] Protect storage and qualify backups, retention, performance and concurrent access; schedule restart-safe learning reviews.
+   - [ ] Protect storage and qualify backups, retention, performance, concurrent access and reviewed source-conflict recovery; schedule restart-safe learning reviews.
    - [ ] Support explicit budget increases without resetting spending; remove the current cap restriction only through that reviewed flow.
    - [ ] Verify API access, latency and actual costs through a bounded separately authorized call, including currency/tax headroom.
 
