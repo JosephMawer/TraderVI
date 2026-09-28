@@ -98,8 +98,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
    journals, learning consultation and execution-preparation checks. This is reusable Core source,
    not an operating AI portfolio. Dated validation is in project status.
-2. **Operating contract — core framework agreed; two feature follow-ups.** The remaining choices are
-   portfolio eligibility and evaluated-lesson admission criteria, before those features are enabled.
+2. **Operating contract — framework and portfolio scope agreed; learning criteria remain.**
+   All current strategy portfolios, including position-count and daily-gate variants, are AI choices;
+   expand the catalogue as additional portfolios are built and integrated (ADR-0087). Evaluated-lesson
+   admission criteria remain to be decided before automatic lessons are enabled.
    Map concrete discretionary/hard rules during implementation; only genuine ambiguities need another
    decision. The agreed contract below is sufficient to build; retain all remaining integration work.
    Specify hard limits, the decreasing risk scale, profit protection,
@@ -152,13 +154,17 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
    Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
    reconcile other AI-managed exits before replacements, preserve round/risk state and log the reason.
-   The eligible strategy set and compatibility mapping still need qualification.
+   Scope is agreed; catalogue/version mapping, compatibility and adapter coverage still need
+   implementation and qualification across all current variants.
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
 3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
+   Map all current strategy portfolios and their gate/position-count variants from the maintained
+   catalogue; preserve exact identities and expose unsupported choices with reasons. Support future
+   integrated additions without a fixed list or count.
    Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
    cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
    Qualify confirmed effective cash events and matched before/after books under ADR-0083; a net
@@ -260,8 +266,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 
 - [ ] **AI Momentum integration (September 26):** complete
   [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) by defining exact adaptive protection,
-  profit giveback, portfolio eligibility/handover and evaluated learning. Build authoritative packet
-  adapters, durable domain dispositions and the paper/live host contract. Qualify Astra access/billing,
+  profit giveback and evaluated learning, and implementing agreed catalogue selection/handover.
+  Build authoritative packet adapters, durable domain dispositions and the paper/live host contract. Qualify Astra access/billing,
   review expiring FX/tax bounds and install one protected shared spending journal for all model roles.
   The library defaults to CAD 90 and rejects ceilings at or above CAD 100; it is not operational.
   Continuous protection, outage handling and decision cadence remain host work. AI Explorer is deferred.

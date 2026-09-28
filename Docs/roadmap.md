@@ -25,16 +25,17 @@ in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-bounda
 discretion, enforced boundaries, reducing risk as losses deepen and no loosening stops to prolong
 losing trades. The first API client, shared spending journal and portfolio-proposal contract are
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
-access remains an alternative. Proceed with implementation of the agreed framework. Portfolio
-eligibility and evaluated-lesson admission remain two feature follow-ups; concrete rule mapping,
+access remains an alternative. Proceed with implementation of the agreed framework. Portfolio scope
+includes all current strategy portfolios and their variants, expanding as new portfolios are built
+and integrated (ADR-0087). Evaluated-lesson admission remains a feature decision; concrete rule mapping,
 authoritative packet adapters and production budget/storage configuration are implementation work.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 one post-session learning review is now agreed alongside intraday saved-lesson consultation.
 Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
-Step 1 is complete offline; Step 2's core framework is agreed with two feature follow-ups. Step 4
-has begun with the tested offline continuous-round risk core, shared assessment contract and scoped
+Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with learning criteria
+open. Step 4 has begun with the tested offline continuous-round risk core, shared assessment contract and scoped
 local transition journal/recovery. Step 7 storage/host qualification remains pending.
 Next connect qualified inputs and existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
@@ -71,8 +72,9 @@ reconciled opening capital, with any earlier previews labelled estimates (ADR-00
 Per-stock protection reuses engine settings: AI may tighten stops or sell earlier but never loosen
 or remove established stops. Record blocked alternatives for evaluated learning; enforce boundaries
 in code. Initial switching behavior is agreed: retain compatible holdings/protection, reconcile
-required exits before replacements and preserve round/risk history. Eligibility and Step 5 integration
-remain pending. Stop/action enforcement remains Step 4 and outcome comparison Step 6 work. Keep the MVP focus and
+required exits before replacements and preserve round/risk history. Catalogue mapping and Step 5 integration
+remain pending. Add further portfolio choices over time; their designs/order remain future work.
+Stop/action enforcement remains Step 4 and outcome comparison Step 6 work. Keep the MVP focus and
 one necessary decision at a time. The sequence includes
 data/decision/execution integration, learning, host/UI, paper validation and native live qualification.
 Integrate and qualify the client and independent protective host before enabling any paper/live actions.

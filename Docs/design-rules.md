@@ -204,6 +204,10 @@ stop, never loosen/remove it, including a prior AI-tightened stop. Enforce this 
 and recheck current protection at execution. Record desired relaxations separately as blocked,
 non-executable learning hypotheses with evidence and actual outcomes; later comparisons must label
 simulated outcomes and cannot change hard boundaries. Stock-level integration/evaluation remain pending.
+AI Momentum's selection scope includes all current strategy portfolios and their position-count/gate
+variants, with further choices as new portfolios are built and integrated (ADR-0087). Preserve exact
+portfolio/strategy/policy identities; catalogue membership does not prove adapter readiness or grant
+execution authority. Switching retains the existing protection, round history and independent holds.
 Reuse existing position trailing protection;
 it does not itself implement portfolio-wide AI allowance recovery. Implementation is pending; this design does
 not change existing engine execution or authorize resetting loss history.

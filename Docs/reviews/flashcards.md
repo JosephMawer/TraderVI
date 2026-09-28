@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Which portfolios may AI Momentum choose?
+
+A: All current strategy portfolios, including position-count and daily-gate variants. The catalogue
+expands as new portfolios are built and integrated. Each choice retains its exact rules/version and
+needs qualified adapters and current checks before executable use; switching preserves risk history.
+Source: ADR-0087. Tags: architecture, risk-management.
+
 ### Q: Does the tested AI round core mean the AI portfolio can trade yet?
 
 A: No. It calculates round transitions from qualified synthetic inputs and produces risk assessments.

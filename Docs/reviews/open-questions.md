@@ -7,9 +7,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **Step 2 checkpoint (September 27):** core framework is sufficient to implement. Two feature
-  follow-ups remain: eligible portfolio set and evaluated-lesson admission criteria. Resolve them
-  before enabling selection/automatic lessons; they do not block offline risk code. Discretion is
+- **Step 2 checkpoint (September 27):** core framework and portfolio scope are agreed. All current
+  strategy portfolios, including gate/position-count variants, are AI choices; expand the catalogue
+  as new portfolios are built and integrated (ADR-0087). Lesson admission remains a feature decision
+  before automatic lessons; it does not block offline risk code. Discretion is
   already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
   Step 4 now has a tested offline continuous-round core and scoped local transition journal with
   replay-validated recovery. Qualified data/cash-flow inputs, complete risk adapters, production
@@ -21,7 +22,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Preserve independent controls, existing holds and separate paper/live state. Engines supply
   versioned signals/rules; AI proposes actions; execution rechecks permission. Focused extraction,
   saved-hold transition integration and regression validation remain pending. The remaining
-  eligible strategy set and lesson admission need feature decisions; concrete rule mapping is
+  lesson admission needs a feature decision; catalogue mapping and concrete rule mapping are
   implementation work under the already agreed discretion boundary.
 
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
@@ -143,7 +144,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   monitor alternatives and switch in real time. Initial handover is agreed: retain mutually permitted
   holdings/stops, sell other AI-managed holdings and confirm/reconcile required exits before replacements.
   Preserve round reference/peak/limit, attempts and independent holds, including all-cash transitions;
-  log why the AI switched. Define the eligible set and compatibility mapping, and implement durable
+  log why the AI switched. Map the agreed whole catalogue and holding compatibility, and implement durable
   handover/recovery before activation. Separate agents/conversations are a hypothesis, not yet chosen.
 - **Learning mandate:** self-improvement is integral; define recorded lessons, evaluation and versioned
   changes without permitting risk-boundary or budget overrides. Model training and self-editing are not
@@ -162,7 +163,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Set exact post-close/refresh timing and missed-review handling, implement lesson qualification and
   expiry policy, and qualify host handling of stale/unavailable learning. Preparation fails closed;
   local consultation needs no model call and has no connection to protective handling.
-- **Next discussion, one topic at a time:** portfolio selection/switching, then learning; subsequently
+- **Future portfolio expansion:** additional portfolios should broaden the AI's choices. Specific
+  designs and development order are deferred; this does not delay Step 3 valuation integration.
+  Preserve exact strategy/gate versions and qualify each adapter before executable use (ADR-0087).
+- **Next feature discussion, when needed:** evaluated-lesson admission; subsequently
   finish remaining rule/lifecycle and learning qualification decisions,
   production data access, missing-data/model-outage behavior and durable proposal dispositions.
   ADR-0087 records the implemented client/audit/proposal foundation and remaining dependencies.

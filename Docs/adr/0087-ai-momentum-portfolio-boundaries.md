@@ -80,10 +80,11 @@ during implementation and escalate only genuine ambiguities.
 
 ## Implementation checkpoint — September 27
 
-Step 2 has enough agreed framework to proceed with code. The remaining feature decisions are the
-eligible portfolio set and evaluated-lesson admission criteria; resolve these before enabling their
-respective features. Do not reopen ordinary-rule discretion. Data/feed qualification, concrete
-rule mapping, storage and execution wiring are implementation dependencies, not additional broad
+Step 2 has enough agreed framework to proceed with code. Portfolio eligibility is now agreed below:
+all current strategy portfolios, expanding as more are built and integrated. Evaluated-lesson
+admission remains a decision before automatic lessons are enabled. Do not reopen ordinary-rule
+discretion. Data/feed qualification, concrete rule mapping, storage and execution wiring are
+implementation dependencies, not additional broad
 design interviews. Step 4 now has an offline risk-core increment while Step 3 adapters remain pending.
 
 `Core/Trader/Risk/PortfolioRiskAssessment.cs` establishes the shared output contract and explicit
@@ -460,11 +461,39 @@ existing execution checks and supported engine contracts; changing AI context is
 Log the outgoing/incoming portfolio versions, reason for switching, retained/exited holdings and
 handover outcome. The accepted unavailable-review fallback still blocks new switches.
 
-The exact eligible strategy set, rule-to-holding compatibility mapping and execution adapters remain
-to be qualified. This decision does not supersede manual policy-edit pause/empty rules or broaden
+The catalogue scope is now agreed below; rule-to-holding compatibility mapping and execution adapters
+remain to be qualified. This decision does not supersede manual policy-edit pause/empty rules or broaden
 management authority to unrelated manual holdings. Existing source provides handover foundations;
 automatic AI strategy replacement is not implemented or activated. Integration and offline recovery
 validation remain Step 5 work; no broker, database, assignment or runtime change ran here.
+
+### Portfolio eligibility and catalogue growth — September 27 decision
+
+The immediate question is which portfolios the AI may select. The parent problem is giving AI
+Momentum strategy choices while preserving their rules and protection; the root goal remains
+auditable paper management and deliberate adoption for the permanent TFSA.
+
+The operator accepts all current strategy portfolios in the Portfolios comparison catalogue as
+AI Momentum choices, including position-count and daily-gate variants. The supplied screen reports
+15 paper portfolios; this is a screen observation, not a fixed limit or a complete enumeration of
+their identities. Do not restrict scope to a preferred subset or the initial Breakout candidate.
+Map each choice to its actual portfolio, strategy version, gate profile and engine contract;
+similar display names do not make variants interchangeable.
+
+The operator wants more portfolios developed over time to expand the AI's choices. Use the maintained
+strategy catalogue rather than hard-coding today's list or count. Include new portfolios as they are
+built and integrated under the same selection and protection contract. Specific new designs and
+development order remain future work; the AI is not authorized to create strategies or edit rules itself.
+
+Catalogue scope is agreed; adapter coverage is not yet implemented or qualified. Implementation must
+surface unsupported choices and their reasons until their evidence, compatibility and execution
+adapters are ready. Every selection still needs current data/account/order checks. Every switch
+preserves the agreed holdings/protection handover, continuous round history and independent holds.
+Paper histories remain separate from the managed account; selection does not authorize live activation.
+
+This resolves portfolio eligibility in Step 2. Steps 3/5 own mapping and integration across all current
+variants, followed by connected paper validation and native live qualification in Steps 9/10.
+Evaluated-lesson admission remains open. This is agreement only; no runtime or assignment changed.
 
 ### Cumulative review and visible thresholds — September 27 decision
 
@@ -822,8 +851,8 @@ context, exercises discretion inside that context, monitors alternatives and may
 This changes the proposed role from only picking stocks to managing strategy selection. A portfolio
 instance, its rule set and its execution engine are related but distinct existing contracts; do not
 treat switching as merely changing a prompt. The open-holdings switching decision above now defines
-the initial handover behavior; eligibility, the authorized strategy set and adapter qualification
-remain open under ADR-0085/0086.
+the initial handover behavior. The catalogue decision above admits all current strategy portfolios
+and future integrated additions; adapter qualification remains pending under ADR-0085/0086.
 
 Self-improvement is a requested integral mandate. Define persistent lessons, outcome evaluation and
 versioned strategy changes; no model-weight training, self-editing code, risk-boundary changes or
