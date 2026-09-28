@@ -50,7 +50,8 @@ a fresh Live cycle are verified. The Shadow risk reader now preserves the same l
 as the decision reader. Current cash-only Shadow reads now carry checked transaction timestamps;
 held prices retain their original freshness limits. Saved price timing is now measured: current
 five-minute collection has multi-minute delay and gaps, so one-minute coverage remains unqualified.
-Next qualify a faster held-stock source with a bounded separately authorized provider check, resolve collection gaps,
+An initial authorized one-minute XIU probe now shows fresh advancing prices but persistent history gaps;
+it does not qualify held-stock coverage. Next check held stocks and missing-minute semantics, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.

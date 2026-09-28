@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Stock-price freshness is measured, but one-minute coverage is not qualified: saved five-minute prices arrive several minutes after their bar ends, and collection gaps remain. All 15 paper values still reconcile in the 12:55 read; the three invested values are about 5 minutes 39 seconds old. Current cash-only Shadow verification is built/tested; the AI host remains unfinished. The alias repair remains installed with source adoption recovered. The ten-step checklist now uses concise, individually marked subpoints.
+**Current record:** September 28, 2026. The initial TMX one-minute XIU check returned a new completed price on all five polls, about 10–11 seconds old, without observed completed-bar changes. Two historical minutes remained missing; held-stock coverage and production eligibility are not qualified. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the AI host remains unfinished. The alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -25,6 +25,7 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
+| Candidate one-minute price source | Sep 28, 13:13–13:17 Toronto | Authorized read-only XIU probe completed five requests/transport attempts, one per minute. Latest completed prices were 10.069–10.582 seconds old at receipt; all four subsequent polls advanced exactly one minute. Zero revisions/disappearances across 38 repeated completed-bar comparisons. Two requested historical minutes were absent throughout (8/10 completed minutes initially, 12/14 finally); cause is not established. Forming bars were excluded. This small benchmark sample does not qualify held stocks, continuous age bounds, publication latency before the poll, or production freshness limits. No SQL/account/risk/order writes or app restart. Evidence: `artifacts/ai-risk-values-20260928/one-minute-native.log`. |
 | AI stock-price freshness | Sep 28, SQL 12:40 and 12:56; account reads 12:55 | At 12:40, successful V3 five-minute receipts in the preceding hour arrived 144.722–158.396 seconds after bar end. The 12:55 risk-reader check reconciles all 15 books; two invested Shadow values are 338.3–338.4 seconds old and one Live value is 339.5 seconds old. None is within 60 seconds; this is a diagnostic comparison, not a newly approved production limit. Current sources do not establish one-minute coverage. The 12:56 window includes 378 usable mature Live slots, 23 without completed bars and nine failed slots; one cycle was cancelled with completion code `Failed`, leaving eight unfinished slots. Its underlying exception is not established by these receipts. The session retains `Blocked`/`HostGapObserved`; twelve V2 fifteen-minute receipts also report `CompletedBarConflict`. No external collection, SQL writes or restart. Evidence: `artifacts/ai-risk-values-20260928/price-freshness-*`. |
 | AI paper risk-value readers | Sep 28, native reads 11:47 | All 12 Shadow and three Live books map and reconcile cash/holdings/prices; none is missing. Ten Shadow cash-only books carry current transaction verification receipts; two invested Shadow books and one invested Live book retain price/checkpoint evidence. All 15 meet the diagnostic ten-minute age/session check. Altered cash, wrong account, missing/incomplete marks and expired-value allowance are rejected in memory. This is a bounded reader check, not production feed or recurring host qualification. No SQL/journal writes, AI calls, broker calls or app restart were performed. Evidence: `artifacts/ai-risk-values-20260928/cash-verification-native.log`. |
 | Live symbol-alias repair / comparison adoption | Sep 28, installation 11:17; SQL through 11:22; native readers 11:23 | Authorized migration 041 installed after a checksum-verified 1,121.07 MB COPY_ONLY backup and SHA-256-matching local copy in the OneDrive folder; cloud synchronization and a restore drill were not verified. Before/after counts and content hashes match across eight checked account/history tables. Restarted PID 32308 is responsive and loaded Core/WPF hashes match source build `8106499a`. Today's session froze successfully, canonical tracked membership exists while the original position symbol remains unchanged, all eight comparison Shadow sessions are Active with adopted sources, and all three Live ledgers have today's session. The common source became effective at 11:20; a fresh Live cycle completed at 11:22:26 and saved evaluations/ledger updates. Coverage remains Blocked with HostGapObserved; missed intervals were not backfilled as valid observations. The final native AI reader test passes for 12 Shadow and three Live contexts; none grants a selectable proposal. Private receipts: `artifacts/symbol-alias-install-20260928/`; earlier diagnosis: `artifacts/ai-source-investigation-20260928/`. |
@@ -254,7 +255,7 @@ suite or full-solution/SQL rebuild was performed. No schema changed. Evidence: p
 `cash-verification-wpf-build.log`; earlier baseline: `native-final.log`).
 Changes are compiled/tested in source; this increment did not replace/restart the normal desktop or
 connect the unfinished AI runtime. No external service, database mutation or production risk-journal write ran.
-Stock-price timing is now measured below; next qualify a faster held-stock source and wire recurring risk observations into the AI paper host;
+Stock-price timing and the initial faster-source sample are now measured below; next qualify held-stock coverage and wire recurring risk observations into the AI paper host;
 broker cash events remain a separate dependency. Preserve the tested stale-input rejection.
 Transaction concurrency/lock duration and full source coverage remain unqualified.
 
@@ -271,13 +272,27 @@ The TMX client accepts one-minute requests, but saved evidence validation/storag
 and fifteen-minute bars, and both paper risk readers require five-minute evidence. The existing quote
 adapter exposes request/receipt time without a market event timestamp. Neither is a qualified faster
 valuation source. The August 26 one-minute comparison already recorded gaps (calibration checklist);
-it is historical evidence, not current held-symbol qualification. Next prepare a bounded fresh
-one-minute provider check, then choose collection/storage integration from measured coverage. External
-requests require separate authorization. Investigate missing bars, the failed Live cycle and V2
+it is historical evidence, not current held-symbol qualification. The new one-minute sample below
+measures current benchmark availability. Investigate missing bars, the failed Live cycle and V2
 completed-bar conflicts before claiming reliable operation; no ordinary engine timing or price rules changed.
 Validation: 40 focused reader tests pass; the opt-in native check passes separately and SQL diagnostics
 execute successfully. Core/test compilation has existing CS8632 warnings. No new WPF/full-solution
 build or dependency-security audit was needed/run for this diagnostics/documentation-only increment.
+
+**Candidate one-minute source, September 28:** the bounded `tmx-one-minute-freshness` probe uses the
+existing client and reviewed calendar, with five XIU requests at one-minute spacing and explicit
+timeouts/retry bounds. It reports missing head/interior/tail minutes, completed-bar revisions and
+disappearances, excludes forming/out-of-window bars and stops on provider failure. The authorized
+13:13–13:17 sample shows advancing prices about 10–11 seconds old with five transport attempts and no
+completed-bar changes. Two historical minutes remain absent; the probe cannot distinguish no-trade
+minutes from missing provider data. Ages are measured at polls, not a guarantee that the saved price
+stays under a minute old between polls. This is an initial benchmark screen, not a selected operating
+freshness policy or permission to replace engine bars. Next repeat bounded checks for held stocks and
+resolve missing-minute semantics before implementing one-minute valuation collection/storage.
+Four offline diagnostic tests pass; Sandbox build succeeds with 261 existing CS8632 warnings. The
+sandboxed restore could not reach NuGet; the authorized restore/build succeeded. No dependency-security
+audit (`NuGetAudit=false`), full Core suite, WPF/full-solution build, database operation, AI/broker call,
+order or app restart ran. Receipts and validation: `artifacts/ai-risk-values-20260928/one-minute-*`.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.
 Before repair, the read-only investigation identified those eight accounts as both fixed gate profiles of

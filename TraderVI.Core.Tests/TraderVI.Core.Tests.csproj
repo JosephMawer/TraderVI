@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <Compile Include="..\Sandbox\Probes\IProbe.cs" Link="Diagnostics\IProbe.cs" />
+    <Compile Include="..\Sandbox\Probes\TmxOneMinuteFreshnessProbe.cs" Link="Diagnostics\TmxOneMinuteFreshnessProbe.cs" />
     <None Include="..\TraderDB\dbo\Tables\BrokerManagedSessionRevision.sql" Link="SqlRehearsal\BrokerManagedSessionRevision.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\TraderDB\dbo\Triggers\BrokerManagedSessionRevision_Immutable.sql" Link="SqlRehearsal\BrokerManagedSessionRevision_Immutable.sql" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />

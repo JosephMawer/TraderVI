@@ -117,7 +117,9 @@ This checklist grants no deployment, paid API call or live-order authority.
    - [x] Verify saved cash, holdings and calculated values across all 15 installed paper portfolios.
    - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
    - [x] Measure saved stock-price freshness: five-minute evidence has multi-minute delay; **one-minute coverage is not qualified**.
-   - [ ] Qualify a faster price source and resolve failed/missing collection coverage; never make old prices look fresh.
+   - [x] Run the initial one-minute TMX benchmark check: fresh advancing prices, with two historical minutes missing.
+   - [ ] Verify one-minute prices for held stocks and explain missing minutes before connecting the faster source.
+   - [ ] Resolve failed/missing collection coverage; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify consistent reads while accounts change, and qualify broker cash events with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
 

@@ -945,6 +945,26 @@ These samples do not establish continuous coverage, prove every expected slot ex
 a production freshness limit. Existing five-minute collection and quote receipt timestamps cannot
 establish one-minute protection. Inspect failed/missing slots and source conflicts as well as successful reads.
 
+The explicitly invoked `tmx-one-minute-freshness` Sandbox probe measures the candidate faster source:
+
+```powershell
+dotnet run --project Sandbox -- tmx-one-minute-freshness
+```
+
+This requires authorization for external TMX access. It reads the configured reviewed calendar,
+then makes five XIU one-minute requests spaced one minute apart, approximately ten seconds past each
+minute. Each call has a 25-second timeout and the existing three-attempt transport cap (15 attempts
+maximum overall). It requires ten minutes of session history and five minutes before close. Provider
+failure stops the sequence. Output reports timestamps, ages, missing minutes and revisions/disappearances
+of previously completed bars. Forming bars are excluded, and missing beginning/tail minutes count too.
+It opens no SQL connection and writes no account, risk journal or order; console output may be saved
+privately for evidence. This is a benchmark sample, not held-stock coverage, production eligibility or
+approval of an operating freshness threshold. Tests of the probe's calculations make no external calls:
+
+```powershell
+dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter FullyQualifiedName~TmxOneMinuteFreshnessProbeTests
+```
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
