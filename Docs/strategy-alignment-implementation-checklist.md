@@ -155,12 +155,12 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
    Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
    reconcile other AI-managed exits before replacements, preserve round/risk state and log the reason.
-   Scope is agreed; catalogue/version mapping, compatibility and adapter coverage still need
-   implementation and qualification across all current variants.
+   Scope is agreed and catalogue/version mapping exists offline. Compatibility/execution adapters
+   and native coverage still need implementation and qualification across current variants.
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, valuation adapters and paper saved-record connection offline.**
+3. **Connect authoritative data — in progress, saved records/catalogue/packet construction offline.**
    Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
    books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
    saved engine holds and required closure persist without an AI call. Both paper families and
@@ -168,14 +168,17 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Paper readers are connected in source: Delphi Live reuses complete snapshots; Daily Shadow reads
    its full book, assigned/fixed rules and saved source bars in one read-only SQL transaction.
    Offline tests cover read-to-risk behavior; native SQL mapping/concurrency remains unverified.
-   Next build catalogue/decision packets and qualify SQL reads/live feed/freshness/cash events. This is not connected
+   The maintained catalogue now maps exact daily/model/policy/gate identities; incomplete choices stay
+   visible with reasons. The packet builder joins choices to the managed account's accepted saved risk
+   observation, preserves source/time identity and requires fresh matching engine context for selection.
+   Next connect saved engine signals/rules and performance context, then qualify SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
-   Map all current strategy portfolios and their gate/position-count variants from the maintained
-   catalogue; preserve exact identities and expose unsupported choices with reasons. Support future
-   integrated additions without a fixed list or count.
+   Catalogue construction covers the current families and gate/position-count identities in source;
+   verify every installed account/version through native reads before claiming operational coverage.
+   Future integrated additions use the maintained catalogue without a fixed current list/count.
    Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
    cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
    Qualify confirmed effective cash events and matched before/after books under ADR-0083; a net

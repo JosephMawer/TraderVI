@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does choosing another paper portfolio give AI Momentum that portfolio's money?
+
+A: No. The choice supplies strategy rules and their exact version. The AI's cash, holdings and loss
+history still come from its own managed account. A review packet keeps those two sources separate.
+Source: ADR-0087. Tags: architecture, risk-management.
+
 ### Q: Why read a paper portfolio's cash and holdings together?
 
 A: A trade changes both. Reading them separately could combine cash from before the trade with

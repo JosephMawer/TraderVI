@@ -171,8 +171,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Deferred at the operator's request (September 27):** leave lesson criteria open-ended for now.
   Revisit only when relevant to learning implementation; continue data, risk and execution work.
   No qualification thresholds are chosen and no automatic hypothesis-to-lesson promotion is enabled.
-- **Next implementation:** portfolio catalogue/decision packets from saved context, then native SQL
-  reader and production data qualification; retain missing-data/model-outage handling and durable proposal dispositions.
+- **Next implementation:** saved engine signal/rule/performance adapters for the now-implemented
+  catalogue/packet builder, then native SQL and production data qualification. Verify prompt size/cost
+  against complete saved account evidence; retain missing-data/model-outage handling and durable proposal dispositions.
   ADR-0087 records the implemented client/audit/proposal foundation and remaining dependencies.
   No real model calls, broker operations or activation have run.
 

@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. AI risk core, journal, valuation adapters and paper saved-record reader connection implemented in source; 222 offline tests pass. Native SQL/feed qualification and engine/host integration remain pending.
+**Current record:** September 27, 2026. AI saved-record/risk connection, maintained portfolio catalogue and review-packet builder implemented in source; 313 offline tests pass and the Release desktop builds. Native SQL/feed qualification and engine/host integration remain pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -154,26 +154,42 @@ retains stable evidence identity and saved timestamps across reads. Missing/inva
 new risk; source errors and cancellation propagate without initializing/resetting a round. Freshness
 is checked after I/O. No host is scheduled and no market collection is introduced.
 
-Validation with .NET SDK 10.0.401: **222 tests passed, zero failures/skips**: the prior 69 risk/broker
-cases, 75 paper-adapter cases, 28 saved-reader cases and 50 existing paper policy/action/display/gate regressions.
+`AiPortfolioCatalogRepository` now reads the maintained Shadow/Delphi Live accounts, including fixed
+gate variants, with exact daily/model/policy/implementation identities. It reads definitions only;
+no model files or candidate account balances are included. Missing/inconsistent definitions remain
+visible as unavailable choices. There is no fixed 15-account list. `AiPortfolioPacketBuilder` combines
+these choices with a fresh accepted observation from the managed account's current journal. It
+preserves source evidence and risk history, requires matching fresh engine context for selectable
+choices, bounds packet expiry by its inputs, and accepts no unknown active assignment or conflicting
+identities. Missing AI review can prompt a proposal; other saved holds cannot be bypassed. Packets
+use the existing reviewer/learning contract and confer no execution authority.
+
+Validation with .NET SDK 10.0.401: **313 tests passed, zero failures/skips**: the prior 222 risk,
+reader and paper regression cases, 28 new catalogue/packet cases, and 63 existing AI client/reviewer/
+learning cases added to this run.
 Coverage includes both paper families and gate variants, every-holding freshness, source/quantity/cash
 conflicts, saved holds, cash exits, next-session continuity, restart, source-family substitution and
 unavailable storage. Reader tests use synthetic saved books/fake read interfaces and cover pinned
 rules, stable retries, cash history, slow reads, cancellation and missing/mixed evidence. Core and the
 test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
-`artifacts/ai-risk-20260927/saved-reader-tests.log` (prior adapter run: `paper-valuation-tests.log`).
-Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolioRisk|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests'`.
-Existing CS8632 nullable-context compiler warnings remain; none originate in the new adapter/test
-files. Restored dependencies were reused; package-security auditing was disabled, so there is no
-fresh vulnerability assessment. The full Core
-suite, WPF and SQL builds were not rerun. No application, SQL, model, market or broker operation ran.
+`artifacts/ai-risk-20260927/catalog-tests.log` (earlier reader/adapter logs remain in the same directory).
+Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolio|FullyQualifiedName~AiLearning|FullyQualifiedName~AiMomentum|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests'`.
+Release desktop build: `dotnet build TraderVI.WPF/TraderVI.WPF.csproj -c Release --no-restore --artifacts-path artifacts/ai-catalog-20260927/build -p:NuGetAudit=false --verbosity quiet` succeeded with zero errors and 260 existing CS8632/CS0168 warnings;
+log: `artifacts/ai-risk-20260927/wpf-catalog-build.log`. The runnable output is under
+`artifacts/ai-catalog-20260927/build/bin/TraderVI.WPF/release/`. Existing normal-checkout process 50804
+was left running; its files were not replaced. The normal source launch in `running.md` rebuilds the
+committed checkout after closing the old app. A build does not activate the unfinished AI host.
+Package-security auditing was disabled; there is no fresh vulnerability assessment. The full Core
+suite and SQL/full-solution build were not run. No app launch/restart, SQL, model, market or broker operation ran.
 
 Scope: synthetic broker/paper books, saved-reader composition and offline journal/recovery. The new
 SQL query, result mapping and transaction concurrency/lock duration have not been exercised against SQL
 Server; compile/test success does not establish native reader qualification. No schema change is needed.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
-one-minute coverage. Next build the portfolio catalogue and AI decision packets from saved context,
-then qualify the SQL reader and account/price/cash-event producers before host integration.
+one-minute coverage. Catalogue and packet construction are now source-implemented; next connect
+saved engine signals/rules and performance context to the dated decision inputs. Native catalogue/reader
+SQL mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
+before host integration. Candidate/managed histories are not interchangeable.
 Production storage,
 retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten
 with a 32 MB cap; checksums are not tamper-proof or proof against old backups between restarts.
@@ -199,11 +215,11 @@ is selected for the first source increment; subscription-backed Codex remains an
 Initial switching behavior is now agreed: keep mutually permitted holdings and stops, close others,
 and confirm/reconcile required sales before replacements. Preserve round peak/reference/limit,
 attempts and review holds across the switch, including all-cash transitions, and log the reason.
-This reuses existing handover contracts; AI replacement, eligible-set mapping and adapter
-qualification remain unfinished (ADR-0087; Step 5). No assignment or execution changed.
+This reuses existing handover contracts; AI replacement, executable compatibility mapping and adapter
+qualification remain unfinished (ADR-0087; Step 5). Catalogue choices now exist offline; no assignment or execution changed.
 The budgeted Responses client, durable private call journal and versioned portfolio-proposal reviewer
 are implemented/tested offline. They have no production composition or trading authority. Full
-supervision, automatic outcome evaluation, packet adapters and paper/live integration remain unfinished.
+supervision, automatic outcome evaluation, saved engine-context adapters and paper/live integration remain unfinished.
 September 26 clarification: both the supervisor and execution coordinator must periodically consult
 evaluated learning. Source now connects the learning journal to the supervisor and execution-preparation
 coordinator, with versioned lessons, per-lesson assessments and restart-safe consultation intervals.

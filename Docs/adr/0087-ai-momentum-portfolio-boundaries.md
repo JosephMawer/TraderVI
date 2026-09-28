@@ -169,7 +169,27 @@ rejected risk observations. The reader checks freshness after I/O and cancellati
 This is compiled/source-connected with synthetic tests, not an installed operating loop. SQL execution,
 result mapping and transaction lock/concurrency behavior still need native qualification. No schema
 change, production freshness duration, one-minute feed, AI-owned operating paper account or execution
-loop is introduced. Catalogue/decision packet assembly remains the next source increment.
+loop is introduced.
+
+`AiPortfolioCatalogRepository` now reads maintained account choices and exact complete definitions:
+daily strategy/model identity, policy, position count, gate profile and implementation identity. Fixed
+comparison rules cannot fall back to ordinary assignments. Unknown/inconsistent definitions stay
+visible as unavailable; same display names do not merge accounts. Definition fingerprints exclude
+display renames and include gate identity. This uses current saved catalogue rows, not a fixed list
+of fifteen or a winner recommendation.
+
+`AiPortfolioPacketBuilder` combines that catalogue with the managed journal's current accepted source
+observation and explicitly dated, version-matching engine contexts. Candidate definitions contain no
+account balances; actual funds/history come only from the managed journal. Rejected/stale reads,
+changed journal revisions, unknown active choices and conflicting identities cannot create a packet.
+Unavailable engine context keeps its choice visible but unselectable. Context rules retain their
+declared discretion; the app protection boundary remains hard. Missing AI attention is the reason
+for requesting a review, not an exception to any other saved hold or execution recheck.
+
+Packets use the existing proposal/learning contracts; expiry is no later than their contributing
+inputs and the reviewer freezes collections before model work. Native SQL, saved engine signal/rule/
+performance adapters, prompt-size/API-cost qualification and the operating host remain pending.
+No paid model request, strategy assignment or order follows from building a packet.
 
 This increment cannot adjust cash flows or qualify a feed. Matched cash-event
 integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure
@@ -550,15 +570,15 @@ strategy catalogue rather than hard-coding today's list or count. Include new po
 built and integrated under the same selection and protection contract. Specific new designs and
 development order remain future work; the AI is not authorized to create strategies or edit rules itself.
 
-Catalogue scope is agreed; adapter coverage is not yet implemented or qualified. Implementation must
-surface unsupported choices and their reasons until their evidence, compatibility and execution
+Catalogue mapping and packet construction are now implemented offline; native and execution adapter
+coverage is not yet qualified. The catalogue surfaces unsupported choices and their reasons until evidence, compatibility and execution
 adapters are ready. Every selection still needs current data/account/order checks. Every switch
 preserves the agreed holdings/protection handover, continuous round history and independent holds.
 Paper histories remain separate from the managed account; selection does not authorize live activation.
 
 This resolves portfolio eligibility in Step 2. Steps 3/5 own mapping and integration across all current
 variants, followed by connected paper validation and native live qualification in Steps 9/10.
-Evaluated-lesson admission remains open. This is agreement only; no runtime or assignment changed.
+Evaluated-lesson admission remains deferred. Catalogue code does not change an assignment or enable execution.
 
 ### Cumulative review and visible thresholds — September 27 decision
 

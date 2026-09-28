@@ -59,7 +59,13 @@ current learning before preparing a proposal; changed context requires another r
 periodic consultation hooks with persisted last-consultation times. The budgeted API client remains
 behind `ILlmClient`; routine learning consultation is local and incurs no model call.
 
-There is no runtime host, automatic outcome evaluator, complete decision-packet adapter or order transport on
+`AiPortfolioCatalogRepository` reads maintained paper identities and exact complete strategy definitions,
+including fixed-gate variants; missing definitions stay visible with reasons. `AiPortfolioPacketBuilder`
+joins these with an accepted current managed-account journal observation and dated engine contexts.
+It preserves account/source separation and input expiry; absent or mismatched engine context makes
+a choice unavailable. The existing reviewer freezes the packet before asynchronous model work.
+Saved engine signal/rule/performance adapters, native SQL qualification and prompt-size/cost qualification
+remain unfinished. There is no runtime host, automatic outcome evaluator or order transport on
 this path yet. The existing broker workflow and independent protection remain separate. A learning
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.

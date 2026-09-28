@@ -41,6 +41,10 @@ validate whole-book evidence and preserve saved engine holds. Only the managed p
 own capital/holdings value its risk; candidate balances cannot replace them. Paper saved-record readers
 are connected in source with coherent whole-book reads and saved evidence timestamps. Native SQL/freshness
 qualification and cash-flow adjustment remain pending. Existing engine valuation semantics are unchanged.
+The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate
+candidate definitions from managed-account funds. Unsupported choices stay visible; fresh matching
+engine context is required for selectable proposals. Missing AI attention may prompt a review, but
+other saved holds remain blocks. Native SQL and engine-context integration remain pending.
 An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
 The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays
