@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does rereading a saved engine decision make it fresh?
+
+A: No. Its original decision time still limits its age. Later performance records cannot extend that
+expiry, and a paper decision does not prove that the managed account can buy or re-enter now.
+Source: ADR-0087. Tags: architecture, risk-management.
+
 ### Q: Does choosing another paper portfolio give AI Momentum that portfolio's money?
 
 A: No. The choice supplies strategy rules and their exact version. The AI's cash, holdings and loss

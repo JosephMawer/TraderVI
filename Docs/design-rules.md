@@ -44,7 +44,11 @@ qualification and cash-flow adjustment remain pending. Existing engine valuation
 The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate
 candidate definitions from managed-account funds. Unsupported choices stay visible; fresh matching
 engine context is required for selectable proposals. Missing AI attention may prompt a review, but
-other saved holds remain blocks. Native SQL and engine-context integration remain pending.
+other saved holds remain blocks. Daily Shadow saved context now preserves original daily gate traces,
+fixed bypass identity and dated candidate decisions. Known trading gates and entry/rotation guidance
+are discretionary; data, cash/exposure and established protection remain hard. Unknown gate failures
+block usable context. Candidate performance is descriptive and may span earlier policies; it is not
+managed funds or re-entry confirmation. Native SQL/raw-bar qualification and Delphi Live context remain pending.
 An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
 The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays

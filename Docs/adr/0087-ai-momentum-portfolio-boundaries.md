@@ -187,8 +187,17 @@ declared discretion; the app protection boundary remains hard. Missing AI attent
 for requesting a review, not an exception to any other saved hold or execution recheck.
 
 Packets use the existing proposal/learning contracts; expiry is no later than their contributing
-inputs and the reviewer freezes collections before model work. Native SQL, saved engine signal/rule/
-performance adapters, prompt-size/API-cost qualification and the operating host remain pending.
+inputs and the reviewer freezes collections before model work. September 28 adds the Daily Shadow
+saved-context reader: exact adopted publication/model/policy/gate identity, published rankings and
+gate traces, current-source candidate decisions, and bounded daily paper returns. Existing gate
+failures are retained separately from comparison bypass. Known daily trading gates and ordinary
+entry/rotation guidance are discretionary; source validity, cash/exposure and established protection
+remain hard. Unknown gates are conservatively hard and a recorded failure blocks usable context.
+Stale/missing/partial/data-blocked decisions and an absence of evaluated admitted candidates cannot
+supply selectable context. Rereads never renew decision timestamps. Paper history may span earlier
+policies and grants neither available funds, superiority nor managed-stock entry/re-entry authority.
+Native SQL, raw-bar/conflict requalification, Delphi Live confirmation/rule/performance context,
+prompt-size/API-cost qualification and the operating host remain pending.
 No paid model request, strategy assignment or order follows from building a packet.
 
 This increment cannot adjust cash flows or qualify a feed. Matched cash-event

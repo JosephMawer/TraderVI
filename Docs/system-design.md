@@ -64,7 +64,11 @@ including fixed-gate variants; missing definitions stay visible with reasons. `A
 joins these with an accepted current managed-account journal observation and dated engine contexts.
 It preserves account/source separation and input expiry; absent or mismatched engine context makes
 a choice unavailable. The existing reviewer freezes the packet before asynchronous model work.
-Saved engine signal/rule/performance adapters, native SQL qualification and prompt-size/cost qualification
+`AiShadowDecisionRepository` reads the adopted daily source, current-revision decisions and bounded
+paper session history in one read-only transaction. `AiShadowDecisionContextReader` checks age after
+I/O and maps these into existing packet contexts with exact identity, classified rules and saved
+timestamps. Daily returns reuse the existing calculator and remain descriptive candidate evidence.
+Delphi Live context, native SQL/raw-bar qualification and prompt-size/cost qualification
 remain unfinished. There is no runtime host, automatic outcome evaluator or order transport on
 this path yet. The existing broker workflow and independent protection remain separate. A learning
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines

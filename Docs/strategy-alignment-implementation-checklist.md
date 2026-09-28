@@ -171,7 +171,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    The maintained catalogue now maps exact daily/model/policy/gate identities; incomplete choices stay
    visible with reasons. The packet builder joins choices to the managed account's accepted saved risk
    observation, preserves source/time identity and requires fresh matching engine context for selection.
-   Next connect saved engine signals/rules and performance context, then qualify SQL reads/live feed/freshness/cash events. This is not connected
+   Daily Shadow now supplies saved published rankings/gates, adopted candidate decisions, concrete rule
+   classification and bounded daily paper performance. Tests cover exact identity, missing/stale data,
+   fixed bypass, preserved timestamps and null/conflicting returns. No admitted/evaluated candidates
+   remain unavailable; this is saved guidance, not raw-bar requalification or managed-stock entry authority.
+   Next connect Delphi Live confirmation/rule/performance context, then qualify SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
