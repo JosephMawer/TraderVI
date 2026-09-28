@@ -196,8 +196,15 @@ remain hard. Unknown gates are conservatively hard and a recorded failure blocks
 Stale/missing/partial/data-blocked decisions and an absence of evaluated admitted candidates cannot
 supply selectable context. Rereads never renew decision timestamps. Paper history may span earlier
 policies and grants neither available funds, superiority nor managed-stock entry/re-entry authority.
-Native SQL, raw-bar/conflict requalification, Delphi Live confirmation/rule/performance context,
-prompt-size/API-cost qualification and the operating host remain pending.
+Delphi Live now has an equivalent saved-context reader. It retains current source/gate/policy/model
+identity and process-continuity epoch, preserves invalid/conflicted latest checkpoints, and discloses
+the candidate account's own lifecycle separately from shared market judgments. Neither shared nor
+candidate-account confirmation transfers to managed-account entry/re-entry. Market endpoints bound
+expiry; later saves or rereads cannot refresh them. Daily mark history preserves incomplete latest
+values. Signal/entry guidance is discretionary; source validity, cash/exposure, existing stops and
+protective exits remain hard. No signal recalculation or operating strategy changes occur here.
+Native SQL, source coverage, raw-bar/conflict requalification, prompt-size/API-cost qualification
+and the operating host remain pending.
 No paid model request, strategy assignment or order follows from building a packet.
 
 This increment cannot adjust cash flows or qualify a feed. Matched cash-event

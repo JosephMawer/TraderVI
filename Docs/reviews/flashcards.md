@@ -18,6 +18,12 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can two portfolios sharing a Delphi Live policy share buy confirmation?
+
+A: No. They may share market judgments, but each account keeps its own holding, pending-action and
+confirmation history. The AI may review another account's state without copying its permission to buy.
+Source: ADR-0087 and ADR-0053. Tags: architecture, risk-management.
+
 ### Q: Does rereading a saved engine decision make it fresh?
 
 A: No. Its original decision time still limits its age. Later performance records cannot extend that

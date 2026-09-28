@@ -175,7 +175,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    classification and bounded daily paper performance. Tests cover exact identity, missing/stale data,
    fixed bypass, preserved timestamps and null/conflicting returns. No admitted/evaluated candidates
    remain unavailable; this is saved guidance, not raw-bar requalification or managed-stock entry authority.
-   Next connect Delphi Live confirmation/rule/performance context, then qualify SQL reads/live feed/freshness/cash events. This is not connected
+   Delphi Live now supplies saved market judgments, its own account confirmation, recent checkpoint
+   history, source/gate identity and daily performance. Tests cover epoch/source changes, stale/invalid
+   latest evidence, source conflicts, account isolation and incomplete returns. Shared policy signals
+   never substitute their lifecycle for the account's saved confirmation.
+   Next qualify native saved-record readers, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,

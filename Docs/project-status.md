@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. AI saved-record/risk connection, portfolio catalogue, review packets and Daily Shadow decision-context reader implemented in source; 362 offline tests pass. Native SQL/feed qualification, Delphi Live decision context and engine/host integration remain pending.
+**Current record:** September 28, 2026. AI saved-record/risk connection, catalogue, review packets and both paper-family decision-context readers implemented in source; 407 offline tests pass and the Release desktop builds. Native SQL/feed qualification and engine/host integration remain pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -175,22 +175,35 @@ records cannot renew it. Missing/stale/partial or data-blocked decisions cannot 
 context. No admitted/evaluated candidates also remain unavailable in this first adapter.
 Daily paper returns reuse `PortfolioDailyPerformance`, retaining nulls/conflicts and disclosing that
 history can span earlier policies. These are candidate-account observations, never managed funds,
-stock-action authority or post-closure entry confirmation. Raw bar/conflict requalification, Delphi
-Live confirmation context, production history/freshness settings and runtime composition remain open.
+stock-action authority or post-closure entry confirmation. Shadow raw-bar/conflict requalification,
+production history/freshness settings and runtime composition remain open.
 
-Validation with .NET SDK 10.0.401: **362 tests passed, zero failures/skips** on September 28: the prior
-313 AI/risk/paper cases, 33 new Shadow-context cases and 16 existing daily-performance cases.
+`AiLiveDecisionRepository` and `AiLiveDecisionContextReader` now add Delphi Live saved context through
+one SELECT-only transaction: exact account/generation/revision, validated stored policy and daily model
+identities, ordinary or comparison source adoption, current process-continuity epoch, recent checkpoint
+history and bounded daily performance. Existing source checksum/snapshot readers are reused. Conflicted
+or invalid latest checkpoints remain visible; no fallback to an older valid result. Epoch/source changes,
+missing account confirmation, data-confidence failures and stale market endpoints prevent selection.
+The account's own lifecycle is labelled separately from shared signal judgments and never transferred
+to the managed account. Candidate funds, holdings and shared-account safety state are excluded from the
+review evidence. Live marks reuse the existing daily-return calculation, including incomplete latest
+marks. This reads and describes saved state; it does not recompute confirmation, collect prices, mutate
+accounts or authorize managed-stock actions. Native SQL locking/mapping, original bar requalification,
+source coverage/completeness, production freshness/history settings and host composition remain unverified.
+
+Validation with .NET SDK 10.0.401: **407 tests passed, zero failures/skips** on September 28: the prior
+362 AI/risk/paper/performance cases, 29 new Live-context cases and 16 existing Live engine/lifecycle/ranking cases.
 Coverage includes both paper families and gate variants, every-holding freshness, source/quantity/cash
 conflicts, saved holds, cash exits, next-session continuity, restart, source-family substitution and
 unavailable storage. Reader tests use synthetic saved books/fake read interfaces and cover pinned
 rules, stable retries, cash history, slow reads, cancellation and missing/mixed evidence. Core and the
 test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
-`artifacts/ai-risk-20260927/shadow-context-regressions.log` (earlier logs remain in the same directory).
-Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolio|FullyQualifiedName~AiShadowDecisionContext|FullyQualifiedName~AiLearning|FullyQualifiedName~AiMomentum|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests|FullyQualifiedName~PortfolioDailyPerformance'`.
+`artifacts/ai-risk-20260927/live-context-regressions.log` (earlier logs remain in the same directory).
+Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolio|FullyQualifiedName~AiShadowDecisionContext|FullyQualifiedName~AiLiveDecisionContext|FullyQualifiedName~AiLearning|FullyQualifiedName~AiMomentum|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests|FullyQualifiedName~PortfolioDailyPerformance|FullyQualifiedName~DelphiLiveEvaluationEngineTests|FullyQualifiedName~DelphiLiveLifecycle|FullyQualifiedName~DelphiLiveRanking'`.
 Release desktop build: `dotnet build TraderVI.WPF/TraderVI.WPF.csproj -c Release --no-restore --artifacts-path artifacts/ai-catalog-20260927/build -p:NuGetAudit=false --verbosity quiet` succeeded with zero errors and 260 existing CS8632/CS0168 warnings;
-log: `artifacts/ai-risk-20260927/wpf-shadow-context-build.log` (September 28 rebuild). The runnable output is under
-`artifacts/ai-catalog-20260927/build/bin/TraderVI.WPF/release/`. Existing normal-checkout process 50804
-was left running; its files were not replaced. The normal source launch in `running.md` rebuilds the
+log: `artifacts/ai-risk-20260927/wpf-live-context-build.log` (September 28 rebuild). The runnable output is under
+`artifacts/ai-catalog-20260927/build/bin/TraderVI.WPF/release/`. The normal checkout's running files
+were not replaced or restarted. The normal source launch in `running.md` rebuilds the
 committed checkout after closing the old app. A build does not activate the unfinished AI host.
 Package-security auditing was disabled; there is no fresh vulnerability assessment. The full Core
 suite and SQL/full-solution build were not run. No app launch/restart, SQL, model, market or broker operation ran.
@@ -199,8 +212,8 @@ Scope: synthetic broker/paper books, saved-reader composition and offline journa
 SQL query, result mapping and transaction concurrency/lock duration have not been exercised against SQL
 Server; compile/test success does not establish native reader qualification. No schema change is needed.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
-one-minute coverage. Catalogue, packet construction and Shadow decision context are source-implemented;
-next connect Delphi Live confirmation/rule/performance context. Native catalogue/reader
+one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented;
+next qualify these readers against saved native records and source coverage. Native catalogue/reader
 SQL mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
 before host integration. Candidate/managed histories are not interchangeable.
 Production storage,

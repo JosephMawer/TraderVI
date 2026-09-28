@@ -41,8 +41,9 @@ assessment contract and scoped local journal/recovery. Step 3 now has tested bro
 valuation adapters feeding the shared risk journal, now connected in source to paper saved-record readers.
 The maintained portfolio catalogue and account-scoped review-packet builder are also implemented offline.
 Native SQL reader qualification and Step 7 storage/host qualification remain pending.
-Daily Shadow saved rankings/gates, candidate decisions and daily performance now feed those packets offline.
-Next connect Delphi Live confirmation/rule/performance context, qualify SQL and account/price/cash-event
+Both Daily Shadow and Delphi Live now supply saved signals, account-specific decision/confirmation
+state, rules and daily paper performance to those packets offline. Next qualify native saved-record
+readers, source coverage, SQL behavior and account/price/cash-event
 producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing

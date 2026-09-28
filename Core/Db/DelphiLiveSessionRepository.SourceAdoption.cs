@@ -99,7 +99,7 @@ WHERE NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveSessionSymbol t WHERE t.SessionId=@
         await transaction.CommitAsync(cancellationToken);
     }
 
-    private static async Task<DelphiLiveDailySourceRevision?> ReadSourceRevisionAsync(SqlConnection connection, Guid sessionId,
+    internal static async Task<DelphiLiveDailySourceRevision?> ReadSourceRevisionAsync(SqlConnection connection, Guid sessionId,
         SqlTransaction? transaction, CancellationToken ct)
     {
         var row = await connection.QuerySingleOrDefaultAsync(new CommandDefinition("""

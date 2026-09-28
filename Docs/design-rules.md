@@ -48,7 +48,11 @@ other saved holds remain blocks. Daily Shadow saved context now preserves origin
 fixed bypass identity and dated candidate decisions. Known trading gates and entry/rotation guidance
 are discretionary; data, cash/exposure and established protection remain hard. Unknown gate failures
 block usable context. Candidate performance is descriptive and may span earlier policies; it is not
-managed funds or re-entry confirmation. Native SQL/raw-bar qualification and Delphi Live context remain pending.
+managed funds or re-entry confirmation. Delphi Live context now likewise separates shared market
+judgments from the candidate account's own saved lifecycle. Current source/epoch, exact policy and
+on-time valid evidence remain required; stale/conflicted latest observations cannot fall back to older
+valid results. Neither account confirmation nor funds transfer into the managed account. Native
+SQL/raw-bar/source-coverage qualification and runtime composition remain pending.
 An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
 The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays

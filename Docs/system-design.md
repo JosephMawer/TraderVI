@@ -68,7 +68,12 @@ a choice unavailable. The existing reviewer freezes the packet before asynchrono
 paper session history in one read-only transaction. `AiShadowDecisionContextReader` checks age after
 I/O and maps these into existing packet contexts with exact identity, classified rules and saved
 timestamps. Daily returns reuse the existing calculator and remain descriptive candidate evidence.
-Delphi Live context, native SQL/raw-bar qualification and prompt-size/cost qualification
+`AiLiveDecisionRepository` similarly reads coherent source/epoch/checkpoint/account data and projects
+only candidate evidence. `AiLiveDecisionContextReader` preserves the account's lifecycle independently
+of shared market judgments, invalid latest checkpoints and endpoint-based expiry. Existing Live marks
+produce daily performance without falling back past an incomplete latest mark. Neither family reader
+recomputes trading decisions or transfers paper confirmation to the managed account.
+Native SQL/raw-bar/source-coverage qualification and prompt-size/cost qualification
 remain unfinished. There is no runtime host, automatic outcome evaluator or order transport on
 this path yet. The existing broker workflow and independent protection remain separate. A learning
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
