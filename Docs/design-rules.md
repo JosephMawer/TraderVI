@@ -38,7 +38,8 @@ requires scoped reconciled cash/holdings, exact-time identified marks and comple
 it saves source provenance and blocks new allowance on rejected observations while preserving closure.
 Offline Delphi Live and Daily Shadow paper adapters now share that journal-writing boundary,
 validate whole-book evidence and preserve saved engine holds. Only the managed paper account's
-own capital/holdings value its risk; candidate balances cannot replace them. Production reader/freshness
+own capital/holdings value its risk; candidate balances cannot replace them. Paper saved-record readers
+are connected in source with coherent whole-book reads and saved evidence timestamps. Native SQL/freshness
 qualification and cash-flow adjustment remain pending. Existing engine valuation semantics are unchanged.
 An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.

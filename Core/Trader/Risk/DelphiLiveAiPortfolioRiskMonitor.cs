@@ -25,6 +25,7 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
     private readonly AiRiskJournalScope scope;
     private readonly AiPortfolioRiskObservationWriter writer;
     private readonly TimeSpan maximumEvidenceAge;
+    internal Guid PortfolioId => scope.PortfolioId;
 
     public DelphiLiveAiPortfolioRiskMonitor(AiPortfolioRiskJournal journal, AiPortfolioRiskPolicy policy,
         TimeSpan maximumEvidenceAge)

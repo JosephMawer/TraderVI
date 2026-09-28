@@ -160,13 +160,15 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, broker and paper valuation adapters offline.**
+3. **Connect authoritative data — in progress, valuation adapters and paper saved-record connection offline.**
    Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
    books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
    saved engine holds and required closure persist without an AI call. Both paper families and
    their current gate variants are covered; candidate portfolio balances cannot value another account.
-   Next compose authoritative ledger readers (including a coherent Shadow book plus source bars),
-   qualify live feed/freshness/cash events, and build catalogue/decision packets. This is not connected
+   Paper readers are connected in source: Delphi Live reuses complete snapshots; Daily Shadow reads
+   its full book, assigned/fixed rules and saved source bars in one read-only SQL transaction.
+   Offline tests cover read-to-risk behavior; native SQL mapping/concurrency remains unverified.
+   Next build catalogue/decision packets and qualify SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,

@@ -45,8 +45,12 @@ its complete checkpoint plus matching current cash/positions/fills; post-checkpo
 a later complete mark. Daily Shadow consumes an explicitly coherent full book and actual five-minute
 bars matching every held symbol's saved price. Its stored timestamp can mean bar start or fill time;
 the overview's freshest timestamp is insufficient. Both preserve saved source holds, capital and
-generation history, with strict paper-account scope and source provenance. Authoritative producer
-composition and operating AI paper-account integration remain pending; ordinary engines are unchanged.
+generation history, with strict paper-account scope and source provenance. `PaperAiPortfolioRiskReader`
+connects the existing Delphi Live snapshot reader and a new Daily Shadow read-only serializable SQL
+read of the full book, assigned/fixed comparison rules and saved bars. It checks age after I/O and
+propagates read failures/cancellation without resetting risk. Shadow evidence identity and times come
+from saved content, not the read clock. SQL execution/concurrency and operating AI paper-account
+integration remain unverified; ordinary engines are unchanged.
 
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson

@@ -152,9 +152,24 @@ value from actual cash/shares and reconcile fixed capital against original costs
 This is an explicit intraday input contract, not a change to either engine's opening definition.
 
 Both retain generation/policy/gate identity, add saved engine holds as independent blocks, and reject
-capital/history substitution. No source reader, production freshness duration, one-minute paper feed,
-AI-owned operating paper account or execution loop is installed. In particular, separate Shadow UI
-queries do not prove the coherent dated book; its authoritative producer remains to be composed.
+capital/history substitution. `PaperAiPortfolioRiskReader` now connects saved records to the checks:
+Delphi Live exposes a read-only snapshot interface on its existing repository; Daily Shadow implements
+a single read-only serializable transaction across account, generation, session, complete position
+history, exact strategy/gate settings and existing source bars. It neither collects data nor writes
+the paper ledger. Standard accounts require a saved settings assignment/hash; comparisons retain
+their fixed settings/version instead of falling back to another assignment.
+
+The Shadow builder declines missing/mixed-time price evidence and trades after the valuation bar,
+including additions whose original entry time alone would miss the later trade. Saved rows/receipts
+determine observation time and content-derived identity; retries cannot refresh stale evidence. Cash-only
+books retain closed history and use saved update time. Invalid stored price audits or overlapping
+later invalid receipts cannot supply accepted bars. Source failures propagate; missing records produce
+rejected risk observations. The reader checks freshness after I/O and cancellation before journaling.
+
+This is compiled/source-connected with synthetic tests, not an installed operating loop. SQL execution,
+result mapping and transaction lock/concurrency behavior still need native qualification. No schema
+change, production freshness duration, one-minute feed, AI-owned operating paper account or execution
+loop is introduced. Catalogue/decision packet assembly remains the next source increment.
 
 This increment cannot adjust cash flows or qualify a feed. Matched cash-event
 integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure

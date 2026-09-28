@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why read a paper portfolio's cash and holdings together?
+
+A: A trade changes both. Reading them separately could combine cash from before the trade with
+holdings from after it. The saved-record reader takes a consistent set and keeps the saved price
+times, so rereading old records cannot make their prices fresh.
+Source: ADR-0087. Tags: data-sources, risk-management.
+
 ### Q: Why can't the paper dashboard's freshest price qualify the whole portfolio?
 
 A: One fresh holding can conceal stale prices elsewhere. The risk adapters require every holding to

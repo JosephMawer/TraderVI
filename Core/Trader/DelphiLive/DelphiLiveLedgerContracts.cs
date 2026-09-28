@@ -78,9 +78,13 @@ public sealed record DelphiLivePortfolioSnapshot(
 
 public sealed record DelphiLiveLedgerEvent(Guid EventId, string Kind, DateTime RecordedUtc, string DataJson);
 
-public interface IDelphiLiveLedgerStore
+public interface IDelphiLivePortfolioReader
 {
     Task<DelphiLivePortfolioSnapshot?> LoadPortfolioAsync(Guid portfolioId, CancellationToken cancellationToken = default);
+}
+
+public interface IDelphiLiveLedgerStore : IDelphiLivePortfolioReader
+{
     Task<IReadOnlyList<DelphiLivePortfolioSnapshot>> GetPortfoliosForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default);
     Task<DelphiLivePortfolioSnapshot> CreateGenerationAsync(DelphiLiveGenerationRequest request, CancellationToken cancellationToken = default);
     // One atomic revision, including every event, requires both the expected

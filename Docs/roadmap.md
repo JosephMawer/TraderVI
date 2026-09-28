@@ -38,8 +38,9 @@ Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-che
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
-valuation adapters feeding the shared risk journal. Step 7 storage/host qualification remains pending.
-Next compose authoritative ledger readers and catalogue/decision packets, qualify account/price/cash-event
+valuation adapters feeding the shared risk journal, now connected in source to paper saved-record readers.
+Native SQL reader qualification and Step 7 storage/host qualification remain pending.
+Next build catalogue/decision packets, qualify the SQL reader and account/price/cash-event
 producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing

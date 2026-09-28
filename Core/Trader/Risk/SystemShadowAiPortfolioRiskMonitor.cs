@@ -17,7 +17,7 @@ public sealed record ShadowPaperRiskPrice(string Symbol, TradingPriceBar Bar)
 /// <summary>
 /// A producer must read the complete generation/portfolio/session/position book coherently at At,
 /// including closed positions, and attach the actual source bars. Independent UI queries and their
-/// FreshestPriceEventUtc summary do not establish this contract. No SQL reader is installed here.
+/// FreshestPriceEventUtc summary do not establish this contract.
 /// </summary>
 public sealed record ShadowPaperRiskObservation(Guid EvidenceId, DateOnly TradingDate, DateTime At,
     DateTime ObservedUtc, SystemShadowGenerationInfo Generation, SystemShadowRuntimePortfolio Portfolio,
@@ -34,6 +34,7 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
     private readonly AiRiskJournalScope scope;
     private readonly AiPortfolioRiskObservationWriter writer;
     private readonly TimeSpan maximumEvidenceAge;
+    internal Guid PortfolioId => scope.PortfolioId;
 
     public SystemShadowAiPortfolioRiskMonitor(AiPortfolioRiskJournal journal, AiPortfolioRiskPolicy policy, TimeSpan maximumEvidenceAge)
     {

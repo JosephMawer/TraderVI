@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. Offline AI risk core, journal and broker/Delphi Live/Daily Shadow valuation adapters implemented; 194 focused and regression tests pass. Authoritative reader composition, native feed and engine/host integration remain pending.
+**Current record:** September 27, 2026. AI risk core, journal, valuation adapters and paper saved-record reader connection implemented in source; 222 offline tests pass. Native SQL/feed qualification and engine/host integration remain pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -145,23 +145,35 @@ during fills. Neither that field nor the overview's freshest holding time alone 
 whole-portfolio value. Fixed paper capital reconciles to fills or full position costs/realized results;
 capital/generation substitution and rewritten completed history are rejected.
 
-Validation with .NET SDK 10.0.401: **194 tests passed, zero failures/skips**: the prior 69 risk/broker
-cases, 75 new paper-adapter cases and 50 existing paper policy/action/display/gate regressions.
+`PaperAiPortfolioRiskReader` now connects saved paper records to those checks through read-only
+interfaces. Delphi Live reuses its complete saved snapshot reader. Daily Shadow's new repository
+method reads generation, portfolio, session, all open/closed positions, assigned or fixed comparison
+rules, and existing source bars in one read-only serializable SQL transaction. It requires matching
+saved settings and bars, declines mixed-time books and post-bar fills (including additions), and
+retains stable evidence identity and saved timestamps across reads. Missing/invalid records block
+new risk; source errors and cancellation propagate without initializing/resetting a round. Freshness
+is checked after I/O. No host is scheduled and no market collection is introduced.
+
+Validation with .NET SDK 10.0.401: **222 tests passed, zero failures/skips**: the prior 69 risk/broker
+cases, 75 paper-adapter cases, 28 saved-reader cases and 50 existing paper policy/action/display/gate regressions.
 Coverage includes both paper families and gate variants, every-holding freshness, source/quantity/cash
 conflicts, saved holds, cash exits, next-session continuity, restart, source-family substitution and
-unavailable storage. Core and the test project compiled into isolated `artifacts/ai-risk-20260927/build`;
-evidence is `artifacts/ai-risk-20260927/paper-valuation-tests.log`.
+unavailable storage. Reader tests use synthetic saved books/fake read interfaces and cover pinned
+rules, stable retries, cash history, slow reads, cancellation and missing/mixed evidence. Core and the
+test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
+`artifacts/ai-risk-20260927/saved-reader-tests.log` (prior adapter run: `paper-valuation-tests.log`).
 Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolioRisk|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests'`.
 Existing CS8632 nullable-context compiler warnings remain; none originate in the new adapter/test
 files. Restored dependencies were reused; package-security auditing was disabled, so there is no
 fresh vulnerability assessment. The full Core
 suite, WPF and SQL builds were not rerun. No application, SQL, model, market or broker operation ran.
 
-Scope: synthetic broker and paper books plus offline journal/recovery. The adapters check their
-contracts; they do not establish completeness/authenticity of a production producer.
+Scope: synthetic broker/paper books, saved-reader composition and offline journal/recovery. The new
+SQL query, result mapping and transaction concurrency/lock duration have not been exercised against SQL
+Server; compile/test success does not establish native reader qualification. No schema change is needed.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
-one-minute coverage. Next compose authoritative ledger readers (a coherent Shadow book with source bars
-is still needed) and catalogue/decision packets, then qualify account/price/cash-event producers.
+one-minute coverage. Next build the portfolio catalogue and AI decision packets from saved context,
+then qualify the SQL reader and account/price/cash-event producers before host integration.
 Production storage,
 retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten
 with a 32 MB cap; checksums are not tamper-proof or proof against old backups between restarts.
