@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. AI catalogue and both paper-family decision readers checked against saved SQL records; legacy Shadow policy mapping corrected. All 15 definitions load, seven saved decision contexts load and eight Shadow contexts lack today's publication. 416 offline tests plus one opt-in native read test pass; Release desktop builds. Source/feed, risk-reader and engine/host qualification remain pending.
+**Current record:** September 28, 2026. Read-only investigation identifies the missing comparison source: a broker-suffixed tracked symbol is absent from the canonical symbol table, causing Live session startup to fail before comparison adoption. Today's valid Delphi publication exists. Repair and runtime verification remain pending. AI readers previously passed 416 offline tests plus one native read check; old Live contexts are readable but not current.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -25,6 +25,7 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
+| Live startup / comparison-source failure | Sep 28, SQL 10:43–10:53; operator screenshot | Today's official Delphi publication is Valid with Sep 25 data and 208 candidates. All eight Shadow gate-comparison accounts have no adopted source/candidate rows today. No Live session exists after Sep 24; all three Live account snapshots therefore remain old. The running desktop acquires/releases its Live lease every 30 seconds, with active assignments and no saved engine pause. The screenshot reports `FK_DelphiLiveSessionSymbol_Symbol`; read-only checks locate one monitored real-position reference using a broker suffix absent from `Symbols`, while the unsuffixed canonical entry exists. XIU and today's candidate references are present. Session initialization rolls back before common comparison-source adoption. No repair/restart or data mutation performed. Private diagnostic evidence: `artifacts/ai-source-investigation-20260928/`. |
 | Nightly pipeline | Sep 24, completed 00:36:48; SQL checked 09:01 | Scheduled current-source build and all three stages completed. Hermes inserted 483 daily bars with zero collection failures; Delphi published Valid using Sep 23 data. Athena wrote 864 valid outcomes and four invalid older `v3.0` 20-session outcomes (`MissingSymbolSession`), producing Attention/exit 2. No recovery rerun was needed. |
 | Delphi inputs | Sep 24, 09:01 | Daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. All 483 active symbols, XIU/SPY and checked derived series reach Sep 23. ALYA is excluded for an invalid older feature bar; fresh endpoint coverage does not prove complete historical inputs. Publication is not buy eligibility. |
 | Broker connection/history | Sep 25, screenshot 16:40:55; SQL 17:02:22 | Operator confirms the integrated Strategy management panel in the normal checkout. The screen reports successful account/history and trade synchronization. Eight recent SQL imports from 16:18–16:57 each have a trade-sync receipt, spaced about 5m30s apart. This bounded sample supports recurring persistence, not uninterrupted coverage, broker rate limits or cash-event qualification. |
@@ -227,9 +228,21 @@ Risk-book SQL readers, transaction concurrency/lock duration and full source cov
 Inspection also identifies legacy null-version rejection in the separate Shadow saved-risk-book path;
 that must be addressed and verified in its own valuation increment. No schema change is needed.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
-one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented;
-next trace the eight missing Shadow publications and qualify the separate valuation readers, including
-legacy policies. Remaining native mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
+one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.
+The subsequent read-only investigation identifies those eight accounts as both fixed gate profiles of
+Breakout Top 3/5 and Continuation Top 3/5. The common comparison-source record is missing, not today's
+Delphi publication. `BrokerTradeProjection.ListingSymbol` preserves Canadian broker suffixes in new
+tracked records; `DelphiLiveHoldingSource` passes them into session membership, while
+`NormalizeObservedHoldings` only trims/uppercases. `FreezeSql` then violates the canonical `Symbols`
+foreign key and rolls back the session. Comparison adoption runs later in the same monitor tick and is
+never reached. This also prevents all three Live accounts from obtaining today's monitoring context.
+The four original Shadow accounts use their independent adoption path; all today's published Top 25
+rows in both lenses fail Breadth, which explains their zero admitted candidates separately from the bug.
+Next repair verified broker-to-canonical symbol resolution at the monitoring boundary without
+rewriting immutable broker/position history or weakening the foreign key; then obtain separately
+authorized operational recovery and verify prospective source adoption. Do not backdate lost coverage.
+Native valuation readers, including legacy policies, remain a separate next qualification.
+Remaining native mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
 before host integration. Candidate/managed histories are not interchangeable.
 Production storage,
 retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten

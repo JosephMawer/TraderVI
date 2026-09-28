@@ -43,8 +43,10 @@ The maintained portfolio catalogue and account-scoped review-packet builder are 
 Initial native catalogue/decision-reader mapping is checked; missing-source variants, risk readers and
 Step 7 storage/host qualification remain pending (dated evidence in project status).
 Both Daily Shadow and Delphi Live now supply saved signals, account-specific decision/confirmation
-state, rules and daily paper performance to those packets. Next trace the missing Shadow publications
-and qualify native valuation readers, including legacy policies, source coverage, SQL behavior and account/price/cash-event
+state, rules and daily paper performance to those packets. The missing comparison-source investigation
+identified a tracked broker-symbol/canonical-symbol mismatch blocking Live session initialization.
+Next repair that monitoring boundary and verify separately authorized runtime recovery, then qualify
+native valuation readers, including legacy policies, source coverage, SQL behavior and account/price/cash-event
 producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
