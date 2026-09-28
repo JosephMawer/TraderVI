@@ -98,10 +98,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
 1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
    journals, learning consultation and execution-preparation checks. This is reusable Core source,
    not an operating AI portfolio. Dated validation is in project status.
-2. **Operating contract — framework and portfolio scope agreed; learning criteria remain.**
+2. **Operating contract — agreed for current implementation; learning criteria deferred.**
    All current strategy portfolios, including position-count and daily-gate variants, are AI choices;
    expand the catalogue as additional portfolios are built and integrated (ADR-0087). Evaluated-lesson
-   admission criteria remain to be decided before automatic lessons are enabled.
+   admission criteria are deliberately deferred by the operator (September 27). Continue implementation;
+   revisit them only when needed for Step 6, not as a blocker or another Step 2 interview.
    Map concrete discretionary/hard rules during implementation; only genuine ambiguities need another
    decision. The agreed contract below is sufficient to build; retain all remaining integration work.
    Specify hard limits, the decreasing risk scale, profit protection,
@@ -159,11 +160,14 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, first offline valuation adapter.**
-   Implemented/tested: existing reconciled broker books and no-flow intervals feed saved risk checks,
-   retaining exact source evidence, rejecting invalid readings and preserving required closure without
-   AI review. Native producer/freshness qualification and paper valuation adapters remain pending;
-   this is not connected collection or minute-level operational coverage. See project status for tests.
+3. **Connect authoritative data — in progress, broker and paper valuation adapters offline.**
+   Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
+   books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
+   saved engine holds and required closure persist without an AI call. Both paper families and
+   their current gate variants are covered; candidate portfolio balances cannot value another account.
+   Next compose authoritative ledger readers (including a coherent Shadow book plus source bars),
+   qualify live feed/freshness/cash events, and build catalogue/decision packets. This is not connected
+   collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
@@ -179,7 +183,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    peaks, allowance, latched closure, cross-session continuity and qualified re-entry. See project
    status for the focused risk-core/journal evidence and limits. A scoped local journal now retains
    commands and prior states, replay-validates recovery and rejects stale/conflicting writes;
-   the first broker-book adapter now checks rejected-input blocks and durable source provenance.
+   broker and paper adapters now share rejected-input handling and durable source provenance.
    Feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
    Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
@@ -199,8 +203,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    trigger and count; a limit hit while already cash still requires failed-round reconciliation.
    Verify initial triggers use actual round opening capital and retain original-capital history;
    forecast later-round amounts cannot supply enforced references.
-   Synthetic broker-book checks on every accepted valuation without an AI call are tested; extend
-   to qualified producers and paper adapters. Verify operationally that
+   Synthetic broker/paper checks on every accepted valuation without an AI call are tested; connect
+   qualified producers. Verify operationally that
    one-minute updates are checked during a fifteen-minute AI review interval, unavailable AI does
    not delay checks, and cached/failed/incomplete updates do not masquerade as fresh valuations.
    Reuse percentage-preserving cash-flow adjustment for effective round/overall references while
@@ -217,6 +221,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    submission and retain protective exits when AI/learning is unavailable.
 6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
    hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
+   The operator has deferred exact lesson qualification criteria; revisit them when this implementation
+   needs them. Continue other delivery steps without choosing thresholds or reopening this topic now.
    Run one logical post-session review, recording helpful/harmful outcomes with evidence and retaining
    immature/inconclusive cases for later reviews. Do not treat session close as outcome maturity.
    Include blocked stop-relaxation hypotheses and compare actual outcomes with clearly labelled

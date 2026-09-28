@@ -27,19 +27,20 @@ losing trades. The first API client, shared spending journal and portfolio-propo
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
 access remains an alternative. Proceed with implementation of the agreed framework. Portfolio scope
 includes all current strategy portfolios and their variants, expanding as new portfolios are built
-and integrated (ADR-0087). Evaluated-lesson admission remains a feature decision; concrete rule mapping,
+and integrated (ADR-0087). The operator defers lesson criteria until they are relevant to Step 6;
+continue delivery without another design discussion on that topic. Concrete rule mapping,
 authoritative packet adapters and production budget/storage configuration are implementation work.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 one post-session learning review is now agreed alongside intraday saved-lesson consultation.
 Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
-Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with learning criteria
-open. Step 4 has begun with the tested offline continuous-round risk core, shared assessment contract and scoped
-local transition journal/recovery. Step 3 now has a tested offline broker-book valuation adapter
-feeding saved risk checks; paper adapters and native source qualification remain pending.
-Step 7 storage/host qualification remains pending. Next add paper valuation adapters and qualified
-account/price/cash-event producers, then connect existing risk/execution adapters; source qualification
+Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
+deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
+assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
+valuation adapters feeding the shared risk journal. Step 7 storage/host qualification remains pending.
+Next compose authoritative ledger readers and catalogue/decision packets, qualify account/price/cash-event
+producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.

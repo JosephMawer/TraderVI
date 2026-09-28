@@ -36,7 +36,10 @@ Discretion is settled: map concrete rules during implementation, asking only abo
 The core accepts qualified no-flow valuation intervals only. Its first offline broker-book adapter
 requires scoped reconciled cash/holdings, exact-time identified marks and complete no-flow coverage;
 it saves source provenance and blocks new allowance on rejected observations while preserving closure.
-Native source/freshness qualification, paper adapters and cash-flow adjustment remain pending.
+Offline Delphi Live and Daily Shadow paper adapters now share that journal-writing boundary,
+validate whole-book evidence and preserve saved engine holds. Only the managed paper account's
+own capital/holdings value its risk; candidate balances cannot replace them. Production reader/freshness
+qualification and cash-flow adjustment remain pending. Existing engine valuation semantics are unchanged.
 An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
 The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays
@@ -45,6 +48,8 @@ block new risk and require reviewed recovery. Retrying a saved command returns c
 old permission. Local journal recovery does not renew AI review, clear independent holds or authorize
 orders; host/storage qualification and protection recovery remain separate dependencies.
 
+The operator has deferred exact lesson criteria until relevant to Step 6 (September 27, ADR-0087).
+Continue other implementation without reopening that decision or inventing admission thresholds.
 The MVP learning cadence is one review after each trading session: evaluate completed trades and
 blocked alternatives with enough follow-up evidence, preserve inconclusive cases as pending and
 record evidence for helpful/harmful outcomes. Only qualified evaluated lessons inform subsequent

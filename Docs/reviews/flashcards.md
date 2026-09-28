@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Why can't the paper dashboard's freshest price qualify the whole portfolio?
+
+A: One fresh holding can conceal stale prices elsewhere. The risk adapters require every holding to
+match a dated checkpoint or identified source bar and reconcile current cash/history. Shadow's saved
+timestamp may mean a bar start or a fill time, so it needs its source evidence before interpretation.
+Source: ADR-0087. Tags: data-sources, risk-management.
+
 ### Q: Does the broker-book adapter prove that live portfolio values are qualified?
 
 A: No. It checks scoped reconciled books, exact-time prices and no-flow evidence, saves provenance,

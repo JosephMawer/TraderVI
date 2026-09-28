@@ -9,12 +9,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **Step 2 checkpoint (September 27):** core framework and portfolio scope are agreed. All current
   strategy portfolios, including gate/position-count variants, are AI choices; expand the catalogue
-  as new portfolios are built and integrated (ADR-0087). Lesson admission remains a feature decision
-  before automatic lessons; it does not block offline risk code. Discretion is
+  as new portfolios are built and integrated (ADR-0087). The operator deliberately defers lesson
+  criteria until needed for Step 6; continue delivery without reopening that topic now. Discretion is
   already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
   Step 4 now has a tested offline continuous-round core and scoped local transition journal with
-  replay-validated recovery. Step 3 has a tested broker-book/no-flow adapter with saved source evidence;
-  native producer/freshness qualification, paper adapters and actual cash-flow adjustment remain pending.
+  replay-validated recovery. Step 3 has tested broker and both paper-family adapters with saved source
+  evidence; authoritative reader composition, native freshness and actual cash-flow adjustment remain pending.
   Qualified data/cash-flow inputs, complete risk adapters, production
   storage/retention/backup qualification and execution/host connection remain unfinished.
 
@@ -23,8 +23,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.
   Preserve independent controls, existing holds and separate paper/live state. Engines supply
   versioned signals/rules; AI proposes actions; execution rechecks permission. Focused extraction,
-  saved-hold transition integration and regression validation remain pending. The remaining
-  lesson admission needs a feature decision; catalogue mapping and concrete rule mapping are
+  saved-hold transition integration and regression validation remain pending. Lesson criteria are
+  operator-deferred; catalogue mapping and concrete rule mapping are
   implementation work under the already agreed discretion boundary.
 
 - **Cycle-loss schedule accepted (September 27, ADR-0087):** 5% / 3% / 1% replaces the earlier
@@ -168,9 +168,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Future portfolio expansion:** additional portfolios should broaden the AI's choices. Specific
   designs and development order are deferred; this does not delay Step 3 valuation integration.
   Preserve exact strategy/gate versions and qualify each adapter before executable use (ADR-0087).
-- **Next feature discussion, when needed:** evaluated-lesson admission; subsequently
-  finish remaining rule/lifecycle and learning qualification decisions,
-  production data access, missing-data/model-outage behavior and durable proposal dispositions.
+- **Deferred at the operator's request (September 27):** leave lesson criteria open-ended for now.
+  Revisit only when relevant to learning implementation; continue data, risk and execution work.
+  No qualification thresholds are chosen and no automatic hypothesis-to-lesson promotion is enabled.
+- **Next implementation:** authoritative paper-book readers, catalogue/decision packets and qualified
+  production data access; retain missing-data/model-outage handling and durable proposal dispositions.
   ADR-0087 records the implemented client/audit/proposal foundation and remaining dependencies.
   No real model calls, broker operations or activation have run.
 

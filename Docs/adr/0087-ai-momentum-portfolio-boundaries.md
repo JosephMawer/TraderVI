@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Client/learning foundation, continuous-round risk core, local risk journal and broker-book valuation adapter implemented offline; native sources, shared engine integration, outcome evaluation and host qualification pending.
+**Status:** Client/learning foundation, continuous-round risk core, local journal and broker/paper valuation adapters implemented offline; production sources, engine integration, outcome evaluation and host qualification pending. Lesson criteria are operator-deferred.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -81,11 +81,11 @@ during implementation and escalate only genuine ambiguities.
 ## Implementation checkpoint — September 27
 
 Step 2 has enough agreed framework to proceed with code. Portfolio eligibility is now agreed below:
-all current strategy portfolios, expanding as more are built and integrated. Evaluated-lesson
-admission remains a decision before automatic lessons are enabled. Do not reopen ordinary-rule
+all current strategy portfolios, expanding as more are built and integrated. The operator now defers
+lesson criteria until needed for learning implementation; keep delivery moving. Do not reopen ordinary-rule
 discretion. Data/feed qualification, concrete rule mapping, storage and execution wiring are
 implementation dependencies, not additional broad
-design interviews. Step 4 has an offline risk core; Step 3 has its first broker-book adapter below.
+design interviews. Step 4 has an offline risk core; Step 3 has broker and paper adapters below.
 
 `Core/Trader/Risk/PortfolioRiskAssessment.cs` establishes the shared output contract and explicit
 engine-daily/AI-continuous profile identifiers. It is a risk assessment, never order authority.
@@ -132,14 +132,43 @@ remain caller inputs, and a result is an assessment rather than execution author
 
 This is contract validation over producer-supplied evidence, not native source qualification. It
 cannot prove the producer supplied every actual holding or complete cash-event history; those remain
-explicit producer obligations under ADR-0083. Paper adapters, native collection, current-account/price
+explicit producer obligations under ADR-0083. Production reader composition, native collection, current-account/price
 reconciliation and host composition remain pending. Tests use synthetic evidence only.
+
+`DelphiLiveAiPortfolioRiskMonitor` and `SystemShadowAiPortfolioRiskMonitor` now share the same
+persist-before-assess writer with the broker adapter. Their journals use the actual managed paper
+portfolio ID for both account and portfolio scope. Candidate portfolios may supply strategy context,
+but cannot substitute their balances/holdings for the managed account. Source-family changes require
+the still-pending reviewed handover; changing a source never silently resets risk.
+
+The Delphi Live adapter requires the latest complete checkpoint to match current holdings, cash and
+all whole-share fills. It rejects opening-only marks, incomplete/corporate-action checkpoints,
+changed revisions and trades occurring after the checkpoint time; wait for a subsequent complete
+checkpoint in that case. Original capital and completed fills remain fixed across observations.
+The Daily Shadow adapter requires a coherent complete generation/portfolio/session/position book,
+including closed positions, with identified source bars. Stored last-price timestamps mix bar starts
+and fill times, so require matching completed five-minute bar closes for every held symbol. Derive
+value from actual cash/shares and reconcile fixed capital against original costs and realized results.
+This is an explicit intraday input contract, not a change to either engine's opening definition.
+
+Both retain generation/policy/gate identity, add saved engine holds as independent blocks, and reject
+capital/history substitution. No source reader, production freshness duration, one-minute paper feed,
+AI-owned operating paper account or execution loop is installed. In particular, separate Shadow UI
+queries do not prove the coherent dated book; its authoritative producer remains to be composed.
 
 This increment cannot adjust cash flows or qualify a feed. Matched cash-event
 integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure
 checks, ordinary-engine adapters, production storage/host integration and execution remain separate dependencies. Existing
 holds are supplied as independent blocks; this core cannot clear them. Existing runtime engines
 are unchanged and no production caller is connected. Validation evidence belongs in project status.
+
+## Lesson criteria deferred — September 27 decision
+
+The operator wants to continue delivery without specifying what qualifies as a learned lesson now.
+Leave admission criteria open-ended and revisit them when they become relevant to Step 6. They are
+not a blocker for the current operating contract or data/risk/execution work. Preserve the learning
+feature and consultation hooks; no thresholds are selected and hypotheses do not automatically become
+evaluated lessons through this deferral.
 
 ## Daily buying pause — September 26 decision
 

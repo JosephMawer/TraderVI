@@ -40,6 +40,14 @@ Rejected input blocks new allowance without erasing a latched closure; duplicate
 extend expiry. Initialization is explicit and storage errors propagate. The producer must still
 prove native book/flow completeness; no production feed or freshness duration is qualified.
 
+The broker and paper adapters share `AiPortfolioRiskObservationWriter`. Delphi Live paper consumes
+its complete checkpoint plus matching current cash/positions/fills; post-checkpoint fills wait for
+a later complete mark. Daily Shadow consumes an explicitly coherent full book and actual five-minute
+bars matching every held symbol's saved price. Its stored timestamp can mean bar start or fill time;
+the overview's freshest timestamp is insufficient. Both preserve saved source holds, capital and
+generation history, with strict paper-account scope and source provenance. Authoritative producer
+composition and operating AI paper-account integration remain pending; ordinary engines are unchanged.
+
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
 gets an explicit assessment. `AiPortfolioExecutionCoordinator` rereads the saved decision and consults

@@ -19,12 +19,6 @@ public sealed record BrokerAiRiskObservation(Guid PortfolioId, DateOnly TradingD
     public override string ToString() => "Broker AI risk observation (financial data omitted)";
 }
 
-public sealed record AiRiskObservationResult(bool Accepted, bool Advanced,
-    AiRiskJournalSnapshot Snapshot, PortfolioRiskAssessment Assessment)
-{
-    public override string ToString() => "AI risk observation result (not order authority)";
-}
-
 /// <summary>
 /// Offline adapter from the existing reconciled broker book/no-flow contracts to durable AI risk.
 /// Exact contemporaneous marks only; opening/saved-price and broker-graph contracts are not substituted.
@@ -34,73 +28,30 @@ public sealed record AiRiskObservationResult(bool Accepted, bool Advanced,
 public sealed class BrokerAiPortfolioRiskMonitor
 {
     public const string ValuationContract = "BrokerAiExactBookMarksV1";
-    public const string RejectedObservation = "PortfolioValuationRejected";
+    public const string RejectedObservation = AiPortfolioRiskObservationWriter.RejectedObservation;
     private readonly AiPortfolioRiskJournal journal;
-    private readonly AiPortfolioRiskPolicy policy;
+    private readonly AiPortfolioRiskObservationWriter writer;
     private readonly TimeSpan maximumEvidenceAge;
-    private readonly object sync = new();
 
     public BrokerAiPortfolioRiskMonitor(AiPortfolioRiskJournal journal, AiPortfolioRiskPolicy policy,
         TimeSpan maximumEvidenceAge)
     {
         this.journal = journal ?? throw new ArgumentNullException(nameof(journal));
-        this.policy = policy ?? throw new ArgumentNullException(nameof(policy));
+        ArgumentNullException.ThrowIfNull(policy);
         if (journal.Scope.Mode != AiRiskAccountMode.Live || maximumEvidenceAge <= TimeSpan.Zero)
             throw new ArgumentException("A live account journal and explicitly qualified evidence age are required.");
         this.maximumEvidenceAge = maximumEvidenceAge;
+        writer = new(journal, policy);
     }
 
     // Initialization is deliberately separate from monitoring: a missing round is never reset on a poll.
     public AiRiskObservationResult Start(BrokerAiRiskObservation? observation, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        Process(observation, now, hasFreshAiReview, independentBlocks, initialize: true);
+        writer.Apply(previous => Qualify(observation, previous, now), now, hasFreshAiReview, independentBlocks, initialize: true);
 
     public AiRiskObservationResult Observe(BrokerAiRiskObservation? observation, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        Process(observation, now, hasFreshAiReview, independentBlocks, initialize: false);
-
-    private AiRiskObservationResult Process(BrokerAiRiskObservation? observation, DateTimeOffset now,
-        bool hasFreshAiReview, ImmutableArray<string> independentBlocks, bool initialize)
-    {
-        if (independentBlocks.IsDefault)
-            throw new ArgumentException("Independent checks must be supplied.", nameof(independentBlocks));
-        lock (sync)
-        {
-            // Storage failures propagate. Never turn an unreadable/uncertain journal into empty state.
-            var current = journal.ReadCurrent();
-            PortfolioRiskValuation value;
-            try
-            {
-                if (initialize != (current.State is null))
-                    throw new InvalidOperationException("Explicit initialization and an existing round cannot be interchanged.");
-                value = Qualify(observation, current.State?.LastValuation, now);
-                if (current.State is { } prior) _ = policy.Observe(prior, value, now);
-                else _ = policy.Start(value, now);
-            }
-            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or OverflowException)
-            {
-                return Result(current, false, false, now, hasFreshAiReview, independentBlocks.Add(RejectedObservation));
-            }
-
-            // A retry cannot extend expiry or manufacture another fresh observation/history entry.
-            if (value == current.State?.LastValuation)
-                return Result(current, true, false, now, hasFreshAiReview, independentBlocks);
-
-            AiRiskJournalSnapshot saved;
-            try
-            {
-                saved = journal.Apply(new(value.EvidenceId, current.Revision,
-                    initialize ? AiRiskTransitionKind.Start : AiRiskTransitionKind.Observe, value), now);
-            }
-            catch (InvalidOperationException)
-            {
-                // Includes a competing transition. Re-read current protection, never return old allowance.
-                return Result(journal.ReadCurrent(), false, false, now, hasFreshAiReview,
-                    independentBlocks.Add(RejectedObservation));
-            }
-            return Result(saved, true, saved.Revision != current.Revision, now, hasFreshAiReview, independentBlocks);
-        }
-    }
+        writer.Apply(previous => Qualify(observation, previous, now), now, hasFreshAiReview, independentBlocks, initialize: false);
 
     private PortfolioRiskValuation Qualify(BrokerAiRiskObservation? observation,
         PortfolioRiskValuation? previous, DateTimeOffset now)
@@ -141,15 +92,5 @@ public sealed class BrokerAiPortfolioRiskMonitor
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json))));
         return new(observation.PortfolioId, book.EvidenceId, observation.TradingDate,
             book.At, validUntil, value, true, true) { Source = source };
-    }
-
-    private AiRiskObservationResult Result(AiRiskJournalSnapshot snapshot, bool accepted, bool advanced,
-        DateTimeOffset now, bool hasFreshAiReview, ImmutableArray<string> blocks)
-    {
-        var assessment = snapshot.State is { } state
-            ? policy.Assess(state, now, hasFreshAiReview, blocks)
-            : new PortfolioRiskAssessment(PortfolioRiskProfile.AiContinuousRounds, 0m, false,
-                blocks.Add("RiskRoundNotInitialized"));
-        return new(accepted, advanced, snapshot, assessment);
     }
 }
