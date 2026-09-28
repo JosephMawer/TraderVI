@@ -31,6 +31,11 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
+The September 28 source update requires reviewed migration 041 (`SymbolAliases`) before the updated
+monitor runs. The broker-alias lookup is implemented/tested; installation and prospective source-adoption
+verification remain pending. It preserves account history and rejects unresolved references. See
+[ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md) and project status for evidence.
+
 The initial policy and generated schema install inactive. Simulation capital has no default. An explicit positive capital amount, currency and operator reason are required; activation takes effect at the next regular-session boundary.
 
 The host requires a locally supplied, reviewed official TSX calendar snapshot through `TRADERVI_TSX_CALENDAR_PATH`. `ReviewedTsxSessionCalendar` validates a version, source reference, declared date coverage and distinct regular-session dates. It fails outside coverage and never substitutes a weekday guess. The [calendar installation](../Operations/Calendars/README.md) was separately authorized and completed on 2026-09-06: 247 full sessions within 2026-01-01 through 2026-12-23, with the path saved for the Windows user. Eight focused offline tests passed. Runtime does not call a calendar service. Coverage stops before December 24's short session; short-session handling and carried-position protection require review before extension.

@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Resolve monitoring references without rewriting account history
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope, budgeted client and proposal-only boundary
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
 
@@ -136,6 +137,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-sources
 
+- [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Explicit source-scoped stock aliases with verified listing evidence
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Exact dated broker account values; native morning alignment remains unverified
 
 - [ADR-0004](0004-genuity-us-confirming-indices.md) — US confirming-index source and staleness gate

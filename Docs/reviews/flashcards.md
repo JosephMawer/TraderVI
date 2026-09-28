@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### ADR-0088 — Source symbol aliases
+
+- **Q:** Does translating a broker symbol change a saved trade? **A:** No. Only the monitoring reference changes; the owning account's records and history stay intact.
+- **Q:** Why use a verified alias instead of removing every exchange suffix? **A:** Names can collide across listings. A source-scoped mapping identifies one existing stock explicitly and rejects uncertainty.
+
 ### ADR-0069 — Direct Wealthsimple authentication
 
 - **Q:** Does a verified broker login permit strategy orders? **A:** No. Account reconciliation and explicit execution authority are separate boundaries.

@@ -184,8 +184,9 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Full mapping of variants without a saved publication remains unqualified; see project status.
    Missing comparison adoption is traced to a broker-suffixed tracked symbol rejected by the canonical
    symbol foreign key during Live startup; the official daily publication exists (project status).
-   Next repair verified symbol resolution at the monitoring boundary, preserve account history and
-   verify separately authorized prospective runtime recovery. Then qualify the separate valuation
+   Verified symbol resolution at the monitoring boundary is implemented/tested under ADR-0088,
+   preserving account history. Migration 041 is prepared, not installed. Next obtain exact-script
+   installation authority and verify prospective runtime recovery. Then qualify the separate valuation
    readers, including legacy-policy handling, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical

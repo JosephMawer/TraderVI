@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Read-only investigation identifies the missing comparison source: a broker-suffixed tracked symbol is absent from the canonical symbol table, causing Live session startup to fail before comparison adoption. Today's valid Delphi publication exists. Repair and runtime verification remain pending. AI readers previously passed 416 offline tests plus one native read check; old Live contexts are readable but not current.
+**Current record:** September 28, 2026. The Live startup symbol-alias repair is implemented and passes 51 focused tests, an isolated Release desktop build and an SSDT schema build. Migration 041 and runtime recovery await explicit installation authority. Today's valid Delphi publication exists; missing comparison adoption was traced to the symbol foreign-key failure. AI readers previously passed 416 offline tests plus one native read check; old Live contexts are readable but not current.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -238,9 +238,18 @@ foreign key and rolls back the session. Comparison adoption runs later in the sa
 never reached. This also prevents all three Live accounts from obtaining today's monitoring context.
 The four original Shadow accounts use their independent adoption path; all today's published Top 25
 rows in both lenses fail Breadth, which explains their zero admitted candidates separately from the bug.
-Next repair verified broker-to-canonical symbol resolution at the monitoring boundary without
-rewriting immutable broker/position history or weakening the foreign key; then obtain separately
-authorized operational recovery and verify prospective source adoption. Do not backdate lost coverage.
+The September 28 repair now resolves Real observation symbols using an explicit source-scoped alias
+table ([ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md)). Ownership IDs and action flags
+are preserved; unknown/conflicting references fail clearly. Account records and foreign keys are unchanged.
+Read-only saved broker metadata confirms CAD/XTSE equity listing evidence. Prepared migration 041
+rechecks that evidence and the canonical target before creating the table and its one reviewed alias.
+Validation: 51 focused alias, session, monitor and broker-projection tests pass using SDK 10.0.401;
+isolated Release WPF build passes with 260 existing CS8632/CS0168 warnings; Visual Studio MSBuild/SSDT
+schema build passes without warnings. NuGet auditing was disabled; no fresh dependency-security
+assessment or full-solution build is claimed. Logs: private `artifacts/ai-source-investigation-20260928/alias-*`.
+The migration has not been executed; the running desktop was not replaced/restarted and no external
+service or recovery workflow ran. Next obtain authority for the exact migration, verified backup and
+updated host restart, then verify prospective source adoption. Do not backdate lost coverage.
 Native valuation readers, including legacy policies, remain a separate next qualification.
 Remaining native mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
 before host integration. Candidate/managed histories are not interchangeable.

@@ -28,6 +28,16 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
         foreach (var portfolio in await ledger.GetPortfoliosForSessionAsync(date, cancellationToken))
             foreach (var position in portfolio.OpenPositions)
                 result.Add(new(position.Symbol, "DelphiLiveShadow", position.PositionId, true));
-        return result;
+        if (await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            "SELECT CASE WHEN OBJECT_ID(N'dbo.SymbolAliases',N'U') IS NULL THEN 0 ELSE 1 END;",
+            cancellationToken: cancellationToken)) == 0)
+            throw new InvalidOperationException("Live monitoring requires reviewed migration 20260928_041_AddSymbolAliases.sql. Account history is unchanged.");
+        using var references = await connection.QueryMultipleAsync(new CommandDefinition("""
+            SELECT Symbol FROM dbo.Symbols;
+            SELECT Source,Alias,Symbol FROM dbo.SymbolAliases;
+            """, cancellationToken: cancellationToken));
+        var symbols = await references.ReadAsync<string>();
+        var aliases = (await references.ReadAsync<HoldingSymbolAlias>()).AsList();
+        return DelphiLiveHoldingSymbols.Resolve(result, symbols, aliases);
     }
 }

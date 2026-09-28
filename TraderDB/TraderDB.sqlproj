@@ -83,6 +83,8 @@
     <Build Include="dbo/Tables/Quotes.sql" />
     <Build Include="dbo/Tables/GranvilleIndicatorLog.sql" />
     <Build Include="dbo/Tables/Symbols.sql" />
+    <Build Include="dbo/Tables/SymbolAliases.sql" />
+    <None Include="Migrations/20260928_041_AddSymbolAliases.sql" />
     <Build Include="dbo/Tables/StrategyVersion.sql" />
     <Build Include="dbo/Tables/TradeLog.sql" />
     <Build Include="dbo/Tables/PositionExecutionAudit.sql" />
