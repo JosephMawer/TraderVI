@@ -163,8 +163,19 @@ fall back; comparisons retain their fixed settings/version instead of another as
 
 The Shadow builder declines missing/mixed-time price evidence and trades after the valuation bar,
 including additions whose original entry time alone would miss the later trade. Saved rows/receipts
-determine observation time and content-derived identity; retries cannot refresh stale evidence. Cash-only
-books retain closed history and use saved update time. Invalid stored price audits or overlapping
+determine observation time and content-derived identity; replaying a receipt cannot refresh stale evidence.
+The September 28 cash-only refinement replaces the saved-update-only rule for current cash books:
+the reader captures SQL server time after reading the full book, while its serializable locks still
+protect cash, positions and history. When there are no open holdings and the requested Toronto session
+date is today, this is a new current cash observation (`CashVerifiedUtc`). It must reconcile fixed
+capital and all closed history, and cannot predate any saved book update or fill. Historical reads
+retain saved times. No account row, historical value or engine opening is rewritten.
+The explicit receipt is retained in risk source evidence; replay preserves its identity/expiry, while
+a subsequent complete read can produce a new observation without resetting the round, peak or holds.
+Any open holding keeps the original exact-bar valuation time and requires matching price evidence;
+a read receipt cannot refresh an invested book. Failed reads produce no receipt. This narrowly applies
+to the fixed-capital paper ledger, not broker cash or proof of external cash-event completeness.
+Invalid stored price audits or overlapping
 later invalid receipts cannot supply accepted bars. Source failures propagate; missing records produce
 rejected risk observations. The reader checks freshness after I/O and cancellation before journaling.
 

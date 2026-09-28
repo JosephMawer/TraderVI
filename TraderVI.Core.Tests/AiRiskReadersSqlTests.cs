@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Db;
+using Core.Trader;
 using Core.Trader.DelphiLive;
 using Core.Trader.Risk;
 using Dapper;
@@ -36,7 +37,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
         await connection.OpenAsync(ct);
         foreach (var family in catalogue.Entries.GroupBy(e => e.EngineFamily))
         {
-            int mapped = 0, unavailable = 0, valued = 0, invested = 0, stale = 0, current = 0, heldMissing = 0;
+            int mapped = 0, unavailable = 0, valued = 0, invested = 0, stale = 0, current = 0, heldMissing = 0, cashVerified = 0;
             var timer = Stopwatch.StartNew();
             foreach (var choice in family)
             {
@@ -67,6 +68,14 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                         value = SystemShadowAiPortfolioRiskMonitor.Qualify(choice.PaperAccountId, observation, null, age, now);
                         var open = observation.Positions.Where(p => p.Status == "Open").ToArray();
                         if (open.Length > 0) invested++;
+                        if (observation.CashVerifiedUtc is { } verified)
+                        {
+                            Assert.True(open.Length == 0 && verified == observation.At && verified == observation.ObservedUtc,
+                                "Cash verification must identify the current whole cash book.");
+                            cashVerified++;
+                        }
+                        else Assert.True(open.Length > 0 || date != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)),
+                            "Today's cash-only book is missing its transaction verification time.");
                         // Independently total the saved holding marks; the adapter uses actual matching source bars.
                         decimal expected = observation.Portfolio.CashBalance + open.Sum(p => p.Shares * p.LastPrice);
                         Assert.True(value.Value == expected, "Shadow risk value differs from its saved whole book.");
@@ -136,7 +145,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                     failures.Add($"{family.Key}: {ex.GetType().Name}\n{ex.StackTrace}");
                 }
             }
-            output.WriteLine($"{family.Key}: choices={family.Count()}, mapped={mapped}, reconciled={valued}, invested={invested}, unavailable={unavailable}, unavailable with holdings={heldMissing}, within diagnostic age/session={current}, expired/outside session={stale}, elapsed={timer.ElapsedMilliseconds} ms.");
+            output.WriteLine($"{family.Key}: choices={family.Count()}, mapped={mapped}, reconciled={valued}, invested={invested}, verified current cash books={cashVerified}, unavailable={unavailable}, unavailable with holdings={heldMissing}, within diagnostic age/session={current}, expired/outside session={stale}, elapsed={timer.ElapsedMilliseconds} ms.");
             if (valued == 0) failures.Add($"{family.Key}: no saved values reconciled; empty reads cannot qualify the family.");
         }
         Assert.NotEmpty(catalogue.Entries);

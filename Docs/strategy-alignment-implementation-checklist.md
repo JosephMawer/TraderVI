@@ -189,9 +189,11 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    Verified symbol resolution at the monitoring boundary is installed under ADR-0088, preserving
    account history. Authorized migration 041/restart restored all eight comparison sources and a
    fresh Live cycle; missed coverage remains a gap. Risk readers now preserve legacy policies and
-   reconcile saved cash/holdings/prices; stale values remain blocked. Next qualify current whole-book
-   observations, including unchanged cash-only books, feed age/coverage, SQL concurrency and broker cash
-   events. This is not connected collection or minute-level operational coverage. See project status.
+   reconcile saved cash/holdings/prices; stale values remain blocked. Current cash-only Shadow reads now
+   supply checked transaction receipts without rewriting account history or refreshing held prices.
+   Native cash verification is checked; recurring risk observation hosting remains pending. Next qualify
+   held-stock feed age/coverage, recurring paper checks, SQL concurrency and broker cash events.
+   This is not connected collection or minute-level operational coverage. See project status.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.

@@ -39,7 +39,11 @@ it saves source provenance and blocks new allowance on rejected observations whi
 Offline Delphi Live and Daily Shadow paper adapters now share that journal-writing boundary,
 validate whole-book evidence and preserve saved engine holds. Only the managed paper account's
 own capital/holdings value its risk; candidate balances cannot replace them. Paper saved-record readers
-are connected in source with coherent whole-book reads and saved evidence timestamps. Native saved-book
+are connected in source with coherent whole-book reads and saved evidence timestamps. Current cash-only
+Shadow books may carry a new SQL verification receipt captured under the full-book transaction's locks;
+cash must reconcile to fixed capital and complete closed history. Replaying a receipt expires normally,
+historical reads retain saved times, and invested books still require their original exact price bars.
+This does not refresh market evidence or reset risk history/holds (ADR-0087). Native saved-book
 mapping/arithmetic is checked; source/freshness/concurrency qualification and cash-flow adjustment remain
 pending. Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
 fall back. Existing engine valuation semantics are unchanged.

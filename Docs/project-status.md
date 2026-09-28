@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Native paper risk-value checks now reconcile all 15 portfolios, including two invested books. The Shadow risk reader's legacy-policy compatibility is corrected in source and tested; ten saved Shadow values fail the diagnostic freshness check rather than gaining new-risk permission. The earlier alias repair remains installed with source adoption recovered. Current whole-book observations, feed/freshness qualification and operating AI host integration remain unfinished.
+**Current record:** September 28, 2026. Native paper risk-value checks reconcile all 15 portfolios. Current cash-only Shadow books now receive a verified read timestamp; invested books keep their actual price timestamps. All 15 meet the diagnostic age/session check at 11:47, including three invested books. This reader change is compiled/tested, not installed in the operating AI host. The earlier alias repair remains installed with source adoption recovered. Feed/freshness qualification and recurring AI host integration remain unfinished.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -25,7 +25,7 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
-| AI paper risk-value readers | Sep 28, native reads 11:31–11:35 | All 12 Shadow and three Live saved books map and reconcile cash/holdings/prices, including one invested book per family; none is missing. At the diagnostic ten-minute age, two Shadow and all three Live values qualify temporally, while ten Shadow values are rejected as expired/outside the saved session. Altered cash, wrong account, missing/incomplete marks and expired-value allowance are rejected in memory. This is a saved-book check, not production feed or host qualification. No SQL/journal writes, AI calls, broker calls or app restart were performed for this increment. Evidence: `artifacts/ai-risk-values-20260928/native-final.log`. |
+| AI paper risk-value readers | Sep 28, native reads 11:47 | All 12 Shadow and three Live books map and reconcile cash/holdings/prices; none is missing. Ten Shadow cash-only books carry current transaction verification receipts; two invested Shadow books and one invested Live book retain price/checkpoint evidence. All 15 meet the diagnostic ten-minute age/session check. Altered cash, wrong account, missing/incomplete marks and expired-value allowance are rejected in memory. This is a bounded reader check, not production feed or recurring host qualification. No SQL/journal writes, AI calls, broker calls or app restart were performed. Evidence: `artifacts/ai-risk-values-20260928/cash-verification-native.log`. |
 | Live symbol-alias repair / comparison adoption | Sep 28, installation 11:17; SQL through 11:22; native readers 11:23 | Authorized migration 041 installed after a checksum-verified 1,121.07 MB COPY_ONLY backup and SHA-256-matching local copy in the OneDrive folder; cloud synchronization and a restore drill were not verified. Before/after counts and content hashes match across eight checked account/history tables. Restarted PID 32308 is responsive and loaded Core/WPF hashes match source build `8106499a`. Today's session froze successfully, canonical tracked membership exists while the original position symbol remains unchanged, all eight comparison Shadow sessions are Active with adopted sources, and all three Live ledgers have today's session. The common source became effective at 11:20; a fresh Live cycle completed at 11:22:26 and saved evaluations/ledger updates. Coverage remains Blocked with HostGapObserved; missed intervals were not backfilled as valid observations. The final native AI reader test passes for 12 Shadow and three Live contexts; none grants a selectable proposal. Private receipts: `artifacts/symbol-alias-install-20260928/`; earlier diagnosis: `artifacts/ai-source-investigation-20260928/`. |
 | Nightly pipeline | Sep 24, completed 00:36:48; SQL checked 09:01 | Scheduled current-source build and all three stages completed. Hermes inserted 483 daily bars with zero collection failures; Delphi published Valid using Sep 23 data. Athena wrote 864 valid outcomes and four invalid older `v3.0` 20-session outcomes (`MissingSymbolSession`), producing Attention/exit 2. No recovery rerun was needed. |
 | Delphi inputs | Sep 24, 09:01 | Daily identity is `v3.4-observed-benchmarks`. Publication: 211 candidates, 422 lens rows, zero source-observation mismatches, 25 Hold rows per lens blocked by Breadth. All 483 active symbols, XIU/SPY and checked derived series reach Sep 23. ALYA is excluded for an invalid older feature bar; fresh endpoint coverage does not prove complete historical inputs. Publication is not buy eligibility. |
@@ -234,21 +234,27 @@ for read-only native checks without constructing a journal or granting runtime p
 `AiRiskReadersSqlTests` passes against all 15 saved portfolios. It independently totals saved holding
 marks, compares the adapter's source-bar/checkpoint valuation, and exercises cash/account/incomplete-price
 rejection and expiry. The risk policy calculates only in memory; no production round is initialized.
-The observed five temporally usable books and ten rejected Shadow books use a diagnostic ten-minute
-age, not an approved production setting. Reading old values does not renew their timestamps.
-Both invested books reconcile, but this does not establish external feed accuracy or one-minute coverage.
-Final family read samples: Shadow 143 ms, Live 1,076 ms; single serial samples do not qualify lock duration
+The earlier 11:35 check found five temporally usable books and ten rejected Shadow books. Shadow's
+unchanged cash-only books had no current saved update time. The reader now records SQL time after the
+complete serializable read, with explicit cash-only provenance, fixed-capital/closed-history reconciliation
+and no ledger edits. Historical reads and invested books retain their saved valuation times. Receipt
+replay expires normally; new verified cash reads preserve round history, peaks and holds (ADR-0087).
+At 11:47, all 15 books meet the diagnostic ten-minute age/session check: ten verified cash-only Shadow
+books, two invested Shadow books and three Live books (one invested). This is not an approved production
+age, external feed accuracy or one-minute coverage. Family read samples: Shadow 184 ms, Live 1,070 ms;
+single serial samples do not qualify lock duration
 or concurrent load. Opt-in instructions and side effects: [running](running.md#ai-paper-risk-value-check).
 
-Validation: **186 focused offline tests pass**, with the native test skipped by default; the separately
+Validation: **193 focused offline tests pass**, with the native test skipped by default; the separately
 enabled native test passes. Isolated Release WPF build passes with zero errors and 260 existing
 CS8632/CS0168 warnings. SDK 10.0.401; no fresh dependency-security audit (`NuGetAudit=false`), full Core
 suite or full-solution/SQL rebuild was performed. No schema changed. Evidence: private
-`artifacts/ai-risk-values-20260928/` (`regressions.log`, `native-final.log`, `wpf-build.log`).
+`artifacts/ai-risk-values-20260928/` (`cash-verification-tests.log`, `cash-verification-native.log`,
+`cash-verification-wpf-build.log`; earlier baseline: `native-final.log`).
 Changes are compiled/tested in source; this increment did not replace/restart the normal desktop or
 connect the unfinished AI runtime. No external service, database mutation or production risk-journal write ran.
-Next qualify current whole-book observation production, including unchanged cash-only books, actual
-feed age/coverage and broker cash events; preserve the tested stale-input rejection while doing so.
+Next qualify held-stock feed age/coverage and wire recurring risk observations into the AI paper host;
+broker cash events remain a separate dependency. Preserve the tested stale-input rejection.
 Transaction concurrency/lock duration and full source coverage remain unqualified.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

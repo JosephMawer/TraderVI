@@ -11,13 +11,13 @@ using Core.Oracle;
 
 namespace Core.Trader.Risk;
 
-/// <summary>One coherent saved read; UpdatedUtc comes from saved rows, never the act of reading them.</summary>
+/// <summary>A coherent book; only a verified current cash-only read can advance time without new prices.</summary>
 internal sealed record SystemShadowSavedRiskBook(SystemShadowGenerationInfo Generation,
     SystemShadowRuntimePortfolio Portfolio, SystemShadowRuntimeSession Session,
     ImmutableArray<SystemShadowPositionInfo> Positions, ImmutableArray<ShadowPaperRiskPrice> Prices,
     DateTime UpdatedUtc, DateTime? LastFillUtc, bool IsGateComparison,
     Guid? AssignedVersion, string? SettingsJson, string? SettingsHash, DateTime? AssignedUtc,
-    PaperComparisonAccount? Comparison, string? AssignedFamily = null)
+    PaperComparisonAccount? Comparison, string? AssignedFamily = null, DateTime? VerifiedReadUtc = null)
 {
     internal ShadowPaperRiskObservation? Build(Guid requestedPortfolio, DateOnly date)
     {
@@ -42,13 +42,27 @@ internal sealed record SystemShadowSavedRiskBook(SystemShadowGenerationInfo Gene
         // A fill timestamp is not a bar start. The monitor also checks every source price against its holding.
         if (open.Length != Prices.Length || open.Any(p => !Prices.Any(b => b.Symbol == p.Symbol))) return null;
         DateTime at = open.Length == 0 ? UpdatedUtc : open.Min(p => p.LastPriceEventUtc).AddMinutes(5);
+        DateTime? cashVerified = null;
+        if (open.Length == 0 && VerifiedReadUtc is { } verified)
+        {
+            if (verified.Kind != DateTimeKind.Utc || verified < UpdatedUtc || verified < Generation.UpdatedUtc)
+                return null;
+            // A present-tense check cannot recreate a historical session value.
+            if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(verified)) == date)
+            {
+                at = verified;
+                cashVerified = verified;
+            }
+        }
         if (open.Any(p => p.LastPriceEventUtc.AddMinutes(5) != at) ||
             LastFillUtc is { } fill && (fill.Kind != DateTimeKind.Utc || fill > at)) return null;
         var observed = new[] { UpdatedUtc, Generation.UpdatedUtc, at }
             .Concat(Prices.Select(p => p.Bar.ReceivedUtc)).Max();
         var result = new ShadowPaperRiskObservation(Guid.Empty, date, at, observed, Generation, portfolio, Session,
-            Positions.OrderBy(p => p.PositionId).ToImmutableArray(), Prices.OrderBy(p => p.Symbol, StringComparer.Ordinal).ToImmutableArray());
-        // Same saved content yields the same command, even across restart. Polling cannot renew freshness.
+            Positions.OrderBy(p => p.PositionId).ToImmutableArray(), Prices.OrderBy(p => p.Symbol, StringComparer.Ordinal).ToImmutableArray())
+            { CashVerifiedUtc = cashVerified };
+        // Replaying the same receipt is idempotent. Only a new verified cash read advances cash freshness;
+        // invested books retain their original bar timestamps and content identity.
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result)));
         return result with { EvidenceId = new Guid(hash.AsSpan(0, 16)) };
     }

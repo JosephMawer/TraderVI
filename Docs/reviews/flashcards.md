@@ -1537,3 +1537,4 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 
 - **Q:** Can missing AI round history be replaced with a fresh round on restart? **A:** No. Missing, corrupt or interrupted history requires reviewed recovery. Restore the saved round, peak and attempt count; fresh inputs and independent risk checks still govern trading. (ADR-0087)
 - **Q:** Does retrying a saved risk command return its old buying allowance? **A:** No. An exact retry returns current state without another transition. Reusing its identity with changed input is rejected. (ADR-0087)
+- **Q:** How can an unchanged cash-only paper account provide a current risk value? **A:** Read the complete locked book, confirm there are no open holdings and reconcile cash against fixed capital and closed trades. Record that verification time. Replaying the receipt still expires; held stock prices cannot gain freshness this way. (ADR-0087)

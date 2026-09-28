@@ -47,8 +47,9 @@ state, rules and daily paper performance to those packets. The missing compariso
 identified a tracked broker-symbol/canonical-symbol mismatch blocking Live session initialization.
 The alias lookup and migration 041 are installed under ADR-0088; prospective source adoption and
 a fresh Live cycle are verified. The Shadow risk reader now preserves the same legacy policy identities
-as the decision reader. Next qualify current whole-book observation production (including unchanged
-cash-only accounts), feed freshness/coverage, SQL concurrency and broker cash events, then connect
+as the decision reader. Current cash-only Shadow reads now carry checked transaction timestamps;
+held prices retain their original freshness limits. Next qualify held-stock feed freshness/coverage,
+connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing

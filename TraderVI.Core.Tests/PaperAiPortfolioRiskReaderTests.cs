@@ -210,6 +210,92 @@ public sealed class PaperAiPortfolioRiskReaderTests : IDisposable
     }
 
     [Fact]
+    public async Task VerifiedCashReadsAdvanceFreshnessWithoutResettingRiskOrHistory()
+    {
+        var book = Book();
+        book = book with { Positions = [book.Positions[0] with { Status = "Closed", ExitUtc = Open.AddMinutes(11), RealizedProfitLoss = -100m }],
+            Prices = [], LastFillUtc = Open.AddMinutes(11), Portfolio = book.Portfolio with { CashBalance = 9900m },
+            VerifiedReadUtc = Open.AddMinutes(20), Session = book.Session with { DailyLossGuardActive = true } };
+        using var journal = Journal();
+        var clock = new Clock(Open.AddMinutes(20));
+        var reader = new PaperAiPortfolioRiskReader(new ShadowSource((id, date, _) => Task.FromResult(book.Build(id, date))),
+            new SystemShadowAiPortfolioRiskMonitor(journal, policy, TimeSpan.FromMinutes(3)), clock);
+        var first = await reader.StartAsync(Date, true, []);
+        Assert.True(first.Accepted);
+        Assert.Equal(9900m, first.Snapshot.State!.LastValuation.Value);
+        Assert.Equal(book.VerifiedReadUtc, book.Build(portfolio, Date)!.CashVerifiedUtc);
+        Assert.Contains("DailyBuyingPaused", first.Assessment.NewBuyBlocks);
+        Assert.False((await reader.ObserveAsync(Date, true, [])).Advanced);
+        clock.Now = Open.AddMinutes(24);
+        Assert.False((await reader.ObserveAsync(Date, true, [])).Accepted); // Replaying the old receipt expires.
+        book = book with { VerifiedReadUtc = clock.Now };
+        var next = await reader.ObserveAsync(Date, true, []);
+        Assert.True(next.Accepted);
+        Assert.True(next.Advanced);
+        Assert.Equal(first.Snapshot.State.RoundPeak, next.Snapshot.State!.RoundPeak);
+        Assert.Contains("DailyBuyingPaused", next.Assessment.NewBuyBlocks);
+        Assert.Single(book.Build(portfolio, Date)!.Positions);
+        Assert.Equal(2, journal.ReadHistory().Length);
+        book = book with { Portfolio = book.Portfolio with { CashBalance = 10000m } };
+        Assert.False((await reader.ObserveAsync(Date, true, [])).Accepted); // A new receipt cannot excuse changed cash.
+        Assert.Equal(next.Snapshot, journal.ReadCurrent());
+    }
+
+    [Fact]
+    public void VerifiedReadCannotRefreshInvestedBooksOrInventMissingPrices()
+    {
+        var book = Book();
+        var saved = book.Build(portfolio, Date)!;
+        var reread = book with { VerifiedReadUtc = Open.AddMinutes(20) };
+        var observation = reread.Build(portfolio, Date)!;
+        Assert.Equal(saved.EvidenceId, observation.EvidenceId);
+        Assert.Equal(saved.At, observation.At);
+        Assert.Null(observation.CashVerifiedUtc);
+        Assert.Null((reread with { Prices = [] }).Build(portfolio, Date));
+        using var journal = Journal();
+        var monitor = new SystemShadowAiPortfolioRiskMonitor(journal, policy, TimeSpan.FromMinutes(3));
+        Assert.False(monitor.Start(observation, Open.AddMinutes(20), true, []).Accepted);
+        Assert.False(monitor.Start(observation with { At = Open.AddMinutes(20), ObservedUtc = Open.AddMinutes(20),
+            CashVerifiedUtc = Open.AddMinutes(20) }, Open.AddMinutes(20), true, []).Accepted);
+    }
+
+    [Theory]
+    [InlineData("NonUtc")]
+    [InlineData("BeforeBook")]
+    [InlineData("BeforeGeneration")]
+    [InlineData("BeforeFill")]
+    public void InvalidCashVerificationProducesNoObservation(string defect)
+    {
+        var book = Book() with { Positions = [], Prices = [], LastFillUtc = null, VerifiedReadUtc = Open.AddMinutes(20) };
+        book = defect switch
+        {
+            "NonUtc" => book with { VerifiedReadUtc = DateTime.SpecifyKind(Open.AddMinutes(20), DateTimeKind.Unspecified) },
+            "BeforeBook" => book with { VerifiedReadUtc = Open.AddMinutes(11) },
+            "BeforeGeneration" => book with { Generation = book.Generation with { UpdatedUtc = Open.AddMinutes(21) } },
+            "BeforeFill" => book with { LastFillUtc = Open.AddMinutes(21) },
+            _ => throw new InvalidOperationException()
+        };
+        Assert.Null(book.Build(portfolio, Date));
+    }
+
+    [Fact]
+    public void CashVerificationCannotRecreateYesterdayOrArriveFromTheFuture()
+    {
+        var book = Book();
+        book = book with { Positions = [], Prices = [], LastFillUtc = null, Portfolio = book.Portfolio with { CashBalance = 10000m },
+            VerifiedReadUtc = Open.AddDays(1) };
+        var old = book.Build(portfolio, Date)!;
+        Assert.Null(old.CashVerifiedUtc);
+        Assert.Equal(book.UpdatedUtc, old.At);
+        using var journal = Journal();
+        var monitor = new SystemShadowAiPortfolioRiskMonitor(journal, policy, TimeSpan.FromMinutes(3));
+        var future = (book with { VerifiedReadUtc = Open.AddMinutes(20) }).Build(portfolio, Date)!;
+        Assert.False(monitor.Start(future, Open.AddMinutes(19), true, []).Accepted);
+        Assert.False(monitor.Start(future with { CashVerifiedUtc = Open.AddMinutes(19) }, Open.AddMinutes(20), true, []).Accepted);
+        Assert.Empty(journal.ReadHistory());
+    }
+
+    [Fact]
     public void MixedHoldingTimesAreUnavailableEvenWhenEachHasAPrice()
     {
         var book = Book();

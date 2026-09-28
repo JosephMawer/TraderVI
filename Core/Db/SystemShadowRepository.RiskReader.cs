@@ -47,6 +47,7 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
             new((Guid)b.EvidenceBarId, Utc((DateTime)b.EventUtc), Utc((DateTime)b.ReceivedUtc), 5,
                 (decimal)b.Open, (decimal)b.High, (decimal)b.Low, (decimal)b.Close))).ToImmutableArray();
         var times = await rows.ReadSingleAsync();
+        var receipt = await rows.ReadSingleAsync();
         await transaction.CommitAsync(cancellationToken);
         if (g is null || p is null || s is null || g.ActivatedUtc is null) return null;
         PaperComparisonAccount? comparison = a is null ? null : new((Guid)a.AccountId, (Guid)a.BatchId, (Guid)a.PairId,
@@ -63,7 +64,8 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
             positions, prices, Utc((DateTime)times.UpdatedUtc), UtcOrNull((DateTime?)times.LastFillUtc), (bool)g.IsGateComparison,
             assignment is null ? null : (Guid?)assignment.VersionId, assignment is null ? null : (string?)assignment.SettingsJson,
             assignment is null ? null : (string?)assignment.SettingsHash, assignment is null ? null : UtcOrNull((DateTime?)assignment.AssignedUtc),
-            comparison, assignment is null ? null : (string?)assignment.Family);
+            comparison, assignment is null ? null : (string?)assignment.Family,
+            Utc((DateTime)receipt.VerifiedReadUtc));
         return book.Build(portfolioId, tradingDate);
     }
 
@@ -104,5 +106,7 @@ SELECT (SELECT MAX(t.UpdatedUtc) FROM (
  UNION ALL SELECT UpdatedUtc FROM dbo.ShadowOrder WHERE PortfolioId=@Portfolio
  ) t) UpdatedUtc,
  (SELECT MAX(FillUtc) FROM dbo.ShadowOrder WHERE PortfolioId=@Portfolio AND Status=N'Filled') LastFillUtc;
+-- Timestamp after the complete read while serializable locks still protect the account and history.
+SELECT SYSUTCDATETIME() VerifiedReadUtc;
 """;
 }

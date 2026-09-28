@@ -925,7 +925,9 @@ try {
 ```
 
 The reviewed calendar must already be configured. Output contains counts and timings, never account
-values or identities. A pass can include safely unavailable/stale books: inspect the aggregate counts.
+values or identities. Shadow cash-only reads now report how many current books received a transaction
+verification timestamp. This SELECT-only receipt does not write account data or refresh held prices.
+A pass can include safely unavailable/stale books: inspect the aggregate counts.
 The ten-minute diagnostic age is not a production freshness decision. This is saved-book validation,
 not one-minute feed, broker cash-event, concurrent-load or operating AI host qualification.
 

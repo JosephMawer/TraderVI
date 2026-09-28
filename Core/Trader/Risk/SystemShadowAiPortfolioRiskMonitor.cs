@@ -7,6 +7,7 @@ using Core.Oracle;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Core.Trader.Promotion;
 
 namespace Core.Trader.Risk;
@@ -26,6 +27,10 @@ public sealed record ShadowPaperRiskObservation(Guid EvidenceId, DateOnly Tradin
     SystemShadowRuntimeSession Session, ImmutableArray<SystemShadowPositionInfo> Positions,
     ImmutableArray<ShadowPaperRiskPrice> Prices)
 {
+    /// <summary>Full cash-only SQL read completed under serializable locks; never a market-price timestamp.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? CashVerifiedUtc { get; init; }
+
     public override string ToString() => "Shadow paper risk observation (financial data omitted)";
 }
 
@@ -109,6 +114,10 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
             o.Positions.Select(h => h.PositionId).Distinct().Count() != o.Positions.Length)
             throw new InvalidOperationException("Paper position ownership and lifecycle must be complete.");
         var open = o.Positions.Where(h => h.Status == "Open").ToArray();
+        if (o.CashVerifiedUtc is { } verified && (verified.Kind != DateTimeKind.Utc ||
+            verified != o.At || verified != o.ObservedUtc || open.Length != 0 ||
+            DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(verified)) != o.TradingDate))
+            throw new InvalidOperationException("A current cash verification cannot refresh held prices or a historical session.");
         if (open.Select(h => h.Symbol).Distinct(StringComparer.OrdinalIgnoreCase).Count() != open.Length ||
             o.Prices.Length != open.Length || o.Prices.Any(x => x is null || x.Bar is null || string.IsNullOrWhiteSpace(x.Symbol)) ||
             o.Prices.Select(x => x.Symbol).Distinct(StringComparer.OrdinalIgnoreCase).Count() != open.Length ||
