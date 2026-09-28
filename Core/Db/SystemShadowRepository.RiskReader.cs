@@ -48,8 +48,7 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
                 (decimal)b.Open, (decimal)b.High, (decimal)b.Low, (decimal)b.Close))).ToImmutableArray();
         var times = await rows.ReadSingleAsync();
         await transaction.CommitAsync(cancellationToken);
-        if (g is null || p is null || s is null || g.ActivatedUtc is null ||
-            (a is null && (assignment is null || (string)assignment.Family != EngineStrategySettings.Shadow))) return null;
+        if (g is null || p is null || s is null || g.ActivatedUtc is null) return null;
         PaperComparisonAccount? comparison = a is null ? null : new((Guid)a.AccountId, (Guid)a.BatchId, (Guid)a.PairId,
             (string)a.StrategyCode, Enum.Parse<PaperGateProfile>((string)a.GateProfile), Utc((DateTime)a.EffectiveUtc),
             (Guid)a.DailyStrategyVersionId, (Guid?)a.LivePolicyVersionId, (Guid?)a.ShadowStrategyVersionId, (string?)a.ShadowSettingsJson);
@@ -63,7 +62,8 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
                 (string)s.Status, UtcOrNull((DateTime?)s.ActivationBaselineUtc), (decimal)s.OpeningValue, (bool)s.DailyLossGuardActive),
             positions, prices, Utc((DateTime)times.UpdatedUtc), UtcOrNull((DateTime?)times.LastFillUtc), (bool)g.IsGateComparison,
             assignment is null ? null : (Guid?)assignment.VersionId, assignment is null ? null : (string?)assignment.SettingsJson,
-            assignment is null ? null : (string?)assignment.SettingsHash, assignment is null ? null : UtcOrNull((DateTime?)assignment.AssignedUtc), comparison);
+            assignment is null ? null : (string?)assignment.SettingsHash, assignment is null ? null : UtcOrNull((DateTime?)assignment.AssignedUtc),
+            comparison, assignment is null ? null : (string?)assignment.Family);
         return book.Build(portfolioId, tradingDate);
     }
 

@@ -908,6 +908,27 @@ counts/timings and mapping failures; never add private account values or saved s
 The ten-minute diagnostic age is not a runtime policy. Session-close rejection uses a simulated clock;
 no saved timestamp is rewritten. Serial reads do not qualify production lock duration or concurrent changes.
 
+## AI paper risk-value check
+
+`AiRiskReadersSqlTests` reads the installed catalogue and both saved paper risk books using SQL SELECTs.
+It reconciles cash, holdings and saved marks, then exercises valuation and stale/altered-evidence
+rejection in memory. It never creates a risk journal, modifies SQL, collects data or starts trading.
+Ordinary tests skip it. To run the explicitly intended native check:
+
+```powershell
+$env:TRADERVI_RUN_AI_RISK_READ_ONLY_SQL = '1'
+try {
+    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter FullyQualifiedName~AiRiskReadersSqlTests --logger 'console;verbosity=detailed'
+} finally {
+    Remove-Item Env:TRADERVI_RUN_AI_RISK_READ_ONLY_SQL
+}
+```
+
+The reviewed calendar must already be configured. Output contains counts and timings, never account
+values or identities. A pass can include safely unavailable/stale books: inspect the aggregate counts.
+The ten-minute diagnostic age is not a production freshness decision. This is saved-book validation,
+not one-minute feed, broker cash-event, concurrent-load or operating AI host qualification.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.

@@ -1,7 +1,9 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using Core.Oracle;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -49,12 +51,12 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
 
     public AiRiskObservationResult Start(ShadowPaperRiskObservation? observation, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        writer.Apply(previous => Qualify(observation, previous, now), now, hasFreshAiReview,
+        writer.Apply(previous => Qualify(scope.PortfolioId, observation, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(observation, independentBlocks), initialize: true);
 
     public AiRiskObservationResult Observe(ShadowPaperRiskObservation? observation, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        writer.Apply(previous => Qualify(observation, previous, now), now, hasFreshAiReview,
+        writer.Apply(previous => Qualify(scope.PortfolioId, observation, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(observation, independentBlocks), initialize: false);
 
     private static ImmutableArray<string> WithSavedHolds(ShadowPaperRiskObservation? o, ImmutableArray<string> blocks)
@@ -68,12 +70,20 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
         return blocks;
     }
 
-    private PortfolioRiskValuation Qualify(ShadowPaperRiskObservation? o, PortfolioRiskValuation? previous, DateTimeOffset now)
+    private static bool MatchesLegacyComparison(PaperComparisonAccount account, SystemShadowPolicyConfig settings)
+    {
+        try { return AiShadowPolicyIdentity.Read(null, null, null, null, account).Policy == settings; }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or InvalidDataException or JsonException)
+        { return false; }
+    }
+
+    internal static PortfolioRiskValuation Qualify(Guid portfolioId, ShadowPaperRiskObservation? o,
+        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
     {
         if (o is null || o.Generation is not { } g || o.Portfolio is not { } p || o.Session is not { } s ||
             o.EvidenceId == Guid.Empty || o.At.Kind != DateTimeKind.Utc || o.ObservedUtc.Kind != DateTimeKind.Utc ||
             o.At > o.ObservedUtc || o.ObservedUtc > now.UtcDateTime || o.Positions.IsDefault || o.Prices.IsDefault ||
-            p.PortfolioId != scope.PortfolioId || g.GenerationId == Guid.Empty || p.GenerationId != g.GenerationId ||
+            p.PortfolioId != portfolioId || g.GenerationId == Guid.Empty || p.GenerationId != g.GenerationId ||
             s.PortfolioId != p.PortfolioId || s.SessionId == Guid.Empty || DateOnly.FromDateTime(s.TradingDate) != o.TradingDate ||
             g.TotalAccountValue <= 0m || p.CashBalance < 0m || !Enum.IsDefined(g.Status) ||
             g.ActivatedUtc is not { } activated || activated.Kind != DateTimeKind.Utc || activated > o.At ||
@@ -84,8 +94,9 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
             p.StrategyVersionId == Guid.Empty || p.SettingsAssignedUtc is { } assigned &&
                 (assigned.Kind != DateTimeKind.Utc || assigned > o.At))
             throw new InvalidOperationException("A complete owned, dated paper book is required.");
-        if (p.ComparisonAccount is { } a && (a.AccountId != p.PortfolioId || a.ShadowStrategyVersionId is null ||
-            a.ShadowStrategyVersionId != p.StrategyVersionId ||
+        if (p.ComparisonAccount is { } a && (a.AccountId != p.PortfolioId ||
+            (a.ShadowStrategyVersionId ?? AiShadowPolicyIdentity.LegacyId) != p.StrategyVersionId ||
+            a.ShadowStrategyVersionId is null && !MatchesLegacyComparison(a, p.Settings) ||
             a.StrategyCode != p.PortfolioCode || !Enum.IsDefined(a.Profile) || a.BatchId == Guid.Empty ||
             a.PairId == Guid.Empty || a.DailyStrategyVersionId == Guid.Empty))
             throw new InvalidOperationException("The gate variant must retain its exact account and strategy identity.");

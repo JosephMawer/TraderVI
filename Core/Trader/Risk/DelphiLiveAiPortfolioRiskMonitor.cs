@@ -41,12 +41,12 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
 
     public AiRiskObservationResult Start(DelphiLivePortfolioSnapshot? snapshot, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        writer.Apply(previous => Qualify(snapshot, previous, now), now, hasFreshAiReview,
+        writer.Apply(previous => Qualify(scope.PortfolioId, snapshot, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(snapshot, independentBlocks), initialize: true);
 
     public AiRiskObservationResult Observe(DelphiLivePortfolioSnapshot? snapshot, DateTimeOffset now,
         bool hasFreshAiReview, ImmutableArray<string> independentBlocks) =>
-        writer.Apply(previous => Qualify(snapshot, previous, now), now, hasFreshAiReview,
+        writer.Apply(previous => Qualify(scope.PortfolioId, snapshot, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(snapshot, independentBlocks), initialize: false);
 
     private static ImmutableArray<string> WithSavedHolds(DelphiLivePortfolioSnapshot? snapshot, ImmutableArray<string> blocks)
@@ -58,9 +58,10 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
         return blocks;
     }
 
-    private PortfolioRiskValuation Qualify(DelphiLivePortfolioSnapshot? p, PortfolioRiskValuation? previous, DateTimeOffset now)
+    internal static PortfolioRiskValuation Qualify(Guid portfolioId, DelphiLivePortfolioSnapshot? p,
+        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
     {
-        if (p is null || p.PortfolioId != scope.PortfolioId || p.GenerationId == Guid.Empty || p.PolicyVersionId == Guid.Empty ||
+        if (p is null || p.PortfolioId != portfolioId || p.GenerationId == Guid.Empty || p.PolicyVersionId == Guid.Empty ||
             p.Currency != "CAD" || p.StartingCapital <= 0m || p.Cash < 0m || p.Revision < 0 || p.Guards is null ||
             p.UpdatedUtc.Kind != DateTimeKind.Utc || p.UpdatedUtc > now.UtcDateTime ||
             p.Positions.IsDefault || p.Fills.IsDefault || p.Marks.IsDefaultOrEmpty)

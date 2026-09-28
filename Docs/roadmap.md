@@ -40,15 +40,16 @@ deliberately deferred. Step 4 has begun with the tested offline continuous-round
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
 valuation adapters feeding the shared risk journal, now connected in source to paper saved-record readers.
 The maintained portfolio catalogue and account-scoped review-packet builder are also implemented offline.
-Native catalogue/decision-reader mapping is checked for all 15 installed portfolios; risk readers and
-Step 7 storage/host qualification remain pending (dated evidence in project status).
+Native catalogue/decision-reader mapping and saved risk-value arithmetic are checked for all 15 installed
+portfolios; source/freshness and Step 7 storage/host qualification remain pending (project status).
 Both Daily Shadow and Delphi Live now supply saved signals, account-specific decision/confirmation
 state, rules and daily paper performance to those packets. The missing comparison-source investigation
 identified a tracked broker-symbol/canonical-symbol mismatch blocking Live session initialization.
 The alias lookup and migration 041 are installed under ADR-0088; prospective source adoption and
-a fresh Live cycle are verified, and all 15 native AI decision contexts now map. Next qualify
-native valuation readers, including legacy policies, source coverage, SQL behavior and account/price/cash-event
-producers, then connect existing risk/execution adapters; source qualification
+a fresh Live cycle are verified. The Shadow risk reader now preserves the same legacy policy identities
+as the decision reader. Next qualify current whole-book observation production (including unchanged
+cash-only accounts), feed freshness/coverage, SQL concurrency and broker cash events, then connect
+existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.

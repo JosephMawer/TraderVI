@@ -1,11 +1,13 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Core.Runtime;
+using Core.Oracle;
 
 namespace Core.Trader.Risk;
 
@@ -15,26 +17,27 @@ internal sealed record SystemShadowSavedRiskBook(SystemShadowGenerationInfo Gene
     ImmutableArray<SystemShadowPositionInfo> Positions, ImmutableArray<ShadowPaperRiskPrice> Prices,
     DateTime UpdatedUtc, DateTime? LastFillUtc, bool IsGateComparison,
     Guid? AssignedVersion, string? SettingsJson, string? SettingsHash, DateTime? AssignedUtc,
-    PaperComparisonAccount? Comparison)
+    PaperComparisonAccount? Comparison, string? AssignedFamily = null)
 {
     internal ShadowPaperRiskObservation? Build(Guid requestedPortfolio, DateOnly date)
     {
         if (Portfolio.PortfolioId != requestedPortfolio || DateOnly.FromDateTime(Session.TradingDate) != date ||
             Positions.IsDefault || Prices.IsDefault || UpdatedUtc.Kind != DateTimeKind.Utc ||
             IsGateComparison != (Comparison is not null)) return null;
-        var settingsJson = Comparison is null ? SettingsJson : Comparison.ShadowSettingsJson;
-        var version = Comparison is null ? AssignedVersion : Comparison.ShadowStrategyVersionId;
-        if (version is null || version == Guid.Empty || string.IsNullOrWhiteSpace(settingsJson) ||
-            (Comparison is null && (AssignedUtc is null || SettingsHash != EngineStrategySettings.Hash(settingsJson)))) return null;
+        bool hasAssignment = AssignedVersion is not null || AssignedFamily is not null ||
+            SettingsJson is not null || SettingsHash is not null || AssignedUtc is not null;
+        if (Comparison is null && hasAssignment && (AssignedVersion is null || AssignedUtc is null)) return null;
         SystemShadowPolicyConfig settings;
+        Guid version;
         try
         {
-            settings = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, settingsJson);
+            (version, settings) = AiShadowPolicyIdentity.Read(AssignedVersion, AssignedFamily,
+                SettingsJson, SettingsHash, Comparison);
             EngineStrategySettings.Validate(EngineStrategySettings.Shadow, settings);
         }
-        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or JsonException) { return null; }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or JsonException or InvalidDataException) { return null; }
         var portfolio = Portfolio with { Settings = settings, StrategyVersionId = version,
-            SettingsAssignedUtc = Comparison?.EffectiveUtc ?? AssignedUtc, ComparisonAccount = Comparison };
+            SettingsAssignedUtc = Comparison?.EffectiveUtc ?? AssignedUtc ?? Portfolio.ActivatedUtc, ComparisonAccount = Comparison };
         var open = Positions.Where(p => p.Status == "Open").ToArray();
         // A fill timestamp is not a bar start. The monitor also checks every source price against its holding.
         if (open.Length != Prices.Length || open.Any(p => !Prices.Any(b => b.Symbol == p.Symbol))) return null;

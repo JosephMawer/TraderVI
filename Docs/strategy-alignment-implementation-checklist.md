@@ -160,14 +160,15 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, initial native decision-reader check complete.**
+3. **Connect authoritative data — in progress, native decision and saved risk-value checks complete.**
    Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
    books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
    saved engine holds and required closure persist without an AI call. Both paper families and
    their current gate variants are covered; candidate portfolio balances cannot value another account.
    Paper readers are connected in source: Delphi Live reuses complete snapshots; Daily Shadow reads
    its full book, assigned/fixed rules and saved source bars in one read-only SQL transaction.
-   Offline tests cover read-to-risk behavior; native SQL mapping/concurrency remains unverified.
+   Offline tests cover read-to-risk behavior; native saved-book mapping/arithmetic now covers all 15
+   installed portfolios. Concurrency, feed quality and production freshness remain unqualified.
    The maintained catalogue now maps exact daily/model/policy/gate identities; incomplete choices stay
    visible with reasons. The packet builder joins choices to the managed account's accepted saved risk
    observation, preserves source/time identity and requires fresh matching engine context for selection.
@@ -187,9 +188,10 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    symbol foreign key during Live startup; the official daily publication exists (project status).
    Verified symbol resolution at the monitoring boundary is installed under ADR-0088, preserving
    account history. Authorized migration 041/restart restored all eight comparison sources and a
-   fresh Live cycle; missed coverage remains a gap. Next qualify the separate valuation
-   readers, including legacy-policy handling, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
-   collection or minute-level operational coverage. See project status for tests and source limits.
+   fresh Live cycle; missed coverage remains a gap. Risk readers now preserve legacy policies and
+   reconcile saved cash/holdings/prices; stale values remain blocked. Next qualify current whole-book
+   observations, including unchanged cash-only books, feed age/coverage, SQL concurrency and broker cash
+   events. This is not connected collection or minute-level operational coverage. See project status.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.

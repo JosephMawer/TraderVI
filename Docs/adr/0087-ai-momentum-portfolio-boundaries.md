@@ -156,8 +156,10 @@ capital/history substitution. `PaperAiPortfolioRiskReader` now connects saved re
 Delphi Live exposes a read-only snapshot interface on its existing repository; Daily Shadow implements
 a single read-only serializable transaction across account, generation, session, complete position
 history, exact strategy/gate settings and existing source bars. It neither collects data nor writes
-the paper ledger. Standard accounts require a saved settings assignment/hash; comparisons retain
-their fixed settings/version instead of falling back to another assignment.
+the paper ledger. Explicit assignments require their saved settings/hash; original unassigned Shadow
+accounts retain frozen V1 and its established identity. Unversioned comparisons must match their pinned
+V1 settings, using the same identity resolver as decision readers. Broken explicit assignments cannot
+fall back; comparisons retain their fixed settings/version instead of another assignment.
 
 The Shadow builder declines missing/mixed-time price evidence and trades after the valuation bar,
 including additions whose original entry time alone would miss the later trade. Saved rows/receipts
@@ -166,8 +168,9 @@ books retain closed history and use saved update time. Invalid stored price audi
 later invalid receipts cannot supply accepted bars. Source failures propagate; missing records produce
 rejected risk observations. The reader checks freshness after I/O and cancellation before journaling.
 
-This is compiled/source-connected with synthetic tests, not an installed operating loop. SQL execution,
-result mapping and transaction lock/concurrency behavior still need native qualification. No schema
+This is compiled/source-connected, not an installed operating loop. A September 28 SELECT-only native
+check now verifies saved paper-book mapping, arithmetic and in-memory risk rejection; dated results and
+limits are in project status. Transaction lock/concurrency behavior still needs qualification. No schema
 change, production freshness duration, one-minute feed, AI-owned operating paper account or execution
 loop is introduced.
 

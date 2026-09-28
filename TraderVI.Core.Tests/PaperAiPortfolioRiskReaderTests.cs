@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Runtime;
+using Core.Oracle;
 using Core.Trader;
 using Core.Trader.DelphiLive;
 using Core.Trader.Risk;
@@ -31,7 +32,8 @@ public sealed class PaperAiPortfolioRiskReaderTests : IDisposable
             [new(Guid.NewGuid(), portfolio, "TEST", "Open", 50, 100m, 5000m, 5000m, Open.AddMinutes(1), Date.ToDateTime(TimeOnly.MinValue),
                 0, 0, null, null, null, false, 100m, Open.AddMinutes(5), 0m, null, null)],
             [new("TEST", new(Guid.NewGuid(), Open.AddMinutes(5), Open.AddMinutes(12), 5, 100m, 100m, 100m, 100m))],
-            Open.AddMinutes(12), Open.AddMinutes(1), false, Guid.NewGuid(), json, EngineStrategySettings.Hash(json), Open.AddDays(-1), null);
+            Open.AddMinutes(12), Open.AddMinutes(1), false, Guid.NewGuid(), json, EngineStrategySettings.Hash(json), Open.AddDays(-1), null,
+            EngineStrategySettings.Shadow);
     }
 
     [Fact]
@@ -145,8 +147,50 @@ public sealed class PaperAiPortfolioRiskReaderTests : IDisposable
     {
         var book = Book();
         var comparison = Comparison(book);
-        comparison = missingVersion ? comparison with { ShadowStrategyVersionId = null } : comparison with { ShadowSettingsJson = null };
+        comparison = missingVersion ? comparison with { ShadowStrategyVersionId = null,
+            ShadowSettingsJson = EngineStrategySettings.Serialize(SystemShadowPolicyConfig.Default) } : comparison with { ShadowSettingsJson = null };
         Assert.Null((book with { IsGateComparison = true, Comparison = comparison }).Build(portfolio, Date));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void LegacyOrdinaryAndPinnedComparisonsFeedTheSameFrozenPolicyToRisk(int profile)
+    {
+        var book = Book() with { AssignedVersion = null, AssignedFamily = null, AssignedUtc = null,
+            SettingsJson = null, SettingsHash = null };
+        if (profile >= 0) book = book with { IsGateComparison = true,
+            Comparison = Comparison(Book()) with { Profile = (PaperGateProfile)profile, ShadowStrategyVersionId = null } };
+        var observation = book.Build(portfolio, Date)!;
+        Assert.NotNull(observation);
+        Assert.Equal(AiShadowPolicyIdentity.LegacyId, observation.Portfolio.StrategyVersionId);
+        Assert.Equal(SystemShadowPolicyConfig.Version1, observation.Portfolio.Settings);
+        using var journal = Journal();
+        var result = new SystemShadowAiPortfolioRiskMonitor(journal, policy, TimeSpan.FromMinutes(3))
+            .Start(observation, Open.AddMinutes(12), false, []);
+        Assert.True(result.Accepted);
+        Assert.Equal(10000m, result.Snapshot.State!.LastValuation.Value);
+        Assert.Equal(book.Comparison, observation.Portfolio.ComparisonAccount);
+    }
+
+    [Fact]
+    public void WrongAssignedFamilyCannotUseLegacyFallback()
+        => Assert.Null((Book() with { AssignedFamily = "Other" }).Build(portfolio, Date));
+
+    [Fact]
+    public void LegacyPinnedPolicyUsesItsMeaningRatherThanJsonFormatting()
+    {
+        var book = Book();
+        var comparison = Comparison(book) with { ShadowStrategyVersionId = null,
+            ShadowSettingsJson = "\n " + book.SettingsJson + "\n" };
+        var observation = (book with { IsGateComparison = true, Comparison = comparison }).Build(portfolio, Date)!;
+        using var journal = Journal();
+        var monitor = new SystemShadowAiPortfolioRiskMonitor(journal, policy, TimeSpan.FromMinutes(3));
+        Assert.True(monitor.Start(observation, Open.AddMinutes(12), false, []).Accepted);
+        var bad = observation with { Portfolio = observation.Portfolio with { ComparisonAccount = comparison with
+            { ShadowSettingsJson = EngineStrategySettings.Serialize(SystemShadowPolicyConfig.Default) } } };
+        Assert.False(monitor.Observe(bad, Open.AddMinutes(12), false, []).Accepted);
     }
 
     [Fact]

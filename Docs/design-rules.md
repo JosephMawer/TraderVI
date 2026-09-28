@@ -39,8 +39,10 @@ it saves source provenance and blocks new allowance on rejected observations whi
 Offline Delphi Live and Daily Shadow paper adapters now share that journal-writing boundary,
 validate whole-book evidence and preserve saved engine holds. Only the managed paper account's
 own capital/holdings value its risk; candidate balances cannot replace them. Paper saved-record readers
-are connected in source with coherent whole-book reads and saved evidence timestamps. Native SQL/freshness
-qualification and cash-flow adjustment remain pending. Existing engine valuation semantics are unchanged.
+are connected in source with coherent whole-book reads and saved evidence timestamps. Native saved-book
+mapping/arithmetic is checked; source/freshness/concurrency qualification and cash-flow adjustment remain
+pending. Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
+fall back. Existing engine valuation semantics are unchanged.
 The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate
 candidate definitions from managed-account funds. Unsupported choices stay visible; fresh matching
 engine context is required for selectable proposals. Missing AI attention may prompt a review, but

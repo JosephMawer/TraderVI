@@ -49,8 +49,10 @@ generation history, with strict paper-account scope and source provenance. `Pape
 connects the existing Delphi Live snapshot reader and a new Daily Shadow read-only serializable SQL
 read of the full book, assigned/fixed comparison rules and saved bars. It checks age after I/O and
 propagates read failures/cancellation without resetting risk. Shadow evidence identity and times come
-from saved content, not the read clock. SQL execution/concurrency and operating AI paper-account
-integration remain unverified; ordinary engines are unchanged.
+from saved content, not the read clock. The risk reader shares the decision reader's frozen legacy
+policy identity while rejecting broken explicit assignments. Native saved-book mapping and arithmetic
+are checked; freshness qualification, SQL concurrency and operating AI paper-account integration
+remain unfinished. Ordinary engines are unchanged.
 
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
