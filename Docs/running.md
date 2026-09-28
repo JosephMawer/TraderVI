@@ -965,6 +965,24 @@ approval of an operating freshness threshold. Tests of the probe's calculations 
 dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter FullyQualifiedName~TmxOneMinuteFreshnessProbeTests
 ```
 
+To extend the explicitly authorized check to current paper holdings:
+
+```powershell
+dotnet run --project Sandbox -- tmx-held-price-freshness
+```
+
+This reads held symbols through the maintained catalogue and existing Shadow/Live repositories,
+adds XIU, and refuses more than eight distinct targets. It makes five one-minute polls per target,
+then one five-minute comparison and, for a gappy response, one broad reread plus one narrow request
+for the first missing minute. The cap is eight requests per target (64 total; up to 192 transport
+attempts). Requests time out after 15 seconds, each poll after 45 seconds, and the run after ten minutes.
+It requires a reviewed regular-session window and stops rather than catching up a missed poll.
+It reports anonymous target labels, bar ages, simultaneous latest-minute coverage, revisions,
+missing minutes and interval-comparison counts. Equal volumes alone do not prove no trading occurred
+in a missing minute. The final held-symbol reread detects changed target sets, not every intervening
+account change. No SQL/account/risk/order writes occur. The source can omit incomplete/null price
+rows, so a missing bar is not automatically a verified no-trade minute.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
