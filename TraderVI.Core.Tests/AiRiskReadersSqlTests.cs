@@ -38,6 +38,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
         foreach (var family in catalogue.Entries.GroupBy(e => e.EngineFamily))
         {
             int mapped = 0, unavailable = 0, valued = 0, invested = 0, stale = 0, current = 0, heldMissing = 0, cashVerified = 0;
+            var investedAgesSeconds = new List<double>();
             var timer = Stopwatch.StartNew();
             foreach (var choice in family)
             {
@@ -51,6 +52,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                     if (stored is null) { unavailable++; continue; }
                     var date = DateOnly.FromDateTime(stored.Value);
                     PortfolioRiskValuation value;
+                    bool hasHoldings;
                     if (shadow)
                     {
                         var observation = await new SystemShadowRepository().ReadRiskObservationAsync(choice.PaperAccountId, date, ct);
@@ -67,6 +69,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                         var now = DateTimeOffset.UtcNow;
                         value = SystemShadowAiPortfolioRiskMonitor.Qualify(choice.PaperAccountId, observation, null, age, now);
                         var open = observation.Positions.Where(p => p.Status == "Open").ToArray();
+                        hasHoldings = open.Length > 0;
                         if (open.Length > 0) invested++;
                         if (observation.CashVerifiedUtc is { } verified)
                         {
@@ -106,7 +109,8 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                             continue;
                         }
                         value = DelphiLiveAiPortfolioRiskMonitor.Qualify(choice.PaperAccountId, snapshot, null, age, now);
-                        if (snapshot.OpenPositions.Any()) invested++;
+                        hasHoldings = snapshot.OpenPositions.Any();
+                        if (hasHoldings) invested++;
                         decimal expected = snapshot.Cash + mark.Positions.Sum(p => p.Quantity * p.Price);
                         Assert.True(value.Value == expected && value.Value == mark.Nav, "Live risk value differs from its saved whole book.");
                         Assert.Throws<InvalidOperationException>(() => DelphiLiveAiPortfolioRiskMonitor.Qualify(
@@ -122,6 +126,7 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                     Assert.NotNull(value.Source);
                     var bounds = calendar.GetSessionBounds(value.TradingDate);
                     var checkTime = DateTimeOffset.UtcNow;
+                    if (hasHoldings) investedAgesSeconds.Add((checkTime - value.At).TotalSeconds);
                     bool usable = value.At <= checkTime && checkTime <= value.ValidUntil &&
                         value.At.UtcDateTime >= bounds.OpenUtc && value.At.UtcDateTime <= bounds.CloseUtc;
                     if (usable)
@@ -146,6 +151,8 @@ public sealed class AiRiskReadersSqlTests(ITestOutputHelper output)
                 }
             }
             output.WriteLine($"{family.Key}: choices={family.Count()}, mapped={mapped}, reconciled={valued}, invested={invested}, verified current cash books={cashVerified}, unavailable={unavailable}, unavailable with holdings={heldMissing}, within diagnostic age/session={current}, expired/outside session={stale}, elapsed={timer.ElapsedMilliseconds} ms.");
+            if (investedAgesSeconds.Count > 0)
+                output.WriteLine($"{family.Key}: invested valuation age at read min={investedAgesSeconds.Min():F1}s, max={investedAgesSeconds.Max():F1}s; age at most 60s={investedAgesSeconds.Count(s => s >= 0 && s <= 60)}/{investedAgesSeconds.Count}. This snapshot is not proof of continuous one-minute coverage.");
             if (valued == 0) failures.Add($"{family.Key}: no saved values reconciled; empty reads cannot qualify the family.");
         }
         Assert.NotEmpty(catalogue.Entries);

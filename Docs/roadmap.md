@@ -48,7 +48,9 @@ identified a tracked broker-symbol/canonical-symbol mismatch blocking Live sessi
 The alias lookup and migration 041 are installed under ADR-0088; prospective source adoption and
 a fresh Live cycle are verified. The Shadow risk reader now preserves the same legacy policy identities
 as the decision reader. Current cash-only Shadow reads now carry checked transaction timestamps;
-held prices retain their original freshness limits. Next qualify held-stock feed freshness/coverage,
+held prices retain their original freshness limits. Saved price timing is now measured: current
+five-minute collection has multi-minute delay and gaps, so one-minute coverage remains unqualified.
+Next qualify a faster held-stock source with a bounded separately authorized provider check, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.

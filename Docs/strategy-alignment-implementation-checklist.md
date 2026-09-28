@@ -86,228 +86,105 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### AI Momentum delivery sequence
 
-This is the end-to-end sequence requested September 26. Step 1 groups the completed source increments
-(`720c780a`, `07928730`); Step 2's core framework is agreed and Step 4's offline risk core has begun.
-Feature follow-ups and remaining delivery work are recorded below. Existing broker prerequisites still apply,
-and this plan authorizes no deployment, paid qualification call or live order. AI Explorer stays deferred.
-When the operator asks for "progress", show this same numbered list with current completion states.
-Keep its numbering stable and update it at each meaningful milestone. Step 2 no longer blocks coding.
-MVP approach: reuse existing engines and contracts, resolve one necessary decision at a time, and
-introduce complexity only when needed. Do not silently drop accepted discretion, learning or protection.
+Keep this same ten-step list and its plain-language subpoints current at each milestone.
+**Built/tested** means source code is ready, not that the AI is operating. **Verified** names the
+specific check completed; it does not imply full trading readiness. Dated evidence belongs in
+[project status](project-status.md); priorities belong in the [roadmap](roadmap.md).
+Detailed agreed behavior remains binding in [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md),
+[design rules](design-rules.md) and their linked execution decisions. AI Explorer remains deferred.
+This checklist grants no deployment, paid API call or live-order authority.
 
-1. **Foundation — complete offline.** Budgeted API client, structured portfolio proposals, audit
-   journals, learning consultation and execution-preparation checks. This is reusable Core source,
-   not an operating AI portfolio. Dated validation is in project status.
-2. **Operating contract — agreed for current implementation; learning criteria deferred.**
-   All current strategy portfolios, including position-count and daily-gate variants, are AI choices;
-   expand the catalogue as additional portfolios are built and integrated (ADR-0087). Evaluated-lesson
-   admission criteria are deliberately deferred by the operator (September 27). Continue implementation;
-   revisit them only when needed for Step 6, not as a blocker or another Step 2 interview.
-   Map concrete discretionary/hard rules during implementation; only genuine ambiguities need another
-   decision. The agreed contract below is sufficient to build; retain all remaining integration work.
-   Specify hard limits, the decreasing risk scale, profit protection,
-   discretionary rule classification, portfolio eligibility/switching, review cadence and outage
-   behavior. Define lesson evaluation/admission criteria. This step requires operator
-   decisions on trading limits; implementation must not invent them. New Delphi Live/System Shadow
-   daily templates use 7%; frozen and assigned versions are preserved. **Agreed September 27:** the AI
-   gradual per-stock scale covers buys/additions without forced sales and now follows continuous
-   losses/recovery across days, superseding its daily framing and session-minimum lock (ADR-0087).
-   Both starting balance and recorded portfolio peak must be tracked; monitoring continues while in
-   cash with intended automatic re-entry on recovery. AI enforcement integration remains Step 4.
-   **Accepted:** 5% / 3% / 1% replaces the AI 7% boundary; stop new buys for the day after three failed
-   rounds. Failed rounds close remaining AI-managed holdings and require confirmed/reconciled exits
-   before another permitted attempt. After all three fail and closure is reconciled, a fresh
-   5% / 3% / 1% sequence is eligible next trading session with fresh entry evidence and AI review.
-   The entire sequence and count carry across sessions: round 2 remains round 2 at 3%, followed
-   by round 3 at 1% if it fails. No daily refill/renumbering, even when failures span days.
-   Carried rounds and the 10% approval hold retain their existing constraints.
-   Re-entry requires a fresh qualifying signal from the selected
-   engine after closure, with no extra fixed delay; the AI can take it or wait. Proportional allowance
-   within each round can recover before the hard limit, after which closure is required. Both that
-   allowance and the round's exit trigger now trail its highest verified value, initialized at the
-   opening value; price declines cannot lower the trigger. Retaining
-   the 10% cumulative buying pause with operator approval to resume is agreed. Unfinished rounds keep
-   references, limits and protection across closures; new sessions prompt review of fresh engine entry
-   guidance. Session-start, mid-session and pre-close consults complement ongoing intraday monitoring
-   and AI receipt of its data. AI review intervals of one to fifteen minutes during market hours are
-   agreed, subject to budget. Provider/budget fallback pauses new buys, additions and switching while
-   monitoring/stops/engine exits continue; recovery requires a successful fresh AI review and all
-   other limits to permit it. Initial earlier-review hooks are agreed for new qualifying entry signals,
-   confirmed holding closures and risk-limit changes to permitted actions; combine nearby events
-   within the one-minute minimum and shared budget. Later hooks use the same path.
-   Monthly spending is agreed without daily allocations or future-consult reserves: use the shared
-   allowance until exhausted, then pause or accept an explicit operator extension; no automatic top-up.
-   Ordinary sales, profit-taking and all-cash periods retain the same round/peak/limit and count;
-   only reaching its hard loss limit consumes an attempt. There is no separate success reset.
-   Initial thresholds are confirmed: capture original allocated capital, record actual opening
-   capital for each round and calculate its initial trigger upfront. Later rounds use actual
-   reconciled remaining capital; any upfront later-round previews are estimates only.
-   Independent checks on every fresh verified portfolio valuation are agreed, including qualified
-   one-minute updates. AI attention cannot slow app-owned protection or required collection.
-   Confirmed deposits/withdrawals preserve loss percentages through ADR-0083 reference scaling;
-   retain original capital/history, round/attempt state, holds and per-stock protection.
-   **Next:** qualify valuation/cash-event sources and integrate existing engine holds.
-   Shared risk authority and explicit portfolio risk configuration are agreed. The AI profile uses
-   continuous rounds in place of its engine daily-pause calculation; ordinary portfolios retain
-   existing rules. Preserve independent controls, saved holds and state across engine switches.
-   Per-stock protection reuses engine hard-stop/trailing-profit
-   settings: AI may tighten stops or sell earlier, never loosen/remove established stops. Log desired
-   relaxations as blocked hypotheses for evaluated learning; precise lesson admission remains open.
-   Initial switching behavior is agreed: keep holdings both portfolios permit with their stops,
-   reconcile other AI-managed exits before replacements, preserve round/risk state and log the reason.
-   Scope is agreed and catalogue/version mapping exists offline. Compatibility/execution adapters
-   and native coverage still need implementation and qualification across current variants.
-   One learning review after each trading session is agreed for completed trades and blocked
-   alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
-   saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, native decision and saved risk-value checks complete.**
-   Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
-   books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
-   saved engine holds and required closure persist without an AI call. Both paper families and
-   their current gate variants are covered; candidate portfolio balances cannot value another account.
-   Paper readers are connected in source: Delphi Live reuses complete snapshots; Daily Shadow reads
-   its full book, assigned/fixed rules and saved source bars in one read-only SQL transaction.
-   Offline tests cover read-to-risk behavior; native saved-book mapping/arithmetic now covers all 15
-   installed portfolios. Concurrency, feed quality and production freshness remain unqualified.
-   The maintained catalogue now maps exact daily/model/policy/gate identities; incomplete choices stay
-   visible with reasons. The packet builder joins choices to the managed account's accepted saved risk
-   observation, preserves source/time identity and requires fresh matching engine context for selection.
-   Daily Shadow now supplies saved published rankings/gates, adopted candidate decisions, concrete rule
-   classification and bounded daily paper performance. Tests cover exact identity, missing/stale data,
-   fixed bypass, preserved timestamps and null/conflicting returns. No admitted/evaluated candidates
-   remain unavailable; this is saved guidance, not raw-bar requalification or managed-stock entry authority.
-   Delphi Live now supplies saved market judgments, its own account confirmation, recent checkpoint
-   history, source/gate identity and daily performance. Tests cover epoch/source changes, stale/invalid
-   latest evidence, source conflicts, account isolation and incomplete returns. Shared policy signals
-   never substitute their lifecycle for the account's saved confirmation.
-   Initial installed catalogue/decision-reader mapping is checked; original unassigned Shadow policies
-   retain frozen V1 and fixed variants retain their pinned settings. Broken assignments stay blocked.
-   All 15 installed decision contexts now map after source recovery; freshness and full input
-   qualification remain separate. See project status for native evidence and limits.
-   Missing comparison adoption is traced to a broker-suffixed tracked symbol rejected by the canonical
-   symbol foreign key during Live startup; the official daily publication exists (project status).
-   Verified symbol resolution at the monitoring boundary is installed under ADR-0088, preserving
-   account history. Authorized migration 041/restart restored all eight comparison sources and a
-   fresh Live cycle; missed coverage remains a gap. Risk readers now preserve legacy policies and
-   reconcile saved cash/holdings/prices; stale values remain blocked. Current cash-only Shadow reads now
-   supply checked transaction receipts without rewriting account history or refreshing held prices.
-   Native cash verification is checked; recurring risk observation hosting remains pending. Next qualify
-   held-stock feed age/coverage, recurring paper checks, SQL concurrency and broker cash events.
-   This is not connected collection or minute-level operational coverage. See project status.
-   Build adapters for Delphi candidates, strategy rules, historical
-   summaries, current market observations and actual account/portfolio state. Produce immutable,
-   dated decision packets with source/version identity, freshness and missing-data checks.
-   Catalogue construction covers the current families and gate/position-count identities in source;
-   all installed definitions validate in the initial native check, but complete usable decision evidence
-   and valuation still need qualification before claiming operational coverage.
-   Future integrated additions use the maintained catalogue without a fixed current list/count.
-   Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
-   cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.
-   Qualify confirmed effective cash events and matched before/after books under ADR-0083; a net
-   balance delta or occurrence timestamp alone is insufficient.
-4. **Implement trading decisions and enforced protection — in progress, offline core.**
-   Implemented/tested: `AiPortfolioRiskPolicy` and shared assessment/profile contracts cover round
-   peaks, allowance, latched closure, cross-session continuity and qualified re-entry. See project
-   status for the focused risk-core/journal evidence and limits. A scoped local journal now retains
-   commands and prior states, replay-validates recovery and rejects stale/conflicting writes;
-   broker and paper adapters now share rejected-input handling and durable source provenance.
-   Feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
-   Extend portfolio-only proposals to
-   stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
-   the selected engine and approved boundaries in C#. Keep protective monitoring independent of
-   model/learning availability. Reject any established-stop loosening/removal, including undoing an
-   AI tightening; recheck current protection at execution. Support distinct non-executable blocked
-   alternatives for learning without accepting invalid actions. Validate enforcement and audit paths.
-   Extract the shared protection boundary with explicit AI/ordinary portfolio risk configurations.
-   Verify AI rounds replace the daily-pause calculation without bypassing independent controls or
-   clearing existing holds. Regression-check ordinary portfolios and preserve immutable versions;
-   engine switching cannot alter the approved risk profile or reset its state.
-   Local journal persistence/recovery of sequence/round identity and attempts is implemented/tested.
-   Production host recovery remains pending; verify
-   round 2 remains at 3% next session, advances to 1% only after failure/reconciliation, and grants
-   no fresh sequence at the open unless the previous one is exhausted and restart conditions pass.
-   Verify profitable sales, full cash exits and subsequent purchases preserve that round's peak,
-   trigger and count; a limit hit while already cash still requires failed-round reconciliation.
-   Verify initial triggers use actual round opening capital and retain original-capital history;
-   forecast later-round amounts cannot supply enforced references.
-   Synthetic broker/paper checks on every accepted valuation without an AI call are tested; connect
-   qualified producers. Verify operationally that
-   one-minute updates are checked during a fifteen-minute AI review interval, unavailable AI does
-   not delay checks, and cached/failed/incomplete updates do not masquerade as fresh valuations.
-   Reuse percentage-preserving cash-flow adjustment for effective round/overall references while
-   retaining original capital/opening history. Verify deposits, withdrawals, opposing flows, replay,
-   incomplete evidence and nonpositive values; no adjustment may reset attempts, holds or stock stops.
-5. **Complete execution and portfolio handover.** Connect validated decisions to the existing engine
-   and execution workflows. Support reviewed portfolio families, transfer overlaps/protection, reconcile
-   required exits before buys and preserve original order identities through uncertain outcomes.
-   Implement the agreed keep/sell/replace behavior without resetting the round's reference/peak/limit,
-   attempts or review holds, even when the switch passes through cash. Preserve protection ownership
-   until recorded handover, carry tighter stops and log exact portfolio versions/reason/outcome.
-   Paper and live share decision logic while retaining separate accounts and histories; no activation yet.
-   Use one execution path with current shared-risk rechecks; prevent independent engine/AI order
-   submission and retain protective exits when AI/learning is unavailable.
-6. **Implement outcome-based learning.** Link decisions and overrides to subsequent outcomes, evaluate
-   hypotheses against the agreed criteria and publish versioned lessons with evidence and expiry.
-   The operator has deferred exact lesson qualification criteria; revisit them when this implementation
-   needs them. Continue other delivery steps without choosing thresholds or reopening this topic now.
-   Run one logical post-session review, recording helpful/harmful outcomes with evidence and retaining
-   immature/inconclusive cases for later reviews. Do not treat session close as outcome maturity.
-   Include blocked stop-relaxation hypotheses and compare actual outcomes with clearly labelled
-   simulated alternatives using declared horizons/assumptions. Account for outcome magnitude and
-   missing evidence, not only win frequency. Verify supervisor/coordinator consultation and preserve
-   hard limits and budget policy; lessons cannot automatically change protection.
-7. **Build and qualify the runtime host.** Compose shared clients/journals and the independent protection
-   and discretionary-review loops. The local risk journal is implemented/tested offline; production
-   directory security, backups, retention/performance and failure handling remain unqualified.
-   Configure intervals, restart recovery, protected storage, retention
-   and the three agreed consult checkpoints alongside ordinary intraday monitoring. Implement
-   adaptive AI review requests within the agreed one-to-fifteen-minute market-hours bounds and budget,
-   with protection and required collection owned independently by the app; preserve collection semantics and
-   protective cadence and audit requested/applied intervals. Implement the three agreed event hooks
-   through one extensible review request path, combine events arriving together, and preserve the
-   one-minute minimum and shared budget. Qualify event-driven earlier reviews, duplicate/concurrent events,
-   missed-review, stale-source and budget-exhaustion behavior. Enforce the agreed unavailable-review
-   fallback and fresh-review recovery, including preservation of independent holds and protection.
-   Keep qualified valuation delivery and deterministic threshold checks independent of paid reviews;
-   qualify feed freshness/coverage and recovery before claiming one-minute protection.
-   Schedule the agreed post-session learning review with shared-budget checks, persisted pending/
-   deferred cases and restart-safe processing; preserve intraday saved-lesson consultation.
-   Configure the shared CAD budget with FX/tax headroom and per-call reservations, without daily
-   pacing or future-consult reserves. Implement explicit operator allowance extensions while retaining
-   month-to-date spend and outstanding reservations; current source rejects CAD 100 or more and
-   retains the month's lowest ceiling. Qualify API authentication, model access, latency and cost
-   through a bounded separately authorized call before model-backed operation.
-8. **Add operator controls and visibility.** Display active strategy, holdings, proposals, decisions,
-   exceptions, lessons, health and spending. Show exhausted budget and support an explicit operator
-   allowance update without implying provider funding or clearing other holds. Provide clear controls for stopping new buys, continued
-   protection, strategy switching and explicit live activation, using the existing execution contracts.
-   **Required September 27:** show current measurement, limit and remaining room for the cumulative
-   10% review guard, active round limit, buying allowance, attempts remaining, position stops/trailing
-   floors, applicable cash/exposure constraints and AI spend cap. Show actual AI review cadence and
-   next-review status and the reason for an unavailable-review pause. Use enforcement values, clear reference/freshness labels and explicit blocking
-   reasons/actions; recovered values cannot hide
-   a review hold that still needs operator approval. Explicitly distinguish a three-failure session
-   pause, an unfinished carried round, pending exit reconciliation and an operator-approval hold.
-   Show round opening/current values, saved peak, trailing exit trigger and remaining room.
-   Show attempts used/remaining in the continuous sequence (not a daily allowance), active round
-   number and limit/reference, actual next eligible market session
-   and unmet restart conditions (fresh signal/review and other holds). Display simultaneous holds;
-   a session countdown cannot imply automatic buying or approval. This UI is not implemented.
-9. **Validate the complete paper workflow.** Rehearse selection, stock actions, switching, learning,
-   budget exhaustion, stale data, outages and restart without real orders. Measure actual API costs
-   and decision quality; synthetic tests alone do not establish either or a performance edge.
-10. **Qualify and activate live execution.** Finish the existing native account/risk/broker prerequisites
-    below, including cash events, opening/drawdown references, protection ownership, order lifecycle
-    and recovery. Review the concrete activation evidence and exact account/strategy/limits, then
-    enable the authorized supervised live run and verify outcomes. Completion of earlier steps alone
-    does not establish live readiness or a September 28 launch.
+1. **Foundation — built and tested offline.**
+
+   - [x] Build the AI client and structured portfolio proposals.
+   - [x] Track spending, reserve call costs and enforce the budget.
+   - [x] Save decisions and supporting evidence in scoped journals.
+   - [x] Let the supervisor and execution preparation consult saved evaluated lessons.
+
+2. **Operating framework — agreed; sufficient to build.**
+
+   - [x] Include all current strategy portfolios and variants; add future integrated portfolios through the catalogue.
+   - [x] Agree continuous 5% / 3% / 1% rounds, trailing limits, buying allowance, the 10% approval hold and stock protection.
+   - [x] Agree switching, review timing, event-triggered reviews, monthly budget behavior and outage recovery.
+   - [x] Agree to preserve holdings, tighter stops, risk history and attempts across days, cash periods and portfolio switches.
+   - [ ] Define useful-lesson criteria **only when Step 6 needs them**; deliberately deferred, not a coding blocker.
+
+3. **Connect reliable data — in progress; current focus.**
+
+   - [x] Build the maintained portfolio catalogue and map exact strategy, model and gate versions.
+   - [x] Connect saved Delphi signals, engine rules and account-specific activity to dated AI input packets.
+   - [x] Connect complete paper-account readers and broker evidence adapters to shared risk checks; keep candidate balances separate.
+   - [x] Verify saved cash, holdings and calculated values across all 15 installed paper portfolios.
+   - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
+   - [x] Measure saved stock-price freshness: five-minute evidence has multi-minute delay; **one-minute coverage is not qualified**.
+   - [ ] Qualify a faster price source and resolve failed/missing collection coverage; never make old prices look fresh.
+   - [ ] Verify consistent reads while accounts change, and qualify broker cash events with matching before/after accounts.
+   - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
+
+4. **Trading decisions and protection — partly built.**
+
+   - [x] Build and test continuous rounds, trailing thresholds, buying allowance, required closure and qualified re-entry.
+   - [x] Save risk history and test restart recovery without resetting peaks, attempts or existing holds.
+   - [ ] Add stock-level buy, add, hold and sell proposals, with permitted sizing and recorded exceptions.
+   - [ ] Enforce each action against the chosen engine, account limits and existing stops; never loosen established protection.
+   - [ ] Integrate the shared AI risk rules without changing ordinary portfolios or creating competing execution paths.
+   - [ ] Apply qualified deposit/withdrawal adjustments while preserving loss percentages, history and protection.
+   - [ ] Verify protection continues independently of AI availability and review timing, using genuinely fresh complete values.
+
+5. **Execution and portfolio switching — pending.**
+
+   - [ ] Send validated actions through the existing execution system, rechecking permission immediately before execution.
+   - [ ] Keep compatible holdings, actual costs and existing tighter stops when switching portfolios.
+   - [ ] Confirm and reconcile required sales before replacement buys; log the switch reason and exact versions.
+   - [ ] Preserve risk state and protection ownership through handover, including all-cash transitions.
+   - [ ] Recover uncertain orders using their original identities; keep paper and real histories separate.
+
+6. **Outcome-based learning — pending.**
+
+   - [ ] Review completed decisions once after each trading session; keep immature or inconclusive cases pending.
+   - [ ] Compare actual outcomes with clearly labelled simulated alternatives, including blocked protection changes.
+   - [ ] Agree useful-lesson criteria when needed, then save qualified lessons with evidence, versions and expiry.
+   - [ ] Verify later decisions consult those lessons within the shared budget; learning cannot change hard limits.
+
+7. **Runtime host — partly prepared.**
+
+   - [x] Build and test local risk-journal persistence and recovery.
+   - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
+   - [ ] Schedule session-start, mid-session and pre-close reviews, plus adaptive one-to-fifteen-minute and event-driven reviews.
+   - [ ] Combine nearby events; preserve the one-minute review minimum and keep protection independent of paid reviews.
+   - [ ] Handle outages, exhausted budgets and restart recovery; resume new risk only after fresh review and all other checks.
+   - [ ] Protect storage and qualify backups, retention, performance and concurrent access; schedule restart-safe learning reviews.
+   - [ ] Support explicit budget increases without resetting spending; remove the current cap restriction only through that reviewed flow.
+   - [ ] Verify API access, latency and actual costs through a bounded separately authorized call, including currency/tax headroom.
+
+8. **UI and controls — pending.**
+
+   - [ ] Show the selected portfolio, holdings, proposals, decisions, exceptions and lessons.
+   - [ ] Show actual round opening/current/peak values, trailing limits, buying allowance, stock stops and attempts remaining.
+   - [ ] Show every active hold, remaining room, data freshness, spending, review timing and operating status.
+   - [ ] Provide stop-new-buys, portfolio-switching, explicit budget-extension and eventual live-activation controls.
+   - [ ] Distinguish daily pauses, carried rounds, pending exits and approval holds; a countdown never promises automatic permission.
+
+9. **Complete paper validation — pending.**
+
+   - [ ] Test selection, stock actions, switching and learning together without real orders.
+   - [ ] Test stale/missing data, outages, exhausted budgets, concurrent events and restarts.
+   - [ ] Measure actual API costs and decision quality; synthetic tests alone do not establish either.
+   - [ ] Resolve failures and document the remaining limits before live qualification.
+
+10. **Live qualification and activation — pending.**
+
+    - [ ] Verify real account values, cash events, opening/drawdown references and broker order handling.
+    - [ ] Confirm protection ownership and recovery with real holdings under the existing broker prerequisites below.
+    - [ ] Review concrete activation evidence and the exact account, strategy and limits.
+    - [ ] Enable only the explicitly authorized supervised run and verify its outcomes.
 
 ### Left to do — development order
 
-- [ ] **AI Momentum integration (September 26):** complete
-  [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) by defining exact adaptive protection,
-  profit giveback and evaluated learning, and implementing agreed catalogue selection/handover.
-  Build authoritative packet adapters, durable domain dispositions and the paper/live host contract. Qualify Astra access/billing,
+- [ ] **AI Momentum integration:** follow the ten-step delivery sequence above and implement
+  the agreed protection, catalogue selection/handover and paper/live host contract under
+  [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md). Saved input adapters are built; faster-source
+  qualification and recurring checks remain. Lesson criteria stay deferred until Step 6. Qualify Astra access/billing,
   review expiring FX/tax bounds and install one protected shared spending journal for all model roles.
   The library defaults to CAD 90 and rejects ceilings at or above CAD 100; it is not operational.
   Continuous protection, outage handling and decision cadence remain host work. AI Explorer is deferred.

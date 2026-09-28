@@ -931,6 +931,20 @@ A pass can include safely unavailable/stale books: inspect the aggregate counts.
 The ten-minute diagnostic age is not a production freshness decision. This is saved-book validation,
 not one-minute feed, broker cash-event, concurrent-load or operating AI host qualification.
 
+For a SELECT-only price-timing report over the last hour of today's saved regular session:
+
+```powershell
+sqlcmd -S localhost -d TraderDB -E -b -y 0 -w 65535 -i Operations/Read-AiPriceFreshness.sql
+```
+
+This uses the saved reviewed-session bounds and reports aggregate receipt delays, interval lengths,
+and mature Live collection outcomes. Missing session bounds cause an error. It makes no provider
+calls and writes no SQL data. Completed-bar age is measured from bar end, never download time;
+repeated old prices remain old. The native test above also reports actual invested-book ages.
+These samples do not establish continuous coverage, prove every expected slot exists, or approve
+a production freshness limit. Existing five-minute collection and quote receipt timestamps cannot
+establish one-minute protection. Inspect failed/missing slots and source conflicts as well as successful reads.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
