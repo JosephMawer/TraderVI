@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. AI saved-record/risk connection, catalogue, review packets and both paper-family decision-context readers implemented in source; 407 offline tests pass and the Release desktop builds. Native SQL/feed qualification and engine/host integration remain pending.
+**Current record:** September 28, 2026. AI catalogue and both paper-family decision readers checked against saved SQL records; legacy Shadow policy mapping corrected. All 15 definitions load, seven saved decision contexts load and eight Shadow contexts lack today's publication. 416 offline tests plus one opt-in native read test pass; Release desktop builds. Source/feed, risk-reader and engine/host qualification remain pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -188,33 +188,48 @@ The account's own lifecycle is labelled separately from shared signal judgments 
 to the managed account. Candidate funds, holdings and shared-account safety state are excluded from the
 review evidence. Live marks reuse the existing daily-return calculation, including incomplete latest
 marks. This reads and describes saved state; it does not recompute confirmation, collect prices, mutate
-accounts or authorize managed-stock actions. Native SQL locking/mapping, original bar requalification,
+accounts or authorize managed-stock actions. Broader native SQL locking/mapping, original bar requalification,
 source coverage/completeness, production freshness/history settings and host composition remain unverified.
 
-Validation with .NET SDK 10.0.401: **407 tests passed, zero failures/skips** on September 28: the prior
-362 AI/risk/paper/performance cases, 29 new Live-context cases and 16 existing Live engine/lifecycle/ranking cases.
+Validation with .NET SDK 10.0.401: **416 offline tests passed, zero failures/skips** on September 28:
+the prior 407 AI/risk/paper/performance cases plus nine legacy Shadow policy regressions.
 Coverage includes both paper families and gate variants, every-holding freshness, source/quantity/cash
 conflicts, saved holds, cash exits, next-session continuity, restart, source-family substitution and
 unavailable storage. Reader tests use synthetic saved books/fake read interfaces and cover pinned
 rules, stable retries, cash history, slow reads, cancellation and missing/mixed evidence. Core and the
 test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
-`artifacts/ai-risk-20260927/live-context-regressions.log` (earlier logs remain in the same directory).
+`artifacts/ai-risk-20260927/native-reader-regressions.log` (earlier logs remain in the same directory).
 Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~AiPortfolio|FullyQualifiedName~AiShadowDecisionContext|FullyQualifiedName~AiLiveDecisionContext|FullyQualifiedName~AiLearning|FullyQualifiedName~AiMomentum|FullyQualifiedName~DelphiLivePortfolioAccountTests|FullyQualifiedName~DelphiLiveActionWorkflowTests|FullyQualifiedName~SystemShadowPolicyTests|FullyQualifiedName~PaperGateComparisonTests|FullyQualifiedName~PortfolioDailyPerformance|FullyQualifiedName~DelphiLiveEvaluationEngineTests|FullyQualifiedName~DelphiLiveLifecycle|FullyQualifiedName~DelphiLiveRanking'`.
 Release desktop build: `dotnet build TraderVI.WPF/TraderVI.WPF.csproj -c Release --no-restore --artifacts-path artifacts/ai-catalog-20260927/build -p:NuGetAudit=false --verbosity quiet` succeeded with zero errors and 260 existing CS8632/CS0168 warnings;
-log: `artifacts/ai-risk-20260927/wpf-live-context-build.log` (September 28 rebuild). The runnable output is under
+log: `artifacts/ai-risk-20260927/wpf-native-readers-build.log` (September 28 rebuild). The runnable output is under
 `artifacts/ai-catalog-20260927/build/bin/TraderVI.WPF/release/`. The normal checkout's running files
 were not replaced or restarted. The normal source launch in `running.md` rebuilds the
 committed checkout after closing the old app. A build does not activate the unfinished AI host.
 Package-security auditing was disabled; there is no fresh vulnerability assessment. The full Core
-suite and SQL/full-solution build were not run. No app launch/restart, SQL, model, market or broker operation ran.
+suite and SQL/full-solution build were not run. Only the separately authorized SELECT-only native test
+below accessed SQL; no writes, app launch/restart, model, market or broker operation ran.
 
-Scope: synthetic broker/paper books, saved-reader composition and offline journal/recovery. The new
-SQL query, result mapping and transaction concurrency/lock duration have not been exercised against SQL
-Server; compile/test success does not establish native reader qualification. No schema change is needed.
+**Native reader check, September 28, 10:37 Toronto:** the opt-in
+`AiDecisionReadersSqlTests` passed against installed saved records. All 15 catalogue definitions validate
+(12 Shadow, three Live). Four Shadow contexts and all three Live contexts load and validate; the other
+eight Shadow sessions are `NoValidDelphiRun` with no adopted publication for September 28. They remain
+unavailable; their full context mapping is not qualified by an empty read. All 15 choices are currently
+non-proposable under the diagnostic ten-minute age setting. A simulated after-close clock also rejects
+selection. This setting is not a production freshness decision. The check found and corrected rejection
+of legacy Shadow policies: absent original assignments use frozen V1, and unversioned comparisons must
+match their pinned V1 settings. Explicit broken assignments never fall back. No saved policy changed.
+Recorded sample: catalogue 1.77 seconds, Shadow contexts 0.17 seconds, Live contexts 1.52 seconds; these are
+single-run observations, not load/concurrency qualification. Evidence: `artifacts/ai-risk-20260927/native-readers.log`;
+final repeat after the test's post-read clock correction also passes in `native-readers-final.log` in that directory.
+The test is skipped without explicit opt-in (verified separately); see [running](running.md#ai-saved-record-reader-check).
+
+Risk-book SQL readers, transaction concurrency/lock duration and full source coverage remain unqualified.
+Inspection also identifies legacy null-version rejection in the separate Shadow saved-risk-book path;
+that must be addressed and verified in its own valuation increment. No schema change is needed.
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented;
-next qualify these readers against saved native records and source coverage. Native catalogue/reader
-SQL mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
+next trace the eight missing Shadow publications and qualify the separate valuation readers, including
+legacy policies. Remaining native mapping/concurrency, prompt size/API costs and account/price/cash-event producers need qualification
 before host integration. Candidate/managed histories are not interchangeable.
 Production storage,
 retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten

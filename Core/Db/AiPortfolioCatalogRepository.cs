@@ -70,12 +70,8 @@ WHERE g.IsGateComparison=1 OR g.GenerationId=(SELECT TOP(1) GenerationId FROM db
             entries.Add(Create(id, (string)row.DisplayName, TradingStrategyFamily.DailyShadow, comparison, () =>
             {
                 if (daily is null || (bool)row.IsGateComparison != (comparison is not null)) throw new InvalidDataException();
-                string json = comparison is null ? (string?)row.SettingsJson ?? throw new InvalidDataException()
-                    : comparison.ShadowSettingsJson ?? throw new InvalidDataException();
-                Guid policyId = (comparison is null ? (Guid?)row.VersionId : comparison.ShadowStrategyVersionId) ?? throw new InvalidDataException();
-                if (comparison is null && ((string?)row.Family != EngineStrategySettings.Shadow || (string?)row.SettingsHash != EngineStrategySettings.Hash(json)))
-                    throw new InvalidDataException();
-                var policy = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, json);
+                var (policyId, policy) = AiShadowPolicyIdentity.Read((Guid?)row.VersionId,
+                    (string?)row.Family, (string?)row.SettingsJson, (string?)row.SettingsHash, comparison);
                 return Definition(id, (string)row.DisplayName, TradingStrategyFamily.DailyShadow, daily, policyId, policy, null,
                     CompleteTradingStrategy.ShadowSelectionPrefix + (string)row.Lens, (byte)row.MaximumPositions);
             }, (string)row.Status is "Draft" or "Stopped" || (string)row.GenerationStatus is "Draft" or "Stopped"

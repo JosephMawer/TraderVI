@@ -203,7 +203,12 @@ candidate-account confirmation transfers to managed-account entry/re-entry. Mark
 expiry; later saves or rereads cannot refresh them. Daily mark history preserves incomplete latest
 values. Signal/entry guidance is discretionary; source validity, cash/exposure, existing stops and
 protective exits remain hard. No signal recalculation or operating strategy changes occur here.
-Native SQL, source coverage, raw-bar/conflict requalification, prompt-size/API-cost qualification
+The native compatibility fix preserves the existing legacy Shadow contract: absence of an original
+assignment means frozen `SystemShadowV1`, using the same identity as strategy promotion. Fixed
+unversioned comparisons must retain pinned V1 settings; an explicit incomplete or corrupt assignment
+cannot use this fallback. This does not substitute new-strategy defaults or alter saved policy.
+Initial native mapping evidence is in project status. Remaining SQL/source coverage,
+raw-bar/conflict requalification, prompt-size/API-cost qualification
 and the operating host remain pending.
 No paid model request, strategy assignment or order follows from building a packet.
 

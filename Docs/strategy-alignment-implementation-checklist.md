@@ -160,7 +160,7 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data — in progress, saved records/catalogue/packet construction offline.**
+3. **Connect authoritative data — in progress, initial native decision-reader check complete.**
    Implemented/tested: broker books, Delphi Live paper checkpoints and complete Daily Shadow paper
    books feed one shared journal-writing boundary. Exact source evidence, invalid-input blocks,
    saved engine holds and required closure persist without an AI call. Both paper families and
@@ -179,13 +179,18 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    history, source/gate identity and daily performance. Tests cover epoch/source changes, stale/invalid
    latest evidence, source conflicts, account isolation and incomplete returns. Shared policy signals
    never substitute their lifecycle for the account's saved confirmation.
-   Next qualify native saved-record readers, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
+   Initial installed catalogue/decision-reader mapping is checked; original unassigned Shadow policies
+   retain frozen V1 and fixed variants retain their pinned settings. Broken assignments stay blocked.
+   Full mapping of variants without a saved publication remains unqualified; see project status.
+   Next trace missing Shadow publications and qualify the separate valuation readers, including their
+   legacy-policy handling, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
    Catalogue construction covers the current families and gate/position-count identities in source;
-   verify every installed account/version through native reads before claiming operational coverage.
+   all installed definitions validate in the initial native check, but complete usable decision evidence
+   and valuation still need qualification before claiming operational coverage.
    Future integrated additions use the maintained catalogue without a fixed current list/count.
    Qualify whole-portfolio valuations for independent protection; current five-minute bars alone
    cannot support fresh one-minute checks. Resolve fresher feed availability/coverage before claiming it.

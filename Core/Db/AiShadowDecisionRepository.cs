@@ -37,7 +37,7 @@ public sealed class AiShadowDecisionRepository : SQLBase, IAiShadowDecisionSourc
         await using var t = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         CommandDefinition Query(string sql, object? args = null) => new(sql, args, t, cancellationToken: ct);
         var header = await c.QuerySingleOrDefaultAsync(Query("""
-SELECT p.Lens,p.MaximumPositions,p.Status PortfolioStatus,g.Status GenerationStatus,g.IsGateComparison,
+SELECT p.Lens,p.MaximumPositions,p.CreatedUtc PortfolioCreatedUtc,p.Status PortfolioStatus,g.Status GenerationStatus,g.IsGateComparison,
  s.SessionId,s.Status SessionStatus,s.TradingDate,
  COALESCE(r.CalibrationRunId,s.CalibrationRunId) RunId,r.RevisionId,
  COALESCE(r.EffectiveUtc,s.ActivationBaselineUtc,s.StartedUtc) EffectiveUtc,
@@ -52,11 +52,8 @@ LEFT JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId WHERE p.Portfol
             (string)header.PortfolioStatus is "Draft" or "Stopped" || (string)header.GenerationStatus is "Draft" or "Stopped") return null;
         var comparison = (await PaperComparisonRepository.ReadAccountsAsync(c, t, ct)).SingleOrDefault(a => a.AccountId == portfolioId);
         if ((bool)header.IsGateComparison != (comparison is not null)) throw new InvalidDataException("Comparison account identity is missing.");
-        string policyJson = comparison?.ShadowSettingsJson ?? (string?)header.SettingsJson ?? throw new InvalidDataException("Shadow policy is missing.");
-        if (comparison is null && ((string?)header.Family != EngineStrategySettings.Shadow ||
-            (string?)header.SettingsHash != EngineStrategySettings.Hash(policyJson))) throw new InvalidDataException("Shadow policy checksum differs.");
-        Guid policyId = (comparison?.ShadowStrategyVersionId ?? (Guid?)header.VersionId) ?? throw new InvalidDataException("Shadow assignment is missing.");
-        var policy = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, policyJson);
+        var (policyId, policy) = AiShadowPolicyIdentity.Read((Guid?)header.VersionId,
+            (string?)header.Family, (string?)header.SettingsJson, (string?)header.SettingsHash, comparison);
         Guid runId = header.RunId;
         var run = await c.QuerySingleAsync(Query("""
 SELECT RunId,StrategyVersionId,RecommendationDate,MarketDataAsOf,CreatedUtc,RunPurpose,AuditState,
@@ -89,7 +86,7 @@ WHERE PortfolioId=@Id AND TradingDate BETWEEN @From AND @Through ORDER BY Tradin
         var result = new AiShadowSavedContext(portfolioId, (Guid)header.SessionId, date, policyId, policy,
             (string)header.Lens, (byte)header.MaximumPositions, comparison, runId, (Guid)run.StrategyVersionId,
             config, identities, DateOnly.FromDateTime((DateTime)run.MarketDataAsOf), Utc((DateTime)run.CreatedUtc),
-            Utc((DateTime)header.EffectiveUtc), comparison?.EffectiveUtc ?? Utc((DateTime)header.AssignedUtc),
+            Utc((DateTime)header.EffectiveUtc), comparison?.EffectiveUtc ?? Utc((DateTime?)header.AssignedUtc ?? (DateTime)header.PortfolioCreatedUtc),
             (string)run.RunPurpose, (string)run.AuditState, candidates, days);
         await t.CommitAsync(ct);
         return result;

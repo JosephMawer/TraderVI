@@ -886,6 +886,28 @@ dotnet run --project Athena -- --scorecard-csv C:\path\to\an-empty-export-direct
 Athena remains independently runnable, and ADR-0046 also invokes it as the final stage of the guarded
 daily pipeline. Hermes and Delphi do not launch it directly.
 
+## AI saved-record reader check
+
+`AiDecisionReadersSqlTests` is an explicit opt-in, SELECT-only check of the configured local database.
+It calls the maintained catalogue and both paper decision-context repositories, using the installed
+reviewed calendar. It never starts collectors, trading engines, AI clients or journal writers. Missing
+saved sessions remain unavailable; a pass does not certify fresh feeds or complete variant coverage.
+Use only when a native read is intended. Ordinary test runs skip this check.
+
+```powershell
+$env:TRADERVI_RUN_AI_READ_ONLY_SQL = '1'
+try {
+    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter FullyQualifiedName~AiDecisionReadersSqlTests --logger 'console;verbosity=detailed'
+} finally {
+    Remove-Item Env:TRADERVI_RUN_AI_READ_ONLY_SQL
+}
+```
+
+`TRADERVI_TSX_CALENDAR_PATH` must already identify the reviewed calendar. Output contains aggregate
+counts/timings and mapping failures; never add private account values or saved signal JSON to output.
+The ten-minute diagnostic age is not a runtime policy. Session-close rejection uses a simulated clock;
+no saved timestamp is rewritten. Serial reads do not qualify production lock duration or concurrent changes.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.

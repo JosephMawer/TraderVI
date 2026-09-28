@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Runtime;
+using Core.Db;
 using Core.Trader;
 using Core.Trader.Promotion;
 
@@ -35,10 +36,38 @@ public sealed record AiPortfolioCatalogEntry(Guid PaperAccountId, string Name, s
             a.DailyStrategyVersionId != strategy.Daily.StrategyVersionId ||
             (strategy.Family == TradingStrategyFamily.DelphiLive
                 ? a.StrategyCode != "DelphiLive" || a.LivePolicyVersionId != strategy.PolicyVersionId
-                : a.ShadowStrategyVersionId != strategy.PolicyVersionId || a.ShadowSettingsJson is null ||
+                : (a.ShadowStrategyVersionId ?? AiShadowPolicyIdentity.LegacyId) != strategy.PolicyVersionId || a.ShadowSettingsJson is null ||
                   a.StrategyCode != strategy.Selection[CompleteTradingStrategy.ShadowSelectionPrefix.Length..] + "Top" + strategy.MaximumHoldings ||
-                  EngineStrategySettings.Read(EngineStrategySettings.Shadow, a.ShadowSettingsJson) is not SystemShadowPolicyConfig config || config != strategy.ShadowPolicy))
+                  EngineStrategySettings.Read(EngineStrategySettings.Shadow, a.ShadowSettingsJson) is not SystemShadowPolicyConfig config || config != strategy.ShadowPolicy ||
+                  a.ShadowStrategyVersionId is null && config != SystemShadowPolicyConfig.Version1))
             throw new InvalidDataException("A catalogue variant must retain its exact fixed gates and policy.");
+    }
+}
+
+/// <summary>Preserves the original built-in policy identity used by existing strategy promotion.</summary>
+internal static class AiShadowPolicyIdentity
+{
+    internal static Guid LegacyId => TradingRecommendationStorage.Id(SystemShadowVersions.Policy);
+
+    internal static (Guid Id, SystemShadowPolicyConfig Policy) Read(Guid? assignedVersion, string? family,
+        string? settingsJson, string? settingsHash, PaperComparisonAccount? comparison)
+    {
+        if (comparison is not null)
+        {
+            var pinned = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow,
+                comparison.ShadowSettingsJson ?? throw new InvalidDataException("Missing pinned Shadow policy."));
+            if (comparison.ShadowStrategyVersionId == Guid.Empty ||
+                comparison.ShadowStrategyVersionId is null && pinned != SystemShadowPolicyConfig.Version1)
+                throw new InvalidDataException("Unversioned Shadow policy differs from frozen V1.");
+            return (comparison.ShadowStrategyVersionId ?? LegacyId, pinned);
+        }
+        // No assignment is the engine's original V1 contract, not the template for new strategies.
+        if (assignedVersion is null && family is null && settingsJson is null && settingsHash is null)
+            return (LegacyId, SystemShadowPolicyConfig.Version1);
+        if (assignedVersion is null || assignedVersion == Guid.Empty || family != EngineStrategySettings.Shadow ||
+            settingsJson is null || settingsHash != EngineStrategySettings.Hash(settingsJson))
+            throw new InvalidDataException("Assigned Shadow policy is incomplete or its checksum differs.");
+        return (assignedVersion.Value, (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, settingsJson));
     }
 }
 

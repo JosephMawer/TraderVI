@@ -40,10 +40,11 @@ deliberately deferred. Step 4 has begun with the tested offline continuous-round
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
 valuation adapters feeding the shared risk journal, now connected in source to paper saved-record readers.
 The maintained portfolio catalogue and account-scoped review-packet builder are also implemented offline.
-Native SQL reader qualification and Step 7 storage/host qualification remain pending.
+Initial native catalogue/decision-reader mapping is checked; missing-source variants, risk readers and
+Step 7 storage/host qualification remain pending (dated evidence in project status).
 Both Daily Shadow and Delphi Live now supply saved signals, account-specific decision/confirmation
-state, rules and daily paper performance to those packets offline. Next qualify native saved-record
-readers, source coverage, SQL behavior and account/price/cash-event
+state, rules and daily paper performance to those packets. Next trace the missing Shadow publications
+and qualify native valuation readers, including legacy policies, source coverage, SQL behavior and account/price/cash-event
 producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
