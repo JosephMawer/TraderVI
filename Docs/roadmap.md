@@ -35,6 +35,10 @@ one post-session learning review is now agreed alongside intraday saved-lesson c
 Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
+its [delivery milestones](strategy-alignment-implementation-checklist.md#delivery-milestones) are a
+visible AI reviewer, a complete tested paper trader, then supervised live trading. The reviewer is
+the next visible target; it uses initial runtime/display portions of Steps 7–8 while the ten-step
+checklist retains all paper/live completion requirements. Immediate implementation remains Step 3.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family

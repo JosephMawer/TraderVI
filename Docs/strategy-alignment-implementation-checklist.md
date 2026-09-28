@@ -94,6 +94,24 @@ Detailed agreed behavior remains binding in [ADR-0087](adr/0087-ai-momentum-port
 [design rules](design-rules.md) and their linked execution decisions. AI Explorer remains deferred.
 This checklist grants no deployment, paid API call or live-order authority.
 
+#### Delivery milestones
+
+These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
+and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
+All three milestones remain pending. Our immediate work is still Step 3.
+
+| Milestone | What you can use | Checklist work needed |
+|---|---|---|
+| **1 — Visible AI reviewer** | The app reads verified paper-account inputs, runs scheduled AI portfolio reviews and shows proposals, reasons, freshness and spending. It does not execute trades. | Reuse Steps **1–2** and the built risk core in **4**; finish the paper-input path in **3**, the basic review runtime and bounded API verification in **7**, and the review/status display in **8**. |
+| **2 — Complete, tested AI paper trader** | The AI manages a paper account with enforced protection, simulated execution, portfolio switching, outcome learning and recovery. | Complete the paper scope across Steps **3–9**, including the remaining action/protection work in **4**, execution in **5**, learning in **6**, full runtime/controls in **7–8**, and connected validation in **9**. |
+| **3 — Supervised live AI trading** | The approved AI strategy manages the real account through verified broker execution and protection. | Complete Milestone **2**, the real-account/cash-event portions of **3–5** and applicable live runtime/controls in **7–8**, then the qualification and explicit activation in **10**. |
+
+Milestone 1 is the next visible delivery target. Lesson criteria remain deferred until Step 6 needs
+them. Real-account prerequisites remain required for Milestone 3; a paper milestone does not check
+off mixed paper/live items in full. Preserve the step order and individual completion marks below.
+
+#### Ten-step implementation checklist
+
 1. **Foundation — built and tested offline.**
 
    - [x] Build the AI client and structured portfolio proposals.

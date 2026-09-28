@@ -21,6 +21,11 @@ Use the [roadmap](roadmap.md) for priorities and the [implementation checklist](
 for dependencies and next actions. [Design rules](design-rules.md) own behavior; this page records
 what has actually been implemented, installed or observed.
 
+**Delivery checkpoints, September 28:** the existing ten-step checklist now groups delivery into a
+[visible AI reviewer, complete tested paper trader, and supervised live trading](strategy-alignment-implementation-checklist.md#delivery-milestones).
+All three are pending; the reviewer is the next visible target and Step 3 remains the immediate work.
+This planning clarification changes no implementation, validation result or operational readiness.
+
 ## Latest operational evidence
 
 | Area | Last evidence (Toronto) | Verified result and limit |
