@@ -32,7 +32,7 @@ continue delivery without another design discussion on that topic. Concrete rule
 authoritative packet adapters and production budget/storage configuration are implementation work.
 Learning consultation is source-integrated into the supervisor and execution-preparation coordinator;
 one post-session learning review is now agreed alongside intraday saved-lesson consultation.
-Next connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
+Steps 6–7 will connect qualified outcome evaluation and host scheduling under ADR-0087, leaving immature
 or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 its [delivery milestones](strategy-alignment-implementation-checklist.md#delivery-milestones) are a

@@ -24,7 +24,9 @@ what has actually been implemented, installed or observed.
 **Delivery checkpoints, September 28:** the existing ten-step checklist now groups delivery into a
 [visible AI reviewer, complete tested paper trader, and supervised live trading](strategy-alignment-implementation-checklist.md#delivery-milestones).
 All three are pending; the reviewer is the next visible target and Step 3 remains the immediate work.
-This planning clarification changes no implementation, validation result or operational readiness.
+Duplicate AI/learning task lists are consolidated into that sequence; completed price investigations
+link to the dated evidence below. This planning clarification changes no implementation, validation
+result or operational readiness.
 
 ## Latest operational evidence
 

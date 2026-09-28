@@ -134,14 +134,12 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [x] Connect complete paper-account readers and broker evidence adapters to shared risk checks; keep candidate balances separate.
    - [x] Verify saved cash, holdings and calculated values across all 15 installed paper portfolios.
    - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
-   - [x] Measure saved stock-price freshness: five-minute evidence has multi-minute delay; **one-minute coverage is not qualified**.
-   - [x] Run the initial one-minute TMX benchmark check: fresh advancing prices, with two historical minutes missing.
-   - [x] Measure one-minute prices for current held stocks: latest-minute coverage varies; some prices remain several minutes old.
-   - [x] Check missing minutes against raw TMX rows and reported trades: sampled gaps originate at TMX and are consistent with no reported trades.
+   - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status.md#latest-operational-evidence).
    - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
-   - [ ] Join faster prices to a verified whole account, save the evidence and qualify the connected risk checks.
-   - [ ] Resolve failed/missing collection coverage; never make old prices look fresh or silently change ordinary engine bars.
-   - [ ] Verify consistent reads while accounts change, and qualify broker cash events with matching before/after accounts.
+   - [ ] Combine faster prices with verified cash and every holding, retaining the source evidence.
+   - [ ] Save combined evidence through the risk journal and qualify connected freshness, coverage and recovery.
+   - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
+   - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
 
 4. **Trading decisions and protection — partly built.**
@@ -204,21 +202,8 @@ off mixed paper/live items in full. Preserve the step order and individual compl
 
 ### Left to do — development order
 
-- [ ] **AI Momentum integration:** follow the ten-step delivery sequence above and implement
-  the agreed protection, catalogue selection/handover and paper/live host contract under
-  [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md). Saved input adapters are built; faster-source
-  qualification and recurring checks remain. Lesson criteria stay deferred until Step 6. Qualify Astra access/billing,
-  review expiring FX/tax bounds and install one protected shared spending journal for all model roles.
-  The library defaults to CAD 90 and rejects ceilings at or above CAD 100; it is not operational.
-  Continuous protection, outage handling and decision cadence remain host work. AI Explorer is deferred.
-  The requested September 28 target still depends on the native risk/order/host requirements below.
-  [Open decisions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
-
-- [ ] **Learning operational integration (ADR-0087):** implement/qualify the outcome evaluator and
-  its lesson admission/expiry policy, configure consultation intervals and connect both periodic
-  hooks to the runtime host. Prepare a protected shared journal and recovery/retention procedures.
-  Connect preparation to the approved execution path with fresh source/account/risk checks. Verify
-  protective exits remain independent through outages; no installed coordinator or broker path yet.
+AI Momentum and learning are tracked once in the [milestones and ten-step list above](#ai-momentum-delivery-sequence).
+The prerequisites below cover the broader real-account execution work and remain required for Milestone 3.
 
 - [ ] **1. Complete risk-tracking source qualification.** Daily and percentage-preserving cash-flow
   continuation are implemented/tested. Qualify complete broker event coverage, effective cash timing
