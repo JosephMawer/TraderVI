@@ -28,6 +28,7 @@ internal static class Program
         new TmxXiuIntervalResolutionProbe(),
         new TmxOneMinuteFreshnessProbe(),
         new TmxHeldPriceFreshnessProbe(),
+        new TmxMissingMinuteProbe(),
         new TmxHistoricalIntervalAccessProbe(),
         new TmxXiuMarketHoursPollingProbe(),
         new DelphiLiveClosedMarketTrialProbe(),

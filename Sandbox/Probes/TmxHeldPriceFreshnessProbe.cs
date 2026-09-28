@@ -119,7 +119,7 @@ public sealed class TmxHeldPriceFreshnessProbe : IProbe
         Console.WriteLine("Measurement complete. Missing minutes remain unknown; volume agreement alone does not prove no trading occurred.");
     }
 
-    private static async Task<HashSet<string>> ReadHeldSymbolsAsync(CancellationToken ct)
+    internal static async Task<HashSet<string>> ReadHeldSymbolsAsync(CancellationToken ct)
     {
         var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var catalogue = await new AiPortfolioCatalogRepository(TimeSpan.FromMinutes(1)).ReadAsync(ct);

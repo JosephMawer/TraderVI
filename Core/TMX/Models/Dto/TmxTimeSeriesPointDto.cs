@@ -6,7 +6,7 @@ namespace Core.TMX.Models.Dto
     /// <summary>
     /// TMX GraphQL DTO for getTimeSeriesData response points.
     /// Property names match TMX API exactly (camelCase).
-    /// OHLCV fields are nullable because TMX returns null for halted/suspended bars.
+    /// OHLCV fields may be null. Null fields alone do not establish a halt or no-trade interval.
     /// </summary>
     public class TmxTimeSeriesPointDto
     {

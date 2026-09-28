@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. The TMX one-minute held-stock check found latest-minute prices for only three or four of five held stocks per poll; the oldest observed price was about six minutes ten seconds old. Missing minutes persisted on rerequest. Available minute volumes match the compared five-minute totals, but no-trade semantics and production eligibility remain unqualified. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the AI host remains unfinished. The alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
+**Current record:** September 28, 2026. Raw TMX rows and recent trades support quiet trading as the explanation for sampled minute gaps: the missing rows were absent at source, and every reported trade in the compared completed window had a minute bar. This is bounded provider evidence, not exhaustive market coverage. Faster price integration must keep actual price time separate from successful data checks; no freshness policy or AI loop is enabled. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -25,6 +25,7 @@ what has actually been implemented, installed or observed.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
+| Missing-minute source/trade diagnosis | Sep 28, 14:12 and 14:21 Toronto | Authorized raw-response probes for five held symbols plus XIU. Final sample covers 09:30–14:20: 542/1,740 requested minute slots absent at source, zero null/incomplete rows; the client filter caused none of these gaps. All 207 sparse five-minute groups match summed minute volume; all 130 complete groups match OHLCV. Of 150 recent trades, 105 fall within the completed window across 24 minutes; all have bars. Nineteen comparable trade-minute volumes match; 32 absent minutes lie between reported trade times. Latest gaps for five targets remain absent on narrow rerequest. This supports no reported trading in sampled gaps, not exhaustive venue coverage or production qualification. Final run: 23 requests/attempts, held-symbol set unchanged, no SQL/account/risk/order writes or restart. Evidence: `artifacts/ai-risk-values-20260928/missing-minute-trades-native.log`; first raw-only run: `missing-minute-native.log`. |
 | Held-stock one-minute source | Sep 28, 13:25–13:29 Toronto | Authorized read-only probe sampled five held symbols plus XIU across five polls, then compared intervals and retried gaps: 44 requests/transport attempts. Latest-minute held coverage was 3/5, 4/5, 3/5, 4/5, 4/5; held price ages were 10.067–370.298 seconds after bar end. Zero revisions/disappearances across 188 repeated completed-bar comparisons. Four held symbols retained historical gaps; their first missing minutes remained absent on both broad and narrow rerequests. All seven sparse five-minute groups had matching summed minute volumes; all five complete groups matched OHLCV exactly. This suggests, but does not establish, no-trade minutes. Final held-symbol set unchanged; account consistency and production freshness remain unqualified. No SQL/account/risk/order writes or app restart. Evidence: `artifacts/ai-risk-values-20260928/held-minute-native.log`. |
 | Candidate one-minute price source | Sep 28, 13:13–13:17 Toronto | Authorized read-only XIU probe completed five requests/transport attempts, one per minute. Latest completed prices were 10.069–10.582 seconds old at receipt; all four subsequent polls advanced exactly one minute. Zero revisions/disappearances across 38 repeated completed-bar comparisons. Two requested historical minutes were absent throughout (8/10 completed minutes initially, 12/14 finally); cause is not established. Forming bars were excluded. This small benchmark sample does not qualify held stocks, continuous age bounds, publication latency before the poll, or production freshness limits. No SQL/account/risk/order writes or app restart. Evidence: `artifacts/ai-risk-values-20260928/one-minute-native.log`. |
 | AI stock-price freshness | Sep 28, SQL 12:40 and 12:56; account reads 12:55 | At 12:40, successful V3 five-minute receipts in the preceding hour arrived 144.722–158.396 seconds after bar end. The 12:55 risk-reader check reconciles all 15 books; two invested Shadow values are 338.3–338.4 seconds old and one Live value is 339.5 seconds old. None is within 60 seconds; this is a diagnostic comparison, not a newly approved production limit. Current sources do not establish one-minute coverage. The 12:56 window includes 378 usable mature Live slots, 23 without completed bars and nine failed slots; one cycle was cancelled with completion code `Failed`, leaving eight unfinished slots. Its underlying exception is not established by these receipts. The session retains `Blocked`/`HostGapObserved`; twelve V2 fifteen-minute receipts also report `CompletedBarConflict`. No external collection, SQL writes or restart. Evidence: `artifacts/ai-risk-values-20260928/price-freshness-*`. |
@@ -256,7 +257,7 @@ suite or full-solution/SQL rebuild was performed. No schema changed. Evidence: p
 `cash-verification-wpf-build.log`; earlier baseline: `native-final.log`).
 Changes are compiled/tested in source; this increment did not replace/restart the normal desktop or
 connect the unfinished AI runtime. No external service, database mutation or production risk-journal write ran.
-Stock-price timing and bounded faster-source samples are now measured below; next resolve missing-minute meaning, qualify held-stock coverage and wire recurring risk observations into the AI paper host;
+Stock-price timing and bounded faster-source samples are now measured below; next qualify timestamped faster observations and wire recurring risk observations into the AI paper host;
 broker cash events remain a separate dependency. Preserve the tested stale-input rejection.
 Transaction concurrency/lock duration and full source coverage remain unqualified.
 
@@ -289,7 +290,7 @@ completed-bar changes. Two historical minutes remain absent; the probe cannot di
 minutes from missing provider data. Ages are measured at polls, not a guarantee that the saved price
 stays under a minute old between polls. This is an initial benchmark screen, not a selected operating
 freshness policy or permission to replace engine bars. Held-stock follow-up is recorded below;
-missing-minute semantics remain unresolved before one-minute valuation collection/storage.
+the later raw-response/trade check narrows the cause, while production source qualification remains pending.
 Four offline diagnostic tests pass; Sandbox build succeeds with 261 existing CS8632 warnings. The
 sandboxed restore could not reach NuGet; the authorized restore/build succeeded. No dependency-security
 audit (`NuGetAudit=false`), full Core suite, WPF/full-solution build, database operation, AI/broker call,
@@ -304,14 +305,38 @@ then advanced. At the final poll, four held symbols lacked 5, 3, 9 and 8 of the 
 the other held symbol and XIU had all 14. The first missing minute for each affected symbol was not
 recovered by either rerequest. Matching sparse-group volumes suggest no trades in omitted minutes,
 but cannot establish that meaning: the client also filters rows with incomplete/null OHLCV fields.
-Next distinguish absent provider rows from filtered incomplete rows and establish their meaning;
-an old price must retain its actual timestamp. No faster source or freshness policy is enabled.
+The later raw-response/trade check below distinguishes the missing rows and supports quiet trading;
+an old price must still retain its actual timestamp. No faster source or freshness policy is enabled.
 The final reread confirms only the held-symbol set, not every intervening account/quantity change.
 Nine focused offline diagnostic tests pass (five held-stock and four benchmark cases). Sandbox build
 passes with three existing CS8632 warnings; test compilation also reports existing CS8632 warnings.
 No fresh dependency-security audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran.
 No database mutation, AI/broker call, order or app restart ran. Evidence and validation:
 `artifacts/ai-risk-values-20260928/held-minute-*`.
+
+**Missing-minute diagnosis, September 28:** `tmx-missing-minute` uses diagnostic TMX methods that
+preserve unfiltered response points alongside validated bars, plus the public quote
+page's `getCompanyMostRecentTrades` query (25 rows). Counts distinguish omitted rows from all-null or
+partially-null rows without treating unknown volume as zero. The ordinary batch reader now rejects a
+missing/null data payload instead of allowing it to look like a successful empty read; an explicit empty
+list remains a valid empty response. Complete-bar mapping and validation remain in place. Trade timestamps require explicit offsets;
+the oldest listed minute is excluded from volume comparison because the row cap may truncate it.
+The 14:12 raw-only run completed 17 requests/attempts. Its 200 sparse five-minute groups all matched
+volume. The final 14:21 run and trade comparisons are recorded above; the active stock's latest 25 trades
+all fell after the comparison cutoff, so that target has no completed trade overlap in this sample.
+These results support no reported trades during sampled gaps, not an independent guarantee of every
+venue/trade or a method of detecting a silently frozen feed. Provider omissions also occur at five-minute
+resolution. Keep market-event time, successful receipt time and missing/failed refresh state distinct;
+do not fill gaps, reset price age, loosen stale-input rejection or change ordinary engine evidence.
+Next implement and qualify timestamped faster valuation observations under those existing boundaries.
+The public [TMX last-sale explanation](https://www.blog.tmx.com/money/tmx) describes real-time quotes
+and charts but does not establish the gap contract. Schema introspection was unavailable; the recent-trade
+query was read from TMX's public quote-page JavaScript, then checked on XIU and in the bounded probe.
+Thirty-seven focused TMX tests pass, including ten new diagnostic cases. The final incremental Sandbox
+build passes with zero warnings/errors; Core/test compilation reports existing CS8632 warnings. No dependency
+security audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No database mutation,
+AI/broker call, order, deployment or app restart ran. Private validation: `missing-minute-tests.log`,
+`missing-minute-build.log` in `artifacts/ai-risk-values-20260928/`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

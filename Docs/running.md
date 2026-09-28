@@ -983,6 +983,25 @@ in a missing minute. The final held-symbol reread detects changed target sets, n
 account change. No SQL/account/risk/order writes occur. The source can omit incomplete/null price
 rows, so a missing bar is not automatically a verified no-trade minute.
 
+To distinguish provider omissions from client filtering and compare recent reported trades:
+
+```powershell
+dotnet run --project Sandbox -- tmx-missing-minute
+```
+
+This explicitly authorized read-only probe uses the same saved held-symbol selection and reviewed
+calendar. It requests today's session through a completed five-minute boundary at least a minute old:
+one-minute rows, five-minute rows, up to 25 recent trades, and one narrow rerequest of the latest gap
+per target. At most eight targets, 32 requests and 96 transport attempts; each request has a 15-second
+deadline and the run has eight minutes. It stops on failure and writes no SQL/accounts/risk/orders.
+Output distinguishes absent, all-null and partially-null rows; compares interval volumes and checks
+reported trade timestamps against missing bars. The oldest recent-trade minute may be truncated, so
+its volume is excluded from comparisons. Empty minutes between listed trades describe that bounded
+provider list, not an exhaustive cross-market tape. Success neither fills gaps nor refreshes old prices.
+The ordinary TMX batch method still returns only validated complete bars; unfiltered response points
+are exposed only through the diagnostic method. Missing/null response data now fails the ordinary
+batch read; an explicit empty list remains an empty response. Keep console evidence private.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.

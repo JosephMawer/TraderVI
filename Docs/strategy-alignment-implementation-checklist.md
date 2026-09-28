@@ -119,7 +119,8 @@ This checklist grants no deployment, paid API call or live-order authority.
    - [x] Measure saved stock-price freshness: five-minute evidence has multi-minute delay; **one-minute coverage is not qualified**.
    - [x] Run the initial one-minute TMX benchmark check: fresh advancing prices, with two historical minutes missing.
    - [x] Measure one-minute prices for current held stocks: latest-minute coverage varies; some prices remain several minutes old.
-   - [ ] Confirm whether missing minutes mean no trades or missing data, then qualify the faster source for risk checks.
+   - [x] Check missing minutes against raw TMX rows and reported trades: sampled gaps originate at TMX and are consistent with no reported trades.
+   - [ ] Connect and qualify faster price observations, keeping actual price time separate from the last successful data check.
    - [ ] Resolve failed/missing collection coverage; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify consistent reads while accounts change, and qualify broker cash events with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.

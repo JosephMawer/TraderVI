@@ -103,6 +103,25 @@ namespace Core.TMX
             DateTime? endDateTime = null,
             CancellationToken ct = default)
         {
+            var result = await GetIntradayTimeSeriesDiagnosticAsync(symbol, interval, startDateTime, endDateTime, ct);
+            if (!result.SourceDataPresent)
+                throw new InvalidOperationException("TMX intraday source data unavailable.");
+            return result.Batch;
+        }
+
+        /// <summary>
+        /// Returns the same validated batch plus the unfiltered response points for read-only diagnosis.
+        /// Source points are unvalidated provider DTOs, not eligible price evidence. Missing/null fields
+        /// do not establish a halt or no trading. No additional request is made for these diagnostics.
+        /// </summary>
+        public async Task<(TmxIntradayBatch Batch, bool SourceDataPresent, IReadOnlyList<TmxTimeSeriesPointDto> SourcePoints)>
+            GetIntradayTimeSeriesDiagnosticAsync(
+                string symbol,
+                int interval,
+                DateTime startDateTime,
+                DateTime? endDateTime = null,
+                CancellationToken ct = default)
+        {
             DateTime fetchStartedUtc = DateTime.UtcNow;
             GraphQLRequest request = BuildIntradayTimeSeriesRequest(
                 symbol,
@@ -110,20 +129,21 @@ namespace Core.TMX
                 startDateTime,
                 endDateTime);
 
-            RetryResult<GraphQLResponse<TmxTimeSeriesResponse>> transport =
-                await SendQueryWithRetryAsync<TmxTimeSeriesResponse>(request, ct);
+            RetryResult<GraphQLResponse<IntradaySourceResponse>> transport =
+                await SendQueryWithRetryAsync<IntradaySourceResponse>(request, ct);
             DateTime receivedUtc = DateTime.UtcNow;
-            GraphQLResponse<TmxTimeSeriesResponse> response = transport.Value;
+            GraphQLResponse<IntradaySourceResponse> response = transport.Value;
             if (response.Errors is { Length: > 0 })
                 throw new InvalidOperationException(
                     $"TMX GraphQL errors: {string.Join(" | ", response.Errors.Select(e => e.Message))}");
 
-            // Map DTO → Domain — skip bars with null OHLCV (halted/suspended days).
-            List<OhlcvBar> bars = response.Data?.getTimeSeriesData
+            bool sourceDataPresent = response.Data?.getTimeSeriesData != null;
+            var sourcePoints = response.Data?.getTimeSeriesData ?? [];
+            // Preserve incomplete rows for diagnosis; they cannot supply validated price bars.
+            List<OhlcvBar> bars = sourcePoints
                 .Where(p => p.IsComplete)
                 .Select(TmxMapper.ToOhlcvBar)
-                .ToList()
-                ?? [];
+                .ToList();
 
             List<OhlcvBar> validated = ValidateIntradayResponse(
                 bars,
@@ -136,7 +156,7 @@ namespace Core.TMX
                 ? FloorToUtcMinute(endDateTime.Value)
                 : FloorToUtcMinute(fetchStartedUtc);
 
-            return new TmxIntradayBatch(
+            var batch = new TmxIntradayBatch(
                 symbol.Trim(),
                 interval,
                 requestedStartUtc,
@@ -146,6 +166,13 @@ namespace Core.TMX
                 transport.AttemptCount,
                 RequestCount: 1,
                 validated.AsReadOnly());
+            return (batch, sourceDataPresent, sourcePoints.AsReadOnly());
+        }
+
+        // Unlike an initialized empty list, null preserves an omitted data field for diagnosis.
+        private sealed class IntradaySourceResponse
+        {
+            public List<TmxTimeSeriesPointDto> getTimeSeriesData { get; set; }
         }
 
         /// <summary>
@@ -610,6 +637,35 @@ namespace Core.TMX
         // ═══════════════════════════════════════════════════════════════════
         // MARKET DATA
         // ═══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Reads at most 25 recent trades using the TMX Money quote-page query for source diagnosis.
+        /// This bounded list is not an exhaustive tape or execution authority; preserve its timestamps.
+        /// </summary>
+        public async Task<(IReadOnlyList<TmxRecentTradeDto> Trades, int AttemptCount)> GetRecentTradesDiagnosticAsync(
+            string symbol, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(symbol)) throw new ArgumentException("Symbol required.", nameof(symbol));
+            var request = new GraphQLRequest
+            {
+                OperationName = "getCompanyMostRecentTrades",
+                Query = @"query getCompanyMostRecentTrades($symbol: String, $limit: Int) {
+                    getCompanyMostRecentTrades(symbol: $symbol, limit: $limit) { price volume datetime exchangeCode }
+                }",
+                Variables = new { symbol = symbol.Trim(), limit = 25 }
+            };
+            var transport = await SendQueryWithRetryAsync<RecentTradesResponse>(request, ct);
+            if (transport.Value.Errors is { Length: > 0 } || transport.Value.Data?.getCompanyMostRecentTrades == null)
+                throw new InvalidOperationException("TMX recent-trade response unavailable.");
+            var trades = transport.Value.Data.getCompanyMostRecentTrades;
+            if (trades.Count > 25) throw new InvalidOperationException("TMX recent-trade response exceeds requested bound.");
+            return (trades.AsReadOnly(), transport.AttemptCount);
+        }
+
+        private sealed class RecentTradesResponse
+        {
+            public List<TmxRecentTradeDto> getCompanyMostRecentTrades { get; set; }
+        }
 
         /// <summary>
         /// Gets market movers (most active, gainers, losers).
