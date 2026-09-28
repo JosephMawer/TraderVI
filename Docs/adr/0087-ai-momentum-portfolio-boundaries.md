@@ -185,6 +185,22 @@ limits are in project status. Transaction lock/concurrency behavior still needs 
 change, production freshness duration, one-minute feed, AI-owned operating paper account or execution
 loop is introduced.
 
+**Faster paper-value preparation — September 28 implementation:** the accepted independent-update
+contract below now has a separate `PaperAiFastValuationReader`. It combines the managed paper
+account's verified cash and full holding/fill history with `TmxAiRiskPriceSource`, using existing
+account reconciliation rules. Shadow exposes the coherent account independently of saved price marks;
+Delphi Live supplies its existing complete immutable revision. Read the account before collection and
+again afterwards; any changed source contents reject the result. Preserve settings, identity and saved
+holds. Require every held stock's fresh completed price to end at the same minute, and reject trades
+after that boundary. Differing latest minutes remain unavailable; no inferred no-trade price is added.
+Cash-only accounts reconcile original capital and closed history without requesting market prices.
+Retain both reads, actual bar/receipt times, cash, calculated holdings value and holds in hashed source
+evidence. Expiry is bounded by the earliest account, market-price, receipt or session limit; no operating
+age defaults are selected. This is a prepared value, not a `PortfolioRiskValuation` or journal write.
+Durable repeated-bar conflict handling, cross-observation capital/history continuity and handover to
+the existing risk journal remain required before risk assessment. Existing engine marks, account records,
+rounds, peaks and stops are unchanged. Native concurrency/feed qualification and scheduling remain open.
+
 `AiPortfolioCatalogRepository` now reads maintained account choices and exact complete definitions:
 daily strategy/model identity, policy, position count, gate profile and implementation identity. Fixed
 comparison rules cannot fall back to ordinary assignments. Unknown/inconsistent definitions stay

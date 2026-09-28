@@ -45,7 +45,11 @@ cash must reconcile to fixed capital and complete closed history. Replaying a re
 historical reads retain saved times, and invested books still require their original exact price bars.
 This does not refresh market evidence or reset risk history/holds (ADR-0087). Native saved-book
 mapping/arithmetic is checked; source/freshness/concurrency qualification and cash-flow adjustment remain
-pending. Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
+pending. A separate faster paper-value preparer now combines verified cash/holding history with
+actual one-minute prices ending at the same boundary. It rereads the whole account after collection,
+rejects changes and stale/incomplete prices, and carries saved holds and source evidence. It supplies
+no risk permission: durable source continuity/conflict checks and journal handover remain pending.
+Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
 fall back. Existing engine valuation semantics are unchanged.
 The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate
 candidate definitions from managed-account funds. Unsupported choices stay visible; fresh matching

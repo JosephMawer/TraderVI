@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. The one-minute TMX price adapter is built/tested: it separates bar time from receipt time and rejects incomplete, stale or failed price reads. Joining those prices to a reconciled whole account and durable risk evidence is next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
+**Current record:** September 28, 2026. Faster prices now combine with verified cash and all holdings for both paper-account families in source/tests. The reader rejects changing accounts and missing, stale or differently timed prices, and retains source evidence. Durable risk-journal integration and native qualification are next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The consolidated ten-step checklist tracks the three delivery milestones without duplicate AI task lists.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -335,8 +335,8 @@ These results support no reported trades during sampled gaps, not an independent
 venue/trade or a method of detecting a silently frozen feed. Provider omissions also occur at five-minute
 resolution. Keep market-event time, successful receipt time and missing/failed refresh state distinct;
 do not fill gaps, reset price age, loosen stale-input rejection or change ordinary engine evidence.
-The price adapter below implements the source boundary; whole-account valuation integration and
-operating qualification remain required under those existing boundaries.
+The price adapter and combined-account reader below implement source boundaries;
+durable risk integration and operating qualification remain required.
 The public [TMX last-sale explanation](https://www.blog.tmx.com/money/tmx) describes real-time quotes
 and charts but does not establish the gap contract. Schema introspection was unavailable; the recent-trade
 query was read from TMX's public quote-page JavaScript, then checked on XIU and in the bounded probe.
@@ -356,9 +356,9 @@ after a failed refresh. Re-reading an old bar cannot extend its price expiry. Mi
 symbols make the full price set unusable; the set is checked after all I/O and at subsequent use time.
 Caller cancellation propagates; per-request deadlines return unavailable evidence without provider
 details. Empty symbol sets cannot stand in for a verified cash-only account.
-This does not yet revalue a portfolio or write the risk journal. Next join these prices to the owned
-account's coherent cash/holdings/history, retain source evidence and conflicts, and qualify that path
-before scheduling it. Existing paper readers still require their original five-minute book evidence;
+The adapter alone does not revalue a portfolio or write the risk journal. The combined reader below
+now joins prices to the owned account; durable conflict/history checks and qualification remain
+before scheduling it. Existing saved-price readers still require their original five-minute book evidence;
 no account balance, engine mark, risk reference or hold was replaced.
 Validation: 56 focused tests pass (16 new price-source cases and 40 saved-paper-reader cases), including
 old-price rereads, slow multi-symbol collection, missing/failed responses, cancellation, deadlines,
@@ -366,6 +366,31 @@ forming bars and incorrect source metadata. Core/test compilation succeeds with 
 warnings. No fresh dependency-security audit (`NuGetAudit=false`), full Core suite, WPF/full-solution
 build, native collection, SQL operation, AI/broker call or app restart ran in this increment.
 Evidence: `artifacts/ai-risk-values-20260928/minute-price-source-tests.log`.
+
+**Combined faster paper valuation, September 28 (source/tested only):** `PaperAiFastValuationReader`
+uses the actual Shadow and Delphi Live account-reader interfaces and `TmxAiRiskPriceSource`.
+It reads the complete owned book before collection and again afterwards, reuses existing fixed-capital
+cash/holding-history validation and rejects changed books, including revision, trade, settings or hold
+changes. Shadow exposes a price-independent account read from its existing serializable transaction;
+its ordinary saved-price reader is unchanged. The combined value is cash plus all held shares at actual
+completed one-minute closes. Every held price must be fresh and end at the same minute; trades after
+that boundary reject the value. Quiet stocks with mismatched latest minutes remain unavailable.
+Cash-only accounts need no market request and must reconcile complete closed history. Saved holds,
+both account reads and original price/receipt times are retained in hashed evidence. Expiry is the
+earliest account/price/receipt/session bound, rechecked after I/O; receipt time cannot renew market time.
+The result is a preparation record, not a risk permission or persisted journal transition. Existing
+rounds/peaks, account balances, stops and engine marks are untouched. Next implement durable source
+conflict detection and history continuity/handover before assessing combined values through the risk
+journal, then qualify native timing/concurrency and operating freshness. No production age limits
+were selected and no schedule or application wiring was enabled.
+Validation: 163 focused tests pass, including 34 new combined-reader cases and regressions for the
+price adapter, saved readers and both paper risk monitors. Cases cover arithmetic, account ownership,
+missing history/prices, stale/mixed times, changed accounts and intervening trades, slow reads,
+cash-only closed history, saved holds, unsupported corporate actions, cancellation and storage failure.
+Core/test compilation succeeds; existing CS8632 compiler warnings remain. No fresh dependency-security
+audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No native TMX/SQL operation,
+database mutation, AI/broker call, order, deployment or app restart ran in this increment.
+Evidence: `artifacts/ai-risk-values-20260928/fast-account-tests.log`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

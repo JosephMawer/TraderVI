@@ -136,7 +136,7 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [x] Repair symbol resolution/source adoption and verify current cash-only Shadow observations without changing history.
    - [x] Check saved and faster prices: delays and uneven minute coverage are measured; sampled gaps are consistent with quiet trading. [Dated evidence](project-status.md#latest-operational-evidence).
    - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
-   - [ ] Combine faster prices with verified cash and every holding, retaining the source evidence.
+   - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
    - [ ] Save combined evidence through the risk journal and qualify connected freshness, coverage and recovery.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.

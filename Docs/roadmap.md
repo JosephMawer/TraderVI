@@ -56,8 +56,9 @@ held prices retain their original freshness limits. Saved price timing is now me
 five-minute collection has multi-minute delay and gaps, so one-minute coverage remains unqualified.
 Authorized one-minute samples show uneven latest-minute coverage. Raw rows and recent trades now
 support quiet trading as the explanation for sampled gaps; the client did not drop those rows.
-The one-minute price adapter is built/tested with separate price/check timestamps and complete-set
-freshness checks. Next join those prices to verified whole-account evidence and qualify risk integration, resolve collection gaps,
+The one-minute price adapter and combined paper-account reader are built/tested. The reader reconciles
+cash/history, rechecks the account after collection and requires fresh prices ending at the same minute.
+Next persist combined evidence with risk-history continuity/conflict checks and qualify risk integration, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.

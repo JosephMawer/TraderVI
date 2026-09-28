@@ -64,7 +64,7 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
         writer.Apply(previous => Qualify(scope.PortfolioId, observation, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(observation, independentBlocks), initialize: false);
 
-    private static ImmutableArray<string> WithSavedHolds(ShadowPaperRiskObservation? o, ImmutableArray<string> blocks)
+    internal static ImmutableArray<string> WithSavedHolds(ShadowPaperRiskObservation? o, ImmutableArray<string> blocks)
     {
         if (blocks.IsDefault) throw new ArgumentException("Independent checks must be supplied.", nameof(blocks));
         if (o?.Session?.DailyLossGuardActive == true) blocks = blocks.Add("DailyBuyingPaused");
@@ -82,8 +82,7 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
         { return false; }
     }
 
-    internal static PortfolioRiskValuation Qualify(Guid portfolioId, ShadowPaperRiskObservation? o,
-        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
+    internal static void ValidateAccount(Guid portfolioId, ShadowPaperRiskObservation? o, DateTimeOffset now)
     {
         if (o is null || o.Generation is not { } g || o.Portfolio is not { } p || o.Session is not { } s ||
             o.EvidenceId == Guid.Empty || o.At.Kind != DateTimeKind.Utc || o.ObservedUtc.Kind != DateTimeKind.Utc ||
@@ -114,6 +113,19 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
             o.Positions.Select(h => h.PositionId).Distinct().Count() != o.Positions.Length)
             throw new InvalidOperationException("Paper position ownership and lifecycle must be complete.");
         var open = o.Positions.Where(h => h.Status == "Open").ToArray();
+        if (open.Select(h => h.Symbol).Distinct(StringComparer.OrdinalIgnoreCase).Count() != open.Length ||
+            p.CashBalance != g.TotalAccountValue + o.Positions.Where(h => h.Status == "Closed").Sum(h => h.RealizedProfitLoss)
+                - open.Sum(h => h.CostBasis))
+            throw new InvalidOperationException("Cash must reconcile to fixed capital and the complete position history.");
+    }
+
+    internal static PortfolioRiskValuation Qualify(Guid portfolioId, ShadowPaperRiskObservation? o,
+        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
+    {
+        ValidateAccount(portfolioId, o, now);
+        var p = o!.Portfolio;
+        var g = o.Generation;
+        var open = o.Positions.Where(h => h.Status == "Open").ToArray();
         if (o.CashVerifiedUtc is { } verified && (verified.Kind != DateTimeKind.Utc ||
             verified != o.At || verified != o.ObservedUtc || open.Length != 0 ||
             DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(verified)) != o.TradingDate))
@@ -139,12 +151,6 @@ public sealed class SystemShadowAiPortfolioRiskMonitor
                 throw new InvalidOperationException("Stored marks must match exact completed five-minute source bars.");
             value += h.Shares * b.Close;
         }
-        // Fixed paper capital; original costs already include the engine's friction. Do not infer
-        // real-account flows from this equation or re-price historical acquisition costs.
-        if (p.CashBalance != g.TotalAccountValue + o.Positions.Where(h => h.Status == "Closed").Sum(h => h.RealizedProfitLoss)
-                - open.Sum(h => h.CostBasis))
-            throw new InvalidOperationException("Cash must reconcile to fixed capital and the complete position history.");
-
         if (previous is not null)
         {
             if (previous.Source?.Contract != ValuationContract)

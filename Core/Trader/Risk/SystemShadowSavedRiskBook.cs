@@ -19,10 +19,10 @@ internal sealed record SystemShadowSavedRiskBook(SystemShadowGenerationInfo Gene
     Guid? AssignedVersion, string? SettingsJson, string? SettingsHash, DateTime? AssignedUtc,
     PaperComparisonAccount? Comparison, string? AssignedFamily = null, DateTime? VerifiedReadUtc = null)
 {
-    internal ShadowPaperRiskObservation? Build(Guid requestedPortfolio, DateOnly date)
+    private SystemShadowRuntimePortfolio? ResolvePortfolio(Guid requestedPortfolio, DateOnly date)
     {
         if (Portfolio.PortfolioId != requestedPortfolio || DateOnly.FromDateTime(Session.TradingDate) != date ||
-            Positions.IsDefault || Prices.IsDefault || UpdatedUtc.Kind != DateTimeKind.Utc ||
+            Positions.IsDefault || UpdatedUtc.Kind != DateTimeKind.Utc ||
             IsGateComparison != (Comparison is not null)) return null;
         bool hasAssignment = AssignedVersion is not null || AssignedFamily is not null ||
             SettingsJson is not null || SettingsHash is not null || AssignedUtc is not null;
@@ -36,8 +36,27 @@ internal sealed record SystemShadowSavedRiskBook(SystemShadowGenerationInfo Gene
             EngineStrategySettings.Validate(EngineStrategySettings.Shadow, settings);
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or JsonException or InvalidDataException) { return null; }
-        var portfolio = Portfolio with { Settings = settings, StrategyVersionId = version,
+        return Portfolio with { Settings = settings, StrategyVersionId = version,
             SettingsAssignedUtc = Comparison?.EffectiveUtc ?? AssignedUtc ?? Portfolio.ActivatedUtc, ComparisonAccount = Comparison };
+    }
+
+    internal ShadowPaperAccountRead? BuildAccount(Guid requestedPortfolio, DateOnly date)
+    {
+        var portfolio = ResolvePortfolio(requestedPortfolio, date);
+        if (portfolio is null || VerifiedReadUtc is not { Kind: DateTimeKind.Utc } verified ||
+            verified < UpdatedUtc || verified < Generation.UpdatedUtc ||
+            DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(verified)) != date ||
+            LastFillUtc is { } fill && (fill.Kind != DateTimeKind.Utc || fill > verified)) return null;
+        var observation = new ShadowPaperRiskObservation(Guid.Empty, date, verified, verified, Generation, portfolio, Session,
+            Positions.OrderBy(p => p.PositionId).ToImmutableArray(), []);
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(observation)));
+        return new(observation with { EvidenceId = new Guid(hash.AsSpan(0, 16)) }, UpdatedUtc, LastFillUtc);
+    }
+
+    internal ShadowPaperRiskObservation? Build(Guid requestedPortfolio, DateOnly date)
+    {
+        var portfolio = ResolvePortfolio(requestedPortfolio, date);
+        if (portfolio is null || Prices.IsDefault) return null;
         var open = Positions.Where(p => p.Status == "Open").ToArray();
         // A fill timestamp is not a bar start. The monitor also checks every source price against its holding.
         if (open.Length != Prices.Length || open.Any(p => !Prices.Any(b => b.Symbol == p.Symbol))) return null;

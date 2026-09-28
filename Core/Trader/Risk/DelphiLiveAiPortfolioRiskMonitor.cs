@@ -49,7 +49,7 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
         writer.Apply(previous => Qualify(scope.PortfolioId, snapshot, previous, maximumEvidenceAge, now), now, hasFreshAiReview,
             WithSavedHolds(snapshot, independentBlocks), initialize: false);
 
-    private static ImmutableArray<string> WithSavedHolds(DelphiLivePortfolioSnapshot? snapshot, ImmutableArray<string> blocks)
+    internal static ImmutableArray<string> WithSavedHolds(DelphiLivePortfolioSnapshot? snapshot, ImmutableArray<string> blocks)
     {
         if (blocks.IsDefault) throw new ArgumentException("Independent checks must be supplied.", nameof(blocks));
         // Preserve saved engine holds until the explicit AI/ordinary engine composition is implemented.
@@ -58,14 +58,13 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
         return blocks;
     }
 
-    internal static PortfolioRiskValuation Qualify(Guid portfolioId, DelphiLivePortfolioSnapshot? p,
-        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
+    internal static void ValidateAccount(Guid portfolioId, DelphiLivePortfolioSnapshot? p, DateTimeOffset now)
     {
         if (p is null || p.PortfolioId != portfolioId || p.GenerationId == Guid.Empty || p.PolicyVersionId == Guid.Empty ||
             p.Currency != "CAD" || p.StartingCapital <= 0m || p.Cash < 0m || p.Revision < 0 || p.Guards is null ||
             p.UpdatedUtc.Kind != DateTimeKind.Utc || p.UpdatedUtc > now.UtcDateTime ||
-            p.Positions.IsDefault || p.Fills.IsDefault || p.Marks.IsDefaultOrEmpty)
-            throw new InvalidOperationException("A complete owned paper ledger and latest checkpoint are required.");
+            p.Positions.IsDefault || p.Fills.IsDefault)
+            throw new InvalidOperationException("A complete owned paper ledger is required.");
         if (p.Role is not ("OperationalChampion" or "ActiveShadowChallenger" or "ShadowBaseline" or "ChampionControl" or "GateComparison") ||
             (p.Role == PaperGateComparison.LiveRole ? p.ComparisonAccount is not { } account ||
                 account.AccountId != p.PortfolioId || account.LivePolicyVersionId != p.PolicyVersionId ||
@@ -73,6 +72,14 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
                 account.BatchId == Guid.Empty || account.PairId == Guid.Empty || account.DailyStrategyVersionId == Guid.Empty :
                 p.ComparisonAccount is not null))
             throw new InvalidOperationException("The paper strategy and gate variant must match their account identity.");
+    }
+
+    internal static PortfolioRiskValuation Qualify(Guid portfolioId, DelphiLivePortfolioSnapshot? p,
+        PortfolioRiskValuation? previous, TimeSpan maximumEvidenceAge, DateTimeOffset now)
+    {
+        ValidateAccount(portfolioId, p, now);
+        if (p!.Marks.IsDefaultOrEmpty)
+            throw new InvalidOperationException("A latest checkpoint is required.");
         var mark = p.Marks[^1];
         if (mark is null || mark.MarkId == Guid.Empty || !mark.Complete || mark.Nav is null ||
             mark.Kind is not (DelphiLivePortfolioMarkKind.Checkpoint or DelphiLivePortfolioMarkKind.Closing) ||
@@ -123,7 +130,7 @@ public sealed class DelphiLiveAiPortfolioRiskMonitor
         };
     }
 
-    private static void ValidateLedger(DelphiLivePortfolioSnapshot p, DateTime checkpoint)
+    internal static void ValidateLedger(DelphiLivePortfolioSnapshot p, DateTime checkpoint)
     {
         if (p.Positions.Any(h => h is null || h.PositionId == Guid.Empty || string.IsNullOrWhiteSpace(h.Symbol) ||
                 h.Quantity <= 0 || h.AveragePurchasePrice <= 0m || h.OpenedUtc.Kind != DateTimeKind.Utc || h.OpenedUtc > checkpoint ||

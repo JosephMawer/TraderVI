@@ -14,10 +14,19 @@ using Microsoft.Data.SqlClient;
 
 namespace Core.Db;
 
-public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
+public sealed partial class SystemShadowRepository : ISystemShadowRiskReader, ISystemShadowAccountReader
 {
     /// <summary>Read-only transaction over the full book, assigned rules and existing saved bars. Never collects prices.</summary>
     public async Task<ShadowPaperRiskObservation?> ReadRiskObservationAsync(Guid portfolioId, DateOnly tradingDate,
+        CancellationToken cancellationToken = default) =>
+        (await ReadSavedRiskBookAsync(portfolioId, tradingDate, cancellationToken))?.Build(portfolioId, tradingDate);
+
+    /// <summary>Verified cash and complete holding history, independent of saved engine price marks.</summary>
+    public async Task<ShadowPaperAccountRead?> ReadAccountAsync(Guid portfolioId, DateOnly tradingDate,
+        CancellationToken cancellationToken = default) =>
+        (await ReadSavedRiskBookAsync(portfolioId, tradingDate, cancellationToken))?.BuildAccount(portfolioId, tradingDate);
+
+    private async Task<SystemShadowSavedRiskBook?> ReadSavedRiskBookAsync(Guid portfolioId, DateOnly tradingDate,
         CancellationToken cancellationToken = default)
     {
         if (portfolioId == Guid.Empty) throw new ArgumentException("A saved portfolio identity is required.", nameof(portfolioId));
@@ -66,7 +75,7 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader
             assignment is null ? null : (string?)assignment.SettingsHash, assignment is null ? null : UtcOrNull((DateTime?)assignment.AssignedUtc),
             comparison, assignment is null ? null : (string?)assignment.Family,
             Utc((DateTime)receipt.VerifiedReadUtc));
-        return book.Build(portfolioId, tradingDate);
+        return book;
     }
 
     private static DateTime? UtcOrNull(DateTime? value) => value is { } time ? Utc(time) : null;
