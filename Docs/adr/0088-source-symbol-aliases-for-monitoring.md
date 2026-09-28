@@ -1,6 +1,6 @@
 # ADR-0088: Source symbol aliases for monitoring
 
-- **Status:** Accepted; implementation prepared, installation and runtime verification pending.
+- **Status:** Implemented and installed; native symbol resolution and comparison-source adoption verified.
 - **Date:** 2026-09-28
 - **Domains:** architecture, data-sources
 
@@ -37,4 +37,6 @@ must be verified separately; missed monitoring intervals cannot be backdated int
 
 Focused tests cover canonical names, aliases, ownership preservation, wrong sources, missing targets,
 conflicts and rejection of alias chains. Build/test results and installation status belong to project
-status. This does not qualify AI valuation readers or enable AI execution.
+status. Authorized installation and restart on September 28 preserved the checked account records,
+resolved the tracked holding to its canonical monitoring symbol and restored adoption for all eight
+Shadow comparison accounts. This does not qualify AI valuation readers or enable AI execution.

@@ -157,7 +157,7 @@ acceptance are complete. New WPF writes use the compact representation. See
 [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md) adds explicit source-scoped symbol aliases
 at the Live observation boundary. Real broker holdings resolve to existing stock identifiers while
 retaining their owning record IDs and permissions. Stored account history is unchanged. Migration 041
-is prepared; installation and runtime recovery remain pending.
+is installed; native symbol resolution and comparison-source adoption are verified in project status.
 
 [ADR-0084](adr/0084-external-broker-trade-synchronization.md) adds an atomic projection from validated
 broker order aggregates into the Real trade/position ledger. Immutable synchronization receipts retain

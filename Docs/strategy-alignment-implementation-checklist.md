@@ -181,12 +181,13 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    never substitute their lifecycle for the account's saved confirmation.
    Initial installed catalogue/decision-reader mapping is checked; original unassigned Shadow policies
    retain frozen V1 and fixed variants retain their pinned settings. Broken assignments stay blocked.
-   Full mapping of variants without a saved publication remains unqualified; see project status.
+   All 15 installed decision contexts now map after source recovery; freshness and full input
+   qualification remain separate. See project status for native evidence and limits.
    Missing comparison adoption is traced to a broker-suffixed tracked symbol rejected by the canonical
    symbol foreign key during Live startup; the official daily publication exists (project status).
-   Verified symbol resolution at the monitoring boundary is implemented/tested under ADR-0088,
-   preserving account history. Migration 041 is prepared, not installed. Next obtain exact-script
-   installation authority and verify prospective runtime recovery. Then qualify the separate valuation
+   Verified symbol resolution at the monitoring boundary is installed under ADR-0088, preserving
+   account history. Authorized migration 041/restart restored all eight comparison sources and a
+   fresh Live cycle; missed coverage remains a gap. Next qualify the separate valuation
    readers, including legacy-policy handling, source coverage, SQL reads/live feed/freshness/cash events. This is not connected
    collection or minute-level operational coverage. See project status for tests and source limits.
    Build adapters for Delphi candidates, strategy rules, historical

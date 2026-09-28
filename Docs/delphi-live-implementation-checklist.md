@@ -31,9 +31,10 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
-The September 28 source update requires reviewed migration 041 (`SymbolAliases`) before the updated
-monitor runs. The broker-alias lookup is implemented/tested; installation and prospective source-adoption
-verification remain pending. It preserves account history and rejects unresolved references. See
+The September 28 source update uses installed migration 041 (`SymbolAliases`). The broker-alias lookup
+and prospective source adoption are natively verified after authorized restart. The missed morning
+remains a coverage gap; source adoption does not establish fresh minute-level evidence. It preserves
+account history and rejects unresolved references. See
 [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md) and project status for evidence.
 
 The initial policy and generated schema install inactive. Simulation capital has no default. An explicit positive capital amount, currency and operator reason are required; activation takes effect at the next regular-session boundary.
