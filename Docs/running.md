@@ -921,6 +921,30 @@ operating qualification remain pending. No normal app/nightly host invokes this 
 source conflict blocks new observations across restart and requires reviewed recovery; do not remove
 the journal or initialize a new round to bypass it. Existing account history and protection persist.
 
+`AiFastRiskNativeTests` is the opt-in check of that connected path. It reads real account books using
+SELECTs and writes only fresh, uniquely named diagnostic journal directories beneath an explicit output
+root. During a regular session, two passes a minute apart make at most 48 TMX requests (144 transport
+attempts); the workload is capped before collection. It refuses the first minute and final three minutes
+of a session. After hours it verifies rejection and journal reopening with no TMX requests. Use the
+inherited reviewed calendar variable, not an absent user-scoped replacement. Do not run without explicit
+authorization for SQL reads, bounded external collection and private diagnostic journals.
+
+```powershell
+$env:TRADERVI_RUN_AI_FAST_RISK_NATIVE = '1'
+$env:TRADERVI_AI_RISK_DIAGNOSTIC_DIRECTORY = 'C:\src\TraderVI\artifacts\ai-risk-native\journals'
+try {
+    dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter FullyQualifiedName~AiFastRiskNativeTests --logger 'console;verbosity=detailed'
+} finally {
+    Remove-Item Env:TRADERVI_RUN_AI_FAST_RISK_NATIVE
+    Remove-Item Env:TRADERVI_AI_RISK_DIAGNOSTIC_DIRECTORY
+}
+```
+
+Journal files contain private source/account evidence; keep them out of commits. Console output is
+aggregate only. Diagnostic age settings (45 seconds for account reads, 120 seconds for prices and
+30 seconds for receipts) do not establish operating limits. A passing after-hours run verifies no fresh
+accepted valuation; even a regular-session sample does not establish full-session coverage or retention.
+
 `AiRiskReadersSqlTests` reads the installed catalogue and both saved paper risk books using SQL SELECTs.
 It reconciles cash, holdings and saved marks, then exercises valuation and stale/altered-evidence
 rejection in memory. It never creates a risk journal, modifies SQL, collects data or starts trading.

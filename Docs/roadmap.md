@@ -59,8 +59,9 @@ support quiet trading as the explanation for sampled gaps; the client did not dr
 The one-minute price adapter and combined paper-account reader are built/tested. The reader reconciles
 cash/history, rechecks the account after collection and requires fresh prices ending at the same minute.
 Combined values now feed the risk journal and AI input packets, with tested history continuity,
-explicit same-account source handover and persistent price-conflict blocks. Next verify this connected
-path against native paper accounts and prices, qualify freshness/recovery, resolve collection gaps,
+explicit same-account source handover and persistent price-conflict blocks. Native after-hours checks
+reconcile all 15 paper books and verify rejection/empty-journal recovery. Next run the prepared connected
+check during a regular session to verify fresh values/persistence, qualify freshness/recovery, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.

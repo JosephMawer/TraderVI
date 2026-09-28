@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Combined faster paper-account values now feed the existing risk journal and AI review inputs in source/tests. History continuity, explicit same-account source handover, repeat-price expiry, persistent price-conflict blocks and restart recovery are tested. Native connected-source qualification is next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The consolidated ten-step checklist tracks the three delivery milestones without duplicate AI task lists.
+**Current record:** September 28, 2026. Native after-hours checks reconcile all 15 paper accounts and verify that the combined-value path rejects them outside the session, saves no risk transitions and reopens isolated diagnostic journals correctly. The bounded regular-session check is prepared; fresh combined-value acceptance/persistence remains unverified because the market was closed. Combined values already feed the existing risk journal and AI review inputs in source/tests, including history continuity, explicit source handover and persistent price-conflict blocks. No operating freshness policy or AI loop is enabled. Earlier minute-gap samples support quiet trading, not exhaustive market coverage. Saved five-minute prices retain multi-minute delays/coverage gaps; the alias repair remains installed. The consolidated ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -32,6 +32,7 @@ result or operational readiness.
 
 | Area | Last evidence (Toronto) | Verified result and limit |
 |---|---|---|
+| Connected AI risk path after hours | Sep 28, saved books about 19:19; connected check 19:21:36 Toronto | All 12 Shadow and three Live cash/holding histories reconcile; two Shadow and one Live accounts are invested. Saved-price values are expired/outside-session. The new connected diagnostic rejects all 15 as `OutsideSession`, makes zero TMX requests, accepts zero observations and saves zero risk transitions. Fifteen newly isolated diagnostic journals reopen unchanged; per-account rejection/reopen took 13–73 ms, excluding baseline SQL reads. This checks the closed-market branch and empty-journal recovery only. Fresh combined values, native accepted-value persistence, concurrency and regular-session latency remain unverified. No SQL/account/order writes, production-journal changes or restart. Evidence: `artifacts/ai-risk-values-20260928/evening-saved-books.log`, `connected-native-evening.log`; private empty diagnostic journals: `connected-native-journals/`. |
 | Missing-minute source/trade diagnosis | Sep 28, 14:12 and 14:21 Toronto | Authorized raw-response probes for five held symbols plus XIU. Final sample covers 09:30–14:20: 542/1,740 requested minute slots absent at source, zero null/incomplete rows; the client filter caused none of these gaps. All 207 sparse five-minute groups match summed minute volume; all 130 complete groups match OHLCV. Of 150 recent trades, 105 fall within the completed window across 24 minutes; all have bars. Nineteen comparable trade-minute volumes match; 32 absent minutes lie between reported trade times. Latest gaps for five targets remain absent on narrow rerequest. This supports no reported trading in sampled gaps, not exhaustive venue coverage or production qualification. Final run: 23 requests/attempts, held-symbol set unchanged, no SQL/account/risk/order writes or restart. Evidence: `artifacts/ai-risk-values-20260928/missing-minute-trades-native.log`; first raw-only run: `missing-minute-native.log`. |
 | Held-stock one-minute source | Sep 28, 13:25–13:29 Toronto | Authorized read-only probe sampled five held symbols plus XIU across five polls, then compared intervals and retried gaps: 44 requests/transport attempts. Latest-minute held coverage was 3/5, 4/5, 3/5, 4/5, 4/5; held price ages were 10.067–370.298 seconds after bar end. Zero revisions/disappearances across 188 repeated completed-bar comparisons. Four held symbols retained historical gaps; their first missing minutes remained absent on both broad and narrow rerequests. All seven sparse five-minute groups had matching summed minute volumes; all five complete groups matched OHLCV exactly. This suggests, but does not establish, no-trade minutes. Final held-symbol set unchanged; account consistency and production freshness remain unqualified. No SQL/account/risk/order writes or app restart. Evidence: `artifacts/ai-risk-values-20260928/held-minute-native.log`. |
 | Candidate one-minute price source | Sep 28, 13:13–13:17 Toronto | Authorized read-only XIU probe completed five requests/transport attempts, one per minute. Latest completed prices were 10.069–10.582 seconds old at receipt; all four subsequent polls advanced exactly one minute. Zero revisions/disappearances across 38 repeated completed-bar comparisons. Two requested historical minutes were absent throughout (8/10 completed minutes initially, 12/14 finally); cause is not established. Forming bars were excluded. This small benchmark sample does not qualify held stocks, continuous age bounds, publication latency before the poll, or production freshness limits. No SQL/account/risk/order writes or app restart. Evidence: `artifacts/ai-risk-values-20260928/one-minute-native.log`. |
@@ -413,6 +414,24 @@ audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No S
 change, paid AI/broker call, deployment, app restart or order ran. Test journals use synthetic temporary
 accounts only. Native timing/concurrency, full-session coverage, storage size/retention and production
 freshness remain unqualified. Evidence: `artifacts/ai-risk-values-20260928/fast-risk-journal-tests.log`.
+
+**Prepared connected native diagnostic, September 28:** `AiFastRiskNativeTests` is explicitly opt-in.
+It validates real account cash/history, caps the workload at 20 accounts/eight holdings each and 24
+held-symbol occurrences, and creates unique diagnostic journal directories. During a regular session
+it makes two passes a minute apart with at most 48 TMX requests/144 transport attempts; after hours it
+verifies rejection without collecting prices. The 45-second account, 120-second price and 30-second
+receipt bounds are diagnostic, not approved operating settings. Accepted values would be checked
+against saved risk state and reopened journals; expiry rejection uses an explicitly advanced test clock.
+Output contains counts, reasons and timings, not financial values or account identities. Diagnostic
+journals may contain private source evidence and must remain outside commits.
+Validation: 100 focused tests passed with the native test skipped by default; both the saved-book SQL
+check and the opt-in connected after-hours check then passed. The first launch mistakenly replaced the
+inherited calendar variable with an absent user-scoped value; rerunning with the inherited reviewed
+calendar resolved it. Sandbox SQL access was denied; the authorized checks succeeded outside it.
+Core/test compilation has existing CS8632 warnings. No fresh dependency-security audit (`NuGetAudit=false`),
+full Core suite or WPF/full-solution build ran. The regular-session branch has not run against TMX;
+no external market, broker or AI call occurred tonight. Evidence: `connected-native-build-tests.log`,
+`connected-native-evening.log` and `evening-saved-books.log` in `artifacts/ai-risk-values-20260928/`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

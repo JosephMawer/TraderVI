@@ -138,7 +138,8 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [x] Build/test the one-minute price adapter with separate price/check times and rejection of stale, missing or failed reads.
    - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
    - [x] Save combined values through the risk journal; test history preservation, explicit source handover, repeat prices, lasting conflict blocks and restart recovery.
-   - [ ] Verify the connected path against real paper-account reads and market prices; qualify freshness, coverage and recovery before scheduling it.
+   - [x] Verify after-hours rejection for all 15 real paper accounts and reopen isolated diagnostic journals; no prices or risk transitions accepted.
+   - [ ] Run the prepared connected check during a regular session; verify fresh combined values and qualify freshness, coverage and recovery before scheduling it.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.
