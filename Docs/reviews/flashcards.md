@@ -18,6 +18,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does the broker-book adapter prove that live portfolio values are qualified?
+
+A: No. It checks scoped reconciled books, exact-time prices and no-flow evidence, saves provenance,
+and blocks new allowance on invalid input. A qualified producer must still establish complete actual
+holdings and cash-event coverage. A repeated read cannot extend the original evidence's freshness.
+Source: ADR-0087. Tags: data-sources, risk-management, validation.
+
 ### Q: Which portfolios may AI Momentum choose?
 
 A: All current strategy portfolios, including position-count and daily-gate variants. The catalogue

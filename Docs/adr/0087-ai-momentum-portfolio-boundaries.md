@@ -1,7 +1,7 @@
 # ADR-0087: AI Momentum mandate and enforced protection
 
 **Date:** September 26, 2026 Toronto
-**Status:** Client/learning foundation, continuous-round risk core and local risk journal implemented offline; shared engine integration, outcome evaluation and host qualification pending.
+**Status:** Client/learning foundation, continuous-round risk core, local risk journal and broker-book valuation adapter implemented offline; native sources, shared engine integration, outcome evaluation and host qualification pending.
 **Domains:** architecture, llm, risk-management
 **Related:** ADR-0055, ADR-0062, ADR-0081, ADR-0083, ADR-0085, ADR-0086; `Docs/oracle-rules.md`
 
@@ -85,7 +85,7 @@ all current strategy portfolios, expanding as more are built and integrated. Eva
 admission remains a decision before automatic lessons are enabled. Do not reopen ordinary-rule
 discretion. Data/feed qualification, concrete rule mapping, storage and execution wiring are
 implementation dependencies, not additional broad
-design interviews. Step 4 now has an offline risk-core increment while Step 3 adapters remain pending.
+design interviews. Step 4 has an offline risk core; Step 3 has its first broker-book adapter below.
 
 `Core/Trader/Risk/PortfolioRiskAssessment.cs` establishes the shared output contract and explicit
 engine-daily/AI-continuous profile identifiers. It is a risk assessment, never order authority.
@@ -114,7 +114,28 @@ replays/rewrites complete history (32 MB maximum); protected storage, backups, r
 qualification and host failure handling remain Step 7 work. Keep the reviewed calendar's historical
 coverage available for replay. Independent holds and stock stops remain in their existing owners.
 
-This increment deliberately cannot adjust cash flows or qualify a feed. Matched cash-event
+`BrokerAiPortfolioRiskMonitor` now adapts the existing `BrokerRiskBoundaryBook` and
+`BrokerRiskNoFlowEvidence` contracts to that journal. The live journal's account scope is its broker
+binding ID; portfolio identity and paper/live mode must match. `BrokerAiExactBookMarksV1` requires
+one identified exact-time price for every reconciled holding and derives value from cash and shares.
+It does not substitute the saved-price opening contract or a broker graph. No-flow coverage must
+span the previous valuation through the new book, including overnight; initial capture is explicit
+at the opening capital instant. Actual capital movements still require the pending adjustment path.
+
+The caller must configure a qualified maximum evidence age; no production duration or feed is chosen
+here. Canonical book/flow source bytes and their hash are saved with the valuation. Absent provenance
+is omitted for compatibility with old journal entries; recovery retains exact evidence and round state.
+Identical retries do not create observations or refresh expiry. Rejected observations suppress new
+allowance and preserve saved state/required closure. Storage exceptions propagate and must block new
+risk in the host; there is no silent initialization or reset. Independent holds and AI-review freshness
+remain caller inputs, and a result is an assessment rather than execution authority.
+
+This is contract validation over producer-supplied evidence, not native source qualification. It
+cannot prove the producer supplied every actual holding or complete cash-event history; those remain
+explicit producer obligations under ADR-0083. Paper adapters, native collection, current-account/price
+reconciliation and host composition remain pending. Tests use synthetic evidence only.
+
+This increment cannot adjust cash flows or qualify a feed. Matched cash-event
 integration, overall 10% guard calculation/release, stock-stop enforcement, current-account/exposure
 checks, ordinary-engine adapters, production storage/host integration and execution remain separate dependencies. Existing
 holds are supplied as independent blocks; this core cannot clear them. Existing runtime engines

@@ -45,6 +45,8 @@ public sealed class AiPortfolioRiskJournal : IDisposable
     private long knownRevision = -1;
     private string? knownHash;
 
+    public AiRiskJournalScope Scope => scope;
+
     public AiPortfolioRiskJournal(string directory, AiRiskJournalScope scope,
         AiPortfolioRiskPolicy policy, bool initializeNew = false)
     {

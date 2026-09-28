@@ -159,7 +159,12 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    One learning review after each trading session is agreed for completed trades and blocked
    alternatives with sufficient evidence; inconclusive cases stay pending. Intraday consultation of
    saved evaluated lessons continues. Exact lesson qualification/expiry remains open.
-3. **Connect authoritative data.** Build adapters for Delphi candidates, strategy rules, historical
+3. **Connect authoritative data — in progress, first offline valuation adapter.**
+   Implemented/tested: existing reconciled broker books and no-flow intervals feed saved risk checks,
+   retaining exact source evidence, rejecting invalid readings and preserving required closure without
+   AI review. Native producer/freshness qualification and paper valuation adapters remain pending;
+   this is not connected collection or minute-level operational coverage. See project status for tests.
+   Build adapters for Delphi candidates, strategy rules, historical
    summaries, current market observations and actual account/portfolio state. Produce immutable,
    dated decision packets with source/version identity, freshness and missing-data checks.
    Map all current strategy portfolios and their gate/position-count variants from the maintained
@@ -174,7 +179,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    peaks, allowance, latched closure, cross-session continuity and qualified re-entry. See project
    status for the focused risk-core/journal evidence and limits. A scoped local journal now retains
    commands and prior states, replay-validates recovery and rejects stale/conflicting writes;
-   feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
+   the first broker-book adapter now checks rejected-input blocks and durable source provenance.
+   Feed/cash-event qualification, complete risk enforcement and execution integration remain pending.
    Extend portfolio-only proposals to
    stock-level buy/add/hold/sell and permitted sizing/override decisions. Validate every action against
    the selected engine and approved boundaries in C#. Keep protective monitoring independent of
@@ -193,7 +199,8 @@ introduce complexity only when needed. Do not silently drop accepted discretion,
    trigger and count; a limit hit while already cash still requires failed-round reconciliation.
    Verify initial triggers use actual round opening capital and retain original-capital history;
    forecast later-round amounts cannot supply enforced references.
-   Check thresholds on every new qualified portfolio valuation without an AI call. Verify that
+   Synthetic broker-book checks on every accepted valuation without an AI call are tested; extend
+   to qualified producers and paper adapters. Verify operationally that
    one-minute updates are checked during a fifteen-minute AI review interval, unavailable AI does
    not delay checks, and cached/failed/incomplete updates do not masquerade as fresh valuations.
    Reuse percentage-preserving cash-flow adjustment for effective round/overall references while

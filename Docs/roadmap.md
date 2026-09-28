@@ -36,8 +36,10 @@ or inconclusive cases pending and using the same monthly allowance.
 Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence):
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with learning criteria
 open. Step 4 has begun with the tested offline continuous-round risk core, shared assessment contract and scoped
-local transition journal/recovery. Step 7 storage/host qualification remains pending.
-Next connect qualified inputs and existing risk/execution adapters; source qualification
+local transition journal/recovery. Step 3 now has a tested offline broker-book valuation adapter
+feeding saved risk checks; paper adapters and native source qualification remain pending.
+Step 7 storage/host qualification remains pending. Next add paper valuation adapters and qualified
+account/price/cash-event producers, then connect existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
 The AI gradual scale now follows continuous losses/recovery across days, replacing its daily framing
 and session-minimum lock (ADR-0087). Both starting balance and portfolio peak are selected references.

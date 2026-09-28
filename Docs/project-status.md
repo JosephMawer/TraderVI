@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 27, 2026. Offline AI continuous-round risk core and local recovery journal implemented; 37 focused tests pass. Engine/feed/host integration remains pending.
+**Current record:** September 27, 2026. Offline AI risk core, recovery journal and reconciled broker-book valuation adapter implemented; 69 focused tests pass. Native feed, paper adapters and engine/host integration remain pending.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -117,8 +117,8 @@ reproduction instructions are in the [activation review](reviews/supervised-sess
 build. Portfolio scope is now agreed: all current strategy portfolios and their gate/position-count
 variants, expanding as additional portfolios are built and integrated (ADR-0087). Catalogue mapping
 and adapter qualification remain implementation work; evaluated-lesson admission remains a feature
-decision. This scope clarification is documentation only, reviewed by diff; no tests or operational
-actions ran and prior validation dates are unchanged. Step 4 has begun with `Core/Trader/Risk` and
+decision. Scope agreement is recorded in ADR-0087; operational evidence dates remain unchanged.
+Step 4 has begun with `Core/Trader/Risk` and
 `AiPortfolioRiskPolicyTests`: shared assessment/profile contracts, continuous round transitions,
 trailing peaks/allowance, failure/closure and calendar-aware fresh-entry restart. Independent
 holds and unavailable AI suppress new allowance while failed-round closure remains required.
@@ -129,22 +129,36 @@ identities, peaks, allowance inputs and closure/sequence pauses; stale/conflicti
 missing/corrupt/interrupted history cannot reset them. Existing overall holds and stock stops remain
 outside this journal. No production directory or host was configured.
 
-Validation with .NET SDK 10.0.401: **37 focused tests passed, zero failures/skips** (21 policy and
-16 journal cases). Tests cover restart phases/peaks/second rounds, exhausted-sequence restart,
-exact retries, stale revisions, scope/evidence conflicts, competing writers, invalid/missing/pending
-history, same-process rollback and failed writes. Core and the
-test project compiled into isolated `artifacts/ai-risk-20260927/build`; evidence is
-`artifacts/ai-risk-20260927/journal-tests.log`. Existing CS8632 nullable-context compiler warnings
-remain; no warnings originate in the new journal/test files. The journal increment reused restored
-dependencies; package-security auditing was disabled, so there is no fresh vulnerability assessment. The full Core
+Step 3 now has `BrokerAiPortfolioRiskMonitor`: an offline connection from the existing reconciled
+broker book/no-flow contracts to the saved AI round checks. It derives cash-plus-holdings value from
+identified exact-time prices, checks account/portfolio scope and uninterrupted no-flow coverage,
+and retains canonical source evidence in the journal. Rejected readings return zero buying allowance
+without changing saved peaks or cancelling a required closure. Identical retries neither append
+history nor extend freshness. Initialization stays explicit; paper journals reject broker inputs.
+Storage failures propagate for the future host to block new risk; they do not create empty history.
+
+Validation with .NET SDK 10.0.401: **69 focused tests passed, zero failures/skips** (21 policy,
+16 journal and 32 broker-valuation cases). The new cases cover synthetic one-minute updates without
+AI review, whole-book arithmetic, scope/price/coverage defects, stale/conflicting/repeated evidence,
+cash-only accounts, preserved holds/closure, overnight recovery, old history without provenance,
+source recovery and unavailable storage. Core and the test project compiled into isolated
+`artifacts/ai-risk-20260927/build`; evidence is `artifacts/ai-risk-20260927/valuation-tests.log`.
+Command: `dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --verbosity quiet --artifacts-path artifacts/ai-risk-20260927/build -p:NuGetAudit=false --filter 'FullyQualifiedName~BrokerAiPortfolioRiskMonitorTests|FullyQualifiedName~AiPortfolioRiskPolicyTests|FullyQualifiedName~AiPortfolioRiskJournalTests'`.
+Existing CS8632 nullable-context compiler warnings remain; none originate in the new adapter/test
+files. Restored dependencies were reused; package-security auditing was disabled, so there is no
+fresh vulnerability assessment. The full Core
 suite, WPF and SQL builds were not rerun. No application, SQL, model, market or broker operation ran.
 
-Scope: synthetic qualified no-flow inputs and offline local journal/recovery. Production storage,
+Scope: synthetic producer-supplied reconciled no-flow books and offline local journal/recovery.
+The adapter checks the contract; it does not establish completeness/authenticity of a native producer.
+No native feed or freshness duration is qualified, and current five-minute bars do not prove
+one-minute coverage. Next add paper valuation adapters and qualified account/price/cash-event producers.
+Production storage,
 retention/performance, backups and host recovery are unqualified. Full history is replayed/rewritten
 with a 32 MB cap; checksums are not tamper-proof or proof against old backups between restarts.
-There is no feed/cash-event adapter, overall-guard or stock-action integration,
-ordinary-engine replacement or execution caller. Invalid observations must become caller risk
-blocks. These tests establish round behavior, not native data qualification or live readiness.
+Native collection and actual cash-flow adjustment, overall-guard and stock-action integration,
+ordinary-engine replacement and the execution caller remain pending. These tests establish adapter
+and round behavior, not native data qualification or live readiness.
 
 September 26 design discussion: the operator requested an AI-managed portfolio and Monday,
 September 28 live adoption, with a mandate/discretion/boundaries framework and decision logging.
@@ -181,7 +195,8 @@ handling has no dependency on this new path. See ADR-0087 for precise limits.
 The [ten-step delivery sequence](strategy-alignment-implementation-checklist.md#ai-momentum-delivery-sequence)
 groups commits `720c780a` and `07928730` as Step 1, complete offline. Step 2's core framework is agreed
 with portfolio scope settled and learning criteria open; Step 4's offline risk core is in progress.
-The other delivery steps remain pending. The operator requests this same list for future "progress" queries and an MVP focus
+Step 3 has begun with the offline broker-book adapter; the other delivery steps remain pending.
+The operator requests this same list for future "progress" queries and an MVP focus
 without tangents or unnecessary complexity. September 26: the operator accepts a 7% hard daily
 buying pause for AI Momentum and the same default for new Delphi Live/System Shadow templates.
 Source templates and settings help are updated; frozen V1, saved strategies and active assignments

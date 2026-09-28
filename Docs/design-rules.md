@@ -33,8 +33,11 @@ or reset its state. Extract only the needed boundary; no shared paper/live balan
 order/risk owners. Protective exits remain independent of AI. The offline AI round core and common
 assessment contract now exist; shared engine/host/execution integration remains pending (ADR-0087).
 Discretion is settled: map concrete rules during implementation, asking only about genuine ambiguity.
-The new core accepts qualified no-flow valuation intervals only; cash-flow adjustment and feed
-adapters remain pending. Rejected evidence must block new risk in the caller. An assessment grants
+The core accepts qualified no-flow valuation intervals only. Its first offline broker-book adapter
+requires scoped reconciled cash/holdings, exact-time identified marks and complete no-flow coverage;
+it saves source provenance and blocks new allowance on rejected observations while preserving closure.
+Native source/freshness qualification, paper adapters and cash-flow adjustment remain pending.
+An assessment grants
 no order authority and cannot replace the existing overall review hold or stock protection.
 The offline risk journal binds history to account, portfolio and paper/live mode; recovery replays
 accepted transitions rather than resetting peaks/attempts. Missing, corrupt or pending history must

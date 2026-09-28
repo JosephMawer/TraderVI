@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using Core.Trader.DelphiLive;
 
 namespace Core.Trader.Risk;
@@ -11,7 +12,19 @@ namespace Core.Trader.Risk;
 /// aggregate net-deposit totals are insufficient. Cash-flow adjustment integration is pending.
 /// </summary>
 public sealed record PortfolioRiskValuation(Guid PortfolioId, Guid EvidenceId, DateOnly TradingDate,
-    DateTimeOffset At, DateTimeOffset ValidUntil, decimal Value, bool IsComplete, bool NoCapitalFlowsConfirmed);
+    DateTimeOffset At, DateTimeOffset ValidUntil, decimal Value, bool IsComplete, bool NoCapitalFlowsConfirmed)
+{
+    // Scalar canonical source preserves exact record equality during journal replay. Omit absent
+    // provenance so previously written risk histories retain their original serialized shape.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PortfolioRiskValuationSource? Source { get; init; }
+    public override string ToString() => "Portfolio risk valuation (financial data omitted)";
+}
+
+public sealed record PortfolioRiskValuationSource(string Contract, string EvidenceJson, string Sha256)
+{
+    public override string ToString() => "Portfolio valuation provenance (financial data omitted)";
+}
 
 public enum AiRiskRoundPhase { Active, Closing, AwaitingEntry, SequencePaused }
 

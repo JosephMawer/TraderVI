@@ -13,7 +13,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   before automatic lessons; it does not block offline risk code. Discretion is
   already agreed. Map concrete rules in implementation and ask only about genuine ambiguity.
   Step 4 now has a tested offline continuous-round core and scoped local transition journal with
-  replay-validated recovery. Qualified data/cash-flow inputs, complete risk adapters, production
+  replay-validated recovery. Step 3 has a tested broker-book/no-flow adapter with saved source evidence;
+  native producer/freshness qualification, paper adapters and actual cash-flow adjustment remain pending.
+  Qualified data/cash-flow inputs, complete risk adapters, production
   storage/retention/backup qualification and execution/host connection remain unfinished.
 
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an

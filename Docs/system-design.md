@@ -22,7 +22,7 @@ Saved holds require their established release rules.
 advance peaks and protection independently of model calls; closure and fresh re-entry evidence
 are tied to the same portfolio/round, and exhausted sequences use `ITsxSessionCalendar`.
 Independent blocks and a missing fresh AI review suppress allowance without cancelling closure.
-The assessment is not executable permission. Input qualification, cash-flow adjustment, full
+The assessment is not executable permission. Native input qualification, cash-flow adjustment, full
 account/position controls and adapters to existing engines remain pending.
 `AiPortfolioRiskJournal` supplies a private local account/portfolio/mode-scoped transition history,
 exclusive writer, explicit initialization, revision checks and idempotent command retries. Recovery
@@ -33,6 +33,13 @@ independent protections. Full-history replay/rewrite is bounded at 32 MB; protec
 backup rollback detection and production host integration remain unqualified. A checksum is not
 tamper-proof storage. Existing overall holds, stock stops and broker/order history stay separate.
 
+`BrokerAiPortfolioRiskMonitor` connects existing reconciled broker book/no-flow contracts to the
+local journal offline. It validates scope, exact-time holding prices, uninterrupted flow coverage
+and configured evidence age, derives portfolio value and retains canonical source provenance.
+Rejected input blocks new allowance without erasing a latched closure; duplicate evidence does not
+extend expiry. Initialization is explicit and storage errors propagate. The producer must still
+prove native book/flow completeness; no production feed or freshness duration is qualified.
+
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
 gets an explicit assessment. `AiPortfolioExecutionCoordinator` rereads the saved decision and consults
@@ -40,7 +47,7 @@ current learning before preparing a proposal; changed context requires another r
 periodic consultation hooks with persisted last-consultation times. The budgeted API client remains
 behind `ILlmClient`; routine learning consultation is local and incurs no model call.
 
-There is no runtime host, automatic outcome evaluator, portfolio-data adapter or order transport on
+There is no runtime host, automatic outcome evaluator, complete decision-packet adapter or order transport on
 this path yet. The existing broker workflow and independent protection remain separate. A learning
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.
