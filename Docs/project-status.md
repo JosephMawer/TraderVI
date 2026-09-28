@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Raw TMX rows and recent trades support quiet trading as the explanation for sampled minute gaps: the missing rows were absent at source, and every reported trade in the compared completed window had a minute bar. This is bounded provider evidence, not exhaustive market coverage. Faster price integration must keep actual price time separate from successful data checks; no freshness policy or AI loop is enabled. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
+**Current record:** September 28, 2026. The one-minute TMX price adapter is built/tested: it separates bar time from receipt time and rejects incomplete, stale or failed price reads. Joining those prices to a reconciled whole account and durable risk evidence is next; no operating freshness policy or AI loop is enabled. Earlier raw-response/trade checks support quiet trading as the explanation for sampled minute gaps, not exhaustive market coverage. Existing saved five-minute prices still have multi-minute delay and collection gaps. Current cash-only Shadow verification is built/tested; the alias repair remains installed with source adoption recovered. The ten-step checklist retains concise, individually marked subpoints.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -328,7 +328,8 @@ These results support no reported trades during sampled gaps, not an independent
 venue/trade or a method of detecting a silently frozen feed. Provider omissions also occur at five-minute
 resolution. Keep market-event time, successful receipt time and missing/failed refresh state distinct;
 do not fill gaps, reset price age, loosen stale-input rejection or change ordinary engine evidence.
-Next implement and qualify timestamped faster valuation observations under those existing boundaries.
+The price adapter below implements the source boundary; whole-account valuation integration and
+operating qualification remain required under those existing boundaries.
 The public [TMX last-sale explanation](https://www.blog.tmx.com/money/tmx) describes real-time quotes
 and charts but does not establish the gap contract. Schema introspection was unavailable; the recent-trade
 query was read from TMX's public quote-page JavaScript, then checked on XIU and in the bounded probe.
@@ -337,6 +338,27 @@ build passes with zero warnings/errors; Core/test compilation reports existing C
 security audit (`NuGetAudit=false`), full Core suite or WPF/full-solution build ran. No database mutation,
 AI/broker call, order, deployment or app restart ran. Private validation: `missing-minute-tests.log`,
 `missing-minute-build.log` in `artifacts/ai-risk-values-20260928/`.
+
+**One-minute price adapter, September 28 (source/tested only):** `TmxAiRiskPriceSource` connects the
+existing TMX client to a typed AI price-read contract. It requests up to 32 explicit canonical symbols
+inside the reviewed current session, with one bounded request per symbol and no constructor-time
+collection. Price age, receipt age and request timeout must be supplied explicitly; no production
+freshness values were selected. It preserves each completed one-minute bar and its request/receipt
+times, excludes forming bars, rejects mismatched/duplicate/invalid evidence and has no cached fallback
+after a failed refresh. Re-reading an old bar cannot extend its price expiry. Missing/failed/stale
+symbols make the full price set unusable; the set is checked after all I/O and at subsequent use time.
+Caller cancellation propagates; per-request deadlines return unavailable evidence without provider
+details. Empty symbol sets cannot stand in for a verified cash-only account.
+This does not yet revalue a portfolio or write the risk journal. Next join these prices to the owned
+account's coherent cash/holdings/history, retain source evidence and conflicts, and qualify that path
+before scheduling it. Existing paper readers still require their original five-minute book evidence;
+no account balance, engine mark, risk reference or hold was replaced.
+Validation: 56 focused tests pass (16 new price-source cases and 40 saved-paper-reader cases), including
+old-price rereads, slow multi-symbol collection, missing/failed responses, cancellation, deadlines,
+forming bars and incorrect source metadata. Core/test compilation succeeds with existing CS8632
+warnings. No fresh dependency-security audit (`NuGetAudit=false`), full Core suite, WPF/full-solution
+build, native collection, SQL operation, AI/broker call or app restart ran in this increment.
+Evidence: `artifacts/ai-risk-values-20260928/minute-price-source-tests.log`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

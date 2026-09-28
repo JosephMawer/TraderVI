@@ -910,6 +910,13 @@ no saved timestamp is rewritten. Serial reads do not qualify production lock dur
 
 ## AI paper risk-value check
 
+`TmxAiRiskPriceSource` is available in source for explicitly invoked one-minute price collection.
+Construction makes no requests. A caller must supply the reviewed calendar, canonical target symbols,
+price/receipt age limits and a bounded request timeout, and retain ownership of its `TmxClient`.
+It returns price evidence and per-symbol outcomes, not a reconciled portfolio valuation. Do not substitute
+it directly for the current paper risk readers: complete-account joining, evidence persistence and
+operating qualification remain pending. No normal app/nightly host invokes it yet.
+
 `AiRiskReadersSqlTests` reads the installed catalogue and both saved paper risk books using SQL SELECTs.
 It reconciles cash, holdings and saved marks, then exercises valuation and stale/altered-evidence
 rejection in memory. It never creates a risk journal, modifies SQL, collects data or starts trading.

@@ -58,6 +58,15 @@ policy identity while rejecting broken explicit assignments. Native saved-book m
 are checked; freshness qualification, SQL concurrency and operating AI paper-account integration
 remain unfinished. Ordinary engines are unchanged.
 
+`TmxAiRiskPriceSource` is an explicitly invoked one-minute collection adapter for the next valuation
+integration. It uses the reviewed session and caller-supplied price/receipt age limits, preserves actual
+completed bars and request/receipt times, and returns per-symbol dispositions. It checks the entire
+requested set after I/O and again at use time; failed reads have no cached-price fallback. Construction
+does not collect, and the caller owns the TMX client. This is source-only price evidence: it neither
+reconciles account cash/holdings nor writes valuation history. Joining a coherent whole book, saving
+first evidence/conflicts, qualifying operating age limits and scheduling remain required before use
+by the existing risk writer. Existing five-minute engine books and risk-source contracts stay intact.
+
 Source-only: `AiLearningAwareSupervisor` reads the shared private `AiLearningJournal`, records a
 pending review and invokes `AiPortfolioReviewer` with a version-2 packet. Each scoped, evaluated lesson
 gets an explicit assessment. `AiPortfolioExecutionCoordinator` rereads the saved decision and consults
