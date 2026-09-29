@@ -1040,6 +1040,21 @@ The ordinary TMX batch method still returns only validated complete bars; unfilt
 are exposed only through the diagnostic method. Missing/null response data now fails the ordinary
 batch read; an explicit empty list remains an empty response. Keep console evidence private.
 
+To inspect whether quote-page fields offer a usable alternative, with explicit external-read authorization:
+
+```powershell
+dotnet run --project Sandbox -- tmx-quote-timing
+```
+
+This reads current paper holdings, adds XIU and requires the reviewed calendar with at least five
+minutes left in the regular session. At most 16 targets and two polls separated by a 60-second wait:
+32 GraphQL requests / 96 transport attempts, 15 seconds per request, 60 seconds per poll and five
+minutes overall. Each query compares current quote fields, delayed bid/ask and the latest reported
+trade. It prints anonymous availability and timing, then rereads the held-symbol set; keep logs private.
+No SQL/account/risk/order writes occur. Success means the diagnostic completed, not that quotes
+qualified for valuation. Last-trade timestamps do not date bid/ask; receipt time cannot refresh an old
+price. The 120-second trade-age comparison is diagnostic only. Existing valuation rules remain intact.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.

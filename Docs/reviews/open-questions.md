@@ -30,6 +30,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   enabling recurring risk inputs. The separate SQL/app receipt-clock defect is fixed and natively
   checked; it does not solve market coverage. Keep existing same-minute and expiry rules unless a
   different valuation contract is explicitly reviewed. Do not invent no-trade bars or refresh old prices.
+  The September 29 quote probe also rules out the examined TMX page fields as an immediate solution:
+  current last-sale prices have no source timestamp and can match old trades; delayed bid/ask has only
+  a last-trade timestamp, not a quote timestamp. Next inspect available timestamped quote sources;
+  broker calls, paid services and changes to valuation rules require their own applicable authorization.
 
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous

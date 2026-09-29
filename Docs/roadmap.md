@@ -44,7 +44,9 @@ scheduler, durable scheduling/events/review-block recovery and explicit tick ada
 Structured model-proposed cadence is now built/tested too. Per the September 29 instruction, work returned
 to Step 3: its connected check verifies cash-only persistence/recovery and the receipt-clock fix.
 Missing/old or differently timed held-stock bars still block invested values; trades after a price boundary
-must wait for newer prices. Qualify reliable held-stock coverage and accepted invested-value persistence next. Operating checkpoint
+must wait for newer prices. The tested TMX quote fields do not solve freshness: last sales can be old and
+bid/ask has no quote timestamp. Inspect available timestamped quote sources, then qualify held-stock
+coverage and accepted invested-value persistence. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
@@ -71,7 +73,8 @@ explicit same-account source handover and persistent price-conflict blocks. Nati
 reconcile all 15 paper books and verify rejection/empty-journal recovery. The regular-session check now
 verifies cash-only persistence/recovery. The SQL/app receipt-clock discrepancy is fixed and checked
 natively without tolerance changes. Invested reads still reject incomplete/expired or differently timed
-prices and post-price trades. Next qualify reliable held-stock coverage, verify fresh invested
+prices and post-price trades. The bounded quote alternative check leaves source qualification open.
+Next identify usable timestamped prices, qualify reliable held-stock coverage, verify fresh invested
 values/persistence and freshness/recovery, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification

@@ -100,8 +100,8 @@ These milestones group the same ten steps below. Steps 7 and 8 have an initial v
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's offline review scheduler, saved-state recovery and
 model-requested timing are built/tested. Step 3's connected check verifies cash-only persistence/recovery;
-receipt timing is fixed and verified. Reliable held-stock price coverage and invested-value acceptance
-remain the immediate work.
+receipt timing is fixed and verified. The examined TMX quote fields do not resolve freshness.
+Reliable held-stock price coverage and invested-value acceptance remain the immediate work.
 
 | Milestone | What you can use | Checklist work needed |
 |---|---|---|
@@ -146,6 +146,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Run the connected market-hours check; verify cash-only values save/reopen correctly and blocked reads grant no buying allowance. [Dated results and limits](project-status.md#latest-operational-evidence).
    - [x] Diagnose missing/old or differently timed held-stock bars and post-price trades; preserve their valuation blocks.
    - [x] Fix the SQL/app receipt-clock discrepancy and verify locked account-read timestamps without loosening freshness.
+   - [x] Check TMX quotes as an alternative: sampled last sales can be old, and bid/ask has no verified quote timestamp. [Dated evidence](project-status.md#latest-operational-evidence).
+   - [ ] Identify an available source with verifiable current price times; review any required valuation-contract change before adoption.
    - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
    - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.

@@ -662,6 +662,43 @@ namespace Core.TMX
             return (trades.AsReadOnly(), transport.AttemptCount);
         }
 
+        /// <summary>
+        /// One bounded diagnostic query comparing the page's untimed quote, explicitly delayed quote
+        /// and latest reported trade. These fields are not an atomic price set or valuation authority.
+        /// </summary>
+        public async Task<TmxQuoteTimingDiagnostic> GetQuoteTimingDiagnosticAsync(string symbol, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(symbol)) throw new ArgumentException("Symbol required.", nameof(symbol));
+            symbol = symbol.Trim().ToUpperInvariant();
+            var request = new GraphQLRequest
+            {
+                OperationName = "QuoteTimingDiagnostic",
+                Query = @"query QuoteTimingDiagnostic($symbols: [String], $symbol: String) {
+                    quotes: getQuoteForSymbols(symbols: $symbols) { symbol price bid ask currency exchange }
+                    delayed: getDelayedQuotesFromQMBySymbols(symbols: $symbols) { bid ask lasttradedatetime }
+                    trades: getCompanyMostRecentTrades(symbol: $symbol, limit: 1) { price volume datetime exchangeCode }
+                }",
+                Variables = new { symbols = new[] { symbol }, symbol }
+            };
+            var began = DateTime.UtcNow;
+            var transport = await SendQueryWithRetryAsync<QuoteTimingResponse>(request, ct);
+            var received = DateTime.UtcNow;
+            var data = transport.Value.Data;
+            if (transport.Value.Errors is { Length: > 0 } || data?.quotes is null || data.delayed is null || data.trades is null ||
+                data.quotes.Count > 1 || data.delayed.Count > 1 || data.trades.Count > 1 ||
+                data.quotes.Any(q => q is null || !string.Equals(q.symbol, symbol, StringComparison.OrdinalIgnoreCase)) ||
+                data.delayed.Any(q => q is null) || data.trades.Any(t => t is null))
+                throw new InvalidOperationException("TMX quote timing response is missing, mismatched or exceeds diagnostic bounds.");
+            return new(began, received, transport.AttemptCount, data.quotes.AsReadOnly(), data.delayed.AsReadOnly(), data.trades.AsReadOnly());
+        }
+
+        private sealed class QuoteTimingResponse
+        {
+            public List<TmxQuoteDto> quotes { get; set; }
+            public List<TmxDelayedQuoteTimingDto> delayed { get; set; }
+            public List<TmxRecentTradeDto> trades { get; set; }
+        }
+
         private sealed class RecentTradesResponse
         {
             public List<TmxRecentTradeDto> getCompanyMostRecentTrades { get; set; }
