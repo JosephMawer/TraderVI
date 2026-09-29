@@ -56,7 +56,11 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader, IS
             new((Guid)b.EvidenceBarId, Utc((DateTime)b.EventUtc), Utc((DateTime)b.ReceivedUtc), 5,
                 (decimal)b.Open, (decimal)b.High, (decimal)b.Low, (decimal)b.Close))).ToImmutableArray();
         var times = await rows.ReadSingleAsync();
-        var receipt = await rows.ReadSingleAsync();
+        cancellationToken.ThrowIfCancellationRequested();
+        // Use the consumer's clock after the complete read and before releasing serializable locks.
+        // SQL's wall clock can lag the caller by a fraction of a millisecond even on localhost.
+        // Do not add a tolerance or restamp a receipt after this protected verification point.
+        DateTime verifiedReadUtc = DateTime.UtcNow;
         await transaction.CommitAsync(cancellationToken);
         if (g is null || p is null || s is null || g.ActivatedUtc is null) return null;
         PaperComparisonAccount? comparison = a is null ? null : new((Guid)a.AccountId, (Guid)a.BatchId, (Guid)a.PairId,
@@ -74,7 +78,7 @@ public sealed partial class SystemShadowRepository : ISystemShadowRiskReader, IS
             assignment is null ? null : (Guid?)assignment.VersionId, assignment is null ? null : (string?)assignment.SettingsJson,
             assignment is null ? null : (string?)assignment.SettingsHash, assignment is null ? null : UtcOrNull((DateTime?)assignment.AssignedUtc),
             comparison, assignment is null ? null : (string?)assignment.Family,
-            Utc((DateTime)receipt.VerifiedReadUtc));
+            verifiedReadUtc);
         return book;
     }
 
@@ -115,7 +119,5 @@ SELECT (SELECT MAX(t.UpdatedUtc) FROM (
  UNION ALL SELECT UpdatedUtc FROM dbo.ShadowOrder WHERE PortfolioId=@Portfolio
  ) t) UpdatedUtc,
  (SELECT MAX(FillUtc) FROM dbo.ShadowOrder WHERE PortfolioId=@Portfolio AND Status=N'Filled') LastFillUtc;
--- Timestamp after the complete read while serializable locks still protect the account and history.
-SELECT SYSUTCDATETIME() VerifiedReadUtc;
 """;
 }

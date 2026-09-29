@@ -42,8 +42,9 @@ checklist retains all paper/live completion requirements. Independent Step 7 dev
 while Step 3 awaited regular-session data. The offline review
 scheduler, durable scheduling/events/review-block recovery and explicit tick adapter are built/tested.
 Structured model-proposed cadence is now built/tested too. Per the September 29 instruction, work returned
-to Step 3: its connected check verifies cash-only persistence/recovery, while invested prices and one
-account receipt remain blocked. Diagnose those failures and verify accepted invested values next. Operating checkpoint
+to Step 3: its connected check verifies cash-only persistence/recovery and the receipt-clock fix.
+Missing/old or differently timed held-stock bars still block invested values; trades after a price boundary
+must wait for newer prices. Qualify reliable held-stock coverage and accepted invested-value persistence next. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
@@ -68,9 +69,10 @@ cash/history, rechecks the account after collection and requires fresh prices en
 Combined values now feed the risk journal and AI input packets, with tested history continuity,
 explicit same-account source handover and persistent price-conflict blocks. Native after-hours checks
 reconcile all 15 paper books and verify rejection/empty-journal recovery. The regular-session check now
-verifies cash-only persistence/recovery; invested reads reject incomplete/expired or differently timed
-prices, and an account-receipt rejection remains unexplained. Next isolate these failures, verify fresh
-invested values/persistence, qualify freshness/recovery, resolve collection gaps,
+verifies cash-only persistence/recovery. The SQL/app receipt-clock discrepancy is fixed and checked
+natively without tolerance changes. Invested reads still reject incomplete/expired or differently timed
+prices and post-price trades. Next qualify reliable held-stock coverage, verify fresh invested
+values/persistence and freshness/recovery, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.

@@ -56,8 +56,9 @@ generation history, with strict paper-account scope and source provenance. `Pape
 connects the existing Delphi Live snapshot reader and a new Daily Shadow read-only serializable SQL
 read of the full book, assigned/fixed comparison rules and saved bars. It checks age after I/O and
 propagates read failures/cancellation without resetting risk. Shadow evidence identity and times come
-from saved content for invested and historical books. For a current cash-only Shadow book, SQL captures
-a verification time after all reads and before releasing serializable locks. The explicit receipt
+from saved content for invested and historical books. For a current cash-only Shadow book, the repository
+captures app UTC after all reads and before releasing serializable locks. Using the consumer's clock
+avoids sub-millisecond SQL/client differences without weakening strict read bounds. The explicit receipt
 becomes the observation time only after book/history reconciliation; it cannot refresh held prices.
 Receipt replay remains idempotent, and subsequent verified reads preserve existing risk state/holds.
 The risk reader shares the decision reader's frozen legacy

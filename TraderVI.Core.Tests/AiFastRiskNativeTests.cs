@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core.Db;
 using Core.TMX;
+using Core.TMX.Models.Domain;
 using Core.Trader.DelphiLive;
 using Core.Trader.Risk;
 using Xunit;
@@ -51,6 +52,7 @@ public sealed class AiFastRiskNativeTests(ITestOutputHelper output)
         var live = new DelphiLiveLedgerRepository();
         int holdingsTotal = 0;
         var baseline = new Dictionary<string, (int Books, int Invested)>();
+        var invested = new Dictionary<Guid, bool>();
         // Validate actual cash/full history even after hours; these checks do not claim current market prices.
         foreach (var choice in catalogue.Entries)
         {
@@ -73,6 +75,7 @@ public sealed class AiFastRiskNativeTests(ITestOutputHelper output)
             }
             Assert.InRange(holdings, 0, 8);
             holdingsTotal += holdings;
+            invested[choice.PaperAccountId] = holdings > 0;
             var counts = baseline.GetValueOrDefault(choice.EngineFamily);
             baseline[choice.EngineFamily] = (counts.Books + 1, counts.Invested + (holdings > 0 ? 1 : 0));
         }
@@ -82,12 +85,15 @@ public sealed class AiFastRiskNativeTests(ITestOutputHelper output)
         output.WriteLine($"StartedUtc={now:O}; mode={(duringSession ? "two regular-session passes" : "after-hours rejection only")}; account age=45s, price age=120s, receipt age=30s (diagnostic only).");
         using var client = new TmxClient();
         int requests = 0, attempts = 0;
+        var batches = new List<TmxIntradayBatch>();
+        var symbolSlots = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var prices = new TmxAiRiskPriceSource(async (symbol, start, end, token) =>
         {
             if (requests >= 48 || !duringSession) throw new InvalidOperationException("Diagnostic request bound reached.");
             requests++;
             var batch = await client.GetIntradayTimeSeriesBatchAsync(symbol, 1, start, end, token);
             attempts += batch.AttemptCount;
+            batches.Add(batch);
             return batch;
         }, calendar, priceAge, receiptAge, TimeSpan.FromSeconds(20));
         var paths = new Dictionary<Guid, string>();
@@ -109,16 +115,35 @@ public sealed class AiFastRiskNativeTests(ITestOutputHelper output)
                 AiRiskJournalSnapshot saved;
                 using (var journal = new AiPortfolioRiskJournal(path, scope, policy, initializeFile))
                 {
+                    batches.Clear();
+                    var clock = new RecordingClock();
+                    var receipts = new RecordingShadowReader(shadow, clock);
                     var source = choice.EngineFamily == "DailyShadow"
-                        ? new PaperAiFastValuationReader(choice.PaperAccountId, shadow, prices, calendar, accountAge)
-                        : new PaperAiFastValuationReader(choice.PaperAccountId, live, prices, calendar, accountAge);
+                        ? new PaperAiFastValuationReader(choice.PaperAccountId, receipts, prices, calendar, accountAge, clock)
+                        : new PaperAiFastValuationReader(choice.PaperAccountId, live, prices, calendar, accountAge, clock);
                     var candidate = await source.ReadAsync(date, ct);
+                    // Diagnose the exact reads used above, without repeating SQL/TMX calls or retaining private values in output.
+                    foreach (var receipt in receipts.Reads)
+                    {
+                        var book = receipt.Read.Book;
+                        var began = clock.Reads[receipt.BeginIndex];
+                        var ended = clock.Reads[receipt.BeginIndex + 1];
+                        output.WriteLine($"Receipt pass={pass + 1} account-slot={slot}: observed-minus-begin-ms={(book.ObservedUtc - began).TotalMilliseconds:F4}; end-minus-observed-ms={(ended - book.ObservedUtc).TotalMilliseconds:F4}; update-after-receipt={receipt.Read.UpdatedUtc > book.ObservedUtc}; fill-after-receipt={receipt.Read.LastFillUtc > book.ObservedUtc}; at-mismatch={book.At != book.ObservedUtc}; date-mismatch={book.TradingDate != date}.");
+                    }
+                    foreach (var batch in batches)
+                    {
+                        if (!symbolSlots.ContainsKey(batch.Symbol)) symbolSlots[batch.Symbol] = symbolSlots.Count + 1;
+                        var completed = batch.Bars.Where(b => b.TimestampUtc >= batch.RequestedStartUtc && b.TimestampUtc.AddMinutes(1) <= batch.RequestedEndUtc && b.TimestampUtc.AddMinutes(1) <= batch.ReceivedUtc).OrderBy(b => b.TimestampUtc).ToArray();
+                        string latest = completed.Length == 0 ? "none" : completed[^1].TimestampUtc.AddMinutes(1).ToString("O");
+                        string age = completed.Length == 0 ? "none" : (batch.ReceivedUtc - completed[^1].TimestampUtc.AddMinutes(1)).TotalSeconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture);
+                        output.WriteLine($"Price pass={pass + 1} account-slot={slot} symbol-slot={symbolSlots[batch.Symbol]}: completed-bars={completed.Length}; requested-end={batch.RequestedEndUtc:O}; latest-end={latest}; age-at-receipt-seconds={age}; received={batch.ReceivedUtc:O}.");
+                    }
                     var monitor = new PaperAiFastRiskMonitor(journal, policy, calendar, accountAge, priceAge, receiptAge);
                     bool start = journal.ReadCurrent().State is null;
                     var result = start ? monitor.Start(candidate.Valuation, DateTimeOffset.UtcNow, false, ["NativeDiagnosticOnly"]) :
                         monitor.Observe(candidate.Valuation, DateTimeOffset.UtcNow, false, ["NativeDiagnosticOnly"]);
                     string reason = candidate.BlockReason ?? (result.Accepted ? "Accepted" : "RiskRejected");
-                    string key = $"pass={pass + 1} {choice.EngineFamily} {reason}";
+                    string key = $"pass={pass + 1} {choice.EngineFamily} {(invested[choice.PaperAccountId] ? "invested" : "cash-only")} {reason}";
                     summaries[key] = summaries.GetValueOrDefault(key) + 1;
                     Assert.True(result.Assessment.NewBuyAllowanceMultiplier == 0m, "Diagnostic observations must not grant new buying.");
                     if (outsideSession)
@@ -148,6 +173,30 @@ public sealed class AiFastRiskNativeTests(ITestOutputHelper output)
         output.WriteLine(duringSession
             ? "Bounded native diagnostic complete; rejections remain blocks. This does not qualify continuous coverage, collection concurrency, operating age limits or storage retention."
             : "After-hours rejection and empty-journal recovery verified. Fresh combined values and their native persistence remain unverified until a regular-session run.");
+    }
+
+    // Capture the reader's own clock boundaries so diagnostics do not compare narrower wrapper timings.
+    private sealed class RecordingClock : TimeProvider
+    {
+        public List<DateTime> Reads { get; } = [];
+        public override DateTimeOffset GetUtcNow()
+        {
+            var now = DateTimeOffset.UtcNow;
+            Reads.Add(now.UtcDateTime);
+            return now;
+        }
+    }
+
+    private sealed class RecordingShadowReader(ISystemShadowAccountReader source, RecordingClock clock) : ISystemShadowAccountReader
+    {
+        public List<(ShadowPaperAccountRead Read, int BeginIndex)> Reads { get; } = [];
+        public async Task<ShadowPaperAccountRead?> ReadAccountAsync(Guid id, DateOnly date, CancellationToken ct = default)
+        {
+            int index = clock.Reads.Count - 1;
+            var read = await source.ReadAccountAsync(id, date, ct);
+            if (read is not null) Reads.Add((read, index));
+            return read;
+        }
     }
 }
 

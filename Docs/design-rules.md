@@ -40,7 +40,7 @@ Offline Delphi Live and Daily Shadow paper adapters now share that journal-writi
 validate whole-book evidence and preserve saved engine holds. Only the managed paper account's
 own capital/holdings value its risk; candidate balances cannot replace them. Paper saved-record readers
 are connected in source with coherent whole-book reads and saved evidence timestamps. Current cash-only
-Shadow books may carry a new SQL verification receipt captured under the full-book transaction's locks;
+Shadow books may carry a new verification receipt stamped with app UTC under the full-book SQL transaction's locks;
 cash must reconcile to fixed capital and complete closed history. Replaying a receipt expires normally,
 historical reads retain saved times, and invested books still require their original exact price bars.
 This does not refresh market evidence or reset risk history/holds (ADR-0087). Native saved-book

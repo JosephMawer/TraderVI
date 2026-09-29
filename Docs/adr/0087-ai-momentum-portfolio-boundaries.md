@@ -165,7 +165,7 @@ The Shadow builder declines missing/mixed-time price evidence and trades after t
 including additions whose original entry time alone would miss the later trade. Saved rows/receipts
 determine observation time and content-derived identity; replaying a receipt cannot refresh stale evidence.
 The September 28 cash-only refinement replaces the saved-update-only rule for current cash books:
-the reader captures SQL server time after reading the full book, while its serializable locks still
+the reader captures a verification time after reading the full book, while its serializable locks still
 protect cash, positions and history. When there are no open holdings and the requested Toronto session
 date is today, this is a new current cash observation (`CashVerifiedUtc`). It must reconcile fixed
 capital and all closed history, and cannot predate any saved book update or fill. Historical reads
@@ -178,6 +178,14 @@ to the fixed-capital paper ledger, not broker cash or proof of external cash-eve
 Invalid stored price audits or overlapping
 later invalid receipts cannot supply accepted bars. Source failures propagate; missing records produce
 rejected risk observations. The reader checks freshness after I/O and cancellation before journaling.
+
+**Receipt clock correction — September 29:** native diagnostics found SQL receipt times 0.04–0.25 ms
+before the caller's read start on localhost. The repository now stamps completion with the same app
+UTC clock used by its consumers, after reading the complete account and before committing/releasing
+serializable locks. This supersedes using SQL server time for that receipt. Keep saved update/fill
+timestamps, strict caller read bounds and all age checks; add no clock tolerance, price freshness or
+post-transaction restamping. Old evidence retains its original timestamps and expiry. No SQL records
+or schema change, and no operating freshness limits are selected.
 
 This is compiled/source-connected, not an installed operating loop. A September 28 SELECT-only native
 check now verifies saved paper-book mapping, arithmetic and in-memory risk rejection; dated results and

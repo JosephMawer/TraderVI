@@ -108,7 +108,11 @@ public sealed class PaperAiFastValuationReader
             if (book.CurrentSession != date || book.EffectiveSession > date ||
                 !book.Marks.IsDefaultOrEmpty && book.Marks[^1].Reason == "CorporateActionUnsupported")
                 throw new Rejected("InvalidAccountSession");
-            void Validate(DateTime at) => DelphiLiveAiPortfolioRiskMonitor.ValidateLedger(book, at);
+            void Validate(DateTime at)
+            {
+                if (book.Fills.Any(fill => fill is not null && fill.FilledUtc > at)) throw new Rejected("TradeAfterPrice");
+                DelphiLiveAiPortfolioRiskMonitor.ValidateLedger(book, at);
+            }
             Validate(ended);
             string json = JsonSerializer.Serialize(book);
             return new("DelphiLive", book.Cash,

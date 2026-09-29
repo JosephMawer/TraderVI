@@ -205,7 +205,9 @@ public sealed partial class PaperAiFastValuationReaderTests
         var d = LiveBook();
         d = d with { Positions = [d.Positions[0] with { OpenedUtc = Open.AddMinutes(10).AddSeconds(5) }],
             Fills = [d.Fills[0] with { FilledUtc = Open.AddMinutes(10).AddSeconds(5) }] };
-        Assert.Null((await (live ? Live(() => d) : Shadow(() => s)).ReadAsync(Date)).Valuation);
+        var result = await (live ? Live(() => d) : Shadow(() => s)).ReadAsync(Date);
+        Assert.Null(result.Valuation);
+        Assert.Equal("TradeAfterPrice", result.BlockReason);
     }
 
     [Fact]
@@ -221,6 +223,16 @@ public sealed partial class PaperAiFastValuationReaderTests
         Assert.Equal(Open.AddMinutes(12), repeat.ValidUntilUtc); // Market age wins over the newer receipt.
         clock.Now = Open.AddMinutes(12).AddSeconds(1);
         Assert.Null((await reader.ReadAsync(Date)).Valuation);
+    }
+
+    [Fact]
+    public async Task MalformedLiveFillIsRejectedBeforePricesWithoutThrowing()
+    {
+        var book = LiveBook() with { Fills = [null!] };
+        var result = await Live(() => book).ReadAsync(Date);
+        Assert.Null(result.Valuation);
+        Assert.Equal("InvalidAccountOrPriceEvidence", result.BlockReason);
+        Assert.Equal(0, requests);
     }
 
     [Theory]
@@ -324,6 +336,32 @@ public sealed partial class PaperAiFastValuationReaderTests
         var reader = Shadow(() => throw new Exception("Must not read"));
         Assert.Equal("OutsideSession", (await reader.ReadAsync(Date)).BlockReason);
         Assert.Equal(0, requests);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task AccountReceiptMustRemainInsideCallerReadEvenForSubMillisecondDifferences(int offsetTicks)
+    {
+        var book = ShadowBook();
+        var reader = new PaperAiFastValuationReader(portfolio,
+            new ShadowSource((id, date, _) => Task.FromResult(
+                (book with { VerifiedReadUtc = clock.Now.AddTicks(offsetTicks) }).BuildAccount(id, date))),
+            Prices(), calendar, TimeSpan.FromSeconds(45), clock);
+        var result = await reader.ReadAsync(Date);
+        if (offsetTicks == 0)
+        {
+            Assert.NotNull(result.Valuation);
+            Assert.Null(result.BlockReason);
+            Assert.Equal(1, requests);
+        }
+        else
+        {
+            Assert.Null(result.Valuation);
+            Assert.Equal("InvalidAccountReceipt", result.BlockReason);
+            Assert.Equal(0, requests);
+        }
     }
 
     private sealed class Clock(DateTime now) : TimeProvider

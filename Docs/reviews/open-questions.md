@@ -24,6 +24,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Never clear it by deleting risk history or resetting a round. Native timing/coverage and storage
   retention/performance remain Step 3/7 dependencies.
 
+- **Held-stock price qualification (September 29):** connected market-hours diagnostics still cannot
+  accept invested values consistently: recent minute bars may be absent, too old or end at different
+  minutes; post-price trades require a newer complete price set. Qualify reliable coverage before
+  enabling recurring risk inputs. The separate SQL/app receipt-clock defect is fixed and natively
+  checked; it does not solve market coverage. Keep existing same-minute and expiry rules unless a
+  different valuation contract is explicitly reviewed. Do not invent no-trade bars or refresh old prices.
+
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous
   rounds replace its engine daily-pause calculation; ordinary portfolios retain existing rules.

@@ -940,8 +940,11 @@ try {
 }
 ```
 
-Journal files contain private source/account evidence; keep them out of commits. Console output is
-aggregate only. Diagnostic age settings (45 seconds for account reads, 120 seconds for prices and
+Journal files contain private source/account evidence; keep them out of commits. Console output includes
+aggregate outcomes and anonymous account/symbol slots with read-clock differences, completed-bar counts
+and price times/ages; no balances, prices or account/symbol identities. Shadow verification now uses
+app UTC while the complete SQL book remains locked, not SQL server time. Diagnostic age settings
+(45 seconds for account reads, 120 seconds for prices and
 30 seconds for receipts) do not establish operating limits. A passing after-hours run verifies no fresh
 accepted valuation; even a regular-session sample does not establish full-session coverage or retention.
 
