@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 29, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3's connected diagnostics fix and verify account receipt timing and cash-only persistence. Invested values still reject missing/old or differently timed minute bars and trades after the price boundary. The latest bounded TMX quote check does not supply a usable alternative: current prices lack source timestamps and track sometimes-old last trades; the separate delayed bid/ask fields have no quote timestamp. Next inspect available timestamped quote sources, then qualify held-stock coverage and accepted invested-value persistence. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
+**Current record:** September 29, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3's connected diagnostics fix and verify account receipt timing and cash-only persistence. Invested values still reject missing/old or differently timed minute bars and trades after the price boundary. The tested TMX quote fields do not solve freshness. Source inspection identifies an existing Wealthsimple bid/ask query with `quotedAsOf`; its suitability for paper risk values is unverified. Next obtain approval for a bounded broker quote-read diagnostic before making authenticated calls; adopting quotes and choosing valuation rules remain separate decisions. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -28,6 +28,15 @@ offline Step 7 increment; Step 3 verifies cash-only persistence and fixes receip
 acceptance remains unverified.
 Duplicate AI/learning task lists are consolidated into that sequence; completed price investigations
 link to the dated evidence below. Milestone labels do not establish operational readiness.
+
+**Source inspection, September 29 (no broker calls):**
+`Core/WSTrade/Authentication/WealthsimpleAuthClient.ManualBuys.cs` already selects `quoteV2`
+bid/ask and `quotedAsOf`, checks security/currency identity and keeps receipt time separate. Its shared
+manual-order reader also checks buy/sell eligibility; it is not a general portfolio-price adapter.
+Current TMX-backed recommendation quotes carry receipt time only. The proposed next check is two
+read-only broker quote samples for current paper-held symbols (at most 16), one minute apart, through
+the existing signed-in connection. Verify source-time meaning, age, coverage and availability before
+proposing adoption. No broker calls, source changes or valuation-policy changes were made in this inspection.
 
 ## Latest operational evidence
 

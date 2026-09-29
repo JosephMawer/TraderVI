@@ -45,8 +45,9 @@ Structured model-proposed cadence is now built/tested too. Per the September 29 
 to Step 3: its connected check verifies cash-only persistence/recovery and the receipt-clock fix.
 Missing/old or differently timed held-stock bars still block invested values; trades after a price boundary
 must wait for newer prices. The tested TMX quote fields do not solve freshness: last sales can be old and
-bid/ask has no quote timestamp. Inspect available timestamped quote sources, then qualify held-stock
-coverage and accepted invested-value persistence. Operating checkpoint
+bid/ask has no quote timestamp. An existing Wealthsimple quote query includes a source-time field;
+seek approval for a bounded read-only check before broker access. Decide any quote-based valuation
+change separately, then qualify held-stock coverage and accepted invested-value persistence. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria

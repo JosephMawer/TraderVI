@@ -147,6 +147,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Diagnose missing/old or differently timed held-stock bars and post-price trades; preserve their valuation blocks.
    - [x] Fix the SQL/app receipt-clock discrepancy and verify locked account-read timestamps without loosening freshness.
    - [x] Check TMX quotes as an alternative: sampled last sales can be old, and bid/ask has no verified quote timestamp. [Dated evidence](project-status.md#latest-operational-evidence).
+   - [x] Inspect existing connections: Wealthsimple's manual quote reader includes bid/ask and a source-time field; portfolio-price suitability is unverified.
+   - [ ] Obtain approval for a bounded broker quote-read check, then verify timestamp meaning, age and held-stock coverage.
    - [ ] Identify an available source with verifiable current price times; review any required valuation-contract change before adoption.
    - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
    - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
