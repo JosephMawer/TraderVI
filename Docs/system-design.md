@@ -121,7 +121,7 @@ ownership once at the recorded activation boundary and log the switch reason/ver
 An all-cash transition does not reset risk. AI replacement and eligibility mapping remain pending.
 
 Attention model: three scheduled rule consults coexist with ordinary Delphi Live monitoring and
-budgeted reviews. `AiReviewScheduler` now implements one reviewed session in memory, with explicitly
+budgeted reviews. `AiReviewScheduler` implements the scheduling policy in memory, with explicitly
 supplied midpoint/pre-close timing, bounded 1–15-minute attention intervals and one active review.
 Identified entry, confirmed-closure and risk-permission events combine; duplicates cannot create
 extra calls, and changed identities block scheduling. Missed checkpoints combine rather than replay
@@ -130,7 +130,15 @@ old reviews. Attempts are separated by at least one minute after completion, inc
 the existing call journal still owns shared budget reservations. Trigger evidence and timing are saved
 in the review packet. Freshness includes the earliest packet/learning/session expiry. Events arriving
 during a call remain pending and suppress returning its older proposal. No timer or execution/protection
-callback exists. Model-proposed timing, durable scheduling/session rollover, account binding and
+callback exists. `AiReviewScheduleJournal` implements `IAiReviewSchedule` for durable use by that adapter.
+It binds account/portfolio/mode and original timing, holds an exclusive writer and saves admissions
+before model work. Recovery replays transitions and calendar bounds; interrupted reviews retain their
+original identity and events as Interrupted, without resubmitting or releasing their call reservations.
+Reopening requires fresh review, even after earlier success. Explicit session advance preserves pending
+events/failures and cadence while resetting only scheduled daily checkpoints; missed days do not create
+catch-up model calls. Event-history faults survive session changes. Missing/corrupt/pending storage or
+a failed save blocks scheduling. Full history has a 32 MB limit; protected storage, retention, sustained
+performance and production account/input binding remain unqualified. Model-proposed timing and
 production composition remain pending; operating checkpoint times have no implicit defaults.
 Collection, independent protective checks and paid review cadence stay distinct. Faster AI calls do
 not create fresher source bars.
@@ -145,7 +153,7 @@ must preserve recorded spend; a path above the current below-CAD-100 source limi
 The agreed provider/budget fallback pauses
 new buys, additions and switches while monitoring and existing exits continue. Recovery requires
 a successful fresh review with all other limits satisfied; show the reason in the UI. This fallback
-has source-tested scheduler status handling; execution enforcement, durable scheduling and detailed
+has source-tested durable scheduler status handling; execution enforcement and qualified operational
 timeout/recovery integration remain pending.
 
 Planned round lifecycle: persist sequence identity and attempt count across sessions/restarts, without

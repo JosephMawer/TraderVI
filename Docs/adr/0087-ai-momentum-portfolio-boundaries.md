@@ -880,10 +880,21 @@ to clear that block. Pending newer events suppress returning the older proposal.
 clear independent account/risk holds or grant execution authority. Collection/protection has no dependency
 on this paid-review adapter.
 
-This is an offline source increment, not an operating host. Scheduling events, timing and fallback
-state are not durable yet; do not recreate the scheduler to bypass them on restart/session change.
-Durable recovery, exact managed-account binding, current-source rechecks, automatic independent
-protection, production composition and execution enforcement remain Step 7/4/5 work. Existing
+The follow-on September 28 increment adds `AiReviewScheduleJournal`: account/portfolio/mode-scoped
+history with explicit initialization, one writer, checked transition replay and save-before-admission.
+Persist event requests/conflicts, interval changes, admitted review IDs, results, recovery and explicit
+session advance. Recovery records an interrupted attempt under its old identity and preserves pending
+evidence, timing and fallback blocks; it never resubmits that ID or changes its spending reservation.
+A new attempt needs a new fresh packet and normal shared-budget admission. Reopening after success
+also requires fresh review, preserving the saved next-review timing. Session advance accepts today's
+reviewed session only, carries unfinished evidence/blocks and cadence, and does not replay missed days.
+Missing/corrupt/pending history or failed saves block scheduling. Do not recreate an in-memory scheduler
+or initialize another directory to bypass history. Checked files are bounded at 32 MB; hashes do not
+authenticate malicious edits or prevent inter-process-lifetime rollback.
+
+This remains an offline source increment. Operational storage/recovery qualification, actual managed-
+account/input binding, current-source rechecks, automatic independent protection, production composition
+and execution enforcement remain Step 7/4/5 work. Existing
 spending/learning journal recovery is unchanged. No external API, database, restart or trading action
 is authorized by this source implementation. Validation is recorded in project status.
 

@@ -98,7 +98,7 @@ This checklist grants no deployment, paid API call or live-order authority.
 
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
-All three milestones remain pending. Step 7's offline review scheduler is now built/tested while
+All three milestones remain pending. Step 7's offline review scheduler and saved-state recovery are built/tested while
 Step 3's connected fresh-price verification waits for a regular market session.
 
 | Milestone | What you can use | Checklist work needed |
@@ -176,7 +176,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
    - [x] Connect explicit test ticks to the existing learning-aware reviewer; retain trigger evidence and test budget failures, stale results and fresh-review recovery.
-   - [ ] Persist/recover scheduling state, pending events and review blocks across restarts/session changes before enabling an automatic host.
+   - [x] Build/test account-scoped scheduling history; preserve pending events, timing and blocks through restart and reviewed session changes.
+   - [x] Record interrupted reviews without retrying their old call IDs or releasing spending reservations; require fresh review after recovery.
    - [ ] Connect model-proposed review intervals and select operating checkpoint times; current timing is explicitly supplied, with no production defaults.
    - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
    - [ ] Verify scheduled/event reviews in the connected host; keep protection independent of paid reviews and their failures.

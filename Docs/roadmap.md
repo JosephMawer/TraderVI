@@ -40,8 +40,9 @@ visible AI reviewer, a complete tested paper trader, then supervised live tradin
 the next visible target; it uses initial runtime/display portions of Steps 7–8 while the ten-step
 checklist retains all paper/live completion requirements. The operator has moved independent development
 to Step 7 while Step 3's connected native price check awaits regular-session data. The offline review
-scheduler and explicit tick adapter are built/tested. Next persist scheduling/events/review blocks
-across restart and session changes; then complete qualified host composition and the review display.
+scheduler, durable scheduling/events/review-block recovery and explicit tick adapter are built/tested.
+Next connect structured model-proposed cadence and choose operating checkpoint times, then complete
+qualified host composition and the review display. Storage/operational qualification remains required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
@@ -81,10 +82,12 @@ threshold visibility are agreed. Round continuity across closures and new-sessio
 are agreed. Three consults complement ongoing intraday monitoring; AI review intervals of one to
 fifteen minutes during market hours are agreed, subject to budget. Provider/budget fallback and
 fresh-review recovery are agreed (ADR-0087). Initial entry-signal, holding-closure and risk-limit
-review hooks are agreed; shared timing/budget checks also apply to later hooks. The single-session
+review hooks are agreed; shared timing/budget checks also apply to later hooks. The
 scheduler now combines/deduplicates events, enforces bounded intervals and serializes reviews through
-the existing learning-aware supervisor. Actual checkpoint times, model-proposed cadence, durable
-scheduling and production integration remain pending. Budget pacing is settled: no daily allocations or future-consult reserves; use the
+the existing learning-aware supervisor. Account-scoped scheduling now persists and replays through
+restart and explicit session changes without releasing old spending reservations. Actual checkpoint
+times, model-proposed cadence and qualified production integration remain pending. Budget pacing is
+settled: no daily allocations or future-consult reserves; use the
 shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
 An exhausted, closed/reconciled sequence may restart next trading session with fresh entry evidence
 and AI review; carried rounds and approval holds persist. Step 8 must make these states and restart

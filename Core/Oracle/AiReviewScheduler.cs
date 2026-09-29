@@ -11,26 +11,34 @@ public sealed record AiReviewTiming(TimeSpan InitialInterval, TimeSpan MidSessio
 public sealed record AiReviewInterval(DateTimeOffset ChangedUtc, TimeSpan Requested, TimeSpan Applied, string Reason);
 public enum AiReviewEventKind { EntrySignal, HoldingClosed, RiskPermissionChanged }
 public sealed record AiReviewEvent(string Id, AiReviewEventKind Kind, DateTimeOffset ObservedUtc, string EvidenceId);
-public enum AiReviewOutcome { Reviewed, DataUnavailable, BudgetUnavailable, Failed, Cancelled }
+public enum AiReviewOutcome { Reviewed, DataUnavailable, BudgetUnavailable, Failed, Cancelled, Interrupted }
 public sealed record AiReviewRequest(Guid Id, DateOnly TradingDate, DateTimeOffset StartedUtc,
     ImmutableArray<string> Reasons, ImmutableArray<AiReviewEvent> Events, AiReviewInterval Interval);
 public sealed record AiReviewAttempt(AiReviewRequest Request, DateTimeOffset CompletedUtc, AiReviewOutcome Outcome);
 public sealed record AiReviewScheduleStatus(DateTimeOffset? NextReviewUtc, bool InFlight,
     string? ReviewBlock, AiReviewInterval Interval, int PendingEvents, AiReviewAttempt? LastAttempt);
 
+public interface IAiReviewSchedule
+{
+    DateTimeOffset SessionCloseUtc { get; }
+    AiReviewScheduleStatus Read(DateTimeOffset now);
+    AiReviewRequest? TryBegin(DateTimeOffset now);
+    void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null);
+}
+
 /// <summary>
-/// Single-session, in-memory scheduling only. The caller supplies reviewed calendar bounds and
-/// checkpoint timing. No timer, paid client, protection, risk permission or restart recovery lives here.
-/// A production host must persist/recover scheduling state before enabling automatic use.
+/// In-memory scheduling policy. The caller supplies reviewed calendar bounds and checkpoint timing.
+/// No timer, paid client, protection or risk permission lives here. AiReviewScheduleJournal owns
+/// durable admission, recovery and explicit session changes for a composed host.
 /// </summary>
-public sealed class AiReviewScheduler
+public sealed class AiReviewScheduler : IAiReviewSchedule
 {
     private static readonly TimeSpan Minimum = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan Maximum = TimeSpan.FromMinutes(15);
     private const int MaxSessionEvents = 4096;
     private readonly object sync = new();
-    private readonly DelphiLiveSessionBounds session;
-    private readonly (string Name, DateTimeOffset At)[] checkpoints;
+    private DelphiLiveSessionBounds session;
+    private (string Name, DateTimeOffset At)[] checkpoints;
     private readonly HashSet<string> completedCheckpoints = [];
     private readonly Dictionary<string, AiReviewEvent> seen = new(StringComparer.Ordinal);
     private readonly Dictionary<string, AiReviewEvent> pending = new(StringComparer.Ordinal);
@@ -111,6 +119,9 @@ public sealed class AiReviewScheduler
 
     /// <summary>Atomically admits one preparation/review; actual spending admission stays in AiCallJournal.</summary>
     public AiReviewRequest? TryBegin(DateTimeOffset now)
+        => TryBegin(now, Guid.NewGuid());
+
+    internal AiReviewRequest? TryBegin(DateTimeOffset now, Guid requestId)
     {
         lock (sync)
         {
@@ -123,11 +134,47 @@ public sealed class AiReviewScheduler
             var events = pending.Values.OrderBy(e => e.ObservedUtc).ThenBy(e => e.Id, StringComparer.Ordinal).ToImmutableArray();
             reasons.AddRange(events.Select(e => e.Kind.ToString()).Distinct());
             if (reasons.Count == 0) reasons.Add("RetryReview");
-            active = new(Guid.NewGuid(), session.TradingDate, now, reasons.ToImmutableArray(), events, interval);
+            if (requestId == Guid.Empty) throw new ArgumentException("An identified review is required.");
+            active = new(requestId, session.TradingDate, now, reasons.ToImmutableArray(), events, interval);
             if (!events.IsEmpty) reviewBlock ??= "PendingEvents";
             pending.Clear();
             lastStarted = now;
             return active;
+        }
+    }
+
+    // Called only by the durable owner, and replayed from its saved recovery transition.
+    internal void Recover(DateTimeOffset now)
+    {
+        lock (sync)
+        {
+            CheckClock(now);
+            if (active != null) Complete(active.Id, now, AiReviewOutcome.Interrupted);
+            freshUntil = null;
+            reviewBlock ??= "FreshReviewRequired";
+        }
+    }
+
+    internal void AdvanceSession(ITsxSessionCalendar calendar, DateOnly date, AiReviewTiming timing, DateTimeOffset now)
+    {
+        lock (sync)
+        {
+            CheckClock(now);
+            if (active != null || date <= session.TradingDate || now < session.CloseUtc)
+                throw new InvalidOperationException("Finish or recover the prior review before advancing sessions.");
+            var next = new AiReviewScheduler(calendar, date, timing);
+            var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, ReviewedTsxSessionCalendar.Toronto).DateTime);
+            if (date != today || now >= next.session.CloseUtc)
+                throw new InvalidOperationException("Advance only to today's reviewed session before its close.");
+            session = next.session;
+            checkpoints = next.checkpoints;
+            completedCheckpoints.Clear();
+            // Preserve unfinished event identities/evidence, including those from a missed session.
+            seen.Clear();
+            foreach (var item in pending.Values) seen.Add(item.Id, item);
+            freshUntil = null;
+            reviewBlock ??= "FreshReviewRequired";
+            // Keep cadence, last attempt, retry floor and a latched event fault across the boundary.
         }
     }
 
@@ -168,6 +215,7 @@ public sealed class AiReviewScheduler
         foreach (var checkpoint in checkpoints)
             if (!completedCheckpoints.Contains(checkpoint.Name) && checkpoint.At < due) due = checkpoint.At;
         if (pending.Count > 0) due = session.OpenUtc;
+        if (due < session.OpenUtc) due = session.OpenUtc;
         if (lastStarted.HasValue && due < lastStarted.Value + Minimum) due = lastStarted.Value + Minimum;
         if (due < retryNotBefore) due = retryNotBefore;
         return due;

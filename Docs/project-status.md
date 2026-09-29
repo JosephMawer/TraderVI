@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Step 7's single-session review scheduler and explicit tick adapter are built/tested offline: bounded review intervals, combined events, one active review, shared-budget rejection and fresh-result checks. Durable scheduling and automatic host composition remain pending. Step 3's after-hours checks reconcile all 15 paper accounts and verify rejection/isolated empty-journal recovery; fresh combined-value acceptance/persistence still awaits a regular session. Combined values already feed risk journals and AI inputs in source/tests with history continuity and persistent conflict blocks. No operating freshness policy or AI loop is enabled. Earlier minute-gap samples support quiet trading, not exhaustive market coverage. The alias repair remains installed; the ten-step checklist retains the three delivery milestones.
+**Current record:** September 28, 2026. Step 7's review scheduler now has source-tested account-scoped persistence, interrupted-review recovery and explicit reviewed-session changes. Pending events, cadence and failure blocks survive reopening; spending reservations remain untouched. The explicit tick adapter uses this durable scheduling path. Model-proposed cadence, operating timing and qualified automatic host composition remain pending. Step 3's after-hours checks reconcile all 15 paper accounts and verify rejection/isolated empty-journal recovery; fresh combined-value acceptance/persistence still awaits a regular session. Combined values already feed risk journals and AI inputs in source/tests with history continuity and persistent conflict blocks. No operating freshness policy or AI loop is enabled. Earlier minute-gap samples support quiet trading, not exhaustive market coverage. The alias repair remains installed; the ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -433,7 +433,7 @@ full Core suite or WPF/full-solution build ran. The regular-session branch has n
 no external market, broker or AI call occurred during that diagnostic. Evidence: `connected-native-build-tests.log`,
 `connected-native-evening.log` and `evening-saved-books.log` in `artifacts/ai-risk-values-20260928/`.
 
-**Review scheduler, September 28 (source/tested only):** `AiReviewScheduler` uses a reviewed calendar
+**Review scheduler and recovery, September 28 (source/tested only):** `AiReviewScheduler` uses a reviewed calendar
 session and explicitly supplied checkpoint times. It combines/deduplicates entry, confirmed-closure
 and risk-permission events, clamps requested intervals to 1–15 minutes, admits one review at a time
 and paces attempts at least one minute after completion. Missed checkpoints combine into one current
@@ -444,14 +444,25 @@ saved packet. Spending admission still belongs to the existing shared call journ
 or funding reset. Failures preserve review blocks until fresh success. Returned proposals cannot outlive
 the account packet, learning context/lessons or session; newly pending events suppress the older result.
 These are review-status blocks, not completed execution enforcement. No protection callback is coupled
-to paid reviews. Scheduling state is in memory only: persistence, cross-session recovery, exact account
-binding, model-proposed cadence, operating checkpoint times and production host integration remain.
-Next implement durable schedule/event/block recovery before enabling automatic ticks.
-Validation: 120 focused tests pass across scheduling, reviewer, learning, client/spending and packet
+to paid reviews. `AiReviewScheduleJournal` now binds saved transitions to account/portfolio/mode and
+explicit original configuration. It replays history, validates calendar bounds, holds one writer and
+saves before returning admission/completion. Recovery preserves pending evidence, cadence and failures;
+an interrupted review keeps its original ID as Interrupted, waits at least one minute and requires a
+new fresh review. Existing call reservations are not touched. Even a previously successful review
+does not regain permission after reopening. Explicit session advance carries unresolved events/blocks
+into today's reviewed session without replaying missed days or clearing an event-history fault.
+Missing, corrupt, altered or pending history blocks use; a storage failure invalidates the current
+owner. Full history is bounded at 32 MB and rewritten per transition; checksums do not authenticate
+malicious edits or detect rollback between process lifetimes. Protected storage, retention, sustained
+I/O performance, current-source/account binding and operational host recovery remain unqualified.
+Next connect structured model-proposed review timing; operating checkpoint choices and qualified
+automatic host composition remain pending.
+Validation: 143 focused tests pass across scheduling/recovery, reviewer, learning, client/spending and packet
 construction. .NET 10.0.401 builds Core/tests with existing CS8632 compiler warnings; no new warnings.
 No fresh dependency-security audit (`NuGetAudit=false`), full Core suite, WPF or complete solution build
 ran. Synthetic temporary journals only; no SQL, external market/API/broker request, app restart,
-deployment or trading action. Evidence: `artifacts/ai-risk-values-20260928/review-scheduler-tests.log`.
+deployment or trading action. Evidence: `artifacts/ai-risk-values-20260928/review-schedule-recovery-tests.log`;
+the preceding 120-test scheduler baseline remains in `review-scheduler-tests.log`.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

@@ -246,6 +246,59 @@ public sealed class AiScheduledPortfolioReviewerTests : IDisposable
         Assert.Equal(1, client.Calls);
     }
 
+    [Fact]
+    public async Task DurableAdapterSavesAdmissionBeforeModelCallAndRecoversWithoutReusingSuccess()
+    {
+        using var learning = Journal();
+        string scheduleDirectory = Path.Combine(directory, "schedule");
+        var scope = new AiReviewScheduleScope(Guid.NewGuid(), Guid.NewGuid(), "paper");
+        var timing = new AiReviewTiming(TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(195), TimeSpan.FromMinutes(5));
+        var client = new Client((r, _) =>
+        {
+            using var envelope = JsonDocument.Parse(File.ReadAllText(Path.Combine(scheduleDirectory, "ai-review-schedule.json")));
+            using var saved = JsonDocument.Parse(envelope.RootElement.GetProperty("Payload").GetString()!);
+            var command = saved.RootElement.GetProperty("Commands").EnumerateArray().Last();
+            Assert.Equal(r.CallId, command.GetProperty("RequestId").GetGuid());
+            return Task.FromResult(Response(r));
+        });
+        using (var durable = new AiReviewScheduleJournal(scheduleDirectory, scope, AiReviewSchedulerTests.Calendar(),
+            AiReviewSchedulerTests.Date, timing, clock.Now, initializeNew: true))
+        {
+            var supervisor = new AiLearningAwareSupervisor(new AiPortfolioReviewer(client, clock), learning, TimeSpan.FromMinutes(5), clock);
+            Assert.Throws<ArgumentException>(() => new AiScheduledPortfolioReviewer(durable, supervisor,
+                (_, _) => Task.FromResult(Packet()), "live", clock));
+            var runner = new AiScheduledPortfolioReviewer(durable, supervisor, (_, _) => Task.FromResult(Packet()), "paper", clock);
+            Assert.NotNull((await runner.TickAsync()).Proposal);
+        }
+        clock.Now = clock.Now.AddMinutes(1);
+        using var reopened = new AiReviewScheduleJournal(scheduleDirectory, scope, AiReviewSchedulerTests.Calendar(),
+            AiReviewSchedulerTests.Date, timing, clock.Now);
+        Assert.Equal("FreshReviewRequired", reopened.Read(clock.Now).ReviewBlock);
+        Assert.Null(reopened.TryBegin(clock.Now));
+        Assert.Equal(1, client.Calls);
+    }
+
+    [Fact]
+    public async Task StorageFailureAfterModelResponseCannotReturnProposalOrAllowAnotherCall()
+    {
+        using var learning = Journal();
+        string scheduleDirectory = Path.Combine(directory, "schedule");
+        var scope = new AiReviewScheduleScope(Guid.NewGuid(), Guid.NewGuid(), "paper");
+        using var durable = new AiReviewScheduleJournal(scheduleDirectory, scope, AiReviewSchedulerTests.Calendar(),
+            AiReviewSchedulerTests.Date, new(TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(195), TimeSpan.FromMinutes(5)), clock.Now, true);
+        var client = new Client((r, _) =>
+        {
+            File.WriteAllText(Path.Combine(scheduleDirectory, "ai-review-schedule.json.pending"), "synthetic interrupted storage");
+            return Task.FromResult(Response(r));
+        });
+        var supervisor = new AiLearningAwareSupervisor(new AiPortfolioReviewer(client, clock), learning, TimeSpan.FromMinutes(5), clock);
+        var runner = new AiScheduledPortfolioReviewer(durable, supervisor, (_, _) => Task.FromResult(Packet()), "paper", clock);
+        await Assert.ThrowsAsync<InvalidDataException>(() => runner.TickAsync());
+        clock.Now = clock.Now.AddMinutes(1);
+        await Assert.ThrowsAsync<InvalidDataException>(() => runner.TickAsync());
+        Assert.Equal(1, client.Calls);
+    }
+
     private sealed class Clock(DateTimeOffset now) : TimeProvider
     { public DateTimeOffset Now = now; public override DateTimeOffset GetUtcNow() => Now; }
     private sealed class Client(Func<LlmRequest, CancellationToken, Task<LlmResponse>> respond) : ILlmClient

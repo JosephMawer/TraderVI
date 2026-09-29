@@ -1044,7 +1044,7 @@ Running Oracle does not start it; Oracle's `--dry-run` can still contact the mod
 tests for offline validation:
 
 ```powershell
-dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests|FullyQualifiedName~AiLearningWorkflowTests|FullyQualifiedName~AiReviewSchedulerTests|FullyQualifiedName~AiScheduledPortfolioReviewerTests'
+dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests|FullyQualifiedName~AiLearningWorkflowTests|FullyQualifiedName~AiReviewSchedulerTests|FullyQualifiedName~AiScheduledPortfolioReviewerTests|FullyQualifiedName~AiReviewScheduleJournalTests'
 ```
 
 Before any future AI Momentum composition, review billing and expiring currency/tax bounds, establish
@@ -1064,11 +1064,18 @@ has been initialized, and outcome evaluation, host integration and recovery tool
 
 The source-only `AiReviewScheduler` and `AiScheduledPortfolioReviewer` accept explicit test/host ticks;
 construction starts nothing. Supply a reviewed calendar session and checkpoint timing explicitly.
-The scheduler has in-memory single-session state only: do not enable automatic ticks or recreate it
-on restart as a recovery mechanism. Durable pending events, last-attempt timing and review blocks,
-cross-session recovery and exact account binding must be implemented/qualified first. The shared
-spending and learning journals retain their existing ownership and recovery rules. No production
-schedule, model-proposed interval contract or automatic protection integration is installed.
+Use `AiReviewScheduleJournal` for durable scheduling, with the exact account/portfolio/mode, original
+session/configuration and reviewed calendar. Its recovery path preserves pending events, timing and
+blocks; do not replace it with a newly constructed in-memory scheduler. Preserve `ai-review-schedule.json`,
+its `.lock` ownership/initialization marker and any `.json.pending` artifact. Initialize explicitly once
+in protected private storage; missing, changed or interrupted files require reviewed recovery, not deletion
+or a new directory. An interrupted attempt keeps its original identity in history but is never
+resubmitted. Call-journal reservations remain untouched; a new successful fresh review is still required.
+Advance explicitly to today's reviewed session after the old call has completed or recovered; this
+retains pending evidence and does not replay missed sessions. Full history is bounded at 32 MB; qualify
+retention, backups and sustained I/O before production use. Shared spending/learning storage rules
+remain unchanged. No production schedule, model-proposed interval contract, automatic protection
+integration or operating account/input binding is installed.
 
 **Project:** `Oracle`
 **Entry point:** `Oracle/Program.cs`

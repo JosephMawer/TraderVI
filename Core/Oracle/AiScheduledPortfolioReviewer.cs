@@ -13,18 +13,18 @@ public sealed record AiScheduledReviewResult(AiReviewScheduleStatus Schedule, Ai
 
 /// <summary>
 /// Explicit tick adapter for the existing learning-aware reviewer. One instance/scheduler belongs to
-/// one account/session. No timer, protection callback, automatic retry or execution interface.
-/// Production storage, account binding and host composition remain required.
+/// one account. No timer, protection callback, automatic retry or execution interface.
+/// AiReviewScheduleJournal supplies durable scheduling; qualified inputs and host composition remain required.
 /// </summary>
 public sealed class AiScheduledPortfolioReviewer
 {
-    private readonly AiReviewScheduler scheduler;
+    private readonly IAiReviewSchedule scheduler;
     private readonly AiLearningAwareSupervisor supervisor;
     private readonly Func<AiReviewRequest, CancellationToken, Task<AiPortfolioPacket>> prepare;
     private readonly string accountMode;
     private readonly TimeProvider clock;
 
-    public AiScheduledPortfolioReviewer(AiReviewScheduler scheduler, AiLearningAwareSupervisor supervisor,
+    public AiScheduledPortfolioReviewer(IAiReviewSchedule scheduler, AiLearningAwareSupervisor supervisor,
         Func<AiReviewRequest, CancellationToken, Task<AiPortfolioPacket>> prepare,
         string accountMode, TimeProvider? clock = null)
     {
@@ -32,6 +32,8 @@ public sealed class AiScheduledPortfolioReviewer
         this.supervisor = supervisor ?? throw new ArgumentNullException(nameof(supervisor));
         this.prepare = prepare ?? throw new ArgumentNullException(nameof(prepare));
         if (accountMode is not ("paper" or "live")) throw new ArgumentException("An exact account mode is required.");
+        if (scheduler is AiReviewScheduleJournal durable && durable.Scope.AccountMode != accountMode)
+            throw new ArgumentException("The reviewer must use the journal's account mode.");
         this.accountMode = accountMode;
         this.clock = clock ?? TimeProvider.System;
     }
