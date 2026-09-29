@@ -99,7 +99,8 @@ This checklist grants no deployment, paid API call or live-order authority.
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's offline review scheduler, saved-state recovery and
-model-requested timing are built/tested. Immediate work returns to Step 3's connected market-hours check.
+model-requested timing are built/tested. Step 3's connected check verifies cash-only persistence/recovery;
+invested-price acceptance and an account-receipt rejection remain the immediate work.
 
 | Milestone | What you can use | Checklist work needed |
 |---|---|---|
@@ -129,7 +130,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Agree to preserve holdings, tighter stops, risk history and attempts across days, cash periods and portfolio switches.
    - [ ] Define useful-lesson criteria **only when Step 6 needs them**; deliberately deferred, not a coding blocker.
 
-3. **Connect reliable data — in progress; regular-session verification pending.**
+3. **Connect reliable data — in progress; invested-price verification pending.**
 
    - [x] Build the maintained portfolio catalogue and map exact strategy, model and gate versions.
    - [x] Connect saved Delphi signals, engine rules and account-specific activity to dated AI input packets.
@@ -141,7 +142,9 @@ runtime/display development can proceed while native input qualification remains
    - [x] Build/test combined paper values from faster prices, verified cash and every holding; retain evidence and reject changed accounts or mixed price times.
    - [x] Save combined values through the risk journal; test history preservation, explicit source handover, repeat prices, lasting conflict blocks and restart recovery.
    - [x] Verify after-hours rejection for all 15 real paper accounts and reopen isolated diagnostic journals; no prices or risk transitions accepted.
-   - [ ] Run the prepared connected check during a regular session; verify fresh combined values and qualify freshness, coverage and recovery before scheduling it.
+   - [x] Run the connected market-hours check; verify cash-only values save/reopen correctly and blocked reads grant no buying allowance. [Dated results and limits](project-status.md#latest-operational-evidence).
+   - [ ] Explain incomplete/expired or differently timed held-stock prices and the rejected account receipt; verify fresh invested values save and recover correctly.
+   - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
    - [ ] Verify native account-read consistency during trading; qualify real-account cash events separately with matching before/after accounts.
    - [ ] Connect recurring qualified observations through Step 7; no operating AI data loop exists yet.

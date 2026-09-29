@@ -38,11 +38,12 @@ Follow the [AI Momentum delivery sequence](strategy-alignment-implementation-che
 its [delivery milestones](strategy-alignment-implementation-checklist.md#delivery-milestones) are a
 visible AI reviewer, a complete tested paper trader, then supervised live trading. The reviewer is
 the next visible target; it uses initial runtime/display portions of Steps 7–8 while the ten-step
-checklist retains all paper/live completion requirements. The operator has moved independent development
-to Step 7 while Step 3's connected native price check awaits regular-session data. The offline review
+checklist retains all paper/live completion requirements. Independent Step 7 development proceeded
+while Step 3 awaited regular-session data. The offline review
 scheduler, durable scheduling/events/review-block recovery and explicit tick adapter are built/tested.
-Structured model-proposed cadence is now built/tested too. Per the September 29 instruction, return
-next to Step 3's prepared regular-session connected value/persistence check. Operating checkpoint
+Structured model-proposed cadence is now built/tested too. Per the September 29 instruction, work returned
+to Step 3: its connected check verifies cash-only persistence/recovery, while invested prices and one
+account receipt remain blocked. Diagnose those failures and verify accepted invested values next. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
@@ -66,8 +67,10 @@ The one-minute price adapter and combined paper-account reader are built/tested.
 cash/history, rechecks the account after collection and requires fresh prices ending at the same minute.
 Combined values now feed the risk journal and AI input packets, with tested history continuity,
 explicit same-account source handover and persistent price-conflict blocks. Native after-hours checks
-reconcile all 15 paper books and verify rejection/empty-journal recovery. Next run the prepared connected
-check during a regular session to verify fresh values/persistence, qualify freshness/recovery, resolve collection gaps,
+reconcile all 15 paper books and verify rejection/empty-journal recovery. The regular-session check now
+verifies cash-only persistence/recovery; invested reads reject incomplete/expired or differently timed
+prices, and an account-receipt rejection remains unexplained. Next isolate these failures, verify fresh
+invested values/persistence, qualify freshness/recovery, resolve collection gaps,
 connect recurring paper risk observations, and qualify SQL concurrency and broker cash events, then connect
 existing risk/execution adapters; source qualification
 and activation remain separate. Existing engine daily templates use 7%.
