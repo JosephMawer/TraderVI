@@ -68,7 +68,7 @@ public sealed class AiScheduledPortfolioReviewer
             var beforeCall = scheduler.Read(clock.GetUtcNow());
             if (beforeCall.ReviewBlock is "OutsideSession" or "EventHistoryRequiresReview" || beforeCall.PendingEvents > 0)
                 throw new InvalidDataException("The review session or event history is unavailable.");
-            var reviewed = await supervisor.ReviewWithEvidenceAsync(packet, accountMode, ct);
+            var reviewed = await supervisor.ReviewWithEvidenceAsync(packet, accountMode, ct, requestTiming: true);
             ct.ThrowIfCancellationRequested();
             AiPortfolioReviewer.ValidatePacket(reviewed.Packet, clock.GetUtcNow());
             proposal = reviewed.Proposal!;
@@ -96,7 +96,7 @@ public sealed class AiScheduledPortfolioReviewer
             // Preserve unexpected failures for host diagnostics; never log private exception text here.
             throw;
         }
-        scheduler.Complete(request.Id, clock.GetUtcNow(), AiReviewOutcome.Reviewed, validUntil);
+        scheduler.Complete(request.Id, clock.GetUtcNow(), AiReviewOutcome.Reviewed, validUntil, proposal.NextReview);
         var status = scheduler.Read(clock.GetUtcNow());
         return new(status, status.ReviewBlock is null ? proposal : null);
     }

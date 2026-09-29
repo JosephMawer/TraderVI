@@ -41,8 +41,10 @@ the next visible target; it uses initial runtime/display portions of Steps 7–8
 checklist retains all paper/live completion requirements. The operator has moved independent development
 to Step 7 while Step 3's connected native price check awaits regular-session data. The offline review
 scheduler, durable scheduling/events/review-block recovery and explicit tick adapter are built/tested.
-Next connect structured model-proposed cadence and choose operating checkpoint times, then complete
-qualified host composition and the review display. Storage/operational qualification remains required.
+Structured model-proposed cadence is now built/tested too. Per the September 29 instruction, return
+next to Step 3's prepared regular-session connected value/persistence check. Operating checkpoint
+times, qualified host composition and the review display remain later work; storage/operational
+qualification is still required.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
@@ -86,7 +88,9 @@ review hooks are agreed; shared timing/budget checks also apply to later hooks. 
 scheduler now combines/deduplicates events, enforces bounded intervals and serializes reviews through
 the existing learning-aware supervisor. Account-scoped scheduling now persists and replays through
 restart and explicit session changes without releasing old spending reservations. Actual checkpoint
-times, model-proposed cadence and qualified production integration remain pending. Budget pacing is
+times and qualified production integration remain pending. Version-3 scheduled proposals supply
+validated 1–15-minute intervals and reasons; accepted timing is saved atomically with review completion.
+Budget pacing is
 settled: no daily allocations or future-consult reserves; use the
 shared monthly allowance until exhausted, with only explicit operator extensions (ADR-0087).
 An exhausted, closed/reconciled sequence may restart next trading session with fresh entry evidence

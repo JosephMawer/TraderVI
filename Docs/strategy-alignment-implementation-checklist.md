@@ -98,8 +98,8 @@ This checklist grants no deployment, paid API call or live-order authority.
 
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
-All three milestones remain pending. Step 7's offline review scheduler and saved-state recovery are built/tested while
-Step 3's connected fresh-price verification waits for a regular market session.
+All three milestones remain pending. Step 7's offline review scheduler, saved-state recovery and
+model-requested timing are built/tested. Immediate work returns to Step 3's connected market-hours check.
 
 | Milestone | What you can use | Checklist work needed |
 |---|---|---|
@@ -178,7 +178,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Connect explicit test ticks to the existing learning-aware reviewer; retain trigger evidence and test budget failures, stale results and fresh-review recovery.
    - [x] Build/test account-scoped scheduling history; preserve pending events, timing and blocks through restart and reviewed session changes.
    - [x] Record interrupted reviews without retrying their old call IDs or releasing spending reservations; require fresh review after recovery.
-   - [ ] Connect model-proposed review intervals and select operating checkpoint times; current timing is explicitly supplied, with no production defaults.
+   - [x] Connect validated AI requests for the next review (1–15 whole minutes plus a reason); save accepted timing with the completed review.
+   - [ ] Select operating daily checkpoint times; no production defaults are chosen.
    - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
    - [ ] Verify scheduled/event reviews in the connected host; keep protection independent of paid reviews and their failures.
    - [ ] Enforce outage/budget review blocks in the execution path; resume new risk only after fresh review and all other checks.

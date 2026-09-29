@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 28, 2026. Step 7's review scheduler now has source-tested account-scoped persistence, interrupted-review recovery and explicit reviewed-session changes. Pending events, cadence and failure blocks survive reopening; spending reservations remain untouched. The explicit tick adapter uses this durable scheduling path. Model-proposed cadence, operating timing and qualified automatic host composition remain pending. Step 3's after-hours checks reconcile all 15 paper accounts and verify rejection/isolated empty-journal recovery; fresh combined-value acceptance/persistence still awaits a regular session. Combined values already feed risk journals and AI inputs in source/tests with history continuity and persistent conflict blocks. No operating freshness policy or AI loop is enabled. Earlier minute-gap samples support quiet trading, not exhaustive market coverage. The alias repair remains installed; the ten-step checklist retains the three delivery milestones.
+**Current record:** September 29, 2026. Step 7's source-tested scheduler now accepts validated AI requests for the next review and saves their timing/reason with successful completion. Durable recovery preserves pending events and failure blocks without resetting spending. Immediate work returns to Step 3's prepared market-hours connected check. Its September 28 after-hours evidence reconciled all 15 paper accounts and verified rejection/isolated empty-journal recovery; fresh accepted-value persistence remains unverified. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -23,8 +23,8 @@ what has actually been implemented, installed or observed.
 
 **Delivery checkpoints, September 28:** the existing ten-step checklist now groups delivery into a
 [visible AI reviewer, complete tested paper trader, and supervised live trading](strategy-alignment-implementation-checklist.md#delivery-milestones).
-All three are pending; the reviewer is the next visible target. Independent Step 7 development now
-continues while Step 3's native fresh-price verification awaits a regular market session.
+All three are pending; the reviewer is the next visible target. September 29 completes the current
+offline Step 7 increment and returns immediate work to Step 3's native fresh-price verification.
 Duplicate AI/learning task lists are consolidated into that sequence; completed price investigations
 link to the dated evidence below. Milestone labels do not establish operational readiness.
 
@@ -455,14 +455,29 @@ Missing, corrupt, altered or pending history blocks use; a storage failure inval
 owner. Full history is bounded at 32 MB and rewritten per transition; checksums do not authenticate
 malicious edits or detect rollback between process lifetimes. Protected storage, retention, sustained
 I/O performance, current-source/account binding and operational host recovery remain unqualified.
-Next connect structured model-proposed review timing; operating checkpoint choices and qualified
-automatic host composition remain pending.
+The September 29 timing increment below completes the next source connection; operating checkpoint
+choices and qualified automatic host composition remain pending.
 Validation: 143 focused tests pass across scheduling/recovery, reviewer, learning, client/spending and packet
 construction. .NET 10.0.401 builds Core/tests with existing CS8632 compiler warnings; no new warnings.
 No fresh dependency-security audit (`NuGetAudit=false`), full Core suite, WPF or complete solution build
 ran. Synthetic temporary journals only; no SQL, external market/API/broker request, app restart,
 deployment or trading action. Evidence: `artifacts/ai-risk-values-20260928/review-schedule-recovery-tests.log`;
 the preceding 120-test scheduler baseline remains in `review-scheduler-tests.log`.
+
+**AI-requested review timing, September 29 (source/tested only):** scheduled reviews use a version-3
+proposal requiring `next_review.minutes` (whole number 1–15) and a nonblank reason of at most 1,000
+characters. Missing, fractional, out-of-range, duplicate or unexpected fields reject the review.
+Version-1/2 callers and stored proposals retain their existing contracts; learning consultation and
+execution preparation retain their checks. Valid fresh results apply timing atomically with the saved
+completion transition. Expired results, changed event history or newly pending events cannot change
+cadence. Earlier checkpoints/events, shared budget, data expiry and independent protection retain their
+own boundaries. No actual model call or operating schedule is enabled.
+Validation: 161 focused scheduling/recovery, reviewer, learning, client/budget and packet tests pass,
+including durable timing replay and failure cases. Existing CS8632 compiler warnings remain. No fresh
+dependency-security audit (`NuGetAudit=false`), full Core suite, WPF/full-solution build, SQL operation,
+external market/AI/broker request, restart or deployment accompanied this source increment. Evidence:
+`artifacts/ai-risk-values-20260928/review-model-timing-tests.log`. Next is the authorized market-hours
+connected diagnostic; its results must be recorded separately from this offline validation.
 
 No native feed or freshness duration is qualified, and current five-minute bars do not prove
 one-minute coverage. Catalogue, packet construction and both family decision contexts are source-implemented.

@@ -18,6 +18,14 @@ public sealed record AiPortfolioCandidate(string Id, string StrategyVersion, str
     bool Eligible, string Summary, AiPortfolioRule[] Rules);
 public sealed record AiMarketEvidence(string Id, DateTimeOffset ObservedUtc, string Description);
 public sealed record AiRuleOverride(string RuleId, string Reason);
+public sealed record AiNextReview(int Minutes, string Reason)
+{
+    public void Validate()
+    {
+        if (Minutes is < 1 or > 15 || string.IsNullOrWhiteSpace(Reason) || Reason.Length > 1000)
+            throw new InvalidDataException("Next review requires 1–15 whole minutes and a bounded explanation.");
+    }
+}
 public sealed record AiPortfolioPacket(Guid PacketId, int SchemaVersion, DateTimeOffset AsOfUtc,
     DateTimeOffset ExpiresUtc, string? ActivePortfolioId, AiPortfolioCandidate[] Candidates,
     AiMarketEvidence[] Evidence, string[] EvaluatedLessons,
@@ -25,7 +33,8 @@ public sealed record AiPortfolioPacket(Guid PacketId, int SchemaVersion, DateTim
 public sealed record AiPortfolioProposal(Guid PacketId, string Action, string? PortfolioId,
     string? StrategyVersion, string Rationale, string[] EvidenceIds, AiRuleOverride[] RuleOverrides,
     string ReconsiderWhen, string[] LessonHypotheses,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiLessonAssessment[]? LessonAssessments = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiLessonAssessment[]? LessonAssessments = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiNextReview? NextReview = null);
 
 /// <summary>
 /// Proposal-only supervisor. It has no assignment, broker, trading-engine or protection mutation API.
@@ -56,7 +65,7 @@ public sealed class AiPortfolioReviewer
         var frozen = JsonSerializer.Deserialize<AiPortfolioPacket>(input, Json)!;
         ValidatePacket(frozen, clock.GetUtcNow());
         var request = new LlmRequest(SystemPrompt, input, CallId: frozen.PacketId,
-            OutputSchema: frozen.SchemaVersion == 2 ? LearningOutputSchema : OutputSchema);
+            OutputSchema: frozen.SchemaVersion switch { 3 => ScheduledOutputSchema, 2 => LearningOutputSchema, _ => OutputSchema });
         var response = await client.CompleteAsync(request, ct);
         ct.ThrowIfCancellationRequested();
         ValidatePacket(frozen, clock.GetUtcNow());
@@ -65,7 +74,7 @@ public sealed class AiPortfolioReviewer
 
     public static void ValidatePacket(AiPortfolioPacket packet, DateTimeOffset now)
     {
-        if (packet.PacketId == Guid.Empty || packet.SchemaVersion is not (1 or 2) || packet.AsOfUtc > now ||
+        if (packet.PacketId == Guid.Empty || packet.SchemaVersion is not (1 or 2 or 3) || packet.AsOfUtc > now ||
             packet.ExpiresUtc <= now || packet.ExpiresUtc <= packet.AsOfUtc ||
             packet.Candidates is null || packet.Candidates.Length > 100 ||
             packet.Evidence is null || packet.Evidence.Length > 1000 || packet.EvaluatedLessons is null ||
@@ -82,7 +91,7 @@ public sealed class AiPortfolioReviewer
                 e.ObservedUtc > packet.AsOfUtc) ||
             packet.Evidence.Select(e => e.Id).Distinct(StringComparer.Ordinal).Count() != packet.Evidence.Length)
             throw new InvalidDataException("AI decision packet contains ambiguous or future evidence.");
-        if (packet.SchemaVersion == 1 && packet.Learning != null || packet.SchemaVersion == 2 && packet.Learning is null)
+        if (packet.SchemaVersion == 1 && packet.Learning != null || packet.SchemaVersion >= 2 && packet.Learning is null)
             throw new InvalidDataException("Learning context requires the version-2 decision contract.");
         if (packet.Learning is { } learning)
         {
@@ -108,10 +117,15 @@ public sealed class AiPortfolioReviewer
         }
         catch (JsonException) { throw new InvalidDataException("AI proposal does not match the decision contract."); }
 
-        if (packet.SchemaVersion == 2 && packet.Learning is { } learning)
+        if (packet.SchemaVersion >= 2 && packet.Learning is { } learning)
             AiLearningContracts.ValidateAssessments(learning, result.LessonAssessments);
         else if (result.LessonAssessments != null)
             throw new InvalidDataException("Lesson assessments require the version-2 decision contract.");
+
+        if (packet.SchemaVersion == 3)
+            (result.NextReview ?? throw new InvalidDataException("Scheduled reviews require next-review timing.")).Validate();
+        else if (result.NextReview != null)
+            throw new InvalidDataException("Next-review timing requires the version-3 decision contract.");
 
         if (result.PacketId != packet.PacketId || result.Action is not ("wait" or "keep" or "select" or "switch") ||
             string.IsNullOrWhiteSpace(result.Rationale) || string.IsNullOrWhiteSpace(result.ReconsiderWhen) ||
@@ -162,9 +176,14 @@ public sealed class AiPortfolioReviewer
         Cite supplied evidence IDs, summarize your decision and state what would make you reconsider.
         Learn from evaluated lessons; new lesson_hypotheses are provisional observations, not proven
         improvements or permission to change a strategy. Never promise a daily return.
-        For version-2 packets, assess every learning.lessons item exactly once in lesson_assessments:
+        For version-2 and version-3 packets, assess every learning.lessons item exactly once in lesson_assessments:
         use its lesson_id, disposition apply/disregard/not_applicable and a specific reason. An apply
         assessment means it informed this proposal, never permission to change execution policy.
+        For version-3 packets, also return next_review with minutes (a whole number from 1 to 15)
+        and a specific reason grounded in the supplied evidence, including when your action is wait.
+        This requests time after this review completes. Earlier events or daily checkpoints may
+        bring it forward; budget, unavailable data or provider failures may defer it. It does not
+        extend evidence expiry or control market collection, protective checks or trading permission.
         Return only JSON matching the supplied schema.
         """;
 
@@ -190,6 +209,19 @@ public sealed class AiPortfolioReviewer
         """));
 
     private static readonly LlmJsonSchema LearningOutputSchema = CreateLearningOutputSchema();
+    private static readonly LlmJsonSchema ScheduledOutputSchema = CreateScheduledOutputSchema();
+    private static LlmJsonSchema CreateScheduledOutputSchema()
+    {
+        var schema = JsonNode.Parse(LearningOutputSchema.Schema.GetRawText())!.AsObject();
+        schema["properties"]!["next_review"] = JsonNode.Parse("""
+            {"type":"object","additionalProperties":false,
+              "properties":{"minutes":{"type":"integer","minimum":1,"maximum":15},
+                "reason":{"type":"string","minLength":1,"maxLength":1000}},
+              "required":["minutes","reason"]}
+            """);
+        schema["required"]!.AsArray().Add("next_review");
+        return new("tradervi_portfolio_proposal_v3", JsonSerializer.Deserialize<JsonElement>(schema.ToJsonString()));
+    }
     private static LlmJsonSchema CreateLearningOutputSchema()
     {
         var schema = JsonNode.Parse(OutputSchema.Schema.GetRawText())!.AsObject();

@@ -23,7 +23,8 @@ public sealed class AiLearningAwareSupervisor(AiPortfolioReviewer reviewer, AiLe
         => (await ReviewWithEvidenceAsync(packet, accountMode, ct)).Proposal!;
 
     /// <summary>Returns the saved learning-enriched evidence so a host cannot overstate review freshness.</summary>
-    public async Task<AiLearningReview> ReviewWithEvidenceAsync(AiPortfolioPacket packet, string accountMode, CancellationToken ct = default)
+    public async Task<AiLearningReview> ReviewWithEvidenceAsync(AiPortfolioPacket packet, string accountMode, CancellationToken ct = default,
+        bool requestTiming = false)
     {
         ct.ThrowIfCancellationRequested();
         // Freeze before reading learning or awaiting the model; the same packet is used for durable evidence.
@@ -34,7 +35,7 @@ public sealed class AiLearningAwareSupervisor(AiPortfolioReviewer reviewer, AiLe
         var scopes = frozen.Candidates.Select(c => new AiLearningScope(c.Id, c.StrategyVersion)).ToImmutableArray();
         var learning = journal.Consult("supervisor", frozen.PacketId.ToString("D"), accountMode,
             scopes, clock.GetUtcNow(), refreshInterval, force: true)!;
-        frozen = frozen with { SchemaVersion = 2, Learning = learning };
+        frozen = frozen with { SchemaVersion = requestTiming ? 3 : 2, Learning = learning };
         journal.RecordReview(new(frozen.PacketId, learning.ConsultationId, frozen, null, "Pending", clock.GetUtcNow()));
         AiPortfolioProposal proposal;
         try { proposal = await reviewer.ReviewAsync(frozen, ct); }

@@ -23,7 +23,7 @@ public interface IAiReviewSchedule
     DateTimeOffset SessionCloseUtc { get; }
     AiReviewScheduleStatus Read(DateTimeOffset now);
     AiReviewRequest? TryBegin(DateTimeOffset now);
-    void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null);
+    void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null, AiNextReview? nextReview = null);
 }
 
 /// <summary>
@@ -179,8 +179,11 @@ public sealed class AiReviewScheduler : IAiReviewSchedule
     }
 
     /// <summary>Reviewed means the caller validated a fresh result, never that trading is allowed.</summary>
-    public void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null)
+    public void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null, AiNextReview? nextReview = null)
     {
+        nextReview?.Validate();
+        if (nextReview != null && outcome != AiReviewOutcome.Reviewed)
+            throw new ArgumentException("Only a successful review can propose a new interval.");
         lock (sync)
         {
             CheckClock(now);
@@ -194,6 +197,11 @@ public sealed class AiReviewScheduler : IAiReviewSchedule
                     completedCheckpoints.Add(reason);
                 freshUntil = expiresUtc < session.CloseUtc ? expiresUtc : session.CloseUtc;
                 reviewBlock = null;
+                if (nextReview != null && pending.Count == 0 && !eventFault)
+                {
+                    var requested = TimeSpan.FromMinutes(nextReview.Minutes);
+                    interval = new(now, requested, requested, nextReview.Reason);
+                }
             }
             else
             {

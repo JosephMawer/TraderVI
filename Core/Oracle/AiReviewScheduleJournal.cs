@@ -24,7 +24,8 @@ public sealed class AiReviewScheduleJournal : IAiReviewSchedule, IDisposable
     private sealed record Command(Kind Kind, DateTimeOffset At, Guid? RequestId = null,
         AiReviewEvent? Event = null, TimeSpan? Interval = null, string? Reason = null,
         AiReviewOutcome? Outcome = null, DateTimeOffset? ExpiresUtc = null, DateOnly? Date = null,
-        DateTime? OpenUtc = null, DateTime? CloseUtc = null);
+        DateTime? OpenUtc = null, DateTime? CloseUtc = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AiNextReview? NextReview = null);
     private sealed record History(int Version, AiReviewScheduleScope Scope, DateOnly InitialDate,
         DateTime OpenUtc, DateTime CloseUtc, AiReviewTiming Timing, DateTimeOffset CreatedUtc, List<Command> Commands);
     private sealed record Envelope(string Payload, string Sha256);
@@ -139,13 +140,13 @@ public sealed class AiReviewScheduleJournal : IAiReviewSchedule, IDisposable
         }
     }
 
-    public void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null)
+    public void Complete(Guid requestId, DateTimeOffset now, AiReviewOutcome outcome, DateTimeOffset? expiresUtc = null, AiNextReview? nextReview = null)
     {
         lock (sync)
         {
             Ensure();
-            scheduler.Complete(requestId, now, outcome, expiresUtc);
-            Append(new(Kind.Complete, now, RequestId: requestId, Outcome: outcome, ExpiresUtc: expiresUtc));
+            scheduler.Complete(requestId, now, outcome, expiresUtc, nextReview);
+            Append(new(Kind.Complete, now, RequestId: requestId, Outcome: outcome, ExpiresUtc: expiresUtc, NextReview: nextReview));
         }
     }
 
@@ -169,7 +170,7 @@ public sealed class AiReviewScheduleJournal : IAiReviewSchedule, IDisposable
             Kind.Interval when c.Interval.HasValue && c.Reason != null => new(c.Kind, c.At, Interval: c.Interval, Reason: c.Reason),
             Kind.Event when c.Event != null => new(c.Kind, c.At, Event: c.Event),
             Kind.Begin when c.RequestId.HasValue => new(c.Kind, c.At, RequestId: c.RequestId),
-            Kind.Complete when c.RequestId.HasValue && c.Outcome.HasValue => new(c.Kind, c.At, RequestId: c.RequestId, Outcome: c.Outcome, ExpiresUtc: c.ExpiresUtc),
+            Kind.Complete when c.RequestId.HasValue && c.Outcome.HasValue => new(c.Kind, c.At, RequestId: c.RequestId, Outcome: c.Outcome, ExpiresUtc: c.ExpiresUtc, NextReview: c.NextReview),
             Kind.Recover => new(c.Kind, c.At),
             Kind.Advance when c.Date.HasValue && c.OpenUtc.HasValue && c.CloseUtc.HasValue => new(c.Kind, c.At, Date: c.Date, OpenUtc: c.OpenUtc, CloseUtc: c.CloseUtc),
             _ => throw new InvalidDataException("Invalid schedule transition.")
@@ -189,7 +190,7 @@ public sealed class AiReviewScheduleJournal : IAiReviewSchedule, IDisposable
                 if (!requestIds.Add(c.RequestId!.Value)) throw new InvalidDataException("Saved review identity was reused.");
                 if (scheduler.TryBegin(c.At, c.RequestId!.Value) is null) throw new InvalidDataException("Saved review was not due.");
                 break;
-            case Kind.Complete: scheduler.Complete(c.RequestId!.Value, c.At, c.Outcome!.Value, c.ExpiresUtc); break;
+            case Kind.Complete: scheduler.Complete(c.RequestId!.Value, c.At, c.Outcome!.Value, c.ExpiresUtc, c.NextReview); break;
             case Kind.Recover: scheduler.Recover(c.At); break;
             case Kind.Advance:
                 VerifyBounds(c.Date!.Value, c.OpenUtc!.Value, c.CloseUtc!.Value);

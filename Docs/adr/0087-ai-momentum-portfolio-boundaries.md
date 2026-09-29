@@ -898,6 +898,16 @@ and execution enforcement remain Step 7/4/5 work. Existing
 spending/learning journal recovery is unchanged. No external API, database, restart or trading action
 is authorized by this source implementation. Validation is recorded in project status.
 
+September 29 connects the model's timing request through a version-3 proposal: `next_review` contains
+whole minutes from 1 through 15 and a nonblank reason capped at 1,000 characters. Application validation
+rejects malformed or out-of-range timing; version-1/2 proposals cannot introduce this field. Scheduled
+learning-aware calls opt into v3; earlier callers keep their existing contracts. The accepted interval
+and reason are saved atomically with successful fresh completion and replay on recovery. Expired or
+superseded reviews cannot alter cadence. Earlier checkpoints/events can still advance the due time;
+data expiry, budget and provider availability can defer it. No freshness extension, change to protective
+checks, operating checkpoint defaults or API activation follows. After this increment, the operator
+directs work back to Step 3's prepared market-hours connected value check.
+
 ### AI unavailable or budget exhausted — September 27 decision
 
 The operator accepts the MVP fallback when the AI cannot review because the provider is unavailable

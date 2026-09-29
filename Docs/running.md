@@ -1074,8 +1074,10 @@ resubmitted. Call-journal reservations remain untouched; a new successful fresh 
 Advance explicitly to today's reviewed session after the old call has completed or recovered; this
 retains pending evidence and does not replay missed sessions. Full history is bounded at 32 MB; qualify
 retention, backups and sustained I/O before production use. Shared spending/learning storage rules
-remain unchanged. No production schedule, model-proposed interval contract, automatic protection
-integration or operating account/input binding is installed.
+remain unchanged. The scheduled reviewer uses the source-tested version-3 interval/reason contract;
+earlier direct version-1/2 reviews retain their contracts. Accepted timing is saved with completion,
+not as a separate write that could survive a failed completion. No production schedule, automatic
+protection integration or operating account/input binding is installed.
 
 **Project:** `Oracle`
 **Entry point:** `Oracle/Program.cs`

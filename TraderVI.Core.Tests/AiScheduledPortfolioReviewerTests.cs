@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Oracle;
@@ -40,7 +41,7 @@ public sealed class AiScheduledPortfolioReviewerTests : IDisposable
     {
         var packet = JsonSerializer.Deserialize<AiPortfolioPacket>(request.UserPrompt, Json)!;
         var proposal = new AiPortfolioProposal(packet.PacketId, "wait", null, null, "Synthetic wait",
-            ["fixture"], [], "New evidence", [], []);
+            ["fixture"], [], "New evidence", [], [], packet.SchemaVersion == 3 ? new(15, "Synthetic quiet conditions") : null);
         return new(JsonSerializer.Serialize(proposal, Json), new(0, 0, 0), TimeSpan.Zero, "synthetic", "synthetic");
     }
 
@@ -297,6 +298,111 @@ public sealed class AiScheduledPortfolioReviewerTests : IDisposable
         clock.Now = clock.Now.AddMinutes(1);
         await Assert.ThrowsAsync<InvalidDataException>(() => runner.TickAsync());
         Assert.Equal(1, client.Calls);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(15)]
+    public async Task ValidModelTimingSetsNextReviewAndRetainsReason(int minutes)
+    {
+        using var journal = Journal();
+        var client = new Client((r, _) =>
+        {
+            Assert.Equal("tradervi_portfolio_proposal_v3", r.OutputSchema!.Name);
+            Assert.Contains("next_review", r.OutputSchema.Schema.GetProperty("required").EnumerateArray().Select(x => x.GetString()));
+            var answer = Response(r);
+            var json = JsonNode.Parse(answer.Text)!;
+            json["next_review"]!["minutes"] = minutes;
+            json["next_review"]!["reason"] = "Synthetic changing conditions";
+            return Task.FromResult(answer with { Text = json.ToJsonString() });
+        });
+        var result = await Runner(journal, client).TickAsync();
+        Assert.NotNull(result.Proposal);
+        Assert.Equal(minutes, result.Proposal.NextReview!.Minutes);
+        Assert.Equal(TimeSpan.FromMinutes(minutes), result.Schedule.Interval.Applied);
+        Assert.Equal("Synthetic changing conditions", result.Schedule.Interval.Reason);
+        Assert.Equal(clock.Now.AddMinutes(minutes), result.Schedule.NextReviewUtc);
+        Assert.Equal(3, journal.ReadReview(result.Proposal.PacketId).Packet.SchemaVersion);
+        var coordinator = new AiPortfolioExecutionCoordinator(journal, TimeSpan.FromMinutes(5), clock);
+        Assert.Equal("Current", coordinator.Prepare(result.Proposal.PacketId, "paper", null).LearningCheck.Status);
+    }
+
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("null")]
+    [InlineData("zero")]
+    [InlineData("negative")]
+    [InlineData("too-long")]
+    [InlineData("fraction")]
+    [InlineData("blank-reason")]
+    [InlineData("long-reason")]
+    [InlineData("extra-field")]
+    [InlineData("duplicate")]
+    public async Task InvalidModelTimingRejectsReviewWithoutChangingSchedule(string fault)
+    {
+        using var journal = Journal();
+        var client = new Client((r, _) =>
+        {
+            var answer = Response(r);
+            var json = JsonNode.Parse(answer.Text)!.AsObject();
+            switch (fault)
+            {
+                case "missing": json.Remove("next_review"); break;
+                case "null": json["next_review"] = null; break;
+                case "zero": json["next_review"]!["minutes"] = 0; break;
+                case "negative": json["next_review"]!["minutes"] = -1; break;
+                case "too-long": json["next_review"]!["minutes"] = 16; break;
+                case "fraction": json["next_review"]!["minutes"] = 1.5; break;
+                case "blank-reason": json["next_review"]!["reason"] = " "; break;
+                case "long-reason": json["next_review"]!["reason"] = new string('x', 1001); break;
+                case "extra-field": json["next_review"]!["enable_trading"] = true; break;
+            }
+            var text = json.ToJsonString();
+            if (fault == "duplicate") text = text.Replace("\"minutes\":15", "\"minutes\":15,\"minutes\":1");
+            return Task.FromResult(answer with { Text = text });
+        });
+        var result = await Runner(journal, client).TickAsync();
+        Assert.Null(result.Proposal);
+        Assert.Equal("DataUnavailable", result.Schedule.ReviewBlock);
+        Assert.Equal(TimeSpan.FromMinutes(15), result.Schedule.Interval.Applied);
+        Assert.Equal("Rejected", journal.ReadReview(result.Schedule.LastAttempt!.Request.Id).Status);
+    }
+
+    [Fact]
+    public async Task LegacyReviewsRemainUntimedAndCannotSmuggleTimingIntoOldContract()
+    {
+        using var journal = Journal();
+        var client = new Client((r, _) =>
+        {
+            Assert.Equal("tradervi_portfolio_proposal_v2", r.OutputSchema!.Name);
+            return Task.FromResult(Response(r));
+        });
+        var supervisor = new AiLearningAwareSupervisor(new AiPortfolioReviewer(client, clock), journal, TimeSpan.FromMinutes(5), clock);
+        var saved = await supervisor.ReviewWithEvidenceAsync(Packet(), "paper");
+        Assert.Null(saved.Proposal!.NextReview);
+        Assert.Throws<InvalidDataException>(() => AiPortfolioReviewer.ParseAndValidate(JsonSerializer.Serialize(
+            saved.Proposal with { NextReview = new(1, "Not supported by v2") }, Json), saved.Packet));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExpiredOrSupersededReviewCannotChangeCadence(bool superseded)
+    {
+        using var journal = Journal();
+        var client = new Client((r, _) =>
+        {
+            var answer = Response(r);
+            var json = JsonNode.Parse(answer.Text)!;
+            json["next_review"]!["minutes"] = 1;
+            if (superseded) scheduler.RequestEvent(AiReviewSchedulerTests.Event("changed", clock.Now), clock.Now);
+            else clock.Now = clock.Now.AddMinutes(6);
+            return Task.FromResult(answer with { Text = json.ToJsonString() });
+        });
+        var result = await Runner(journal, client).TickAsync();
+        Assert.Null(result.Proposal);
+        Assert.Equal(TimeSpan.FromMinutes(15), result.Schedule.Interval.Applied);
     }
 
     private sealed class Clock(DateTimeOffset now) : TimeProvider

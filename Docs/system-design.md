@@ -138,8 +138,11 @@ Reopening requires fresh review, even after earlier success. Explicit session ad
 events/failures and cadence while resetting only scheduled daily checkpoints; missed days do not create
 catch-up model calls. Event-history faults survive session changes. Missing/corrupt/pending storage or
 a failed save blocks scheduling. Full history has a 32 MB limit; protected storage, retention, sustained
-performance and production account/input binding remain unqualified. Model-proposed timing and
-production composition remain pending; operating checkpoint times have no implicit defaults.
+performance and production account/input binding remain unqualified. Scheduled calls now request a
+version-3 proposal with a 1–15 whole-minute interval and bounded reason. Application validation rejects
+invalid timing, and successful fresh completion saves its accepted interval in the same transition.
+Newer pending events or stale results suppress interval changes. Version-1/2 proposals remain supported
+without timing fields. Production composition remains pending; daily checkpoint times have no implicit defaults.
 Collection, independent protective checks and paid review cadence stay distinct. Faster AI calls do
 not create fresher source bars.
 Independent deterministic protection consumes every fresh verified whole-portfolio valuation,

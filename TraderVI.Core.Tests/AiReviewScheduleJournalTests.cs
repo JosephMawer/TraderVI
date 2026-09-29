@@ -293,6 +293,40 @@ public sealed class AiReviewScheduleJournalTests : IDisposable
         Assert.Throws<InvalidDataException>(() => New(Open.AddMinutes(1), calendar: new ChangedCalendar()));
     }
 
+    [Fact]
+    public void ModelTimingAndSuccessfulCompletionAreOneDurableTransition()
+    {
+        using (var journal = New(Open, true))
+        {
+            var request = journal.TryBegin(Open)!;
+            journal.Complete(request.Id, Open, AiReviewOutcome.Reviewed, Close, new(3, "Synthetic nearer opportunity"));
+            using var envelope = JsonDocument.Parse(File.ReadAllText(PathName));
+            using var saved = JsonDocument.Parse(envelope.RootElement.GetProperty("Payload").GetString()!);
+            var commands = saved.RootElement.GetProperty("Commands");
+            Assert.Equal(2, commands.GetArrayLength());
+            Assert.Equal(3, commands[1].GetProperty("NextReview").GetProperty("Minutes").GetInt32());
+        }
+        using var reopened = New(Open.AddSeconds(30));
+        Assert.Equal(TimeSpan.FromMinutes(3), reopened.Read(Open.AddSeconds(30)).Interval.Applied);
+        Assert.Equal("Synthetic nearer opportunity", reopened.Read(Open.AddSeconds(30)).Interval.Reason);
+        Assert.Equal(Open.AddMinutes(3), reopened.Read(Open.AddSeconds(30)).NextReviewUtc);
+        Assert.Equal("FreshReviewRequired", reopened.Read(Open.AddSeconds(30)).ReviewBlock);
+        reopened.RequestEvent(AiReviewSchedulerTests.Event("earlier", Open.AddSeconds(30)), Open.AddSeconds(30));
+        Assert.Null(reopened.TryBegin(Open.AddSeconds(59)));
+        Assert.NotNull(reopened.TryBegin(Open.AddMinutes(1)));
+    }
+
+    [Fact]
+    public void ScheduledCheckpointStillBringsLongModelIntervalForward()
+    {
+        using var journal = New(Open, true);
+        var at = Open.AddMinutes(190);
+        var request = journal.TryBegin(at)!;
+        journal.Complete(request.Id, at, AiReviewOutcome.Reviewed, Close, new(15, "Quiet conditions"));
+        Assert.Equal(Open.AddMinutes(195), journal.Read(at).NextReviewUtc);
+        Assert.Contains("MidSession", journal.TryBegin(Open.AddMinutes(195))!.Reasons);
+    }
+
     private sealed class ChangedCalendar : ITsxSessionCalendar
     {
         private readonly ITsxSessionCalendar original = AiReviewSchedulerTests.Calendar();
