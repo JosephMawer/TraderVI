@@ -859,6 +859,34 @@ independent AI caller for each event. No additional trigger is selected here. Ex
 duplicate handling, concurrency and checkpoint priority remain host implementation/qualification
 details. This is agreed Step 2 behavior; runtime integration and tests remain pending in Step 7.
 
+### Review scheduling source increment — September 28
+
+The operator authorizes starting Step 7 independently while Step 3's native fresh-price check awaits
+a regular session. `AiReviewScheduler` implements one reviewed session in memory. Exact checkpoint
+times remain open and must be supplied; no operating defaults are selected. Requested intervals and
+reasons are retained with the applied 1–15-minute bound. This is an explicit input hook; the model's
+structured next-review proposal remains to be integrated. One active request combines due checkpoints
+and identified initial events. Exact duplicates do not repeat work; changed event identity or bounded
+event-history overflow requires attention. Late checkpoints share one current review, not historical
+catch-up calls. Events arriving during a call remain pending. At least one minute separates a completed
+attempt from the next admission, including slow preparation, failure and cancellation.
+
+`AiScheduledPortfolioReviewer` invokes the existing learning-aware supervisor on explicit ticks.
+Trigger evidence/reasons and interval choices join the saved private input packet. The supervisor
+also returns its saved enriched evidence so review freshness cannot outlast a consulted lesson.
+Spending stays in the existing shared call journal; there is no daily pacing, separate allowance or
+spending reset. Failed/stale/cancelled reviews keep a review block; a fresh successful result is needed
+to clear that block. Pending newer events suppress returning the older proposal. This status does not
+clear independent account/risk holds or grant execution authority. Collection/protection has no dependency
+on this paid-review adapter.
+
+This is an offline source increment, not an operating host. Scheduling events, timing and fallback
+state are not durable yet; do not recreate the scheduler to bypass them on restart/session change.
+Durable recovery, exact managed-account binding, current-source rechecks, automatic independent
+protection, production composition and execution enforcement remain Step 7/4/5 work. Existing
+spending/learning journal recovery is unchanged. No external API, database, restart or trading action
+is authorized by this source implementation. Validation is recorded in project status.
+
 ### AI unavailable or budget exhausted — September 27 decision
 
 The operator accepts the MVP fallback when the AI cannot review because the provider is unavailable

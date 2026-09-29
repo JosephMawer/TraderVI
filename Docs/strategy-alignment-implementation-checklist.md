@@ -98,7 +98,8 @@ This checklist grants no deployment, paid API call or live-order authority.
 
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
-All three milestones remain pending. Our immediate work is still Step 3.
+All three milestones remain pending. Step 7's offline review scheduler is now built/tested while
+Step 3's connected fresh-price verification waits for a regular market session.
 
 | Milestone | What you can use | Checklist work needed |
 |---|---|---|
@@ -108,7 +109,8 @@ All three milestones remain pending. Our immediate work is still Step 3.
 
 Milestone 1 is the next visible delivery target. Lesson criteria remain deferred until Step 6 needs
 them. Real-account prerequisites remain required for Milestone 3; a paper milestone does not check
-off mixed paper/live items in full. Preserve the step order and individual completion marks below.
+off mixed paper/live items in full. Keep dependencies and individual completion marks below; independent
+runtime/display development can proceed while native input qualification remains open.
 
 #### Ten-step implementation checklist
 
@@ -127,7 +129,7 @@ off mixed paper/live items in full. Preserve the step order and individual compl
    - [x] Agree to preserve holdings, tighter stops, risk history and attempts across days, cash periods and portfolio switches.
    - [ ] Define useful-lesson criteria **only when Step 6 needs them**; deliberately deferred, not a coding blocker.
 
-3. **Connect reliable data — in progress; current focus.**
+3. **Connect reliable data — in progress; regular-session verification pending.**
 
    - [x] Build the maintained portfolio catalogue and map exact strategy, model and gate versions.
    - [x] Connect saved Delphi signals, engine rules and account-specific activity to dated AI input packets.
@@ -172,10 +174,13 @@ off mixed paper/live items in full. Preserve the step order and individual compl
 7. **Runtime host — partly prepared.**
 
    - [x] Build and test local risk-journal persistence and recovery.
+   - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
+   - [x] Connect explicit test ticks to the existing learning-aware reviewer; retain trigger evidence and test budget failures, stale results and fresh-review recovery.
+   - [ ] Persist/recover scheduling state, pending events and review blocks across restarts/session changes before enabling an automatic host.
+   - [ ] Connect model-proposed review intervals and select operating checkpoint times; current timing is explicitly supplied, with no production defaults.
    - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
-   - [ ] Schedule session-start, mid-session and pre-close reviews, plus adaptive one-to-fifteen-minute and event-driven reviews.
-   - [ ] Combine nearby events; preserve the one-minute review minimum and keep protection independent of paid reviews.
-   - [ ] Handle outages, exhausted budgets and restart recovery; resume new risk only after fresh review and all other checks.
+   - [ ] Verify scheduled/event reviews in the connected host; keep protection independent of paid reviews and their failures.
+   - [ ] Enforce outage/budget review blocks in the execution path; resume new risk only after fresh review and all other checks.
    - [ ] Protect storage and qualify backups, retention, performance, concurrent access and reviewed source-conflict recovery; schedule restart-safe learning reviews.
    - [ ] Support explicit budget increases without resetting spending; remove the current cap restriction only through that reviewed flow.
    - [ ] Verify API access, latency and actual costs through a bounded separately authorized call, including currency/tax headroom.

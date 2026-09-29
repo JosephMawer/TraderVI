@@ -120,15 +120,20 @@ costs/history plus the same round peak/reference/limit, attempts and review hold
 ownership once at the recorded activation boundary and log the switch reason/versions/outcome.
 An all-cash transition does not reset risk. AI replacement and eligibility mapping remain pending.
 
-Planned attention model (September 27): three scheduled rule consults coexist with ordinary Delphi
-Live intraday monitoring and budgeted AI reviews of its evidence. The operator requests adaptive
-AI attention frequency; a host-validated next-review proposal is the recommended MVP, not implemented
-composition. Collection/bar timing, independent protective checks and paid model review cadence are
-distinct. Accepted scheduled AI review bounds are one to fifteen minutes during market hours, subject
-to budget. Initial earlier-review hooks are new qualifying entry signals, confirmed holding closures
-and risk-limit changes to permitted actions. One extensible request path combines events arriving
-together and applies the one-minute minimum and shared budget to current and future hooks.
-These hooks are not implemented. Faster AI calls do not create fresher source bars.
+Attention model: three scheduled rule consults coexist with ordinary Delphi Live monitoring and
+budgeted reviews. `AiReviewScheduler` now implements one reviewed session in memory, with explicitly
+supplied midpoint/pre-close timing, bounded 1–15-minute attention intervals and one active review.
+Identified entry, confirmed-closure and risk-permission events combine; duplicates cannot create
+extra calls, and changed identities block scheduling. Missed checkpoints combine rather than replay
+old reviews. Attempts are separated by at least one minute after completion, including failures.
+`AiScheduledPortfolioReviewer` invokes the existing learning-aware supervisor on explicit caller ticks;
+the existing call journal still owns shared budget reservations. Trigger evidence and timing are saved
+in the review packet. Freshness includes the earliest packet/learning/session expiry. Events arriving
+during a call remain pending and suppress returning its older proposal. No timer or execution/protection
+callback exists. Model-proposed timing, durable scheduling/session rollover, account binding and
+production composition remain pending; operating checkpoint times have no implicit defaults.
+Collection, independent protective checks and paid review cadence stay distinct. Faster AI calls do
+not create fresher source bars.
 Independent deterministic protection consumes every fresh verified whole-portfolio valuation,
 including one-minute updates when qualified data exists, without waiting for an AI call. The app
 owns protection and required collection; slower AI attention cannot throttle them. Failed polls or
@@ -140,7 +145,8 @@ must preserve recorded spend; a path above the current below-CAD-100 source limi
 The agreed provider/budget fallback pauses
 new buys, additions and switches while monitoring and existing exits continue. Recovery requires
 a successful fresh review with all other limits satisfied; show the reason in the UI. This fallback
-and its detailed timeout/recovery handling are not implemented.
+has source-tested scheduler status handling; execution enforcement, durable scheduling and detailed
+timeout/recovery integration remain pending.
 
 Planned round lifecycle: persist sequence identity and attempt count across sessions/restarts, without
 morning refill or renumbering. A carried round 2 stays at 3%; its failure permits round 3 at 1%

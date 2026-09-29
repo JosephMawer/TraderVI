@@ -1044,7 +1044,7 @@ Running Oracle does not start it; Oracle's `--dry-run` can still contact the mod
 tests for offline validation:
 
 ```powershell
-dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests|FullyQualifiedName~AiLearningWorkflowTests'
+dotnet test TraderVI.Core.Tests/TraderVI.Core.Tests.csproj --no-restore --filter 'FullyQualifiedName~AiMomentumClientTests|FullyQualifiedName~AiPortfolioReviewerTests|FullyQualifiedName~AiLearningWorkflowTests|FullyQualifiedName~AiReviewSchedulerTests|FullyQualifiedName~AiScheduledPortfolioReviewerTests'
 ```
 
 Before any future AI Momentum composition, review billing and expiring currency/tax bounds, establish
@@ -1061,6 +1061,14 @@ do not mark model hypotheses as evaluated lessons. Both periodic refresh hooks n
 intervals. Neither hook creates a timer, runs a model or enables orders. A Current preparation check
 still requires fresh broker/strategy/risk validation at execution time. No production learning journal
 has been initialized, and outcome evaluation, host integration and recovery tooling remain unfinished.
+
+The source-only `AiReviewScheduler` and `AiScheduledPortfolioReviewer` accept explicit test/host ticks;
+construction starts nothing. Supply a reviewed calendar session and checkpoint timing explicitly.
+The scheduler has in-memory single-session state only: do not enable automatic ticks or recreate it
+on restart as a recovery mechanism. Durable pending events, last-attempt timing and review blocks,
+cross-session recovery and exact account binding must be implemented/qualified first. The shared
+spending and learning journals retain their existing ownership and recovery rules. No production
+schedule, model-proposed interval contract or automatic protection integration is installed.
 
 **Project:** `Oracle`
 **Entry point:** `Oracle/Program.cs`
