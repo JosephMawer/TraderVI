@@ -46,8 +46,8 @@ to Step 3: its connected check verifies cash-only persistence/recovery and the r
 Missing/old or differently timed held-stock bars still block invested values; trades after a price boundary
 must wait for newer prices. The tested TMX quote fields do not solve freshness: last sales can be old and
 bid/ask has no quote timestamp. An existing Wealthsimple quote query includes a source-time field;
-the September 30 authorized diagnostic is prepared/tested and its saved-login preflight passes.
-Run the two market-hours samples next. Decide any quote-based valuation
+the September 30 authorized samples cover all current holdings, with advancing timestamps and some
+changed prices. Review the quote timestamp's meaning and sufficiency with the operator next. Decide any quote-based valuation
 change separately, then qualify held-stock coverage and accepted invested-value persistence. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.

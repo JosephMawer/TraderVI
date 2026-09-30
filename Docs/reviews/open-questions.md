@@ -35,8 +35,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   a last-trade timestamp, not a quote timestamp. Source inspection finds Wealthsimple's existing
   manual quote query has bid/ask and `quotedAsOf`, with separate receipt time. Authorized September 30:
   two read-only samples of current paper-held symbols (at most 16), one minute apart, using the existing
-  signed-in connection. The prepared/tested diagnostic verifies the saved login; market-hours samples
-  remain pending after a correctly blocked pre-open run. This does not adopt broker quotes or select
+  signed-in connection. Both market-hours samples completed: all 11 held stocks returned bid/ask,
+  all timestamps advanced and seven pairs changed. Declared times are just before receipt, consistent
+  with on-demand snapshots; the test does not establish upstream freshness. Next establish the meaning
+  of `quotedAsOf` rather than treating response time as exchange time. Wealthsimple's
+  [public help](https://help.wealthsimple.com/hc/en-ca/articles/360056581314-Buy-a-stock-or-ETF)
+  describes real-time on-demand quotes but does not define this API field's freshness guarantee.
+  This does not adopt broker quotes or select
   bid, ask or midpoint as the portfolio mark. Source-time meaning, coverage, login dependency and any
   replacement for the same-minute valuation contract require review before integration.
 
