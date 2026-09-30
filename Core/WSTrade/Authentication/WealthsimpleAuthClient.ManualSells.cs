@@ -25,7 +25,9 @@ public sealed partial class WealthsimpleAuthClient
         return new(WealthsimpleReadStatus.Success, new(account, security, snapshot.Data, pending.Data, quote.Data));
     }
 
-    internal Task<WealthsimpleReadResult<ManualBuyQuote>> ReadManualSellQuoteAsync(WealthsimpleCanadianSecurity security, CancellationToken ct = default) =>
+    /// <summary>Read-only quote/eligibility check, also available to explicit diagnostics. No order,
+    /// account read or credential refresh. A successful response alone does not qualify valuation.</summary>
+    public Task<WealthsimpleReadResult<ManualBuyQuote>> ReadManualSellQuoteAsync(WealthsimpleCanadianSecurity security, CancellationToken ct = default) =>
         ReadManualOrderQuoteAsync(security, isSell: true, ct);
 
     public async Task<WealthsimpleReadResult<WealthsimpleMarketOrderState>> ReadManualSellOrderAsync(ManualSellIntent intent, CancellationToken ct = default)

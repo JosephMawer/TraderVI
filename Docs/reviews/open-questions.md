@@ -33,9 +33,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   The September 29 quote probe also rules out the examined TMX page fields as an immediate solution:
   current last-sale prices have no source timestamp and can match old trades; delayed bid/ask has only
   a last-trade timestamp, not a quote timestamp. Source inspection finds Wealthsimple's existing
-  manual quote query has bid/ask and `quotedAsOf`, with separate receipt time. Proposed next step:
+  manual quote query has bid/ask and `quotedAsOf`, with separate receipt time. Authorized September 30:
   two read-only samples of current paper-held symbols (at most 16), one minute apart, using the existing
-  signed-in connection; authenticated calls await approval. This does not adopt broker quotes or select
+  signed-in connection. The prepared/tested diagnostic verifies the saved login; market-hours samples
+  remain pending after a correctly blocked pre-open run. This does not adopt broker quotes or select
   bid, ask or midpoint as the portfolio mark. Source-time meaning, coverage, login dependency and any
   replacement for the same-minute valuation contract require review before integration.
 

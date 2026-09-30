@@ -28,6 +28,7 @@
     <Compile Include="..\Sandbox\Probes\TmxHeldPriceFreshnessProbe.cs" Link="Diagnostics\TmxHeldPriceFreshnessProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxMissingMinuteProbe.cs" Link="Diagnostics\TmxMissingMinuteProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxQuoteTimingProbe.cs" Link="Diagnostics\TmxQuoteTimingProbe.cs" />
+    <Compile Include="..\Sandbox\Probes\WealthsimpleQuoteTimingProbe.cs" Link="Diagnostics\WealthsimpleQuoteTimingProbe.cs" />
     <None Include="..\TraderDB\dbo\Tables\BrokerManagedSessionRevision.sql" Link="SqlRehearsal\BrokerManagedSessionRevision.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\TraderDB\dbo\Triggers\BrokerManagedSessionRevision_Immutable.sql" Link="SqlRehearsal\BrokerManagedSessionRevision_Immutable.sql" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />

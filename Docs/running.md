@@ -1055,6 +1055,27 @@ No SQL/account/risk/order writes occur. Success means the diagnostic completed, 
 qualified for valuation. Last-trade timestamps do not date bid/ask; receipt time cannot refresh an old
 price. The 120-second trade-age comparison is diagnostic only. Existing valuation rules remain intact.
 
+For the separately authorized Wealthsimple comparison, use the existing saved Windows login:
+
+```powershell
+dotnet run --project Sandbox -- wealthsimple-quote-timing
+```
+
+This verifies the protected saved session without refreshing or saving it, then requires a reviewed
+regular-session window with at least five minutes remaining. It reads current paper holdings through
+existing SQL readers, caps them at 16 distinct symbols, resolves each once and takes two quote samples
+separated by a 60-second wait. At most 49 logical broker reads including verification; the existing
+transport allows at most one DPoP nonce retry per read (98 HTTP attempts). Each target's lookup/quote
+work has a 15-second deadline and the complete run has five minutes. No broker balances, pending
+orders or order history are read; no orders, SQL writes, token refresh or credential persistence occur.
+A changed saved login invalidates the diagnostic. The quote reader retains existing Canadian-equity,
+sell-eligibility and identity checks; an unsupported target does not silently switch providers.
+Anonymous output reports source/receipt times, quote availability, timestamp advancement and whether
+prices changed, without prices or account identifiers. Keep logs private. Completion only establishes
+the reported sample; timestamp meaning, continuous coverage and portfolio valuation remain unqualified.
+The 120-second comparison is diagnostic, not a chosen production limit. Pre-open verification may
+confirm authentication but requests zero quotes and exits unsuccessfully as `OutsideRegularSession`.
+
 ## Oracle — LLM narration
 
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
