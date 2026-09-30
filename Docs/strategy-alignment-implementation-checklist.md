@@ -150,7 +150,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Inspect existing connections: Wealthsimple's manual quote reader includes bid/ask and a source-time field; portfolio-price suitability is unverified.
    - [x] Obtain approval, prepare/test the bounded broker quote diagnostic and verify its saved login; pre-open checks request no quotes.
    - [x] Run both market-hours broker samples; record complete held-stock quote coverage, declared ages and changed times/prices. [Results and limits](project-status.md#latest-operational-evidence).
-   - [ ] Review what the broker timestamp establishes about price freshness and agree the valuation method with the operator before adoption.
+   - [x] Check public timestamp documentation: real-time snapshots are described, but the exact API field meaning remains undocumented in the reviewed sources.
+   - [ ] Agree whether to seek provider clarification or consider limited paper use with the uncertainty; agree valuation rules separately before adoption.
    - [ ] Identify an available source with verifiable current price times; review any required valuation-contract change before adoption.
    - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
    - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.

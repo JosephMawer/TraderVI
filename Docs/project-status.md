@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3 verifies account receipt timing and cash-only persistence; invested price coverage remains unqualified. The tested TMX quote fields do not solve freshness. The authorized Wealthsimple diagnostic returns bid/ask for all 11 held stocks in both market-hours samples; every timestamp advances and seven stocks' prices change. This identifies a candidate, not a qualified valuation source. Next review what `quotedAsOf` establishes about price freshness and agree any quote-based valuation method with the operator. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
+**Current record:** September 30, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3 verifies account receipt timing and cash-only persistence; invested price coverage remains unqualified. The tested TMX quote fields do not solve freshness. The authorized Wealthsimple diagnostic returns bid/ask for all 11 held stocks in both market-hours samples; every timestamp advances and seven stocks' prices change. This identifies a candidate, not a qualified valuation source. Public documentation describes real-time snapshots but the reviewed sources do not define `quotedAsOf`. Next ask the operator whether to seek provider clarification or consider paper-only use with that uncertainty; no valuation method or source adoption is agreed. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -36,6 +36,17 @@ manual-order reader also checks buy/sell eligibility; it is not a general portfo
 Current TMX-backed recommendation quotes carry receipt time only. September 30's authorized native
 comparison is recorded below. No valuation-policy change or source adoption follows from inspection
 or diagnostic completion; timestamp meaning and operating coverage remain open.
+
+**Documentation review, September 30:** official-domain searches for `quotedAsOf`, `quoteV2`,
+quote timestamps and quoted-as-of wording found no relevant public field definition. The reviewed
+[buying help](https://help.wealthsimple.com/hc/en-ca/articles/360056581314-Buy-a-stock-or-ETF)
+describes real-time on-demand quotes; the current
+[execution disclosure, Use of Market Data](https://www.wealthsimple.com/en-ca/legal/best-execution-disclosure)
+describes web snapshots of real-time quotes. Neither establishes whether this API timestamp represents
+an exchange update, provider observation or response creation, or whether it advances if upstream data
+is stale. This is a bounded unsuccessful definition lookup, not proof no private specification exists.
+No new broker calls, support messages or code/valuation changes were made. Operator decision pending;
+existing input qualification requirements remain in place.
 
 ## Latest operational evidence
 

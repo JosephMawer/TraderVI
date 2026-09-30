@@ -37,10 +37,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
   two read-only samples of current paper-held symbols (at most 16), one minute apart, using the existing
   signed-in connection. Both market-hours samples completed: all 11 held stocks returned bid/ask,
   all timestamps advanced and seven pairs changed. Declared times are just before receipt, consistent
-  with on-demand snapshots; the test does not establish upstream freshness. Next establish the meaning
-  of `quotedAsOf` rather than treating response time as exchange time. Wealthsimple's
+  with on-demand snapshots; the test does not establish upstream freshness. September 30's official-domain
+  searches and review of current help/disclosure pages found no public definition of `quotedAsOf`.
+  Wealthsimple's
   [public help](https://help.wealthsimple.com/hc/en-ca/articles/360056581314-Buy-a-stock-or-ETF)
-  describes real-time on-demand quotes but does not define this API field's freshness guarantee.
+  describes real-time on-demand quotes and its current
+  [execution disclosure](https://www.wealthsimple.com/en-ca/legal/best-execution-disclosure)
+  describes web snapshots, but neither defines this field's freshness guarantee. Ask the operator
+  whether to seek provider clarification or consider explicitly limited paper use; neither is agreed.
+  A clarification question would be: does `quoteV2.quotedAsOf` date the underlying bid/ask observation
+  or just the generated snapshot, and can it advance while upstream quotes are stale? No inquiry was sent.
   This does not adopt broker quotes or select
   bid, ask or midpoint as the portfolio mark. Source-time meaning, coverage, login dependency and any
   replacement for the same-minute valuation contract require review before integration.
