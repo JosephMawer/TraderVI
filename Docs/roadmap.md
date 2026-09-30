@@ -159,7 +159,8 @@ or completed replacement of the execution work below. See the
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
    The [latest nightly check](project-status.md#latest-operational-evidence) confirms overnight
-   completion; Athena's historical-input warning and full-session qualification remain separate follow-ups.
+   completion; investigate the two missing daily endpoints and Athena's historical-input warning
+   separately from full-session qualification.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,
    causal fills, Session-2 rotation and risk exits across clean Shadow sessions; exclude Sep 4 shakedown
