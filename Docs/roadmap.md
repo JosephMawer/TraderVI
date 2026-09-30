@@ -48,8 +48,9 @@ must wait for newer prices. The tested TMX quote fields do not solve freshness: 
 bid/ask has no quote timestamp. An existing Wealthsimple quote query includes a source-time field;
 the September 30 authorized samples cover all current holdings, with advancing timestamps and some
 changed prices. Public-documentation review finds real-time snapshot descriptions but no definition
-of the API timestamp. Ask the operator about provider clarification versus explicitly limited paper
-use before adopting this evidence. Decide any quote-based valuation
+of the API timestamp. The operator accepts paper-only evaluation with that uncertainty explicit;
+provider clarification is no longer a prerequisite for paper work. Agree the bid-versus-midpoint
+valuation choice next. Decide any quote-based valuation
 change separately, then qualify held-stock coverage and accepted invested-value persistence. Operating checkpoint
 times, qualified host composition and the review display remain later work; storage/operational
 qualification is still required.

@@ -46,6 +46,10 @@ public sealed partial class WealthsimpleAuthClient
             var regular = RequiredArray(Required(data, "marketMetadata", "currentTradeDay"), "regular").ToArray();
             // The captured Canadian day has one regular session. Unknown/split shapes fail closed.
             if (regular.Length != 1) throw Invalid();
+            // quotedAsOf is broker-reported time, not a verified exchange-update timestamp. Public
+            // documentation does not establish whether it advances while upstream prices are stale.
+            // ADR-0087 permits paper-only evaluation with this uncertainty explicit; keep receipt
+            // time separate and do not infer live risk-feed qualification from this field's age.
             return new ManualBuyQuote(Number(Required(quote, "ask")), Number(Required(quote, "bid")),
                 Timestamp(quote, "quotedAsOf") ?? throw Invalid(), RequiredText(quote, "marketStatus"),
                 Timestamp(regular[0], "start") ?? throw Invalid(), Timestamp(regular[0], "end") ?? throw Invalid(), clock.GetUtcNow());

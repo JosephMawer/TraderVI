@@ -43,13 +43,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   [public help](https://help.wealthsimple.com/hc/en-ca/articles/360056581314-Buy-a-stock-or-ETF)
   describes real-time on-demand quotes and its current
   [execution disclosure](https://www.wealthsimple.com/en-ca/legal/best-execution-disclosure)
-  describes web snapshots, but neither defines this field's freshness guarantee. Ask the operator
-  whether to seek provider clarification or consider explicitly limited paper use; neither is agreed.
-  A clarification question would be: does `quoteV2.quotedAsOf` date the underlying bid/ask observation
-  or just the generated snapshot, and can it advance while upstream quotes are stale? No inquiry was sent.
-  This does not adopt broker quotes or select
-  bid, ask or midpoint as the portfolio mark. Source-time meaning, coverage, login dependency and any
-  replacement for the same-minute valuation contract require review before integration.
+  describes web snapshots, but neither defines this field's freshness guarantee. The operator now
+  accepts paper-only evaluation with this uncertainty explicit (ADR-0087); provider clarification is
+  no longer a prerequisite for paper progress, and no inquiry was sent. A comment at the parser records
+  the limitation; future quote valuation evidence must retain it and separate source/receipt times.
+  The remaining immediate choice is bid versus midpoint for paper holdings; bid is recommended as a
+  cautious selling-value estimate, with the spread affecting reported value and no guaranteed fill.
+  Quote timing rules, coverage and login dependency remain integration work. Live qualification is
+  not established and existing minute-bar valuation behavior is unchanged.
 
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous

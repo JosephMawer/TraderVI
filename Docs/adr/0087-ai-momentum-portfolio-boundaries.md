@@ -208,6 +208,16 @@ age defaults are selected. This reader produces a prepared value; the subsequent
 below connects it to risk assessment. Existing engine marks, account records and stops are unchanged.
 Native concurrency/feed qualification and scheduling remain open.
 
+**Broker quote uncertainty accepted for paper evaluation — September 30:** the operator accepts
+continuing paper-only valuation work using Wealthsimple quotes while keeping the undocumented meaning
+of `quoteV2.quotedAsOf` explicit. Provider clarification is not a prerequisite for this paper work.
+Preserve the broker-reported time separately from receipt time; neither a recent timestamp nor a
+changing quote proves a known upstream market-data age. Document this limitation at the parser and
+retain it in any later quote valuation evidence. This acceptance does not qualify live risk inputs,
+select bid/ask/midpoint, set operating age limits or alter existing minute-bar rules. The paper quote
+valuation method still needs agreement before implementation; preserve cash/holding reconciliation,
+saved holds, risk history and independent protection. No broker-support inquiry is required or sent.
+
 **Durable faster-value integration — September 28 implementation:** `PaperAiFastRiskMonitor` rechecks
 the complete retained evidence, ownership, arithmetic, source holds and explicit age bounds before
 using the shared journal writer. Preserve generation, fixed capital, exact strategy and completed

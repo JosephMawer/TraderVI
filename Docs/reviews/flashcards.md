@@ -23,6 +23,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does Wealthsimple's quote timestamp prove when the exchange price last changed?
+
+A: No. Its precise meaning is undocumented in the reviewed public sources. Paper evaluation may
+proceed with that uncertainty explicit, preserving broker and receipt times separately; this does
+not qualify the feed for live risk checks.
+Source: ADR-0087. Tags: architecture, risk-management.
+
 ### Q: Can two portfolios sharing a Delphi Live policy share buy confirmation?
 
 A: No. They may share market judgments, but each account keeps its own holding, pending-action and

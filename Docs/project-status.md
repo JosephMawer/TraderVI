@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3 verifies account receipt timing and cash-only persistence; invested price coverage remains unqualified. The tested TMX quote fields do not solve freshness. The authorized Wealthsimple diagnostic returns bid/ask for all 11 held stocks in both market-hours samples; every timestamp advances and seven stocks' prices change. This identifies a candidate, not a qualified valuation source. Public documentation describes real-time snapshots but the reviewed sources do not define `quotedAsOf`. Next ask the operator whether to seek provider clarification or consider paper-only use with that uncertainty; no valuation method or source adoption is agreed. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
+**Current record:** September 30, 2026. Step 7's source-tested scheduler accepts validated AI requests for the next review and saves their timing/reason with successful completion. Step 3 verifies account receipt timing and cash-only persistence; invested price coverage remains unqualified. The tested TMX quote fields do not solve freshness. The authorized Wealthsimple diagnostic returns bid/ask for all 11 held stocks in both market-hours samples; every timestamp advances and seven stocks' prices change. This identifies a candidate, not a qualified valuation source. Public documentation describes real-time snapshots but the reviewed sources do not define `quotedAsOf`. The operator accepts paper-only evaluation with that uncertainty explicit; ADR-0087 and the quote parser now record it. Provider clarification no longer blocks paper progress. Next agree bid versus midpoint and the quote valuation contract before connecting risk calculations. Operating checkpoint times, qualified host composition and UI remain pending. No operating freshness policy or AI loop is enabled. The symbol-alias repair remains installed; the ten-step checklist retains the three delivery milestones.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -45,7 +45,7 @@ describes real-time on-demand quotes; the current
 describes web snapshots of real-time quotes. Neither establishes whether this API timestamp represents
 an exchange update, provider observation or response creation, or whether it advances if upstream data
 is stale. This is a bounded unsuccessful definition lookup, not proof no private specification exists.
-No new broker calls, support messages or code/valuation changes were made. Operator decision pending;
+The subsequent operator decision accepts paper-only evaluation with this uncertainty explicit. ADR-0087 and a parser comment record that scope; bid-versus-midpoint valuation remains pending. No new broker calls, support messages or executable behavior changes were made;
 existing input qualification requirements remain in place.
 
 ## Latest operational evidence
