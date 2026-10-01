@@ -1,6 +1,26 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. All 15 choices were visible but lacked fresh matching engine context, so none was eligible for selection. Next investigate those contexts before automatic scheduling. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is now accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. All 15 choices lacked today's adopted daily publication because nightly preparation failed before running any stage. The missing downstream dependency locks are repaired; an authorized operational rerun and publication/adoption recheck are next. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+
+**Missing engine context diagnosed, October 1, 10:18 Toronto:** read-only SQL shows all 12 active
+Shadow variants (Breakout/Continuation, three/five positions, per-strategy/Normal/PortfolioRulesOnly)
+at `NoValidDelphiRun`, with no adopted run or candidate decisions. The shared Delphi Live session also
+has `NoValidDelphiRun`, no frozen run and no daily source adoption. Its three portfolios have current
+session snapshots and 120 intraday evaluations through 10:15, so the intraday monitor is running;
+that evidence does not supply the missing daily publication. The latest saved CalibrationRun is
+Valid/OfficialPaper for September 30 using September 29 data, matching the active strategy. There
+is no October 1 run to adopt. This is not a ten-minute quote-age rejection or a request to relax gates.
+
+The scheduled 00:30 run `bd5eaf31-bb79-42fe-acfb-c0a07793519f` failed preparation at 00:30:30 with
+Hermes restore error NU1004 and zero operational stages. Commit `4231cae9` added UserSecrets 9.0.0 to
+Core and updated Core's lock, but omitted the Hermes/Delphi/Athena downstream locks. All three locks
+now include that same dependency and its five transitive packages; existing resolved packages and
+hashes are unchanged. The runner's isolated `-BuildOnly` check passed at 10:27 Toronto: all three
+locked restores and Release builds succeeded, executable/source verification passed and status is
+`Prepared` with zero operational stages. Existing CS8632/CS0162/CS0168/CS8321 compiler warnings
+remain; dependency auditing was disabled and no full-solution/SSDT validation is claimed. No operational rerun,
+SQL mutation, market collection, model call or app restart is part of this investigation. Evidence:
+the failed run's private nightly status/log and `artifacts/ai-engine-context-20261001/`.
 
 **First-review preparation, October 1:** explicit Preflight/Prepare/Review modes now support read-only
 inspection, new private history initialization and one scheduler admission through the app's coordinator.
@@ -31,7 +51,8 @@ broker/market collection, assignment or order occurred. Automatic reviews remain
 Validation: 76 focused client/reviewer/learning/coordinator tests pass; Sandbox builds. Existing CS8632
 warnings remain, with no new dependency audit or full-solution validation. Private evidence:
 `artifacts/ai-first-review-20261001/{prepare,review,review-diagnostic,review-compact,format-tests,format-build}.log`
-and `verification.json`. Next inspect missing engine contexts, then qualify desktop lifecycle/scheduling.
+and `verification.json`. The missing-context diagnosis above now supplies the immediate recovery step;
+desktop lifecycle/scheduling remain unqualified.
 
 **API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets
 configuration directly. The authorized single model-metadata GET returned HTTP 200 with the exact

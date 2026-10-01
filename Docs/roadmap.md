@@ -61,7 +61,11 @@ Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and t
 are implemented/tested but not activated. Private history is initialized under the accepted ten-minute
 first-test input age. The October 1 connected review saved `wait`, a two-minute next-review request and
 conservative token/cost accounting; SQL/local evidence matches. All 15 choices lacked fresh matching
-engine context. Next investigate that missing context before qualifying automatic desktop scheduling.
+engine context. Diagnosis: the nightly dependency restore failed before any stage, leaving today's
+daily publication absent across all portfolios. The three downstream dependency locks are repaired;
+isolated nightly restore/build validation passes without operational stages.
+Next obtain explicit operational-rerun authority, then verify today's publication and adoption before
+another AI review or automatic desktop scheduling.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
