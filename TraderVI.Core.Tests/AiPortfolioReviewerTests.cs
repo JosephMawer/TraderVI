@@ -32,6 +32,24 @@ public sealed class AiPortfolioReviewerTests
         Assert.Equal("breadth", result.RuleOverrides[0].RuleId);
     }
 
+    [Fact]
+    public async Task NestedEvidenceRetainsExactContentWithoutHtmlEscapeExpansion()
+    {
+        var packet = Packet();
+        string evidence = JsonSerializer.Serialize(new { Name = "é & <quoted>", Price = 12.34m, Nested = "\"stop\"\nC:\\prices" });
+        packet.Evidence[0] = packet.Evidence[0] with { Description = evidence };
+        var fake = new FakeClient(request =>
+        {
+            var restored = JsonSerializer.Deserialize<AiPortfolioPacket>(request.UserPrompt, Json)!;
+            Assert.Equal(evidence, restored.Evidence[0].Description);
+            Assert.Equal(JsonSerializer.Serialize(packet), JsonSerializer.Serialize(restored));
+            Assert.True(request.UserPrompt.Length < JsonSerializer.Serialize(packet, Json).Length);
+            Assert.Contains("\\\"Name\\\"", request.UserPrompt);
+            return Serialize(Proposal(packet));
+        });
+        await new AiPortfolioReviewer(fake, new Clock(Now)).ReviewAsync(packet);
+    }
+
     [Theory]
     [InlineData("hard-rule")]
     [InlineData("unknown-rule")]

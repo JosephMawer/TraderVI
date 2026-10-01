@@ -1220,6 +1220,15 @@ per USD accounting ceiling and a 1.20 tax/fee multiplier, valid through October 
 predictions, provider charges or a new budget. Existing shared spend and outstanding reservations
 must be preserved. Automatic operation still follows bounded connected qualification.
 
+## First connected review age — October 1 clarification
+
+The operator accepts a ten-minute maximum input age for the first review-only connected test,
+covering its saved portfolio valuation, catalogue and engine context configuration. Five-minute
+saved bars motivate the test allowance; timestamps, expiry and existing input/eligibility checks
+remain unchanged. This neither qualifies continuous operating ages nor changes trading protections.
+Keep automatic reviews disabled while qualifying the first result. Dated installation, native
+results and remaining input gaps belong in project status and the implementation checklist.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

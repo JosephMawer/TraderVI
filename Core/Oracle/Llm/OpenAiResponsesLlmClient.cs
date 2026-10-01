@@ -73,8 +73,15 @@ public sealed class OpenAiResponsesLlmClient : ILlmClient, IDisposable
         using (var count = Parse(countResponse))
         {
             if (!count.RootElement.TryGetProperty("input_tokens", out var value) ||
-                !value.TryGetInt32(out counted) || counted <= 0 || counted > policy.MaxInputTokens)
+                !value.TryGetInt32(out counted) || counted <= 0)
                 throw new InvalidDataException("AI input count is missing or exceeds its policy.");
+            if (counted > policy.MaxInputTokens)
+            {
+                var error = new InvalidDataException("AI input count exceeds its policy.");
+                error.Data["AiCountedInputTokens"] = counted;
+                error.Data["AiMaximumInputTokens"] = policy.MaxInputTokens;
+                throw error;
+            }
         }
         ct.ThrowIfCancellationRequested();
         journal.Reserve(callId, policy, clock.GetUtcNow(), requestJson, counted, outputLimit);

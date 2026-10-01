@@ -55,16 +55,18 @@ The Step 7 coordinator connects saved inputs, the existing reviewer and SQL deci
 source, preserving current input checks. Migration 042 is installed and native storage checks pass.
 The operator selected the existing Breakout 3 / PortfolioRulesOnlyV1 book as the first cash/holdings source.
 Local masked key entry and the starting-portfolio inspection query are prepared; the existing Oracle user-secrets key has been located (project status).
-Core now loads that credential, and the bounded model-metadata check succeeds; generation/costs remain unverified.
+Core loads that credential; metadata access and one connected generation with recorded usage are verified.
 The initial five-minute interval and open / open+3h / close-15m checkpoints are agreed.
 Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and the Core review host
-are implemented/tested but not activated. Explicit first-time setup and a one-review command are now
-built/tested; the October 1 market-hours preflight found the selected book with recent marks. Next
-resolve the proposed first-test input age, prepare initial private history, then qualify one connected
-review and its cost before automatic operation. Defer more permissive
+are implemented/tested but not activated. Private history is initialized under the accepted ten-minute
+first-test input age. The October 1 connected review saved `wait`, a two-minute next-review request and
+conservative token/cost accounting; SQL/local evidence matches. All 15 choices lacked fresh matching
+engine context. Next investigate that missing context before qualifying automatic desktop scheduling.
+One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
+Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
 The AI chooses its active portfolio; the existing switching/history contract remains in force.
-Normal held-stock coverage, invested-value persistence and storage/operational qualification remain
+Normal held-stock coverage, faster invested-value persistence and storage/operational qualification remain
 open Step 3 dependencies; preserve stale-input blocks rather than treating deferral as qualification.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared

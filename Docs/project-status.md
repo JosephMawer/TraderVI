@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Explicit first-time setup and a one-review command are now built/tested; the market-hours preflight found the selected book and recent saved marks. The proposed first-test input-age limit awaits the operator's answer; private initialization and paid generation remain pending. No AI trading or operating AI loop is enabled. The initial source remains Breakout 3 with skipped daily gates (PortfolioRulesOnlyV1). Core loads Oracle's existing user-secrets credential, with model-metadata access verified September 30; paid generation and installed desktop operation remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. All 15 choices were visible but lacked fresh matching engine context, so none was eligible for selection. Next investigate those contexts before automatic scheduling. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is now accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
 
 **First-review preparation, October 1:** explicit Preflight/Prepare/Review modes now support read-only
 inspection, new private history initialization and one scheduler admission through the app's coordinator.
@@ -11,10 +11,28 @@ preflight found 15 choices and the selected book with its one open holding and o
 valuation boundary was 09:50. This does not establish risk acceptance or complete source coverage.
 Validation: 80 focused setup/host/coordinator/scheduling tests pass. Private evidence:
 `artifacts/ai-first-review-20261001/{tests,preflight,build}.log`. Existing CS8632 warnings remain;
-no fresh dependency audit or full-solution validation. The proposed ten-minute first-test age limit
-is pending, not accepted. No production history/settings, paid API call, SQL write or app restart
-occurred in this increment. Next: resolve that limit, initialize qualified history and verify one saved
-AI review and its cost before enabling automatic operation.
+no fresh dependency audit or full-solution validation. The operator subsequently accepted the
+ten-minute bound for this review-only test (ADR-0087); it is not continuous-operation qualification.
+
+**Connected review, October 1, 10:00–10:09 Toronto:** installed the disabled private configuration
+and four journals beneath the protected operator-local root. The initial invested saved-Shadow book
+passed existing validation and risk initialization. Two pre-generation attempts saved Pending/Rejected
+records and stopped at token-count admission, with no spending reservations or generation. Nested
+JSON's HTML quote escaping inflated the prompt. JSON text serialization now avoids that expansion
+without dropping or changing any evidence; roundtrip regression coverage confirms exact content.
+The third attempt completed: `wait`, requested interval two minutes, 30,194 counted/used input tokens,
+441 output tokens, CAD 0.767 conservative settled accounting (initial reservation CAD 1.1179).
+There is exactly one model call; the original 32,000/4,096 token caps and CAD 90 monthly ceiling remain.
+This is local accounting under approved buffers, not a provider invoice or measured CAD card charge.
+Read-only verification confirms identical Pending/Reviewed packet JSON and exact SQL/local final
+record equality. All 15 candidates lack fresh matching engine context; selection eligibility remains
+unchanged. Price/engine age checks, historical attempts and risk state are preserved. No app restart,
+broker/market collection, assignment or order occurred. Automatic reviews remain disabled.
+Validation: 76 focused client/reviewer/learning/coordinator tests pass; Sandbox builds. Existing CS8632
+warnings remain, with no new dependency audit or full-solution validation. Private evidence:
+`artifacts/ai-first-review-20261001/{prepare,review,review-diagnostic,review-compact,format-tests,format-build}.log`
+and `verification.json`. Next inspect missing engine contexts, then qualify desktop lifecycle/scheduling.
+
 **API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets
 configuration directly. The authorized single model-metadata GET returned HTTP 200 with the exact
 requested GPT-6 Astra identity in 634 ms. No credential was printed/copied/changed; no generation,
@@ -36,9 +54,9 @@ evidence; no assignment, order or protection integration is added. Input-age lim
 Validation: 89 focused host/coordinator/scheduler tests pass, including cancellation, single ownership,
 missing-history rejection and cost expiry. WPF builds; existing CS8632 (Core/tests) and CS0168 (WPF)
 warnings remain. No fresh dependency audit, full-solution build or native desktop lifecycle test.
-No settings file, production journal or learned snapshot was created; the installed app was not
-restarted and no paid generation ran. Prepare explicit input ages and initial private history, then
-qualify one connected market-hours review before enabling automatic operation. Source still uses
+At this September 30 checkpoint no settings, production journal, learned snapshot or paid generation
+existed. October 1 setup and connected qualification are recorded above; the installed app has not
+been restarted. Source still uses
 saved Shadow book/bar readers; faster-price collection and invested coverage are not newly qualified.
 Evidence: `artifacts/ai-api-setup-20260930/host-tests.log`, `host-wpf-build.log`.
 
@@ -70,9 +88,10 @@ what has actually been implemented, installed or observed.
 
 **Delivery checkpoints, September 28:** the existing ten-step checklist now groups delivery into a
 [visible AI reviewer, complete tested paper trader, and supervised live trading](strategy-alignment-implementation-checklist.md#delivery-milestones).
-All three are pending; the reviewer is the next visible target. September 30 adds the tested Core
-coordinator and installed/native-tested SQL review storage; Step 3 verifies cash-only persistence and fixes receipt timing, while invested-price
-acceptance remains unverified.
+All three are pending; the reviewer is the next visible target. The October 1 connected reviewer and
+SQL readback now pass, with engine context and desktop scheduling/display still pending. Step 3 has
+cash-only persistence, corrected receipt timing and one accepted invested saved-Shadow book under
+the first-test bound; continuous held-stock coverage and faster-price qualification remain open.
 Duplicate AI/learning task lists are consolidated into that sequence; completed price investigations
 link to the dated evidence below. Milestone labels do not establish operational readiness.
 

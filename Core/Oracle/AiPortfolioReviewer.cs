@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Nodes;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Oracle.Llm;
@@ -46,6 +47,9 @@ public sealed class AiPortfolioReviewer
     private readonly TimeProvider clock;
     private static readonly JsonSerializerOptions Json = new()
     {
+        // This is JSON text for the model, never HTML. Preserve all string content while
+        // avoiding six-character HTML escapes for every quote in nested evidence JSON.
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true

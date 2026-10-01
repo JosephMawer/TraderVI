@@ -1,8 +1,10 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Db;
@@ -35,8 +37,25 @@ public sealed class AiPaperFirstReviewProbe : IProbe
                 var saved = AiPaperReviewSettings.Load(settingsPath) ?? throw new InvalidOperationException();
                 if (saved.Enabled) throw new InvalidOperationException("Stop automatic operation before a bounded check.");
                 AiScheduledReviewResult result;
-                using (var runtime = new AiPaperReviewRuntime(saved with { Enabled = true }))
+                // Print source locations only: rejected inputs/provider bodies must stay private.
+                Exception? lastDataFailure = null;
+                void DataFailure(object? sender, FirstChanceExceptionEventArgs args)
+                {
+                    if (args.Exception is not InvalidDataException || ReferenceEquals(lastDataFailure, args.Exception)) return;
+                    lastDataFailure = args.Exception;
+                    var frame = new StackTrace(args.Exception, true).GetFrame(0);
+                    Console.WriteLine($"Data check rejected at {frame?.GetMethod()?.DeclaringType?.FullName}, line {frame?.GetFileLineNumber()}.");
+                    if (args.Exception.Data["AiCountedInputTokens"] is int counted &&
+                        args.Exception.Data["AiMaximumInputTokens"] is int maximum)
+                        Console.WriteLine($"Input tokens: {counted}; configured maximum: {maximum}.");
+                }
+                AppDomain.CurrentDomain.FirstChanceException += DataFailure;
+                try
+                {
+                    using var runtime = new AiPaperReviewRuntime(saved with { Enabled = true });
                     result = await runtime.ReviewOnceAsync(ct);
+                }
+                finally { AppDomain.CurrentDomain.FirstChanceException -= DataFailure; }
                 Console.WriteLine($"UTC: {DateTimeOffset.UtcNow:O}; outcome: {result.Schedule.LastAttempt?.Outcome}; " +
                     $"block: {result.Schedule.ReviewBlock ?? "none"}; proposal returned: {result.Proposal is not null}; " +
                     $"action: {result.Proposal?.Action ?? "none"}; next interval minutes: {result.Schedule.Interval.Applied.TotalMinutes}.");

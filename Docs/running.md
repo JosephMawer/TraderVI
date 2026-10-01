@@ -1170,8 +1170,9 @@ The 30-second background tick checks the durable scheduler, with the agreed five
 interval and open/open+3h/close-15m checkpoints. Only one review runs at a time; paid-review cadence
 remains 1–15 minutes as requested by the AI. Closing WPF cancels/awaits the task and disposes its
 owners. Unexpected failures stop this owner; errors never dump packets or credentials to the UI.
-No private settings or production journals have been prepared yet. Qualify one bounded connected
-review before setting `Enabled` for automatic startup. This does not enable trading.
+Private settings/journals were prepared October 1 with `Enabled: false`; one connected review and
+SQL readback are verified. Investigate missing engine context and qualify the installed desktop
+lifecycle before enabling automatic startup. This does not enable trading.
 
 The explicit Sandbox command `ai-paper-first-review` has three modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the
@@ -1179,8 +1180,8 @@ reviewed calendar's absolute path for preflight/preparation. `Preflight` reads t
 BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It needs SQL access.
 `Prepare` additionally requires the operator-approved positive integer
 `TRADERVI_AI_FIRST_REVIEW_AGE_MINUTES`; it applies that age to risk, catalogue and engine observations,
-uses 15 sessions of context and a five-minute lesson consultation interval. The ten-minute age
-proposal remains unanswered as of October 1. Do not treat it as an approved default.
+uses 15 sessions of context and a five-minute lesson consultation interval. The operator accepted
+ten minutes for the first review on October 1. This does not qualify a continuous-operation default.
 
 Before Prepare, protect the stable private storage root for the operator and system administrators.
 Prepare validates the current opening book, creates all four journal pairs once, records the initial

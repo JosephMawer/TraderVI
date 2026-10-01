@@ -7,17 +7,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
-- **First connected review setup (September 30):** SQL review storage is installed and natively tested.
-  The operator selected Breakout 3 with skipped daily gates; a read-only lookup uniquely matches its
-  active PortfolioRulesOnlyV1 book. Oracle credential loading and requested-model metadata access
-  are verified; paid generation and costs remain unverified. Initial timing is now five minutes with
-  open / open+3h / close-15m checkpoints. First-review cost bounds are agreed (ADR-0087), and opt-in
-  app startup is source/tested. October 1 adds tested explicit setup and a one-review command; a
-  ten-minute first-test input-age limit is proposed and awaits the operator's answer. This would be
-  a review-only test setting, not continuous-operation qualification or changed trading protection.
-  Input ages, initial private history and connected qualification remain;
-  no paid call, new risk history or app activation followed installation. The AI still evaluates all
-  catalogue choices and may decide to switch under ADR-0087.
+- **First connected review follow-up (October 1):** the operator accepted the ten-minute age for
+  this review-only test. Protected history is initialized; one model review and exact SQL readback
+  are verified, with conservative usage/cost accounting. The AI returned `wait` and requested two
+  minutes. All 15 choices lacked fresh matching engine context; investigate the actual missing inputs
+  before proposing any eligibility changes or automatic activation. Continuous operating ages and
+  installed desktop lifecycle remain unqualified. Timing and first-review cost bounds remain agreed
+  (ADR-0087); automatic reviews and trading remain disabled. See project status for dated evidence.
 
 - **Review input gaps (September 30, deferred):** the operator prefers passing dated information
   and explicit missing pieces to the AI so minor gaps do not block useful assessment. Keep the

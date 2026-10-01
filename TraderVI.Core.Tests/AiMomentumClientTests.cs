@@ -272,7 +272,9 @@ public sealed class AiMomentumClientTests : IDisposable
         var handler = new FakeHandler((_, _) => Task.FromResult(Json("{\"input_tokens\":20001}")));
         using var http = new HttpClient(handler);
         using var client = new OpenAiResponsesLlmClient("synthetic", journal, Policy(), http, new Clock(Now));
-        await Assert.ThrowsAsync<InvalidDataException>(() => client.CompleteAsync(Request()));
+        var oversized = await Assert.ThrowsAsync<InvalidDataException>(() => client.CompleteAsync(Request()));
+        Assert.Equal(20001, oversized.Data["AiCountedInputTokens"]);
+        Assert.Equal(20000, oversized.Data["AiMaximumInputTokens"]);
         Assert.Empty(journal.ReadAll());
         using var expired = new OpenAiResponsesLlmClient("synthetic", journal, Policy() with { ValidUntilUtc = Now }, http, new Clock(Now));
         await Assert.ThrowsAsync<InvalidOperationException>(() => expired.CompleteAsync(Request()));

@@ -100,11 +100,13 @@ These milestones group the same ten steps below. Steps 7 and 8 have an initial v
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
 timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
-Opt-in desktop startup is built/tested and model metadata access is verified; private setup, an actual
-review and installed runtime verification remain pending.
+Opt-in desktop startup is built/tested. Private setup and one connected review with SQL readback and
+recorded usage are verified October 1. All choices lacked fresh matching engine context; investigate
+that gap next. Installed automatic runtime verification remains pending.
 Step 3's connected check verifies cash-only persistence/recovery;
-receipt timing is fixed and verified. Normal TMX held-stock coverage and invested-value acceptance
-remain unqualified. The possible Wealthsimple AI fallback is deferred and lower priority; return to
+receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
+test bound; normal held-stock coverage and faster-price qualification remain open. The possible
+Wealthsimple AI fallback is deferred and lower priority; return to
 the main reviewer delivery work while preserving existing stale-input blocks.
 
 | Milestone | What you can use | Checklist work needed |
@@ -135,7 +137,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Agree to preserve holdings, tighter stops, risk history and attempts across days, cash periods and portfolio switches.
    - [ ] Define useful-lesson criteria **only when Step 6 needs them**; deliberately deferred, not a coding blocker.
 
-3. **Connect reliable data — in progress; invested-price verification pending.**
+3. **Connect reliable data — in progress; continuous invested-price coverage pending.**
 
    - [x] Build the maintained portfolio catalogue and map exact strategy, model and gate versions.
    - [x] Connect saved Delphi signals, engine rules and account-specific activity to dated AI input packets.
@@ -157,6 +159,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Check public timestamp documentation: real-time snapshots are described, but the exact API field meaning remains undocumented in the reviewed sources.
    - [x] Clarify scope: TMX stays normal; accepted timestamp uncertainty applies only to possible limited AI fallback exploration.
    - [ ] **Deferred / lower priority:** consider Wealthsimple only for AI review of a held stock when its TMX input is delayed/unavailable; agree fallback behavior when resumed.
+   - [x] Accept and persist the selected invested Shadow book under the ten-minute first-review bound (October 1); continuous coverage is not qualified.
    - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
    - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.
@@ -200,9 +203,10 @@ runtime/display development can proceed while native input qualification remains
    - [x] Agree first-review cost accounting: CAD 90 monthly cap, 1.60 CAD/USD and 20% tax/fee headroom through October 31.
    - [x] Connect opt-in app startup/shutdown to a background review host with shared/scoped history ownership; test cancellation and failure handling.
    - [x] Build/test explicit first-time preparation and a one-review command that leaves automatic reviews off and preserves existing/interrupted history.
-   - [x] Inspect the selected book during market hours (October 1); recent saved marks are present, but risk acceptance is not yet verified.
-   - [ ] **Next:** resolve the proposed first-test input-age limit and initialize qualified private history; no initial settings or journals have been created.
-   - [ ] Qualify one connected review, saved SQL input/answer and recorded API cost before automatic operation.
+   - [x] Inspect the selected book during market hours (October 1); verify recent saved marks are present before initialization.
+   - [x] Accept the ten-minute first-test input age and initialize protected private history with automatic reviews disabled.
+   - [x] Complete one connected review, verify exact SQL/local input and answer, and record token usage and conservative cost (October 1).
+   - [ ] **Next:** investigate why all 15 choices lack fresh matching engine context; the first AI answer was `wait`.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
