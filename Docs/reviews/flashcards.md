@@ -25,9 +25,9 @@ sessions ("quiz me" / "review").
 
 ### Q: Does Wealthsimple's quote timestamp prove when the exchange price last changed?
 
-A: No. Its precise meaning is undocumented in the reviewed public sources. Paper evaluation may
-proceed with that uncertainty explicit, preserving broker and receipt times separately; this does
-not qualify the feed for live risk checks.
+A: No. Its precise meaning is undocumented in the reviewed public sources. That uncertainty is
+accepted for a possible limited AI fallback, with broker and receipt times separate. TMX remains
+the normal source; the fallback is deferred and does not qualify a live risk feed.
 Source: ADR-0087. Tags: architecture, risk-management.
 
 ### Q: Can two portfolios sharing a Delphi Live policy share buy confirmation?

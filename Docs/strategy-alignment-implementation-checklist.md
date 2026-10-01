@@ -100,8 +100,9 @@ These milestones group the same ten steps below. Steps 7 and 8 have an initial v
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's offline review scheduler, saved-state recovery and
 model-requested timing are built/tested. Step 3's connected check verifies cash-only persistence/recovery;
-receipt timing is fixed and verified. The examined TMX quote fields do not resolve freshness.
-Reliable held-stock price coverage and invested-value acceptance remain the immediate work.
+receipt timing is fixed and verified. Normal TMX held-stock coverage and invested-value acceptance
+remain unqualified. The possible Wealthsimple AI fallback is deferred and lower priority; return to
+the main reviewer delivery work while preserving existing stale-input blocks.
 
 | Milestone | What you can use | Checklist work needed |
 |---|---|---|
@@ -151,9 +152,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Obtain approval, prepare/test the bounded broker quote diagnostic and verify its saved login; pre-open checks request no quotes.
    - [x] Run both market-hours broker samples; record complete held-stock quote coverage, declared ages and changed times/prices. [Results and limits](project-status.md#latest-operational-evidence).
    - [x] Check public timestamp documentation: real-time snapshots are described, but the exact API field meaning remains undocumented in the reviewed sources.
-   - [x] Accept paper-only quote evaluation with timestamp uncertainty explicit; record it in ADR-0087 and at the quote parser.
-   - [ ] Agree the paper valuation price (bid or midpoint) and quote timing rules before connecting risk calculations.
-   - [ ] Identify an available source with verifiable current price times; review any required valuation-contract change before adoption.
+   - [x] Clarify scope: TMX stays normal; accepted timestamp uncertainty applies only to possible limited AI fallback exploration.
+   - [ ] **Deferred / lower priority:** consider Wealthsimple only for AI review of a held stock when its TMX input is delayed/unavailable; agree fallback behavior when resumed.
    - [ ] Qualify reliable held-stock price coverage; verify fresh invested values save and recover correctly.
    - [ ] Qualify freshness, continuous coverage and recovery before scheduling recurring value checks.
    - [ ] Resolve collection failures and distinguish them from quiet trading; never make old prices look fresh or silently change ordinary engine bars.

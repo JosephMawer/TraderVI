@@ -208,15 +208,20 @@ age defaults are selected. This reader produces a prepared value; the subsequent
 below connects it to risk assessment. Existing engine marks, account records and stops are unchanged.
 Native concurrency/feed qualification and scheduling remain open.
 
-**Broker quote uncertainty accepted for paper evaluation — September 30:** the operator accepts
-continuing paper-only valuation work using Wealthsimple quotes while keeping the undocumented meaning
-of `quoteV2.quotedAsOf` explicit. Provider clarification is not a prerequisite for this paper work.
-Preserve the broker-reported time separately from receipt time; neither a recent timestamp nor a
-changing quote proves a known upstream market-data age. Document this limitation at the parser and
-retain it in any later quote valuation evidence. This acceptance does not qualify live risk inputs,
-select bid/ask/midpoint, set operating age limits or alter existing minute-bar rules. The paper quote
-valuation method still needs agreement before implementation; preserve cash/holding reconciliation,
-saved holds, risk history and independent protection. No broker-support inquiry is required or sent.
+**Broker quote uncertainty and clarified fallback scope — September 30:** the operator accepts
+the undocumented meaning of `quoteV2.quotedAsOf` remaining explicit during paper exploration.
+The subsequent scope clarification supersedes the broader interpretation of this as a switch to
+broker-based portfolio valuation: TMX remains the normal source. Wealthsimple is only a possible,
+limited AI-manager fallback when a held stock's TMX input is delayed or unavailable. This is a
+lower-priority, deferred item, not the default path or an immediate delivery prerequisite.
+No system-wide quote replacement, bid/midpoint valuation choice, operating age limit or change to
+existing minute-bar rules is approved. Existing manual broker quote checks remain separate.
+Preserve broker-reported time separately from receipt time; neither a recent timestamp nor a
+changing quote proves a known upstream market-data age. Keep the limitation at the parser and in
+any future fallback evidence. Revisit fallback triggers, how the AI may use it and any risk-valuation
+implications only when this item is resumed. Preserve current stale-input blocks, cash/holding
+reconciliation, saved holds, risk history and independent protection. No fallback is implemented,
+no live risk feed is qualified and no broker-support inquiry is required or sent.
 
 **Durable faster-value integration — September 28 implementation:** `PaperAiFastRiskMonitor` rechecks
 the complete retained evidence, ownership, arithmetic, source holds and explicit age bounds before

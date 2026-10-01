@@ -44,13 +44,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   describes real-time on-demand quotes and its current
   [execution disclosure](https://www.wealthsimple.com/en-ca/legal/best-execution-disclosure)
   describes web snapshots, but neither defines this field's freshness guarantee. The operator now
-  accepts paper-only evaluation with this uncertainty explicit (ADR-0087); provider clarification is
-  no longer a prerequisite for paper progress, and no inquiry was sent. A comment at the parser records
-  the limitation; future quote valuation evidence must retain it and separate source/receipt times.
-  The remaining immediate choice is bid versus midpoint for paper holdings; bid is recommended as a
-  cautious selling-value estimate, with the spread affecting reported value and no guaranteed fill.
-  Quote timing rules, coverage and login dependency remain integration work. Live qualification is
-  not established and existing minute-bar valuation behavior is unchanged.
+  accepts the uncertainty remaining explicit, but clarifies the intended scope: TMX stays normal;
+  Wealthsimple is only a possible limited AI-manager fallback for a delayed/unavailable held-stock
+  input (ADR-0087). This is lower priority and deferred. No general valuation switch or bid/midpoint
+  choice is agreed or needed now. A parser comment records the uncertainty; preserve source/receipt
+  times in any future fallback evidence. When resumed, clarify triggers, the permitted AI use and any
+  valuation implications. No provider inquiry was sent, no fallback is implemented and existing
+  minute-bar valuation/stale-input behavior remains unchanged.
 
 - **Shared authority agreed (September 27, ADR-0087):** one deterministic risk authority with an
   explicit portfolio risk configuration and the existing single execution path. AI continuous

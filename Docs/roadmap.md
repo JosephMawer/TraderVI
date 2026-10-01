@@ -47,13 +47,12 @@ Missing/old or differently timed held-stock bars still block invested values; tr
 must wait for newer prices. The tested TMX quote fields do not solve freshness: last sales can be old and
 bid/ask has no quote timestamp. An existing Wealthsimple quote query includes a source-time field;
 the September 30 authorized samples cover all current holdings, with advancing timestamps and some
-changed prices. Public-documentation review finds real-time snapshot descriptions but no definition
-of the API timestamp. The operator accepts paper-only evaluation with that uncertainty explicit;
-provider clarification is no longer a prerequisite for paper work. Agree the bid-versus-midpoint
-valuation choice next. Decide any quote-based valuation
-change separately, then qualify held-stock coverage and accepted invested-value persistence. Operating checkpoint
-times, qualified host composition and the review display remain later work; storage/operational
-qualification is still required.
+changed prices. The operator clarifies that TMX remains the normal source. Wealthsimple is only a
+possible limited fallback for AI review of delayed/unavailable held-stock inputs, with timestamp
+uncertainty explicit. Defer this lower-priority item and the associated valuation questions; no source
+switch is planned or implemented. Return to the main visible-reviewer integration work (Steps 7–8).
+Normal held-stock coverage, invested-value persistence and storage/operational qualification remain
+open Step 3 dependencies; preserve stale-input blocks rather than treating deferral as qualification.
 Step 1 is complete offline; Step 2's framework and portfolio scope are agreed, with lesson criteria
 deliberately deferred. Step 4 has begun with the tested offline continuous-round risk core, shared
 assessment contract and scoped local journal/recovery. Step 3 now has tested broker and both paper-family
