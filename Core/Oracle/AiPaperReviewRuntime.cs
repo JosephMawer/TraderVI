@@ -30,6 +30,7 @@ public sealed record AiPaperReviewSettings(bool Enabled, Guid PortfolioId, strin
 
     public static AiPaperReviewSettings? Load(string path)
     {
+        if (File.Exists(path + ".preparing")) throw new InvalidDataException("AI setup was interrupted; preserve history for reviewed recovery.");
         if (!File.Exists(path)) return null; // Absence is disabled; it is never a request to create history.
         if (new FileInfo(path).Length > 65_536) throw new InvalidDataException("AI settings are oversized.");
         return JsonSerializer.Deserialize<AiPaperReviewSettings>(File.ReadAllText(path), new JsonSerializerOptions
@@ -105,7 +106,24 @@ public sealed class AiPaperReviewRuntime : IDisposable
 
     private T Own<T>(T resource) where T : IDisposable { owned.Add(resource); return resource; }
 
-    public Task RunAsync(Action<AiReviewHostNotice> report, CancellationToken ct) => loop.RunAsync(TickAsync, report, ct);
+    private int runStarted;
+    private void BeginRun()
+    {
+        if (Interlocked.Exchange(ref runStarted, 1) != 0) throw new InvalidOperationException("This runtime already started a review run.");
+    }
+
+    public Task RunAsync(Action<AiReviewHostNotice> report, CancellationToken ct)
+    {
+        BeginRun();
+        return loop.RunAsync(TickAsync, report, ct);
+    }
+
+    /// <summary>One scheduler admission for an explicitly requested connected check; starts no loop.</summary>
+    public Task<AiScheduledReviewResult> ReviewOnceAsync(CancellationToken ct = default)
+    {
+        BeginRun();
+        return TickAsync(ct);
+    }
     private readonly AiReviewHostLoop loop = new();
 
     private Task<AiScheduledReviewResult> TickAsync(CancellationToken ct)

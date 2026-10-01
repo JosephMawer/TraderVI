@@ -21,6 +21,7 @@ internal static class Program
     private static readonly IReadOnlyList<IProbe> Probes =
     [
         new AiMomentumAccessProbe(),
+        new AiPaperFirstReviewProbe(),
         new YahooChartProbe(),
         new StooqProbe(),
         new TmxUsIndicesProbe(),

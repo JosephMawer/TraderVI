@@ -12,7 +12,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   active PortfolioRulesOnlyV1 book. Oracle credential loading and requested-model metadata access
   are verified; paid generation and costs remain unverified. Initial timing is now five minutes with
   open / open+3h / close-15m checkpoints. First-review cost bounds are agreed (ADR-0087), and opt-in
-  app startup is source/tested. Input ages, initial private history and connected qualification remain;
+  app startup is source/tested. October 1 adds tested explicit setup and a one-review command; a
+  ten-minute first-test input-age limit is proposed and awaits the operator's answer. This would be
+  a review-only test setting, not continuous-operation qualification or changed trading protection.
+  Input ages, initial private history and connected qualification remain;
   no paid call, new risk history or app activation followed installation. The AI still evaluates all
   catalogue choices and may decide to switch under ADR-0087.
 

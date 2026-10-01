@@ -199,7 +199,10 @@ runtime/display development can proceed while native input qualification remains
    - [x] Load Oracle's existing credential in Core and verify requested-model metadata access (September 30); no paid generation or portfolio submission.
    - [x] Agree first-review cost accounting: CAD 90 monthly cap, 1.60 CAD/USD and 20% tax/fee headroom through October 31.
    - [x] Connect opt-in app startup/shutdown to a background review host with shared/scoped history ownership; test cancellation and failure handling.
-   - [ ] **Next:** prepare explicit input-age settings and initial private journals; qualify a bounded connected review and actual costs during market hours before automatic operation.
+   - [x] Build/test explicit first-time preparation and a one-review command that leaves automatic reviews off and preserves existing/interrupted history.
+   - [x] Inspect the selected book during market hours (October 1); recent saved marks are present, but risk acceptance is not yet verified.
+   - [ ] **Next:** resolve the proposed first-test input-age limit and initialize qualified private history; no initial settings or journals have been created.
+   - [ ] Qualify one connected review, saved SQL input/answer and recorded API cost before automatic operation.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.

@@ -1,6 +1,20 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. Opt-in app startup is implemented/tested; private input configuration, initial history and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. Environment checks found no key, but a September 30 read-only check located the existing Oracle user-secrets key and matched its suffix to the operator screenshot. Core credential loading and model-metadata access are now verified; paid generation and installed desktop operation remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**Current record:** October 1, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Explicit first-time setup and a one-review command are now built/tested; the market-hours preflight found the selected book and recent saved marks. The proposed first-test input-age limit awaits the operator's answer; private initialization and paid generation remain pending. No AI trading or operating AI loop is enabled. The initial source remains Breakout 3 with skipped daily gates (PortfolioRulesOnlyV1). Core loads Oracle's existing user-secrets credential, with model-metadata access verified September 30; paid generation and installed desktop operation remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+
+**First-review preparation, October 1:** explicit Preflight/Prepare/Review modes now support read-only
+inspection, new private history initialization and one scheduler admission through the app's coordinator.
+Preparation checks the opening book before creating files, refuses existing/partial history, leaves
+automatic reviews disabled and initializes zero evaluated lessons with expiry at that session's close.
+Interrupted preparation is preserved and flagged, never reset. At 09:53 Toronto the native read-only
+preflight found 15 choices and the selected book with its one open holding and one price mark; its
+valuation boundary was 09:50. This does not establish risk acceptance or complete source coverage.
+Validation: 80 focused setup/host/coordinator/scheduling tests pass. Private evidence:
+`artifacts/ai-first-review-20261001/{tests,preflight,build}.log`. Existing CS8632 warnings remain;
+no fresh dependency audit or full-solution validation. The proposed ten-minute first-test age limit
+is pending, not accepted. No production history/settings, paid API call, SQL write or app restart
+occurred in this increment. Next: resolve that limit, initialize qualified history and verify one saved
+AI review and its cost before enabling automatic operation.
 **API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets
 configuration directly. The authorized single model-metadata GET returned HTTP 200 with the exact
 requested GPT-6 Astra identity in 634 ms. No credential was printed/copied/changed; no generation,

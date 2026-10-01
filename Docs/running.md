@@ -1173,6 +1173,27 @@ owners. Unexpected failures stop this owner; errors never dump packets or creden
 No private settings or production journals have been prepared yet. Qualify one bounded connected
 review before setting `Enabled` for automatic startup. This does not enable trading.
 
+The explicit Sandbox command `ai-paper-first-review` has three modes, selected with
+`TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the
+reviewed calendar's absolute path for preflight/preparation. `Preflight` reads the selected
+BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It needs SQL access.
+`Prepare` additionally requires the operator-approved positive integer
+`TRADERVI_AI_FIRST_REVIEW_AGE_MINUTES`; it applies that age to risk, catalogue and engine observations,
+uses 15 sessions of context and a five-minute lesson consultation interval. The ten-minute age
+proposal remains unanswered as of October 1. Do not treat it as an approved default.
+
+Before Prepare, protect the stable private storage root for the operator and system administrators.
+Prepare validates the current opening book, creates all four journal pairs once, records the initial
+risk observation and publishes an empty lesson snapshot expiring at today's reviewed close. It leaves
+`Enabled: false`; existing files or an interrupted `.preparing` marker require reviewed recovery.
+It does not write SQL or call the model. `Review` reopens that disabled configuration and runs one
+scheduler admission, with a four-minute command deadline and existing spending guards. It may call
+OpenAI and save Pending/Reviewed/Rejected SQL evidence. It prints only status and token/cost totals,
+never packets, credentials or raw exception bodies. It starts no loop, changes no enabled setting,
+and never retries automatically. Inspect journals before repeating an uncertain attempt; preserve
+reservations and recover saved answers through the existing coordinator. A new session requires a
+current qualified learning snapshot; this initial empty snapshot is not renewed automatically.
+
 AI Momentum's review-only Core host (ADR-0087) is connected to WPF startup in source and remains disabled
 until explicitly configured. It has no nightly host or execution path.
 Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic

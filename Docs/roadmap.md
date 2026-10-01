@@ -58,8 +58,10 @@ Local masked key entry and the starting-portfolio inspection query are prepared;
 Core now loads that credential, and the bounded model-metadata check succeeds; generation/costs remain unverified.
 The initial five-minute interval and open / open+3h / close-15m checkpoints are agreed.
 Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and the Core review host
-are implemented/tested but not activated. Next prepare explicit input ages and initial private history,
-then qualify a bounded connected review during market hours before automatic operation. Defer more permissive
+are implemented/tested but not activated. Explicit first-time setup and a one-review command are now
+built/tested; the October 1 market-hours preflight found the selected book with recent marks. Next
+resolve the proposed first-test input age, prepare initial private history, then qualify one connected
+review and its cost before automatic operation. Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
 The AI chooses its active portfolio; the existing switching/history contract remains in force.
 Normal held-stock coverage, invested-value persistence and storage/operational qualification remain
