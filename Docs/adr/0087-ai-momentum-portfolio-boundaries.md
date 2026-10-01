@@ -112,6 +112,11 @@ Pre-packet failures remain visible in the existing schedule history. No separate
 system is added. SQL installation/native roundtrip and app startup/operating qualification remain
 pending; no activation follows from the source increment. Validation belongs in project status.
 
+For the first connected review, the operator subsequently selects the existing **Breakout 3 with
+skipped daily gates** book (BreakoutTop3 / PortfolioRulesOnlyV1) to supply starting cash and holdings.
+This is the initial review context, not a restriction on AI portfolio selection. Preserve its actual
+history and the existing switching contract; no assignment or risk reset follows from this setup choice.
+
 ## Implementation checkpoint — September 27
 
 Step 2 has enough agreed framework to proceed with code. Portfolio eligibility is now agreed below:

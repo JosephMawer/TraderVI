@@ -51,9 +51,11 @@ changed prices. The operator clarifies that TMX remains the normal source. Wealt
 possible limited fallback for AI review of delayed/unavailable held-stock inputs, with timestamp
 uncertainty explicit. Defer this lower-priority item and the associated valuation questions; no source
 switch is planned or implemented. Return to the main visible-reviewer integration work (Steps 7–8).
-The Step 7 coordinator now connects saved inputs, the existing reviewer and SQL decision storage in
-source, preserving current input checks. Next qualify/install prepared migration 042 under separate
-authorization and compose app startup/configuration for a bounded connected review. Defer more permissive
+The Step 7 coordinator connects saved inputs, the existing reviewer and SQL decision storage in
+source, preserving current input checks. Migration 042 is installed and native storage checks pass.
+The operator selected the existing Breakout 3 / PortfolioRulesOnlyV1 book as the first cash/holdings source.
+Next configure API access and operating settings,
+then compose app startup for a bounded connected review during market hours. Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
 The AI chooses its active portfolio; the existing switching/history contract remains in force.
 Normal held-stock coverage, invested-value persistence and storage/operational qualification remain

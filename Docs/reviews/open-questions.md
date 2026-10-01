@@ -7,6 +7,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
+- **First connected review setup (September 30):** SQL review storage is installed and natively tested.
+  The operator selected Breakout 3 with skipped daily gates; a read-only lookup uniquely matches its
+  active PortfolioRulesOnlyV1 book. API access and explicit operating settings remain unconfigured;
+  no paid call, new risk history or app activation followed installation. The AI still evaluates all
+  catalogue choices and may decide to switch under ADR-0087.
+
 - **Review input gaps (September 30, deferred):** the operator prefers passing dated information
   and explicit missing pieces to the AI so minor gaps do not block useful assessment. Keep the
   existing input builder's rejection/eligibility checks for current coordinator work. Revisit only

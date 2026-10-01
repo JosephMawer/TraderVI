@@ -26,14 +26,21 @@ public sealed class AiPortfolioReviewRepository : SQLBase, IAiReviewStore
 
     public async Task SaveAsync(AiLearningReview review, CancellationToken ct = default)
     {
-        var json = Serialize(review);
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(ct);
+        await SaveAsync(connection, null, review, ct);
+    }
+
+    // The same command/parameters support a rollback-only native storage rehearsal.
+    internal async Task SaveAsync(SqlConnection connection, SqlTransaction? transaction,
+        AiLearningReview review, CancellationToken ct = default)
+    {
+        var json = Serialize(review);
         await connection.ExecuteAsync(new CommandDefinition(SaveSql, new
         {
             Scope.AccountScopeId, Scope.PortfolioId, Scope.AccountMode,
             review.ReviewId, review.Status, review.RecordedUtc, RecordJson = json
-        }, cancellationToken: ct));
+        }, transaction, cancellationToken: ct));
     }
 
     internal string Serialize(AiLearningReview review)

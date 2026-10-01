@@ -8,18 +8,22 @@ Responses client. Supply reviewed calendar/checkpoint times, evidence ages, hist
 current active portfolio/holds. Journal initialization is an explicit setup operation; the coordinator
 does not create replacement history, start itself from desktop startup or submit trades.
 
-SQL review storage requires individually reviewed migration
-`TraderDB/Migrations/20260930_042_AddAiPortfolioReview.sql`, a verified fresh full backup and explicit
-installation authorization. It is prepared and schema-built only; do not publish the DACPAC.
-After separately authorized installation, query `dbo.AiPortfolioReview` by ReviewId or PortfolioId.
+SQL review storage migration `TraderDB/Migrations/20260930_042_AddAiPortfolioReview.sql` was installed
+under explicit authorization September 30 after a verified backup. **Do not replay it or publish the DACPAC.**
+Query `dbo.AiPortfolioReview` by ReviewId or PortfolioId.
 Pending contains the exact input; Reviewed includes the validated answer; Rejected has no accepted
 answer. These are historical records, not execution permission. Raw provider/cost evidence remains
 in the private call journal under the same ReviewId. Preparation failures remain in the schedule.
 
 If final SQL persistence fails, `PersistReviewAsync(reviewId)` copies the saved local disposition
 without calling the AI. Keep the original local journals; do not reset them or retry the paid call ID.
-Native SQL idempotency/concurrency and connected review verification remain outstanding. Starting the
-normal desktop below does not enable this coordinator yet.
+Native SQL roundtrip/idempotency, rejected changes and recovered-answer saves passed September 30;
+cross-process concurrency/crash qualification and connected AI review remain outstanding. The opt-in
+`AiPortfolioReviewSqlTests` uses synthetic rows and rollback; it still requires explicit authorization.
+The selected starting cash/holdings source is the existing Breakout 3 / PortfolioRulesOnlyV1 account;
+a read-only lookup uniquely matched it. This setup choice does not change the active assignment or
+restrict later AI portfolio selection. Process/user/machine API-key environment checks were empty.
+Starting the normal desktop below does not enable this coordinator yet.
 
 ## Build and run the local desktop checkout
 

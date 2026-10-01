@@ -99,7 +99,7 @@ This checklist grants no deployment, paid API call or live-order authority.
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
-timing and Core coordinator are built/tested; SQL review storage is prepared but not installed.
+timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. Normal TMX held-stock coverage and invested-value acceptance
 remain unqualified. The possible Wealthsimple AI fallback is deferred and lower priority; return to
@@ -190,8 +190,10 @@ runtime/display development can proceed while native input qualification remains
 
    - [x] Connect/test the Core review coordinator: gather existing inputs, call the existing reviewer and save input/answer evidence through a SQL repository; no execution or approval workflow.
    - [x] Prepare SQL review storage and migration 042; build the database schema project.
-   - [ ] **Next:** authorize/install migration 042 after a verified backup and verify native SQL saves, duplicate handling and recovery.
-   - [ ] Connect app startup with explicit account/history ownership and operating configuration; verify a bounded connected review before automatic operation.
+   - [x] Install authorized migration 042 after a verified backup; verify native SQL saves, duplicate handling and recovered-answer saves with no test rows left behind.
+   - [x] Select and uniquely match Breakout 3 with skipped daily gates as the first cash/holdings source; other portfolio choices remain available to the AI.
+   - [ ] **Next:** prepare API access and explicit operating settings for app startup and the first connected review.
+   - [ ] Connect app startup with explicit account/history ownership; verify a bounded connected review during market hours before automatic operation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
