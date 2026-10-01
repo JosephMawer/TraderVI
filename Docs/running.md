@@ -1105,7 +1105,14 @@ confirm authentication but requests zero quotes and exits unsuccessfully as `Out
 
 ### AI Momentum API key and starting-portfolio inspection
 
-Create a key in the [OpenAI API dashboard](https://platform.openai.com/api-keys), following
+Reuse the existing Oracle credential before creating another key. A September 30 read-only check
+confirmed it in `%APPDATA%\Microsoft\UserSecrets\00ba8049-f46a-4e8b-8262-a6ac14848c58\secrets.json`,
+under `Oracle:OpenAi:ApiKey`. Oracle loads that store through `AddUserSecrets`; environment-only
+checks do not inspect it. The new client must explicitly load the same store or receive the credential
+through its chosen local configuration. Do not print the file or use `dotnet user-secrets list` in
+captured output. Presence and a matching suffix do not verify current API access.
+
+If a new key is needed, create one in the [OpenAI API dashboard](https://platform.openai.com/api-keys), following
 the [official quickstart](https://developers.openai.com/api/docs/quickstart). Enter it locally,
 not in chat, source code or a command-line argument:
 

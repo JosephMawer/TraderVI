@@ -54,8 +54,8 @@ switch is planned or implemented. Return to the main visible-reviewer integratio
 The Step 7 coordinator connects saved inputs, the existing reviewer and SQL decision storage in
 source, preserving current input checks. Migration 042 is installed and native storage checks pass.
 The operator selected the existing Breakout 3 / PortfolioRulesOnlyV1 book as the first cash/holdings source.
-Local masked key entry and the starting-portfolio inspection query are prepared; no key is configured.
-Next enter/verify API access and agree operating settings,
+Local masked key entry and the starting-portfolio inspection query are prepared; the existing Oracle user-secrets key has been located (project status).
+Next reuse the saved Oracle credential in client configuration, qualify API access and agree operating settings,
 then compose app startup for a bounded connected review during market hours. Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
 The AI chooses its active portfolio; the existing switching/history contract remains in force.

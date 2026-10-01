@@ -193,7 +193,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Install authorized migration 042 after a verified backup; verify native SQL saves, duplicate handling and recovered-answer saves with no test rows left behind.
    - [x] Select and uniquely match Breakout 3 with skipped daily gates as the first cash/holdings source; other portfolio choices remain available to the AI.
    - [x] Prepare masked local API-key entry, presence-only checks and a query for the selected portfolio's current cash/holdings and saved reviews.
-   - [ ] **Next:** enter the API key locally and qualify access; choose explicit operating settings for app startup and the first connected review.
+   - [x] Locate the existing Oracle user-secrets credential and confirm its suffix matches the operator screenshot (September 30, read-only; no API call).
+   - [ ] **Next:** load the existing Oracle credential in client configuration and qualify access; choose explicit operating settings for app startup and the first connected review.
    - [ ] Connect app startup with explicit account/history ownership; verify a bounded connected review during market hours before automatic operation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
