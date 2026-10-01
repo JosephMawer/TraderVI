@@ -1206,6 +1206,14 @@ See [open questions](../reviews/open-questions.md#ai-managed-portfolio-and-propo
 and the [implementation checklist](../strategy-alignment-implementation-checklist.md#left-to-do--development-order).
 Runtime library code exists; no model calls, database changes or broker operations have been performed.
 
+## Initial host timing — September 30 clarification
+
+The operator selects an initial five-minute review interval, with checkpoints at the reviewed
+session open, three hours after opening and fifteen minutes before closing (09:30, 12:30 and
+15:45 Toronto on a normal session). This resolves the earlier open clock-time choice. The existing
+AI-requested 1–15-minute interval and earlier event/checkpoint behavior remain. These settings do
+not authorize an execution path or bypass unavailable inputs. Operational activation remains separate.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

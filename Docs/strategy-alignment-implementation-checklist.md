@@ -194,7 +194,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Select and uniquely match Breakout 3 with skipped daily gates as the first cash/holdings source; other portfolio choices remain available to the AI.
    - [x] Prepare masked local API-key entry, presence-only checks and a query for the selected portfolio's current cash/holdings and saved reviews.
    - [x] Locate the existing Oracle user-secrets credential and confirm its suffix matches the operator screenshot (September 30, read-only; no API call).
-   - [ ] **Next:** load the existing Oracle credential in client configuration and qualify access; choose explicit operating settings for app startup and the first connected review.
+   - [x] Load Oracle's existing credential in Core and verify requested-model metadata access (September 30); no paid generation or portfolio submission.
+   - [ ] **Next:** finish explicit operating settings and app startup; qualify a bounded first connected review and its actual costs.
    - [ ] Connect app startup with explicit account/history ownership; verify a bounded connected review during market hours before automatic operation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
@@ -203,7 +204,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Build/test account-scoped scheduling history; preserve pending events, timing and blocks through restart and reviewed session changes.
    - [x] Record interrupted reviews without retrying their old call IDs or releasing spending reservations; require fresh review after recovery.
    - [x] Connect validated AI requests for the next review (1–15 whole minutes plus a reason); save accepted timing with the completed review.
-   - [ ] Select operating daily checkpoint times; no production defaults are chosen.
+   - [x] Agree a five-minute initial interval and checkpoints at open, open+3h and close-15m; AI-requested intervals remain 1–15 minutes.
    - [ ] Run qualified account observations, independent protection and AI reviews automatically in shared Core code.
    - [ ] Verify scheduled/event reviews in the connected host; keep protection independent of paid reviews and their failures.
    - [ ] Enforce outage/budget review blocks in the execution path; resume new risk only after fresh review and all other checks.

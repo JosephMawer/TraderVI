@@ -19,13 +19,22 @@ namespace Core.Oracle.Llm;
 /// </summary>
 public static class LlmClientFactory
 {
+    /// <summary>Reuse Oracle's existing local store without exporting or copying its credential.</summary>
+    public static IConfigurationRoot LoadOracleConfiguration() => new ConfigurationBuilder()
+        .AddUserSecrets("00ba8049-f46a-4e8b-8262-a6ac14848c58")
+        .AddEnvironmentVariables()
+        .Build();
+
+    internal static string GetOpenAiKey(IConfiguration cfg) =>
+        Get(cfg, "Oracle:OpenAi:ApiKey", "OPENAI_API_KEY")
+        ?? throw new InvalidOperationException("Oracle's OpenAI API key is not configured.");
+
     /// <summary>Explicit AI Momentum composition; legacy Oracle remains narration-only.</summary>
     public static OpenAiResponsesLlmClient CreateAiMomentum(
         IConfiguration cfg, AiCallJournal journal, AiSpendPolicy policy, bool enabled = false)
     {
         if (!enabled) throw new InvalidOperationException("AI Momentum model calls are disabled.");
-        var key = Get(cfg, "Oracle:OpenAi:ApiKey", "OPENAI_API_KEY")
-            ?? throw new InvalidOperationException("Oracle's OpenAI API key is not configured.");
+        var key = GetOpenAiKey(cfg);
         return new OpenAiResponsesLlmClient(key, journal, policy);
     }
 

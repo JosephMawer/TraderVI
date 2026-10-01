@@ -1,6 +1,16 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. App startup, operating configuration and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. Environment checks found no key, but a September 30 read-only check located the existing Oracle user-secrets key and matched its suffix to the operator screenshot. Client startup still needs to load that configuration; current API access remains unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. App startup, operating configuration and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. Environment checks found no key, but a September 30 read-only check located the existing Oracle user-secrets key and matched its suffix to the operator screenshot. Core credential loading and model-metadata access are now verified; paid generation and app startup remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets
+configuration directly. The authorized single model-metadata GET returned HTTP 200 with the exact
+requested GPT-6 Astra identity in 634 ms. No credential was printed/copied/changed; no generation,
+portfolio submission, SQL, journal initialization or app restart occurred. Generation access, funding
+and actual review costs remain unverified. Thirty focused client/access tests and the Sandbox build
+pass. Existing CS8632 compiler warnings remain; dependency audit was disabled during restore, so no
+fresh security assessment is claimed. Private evidence: `artifacts/ai-api-setup-20260930/access-{tests,build,native}.log`.
+The operator accepted a five-minute initial interval and open / open+3h / close-15m checkpoints;
+operating cost/input configuration and app startup remain pending.
+
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 

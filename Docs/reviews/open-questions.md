@@ -9,7 +9,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 - **First connected review setup (September 30):** SQL review storage is installed and natively tested.
   The operator selected Breakout 3 with skipped daily gates; a read-only lookup uniquely matches its
-  active PortfolioRulesOnlyV1 book. API access and explicit operating settings remain unconfigured;
+  active PortfolioRulesOnlyV1 book. Oracle credential loading and requested-model metadata access
+  are verified; paid generation and costs remain unverified. Initial timing is now five minutes with
+  open / open+3h / close-15m checkpoints. Other operating settings and startup remain pending;
   no paid call, new risk history or app activation followed installation. The AI still evaluates all
   catalogue choices and may decide to switch under ADR-0087.
 
