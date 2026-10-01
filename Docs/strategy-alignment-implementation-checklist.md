@@ -102,9 +102,10 @@ All three milestones remain pending. Step 7's review scheduler, saved-state reco
 timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
 Opt-in desktop startup is built/tested. Private setup and one connected review with SQL readback and
 recorded usage are verified October 1. Dependency repair and the authorized pipeline recovery restored
-today's publication to all 15 portfolios; two ungated Continuation choices have usable AI context.
+today's publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
-automatic runtime verification remains pending.
+automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
+but exceeded the existing input-token limit before generation; concise input preparation is next.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
 test bound; normal held-stock coverage and faster-price qualification remain open. The possible
@@ -212,7 +213,9 @@ runtime/display development can proceed while native input qualification remains
    - [x] Repair the Hermes/Delphi/Athena dependency locks and pass isolated nightly restore/build validation without running operational stages.
    - [x] Run the authorized pipeline recovery and verify today's valid publication is adopted by all 15 portfolios (October 1); Athena separately reports two invalid outcomes.
    - [x] Verify restored AI context with read-only engine readers: ungated Continuation 3/5 permit proposals; remaining choices preserve their admission/evidence blocks.
-   - [ ] **Next:** qualify another connected review with the restored choice inputs and explicit remaining gaps; no further model call ran during pipeline recovery.
+   - [x] Test a review with restored signals: 15 choices/four eligible were assembled, but the input-token limit rejected generation; verify saved rejection and unchanged spending (October 1).
+   - [ ] **Next:** make the model-facing evidence concise and validate preserved decision facts, ages, missingness and rules; keep full source history and existing limits.
+   - [ ] Complete a bounded review with the restored signals after the input-size fix; verify its answer, SQL evidence and cost.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

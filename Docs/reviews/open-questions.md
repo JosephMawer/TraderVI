@@ -11,9 +11,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   this review-only test. Protected history is initialized; one model review and exact SQL readback
   are verified, with conservative usage/cost accounting. The AI returned `wait` and requested two
   minutes. The dependency repair and authorized pipeline recovery restored today's publication to
-  all 15 portfolios. Ungated Continuation 3/5 now permit AI proposals; remaining choices preserve
-  admission/evidence blocks. Further connected-review qualification, the exact remaining Breakout/Live
-  evidence causes and Athena's two invalid prediction outcomes remain follow-ups. No eligibility rule changed.
+  all 15 portfolios. A follow-up test at 11:05 assembled four eligible choices but stopped before
+  generation because detailed Live checkpoint histories pushed input beyond the existing token cap.
+  A concise model-facing evidence contract is the next implementation item: preserve decision facts,
+  ages, missingness, rules and full saved source history; the exact representation is not yet decided.
+  Further connected-review qualification, remaining evidence/admission causes and Athena's two invalid
+  prediction outcomes remain follow-ups. No eligibility or spending rule changed.
   Continuous operating ages and
   installed desktop lifecycle remain unqualified. Timing and first-review cost bounds remain agreed
   (ADR-0087); automatic reviews and trading remain disabled. See project status for dated evidence.

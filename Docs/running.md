@@ -1171,8 +1171,10 @@ interval and open/open+3h/close-15m checkpoints. Only one review runs at a time;
 remains 1–15 minutes as requested by the AI. Closing WPF cancels/awaits the task and disposes its
 owners. Unexpected failures stop this owner; errors never dump packets or credentials to the UI.
 Private settings/journals were prepared October 1 with `Enabled: false`; one connected review and
-SQL readback are verified. Investigate missing engine context and qualify the installed desktop
-lifecycle before enabling automatic startup. This does not enable trading.
+SQL readback are verified. Today's publication was subsequently restored to all portfolios. A follow-up
+review with those signals stopped before generation at the input-token limit; do not repeat the oversized
+packet unchanged or raise the limit as a workaround. Qualify concise inputs and the installed desktop
+lifecycle before enabling automatic startup. See project status for dated results. This does not enable trading.
 
 The explicit Sandbox command `ai-paper-first-review` has four modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the

@@ -1,6 +1,26 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. The authorized pipeline recovery restored today's valid publication and adoption by all 15 portfolios. At 10:57, the AI readers permit proposals for the two ungated Continuation choices; the other choices retain their existing admission/evidence blocks. A further connected review can now test restored choice inputs; it has not run. Athena separately reported two invalid prediction outcomes. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. The authorized pipeline recovery restored today's valid publication and adoption by all 15 portfolios. The authorized follow-up test at 11:05 assembled all 15 choices, four eligible, but stopped before generation: 270,651 input tokens exceeded the unchanged 32,000 limit. Detailed Live checkpoint histories dominate the input. Next make the model-facing evidence concise, validate what it preserves and repeat the bounded review; no input-contract change is implemented yet. Athena separately reported two invalid prediction outcomes. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+
+**Restored-input review test, October 1, 11:05 Toronto:** the operator authorized one further bounded
+review using the existing settings, journals and spending guards. Input preparation accepted the current
+managed-book observation and assembled 15 choices (four eligible) with 73 evidence items. The exact
+provider input count was 270,651 against the configured 32,000 maximum; admission rejected before a
+spending reservation or generation. There is no new AI answer or next-review recommendation.
+The schedule records `DataUnavailable`; SQL contains Pending and Rejected rows at 11:05:40/42 with
+identical packet JSON. Local history records Rejected and no proposal. The call journal still contains
+only the earlier successful generation, with CAD 0.767 total conservative accounting and no call for
+this attempt. Existing two-minute timing and disabled automatic operation are preserved.
+
+Local size analysis identifies 38 Live signal evidence entries totaling 685,014 description characters;
+their checkpoint arrays alone occupy 633,460 characters when locally reserialized. Strategy definitions,
+managed-book evidence and other sections are much smaller. These are character measurements, not
+per-section provider token counts. The recovery exposed an oversized input representation, not another
+missing-publication failure. A concise model-facing representation requires preserved decision facts,
+source ages, missingness, rules and history references; no evidence was trimmed or limit raised in this test.
+No automatic retry, app restart, market collection or trading ran. No source code changed or unit test
+rerun was needed for this operational check. Private evidence:
+`artifacts/ai-restored-review-20261001/{review.log,verification.json,sql-verification.txt,InspectAttempt.ps1}`.
 
 **Pipeline recovery and portfolio receipt, October 1, 10:30–10:57 Toronto:** the explicitly authorized
 run `a47fb6a5-e440-4e6b-a687-5c35ef29bcec` rebuilt the isolated apps from `334008af` and completed
