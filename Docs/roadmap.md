@@ -60,12 +60,13 @@ The initial five-minute interval and open / open+3h / close-15m checkpoints are 
 Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and the Core review host
 are implemented/tested but not activated. Private history is initialized under the accepted ten-minute
 first-test input age. The October 1 connected review saved `wait`, a two-minute next-review request and
-conservative token/cost accounting; SQL/local evidence matches. All 15 choices lacked fresh matching
-engine context. Diagnosis: the nightly dependency restore failed before any stage, leaving today's
-daily publication absent across all portfolios. The three downstream dependency locks are repaired;
-isolated nightly restore/build validation passes without operational stages.
-Next obtain explicit operational-rerun authority, then verify today's publication and adoption before
-another AI review or automatic desktop scheduling.
+conservative token/cost accounting; SQL/local evidence matches. Missing downstream dependency locks
+caused the absent daily publication. The repair and authorized recovery restored today's publication
+to all 15 portfolios; two ungated Continuation choices now have proposal-permitted AI context.
+Other choices retain their existing admission/evidence blocks. Athena's two invalid prediction outcomes
+remain a separate follow-up; see project status for the Attention result and dated verification.
+Next qualify another connected review using restored choice inputs before automatic desktop scheduling;
+retain explicit gaps and existing eligibility rules. No further model call is part of the recovery check.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).

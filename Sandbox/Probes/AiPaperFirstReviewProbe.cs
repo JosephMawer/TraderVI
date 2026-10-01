@@ -12,14 +12,15 @@ using Core.Oracle;
 using Core.Oracle.Llm;
 using Core.Trader;
 using Core.Trader.DelphiLive;
+using Core.Trader.Promotion;
 
 namespace Sandbox.Probes;
 
-/// <summary>Explicit Preflight, Prepare or Review. Never starts the app or an automatic review loop.</summary>
+/// <summary>Explicit Preflight, Signals, Prepare or Review. Never starts the app or an automatic review loop.</summary>
 public sealed class AiPaperFirstReviewProbe : IProbe
 {
     public string Slug => "ai-paper-first-review";
-    public string Description => "Selected Breakout 3 book: read-only preflight, explicit initial setup, or one paid review.";
+    public string Description => "Read-only portfolio/signal checks, explicit initial setup, or one paid review.";
 
     public async Task RunAsync()
     {
@@ -29,8 +30,37 @@ public sealed class AiPaperFirstReviewProbe : IProbe
             using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
             var ct = timeout.Token;
             string mode = Environment.GetEnvironmentVariable("TRADERVI_AI_FIRST_REVIEW_MODE") ?? "Preflight";
-            if (mode is not ("Preflight" or "Prepare" or "Review")) throw new InvalidOperationException();
+            if (mode is not ("Preflight" or "Signals" or "Prepare" or "Review")) throw new InvalidOperationException();
             string settingsPath = AiPaperReviewSettings.LocalSettingsPath;
+            if (mode == "Signals")
+            {
+                stage = "read-only engine signal checks";
+                var signalSettings = AiPaperReviewSettings.Load(settingsPath) ?? throw new InvalidOperationException();
+                var calendar = ReviewedTsxSessionCalendar.Load(signalSettings.CalendarPath);
+                var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, ReviewedTsxSessionCalendar.Toronto).DateTime);
+                var choices = await new AiPortfolioCatalogRepository(signalSettings.CatalogMaximumAge).ReadAsync(ct);
+                var shadow = new AiShadowDecisionContextReader(new AiShadowDecisionRepository(signalSettings.HistoryDays), calendar, signalSettings.ContextMaximumAge);
+                var live = new AiLiveDecisionContextReader(new AiLiveDecisionRepository(signalSettings.HistoryDays), calendar, signalSettings.ContextMaximumAge);
+                foreach (var signalChoice in choices.Entries)
+                {
+                    AiStrategyDecisionContext? context = signalChoice.Strategy?.Family switch
+                    {
+                        TradingStrategyFamily.DailyShadow => await shadow.ReadAsync(signalChoice, today, ct),
+                        TradingStrategyFamily.DelphiLive => await live.ReadAsync(signalChoice, today, ct),
+                        _ => null
+                    };
+                    var checkedAt = DateTimeOffset.UtcNow;
+                    bool fresh = context is not null && context.StrategyVersion == signalChoice.Version &&
+                        context.ObservedUtc <= checkedAt && context.ExpiresUtc > checkedAt &&
+                        context.ExpiresUtc > context.ObservedUtc && !context.Rules.IsDefault && !context.Evidence.IsDefaultOrEmpty;
+                    Console.WriteLine($"Family: {signalChoice.EngineFamily}; selection: {signalChoice.Strategy?.Selection}; slots: {signalChoice.Strategy?.MaximumHoldings}; " +
+                        $"gates: {signalChoice.Comparison?.Profile.ToString() ?? "PerStrategy"}; definition: {signalChoice.Strategy is not null}; " +
+                        $"fresh context: {fresh}; engine permits proposal: {context?.CanPropose == true}; " +
+                        $"catalogue blocks: {signalChoice.UnavailableReasons.Length}; observed UTC: {context?.ObservedUtc:O}; expires UTC: {context?.ExpiresUtc:O}.");
+                }
+                Console.WriteLine("Read-only signal check complete. No risk journal, SQL write, model call or execution.");
+                return;
+            }
             if (mode == "Review")
             {
                 stage = "one connected review";

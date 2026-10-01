@@ -1174,10 +1174,14 @@ Private settings/journals were prepared October 1 with `Enabled: false`; one con
 SQL readback are verified. Investigate missing engine context and qualify the installed desktop
 lifecycle before enabling automatic startup. This does not enable trading.
 
-The explicit Sandbox command `ai-paper-first-review` has three modes, selected with
+The explicit Sandbox command `ai-paper-first-review` has four modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the
 reviewed calendar's absolute path for preflight/preparation. `Preflight` reads the selected
 BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It needs SQL access.
+`Signals` uses the existing private settings and the same catalogue/engine readers as the AI
+coordinator to inspect every choice. It reports strategy family, gate profile, context freshness,
+proposal availability and timestamps without holdings, prices or account IDs. This mode is SELECT-only:
+it does not initialize/update journals, call the model, advance a monitor or change eligibility.
 `Prepare` additionally requires the operator-approved positive integer
 `TRADERVI_AI_FIRST_REVIEW_AGE_MINUTES`; it applies that age to risk, catalogue and engine observations,
 uses 15 sessions of context and a five-minute lesson consultation interval. The operator accepted

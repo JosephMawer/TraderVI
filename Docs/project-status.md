@@ -1,6 +1,32 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. All 15 choices lacked today's adopted daily publication because nightly preparation failed before running any stage. The missing downstream dependency locks are repaired; an authorized operational rerun and publication/adoption recheck are next. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. The authorized pipeline recovery restored today's valid publication and adoption by all 15 portfolios. At 10:57, the AI readers permit proposals for the two ungated Continuation choices; the other choices retain their existing admission/evidence blocks. A further connected review can now test restored choice inputs; it has not run. Athena separately reported two invalid prediction outcomes. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+
+**Pipeline recovery and portfolio receipt, October 1, 10:30–10:57 Toronto:** the explicitly authorized
+run `a47fb6a5-e440-4e6b-a687-5c35ef29bcec` rebuilt the isolated apps from `334008af` and completed
+at 10:37:50. Hermes collection/backup and Delphi succeeded. Athena completed with exit 2 / Attention:
+its log reports two invalid prediction outcomes; those outcome reasons remain a separate follow-up.
+The overall run is Attention, not an unqualified success. Delphi created a Valid/OfficialPaper October 1
+publication at 10:37:38 using September 30 market data. Read-only SQL joins verify all 12 active Shadow
+and all three Live portfolios reference that publication, effective 10:40. Existing app monitors adopted
+it without an app restart or manual source edits; historical opening freeze records remain unchanged.
+
+The new SELECT-only `ai-paper-first-review` / `Signals` diagnostic uses the coordinator's catalogue
+and engine readers without a model call, journal change or engine tick. At 10:57 it read all 15 choices:
+all definitions are present and catalogue block counts are zero. Ungated Continuation 3/5 have fresh,
+proposal-permitted context. Ungated Breakout 3/5 have recent observations but remain proposal-blocked;
+the 10:53 candidate records still include two `MissingEvidence` entries. Of 16 candidate-account entries,
+five are Qualified, six BelowPreviousSessionClose and three FallingFromPreviousFiveMinuteClose.
+Eight gated/per-strategy Shadow choices have no admitted candidate decisions and therefore no selectable
+fresh context. The three Live choices have fresh context envelopes but remain proposal-blocked; exact
+Live admission/confirmation causes are not newly qualified. Receiving today's publication is verified;
+it does not imply every portfolio meets entry or AI-selection requirements. No eligibility rule changed.
+
+Validation: Sandbox builds and native read-only checks pass; existing CS8632 warnings remain.
+No new dependency-security audit or full-solution/SSDT validation. No further AI call or AI execution ran;
+automatic AI reviews remain off. Private evidence: `artifacts/ai-engine-context-20261001/`
+(`recovery-console.log`, `adoption-first.txt`, `adoption-final.txt`, `signals-after-adoption.log`,
+`signals-final.log`) and the private nightly run status/log.
 
 **Missing engine context diagnosed, October 1, 10:18 Toronto:** read-only SQL shows all 12 active
 Shadow variants (Breakout/Continuation, three/five positions, per-strategy/Normal/PortfolioRulesOnly)
@@ -18,8 +44,8 @@ now include that same dependency and its five transitive packages; existing reso
 hashes are unchanged. The runner's isolated `-BuildOnly` check passed at 10:27 Toronto: all three
 locked restores and Release builds succeeded, executable/source verification passed and status is
 `Prepared` with zero operational stages. Existing CS8632/CS0162/CS0168/CS8321 compiler warnings
-remain; dependency auditing was disabled and no full-solution/SSDT validation is claimed. No operational rerun,
-SQL mutation, market collection, model call or app restart is part of this investigation. Evidence:
+remain; dependency auditing was disabled and no full-solution/SSDT validation is claimed. That diagnosis
+and build-only check made no operational/database changes; the later authorized recovery is recorded above. Evidence:
 the failed run's private nightly status/log and `artifacts/ai-engine-context-20261001/`.
 
 **First-review preparation, October 1:** explicit Preflight/Prepare/Review modes now support read-only
@@ -45,13 +71,13 @@ The third attempt completed: `wait`, requested interval two minutes, 30,194 coun
 There is exactly one model call; the original 32,000/4,096 token caps and CAD 90 monthly ceiling remain.
 This is local accounting under approved buffers, not a provider invoice or measured CAD card charge.
 Read-only verification confirms identical Pending/Reviewed packet JSON and exact SQL/local final
-record equality. All 15 candidates lack fresh matching engine context; selection eligibility remains
+record equality. At that review all 15 candidates lacked fresh matching engine context; selection eligibility remains
 unchanged. Price/engine age checks, historical attempts and risk state are preserved. No app restart,
 broker/market collection, assignment or order occurred. Automatic reviews remain disabled.
 Validation: 76 focused client/reviewer/learning/coordinator tests pass; Sandbox builds. Existing CS8632
 warnings remain, with no new dependency audit or full-solution validation. Private evidence:
 `artifacts/ai-first-review-20261001/{prepare,review,review-diagnostic,review-compact,format-tests,format-build}.log`
-and `verification.json`. The missing-context diagnosis above now supplies the immediate recovery step;
+and `verification.json`. The diagnosis and subsequent pipeline recovery are recorded above;
 desktop lifecycle/scheduling remain unqualified.
 
 **API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets

@@ -10,9 +10,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **First connected review follow-up (October 1):** the operator accepted the ten-minute age for
   this review-only test. Protected history is initialized; one model review and exact SQL readback
   are verified, with conservative usage/cost accounting. The AI returned `wait` and requested two
-  minutes. All 15 choices lacked today's adopted publication: nightly preparation failed on omitted
-  downstream dependency locks. The locks are repaired; operational rerun authorization and subsequent
-  publication/adoption qualification remain. No eligibility change is needed for this diagnosis.
+  minutes. The dependency repair and authorized pipeline recovery restored today's publication to
+  all 15 portfolios. Ungated Continuation 3/5 now permit AI proposals; remaining choices preserve
+  admission/evidence blocks. Further connected-review qualification, the exact remaining Breakout/Live
+  evidence causes and Athena's two invalid prediction outcomes remain follow-ups. No eligibility rule changed.
   Continuous operating ages and
   installed desktop lifecycle remain unqualified. Timing and first-review cost bounds remain agreed
   (ADR-0087); automatic reviews and trading remain disabled. See project status for dated evidence.

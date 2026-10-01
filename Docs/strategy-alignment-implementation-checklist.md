@@ -101,8 +101,9 @@ and fuller versions for Milestone 2; showing a reviewer does not complete those 
 All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
 timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
 Opt-in desktop startup is built/tested. Private setup and one connected review with SQL readback and
-recorded usage are verified October 1. All choices lacked today's daily publication after a nightly
-dependency failure; restore/build repair precedes an authorized rerun and adoption check. Installed
+recorded usage are verified October 1. Dependency repair and the authorized pipeline recovery restored
+today's publication to all 15 portfolios; two ungated Continuation choices have usable AI context.
+Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
 automatic runtime verification remains pending.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
@@ -209,7 +210,10 @@ runtime/display development can proceed while native input qualification remains
    - [x] Complete one connected review, verify exact SQL/local input and answer, and record token usage and conservative cost (October 1).
    - [x] Diagnose missing signals across all 15 choices: nightly dependency restore stopped before today's daily publication was created.
    - [x] Repair the Hermes/Delphi/Athena dependency locks and pass isolated nightly restore/build validation without running operational stages.
-   - [ ] **Next:** run an explicitly authorized pipeline recovery, then verify today's publication, portfolio adoption and usable AI context.
+   - [x] Run the authorized pipeline recovery and verify today's valid publication is adopted by all 15 portfolios (October 1); Athena separately reports two invalid outcomes.
+   - [x] Verify restored AI context with read-only engine readers: ungated Continuation 3/5 permit proposals; remaining choices preserve their admission/evidence blocks.
+   - [ ] **Next:** qualify another connected review with the restored choice inputs and explicit remaining gaps; no further model call ran during pipeline recovery.
+   - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
