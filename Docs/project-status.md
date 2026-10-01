@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. Scope clarified: TMX remains the normal price source. Wealthsimple is only a possible limited AI-manager fallback for delayed/unavailable held-stock inputs; this lower-priority item is deferred. No source switch, broker-based valuation or fallback has been implemented. The timestamp uncertainty remains explicit in ADR-0087 and the parser comment. Return to the main visible-reviewer integration work in Steps 7–8. Step 3 account receipt timing and cash-only persistence are verified, while normal invested-value acceptance/coverage remains unqualified; preserve existing stale-input blocks. The Step 7 scheduler is source-tested, with host/display integration pending. No AI trading or operating AI loop is enabled.
+**Current record:** September 30, 2026. The Step 7 review coordinator now connects portfolio inputs, the existing AI reviewer and queryable decision storage in source; 157 focused tests pass. SQL migration 042 is prepared, not installed. App startup, operating configuration and native review verification remain pending; no AI trading or operating AI loop is enabled. TMX remains the normal price source; the possible limited Wealthsimple AI fallback remains deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -8,7 +8,7 @@ its original dates below.
 portfolio are reconfirmed. Continue Step 7 with current input checks; the preference to review dated
 or incomplete information with explicit gaps is recorded, but changing rejection/eligibility rules
 is deferred unless it blocks integration. Existing switching/history boundaries remain. This is a
-documentation decision only; no runtime, input-policy or operational change was made.
+documentation decision. The subsequent coordinator increment below implements the connection without changing input policy or enabling operations.
 
 ## Executive summary
 
@@ -29,8 +29,8 @@ what has actually been implemented, installed or observed.
 
 **Delivery checkpoints, September 28:** the existing ten-step checklist now groups delivery into a
 [visible AI reviewer, complete tested paper trader, and supervised live trading](strategy-alignment-implementation-checklist.md#delivery-milestones).
-All three are pending; the reviewer is the next visible target. September 29 completes the current
-offline Step 7 increment; Step 3 verifies cash-only persistence and fixes receipt timing, while invested-price
+All three are pending; the reviewer is the next visible target. September 30 adds the tested Core
+coordinator and prepared SQL storage; Step 3 verifies cash-only persistence and fixes receipt timing, while invested-price
 acceptance remains unverified.
 Duplicate AI/learning task lists are consolidated into that sequence; completed price investigations
 link to the dated evidence below. Milestone labels do not establish operational readiness.
@@ -475,6 +475,29 @@ skipped unless opted in. One-tick receipt violations remain rejected. The clock 
 separate native run above; its sample still accepted no invested value. Existing CS8632 compiler warnings
 remain; no fresh security audit (`NuGetAudit=false`), WPF/full-solution build or full Core suite ran.
 Evidence: `artifacts/ai-risk-values-20260929/receipt-clock-final-tests.log`; operational counts/limits above.
+
+**Review coordinator, September 30 (source/tested only):** `AiPaperPortfolioReviewInputs` reads the catalogue,
+both saved engine contexts and the account's existing risk reader/journal through the existing packet builder.
+`AiPortfolioReviewCoordinator.FromSavedPaperInputs` composes those SQL readers, the durable scheduler,
+learning-aware reviewer, budgeted Responses client and `AiPortfolioReviewRepository`. The host must still
+supply reviewed configuration, current active-choice/hold state, initialized journals and ticks; construction
+does not initialize history or start a timer. Scope mismatches and active-choice/hold changes during collection
+reject the review. Undefined/unavailable choices remain visible under current packet rules.
+Migration 042 adds append-only Pending/Reviewed/Rejected evidence with full packets and validated answers,
+plus queryable action/selected-portfolio columns. The exact learning-enriched input saves before a paid call;
+local journals retain recovery evidence and raw call/cost data. A failed final SQL save can be retried from
+the local review, including after restart, without another model call or restoring review permission.
+Reviewed describes a recorded assessment, not current execution permission; events during saving still
+suppress returning an older decision. Input preparation failures remain in the scheduling journal.
+Validation: 157 focused coordinator, scheduler/recovery, packet, learning and risk-reader tests pass with
+synthetic sources/model/storage; Core builds and Visual Studio MSBuild builds TraderDB.sqlproj successfully.
+No native SQL roundtrip, migration, market/broker request, paid AI call, app restart or activation ran.
+Existing CS8632 compiler warnings remain. Cached dependency audit warnings separately include NU1902–NU1904
+for System.Data.SqlClient, System.DirectoryServices.Protocols, System.Drawing.Common and System.Security.Cryptography.Xml;
+no dependency changes or fresh audit were performed. No full Core suite or complete solution build ran.
+Evidence: `artifacts/ai-coordinator-tests.log`, `artifacts/ai-coordinator-sql-build.log`.
+Next: authorize/install and verify SQL review storage, then compose the app owner with explicit operating
+configuration and separately qualify a bounded connected review. Independent protection and execution stay separate.
 
 **Review scheduler and recovery, September 28 (source/tested only):** `AiReviewScheduler` uses a reviewed calendar
 session and explicitly supplied checkpoint times. It combines/deduplicates entry, confirmed-closure

@@ -16,6 +16,7 @@ public interface ISystemShadowRiskReader
 /// <summary>Persists qualified paper risk checks. The explicit faster-source overload collects prices; no model or order calls.</summary>
 public sealed class PaperAiPortfolioRiskReader
 {
+    public Guid PortfolioId { get; }
     private readonly Func<DateOnly, bool, bool, ImmutableArray<string>, CancellationToken, Task<AiRiskObservationResult>> read;
 
     public PaperAiPortfolioRiskReader(PaperAiFastValuationReader source, PaperAiFastRiskMonitor monitor, TimeProvider? clock = null)
@@ -23,6 +24,7 @@ public sealed class PaperAiPortfolioRiskReader
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(monitor);
         if (source.PortfolioId != monitor.PortfolioId) throw new ArgumentException("Reader and journal must own the same paper account.");
+        PortfolioId = monitor.PortfolioId;
         clock ??= TimeProvider.System;
         read = async (date, initialize, reviewed, blocks, ct) =>
         {
@@ -38,6 +40,7 @@ public sealed class PaperAiPortfolioRiskReader
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(monitor);
+        PortfolioId = monitor.PortfolioId;
         clock ??= TimeProvider.System;
         read = async (date, initialize, reviewed, blocks, ct) =>
         {
@@ -55,6 +58,7 @@ public sealed class PaperAiPortfolioRiskReader
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(monitor);
+        PortfolioId = monitor.PortfolioId;
         clock ??= TimeProvider.System;
         read = async (date, initialize, reviewed, blocks, ct) =>
         {

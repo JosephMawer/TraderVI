@@ -1,5 +1,26 @@
 # Running TraderVI
 
+## AI review coordinator — prepared, not enabled
+
+The Core coordinator is callable through `AiPortfolioReviewCoordinator.FromSavedPaperInputs`; it
+requires the existing account risk reader/journal, durable schedule, learning journal and budgeted
+Responses client. Supply reviewed calendar/checkpoint times, evidence ages, history window and the
+current active portfolio/holds. Journal initialization is an explicit setup operation; the coordinator
+does not create replacement history, start itself from desktop startup or submit trades.
+
+SQL review storage requires individually reviewed migration
+`TraderDB/Migrations/20260930_042_AddAiPortfolioReview.sql`, a verified fresh full backup and explicit
+installation authorization. It is prepared and schema-built only; do not publish the DACPAC.
+After separately authorized installation, query `dbo.AiPortfolioReview` by ReviewId or PortfolioId.
+Pending contains the exact input; Reviewed includes the validated answer; Rejected has no accepted
+answer. These are historical records, not execution permission. Raw provider/cost evidence remains
+in the private call journal under the same ReviewId. Preparation failures remain in the schedule.
+
+If final SQL persistence fails, `PersistReviewAsync(reviewId)` copies the saved local disposition
+without calling the AI. Keep the original local journals; do not reset them or retry the paid call ID.
+Native SQL idempotency/concurrency and connected review verification remain outstanding. Starting the
+normal desktop below does not enable this coordinator yet.
+
 ## Build and run the local desktop checkout
 
 After the reviewed strategy branch is merged into the main checkout, close the running TraderVI

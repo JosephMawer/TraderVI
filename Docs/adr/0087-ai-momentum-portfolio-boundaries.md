@@ -93,6 +93,25 @@ or implemented here. Keep input preparation separate from scheduling/model invoc
 this policy can be revisited without redesigning the coordinator. The first connected reviewer
 records decisions without executing trades; no separate proposal approval workflow is requested.
 
+## Review coordinator connection — September 30 implementation
+
+`AiPortfolioReviewCoordinator` joins the existing schedule, paper input readers, packet builder,
+learning-aware reviewer and a scoped SQL review repository. Input preparation remains a separate
+interface; existing qualification/eligibility rules are unchanged. The production factory uses the
+budgeted Responses client and SQL catalogue/engine readers, with caller-supplied ages, configuration,
+current active choice/holds and explicitly initialized histories. It does not start a timer or change
+the active portfolio when an answer arrives; executing a switch remains Step 5 work.
+
+Prepared migration 042 adds queryable append-only review evidence. Save the full learning-enriched
+packet as Pending before calling the model, then save Reviewed with the validated answer or Rejected
+without one. Pending is an admitted input, not proof a paid request occurred. Local journals remain
+the source of call/spending/learning/scheduling recovery. SQL exact retries are idempotent; changed
+scope/input/disposition is rejected. A missed terminal save can be copied from local evidence without
+repeating the model call. SQL history does not restore permission or remove newer pending events.
+Pre-packet failures remain visible in the existing schedule history. No separate proposal approval
+system is added. SQL installation/native roundtrip and app startup/operating qualification remain
+pending; no activation follows from the source increment. Validation belongs in project status.
+
 ## Implementation checkpoint — September 27
 
 Step 2 has enough agreed framework to proceed with code. Portfolio eligibility is now agreed below:

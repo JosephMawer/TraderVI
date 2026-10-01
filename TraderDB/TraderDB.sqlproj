@@ -232,4 +232,9 @@
   <Target Name="BlockTraderDbDeployment" BeforeTargets="Deploy;SqlDeploy">
     <Error Text="TraderDB deployment is intentionally disabled. Build the project for schema validation, then use a reviewed script from TraderDB/Migrations and follow Docs/database-operations.md." />
   </Target>
+  <ItemGroup>
+    <Build Include="dbo/Tables/AiPortfolioReview.sql" />
+    <Build Include="dbo/Triggers/AiPortfolioReview_Immutable.sql" />
+    <None Include="Migrations/20260930_042_AddAiPortfolioReview.sql" />
+  </ItemGroup>
 </Project>

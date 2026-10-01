@@ -11,7 +11,7 @@ namespace Core.Oracle;
 
 /// <summary>Supplies evaluated learning before every review and durably records its disposition.</summary>
 public sealed class AiLearningAwareSupervisor(AiPortfolioReviewer reviewer, AiLearningJournal journal,
-    TimeSpan refreshInterval, TimeProvider? time = null)
+    TimeSpan refreshInterval, TimeProvider? time = null, IAiReviewStore? reviewStore = null)
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
 
@@ -27,6 +27,8 @@ public sealed class AiLearningAwareSupervisor(AiPortfolioReviewer reviewer, AiLe
         bool requestTiming = false)
     {
         ct.ThrowIfCancellationRequested();
+        if (reviewStore is not null && reviewStore.Scope.AccountMode != accountMode)
+            throw new ArgumentException("Review storage must match the account mode.");
         // Freeze before reading learning or awaiting the model; the same packet is used for durable evidence.
         var frozen = JsonSerializer.Deserialize<AiPortfolioPacket>(JsonSerializer.Serialize(packet))!;
         AiPortfolioReviewer.ValidatePacket(frozen, clock.GetUtcNow());
@@ -36,17 +38,23 @@ public sealed class AiLearningAwareSupervisor(AiPortfolioReviewer reviewer, AiLe
         var learning = journal.Consult("supervisor", frozen.PacketId.ToString("D"), accountMode,
             scopes, clock.GetUtcNow(), refreshInterval, force: true)!;
         frozen = frozen with { SchemaVersion = requestTiming ? 3 : 2, Learning = learning };
-        journal.RecordReview(new(frozen.PacketId, learning.ConsultationId, frozen, null, "Pending", clock.GetUtcNow()));
+        var pending = new AiLearningReview(frozen.PacketId, learning.ConsultationId, frozen, null, "Pending", clock.GetUtcNow());
+        journal.RecordReview(pending);
+        // Persist the exact learning-enriched input before any paid request. A storage failure stops admission.
+        if (reviewStore is not null) await reviewStore.SaveAsync(pending, ct);
         AiPortfolioProposal proposal;
         try { proposal = await reviewer.ReviewAsync(frozen, ct); }
         catch
         {
             // Preserve a rejected attempt even on cancellation. Raw model evidence is in the call journal.
-            journal.RecordReview(new(frozen.PacketId, learning.ConsultationId, frozen, null, "Rejected", clock.GetUtcNow()));
+            var rejected = new AiLearningReview(frozen.PacketId, learning.ConsultationId, frozen, null, "Rejected", clock.GetUtcNow());
+            journal.RecordReview(rejected);
+            if (reviewStore is not null) await reviewStore.SaveAsync(rejected, CancellationToken.None);
             throw;
         }
         var reviewed = new AiLearningReview(frozen.PacketId, learning.ConsultationId, frozen, proposal, "Reviewed", clock.GetUtcNow());
         journal.RecordReview(reviewed);
+        if (reviewStore is not null) await reviewStore.SaveAsync(reviewed, ct);
         return reviewed;
     }
 }

@@ -98,8 +98,9 @@ This checklist grants no deployment, paid API call or live-order authority.
 
 These milestones group the same ten steps below. Steps 7 and 8 have an initial version for Milestone 1
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
-All three milestones remain pending. Step 7's offline review scheduler, saved-state recovery and
-model-requested timing are built/tested. Step 3's connected check verifies cash-only persistence/recovery;
+All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
+timing and Core coordinator are built/tested; SQL review storage is prepared but not installed.
+Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. Normal TMX held-stock coverage and invested-value acceptance
 remain unqualified. The possible Wealthsimple AI fallback is deferred and lower priority; return to
 the main reviewer delivery work while preserving existing stale-input blocks.
@@ -187,7 +188,10 @@ runtime/display development can proceed while native input qualification remains
 
 7. **Runtime host — partly prepared.**
 
-   - [ ] **Next:** connect the review coordinator using existing input preparation, scheduler and reviewer; record inputs/results without executing trades or adding a proposal approval workflow.
+   - [x] Connect/test the Core review coordinator: gather existing inputs, call the existing reviewer and save input/answer evidence through a SQL repository; no execution or approval workflow.
+   - [x] Prepare SQL review storage and migration 042; build the database schema project.
+   - [ ] **Next:** authorize/install migration 042 after a verified backup and verify native SQL saves, duplicate handling and recovery.
+   - [ ] Connect app startup with explicit account/history ownership and operating configuration; verify a bounded connected review before automatic operation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
