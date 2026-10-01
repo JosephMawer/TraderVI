@@ -1,6 +1,7 @@
 #nullable enable
 
 using Core.Db;
+using Core.Oracle;
 using Core.Trader;
 using System;
 using System.ComponentModel;
@@ -31,6 +32,8 @@ public partial class PaperDashboardWindow : Window
     private readonly DispatcherTimer brokerTimer = new() { Interval = TimeSpan.FromSeconds(30) };
     private WealthsimpleConnectionWindow? connectionWindow;
     private DateTime nextAutomaticPollLocal;
+    private Task aiReviewTask = Task.CompletedTask;
+    private bool aiReviewStarted;
 
     public PaperDashboardWindow()
     {
@@ -104,6 +107,11 @@ public partial class PaperDashboardWindow : Window
         }));
         Loaded += async (_, _) =>
         {
+            if (!aiReviewStarted)
+            {
+                aiReviewStarted = true;
+                aiReviewTask = Task.Run(() => RunAiReviewsAsync(shutdown.Token));
+            }
             try { await wealthsimple.StartAsync(shutdown.Token); }
             catch (OperationCanceledException) { }
             if (!shutdown.IsCancellationRequested) authTimer.Start();
@@ -424,6 +432,34 @@ public partial class PaperDashboardWindow : Window
         manualBuys.Dispose();
     }
 
+    private async Task RunAiReviewsAsync(CancellationToken ct)
+    {
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+            var settings = AiPaperReviewSettings.Load(AiPaperReviewSettings.LocalSettingsPath);
+            if (settings?.Enabled != true) return;
+            using var runtime = new AiPaperReviewRuntime(settings);
+            await runtime.RunAsync(notice => ReportAiReview(notice.State), ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
+        catch { ReportAiReview("NeedsAttention"); } // Never display credential, packet or exception contents.
+    }
+
+    private void ReportAiReview(string state)
+    {
+        if (Dispatcher.HasShutdownStarted || shutdown.IsCancellationRequested) return;
+        string message = state switch
+        {
+            "Reviewed" => "AI portfolio review saved. No trades are executed by the reviewer.",
+            "OutsideSession" => "AI reviews are waiting for the next market session.",
+            "NeedsAttention" => "AI reviews stopped: check configuration and saved history before restarting.",
+            _ => $"AI review status: {state}."
+        };
+        _ = Dispatcher.BeginInvoke(new Action(() => viewModel.AddEvent(DateTime.UtcNow, message,
+            state == "NeedsAttention" ? "Error" : "Info")));
+    }
+
     private bool closingMonitor;
     private bool monitorStopped;
     protected override async void OnClosing(CancelEventArgs e)
@@ -457,7 +493,7 @@ public partial class PaperDashboardWindow : Window
         connectionWindow?.Close();
         TradingRecommendationsTabView.StopWealthsimple();
         await wealthsimple.StopAsync();
-        try { await DelphiLiveTabView.StopAsync(); }
+        try { await Task.WhenAll(DelphiLiveTabView.StopAsync(), aiReviewTask); }
         catch (Exception ex)
         {
             viewModel.AddEvent(DateTime.UtcNow, $"Delphi Live shutdown: {ex.GetType().Name}; its lease must expire before another host can run.", "Error");

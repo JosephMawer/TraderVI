@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. App startup, operating configuration and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. Environment checks found no key, but a September 30 read-only check located the existing Oracle user-secrets key and matched its suffix to the operator screenshot. Core credential loading and model-metadata access are now verified; paid generation and app startup remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. Opt-in app startup is implemented/tested; private input configuration, initial history and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. Environment checks found no key, but a September 30 read-only check located the existing Oracle user-secrets key and matched its suffix to the operator screenshot. Core credential loading and model-metadata access are now verified; paid generation and installed desktop operation remain unverified. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
 **API access update, September 30, 23:27 Toronto:** Core now loads Oracle's existing user-secrets
 configuration directly. The authorized single model-metadata GET returned HTTP 200 with the exact
 requested GPT-6 Astra identity in 634 ms. No credential was printed/copied/changed; no generation,
@@ -8,8 +8,25 @@ portfolio submission, SQL, journal initialization or app restart occurred. Gener
 and actual review costs remain unverified. Thirty focused client/access tests and the Sandbox build
 pass. Existing CS8632 compiler warnings remain; dependency audit was disabled during restore, so no
 fresh security assessment is claimed. Private evidence: `artifacts/ai-api-setup-20260930/access-{tests,build,native}.log`.
-The operator accepted a five-minute initial interval and open / open+3h / close-15m checkpoints;
-operating cost/input configuration and app startup remain pending.
+The operator accepted a five-minute initial interval and open / open+3h / close-15m checkpoints,
+plus CAD 90/month, 1.60 CAD/USD and 20% tax/fee headroom through October 31 for the first review.
+
+**Desktop review host, September 30 (source/tested, not activated):** `AiPaperReviewRuntime` reopens
+the shared spending/learning journals and scoped risk/schedule history, uses Oracle's saved key,
+and composes the existing saved-Shadow input coordinator. WPF starts it on a background task only
+when private settings explicitly enable it; shutdown cancels and awaits completion before releasing
+ownership. The 30-second host tick delegates paid-review admission to the existing adaptive scheduler.
+Reviewed-session advancement preserves schedule history; unexpected failures stop the host with a
+generic attention message. Missing history is never created/reset on startup. Proposals remain SQL
+evidence; no assignment, order or protection integration is added. Input-age limits have no defaults.
+Validation: 89 focused host/coordinator/scheduler tests pass, including cancellation, single ownership,
+missing-history rejection and cost expiry. WPF builds; existing CS8632 (Core/tests) and CS0168 (WPF)
+warnings remain. No fresh dependency audit, full-solution build or native desktop lifecycle test.
+No settings file, production journal or learned snapshot was created; the installed app was not
+restarted and no paid generation ran. Prepare explicit input ages and initial private history, then
+qualify one connected market-hours review before enabling automatic operation. Source still uses
+saved Shadow book/bar readers; faster-price collection and invested coverage are not newly qualified.
+Evidence: `artifacts/ai-api-setup-20260930/host-tests.log`, `host-wpf-build.log`.
 
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
@@ -519,14 +536,14 @@ offline. Existing CS8632 compiler and cached NU1902–NU1904 dependency-security
 security audit or full-solution build. `Read-AiStartingPortfolio.sql` locates the chosen variant and returns
 current cash, open holdings and saved reviews; SQL Server 2019 syntax validation passes, but this new query
 was not executed. No starting portfolio was injected, no real key saved and no SQL/API/app operation ran.
-Review inputs become frozen evidence only when saved in `AiPortfolioReview.RecordJson`. API authentication,
-model access, operating settings and startup remain unverified. Client evidence: `artifacts/ai-api-setup-20260930/client-tests.log`.
+Review inputs become frozen evidence only when saved in `AiPortfolioReview.RecordJson`. The subsequent
+credential/access check and source host are recorded at the top of this page. Client evidence: `artifacts/ai-api-setup-20260930/client-tests.log`.
 
 The authorized installation/native storage rehearsal is recorded above. The operator selected
 Breakout 3 with skipped daily gates for the first cash/holdings source; the read-only catalogue lookup
 uniquely matches an active BreakoutTop3 / PortfolioRulesOnlyV1 account. The private identity receipt is
 `artifacts/ai-review-install-20260930/starting-portfolio.json`; no assignment or risk history was changed.
-Next compose the app owner with explicit operating configuration and qualify a bounded connected review.
+The app owner is now composed in source; next prepare input configuration/private history and qualify a bounded connected review.
 At the after-hours setup check, OPENAI_API_KEY was absent from process, user and
 machine environments; other credential stores were not inspected. The market was closed, so the current
 scheduler could not admit an actual review. No startup configuration, new history or API access was activated.

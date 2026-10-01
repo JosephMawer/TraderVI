@@ -100,6 +100,8 @@ These milestones group the same ten steps below. Steps 7 and 8 have an initial v
 and fuller versions for Milestone 2; showing a reviewer does not complete those entire steps.
 All three milestones remain pending. Step 7's review scheduler, saved-state recovery, model-requested
 timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
+Opt-in desktop startup is built/tested and model metadata access is verified; private setup, an actual
+review and installed runtime verification remain pending.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. Normal TMX held-stock coverage and invested-value acceptance
 remain unqualified. The possible Wealthsimple AI fallback is deferred and lower priority; return to
@@ -195,8 +197,10 @@ runtime/display development can proceed while native input qualification remains
    - [x] Prepare masked local API-key entry, presence-only checks and a query for the selected portfolio's current cash/holdings and saved reviews.
    - [x] Locate the existing Oracle user-secrets credential and confirm its suffix matches the operator screenshot (September 30, read-only; no API call).
    - [x] Load Oracle's existing credential in Core and verify requested-model metadata access (September 30); no paid generation or portfolio submission.
-   - [ ] **Next:** finish explicit operating settings and app startup; qualify a bounded first connected review and its actual costs.
-   - [ ] Connect app startup with explicit account/history ownership; verify a bounded connected review during market hours before automatic operation.
+   - [x] Agree first-review cost accounting: CAD 90 monthly cap, 1.60 CAD/USD and 20% tax/fee headroom through October 31.
+   - [x] Connect opt-in app startup/shutdown to a background review host with shared/scoped history ownership; test cancellation and failure handling.
+   - [ ] **Next:** prepare explicit input-age settings and initial private journals; qualify a bounded connected review and actual costs during market hours before automatic operation.
+   - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.

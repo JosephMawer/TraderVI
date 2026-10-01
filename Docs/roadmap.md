@@ -57,7 +57,9 @@ The operator selected the existing Breakout 3 / PortfolioRulesOnlyV1 book as the
 Local masked key entry and the starting-portfolio inspection query are prepared; the existing Oracle user-secrets key has been located (project status).
 Core now loads that credential, and the bounded model-metadata check succeeds; generation/costs remain unverified.
 The initial five-minute interval and open / open+3h / close-15m checkpoints are agreed.
-Next finish operating settings and compose app startup for a bounded connected review during market hours. Defer more permissive
+Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and the Core review host
+are implemented/tested but not activated. Next prepare explicit input ages and initial private history,
+then qualify a bounded connected review during market hours before automatic operation. Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
 The AI chooses its active portfolio; the existing switching/history contract remains in force.
 Normal held-stock coverage, invested-value persistence and storage/operational qualification remain

@@ -11,7 +11,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   The operator selected Breakout 3 with skipped daily gates; a read-only lookup uniquely matches its
   active PortfolioRulesOnlyV1 book. Oracle credential loading and requested-model metadata access
   are verified; paid generation and costs remain unverified. Initial timing is now five minutes with
-  open / open+3h / close-15m checkpoints. Other operating settings and startup remain pending;
+  open / open+3h / close-15m checkpoints. First-review cost bounds are agreed (ADR-0087), and opt-in
+  app startup is source/tested. Input ages, initial private history and connected qualification remain;
   no paid call, new risk history or app activation followed installation. The AI still evaluates all
   catalogue choices and may decide to switch under ADR-0087.
 
@@ -113,7 +114,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   accepted, subject to the shared budget. Ownership is settled: the AI controls review attention;
   app-owned protection checks every fresh verified portfolio valuation without an AI call. Slower
   reviews cannot slow required collection/protection. Qualify a fresher source for minute-level
-  coverage; current five-minute bars are insufficient. Set exact checkpoint times and relevant rules.
+  coverage; current five-minute bars are insufficient. Checkpoint times are now open / open+3h /
+  close-15m; finish relevant rule/event integration.
   The recommended MVP uses AI-proposed
   next-review intervals validated by the host, with defined local events requesting earlier reviews;
   it cannot weaken protection or change five-minute bar semantics. Initial events are now agreed:

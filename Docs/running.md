@@ -1146,7 +1146,35 @@ The query makes no persistent writes; separate result sets are inspection, not a
 
 ### Current composition boundary
 
-AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
+The desktop reads `%LOCALAPPDATA%\TraderVI\AiMomentum\review-settings.json` once on startup.
+Absent settings or `Enabled: false` leave the reviewer off. Invalid/incomplete settings or missing
+history report attention; startup never initializes replacement history. `AiPaperReviewSettings`
+requires `Enabled`, `PortfolioId`, `ActiveChoiceId` (nullable), `JournalRoot`, `CalendarPath`,
+`InitialSession`, `RiskMaximumAge`, `CatalogMaximumAge`, `ContextMaximumAge`, `HistoryDays`,
+`LearningRefreshInterval` and `IndependentBlocks`. Use JSON property names exactly as written,
+ISO dates, .NET TimeSpan strings and explicit arrays. Keep identities/settings private, with no key
+in this file. Input ages/history scope must be selected for the connected test, not guessed from
+diagnostic limits. `InitialSession` remains the schedule journal's original initialization date.
+
+Prepare one stable protected root outside the checkout before activation: `shared` holds the
+spending and learning journals for all AI roles; `paper/<portfolio-guid>` holds the selected
+account's risk and scheduling journals. All four existing JSON/lock pairs are required. Establish
+qualified risk history and an explicit current learning snapshot; startup does not invent lessons
+or reset their expiry. Preserve pending/interrupted files for reviewed recovery. Changing the
+root or deleting history is not a budget or risk reset mechanism.
+
+The initial host uses the coordinator's existing saved Shadow book/bar reader for the selected
+Breakout account. It does not start TMX collection or adopt broker quotes. The AI's proposed
+switches are saved opinions; the host does not switch the running engine or move holdings.
+The 30-second background tick checks the durable scheduler, with the agreed five-minute starting
+interval and open/open+3h/close-15m checkpoints. Only one review runs at a time; paid-review cadence
+remains 1–15 minutes as requested by the AI. Closing WPF cancels/awaits the task and disposes its
+owners. Unexpected failures stop this owner; errors never dump packets or credentials to the UI.
+No private settings or production journals have been prepared yet. Qualify one bounded connected
+review before setting `Enabled` for automatic startup. This does not enable trading.
+
+AI Momentum's review-only Core host (ADR-0087) is connected to WPF startup in source and remains disabled
+until explicitly configured. It has no nightly host or execution path.
 Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic
 tests for offline validation:
 

@@ -1214,6 +1214,12 @@ session open, three hours after opening and fifteen minutes before closing (09:3
 AI-requested 1–15-minute interval and earlier event/checkpoint behavior remain. These settings do
 not authorize an execution path or bypass unavailable inputs. Operational activation remains separate.
 
+For the first review, the operator also accepts the existing CAD 90 monthly ceiling, a CAD 1.60
+per USD accounting ceiling and a 1.20 tax/fee multiplier, valid through October 31 Toronto
+(expires November 1 at 04:00 UTC). These are conservative accounting bounds, not exchange-rate
+predictions, provider charges or a new budget. Existing shared spend and outstanding reservations
+must be preserved. Automatic operation still follows bounded connected qualification.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

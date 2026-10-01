@@ -97,8 +97,11 @@ of shared market judgments, invalid latest checkpoints and endpoint-based expiry
 produce daily performance without falling back past an incomplete latest mark. Neither family reader
 recomputes trading decisions or transfers paper confirmation to the managed account.
 Native SQL/raw-bar/source-coverage qualification and prompt-size/cost qualification
-remain unfinished. There is no runtime host, automatic outcome evaluator or order transport on
-this path yet. The existing broker workflow and independent protection remain separate. A learning
+remain unfinished. `AiPaperReviewRuntime` now owns the review coordinator's reopened journals and
+budgeted client, with an opt-in WPF background lifecycle. Startup requires existing qualified history
+and explicit private input settings; it cannot initialize/reset history. It uses saved Shadow inputs
+for the initial selected account. The host has no automatic outcome evaluator or order transport.
+The existing broker workflow and independent protection remain separate. A learning
 check grants no execution authority. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) defines
 storage, provenance and operational prerequisites; project status owns validation evidence.
 
