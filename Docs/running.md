@@ -1103,6 +1103,36 @@ confirm authentication but requests zero quotes and exits unsuccessfully as `Out
 
 ## Oracle — LLM narration
 
+### AI Momentum API key and starting-portfolio inspection
+
+Create a key in the [OpenAI API dashboard](https://platform.openai.com/api-keys), following
+the [official quickstart](https://developers.openai.com/api/docs/quickstart). Enter it locally,
+not in chat, source code or a command-line argument:
+
+```powershell
+./Operations/Set-TraderVIOpenAiKey.ps1
+./Operations/Set-TraderVIOpenAiKey.ps1 -CheckOnly
+```
+
+The first command prompts with masked input and writes the existing `OPENAI_API_KEY` setting
+to the Windows user environment and this PowerShell process. Environment storage is not encrypted;
+`-SessionOnly` instead keeps it only in this process and programs launched from it. CheckOnly reports
+presence, never the key. It does not verify authentication, model permission, funding or readiness.
+Already-running apps and their launchers retain their old environment; when startup is connected,
+launch from the configured PowerShell session or a refreshed launcher. The existing explicit
+`Oracle:OpenAi:ApiKey` configuration takes precedence over this environment fallback.
+Neither command calls OpenAI, starts TraderVI or enables reviews/trading.
+
+Run [Read-AiStartingPortfolio.sql](../Operations/Read-AiStartingPortfolio.sql) against `TraderDB`
+to view the selected Breakout 3 / `PortfolioRulesOnlyV1` source. It returns current cash from
+`ShadowPortfolio`, open holdings from `ShadowPosition`, then saved review records from
+`AiPortfolioReview`. It requires one unique active match via `PaperComparisonAccount`; it never
+silently picks one of several matches. These live source rows are not an injected starting snapshot.
+Only a subsequently saved review's `RecordJson` freezes the actual AI input and answer. Keep results private.
+The query makes no persistent writes; separate result sets are inspection, not a coherent risk packet.
+
+### Current composition boundary
+
 AI Momentum's separate client/proposal library (ADR-0087) is disabled and has no app or nightly host.
 Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic
 tests for offline validation:

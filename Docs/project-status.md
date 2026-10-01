@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. App startup, operating configuration and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. No OpenAI API key was found in process/user/machine environment checks. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
+**Current record:** September 30, 2026. The Step 7 coordinator is built/tested, and migration 042 is installed with four native SQL storage tests passing. Local masked API-key entry and a starting-portfolio inspection query are prepared. App startup, operating configuration and an actual AI review remain pending; no AI trading or operating AI loop is enabled. The operator selected Breakout 3 with skipped daily gates as the first cash/holdings source; a read-only lookup uniquely matched its active PortfolioRulesOnlyV1 variant. No OpenAI API key was found in process/user/machine environment checks. TMX remains normal; the possible limited Wealthsimple AI fallback is deferred. Step 3 cash-only persistence is verified, while invested-value acceptance/coverage remains unqualified and existing input checks remain unchanged.
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
@@ -497,7 +497,20 @@ Existing CS8632 compiler warnings remain. Cached dependency audit warnings separ
 for System.Data.SqlClient, System.DirectoryServices.Protocols, System.Drawing.Common and System.Security.Cryptography.Xml;
 no dependency changes or fresh audit were performed. No full Core suite or complete solution build ran.
 Evidence: `artifacts/ai-coordinator-tests.log`, `artifacts/ai-coordinator-sql-build.log`.
-The later authorized installation/native storage rehearsal is recorded above. The operator then selected
+
+**API setup tooling, September 30 (source/tested only):** `Set-TraderVIOpenAiKey.ps1` provides masked
+local entry into the existing environment configuration, a nonpersistent session option and presence-only
+checks. Script parsing and isolated synthetic-key checks pass for masking, output secrecy, session configuration,
+invalid-input preservation and unchanged user settings. Actual user-environment key persistence was not run;
+the presence check still reports no key at all three environment scopes. Twenty existing AI client tests pass
+offline. Existing CS8632 compiler and cached NU1902–NU1904 dependency-security warnings remain; no fresh
+security audit or full-solution build. `Read-AiStartingPortfolio.sql` locates the chosen variant and returns
+current cash, open holdings and saved reviews; SQL Server 2019 syntax validation passes, but this new query
+was not executed. No starting portfolio was injected, no real key saved and no SQL/API/app operation ran.
+Review inputs become frozen evidence only when saved in `AiPortfolioReview.RecordJson`. API authentication,
+model access, operating settings and startup remain unverified. Client evidence: `artifacts/ai-api-setup-20260930/client-tests.log`.
+
+The authorized installation/native storage rehearsal is recorded above. The operator selected
 Breakout 3 with skipped daily gates for the first cash/holdings source; the read-only catalogue lookup
 uniquely matches an active BreakoutTop3 / PortfolioRulesOnlyV1 account. The private identity receipt is
 `artifacts/ai-review-install-20260930/starting-portfolio.json`; no assignment or risk history was changed.
