@@ -7,6 +7,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
+- **Review input gaps (September 30, deferred):** the operator prefers passing dated information
+  and explicit missing pieces to the AI so minor gaps do not block useful assessment. Keep the
+  existing input builder's rejection/eligibility checks for current coordinator work. Revisit only
+  if integration exposes a concrete blocker; distinguish permission to review from permission to
+  execute, and preserve actual source ages and financial/risk history (ADR-0087).
+
 - **Step 2 checkpoint (September 27):** core framework and portfolio scope are agreed. All current
   strategy portfolios, including gate/position-count variants, are AI choices; expand the catalogue
   as new portfolios are built and integrated (ADR-0087). The operator deliberately defers lesson

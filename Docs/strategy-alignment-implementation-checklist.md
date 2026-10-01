@@ -187,6 +187,8 @@ runtime/display development can proceed while native input qualification remains
 
 7. **Runtime host — partly prepared.**
 
+   - [ ] **Next:** connect the review coordinator using existing input preparation, scheduler and reviewer; record inputs/results without executing trades or adding a proposal approval workflow.
+   - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
    - [x] Connect explicit test ticks to the existing learning-aware reviewer; retain trigger evidence and test budget failures, stale results and fresh-review recovery.

@@ -78,6 +78,21 @@ connection are pending Steps 4/5 work. No runtime behavior, assignment or execut
 in that documentation increment. The discretion principle is settled; map concrete engine rules
 during implementation and escalate only genuine ambiguities.
 
+## Coordinator scope clarification — September 30
+
+The operator reconfirms adaptive AI attention within the agreed 1–15-minute limits and event
+handling. The AI chooses which portfolio is active and may decide to switch; “AI's portfolio”
+means that active choice, not a permanently fixed strategy. The existing switching contract below
+still preserves holdings, protection and financial/risk history across the transition.
+
+Continue Step 7 coordinator integration using the existing input builder and validity checks.
+The operator prefers reviews to include explicitly dated information and missing-data details
+so small data gaps need not prevent useful AI assessment. Defer changing current rejection or
+eligibility behavior unless it becomes a concrete integration blocker; no relaxation is accepted
+or implemented here. Keep input preparation separate from scheduling/model invocation so that
+this policy can be revisited without redesigning the coordinator. The first connected reviewer
+records decisions without executing trades; no separate proposal approval workflow is requested.
+
 ## Implementation checkpoint — September 27
 
 Step 2 has enough agreed framework to proceed with code. Portfolio eligibility is now agreed below:

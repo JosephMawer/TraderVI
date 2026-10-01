@@ -4,6 +4,12 @@
 Desktop controls and saved account refreshes were observed September 25; operational evidence retains
 its original dates below.
 
+**Coordinator scope clarified, September 30:** adaptive review timing and AI choice of the active
+portfolio are reconfirmed. Continue Step 7 with current input checks; the preference to review dated
+or incomplete information with explicit gaps is recorded, but changing rejection/eligibility rules
+is deferred unless it blocks integration. Existing switching/history boundaries remain. This is a
+documentation decision only; no runtime, input-policy or operational change was made.
+
 ## Executive summary
 
 TraderVI runs independent paper strategies and has a connected Wealthsimple TFSA with saved
