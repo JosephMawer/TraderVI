@@ -23,6 +23,30 @@ public sealed class AiMomentumClientTests : IDisposable
     private AiCallJournal NewJournal() => new(directory, initializeNew: true);
 
     [Fact]
+    public async Task CountOnlyUsesOneCountRequestWithoutCreatingAnyJournal()
+    {
+        int calls = 0;
+        using var http = new HttpClient(new FakeHandler((message, number) =>
+        {
+            calls++;
+            Assert.EndsWith("/responses/input_tokens", message.RequestUri!.AbsolutePath);
+            return Task.FromResult(Json("{\"input_tokens\":29516}"));
+        }));
+        Assert.Equal(29516, await OpenAiResponsesLlmClient.CountInputAsync("test-key", Request(), http));
+        Assert.Equal(1, calls);
+        Assert.False(Directory.Exists(directory));
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"input_tokens\":0}")]
+    public async Task CountOnlyRejectsMissingOrInvalidCounts(string json)
+    {
+        using var http = new HttpClient(new FakeHandler((_, _) => Task.FromResult(Json(json))));
+        await Assert.ThrowsAsync<InvalidDataException>(() => OpenAiResponsesLlmClient.CountInputAsync("test-key", Request(), http));
+    }
+
+    [Fact]
     public async Task ReservesBeforeTransmissionAndPersistsExactRequestResponseAndReasoningUsage()
     {
         using var journal = NewJournal();

@@ -105,7 +105,8 @@ recorded usage are verified October 1. Dependency repair and the authorized pipe
 today's publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
 automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
-but exceeded the existing input-token limit before generation; concise input preparation is next.
+but exceeded the existing input-token limit before generation. The concise view now fits that saved
+packet under the same limit; fresh connected decision qualification is next.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
 test bound; normal held-stock coverage and faster-price qualification remain open. The possible
@@ -214,8 +215,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Run the authorized pipeline recovery and verify today's valid publication is adopted by all 15 portfolios (October 1); Athena separately reports two invalid outcomes.
    - [x] Verify restored AI context with read-only engine readers: ungated Continuation 3/5 permit proposals; remaining choices preserve their admission/evidence blocks.
    - [x] Test a review with restored signals: 15 choices/four eligible were assembled, but the input-token limit rejected generation; verify saved rejection and unchanged spending (October 1).
-   - [ ] **Next:** make the model-facing evidence concise and validate preserved decision facts, ages, missingness and rules; keep full source history and existing limits.
-   - [ ] Complete a bounded review with the restored signals after the input-size fix; verify its answer, SQL evidence and cost.
+   - [x] Build/test the concise review view; preserve eligibility, rules, current holdings/risk, missingness and full saved source packets. Verify the failed packet fits the unchanged token cap using count-only access.
+   - [ ] **Next:** complete a fresh bounded review with the concise view; verify its answer, SQL evidence and cost, including the model's use of tables/shared definitions.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

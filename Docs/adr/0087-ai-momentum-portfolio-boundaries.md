@@ -1229,6 +1229,29 @@ remain unchanged. This neither qualifies continuous operating ages nor changes t
 Keep automatic reviews disabled while qualifying the first result. Dated installation, native
 results and remaining input gaps belong in project status and the implementation checklist.
 
+## Concise review view — October 1 implementation
+
+Following the operator's request to shorten the oversized review input, render a separate, declared
+model-facing view while retaining the complete frozen source packet in the existing review records.
+This is presentation work: do not change engine eligibility, ages, protection, spending or the response
+contract. Validate the answer against the full original packet, and save the exact transmitted request
+through the existing call journal. Small packets can retain their original presentation.
+
+The large-packet view keeps all choices, exact decision versions, hard/discretionary rule IDs, current
+managed holdings/stops, risk assessment, source times, missingness and performance context. It shares
+identical values and uses named-column tables. Live stock rows show current lens ranks/admission,
+momentum/family judgments, eleven named current measurements and data-quality reasons, alongside every
+loaded checkpoint's original bar time, continuity epoch, validity, maturity, confidence and momentum state.
+Numeric enum codes carry their names. No price rounding or missing-to-zero conversion is permitted.
+
+The view explicitly omits detailed/older calculation bodies, detailed daily gate traces, vote totals,
+lifecycle bookkeeping and internal source IDs/hashes; closed managed positions become a count. Those
+details remain in the saved packet. Required decision/account/evidence IDs remain visible. Omitted
+facts are unknown to this review, never assumed passes or reconstructed by the model. Unknown Live
+checkpoint shapes fall back to complete evidence. Format selection does not guarantee capacity: exact
+token admission remains mandatory, and further growth can still block a review. Connected model
+interpretation and operational results belong in project status, not this representation contract.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

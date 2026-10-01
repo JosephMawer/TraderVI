@@ -60,7 +60,7 @@ public sealed class OpenAiResponsesLlmClient : ILlmClient, IDisposable
         var input = new[] { new { role = "user", content = request.UserPrompt } };
         var text = new { format };
         var reasoning = new { effort = request.ReasoningEffort, mode = "standard" };
-        string countJson = JsonSerializer.Serialize(new { model = Model, instructions = request.SystemPrompt, input, text, reasoning });
+        string countJson = CountJson(request);
         string requestJson = JsonSerializer.Serialize(new
         {
             model = Model, instructions = request.SystemPrompt, input, text,
@@ -129,7 +129,38 @@ public sealed class OpenAiResponsesLlmClient : ILlmClient, IDisposable
             elapsed.Elapsed, Provider, returnedModel);
     }
 
-    private async Task<string> PostAsync(string endpoint, string json, CancellationToken ct)
+    /// <summary>Explicit count-only diagnostic. No journal, reservation or generation request is created.</summary>
+    public static async Task<int> CountInputAsync(string apiKey, LlmRequest request, HttpClient? http = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(apiKey)) throw new ArgumentException("API key required.");
+        bool owned = http is null;
+        http ??= new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(120) };
+        try
+        {
+            using var count = Parse(await PostAsync(http, apiKey, "responses/input_tokens", CountJson(request), ct));
+            if (!count.RootElement.TryGetProperty("input_tokens", out var value) || !value.TryGetInt32(out int tokens) || tokens <= 0)
+                throw new InvalidDataException("OpenAI input count is missing or invalid.");
+            return tokens;
+        }
+        finally { if (owned) http.Dispose(); }
+    }
+
+    private static string CountJson(LlmRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (request.OutputSchema is null || string.IsNullOrWhiteSpace(request.SystemPrompt) || string.IsNullOrWhiteSpace(request.UserPrompt))
+            throw new ArgumentException("A count requires the full prompt and output schema.");
+        return JsonSerializer.Serialize(new
+        {
+            model = AiSpendPolicy.Model, instructions = request.SystemPrompt,
+            input = new[] { new { role = "user", content = request.UserPrompt } },
+            text = new { format = new { type = "json_schema", name = request.OutputSchema.Name, strict = true, schema = request.OutputSchema.Schema } },
+            reasoning = new { effort = request.ReasoningEffort, mode = "standard" }
+        });
+    }
+
+    private Task<string> PostAsync(string endpoint, string json, CancellationToken ct) => PostAsync(http, apiKey, endpoint, json, ct);
+    private static async Task<string> PostAsync(HttpClient http, string apiKey, string endpoint, string json, CancellationToken ct)
     {
         using var message = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/" + endpoint);
         message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);

@@ -1173,10 +1173,11 @@ owners. Unexpected failures stop this owner; errors never dump packets or creden
 Private settings/journals were prepared October 1 with `Enabled: false`; one connected review and
 SQL readback are verified. Today's publication was subsequently restored to all portfolios. A follow-up
 review with those signals stopped before generation at the input-token limit; do not repeat the oversized
-packet unchanged or raise the limit as a workaround. Qualify concise inputs and the installed desktop
+packet unchanged or raise the limit as a workaround. The concise view passes a saved-packet count-only
+check; qualify a fresh decision using it and the installed desktop
 lifecycle before enabling automatic startup. See project status for dated results. This does not enable trading.
 
-The explicit Sandbox command `ai-paper-first-review` has four modes, selected with
+The explicit Sandbox command `ai-paper-first-review` has six modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the
 reviewed calendar's absolute path for preflight/preparation. `Preflight` reads the selected
 BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It needs SQL access.
@@ -1184,6 +1185,11 @@ BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It 
 coordinator to inspect every choice. It reports strategy family, gate profile, context freshness,
 proposal availability and timestamps without holdings, prices or account IDs. This mode is SELECT-only:
 it does not initialize/update journals, call the model, advance a monitor or change eligibility.
+`Prompt` reads the latest local saved review packet and reports its original/rendered character sizes
+without SQL, API access or journal writes. `PromptCount` additionally sends that saved view, current
+instructions and response schema to the same OpenAI input-token counter used for admission. It requires
+explicit API authorization but never sends a generation request or reserves spending. A saved packet
+may be stale: these modes measure its representation and do not validate it for a current decision.
 `Prepare` additionally requires the operator-approved positive integer
 `TRADERVI_AI_FIRST_REVIEW_AGE_MINUTES`; it applies that age to risk, catalogue and engine observations,
 uses 15 sessions of context and a five-minute lesson consultation interval. The operator accepted

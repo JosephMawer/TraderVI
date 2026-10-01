@@ -66,9 +66,10 @@ to all 15 portfolios; two ungated Continuation choices had proposal-permitted AI
 Other choices retain their existing admission/evidence blocks. Athena's two invalid prediction outcomes
 remain a separate follow-up; see project status for the Attention result and dated verification.
 The authorized follow-up assembled four eligible choices but exceeded the unchanged input-token cap
-before generation. Detailed Live checkpoint histories dominate the packet. Next prepare and validate
-a concise model-facing representation, then repeat the bounded review before automatic desktop scheduling;
-preserve decision facts, source ages, missingness and existing eligibility/spending rules.
+before generation. The concise review view is now built/tested and its saved-packet token count fits
+the existing cap. Full source packets and eligibility/spending rules remain unchanged. Next repeat the
+bounded connected review to qualify the shorter input before automatic desktop scheduling; saved-packet
+counting does not establish fresh input coverage or model interpretation.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).

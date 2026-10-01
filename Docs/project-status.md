@@ -1,6 +1,27 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. The first connected AI review completed at 10:07 Toronto using the existing Breakout 3 / PortfolioRulesOnlyV1 book and the operator-approved ten-minute test age. It returned `wait` and requested another review in two minutes. SQL input/answer readback exactly matches private history. Protected initial journals are installed; automatic reviews and AI trading remain off. The authorized pipeline recovery restored today's valid publication and adoption by all 15 portfolios. The authorized follow-up test at 11:05 assembled all 15 choices, four eligible, but stopped before generation: 270,651 input tokens exceeded the unchanged 32,000 limit. Detailed Live checkpoint histories dominate the input. Next make the model-facing evidence concise, validate what it preserves and repeat the bounded review; no input-contract change is implemented yet. Athena separately reported two invalid prediction outcomes. TMX remains normal; the optional Wealthsimple fallback remains deferred. One invested saved-Shadow value is accepted/persisted under the test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+**Current record:** October 1, 2026. One connected AI review and exact SQL/local readback are verified. The pipeline recovery restored today's publication to all 15 portfolios. The follow-up assembled four eligible choices but exceeded the unchanged 32,000-token cap before generation. A concise review view now reduces that saved input from 270,651 to 29,516 exact provider-counted tokens. Full packets remain saved; eligibility, risk and spending checks are unchanged. Next test a fresh connected review using the shorter view; count-only verification does not establish model comprehension or continuous capacity. Automatic reviews and AI trading remain off. Athena's two invalid prediction outcomes and remaining choice-specific evidence blocks are separate follow-ups. TMX remains normal and the optional Wealthsimple fallback deferred. One invested saved-Shadow value passed the ten-minute test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+
+**Concise review input, October 1:** the operator requested a shorter input. The oversized packet contained
+38 Live stock entries with 114 detailed checkpoints; Live evidence represented about 86% of description
+characters. Repeated daily setups, raw measurements, derived facts and window judgments dominated it.
+`AiPortfolioPrompt` now creates a declared `portfolio-review-view-v1` for large packets: current Live
+signals/selected measurements, data confidence and recent state history; tabular repeated records;
+shared identical definitions; full current holdings/risk and all candidate eligibility/rules. Technical
+source IDs/hashes, closed position rows and detailed calculation history stay in the full saved packet.
+Decision/account/evidence identities and exact candidate versions remain. Small packets keep their
+original wire shape. Unknown Live checkpoint shapes stay complete rather than silently losing new fields.
+The full frozen packet still drives proposal validation; the call journal saves the actual rendered request.
+See the [representation contract](adr/0087-ai-momentum-portfolio-boundaries.md#concise-review-view--october-1-implementation).
+
+The final count-only check of the same failed packet returned **29,516 tokens** (89.1% below 270,651),
+within the unchanged 32,000 cap; text shrank from 899,762 to 82,496 characters. The same reviewed schema,
+instructions and model settings were included. This is a saved-packet size check, not a new fresh AI
+decision; future larger packets still face exact token admission. No generation, spending reservation,
+SQL/journal mutation, collection, restart or execution ran in this increment. 116 focused tests pass
+and Sandbox builds; results are recorded with `artifacts/ai-restored-review-20261001/compact-{tests,build}.log`;
+existing CS8632 warnings remain, with no fresh dependency audit or full-solution validation. Size/count
+evidence is `compact-size.log` and `compact-count-final.log` in the same private artifact directory.
 
 **Restored-input review test, October 1, 11:05 Toronto:** the operator authorized one further bounded
 review using the existing settings, journals and spending guards. Input preparation accepted the current

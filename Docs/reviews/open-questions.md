@@ -13,8 +13,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   minutes. The dependency repair and authorized pipeline recovery restored today's publication to
   all 15 portfolios. A follow-up test at 11:05 assembled four eligible choices but stopped before
   generation because detailed Live checkpoint histories pushed input beyond the existing token cap.
-  A concise model-facing evidence contract is the next implementation item: preserve decision facts,
-  ages, missingness, rules and full saved source history; the exact representation is not yet decided.
+  The concise review view is implemented/tested and fits that saved packet under the existing cap
+  (ADR-0087). A fresh model decision using its tables/shared definitions and ongoing size headroom
+  remain unqualified; full source history, eligibility and risk/spending limits stay unchanged.
   Further connected-review qualification, remaining evidence/admission causes and Athena's two invalid
   prediction outcomes remain follow-ups. No eligibility or spending rule changed.
   Continuous operating ages and

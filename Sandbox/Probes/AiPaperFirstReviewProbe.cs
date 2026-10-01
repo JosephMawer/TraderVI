@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using System.Text.Json;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Db;
@@ -16,7 +18,7 @@ using Core.Trader.Promotion;
 
 namespace Sandbox.Probes;
 
-/// <summary>Explicit Preflight, Signals, Prepare or Review. Never starts the app or an automatic review loop.</summary>
+/// <summary>Explicit diagnostics, preparation or one review. Never starts the app or an automatic review loop.</summary>
 public sealed class AiPaperFirstReviewProbe : IProbe
 {
     public string Slug => "ai-paper-first-review";
@@ -30,8 +32,39 @@ public sealed class AiPaperFirstReviewProbe : IProbe
             using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
             var ct = timeout.Token;
             string mode = Environment.GetEnvironmentVariable("TRADERVI_AI_FIRST_REVIEW_MODE") ?? "Preflight";
-            if (mode is not ("Preflight" or "Signals" or "Prepare" or "Review")) throw new InvalidOperationException();
+            if (mode is not ("Preflight" or "Signals" or "Prompt" or "PromptCount" or "Prepare" or "Review")) throw new InvalidOperationException();
             string settingsPath = AiPaperReviewSettings.LocalSettingsPath;
+            if (mode is "Prompt" or "PromptCount")
+            {
+                stage = "offline saved prompt size";
+                var promptSettings = AiPaperReviewSettings.Load(settingsPath) ?? throw new InvalidOperationException();
+                using var envelope = JsonDocument.Parse(File.ReadAllText(Path.Combine(promptSettings.JournalRoot, "shared", "ai-learning.json")));
+                using var state = JsonDocument.Parse(envelope.RootElement.GetProperty("Payload").GetString()!);
+                var reviews = state.RootElement.GetProperty("Reviews");
+                var packet = reviews[reviews.GetArrayLength() - 1].GetProperty("Packet").Deserialize<AiPortfolioPacket>()!;
+                string original = JsonSerializer.Serialize(packet, new JsonSerializerOptions
+                    { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+                string prompt = AiPortfolioPrompt.Create(original);
+                Console.WriteLine($"Original characters: {original.Length}; review-view characters: {prompt.Length}; " +
+                    $"reduction: {100m * (original.Length - prompt.Length) / original.Length:F1}%. Local rendering complete; no SQL or journal write.");
+                if (mode == "PromptCount")
+                {
+                    stage = "saved prompt token count only";
+                    var request = AiPortfolioReviewer.CreateRequest(packet);
+                    var configuration = LlmClientFactory.LoadOracleConfiguration();
+                    try
+                    {
+                        string? key = configuration["Oracle:OpenAi:ApiKey"];
+                        if (string.IsNullOrWhiteSpace(key)) key = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+                        if (string.IsNullOrWhiteSpace(key)) throw new InvalidOperationException("API key unavailable.");
+                        int tokens = await OpenAiResponsesLlmClient.CountInputAsync(key, request, ct: ct);
+                        Console.WriteLine($"Exact input tokens: {tokens}. " +
+                            "Count endpoint only; no generation, spending reservation, SQL or journal write.");
+                    }
+                    finally { (configuration as IDisposable)?.Dispose(); }
+                }
+                return;
+            }
             if (mode == "Signals")
             {
                 stage = "read-only engine signal checks";
