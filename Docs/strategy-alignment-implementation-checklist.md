@@ -106,9 +106,10 @@ the October 1 publication to all 15 portfolios; two ungated Continuation choices
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
 automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
 but exceeded the existing input-token limit before generation. The concise view now fits that saved
-packet under the same limit; fresh connected decision qualification is next. October 2 pre-open reads
-do not yet supply a current book or fresh choice contexts. Empty lesson continuation is built/tested
-but needs separate operational authorization alongside the bounded review and ten-minute test age.
+packet under the same limit; fresh connected decision qualification is next. October 2 market-hours
+reads find stale held-stock marks and failed collection cycles despite current daily sources in the
+comparison Shadow/Live sessions. Diagnose that input blocker first. Empty lesson continuation is
+built/tested but needs operational authorization alongside the bounded review and ten-minute test age.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
 test bound; normal held-stock coverage and faster-price qualification remain open. The possible
@@ -219,7 +220,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Test a review with restored signals: 15 choices/four eligible were assembled, but the input-token limit rejected generation; verify saved rejection and unchanged spending (October 1).
    - [x] Build/test the concise review view; preserve eligibility, rules, current holdings/risk, missingness and full saved source packets. Verify the failed packet fits the unchanged token cap using count-only access.
    - [x] Build/test explicit continuation of expired, always-empty learning for a later open session; preserve all history and refuse pending reviews. No automatic renewal or production write (October 2).
-   - [ ] **Next:** verify market-hours inputs, authorize empty learning continuation and one bounded review at the ten-minute test age, then verify the concise-view answer, SQL/local evidence and cost, including its use of tables/shared definitions.
+   - [ ] **Next:** obtain the exact October 2 collector failure, restore and verify fresh market-hours inputs, then authorize empty learning continuation and one bounded review at the ten-minute test age. Verify the concise-view answer, SQL/local evidence and cost, including its use of tables/shared definitions.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

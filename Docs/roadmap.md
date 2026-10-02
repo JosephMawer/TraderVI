@@ -69,10 +69,12 @@ The authorized follow-up assembled four eligible choices but exceeded the unchan
 before generation. The concise review view is now built/tested and its saved-packet token count fits
 the existing cap. Full source packets and eligibility/spending rules remain unchanged. Next repeat the
 bounded connected review to qualify the shorter input before automatic desktop scheduling; saved-packet
-counting does not establish fresh input coverage or model interpretation. October 2 pre-open checks
-find no current selected book or fresh choice contexts; verify again during the session. Yesterday's
-empty lesson snapshot expired. Explicit empty continuation is built/tested; authorize its use and the
-bounded review with the ten-minute test age before operational changes or paid generation.
+counting does not establish fresh input coverage or model interpretation. October 2 market-hours checks
+find yesterday's held-stock marks and failed early collection cycles despite current daily-source
+adoption by the comparison Shadow/Live sessions. Obtain the exact collector failure and restore qualified
+inputs before a paid test. Yesterday's empty lesson snapshot expired. Explicit empty continuation is
+built/tested; authorize its use and the bounded review with the ten-minute test age before operational
+changes or paid generation.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).

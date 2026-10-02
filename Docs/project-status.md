@@ -1,14 +1,26 @@
 # TraderVI Project Status
 
-**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. Today's pre-open checks cannot qualify a review: no current selected book and no fresh context across the 15 choices at 09:25 Toronto. Yesterday's empty lesson snapshot expired; explicit session continuation is now built/tested, not run. Next verify market-hours inputs and obtain authorization for empty-snapshot continuation and one bounded review using the existing ten-minute test age and spending guards. Automatic reviews and AI trading remain off; all three delivery milestones remain pending. Today's nightly publication is verified separately below, not its WPF adoption. Price coverage, portfolio-specific evidence blocks and Athena outcomes remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. A fresh test is blocked by current inputs: the selected holdings still use yesterday's closing bars at 09:47 Toronto; the first two five-minute collection cycles failed. Today's daily source is present for eight active comparison Shadow sessions and the frozen Live session, but that does not supply fresh prices or entry decisions. Next obtain the collector's exact failure and restore qualified inputs, then authorize empty-snapshot continuation and one bounded review using the ten-minute test age and existing spending guards. Empty continuation is built/tested, not run. Automatic reviews and AI trading remain off; all three milestones remain pending. Price coverage, other portfolio evidence blocks and Athena outcomes remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
 **Next-session review preparation, October 2, 09:25 Toronto:** protected metadata inspection confirms
 disabled settings, the original October 1 session, ten-minute input ages and no pending/preparing files.
 The only lesson snapshot contains zero evaluated lessons and expired October 1 at 16:00 Toronto.
-Existing reviews and spending remain preserved. SELECT-only preflight at 09:24:57 finds all 15 catalogue
-choices but no October 2 selected account book; the 09:25 signal read finds all definitions and no
-catalogue blocks, but no fresh/proposal-permitted context. These are pre-open observations, not evidence
-of an intraday failure. Native SQL access succeeds after the sandboxed SQL attempt fails.
+Existing reviews and spending remain preserved. Pre-open checks found no current selected book or fresh
+choice contexts. The 09:43:39 market-hours preflight now finds the selected book, but both held-stock
+marks remain October 1 15:55 bars (16:00 valuation). At 09:45 all 15 definitions are present with zero
+catalogue blocks; all 12 Shadow contexts are unavailable, while three Live context envelopes are fresh
+but proposal-blocked. No choice permits a proposal.
+
+SELECT-only SQL at 09:47:16 finds eight active comparison Shadow sessions with today's Valid daily
+source and 16 Pending candidate records with no evaluation timestamp. The Live session is
+FrozenOfficialRun / Monitoring, with Blocked coverage and a recorded host gap. The 09:35 and 09:40
+five-minute cycles are Cancelled / Failed. Their three saved receipts comprise one CollectionFailed,
+one OperationalOnTime and one NoCompletedBar; neither held symbol has a newer saved five-minute bar.
+This establishes an intraday collection/input blocker, not another missing nightly publication.
+The underlying exception is not persisted in these receipts. Desktop accessibility confirmed the
+running app, but diagnostic-tab navigation failed twice with `coordinate input geometry is unavailable`;
+the exact collector error remains to be obtained. No restart or repair run was attempted.
+Native SQL access succeeded after the sandboxed SQL attempt failed.
 
 `ContinueEmptyLearning` now provides explicit, disabled-host session preparation. It appends a new
 dated empty snapshot expiring at the reviewed session close only when all previous snapshots are empty,
@@ -20,7 +32,8 @@ policy or outcome evaluation. Runtime startup still cannot renew lessons.
 Validation: 143 focused tests pass and Sandbox builds under .NET SDK 10.0.401. Existing CS8632 compiler
 warnings remain; no fresh dependency-security audit or full-solution/SSDT validation was performed.
 No production journal/SQL writes, paid calls, market requests, app restart or trading ran. Evidence:
-`artifacts/ai-concise-review-20261002/{preflight.log,signals-preopen.log,preparation-tests.log,preparation-build.log}`.
+`artifacts/ai-concise-review-20261002/` holds the pre-open and market-hours preflight/signal logs,
+`ReadCurrentState.sql`, `current-state.txt`, `preparation-tests.log` and `preparation-build.log`.
 
 **Concise review input, October 1:** the operator requested a shorter input. The oversized packet contained
 38 Live stock entries with 114 detailed checkpoints; Live evidence represented about 86% of description
