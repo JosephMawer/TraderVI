@@ -1171,13 +1171,13 @@ interval and open/open+3h/close-15m checkpoints. Only one review runs at a time;
 remains 1–15 minutes as requested by the AI. Closing WPF cancels/awaits the task and disposes its
 owners. Unexpected failures stop this owner; errors never dump packets or credentials to the UI.
 Private settings/journals were prepared October 1 with `Enabled: false`; one connected review and
-SQL readback are verified. Today's publication was subsequently restored to all portfolios. A follow-up
+SQL readback are verified. The October 1 publication was subsequently restored to all portfolios. A follow-up
 review with those signals stopped before generation at the input-token limit; do not repeat the oversized
 packet unchanged or raise the limit as a workaround. The concise view passes a saved-packet count-only
 check; qualify a fresh decision using it and the installed desktop
 lifecycle before enabling automatic startup. See project status for dated results. This does not enable trading.
 
-The explicit Sandbox command `ai-paper-first-review` has six modes, selected with
+The explicit Sandbox command `ai-paper-first-review` has seven modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the
 reviewed calendar's absolute path for preflight/preparation. `Preflight` reads the selected
 BreakoutTop3 / PortfolioRulesOnlyV1 book and reports counts/timestamps only. It needs SQL access.
@@ -1207,6 +1207,16 @@ and never retries automatically. Inspect journals before repeating an uncertain 
 reservations and recover saved answers through the existing coordinator. A new session requires a
 current qualified learning snapshot; this initial empty snapshot is not renewed automatically.
 
+`ContinueEmptyLearning` is separately authorized preparation for a later session while no evaluated
+lessons have ever been published. It reopens existing learning history and appends an empty snapshot
+with the current publication time and today's reviewed close as expiry. It requires disabled settings,
+a later open reviewed session, an expired latest snapshot and no Pending review. Any previous evaluated
+lesson, missing/corrupt/interrupted history or repeated same-session continuation blocks it. It leaves
+the original settings/session, spending, risk, scheduling and prior learning/review records intact.
+It calls neither SQL nor the model and is never invoked by runtime startup. This does not evaluate
+outcomes, qualify lesson criteria or authorize a review. After authorization, use this mode once,
+then the separately authorized `Review` mode with fresh market-hours data and the existing guards.
+
 AI Momentum's review-only Core host (ADR-0087) is connected to WPF startup in source and remains disabled
 until explicitly configured. It has no nightly host or execution path.
 Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic
@@ -1228,8 +1238,8 @@ with one `AiLearningJournal`. Preserve its `ai-learning.json`, `ai-learning.lock
 file under the same private-storage rules. Snapshot publication belongs to a trusted outcome evaluator;
 do not mark model hypotheses as evaluated lessons. Both periodic refresh hooks need explicit host
 intervals. Neither hook creates a timer, runs a model or enables orders. A Current preparation check
-still requires fresh broker/strategy/risk validation at execution time. No production learning journal
-has been initialized, and outcome evaluation, host integration and recovery tooling remain unfinished.
+still requires fresh broker/strategy/risk validation at execution time. The initial empty production
+learning snapshot was prepared October 1; outcome evaluation and automatic renewal remain unfinished.
 
 The source-only `AiReviewScheduler` and `AiScheduledPortfolioReviewer` accept explicit test/host ticks;
 construction starts nothing. Supply a reviewed calendar session and checkpoint timing explicitly.

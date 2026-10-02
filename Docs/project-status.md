@@ -1,6 +1,26 @@
 # TraderVI Project Status
 
-**Current record:** October 1, 2026. One connected AI review and exact SQL/local readback are verified. The pipeline recovery restored today's publication to all 15 portfolios. The follow-up assembled four eligible choices but exceeded the unchanged 32,000-token cap before generation. A concise review view now reduces that saved input from 270,651 to 29,516 exact provider-counted tokens. Full packets remain saved; eligibility, risk and spending checks are unchanged. Next test a fresh connected review using the shorter view; count-only verification does not establish model comprehension or continuous capacity. Automatic reviews and AI trading remain off. Athena's two invalid prediction outcomes and remaining choice-specific evidence blocks are separate follow-ups. TMX remains normal and the optional Wealthsimple fallback deferred. One invested saved-Shadow value passed the ten-minute test bound; continuous coverage, faster-price qualification and installed desktop operation remain unverified.
+**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. Today's pre-open checks cannot qualify a review: no current selected book and no fresh context across the 15 choices at 09:25 Toronto. Yesterday's empty lesson snapshot expired; explicit session continuation is now built/tested, not run. Next verify market-hours inputs and obtain authorization for empty-snapshot continuation and one bounded review using the existing ten-minute test age and spending guards. Automatic reviews and AI trading remain off; all three delivery milestones remain pending. Today's nightly publication is verified separately below, not its WPF adoption. Price coverage, portfolio-specific evidence blocks and Athena outcomes remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+
+**Next-session review preparation, October 2, 09:25 Toronto:** protected metadata inspection confirms
+disabled settings, the original October 1 session, ten-minute input ages and no pending/preparing files.
+The only lesson snapshot contains zero evaluated lessons and expired October 1 at 16:00 Toronto.
+Existing reviews and spending remain preserved. SELECT-only preflight at 09:24:57 finds all 15 catalogue
+choices but no October 2 selected account book; the 09:25 signal read finds all definitions and no
+catalogue blocks, but no fresh/proposal-permitted context. These are pre-open observations, not evidence
+of an intraday failure. Native SQL access succeeds after the sandboxed SQL attempt fails.
+
+`ContinueEmptyLearning` now provides explicit, disabled-host session preparation. It appends a new
+dated empty snapshot expiring at the reviewed session close only when all previous snapshots are empty,
+the latest is expired and no review is Pending. It refuses pre-open/closed/unreviewed sessions and
+repeated renewal; it never initializes replacement history or updates settings, spending, risk or
+scheduling. This is prepared tooling for a separately authorized check, not an automatic learning
+policy or outcome evaluation. Runtime startup still cannot renew lessons.
+
+Validation: 143 focused tests pass and Sandbox builds under .NET SDK 10.0.401. Existing CS8632 compiler
+warnings remain; no fresh dependency-security audit or full-solution/SSDT validation was performed.
+No production journal/SQL writes, paid calls, market requests, app restart or trading ran. Evidence:
+`artifacts/ai-concise-review-20261002/{preflight.log,signals-preopen.log,preparation-tests.log,preparation-build.log}`.
 
 **Concise review input, October 1:** the operator requested a shorter input. The oversized packet contained
 38 Live stock entries with 114 detailed checkpoints; Live evidence represented about 86% of description

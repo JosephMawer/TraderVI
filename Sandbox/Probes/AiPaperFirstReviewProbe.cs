@@ -32,8 +32,17 @@ public sealed class AiPaperFirstReviewProbe : IProbe
             using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
             var ct = timeout.Token;
             string mode = Environment.GetEnvironmentVariable("TRADERVI_AI_FIRST_REVIEW_MODE") ?? "Preflight";
-            if (mode is not ("Preflight" or "Signals" or "Prompt" or "PromptCount" or "Prepare" or "Review")) throw new InvalidOperationException();
+            if (mode is not ("Preflight" or "Signals" or "Prompt" or "PromptCount" or "Prepare" or "ContinueEmptyLearning" or "Review")) throw new InvalidOperationException();
             string settingsPath = AiPaperReviewSettings.LocalSettingsPath;
+            if (mode == "ContinueEmptyLearning")
+            {
+                stage = "explicit empty learning continuation";
+                var saved = AiPaperReviewSettings.Load(settingsPath) ?? throw new InvalidOperationException();
+                var snapshot = AiPaperReviewSetup.ContinueEmptyLearning(saved, DateTimeOffset.UtcNow);
+                Console.WriteLine($"Empty learning version: {snapshot.Version}; published UTC: {snapshot.PublishedUtc:O}; expires UTC: {snapshot.ExpiresUtc:O}. " +
+                    "Prior history preserved; automatic reviews remain disabled. No SQL, model call or execution.");
+                return;
+            }
             if (mode is "Prompt" or "PromptCount")
             {
                 stage = "offline saved prompt size";

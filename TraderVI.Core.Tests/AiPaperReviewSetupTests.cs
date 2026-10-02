@@ -40,6 +40,54 @@ public sealed class AiPaperReviewSetupTests : IDisposable
         [new("TEST", new(Guid.NewGuid(), Open.AddMinutes(5), Open.AddMinutes(12), 5, 100m, 100m, 100m, 100m))]);
 
     [Fact]
+    public void NextSessionEmptyLearningPreservesOtherJournalsAndSettings()
+    {
+        var settings = Settings();
+        var next = Date.AddDays(1);
+        File.WriteAllText(settings.CalendarPath, JsonSerializer.Serialize(
+            new ReviewedTsxCalendarDocument("test", "synthetic", Date, next, [Date, next])));
+        AiPaperReviewSetup.InitializeNew(settings, SettingsPath, Book(), Open.AddMinutes(12));
+        var before = Directory.GetFiles(settings.JournalRoot, "*", SearchOption.AllDirectories)
+            .Where(p => !p.EndsWith("ai-learning.json", StringComparison.Ordinal))
+            .ToDictionary(p => p, File.ReadAllBytes);
+        var now = ReviewedTsxSessionCalendar.At(next, new(9, 40));
+        var snapshot = AiPaperReviewSetup.ContinueEmptyLearning(settings, now);
+        Assert.Equal(2, snapshot.Version);
+        Assert.Equal(ReviewedTsxSessionCalendar.At(next, new(16, 0)), snapshot.ExpiresUtc);
+        Assert.Empty(snapshot.Lessons);
+        foreach (var pair in before) Assert.Equal(pair.Value, File.ReadAllBytes(pair.Key));
+        Assert.Throws<InvalidOperationException>(() => AiPaperReviewSetup.ContinueEmptyLearning(settings, now));
+        using var learning = new AiLearningJournal(Path.Combine(settings.JournalRoot, "shared"));
+        Assert.Equal(2, learning.Consult("supervisor", "test", "paper", [new("test", "v1")], now,
+            TimeSpan.FromMinutes(5))!.SnapshotVersion);
+    }
+
+    [Theory]
+    [InlineData("enabled")]
+    [InlineData("before-open")]
+    [InlineData("at-close")]
+    [InlineData("initial-session")]
+    [InlineData("unreviewed-session")]
+    public void InvalidLearningContinuationPreservesHistory(string failure)
+    {
+        var settings = Settings();
+        var next = Date.AddDays(1);
+        File.WriteAllText(settings.CalendarPath, JsonSerializer.Serialize(
+            new ReviewedTsxCalendarDocument("test", "synthetic", Date, next, [Date, next])));
+        AiPaperReviewSetup.InitializeNew(settings, SettingsPath, Book(), Open.AddMinutes(12));
+        var before = Directory.GetFiles(settings.JournalRoot, "*", SearchOption.AllDirectories)
+            .ToDictionary(p => p, File.ReadAllBytes);
+        var now = ReviewedTsxSessionCalendar.At(next, new(9, 40));
+        if (failure == "enabled") settings = settings with { Enabled = true };
+        if (failure == "before-open") now = ReviewedTsxSessionCalendar.At(next, new(9, 29));
+        if (failure == "at-close") now = ReviewedTsxSessionCalendar.At(next, new(16, 0));
+        if (failure == "initial-session") now = Open.AddMinutes(13);
+        if (failure == "unreviewed-session") now = now.AddDays(1);
+        Assert.ThrowsAny<Exception>(() => AiPaperReviewSetup.ContinueEmptyLearning(settings, now));
+        foreach (var pair in before) Assert.Equal(pair.Value, File.ReadAllBytes(pair.Key));
+    }
+
+    [Fact]
     public void PreparationReopensAllHistoryWithAutomaticReviewsOffAndNoCallsOrLessons()
     {
         var settings = Settings();

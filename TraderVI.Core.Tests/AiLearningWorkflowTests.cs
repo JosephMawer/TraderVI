@@ -32,6 +32,56 @@ public sealed class AiLearningWorkflowTests : IDisposable
         [new("observation", Now, "Synthetic evidence")], []);
 
     [Fact]
+    public async Task EmptyContinuationKeepsPriorReviewAndConsultationEvidence()
+    {
+        Guid reviewId;
+        using (var journal = NewJournal())
+        {
+            journal.Publish(Snapshot(), Now);
+            var packet = Packet();
+            reviewId = packet.PacketId;
+            await Supervisor(journal, new FakeClient(request => Response(
+                JsonSerializer.Deserialize<AiPortfolioPacket>(request.UserPrompt, Json)!))).ReviewAsync(packet, "paper");
+            var oldReview = JsonSerializer.Serialize(journal.ReadReview(reviewId));
+            var oldConsultations = JsonSerializer.Serialize(journal.ReadConsultations());
+            var continued = journal.ContinueEmptySnapshot(Now.AddHours(2), Now.AddHours(3));
+            Assert.Equal(2, continued.Version);
+            Assert.Equal(oldReview, JsonSerializer.Serialize(journal.ReadReview(reviewId)));
+            Assert.Equal(oldConsultations, JsonSerializer.Serialize(journal.ReadConsultations()));
+        }
+        using var reopened = new AiLearningJournal(directory);
+        Assert.Equal("Reviewed", reopened.ReadReview(reviewId).Status);
+        Assert.Equal(2, reopened.Consult("supervisor", "new-session", "paper", Scopes,
+            Now.AddHours(2), Interval)!.SnapshotVersion);
+    }
+
+    [Theory]
+    [InlineData("no-snapshot")]
+    [InlineData("not-expired")]
+    [InlineData("previous-lessons")]
+    [InlineData("pending-review")]
+    [InlineData("invalid-expiry")]
+    [InlineData("backdated")]
+    public void UnsafeEmptyContinuationDoesNotWrite(string failure)
+    {
+        using var journal = NewJournal();
+        if (failure != "no-snapshot") journal.Publish(Snapshot(failure == "previous-lessons" ? [Lesson()] : []), Now);
+        if (failure == "previous-lessons")
+            journal.Publish(new(Guid.NewGuid(), 2, Now.AddHours(2), Now.AddHours(3), []), Now.AddHours(2));
+        if (failure == "pending-review")
+        {
+            var context = journal.Consult("supervisor", "account", "paper", Scopes, Now, Interval)!;
+            var packet = Packet() with { SchemaVersion = 2, Learning = context };
+            journal.RecordReview(new(packet.PacketId, context.ConsultationId, packet, null, "Pending", Now));
+        }
+        var path = Path.Combine(directory, "ai-learning.json");
+        var before = File.ReadAllBytes(path);
+        var now = failure == "not-expired" ? Now.AddMinutes(5) : failure == "backdated" ? Now.AddMinutes(-1) : Now.AddHours(4);
+        Assert.ThrowsAny<Exception>(() => journal.ContinueEmptySnapshot(now, failure == "invalid-expiry" ? now : now.AddHours(1)));
+        Assert.Equal(before, File.ReadAllBytes(path));
+    }
+
+    [Fact]
     public async Task SupervisorUsesVersionedLessonsAndCoordinatorRechecksTheirRecordedDisposition()
     {
         using var journal = NewJournal();

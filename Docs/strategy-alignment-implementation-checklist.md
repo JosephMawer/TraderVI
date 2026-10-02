@@ -102,11 +102,13 @@ All three milestones remain pending. Step 7's review scheduler, saved-state reco
 timing and Core coordinator are built/tested; SQL review storage is installed with native roundtrip checks.
 Opt-in desktop startup is built/tested. Private setup and one connected review with SQL readback and
 recorded usage are verified October 1. Dependency repair and the authorized pipeline recovery restored
-today's publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
+the October 1 publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
 automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
 but exceeded the existing input-token limit before generation. The concise view now fits that saved
-packet under the same limit; fresh connected decision qualification is next.
+packet under the same limit; fresh connected decision qualification is next. October 2 pre-open reads
+do not yet supply a current book or fresh choice contexts. Empty lesson continuation is built/tested
+but needs separate operational authorization alongside the bounded review and ten-minute test age.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
 test bound; normal held-stock coverage and faster-price qualification remain open. The possible
@@ -216,7 +218,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Verify restored AI context with read-only engine readers: ungated Continuation 3/5 permit proposals; remaining choices preserve their admission/evidence blocks.
    - [x] Test a review with restored signals: 15 choices/four eligible were assembled, but the input-token limit rejected generation; verify saved rejection and unchanged spending (October 1).
    - [x] Build/test the concise review view; preserve eligibility, rules, current holdings/risk, missingness and full saved source packets. Verify the failed packet fits the unchanged token cap using count-only access.
-   - [ ] **Next:** complete a fresh bounded review with the concise view; verify its answer, SQL evidence and cost, including the model's use of tables/shared definitions.
+   - [x] Build/test explicit continuation of expired, always-empty learning for a later open session; preserve all history and refuse pending reviews. No automatic renewal or production write (October 2).
+   - [ ] **Next:** verify market-hours inputs, authorize empty learning continuation and one bounded review at the ten-minute test age, then verify the concise-view answer, SQL/local evidence and cost, including its use of tables/shared definitions.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

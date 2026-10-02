@@ -73,6 +73,26 @@ public sealed class AiLearningJournal : IDisposable
         }
     }
 
+    /// <summary>
+    /// Explicit operator preparation while lesson evaluation is not yet in use. Never renews learned
+    /// content or runs automatically; prior snapshots, consultations and review evidence remain intact.
+    /// </summary>
+    public AiLearningSnapshot ContinueEmptySnapshot(DateTimeOffset now, DateTimeOffset expiresUtc)
+    {
+        lock (sync)
+        {
+            var state = Read();
+            CheckClock(state, now);
+            if (state.Snapshots.Count == 0 || state.Snapshots.Any(s => !s.Lessons.IsEmpty) ||
+                state.Snapshots.Last().ExpiresUtc > now || state.Reviews.Any(r => r.Status == "Pending"))
+                throw new InvalidOperationException("Empty continuation requires expired, always-empty learning and no pending review.");
+            var snapshot = new AiLearningSnapshot(Guid.NewGuid(), state.Snapshots.Count + 1L, now,
+                expiresUtc, ImmutableArray<AiEvaluatedLesson>.Empty);
+            Publish(snapshot, now);
+            return snapshot;
+        }
+    }
+
     /// <summary>Returns null only when a periodic consultation is not due. Actions force a fresh consultation.</summary>
     public AiLearningContext? Consult(string consumer, string contextId, string accountMode,
         ImmutableArray<AiLearningScope> scopes, DateTimeOffset now, TimeSpan interval, bool force = false)

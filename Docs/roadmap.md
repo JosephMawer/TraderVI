@@ -61,7 +61,7 @@ Timing and initial cost bounds are agreed. Opt-in desktop startup/shutdown and t
 are implemented/tested but not activated. Private history is initialized under the accepted ten-minute
 first-test input age. The October 1 connected review saved `wait`, a two-minute next-review request and
 conservative token/cost accounting; SQL/local evidence matches. Missing downstream dependency locks
-caused the absent daily publication. The repair and authorized recovery restored today's publication
+caused the absent daily publication. The repair and authorized recovery restored the October 1 publication
 to all 15 portfolios; two ungated Continuation choices had proposal-permitted AI context at 10:57.
 Other choices retain their existing admission/evidence blocks. Athena's two invalid prediction outcomes
 remain a separate follow-up; see project status for the Attention result and dated verification.
@@ -69,7 +69,10 @@ The authorized follow-up assembled four eligible choices but exceeded the unchan
 before generation. The concise review view is now built/tested and its saved-packet token count fits
 the existing cap. Full source packets and eligibility/spending rules remain unchanged. Next repeat the
 bounded connected review to qualify the shorter input before automatic desktop scheduling; saved-packet
-counting does not establish fresh input coverage or model interpretation.
+counting does not establish fresh input coverage or model interpretation. October 2 pre-open checks
+find no current selected book or fresh choice contexts; verify again during the session. Yesterday's
+empty lesson snapshot expired. Explicit empty continuation is built/tested; authorize its use and the
+bounded review with the ten-minute test age before operational changes or paid generation.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).

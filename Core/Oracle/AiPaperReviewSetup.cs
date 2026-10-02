@@ -10,9 +10,23 @@ using Core.Trader.Risk;
 
 namespace Core.Oracle;
 
-/// <summary>Explicit first-time preparation. Never called by startup or used to replace existing history.</summary>
+/// <summary>Explicit initial/session preparation. Never called by startup or used to replace existing history.</summary>
 public static class AiPaperReviewSetup
 {
+    /// <summary>Separately authorized session preparation; does not reset any history or enable reviews.</summary>
+    public static AiLearningSnapshot ContinueEmptyLearning(AiPaperReviewSettings settings, DateTimeOffset now)
+    {
+        if (settings.Enabled) throw new InvalidDataException("Stop automatic reviews before explicit session preparation.");
+        (settings with { Enabled = true }).Validate(now);
+        var calendar = ReviewedTsxSessionCalendar.Load(settings.CalendarPath);
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, ReviewedTsxSessionCalendar.Toronto).DateTime);
+        var bounds = calendar.GetSessionBounds(today);
+        if (now < bounds.OpenUtc || now >= bounds.CloseUtc || today <= settings.InitialSession)
+            throw new InvalidDataException("Empty learning continuation requires a later open reviewed session.");
+        using var learning = new AiLearningJournal(Path.Combine(settings.JournalRoot, "shared"));
+        return learning.ContinueEmptySnapshot(now, bounds.CloseUtc);
+    }
+
     public static void ValidateOpening(AiPaperReviewSettings settings, ShadowPaperRiskObservation? book, DateTimeOffset now)
     {
         (settings with { Enabled = true }).Validate(now);
