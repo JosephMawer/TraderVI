@@ -1012,10 +1012,14 @@ For an explicitly authorized provider-failure diagnostic, use Sandbox's `tmx-liv
 with `TRADERVI_TMX_FAILURE_SYMBOL` set to one canonical TSX symbol reported as failing and
 `TRADERVI_TSX_CALENDAR_PATH` set to the reviewed calendar. It calls the existing Live five-minute
 provider adapter once for that symbol and once for XIU (deduplicated if XIU was selected), using
-one recently completed interval and the normal two-minute delay. Each target has a 25-second
+one recently completed interval and the normal two-minute delay. Set
+`TRADERVI_TMX_FAILURE_INCLUDE_BENCHMARK=false` for an explicitly scoped single-symbol follow-up;
+the default is true and other non-boolean values are rejected. Each target has a 25-second
 deadline; existing transport retries permit at most three attempts per target. Run a Debug build
 with its PDBs to obtain exception source lines. It emits only request times, dispositions, presence,
-transport counts where available and Core exception locations; raw provider bodies/prices are omitted.
+transport counts where available and Core exception locations. Messages from the exact local
+`TmxClient.ValidateIntradayResponse` method contain only fixed text/timestamps and are included;
+raw provider bodies/prices and arbitrary exception messages are omitted.
 It performs no SQL, journal writes, monitor ticks, AI calls or trading. A later successful request
 does not identify an earlier exception or repair saved collection gaps. It is never an automatic retry
 or routine validation command; external-service authorization is required before invocation.

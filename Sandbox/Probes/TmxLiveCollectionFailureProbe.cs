@@ -10,7 +10,7 @@ namespace Sandbox.Probes;
 
 /// <summary>
 /// Explicit read-only diagnosis of the Live five-minute provider path. One operator-selected failed
-/// symbol plus XIU, one recent completed window, at most six transport attempts under the existing
+/// symbol plus optional XIU, one recent completed window, at most six transport attempts under the existing
 /// client's three-attempt bound. Each logical request has a 25-second deadline. Uses the reviewed
 /// regular session; no SQL, journal, price persistence, monitor tick, quote fallback or trading.
 /// Reports disposition or exception source locations, never provider bodies, prices or credentials.
@@ -28,6 +28,9 @@ public sealed class TmxLiveCollectionFailureProbe : IProbe
             throw new ArgumentException("An explicit single canonical TSX symbol is required.");
         string calendarPath = Environment.GetEnvironmentVariable("TRADERVI_TSX_CALENDAR_PATH")
             ?? throw new InvalidOperationException("An explicit reviewed calendar is required.");
+        string benchmarkSetting = Environment.GetEnvironmentVariable("TRADERVI_TMX_FAILURE_INCLUDE_BENCHMARK") ?? "true";
+        if (!bool.TryParse(benchmarkSetting, out bool includeBenchmark))
+            throw new ArgumentException("Benchmark selection must be true or false.");
         var calendar = ReviewedTsxSessionCalendar.Load(calendarPath);
         var now = DateTime.UtcNow;
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(now, ReviewedTsxSessionCalendar.Toronto));
@@ -41,7 +44,7 @@ public sealed class TmxLiveCollectionFailureProbe : IProbe
 
         using var source = new TmxDelphiLiveMarketDataSource();
         Console.WriteLine($"Read-only provider check; UTC window {start:O} to {end:O}; no SQL or saved-price writes.");
-        foreach (var target in new[] { symbol, "XIU" }.Distinct(StringComparer.Ordinal))
+        foreach (var target in (includeBenchmark ? new[] { symbol, "XIU" } : new[] { symbol }).Distinct(StringComparer.Ordinal))
         {
             string label = target == "XIU" ? "benchmark" : "reported-failure target";
             var requested = DateTime.UtcNow;
@@ -57,6 +60,11 @@ public sealed class TmxLiveCollectionFailureProbe : IProbe
             {
                 Console.WriteLine($"{label}: {error.GetType().Name}; timed out: {timeout.IsCancellationRequested}; " +
                     "transport count unavailable on failure (maximum three attempts).");
+                // Only this exact local validator's messages are safe: fixed text and timestamps,
+                // never GraphQL/provider bodies, symbols, prices, credentials or arbitrary exceptions.
+                if (error.TargetSite?.DeclaringType == typeof(Core.TMX.TmxClient) &&
+                    error.TargetSite.Name == "ValidateIntradayResponse")
+                    Console.WriteLine($"Local validation: {error.Message}");
                 foreach (var frame in new StackTrace(error, true).GetFrames()
                     .Where(f => f.GetMethod()?.DeclaringType?.Assembly == typeof(TmxDelphiLiveMarketDataSource).Assembly).Take(6))
                     Console.WriteLine($"Source: {frame.GetMethod()?.DeclaringType?.FullName}.{frame.GetMethod()?.Name}; line {frame.GetFileLineNumber()}.");
