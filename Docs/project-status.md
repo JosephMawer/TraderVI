@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. The authorized provider diagnostic reproduced a five-minute timestamp-alignment rejection on the reported-failure target; XIU returned the requested bar. The offending timestamp was not captured, so provider-versus-parser cause remains unresolved. A single-target follow-up is prepared; preserve validation rather than rounding or accepting malformed bars. Fresh account inputs still need requalification after the earlier stale-price/failed-cycle evidence. Then authorize empty-snapshot continuation and one bounded review using the ten-minute test age and spending guards. Automatic reviews and AI trading remain off; all three milestones remain pending. Other portfolio evidence blocks, Athena outcomes and continuous coverage remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. Provider checks reproduced a five-minute timestamp-alignment rejection, followed by a later single-target read returning no exact completed bar without an exception. XIU succeeded in the first check. The offending timestamp and provider-versus-parser cause remain unresolved; the later missing-bar response does not establish recovery. Preserve validation and capture a failing response before choosing a correction. Fresh account inputs still need requalification, then separate authorization for empty-snapshot continuation and one bounded review at the ten-minute test age. Automatic reviews and AI trading remain off; all three milestones remain pending. Other portfolio evidence blocks, Athena outcomes and continuous coverage remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
 **Collector warning follow-up, October 2:** the operator screenshot shows repeated
 `InvalidOperationException` collection warnings, interrupted monitoring and a 10:20 checkpoint.
@@ -17,13 +17,18 @@ at most three attempts under the existing client. XIU returned the exact bar wit
 This reproduces a timestamp-validation failure, not a blanket provider outage. It does not establish
 the offending timestamp, whether mapping caused it, or the separate early cycle-level failure.
 
-The diagnostic now prints the safe local validator message (fixed text/timestamps only) and supports
-`TRADERVI_TMX_FAILURE_INCLUDE_BENCHMARK=false` for a single-target follow-up. Each target still has a
-25-second deadline and at most three transport attempts. No additional call ran after this change.
-Sandbox builds with existing CS8632/CS0162/CS0168 warnings; no tests, dependency-security audit or
-full-solution/SSDT check rerun for this isolated diagnostic change. No SQL/journal writes, AI calls,
-app restart, trading or rule relaxation. Evidence under `artifacts/ai-concise-review-20261002/`:
-`failure-probe-native.log`, `failure-probe-build.log` and `failure-detail-build.log`.
+The separately authorized single-target follow-up completed at 11:21:49 Toronto for the later
+11:10–11:15 window: `NoCompletedBar`, no exact bar, one request/attempt and no exception. It therefore
+did not expose an offending timestamp. This was a different window, not a replay of the first failure;
+it cannot establish its cause or source recovery. Missing bars alone do not prove quiet trading or a halt.
+
+The diagnostic prints safe local validator messages (fixed text/timestamps only) and supports
+`TRADERVI_TMX_FAILURE_INCLUDE_BENCHMARK=false`. Each target retains a 25-second deadline and at most
+three transport attempts. Sandbox previously built with existing CS8632/CS0162/CS0168 warnings;
+no code changed or tests/builds reran for this operational follow-up. No fresh dependency-security audit
+or full-solution/SSDT check. No SQL/journal writes, AI calls, app restart, trading or rule relaxation.
+Evidence under `artifacts/ai-concise-review-20261002/`: `failure-probe-native.log`,
+`failure-detail-native.log`, `failure-probe-build.log` and `failure-detail-build.log`.
 
 **Next-session review preparation, October 2, 09:25 Toronto:** protected metadata inspection confirms
 disabled settings, the original October 1 session, ten-minute input ages and no pending/preparing files.

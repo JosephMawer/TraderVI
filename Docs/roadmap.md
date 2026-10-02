@@ -73,8 +73,9 @@ counting does not establish fresh input coverage or model interpretation. Octobe
 find yesterday's held-stock marks and failed early collection cycles despite current daily-source
 adoption by the comparison Shadow/Live sessions. Obtain the exact collector failure and restore qualified
 inputs before a paid test. The authorized two-target TMX diagnostic reproduces a five-minute
-timestamp-alignment rejection; XIU succeeds. Capture the offending timestamp with the prepared
-single-target follow-up before choosing a correction; preserve the validator and historical gaps.
+timestamp-alignment rejection; XIU succeeds. The authorized later single-target check returned no exact
+completed bar without reproducing the exception. Capture the offending response before choosing a
+correction; source recovery remains unverified, and validation/historical gaps stay intact.
 Yesterday's empty lesson snapshot expired. Explicit empty continuation is
 built/tested; authorize its use and the bounded review with the ten-minute test age before operational
 changes or paid generation.
