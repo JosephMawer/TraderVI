@@ -2,6 +2,24 @@
 
 **Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. A fresh test is blocked by current inputs: the selected holdings still use yesterday's closing bars at 09:47 Toronto; the first two five-minute collection cycles failed. Today's daily source is present for eight active comparison Shadow sessions and the frozen Live session, but that does not supply fresh prices or entry decisions. Next obtain the collector's exact failure and restore qualified inputs, then authorize empty-snapshot continuation and one bounded review using the ten-minute test age and existing spending guards. Empty continuation is built/tested, not run. Automatic reviews and AI trading remain off; all three milestones remain pending. Price coverage, other portfolio evidence blocks and Athena outcomes remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
+**Collector warning follow-up, October 2:** the operator screenshot shows repeated
+`InvalidOperationException` collection warnings, interrupted monitoring and a 10:20 checkpoint.
+Some later collection therefore progressed beyond the earlier SQL sample; the screen does not
+establish complete current coverage or reveal the exception message/call site. It also reports lost
+holding monitoring with quote protection remaining active; that text is not independent protection
+qualification. Source traces the per-symbol warning to the provider adapter's request/normalization
+path, where missing data, GraphQL errors and invalid bars can all produce the displayed exception type.
+No single cause is established, and a separate cycle-level failure may still need diagnosis.
+
+Prepared `tmx-live-collection-failure`: one explicitly supplied reported-failure symbol plus XIU,
+one recent completed five-minute window using the existing Live provider adapter, 25 seconds per
+target and at most six transport attempts under the existing retry bound. It reports dispositions
+or Core exception source locations without raw provider bodies/prices. No SQL, journals, monitor
+ticks or model calls. Execution awaits external-service authorization; a later successful request
+cannot prove the historical cause. Sandbox build passes with existing CS8632/CS0162/CS0168 warnings; no tests,
+dependency-security audit or full-solution/SSDT check rerun for this isolated diagnostic addition.
+Evidence: `artifacts/ai-concise-review-20261002/failure-probe-build.log`. No operational action ran.
+
 **Next-session review preparation, October 2, 09:25 Toronto:** protected metadata inspection confirms
 disabled settings, the original October 1 session, ten-minute input ages and no pending/preparing files.
 The only lesson snapshot contains zero evaluated lessons and expired October 1 at 16:00 Toronto.

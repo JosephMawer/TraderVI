@@ -1008,6 +1008,18 @@ These samples do not establish continuous coverage, prove every expected slot ex
 a production freshness limit. Existing five-minute collection and quote receipt timestamps cannot
 establish one-minute protection. Inspect failed/missing slots and source conflicts as well as successful reads.
 
+For an explicitly authorized provider-failure diagnostic, use Sandbox's `tmx-live-collection-failure`
+with `TRADERVI_TMX_FAILURE_SYMBOL` set to one canonical TSX symbol reported as failing and
+`TRADERVI_TSX_CALENDAR_PATH` set to the reviewed calendar. It calls the existing Live five-minute
+provider adapter once for that symbol and once for XIU (deduplicated if XIU was selected), using
+one recently completed interval and the normal two-minute delay. Each target has a 25-second
+deadline; existing transport retries permit at most three attempts per target. Run a Debug build
+with its PDBs to obtain exception source lines. It emits only request times, dispositions, presence,
+transport counts where available and Core exception locations; raw provider bodies/prices are omitted.
+It performs no SQL, journal writes, monitor ticks, AI calls or trading. A later successful request
+does not identify an earlier exception or repair saved collection gaps. It is never an automatic retry
+or routine validation command; external-service authorization is required before invocation.
+
 The explicitly invoked `tmx-one-minute-freshness` Sandbox probe measures the candidate faster source:
 
 ```powershell

@@ -72,7 +72,9 @@ bounded connected review to qualify the shorter input before automatic desktop s
 counting does not establish fresh input coverage or model interpretation. October 2 market-hours checks
 find yesterday's held-stock marks and failed early collection cycles despite current daily-source
 adoption by the comparison Shadow/Live sessions. Obtain the exact collector failure and restore qualified
-inputs before a paid test. Yesterday's empty lesson snapshot expired. Explicit empty continuation is
+inputs before a paid test. The supplied screen narrows per-symbol failures to `InvalidOperationException`
+and shows later partial progress. A bounded two-target TMX diagnostic is prepared, awaiting authorization.
+Yesterday's empty lesson snapshot expired. Explicit empty continuation is
 built/tested; authorize its use and the bounded review with the ten-minute test age before operational
 changes or paid generation.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
