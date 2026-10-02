@@ -185,7 +185,7 @@ or completed replacement of the execution work below. See the
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
    The [latest nightly check](project-status.md#latest-operational-evidence) confirms overnight
-   completion; investigate the two missing daily endpoints and Athena's historical-input warning
+   completion after dependency-lock repair; investigate the two missing daily endpoints and Athena's historical-input warning
    separately from full-session qualification.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,

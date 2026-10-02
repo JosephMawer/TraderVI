@@ -325,7 +325,7 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
-- [x] Verify the September 30 scheduled nightly chain and saved daily publication without rerunning it
+- [x] Verify the October 2 scheduled nightly chain and saved daily publication without rerunning it
   ([dated evidence and Attention limit](project-status.md#latest-operational-evidence)).
 - [ ] Investigate the two active symbols without the expected daily endpoint; Hermes reported no data,
   not a collection exception. Neither is in today's candidates; the verified publication does not close this gap.
