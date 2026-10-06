@@ -188,8 +188,10 @@ or completed replacement of the execution work below. See the
    migration 040 and verified resolved-order synchronization, the reported exit and repeat-refresh
    duplicate prevention under ADR-0084. Cash/risk input qualification and working partial-order handling
    remain under checklist items 1–4.
-2. **Resolve current collection/valuation blockers.** Diagnose the held Live account's missing opening
-   value and repeated tracked 15-minute conflict. Preserve immutable evidence and coverage flags.
+2. **Resolve current collection/valuation blockers.** Diagnose the five-minute collection failures and
+   the invested rules-only Live account's missing opening value. The opening/source-adoption check is
+   complete for Live and comparison Shadow; verify original Shadow accounts at their scheduled poll.
+   The historical tracked 15-minute conflict remains a separate follow-up. Preserve immutable evidence and coverage flags.
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.

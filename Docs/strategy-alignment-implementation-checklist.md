@@ -334,6 +334,12 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 - [x] Verify the October 6 delayed scheduled chain and saved daily publication without launching a rerun
   ([dated evidence and Attention limit](project-status.md#latest-operational-evidence)).
+- [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
+  active lease renewal and the first completed collection; record its failures rather than qualifying coverage
+  ([runtime evidence](project-status.md#latest-operational-evidence)).
+- [ ] Verify the four original Shadow portfolios and fresh holding prices after their first 09:47 poll.
+- [ ] Diagnose current five-minute collection failures affecting held/tracked stocks and the invested
+  rules-only Live account's missing opening value; saved failed receipts do not establish the exception cause.
 - [ ] Diagnose why the sleeping/hibernating host missed the overnight wake despite WakeToRun being enabled;
   automatic morning recovery does not establish overnight reliability. No power/task settings changed.
 - [ ] Investigate the remaining active symbol without the expected daily endpoint; Hermes reported no data,
