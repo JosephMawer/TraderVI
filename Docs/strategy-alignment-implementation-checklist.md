@@ -332,8 +332,8 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
-- [x] Verify the October 6 delayed scheduled chain and saved daily publication without launching a rerun
-  ([dated evidence and Attention limit](project-status.md#latest-operational-evidence)).
+- [x] Verify the October 7 on-time scheduled chain and saved daily publication without launching a rerun
+  ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
   active lease renewal and the first completed collection; record its failures rather than qualifying coverage
   ([runtime evidence](project-status.md#latest-operational-evidence)).

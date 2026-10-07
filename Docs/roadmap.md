@@ -195,9 +195,9 @@ or completed replacement of the execution work below. See the
    Verify current input adoption, overnight completion and uninterrupted regular-session Live/Shadow
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
-   The [latest nightly check](project-status.md#latest-operational-evidence) confirms automatic morning
-   recovery after a missed overnight trigger. Diagnose host wake reliability, the remaining missing daily
-   endpoint and Athena's historical-input warning separately from full-session qualification.
+   The [latest nightly check](project-status.md#latest-operational-evidence) confirms on-time success
+   with no new Athena invalid outcomes. The earlier missed-wake cause, remaining daily-data gap and
+   historical invalid evidence remain separate follow-ups from full-session qualification.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,
    causal fills, Session-2 rotation and risk exits across clean Shadow sessions; exclude Sep 4 shakedown
