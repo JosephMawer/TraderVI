@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. Next restore and qualify current held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. The authorized 14:21 fixed-window TMX diagnostic reproduces five-minute timestamp-alignment rejection on both targets; raw timestamp meaning/mapping and the separate Shadow failure remain unresolved. Next diagnose that mismatch and restore qualified held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
 **Price-refresh trace, October 9, about 14:00-14:02 Toronto:** SELECT-only records and source
 inspection confirm active collection with partial failures, not a wholly stopped desktop. The 13:55
@@ -17,12 +17,26 @@ failure codes omit exception detail; this cannot prove a common cause or disting
 from persistence failure. October 2's alignment rejection remains historical evidence, not today's
 diagnosis. The separate 13:45 Live cycle-level failure is also unresolved.
 
-A bounded diagnostic is prepared for a screenshot-reported failed stock plus XIU, using the exact
-13:50-13:55 saved failed window. External-service authorization is pending; no diagnostic call has run.
-No source changes, SQL writes, restart, AI call, freshness relaxation or tests/builds occurred in this
-trace. Read-only scripts, aggregate results and the prepared command are under
-`artifacts/price-refresh-20261009/`. Next capture the safe exact failure before choosing a correction;
-held-stock recovery and the already-authorized single v3 review remain pending.
+**Authorized fixed-window diagnostic, October 9, 14:21 Toronto:** one bounded run requested MTL
+(the screenshot target with a saved failed receipt) and XIU for 13:50-13:55 Toronto. Both rejected in
+`TmxClient.ValidateIntradayResponse` line 394: mapped timestamps were 13:54 for MTL and 13:52 for XIU,
+not five-minute boundaries. Neither timed out. Each logical request allowed at most three transport
+attempts; actual failure transport counts are unavailable. This reproduces a precise rejection on the
+same requested window, not the exact original provider response or every collector failure.
+
+The request builder passes interval 5 and the requested UTC bounds. The mapper parses source date text
+as Eastern time; this diagnostic did not retain raw timestamps or the complete response, so source
+semantics versus mapping error is not settled. Do not round/drop offending rows or weaken validation
+without establishing their meaning. Shadow uses the same validator with wider requests, but its exact
+failure remains unconfirmed; no held-symbol Shadow request was part of this two-target authorization.
+Next inspect raw versus mapped timestamp structure in a separately authorized bounded diagnostic,
+then choose/test a correction and qualify held-stock recovery. The single v3 review remains authorized
+and unused, subject to current inputs and existing bounds.
+
+No source changes, SQL/journal writes, restart, AI call, freshness relaxation or tests/builds occurred.
+The provider diagnostic authorization is consumed; no retry ran. Evidence and the exact command are
+under `artifacts/price-refresh-20261009/`, including `provider-diagnostic.log`. This historical-window
+read cannot qualify fresh valuation, repair saved gaps or establish recovery.
 
 **Fresh v3 review preflight blocked, October 9, 13:49-13:51 Toronto:** the operator explicitly
 authorized one test using fresh inputs to obtain an AI answer. SELECT-only preflight found the selected
