@@ -120,7 +120,8 @@ namespace Core.TMX
                 int interval,
                 DateTime startDateTime,
                 DateTime? endDateTime = null,
-                CancellationToken ct = default)
+                CancellationToken ct = default,
+                Action<TmxIntradayTimestampInspection> inspectTimestamps = null)
         {
             DateTime fetchStartedUtc = DateTime.UtcNow;
             GraphQLRequest request = BuildIntradayTimeSeriesRequest(
@@ -139,6 +140,10 @@ namespace Core.TMX
 
             bool sourceDataPresent = response.Data?.getTimeSeriesData != null;
             var sourcePoints = response.Data?.getTimeSeriesData ?? [];
+            // Opt-in diagnostic copies contain no prices and cannot mutate the source or bypass validation.
+            // Inspect before validation so a rejected response remains diagnosable without another request.
+            inspectTimestamps?.Invoke(TmxIntradayTimestampInspection.Create(sourcePoints,
+                transport.AttemptCount, receivedUtc));
             // Preserve incomplete rows for diagnosis; they cannot supply validated price bars.
             List<OhlcvBar> bars = sourcePoints
                 .Where(p => p.IsComplete)

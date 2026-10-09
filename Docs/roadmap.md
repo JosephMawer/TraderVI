@@ -79,14 +79,15 @@ largest saved example passes the unchanged cap; full source records and independ
 context remain (ADR-0087 and project status). One fresh v3 review is now authorized, but its preflight
 found stale invested-account prices; no paid attempt ran. The read-only trace confirms ongoing Live/Shadow
 collection with failures and a stalled held-position mark. The authorized fixed-window diagnostic reproduces
-five-minute timestamp-alignment rejection on both targets; raw timestamp meaning/mapping and the exact
-Shadow failure remain unresolved. Diagnose that mismatch, then restore/qualify held-stock valuation through
+five-minute timestamp-alignment rejection on both targets. The follow-up confirms source times are
+preserved by mapping in the sample, with both aligned/off-grid XIU rows rejected together. Establish
+the off-grid records' meaning and the exact Shadow failure before changing acceptance, then restore/qualify held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain
 off; further paid tests/activation require authorization. Collection health and invested coverage remain
-unqualified. Offending mapped timestamps are now captured; inspect their source representation before
-choosing a correction. Further provider reads need authorization; the two-target diagnostic grant is consumed.
+unqualified. Timestamp-only inspection is built/tested and the two-target comparison is complete.
+Further provider reads need authorization; do not round timestamps or silently discard records.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).

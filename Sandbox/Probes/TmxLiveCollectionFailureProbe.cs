@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Trader.DelphiLive;
+using Core.TMX;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -32,20 +33,41 @@ public sealed class TmxLiveCollectionFailureProbe : IProbe
         string benchmarkSetting = Environment.GetEnvironmentVariable("TRADERVI_TMX_FAILURE_INCLUDE_BENCHMARK") ?? "true";
         if (!bool.TryParse(benchmarkSetting, out bool includeBenchmark))
             throw new ArgumentException("Benchmark selection must be true or false.");
+        string timestampSetting = Environment.GetEnvironmentVariable("TRADERVI_TMX_FAILURE_TIMESTAMPS") ?? "false";
+        if (!bool.TryParse(timestampSetting, out bool inspectTimestamps))
+            throw new ArgumentException("Timestamp inspection selection must be true or false.");
         var calendar = ReviewedTsxSessionCalendar.Load(calendarPath);
         var now = DateTime.UtcNow;
         var (start, end) = SelectWindow(calendar, now,
             Environment.GetEnvironmentVariable("TRADERVI_TMX_FAILURE_BAR_END_UTC"));
 
         using var source = new TmxDelphiLiveMarketDataSource();
+        using var timestampClient = inspectTimestamps ? new TmxClient() : null;
         Console.WriteLine($"Read-only provider check; UTC window {start:O} to {end:O}; no SQL or saved-price writes.");
         foreach (var target in (includeBenchmark ? new[] { symbol, "XIU" } : new[] { symbol }).Distinct(StringComparer.Ordinal))
         {
             string label = target == "XIU" ? "benchmark" : "reported-failure target";
             var requested = DateTime.UtcNow;
+            int? observedAttempts = null;
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25));
             try
             {
+                if (timestampClient is not null)
+                {
+                    var result = await timestampClient.GetIntradayTimeSeriesDiagnosticAsync(target, 5,
+                        start, end, timeout.Token, sample =>
+                        {
+                            observedAttempts = sample.AttemptCount;
+                            Console.WriteLine($"{label}: source points {sample.SourcePointCount}; shown {sample.Points.Length}; " +
+                                $"transport attempts {sample.AttemptCount}; received UTC {sample.ReceivedUtc:O}.");
+                            foreach (var point in sample.Points)
+                                Console.WriteLine($"Timestamp: source '{point.SourceText}'; complete {point.Complete}; " +
+                                    $"mapped UTC {point.MappedUtc:O}; mapping error {point.MappingError ?? "none"}.");
+                        });
+                    Console.WriteLine($"{label}: validation passed; source present {result.SourceDataPresent}; " +
+                        $"exact bar present {result.Batch.Bars.Any(b => b.TimestampUtc == start)}.");
+                    continue;
+                }
                 var receipt = await source.GetExactFiveMinuteBarAsync(new(Guid.NewGuid(), target, start,
                     end, requested.AddSeconds(25), requested, 1), timeout.Token);
                 Console.WriteLine($"{label}: {receipt.Disposition}; exact bar present: {receipt.ExactCompletedBar is not null}; " +
@@ -54,7 +76,9 @@ public sealed class TmxLiveCollectionFailureProbe : IProbe
             catch (Exception error)
             {
                 Console.WriteLine($"{label}: {error.GetType().Name}; timed out: {timeout.IsCancellationRequested}; " +
-                    "transport count unavailable on failure (maximum three attempts).");
+                    (observedAttempts is { } attempts
+                        ? $"transport attempts: {attempts}; requests: 1."
+                        : "transport count unavailable on failure (maximum three attempts)."));
                 // Only this exact local validator's messages are safe: fixed text and timestamps,
                 // never GraphQL/provider bodies, symbols, prices, credentials or arbitrary exceptions.
                 if (error.TargetSite?.DeclaringType == typeof(Core.TMX.TmxClient) &&

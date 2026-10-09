@@ -1023,6 +1023,14 @@ with its PDBs to obtain exception source lines. It emits only request times, dis
 transport counts where available and Core exception locations. Messages from the exact local
 `TmxClient.ValidateIntradayResponse` method contain only fixed text/timestamps and are included;
 raw provider bodies/prices and arbitrary exception messages are omitted.
+Set `TRADERVI_TMX_FAILURE_TIMESTAMPS=true` for an explicitly authorized timestamp comparison on
+those same targets/windows. The default is false; invalid Boolean settings reject. This uses the same
+client request/mapping/validation, once per target, and captures a timestamp-only immutable copy before
+validation. It reports source count, up to the first 32 source timestamps, field completeness, mapped
+UTC times and bounded mapping-error types. Only recognized date syntax is printed; arbitrary text is
+redacted. Transport attempts remain available if the provider response reached inspection. Incomplete
+rows cannot become bars; the original validator still rejects malformed/off-grid data and no source
+rows are removed or rounded. This mode does not make additional provider calls to inspect failures.
 It performs no SQL, journal writes, monitor ticks, AI calls or trading. A later successful request
 does not identify an earlier exception or repair saved collection gaps. It is never an automatic retry
 or routine validation command; external-service authorization is required before invocation.

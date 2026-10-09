@@ -33,8 +33,10 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 The October 9 read-only trace confirms partial live collection failures despite completed cycles.
 The authorized fixed-window provider diagnostic reproduces five-minute timestamp-alignment rejection on
-both targets. Raw timestamp meaning/mapping and exact Shadow failure remain unresolved; further provider
-reads require authorization. No correction or recovery is qualified. Preserve historical gaps and distinguish per-stock success from cycle
+both targets. The timestamp comparison confirms source off-grid times map correctly in the sample;
+XIU's additional aligned row is rejected with the off-grid row. Their meaning and the exact Shadow
+failure remain unresolved; further provider reads require authorization. The bounded timestamp-only
+diagnostic is built/tested (47 focused tests). No correction or recovery is qualified. Preserve historical gaps and distinguish per-stock success from cycle
 completion; neither establishes clean-session qualification. See the dated [project status](project-status.md).
 
 The September 28 source update uses installed migration 041 (`SymbolAliases`). The broker-alias lookup
