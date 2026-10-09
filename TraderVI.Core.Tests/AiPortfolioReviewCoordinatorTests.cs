@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Db;
@@ -74,7 +75,7 @@ public sealed class AiPortfolioReviewCoordinatorTests : IDisposable
     }
 
     [Fact]
-    public async Task GathersBothEnginesAndActualFundsThenSavesTheExactModelInputAndAnswer()
+    public async Task GathersBothEnginesAndSavesFullEvidenceWhileSendingReducedViewAndActualFunds()
     {
         var f = await Setup();
         f.Client.BeforeResponse = _ => Assert.Equal("Pending", Assert.Single(f.Store.Records).Status);
@@ -84,12 +85,17 @@ public sealed class AiPortfolioReviewCoordinatorTests : IDisposable
         Assert.Equal(1, f.Live.Reads);
         Assert.Equal(3, f.Store.Records[0].Packet.Candidates.Length);
         Assert.All(f.Store.Records[0].Packet.Candidates, c => Assert.False(c.Eligible));
-        var sent = JsonSerializer.Deserialize<AiPortfolioPacket>(f.Client.Last!.UserPrompt, Json)!;
-        Assert.Equal(JsonSerializer.Serialize(sent), JsonSerializer.Serialize(f.Store.Records[0].Packet));
+        var sent = ReadModelView(f.Client.Last!);
+        Assert.Equal(AiPortfolioReviewer.CreateRequest(f.Store.Records[0].Packet).UserPrompt, f.Client.Last!.UserPrompt);
+        Assert.Equal(f.Store.Records[0].Packet.PacketId, sent["packet_id"]!.GetValue<Guid>());
+        Assert.All(sent["candidates"]!.AsArray(), candidate => Assert.Null(candidate!["rules"]));
+        Assert.All(f.Store.Records[0].Packet.Candidates, candidate => Assert.NotEmpty(candidate.Rules));
+        Assert.Equal(JsonSerializer.Serialize(f.Store.Records[0].Packet), JsonSerializer.Serialize(f.Store.Records[1].Packet));
         Assert.Equal(new[] { "Pending", "Reviewed" }, f.Store.Records.Select(r => r.Status));
         Assert.Equal(result.Proposal.PacketId, f.Client.Last.CallId);
         Assert.Equal(result.Proposal.PacketId, f.Store.Records[1].ReviewId);
-        using var account = JsonDocument.Parse(sent.Evidence.Single(e => e.Id == "managed-account").Description);
+        var accountEvidence = sent["evidence"]!.AsArray().Single(e => e!["id"]!.GetValue<string>() == "managed-account")!["description"]!;
+        using var account = JsonDocument.Parse(accountEvidence is JsonValue ? accountEvidence.GetValue<string>() : accountEvidence.ToJsonString());
         Assert.Equal(12345m, account.RootElement.GetProperty("SavedBook").GetProperty("Cash").GetDecimal());
         Assert.Equal(TimeSpan.FromMinutes(7), result.Schedule.Interval.Applied);
         Assert.Null((await f.Coordinator.TickAsync()).Proposal);
@@ -297,12 +303,18 @@ public sealed class AiPortfolioReviewCoordinatorTests : IDisposable
             Calls++; Last = request; BeforeResponse?.Invoke(request);
             if (Wait is not null) await Wait;
             ct.ThrowIfCancellationRequested();
-            var packet = JsonSerializer.Deserialize<AiPortfolioPacket>(request.UserPrompt, Json)!;
-            var proposal = new AiPortfolioProposal(packet.PacketId, "wait", null, null, "Synthetic review",
+            var packetId = ReadModelView(request)["packet_id"]!.GetValue<Guid>();
+            var proposal = new AiPortfolioProposal(packetId, "wait", null, null, "Synthetic review",
                 ["managed-account"], [], "New data", [], [], new(7, "Synthetic cadence"));
             return new(Invalid ? "{}" : JsonSerializer.Serialize(proposal, Json), new(0, 0, 0), TimeSpan.Zero, Provider, Model);
         }
     }
+    private static JsonNode ReadModelView(LlmRequest request)
+    {
+        var root = JsonNode.Parse(request.UserPrompt)!;
+        return root["format"] is null ? root : AiPortfolioPrompt.ExpandView(root["packet"], root["shared"]!.AsObject())!;
+    }
+
     public void Dispose()
     {
         foreach (var resource in resources.AsEnumerable().Reverse()) resource.Dispose();

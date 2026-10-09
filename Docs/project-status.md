@@ -1,6 +1,33 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The authorized desktop test verified startup, two-minute retry scheduling, automatic stop after two attempts, journal release, clean shutdown and restart with reviews disabled. Both attempts were DataUnavailable before paid generation; the last saved compact request counts 46,780 tokens against the unchanged 32,000 cap. The lossless v2 extension is built/tested and lowers that same saved request to 36,235 provider-counted tokens; it still exceeds the cap and has not generated an answer or been installed in the running desktop. The 09:42 v1 wait review remains valid evidence. Next reduce the remaining input without losing decision evidence or full saved sources, then qualify v2 interpretation and repeated successful desktop reviews before adding the basic display. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. Next verify current inputs and obtain authorization for one bounded v3 review, then qualify repeated successful desktop reviews and add the basic display. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 is not installed in the running desktop and has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+
+**Approved input scope and v3 validation, October 9:** the operator accepted removing internal software/
+format labels, research test schedules/statistical controls and experiment-count limits from strategy
+definitions. The operator also requested no detailed data for unavailable strategies. The rendered view
+now retains their identity/version, false eligibility, summary and original dated strategy-evidence ID
+with blocking reasons; stock/source evidence, performance history, definitions and rules are omitted.
+This applies to small packets too, including an unavailable active choice. Managed-account holdings,
+stops and risk state, global review context and required learning assessments remain independent.
+Exact-path removals preserve eligible-choice trading/data-quality settings and unknown future fields.
+The full frozen source, eligibility checks, answer validation, spending guards and response contract
+remain unchanged. The representation decision is in ADR-0087's October 9 approved-omissions section.
+
+All seven saved non-pending requests rendered with the existing expansion-equality check. The latest
+all-unavailable request falls from v2's 95,755 to **11,558 characters**. The largest v3 example is the
+October 1 four-eligible-choice packet at **30,781 characters**. One explicitly authorized provider
+count on that exact request plus current instructions/schema returned **11,859 input tokens**, below
+32,000. No generation, spending reservation, SQL/journal write or desktop/settings change occurred.
+No v3 model interpretation, eligible selection or continuous capacity/readiness is qualified.
+
+Validation: **139 focused tests passed** across prompt, reviewer, scheduled reviewer, packet builder,
+learning and coordinator. Coordinator mocks now read the reduced view; assertions verify full source
+retention through pending/final saves and the exact rendered request.
+Core/Sandbox builds passed. Existing nullable-context warnings remain; the final Sandbox build reported
+three CS8632 warnings and zero errors. No new dependency-security audit or full-solution/SSDT validation
+ran. Private evidence: `artifacts/ai-input-scope-20261009/{tests.log,sandbox-build.log,
+saved-packet-sizes.json,provider-count.json}`. The prior v2 breakdown below remains historical and is not
+a size description of v3. A fresh generation test needs current data and separate explicit authorization.
 
 **Lossless review-view extension, October 9:** following operator agreement, v2 builds named-column
 tables before sharing repeated values, stores identical row fields once as table defaults, and uses

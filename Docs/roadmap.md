@@ -73,11 +73,12 @@ exact request rendering and cost match (project status). Empty learning was expl
 today's close with prior history preserved. This qualifies the blocked-choice wait path, not eligible
 selection or continuous readiness. The later authorized desktop test verifies startup, blocked-attempt
 timing, the bounded stop and disabled restart, but the last compact request exceeds the unchanged input
-cap as session evidence grows. The lossless v2 extension is built/tested and reduces the same saved
-request, but its authorized provider count still exceeds the cap (project status); it is not installed
-or model-qualified. An offline category-size breakdown is available in project status to inform the
-next reduction discussion; no new omissions are agreed. Reduce remaining repetition while preserving decision evidence and full saved
-sources, qualify v2 interpretation and repeated successful desktop reviews, then add the basic display. Automatic reviews remain
+cap as session evidence grows. After v2 remained oversized, the operator approved removing engineering/
+testing details and detailed evidence for unavailable choices. The v3 view is built/tested and its
+largest saved example passes the unchanged cap; full source records and independent account/risk
+context remain (ADR-0087 and project status). Next check current inputs, obtain bounded-review authority
+and qualify v3 interpretation, then repeated successful desktop reviews and the basic display. Future
+input growth remains guarded, not continuously qualified. Automatic reviews remain
 off; further paid tests/activation require authorization. Collection health and invested coverage remain
 unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a
 correction is chosen; fixed-window diagnosis is built/tested and further provider reads need authorization.

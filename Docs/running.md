@@ -1193,12 +1193,15 @@ Private settings/journals were prepared October 1 with `Enabled: false`; one con
 SQL readback are verified. The October 1 publication was subsequently restored to all portfolios. A follow-up
 review with those signals stopped before generation at the input-token limit; do not repeat the oversized
 packet unchanged or raise the limit as a workaround. The concise view passes a saved-packet count-only
-check and one fresh wait decision; later desktop input grew beyond the cap. The lossless v2 extension
-reduces that saved request but its count still exceeds the cap. It shares table defaults and uses @N
-references (literal leading @ is escaped as @@); the renderer verifies expansion equality before sending.
-No new v2 answer or desktop installation is qualified. Reduce remaining repetition, verify a newly
-prepared request's exact count, then qualify v2 interpretation and repeated successful desktop reviews
-before enabling automatic startup. See project status for dated results. This does not enable trading.
+check and one fresh wait decision; later desktop input grew beyond the cap. The approved v3 view omits
+internal engineering/testing fields and detailed unavailable-choice data while retaining dated blocking
+notices and independent managed-account/risk/learning context. All frozen source evidence stays saved.
+It shares table defaults and uses @N references (literal leading @ is escaped as @@); expansion equality
+checks packing after the declared omissions. The largest revised saved example fits the unchanged cap.
+A saved count does not establish current readiness, model interpretation or a bound on future growth.
+Check current inputs and obtain bounded-generation authorization, then qualify v3 interpretation and
+repeated successful desktop reviews before enabling automatic startup. No v3 desktop installation or
+model answer is qualified. See project status for dated results. This does not enable trading.
 
 The explicit Sandbox command `ai-paper-first-review` has seven modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the

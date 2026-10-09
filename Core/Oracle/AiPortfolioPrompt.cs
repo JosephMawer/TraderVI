@@ -13,7 +13,7 @@ namespace Core.Oracle;
 /// <summary>Model-facing view only. The complete packet remains the validation and saved audit record.</summary>
 public static class AiPortfolioPrompt
 {
-    public const string Format = "portfolio-review-view-v2";
+    public const string Format = "portfolio-review-view-v3";
     private static readonly JsonSerializerOptions Json = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
     private static readonly string[] Metrics = ["Close", "PersistenceScore", "DirectionalVolumeBalance20",
         "RawReturn20", "ExcessReturn20", "RawReturn60", "ExcessReturn60", "PreviousCloseReturn",
@@ -21,14 +21,42 @@ public static class AiPortfolioPrompt
 
     public static string Create(string frozenPacketJson)
     {
-        // Small packets keep their original wire shape. This is a formatting threshold,
-        // never a substitute for the provider's exact 32k token admission check.
-        if (frozenPacketJson.Length <= 60_000) return frozenPacketJson;
+        // The formatting threshold never bypasses the approved omissions or token admission.
+        bool large = frozenPacketJson.Length > 60_000;
         var packet = JsonNode.Parse(frozenPacketJson)!.AsObject();
-        foreach (var evidence in packet["evidence"]!.AsArray())
+        var unavailable = packet["candidates"]!.AsArray().Where(c => c!["eligible"]?.GetValue<bool>() == false)
+            .ToDictionary(c => c!["id"]!.GetValue<string>(), c => c!, StringComparer.Ordinal);
+        foreach (var candidate in unavailable.Values) candidate.AsObject().Remove("rules");
+        bool reduced = unavailable.Count > 0;
+        var evidenceRows = packet["evidence"]!.AsArray();
+        foreach (var evidence in evidenceRows.ToArray())
         {
             string id = evidence!["id"]!.GetValue<string>();
+            if (unavailable.Keys.Any(choice => id.StartsWith(choice + ":", StringComparison.Ordinal)))
+            {
+                // Keep the full source packet for validation/audit; omit only this candidate's view.
+                evidenceRows.Remove(evidence);
+                continue;
+            }
             var description = ReadJson(evidence["description"]!.GetValue<string>());
+            if (id.StartsWith("strategy:", StringComparison.Ordinal) && unavailable.TryGetValue(id[9..], out var blocked))
+            {
+                // Retain the original evidence ID/time so a wait answer can cite the blocking reason.
+                evidence["description"] = new JsonObject
+                {
+                    ["UnavailableReasons"] = description is JsonObject definition && definition["UnavailableReasons"] is JsonArray reasons
+                        ? reasons.DeepClone() : new JsonArray(blocked["summary"]?.DeepClone()),
+                    ["DetailsOmitted"] = true
+                };
+                continue;
+            }
+            bool engineeringRemoved = id.StartsWith("strategy:", StringComparison.Ordinal) && RemoveEngineeringDetails(description);
+            reduced |= engineeringRemoved;
+            if (!large)
+            {
+                if (engineeringRemoved) evidence["description"] = description;
+                continue;
+            }
             if (id.StartsWith("strategy:", StringComparison.Ordinal) || id.EndsWith(":live-source", StringComparison.Ordinal) ||
                 id.EndsWith(":shadow-source", StringComparison.Ordinal) || id.EndsWith(":shadow-signals", StringComparison.Ordinal))
                 RemoveAuditIdentifiers(description);
@@ -49,6 +77,7 @@ public static class AiPortfolioPrompt
             }
             evidence["description"] = description;
         }
+        if (!large && !reduced) return frozenPacketJson;
         var (view, shared) = PackView(packet);
         if (!JsonNode.DeepEquals(packet, ExpandView(view, shared)))
             throw new InvalidDataException("Compact review view did not preserve its source values.");
@@ -61,7 +90,11 @@ public static class AiPortfolioPrompt
                 "combine them with each row to restore the full record. Missing, null and empty values remain distinct. " +
                 "Live descriptions use columns and row; history uses history_columns and rows. Measurements follow measurement_columns. " +
                 "Live family rows contain Family, State, ReasonCode. Source JSON strings are shown as structured data. " +
-                "All candidates, eligibility, rules and evidence IDs remain. Live detail is a current summary, not the full calculation history: " +
+                "All choices retain their identity and eligibility. Unavailable choices have only their summary and a dated blocking notice; " +
+                "their rules, strategy settings, stock/source details and performance history are omitted. They cannot be selected, even if currently active. " +
+                "Managed-account evidence, risk and learning remain independent of those omissions. Eligible choices retain trading rules and evidence. " +
+                "Internal software/format labels and research/testing controls are omitted from strategy definitions; trading and data-quality settings remain. " +
+                "Live detail is a current summary, not the full calculation history: " +
                 "selected current measurements and recent validity/confidence/momentum are shown; detailed window calculations, " +
                 "older raw measurements, detailed daily gate traces, vote totals, lifecycle bookkeeping, technical source IDs/hashes " +
                 "and closed managed-position rows remain in the saved full packet. Candidate IDs/versions, account identities, rule IDs " +
@@ -82,6 +115,29 @@ public static class AiPortfolioPrompt
             },
             ["shared"] = shared, ["packet"] = view
         }.ToJsonString(Json);
+    }
+
+    // Exact paths only: identically named fields in account evidence or future structures stay intact.
+    private static bool RemoveEngineeringDetails(JsonNode? description)
+    {
+        if (description is not JsonObject root || root["Strategy"] is not JsonObject strategy) return false;
+        bool removed = Remove(strategy, "ImplementationIdentity", "RecommendationContract");
+        if (strategy["Daily"] is JsonObject daily) removed |= Remove(daily, "InputContract");
+        if (strategy["LivePolicy"] is JsonObject policy)
+            removed |= Remove(policy, "PolicyDefinitionSchemaVersion", "EvaluatorVersion", "CollectorVersion",
+                "CollectorSourceContractVersion", "DecisionDossierVersion", "DecisionDossierSchemaVersion",
+                "QuoteFillVersion", "ShadowPortfolioVersion", "ResearchOutcomeVersion", "RankingDiagnosticVersion",
+                "PromotionProtocolVersion", "ResearchSessionHorizons", "EngineeringShakedownSessionCount",
+                "DiscoverySessionCount", "UntouchedConfirmationSessionCount", "PromotionBootstrapResampleCount",
+                "PromotionBootstrapBlockSessionCount", "PromotionConfidenceLevel", "MaximumActiveNonChampionPolicies");
+        return removed;
+
+        static bool Remove(JsonObject obj, params string[] fields)
+        {
+            bool changed = false;
+            foreach (var field in fields) changed |= obj.Remove(field);
+            return changed;
+        }
     }
 
     // Lossless packing of the already agreed review view; does not remove any additional evidence.

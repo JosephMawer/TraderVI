@@ -56,7 +56,11 @@ Native source/freshness/host qualification remains required and assessments gran
 Legacy Shadow risk and decision readers share frozen V1 identity; broken assignments cannot
 fall back. Existing engine valuation semantics are unchanged.
 The maintained AI catalogue and packet builder preserve exact policy/model/gate identities and separate
-candidate definitions from managed-account funds. Unsupported choices stay visible; fresh matching
+candidate definitions from managed-account funds. ADR-0087's October 9 v3 presentation keeps unavailable
+choices as dated blocking notices while omitting their detailed strategy/stock/performance context and
+approved engineering fields; the full source remains validated/saved. Managed holdings, stops, risk and
+required learning context remain independent. This does not alter eligibility or protection.
+Unsupported choices stay visible; fresh matching
 engine context is required for selectable proposals. Missing AI attention may prompt a review, but
 other saved holds remain blocks. Daily Shadow saved context now preserves original daily gate traces,
 fixed bypass identity and dated candidate decisions. Known trading gates and entry/rotation guidance

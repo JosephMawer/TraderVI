@@ -1270,6 +1270,41 @@ used only once after parent sharing are inlined. Full source and exact sent-requ
 Token admission and connected interpretation still need separate verification; offline roundtrips do
 not prove either or bound future session growth. Dated results remain in project status.
 
+### Approved engineering and unavailable-choice omissions — October 9
+
+The operator accepted removing engineering-only details and requested no detailed data for unavailable
+strategies. This supersedes v2's no-further-omissions boundary and the earlier requirement to include
+all candidate rules/performance in the model-facing view. It does not supersede full-source retention,
+source validation, eligibility, trading behavior, risk/spending checks or the response contract.
+
+`portfolio-review-view-v3` uses the existing candidate `Eligible` result, never a new filter. Every
+choice retains its identity/version, eligibility and summary. An unavailable choice has no rendered
+rules or candidate stock/source/performance detail; its original dated `strategy:<id>` evidence retains
+only blocking reasons and an omission marker, so wait decisions can cite an existing evidence ID.
+Missing structured reasons fall back to the original candidate summary. This also applies to small
+requests and an unavailable active choice. It never drops the managed account's holdings, stops or
+risk state. Global scheduling context and learning remain; every supplied lesson still requires its
+existing assessment. An unavailable strategy cannot become eligible through omitted evidence, and
+its invisibility in detailed tables never implies that account holdings disappeared.
+
+At exact known strategy-definition paths, omit `ImplementationIdentity`, `RecommendationContract`,
+`Daily.InputContract`, and these `LivePolicy` fields: `PolicyDefinitionSchemaVersion`, `EvaluatorVersion`,
+`CollectorVersion`, `CollectorSourceContractVersion`, `DecisionDossierVersion`, `DecisionDossierSchemaVersion`,
+`QuoteFillVersion`, `ShadowPortfolioVersion`, `ResearchOutcomeVersion`, `RankingDiagnosticVersion`,
+`PromotionProtocolVersion`, `ResearchSessionHorizons`, `EngineeringShakedownSessionCount`,
+`DiscoverySessionCount`, `UntouchedConfirmationSessionCount`, `PromotionBootstrapResampleCount`,
+`PromotionBootstrapBlockSessionCount`, `PromotionConfidenceLevel`, `MaximumActiveNonChampionPolicies`.
+The application continues checking compatibility and eligibility against the full definitions. Preserve
+actual trading thresholds, timing/horizons, data-quality/coverage settings, policy name, protection,
+selection/gate profile, original decision identities and unknown future fields. Do not remove matching
+field names from arbitrary nested/account records.
+
+Keep the existing eligible-choice projection and lossless packing check. The check proves packing
+preserves the approved view, not that omitted data is equivalent or that the model understands it.
+This is a presentation version, separate from the packet/response schema version. Exact token admission
+and separately authorized current-data/model tests remain required; no automatic reviews or trading
+are enabled by this decision.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

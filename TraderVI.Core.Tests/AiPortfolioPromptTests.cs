@@ -192,6 +192,130 @@ public sealed class AiPortfolioPromptTests
         Assert.True(JsonNode.DeepEquals(source, AiPortfolioPrompt.ExpandView(view, shared)));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void UnavailableChoiceOmitsItsDetailsButPreservesNoticeAccountAndOtherChoices(bool large)
+    {
+        var source = Packet();
+        if (!large) source["candidates"]![0]!["rules"]!.AsArray().Clear();
+        source["active_portfolio_id"] = "blocked";
+        source["candidates"]!.AsArray().Add(new JsonObject
+        {
+            ["id"] = "blocked", ["strategy_version"] = "original-version", ["eligible"] = false,
+            ["summary"] = "Blocked choice. Unavailable: independent account hold",
+            ["rules"] = new JsonArray(new JsonObject { ["id"] = "hidden-rule", ["is_hard_boundary"] = true })
+        });
+        var rows = source["evidence"]!.AsArray();
+        rows.Add(Evidence("strategy:blocked", new JsonObject
+        {
+            ["UnavailableReasons"] = new JsonArray("independent account hold"),
+            ["Strategy"] = new JsonObject { ["Name"] = "omitted-settings" }
+        }));
+        foreach (var suffix in new[] { "live-signal:TEST", "shadow-signals", "live-performance", "shadow-performance", "live-source" })
+            rows.Add(Evidence("blocked:" + suffix, new JsonObject { ["detail"] = "omitted-stock-or-performance" }));
+        rows.Add(Evidence("blocked-other:live-source", new JsonObject { ["detail"] = "other-owner" }));
+        var account = new JsonObject { ["Cash"] = 321.12m, ["Stop"] = 12.34m, ["Phase"] = "Closing", ["CollectorVersion"] = "retain-account-field" };
+        rows.Add(Evidence("managed-account", account));
+        source["learning"] = new JsonObject { ["lessons"] = new JsonArray("required-assessment-context") };
+        string original = source.ToJsonString();
+        var prompt = JsonNode.Parse(AiPortfolioPrompt.Create(original))!;
+        var view = Expand(prompt["packet"], prompt["shared"]!)!;
+        Assert.Equal(original, source.ToJsonString());
+        Assert.Equal("blocked", view["active_portfolio_id"]!.GetValue<string>());
+        Assert.True(JsonNode.DeepEquals(source["candidates"]![0], view["candidates"]![0]));
+        Assert.False(view["candidates"]![1]!["eligible"]!.GetValue<bool>());
+        Assert.Equal("original-version", view["candidates"]![1]!["strategy_version"]!.GetValue<string>());
+        Assert.Null(view["candidates"]![1]!["rules"]);
+        var evidence = view["evidence"]!.AsArray();
+        Assert.DoesNotContain(evidence, e => e!["id"]!.GetValue<string>().StartsWith("blocked:", StringComparison.Ordinal));
+        Assert.Contains(evidence, e => e!["id"]!.GetValue<string>() == "blocked-other:live-source");
+        var notice = evidence.Single(e => e!["id"]!.GetValue<string>() == "strategy:blocked")!;
+        Assert.Equal("2026-10-01T15:05:00Z", notice["observed_utc"]!.GetValue<string>());
+        Assert.Equal("independent account hold", notice["description"]!["UnavailableReasons"]![0]!.GetValue<string>());
+        Assert.True(notice["description"]!["DetailsOmitted"]!.GetValue<bool>());
+        Assert.DoesNotContain("omitted-settings", prompt.ToJsonString());
+        Assert.DoesNotContain("omitted-stock-or-performance", prompt.ToJsonString());
+        Assert.True(JsonNode.DeepEquals(account, Description(evidence, "managed-account")));
+        Assert.True(JsonNode.DeepEquals(source["learning"], view["learning"]));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EngineeringOmissionsAreScopedAndTradingQualityUnknownFieldsRemain(bool large)
+    {
+        var source = Packet();
+        if (!large) source["candidates"]![0]!["rules"]!.AsArray().Clear();
+        string[] omitted = ["PolicyDefinitionSchemaVersion", "EvaluatorVersion", "CollectorVersion",
+            "CollectorSourceContractVersion", "DecisionDossierVersion", "DecisionDossierSchemaVersion",
+            "QuoteFillVersion", "ShadowPortfolioVersion", "ResearchOutcomeVersion", "RankingDiagnosticVersion",
+            "PromotionProtocolVersion", "ResearchSessionHorizons", "EngineeringShakedownSessionCount",
+            "DiscoverySessionCount", "UntouchedConfirmationSessionCount", "PromotionBootstrapResampleCount",
+            "PromotionBootstrapBlockSessionCount", "PromotionConfidenceLevel", "MaximumActiveNonChampionPolicies"];
+        var policy = new JsonObject
+        {
+            ["EntryConfirmationCount"] = 3, ["HardLossFraction"] = 0.05m, ["ReadyCoverage"] = 0.9m,
+            ["DegradedCoverageFloor"] = 0.7m, ["FutureUnknown"] = "retain",
+            ["NestedFuture"] = new JsonObject { ["CollectorVersion"] = "retain-unknown-location" }
+        };
+        foreach (var field in omitted) policy[field] = "omit-engineering-only";
+        source["evidence"]!.AsArray().Add(Evidence("strategy:choice", new JsonObject
+        {
+            ["PaperAccountId"] = "original-account",
+            ["Strategy"] = new JsonObject
+            {
+                ["ImplementationIdentity"] = "omit-internal", ["RecommendationContract"] = "omit-internal",
+                ["MaximumHoldings"] = 3, ["Daily"] = new JsonObject
+                { ["InputContract"] = "omit-internal", ["Configuration"] = new JsonObject { ["MinCompositeScore"] = 0.35m } },
+                ["LivePolicy"] = policy
+            }
+        }));
+        string original = source.ToJsonString();
+        var prompt = JsonNode.Parse(AiPortfolioPrompt.Create(original))!;
+        var view = Expand(prompt["packet"], prompt["shared"]!)!;
+        var definition = Description(view["evidence"]!.AsArray(), "strategy:choice");
+        var strategy = definition["Strategy"]!;
+        Assert.Equal(original, source.ToJsonString());
+        Assert.Equal("original-account", definition["PaperAccountId"]!.GetValue<string>());
+        Assert.Null(strategy["ImplementationIdentity"]);
+        Assert.Null(strategy["RecommendationContract"]);
+        Assert.Null(strategy["Daily"]!["InputContract"]);
+        foreach (var field in omitted) Assert.Null(strategy["LivePolicy"]![field]);
+        foreach (var field in new[] { "EntryConfirmationCount", "HardLossFraction", "ReadyCoverage", "DegradedCoverageFloor", "FutureUnknown", "NestedFuture" })
+            Assert.True(JsonNode.DeepEquals(policy[field], strategy["LivePolicy"]![field]));
+        Assert.Equal(0.35m, strategy["Daily"]!["Configuration"]!["MinCompositeScore"]!.GetValue<decimal>());
+        Assert.True(JsonNode.DeepEquals(source["candidates"], view["candidates"]));
+    }
+
+    [Fact]
+    public void AllUnavailableStillShowsAccountAndDatedWaitReasons()
+    {
+        var source = Packet();
+        source["candidates"]![0]!["eligible"] = false;
+        source["candidates"]![0]!["summary"] = "Choice. Unavailable: missing current input";
+        source["evidence"]!.AsArray().Add(Evidence("strategy:choice", new JsonObject { ["Name"] = "omitted" }));
+        source["evidence"]!.AsArray().Add(Evidence("managed-account", new JsonObject { ["Cash"] = 100m }));
+        var prompt = JsonNode.Parse(AiPortfolioPrompt.Create(source.ToJsonString()))!;
+        var view = Expand(prompt["packet"], prompt["shared"]!)!;
+        Assert.Single(view["candidates"]!.AsArray());
+        Assert.Equal(2, view["evidence"]!.AsArray().Count);
+        var notice = Description(view["evidence"]!.AsArray(), "strategy:choice");
+        Assert.Contains("missing current input", notice["UnavailableReasons"]![0]!.GetValue<string>());
+        Assert.Equal(100m, Description(view["evidence"]!.AsArray(), "managed-account")["Cash"]!.GetValue<decimal>());
+    }
+
+    private static JsonObject Evidence(string id, JsonObject description) => new()
+    {
+        ["id"] = id, ["observed_utc"] = "2026-10-01T15:05:00Z", ["description"] = description.ToJsonString()
+    };
+
+    private static JsonNode Description(JsonArray evidence, string id)
+    {
+        var value = evidence.Single(e => e!["id"]!.GetValue<string>() == id)!["description"]!;
+        return value is JsonValue ? JsonNode.Parse(value.GetValue<string>())! : value;
+    }
+
     private static JsonObject Packet(bool extraField = false, bool empty = false)
     {
         var check = JsonNode.Parse(JsonSerializer.Serialize(new
@@ -218,7 +342,7 @@ public sealed class AiPortfolioPromptTests
         return new JsonObject
         {
             ["expires_utc"] = "2026-10-01T15:10:00Z",
-            ["candidates"] = new JsonArray(new JsonObject { ["id"] = "choice", ["eligible"] = false, ["rules"] = rules }),
+            ["candidates"] = new JsonArray(new JsonObject { ["id"] = "choice", ["eligible"] = true, ["rules"] = rules }),
             ["evidence"] = new JsonArray(new JsonObject
             { ["id"] = "choice:live-signal:TEST", ["observed_utc"] = "2026-10-01T15:05:00Z", ["description"] = signal.ToJsonString() })
         };
