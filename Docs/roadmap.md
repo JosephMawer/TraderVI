@@ -81,7 +81,9 @@ found stale invested-account prices; no paid attempt ran. The read-only trace co
 collection with failures and a stalled held-position mark. The authorized fixed-window diagnostic reproduces
 five-minute timestamp-alignment rejection on both targets. The follow-up confirms source times are
 preserved by mapping in the sample, with both aligned/off-grid XIU rows rejected together. Establish
-the off-grid records' meaning and the exact Shadow failure before changing acceptance, then restore/qualify held-stock valuation through
+the provider request/interval contract and exact Shadow failure before changing acceptance: the narrow
+one-/five-minute comparison lacked complete minute components, so selective row acceptance is not
+qualified. Then restore/qualify held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain

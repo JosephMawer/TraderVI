@@ -35,7 +35,9 @@ The October 9 read-only trace confirms partial live collection failures despite 
 The authorized fixed-window provider diagnostic reproduces five-minute timestamp-alignment rejection on
 both targets. The timestamp comparison confirms source off-grid times map correctly in the sample;
 XIU's additional aligned row is rejected with the off-grid row. Their meaning and the exact Shadow
-failure remain unresolved; further provider reads require authorization. The bounded timestamp-only
+failure remain unresolved. The narrow one-/five-minute comparison lacks complete minute components,
+so retaining aligned rows is not qualified; next verify the request/interval contract. Further provider
+reads require authorization. The bounded timestamp-only
 diagnostic is built/tested (47 focused tests). No correction or recovery is qualified. Preserve historical gaps and distinguish per-stock success from cycle
 completion; neither establishes clean-session qualification. See the dated [project status](project-status.md).
 

@@ -1,6 +1,24 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. The 14:30 timestamp comparison confirms TMX supplied the off-grid times and the local mapper preserved them in this sample; XIU also supplied an aligned row, but the validator rejects the whole response. The meaning of those extra records and the separate Shadow failure remain unresolved. Next diagnose that mismatch and restore qualified held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. The 14:30 timestamp comparison confirms TMX supplied the off-grid times and the local mapper preserved them in this sample; XIU also supplied an aligned row, but the validator rejects the whole response. The narrow 14:51 interval comparison could not verify full five-minute aggregates, so selective row acceptance is not qualified. Next verify the provider request/interval contract and restore qualified held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+
+**Narrow interval check, October 9, 14:51 Toronto:** the operator authorized the short check of
+whether aligned records can safely be retained. Four read-only requests compared one- and five-minute
+responses for MTL and XIU over the same 13:50-13:55 window, with 25-second per-request deadlines and
+no retries. MTL supplied one complete point at 13:54 in each response, with identical OHLCV and no
+13:50 row. XIU supplied two complete points (13:50, 13:52) in each response, but neither five-minute
+row exactly matched its same-timestamp one-minute row. Only one/two of five exact minute components
+were present, so neither complete five-minute aggregation could be checked. Missing rows were not
+assumed to mean no trades. This does not prove the aligned row is invalid or safely reusable, nor that
+the interval parameter is ignored. No selective acceptance fix was applied or qualified.
+
+Next inspect the TMX request/interval contract to establish the requested aggregation, rather than
+continue timestamp-only sampling. Preserve existing rejection and freshness rules; the exact Shadow
+failure and held-stock recovery remain pending. The four-request scope is complete. There were no
+SQL/journal writes, app changes/restart, AI calls or trades. Three synthetic script checks (aggregate
+match, mismatch and missing-minute rejection) passed before the requests; no Core build/test rerun was
+needed because production source did not change. Private evidence:
+`artifacts/price-refresh-20261009/{Compare-Interval.ps1,interval-comparison.json}`.
 
 **Price-refresh trace, October 9, about 14:00-14:02 Toronto:** SELECT-only records and source
 inspection confirm active collection with partial failures, not a wholly stopped desktop. The 13:55
