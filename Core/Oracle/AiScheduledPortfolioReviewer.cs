@@ -63,7 +63,9 @@ public sealed class AiScheduledPortfolioReviewer
             packet = packet with { Evidence = packet.Evidence.Concat(triggerEvidence).Append(new(
                 "schedule-request/" + request.Id, request.StartedUtc,
                 $"Review reasons: {string.Join(", ", request.Reasons)}. Requested interval ticks: {request.Interval.Requested.Ticks}; " +
-                $"applied interval ticks: {request.Interval.Applied.Ticks}. Reason: {request.Interval.Reason}")).ToArray() };
+                $"applied interval ticks: {request.Interval.Applied.Ticks}. " +
+                $"Historical interval explanation recorded at {request.Interval.ChangedUtc.ToUniversalTime():O}: {request.Interval.Reason} " +
+                "This retained explanation describes scheduling history, not current account or market evidence.")).ToArray() };
             AiPortfolioReviewer.ValidatePacket(packet, clock.GetUtcNow());
             var beforeCall = scheduler.Read(clock.GetUtcNow());
             if (beforeCall.ReviewBlock is "OutsideSession" or "EventHistoryRequiresReview" || beforeCall.PendingEvents > 0)

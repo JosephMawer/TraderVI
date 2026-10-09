@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. Next qualify desktop lifecycle/automatic scheduling, then basic review/status display. Also label the retained prior scheduling reason with its original time: the model correctly rejected old holding narrative, but its current evidence wrapper obscures its age. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
+**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. Next qualify desktop lifecycle/automatic scheduling, then basic review/status display. Retained scheduling explanations now carry their original timestamp and an explicit historical label in source; 61 focused tests pass. This correction is not installed or retested through a paid call. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
 
 **Authorized connected review, October 9:** the operator authorized empty-snapshot continuation and
 one review with the existing ten-minute test ages and spending guards. Snapshot v2 was published at
@@ -21,14 +21,18 @@ is CAD 0.5417 against a CAD 0.8724 reservation; recorded October total is CAD 1.
 The response correctly distinguishes unavailable engine evidence, current managed funds and candidate
 paper confirmation. It also notices an old holding/timing narrative inside the retained interval reason;
 source inspection confirms this is the October 1 explanation wrapped in current scheduling evidence.
-It uses the current account instead. Add the original interval-change time and an explicit historical
-label before broader runtime qualification. This single answer supports compact-view interpretation,
+It uses the current account instead. The subsequent source correction includes the original interval-change
+time and explicitly identifies the retained reason as scheduling history rather than current account/market
+evidence. It preserves cadence and saved history. A regression test verifies a later review retains the
+original explanation time; 61 focused scheduler/journal/prompt tests pass. Sandbox builds with three existing
+CS8632 warnings and no errors. No new dependency-security audit or full-solution/SSDT build. The correction
+is not installed in the running desktop and has not had another paid test. This single answer supports compact-view interpretation,
 without proving every measurement or an eligible selection. No second call was made.
 
 Automatic settings remain disabled; no AI trading, provider-data diagnostic, restart or continuous loop
 was invoked. Verification scripts/results and bounded command logs are under `artifacts/ai-resume-20261009/`.
 Exact request/input/response inspection copies are protected under `%LOCALAPPDATA%/TraderVI/AiMomentum/inspection`
-with the `20261009-` prefix. No new build/test was needed for this operational verification.
+with the `20261009-` prefix. The separate scheduling-label correction has its test/build logs in the same artifact directory.
 
 **Market-open preparation, October 9:** SELECT-only checks at 09:33 and 09:37 Toronto find eight active
 comparison Shadow sessions using today's Valid daily source, with 32 Pending candidate records and no

@@ -328,6 +328,28 @@ public sealed class AiScheduledPortfolioReviewerTests : IDisposable
         Assert.Equal("Current", coordinator.Prepare(result.Proposal.PacketId, "paper", null).LearningCheck.Status);
     }
 
+    [Fact]
+    public async Task LaterReviewDatesRetainedIntervalReasonWithoutTreatingItAsCurrentBookEvidence()
+    {
+        using var journal = Journal();
+        var client = new Client((r, _) => Task.FromResult(Response(r)));
+        var runner = Runner(journal, client);
+        var first = await runner.TickAsync();
+        var changedUtc = first.Schedule.Interval.ChangedUtc;
+        clock.Now = clock.Now.AddMinutes(15);
+
+        var second = await runner.TickAsync();
+
+        var evidence = journal.ReadReview(second.Proposal!.PacketId).Packet.Evidence
+            .Single(e => e.Id == "schedule-request/" + second.Proposal.PacketId);
+        Assert.Equal(clock.Now, evidence.ObservedUtc);
+        Assert.Contains($"Historical interval explanation recorded at {changedUtc.ToUniversalTime():O}: Synthetic quiet conditions", evidence.Description);
+        Assert.DoesNotContain($"explanation recorded at {clock.Now.ToUniversalTime():O}", evidence.Description);
+        Assert.Contains("scheduling history, not current account or market evidence", evidence.Description);
+        Assert.Equal(TimeSpan.FromMinutes(15), second.Schedule.Interval.Applied);
+        Assert.Equal(2, client.Calls);
+    }
+
     [Theory]
     [InlineData("missing")]
     [InlineData("null")]
