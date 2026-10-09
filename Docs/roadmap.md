@@ -71,9 +71,11 @@ the existing cap. Full source packets and eligibility/spending rules remain unch
 October 9 concise-input review returned a valid wait with all choices unavailable; SQL/local evidence,
 exact request rendering and cost match (project status). Empty learning was explicitly continued through
 today's close with prior history preserved. This qualifies the blocked-choice wait path, not eligible
-selection or continuous readiness. Historical scheduling explanations are now explicitly dated in source. Next qualify the desktop
-lifecycle/automatic scheduling using the built/tested self-stopping desktop check, then add the basic review/status display. Automatic reviews remain off;
-activation and further paid calls require authorization. Collection health and invested coverage remain
+selection or continuous readiness. The later authorized desktop test verifies startup, blocked-attempt
+timing, the bounded stop and disabled restart, but the last compact request exceeds the unchanged input
+cap as session evidence grows. Next bound that growth while preserving decision evidence and full saved
+sources, qualify repeated successful desktop reviews, then add the basic display. Automatic reviews remain
+off; further paid tests/activation require authorization. Collection health and invested coverage remain
 unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a
 correction is chosen; fixed-window diagnosis is built/tested and further provider reads need authorization.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.

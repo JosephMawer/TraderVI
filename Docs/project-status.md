@@ -1,25 +1,42 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. A self-stopping desktop qualification mode is now built with 73 passing focused tests; native startup/shutdown and automatic scheduling remain to be run under explicit bounded authority. Then add basic review/status display. Retained scheduling explanations now carry their original timestamp and an explicit historical label in source; 61 focused tests pass. This correction is not installed or retested through a paid call. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
+**Current record:** October 9, 2026. The authorized desktop test verified startup, two-minute retry scheduling, automatic stop after two attempts, journal release, clean shutdown and restart with reviews disabled. Both attempts were DataUnavailable before paid generation; the last saved compact request counts 46,780 tokens against the unchanged 32,000 cap. The 09:42 compact wait review remains valid evidence, but the format does not stay small enough as the session grows. Next bound growing input while preserving decision evidence and full saved sources, then qualify repeated successful desktop reviews and add the basic display. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
-**Desktop qualification preparation, October 9:** the WPF review owner now supports an explicitly
-supplied process-only UTC test deadline, no more than ten minutes away. The saved configuration must
-exist and remain disabled; only the in-memory copy is enabled for that launch. It stops after two distinct
-new review attempts (including unsuccessful ones) or the deadline. Recovered old attempts and idle ticks
-do not consume the count. Existing cadence, data checks, budget, history and execution boundaries remain.
-The deadline cancels pending work and waits for its cleanup before releasing ownership; the normal window
-close path likewise awaits the review task. No test flag is saved to user/system environment or settings.
+**Authorized desktop qualification, October 9:** the operator approved a brief restart, up to two AI
+reviews with an approximately CAD 2.34 maximum reservation total, and a restart with reviews off afterward.
+The first scripted close did not finish within 30 seconds; no force stop was attempted. The operator
+then closed the old app manually. The prepared Release copy started at 10:09:47 Toronto with a process-only
+deadline of 10:18:46. Loaded `TraderVI.WPF.dll` and `Core.dll` paths match the prepared artifact directory.
 
-Validation: 73 focused host/scheduler/journal/reviewer tests pass, including actual scheduler due times,
-no duplicate calls during idle ticks, the attempt cap, deadline cancellation and waiting for cleanup.
-An isolated Release WPF build succeeds with 260 existing compiler warnings (CS8632/CS0162/CS0168), zero
-errors. No dependency-security audit or complete solution/SSDT check. Prepared app and logs are under
-`artifacts/ai-desktop-qualification-20261009/`; the normal-close/restart script parses but has not run.
-The running desktop is unchanged. No new paid call, SQL/journal write, provider call or restart ran in
-this preparation. Native checks must distinguish successful review/scheduling from blocked attempts,
-verify SQL/local evidence and costs, then verify saved settings are still off and journals can be reopened.
-Restarting the operational WPF host can interrupt paper monitoring and record a coverage gap; get explicit
-authority for the restart, normal host activity and up to two paid reviews before running the prepared test.
+The first attempt began at 10:09:50.093 and completed DataUnavailable at 10:10:01.445; the second began
+at 10:12:01.507, 120.062 seconds after completion, and finished DataUnavailable at 10:12:04.937.
+Both saved Rejected records match SQL exactly, and each SQL Pending/Rejected pair preserves the exact
+packet. No new generation reservation, paid generation or response was recorded. All four AI journal
+locks were released while the app remained open, confirming that the two-attempt test stopped its owner.
+
+Neither packet was expired at rejection; both expired at 10:15. Compact input sizes were 127,385 and
+130,972 characters. A separate count-only check of the last saved request returned 46,780 tokens, above
+the existing 32,000 admission cap. This verifies the last request cannot fit; the original desktop path
+saved only DataUnavailable, not its precise rejection detail. The first attempt's exact count was not
+captured. The size guard remains intact; do not raise the cap or treat blocked attempts as successful
+recurring AI answers. The earlier 19,964-token wait response does not qualify growing intraday input.
+
+The test copy then closed normally and restarted at 10:13:20 with no test variable. At 10:14:59 the app
+was responsive, saved settings matched the pre-test checksum and remained disabled, all AI locks remained
+free, and no third attempt or paid call existed beyond the next two-minute due time. The prepared copy
+is the running desktop; the regular build-output executable was not replaced. Total conservative October
+spending remains CAD 1.3087 with no unsettled calls; this test added CAD 0. At 10:17:10 all four AI journal
+checksums remained unchanged. Normal desktop startup was authorized; market/broker data quality was not
+requalified. AI trading was not enabled. Monitoring gaps remain historical evidence.
+
+This qualifies native startup, blocked-attempt timing, the bounded stop and disabled restart. Repeated
+successful paid reviews, in-flight native shutdown and continuous readiness remain unqualified. Offline
+validation remains 73 passing focused tests and the isolated WPF Release build with 260 existing compiler
+warnings (CS8632/CS0162/CS0168), zero errors. No new code/build/test, dependency-security audit or full-solution/
+SSDT check ran for this operational step. Evidence is under `artifacts/ai-desktop-qualification-20261009/`:
+`bounded-launch.json`, `bounded-completion.json`, `native-verification.json`, `rejected-input-count.log`,
+`Verify-Test.ps1` and the prior tests/build logs. Review SQL/local writes, count-only provider access and
+normal desktop activity were within the authorized test; there was no additional review retry.
 
 **Authorized connected review, October 9:** the operator authorized empty-snapshot continuation and
 one review with the existing ten-minute test ages and spending guards. Snapshot v2 was published at
@@ -45,7 +62,7 @@ time and explicitly identifies the retained reason as scheduling history rather 
 evidence. It preserves cadence and saved history. A regression test verifies a later review retains the
 original explanation time; 61 focused scheduler/journal/prompt tests pass. Sandbox builds with three existing
 CS8632 warnings and no errors. No new dependency-security audit or full-solution/SSDT build. The correction
-is not installed in the running desktop and has not had another paid test. This single answer supports compact-view interpretation,
+is included in the later desktop test copy; that test produced no new model answer. This single answer supports compact-view interpretation,
 without proving every measurement or an eligible selection. No second call was made.
 
 Automatic settings remain disabled; no AI trading, provider-data diagnostic, restart or continuous loop

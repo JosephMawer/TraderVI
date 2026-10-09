@@ -1193,8 +1193,8 @@ Private settings/journals were prepared October 1 with `Enabled: false`; one con
 SQL readback are verified. The October 1 publication was subsequently restored to all portfolios. A follow-up
 review with those signals stopped before generation at the input-token limit; do not repeat the oversized
 packet unchanged or raise the limit as a workaround. The concise view passes a saved-packet count-only
-check; qualify a fresh decision using it and the installed desktop
-lifecycle before enabling automatic startup. See project status for dated results. This does not enable trading.
+check and one fresh wait decision; later desktop input grew beyond the cap. Bound growing input and
+qualify repeated successful desktop reviews before enabling automatic startup. See project status for dated results. This does not enable trading.
 
 The explicit Sandbox command `ai-paper-first-review` has seven modes, selected with
 `TRADERVI_AI_FIRST_REVIEW_MODE` (default `Preflight`). Set `TRADERVI_TSX_CALENDAR_PATH` to the

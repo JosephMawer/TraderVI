@@ -104,12 +104,12 @@ Opt-in desktop startup is built/tested. Private setup and one connected review w
 recorded usage are verified October 1. Dependency repair and the authorized pipeline recovery restored
 the October 1 publication to all 15 portfolios; two ungated Continuation choices had usable AI context at 10:57.
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
-automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
+successful recurring runtime verification remains pending. The follow-up review test assembled four eligible choices
 but exceeded the existing input-token limit before generation. The concise view now fits that saved
 packet under the same limit. The authorized October 9 concise review returned a validated wait for
 all-unavailable choices, with exact SQL/local records and recorded cost. Empty learning was explicitly
 continued through today's close. Eligible selection and continuous readiness remain unqualified; old
-scheduling explanations are now explicitly dated in source. Next qualify desktop lifecycle/scheduling, then add basic display.
+scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass, but growing compact input exceeds the cap. Next bound that growth, verify recurring successful reviews, then add basic display.
 Persistent collection and invested-coverage qualification remain separate dependencies.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
@@ -230,7 +230,9 @@ runtime/display development can proceed while native input qualification remains
    - [ ] Track persistent collection separately: capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; further provider requests need authorization.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [x] Build/test a process-only desktop qualification run capped at two new attempts or ten minutes; preserve disabled saved settings and await cancellation cleanup (October 9, 73 focused tests).
-   - [ ] Verify the installed desktop lifecycle and automatic scheduling with the bounded test; restart and paid-call authority are still required. Source/build checks do not establish activation.
+   - [x] Verify native startup, two-minute blocked-attempt scheduling, automatic stop after two attempts, journal release, normal shutdown and disabled restart in the prepared desktop copy (October 9). No paid generation occurred; exact SQL/local rejection records match.
+   - [ ] Bound compact-input growth across the session without raising the cap or losing decision evidence/full saved sources; last desktop request counts 46,780 tokens against 32,000.
+   - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.
