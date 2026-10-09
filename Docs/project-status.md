@@ -1,6 +1,34 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. Milestone 1 remains the visible reviewer; all three milestones remain pending. Today's daily publication is valid and the selected Breakout 3 book is now cash-only with a current saved cash check. The first collection cycle completed at 09:37:39 Toronto with six failures; at 09:39 none of the 15 choices permitted a proposal. Recheck fresh intraday contexts before authorizing empty-lesson continuation and one bounded concise-input review. The concise input has passed counting, not generation. Automatic reviews and AI trading remain off. Persistent collection failures, invested price coverage, choice-specific evidence and Athena outcomes remain separate dependencies; TMX remains normal and Wealthsimple fallback/lesson criteria remain deferred.
+**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. Next qualify desktop lifecycle/automatic scheduling, then basic review/status display. Also label the retained prior scheduling reason with its original time: the model correctly rejected old holding narrative, but its current evidence wrapper obscures its age. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
+
+**Authorized connected review, October 9:** the operator authorized empty-snapshot continuation and
+one review with the existing ten-minute test ages and spending guards. Snapshot v2 was published at
+09:40:51 Toronto and expires at today's 16:00 close; previous history remains intact. At 09:42:13 the
+selected Breakout 3 book was cash-only and current. Three Live context envelopes were fresh but blocked;
+all Shadow contexts were unavailable. The existing packet contract permits a wait review with no eligible
+choices; unavailable candidates remain explicit and no gate was relaxed.
+
+The one-shot review completed at 09:42:55 before its 09:45 packet expiry. It returned `wait`, two-minute
+next timing, no rule overrides and no lesson hypotheses. The exact request uses `portfolio-review-view-v1`,
+16 tables, 77 shared definitions and 424 shared references, all resolvable. It contains 15 choices,
+zero eligible choices and 84 evidence items; all eight response citations resolve. Saved request checksum
+and exact rendering from the full packet match. SQL Pending/Reviewed rows retain the identical packet;
+the complete SQL Reviewed record matches the local record byte-for-byte by SHA-256.
+
+Provider-counted and charged input tokens both equal 19,964; output is 651 tokens. Conservative accounting
+is CAD 0.5417 against a CAD 0.8724 reservation; recorded October total is CAD 1.3087, with no unsettled call.
+The response correctly distinguishes unavailable engine evidence, current managed funds and candidate
+paper confirmation. It also notices an old holding/timing narrative inside the retained interval reason;
+source inspection confirms this is the October 1 explanation wrapped in current scheduling evidence.
+It uses the current account instead. Add the original interval-change time and an explicit historical
+label before broader runtime qualification. This single answer supports compact-view interpretation,
+without proving every measurement or an eligible selection. No second call was made.
+
+Automatic settings remain disabled; no AI trading, provider-data diagnostic, restart or continuous loop
+was invoked. Verification scripts/results and bounded command logs are under `artifacts/ai-resume-20261009/`.
+Exact request/input/response inspection copies are protected under `%LOCALAPPDATA%/TraderVI/AiMomentum/inspection`
+with the `20261009-` prefix. No new build/test was needed for this operational verification.
 
 **Market-open preparation, October 9:** SELECT-only checks at 09:33 and 09:37 Toronto find eight active
 comparison Shadow sessions using today's Valid daily source, with 32 Pending candidate records and no

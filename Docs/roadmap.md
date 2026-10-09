@@ -67,18 +67,15 @@ Other choices retain their existing admission/evidence blocks. Athena's two inva
 remain a separate follow-up; see project status for the Attention result and dated verification.
 The authorized follow-up assembled four eligible choices but exceeded the unchanged input-token cap
 before generation. The concise review view is now built/tested and its saved-packet token count fits
-the existing cap. Full source packets and eligibility/spending rules remain unchanged. Next repeat the
-bounded connected review to qualify the shorter input before automatic desktop scheduling; saved-packet
-counting does not establish fresh input coverage or model interpretation. October 9 preparation finds
-a current cash-only starting book and adopted daily publication, but no proposal-permitted intraday
-context at the first market-open sample. Recheck current contexts before the bounded review; do not
-carry October 2's stale-held-price finding forward as the current book state. Collection health and
-invested coverage remain unqualified. The prior TMX timestamp-alignment rejection still needs an
-offending response before a correction is chosen. Fixed-window diagnosis is now built/tested;
-further provider requests require authorization and do not qualify current input freshness.
-The October 1 empty lesson snapshot expired. Explicit empty continuation is
-built/tested; authorize its use and the bounded review with the ten-minute test age before operational
-changes or paid generation.
+the existing cap. Full source packets and eligibility/spending rules remain unchanged. The authorized
+October 9 concise-input review returned a valid wait with all choices unavailable; SQL/local evidence,
+exact request rendering and cost match (project status). Empty learning was explicitly continued through
+today's close with prior history preserved. This qualifies the blocked-choice wait path, not eligible
+selection or continuous readiness. Next label the historical scheduling reason, qualify the desktop
+lifecycle/automatic scheduling, then add the basic review/status display. Automatic reviews remain off;
+activation and further paid calls require authorization. Collection health and invested coverage remain
+unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a
+correction is chosen; fixed-window diagnosis is built/tested and further provider reads need authorization.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.
 Defer more permissive
 handling of dated/incomplete review inputs unless it blocks integration (ADR-0087, September 30 clarification).
