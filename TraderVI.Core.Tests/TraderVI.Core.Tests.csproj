@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Core\Core.csproj" />
     <Compile Include="..\Sandbox\Probes\IProbe.cs" Link="Diagnostics\IProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxOneMinuteFreshnessProbe.cs" Link="Diagnostics\TmxOneMinuteFreshnessProbe.cs" />
+    <Compile Include="..\Sandbox\Probes\TmxLiveCollectionFailureProbe.cs" Link="Diagnostics\TmxLiveCollectionFailureProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxHeldPriceFreshnessProbe.cs" Link="Diagnostics\TmxHeldPriceFreshnessProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxMissingMinuteProbe.cs" Link="Diagnostics\TmxMissingMinuteProbe.cs" />
     <Compile Include="..\Sandbox\Probes\TmxQuoteTimingProbe.cs" Link="Diagnostics\TmxQuoteTimingProbe.cs" />

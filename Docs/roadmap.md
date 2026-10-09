@@ -69,14 +69,14 @@ The authorized follow-up assembled four eligible choices but exceeded the unchan
 before generation. The concise review view is now built/tested and its saved-packet token count fits
 the existing cap. Full source packets and eligibility/spending rules remain unchanged. Next repeat the
 bounded connected review to qualify the shorter input before automatic desktop scheduling; saved-packet
-counting does not establish fresh input coverage or model interpretation. October 2 market-hours checks
-find yesterday's held-stock marks and failed early collection cycles despite current daily-source
-adoption by the comparison Shadow/Live sessions. Obtain the exact collector failure and restore qualified
-inputs before a paid test. The authorized two-target TMX diagnostic reproduces a five-minute
-timestamp-alignment rejection; XIU succeeds. The authorized later single-target check returned no exact
-completed bar without reproducing the exception. Capture the offending response before choosing a
-correction; source recovery remains unverified, and validation/historical gaps stay intact.
-Yesterday's empty lesson snapshot expired. Explicit empty continuation is
+counting does not establish fresh input coverage or model interpretation. October 9 preparation finds
+a current cash-only starting book and adopted daily publication, but no proposal-permitted intraday
+context at the first market-open sample. Recheck current contexts before the bounded review; do not
+carry October 2's stale-held-price finding forward as the current book state. Collection health and
+invested coverage remain unqualified. The prior TMX timestamp-alignment rejection still needs an
+offending response before a correction is chosen. Fixed-window diagnosis is now built/tested;
+further provider requests require authorization and do not qualify current input freshness.
+The October 1 empty lesson snapshot expired. Explicit empty continuation is
 built/tested; authorize its use and the bounded review with the ten-minute test age before operational
 changes or paid generation.
 One invested saved-Shadow value passed under the test bound; continuous coverage remains unqualified.

@@ -1,6 +1,27 @@
 # TraderVI Project Status
 
-**Current record:** October 2, 2026. The concise review view fits the October 1 saved packet (29,516 tokens against the unchanged 32,000 cap) but has not generated a decision. Provider checks reproduced a five-minute timestamp-alignment rejection, followed by a later single-target read returning no exact completed bar without an exception. XIU succeeded in the first check. The offending timestamp and provider-versus-parser cause remain unresolved; the later missing-bar response does not establish recovery. Preserve validation and capture a failing response before choosing a correction. Fresh account inputs still need requalification, then separate authorization for empty-snapshot continuation and one bounded review at the ten-minute test age. Automatic reviews and AI trading remain off; all three milestones remain pending. Other portfolio evidence blocks, Athena outcomes and continuous coverage remain separate dependencies. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. Milestone 1 remains the visible reviewer; all three milestones remain pending. Today's daily publication is valid and the selected Breakout 3 book is now cash-only with a current saved cash check. The first collection cycle completed at 09:37:39 Toronto with six failures; at 09:39 none of the 15 choices permitted a proposal. Recheck fresh intraday contexts before authorizing empty-lesson continuation and one bounded concise-input review. The concise input has passed counting, not generation. Automatic reviews and AI trading remain off. Persistent collection failures, invested price coverage, choice-specific evidence and Athena outcomes remain separate dependencies; TMX remains normal and Wealthsimple fallback/lesson criteria remain deferred.
+
+**Market-open preparation, October 9:** SELECT-only checks at 09:33 and 09:37 Toronto find eight active
+comparison Shadow sessions using today's Valid daily source, with 32 Pending candidate records and no
+evaluation timestamp. The Live session is Monitoring with Pending coverage and no recorded host gap;
+no collection cycle was saved at those sample times. The 09:38:57 follow-up finds the 09:35 cycle completed at 09:37:39, with 11 OperationalOnTime, six CollectionFailed and one NoCompletedBar receipts. Live coverage is now Blocked, still without a host gap. At 09:39 all choices remain proposal-blocked and the 32 Shadow candidates still lack evaluations. All 15 catalogue definitions exist without catalogue
+blocks; 12 Shadow contexts are not fresh and three Live envelopes are fresh but proposal-blocked.
+The selected book has zero held positions; preflight verifies its cash/valuation at 09:33:24.
+This replaces October 2's stale-held-price finding for the current starting book, without qualifying
+invested coverage or continuous readiness. The desktop process started at 09:11 and responds.
+AI settings remain disabled with the original ten-minute test ages; the only empty lesson snapshot
+expired October 1. Saved October AI cost remains CAD 0.767 with no outstanding call reservation.
+
+The bounded provider diagnostic now accepts an explicit fixed five-minute window end so a follow-up
+can request the same interval rather than silently moving to a later bar. It enforces reviewed-session
+bounds, UTC alignment and the existing two-minute delay; a historical window cannot qualify current
+inputs. Validation: 28 focused tests pass; Sandbox builds with three existing CS8632 warnings and no
+errors under .NET SDK 10.0.401. No fresh dependency-security audit or full-solution/SSDT validation.
+No provider request, paid AI call, journal/SQL write, restart or trading action ran in this preparation.
+Evidence: `artifacts/ai-resume-20261009/` contains read-only SQL/preflight/signal results and diagnostic
+test/build logs. Prior timestamp-validation failure remains unresolved; capture its offending response
+before choosing a correction, but do not make that diagnosis a prerequisite if current review inputs qualify.
 
 **Collector warning follow-up, October 2:** the operator screenshot shows repeated
 `InvalidOperationException` collection warnings, interrupted monitoring and a 10:20 checkpoint.

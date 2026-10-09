@@ -106,9 +106,10 @@ the October 1 publication to all 15 portfolios; two ungated Continuation choices
 Other choice-specific evidence/admission blocks and Athena's Attention result remain explicit. Installed
 automatic runtime verification remains pending. The follow-up review test assembled four eligible choices
 but exceeded the existing input-token limit before generation. The concise view now fits that saved
-packet under the same limit; fresh connected decision qualification is next. October 2 market-hours
-reads find stale held-stock marks and failed collection cycles despite current daily sources in the
-comparison Shadow/Live sessions. Diagnose that input blocker first. Empty lesson continuation is
+packet under the same limit; fresh connected decision qualification is next. October 9 preparation
+finds a current cash-only starting book and adopted daily source, but no proposal-permitted context
+at the first market-open sample. Recheck intraday inputs; persistent collection and invested-coverage
+qualification remain separate dependencies. Empty lesson continuation is
 built/tested but needs operational authorization alongside the bounded review and ten-minute test age.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
@@ -223,7 +224,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Inspect the operator's collector-warning screenshot and prepare/build a bounded two-target provider diagnostic; exception type is known, cause remains unverified (October 2).
    - [x] Run the authorized two-target diagnostic: reproduce timestamp-alignment rejection on the reported-failure target; verify XIU returns the requested bar. Provider-versus-parser cause and separate cycle failure remain unresolved (October 2).
    - [x] Run the authorized single-target follow-up: the later window returned no exact completed bar, without reproducing the exception. No offending timestamp captured and no recovery established (October 2).
-   - [ ] **Next:** capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; verify fresh market-hours inputs. Further provider requests need authorization. Then authorize empty learning continuation and one bounded review at the ten-minute test age; verify the concise-view answer, SQL/local evidence and cost, including tables/shared definitions.
+   - [x] Build/test fixed-window provider diagnosis for a repeat of the same completed interval; preserve session/alignment/delay checks. No new provider request (October 9).
+   - [ ] **Next:** verify fresh market-hours review inputs, then authorize empty learning continuation and one bounded review at the ten-minute test age; verify the concise-view answer, SQL/local evidence and cost, including tables/shared definitions. Track persistent collection separately: capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; further provider requests need authorization.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
