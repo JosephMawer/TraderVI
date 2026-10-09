@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -12,7 +13,7 @@ namespace Core.Oracle;
 /// <summary>Model-facing view only. The complete packet remains the validation and saved audit record.</summary>
 public static class AiPortfolioPrompt
 {
-    public const string Format = "portfolio-review-view-v1";
+    public const string Format = "portfolio-review-view-v2";
     private static readonly JsonSerializerOptions Json = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
     private static readonly string[] Metrics = ["Close", "PersistenceScore", "DirectionalVolumeBalance20",
         "RawReturn20", "ExcessReturn20", "RawReturn60", "ExcessReturn60", "PreviousCloseReturn",
@@ -48,25 +49,24 @@ public static class AiPortfolioPrompt
             }
             evidence["description"] = description;
         }
-        // Repeated definitions and explanatory text have one copy, with explicit references.
-        // No account-specific values are merged unless their complete JSON is identical.
-        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-        Count(packet);
-        var shared = new JsonObject();
-        var names = new Dictionary<string, string>(StringComparer.Ordinal);
-        var view = Pack(packet);
+        var (view, shared) = PackView(packet);
+        if (!JsonNode.DeepEquals(packet, ExpandView(view, shared)))
+            throw new InvalidDataException("Compact review view did not preserve its source values.");
         return new JsonObject
         {
             ["format"] = Format,
-            ["reading_guide"] = "packet is the review view. An object with only shared_ref means the identical value in shared. " +
+            ["reading_guide"] = "packet is the review view. A string @N means the identical value at key N in shared; expand references recursively. " +
                 "A table object represents an array of records: each row follows its columns. " +
+                "References can occur anywhere, including column lists. A literal string starting @ is escaped as @@; remove just the first @. Table defaults are exact fields shared by every row; " +
+                "combine them with each row to restore the full record. Missing, null and empty values remain distinct. " +
                 "Live descriptions use columns and row; history uses history_columns and rows. Measurements follow measurement_columns. " +
                 "Live family rows contain Family, State, ReasonCode. Source JSON strings are shown as structured data. " +
                 "All candidates, eligibility, rules and evidence IDs remain. Live detail is a current summary, not the full calculation history: " +
                 "selected current measurements and recent validity/confidence/momentum are shown; detailed window calculations, " +
                 "older raw measurements, detailed daily gate traces, vote totals, lifecycle bookkeeping, technical source IDs/hashes " +
                 "and closed managed-position rows remain in the saved full packet. Candidate IDs/versions, account identities, rule IDs " +
-                "and evidence IDs used for the decision are unchanged; source identity checks already ran before rendering. " +
+                "and evidence IDs used for the decision are unchanged; return fully expanded original IDs and versions, never compact references. " +
+                "Source identity checks already ran before rendering. " +
                 "Null remains missing, not zero. FullDayVolumeFraction20 is a non-voting full-day fraction, not same-clock volume pace. " +
                 "Do not infer omitted measurements or treat paper confirmation as managed-account permission.",
             ["live_enum_codes"] = new JsonObject
@@ -82,12 +82,71 @@ public static class AiPortfolioPrompt
             },
             ["shared"] = shared, ["packet"] = view
         }.ToJsonString(Json);
+    }
+
+    // Lossless packing of the already agreed review view; does not remove any additional evidence.
+    internal static (JsonNode? View, JsonObject Shared) PackView(JsonNode packet)
+    {
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        var tables = Tabulate(packet)!;
+        Count(tables);
+        var shared = new JsonObject();
+        var names = new Dictionary<string, string>(StringComparer.Ordinal);
+        var view = Pack(tables);
+        // A shared parent can make a formerly repeated child occur only once. Inline that child.
+        while (true)
+        {
+            var uses = new Dictionary<string, int>(StringComparer.Ordinal);
+            CountReferences(view);
+            foreach (var item in shared) CountReferences(item.Value);
+            string? redundant = shared.Select(p => p.Key).FirstOrDefault(k => uses.GetValueOrDefault(k) <= 1);
+            if (redundant is null) break;
+            var replacement = shared[redundant]!.DeepClone();
+            shared.Remove(redundant);
+            view = Inline(view);
+            foreach (var key in shared.Select(p => p.Key).ToArray()) shared[key] = Inline(shared[key]);
+
+            void CountReferences(JsonNode? node)
+            {
+                if (node is JsonObject obj && obj.Count == 1 && obj["shared_ref"] is { } reference)
+                    uses[reference.GetValue<string>()] = uses.GetValueOrDefault(reference.GetValue<string>()) + 1;
+                else foreach (var child in Children(node)) CountReferences(child);
+            }
+            JsonNode? Inline(JsonNode? node)
+            {
+                if (node is JsonObject obj)
+                {
+                    if (obj.Count == 1 && obj["shared_ref"]?.GetValue<string>() == redundant) return replacement.DeepClone();
+                    return new JsonObject(obj.Select(p => KeyValuePair.Create(p.Key, Inline(p.Value))));
+                }
+                return node is JsonArray a ? new JsonArray(a.Select(Inline).ToArray()) : node?.DeepClone();
+            }
+        }
+        // Compact references avoid repeating a JSON object wrapper for every shared value.
+        // Escape literal leading @ characters so data can never be mistaken for a reference.
+        return (EncodeReferences(view), new JsonObject(shared.Select(p =>
+            KeyValuePair.Create(p.Key[1..], EncodeReferences(p.Value)))));
+
+        JsonNode? EncodeReferences(JsonNode? node)
+        {
+            if (node is JsonObject obj)
+            {
+                if (obj.Count == 1 && obj["shared_ref"] is { } reference)
+                    return JsonValue.Create("@" + reference.GetValue<string>()[1..]);
+                return new JsonObject(obj.Select(p => KeyValuePair.Create(p.Key, EncodeReferences(p.Value))));
+            }
+            if (node is JsonArray array) return new JsonArray(array.Select(EncodeReferences).ToArray());
+            if (node is JsonValue value && value.TryGetValue<string>(out var text) && text.StartsWith('@'))
+                return JsonValue.Create("@" + text);
+            return node?.DeepClone();
+        }
 
         void Count(JsonNode? node)
         {
             if (node is null) return;
             string key = node.ToJsonString(Json);
-            if (key.Length >= 48) counts[key] = counts.GetValueOrDefault(key) + 1;
+            // Short repeated dates and exact identity strings also benefit from sharing in token space.
+            if (key.Length >= 24) counts[key] = counts.GetValueOrDefault(key) + 1;
             foreach (var child in Children(node)) Count(child);
         }
         JsonNode? Pack(JsonNode? node)
@@ -110,23 +169,67 @@ public static class AiPortfolioPrompt
         JsonNode Copy(JsonNode node) => node switch
         {
             JsonObject obj => new JsonObject(obj.Select(p => KeyValuePair.Create(p.Key, Pack(p.Value)))),
-            JsonArray array => TableOrArray(array),
+            JsonArray array => new JsonArray(array.Select(Pack).ToArray()),
             _ => node.DeepClone()
         };
-        JsonNode TableOrArray(JsonArray array)
+        JsonNode? Tabulate(JsonNode? node)
         {
-            if (array.Count >= 2 && array[0] is JsonObject first)
+            if (node is JsonObject obj)
+                return new JsonObject(obj.Select(p => KeyValuePair.Create(p.Key, Tabulate(p.Value))));
+            if (node is not JsonArray array) return node?.DeepClone();
+            if (TableFields(array) is { } fields)
             {
-                var fields = first.Select(p => p.Key).ToArray();
-                if (fields.Length >= 2 && array.All(n => n is JsonObject obj && obj.Select(p => p.Key).SequenceEqual(fields)))
-                    return new JsonObject { ["table"] = new JsonObject
-                    {
-                        ["columns"] = Strings(fields),
-                        ["rows"] = new JsonArray(array.Select(n => (JsonNode)new JsonArray(fields.Select(f => Pack(n![f])).ToArray())).ToArray())
-                    } };
+                // Factor only byte-identical values. Account-specific differences stay in their own rows.
+                var defaults = fields.Where(f => array.All(n =>
+                    n![f]?.ToJsonString(Json) == array[0]![f]?.ToJsonString(Json))).ToArray();
+                defaults = defaults.Where(f => (array.Count - 1) * (f.Length + (array[0]![f]?.ToJsonString(Json).Length ?? 4)) > 24).ToArray();
+                var varying = fields.Except(defaults, StringComparer.Ordinal).ToArray();
+                var table = new JsonObject
+                {
+                    ["columns"] = Strings(varying),
+                    ["rows"] = new JsonArray(array.Select(n => (JsonNode)new JsonArray(varying.Select(f => Tabulate(n![f])).ToArray())).ToArray())
+                };
+                if (defaults.Length > 0)
+                    table["defaults"] = new JsonObject(defaults.Select(f => KeyValuePair.Create(f, Tabulate(array[0]![f]))));
+                return new JsonObject { ["table"] = table };
             }
-            return new JsonArray(array.Select(Pack).ToArray());
+            return new JsonArray(array.Select(Tabulate).ToArray());
         }
+    }
+
+    private static string[]? TableFields(JsonArray array)
+    {
+        if (array.Count < 2 || array[0] is not JsonObject first || first.Count < 2) return null;
+        var fields = first.Select(p => p.Key).ToArray();
+        return array.All(n => n is JsonObject obj && obj.Select(p => p.Key).SequenceEqual(fields)) ? fields : null;
+    }
+
+    internal static JsonNode? ExpandView(JsonNode? value, JsonObject shared)
+    {
+        if (value is JsonValue scalar && scalar.TryGetValue<string>(out var text))
+        {
+            if (text.StartsWith("@@", StringComparison.Ordinal)) return JsonValue.Create(text[1..]);
+            if (text.StartsWith('@')) return ExpandView(shared[text[1..]], shared);
+        }
+        if (value is JsonObject obj)
+        {
+            if (obj.Count == 1 && obj["shared_ref"] is { } reference)
+                return ExpandView(shared[reference.GetValue<string>()], shared);
+            if (obj.Count == 1 && obj["table"] is { } table)
+            {
+                table = ExpandView(table, shared)!;
+                var fields = table["columns"]!.AsArray().Select(n => n!.GetValue<string>()).ToArray();
+                var defaults = table["defaults"]?.AsObject() ?? new JsonObject();
+                return new JsonArray(table["rows"]!.AsArray().Select(row =>
+                {
+                    var record = (JsonObject)defaults.DeepClone();
+                    for (int i = 0; i < fields.Length; i++) record.Add(fields[i], row![i]?.DeepClone());
+                    return (JsonNode)record;
+                }).ToArray());
+            }
+            return new JsonObject(obj.Select(p => KeyValuePair.Create(p.Key, ExpandView(p.Value, shared))));
+        }
+        return value is JsonArray array ? new JsonArray(array.Select(v => ExpandView(v, shared)).ToArray()) : value?.DeepClone();
     }
 
     private static JsonNode? ReadJson(string text)
@@ -150,7 +253,7 @@ public static class AiPortfolioPrompt
         _ => node?.DeepClone()
     };
 
-    private static IEnumerable<JsonNode?> Children(JsonNode node) => node switch
+    private static IEnumerable<JsonNode?> Children(JsonNode? node) => node switch
     {
         JsonObject obj => obj.Select(p => p.Value), JsonArray array => array, _ => []
     };

@@ -33,6 +33,25 @@ public sealed class AiPortfolioReviewerTests
     }
 
     [Fact]
+    public void CompactRequestExplainsDecodingAndRequiresOriginalResponseIdentities()
+    {
+        var packet = Packet();
+        packet.Evidence[0] = packet.Evidence[0] with { Description = new string('x', 61_000) };
+        var request = AiPortfolioReviewer.CreateRequest(packet);
+        Assert.Contains(AiPortfolioPrompt.Format, request.SystemPrompt);
+        Assert.Contains("@N", request.SystemPrompt);
+        Assert.Contains("defaults", request.SystemPrompt);
+        Assert.Contains("fully expanded original IDs and versions", request.SystemPrompt);
+        using var document = JsonDocument.Parse(request.UserPrompt);
+        Assert.Equal(AiPortfolioPrompt.Format, document.RootElement.GetProperty("format").GetString());
+        Assert.Equal(packet.PacketId, request.CallId);
+        Assert.NotNull(request.OutputSchema);
+        // Compact references are input notation, never accepted as response evidence identities.
+        Assert.Throws<InvalidDataException>(() => AiPortfolioReviewer.ParseAndValidate(
+            Serialize(Proposal(packet) with { EvidenceIds = ["@0"] }), packet));
+    }
+
+    [Fact]
     public async Task NestedEvidenceRetainsExactContentWithoutHtmlEscapeExpansion()
     {
         var packet = Packet();

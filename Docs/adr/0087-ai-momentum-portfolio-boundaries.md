@@ -1252,6 +1252,24 @@ checkpoint shapes fall back to complete evidence. Format selection does not guar
 token admission remains mandatory, and further growth can still block a review. Connected model
 interpretation and operational results belong in project status, not this representation contract.
 
+### Lossless extension — October 9
+
+The operator agreed to extend repetition removal without dropping further view information. In
+`portfolio-review-view-v2`, form tables before finding shared values so identical column definitions,
+rows, dates and values can share one definition. Exact fields common to every table row appear in
+`defaults`; fields that differ, including account-specific permissions, remain in their own rows.
+Short `@N` strings reference shared key `N`; literal leading `@` is escaped as `@@`. Expand references
+recursively, then interpret table columns/rows/defaults; decode escaped literals only once. Returned
+proposal IDs and versions must be the original expanded values, never reference tokens.
+
+Before sending, expand the rendered view and compare it with the pre-compression view; refuse the
+request if any value differs. This check covers the lossless packing step, not the already declared
+October 1 projection omissions or the model's interpretation. No further omissions, price rounding,
+permission merging, response-contract changes or token-cap increase are authorized. Shared definitions
+used only once after parent sharing are inlined. Full source and exact sent-request retention continue.
+Token admission and connected interpretation still need separate verification; offline roundtrips do
+not prove either or bound future session growth. Dated results remain in project status.
+
 ## Review questions
 
 1. Which trading decisions may the AI override, and who enforces hard boundaries?

@@ -109,7 +109,7 @@ but exceeded the existing input-token limit before generation. The concise view 
 packet under the same limit. The authorized October 9 concise review returned a validated wait for
 all-unavailable choices, with exact SQL/local records and recorded cost. Empty learning was explicitly
 continued through today's close. Eligible selection and continuous readiness remain unqualified; old
-scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass, but growing compact input exceeds the cap. Next bound that growth, verify recurring successful reviews, then add basic display.
+scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass. Lossless v2 compression is built/tested, but the saved request still exceeds the cap; model interpretation and desktop installation remain pending. Next reduce remaining repetition, qualify v2 and recurring successful reviews, then add basic display.
 Persistent collection and invested-coverage qualification remain separate dependencies.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
@@ -226,12 +226,15 @@ runtime/display development can proceed while native input qualification remains
    - [x] Run the authorized single-target follow-up: the later window returned no exact completed bar, without reproducing the exception. No offending timestamp captured and no recovery established (October 2).
    - [x] Build/test fixed-window provider diagnosis for a repeat of the same completed interval; preserve session/alignment/delay checks. No new provider request (October 9).
    - [x] Run the authorized fresh concise-input review with renewed empty learning and the ten-minute test ages; verify wait interpretation, tables/shared references, exact SQL/local evidence and cost (October 9). No eligible choice was available, so selection remains unqualified.
-   - [x] Label the retained interval reason with its original time and historical role; regression-tested after the October 9 model identified old holding narrative. Source/build only; not installed or paid-tested.
+   - [x] Label the retained interval reason with its original time and historical role; regression-tested after the October 9 model identified old holding narrative. Included in the prepared desktop test copy; that test generated no new model answer.
    - [ ] Track persistent collection separately: capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; further provider requests need authorization.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [x] Build/test a process-only desktop qualification run capped at two new attempts or ten minutes; preserve disabled saved settings and await cancellation cleanup (October 9, 73 focused tests).
    - [x] Verify native startup, two-minute blocked-attempt scheduling, automatic stop after two attempts, journal release, normal shutdown and disabled restart in the prepared desktop copy (October 9). No paid generation occurred; exact SQL/local rejection records match.
-   - [ ] Bound compact-input growth across the session without raising the cap or losing decision evidence/full saved sources; last desktop request counts 46,780 tokens against 32,000.
+   - [x] Build/test lossless v2 table defaults and short shared references, with expansion equality before transmission; preserve distinct account permissions and original response identities. Seven saved packets render; 64 focused tests pass (October 9).
+   - [x] Run one authorized v2 count-only check on the last saved desktop request; its count falls from 46,780 to 36,235, still above 32,000. This proves reduction, not admission or model interpretation.
+   - [ ] Bound compact-input growth across the session without raising the cap or losing decision evidence/full saved sources; reduce remaining repetition and obtain a new exact count for the next prepared request.
+   - [ ] Qualify fresh v2 model interpretation and original response identities after the input fits; v2 has no generated answer and is not installed in the running desktop.
    - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.

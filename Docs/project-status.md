@@ -1,6 +1,29 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The authorized desktop test verified startup, two-minute retry scheduling, automatic stop after two attempts, journal release, clean shutdown and restart with reviews disabled. Both attempts were DataUnavailable before paid generation; the last saved compact request counts 46,780 tokens against the unchanged 32,000 cap. The 09:42 compact wait review remains valid evidence, but the format does not stay small enough as the session grows. Next bound growing input while preserving decision evidence and full saved sources, then qualify repeated successful desktop reviews and add the basic display. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. The authorized desktop test verified startup, two-minute retry scheduling, automatic stop after two attempts, journal release, clean shutdown and restart with reviews disabled. Both attempts were DataUnavailable before paid generation; the last saved compact request counts 46,780 tokens against the unchanged 32,000 cap. The lossless v2 extension is built/tested and lowers that same saved request to 36,235 provider-counted tokens; it still exceeds the cap and has not generated an answer or been installed in the running desktop. The 09:42 v1 wait review remains valid evidence. Next reduce the remaining input without losing decision evidence or full saved sources, then qualify v2 interpretation and repeated successful desktop reviews before adding the basic display. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+
+**Lossless review-view extension, October 9:** following operator agreement, v2 builds named-column
+tables before sharing repeated values, stores identical row fields once as table defaults, and uses
+short references with an explicit escape for literal reference-like text. Different account permissions,
+exact numeric values, missing/null/empty distinctions and all previously included view data remain.
+Before transmission, the renderer expands the view and refuses it if the result differs from the
+pre-compression view. The existing v1 evidence-selection rules and full saved packets are unchanged;
+this adds no omissions. Instructions require original, expanded decision IDs in the answer.
+
+All seven saved non-pending packets rendered successfully with the expansion check. The last desktop
+request shrank from 130,972 to 95,755 characters (26.9%). The operator authorized one count-only API check:
+the exact request, current instructions and response schema counted **36,235 tokens**, down from 46,780
+(22.5%) but still 4,235 above the unchanged 32,000 cap. Character reduction and reversible decoding do
+not establish model understanding, future session capacity or continuous readiness. No generation,
+spending reservation, SQL/journal write, desktop replacement or activation occurred in this increment.
+
+Validation: 64 focused prompt/reviewer/scheduled-reviewer tests passed; Core and Sandbox builds passed.
+Existing nullable-context compiler warnings remain; the initial Sandbox build reported three CS8632
+warnings and the final incremental build reported zero warnings/errors. No dependency-security audit or full-solution/SSDT validation was performed.
+Private evidence: `artifacts/ai-compression-v2-20261009/{tests.log,core-build.log,sandbox-build.log,
+saved-packet-sizes.json,provider-count.log}`. Next inspect remaining repetition and reduce it losslessly;
+a further provider check needs authorization after the next concrete request is ready. Fresh model
+interpretation and repeated successful desktop reviews remain pending.
 
 **Authorized desktop qualification, October 9:** the operator approved a brief restart, up to two AI
 reviews with an approximately CAD 2.34 maximum reservation total, and a restart with reviews off afterward.

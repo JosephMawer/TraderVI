@@ -116,6 +116,82 @@ public sealed class AiPortfolioPromptTests
         Assert.Equal(1, account["SavedBook"]!["ClosedPositionCount"]!.GetValue<int>());
     }
 
+    [Fact]
+    public void RepeatedStockFactsStaySharedButDifferentAccountPermissionsStaySeparate()
+    {
+        var facts = JsonNode.Parse("""{"at":"2026-10-09T14:10:00.0000000Z","price":12.34567890123456789,"missing":null,"states":[false,0,""]}""")!;
+        var source = new JsonArray(Enumerable.Range(0, 15).Select(i => (JsonNode)new JsonObject
+        {
+            ["account"] = "synthetic-account-" + i,
+            ["eligible"] = i == 0,
+            ["market"] = facts.DeepClone(),
+            ["observed"] = "2026-10-09T14:10:00.0000000Z"
+        }).ToArray());
+        string original = source.ToJsonString();
+        var (view, shared) = AiPortfolioPrompt.PackView(source);
+        var decoded = Expand(view, shared)!;
+        Assert.True(JsonNode.DeepEquals(source, decoded));
+        Assert.Equal(original, source.ToJsonString());
+        Assert.True(decoded[0]!["eligible"]!.GetValue<bool>());
+        Assert.False(decoded[1]!["eligible"]!.GetValue<bool>());
+        Assert.Equal(12.34567890123456789m, decoded[1]!["market"]!["price"]!.GetValue<decimal>());
+        Assert.Contains("defaults", view!.ToJsonString());
+        Assert.True(view.ToJsonString().Length + shared.ToJsonString().Length < original.Length);
+    }
+
+    [Fact]
+    public void CompressionPreservesMissingNullEmptyNumbersAndUnknownFieldsAcrossVariedRecords()
+    {
+        var random = new Random(87);
+        for (int example = 0; example < 100; example++)
+        {
+            var records = new JsonArray();
+            for (int row = 0; row < 12; row++)
+            {
+                var record = new JsonObject
+                {
+                    ["identity"] = "same-exact-identity-string-123456789",
+                    ["number"] = random.Next(-100, 100) / 37m,
+                    ["null"] = null,
+                    ["text"] = new[] { "", "null", "@12", "@@12", "@literal" }[row % 5],
+                    ["values"] = new JsonArray(0, false, null, "", "2026-10-09T14:10:00Z"),
+                    ["future"] = new JsonObject { ["unrecognized"] = example }
+                };
+                if (row % 3 == 0) record.Remove("null");
+                records.Add(record);
+            }
+            var (view, shared) = AiPortfolioPrompt.PackView(records);
+            Assert.True(JsonNode.DeepEquals(records, Expand(view, shared)));
+        }
+    }
+
+    [Fact]
+    public void ValuesThatOnlyRepeatInsideASharedParentDoNotNeedExtraDefinitions()
+    {
+        var child = new JsonObject { ["message"] = "Same long diagnostic text remains exactly preserved." };
+        var parent = new JsonObject { ["child"] = child, ["unique"] = 1 };
+        var source = new JsonArray(parent.DeepClone(), parent.DeepClone());
+        var (view, shared) = AiPortfolioPrompt.PackView(source);
+        Assert.True(JsonNode.DeepEquals(source, Expand(view, shared)));
+        // Factoring the entire repeated object must not leave one-use nested definitions behind.
+        Assert.DoesNotContain(shared, p => p.Value?.ToJsonString() == child["message"]!.ToJsonString());
+    }
+
+    [Fact]
+    public void TableDefaultsAndRowsRestoreLiteralReferencePrefixesExactlyOnce()
+    {
+        var source = new JsonArray(Enumerable.Range(0, 12).Select(i => (JsonNode)new JsonObject
+        {
+            ["literalDefault"] = "@shared-looking-literal-with-a-long-name",
+            ["literalRow"] = i % 2 == 0 ? "@@12" : "@12",
+            ["identity"] = i
+        }).ToArray());
+        var (view, shared) = AiPortfolioPrompt.PackView(source);
+        Assert.Contains("defaults", view!.ToJsonString());
+        Assert.True(JsonNode.DeepEquals(source, Expand(view, shared)));
+        Assert.True(JsonNode.DeepEquals(source, AiPortfolioPrompt.ExpandView(view, shared)));
+    }
+
     private static JsonObject Packet(bool extraField = false, bool empty = false)
     {
         var check = JsonNode.Parse(JsonSerializer.Serialize(new
@@ -150,14 +226,23 @@ public sealed class AiPortfolioPromptTests
 
     private static JsonNode? Expand(JsonNode? value, JsonNode shared)
     {
+        if (value is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text.StartsWith('@'))
+            return text.StartsWith("@@", StringComparison.Ordinal) ? JsonValue.Create(text[1..]) : Expand(shared[text.Substring(1)], shared);
         if (value is JsonObject obj)
         {
             if (obj.Count == 1 && obj["shared_ref"] is { } reference) return Expand(shared[reference.GetValue<string>()], shared);
             if (obj.Count == 1 && obj["table"] is { } table)
             {
+                table = Expand(table, shared)!;
                 var fields = table["columns"]!.AsArray().Select(n => n!.GetValue<string>()).ToArray();
-                return new JsonArray(table["rows"]!.AsArray().Select(row => (JsonNode)new JsonObject(fields.Select((f, i) =>
-                    System.Collections.Generic.KeyValuePair.Create(f, Expand(row![i], shared))))).ToArray());
+                return new JsonArray(table["rows"]!.AsArray().Select(row =>
+                {
+                    var record = new JsonObject(fields.Select((f, i) =>
+                        System.Collections.Generic.KeyValuePair.Create(f, row![i]?.DeepClone())));
+                    if (table["defaults"] is JsonObject defaults)
+                        foreach (var p in defaults) record.Add(p.Key, p.Value?.DeepClone());
+                    return (JsonNode)record;
+                }).ToArray());
             }
             return new JsonObject(obj.Select(p => System.Collections.Generic.KeyValuePair.Create(p.Key, Expand(p.Value, shared))));
         }
