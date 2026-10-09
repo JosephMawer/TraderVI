@@ -31,6 +31,11 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
+The October 9 read-only trace confirms partial live collection failures despite completed cycles.
+A bounded fixed-window provider diagnostic is prepared; external-service authorization and exact-cause
+confirmation remain pending. Preserve historical gaps and distinguish per-stock success from cycle
+completion; neither establishes clean-session qualification. See the dated [project status](project-status.md).
+
 The September 28 source update uses installed migration 041 (`SymbolAliases`). The broker-alias lookup
 and prospective source adoption are natively verified after authorized restart. The missed morning
 remains a coverage gap; source adoption does not establish fresh minute-level evidence. It preserves

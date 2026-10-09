@@ -77,7 +77,9 @@ cap as session evidence grows. After v2 remained oversized, the operator approve
 testing details and detailed evidence for unavailable choices. The v3 view is built/tested and its
 largest saved example passes the unchanged cap; full source records and independent account/risk
 context remain (ADR-0087 and project status). One fresh v3 review is now authorized, but its preflight
-found stale invested-account prices; no paid attempt ran. Restore/qualify held-stock valuation through
+found stale invested-account prices; no paid attempt ran. The read-only trace confirms ongoing Live/Shadow
+collection with failures and a stalled held-position mark; exact cause remains unproved. Capture a bounded
+provider diagnostic with explicit external-service authorization, then restore/qualify held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain

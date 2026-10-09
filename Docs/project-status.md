@@ -2,6 +2,28 @@
 
 **Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. Next restore and qualify current held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
+**Price-refresh trace, October 9, about 14:00-14:02 Toronto:** SELECT-only records and source
+inspection confirm active collection with partial failures, not a wholly stopped desktop. The 13:55
+Live window settled 34 targets: 17 usable, 11 CollectionFailed and six NoCompletedBar. Completed
+cycle status does not mean every stock succeeded. The selected AI source book still has one holding;
+its last position update at 10:38 retained the five-minute bar starting 10:25 (valuation end 10:30).
+Five held-symbol Shadow five-minute requests succeeded earlier; 31 failed, including the latest
+13:58 request. All 25 held-symbol fifteen-minute requests failed. Separately saved bars reach 13:15.
+
+`SystemShadowController` updates marks from successful current collection batches. A failed collection
+does not substitute the latest database bar, and the risk reader intentionally uses the saved holding's
+exact mark. Live and Shadow share `TmxClient` validation but request different windows. Their saved
+failure codes omit exception detail; this cannot prove a common cause or distinguish Shadow fetch
+from persistence failure. October 2's alignment rejection remains historical evidence, not today's
+diagnosis. The separate 13:45 Live cycle-level failure is also unresolved.
+
+A bounded diagnostic is prepared for a screenshot-reported failed stock plus XIU, using the exact
+13:50-13:55 saved failed window. External-service authorization is pending; no diagnostic call has run.
+No source changes, SQL writes, restart, AI call, freshness relaxation or tests/builds occurred in this
+trace. Read-only scripts, aggregate results and the prepared command are under
+`artifacts/price-refresh-20261009/`. Next capture the safe exact failure before choosing a correction;
+held-stock recovery and the already-authorized single v3 review remain pending.
+
 **Fresh v3 review preflight blocked, October 9, 13:49-13:51 Toronto:** the operator explicitly
 authorized one test using fresh inputs to obtain an AI answer. SELECT-only preflight found the selected
 Breakout 3 / PortfolioRulesOnly book now has one open holding. Its valuation endpoint is 10:30; the
