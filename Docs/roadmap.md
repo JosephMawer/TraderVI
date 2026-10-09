@@ -76,8 +76,10 @@ timing, the bounded stop and disabled restart, but the last compact request exce
 cap as session evidence grows. After v2 remained oversized, the operator approved removing engineering/
 testing details and detailed evidence for unavailable choices. The v3 view is built/tested and its
 largest saved example passes the unchanged cap; full source records and independent account/risk
-context remain (ADR-0087 and project status). Next check current inputs, obtain bounded-review authority
-and qualify v3 interpretation, then repeated successful desktop reviews and the basic display. Future
+context remain (ADR-0087 and project status). One fresh v3 review is now authorized, but its preflight
+found stale invested-account prices; no paid attempt ran. Restore/qualify held-stock valuation through
+the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
+repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain
 off; further paid tests/activation require authorization. Collection health and invested coverage remain
 unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a

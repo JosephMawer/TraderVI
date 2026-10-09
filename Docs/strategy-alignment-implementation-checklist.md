@@ -109,7 +109,7 @@ but exceeded the existing input-token limit before generation. The concise view 
 packet under the same limit. The authorized October 9 concise review returned a validated wait for
 all-unavailable choices, with exact SQL/local records and recorded cost. Empty learning was explicitly
 continued through today's close. Eligible selection and continuous readiness remain unqualified; old
-scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass. The approved v3 omissions are built/tested and the largest revised saved example fits the cap; fresh model interpretation and desktop installation remain pending. Next check current inputs, qualify v3 and recurring successful reviews, then add basic display.
+scheduling explanations are now explicitly dated. Native startup, blocked-attempt timing, bounded stop and disabled restart pass. The approved v3 omissions are built/tested and the largest revised saved example fits the cap; fresh model interpretation and desktop installation remain pending. One fresh v3 review is authorized but its preflight is blocked by stale invested-account prices. Restore qualified held-stock valuation, then qualify v3 and recurring successful reviews before adding basic display.
 Persistent collection and invested-coverage qualification remain separate dependencies.
 Step 3's connected check verifies cash-only persistence/recovery;
 receipt timing is fixed and verified. One invested saved-Shadow value passed under the October 1
@@ -237,7 +237,9 @@ runtime/display development can proceed while native input qualification remains
    - [x] Implement/test the approved v3 engineering-field omissions and minimal unavailable-choice notices, including small requests and unavailable active choices; preserve independent managed-account/risk/learning context and full audit sources (October 9, 139 focused tests).
    - [x] Verify one authorized count on the largest revised saved request (four eligible choices): 11,859 tokens, below 32,000. Seven saved examples render; no v3 generation or installation (October 9).
    - [ ] Qualify compact-input capacity across continuing sessions without raising the cap; saved-request success does not bound future growth or additional eligible choices.
-   - [ ] Check current inputs and obtain bounded-generation authority to qualify fresh v3 interpretation, unavailable-choice notices and original response identities; v3 is not installed in the running desktop.
+   - [x] Obtain one fresh v3 review authorization and run SELECT-only preflight (October 9, 13:49-13:51 Toronto); invested-account valuation and latest saved bar are stale. No review/generation attempt or extra spend; authorization remains unused.
+   - [ ] Trace and restore qualified held-stock valuation through the agreed input path without loosening freshness or substituting an unqualified source; this currently blocks the authorized v3 review.
+   - [ ] Use the unconsumed bounded-review authority once current inputs qualify; verify fresh v3 interpretation, unavailable-choice notices, original identities, SQL/local records and cost. No v3 model answer or qualified desktop installation yet.
    - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.

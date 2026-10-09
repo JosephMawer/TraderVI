@@ -1,6 +1,30 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. Next verify current inputs and obtain authorization for one bounded v3 review, then qualify repeated successful desktop reviews and add the basic display. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 is not installed in the running desktop and has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. Next restore and qualify current held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+
+**Fresh v3 review preflight blocked, October 9, 13:49-13:51 Toronto:** the operator explicitly
+authorized one test using fresh inputs to obtain an AI answer. SELECT-only preflight found the selected
+Breakout 3 / PortfolioRulesOnly book now has one open holding. Its valuation endpoint is 10:30; the
+held-position mark is 10:25 and even the latest separately saved five-minute bar is 13:15 as checked
+at 13:50. None supports the existing ten-minute test allowance. The runtime reads saved Shadow book/
+bar evidence; the separately built faster TMX path is not composed into it and must not be substituted
+as an unqualified shortcut. No timestamp or age limit was changed.
+
+All 15 choices remain in the catalogue. The three Live contexts were fresh during the 13:49 check but
+did not permit proposals; the 12 Shadow contexts were stale. This does not itself prevent a wait
+review once account valuation qualifies. The desktop was responsive; current collector receipts
+still included failures and missing bars, with a blocked-coverage session and a prior host gap.
+The exact held-stock refresh failure remains to be traced; this does not establish a provider cause.
+
+Review mode was not invoked, so no scheduler attempt, SQL review row, journal update, spending
+reservation or model generation was requested. The single-review authorization remains unused for
+this test, subject to fresh qualified inputs and the existing bounds. At 13:51, settings matched their
+preflight checksum and remained disabled; seven local review records and two calls were unchanged,
+with no pending review/unsettled call and conservative October spending still CAD 1.3087. This step
+added CAD 0. No source/build/test changes or desktop restart occurred. Private evidence is under
+`artifacts/ai-v3-review-20261009/{preflight.log,signals.log,current-state.txt,preflight-result.json}`.
+Next trace/restore held-stock price freshness without weakening checks, then run the authorized
+single review and verify its interpretation, SQL/local records and cost. No v3 answer exists yet.
 
 **Approved input scope and v3 validation, October 9:** the operator accepted removing internal software/
 format labels, research test schedules/statistical controls and experiment-count limits from strategy
