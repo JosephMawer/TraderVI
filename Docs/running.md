@@ -1236,6 +1236,24 @@ It calls neither SQL nor the model and is never invoked by runtime startup. This
 outcomes, qualify lesson criteria or authorize a review. After authorization, use this mode once,
 then the separately authorized `Review` mode with fresh market-hours data and the existing guards.
 
+For an explicitly authorized desktop lifecycle test, supply `TRADERVI_AI_REVIEW_TEST_UNTIL_UTC`
+only in the new WPF process environment, in exact `yyyy-MM-ddTHH:mm:ssZ` form. It must be future and
+at most ten minutes away. Existing saved settings must have `Enabled: false`; startup enables only
+an in-memory copy. The loop ends after two distinct new completed attempts (success or failure),
+or cancels at the deadline and awaits pending cleanup. Old recovered attempts and unchanged idle ticks
+do not count. Cadence is not accelerated; a long AI interval can mean only one review before timeout.
+An expired/invalid deadline or enabled/missing saved configuration fails closed. Normal startup with
+no test variable retains the saved enabled/disabled behavior. Never persist this variable for the user
+or machine. The existing spending caps and ten-minute first-test ages require their applicable approval.
+
+Before launching, get authority for the operational desktop restart and up to two paid reviews. A normal
+restart also resumes existing paper collection and broker refresh and can record a monitoring gap.
+Use normal window close, wait for process exit, and honor pending-operation/unsaved-work prompts; never
+force-stop to make qualification pass. Inspect saved attempts, spending reservations, SQL/local matches,
+loaded binaries and journal ownership. After the test, verify the saved disabled settings and restart
+without the test variable to check disabled startup. Neither the bounded test nor a successful build
+qualifies continuous operation, invested coverage, eligible selection or AI trading.
+
 AI Momentum's review-only Core host (ADR-0087) is connected to WPF startup in source and remains disabled
 until explicitly configured. It has no nightly host or execution path.
 Running Oracle does not start it; Oracle's `--dry-run` can still contact the model. Use the synthetic

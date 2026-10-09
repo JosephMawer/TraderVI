@@ -72,7 +72,7 @@ October 9 concise-input review returned a valid wait with all choices unavailabl
 exact request rendering and cost match (project status). Empty learning was explicitly continued through
 today's close with prior history preserved. This qualifies the blocked-choice wait path, not eligible
 selection or continuous readiness. Historical scheduling explanations are now explicitly dated in source. Next qualify the desktop
-lifecycle/automatic scheduling, then add the basic review/status display. Automatic reviews remain off;
+lifecycle/automatic scheduling using the built/tested self-stopping desktop check, then add the basic review/status display. Automatic reviews remain off;
 activation and further paid calls require authorization. Collection health and invested coverage remain
 unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a
 correction is chosen; fixed-window diagnosis is built/tested and further provider reads need authorization.

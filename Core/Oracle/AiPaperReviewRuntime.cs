@@ -112,10 +112,10 @@ public sealed class AiPaperReviewRuntime : IDisposable
         if (Interlocked.Exchange(ref runStarted, 1) != 0) throw new InvalidOperationException("This runtime already started a review run.");
     }
 
-    public Task RunAsync(Action<AiReviewHostNotice> report, CancellationToken ct)
+    public Task RunAsync(Action<AiReviewHostNotice> report, CancellationToken ct, AiReviewTestSession? testSession = null)
     {
         BeginRun();
-        return loop.RunAsync(TickAsync, report, ct);
+        return loop.RunAsync(TickAsync, report, ct, testSession);
     }
 
     /// <summary>One scheduler admission for an explicitly requested connected check; starts no loop.</summary>
@@ -152,25 +152,62 @@ public sealed record AiReviewHostNotice(string State, DateTimeOffset? NextReview
 /// <summary>A background tick only checks the existing scheduler; it is not a paid-call interval.</summary>
 public sealed class AiReviewHostLoop
 {
+    private readonly TimeProvider clock;
+    private readonly Func<TimeSpan, CancellationToken, Task> delay;
+    public AiReviewHostLoop() : this(TimeProvider.System, Task.Delay) { }
+    internal AiReviewHostLoop(TimeProvider clock, Func<TimeSpan, CancellationToken, Task> delay)
+        => (this.clock, this.delay) = (clock, delay);
+
     private int started;
     public async Task RunAsync(Func<CancellationToken, Task<AiScheduledReviewResult>> tick,
-        Action<AiReviewHostNotice> report, CancellationToken ct)
+        Action<AiReviewHostNotice> report, CancellationToken ct, AiReviewTestSession? testSession = null)
     {
         if (Interlocked.Exchange(ref started, 1) != 0) throw new InvalidOperationException("A review host can run only once.");
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var token = deadline.Token;
+        var attempts = new HashSet<Guid>();
+        if (testSession is not null)
+        {
+            var remaining = testSession.DeadlineUtc - clock.GetUtcNow();
+            if (remaining <= TimeSpan.Zero)
+            {
+                if (!ct.IsCancellationRequested) report(new("TestExpired", null, null));
+                return;
+            }
+            deadline.CancelAfter(remaining);
+        }
         AiReviewHostNotice? previous = null;
         try
         {
             while (true)
             {
-                ct.ThrowIfCancellationRequested();
-                var result = await tick(ct).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
+                if (testSession is not null && clock.GetUtcNow() >= testSession.DeadlineUtc)
+                {
+                    report(new("TestExpired", null, previous?.LastAttemptId));
+                    return;
+                }
+                var result = await tick(token).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
                 var notice = new AiReviewHostNotice(result.Schedule.ReviewBlock ?? "Reviewed",
                     result.Schedule.NextReviewUtc, result.Schedule.LastAttempt?.Request.Id);
                 if (notice != previous) { report(notice); previous = notice; }
-                await Task.Delay(TimeSpan.FromSeconds(30), ct).ConfigureAwait(false);
+                // Old recovered attempts and unchanged idle ticks do not consume this launch's limit.
+                if (testSession is not null && result.Schedule.LastAttempt is { } attempt &&
+                    attempt.Request.StartedUtc >= testSession.StartedUtc && attempts.Add(attempt.Request.Id) &&
+                    attempts.Count >= AiReviewTestSession.MaximumAttempts)
+                {
+                    report(new("TestComplete", null, attempt.Request.Id));
+                    return;
+                }
+                await delay(TimeSpan.FromSeconds(30), token).ConfigureAwait(false);
             }
         }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            if (!ct.IsCancellationRequested && testSession is not null)
+                report(new("TestExpired", null, previous?.LastAttemptId));
+        }
         // Unexpected storage/configuration/transport failure stops this owner. Do not leak exception bodies or auto-retry.
         catch { report(new("NeedsAttention", null, null)); }
     }

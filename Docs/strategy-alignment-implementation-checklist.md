@@ -229,7 +229,8 @@ runtime/display development can proceed while native input qualification remains
    - [x] Label the retained interval reason with its original time and historical role; regression-tested after the October 9 model identified old holding narrative. Source/build only; not installed or paid-tested.
    - [ ] Track persistent collection separately: capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; further provider requests need authorization.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
-   - [ ] Verify the installed desktop lifecycle and automatic scheduling; source/build checks do not establish activation.
+   - [x] Build/test a process-only desktop qualification run capped at two new attempts or ten minutes; preserve disabled saved settings and await cancellation cleanup (October 9, 73 focused tests).
+   - [ ] Verify the installed desktop lifecycle and automatic scheduling with the bounded test; restart and paid-call authority are still required. Source/build checks do not establish activation.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.
    - [x] Build and test local risk-journal persistence and recovery.
    - [x] Build/test the single-session review scheduler: configurable daily checkpoints, bounded 1–15-minute intervals, combined events and one review at a time.

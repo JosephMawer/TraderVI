@@ -438,9 +438,13 @@ public partial class PaperDashboardWindow : Window
         {
             ct.ThrowIfCancellationRequested();
             var settings = AiPaperReviewSettings.Load(AiPaperReviewSettings.LocalSettingsPath);
+            var testSession = AiReviewTestSession.Parse(
+                Environment.GetEnvironmentVariable(AiReviewTestSession.EnvironmentVariable), DateTimeOffset.UtcNow);
+            if (testSession is not null)
+                settings = testSession.EnableForThisLaunch(settings); // Never save activation.
             if (settings?.Enabled != true) return;
             using var runtime = new AiPaperReviewRuntime(settings);
-            await runtime.RunAsync(notice => ReportAiReview(notice.State), ct);
+            await runtime.RunAsync(notice => ReportAiReview(notice.State), ct, testSession);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
         catch { ReportAiReview("NeedsAttention"); } // Never display credential, packet or exception contents.
@@ -452,6 +456,8 @@ public partial class PaperDashboardWindow : Window
         string message = state switch
         {
             "Reviewed" => "AI portfolio review saved. No trades are executed by the reviewer.",
+            "TestComplete" => "AI review test finished after two attempts. Automatic reviews remain off.",
+            "TestExpired" => "AI review test stopped at its time limit. Automatic reviews remain off.",
             "OutsideSession" => "AI reviews are waiting for the next market session.",
             "NeedsAttention" => "AI reviews stopped: check configuration and saved history before restarting.",
             _ => $"AI review status: {state}."

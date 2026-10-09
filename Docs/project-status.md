@@ -1,6 +1,25 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. Next qualify desktop lifecycle/automatic scheduling, then basic review/status display. Retained scheduling explanations now carry their original timestamp and an explicit historical label in source; 61 focused tests pass. This correction is not installed or retested through a paid call. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
+**Current record:** October 9, 2026. The first fresh concise-input review completed at 09:42:55 Toronto: `wait`, requested next review in two minutes. Exact SQL/local evidence and saved request rendering match. The model respected all 15 unavailable choices and the current cash-only book; this qualifies a blocked-choice wait response, not eligible selection or continuous readiness. Automatic reviews and AI trading remain off; all three milestones remain pending. A self-stopping desktop qualification mode is now built with 73 passing focused tests; native startup/shutdown and automatic scheduling remain to be run under explicit bounded authority. Then add basic review/status display. Retained scheduling explanations now carry their original timestamp and an explicit historical label in source; 61 focused tests pass. This correction is not installed or retested through a paid call. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate; TMX remains normal, Wealthsimple fallback and lesson criteria deferred.
+
+**Desktop qualification preparation, October 9:** the WPF review owner now supports an explicitly
+supplied process-only UTC test deadline, no more than ten minutes away. The saved configuration must
+exist and remain disabled; only the in-memory copy is enabled for that launch. It stops after two distinct
+new review attempts (including unsuccessful ones) or the deadline. Recovered old attempts and idle ticks
+do not consume the count. Existing cadence, data checks, budget, history and execution boundaries remain.
+The deadline cancels pending work and waits for its cleanup before releasing ownership; the normal window
+close path likewise awaits the review task. No test flag is saved to user/system environment or settings.
+
+Validation: 73 focused host/scheduler/journal/reviewer tests pass, including actual scheduler due times,
+no duplicate calls during idle ticks, the attempt cap, deadline cancellation and waiting for cleanup.
+An isolated Release WPF build succeeds with 260 existing compiler warnings (CS8632/CS0162/CS0168), zero
+errors. No dependency-security audit or complete solution/SSDT check. Prepared app and logs are under
+`artifacts/ai-desktop-qualification-20261009/`; the normal-close/restart script parses but has not run.
+The running desktop is unchanged. No new paid call, SQL/journal write, provider call or restart ran in
+this preparation. Native checks must distinguish successful review/scheduling from blocked attempts,
+verify SQL/local evidence and costs, then verify saved settings are still off and journals can be reopened.
+Restarting the operational WPF host can interrupt paper monitoring and record a coverage gap; get explicit
+authority for the restart, normal host activity and up to two paid reviews before running the prepared test.
 
 **Authorized connected review, October 9:** the operator authorized empty-snapshot continuation and
 one review with the existing ten-minute test ages and spending guards. Snapshot v2 was published at
