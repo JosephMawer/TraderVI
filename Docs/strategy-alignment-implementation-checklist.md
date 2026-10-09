@@ -332,18 +332,23 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
-- [x] Verify the October 7 on-time scheduled chain and saved daily publication without launching a rerun
+- [x] Verify the October 8 and 9 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
   active lease renewal and the first completed collection; record its failures rather than qualifying coverage
   ([runtime evidence](project-status.md#latest-operational-evidence)).
-- [ ] Verify the four original Shadow portfolios and fresh holding prices after their first 09:47 poll.
+- [x] Verify saved adoption by all four original Shadow portfolios and a same-day price for the remaining
+  open holding (October 8 records, checked October 9); this does not qualify complete ongoing coverage.
+- [x] Verify October 8 intraday records despite reported laptop downtime: 78 scheduled cycles and 1,753
+  bars exist, but receipt failures and an Incomplete / Blocked Live session remain.
+- [ ] Verify October 9 WPF startup, current publication adoption, collection and account valuation;
+  the pre-open read-only check found no running WPF host or current sessions.
 - [ ] Diagnose current five-minute collection failures affecting held/tracked stocks and the invested
   rules-only Live account's missing opening value; saved failed receipts do not establish the exception cause.
 - [ ] Diagnose why the sleeping/hibernating host missed the overnight wake despite WakeToRun being enabled;
   automatic morning recovery does not establish overnight reliability. No power/task settings changed.
-- [ ] Investigate the remaining active symbol without the expected daily endpoint; Hermes reported no data,
-  not a collection exception. It is absent from today's candidates; the verified publication does not close this gap.
+- [ ] Investigate ILLM/RCTR missing the October 8 daily endpoint; Hermes reported no data,
+  not a collection exception. Both are absent from October 9 candidates; publication does not close these gaps.
 - [ ] Review Athena's older missing-session outcomes separately from successful daily collection;
   preserve invalid evidence and do not infer intraday or strategy-performance qualification from nightly completion.
 - [x] Measure database allocation, staging backups and repository storage without changing production
