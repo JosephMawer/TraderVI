@@ -25,6 +25,21 @@ saved-packet-sizes.json,provider-count.log}`. Next inspect remaining repetition 
 a further provider check needs authorization after the next concrete request is ready. Fresh model
 interpretation and repeated successful desktop reviews remain pending.
 
+**Offline request-size breakdown, October 9:** the user requested category sizes before considering
+possible omissions. The same 95,755-character view plus 3,949 characters of system instructions and
+response schema totals 99,704 text characters. Physical compressed characters are counted once;
+shared definitions are apportioned by their uses. Approximate largest categories are identifying
+labels/source metadata/formatting/instructions (34.2%), portfolio choices/settings/rules (19.7%) and
+paper performance history (13.1%). Actual instructions/answer format account for about 6,485 characters
+within the first category; it is not all instruction prose. Strategy protection rules remain in the
+portfolio-rules category, separate from managed-account risk state. There are 61 Live stock records
+and 48 additional Shadow stock records; the earlier 61-record count described only Live evidence.
+These are character shares, not per-category token counts or guaranteed savings if a category is
+removed. The prior provider total remains 36,235 tokens. No API, SQL, journal or settings changes ran;
+no new omissions were accepted. Aggregate evidence and the accounting script are in the private
+`artifacts/ai-compression-v2-20261009/{category-sizes.json,measure-categories.py}` files. Use this breakdown
+to discuss the next reduction; preserve the agreed evidence boundary until a further decision is made.
+
 **Authorized desktop qualification, October 9:** the operator approved a brief restart, up to two AI
 reviews with an approximately CAD 2.34 maximum reservation total, and a restart with reviews off afterward.
 The first scripted close did not finish within 30 seconds; no force stop was attempted. The operator

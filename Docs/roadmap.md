@@ -75,7 +75,8 @@ selection or continuous readiness. The later authorized desktop test verifies st
 timing, the bounded stop and disabled restart, but the last compact request exceeds the unchanged input
 cap as session evidence grows. The lossless v2 extension is built/tested and reduces the same saved
 request, but its authorized provider count still exceeds the cap (project status); it is not installed
-or model-qualified. Next reduce remaining repetition while preserving decision evidence and full saved
+or model-qualified. An offline category-size breakdown is available in project status to inform the
+next reduction discussion; no new omissions are agreed. Reduce remaining repetition while preserving decision evidence and full saved
 sources, qualify v2 interpretation and repeated successful desktop reviews, then add the basic display. Automatic reviews remain
 off; further paid tests/activation require authorization. Collection health and invested coverage remain
 unqualified. The prior TMX timestamp-alignment rejection still needs an offending response before a
