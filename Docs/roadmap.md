@@ -210,7 +210,9 @@ or completed replacement of the execution work below. See the
    for October 10–13 with no new Athena invalid outcomes and all active endpoints through the prior
    TSX session. October 13 source adoption and partial runtime progress are verified, but recurring
    monitor/cycle failures, incomplete held-account valuation and Blocked coverage remain. Capture the
-   underlying cycle/monitor exception alongside the unresolved provider interval contract. Earlier
+   underlying cycle/monitor exception alongside the unresolved provider interval contract. October 13
+   passive traces confirm off-grid timestamp rejection for sampled stock failures; they did not capture
+   the separate whole-monitor exception or qualify a correction. Earlier
    missed-wake and historical invalid evidence remain separate from full-session qualification.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,

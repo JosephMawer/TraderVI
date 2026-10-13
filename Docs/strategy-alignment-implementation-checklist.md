@@ -364,8 +364,11 @@ Optional older-history import remains a proposal; no historical reset is approve
   WPF responsiveness/runtime progress; this does not qualify uninterrupted collection or valuation.
 - [ ] Resolve recurring monitor/cycle failures and verify uninterrupted operation; the October 13 audit
   records seven failed cycles and eight monitor recoveries by 11:09, with Blocked coverage.
-- [ ] Diagnose current five-minute collection failures affecting held/tracked stocks and the invested
-  rules-only Live account's missing opening value; saved failed receipts do not establish the exception cause.
+- [x] Capture current per-stock exceptions in the running app: October 13 traces correlate all eight
+  failed 11:30 requests with five-minute timestamp-alignment rejection and confirm repetition at 11:35.
+  This bounded diagnosis does not establish the aggregation contract or every historical failure.
+- [ ] Resolve the provider interval contract, remaining collection failures and the invested rules-only
+  Live account's missing opening value; separately capture the whole-cycle/monitor interruption.
 - [ ] Diagnose why the sleeping/hibernating host missed the overnight wake despite WakeToRun being enabled;
   automatic morning recovery does not establish overnight reliability. No power/task settings changed.
 - [x] Verify recovered latest daily endpoints for ILLM/RCTR: all 483 active symbols have October 9 bars
