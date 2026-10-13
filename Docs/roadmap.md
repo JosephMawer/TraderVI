@@ -207,10 +207,11 @@ or completed replacement of the execution work below. See the
    operation, including full-watchlist/provider capacity and SQL durability. Dated engineering
    activations are not full-session qualification or reusable exceptions.
    The [latest nightly check](project-status.md#latest-operational-evidence) confirms on-time success
-   for October 8 and 9 with no new Athena invalid outcomes. October 8 has all scheduled cycles but
-   unusable slots and an Incomplete / Blocked Live session; WPF is closed in the October 9 pre-open
-   check, so today's adoption/recovery remains unverified. The earlier missed-wake cause, two daily endpoints and
-   historical invalid evidence remain separate follow-ups from full-session qualification.
+   for October 10–13 with no new Athena invalid outcomes and all active endpoints through the prior
+   TSX session. October 13 source adoption and partial runtime progress are verified, but recurring
+   monitor/cycle failures, incomplete held-account valuation and Blocked coverage remain. Capture the
+   underlying cycle/monitor exception alongside the unresolved provider interval contract. Earlier
+   missed-wake and historical invalid evidence remain separate from full-session qualification.
 3. **Establish trustworthy comparisons.** Accumulate mature forecast/pick outcomes, verify contiguous
    leadership-mover history and compare common strategy/policy histories. Observe skipped entries,
    causal fills, Session-2 rotation and risk exits across clean Shadow sessions; exclude Sep 4 shakedown

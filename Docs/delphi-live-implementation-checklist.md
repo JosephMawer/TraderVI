@@ -31,6 +31,12 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
+The October 13 read-only audit verifies current-source adoption and continuing partial collection,
+but Blocked coverage, recurrent cycle/monitor recovery and incomplete held-account valuation persist.
+Capture the underlying cycle/monitor exception and establish the provider interval contract before
+qualifying a correction. No new provider probe, app restart or repair was performed by this audit.
+See [current operational evidence](project-status.md#latest-operational-evidence).
+
 The October 9 read-only trace confirms partial live collection failures despite completed cycles.
 The authorized fixed-window provider diagnostic reproduces five-minute timestamp-alignment rejection on
 both targets. The timestamp comparison confirms source off-grid times map correctly in the sample;
