@@ -25,7 +25,12 @@ public sealed class TmxIntradayTimestampInspectionTests
         var read = client.GetIntradayTimeSeriesDiagnosticAsync("TEST", 5, Start, Start.AddMinutes(5),
             inspectTimestamps: x => sample = x);
         if (valid) Assert.Single((await read).Batch.Bars);
-        else Assert.Contains("does not align", (await Assert.ThrowsAsync<InvalidOperationException>(() => read)).Message);
+        else
+        {
+            var result = await read;
+            Assert.Empty(result.Batch.Bars);
+            Assert.Single(result.Batch.ExcludedSupplementaryTimestampsUtc);
+        }
         Assert.NotNull(sample);
         Assert.Equal(1, sample!.SourcePointCount);
         Assert.Equal(1, sample.AttemptCount);
@@ -39,12 +44,13 @@ public sealed class TmxIntradayTimestampInspectionTests
     }
 
     [Fact]
-    public async Task OrdinaryCallerStillRejectsSameMisalignedData()
+    public async Task OrdinaryCallerCannotUseSupplementaryPointAsAnAlignedBar()
     {
         using var handler = new Handler(Response("2026-10-09 1:52:00 PM"));
         using var client = new TmxClient(handler);
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            client.GetIntradayTimeSeriesBatchAsync("TEST", 5, Start, Start.AddMinutes(5)));
+        var batch = await client.GetIntradayTimeSeriesBatchAsync("TEST", 5, Start, Start.AddMinutes(5));
+        Assert.Empty(batch.Bars);
+        Assert.Single(batch.ExcludedSupplementaryTimestampsUtc);
         Assert.Equal(1, handler.Calls);
     }
 

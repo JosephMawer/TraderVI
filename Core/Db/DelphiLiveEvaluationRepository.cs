@@ -46,6 +46,7 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
         using var expectedPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(storedPolicy));
         if (!JsonElement.DeepEquals(actualPolicy.RootElement, expectedPolicy.RootElement))
             throw new InvalidOperationException("Evaluation settings differ from the immutable stored policy identity.");
+        await SqlObservedTimeBarrier.WaitAsync(connection, input.EvaluatedUtc, cancellationToken);
         await connection.ExecuteAsync(new CommandDefinition(PersistSql, PaperSourceSqlParameters.Create(new
         {
             Id = input.EvaluationId, Session = input.SessionId, Policy = input.Policy.PolicyVersionId,

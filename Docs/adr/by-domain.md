@@ -94,6 +94,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-pipeline
 
+- [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Stable intraday source context and actual-store-time causal waits
+
 - [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
 
 - [ADR-0063](0063-historical-practice-environment-direction.md) — Historical practice environment direction
@@ -137,6 +139,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-sources
 
+- [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Explicit supplementary-record exclusion without invented prices
+
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Explicit source-scoped stock aliases with verified listing evidence
 - [ADR-0083](0083-opening-account-values-and-shared-engine-hosting.md) — Exact dated broker account values; native morning alignment remains unverified
 
@@ -166,6 +170,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — Discretionary AI decisions with enforced protection and audit evidence
 
 ## time-series
+
+- [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Preserve aligned bar identity and logical windows
 
 - [ADR-0016](0016-obv-per-symbol-soft-ranking-signal.md) — OBV as a per-symbol soft ranking signal
 - [ADR-0041](0041-date-aligned-relative-strength-inputs.md) — Date-aligned relative-strength inputs

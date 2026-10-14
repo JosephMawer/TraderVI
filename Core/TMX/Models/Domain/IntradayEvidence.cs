@@ -149,7 +149,8 @@ internal static class IntradayEvidencePersistencePlanner
             newBars.AsReadOnly(),
             conflicts.AsReadOnly(),
             late ? IntradayPollAuditState.Degraded : IntradayPollAuditState.Valid,
-            late ? "LateCompletedEvidence" : null);
+            late ? "LateCompletedEvidence" : batch.ExcludedSupplementaryTimestampsUtc.Count > 0
+                ? "SupplementarySourceRecordsExcluded" : null);
     }
 
     public static void Validate(

@@ -124,10 +124,11 @@ namespace Core.TMX
                 Action<TmxIntradayTimestampInspection> inspectTimestamps = null)
         {
             DateTime fetchStartedUtc = DateTime.UtcNow;
+            DateTime providerStartUtc = IntradayProviderStart(interval, startDateTime);
             GraphQLRequest request = BuildIntradayTimeSeriesRequest(
                 symbol,
                 interval,
-                startDateTime,
+                providerStartUtc,
                 endDateTime);
 
             RetryResult<GraphQLResponse<IntradaySourceResponse>> transport =
@@ -150,10 +151,10 @@ namespace Core.TMX
                 .Select(TmxMapper.ToOhlcvBar)
                 .ToList();
 
-            List<OhlcvBar> validated = ValidateIntradayResponse(
+            var normalized = NormalizeIntradaySource(
                 bars,
                 interval,
-                startDateTime,
+                providerStartUtc,
                 endDateTime);
 
             DateTime requestedStartUtc = FloorToUtcMinute(startDateTime);
@@ -170,7 +171,13 @@ namespace Core.TMX
                 receivedUtc,
                 transport.AttemptCount,
                 RequestCount: 1,
-                validated.AsReadOnly());
+                normalized.Bars.Where(bar => bar.TimestampUtc >= requestedStartUtc &&
+                    bar.TimestampUtc <= requestedEndUtc).ToArray())
+            {
+                ProviderWindowStartUtc = providerStartUtc,
+                ProviderReturnedPointCount = sourcePoints.Count,
+                ExcludedSupplementaryTimestampsUtc = normalized.ExcludedTimestamps
+            };
             return (batch, sourceDataPresent, sourcePoints.AsReadOnly());
         }
 
@@ -193,13 +200,16 @@ namespace Core.TMX
             DateTime endDateTime,
             CancellationToken ct = default)
         {
+            DateTime providerStartUtc = IntradayProviderStart(interval, startDateTime);
             IReadOnlyList<IntradayRequestWindow> windows = BuildIntradayRequestWindows(
-                startDateTime,
+                providerStartUtc,
                 endDateTime);
             DateTime fetchStartedUtc = DateTime.UtcNow;
             DateTime receivedUtc = fetchStartedUtc;
             int attemptCount = 0;
             var bars = new List<OhlcvBar>();
+            var excluded = new List<DateTime>();
+            int returnedPoints = 0;
 
             for (int index = 0; index < windows.Count; index++)
             {
@@ -213,6 +223,8 @@ namespace Core.TMX
                     ct);
 
                 bars.AddRange(chunk.Bars);
+                excluded.AddRange(chunk.ExcludedSupplementaryTimestampsUtc);
+                returnedPoints += chunk.ProviderReturnedPointCount ?? chunk.Bars.Count;
                 attemptCount += chunk.AttemptCount;
                 receivedUtc = chunk.ReceivedUtc;
 
@@ -230,13 +242,64 @@ namespace Core.TMX
             return new TmxIntradayBatch(
                 symbol.Trim(),
                 interval,
-                windows[0].StartUtc,
-                windows[^1].EndUtc,
+                FloorToUtcMinute(startDateTime),
+                FloorToUtcMinute(endDateTime),
                 fetchStartedUtc,
                 receivedUtc,
                 attemptCount,
                 windows.Count,
-                validated.AsReadOnly());
+                validated.Where(bar => bar.TimestampUtc >= FloorToUtcMinute(startDateTime) &&
+                    bar.TimestampUtc <= FloorToUtcMinute(endDateTime)).ToArray())
+            {
+                ProviderWindowStartUtc = providerStartUtc,
+                ProviderReturnedPointCount = returnedPoints,
+                ExcludedSupplementaryTimestampsUtc = excluded.ToArray()
+            };
+        }
+
+        // Stable session context prevents narrow-window aggregation from depending
+        // on the first traded minute. Source values/timestamps are never rewritten.
+        internal static DateTime IntradayProviderStart(int interval, DateTime requestedStart)
+        {
+            DateTime utc = FloorToUtcMinute(requestedStart);
+            if (interval == 1) return utc;
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(utc, TmxEasternTimeZone);
+            DateTime open = local.Date.AddHours(9).AddMinutes(30);
+            return local > open && local.TimeOfDay < TimeSpan.FromHours(16)
+                ? TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(open, DateTimeKind.Unspecified), TmxEasternTimeZone)
+                : utc;
+        }
+
+        internal static (List<OhlcvBar> Bars, DateTime[] ExcludedTimestamps) NormalizeIntradaySource(
+            IReadOnlyCollection<OhlcvBar> source, int interval, DateTime start, DateTime? end)
+        {
+            // All rows retain the UTC, OHLCV, duplicate and window guards. Only
+            // trailing minute-aligned supplements are quarantined, never rounded.
+            ValidateIntradayInterval(interval);
+            List<OhlcvBar> checkedRows = ValidateIntradayResponse(source, 1, start, end, interval);
+            if (interval == 1) return (checkedRows, Array.Empty<DateTime>());
+            var accepted = new List<OhlcvBar>();
+            var excluded = new List<DateTime>();
+            foreach (var session in checkedRows.GroupBy(bar =>
+                TimeZoneInfo.ConvertTimeFromUtc(bar.TimestampUtc, TmxEasternTimeZone).Date))
+            {
+                var aligned = session.Where(bar => IsIntradayAligned(bar.TimestampUtc, interval)).ToArray();
+                var supplementary = session.Where(bar => !IsIntradayAligned(bar.TimestampUtc, interval)).ToArray();
+                // Interior off-grid points remain ambiguous: reject the response.
+                if (aligned.Length > 0 && supplementary.Any(bar => bar.TimestampUtc <= aligned[^1].TimestampUtc ||
+                    bar.TimestampUtc >= aligned[^1].TimestampUtc.AddMinutes(interval)))
+                    return (ValidateIntradayResponse(source, interval, start, end), Array.Empty<DateTime>());
+                accepted.AddRange(aligned);
+                excluded.AddRange(supplementary.Select(bar => bar.TimestampUtc));
+            }
+            return (ValidateIntradayResponse(accepted, interval, start, end), excluded.ToArray());
+        }
+
+        private static bool IsIntradayAligned(DateTime timestamp, int interval)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(timestamp, TmxEasternTimeZone);
+            return timestamp.Ticks % TimeSpan.TicksPerMinute == 0 &&
+                ((int)local.TimeOfDay.TotalMinutes - (9 * 60 + 30)) % interval == 0;
         }
 
         internal static GraphQLRequest BuildIntradayTimeSeriesRequest(
@@ -341,7 +404,8 @@ namespace Core.TMX
             IReadOnlyCollection<OhlcvBar> sourceBars,
             int interval,
             DateTime startDateTime,
-            DateTime? endDateTime)
+            DateTime? endDateTime,
+            int? boundaryInterval = null)
         {
             ValidateIntradayInterval(interval);
 
@@ -404,7 +468,7 @@ namespace Core.TMX
             DateTime? endUtc = endDateTime.HasValue
                 ? FloorToUtcMinute(endDateTime.Value)
                 : null;
-            TimeSpan boundaryTolerance = TimeSpan.FromMinutes(interval);
+            TimeSpan boundaryTolerance = TimeSpan.FromMinutes(boundaryInterval ?? interval);
 
             bool outsideWindow = bars.Any(bar =>
                 bar.TimestampUtc < startUtc - boundaryTolerance ||

@@ -41,6 +41,7 @@ public sealed class DelphiLiveMonitorWorkflow
     private PreOpenHeartbeat? preOpenHeartbeat;
     private DateOnly? warningSession;
     private readonly List<string> warnings = [];
+    private IReadOnlyList<string> collectionWarnings = Array.Empty<string>();
     private static readonly IComparer<DelphiLiveRankCandidate?> RankComparer =
         Comparer<DelphiLiveRankCandidate?>.Create(DelphiLiveRankingComparer.Instance.Compare);
     private sealed record PreOpenHeartbeat(DateOnly TradingDate, DateTime CompletedUtc, DateTime NextExpectedWakeUtc);
@@ -84,7 +85,7 @@ public sealed class DelphiLiveMonitorWorkflow
         var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
         return new(portfolios.Count == 0 ? "Inactive" : frozen is null ? "Awaiting session" : frozen.Status,
             date, frozen?.SessionId, values.Count == 0 ? null : values.Max(v => v.Input.BarEndUtc),
-            values, portfolios, warnings.ToArray());
+            values, portfolios, warnings.Concat(collectionWarnings).Distinct().ToArray());
     }
 
     public async Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken ct = default)
@@ -139,7 +140,7 @@ public sealed class DelphiLiveMonitorWorkflow
                 await sessions.FreezeSessionAsync(new(date, bounds.OpenUtc,
                     calendar.GetImmediatelyPrecedingSession(date), assignments), ct);
                 context = await sessions.ReadOperationalContextAsync(date, ct) ?? throw new InvalidOperationException("Frozen session is unavailable.");
-                if (warningSession != date) { warnings.Clear(); warningSession = date; }
+                if (warningSession != date) { warnings.Clear(); collectionWarnings = Array.Empty<string>(); warningSession = date; }
                 recovery = await collection.RecoverSessionAsync(context.Session.SessionId, lease, ct,
                     wasArmedAtSessionOpen: armedAtOpen);
                 nextEnd = Endpoints(bounds).FirstOrDefault(e => e.AddMinutes(2) >= clock.UtcNow);
@@ -213,7 +214,7 @@ public sealed class DelphiLiveMonitorWorkflow
             var cycle = new DelphiLiveCollectionCycle(cycleId, context.Session.SessionId, end.AddMinutes(-5), end,
                 end.AddMinutes(2), end.AddMinutes(7), lease.FencingToken, recovery!.EpochNumber);
             var collected = await collector.RunCycleAsync(cycle, targets, lease, ct);
-            foreach (var warning in collected.Warnings) AddWarning(warning);
+            collectionWarnings = collected.Warnings.ToArray();
             var bars = await collection.GetSessionBarsAsync(context.Session.SessionId, end, ct);
             var saved = new List<DelphiLiveStoredEvaluation>();
             // Every policy judgment is durable before any cycle action is considered.

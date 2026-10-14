@@ -1,6 +1,46 @@
 # TraderVI Project Status
 
-**Current record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. The 14:30 timestamp comparison confirms TMX supplied the off-grid times and the local mapper preserved them in this sample; XIU also supplied an aligned row, but the validator rejects the whole response. The narrow 14:51 interval comparison could not verify full five-minute aggregates, so selective row acceptance is not qualified. Next verify the provider request/interval contract and restore qualified held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
+**Current record: October 14, 2026.** The Delphi Live source/monitor correction is implemented,
+tested and installed under restart authority at 09:56 Toronto. Scheduled recovery verification is
+pending. [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md) governs stable TMX
+session context, explicit exclusion of supplementary off-grid records, preserved strict evidence
+checks and a bounded wait for actual SQL time. Historical gaps and trading rules remain unchanged.
+AI review/trading activation and continuous invested coverage remain unqualified.
+
+**Delphi Live correction, October 14:** the authorized six-request full-session comparison for
+October 13 QTRH/XIU provides 69 complete five-minute OHLCV aggregates matching all five minute
+components, with zero mismatches. Production and website chart requests both provide aligned
+aggregates; XIU also has one trailing off-grid record, whose meaning is not assumed. New requests
+use same-date Eastern 09:30 source context and retain the original logical window. Supplementary
+records supply no price; interior anomalies, invalid values, duplicates and existing freshness/
+durability checks still block. Receipt metadata records source bounds/exclusions, and ordinary poll
+audits expose exclusion. Current-cycle warnings replace old collection warnings while session gaps
+remain visible. This supersedes the earlier unqualified selective-acceptance conclusion for this
+tested correction; it does not establish every historical provider response or exact Shadow failure.
+
+The opening native exception trace identifies SQL error 52216, receipt time later than the durable
+store clock. Twenty SELECT-only samples show 17 client-ahead observations, up to 12.9225 ms, with
+zero parameter-binding loss. Twenty fresh observations pass the new barrier and unchanged SQL
+causal check. Receipt/evaluation persistence now waits outside transactions for actual SQL time;
+timestamps and SQL guards are unchanged. Private bounded failure metadata captures remaining tick
+failures without arbitrary messages, prices, account values or credentials.
+
+Validation: .NET 10.0.401; final Core suite 2,394 passed and eight opt-in native tests skipped;
+Release WPF project build succeeds with 260 compiler warnings and no errors. An earlier broad run
+had one AI deadline test timeout; isolated and subsequent full reruns passed. No full-solution/SSDT
+build or fresh dependency-security audit. Offline saved-response replay accepts 43 QTRH/78 XIU
+aligned bars and excludes zero/one supplementary records. Installation replaces five checksum-
+verified binaries with unchanged dependency/runtime manifests and a saved rollback copy. At 09:58,
+WPF is responsive, owns one lease and has a fresh heartbeat; the restart-crossing slot retains its
+HostCoverageGap. Next observe normal collection, evaluations and held-price/portfolio updates.
+No migration, backfill, manual tick, model training, AI generation or broker order was requested.
+Private evidence: `artifacts/live-collection-fix-20261014/` (comparison, clock checks, final tests/
+build, install receipt and SELECT-only health snapshots). The six-request grant is consumed.
+
+The following October 9 record preserves the prior AI-review milestone and diagnostic history;
+its collection-correction next step is superseded by the October 14 record above.
+
+**Prior AI-review record:** October 9, 2026. The approved v3 review view removes engineering/testing details and detailed evidence for unavailable strategies, retaining short dated blocking notices and independent managed-account/learning context. It is built/tested; the largest revised request among seven saved examples (four eligible choices) counts 11,859 tokens against the unchanged 32,000 cap. This is historical size evidence, not a fresh decision or a bound on future input growth. The operator authorized one fresh v3 review, but the 13:49-13:51 Toronto preflight found stale invested-account prices, so no review or paid call was started. The 14:30 timestamp comparison confirms TMX supplied the off-grid times and the local mapper preserved them in this sample; XIU also supplied an aligned row, but the validator rejects the whole response. The narrow 14:51 interval comparison could not verify full five-minute aggregates, so selective row acceptance is not qualified. Next verify the provider request/interval contract and restore qualified held-stock valuation through the agreed input path, then use the unconsumed single-review authorization; repeated successful desktop reviews and basic display follow. Native startup, blocked-attempt timing, bounded stop and disabled restart remain verified; v3 desktop installation remains unqualified and it has no model answer. Automatic reviews and AI trading remain off; all three milestones remain pending. Persistent collection failures, invested coverage, portfolio-specific evidence and Athena outcomes remain separate. TMX remains normal; Wealthsimple fallback and lesson criteria remain deferred.
 
 **Narrow interval check, October 9, 14:51 Toronto:** the operator authorized the short check of
 whether aligned records can safely be retained. Four read-only requests compared one- and five-minute
@@ -548,7 +588,7 @@ existing input qualification requirements remain in place.
 | Backups | Oct 12/13 nightly receipts; hashes checked Oct 13 morning | Independent SHA-256 reads match all four retained local files to their runner receipts. Both logs record successful SQL checksum verification; each location retains exactly Oct 12 and Oct 13. Sizes are 2,378,721,792 / 2,379,421,696 bytes. Older runs' receipts remain, but retained-file verification covers only these two. Cloud synchronization, independent download and test restore remain unverified. |
 | Delphi Live | Oct 13, SQL 11:05 and 11:09 | Existing Release WPF PID 30836 (started Oct 9) is responsive in five 11:06 samples, with one renewed Live lease. All three ledgers use today's session. By 11:09, twelve cycles completed and seven were Cancelled / Failed; 333/726 settled slots are usable, 147 CollectionFailed, 65 NoCompletedBar and 181 UnfinishedCollection. Nine continuity epochs show eight monitor recoveries within the still-running app. After the failed 11:00 cycle, 11:05 completed at 11:08 with 21/39 usable receipts and further ledger events. Progress does not qualify uninterrupted operation. |
 | System Shadow | Oct 13, checked 11:05–11:09 | All twelve active sessions adopted today's source through revisions. Twelve open positions have same-day prices, spanning 09:45–10:50 in the final snapshot; freshness/protection is not qualified. One Buy fill exists with no checked timing violation and no pending orders. Many five-/fifteen-minute fetch failures, MissingEvidence candidates and one fifteen-minute CompletedBarConflict persist. The repeat snapshot has 361 five-minute and five fifteen-minute bars, with zero failures of the checked price/volume predicates. |
-| Live limitations / current host | Oct 13: valuation snapshot 11:09; exception traces 11:32/11:37 | Session remains subject to recorded Blocked coverage and host gaps. The 11:09 snapshot has failures affecting four held Live symbols, missing invested rules-only opening NAV and incomplete latest marks; no later full valuation qualification occurred. Passive WPF traces now establish five-minute timestamp-alignment rejection for the sampled per-stock failures: all eight failed 11:30 requests correlate with off-grid exceptions, and the next cycle repeats them. Both sampled cycles completed with partial usable data. The earlier whole-cycle/monitor exception did not recur in these traces and remains unresolved. Existing WPF stayed responsive; traces were stopped. One separately authorized two-symbol read-only probe passed validation but QTRH lacked the exact requested bar. No source fix, deployment, restart, data repair or relaxed validation occurred. Evidence: `artifacts/live-exceptions-20261013/README.md`; earlier coverage snapshot: `artifacts/nightly-readiness-20261013/README.md`. |
+| Live correction / current host | Oct 14: installed 09:56; heartbeat/ownership 09:58 | Stable TMX context/supplementary exclusion and actual-SQL-time waiting are implemented/tested and installed (ADR-0089). Native opening trace identifies receipt-clock rejection; historical gaps and every earlier failure are not repaired/explained. Responsive WPF owns one lease; next verify normal cycles, evaluations and held-price/portfolio recovery. Private evidence: `artifacts/live-collection-fix-20261014/README.md`. |
 | Broker risk/session storage | Sep 22, 23:34:11 | Authorized migrations 035/039/040 installed after a fresh verified backup/copy. Three empty tables, three enabled immutable triggers, eight trusted foreign keys, three trusted checks and six native zero-row update/delete rejections verified. Linked binding/import and report/promotion counts and hashes unchanged. No baseline/session created. |
 
 Private evidence directories: `artifacts/nightly-readiness-20261013/` (latest four-night and current runtime check), `artifacts/nightly-readiness-20261009/`, `artifacts/nightly-readiness-20261007/`, `artifacts/nightly-readiness-20261006/`, `artifacts/nightly-readiness-20261002/`, `artifacts/nightly-readiness-20260930/`, `artifacts/nightly-readiness-20260924/`, `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,

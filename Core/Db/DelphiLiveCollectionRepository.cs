@@ -214,10 +214,12 @@ ORDER BY old.SessionOpenUtc;
              P("@Hash", SqlDbType.Binary, hash, 32),
              P("@ReceiptJson", SqlDbType.NVarChar, JsonSerializer.Serialize(new
                  { receipt.Request, receipt.ExactCompletedBar, receipt.ReceivedUtc, receipt.Disposition,
-                   receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc }), -1),
+                   receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc,
+                   receipt.ProviderWindowStartUtc, receipt.ExcludedSupplementaryTimestampsUtc }), -1),
              P("@ReceiptHash", SqlDbType.Binary, SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new
                  { receipt.Request, receipt.ExactCompletedBar, receipt.ReceivedUtc, receipt.Disposition,
-                   receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc }))), 32),
+                   receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc,
+                   receipt.ProviderWindowStartUtc, receipt.ExcludedSupplementaryTimestampsUtc }))), 32),
              P("@Provider", SqlDbType.NVarChar, IntradayEvidenceVersions.Provider, 32),
              P("@SourceContract", SqlDbType.NVarChar, IntradayEvidenceVersions.SourceContract, 64)],
             async reader =>
@@ -363,6 +365,11 @@ ORDER BY old.SessionOpenUtc;
     {
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
+        // SQL and .NET can expose the same host clock at different resolutions.
+        // Preserve the receipt timestamp and unchanged SQL check; wait outside
+        // the transaction until that observation is no longer in the store's future.
+        if (parameters.FirstOrDefault(parameter => parameter.ParameterName == "@Received")?.Value is DateTime receivedUtc)
+            await SqlObservedTimeBarrier.WaitAsync(connection, receivedUtc, cancellationToken);
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(
             IsolationLevel.Serializable, cancellationToken);
         // A transaction-owned lock gives every Delphi Live writer the same lock

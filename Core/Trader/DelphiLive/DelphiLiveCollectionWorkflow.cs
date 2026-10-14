@@ -142,6 +142,7 @@ public sealed class DelphiLiveCollectionWorkflow
         int attempted = 0;
         int operational = 0;
         int late = 0;
+        int supplementaryTargets = 0;
         var warnings = new List<string>();
         string status = "Completed";
         try
@@ -197,6 +198,7 @@ public sealed class DelphiLiveCollectionWorkflow
                 }
 
                 receipt = await store.RecordReceiptAsync(receipt, cancellationToken);
+                if (receipt.ExcludedSupplementaryTimestampsUtc.Count > 0) supplementaryTargets++;
                 if (receipt.Disposition == DelphiLiveCollectionDispositions.OperationalOnTime)
                     operational++;
                 else if (receipt.Disposition == DelphiLiveCollectionDispositions.LateResearchOnly)
@@ -222,6 +224,8 @@ public sealed class DelphiLiveCollectionWorkflow
         }
 
         int missed = targets.Count - operational;
+        if (supplementaryTargets > 0)
+            warnings.Add($"Supplementary provider records excluded for {supplementaryTargets} stocks; only aligned five-minute bars are used.");
         return new(
             cycle.CycleId,
             status,

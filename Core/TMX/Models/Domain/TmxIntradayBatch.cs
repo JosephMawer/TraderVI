@@ -19,6 +19,13 @@ namespace Core.TMX.Models.Domain
         int RequestCount,
         IReadOnlyList<OhlcvBar> Bars)
     {
+        /// <summary>Unusable supplementary source timestamps; never rounded into price bars.</summary>
+        public IReadOnlyList<DateTime> ExcludedSupplementaryTimestampsUtc { get; init; } = Array.Empty<DateTime>();
+
+        /// <summary>Actual provider window start, which may precede the logical requested window.</summary>
+        public DateTime? ProviderWindowStartUtc { get; init; }
+        public int? ProviderReturnedPointCount { get; init; }
+
         /// <summary>The newest provider bar-start timestamp in the batch.</summary>
         public DateTime? LatestEventUtc =>
             Bars.Count == 0 ? null : Bars.Max(bar => bar.TimestampUtc);

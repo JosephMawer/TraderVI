@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0089](0089-tmx-session-context-and-supplementary-records.md) | Stable TMX context, supplementary records and causal clock waits | Implemented/tested and installed; scheduled recovery verification pending | data-pipeline, data-sources, time-series |
 | [0088](0088-source-symbol-aliases-for-monitoring.md) | Source symbol aliases for monitoring | Installed; symbol resolution and comparison-source adoption verified | architecture, data-sources |
 | [0087](0087-ai-momentum-portfolio-boundaries.md) | AI Momentum mandate and enforced protection | Budgeted proposals and learning consultation in source; evaluation, host integration and protection parameters pending | architecture, llm, risk-management |
 | [0085](0085-portfolio-wide-ongoing-tfsa-management.md) | Portfolio-wide ongoing TFSA management | Ongoing Core recovery and saved TFSA controls source/tested; native qualification, family coverage and execution host unfinished | architecture, risk-management, user-interface |

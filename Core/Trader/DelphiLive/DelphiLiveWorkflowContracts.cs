@@ -83,6 +83,8 @@ public sealed record DelphiLiveMarketDataReceipt(
     public int? ProviderAttemptCount { get; init; }
     public int? ProviderRequestCount { get; init; }
     public DateTime? ProviderFetchStartedUtc { get; init; }
+    public DateTime? ProviderWindowStartUtc { get; init; }
+    public IReadOnlyList<DateTime> ExcludedSupplementaryTimestampsUtc { get; init; } = Array.Empty<DateTime>();
 }
 
 public sealed record DelphiLiveQuoteRequest(

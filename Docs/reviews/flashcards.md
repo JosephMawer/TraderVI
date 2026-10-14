@@ -23,6 +23,27 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Can a trailing off-grid TMX record become a five-minute price bar?
+
+A: No. It is explicitly excluded with its timestamp retained for audit. Only independently aligned,
+validated bars can supply evidence; interior anomalies still reject the response.
+
+Tags: data-sources, time-series. Source: ADR-0089.
+
+### Q: Does waiting for the SQL clock relax a receipt's causal deadline?
+
+A: No. The original observation stays unchanged and the actual store clock must catch up before
+the write. The bounded wait leaves strict SQL guards and post-commit durability deadlines intact.
+
+Tags: data-pipeline, time-series. Source: ADR-0089.
+
+### Q: Does a successful collection after restart erase the session's earlier coverage gap?
+
+A: No. Current-cycle collection warnings can clear, but durable failed receipts and host gaps remain
+historical evidence. Recovery cannot qualify a clean promotion session retroactively.
+
+Tags: data-pipeline, time-series. Source: ADR-0089.
+
 ### Q: Does Wealthsimple's quote timestamp prove when the exchange price last changed?
 
 A: No. Its precise meaning is undocumented in the reviewed public sources. That uncertainty is

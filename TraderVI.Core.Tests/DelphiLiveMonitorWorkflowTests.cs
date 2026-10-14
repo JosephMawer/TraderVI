@@ -20,6 +20,23 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
     [Fact]
+    public async Task CollectionWarningClearsAfterFreshSuccessButHistoricalCoverageGapRemains()
+    {
+        var h = new Harness();
+        h.Clock.Now = Open.AddMinutes(2); // Deliberately late, retains the coverage gap.
+        await h.Workflow.TickAsync();
+        h.Source.FailBars = true;
+        h.Clock.Now = Open.AddMinutes(7);
+        var failed = await h.Workflow.TickAsync();
+        failed.Warnings.ShouldContain(w => w.Contains("collection failed"));
+        h.Source.FailBars = false;
+        h.Clock.Now = Open.AddMinutes(12);
+        var recovered = await h.Workflow.TickAsync();
+        recovered.Warnings.ShouldNotContain(w => w.Contains("collection failed"));
+        recovered.Warnings.ShouldContain(w => w.Contains("Host coverage gap"));
+    }
+
+    [Fact]
     public async Task FixedGatePair_SharesCollectionButOnlyExperimentalAccountCanBuyFailedDailyCandidate()
     {
         var h = new Harness();
@@ -530,7 +547,8 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public Task BeginCycleAsync(DelphiLiveCollectionCycle cycle, IReadOnlyList<DelphiLiveObservationTarget> expectedTargets, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task<DelphiLiveMarketDataReceipt> RecordReceiptAsync(DelphiLiveMarketDataReceipt receipt, CancellationToken cancellationToken = default)
         {
-            var bar = receipt.ExactCompletedBar!;
+            if (receipt.ExactCompletedBar is null) return Task.FromResult(receipt);
+            var bar = receipt.ExactCompletedBar;
             Bars.Add(new(Guid.NewGuid(), receipt.Request.Symbol, Date, receipt.Request.BarStartUtc, receipt.Request.BarEndUtc,
                 bar.Open, bar.High, bar.Low, bar.Close, bar.Volume, receipt.ReceivedUtc, "Fixture", 1,
                 receipt.Disposition == "OperationalOnTime" ? DelphiLiveEvidenceDisposition.OperationalOnTime : DelphiLiveEvidenceDisposition.LateResearchOnly));
@@ -565,6 +583,7 @@ public sealed class DelphiLiveMonitorWorkflowTests
     }
     private sealed class MarketSource(TestClock clock) : IDelphiLiveMarketDataSource
     {
+        public bool FailBars;
         public readonly List<DelphiLiveMarketDataRequest> BarRequests = new();
         public readonly List<DelphiLiveQuoteRequest> QuoteRequests = new();
         private readonly Queue<(decimal? Price, decimal? Bid, decimal? Ask)> quotes = new();
@@ -572,6 +591,7 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public Task<DelphiLiveMarketDataReceipt> GetExactFiveMinuteBarAsync(DelphiLiveMarketDataRequest request, CancellationToken cancellationToken = default)
         {
             BarRequests.Add(request);
+            if (FailBars) throw new InvalidOperationException("synthetic source failure");
             decimal step = (decimal)(request.BarEndUtc - Open).TotalMinutes / 5m;
             decimal close = request.Symbol == "XIU" ? 100m : 100m + step;
             decimal open = request.Symbol == "XIU" ? 100m : close - 1m;

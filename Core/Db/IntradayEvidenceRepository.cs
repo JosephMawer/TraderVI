@@ -333,13 +333,13 @@ VALUES
         await using var command = new SqlCommand(sql, connection, transaction);
         command.Parameters.AddRange(
             ContextParameters(observationId, context, batch.Symbol, batch.IntervalMinutes));
-        command.Parameters.Add(P("@RequestedStartUtc", SqlDbType.DateTime2, batch.RequestedStartUtc));
+        command.Parameters.Add(P("@RequestedStartUtc", SqlDbType.DateTime2, batch.ProviderWindowStartUtc ?? batch.RequestedStartUtc));
         command.Parameters.Add(P("@RequestedEndUtc", SqlDbType.DateTime2, batch.RequestedEndUtc));
         command.Parameters.Add(P("@FetchStartedUtc", SqlDbType.DateTime2, batch.FetchStartedUtc));
         command.Parameters.Add(P("@ReceivedUtc", SqlDbType.DateTime2, batch.ReceivedUtc));
         command.Parameters.Add(P("@AttemptCount", SqlDbType.Int, batch.AttemptCount));
         command.Parameters.Add(P("@RequestCount", SqlDbType.Int, batch.RequestCount));
-        command.Parameters.Add(P("@ReturnedBarCount", SqlDbType.Int, batch.Bars.Count));
+        command.Parameters.Add(P("@ReturnedBarCount", SqlDbType.Int, batch.ProviderReturnedPointCount ?? batch.Bars.Count));
         command.Parameters.Add(P("@CompletedBarCount", SqlDbType.Int, plan.CompletedBars.Count));
         command.Parameters.Add(P("@PersistedNewBarCount", SqlDbType.Int, plan.NewBars.Count));
         command.Parameters.Add(P("@LatestReturnedEventUtc", SqlDbType.DateTime2, batch.LatestEventUtc));

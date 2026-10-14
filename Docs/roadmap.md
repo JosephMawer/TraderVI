@@ -80,10 +80,10 @@ context remain (ADR-0087 and project status). One fresh v3 review is now authori
 found stale invested-account prices; no paid attempt ran. The read-only trace confirms ongoing Live/Shadow
 collection with failures and a stalled held-position mark. The authorized fixed-window diagnostic reproduces
 five-minute timestamp-alignment rejection on both targets. The follow-up confirms source times are
-preserved by mapping in the sample, with both aligned/off-grid XIU rows rejected together. Establish
-the provider request/interval contract and exact Shadow failure before changing acceptance: the narrow
-one-/five-minute comparison lacked complete minute components, so selective row acceptance is not
-qualified. Then restore/qualify held-stock valuation through
+preserved by mapping in the sample. The October 14 authorized full-session comparison qualifies the
+implemented stable-context and supplementary-record correction (ADR-0089); the native opening trace
+also identifies receipt-clock rejection, corrected with actual-store-time waiting. Both fixes are
+tested and installed. Next verify normal scheduled collection and restore/qualify held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain

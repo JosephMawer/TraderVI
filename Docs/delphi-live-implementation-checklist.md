@@ -31,22 +31,22 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
-The October 13 audit verifies source adoption and partial collection, with coverage/valuation blockers.
-Subsequent passive app traces confirm off-grid timestamp rejection for sampled stock requests in two
-cycles. The separate whole-cycle interruption did not recur in either trace and remains unresolved.
-One authorized two-symbol read-only provider diagnostic passed validation but lacked one exact stock
-bar. No fix, restart or data repair occurred. Establish interval semantics and capture the monitor
-exception before qualifying a correction. See [current operational evidence](project-status.md#latest-operational-evidence).
+The October 14 full-session comparison qualifies the stable-context/supplementary-record correction
+in [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md). The opening native trace
+also identifies SQL receipt-clock rejection; actual-store-time waiting preserves original timestamps
+and strict causal/deadline checks. Both fixes are tested and installed at 09:56 Toronto. Earlier
+October 9/13 diagnostic limits remain historical facts; no saved gaps or receipts were rewritten.
+See [dated evidence](project-status.md) for counts and validation limits.
 
-The October 9 read-only trace confirms partial live collection failures despite completed cycles.
-The authorized fixed-window provider diagnostic reproduces five-minute timestamp-alignment rejection on
-both targets. The timestamp comparison confirms source off-grid times map correctly in the sample;
-XIU's additional aligned row is rejected with the off-grid row. Their meaning and the exact Shadow
-failure remain unresolved. The narrow one-/five-minute comparison lacks complete minute components,
-so retaining aligned rows is not qualified; next verify the request/interval contract. Further provider
-reads require authorization. The bounded timestamp-only
-diagnostic is built/tested (47 focused tests). No correction or recovery is qualified. Preserve historical gaps and distinguish per-stock success from cycle
-completion; neither establishes clean-session qualification. See the dated [project status](project-status.md).
+- [x] Implement/test wider source context, conservative supplementary exclusion and audit metadata.
+- [x] Identify the opening monitor exception and test bounded SQL clock waiting/private diagnostics.
+- [x] Install the tested Release WPF build under explicit restart authority (October 14).
+- [ ] Verify normal scheduled collections/evaluations and held-price/portfolio recovery after restart.
+- [ ] Qualify continuing provider capacity, complete invested coverage and a clean future session.
+
+Further provider probes need authorization. Current warnings replace previous-cycle collection errors,
+while session interruptions and host gaps remain visible. Per-stock success and completed cycles do
+not themselves establish clean-session qualification; exact historical Shadow failures are not all proven.
 
 The September 28 source update uses installed migration 041 (`SymbolAliases`). The broker-alias lookup
 and prospective source adoption are natively verified after authorized restart. The missed morning

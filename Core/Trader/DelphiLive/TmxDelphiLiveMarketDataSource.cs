@@ -34,7 +34,9 @@ public sealed class TmxDelphiLiveMarketDataSource : IDelphiLiveMarketDataSource,
         {
             ProviderAttemptCount = batch.AttemptCount,
             ProviderRequestCount = batch.RequestCount,
-            ProviderFetchStartedUtc = batch.FetchStartedUtc
+            ProviderFetchStartedUtc = batch.FetchStartedUtc,
+            ProviderWindowStartUtc = batch.ProviderWindowStartUtc,
+            ExcludedSupplementaryTimestampsUtc = batch.ExcludedSupplementaryTimestampsUtc.ToArray()
         };
     }
 

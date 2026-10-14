@@ -153,7 +153,16 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
     }
 
     public Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken cancellationToken = default) =>
-        Task.Run(() => TickCoreAsync(cancellationToken), cancellationToken);
+        Task.Run(async () =>
+        {
+            try { return await TickCoreAsync(cancellationToken); }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+            catch (Exception exception)
+            {
+                await DelphiLiveFailureDiagnostics.RecordAsync(exception);
+                throw;
+            }
+        }, cancellationToken);
 
     private async Task<DelphiLiveRuntimeSnapshot> TickCoreAsync(CancellationToken cancellationToken)
     {

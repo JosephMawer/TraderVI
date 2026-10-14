@@ -10,6 +10,23 @@ namespace TraderVI.Core.Tests;
 public sealed class IntradayEvidencePersistencePlannerTests
 {
     [Fact]
+    public void SupplementarySourceRecordsAreVisibleButCannotSupplyCompletedEvidence()
+    {
+        DateTime start = new(2026, 10, 13, 13, 30, 0, DateTimeKind.Utc);
+        var bar = Bar(start, 10m);
+        var batch = Batch(start, start.AddMinutes(8), bar) with
+        {
+            ExcludedSupplementaryTimestampsUtc = new[] { start.AddMinutes(4) },
+            ProviderReturnedPointCount = 2,
+            ProviderWindowStartUtc = start
+        };
+        var plan = IntradayEvidencePersistencePlanner.Create(Context(), batch, Array.Empty<StoredIntradayEvidenceBar>());
+        plan.AuditState.ShouldBe(IntradayPollAuditState.Valid);
+        plan.AuditCode.ShouldBe("SupplementarySourceRecordsExcluded");
+        plan.CompletedBars.ShouldBe(new[] { bar });
+        plan.NewBars.ShouldBe(new[] { bar });
+    }
+    [Fact]
     public void Create_StoresOnlyCompletedBarsAndKeepsExactRepeatsIdempotent()
     {
         DateTime startUtc = new(2026, 8, 26, 13, 30, 0, DateTimeKind.Utc);
