@@ -16,7 +16,7 @@ public sealed class TmxDelphiLiveMarketDataSource : IDelphiLiveMarketDataSource,
     public async Task<DelphiLiveMarketDataReceipt> GetExactFiveMinuteBarAsync(
         DelphiLiveMarketDataRequest request, CancellationToken cancellationToken = default)
     {
-        var batch = await client.GetIntradayTimeSeriesBatchAsync(request.Symbol, 5,
+        var batch = await client.GetIntradayObservationBatchAsync(request.Symbol, 5,
             request.BarStartUtc, request.BarEndUtc, cancellationToken);
         return FromBatch(request, batch);
     }
@@ -29,13 +29,16 @@ public sealed class TmxDelphiLiveMarketDataSource : IDelphiLiveMarketDataSource,
         var exact = batch.Bars.Where(b => b.TimestampUtc == request.BarStartUtc).ToArray();
         bool conflict = exact.Length > 1 && exact.Any(b => b != exact[0]);
         string disposition = conflict ? "StructurallyInvalid" : exact.Length > 0 ? "OperationalOnTime" :
-            batch.Bars.Any() && batch.Bars.Max(b => b.TimestampUtc) < request.BarStartUtc ? "StaleNoNewBar" : "NoCompletedBar";
+            (batch.ProviderLatestAlignedEventUtc ?? batch.LatestEventUtc) is DateTime latest && latest < request.BarStartUtc
+                ? "StaleNoNewBar" : "NoCompletedBar";
         return new(request, conflict ? null : exact.FirstOrDefault(), batch.ReceivedUtc, disposition)
         {
             ProviderAttemptCount = batch.AttemptCount,
             ProviderRequestCount = batch.RequestCount,
             ProviderFetchStartedUtc = batch.FetchStartedUtc,
             ProviderWindowStartUtc = batch.ProviderWindowStartUtc,
+            ProviderWindowEndUtc = batch.ProviderWindowEndUtc,
+            ProviderLatestAlignedEventUtc = batch.ProviderLatestAlignedEventUtc,
             ExcludedSupplementaryTimestampsUtc = batch.ExcludedSupplementaryTimestampsUtc.ToArray()
         };
     }

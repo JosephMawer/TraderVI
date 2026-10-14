@@ -1,6 +1,7 @@
 # ADR-0089: Stable TMX session context and explicit supplementary records
 
 - **Status:** Accepted; implemented/tested/installed, first refined scheduled cycle and current portfolio marks verified
+- **Follow-up:** Observation-time end context implemented; installation/operational qualification pending
 - **Date:** 2026-10-14
 - **Domains:** data-pipeline, data-sources, time-series
 - **Related:** ADR-0028, ADR-0030, ADR-0045
@@ -56,6 +57,30 @@ while the five-minute series omits later aligned buckets. There are no complete 
 components in these sparse samples; no missing minute is assumed to mean no trade. This corrects
 the initial quarantine's unnecessarily restrictive last-bucket boundary: excluded records remain
 unusable, absent exact bars remain absent, and independently aligned values are not modified.
+
+### Missing-bar follow-up: observed end context
+
+The operator subsequently requests the nine missing bars investigated and corrected where possible.
+The authorized 27-request October 14 comparison covers those nine stocks at intervals one/five,
+with five-minute request ends at 10:25 and 10:30. ARE's exact 10:20 bar appears only in the wider
+response; the other eight exact bars remain absent. Six stocks report no minute row in that bucket;
+CVO/PSI each report one. That does not prove no trades, and the sparse data cannot qualify a synthetic
+aggregate. All shared earlier aligned bars agree; the one changed WPK row starts at 10:25 and belongs
+to the following interval, outside the missing 10:20 bar. A retrospective read cannot prove receipt
+before the original deadline or repair that slot. Private evidence: `artifacts/live-missing-bars-20261014/`.
+
+Opt Delphi Live's exact-five-minute adapter into source context through the actual fetch-start minute
+when it is still inside the following interval, on the same regular-session date. Never request beyond
+observed fetch time or the regular close. Keep history, one-minute and ordinary diagnostic end bounds
+unchanged; older windows do not expand. Return only the original logical bounds, select only the exact
+requested completed bar, and retain every existing receipt/durability deadline, conflict and confidence
+check. No extra request or automatic retry is added. Following-interval bars cannot supply the earlier
+decision's price. Persist actual source end and latest aligned source timestamp as optional receipt
+metadata; source timestamps diagnose staleness but never substitute prices. Earlier aligned coverage
+is labelled StaleNoNewBar instead of generic NoCompletedBar when the exact bar is absent.
+
+This can address end-boundary omissions when subsequent source activity is already observable.
+It cannot create data for empty/unreported intervals or qualify a different feed or price fallback.
 
 ## Limits
 

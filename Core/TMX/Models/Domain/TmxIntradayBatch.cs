@@ -24,6 +24,9 @@ namespace Core.TMX.Models.Domain
 
         /// <summary>Actual provider window start, which may precede the logical requested window.</summary>
         public DateTime? ProviderWindowStartUtc { get; init; }
+        public DateTime? ProviderWindowEndUtc { get; init; }
+        /// <summary>Source coverage metadata only; never a substitute for the logical exact bar.</summary>
+        public DateTime? ProviderLatestAlignedEventUtc { get; init; }
         public int? ProviderReturnedPointCount { get; init; }
 
         /// <summary>The newest provider bar-start timestamp in the batch.</summary>

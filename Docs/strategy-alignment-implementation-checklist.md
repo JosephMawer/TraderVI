@@ -251,6 +251,9 @@ runtime/display development can proceed while native input qualification remains
    - [ ] Qualify continuing Live/Shadow collection and complete invested valuation through the agreed
      input path without loosening freshness or substituting a source. One recovered mark is not
      continuous coverage or qualification of the separate AI risk reader; the v3 review remains unqualified.
+   - [x] Investigate missing-bar coverage and implement/test live observation-time end context plus
+     stale-source receipt metadata (October 14, ADR-0089).
+   - [ ] Install/qualify that follow-up during scheduled collection; source gaps cannot become synthetic prices.
    - [ ] Use the unconsumed bounded-review authority once current inputs qualify; verify fresh v3 interpretation, unavailable-choice notices, original identities, SQL/local records and cost. No v3 model answer or qualified desktop installation yet.
    - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

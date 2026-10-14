@@ -84,6 +84,8 @@ public sealed record DelphiLiveMarketDataReceipt(
     public int? ProviderRequestCount { get; init; }
     public DateTime? ProviderFetchStartedUtc { get; init; }
     public DateTime? ProviderWindowStartUtc { get; init; }
+    public DateTime? ProviderWindowEndUtc { get; init; }
+    public DateTime? ProviderLatestAlignedEventUtc { get; init; }
     public IReadOnlyList<DateTime> ExcludedSupplementaryTimestampsUtc { get; init; } = Array.Empty<DateTime>();
 }
 

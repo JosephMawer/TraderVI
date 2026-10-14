@@ -12,6 +12,11 @@ current portfolio marks recover. Passive tracing and the authorized four-request
 remaining failures from trailing records after missing buckets; the sparse refinement is installed
 and its first scheduled cycle has zero CollectionFailed receipts and complete current Live marks.
 Missing stock bars and fifteen-minute canonical conflicts prevent complete coverage qualification.
+The subsequent nine-stock/27-request comparison finds one request-end omission and eight still
+missing exact intervals. Six have no reported minute records; CVO/PSI each have one. Neither proves
+no trades or supports inventing a bar. The observation-time end correction and explicit stale-source
+metadata are built/tested, awaiting installation and prospective qualification. Qualify availability
+for sparse stocks through an explicit source contract; a wider read cannot repair earlier deadlines.
 Qualify continuing capacity/held-stock freshness without accepting ambiguous rows, inventing
 bars, clearing conflicts or rewriting historical gaps. See project status for actual operational
 evidence; this follow-up grants no additional provider requests or database repair.

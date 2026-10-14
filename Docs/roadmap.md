@@ -85,8 +85,10 @@ implemented stable-context and supplementary-record correction (ADR-0089); the n
 also identifies receipt-clock rejection, corrected with actual-store-time waiting. Both fixes are
 tested and installed; scheduled Live cycles and current portfolio marks recover. The sparse trailing-
 record refinement is installed and its first scheduled cycle has zero CollectionFailed receipts;
-missing exact bars and historical/canonical conflicts remain explicit. Next qualify continuing
-collection and held-stock valuation through
+missing exact bars and historical/canonical conflicts remain explicit. The nine-stock follow-up
+identifies an end-boundary omission plus unavailable sparse intervals; the tested observation-time
+end correction and stale-source metadata await installation/qualification (ADR-0089). Then qualify
+continuing collection and held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain

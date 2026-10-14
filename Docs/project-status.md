@@ -1,74 +1,49 @@
 # TraderVI Project Status
 
-**Current record: October 14, 2026.** The Delphi Live source/monitor correction is implemented,
-tested and installed under restart authority (initial build 09:56; sparse refinement 10:21 Toronto).
-The refined 10:25 endpoint completes with 33/42 usable receipts, nine NoCompletedBar and zero
-CollectionFailed. At 10:29, all three Live portfolios have complete current 10:25 marks and the
-17 Shadow positions have same-day 10:20 prices. WPF is responsive with one lease and a renewed
-heartbeat; no private whole-monitor failure log was created. Missing bars, source conflicts and
-historical gaps still prevent complete/clean-session coverage qualification.
-[ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md) governs stable TMX
-session context, explicit exclusion of supplementary off-grid records, preserved strict evidence
-checks and a bounded wait for actual SQL time. Historical gaps and trading rules remain unchanged.
-AI review/trading activation and continuous invested coverage remain unqualified.
+**Current follow-up, October 14, 2026:** the nine missing bars are investigated; a narrow live
+request-end correction and clearer stale-source metadata are implemented/tested, awaiting WPF
+installation and scheduled qualification. The previously installed exception/clock correction
+continues collecting: SELECT-only evidence at 10:38 records three completed 10:25/10:30/10:35
+cycles with zero CollectionFailed, but nine/ten/nine missing exact bars. ARE, PSI and YGR from the
+original missing group supply usable later bars; the group is not a permanently failed stock list.
 
-**Delphi Live correction, October 14:** the authorized six-request full-session comparison for
-October 13 QTRH/XIU provides 69 complete five-minute OHLCV aggregates matching all five minute
-components, with zero mismatches. Production and website chart requests both provide aligned
-aggregates; XIU also has one trailing off-grid record, whose meaning is not assumed. New requests
-use same-date Eastern 09:30 source context and retain the original logical window. Supplementary
-records supply no price; interior anomalies, invalid values, duplicates and existing freshness/
-durability checks still block. Receipt metadata records source bounds/exclusions, and ordinary poll
-audits expose exclusion. Current-cycle warnings replace old collection warnings while session gaps
-remain visible. This supersedes the earlier unqualified selective-acceptance conclusion for this
-tested correction; it does not establish every historical provider response or exact Shadow failure.
+The authorized 27-request comparison completes at 10:42 with zero retries or transport/GraphQL
+failures. For the original 10:20–10:25 bar, ARE's aligned record appears only when source context
+extends to 10:30. The other eight exact bars remain absent: six have zero reported minute records
+in that bucket; CVO/PSI each have one. Absence is not proof of no trades. There are no complete
+five-minute component comparisons for these missing intervals. Earlier shared aligned bars agree;
+the changed WPK row starts at 10:25, in the following interval. Later retrieval cannot repair an
+original on-time slot. See [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md).
 
-The opening native exception trace identifies SQL error 52216, receipt time later than the durable
-store clock. Twenty SELECT-only samples show 17 client-ahead observations, up to 12.9225 ms, with
-zero parameter-binding loss. Twenty fresh observations pass the new barrier and unchanged SQL
-causal check. Receipt/evaluation persistence now waits outside transactions for actual SQL time;
-timestamps and SQL guards are unchanged. Private bounded failure metadata captures remaining tick
-failures without arbitrary messages, prices, account values or credentials.
+Delphi Live now opts into same-session source context only through the observed fetch-start minute,
+inside the next interval and bounded by the regular close. Logical bounds, exact completed prices,
+deadline/durability/conflict/confidence checks and request counts remain unchanged. History and
+ordinary diagnostics retain their existing API/end bounds. Actual source end and latest aligned
+source time persist as optional receipt JSON metadata; an older source is labelled StaleNoNewBar
+without substituting that price. No synthetic minute/five-minute bars or new feed are introduced.
 
-Validation: .NET 10.0.401; final Core suite 2,394 passed and eight opt-in native tests skipped;
-Release WPF project build succeeds with 260 compiler warnings and no errors. An earlier broad run
-had one AI deadline test timeout; isolated and subsequent full reruns passed. No full-solution/SSDT
-build or fresh dependency-security audit. Offline saved-response replay accepts 43 QTRH/78 XIU
-aligned bars and excludes zero/one supplementary records. Installation replaces five checksum-
-verified binaries with unchanged dependency/runtime manifests and a saved rollback copy. At 09:58,
-WPF is responsive, owns one lease and has a fresh heartbeat; the restart-crossing slot retains its
-HostCoverageGap. The 10:00/10:05 bar endpoints complete at 10:02/10:07, each with 32/42 usable
-receipts, and save 246 policy evaluations (186 on-time observations). All three Live portfolios have
-complete exact current marks at both endpoints. Shadow positions advance from zero to all twelve
-with today's prices; by 10:09 its 17 open positions all have today's marks as normal paper operation
-continues. No private whole-monitor failure record is created. The third endpoint has four failed
-requests and five missing exact bars; a complete passive trace correlates all four failures to
-alignment guards, with no SQL exception. New persisted bars have
-zero checked OHLC/volume or alignment violations; fifteen-minute CompletedBarConflict remains
-blocked. These two cycles establish prospective recovery, not continuous capacity or clean-session
-qualification. Historical incomplete opening/previous-close values and host gaps are retained.
+Validation: 77 focused tests pass; final Core suite 2,405 pass/eight native skips; Release WPF project
+build succeeds with 260 existing compiler warnings and no errors. One initial full run timed out in
+an AI host-loop stop test; the isolated test and two later full runs pass. The new isolated artifact
+path lacked restored assets; validation reused the already restored test-build path. No fresh
+dependency-security audit or full-solution/SSDT build. WPF installation/operation for this follow-up
+is pending; no app restart, SQL mutation/backfill, training, AI call or broker order was run. The
+27-request authorization is consumed. Private evidence: `artifacts/live-missing-bars-20261014/`.
 
-The separately authorized four-request DXT/WPK comparison through 10:10 identifies trailing
-off-grid records beyond missing aligned buckets, exactly matching same-minute OHLCV. Sparse minute
-responses provide no complete five-minute comparisons; absence is not proof of no trades. The
-initial same-bucket quarantine boundary was unnecessarily restrictive and is corrected: any trailing
-off-grid minute record is excluded, while interior anomalies still reject. Exact bars remain required.
-Offline replay keeps five DXT/four WPK aligned bars and excludes one each. Final refinement validation:
-2,395 Core tests pass, eight native skips; Release WPF project build passes (260 compiler warnings,
-zero errors). The first added fixture had mismatched logical-window metadata, corrected before this
-pass. The same AI deadline test timed out in the parallel full run; the serial full rerun passes.
-The refinement is installed at 10:21:52 with verified matching binaries and unchanged runtime
-manifests. At 10:28, its first scheduled collection settles all 42 slots: 33 OperationalOnTime,
-nine NoCompletedBar, zero CollectionFailed; 13 supplementary records are explicitly excluded.
-Forty new five-minute and one fifteen-minute bars have zero checked OHLC/volume or alignment
-violations. By 10:29:56, the 10:25 policy evaluations and all three complete current portfolio marks
-are saved; Shadow has same-day prices for all 17 current positions. One lease/fresh heartbeat and
-responsive installed modules are verified; no private whole-monitor failure record is created.
-Restart-crossing gaps and earlier missing opening/closing values remain. Both bounded provider
-grants are consumed; all temporary traces are stopped. Local source commits: `883d0a94`, `1837ff07`.
-No migration, backfill, manual tick, model training, AI generation or broker order was requested.
-Private evidence: `artifacts/live-collection-fix-20261014/` (comparison, clock checks, final tests/
-build, install receipt and SELECT-only health snapshots). The six-request grant is consumed.
+The following installed milestone preserves the earlier October 14 verification and its limits.
+
+**Earlier installed milestone, October 14:** source/clock fixes were installed at 09:56/10:21 Toronto.
+The 10:25 endpoint settled 42 slots: 33 usable, nine missing and zero CollectionFailed. At 10:29 all
+three Live books had complete current 10:25 marks; all 17 Shadow positions had same-day 10:20 prices.
+One lease, fresh heartbeat, responsive modules and no private whole-monitor failure record were
+verified. Historical host gaps and missing opening/closing marks remain. The first six-request
+comparison matched 69 complete five-minute OHLCV aggregates; the opening trace identified SQL
+52216, and 20 SELECT-only measurements showed up to 12.9225 ms SQL/.NET clock lag with zero binding
+loss. Original timestamps and strict SQL guards remain unchanged. Native causal checks pass 20/20.
+The subsequent four-request comparison qualified trailing-record handling across sparse gaps; both
+earlier provider grants are consumed. Detailed installation/validation receipts remain in
+`artifacts/live-collection-fix-20261014/README.md`; source commits `883d0a94`, `1837ff07` and
+verification commit `e61c833b`. Continuous coverage and clean promotion are unqualified.
 
 The following October 9 record preserves the prior AI-review milestone and diagnostic history;
 its collection-correction next step is superseded by the October 14 record above.

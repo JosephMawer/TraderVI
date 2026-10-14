@@ -23,6 +23,13 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: Does a missing minute record prove that no trades occurred in that minute?
+
+A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source
+contract, do not invent a flat bar, aggregate incomplete minutes or give an old price a new time.
+
+Tags: data-sources, time-series. Source: ADR-0030, ADR-0089.
+
 ### Q: Can a trailing off-grid TMX record become a five-minute price bar?
 
 A: No. It is explicitly excluded with its timestamp retained for audit. Only independently aligned,

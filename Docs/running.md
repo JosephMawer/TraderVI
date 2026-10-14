@@ -820,6 +820,12 @@ values are omitted. A missing log alone does not prove healthy collection; verif
 evaluations, portfolio updates and renewed ownership. Current-cycle warnings can clear after recovery,
 while recorded host gaps remain. See [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md).
 
+The live exact-bar adapter explicitly requests context through its observed fetch-start minute when
+that falls inside the following regular-session interval. History and ordinary diagnostic end bounds
+remain unchanged. Receipt JSON records actual provider end and latest aligned source time separately
+from the logical completed-bar request. StaleNoNewBar describes older source coverage; it supplies no
+substitute price. Missing/unreported minutes never justify a synthetic bar (ADR-0030/ADR-0089).
+
 The reviewed local calendar was installed on 2026-09-06. The current Windows user's
 `TRADERVI_TSX_CALENDAR_PATH` points to
 `C:\src\TraderVI\Operations\Calendars\tsx-2026-through-20261223-v1.json`.

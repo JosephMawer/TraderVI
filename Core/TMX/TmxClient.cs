@@ -28,6 +28,7 @@ namespace Core.TMX
         private readonly GraphQLHttpClient _graphClient;
         private readonly HttpClient _httpClient;
         private readonly HttpMessageHandler _handler;
+        private readonly Func<DateTime> _utcNow;
         private static readonly Uri GraphQLEndpoint = new("https://app-money.tmx.com/graphql");
         private static readonly TimeZoneInfo TmxEasternTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
@@ -41,10 +42,11 @@ namespace Core.TMX
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
         }) { }
 
-        internal TmxClient(HttpMessageHandler handler)
+        internal TmxClient(HttpMessageHandler handler, Func<DateTime> utcNow = null)
         {
             ArgumentNullException.ThrowIfNull(handler);
             _handler = handler;
+            _utcNow = utcNow ?? (() => DateTime.UtcNow);
 
             _httpClient = new HttpClient(_handler, disposeHandler: false)
             {
@@ -96,14 +98,26 @@ namespace Core.TMX
         /// receipt metadata. Use this method when the evidence will drive a
         /// delayed decision or be persisted for later replay.
         /// </summary>
-        public async Task<TmxIntradayBatch> GetIntradayTimeSeriesBatchAsync(
+        public Task<TmxIntradayBatch> GetIntradayTimeSeriesBatchAsync(
             string symbol,
             int interval,
             DateTime startDateTime,
             DateTime? endDateTime = null,
-            CancellationToken ct = default)
+            CancellationToken ct = default) =>
+            GetIntradayBatchCoreAsync(symbol, interval, startDateTime, endDateTime, ct, false);
+
+        /// <summary>Live-only context through observed fetch time; logical bar bounds remain exact.</summary>
+        public Task<TmxIntradayBatch> GetIntradayObservationBatchAsync(
+            string symbol, int interval, DateTime startDateTime, DateTime endDateTime,
+            CancellationToken ct = default) =>
+            GetIntradayBatchCoreAsync(symbol, interval, startDateTime, endDateTime, ct, true);
+
+        private async Task<TmxIntradayBatch> GetIntradayBatchCoreAsync(
+            string symbol, int interval, DateTime startDateTime, DateTime? endDateTime,
+            CancellationToken ct, bool includeObservationContext)
         {
-            var result = await GetIntradayTimeSeriesDiagnosticAsync(symbol, interval, startDateTime, endDateTime, ct);
+            var result = await GetIntradayDiagnosticCoreAsync(symbol, interval, startDateTime, endDateTime, ct,
+                null, includeObservationContext);
             if (!result.SourceDataPresent)
                 throw new InvalidOperationException("TMX intraday source data unavailable.");
             return result.Batch;
@@ -114,26 +128,34 @@ namespace Core.TMX
         /// Source points are unvalidated provider DTOs, not eligible price evidence. Missing/null fields
         /// do not establish a halt or no trading. No additional request is made for these diagnostics.
         /// </summary>
-        public async Task<(TmxIntradayBatch Batch, bool SourceDataPresent, IReadOnlyList<TmxTimeSeriesPointDto> SourcePoints)>
+        public Task<(TmxIntradayBatch Batch, bool SourceDataPresent, IReadOnlyList<TmxTimeSeriesPointDto> SourcePoints)>
             GetIntradayTimeSeriesDiagnosticAsync(
                 string symbol,
                 int interval,
                 DateTime startDateTime,
                 DateTime? endDateTime = null,
                 CancellationToken ct = default,
-                Action<TmxIntradayTimestampInspection> inspectTimestamps = null)
+                Action<TmxIntradayTimestampInspection> inspectTimestamps = null) =>
+            GetIntradayDiagnosticCoreAsync(symbol, interval, startDateTime, endDateTime, ct, inspectTimestamps, false);
+
+        private async Task<(TmxIntradayBatch Batch, bool SourceDataPresent, IReadOnlyList<TmxTimeSeriesPointDto> SourcePoints)>
+            GetIntradayDiagnosticCoreAsync(string symbol, int interval, DateTime startDateTime,
+                DateTime? endDateTime, CancellationToken ct,
+                Action<TmxIntradayTimestampInspection> inspectTimestamps, bool includeObservationContext)
         {
-            DateTime fetchStartedUtc = DateTime.UtcNow;
+            DateTime fetchStartedUtc = _utcNow();
             DateTime providerStartUtc = IntradayProviderStart(interval, startDateTime);
+            DateTime? providerEndUtc = includeObservationContext
+                ? IntradayProviderEnd(interval, endDateTime, fetchStartedUtc) : endDateTime;
             GraphQLRequest request = BuildIntradayTimeSeriesRequest(
                 symbol,
                 interval,
                 providerStartUtc,
-                endDateTime);
+                providerEndUtc);
 
             RetryResult<GraphQLResponse<IntradaySourceResponse>> transport =
                 await SendQueryWithRetryAsync<IntradaySourceResponse>(request, ct);
-            DateTime receivedUtc = DateTime.UtcNow;
+            DateTime receivedUtc = _utcNow();
             GraphQLResponse<IntradaySourceResponse> response = transport.Value;
             if (response.Errors is { Length: > 0 })
                 throw new InvalidOperationException(
@@ -155,7 +177,7 @@ namespace Core.TMX
                 bars,
                 interval,
                 providerStartUtc,
-                endDateTime);
+                providerEndUtc);
 
             DateTime requestedStartUtc = FloorToUtcMinute(startDateTime);
             DateTime requestedEndUtc = endDateTime.HasValue
@@ -175,6 +197,8 @@ namespace Core.TMX
                     bar.TimestampUtc <= requestedEndUtc).ToArray())
             {
                 ProviderWindowStartUtc = providerStartUtc,
+                ProviderWindowEndUtc = providerEndUtc.HasValue ? FloorToUtcMinute(providerEndUtc.Value) : null,
+                ProviderLatestAlignedEventUtc = normalized.Bars.Count == 0 ? null : normalized.Bars[^1].TimestampUtc,
                 ProviderReturnedPointCount = sourcePoints.Count,
                 ExcludedSupplementaryTimestampsUtc = normalized.ExcludedTimestamps
             };
@@ -268,6 +292,26 @@ namespace Core.TMX
             return local > open && local.TimeOfDay < TimeSpan.FromHours(16)
                 ? TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(open, DateTimeKind.Unspecified), TmxEasternTimeZone)
                 : utc;
+        }
+
+        // Opt-in live context can expose the last completed aggregate instead of
+        // a trailing minute snapshot. Never request beyond fetch time, widen old
+        // historical windows, or change the logical bar selected by the caller.
+        internal static DateTime? IntradayProviderEnd(int interval, DateTime? requestedEnd, DateTime fetchStartedUtc)
+        {
+            ValidateIntradayInterval(interval);
+            if (!requestedEnd.HasValue || interval == 1) return requestedEnd;
+            if (fetchStartedUtc.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("Fetch observation time must be UTC.", nameof(fetchStartedUtc));
+            DateTime end = FloorToUtcMinute(requestedEnd.Value);
+            if (fetchStartedUtc < end || fetchStartedUtc >= end.AddMinutes(interval)) return end;
+            DateTime localEnd = TimeZoneInfo.ConvertTimeFromUtc(end, TmxEasternTimeZone);
+            DateTime localFetch = TimeZoneInfo.ConvertTimeFromUtc(fetchStartedUtc, TmxEasternTimeZone);
+            if (localEnd.Date != localFetch.Date || localEnd.TimeOfDay < new TimeSpan(9, 30, 0) ||
+                localEnd.TimeOfDay >= new TimeSpan(16, 0, 0)) return end;
+            DateTime close = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(localEnd.Date.AddHours(16), DateTimeKind.Unspecified), TmxEasternTimeZone);
+            return new DateTime(System.Math.Min(FloorToUtcMinute(fetchStartedUtc).Ticks, close.Ticks), DateTimeKind.Utc);
         }
 
         internal static (List<OhlcvBar> Bars, DateTime[] ExcludedTimestamps) NormalizeIntradaySource(

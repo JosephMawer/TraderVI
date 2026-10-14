@@ -215,11 +215,13 @@ ORDER BY old.SessionOpenUtc;
              P("@ReceiptJson", SqlDbType.NVarChar, JsonSerializer.Serialize(new
                  { receipt.Request, receipt.ExactCompletedBar, receipt.ReceivedUtc, receipt.Disposition,
                    receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc,
-                   receipt.ProviderWindowStartUtc, receipt.ExcludedSupplementaryTimestampsUtc }), -1),
+                   receipt.ProviderWindowStartUtc, receipt.ProviderWindowEndUtc, receipt.ProviderLatestAlignedEventUtc,
+                   receipt.ExcludedSupplementaryTimestampsUtc }), -1),
              P("@ReceiptHash", SqlDbType.Binary, SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new
                  { receipt.Request, receipt.ExactCompletedBar, receipt.ReceivedUtc, receipt.Disposition,
                    receipt.ProviderAttemptCount, receipt.ProviderRequestCount, receipt.ProviderFetchStartedUtc,
-                   receipt.ProviderWindowStartUtc, receipt.ExcludedSupplementaryTimestampsUtc }))), 32),
+                   receipt.ProviderWindowStartUtc, receipt.ProviderWindowEndUtc, receipt.ProviderLatestAlignedEventUtc,
+                   receipt.ExcludedSupplementaryTimestampsUtc }))), 32),
              P("@Provider", SqlDbType.NVarChar, IntradayEvidenceVersions.Provider, 32),
              P("@SourceContract", SqlDbType.NVarChar, IntradayEvidenceVersions.SourceContract, 64)],
             async reader =>
