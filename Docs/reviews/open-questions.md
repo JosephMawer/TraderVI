@@ -9,9 +9,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ADR-0089's initial correction is implemented/tested/installed. Three normal Live cycles complete and
 current portfolio marks recover. Passive tracing and the authorized four-request comparison identify
-remaining failures from trailing records after missing buckets; the sparse refinement is tested,
-awaiting installation/verification. Missing stock bars and fifteen-minute canonical conflicts prevent
-complete coverage qualification. Qualify continuing capacity/held-stock freshness without accepting ambiguous rows, inventing
+remaining failures from trailing records after missing buckets; the sparse refinement is installed
+and its first scheduled cycle has zero CollectionFailed receipts and complete current Live marks.
+Missing stock bars and fifteen-minute canonical conflicts prevent complete coverage qualification.
+Qualify continuing capacity/held-stock freshness without accepting ambiguous rows, inventing
 bars, clearing conflicts or rewriting historical gaps. See project status for actual operational
 evidence; this follow-up grants no additional provider requests or database repair.
 

@@ -44,7 +44,9 @@ See [dated evidence](project-status.md) for counts and validation limits.
 - [x] Observe three completed scheduled cycles, policy evaluation persistence, complete current Live
   marks and all current Shadow positions with same-day prices after the initial restart (October 14).
 - [x] Identify/test the sparse trailing-record refinement using the authorized four-request comparison.
-- [ ] Install and verify the sparse refinement during normal scheduled operation.
+- [x] Install the sparse refinement and verify its first scheduled collection/evaluations, complete
+  current portfolio marks, zero CollectionFailed receipts and explicit missing bars (October 14,
+  checked 10:28–10:29 Toronto; project status owns counts/limits).
 - [ ] Qualify continuing provider capacity, complete invested coverage and a clean future session.
 
 Further provider probes need authorization. Current warnings replace previous-cycle collection errors,

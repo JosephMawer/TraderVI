@@ -1,6 +1,6 @@
 # ADR-0089: Stable TMX session context and explicit supplementary records
 
-- **Status:** Accepted; initial installation/recovery observed, sparse refinement tested awaiting installation
+- **Status:** Accepted; implemented/tested/installed, first refined scheduled cycle and current portfolio marks verified
 - **Date:** 2026-10-14
 - **Domains:** data-pipeline, data-sources, time-series
 - **Related:** ADR-0028, ADR-0030, ADR-0045
@@ -60,7 +60,8 @@ unusable, absent exact bars remain absent, and independently aligned values are 
 ## Limits
 
 The bounded aggregate comparison does not prove all histories, continuous live capacity or fresh
-account valuation. Native installation/resumption is a separate step. The opening trace establishes
+account valuation. Installation/resumption and one refined cycle are verified October 14; continued
+capacity and clean-session coverage remain separate. The opening trace establishes
 one whole-monitor cause; it does not explain every earlier failure. Remaining failures retain bounded
 diagnostic records rather than being presumed cured.
 

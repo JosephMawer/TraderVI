@@ -246,8 +246,11 @@ runtime/display development can proceed while native input qualification remains
    - [x] Identify native receipt-clock rejection, test actual-store-time waiting and install the corrected WPF build under restart authority (October 14; source validation and limits in project status).
    - [x] Observe three completed Live cycles and current held-value recovery after restart; identify/test
      sparse trailing-record handling with the separately authorized four-request comparison (October 14).
-   - [ ] Install/verify the sparse refinement; preserve absent exact bars and canonical conflicts.
-   - [ ] Verify normal scheduled Live/Shadow collection and restore qualified held-stock valuation without loosening freshness or substituting an unqualified source. Historical Shadow failures are not all proven; continuous invested coverage and the v3 review remain unqualified.
+   - [x] Install/verify the sparse refinement's first scheduled cycle, complete current Live marks and
+     continuing Shadow held-price updates (October 14); absent exact bars and canonical conflicts remain.
+   - [ ] Qualify continuing Live/Shadow collection and complete invested valuation through the agreed
+     input path without loosening freshness or substituting a source. One recovered mark is not
+     continuous coverage or qualification of the separate AI risk reader; the v3 review remains unqualified.
    - [ ] Use the unconsumed bounded-review authority once current inputs qualify; verify fresh v3 interpretation, unavailable-choice notices, original identities, SQL/local records and cost. No v3 model answer or qualified desktop installation yet.
    - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.
    - [ ] Revisit dated/incomplete-input review handling only if it blocks integration; retain current checks for now and keep input preparation separate from coordination.

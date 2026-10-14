@@ -1,10 +1,12 @@
 # TraderVI Project Status
 
 **Current record: October 14, 2026.** The Delphi Live source/monitor correction is implemented,
-tested and initially installed under restart authority at 09:56 Toronto. Three scheduled cycles
-complete with 32/42, 32/42 and 33/42 usable receipts; current marks for all three Live portfolios
-are complete at the first two endpoints. A sparse-response refinement is tested and awaiting
-installation. Missing bars and source conflicts still prevent full coverage qualification.
+tested and installed under restart authority (initial build 09:56; sparse refinement 10:21 Toronto).
+The refined 10:25 endpoint completes with 33/42 usable receipts, nine NoCompletedBar and zero
+CollectionFailed. At 10:29, all three Live portfolios have complete current 10:25 marks and the
+17 Shadow positions have same-day 10:20 prices. WPF is responsive with one lease and a renewed
+heartbeat; no private whole-monitor failure log was created. Missing bars, source conflicts and
+historical gaps still prevent complete/clean-session coverage qualification.
 [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md) governs stable TMX
 session context, explicit exclusion of supplementary off-grid records, preserved strict evidence
 checks and a bounded wait for actual SQL time. Historical gaps and trading rules remain unchanged.
@@ -55,8 +57,15 @@ Offline replay keeps five DXT/four WPK aligned bars and excludes one each. Final
 2,395 Core tests pass, eight native skips; Release WPF project build passes (260 compiler warnings,
 zero errors). The first added fixture had mismatched logical-window metadata, corrected before this
 pass. The same AI deadline test timed out in the parallel full run; the serial full rerun passes.
-Refinement installation and scheduled verification remain pending. Both bounded provider grants
-are consumed; all temporary traces are stopped.
+The refinement is installed at 10:21:52 with verified matching binaries and unchanged runtime
+manifests. At 10:28, its first scheduled collection settles all 42 slots: 33 OperationalOnTime,
+nine NoCompletedBar, zero CollectionFailed; 13 supplementary records are explicitly excluded.
+Forty new five-minute and one fifteen-minute bars have zero checked OHLC/volume or alignment
+violations. By 10:29:56, the 10:25 policy evaluations and all three complete current portfolio marks
+are saved; Shadow has same-day prices for all 17 current positions. One lease/fresh heartbeat and
+responsive installed modules are verified; no private whole-monitor failure record is created.
+Restart-crossing gaps and earlier missing opening/closing values remain. Both bounded provider
+grants are consumed; all temporary traces are stopped. Local source commits: `883d0a94`, `1837ff07`.
 No migration, backfill, manual tick, model training, AI generation or broker order was requested.
 Private evidence: `artifacts/live-collection-fix-20261014/` (comparison, clock checks, final tests/
 build, install receipt and SELECT-only health snapshots). The six-request grant is consumed.
@@ -612,7 +621,7 @@ existing input qualification requirements remain in place.
 | Backups | Oct 12/13 nightly receipts; hashes checked Oct 13 morning | Independent SHA-256 reads match all four retained local files to their runner receipts. Both logs record successful SQL checksum verification; each location retains exactly Oct 12 and Oct 13. Sizes are 2,378,721,792 / 2,379,421,696 bytes. Older runs' receipts remain, but retained-file verification covers only these two. Cloud synchronization, independent download and test restore remain unverified. |
 | Delphi Live | Oct 13, SQL 11:05 and 11:09 | Existing Release WPF PID 30836 (started Oct 9) is responsive in five 11:06 samples, with one renewed Live lease. All three ledgers use today's session. By 11:09, twelve cycles completed and seven were Cancelled / Failed; 333/726 settled slots are usable, 147 CollectionFailed, 65 NoCompletedBar and 181 UnfinishedCollection. Nine continuity epochs show eight monitor recoveries within the still-running app. After the failed 11:00 cycle, 11:05 completed at 11:08 with 21/39 usable receipts and further ledger events. Progress does not qualify uninterrupted operation. |
 | System Shadow | Oct 13, checked 11:05–11:09 | All twelve active sessions adopted today's source through revisions. Twelve open positions have same-day prices, spanning 09:45–10:50 in the final snapshot; freshness/protection is not qualified. One Buy fill exists with no checked timing violation and no pending orders. Many five-/fifteen-minute fetch failures, MissingEvidence candidates and one fifteen-minute CompletedBarConflict persist. The repeat snapshot has 361 five-minute and five fifteen-minute bars, with zero failures of the checked price/volume predicates. |
-| Live correction / current host | Oct 14: installed 09:56; heartbeat/ownership 09:58 | Stable TMX context/supplementary exclusion and actual-SQL-time waiting are implemented/tested and installed (ADR-0089). Native opening trace identifies receipt-clock rejection; historical gaps and every earlier failure are not repaired/explained. Responsive WPF owns one lease; next verify normal cycles, evaluations and held-price/portfolio recovery. Private evidence: `artifacts/live-collection-fix-20261014/README.md`. |
+| Live correction / current host | Oct 14: installed 09:56/10:21; verified 10:28–10:29 | ADR-0089 correction and sparse refinement installed. Refined 10:25 endpoint: 42 settled, 33 usable, nine NoCompletedBar, zero CollectionFailed; 13 source supplements excluded. All three Live books have complete current 10:25 marks; all 17 Shadow positions have same-day 10:20 prices. Responsive WPF owns one renewed lease, no private whole-monitor failure record. Historical gaps, missing opening/closing marks, absent bars and canonical conflicts remain; continuous coverage/clean promotion unqualified. Private evidence: `artifacts/live-collection-fix-20261014/README.md`. |
 | Broker risk/session storage | Sep 22, 23:34:11 | Authorized migrations 035/039/040 installed after a fresh verified backup/copy. Three empty tables, three enabled immutable triggers, eight trusted foreign keys, three trusted checks and six native zero-row update/delete rejections verified. Linked binding/import and report/promotion counts and hashes unchanged. No baseline/session created. |
 
 Private evidence directories: `artifacts/nightly-readiness-20261013/` (latest four-night and current runtime check), `artifacts/nightly-readiness-20261009/`, `artifacts/nightly-readiness-20261007/`, `artifacts/nightly-readiness-20261006/`, `artifacts/nightly-readiness-20261002/`, `artifacts/nightly-readiness-20260930/`, `artifacts/nightly-readiness-20260924/`, `artifacts/nightly-readiness-20260922/`, `artifacts/app-health-20260922/`,

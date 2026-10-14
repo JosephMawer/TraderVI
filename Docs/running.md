@@ -810,7 +810,15 @@ The frozen design is [Delphi Live V1](concepts/delphi-live.md); source and valid
 status separately from activation. Migrations 022, 023, 024 and 025 were separately authorized and
 applied in order on 2026-09-06 after a checksum-verified full backup and a hash-matched OneDrive copy
 reported synced by Windows. Schema and preservation checks passed, and `DBCC CHECKDB` reported no
-errors. Delphi Live remains inactive. Building the SQL project alone does not apply a migration.
+errors. That initial installation was inactive; current operation and qualification are recorded in
+[project status](project-status.md). Building the SQL project alone does not apply a migration.
+
+Desktop tick failures append private metadata to
+`%LOCALAPPDATA%\TraderVI\Diagnostics\delphi-live-failures.jsonl`: error type/HResult, SQL error
+numbers and bounded Core method locations. Arbitrary messages, provider bodies, SQL and account
+values are omitted. A missing log alone does not prove healthy collection; verify scheduled receipts,
+evaluations, portfolio updates and renewed ownership. Current-cycle warnings can clear after recovery,
+while recorded host gaps remain. See [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md).
 
 The reviewed local calendar was installed on 2026-09-06. The current Windows user's
 `TRADERVI_TSX_CALENDAR_PATH` points to
@@ -1029,8 +1037,11 @@ client request/mapping/validation, once per target, and captures a timestamp-onl
 validation. It reports source count, up to the first 32 source timestamps, field completeness, mapped
 UTC times and bounded mapping-error types. Only recognized date syntax is printed; arbitrary text is
 redacted. Transport attempts remain available if the provider response reached inspection. Incomplete
-rows cannot become bars; the original validator still rejects malformed/off-grid data and no source
-rows are removed or rounded. This mode does not make additional provider calls to inspect failures.
+rows cannot become bars. ADR-0089's normal source path uses same-date regular-session context,
+returns only the logical requested window and excludes trailing off-grid records explicitly;
+interior off-grid and malformed data still reject. Excluded timestamps are retained in receipt
+metadata and never rounded or used as prices. Timestamp inspection remains an unfiltered source
+copy and cannot change that acceptance contract. This mode makes no additional provider calls.
 It performs no SQL, journal writes, monitor ticks, AI calls or trading. A later successful request
 does not identify an earlier exception or repair saved collection gaps. It is never an automatic retry
 or routine validation command; external-service authorization is required before invocation.
