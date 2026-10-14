@@ -1,8 +1,11 @@
 # TraderVI Project Status
 
 **Current record: October 14, 2026.** The Delphi Live source/monitor correction is implemented,
-tested and installed under restart authority at 09:56 Toronto. Scheduled recovery verification is
-pending. [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md) governs stable TMX
+tested and initially installed under restart authority at 09:56 Toronto. Three scheduled cycles
+complete with 32/42, 32/42 and 33/42 usable receipts; current marks for all three Live portfolios
+are complete at the first two endpoints. A sparse-response refinement is tested and awaiting
+installation. Missing bars and source conflicts still prevent full coverage qualification.
+[ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md) governs stable TMX
 session context, explicit exclusion of supplementary off-grid records, preserved strict evidence
 checks and a bounded wait for actual SQL time. Historical gaps and trading rules remain unchanged.
 AI review/trading activation and continuous invested coverage remain unqualified.
@@ -32,7 +35,28 @@ build or fresh dependency-security audit. Offline saved-response replay accepts 
 aligned bars and excludes zero/one supplementary records. Installation replaces five checksum-
 verified binaries with unchanged dependency/runtime manifests and a saved rollback copy. At 09:58,
 WPF is responsive, owns one lease and has a fresh heartbeat; the restart-crossing slot retains its
-HostCoverageGap. Next observe normal collection, evaluations and held-price/portfolio updates.
+HostCoverageGap. The 10:00/10:05 bar endpoints complete at 10:02/10:07, each with 32/42 usable
+receipts, and save 246 policy evaluations (186 on-time observations). All three Live portfolios have
+complete exact current marks at both endpoints. Shadow positions advance from zero to all twelve
+with today's prices; by 10:09 its 17 open positions all have today's marks as normal paper operation
+continues. No private whole-monitor failure record is created. The third endpoint has four failed
+requests and five missing exact bars; a complete passive trace correlates all four failures to
+alignment guards, with no SQL exception. New persisted bars have
+zero checked OHLC/volume or alignment violations; fifteen-minute CompletedBarConflict remains
+blocked. These two cycles establish prospective recovery, not continuous capacity or clean-session
+qualification. Historical incomplete opening/previous-close values and host gaps are retained.
+
+The separately authorized four-request DXT/WPK comparison through 10:10 identifies trailing
+off-grid records beyond missing aligned buckets, exactly matching same-minute OHLCV. Sparse minute
+responses provide no complete five-minute comparisons; absence is not proof of no trades. The
+initial same-bucket quarantine boundary was unnecessarily restrictive and is corrected: any trailing
+off-grid minute record is excluded, while interior anomalies still reject. Exact bars remain required.
+Offline replay keeps five DXT/four WPK aligned bars and excludes one each. Final refinement validation:
+2,395 Core tests pass, eight native skips; Release WPF project build passes (260 compiler warnings,
+zero errors). The first added fixture had mismatched logical-window metadata, corrected before this
+pass. The same AI deadline test timed out in the parallel full run; the serial full rerun passes.
+Refinement installation and scheduled verification remain pending. Both bounded provider grants
+are consumed; all temporary traces are stopped.
 No migration, backfill, manual tick, model training, AI generation or broker order was requested.
 Private evidence: `artifacts/live-collection-fix-20261014/` (comparison, clock checks, final tests/
 build, install receipt and SELECT-only health snapshots). The six-request grant is consumed.

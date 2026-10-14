@@ -244,6 +244,9 @@ runtime/display development can proceed while native input qualification remains
    - [x] Run the authorized narrow one-/five-minute comparison (October 9, 14:51 Toronto; four read-only requests). Missing minute components prevent full aggregation verification; keeping aligned rows is not qualified. No acceptance change applied.
    - [x] Verify the authorized full-session provider contract comparison and implement/test stable context with explicit supplementary exclusion (October 14, ADR-0089; 69 exact complete aggregates, no mismatches).
    - [x] Identify native receipt-clock rejection, test actual-store-time waiting and install the corrected WPF build under restart authority (October 14; source validation and limits in project status).
+   - [x] Observe three completed Live cycles and current held-value recovery after restart; identify/test
+     sparse trailing-record handling with the separately authorized four-request comparison (October 14).
+   - [ ] Install/verify the sparse refinement; preserve absent exact bars and canonical conflicts.
    - [ ] Verify normal scheduled Live/Shadow collection and restore qualified held-stock valuation without loosening freshness or substituting an unqualified source. Historical Shadow failures are not all proven; continuous invested coverage and the v3 review remain unqualified.
    - [ ] Use the unconsumed bounded-review authority once current inputs qualify; verify fresh v3 interpretation, unavailable-choice notices, original identities, SQL/local records and cost. No v3 model answer or qualified desktop installation yet.
    - [ ] Verify repeated successful desktop reviews and native in-flight shutdown after the input fix; the blocked-attempt test does not qualify these or continuous operation. Further paid tests need authorization.

@@ -1,6 +1,6 @@
 # ADR-0089: Stable TMX session context and explicit supplementary records
 
-- **Status:** Accepted; implemented/tested and installed, scheduled recovery verification pending
+- **Status:** Accepted; initial installation/recovery observed, sparse refinement tested awaiting installation
 - **Date:** 2026-10-14
 - **Domains:** data-pipeline, data-sources, time-series
 - **Related:** ADR-0028, ADR-0030, ADR-0045
@@ -27,7 +27,7 @@ Detailed private receipts remain under `artifacts/live-collection-fix-20261014/`
    This is source formatting, not a substitute for the reviewed TSX calendar or evidence availability.
 2. Preserve the strict UTC, minute precision, OHLCV, duplicate, requested-window and daily-fallback
    guards. Within each date, quarantine supplementary off-grid minute records only after the last
-   aligned bar and before that bar's interval ends. Interior or later-bucket anomalies still reject.
+   aligned bar, including after missing later buckets. Interior off-grid anomalies still reject.
    If there is no aligned bar, return no eligible evidence. Never round timestamps, aggregate sparse
    minutes, fill missing prices, or use excluded records for valuation, confirmation or fills.
 3. Retain excluded timestamps and actual source-window metadata in new Live receipt JSON/hashes.
@@ -49,6 +49,13 @@ Detailed private receipts remain under `artifacts/live-collection-fix-20261014/`
 The direct aligned bar contract, interval resolution, collector/policy identities and hard guards do
 not change. This is a correction to request context and source validation, with optional JSON metadata;
 no migration, model training, gate change, broker execution or retrospective gap repair is required.
+
+The separately authorized four-request October 14 follow-up compares DXT/WPK one-/five-minute
+responses through 10:10. Their trailing off-grid records exactly match the same-minute OHLCV,
+while the five-minute series omits later aligned buckets. There are no complete five-minute minute
+components in these sparse samples; no missing minute is assumed to mean no trade. This corrects
+the initial quarantine's unnecessarily restrictive last-bucket boundary: excluded records remain
+unusable, absent exact bars remain absent, and independently aligned values are not modified.
 
 ## Limits
 

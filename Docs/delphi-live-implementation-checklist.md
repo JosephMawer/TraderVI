@@ -41,7 +41,10 @@ See [dated evidence](project-status.md) for counts and validation limits.
 - [x] Implement/test wider source context, conservative supplementary exclusion and audit metadata.
 - [x] Identify the opening monitor exception and test bounded SQL clock waiting/private diagnostics.
 - [x] Install the tested Release WPF build under explicit restart authority (October 14).
-- [ ] Verify normal scheduled collections/evaluations and held-price/portfolio recovery after restart.
+- [x] Observe three completed scheduled cycles, policy evaluation persistence, complete current Live
+  marks and all current Shadow positions with same-day prices after the initial restart (October 14).
+- [x] Identify/test the sparse trailing-record refinement using the authorized four-request comparison.
+- [ ] Install and verify the sparse refinement during normal scheduled operation.
 - [ ] Qualify continuing provider capacity, complete invested coverage and a clean future session.
 
 Further provider probes need authorization. Current warnings replace previous-cycle collection errors,

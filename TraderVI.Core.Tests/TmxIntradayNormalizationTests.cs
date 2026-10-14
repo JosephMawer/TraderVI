@@ -30,13 +30,31 @@ public sealed class TmxIntradayNormalizationTests
             [Bar(0), Bar(5), Bar(9)], 5, Open, Open.AddMinutes(10)));
     }
 
-    [Theory]
-    [InlineData(4)] // Interior point before the next complete bar.
-    [InlineData(11)] // A different bucket cannot be treated as a supplement.
-    public void AmbiguousOffGridRowsStillRejectTheResponse(int minute)
+    [Fact]
+    public void InteriorOffGridRowsStillRejectTheResponse()
     {
         Should.Throw<InvalidOperationException>(() => TmxClient.NormalizeIntradaySource(
-            [Bar(0), Bar(5), Bar(minute)], 5, Open, Open.AddMinutes(15)));
+            [Bar(0), Bar(5), Bar(4)], 5, Open, Open.AddMinutes(15)));
+    }
+
+    [Theory]
+    [InlineData(11)]
+    [InlineData(18)]
+    public void TrailingSupplementAfterMissingBucketsDoesNotInventThoseBars(int minute)
+    {
+        var (bars, excluded) = TmxClient.NormalizeIntradaySource(
+            [Bar(0), Bar(5), Bar(minute)], 5, Open, Open.AddMinutes(20));
+        bars.ShouldBe([Bar(0), Bar(5)]);
+        excluded.ShouldBe([Open.AddMinutes(minute)]);
+        bars.ShouldNotContain(bar => bar.TimestampUtc == Open.AddMinutes(10));
+        var request = new DelphiLiveMarketDataRequest(Guid.NewGuid(), "TEST", Open.AddMinutes(10),
+            Open.AddMinutes(15), Open.AddMinutes(17), Open.AddMinutes(16), 1);
+        var receipt = TmxDelphiLiveMarketDataSource.FromBatch(request, new TmxIntradayBatch(
+            "TEST", 5, request.BarStartUtc, request.BarEndUtc, Open.AddMinutes(16), Open.AddMinutes(16).AddSeconds(1),
+            1, 1, bars.Where(bar => bar.TimestampUtc >= request.BarStartUtc && bar.TimestampUtc <= request.BarEndUtc).ToArray())
+            { ProviderWindowStartUtc = Open, ExcludedSupplementaryTimestampsUtc = excluded });
+        receipt.Disposition.ShouldBe("NoCompletedBar");
+        receipt.ExactCompletedBar.ShouldBeNull();
     }
 
     [Fact]

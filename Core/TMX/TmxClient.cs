@@ -286,8 +286,9 @@ namespace Core.TMX
                 var aligned = session.Where(bar => IsIntradayAligned(bar.TimestampUtc, interval)).ToArray();
                 var supplementary = session.Where(bar => !IsIntradayAligned(bar.TimestampUtc, interval)).ToArray();
                 // Interior off-grid points remain ambiguous: reject the response.
-                if (aligned.Length > 0 && supplementary.Any(bar => bar.TimestampUtc <= aligned[^1].TimestampUtc ||
-                    bar.TimestampUtc >= aligned[^1].TimestampUtc.AddMinutes(interval)))
+                // Sparse sessions can omit later aligned buckets altogether.
+                // A trailing supplement after that gap still supplies no price.
+                if (aligned.Length > 0 && supplementary.Any(bar => bar.TimestampUtc <= aligned[^1].TimestampUtc))
                     return (ValidateIntradayResponse(source, interval, start, end), Array.Empty<DateTime>());
                 accepted.AddRange(aligned);
                 excluded.AddRange(supplementary.Select(bar => bar.TimestampUtc));

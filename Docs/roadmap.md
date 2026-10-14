@@ -83,7 +83,9 @@ five-minute timestamp-alignment rejection on both targets. The follow-up confirm
 preserved by mapping in the sample. The October 14 authorized full-session comparison qualifies the
 implemented stable-context and supplementary-record correction (ADR-0089); the native opening trace
 also identifies receipt-clock rejection, corrected with actual-store-time waiting. Both fixes are
-tested and installed. Next verify normal scheduled collection and restore/qualify held-stock valuation through
+tested and initially installed; scheduled Live cycles and current portfolio marks recover. The
+authorized follow-up identifies sparse trailing records after missing buckets; its tested refinement
+awaits installation/verification. Then qualify continuing collection and held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future
 input growth remains guarded, not continuously qualified. Automatic reviews remain
