@@ -1,7 +1,7 @@
 # ADR-0089: Stable TMX session context and explicit supplementary records
 
 - **Status:** Accepted; implemented/tested/installed, first refined scheduled cycle and current portfolio marks verified
-- **Follow-up:** Observation-time end context implemented; installation/operational qualification pending
+- **Follow-up:** Observation-time end context installed; first scheduled source/price/deadline checks and current marks verified
 - **Date:** 2026-10-14
 - **Domains:** data-pipeline, data-sources, time-series
 - **Related:** ADR-0028, ADR-0030, ADR-0045

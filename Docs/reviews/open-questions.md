@@ -15,7 +15,8 @@ Missing stock bars and fifteen-minute canonical conflicts prevent complete cover
 The subsequent nine-stock/27-request comparison finds one request-end omission and eight still
 missing exact intervals. Six have no reported minute records; CVO/PSI each have one. Neither proves
 no trades or supports inventing a bar. The observation-time end correction and explicit stale-source
-metadata are built/tested, awaiting installation and prospective qualification. Qualify availability
+metadata are installed with their first prospective cycle/marks verified. Four of the original nine
+remain stale/missing in that later interval; this does not repair the original gap. Qualify availability
 for sparse stocks through an explicit source contract; a wider read cannot repair earlier deadlines.
 Qualify continuing capacity/held-stock freshness without accepting ambiguous rows, inventing
 bars, clearing conflicts or rewriting historical gaps. See project status for actual operational

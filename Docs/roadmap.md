@@ -86,8 +86,9 @@ also identifies receipt-clock rejection, corrected with actual-store-time waitin
 tested and installed; scheduled Live cycles and current portfolio marks recover. The sparse trailing-
 record refinement is installed and its first scheduled cycle has zero CollectionFailed receipts;
 missing exact bars and historical/canonical conflicts remain explicit. The nine-stock follow-up
-identifies an end-boundary omission plus unavailable sparse intervals; the tested observation-time
-end correction and stale-source metadata await installation/qualification (ADR-0089). Then qualify
+identifies an end-boundary omission plus unavailable sparse intervals; the observation-time end
+correction and stale-source metadata are installed, with their first scheduled cycle/marks verified
+(ADR-0089). Remaining unavailable intervals stay blocked. Next qualify
 continuing collection and held-stock valuation through
 the agreed input path, then use that single-review authority to qualify v3 interpretation, followed by
 repeated successful desktop reviews and the basic display. Future

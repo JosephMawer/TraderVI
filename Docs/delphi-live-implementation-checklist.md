@@ -50,8 +50,10 @@ See [dated evidence](project-status.md) for counts and validation limits.
 - [ ] Qualify continuing provider capacity, complete invested coverage and a clean future session.
 - [x] Investigate the original nine missing bars through saved receipts and the authorized 27-request
   comparison; implement/test observation-time end context and stale-source metadata (October 14).
-- [ ] Install/qualify the request-end follow-up through scheduled collection; unavailable bars and
-  historical gaps remain blocked rather than fabricated.
+- [x] Install the request-end follow-up and verify its first scheduled collection, source/logical/
+  deadline guards and complete current Live marks (October 14, 11:14–11:15; project status).
+- [ ] Qualify continuing sparse-stock availability; unavailable bars and historical gaps remain
+  blocked rather than fabricated.
 
 Further provider probes need authorization. Current warnings replace previous-cycle collection errors,
 while session interruptions and host gaps remain visible. Per-stock success and completed cycles do
