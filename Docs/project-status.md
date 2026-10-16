@@ -1292,6 +1292,13 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
+**Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
+accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source
+updates and targeted detail. It preserves implementation follow-ups, unfinished ideas and explicit
+deferrals, including the operator's revisit-soon intraday-gain research goal. The completed September 8
+exploratory Practice starter trial replaces the roadmap's stale pending-trial wording. This is
+documentation reconciliation, not new operational verification; existing operational dates remain.
+
 Programs, side effects and commands: [running guide](running.md). Architecture:
 [system design](system-design.md). Models, signals, gates and price definitions:
 [design rules](design-rules.md). Original measurements, old snapshots and superseded summaries:

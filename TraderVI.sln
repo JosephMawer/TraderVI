@@ -68,6 +68,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BFB57C10-3
 		Docs\roadmap-history-20260922.md = Docs\roadmap-history-20260922.md
 		Docs\strategy-alignment-history-20260922.md = Docs\strategy-alignment-history-20260922.md
 		Docs\roadmap.md = Docs\roadmap.md
+		Docs\session-work-register.md = Docs\session-work-register.md
 		Docs\running.md = Docs\running.md
 		Docs\strategy.md = Docs\strategy.md
 		Docs\strategy-alignment-implementation-checklist.md = Docs\strategy-alignment-implementation-checklist.md

@@ -5,6 +5,44 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Intraday gain retention (revisit soon)
+
+- **Goal:** investigate retaining gains that appear earlier in a session and fade later. The operator
+  raised this September 11 in [Assess TraderVI priorities](codex://threads/01a0908e-613a-7713-9de1-dd3851a8a71c).
+  The September 18 [account-history investigation](../../artifacts/portfolio-history-20260918/report.md)
+  provides related observations, with incomplete valuation/closing evidence and reconstruction limits.
+- **Confirmed October 16:** preserve this as an **especially important open research goal**, revisit
+  soon and integrate it into future work. Keep both whole-portfolio gain protection and protection of
+  individual winning positions undecided; do not resolve the experiment during session recovery.
+- **Still open:** experiment scope, whether time of day matters, activation/giveback levels, resulting
+  actions, re-entry and how to compare gains retained with later recoveries/opportunities sacrificed.
+  The earlier example thresholds were illustrative, not accepted settings. Existing stock/account
+  loss controls do not answer this profit-retention question.
+- **Status:** research only; no new trading rule or implementation chosen. Preserve complete/fresh
+  value paths and missingness when assessing the observation. Resume from R01 in the
+  [session-work register](../session-work-register.md), with priority in the roadmap.
+
+### Liquidity and execution-realism research
+
+- **Requested exploration, September 5:** assess the value of spread, dollar volume and position-size
+  participation for short-term TSX trading and capacity. Source:
+  [Explore liquidity-aware trading](codex://threads/01a06fe2-42dd-7fb1-86fc-014cf0dca9a0).
+- **Unanswered proposal:** a measurement-only first version using existing volume/position data,
+  separately investigating spread data, before deciding whether anything should block or resize trades.
+  That proposal was not accepted or implemented by the chat. Zero commissions do not establish a
+  spread/price-execution contract; no new cost deduction, score change or execution gate is agreed.
+- **Status:** preserve as an unfinished research idea (register R14), without assigning it a delivery
+  priority or conflating it with the accepted historical/Live fill contracts.
+
+### News context for the AI reviewer
+
+- **Requested exploration, September 29:** whether the operator's WSJ subscription could improve the
+  AI's decisions. Source: [Assess WSJ for TraderVI decisions](codex://threads/01a0eed7-1ef3-70f2-8eba-20efb0ff4b6c).
+- **Discussed only:** timestamped news context and a paper comparison with/without that context,
+  respecting what was available at each decision. Neither an ingestion feature, a data source,
+  a subscription decision nor spending was approved.
+- **Status:** retain the idea in register R15; scope/source/evaluation decisions remain open.
+
 ### Continuing TMX coverage after the Delphi Live correction — October 14, 2026
 
 ADR-0089's initial correction is implemented/tested/installed. Three normal Live cycles complete and

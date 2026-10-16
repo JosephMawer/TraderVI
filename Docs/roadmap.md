@@ -3,6 +3,8 @@
 This is the authoritative priority list. [Project status](project-status.md) owns dated evidence;
 the [strategy alignment checklist](strategy-alignment-implementation-checklist.md) owns execution
 dependencies. [Design rules](design-rules.md) and applicable accepted ADRs own behavior.
+The [session-work register](session-work-register.md) preserves cross-chat progress, unfinished ideas
+and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
@@ -227,9 +229,12 @@ or completed replacement of the execution work below. See the
    analysis work, not authorization to retune gates. Use the
    [calibration checklist](calibration-implementation-checklist.md) and
    [Live checklist](delphi-live-implementation-checklist.md).
-4. **Finish the controlled Practice dataset.** Prepare/exercise the actual 20-session dataset under
-   acquisition authority, preserving missing inputs and historical membership provenance; Live and
-   isolated SQL recovery/load trials follow. [Contracts](concepts/historical-practice-implementation.md).
+4. **Extend the controlled Practice environment.** The exploratory 20-session starter trial completed
+   September 8; do not repeat its acquisition/execution merely because an older handoff says pending.
+   Preserve missing inputs and current-universe/model limitations. Checkpoint resume, isolated SQL
+   recovery/load and failure trials, Live replay and broader historical qualification remain separate
+   follow-ups. [Current scope](reviews/open-questions.md#historical-practice-environment--follow-up-milestones)
+   and [contracts](concepts/historical-practice-implementation.md).
 
 ### Reliability and correctness prerequisites
 
@@ -257,6 +262,10 @@ or completed replacement of the execution work below. See the
 
 ## Next — improve data and model evidence
 
+- **Revisit intraday-gain retention soon** and carry it into future strategy/risk work. The operator
+  confirmed this open research goal October 16: investigate morning gains fading later, keeping
+  whole-portfolio protection and individual-winning-position protection undecided. No rule, threshold
+  or implementation is chosen. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

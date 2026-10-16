@@ -3,6 +3,8 @@
 **Current scope:** independent paper strategies followed by deliberately approved real-account
 execution. [Roadmap](roadmap.md) owns priorities; [project status](project-status.md) owns dated
 implementation, installation and verification evidence. This checklist owns remaining dependencies.
+The [session-work register](session-work-register.md) links unfinished work and ideas recovered across
+chats to their owning records; a closed chat or completed source milestone does not close these dependencies.
 The September 22 documentation cleanup preserves the
 [original checklist and validation history](strategy-alignment-history-20260922.md).
 
@@ -227,7 +229,7 @@ runtime/display development can proceed while native input qualification remains
    - [x] Build/test fixed-window provider diagnosis for a repeat of the same completed interval; preserve session/alignment/delay checks. No new provider request (October 9).
    - [x] Run the authorized fresh concise-input review with renewed empty learning and the ten-minute test ages; verify wait interpretation, tables/shared references, exact SQL/local evidence and cost (October 9). No eligible choice was available, so selection remains unqualified.
    - [x] Label the retained interval reason with its original time and historical role; regression-tested after the October 9 model identified old holding narrative. Included in the prepared desktop test copy; that test generated no new model answer.
-   - [ ] Track persistent collection separately: capture an alignment-failing response and distinguish provider data from parsing before choosing a correction; further provider requests need authorization.
+   - [x] Capture an alignment-failing response and distinguish provider data from parsing (October 9); verify the initial provider contract and install the qualified correction (October 14, ADR-0089). Continuing coverage remains under the separate unchecked qualification items below; further provider requests need authorization.
    - [ ] Trace remaining Breakout/Live evidence blocks and Athena's invalid outcome reasons without treating publication receipt as entry permission.
    - [x] Build/test a process-only desktop qualification run capped at two new attempts or ten minutes; preserve disabled saved settings and await cancellation cleanup (October 9, 73 focused tests).
    - [x] Verify native startup, two-minute blocked-attempt scheduling, automatic stop after two attempts, journal release, normal shutdown and disabled restart in the prepared desktop copy (October 9). No paid generation occurred; exact SQL/local rejection records match.
@@ -363,6 +365,9 @@ Optional older-history import remains a proposal; no historical reset is approve
 
 ## Operational follow-through
 
+- [ ] Revisit the operator's important [intraday-gain retention research goal](reviews/open-questions.md#intraday-gain-retention-revisit-soon)
+  soon and carry it into future strategy/risk work. Whole-portfolio and individual-winning-position
+  approaches remain undecided; this is a research follow-up, not an implemented protection rule.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
@@ -374,13 +379,14 @@ Optional older-history import remains a proposal; no historical reset is approve
   bars exist, but receipt failures and an Incomplete / Blocked Live session remain.
 - [x] Verify October 13 current-source adoption by all three Live and twelve Shadow accounts and bounded
   WPF responsiveness/runtime progress; this does not qualify uninterrupted collection or valuation.
-- [ ] Resolve recurring monitor/cycle failures and verify uninterrupted operation; the October 13 audit
-  records seven failed cycles and eight monitor recoveries by 11:09, with Blocked coverage.
+- [ ] Qualify uninterrupted monitor/cycle operation after the installed October 14 corrections;
+  bounded recovered cycles do not erase the October 13 failures or historical Blocked coverage.
 - [x] Capture current per-stock exceptions in the running app: October 13 traces correlate all eight
   failed 11:30 requests with five-minute timestamp-alignment rejection and confirm repetition at 11:35.
   This bounded diagnosis does not establish the aggregation contract or every historical failure.
-- [ ] Resolve the provider interval contract, remaining collection failures and the invested rules-only
-  Live account's missing opening value; separately capture the whole-cycle/monitor interruption.
+- [ ] Qualify remaining sparse-stock availability, canonical conflicts and the invested rules-only
+  Live account's missing opening value. The initial provider-contract and native receipt-clock causes
+  were identified/corrected October 14; continuing collection and distinct monitor failures still need evidence.
 - [ ] Diagnose why the sleeping/hibernating host missed the overnight wake despite WakeToRun being enabled;
   automatic morning recovery does not establish overnight reliability. No power/task settings changed.
 - [x] Verify recovered latest daily endpoints for ILLM/RCTR: all 483 active symbols have October 9 bars
