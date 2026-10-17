@@ -1299,7 +1299,10 @@ invested/traded account-days with exact 09:35/noon/close values: 15 rise by noon
 six improve and one stays flat. Newer dates show three fades/five improvements/one flat rising morning.
 All 15 cash books and 192 available Shadow saved closes reconcile. This is retrospective accounting,
 not current operational qualification or an executable peak/strategy verdict. Both protection approaches
-remain undecided; next discuss ordinary-day comparisons, keeping missing-data repairs outside this review.
+remain undecided. **Subsequent operator correction:** the intended research is individual stocks
+within a portfolio; those whole-account counts do not answer it. Stock-level analysis has not yet
+been completed. Next clarify the gain reference before following ordinary holding paths, later
+purchases and upside; keep missing-data repairs outside this review.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

@@ -31,8 +31,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   six improve and one stays flat; for newer dates those counts are three/five/one. Continuation's
   rules-only accounts show more giveback, while Breakout and Live are mixed. The peak-based observation
   and fixed-time comparison answer different questions; neither selects a rule. Both approaches stay open.
-  Next define ordinary-day comparison behavior and account for later upside/new purchases. Per the operator,
-  use usable observations first and keep missing-data notes brief; do not make exception repairs the focus.
+  These are whole-account results, retained as background after the scope correction below.
+- **Operator's scope correction, October 17:** investigate **individual stocks within each portfolio**.
+  The whole-account counts do not answer the intended question. Next follow each holding's morning
+  rise, giveback and later upside; include stocks purchased later from their actual purchase time.
+  Clarification pending: measure gains since that morning, since purchase, or both separately
+  (recommended, not accepted). No new analysis dependent on that definition has begun. Protection
+  behavior remains undecided; focus on ordinary usable paths and keep exception repairs secondary.
 
 ### Liquidity and execution-realism research
 

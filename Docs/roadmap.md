@@ -266,10 +266,10 @@ or completed replacement of the execution work below. See the
   confirmed this open research goal October 16: investigate morning gains fading later, keeping
   whole-portfolio protection and individual-winning-position protection undecided. No rule, threshold
   or implementation is chosen. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
-  The [expanded October 17 review](reviews/paper-gain-patterns-20261017.md) covers all 15 paper accounts
-  through October 16. Of 15 usable rising mornings, eight fade, six improve and one stays flat; newer
-  dates are mixed too. Next define ordinary-day gain-retention comparisons and later upside sacrificed,
-  keeping both protection approaches open. Summarize missing data without making gap repairs the focus.
+  **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
+  The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
+  that question. Clarify the gain reference, then examine ordinary holding paths, later purchases and
+  upside missed. Protection behavior stays open; keep gap repairs secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

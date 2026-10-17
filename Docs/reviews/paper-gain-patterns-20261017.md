@@ -2,6 +2,13 @@
 
 **Reviewed October 17, 2026; saved history through October 16.**
 
+**Scope correction from the operator, October 17:** the intended question concerns how individual
+stocks within a portfolio gain and give back gains. This report measures whole-account values;
+its counts do not answer that stock-level question. Retain it as background accounting evidence.
+The next review must follow individual holdings, later purchases and subsequent upside. The gain
+reference (since morning, since purchase, or both separately) awaits clarification. No stock-level
+finding or protection decision follows from this report.
+
 Giveback occurs, but the broader evidence does **not** show a consistent morning advantage.
 Among 15 usable portfolio-days that rose from 09:35 to noon, eight finished below noon,
 six improved further and one stayed flat. In the newer portion, improvement was more common
