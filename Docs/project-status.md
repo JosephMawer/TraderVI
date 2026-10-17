@@ -1307,11 +1307,15 @@ ordinary individual-winner protection and later upside/new purchases; keep repai
 **Progressive trailing design, October 17:** the operator confirmed a shrinking percentage gap
 as an individual position's purchase profit grows, and prioritizes profit protection over post-sale
 upside. The [DSV/ARE walkthrough](reviews/stock-gain-paths-20261017.md#dsv-versus-a-winner-that-kept-climbing)
-uses complete saved close paths (46/46 and 78/78 points). A later unapproved three-band recommendation
-and DSV day-only threshold illustration are recorded in [proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
-Ordered-close arithmetic finds a first crossing in the 10:25 bar, received about 10:27; no alternative
-fill or realized retained gain is established. Operator review, broader efficacy comparison, input timing
-and adoption remain open. Existing protection/rules are unchanged; no new SQL/market producer ran.
+uses complete saved close paths (46/46 and 78/78 points). The subsequent authorized offline
+[saved-trade comparison](reviews/progressive-trailing-trade-study-20261017.md) supplies 53 distinct
+non-DSV, complete single-purchase Shadow paths: seven earlier modeled exits, six profitable, two
+recorded losses converted to modeled profits; 46 unchanged. Median return for those seven is +0.53%
+modeled versus +0.14% recorded. All 75 underlying recorded fills and 11 modeled fills/first crossings
+verify; original bar/fill references match SELECT-only supplements. This is an isolated trade overlay,
+not a full engine backtest or realized profit. The [ADR-0090](adr/0090-progressive-individual-profit-trailing.md)
+bands remain unapproved for operation; upper bands have little/no exercise. Operating timing/version
+scope and adoption remain open. No trading rules, SQL records, market producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

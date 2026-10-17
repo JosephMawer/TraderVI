@@ -53,8 +53,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   profit with a 1% gap; at +3% use 0.75%, at +5% use a 0.50% minimum. Existing protection stays active
   below activation and no stop is lowered. [Rationale/DSV illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
   uses ordered saved closes, not a full trade or fill replay. DSV first crosses the illustrative
-  threshold in the 10:25 close, received about 10:27. Await operator review and broader paper comparison;
-  this recommendation is not an accepted or implemented rule.
+  threshold in the 10:25 close, received about 10:27. The operator authorized offline testing only;
+  this recommendation is not an accepted operating policy or implemented rule.
+- **First broader comparison, October 17:** [complete saved single-purchase Shadow paths](progressive-trailing-trade-study-20261017.md)
+  yield 53 distinct non-DSV trades after duplicate removal. Seven receive earlier modeled exits,
+  six with profit and two recorded losses changed to modeled profits; 46 are unchanged. Median return
+  for those seven is +0.53% modeled versus +0.14% recorded. The first band has supporting examples;
+  only one activated path reaches 0.75% gap and none reach 0.50%. Keep bands unchanged pending review,
+  with upper-band efficacy, exact operating timing/version scope and adoption still open. Missing paths
+  are omitted; they do not expand this into an exception-repair project.
 
 ### Liquidity and execution-realism research
 

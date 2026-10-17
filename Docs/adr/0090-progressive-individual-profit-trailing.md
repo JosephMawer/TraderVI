@@ -58,8 +58,9 @@ replay. Five-minute closes do not describe every within-bar price or instantaneo
 
 The October 17 recommendation starts **extra tightening** once the highest observed purchase profit
 reaches **+1.5%**. Existing loss/break-even protection continues below that point. Use three simple
-bands rather than fitting a curve to DSV. These numbers are a starting hypothesis, not calibrated
-settings, operator acceptance, a deployed rule or implementation authorization.
+bands rather than fitting a curve to DSV. The operator subsequently authorized an offline comparison
+of these exact bands. They remain a starting hypothesis, not calibrated settings, acceptance as an
+operating policy, a deployed rule or implementation authorization.
 
 | Highest profit since purchase | Percentage gap below the observed high |
 |---|---:|
@@ -100,10 +101,26 @@ and `.json`, using the existing `winner-walkthrough.json`. Decimal checks retain
 threshold, positive activation threshold and chronological first crossing. No Core/engine rule changed,
 new SQL/market request, order, model run or alternative fill occurred.
 
+## First broader saved-trade comparison
+
+The [October 17 comparison](../reviews/progressive-trailing-trade-study-20261017.md) uses complete,
+single-purchase closed Shadow trades, with receipt-aware signals and later bar-open fills under
+the existing sell adjustment. After excluding DSV and duplicate copies across accounts, 53 distinct
+paths yield seven earlier modeled exits: six profitable and two recorded losses converted to modeled
+profits. Their median modeled return is +0.53%, versus +0.14% recorded; 46 paths retain their actual exit.
+All seven affected returns improve in this limited subset. This is a conditional individual-trade
+overlay, not an engine/portfolio backtest, realized profit or operational validation.
+
+Seven of eight activated distinct non-DSV paths only exercise the 1% gap, one reaches 0.75%, and none
+reach 0.50%. This supports retaining the first band as a candidate, without retuning or treating the
+upper bands as tested. The study owns the ordinary-case scope, full result table and exclusions;
+no historical repair is a prerequisite to discussing these results. The operating policy remains proposed.
+
 ## Open before an implementable policy
 
 - Operator review of the proposed activation/gap bands above; a smooth curve or different schedule
-  remains possible. The numeric recommendation is unapproved and has no broader efficacy validation.
+  remains possible. The numeric recommendation is unapproved for operation; the bounded comparison
+  above is not out-of-sample or general efficacy qualification, particularly for its upper bands.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually

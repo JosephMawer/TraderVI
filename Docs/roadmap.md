@@ -272,9 +272,10 @@ or completed replacement of the execution work below. See the
   [stock-level review](reviews/stock-gain-paths-20261017.md) now covers ordinary holding paths, later
   purchases and later upside. The operator then confirmed **a trailing percentage gap that shrinks as
   purchase profit grows**, prioritizing protected profit over post-sale upside. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md)
-  records a three-band numeric recommendation for operator review; it is unapproved and uncalibrated.
-  Next review that ordinary-day proposal and compare paper outcomes under agreed timing. Rules stay unchanged
-  and gap repairs remain secondary.
+  records the three-band proposal and its authorized offline [saved-trade comparison](reviews/progressive-trailing-trade-study-20261017.md).
+  The first band has supporting ordinary-trade examples; upper bands remain thinly/unexercised.
+  Next review those bounded results and larger-winner examples before operating-policy adoption.
+  Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

@@ -111,6 +111,10 @@ Working reproduction is `winner-walkthrough.py` / `winner-walkthrough.json` in t
 artifact directory, reusing the frozen export. Assertions confirm both endpoints/noon against the
 prior independently checked stock results and both full within-ownership price paths. No SQL or provider run.
 
+The later [saved-trade study](progressive-trailing-trade-study-20261017.md) extends from these examples
+to complete single-purchase Shadow trade paths and conditional later-open paper fills. Its bounded
+return estimates are distinct from this original descriptive price study and day-only illustration.
+
 ## Later purchases and upside an early exit might miss
 
 Of **86 afternoon-entry position-days**, 84 have purchase and sale/close values: **31 finish

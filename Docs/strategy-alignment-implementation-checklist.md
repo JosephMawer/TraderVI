@@ -385,7 +385,12 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [ ] Define activation, gap schedule, observation timing and family/version scope before implementation;
   preserve existing protection and separate later purchases/re-entry. No rule changed; keep repairs secondary.
   A three-band recommendation and DSV day-only threshold illustration are now prepared in ADR-0090;
-  operator acceptance, broader validation and governing input/execution timing remain outstanding.
+  operating-policy acceptance, broader validation and governing input/execution timing remain outstanding.
+- [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
+  single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
+  first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).
+- [ ] Assess ordinary larger-winner cases for the upper bands, which this sample barely/not at all
+  exercises; retain current bands pending review rather than retuning from the small result set.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
