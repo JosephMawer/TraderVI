@@ -368,6 +368,12 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [ ] Revisit the operator's important [intraday-gain retention research goal](reviews/open-questions.md#intraday-gain-retention-revisit-soon)
   soon and carry it into future strategy/risk work. Whole-portfolio and individual-winning-position
   approaches remain undecided; this is a research follow-up, not an implemented protection rule.
+- [x] Review the original September 18 saved paper export offline (October 17): reproduce prior
+  checkpoints/cash/shares/closes, separate held-position and later-position contributions and measure
+  price-time/coverage limits. [Results](reviews/intraday-gain-evidence-20261017.md). No new collection or rules.
+- [ ] Extend that audit to other saved paper accounts/later sessions with separate policies/coverage;
+  identify already-saved versus genuinely missing coherent values, openings/closes and receipt times
+  before agreeing gain-retention experiments or valuation-capture changes.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

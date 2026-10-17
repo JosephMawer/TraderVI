@@ -1292,6 +1292,13 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
+**Gain-retention research, October 17, 2026:** offline replay of the frozen September 18 paper export
+reproduces 446 prior checkpoints, cash/open shares and four saved closes. Six full dates have 408/468
+complete checkpoints; both held-position losses and later purchases explain giveback, while three
+supported full-day highs occur after noon. [Review](reviews/intraday-gain-evidence-20261017.md) records
+scope, missing/stale-baseline/receipt-time limits and the next broader saved-evidence audit. This is
+new offline analysis of old evidence, not current operational verification or a selected trading rule.
+
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source
 updates and targeted detail. It preserves implementation follow-ups, unfinished ideas and explicit

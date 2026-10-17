@@ -21,6 +21,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Status:** research only; no new trading rule or implementation chosen. Preserve complete/fresh
   value paths and missingness when assessing the observation. Resume from R01 in the
   [session-work register](../session-work-register.md), with priority in the roadmap.
+- **Offline evidence review, October 17:** the frozen September 18 export supports six full dates for
+  one rules-only Breakout Top-3 paper account. All six reconstructed closes trail their supported
+  morning best, but three full-day highs occur after noon; both held-position declines and later
+  purchases contribute. Sixty of 468 checkpoints and three stored closes are missing; receipt times
+  prevent treating reconstructed peaks as actionable prices. [Findings and limits](intraday-gain-evidence-20261017.md).
+  Broader accounts/later sessions remain unexamined, rather than assumed absent. Next extend the
+  saved-evidence audit and identify coherent valuation capture gaps; both protection approaches stay open.
 
 ### Liquidity and execution-realism research
 
