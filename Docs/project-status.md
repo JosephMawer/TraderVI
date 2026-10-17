@@ -1292,17 +1292,17 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
-**Gain-retention research, October 17, 2026:** a SELECT-only export extends the
-[initial frozen-export review](reviews/intraday-gain-evidence-20261017.md) to all 15 saved paper accounts
-through October 16. The [expanded review](reviews/paper-gain-patterns-20261017.md) has 74 usable
-invested/traded account-days with exact 09:35/noon/close values: 15 rise by noon, then eight fade,
-six improve and one stays flat. Newer dates show three fades/five improvements/one flat rising morning.
-All 15 cash books and 192 available Shadow saved closes reconcile. This is retrospective accounting,
-not current operational qualification or an executable peak/strategy verdict. Both protection approaches
-remain undecided. **Subsequent operator correction:** the intended research is individual stocks
-within a portfolio; those whole-account counts do not answer it. Stock-level analysis has not yet
-been completed. Next clarify the gain reference before following ordinary holding paths, later
-purchases and upside; keep missing-data repairs outside this review.
+**Gain-retention research, October 17, 2026:** after the operator corrected the scope to individual
+stocks and accepted day-move/purchase-profit measures separately, the [stock-level review](reviews/stock-gain-paths-20261017.md)
+reuses saved paper evidence through October 16. It covers 235 held-through-noon position-days:
+87 rise by noon, then 40 fade and 47 improve. Twenty-one rising carried-position mornings remain
+below purchase cost. The saved September 30 walkthrough separates a winner's giveback, another
+holding's recovery and a later purchase. Direct source checks confirm all 235 reported price/cost
+rows; 84 afternoon-entry paths and complete-path later highs are separately described. Protection
+behavior remains undecided; no trading rule changed. This extension uses no new SQL or provider run.
+The [whole-account background audit](reviews/paper-gain-patterns-20261017.md) retains the earlier
+15-cash-book/192-close reconciliation but does not answer the stock-level question. Next discuss
+ordinary individual-winner protection and later upside/new purchases; keep repairs secondary.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

@@ -268,8 +268,10 @@ or completed replacement of the execution work below. See the
   or implementation is chosen. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
   **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
   The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
-  that question. Clarify the gain reference, then examine ordinary holding paths, later purchases and
-  upside missed. Protection behavior stays open; keep gap repairs secondary.
+  that question. The operator accepted day-move and purchase-profit measures separately. The
+  [stock-level review](reviews/stock-gain-paths-20261017.md) now covers ordinary holding paths, later
+  purchases and later upside. Next discuss individual-winner protection behavior; rules stay unchanged
+  and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

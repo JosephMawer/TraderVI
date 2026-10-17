@@ -35,9 +35,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Operator's scope correction, October 17:** investigate **individual stocks within each portfolio**.
   The whole-account counts do not answer the intended question. Next follow each holding's morning
   rise, giveback and later upside; include stocks purchased later from their actual purchase time.
-  Clarification pending: measure gains since that morning, since purchase, or both separately
-  (recommended, not accepted). No new analysis dependent on that definition has begun. Protection
-  behavior remains undecided; focus on ordinary usable paths and keep exception repairs secondary.
+  **Accepted:** show the day's move and profit since purchase separately. For same-day purchases,
+  start ownership-based measurement at the actual purchase, not the earlier morning.
+- **Stock-level evidence, October 17:** the [corrected review](stock-gain-paths-20261017.md) supplies
+  235 covered position-days: 87 rise by noon, then 40 fade and 47 improve. Twenty-one rising carried
+  mornings remain below purchase cost. Of 79 noon winners since purchase, ten end below cost at their
+  actual sale/close. Later purchases and higher afternoon highs remain relevant. This is descriptive
+  saved-price accounting, not proof of an executable high or an accepted protection rule. Next discuss
+  ordinary individual-winner protection and later upside/new purchases; keep exception repairs secondary.
 
 ### Liquidity and execution-realism research
 

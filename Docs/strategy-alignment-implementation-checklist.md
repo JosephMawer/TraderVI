@@ -374,10 +374,14 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Extend the saved-evidence audit to all 15 paper accounts through October 16, separating profiles,
   cash days, fixed-time values and complete peak paths. October 17 SELECT-only export/offline checks
   reconcile all cash books and 192 stored Shadow closes. [Broader findings](reviews/paper-gain-patterns-20261017.md).
-- [ ] Complete the intended **stock-level** review after the operator's October 17 scope correction:
-  clarify the gain reference (morning/purchase/both), then follow ordinary individual holdings,
-  later purchases from entry and subsequent upside. The completed whole-account audit is background,
-  not completion of this item. Protection behavior remains open; no rule changed. Keep repairs secondary.
+- [x] Record the operator's stock-level measurement choice: day-move and profit since purchase
+  separately; later purchases begin at actual entry, with no credit for earlier unowned moves.
+- [x] Complete the bounded **stock-level** saved-evidence review (October 17): 235 directly checked
+  held-through-noon position-days, later purchases, complete-path later highs and a five-stock day
+  walkthrough. [Findings/coverage](reviews/stock-gain-paths-20261017.md). No new SQL or collection.
+- [ ] Discuss ordinary individual-winner gain protection, new purchases and later upside sacrificed;
+  behavior/thresholds/re-entry remain open. Whole-account audit stays background. No rule changed;
+  keep exception repairs secondary.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,
