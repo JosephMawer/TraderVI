@@ -2,6 +2,9 @@
 
 **Reviewed October 17, 2026. Data captured September 18 at 10:42 Toronto.**
 
+Subsequent [expanded review](paper-gain-patterns-20261017.md) covers all 15 saved paper accounts
+through October 16. The findings below retain this first export's scope and peak-based method.
+
 The saved paths show giveback worth investigating, with two different causes: existing holdings
 lost value, and some later purchases lost money. They do not establish a general morning advantage
 or tell us which protection rule would improve results. Both portfolio-wide and individual-position

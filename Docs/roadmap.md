@@ -266,9 +266,10 @@ or completed replacement of the execution work below. See the
   confirmed this open research goal October 16: investigate morning gains fading later, keeping
   whole-portfolio protection and individual-winning-position protection undecided. No rule, threshold
   or implementation is chosen. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
-  The [October 17 offline review](reviews/intraday-gain-evidence-20261017.md) finds both held-position
-  giveback and later-purchase losses in a small incomplete sample. Next extend comparable saved-account
-  histories and receipt-time/valuation coverage; this is not evidence for a morning-only exit rule.
+  The [expanded October 17 review](reviews/paper-gain-patterns-20261017.md) covers all 15 paper accounts
+  through October 16. Of 15 usable rising mornings, eight fade, six improve and one stays flat; newer
+  dates are mixed too. Next define ordinary-day gain-retention comparisons and later upside sacrificed,
+  keeping both protection approaches open. Summarize missing data without making gap repairs the focus.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

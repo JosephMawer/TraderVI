@@ -1292,12 +1292,14 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
-**Gain-retention research, October 17, 2026:** offline replay of the frozen September 18 paper export
-reproduces 446 prior checkpoints, cash/open shares and four saved closes. Six full dates have 408/468
-complete checkpoints; both held-position losses and later purchases explain giveback, while three
-supported full-day highs occur after noon. [Review](reviews/intraday-gain-evidence-20261017.md) records
-scope, missing/stale-baseline/receipt-time limits and the next broader saved-evidence audit. This is
-new offline analysis of old evidence, not current operational verification or a selected trading rule.
+**Gain-retention research, October 17, 2026:** a SELECT-only export extends the
+[initial frozen-export review](reviews/intraday-gain-evidence-20261017.md) to all 15 saved paper accounts
+through October 16. The [expanded review](reviews/paper-gain-patterns-20261017.md) has 74 usable
+invested/traded account-days with exact 09:35/noon/close values: 15 rise by noon, then eight fade,
+six improve and one stays flat. Newer dates show three fades/five improvements/one flat rising morning.
+All 15 cash books and 192 available Shadow saved closes reconcile. This is retrospective accounting,
+not current operational qualification or an executable peak/strategy verdict. Both protection approaches
+remain undecided; next discuss ordinary-day comparisons, keeping missing-data repairs outside this review.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

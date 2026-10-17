@@ -213,6 +213,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviews", "reviews", "{FDB8
 		Docs\reviews\supervised-session-20260923.md = Docs\reviews\supervised-session-20260923.md
 		Docs\reviews\open-questions.md = Docs\reviews\open-questions.md
 		Docs\reviews\intraday-gain-evidence-20261017.md = Docs\reviews\intraday-gain-evidence-20261017.md
+		Docs\reviews\paper-gain-patterns-20261017.md = Docs\reviews\paper-gain-patterns-20261017.md
 		Docs\reviews\review-log.md = Docs\reviews\review-log.md
 	EndProjectSection
 EndProject

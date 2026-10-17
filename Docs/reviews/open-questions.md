@@ -26,8 +26,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   morning best, but three full-day highs occur after noon; both held-position declines and later
   purchases contribute. Sixty of 468 checkpoints and three stored closes are missing; receipt times
   prevent treating reconstructed peaks as actionable prices. [Findings and limits](intraday-gain-evidence-20261017.md).
-  Broader accounts/later sessions remain unexamined, rather than assumed absent. Next extend the
-  saved-evidence audit and identify coherent valuation capture gaps; both protection approaches stay open.
+- **Expanded evidence, October 17:** [all 15 paper accounts through October 16](paper-gain-patterns-20261017.md)
+  yield 74 usable invested/traded account-days at 09:35/noon/close. Fifteen rise by noon: eight fade,
+  six improve and one stays flat; for newer dates those counts are three/five/one. Continuation's
+  rules-only accounts show more giveback, while Breakout and Live are mixed. The peak-based observation
+  and fixed-time comparison answer different questions; neither selects a rule. Both approaches stay open.
+  Next define ordinary-day comparison behavior and account for later upside/new purchases. Per the operator,
+  use usable observations first and keep missing-data notes brief; do not make exception repairs the focus.
 
 ### Liquidity and execution-realism research
 
