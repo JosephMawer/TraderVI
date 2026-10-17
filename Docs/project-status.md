@@ -1304,6 +1304,13 @@ The [whole-account background audit](reviews/paper-gain-patterns-20261017.md) re
 15-cash-book/192-close reconciliation but does not answer the stock-level question. Next discuss
 ordinary individual-winner protection and later upside/new purchases; keep repairs secondary.
 
+**Progressive trailing design, October 17:** the operator confirmed a shrinking percentage gap
+as an individual position's purchase profit grows, and prioritizes profit protection over post-sale
+upside. The [DSV/ARE walkthrough](reviews/stock-gain-paths-20261017.md#dsv-versus-a-winner-that-kept-climbing)
+uses complete saved close paths (46/46 and 78/78 points); no stop or alternative fill is simulated.
+[Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md) records the direction; activation,
+gap schedule, input timing and adoption remain open. Existing protection/rules are unchanged.
+
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source
 updates and targeted detail. It preserves implementation follow-ups, unfinished ideas and explicit

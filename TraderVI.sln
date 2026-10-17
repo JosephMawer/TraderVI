@@ -173,6 +173,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{2E2EB6BD-EDA
 		Docs\adr\0087-ai-momentum-portfolio-boundaries.md = Docs\adr\0087-ai-momentum-portfolio-boundaries.md
 		Docs\adr\0088-source-symbol-aliases-for-monitoring.md = Docs\adr\0088-source-symbol-aliases-for-monitoring.md
 		Docs\adr\0089-tmx-session-context-and-supplementary-records.md = Docs\adr\0089-tmx-session-context-and-supplementary-records.md
+		Docs\adr\0090-progressive-individual-profit-trailing.md = Docs\adr\0090-progressive-individual-profit-trailing.md
 		Docs\adr\0085-portfolio-wide-ongoing-tfsa-management.md = Docs\adr\0085-portfolio-wide-ongoing-tfsa-management.md
 		Docs\adr\0084-external-broker-trade-synchronization.md = Docs\adr\0084-external-broker-trade-synchronization.md
 		Docs\adr\README.md = Docs\adr\README.md
@@ -181,6 +182,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "concepts", "concepts", "{65EEFD96-834F-498F-8DB4-D1237BE733DC}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\concepts\delphi-live.md = Docs\concepts\delphi-live.md
+		Docs\concepts\progressive-profit-trailing-draft.md = Docs\concepts\progressive-profit-trailing-draft.md
 		Docs\concepts\global-settings-design-draft.md = Docs\concepts\global-settings-design-draft.md
 		Docs\concepts\paper-source-refresh-and-gate-profiles-draft.md = Docs\concepts\paper-source-refresh-and-gate-profiles-draft.md
 		Docs\concepts\portfolio-comparison.md = Docs\concepts\portfolio-comparison.md

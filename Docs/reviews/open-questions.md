@@ -43,6 +43,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   actual sale/close. Later purchases and higher afternoon highs remain relevant. This is descriptive
   saved-price accounting, not proof of an executable high or an accepted protection rule. Next discuss
   ordinary individual-winner protection and later upside/new purchases; keep exception repairs secondary.
+- **Confirmed direction, October 17:** use an individual trailing stop whose **percentage gap below
+  the high shrinks as profit since purchase grows**. The operator explicitly prioritizes protecting
+  profit over capturing further gains after a sale; a subsequent rally alone does not invalidate a
+  profitable protective exit. DSV/ARE illustrate that accepted tradeoff. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
+  and its concept note preserve the direction. Activation, gap schedule, observation timing and
+  implementation/version scope remain open; no numeric policy or rule change is accepted.
 
 ### Liquidity and execution-realism research
 

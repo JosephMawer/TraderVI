@@ -1,5 +1,7 @@
 # Concepts
 
+- [Progressive profit trailing draft](progressive-profit-trailing-draft.md) — a shrinking percentage gap for individual winners; confirmed direction, unchosen operating settings.
+
 - [Wealthsimple authentication](wealthsimple-authentication.md) — observed password/OTP protocol, verified direct browser-session handoff, and remaining login integration work.
 - [Wealthsimple account-history contracts](wealthsimple-account-history-contracts.md) — September 16 capture findings, POSTED history support, reusable account-baseline queries and the unresolved null fill quantity.
 

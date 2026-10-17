@@ -23,6 +23,21 @@ sessions ("quiz me" / "review").
 
 ## Cards
 
+### Q: How does progressive profit trailing differ from a fixed percentage trail?
+
+A: A fixed percentage trail rises with new highs but keeps the same percentage gap. Progressive
+tightening shrinks that gap as profit grows. The direction is confirmed; no operating schedule is selected.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-profit-trailing-draft.md.
+
+### Q: Why compare DSV with ARE before choosing a tighter profit trail?
+
+A: DSV gave back profit, while ARE pulled back before climbing further. The operator prioritizes
+protecting profit and accepts missing that later upside; a later rally alone does not invalidate a
+profitable exit. These examples alone do not establish an improved rule.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; reviews/stock-gain-paths-20261017.md.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

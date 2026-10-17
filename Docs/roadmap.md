@@ -263,14 +263,16 @@ or completed replacement of the execution work below. See the
 ## Next — improve data and model evidence
 
 - **Revisit intraday-gain retention soon** and carry it into future strategy/risk work. The operator
-  confirmed this open research goal October 16: investigate morning gains fading later, keeping
-  whole-portfolio protection and individual-winning-position protection undecided. No rule, threshold
-  or implementation is chosen. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
+  preserved this important research goal October 16. October 17 establishes the individual-winner
+  direction below; whole-portfolio protection remains background. No operating policy, threshold or
+  implementation is adopted. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
   **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
   The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
   that question. The operator accepted day-move and purchase-profit measures separately. The
   [stock-level review](reviews/stock-gain-paths-20261017.md) now covers ordinary holding paths, later
-  purchases and later upside. Next discuss individual-winner protection behavior; rules stay unchanged
+  purchases and later upside. The operator then confirmed **a trailing percentage gap that shrinks as
+  purchase profit grows**, prioritizing protected profit over post-sale upside. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md)
+  retains open activation/schedule/timing choices; next settle ordinary-day behavior. Rules stay unchanged
   and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

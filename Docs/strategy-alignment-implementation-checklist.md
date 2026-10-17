@@ -366,8 +366,8 @@ Optional older-history import remains a proposal; no historical reset is approve
 ## Operational follow-through
 
 - [ ] Revisit the operator's important [intraday-gain retention research goal](reviews/open-questions.md#intraday-gain-retention-revisit-soon)
-  soon and carry it into future strategy/risk work. Whole-portfolio and individual-winning-position
-  approaches remain undecided; this is a research follow-up, not an implemented protection rule.
+  soon and carry it into future strategy/risk work. Individual progressive trailing is the confirmed
+  design direction below; operating policy is unapproved and whole-portfolio protection stays background.
 - [x] Review the original September 18 saved paper export offline (October 17): reproduce prior
   checkpoints/cash/shares/closes, separate held-position and later-position contributions and measure
   price-time/coverage limits. [Results](reviews/intraday-gain-evidence-20261017.md). No new collection or rules.
@@ -379,9 +379,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Complete the bounded **stock-level** saved-evidence review (October 17): 235 directly checked
   held-through-noon position-days, later purchases, complete-path later highs and a five-stock day
   walkthrough. [Findings/coverage](reviews/stock-gain-paths-20261017.md). No new SQL or collection.
-- [ ] Discuss ordinary individual-winner gain protection, new purchases and later upside sacrificed;
-  behavior/thresholds/re-entry remain open. Whole-account audit stays background. No rule changed;
-  keep exception repairs secondary.
+- [x] Record confirmed individual-winner direction: a shrinking trailing percentage gap as purchase
+  profit grows, with protecting profit prioritized over post-sale upside. Compare DSV/ARE using complete
+  saved paths, without stop/fill simulation. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
+- [ ] Define activation, gap schedule, observation timing and family/version scope before implementation;
+  preserve existing protection and separate later purchases/re-entry. No rule changed; keep repairs secondary.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

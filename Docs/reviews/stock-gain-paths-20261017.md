@@ -5,8 +5,9 @@
 This answers the corrected question: how stocks **within** each portfolio behaved. The operator
 accepted showing the day's move and profit since purchase **separately**. Whole-account results
 in the [previous review](paper-gain-patterns-20261017.md) remain background, not stock-level findings.
-The immediate problem is stock-level giveback; the parent problem is retaining gains while allowing
-later opportunities; the root goal is dependable returns. No protection rule or trading behavior changed.
+The immediate problem is stock-level giveback; the parent problem is retaining profit as a stock
+progresses; the root goal is dependable returns. The operator prioritizes protecting profit over
+further post-sale gains. No protection rule or trading behavior changed.
 
 ## The two measures
 
@@ -79,6 +80,36 @@ different situation. STC was a new decision after the DSV exit and must be measu
 own purchase. Protecting DSV's gain alone would not determine whether to buy STC or how it performed.
 These facts do not assume DSV could have been sold at a retrospectively selected high.
 
+## DSV versus a winner that kept climbing
+
+**October 17 design walkthrough:** DSV on September 30 is compared with ARE on September 22
+in the same Continuation Top 5 rules-only account. ARE is the latest fully covered, profitable
+continued-climb example in that account meeting the comparison criteria, not an unbiased trial.
+Both have every expected five-minute close while held that day: DSV 46/46 through its sale,
+ARE 78/78 through close. Neither has an add-on during the illustrated interval.
+
+| Observation | DSV, Sep 30 | ARE, Sep 22 |
+|---|---:|---:|
+| Profit since purchase at 09:35 | +1.38% | +11.52% |
+| Best morning close: purchase profit | +2.94% at 10:15 | +14.86% at 10:20 |
+| Day's move at noon, versus 09:35 | +0.48% | +2.80% |
+| Profit since purchase at noon | +1.87% | +14.64% |
+| Profit since purchase at actual sale/close | -0.05%, sold 13:20 | +17.94% at 16:00 close |
+
+ARE's purchase profit temporarily falls to **+12.82% at 11:00**, between its +14.86% morning
+high and +17.94% finish. A tighter trail could also end ARE's ownership during that profitable
+pullback. The operator explicitly accepts missing the later advance when it means protecting
+profit; a later rally alone does not make a profitable exit a failure. No setting has been simulated,
+so neither retained gain nor a hypothetical early exit/fill is claimed. The displayed highs are retrospective five-minute closes,
+first received about two minutes later in these examples, not instantaneous executable quotes.
+
+The operator confirmed **a shrinking percentage gap as profit since purchase grows**, keeping
+trading rules unchanged. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
+records this direction and the open settings; the source already has non-loosening trailing protection.
+Working reproduction is `winner-walkthrough.py` / `winner-walkthrough.json` in the same ignored
+artifact directory, reusing the frozen export. Assertions confirm both endpoints/noon against the
+prior independently checked stock results and both full within-ownership price paths. No SQL or provider run.
+
 ## Later purchases and upside an early exit might miss
 
 Of **86 afternoon-entry position-days**, 84 have purchase and sale/close values: **31 finish
@@ -97,10 +128,11 @@ recorded sale price and 64 below. This is separate unowned price context, not po
 or evidence that a protective exit was wrong. Actual bid/adjusted fills versus bar closes include
 execution friction, and sale reasons/counterfactual re-entry have not been tested.
 
-The practical next discussion is what **an individual winner** should retain and how much later
-upside we would accept missing. Handling later purchases is a separate part of that discussion.
-Whole-portfolio protection remains an unresolved background idea; this review selects neither approach,
-threshold, time cutoff, exit action nor re-entry rule.
+The practical next discussion is when **an individual winner's** profit protection begins and
+how its percentage gap shrinks. The operator prioritizes protecting profit over post-sale upside;
+that upside remains secondary context. Handling later purchases is a separate part of the discussion.
+Whole-portfolio protection remains background. Individual progressive trailing is now the confirmed
+direction; exact thresholds, timing, exit behavior and re-entry remain unapproved.
 
 ## Coverage and checks
 
