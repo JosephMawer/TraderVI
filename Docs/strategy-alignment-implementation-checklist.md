@@ -389,8 +389,12 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
   first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).
-- [ ] Assess ordinary larger-winner cases for the upper bands, which this sample barely/not at all
-  exercises; retain current bands pending review rather than retuning from the small result set.
+- [x] Assess saved larger winners without changing bands: entry-based ARE/AGI exercise +3%; separate
+  conditional already-held ARE/CAS windows exercise +5%. Independently verify 24 scenario crossings/fills.
+  [Scope/results](reviews/progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands).
+- [ ] Review numeric gaps, observation timing, prior add-on cost/high references and policy/version scope.
+  Tighter gaps do not consistently retain more profit; +5% survival from entry remains unproven in these
+  cases. Conditional day windows do not adopt a daily reset or settle prior add-on behavior.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

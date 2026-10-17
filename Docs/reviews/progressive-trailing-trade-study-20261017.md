@@ -1,4 +1,4 @@
-# Progressive trailing bands: first saved-trade comparison
+# Progressive trailing bands: saved-stock comparisons
 
 **October 17, 2026. Offline model comparison; trading rules unchanged.**
 
@@ -11,6 +11,10 @@ evidence, not seven new actual sales or proof of a generally superior strategy.
 The operator prioritizes protected profit over later gains after selling. The immediate question is
 whether the proposed individual-stock bands help beyond DSV; the parent problem is reducing winner
 giveback; the root goal is dependable returns. The bands were held fixed throughout this comparison.
+
+The [larger-winner extension](#larger-winner-extension-3-and-5-bands) below adds entry-based ARE/AGI
+examples and separately labeled illustrations of protecting already-held large winners. It does not
+add those illustrations to the 53-trade result above or imply that tighter gaps always retain more profit.
 
 ## Ordinary trades first
 
@@ -107,9 +111,100 @@ this first comparison. Normal-gate/original accounts supplied no qualifying comp
 Live's quote-fill contract is different and is not assigned a Shadow bar-open return estimate.
 Those coverage boundaries limit generalization and do not block continuing ordinary-case design.
 
-The next step is reviewing this bounded evidence while keeping the proposed bands unchanged.
-More ordinary examples of larger winners are needed to assess the upper bands. Exact operating input
-timing, policy/version scope, adoption and any implementation remain separate decisions.
+That first sample motivated the larger-winner extension below. Exact operating input timing,
+policy/version scope, adoption and any implementation remain separate decisions.
+
+## Larger-winner extension: +3% and +5% bands
+
+**October 17, authorized offline extension. The proposed numbers remain unchanged.**
+
+The +3% band gives positive modeled sale profits in ARE and AGI. The +5% band also retains substantial
+profit in two conditional examples of already-held winners, ARE and CAS. These results demonstrate
+the proposed mechanism; they do not establish that 0.75% and 0.50% are the best gaps.
+
+### Follow ownership from entry first
+
+Five selected complete entry histories are followed only until the first additional exit, an actual
+sale/add-on order commitment, or the end of saved evidence. The model never continues owning a stock
+after its hypothetical sale to claim a later +5% result. No add-on behavior is invented: ARE's tested
+exit occurs before its next actual add-on commitment. Open AGI/FVI holdings can be tested through an
+earlier supported exit without pretending their recorded eventual sale is known.
+
+All five cases are individual positions in portfolio-rules-only Shadow accounts, not whole-account
+returns or a new all-trades sample. CS is the previously reported case, included as a reference.
+The two AGI entries have different costs but share subsequent prices; they are not independent proof.
+
+| Stock / saved account | Actual entry, Toronto | Highest purchase profit before signal | Gap at signal | Modeled sale, Toronto | Modeled profit since purchase |
+|---|---|---:|---:|---|---:|
+| ARE / Breakout Top-5 | Sep 17, 09:55 | +3.79% | 0.75% | Sep 18, 10:10 | **+2.64%** |
+| AGI / Breakout Top-3 | Oct 15, 10:15 | +4.58% | 0.75% | Oct 16, 11:15 | **+3.06%** |
+| AGI / Breakout Top-5 | Oct 15, 10:35 | +3.62% | 0.75% | Oct 16, 11:15 | **+2.10%** |
+| CS / Breakout Top-5 | Sep 29, 11:00 | +3.19% | 0.75% | Sep 30, 10:35 | **+1.25%** |
+| FVI / Breakout Top-5 | Oct 15, 10:30 | +2.15% | 1.00% | Oct 15, 14:40 | **+0.94%** |
+
+The second AGI entry is an actual saved re-entry, treated as a separate position from its own
+purchase. No earlier unowned gains or hypothetical re-entry after the modeled exit are credited.
+FVI's actual holding later rises above +5%, but this entry-based overlay would already have sold it
+under the starting band. It therefore supplies no entry-based test of the 0.50% gap.
+
+As a check on what tightening itself contributes, retain activation at +1.5% but leave the gap at
+1% throughout. That models ARE +2.90%, the two AGI entries +3.08% and +2.13%, CS +1.25% and FVI +0.94%.
+The +3% tightening exits earlier in ARE/AGI and still protects profit, but does not increase retained
+profit over that wider-gap comparison in these selected paths. This is a comparison of sale profits,
+not a requirement to capture every subsequent rally, and it does not select a replacement setting.
+
+### Illustrate the upper band on already-held large winners
+
+The next table asks a narrower question: **if this actual stock were still held at 09:35 on the stated
+day, what would the proposed bands do from that point?** ARE uses the same Continuation Top-5 holding
+as the earlier walkthrough. CAS uses its first qualifying complete day in the large-winner inventory;
+FVI shows why even a larger winner can exit before reaching the tightest band within the day.
+
+Each window has all 78 saved five-minute closes, no same-day add-on or sale, and uses the actual
+weighted purchase cost including earlier buys. Monitoring begins with the first received 09:35 close,
+with no invented earlier high. These are conditional day illustrations, **not entry-to-exit results,
+daily stop resets, or proof the full schedule would still own those stocks**. In particular, prior
+add-on handling is unresolved for the long-held ARE case, and the FVI entry test above already exited.
+The windows are not added to the entry-based trade counts or combined into portfolio performance.
+
+| Held stock / day | Purchase profit at 09:35 | Day move at highest observed price before signal, from 09:35 | Purchase profit at that high | Gap at signal | Modeled sale | Modeled profit since purchase |
+|---|---:|---:|---:|---:|---|---:|
+| ARE / Sep 22 | +11.52% | +0.86% | +12.48% | 0.50% | 10:00 | **+12.35%** |
+| CAS / Sep 25 | +2.80% | +2.30% | +5.16% | 0.50% | 10:50 | **+4.55%** |
+| FVI / Oct 16 | +2.43% | +2.01% | +4.48% | 0.75% | 10:10 | **+3.85%** |
+
+ARE's +12.48% is profit since purchase; its rise within this morning window is only +0.86%.
+The 09:55 close crosses the 0.50% trailing threshold, becomes known about 09:57, and gives a modeled
+sale at the next bar starting 10:00. The saved opening price rebounds before that sale, producing
++12.35% after the sell adjustment. This favorable fill is not a guaranteed stop floor.
+
+CAS crosses +5% within its window, tightens to 0.50%, and models a sale retaining +4.55%. Its starting
++2.80% profit belongs to earlier ownership; it is not all earned that morning. FVI's overlay exits
+at the +3% band before its later +5.10% saved high, so that later high cannot activate a band after sale.
+
+To isolate the +5% tightening, keep the same windows and earlier bands but cap the gap at 0.75%:
+ARE models +13.58% and CAS +4.67%, both later exits. FVI is unchanged. Thus the 0.50% gap protects a
+substantial profit sooner in these examples, but retains less than 0.75% in these particular paths.
+Against a fixed 1% gap, CAS retains more (+4.55% versus +3.92%); ARE is slightly lower (+12.35% versus
++12.48%). These small, selected illustrations support the profit-first idea without proving an
+optimal gap or requiring us to pursue later upside.
+
+### What this adds, and what remains open
+
+We now have ordinary larger-winner examples for the +3% band and clearly conditional illustrations
+for +5%. No new missing-data repair was needed. The +5% gap still lacks a clean entry-based example
+that survives all lower bands to that point; these illustrations do not close that evidence limit.
+Before implementation, review the exact gaps and settle observation timing, prospective policy/version
+scope and how prior add-ons affect cost/high references. No add-on rule or daily reset is adopted here.
+
+The extension reuses the same three frozen evidence files and their hashes below, without SQL or
+provider calls. An independent Decimal verifier checks **24 first crossings and adjusted fills**:
+five entry cases and three conditional windows, each under the proposed schedule and two comparisons.
+It derives the prior stop from the highest previously available price, checks first-receipt order,
+the first subsequent regular-session bar opening, the 0.25% sell adjustment, purchase-cost ownership,
+complete window coverage, and actual order-commitment boundaries. These 24 are scenario checks,
+not 24 independent stock trades. Reproduction: ignored `upper-band-study.py`, `upper-band-results.json`,
+`verify-upper-band-study.py` and `upper-band-validation.json` beside the first study's artifacts.
 
 ## Evidence and validation
 

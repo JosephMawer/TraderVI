@@ -111,10 +111,14 @@ profits. Their median modeled return is +0.53%, versus +0.14% recorded; 46 paths
 All seven affected returns improve in this limited subset. This is a conditional individual-trade
 overlay, not an engine/portfolio backtest, realized profit or operational validation.
 
-Seven of eight activated distinct non-DSV paths only exercise the 1% gap, one reaches 0.75%, and none
-reach 0.50%. This supports retaining the first band as a candidate, without retuning or treating the
-upper bands as tested. The study owns the ordinary-case scope, full result table and exclusions;
-no historical repair is a prerequisite to discussing these results. The operating policy remains proposed.
+In that first sample, seven of eight activated distinct non-DSV paths only exercise the 1% gap, one
+reaches 0.75%, and none reach 0.50%. The subsequent [larger-winner extension](../reviews/progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands)
+tests ARE/AGI from actual entry: the +3% band models retained profits of +2.64% for ARE and +3.06%/+2.10%
+for the two AGI entries. Separate conditional already-held day windows give ARE +12.35% and CAS +4.55%
+under the +5% band. They do not establish survival from entry under the lower bands or prior add-ons.
+FVI illustrates an earlier lower-band exit before its later +5% high. Wider-gap comparisons sometimes
+retain more profit; these examples do not establish optimal settings. The study owns the tables,
+scope and independent checks. No historical repair is a prerequisite. The operating policy remains proposed.
 
 ## Open before an implementable policy
 
@@ -123,6 +127,8 @@ no historical repair is a prerequisite to discussing these results. The operatin
   above is not out-of-sample or general efficacy qualification, particularly for its upper bands.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
+  Prior add-ons' effect on cost/high references also remains open; a conditional day illustration does
+  not decide that behavior or authorize resetting an existing stop each morning.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually
   retained after costs and giveback. Record later upside as secondary context, alongside later purchases
   and re-entry; do not turn capturing every subsequent rally into a success condition. Existing fill

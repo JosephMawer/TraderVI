@@ -38,6 +38,13 @@ profitable exit. These examples alone do not establish an improved rule.
 
 Tags: risk-management, decision-engine. Source: ADR-0090; reviews/stock-gain-paths-20261017.md.
 
+### Q: Does a saved stock's later +5% gain prove the tightest proposed band was reachable?
+
+A: No. A lower band may already have sold the position, as FVI illustrates. A day-only test of an
+already-held winner can explain profit protection without proving survival from its original entry.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

@@ -62,6 +62,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   only one activated path reaches 0.75% gap and none reach 0.50%. Keep bands unchanged pending review,
   with upper-band efficacy, exact operating timing/version scope and adoption still open. Missing paths
   are omitted; they do not expand this into an exception-repair project.
+- **Larger-winner extension, October 17:** [entry-based ARE/AGI examples](progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands)
+  exercise +3%, with modeled purchase profits retained of +2.64% and +3.06%/+2.10%. Conditional
+  already-held day windows exercise +5% in ARE/CAS (+12.35%/+4.55% modeled), without proving those
+  positions survive the lower bands from entry. FVI sells under the first band before its later +5%
+  high. Tighter gaps sometimes retain less than wider comparisons, so no exact setting is adopted.
+  Twenty-four scenario crossing/fill checks pass offline. Review gaps, observation timing, policy/version
+  scope and prior add-ons' cost/high references; conditional windows do not decide a daily reset or
+  add-on policy. Keep profit protection primary and exception repairs secondary.
 
 ### Liquidity and execution-realism research
 
