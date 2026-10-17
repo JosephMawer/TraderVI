@@ -50,13 +50,60 @@ The [DSV/ARE walkthrough](../reviews/stock-gain-paths-20261017.md#dsv-versus-a-w
 uses complete saved five-minute close paths from the same paper account on different dates.
 DSV gives back its morning profit; ARE pulls back before a higher afternoon finish. The operator
 accepts missing ARE's later advance if the exit protects profit. These contrasting examples explain
-the accepted tradeoff, not a tested improvement. No stop threshold, trigger or fill
-was simulated. Five-minute closes do not describe every within-bar price or instantaneous receipt.
+the accepted tradeoff, not a tested improvement. That original walkthrough evaluated no stop setting
+or alternative fill. The subsequent limited arithmetic illustration below is separate from a strategy
+replay. Five-minute closes do not describe every within-bar price or instantaneous receipt.
+
+## Recommended first paper-study schedule — not accepted
+
+The October 17 recommendation starts **extra tightening** once the highest observed purchase profit
+reaches **+1.5%**. Existing loss/break-even protection continues below that point. Use three simple
+bands rather than fitting a curve to DSV. These numbers are a starting hypothesis, not calibrated
+settings, operator acceptance, a deployed rule or implementation authorization.
+
+| Highest profit since purchase | Percentage gap below the observed high |
+|---|---:|
+| +1.5% to below +3% | 1.00% |
+| +3% to below +5% | 0.75% |
+| +5% and above | 0.50% minimum gap |
+
+Rationale: leave the smallest initial moves alone, begin with a modest positive threshold after
+ordinary modeled exit friction, then tighten fairly quickly because retaining profit is the operator's
+priority. The 0.50% minimum bounds the initial proposal. There is no evidence these exact bands are
+optimal across stocks, spreads or volatility. The recommendation uses the highest attained band;
+falling profit cannot widen the gap or lower an established stop. It does not reset on a new morning.
+Precise high/update observations, add-on/cost handling and version scope remain open before adoption.
+
+### DSV arithmetic illustration
+
+For illustration only, begin at the September 30 09:35 observation, with no prior-day high/activation
+replay. Normalize purchase cost to 100 and consume saved five-minute closes in order. Test an existing
+threshold before raising it from the next observed high; never use a later high to explain an earlier exit.
+
+1. **09:55:** the first observed purchase profit above +1.5% is +1.55%. A 1% gap puts the nominal
+   price threshold about **+0.53% above purchase cost**. This price was first received at 09:57.
+2. **10:15:** purchase profit reaches +2.94%. The 1% gap still applies, because +3% was not reached.
+   Normalized high 102.936761 multiplied by 0.99 gives threshold 101.907394: **+1.91% above cost**.
+3. **10:25:** the saved close is **+1.79% above cost**, below the existing +1.91% threshold. It is first
+   received about **10:27**, when that close-based observation could become known. No exit at 10:25,
+   fill at the threshold or retained profit is assumed. The original actual paper sale was at 13:20.
+
+This is a **day-only threshold illustration**, not a full position/strategy backtest: prior days,
+within-bar lows, current fifteen-minute policy semantics and alternative executions are not replayed.
+It cannot establish a realized +1.91% or +1.79% return. Execution/receipt timing and existing friction
+must be preserved in a later comparison. The SEC also distinguishes a stop's trigger from its
+unguaranteed execution price in its [order bulletin](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-15);
+that source supports order mechanics, not these recommended parameter values.
+
+Offline reproduction: ignored `artifacts/morning-gain-review-20261017-expanded/trail-schedule-illustration.py`
+and `.json`, using the existing `winner-walkthrough.json`. Decimal checks retain a nondecreasing
+threshold, positive activation threshold and chronological first crossing. No Core/engine rule changed,
+new SQL/market request, order, model run or alternative fill occurred.
 
 ## Open before an implementable policy
 
-- Activation profit, initial/minimum allowed gap, and how the gap shrinks: steps, a smooth curve
-  or another explicitly reviewed schedule. No numeric examples are accepted settings.
+- Operator review of the proposed activation/gap bands above; a smooth curve or different schedule
+  remains possible. The numeric recommendation is unapproved and has no broader efficacy validation.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually

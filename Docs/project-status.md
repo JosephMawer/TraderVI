@@ -1307,9 +1307,11 @@ ordinary individual-winner protection and later upside/new purchases; keep repai
 **Progressive trailing design, October 17:** the operator confirmed a shrinking percentage gap
 as an individual position's purchase profit grows, and prioritizes profit protection over post-sale
 upside. The [DSV/ARE walkthrough](reviews/stock-gain-paths-20261017.md#dsv-versus-a-winner-that-kept-climbing)
-uses complete saved close paths (46/46 and 78/78 points); no stop or alternative fill is simulated.
-[Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md) records the direction; activation,
-gap schedule, input timing and adoption remain open. Existing protection/rules are unchanged.
+uses complete saved close paths (46/46 and 78/78 points). A later unapproved three-band recommendation
+and DSV day-only threshold illustration are recorded in [proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
+Ordered-close arithmetic finds a first crossing in the 10:25 bar, received about 10:27; no alternative
+fill or realized retained gain is established. Operator review, broader efficacy comparison, input timing
+and adoption remain open. Existing protection/rules are unchanged; no new SQL/market producer ran.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

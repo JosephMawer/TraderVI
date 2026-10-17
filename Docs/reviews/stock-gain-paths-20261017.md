@@ -99,8 +99,9 @@ ARE 78/78 through close. Neither has an add-on during the illustrated interval.
 ARE's purchase profit temporarily falls to **+12.82% at 11:00**, between its +14.86% morning
 high and +17.94% finish. A tighter trail could also end ARE's ownership during that profitable
 pullback. The operator explicitly accepts missing the later advance when it means protecting
-profit; a later rally alone does not make a profitable exit a failure. No setting has been simulated,
-so neither retained gain nor a hypothetical early exit/fill is claimed. The displayed highs are retrospective five-minute closes,
+profit; a later rally alone does not make a profitable exit a failure. This original walkthrough
+evaluated no setting or alternative fill. A subsequent [unapproved schedule illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
+checks DSV's ordered five-minute closes only; it is not a complete strategy/fill replay. The displayed highs are retrospective five-minute closes,
 first received about two minutes later in these examples, not instantaneous executable quotes.
 
 The operator confirmed **a shrinking percentage gap as profit since purchase grows**, keeping

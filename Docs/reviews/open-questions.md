@@ -49,6 +49,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   profitable protective exit. DSV/ARE illustrate that accepted tradeoff. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
   and its concept note preserve the direction. Activation, gap schedule, observation timing and
   implementation/version scope remain open; no numeric policy or rule change is accepted.
+- **Numeric recommendation, October 17 — unapproved:** extra tightening at +1.5% highest purchase
+  profit with a 1% gap; at +3% use 0.75%, at +5% use a 0.50% minimum. Existing protection stays active
+  below activation and no stop is lowered. [Rationale/DSV illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
+  uses ordered saved closes, not a full trade or fill replay. DSV first crosses the illustrative
+  threshold in the 10:25 close, received about 10:27. Await operator review and broader paper comparison;
+  this recommendation is not an accepted or implemented rule.
 
 ### Liquidity and execution-realism research
 
