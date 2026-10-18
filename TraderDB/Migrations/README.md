@@ -2,11 +2,13 @@
 
 This directory records the exact schema scripts applied to `TraderDB` after adoption of ADR-0018. Existing top-level scripts in `TraderDB` predate this convention.
 
-## Prepared, not installed
+## Progressive protection rollout
 
-- `20261017_043_AddProgressiveProfitProtection.sql`: additive per-position Shadow protection state.
-  Reviewed in source and included in the passing SSDT project build; no installation has run.
+- `20261017_043_AddProgressiveProfitProtection.sql`: additive per-position Shadow protection state,
+  installed October 18 after a checksum-verified backup and hash-matched copy.
   The script does not enable the strategy or change existing stops/assignments.
+- `20261018_044_AllowProgressiveComparisonProtection.sql`: prepared narrow database guard extension;
+  SSDT build passes. Permits only the progressive successor while preserving fixed comparison rules.
 
 ## Naming
 

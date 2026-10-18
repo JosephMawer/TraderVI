@@ -34,15 +34,20 @@ GO
 CREATE TRIGGER dbo.TR_EngineStrategyAssignment_FixedComparison ON dbo.EngineStrategyAssignment AFTER INSERT AS
 BEGIN
     SET NOCOUNT ON;
-    IF EXISTS(SELECT 1 FROM inserted i JOIN dbo.PaperComparisonAccount a ON a.AccountId=i.TargetId)
-        THROW 52405,'Comparison accounts retain fixed paired rules; create a fresh pair.',1;
+    IF EXISTS(SELECT 1 FROM inserted i JOIN dbo.PaperComparisonAccount a ON a.AccountId=i.TargetId
+      WHERE NOT EXISTS(SELECT 1 FROM dbo.ProgressiveProfitProtectionComparisonSuccessor allowed
+        WHERE allowed.AccountId=a.AccountId AND allowed.VersionId=i.VersionId))
+        THROW 52405,'Comparison accounts permit only the ADR-0090 progressive protection successor; other paired rules stay fixed.',1;
 END;
 GO
 CREATE TRIGGER dbo.TR_DelphiLivePortfolioLedger_FixedComparison ON dbo.DelphiLivePortfolioLedger AFTER UPDATE AS
 BEGIN
     SET NOCOUNT ON;
     IF EXISTS(SELECT 1 FROM inserted i JOIN dbo.PaperComparisonAccount a ON a.LivePortfolioId=i.PortfolioId
-      WHERE i.DelphiLivePolicyVersionId<>a.LivePolicyVersionId
+      WHERE (i.DelphiLivePolicyVersionId<>a.LivePolicyVersionId AND NOT EXISTS
+        (SELECT 1 FROM dbo.ProgressiveProfitProtectionComparisonSuccessor allowed
+          JOIN dbo.EngineStrategyAssignment assigned ON assigned.TargetId=allowed.AccountId AND assigned.VersionId=allowed.VersionId
+          WHERE allowed.AccountId=a.AccountId AND allowed.VersionId=i.DelphiLivePolicyVersionId))
        OR ISNULL(JSON_VALUE(i.SnapshotJson,'$.comparisonAccount.profile'),N'')<>CASE a.GateProfile WHEN N'NormalV1' THEN N'0' ELSE N'1' END
        OR ISNULL(JSON_VALUE(i.SnapshotJson,'$.comparisonAccount.accountId'),N'')<>CONVERT(NVARCHAR(36),a.AccountId)
        OR ISNULL(JSON_VALUE(i.SnapshotJson,'$.comparisonAccount.batchId'),N'')<>CONVERT(NVARCHAR(36),a.BatchId)

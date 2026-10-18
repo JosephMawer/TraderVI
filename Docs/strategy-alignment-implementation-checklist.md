@@ -425,7 +425,9 @@ Optional older-history import remains a proposal; no historical reset is approve
   policy guards. This is source/test evidence, not upstream freshness or operating qualification.
 - [x] Receive October 18 installation/enablement authorization, create checksum-verified backup and
   hash-matched copy, and test the narrow paused-invested-account rollout path (59 focused tests).
-- [ ] Install migration 043 and reviewed binaries; assign new opt-in versions prospectively and verify
+- [x] Install additive state migration 043 after verified backup; add/build migration 044 for the
+  existing fixed-comparison database guards. No trigger is disabled and no profile is rewritten.
+- [ ] Install migration 044 and reviewed binaries; assign new opt-in versions prospectively and verify
   preservation/operation before claiming enabled coverage. [Procedure](running.md#progressive-profit-protection--implemented-disabled).
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,

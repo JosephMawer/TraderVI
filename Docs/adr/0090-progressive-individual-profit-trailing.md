@@ -47,6 +47,11 @@ save/assignment operation may run while invested only with new buys paused and o
 progressive successor. Ordinary editing retains its pause-and-empty restriction. Restore pre-rollout
 entry controls after preservation checks; do not clear capital-review or other safety holds.
 
+Migration 044 gives the database comparison guards the same narrow successor contract. A JSON
+predicate compares every unchanged property/type and the original Live implementation identity,
+allowing only the true progressive flag and new policy ID. Immutable profiles/history remain guarded.
+The Live ledger also requires the matching saved successor assignment. No trigger is disabled.
+
 This accepted record extends the risk rules in [ADR-0051](0051-system-shadow-portfolios.md),
 [ADR-0053](0053-delphi-live-v1.md) and the fixed comparison-account contract in
 [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) **only for explicitly assigned prospective versions**.

@@ -1343,7 +1343,10 @@ active paper accounts (12 Shadow/three Live). A checksum-verified fresh backup a
 OneDrive-folder copy are complete; cloud synchronization and restore drill are not established by that
 copy. The app was closed. A dedicated invested-account rollout correction passes 59 focused tests and the full Core suite (2,423 pass/eight skips)
 and the Release desktop build; ordinary settings edits remain pause-and-empty. Before-state evidence
-captures 32 Shadow/five Live open holdings. Migration/assignments have not yet run. Private receipts:
+captures 32 Shadow/five Live open holdings. Migration 043 is installed; the first comparison assignment
+was rejected by the pre-existing fixed-rule SQL guard and rolled back (no assignments changed).
+Migration 044 adds the matching narrow database successor predicate; its SSDT build passes and
+installation/native verification are next. Entry controls remain temporarily paused. Private receipts:
 `artifacts/profit-protection-rollout-20261018/`. Quote investigation remains deferred.
 
 The following research record preserves the earlier studies and their limits; its no-implementation

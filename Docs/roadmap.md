@@ -294,7 +294,8 @@ or completed replacement of the execution work below. See the
   prerequisite. Daily Shadow/Delphi Live integration, prospective comparison assignments, recommendation
   paths and safe handover are implemented: 166 focused tests including Practice and the final full Core suite pass.
   October 18 installation/enablement is authorized; the verified backup and paused-invested-account
-  rollout path are ready. Next apply migration 043, assign prospective versions and verify preservation.
+  rollout path are ready. Migration 043 is installed; finish the narrow comparison-guard migration 044,
+  then assign prospective versions and verify preservation.
   Defaults remain disabled. Close-based studies and synthetic tests do
   not establish live bid-trigger returns. Gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
