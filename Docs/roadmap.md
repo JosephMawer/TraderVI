@@ -27,7 +27,9 @@ in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-bounda
 discretion, enforced boundaries, reducing risk as losses deepen and no loosening stops to prolong
 losing trades. The first API client, shared spending journal and portfolio-proposal contract are
 implemented offline under the operator's initial below-CAD-100 monthly ceiling. Codex subscription
-access remains an alternative. Proceed with implementation of the agreed framework. Portfolio scope
+access remains an alternative. The operator also raised Dots on October 17; its connection feasibility
+is [unresolved](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026),
+without an agreed API replacement or change to delivery prerequisites. Proceed with implementation of the agreed framework. Portfolio scope
 includes all current strategy portfolios and their variants, expanding as new portfolios are built
 and integrated (ADR-0087). The operator defers lesson criteria until they are relevant to Step 6;
 continue delivery without another design discussion on that topic. Concrete rule mapping,

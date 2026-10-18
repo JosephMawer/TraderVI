@@ -1,5 +1,15 @@
 # TraderVI Project Status
 
+**AI paper delivery / Dots documentation review, October 17, 2026:** the operator requested a
+remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation
+is built; qualified invested inputs/v3 interpretation and recurring reviews/display remain before
+Milestone 1, with action/protection integration, paper execution/switching, outcome learning and
+end-to-end recovery validation still required for Milestone 2. October 14 collection recovery does
+not qualify the separate AI risk reader. Dots is an unresolved connection alternative, documented
+in [open questions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
+Only repository/official-documentation inspection ran; no runtime test, SQL access, market/model
+call, activation or connection change. Operational verification dates remain unchanged.
+
 **Current follow-up, October 14, 2026:** the nine missing bars are investigated; a narrow live
 request-end correction and clearer stale-source metadata are implemented/tested/installed at
 11:09 Toronto. Its first scheduled cycle is verified: 36/42 usable, five StaleNoNewBar, one

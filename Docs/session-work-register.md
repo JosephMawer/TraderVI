@@ -53,6 +53,15 @@ question, not an assumed design choice. R01 above has the operator's explicit re
 | **R18 — Requirements-gathering personal skill** | The requested `gather-what-you-need` skill should elicit requirements, leave decisions with the user unless delegated, and play back shared examples/intent. Its chat was interrupted at installation approval. On October 16 the temporary draft still exists and the expected personal installation does not. Preserve the draft at `%TEMP%/codex-skill-draft-20260927/gather-what-you-need/SKILL.md`; installation/reconciliation with the existing guided-design skill is unfinished, with no replacement decision made here. | Supporting workflow; [S41](#s41). |
 | **R19 — Sandbox/read-helper recovery** | October 9 diagnosis found a Windows helper failure before commands start; lock owner and permanent fix were not verified. The nightly watcher could not read status October 10–14 but reported successful stages again October 15–16. This documents later helper access, not a verified permanent repair or an app/pipeline failure. Preserve the diagnostic chat for follow-up if the helper fails again. | Supporting development/operations; [S47](#s47), [S05](#s05). |
 
+## Dots alternative raised October 17
+
+**R20 — Dots as the AI decision connection (unresolved).** Current-chat source reviewed through
+this paper-delivery recap and Dots feasibility question. Official documentation supports ongoing
+work and connected local tasks, but a TraderVI bridge, decision timing, structured results and
+sustained allowance are unqualified. No replacement or trial is approved. R02 remains the delivery
+work; [open questions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
+own the proposed saved-input, non-executing feasibility check. No operational verification changed.
+
 ## Closed or superseded handoffs
 
 - Initial RS/leadership/score-once corrections, transaction/schema milestones and initial CI should

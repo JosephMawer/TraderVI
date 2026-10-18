@@ -95,6 +95,9 @@ specific check completed; it does not imply full trading readiness. Dated eviden
 Detailed agreed behavior remains binding in [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md),
 [design rules](design-rules.md) and their linked execution decisions. AI Explorer remains deferred.
 This checklist grants no deployment, paid API call or live-order authority.
+The October 17 [Dots alternative](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
+is unresolved; no connection change or completion credit is implied. The same paper input,
+protection, execution, recovery and validation requirements apply whichever AI connection is chosen.
 
 #### Delivery milestones
 

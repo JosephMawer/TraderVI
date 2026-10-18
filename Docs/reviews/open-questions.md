@@ -136,6 +136,21 @@ evidence; this follow-up grants no additional provider requests or database repa
 
 ### AI-managed portfolio and proposed live adoption — September 26, 2026
 
+- **Dots alternative raised October 17 (unresolved):** the operator asks whether ChatGPT Dots
+  could supply AI Momentum decisions instead of direct paid model API calls. Official documentation
+  reviewed today describes ongoing cloud work, saved schedules, supported plugins and local tasks
+  on an online connected computer with ChatGPT open. Work/Codex tasks still consume their product
+  allowances; unlimited intraday capacity is not established. No direct callable Dot request/response
+  interface or guaranteed 1–15-minute decision delivery was established by this documentation review.
+  A possible paper-only bridge would expose dated TraderVI inputs and accept structured proposals
+  through the existing validation/risk boundary, preserving TraderVI-owned protection and execution.
+  This is a feasibility proposal, not an accepted replacement or implementation authorization.
+  Next decide whether to test one saved-input, non-executing review before choosing the connection;
+  input qualification, stock actions, switching, runtime/UI and paper validation remain required.
+  Sources: [Meet dots](https://learn.chatgpt.com/docs/dots),
+  [tasks and memory](https://learn.chatgpt.com/docs/dots/tasks-and-memory),
+  [computers and apps](https://learn.chatgpt.com/docs/dots/computers-and-apps).
+
 - **First connected review follow-up (October 1):** the operator accepted the ten-minute age for
   this review-only test. Protected history is initialized; one model review and exact SQL readback
   are verified, with conservative usage/cost accounting. The AI returned `wait` and requested two
