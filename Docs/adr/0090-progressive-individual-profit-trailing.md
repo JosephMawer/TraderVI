@@ -156,8 +156,9 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
   Clock-based tightening is deferred from the retained baseline; its simulated receipt-time semantics
   and carried-stop behavior remain documented for a future research revisit.
-  The add-on contract below is agreed in design, but needs a saved-path simulation; the prior
-  conditional day illustrations do not validate its behavior or permit a daily stop reset.
+  A bounded [saved add-on simulation](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+  now tests the agreed contract. It covers only selected supported paths and no post-add-on 0.50%
+  band; the prior conditional day illustrations remain separate and do not permit a daily stop reset.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually
   retained after costs and giveback. Record later upside as secondary context, alongside later purchases
   and re-entry; do not turn capturing every subsequent rally into a success condition. Existing fill
@@ -208,10 +209,16 @@ although current blended purchase profit at $105 is now about 3.96%. The new sha
 individually at that stop; the combined holding remains profitable in this illustration. Preserving
 a price stop does not promise an unchanged profit percentage after adding capital.
 
-The original bands and add-on contract are agreed for design. No implementation, add-on simulation,
-SQL operation or operational verification occurred. Source inspection and independent Decimal
-arithmetic validate the illustrative figures only. Observation timing, version scope and validation
-remain outstanding before a complete implementable policy.
+The subsequent authorized [saved add-on comparison](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+supports seven records: three ARE exits after adding retain +1.58%/+1.93%, one earlier ARE exit
+prevents its later add-on and retains +2.64%; MATR/CAS keep original exits below activation. The
+recorded ARE sales are larger profits, so this protects profit sooner without improving those actual
+sale returns. Six included add-on cost transitions verify, including three active ARE transitions
+that preserve the stop/0.75% gap; four hypothetical first crossings/fills independently verify. Scope and exclusions live in
+the report. This is a bounded close-based overlay, not a full engine replay or implementation.
+
+The original bands and add-on contract remain agreed for design. Observation/high timing, version
+scope and operational adoption remain outstanding. No new SQL or operational verification occurred.
 
 ## Review questions
 

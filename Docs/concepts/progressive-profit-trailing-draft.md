@@ -41,7 +41,10 @@ average purchase cost and reported profit, while keeping the existing stop, actu
 and tightest earned gap. A lower profit percentage after adding shares cannot undo earned protection.
 One protective exit covers the combined shares; new shares can lose individually while the combined
 holding remains profitable. See the [worked example and source boundary](../adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough).
-This decision is not implemented or validated by an add-on simulation.
+The [bounded saved add-on test](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+now illustrates this in ARE: +1.58%–1.93% combined profit after an add-on despite a -1.48% return on
+the added shares. It protects a smaller profit earlier than the actual recorded ARE exits. The
+decision is still unimplemented, and operating observation/high timing and version scope remain open.
 
 ## Review questions
 

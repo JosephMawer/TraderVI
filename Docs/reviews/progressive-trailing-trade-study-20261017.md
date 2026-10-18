@@ -17,6 +17,8 @@ examples and separately labeled illustrations of protecting already-held large w
 add those illustrations to the 53-trade result above or imply that tighter gaps always retain more profit.
 The later [time-of-day comparison](#time-of-day-gap-comparison) tests the operator's morning/noon idea
 and nearby schedules. Its mixed results support keeping the original bands as the baseline candidate.
+The [saved add-on comparison](#saved-add-on-trade-comparison) then tests the agreed combined-holding
+contract: ARE retains profit after extra shares, while an earlier exit can prevent a later add-on.
 
 ## Ordinary trades first
 
@@ -333,6 +335,105 @@ they are not counts of independent trades.
 Reproduction beside the previous artifacts: `time-gap-study.py`, `time-gap-results.json`,
 `time-gap-summary.json`, `verify-time-gap-study.py` and `time-gap-validation.json`. Raw evidence stays
 ignored. Trading rules, settings, database records, models, brokers and running applications are unchanged.
+
+## Saved add-on trade comparison
+
+**October 17. Authorized offline test of the agreed combined-holding design; no trading-rule change.**
+
+ARE retains about **+1.58% to +1.93% after the morning add-on**, with the original stop and earned
+0.75% gap preserved. Its newly added shares individually lose about **1.48%**, but the combined
+holding remains profitable. In the account scheduled to add at noon, protection sells first for
+**+2.64%**, so that add-on never occurs. This tests the contract from initial entry rather than
+initializing protection on an already-profitable later day.
+
+### Ordinary supported cases
+
+The frozen inventory contains 23 add-on position records. Seven have a complete relevant path to
+either a supported earlier exit or their unchanged original exit: four ARE, two MATR and one CAS,
+all portfolio-rules-only Shadow positions. They represent six distinct stock/cost histories across
+three symbols; identical ARE Top-3 histories count once when describing distinct histories. The
+different weights of extra shares in some accounts produce different combined average costs.
+
+Six records actually include their add-on under the overlay. One exits before the add-on order.
+Three ARE records have earlier exits after adding, and the fourth exits before adding; all four
+retain a profit. Three other records keep their original exits. These seven records are a small,
+selected subset, not seven independent stocks or a whole-portfolio simulation.
+
+Percentages below are net purchase returns using adjusted buy costs and the modeled sell adjustment.
+Recorded ARE exits were September 24; all earlier modeled ARE exits are September 18 at 10:10 Toronto.
+
+| Stock / account | Actual add-on | Add-on in modeled holding? | Modeled purchase return | Recorded purchase return |
+|---|---|---|---:|---:|
+| ARE / Breakout Top-3 and Continuation Top-3 | Sep 18, 10:00 | Yes | **+1.93%** | +12.00% |
+| ARE / Continuation Top-5 | Sep 18, 10:00 | Yes | **+1.58%** | +11.62% |
+| ARE / Breakout Top-5 | Sep 18, 12:00 | No; sold before its order | **+2.64%** | +11.87% |
+| MATR / Continuation Top-5 | Sep 10, 09:55 | Yes | -0.58%, unchanged | -0.58% |
+| MATR / Continuation Top-3 | Sep 10, 09:55 | Yes | -0.61%, unchanged | -0.61% |
+| CAS / Continuation Top-5 | Sep 29, 09:55 | Yes | -0.17%, unchanged | -0.17% |
+
+The ARE result protects a smaller profit earlier; it does **not** improve these recorded ARE sale
+returns. That remains consistent with the operator's profit-first goal, without proving optimal gaps.
+MATR/CAS never reach +1.5% activation in these supported histories, so the extra protection does not
+change their existing exits. No lower activation level is selected to make those trades profitable.
+
+For the noon-add-on ARE row, modeled and recorded returns use different invested capital because
+only the recorded path purchases the extra shares. That percentage pair is context, not a comparison
+of identical outlays. Saved cash is not counted as trading profit or hypothetically reinvested.
+The after-add-on ARE rows use the same two purchases/capital in both paths.
+
+### What happens at the ARE add-on
+
+The initial September 17 purchase earns a 1% gap that afternoon. The gap tightens to 0.75% on
+September 18, before the morning add-on. Applying that add-on raises the weighted average cost,
+while the established absolute stop and 0.75% gap remain unchanged.
+
+For Continuation Top-5, at the same newly known price, applying the extra shares changes current
+purchase profit from about **+2.98% to +1.92%**. That lower percentage does not revert the gap to 1%.
+The 10:05 completed close is first received about 10:07; the extra purchase is also first supportable
+in that receipt and is applied before the protection check. The close breaches the preserved stop,
+giving a modeled full-position sale at the later 10:10 bar open, retaining +1.58% after costs.
+
+The Top-3 accounts retain +1.93% because their add-on weight, and hence combined average cost, differs.
+The delayed Breakout Top-5 add-on was not yet ordered when the model signaled the same earlier sale;
+the model owns only the original shares and retains the previously verified +2.64%. None of these
+paths reaches the +5%/0.50% band before the modeled exit. This is not empirical validation of that
+tightest band after an add-on.
+
+### Method and validation limits
+
+The additional close-based overlay keeps actual entry/add-on quantities and adjusted prices only
+while ownership survives. It keeps the actual price high, tightest earned band and highest stop
+across purchases/dates. Current/future qualification uses updated weighted average cost, rounded to
+six decimals for policy state as in the Shadow store; monetary return uses the actual cost outlay.
+When active, a higher cost-aware break-even candidate may raise protection. Old prices are not
+reinterpreted as gains earned by newly purchased shares.
+
+Filled purchases become usable when their saved fill bar was first received, not retrospectively at
+the bar's opening timestamp. The controller's pending-fill-before-protection order is respected for
+the same receipt. Existing sell creation cancels pending buys, but no supported case requires a
+new cancellation assumption: the skipped add-on had not yet been ordered. An additional sell cannot
+replace an already committed original exit. Its modeled fill is the first regular-session bar
+starting strictly after receipt, with the existing 0.25% sell adjustment and six-decimal rounding.
+
+The actual recorded sale remains the cap representing existing protection; this is not a full
+replay of its fifteen-minute high/intrabar-low rules or a deployed policy. No new entries, cash reuse,
+later re-entry or alternative add-on eligibility is modeled. No market service, SQL or producer runs.
+
+Fifteen other closed records lack a complete prefix before any supportable extra exit, and one
+position is still open; these are omitted without repair. ARE's missing September 21 close is after
+the modeled September 18 sale, so it does not invalidate the complete pre-sale prefix. Later market
+history cannot change a hypothetical holding already closed. Original recorded return is separately
+supported by its actual purchase/sale ledger and checked adjusted sale price.
+
+An independent verifier checks all seven supported recorded sale returns, four hypothetical first
+crossings/fills, six included add-on cost/stop/band transitions, three complete unchanged histories,
+ownership timing and duplicate equivalence. All 22 closed inventory sales and their 44 purchases
+match saved opens with existing buy/sell adjustments before path exclusions. The same three frozen
+source hashes below match; no new export is needed. Reproduction under the existing ignored artifact
+directory: `addon-inventory.json`, `addon-trailing-study.py`, `addon-trailing-results.json`,
+`addon-trailing-summary.json`, `verify-addon-trailing-study.py` and `addon-trailing-validation.json`.
+Only normalized paper returns are committed. Observation/high timing, version scope and operational
+adoption still need agreement; no implementation is performed or implied by these results.
 
 ## Evidence and validation
 

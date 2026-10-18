@@ -1327,9 +1327,15 @@ reproduce prior results. [Detailed scopes and checks](reviews/progressive-traili
 The operator then retained the original bands and accepted one combined holding for additional buys:
 update average cost but preserve the existing stop and tightest earned gap. The
 [stop/add-on walkthrough](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
-checks current source and illustrative Decimal arithmetic, not add-on simulation or implementation.
-Observation/high timing, version scope and operational adoption remain open. Morning/noon alternatives
-stay deferred research. No trading rules, new SQL reads/writes, market producers or running apps changed.
+checks current source and illustrative arithmetic. The subsequent
+[saved add-on test](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+supports seven records/six distinct cost histories across ARE/MATR/CAS. After morning add-ons, three
+ARE records retain modeled +1.58%/+1.93%; a fourth sells before its later add-on (+2.64%). MATR/CAS
+remain unchanged below activation. Actual ARE sales yield larger profits; this protects a smaller
+profit sooner. Seven recorded returns, four earlier fills/crossings and six add-on transitions
+independently verify. This is an additional close-based overlay, not full engine replay or implementation.
+Observation/high timing, version scope and adoption remain open; morning/noon alternatives stay
+deferred. No trading rules, new SQL reads/writes, producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

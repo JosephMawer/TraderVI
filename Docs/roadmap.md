@@ -278,8 +278,9 @@ or completed replacement of the execution work below. See the
   A five-schedule 10 a.m./noon comparison is now complete: mixed individual-stock profit retention
   supports keeping original bands as baseline; the operator now retains them for design and accepts
   combined-holding add-ons with updated cost, preserved stop and tightest earned gap. Morning/noon
-  alternatives stay deferred research. Next validate that add-on contract and settle observation/high
-  timing and policy/version scope. [Walkthrough](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough).
+  alternatives stay deferred research. The [bounded add-on test](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+  now preserves profit in ARE while keeping its stop/band across extra buys; it protects a smaller
+  profit earlier than the actual sale. Next settle observation/high timing and policy/version scope.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

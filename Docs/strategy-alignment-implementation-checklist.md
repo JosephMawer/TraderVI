@@ -399,10 +399,12 @@ Optional older-history import remains a proposal; no historical reset is approve
   retain original bands as baseline; time-based tightening remains a candidate, not an adopted rule.
 - [x] Agree add-on design: one combined holding, updated average cost, preserved price stop/high and
   tightest earned gap; one common protective exit. Source/arithmetic walkthrough only, not implemented.
-- [ ] Validate that add-on contract on saved paths; do not treat prior conditional day illustrations as
-  entry/add-on replay. [Contract and example](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough).
-  Tighter gaps do not consistently retain more profit; +5% survival from entry remains unproven in these
-  cases. Conditional day windows do not validate the agreed add-on contract or adopt a daily reset.
+- [x] Run the bounded saved add-on comparison from actual entry: seven supported records/six cost
+  histories, six included add-on transitions and four earlier exits independently verified. ARE keeps
+  +1.58%/+1.93% after adding; its delayed-add account exits before buying more (+2.64%). MATR/CAS
+  are unchanged below activation. [Results/limits](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison).
+  Earlier protection retains less than the actual ARE sale. No +5%/0.50% band is reached in these
+  modeled paths. Operating timing/version decisions remain unchecked above; no policy is implemented.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

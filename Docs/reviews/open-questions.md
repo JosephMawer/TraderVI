@@ -86,8 +86,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   preservation of the existing stop and tightest earned gap. The [worked contract](../adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
   retains actual price-high history, reports blended purchase profit without crediting new shares with
   earlier gains, and keeps one protective exit. New shares may lose individually while the combined
-  position is profitable. Source/arithmetic checks are complete; add-on simulation, observation/high
-  timing, policy/version scope and operating adoption remain open.
+  position is profitable. Source/arithmetic checks were followed by the saved-path test below.
+- **Saved add-on test, October 17:** [seven supported records](progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
+  cover six distinct cost histories across ARE/MATR/CAS. Three ARE records retain +1.58%/+1.93% after
+  an add-on, while the added shares individually lose 1.48%. The delayed-add ARE account sells before
+  its add-on order (+2.64%); MATR/CAS keep original exits below activation. Recorded ARE returns are
+  larger profits; the overlay protects a smaller profit earlier. Four first crossings/fills, seven
+  recorded returns and six included cost/stop/band transitions independently verify. The +5%/0.50%
+  band is not reached in these modeled paths. Observation/high timing, policy/version scope and
+  adoption remain open. Existing rules are unchanged; missing-data repair remains secondary.
 
 ### Liquidity and execution-realism research
 
