@@ -387,7 +387,7 @@ Optional older-history import remains a proposal; no historical reset is approve
   saved paths, without stop/fill simulation. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
 - [x] Retain original bands for design after operator review: +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps;
   no morning/noon adjustment selected and no implementation authorized.
-- [ ] Define observation/high timing and family/version scope before implementation; preserve existing
+- [ ] Choose operating update/trigger inputs and family/version scope before implementation; preserve existing
   protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
   remain outstanding; keep repairs secondary.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
@@ -408,6 +408,11 @@ Optional older-history import remains a proposal; no historical reset is approve
   are unchanged below activation. [Results/limits](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison).
   Earlier protection retains less than the actual ARE sale. No +5%/0.50% band is reached in these
   modeled paths. Operating timing/version decisions remain unchecked above; no policy is implemented.
+- [x] Compare five-minute and fifteen-minute completed-price stop raises with five-minute closing-price
+  breach checks in both. Reproduce all 85 prior five-minute baselines and independently verify 170
+  scenario outcomes. Of 61 distinct closed histories, four favor five-minute updates, one (DSV)
+  fifteen-minute, 56 are equal; add-on ARE is unchanged. [Method/results](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates).
+  This completes the bounded comparison, not selection/implementation of operating cadence or low/bid inputs.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

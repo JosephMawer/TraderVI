@@ -95,6 +95,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   recorded returns and six included cost/stop/band transitions independently verify. The +5%/0.50%
   band is not reached in these modeled paths. Observation/high timing, policy/version scope and
   adoption remain open. Existing rules are unchanged; missing-data repair remains secondary.
+- **Five/fifteen-minute update comparison, October 17:** the operator confirmed five-minute breach
+  checks in both variants to isolate stop raises. The [controlled same-source comparison](progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+  finds 56 equal, four higher five-minute and one higher fifteen-minute modeled returns across 61
+  distinct closed trade/cost histories. DSV retains +1.29%/+2.03%; the earlier ARE +1.25%/+0.82%;
+  add-on ARE returns are equal. All 85 prior five-minute baselines reproduce and 170 scenario outcomes
+  verify independently. No operating interval is chosen; decide update cadence, governing price/trigger
+  inputs and policy/version scope. Native bar-low execution semantics are not adopted by this close-based
+  study. No trading rule, data collection, SQL record or running application changed.
 
 ### Liquidity and execution-realism research
 

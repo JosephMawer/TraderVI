@@ -154,6 +154,9 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
+  The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+  now isolates update cadence with five-minute closing-price breach checks in both versions. It does
+  not select the operating interval or replace current native low-based checks.
   Clock-based tightening is deferred from the retained baseline; its simulated receipt-time semantics
   and carried-stop behavior remain documented for a future research revisit.
   A bounded [saved add-on simulation](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
@@ -219,6 +222,17 @@ the report. This is a bounded close-based overlay, not a full engine replay or i
 
 The original bands and add-on contract remain agreed for design. Observation/high timing, version
 scope and operational adoption remain outstanding. No new SQL or operational verification occurred.
+
+## Update interval comparison — research only
+
+The operator authorized comparing five-minute versus fifteen-minute completed-price stop raises,
+with five-minute breach checks in both. The controlled saved-price test produces 61 paired distinct
+closed trade/cost histories: 56 equal returns, four higher with five-minute updates and one higher
+with fifteen-minute updates (DSV: +2.03% versus +1.29%). The earlier ARE interval favors five-minute
+updates (+1.25% versus +0.82%); all add-on ARE outcomes are unchanged. The recent subset splits one
+improvement each, so no universal winner is established. All 85 prior five-minute baseline records
+reproduce; 170 scenario outcomes independently verify. The linked report owns source/cadence semantics,
+deduplication and limits. This is not operating-input acceptance, native engine replay or implementation.
 
 ## Review questions
 

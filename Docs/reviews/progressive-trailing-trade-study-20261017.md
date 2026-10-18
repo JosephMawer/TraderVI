@@ -19,6 +19,8 @@ The later [time-of-day comparison](#time-of-day-gap-comparison) tests the operat
 and nearby schedules. Its mixed results support keeping the original bands as the baseline candidate.
 The [saved add-on comparison](#saved-add-on-trade-comparison) then tests the agreed combined-holding
 contract: ARE retains profit after extra shares, while an earlier exit can prevent a later add-on.
+The [update-interval comparison](#five-minute-versus-fifteen-minute-stop-updates) holds breach checks
+at five minutes: five-minute updates retain more in four closed histories, fifteen-minute in one (DSV).
 
 ## Ordinary trades first
 
@@ -434,6 +436,105 @@ directory: `addon-inventory.json`, `addon-trailing-study.py`, `addon-trailing-re
 `addon-trailing-summary.json`, `verify-addon-trailing-study.py` and `addon-trailing-validation.json`.
 Only normalized paper returns are committed. Observation/high timing, version scope and operational
 adoption still need agreement; no implementation is performed or implied by these results.
+
+## Five-minute versus fifteen-minute stop updates
+
+**October 17. Authorized offline comparison; update interval remains unselected for operation.**
+
+The operator confirmed the intended comparison: change how often completed prices can **raise the
+stop**, while checking for a breach on **five-minute completed closing prices in both versions**.
+The retained +1.5%/+3%/+5% bands, 1%/0.75%/0.50% gaps and combined-holding add-on contract are identical.
+No morning/noon adjustment is used. This separates the high/band update cadence from breach cadence.
+
+The same 82 closed position records from the preceding single-buy and add-on studies represent
+**61 distinct trade/cost histories**. Both intervals have supported results for all 61; the three
+previous open AGI/FVI examples are checked separately. Histories share stocks/dates and sometimes
+only differ in add-on weights, so these counts are not independent stocks or portfolio performance.
+All remain portfolio-rules-only Shadow records, not a normal-gate or Live qualification.
+
+| Paired closed-history result after modeled costs | Count |
+|---|---:|
+| Same return | 56 |
+| Five-minute updates retain more | 4 |
+| Fifteen-minute updates retain more | 1 |
+| Different add-on purchases/capital between versions | 0 |
+
+### Individual-stock profits retained
+
+All returns below are **profit since actual purchase**, including recorded adjusted buy costs and
+the existing modeled sell adjustment; they are not the day's price move. Times are Toronto local.
+
+| Stock / actual entry | Five-minute updates | Fifteen-minute updates |
+|---|---:|---:|
+| DSV / Sep 29, 11:15 | **+1.29%**, Sep 30 at 09:55 | **+2.03%**, Sep 30 at 10:30 |
+| ARE / Sep 10, 09:55 | **+1.25%**, Sep 10 at 14:55 | **+0.82%**, Sep 10 at 15:05 |
+| TLG / Sep 9, 14:05 | +0.35% | +0.14%, original exit |
+| MFC / Sep 17, 14:55 | +0.11% | -0.10%, original exit |
+| OBE / Oct 15, 12:20 | +0.53% | +0.41%, original exit |
+| ARE / Sep 17, with morning add-on | +1.58% or +1.93% by account | **Same profit and exit**, Sep 18 at 10:10 |
+| ARE / Sep 17, noon add-on planned | +2.64%, sold before adding | **Same profit and exit**, Sep 18 at 10:10 |
+
+DSV here is the full September 29 re-entry/September 30 holding, including its carried high and
+protection, not the earlier day-only walkthrough initialized on September 30. Fifteen-minute sampling
+does not produce its early 09:55 sale. While still held under that version, the 10:15 close reaches
++2.94% purchase profit, giving a nominal stop around +1.91% before costs. The 10:25 close breaches it
+when received, and the later 10:30 modeled fill retains +2.03%. Five-minute monitoring for a breach
+continues throughout; the fifteen-minute version does not wait until 10:30 to detect the 10:25 close.
+
+The earlier ARE interval illustrates the opposite: five-minute updates establish stronger protection
+sooner and retain +1.25% rather than +0.82%. For the add-on ARE interval, both versions see the relevant
+high at the same 10:00 endpoint and preserve the same 0.75% gap/absolute stop after the extra purchase.
+Both therefore sell the same combined shares at the same modeled price. The +1.58%/+1.93% difference
+is across account cost weights, not a difference between update intervals. MATR/CAS add-on outcomes
+also remain unchanged. The other September 29 DSV position remains unchanged at about +0.07%.
+
+Among 33 distinct closed histories entered September 19 onward, five-minute updates do better once
+(OBE), fifteen-minute once (DSV), and 31 are unchanged. The three separate open AGI/FVI examples have
+identical modeled earlier exits under both intervals. This is mixed evidence, not proof that either
+interval is universally better. No outcome in this comparison depends on spending different capital.
+
+### Controlled method and validation
+
+Five-minute input is the same newest eligible saved closing-price stream as before. Fifteen-minute
+input samples that series only at regular-session quarter-hour endpoints: 09:45, 10:00, 10:15, etc.
+It uses the closing price at each endpoint, **not the maximum of three five-minute prices**. These are
+controlled samples of the same source, not a new export or a claim to have replayed independently
+saved provider fifteen-minute OHLC bars. It does not synthesize highs/lows or change valuation sources.
+
+Both versions consume prices only after first saved receipt, group simultaneously revealed history,
+ignore a subsequently older market observation and consume each policy endpoint at most once. A later
+fifteen-minute endpoint cannot raise an earlier stop. The latest available aligned policy endpoint can
+be processed even if the same receipt also contains a newer five-minute close. If a newly learned stop
+already crosses that newer close, the exit would be known only in that receipt; **zero evaluated cases
+depend on this special ordering**. A newly raised stop never tests a previously unseen intrabar low.
+
+Actual purchases are applied only when their fill bar becomes available. Rebase average cost on
+included add-ons while retaining the prior stop, price high and tightest earned gap; cost-aware
+protection cannot be lowered. Exits stop ownership and prevent future purchases; no hypothetical cash
+reuse or re-entry is credited. Actual recorded sell commitments still cap the extra exit. A modeled
+sell uses the first subsequent regular-session five-minute bar open, with the existing 0.25% sell
+adjustment and six-decimal rounding, under the same source/ownership limits as the prior studies.
+
+The actual Shadow engine separately uses completed fifteen-minute closes to update its existing
+trail and five-minute bar lows for risk checks. This test deliberately holds **close-based** breach
+checks constant, preserving comparison with the prior research. It is an individual-position overlay,
+not a full native engine replay, a selection of trigger-price semantics or a deployed policy. Interval,
+precise governing input and family/version adoption remain decisions before implementation. No band
+was retuned, market data collected, SQL read/written or application launched for this comparison.
+
+All **85 five-minute baseline records reproduce** the prior returns/exits: 75 single-buy closed,
+seven add-on closed and three open larger-winner examples. An independent verifier checks **170
+scenario outcomes**, including 33 supported earlier fills/first crossings, 137 retained original
+exits/window ends, 700 policy-update endpoints and 82 actual sale records before deduplication. Six
+active add-on ratchet checks cover the three morning-add ARE records under both intervals, not six
+independent purchases. The verifier derives thresholds from the full history of available policy
+closes, checks eligible endpoint alignment, costs, first receipt, quantity ownership, nondecreasing
+stops, original order priority, next-bar execution and duplicate equivalence.
+
+The same three frozen hashes below match. Reproduction under the existing ignored directory:
+`stop-update-cadence-study.py`, `stop-update-cadence-results.json`, `stop-update-cadence-summary.json`,
+`verify-stop-update-cadence-study.py` and `stop-update-cadence-validation.json`. No implementation,
+operational verification or gap repair occurred. No operating update interval is selected by this test.
 
 ## Evidence and validation
 

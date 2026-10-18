@@ -61,6 +61,13 @@ shares can individually lose even when the combined holding remains profitable. 
 
 Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-profit-trailing-draft.md.
 
+### Q: Does raising a stop every fifteen minutes require waiting fifteen minutes to check it?
+
+A: No. Raising the stop and checking for a breach are separate timings. The saved comparison keeps
+five-minute closing-price breach checks in both update variants; the operating input is still undecided.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

@@ -46,6 +46,12 @@ now illustrates this in ARE: +1.58%–1.93% combined profit after an add-on desp
 the added shares. It protects a smaller profit earlier than the actual recorded ARE exits. The
 decision is still unimplemented, and operating observation/high timing and version scope remain open.
 
+Raising a stop and checking for a breach are separate timings. The operator's [five/fifteen-minute
+comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+keeps five-minute closing-price breach checks in both: DSV retains more with fifteen-minute updates,
+the earlier ARE retains more with five-minute updates, and add-on ARE results are equal. The operating
+update interval and trigger-price input remain unselected.
+
 ## Review questions
 
 1. Why does a stop moving upward not necessarily mean its percentage gap is tightening?

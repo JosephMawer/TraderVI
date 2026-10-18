@@ -282,7 +282,9 @@ or completed replacement of the execution work below. See the
   combined-holding add-ons with updated cost, preserved stop and tightest earned gap. Morning/noon
   alternatives stay deferred research. The [bounded add-on test](reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
   now preserves profit in ARE while keeping its stop/band across extra buys; it protects a smaller
-  profit earlier than the actual sale. Next settle observation/high timing and policy/version scope.
+  profit earlier than the actual sale. A [five/fifteen-minute update comparison](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+  now holds breach checks at five minutes: four closed histories favor faster updates, one (DSV)
+  favors slower, 56 are equal. Next choose operating update/trigger inputs and policy/version scope.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

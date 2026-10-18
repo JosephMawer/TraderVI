@@ -1344,8 +1344,14 @@ ARE records retain modeled +1.58%/+1.93%; a fourth sells before its later add-on
 remain unchanged below activation. Actual ARE sales yield larger profits; this protects a smaller
 profit sooner. Seven recorded returns, four earlier fills/crossings and six add-on transitions
 independently verify. This is an additional close-based overlay, not full engine replay or implementation.
-Observation/high timing, version scope and adoption remain open; morning/noon alternatives stay
-deferred. No trading rules, new SQL reads/writes, producers or running apps changed.
+The subsequent [update-interval comparison](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
+holds five-minute closing-price breach checks constant: 61 distinct closed histories give 56 equal
+returns, four higher with five-minute updates and one higher with fifteen-minute updates. DSV retains
++1.29%/+2.03% respectively; earlier ARE +1.25%/+0.82%; add-on ARE is unchanged. All 85 five-minute
+baselines reproduce, and 170 scenario outcomes independently verify. These are controlled samples of
+one price source, not native engine replay or operating cadence adoption. Observation/high timing,
+trigger-price semantics, version scope and adoption remain open; morning/noon alternatives stay deferred.
+No trading rules, new SQL reads/writes, producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source
