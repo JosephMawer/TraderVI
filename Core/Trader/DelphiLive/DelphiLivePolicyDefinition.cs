@@ -54,6 +54,9 @@ public enum DelphiLiveExitRule
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record DelphiLivePolicyDefinition
 {
+    // Opt in through a new saved policy; old JSON and identities retain their exact behavior.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool UseProgressiveProfitProtection { get; init; }
     public required Guid PolicyVersionId { get; init; }
     public required string PolicyDefinitionName { get; init; }
     public required int PolicyDefinitionSchemaVersion { get; init; }

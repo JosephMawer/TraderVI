@@ -14,6 +14,7 @@ public static class EngineSettingDescriptions
     };
     public static string Help(string key) => key switch
     {
+        "UseProgressiveProfitProtection" => "True enables progressive profit stops for this new strategy version: +1.5% / +3% / +5% profit uses 1% / 0.75% / 0.50% gaps. Existing stronger stops remain. False leaves new positions on the original rules.",
         "SelectedRawMoveThreshold" => "Minimum stock movement needed for entry, in volatility-ruler units (0.15, 0.25 or 0.35); higher requires a stronger move.",
         "SelectedExcessMoveThreshold" => "Minimum movement above the benchmark in relative volatility-ruler units (0.025, 0.05 or 0.10); higher demands more outperformance.",
         "SelectedRulerSessions" => "Number of sessions used to measure typical movement (10 or 14); this sets the scale for movement thresholds.",

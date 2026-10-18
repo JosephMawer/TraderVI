@@ -1322,6 +1322,15 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
+**Profit-protection implementation checkpoint, October 17:** the operator authorized implementing
+ADR-0090, with quote investigation deferred and no enablement before tests. The shared band/high/gap,
+bid-age/touch and scheduling calculation plus durable Delphi Live integration pass 41 focused tests
+in the isolated `artifacts/progressive-profit-protection/tests` build. Tests include bid-trigger/fill
+separation and persisted adaptive timing. Existing compiler warnings remain; restore required NuGet
+access outside the sandbox, with security audit disabled for this run. Shadow/recommendation integration
+and broader validation are in progress. Defaults remain disabled; no SQL migration, app restart,
+external market/broker operation or activation ran. [Accepted design](adr/0090-progressive-individual-profit-trailing.md).
+
 **Gain-retention research, October 17, 2026:** after the operator corrected the scope to individual
 stocks and accepted day-move/purchase-profit measures separately, the [stock-level review](reviews/stock-gain-paths-20261017.md)
 reuses saved paper evidence through October 16. It covers 235 held-through-noon position-days:

@@ -80,6 +80,14 @@ public sealed class DelphiLiveActionWorkflow
         if (!WithinRegularSession(input.SessionOpenUtc, input.SessionCloseUtc))
             return await Overnight(state, input.SessionCloseUtc, lease, cancellationToken);
 
+        if (policy.UseProgressiveProfitProtection)
+            foreach (var held in state.OpenPositions.Where(p => p.Protection.Progressive is null).ToArray())
+            {
+                var protection = Core.Runtime.EngineStrategyReassignment.Rebase(held.Protection, policy, clock.UtcNow);
+                state = await Commit(state, state with { Positions = ReplacePosition(state, held with { Protection = protection }) },
+                    "ProgressiveProtectionInitialized", new { held.PositionId, protection, version = ProgressiveProfitProtection.Version }, lease, cancellationToken);
+            }
+
         foreach (var pending in state.PendingActions.Where(a => a.Intent.Side == DelphiLiveActionSide.Sell).ToArray())
             state = await AttemptAction(state, pending.Intent.ActionId, input.CycleId, input.SessionOpenUtc,
                 input.SessionCloseUtc, null, policy, lease, cancellationToken);
@@ -211,6 +219,8 @@ public sealed class DelphiLiveActionWorkflow
         if (candidate is null && (sessionId is null || sessionId == Guid.Empty))
             throw new ArgumentException("Quote-only protection requires the current frozen session identity.");
         var existing = state.PendingActions.SingleOrDefault(a => a.PositionId == positionId && a.Intent.Side == DelphiLiveActionSide.Sell);
+        if (existing is null && candidate is null && position.Protection.Progressive is { } scheduled &&
+            !ProgressiveProfitProtection.IsDue(scheduled, clock.UtcNow)) return state;
         DelphiLiveCausalQuoteObservation? quote = null;
         if (existing is null && WithinRegularSession(openUtc, closeUtc))
         {
@@ -224,6 +234,14 @@ public sealed class DelphiLiveActionWorkflow
             state = await Commit(state, state with { Quotes = state.Quotes.Add(recorded) }, "ProtectionQuotePersisted", recorded, lease, cancellationToken);
         }
         bool usableBid = quote?.Bid is > 0m && quote.ReceivedUtc >= openUtc && quote.ReceivedUtc < closeUtc;
+        var afterQuote = position;
+        if (quote is not null && position.Protection.Progressive is { } progressive)
+        {
+            var observed = ProgressiveProfitProtection.ObserveBid(progressive, quote.Bid,
+                quote.RequestStartedUtc, quote.ReceivedUtc, clock.UtcNow);
+            usableBid &= observed.Usable;
+            afterQuote = position with { Protection = position.Protection with { Progressive = observed.State } };
+        }
         var safetyInput = candidate?.Safety ?? new DelphiLiveSafetyInput(true, warmingUp,
             position.AveragePurchasePrice, null, null, null, null, false, false, false, false,
             new(DelphiLiveSignalFamily.VolumeSupport, DelphiLiveFamilyState.NotMature, "QuoteProtectionOnly"),
@@ -237,7 +255,9 @@ public sealed class DelphiLiveActionWorkflow
         };
         var safety = DelphiLiveSafetyPolicy.Evaluate(safetyInput, policy);
         if (!safety.RequiresProtectiveSell)
-            return state;
+            return afterQuote == position ? state : await Commit(state,
+                state with { Positions = ReplacePosition(state, afterQuote) }, "ProgressiveBidObserved",
+                new { positionId, afterQuote.Protection.Progressive, quote }, lease, cancellationToken);
         if (existing is not null)
         {
             var reasons = existing.SupportingReasons.AddRange(safety.FiredExitRules.Select(x => x.ToString())
@@ -258,7 +278,7 @@ public sealed class DelphiLiveActionWorkflow
                 candidate?.EvaluationId, "Sell", now, new { safety, triggerQuote = quote, position.Protection, originalEntry = position.OriginalEntryDossierJson }, sessionId, policy),
             "Pending", 0, null, null, null,
             safety.FiredExitRules.Select(x => x.ToString()).Where(x => x != safety.PrimaryExitRule.ToString()).ToImmutableArray());
-        state = await Commit(state, state with { Actions = state.Actions.Add(action),
+        state = await Commit(state, state with { Actions = state.Actions.Add(action), Positions = ReplacePosition(state, afterQuote),
             CandidateStates = SetLifecycle(state, position.Symbol, DelphiLiveRecommendationState.ExitPending) },
             "ProtectiveSellDecisionPersisted", action, lease, cancellationToken);
         return await AttemptAction(state, intent.ActionId, cycleId, openUtc, closeUtc, null, policy, lease, cancellationToken);

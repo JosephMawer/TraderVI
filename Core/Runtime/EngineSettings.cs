@@ -71,7 +71,7 @@ public static class EngineStrategySettings
     private static readonly string[] LiveFields = ["SelectedRawMoveThreshold", "SelectedExcessMoveThreshold", "SelectedRulerSessions",
         "DirectionalVolumeThreshold", "StructureBufferUnits", "MinimumStructureReferences", "HardLossFraction",
         "FastDownsideReturnFloor", "ProfitFloorActivationGainFraction", "TrailingActivationGainFraction", "TrailingDistanceFraction",
-        "MaximumHoldings", "EntryTargetNavFraction", "MaximumSameSessionEntriesPerSymbol", "DailyLossGuardFraction", "CapitalReviewDrawdownFraction"];
+        "MaximumHoldings", "EntryTargetNavFraction", "MaximumSameSessionEntriesPerSymbol", "DailyLossGuardFraction", "CapitalReviewDrawdownFraction", "UseProgressiveProfitProtection"];
     public static IReadOnlyList<EngineSettingField> Fields(string family, object config) => config.GetType().GetProperties()
         .Where(p => family == Live ? LiveFields.Contains(p.Name) : p.SetMethod is not null &&
             (family != Tracked || p.Name is not ("PollIntervalMinutes" or "ExpectedSourceDelayMinutes" or "LateDataAgeMinutes")))
@@ -88,7 +88,8 @@ public static class EngineStrategySettings
             try
             {
                 object value;
-                if (property.PropertyType == typeof(int)) value = int.Parse(field.Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+                if (property.PropertyType == typeof(bool)) value = bool.Parse(field.Value);
+                else if (property.PropertyType == typeof(int)) value = int.Parse(field.Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
                 else if (property.PropertyType == typeof(decimal)) value = decimal.Parse(field.Value, NumberStyles.Float, CultureInfo.InvariantCulture);
                 else if (property.PropertyType == typeof(double))
                 {
@@ -152,6 +153,15 @@ public static class EngineStrategyReassignment
             high >= prior.AveragePurchasePrice * (1m + policy.ProfitFloorActivationGainFraction) ? DelphiLiveProfitProtectionStage.BreakEven : DelphiLiveProfitProtectionStage.None;
         decimal? floor = stage == DelphiLiveProfitProtectionStage.None ? null : stage == DelphiLiveProfitProtectionStage.BreakEven
             ? prior.AveragePurchasePrice : System.Math.Max(prior.AveragePurchasePrice, high!.Value * (1m - policy.TrailingDistanceFraction));
+        if (policy.UseProgressiveProfitProtection || prior.Progressive is not null)
+        {
+            var progressive = prior.Progressive ?? ProgressiveProfitProtection.Carry(prior.AveragePurchasePrice,
+                prior.FloorPrice, now, high);
+            progressive = ProgressiveProfitProtection.Preserve(progressive, floor, now);
+            return prior with { Progressive = progressive, FloorPrice = progressive.StopPrice,
+                Stage = progressive.TightestGap.HasValue ? DelphiLiveProfitProtectionStage.Trailing : prior.Stage,
+                FloorPersistedUtc = progressive.StopEstablishedUtc };
+        }
         return prior with { Stage = stage, FloorPrice = floor, FloorPersistedUtc = floor is null ? null : now };
     }
     public static DelphiLivePortfolioSnapshot Rebase(DelphiLivePortfolioSnapshot prior, DelphiLivePolicyDefinition policy, DateTime now)
@@ -164,7 +174,8 @@ public static class EngineStrategyReassignment
             PolicyVersionId = policy.PolicyVersionId, Revision = prior.Revision + 1, UpdatedUtc = now, LastCompletedCycleId = null,
             CandidateStates = ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty,
             Positions = prior.Positions.Select(p => p.ClosedUtc is null ? p with { Protection = Rebase(p.Protection, policy, now) } : p).ToImmutableArray(),
-            Actions = prior.Actions.Select(a => a.Status is "Pending" or "ExitPendingOvernight"
+            Actions = prior.Actions.Select(a => a.Status is "Pending" or "ExitPendingOvernight" &&
+                !(a.Intent.Side == DelphiLiveActionSide.Sell && (policy.UseProgressiveProfitProtection || prior.OpenPositions.Any(p => p.Protection.Progressive is not null)))
                 ? a with { Status = "Cancelled", CompletedUtc = now, TerminalReason = "StrategyReassigned" } : a).ToImmutableArray(),
             // Risk guards are conservative latches: changing a threshold never clears an already-required review.
             Guards = prior.Guards with

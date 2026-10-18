@@ -291,8 +291,9 @@ or completed replacement of the execution work below. See the
   when enabled are accepted for design. Adaptive bid timing is now accepted too: five/one minutes at
   0.25% distance, new quote per check and a 60-second receipt-age limit. The current source/saved check
   does not qualify Live bid freshness; the operator defers further source investigation as a coding
-  prerequisite. The agreed design is ready to implement/test when requested: preserve state through
-  version handover, integrate scheduling/stops and test bid triggers. Close-based studies do not establish its returns.
+  prerequisite. Implementation is now authorized: the shared calculation/Live integration pass 41
+  focused tests; finish Shadow/recommendation integration, handover and broader tests. Keep defaults
+  disabled. Close-based studies do not establish bid-trigger returns.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

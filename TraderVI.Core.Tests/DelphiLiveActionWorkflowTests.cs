@@ -19,6 +19,64 @@ public sealed class DelphiLiveActionWorkflowTests
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
     [Fact]
+    public async Task ProgressiveBidTouchExitsBetweenClosesAndUsesSeparateFillQuote()
+    {
+        var h = new Harness();
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        await h.Workflow.RunCycleAsync(h.Input("AAA"), Policy, h.Lease);
+        h.Clock.Now = Open.AddMinutes(27);
+        var policy = Policy with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true };
+        h.Store.State = global::Core.Runtime.EngineStrategyReassignment.Rebase(h.Store.State, policy, h.Clock.Now);
+        h.Source.BeforeRequest = request =>
+        {
+            if (h.Store.State.Fills.Length == 1)
+                h.Store.State.OpenPositions.Single().Protection.FloorPrice.ShouldBe(10.4475m);
+        };
+        var held = h.Store.State.OpenPositions.Single();
+        var input = h.Input("AAA", checkpointMinutes: 25) with
+        {
+            Candidates = new[] { h.Candidate("AAA", 10.5m, false) },
+            ExactCheckpointMarks = new[] { new DelphiLivePositionMark(held.PositionId, "AAA", held.Quantity, 10.5m, Open.AddMinutes(25)) }
+        };
+        h.Source.Enqueue(10.44m, 10.44m, 10.45m);
+        h.Source.Enqueue(10.40m, 10.40m, 10.41m);
+        var state = await h.Workflow.RunCycleAsync(input, policy, h.Lease);
+        state.OpenPositions.ShouldBeEmpty();
+        state.Fills.Last().Price.ShouldBe(10.40m);
+        state.Actions.Last().PrimaryReason.ShouldBe("ProfitProtectionFloorBreach");
+        state.Positions.Single().Protection.Progressive!.TightestGap.ShouldBe(0.005m);
+    }
+
+    [Fact]
+    public async Task ProgressivePollingSurvivesReloadAndSwitchesToOneMinuteNearStop()
+    {
+        var h = new Harness();
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        await h.Workflow.RunCycleAsync(h.Input("AAA"), Policy, h.Lease);
+        h.Clock.Now = Open.AddMinutes(27);
+        var policy = Policy with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true };
+        var held = h.Store.State.OpenPositions.Single();
+        h.Store.State = h.Store.State with { Positions = h.Store.State.Positions.SetItem(0, held with
+            { Protection = held.Protection with { HighestCompletedFiveMinuteClose = 10.5m } }) };
+        h.Store.State = global::Core.Runtime.EngineStrategyReassignment.Rebase(h.Store.State, policy, h.Clock.Now);
+        DelphiLiveProtectionCycleInput Input() => new(h.Store.State.PortfolioId, Guid.NewGuid(), Date,
+            Open, Open.AddHours(6.5), true) { SessionId = Guid.NewGuid() };
+        h.Source.Enqueue(10.5m, 10.5m, 10.51m);
+        await h.Workflow.ProtectHoldingsAsync(Input(), policy, h.Lease);
+        int requests = h.Source.Requests.Count;
+        var due = h.Store.State.OpenPositions.Single().Protection.Progressive!.NextBidCheckUtc!.Value;
+        h.Clock.Now = due.AddSeconds(-1);
+        var recovered = new DelphiLiveActionWorkflow(h.Store, h.Source, h.Clock);
+        await recovered.ProtectHoldingsAsync(Input(), policy, h.Lease);
+        h.Source.Requests.Count.ShouldBe(requests);
+        h.Clock.Now = due;
+        h.Source.Enqueue(10.46m, 10.46m, 10.47m);
+        var state = await recovered.ProtectHoldingsAsync(Input(), policy, h.Lease);
+        state.OpenPositions.Single().Protection.Progressive!.NextBidCheckUtc.ShouldBe(h.Clock.Now.AddMinutes(1));
+        state.OpenPositions.Single().Protection.FloorPrice.ShouldBe(10.4475m);
+    }
+
+    [Fact]
     public async Task Buy_PersistsDecisionBeforeQuote_CommitsWholeShares_AndRepeatedCycleIsIdempotent()
     {
         var harness = new Harness();

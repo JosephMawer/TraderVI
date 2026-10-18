@@ -22,6 +22,8 @@ public sealed record DelphiLiveProfitProtectionState(
     DateTime? LastProcessedBarEndUtc,
     DateTime? FloorPersistedUtc)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgressiveProfitProtectionState? Progressive { get; init; }
     public static DelphiLiveProfitProtectionState Open(
         Guid positionId,
         decimal averagePurchasePrice)
@@ -105,6 +107,26 @@ public static class DelphiLiveSafetyPolicy
         if (persistedUtc < barEndUtc)
             throw new ArgumentException("A completed close cannot be persisted before its bar ends.");
         ValidateProtectionState(current);
+
+        if (policy.UseProgressiveProfitProtection || current.Progressive is not null)
+        {
+            // Keep the original rules as independent, non-loosening protection.
+            var legacy = ApplyCompletedClose(current with { Progressive = null }, barEndUtc, completedClose,
+                persistedUtc, policy with { UseProgressiveProfitProtection = false });
+            var progressive = current.Progressive ?? ProgressiveProfitProtection.Carry(current.AveragePurchasePrice,
+                current.FloorPrice, persistedUtc, current.HighestCompletedFiveMinuteClose);
+            progressive = ProgressiveProfitProtection.ObserveClose(progressive, current.AveragePurchasePrice,
+                barEndUtc, completedClose, persistedUtc, legacy.State.FloorPrice);
+            var result = legacy.State with
+            {
+                Progressive = progressive,
+                FloorPrice = progressive.StopPrice,
+                Stage = progressive.TightestGap.HasValue ? DelphiLiveProfitProtectionStage.Trailing : legacy.State.Stage,
+                FloorPersistedUtc = progressive.StopEstablishedUtc
+            };
+            return new(result, result.FloorPrice != current.FloorPrice || result.Stage != current.Stage,
+                current.FloorPrice, result.FloorPrice);
+        }
 
         if (current.LastProcessedBarEndUtc is DateTime prior && barEndUtc <= prior)
             return new(current, false, current.FloorPrice, current.FloorPrice);

@@ -414,6 +414,11 @@ Optional older-history import remains a proposal; no historical reset is approve
   the source limitation remains explicit. No implementation or activation has been authorized.
 - Deferred/non-blocking: further bid-source freshness investigation. Local receipt age, changing prices
   or a delayed last-trade timestamp alone do not prove market age; do not turn this into a new gate.
+- [x] Receive implementation authorization, retaining deferred quote investigation and disabled defaults.
+- [x] Implement shared progressive calculations and durable Live bid/stop integration; 41 focused
+  tests pass at the October 17 checkpoint, including bid-only exits and persisted adaptive polling.
+- [ ] Complete Shadow/recommendation integration and broader tests before enablement. No migration,
+  assignment, installation or activation has run.
 - [ ] Specify prospective policy identities and safe state initialization/handover for existing holdings.
 - [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
   preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation

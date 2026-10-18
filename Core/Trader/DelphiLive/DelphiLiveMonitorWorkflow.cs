@@ -185,6 +185,12 @@ public sealed class DelphiLiveMonitorWorkflow
                         context.Policies[portfolio.PolicyVersionId], lease, ct);
                 sessionProtectionStarted = true;
             }
+            // Profit protection wakes independently of completed-bar collection and AI attention.
+            foreach (var portfolio in portfolios.Where(p => context.Policies[p.PolicyVersionId].UseProgressiveProfitProtection ||
+                p.OpenPositions.Any(h => h.Protection.Progressive is not null)))
+                await actions.ProtectHoldingsAsync(new(portfolio.PortfolioId, Guid.NewGuid(), date,
+                    bounds.OpenUtc, bounds.CloseUtc, true) { SessionId = context.Session.SessionId },
+                    context.Policies[portfolio.PolicyVersionId], lease, ct);
             if (nextEnd is not DateTime end || clock.UtcNow < end.AddMinutes(2)) return await SnapshotAsync(ct);
             if (clock.UtcNow >= end.AddMinutes(7))
             {

@@ -4,7 +4,7 @@ cssclasses:
 ---
 # ADR-0090 — Progressive trailing protection for individual winners
 
-**Date:** October 17, 2026. **Status:** Proposed operating policy; design direction confirmed.
+**Date:** October 17, 2026. **Status:** Accepted for prospective implementation; not enabled.
 **Domains:** risk-management, decision-engine.
 
 > [!summary] Confirmed direction; no trading-rule change
@@ -28,6 +28,14 @@ cssclasses:
 > **Readiness:** the agreed behavior is ready to implement and test once authorized. The operator
 > declines the additional market-hours/source-guarantee investigation as an implementation prerequisite;
 > defer it while retaining the documented source limitation. No code change is authorized by that deferral.
+
+> [!important] Implementation authorization and checkpoint
+> The operator subsequently authorized implementation across all portfolios, especially Delphi Live,
+> preserving protection and deferring quote investigation, with testing before any enablement. This
+> supersedes the earlier no-implementation boundaries in the historical design notes below. New
+> saved strategy versions opt in with `UseProgressiveProfitProtection`; all defaults remain false.
+> The shared calculation and Live integration pass 41 focused tests; Shadow/recommendation integration
+> is in progress. Nothing has been installed, assigned, activated or operationally verified.
 
 ## Problem and goal
 
