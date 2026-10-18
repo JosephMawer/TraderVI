@@ -1324,8 +1324,12 @@ and leaves 52 unchanged. Both reduce the separate larger ARE entry's profit (+2.
 conditional already-held ARE benefits. Recommendation remains original bands as baseline. All 415
 scenario outcomes independently verify, including 101 modeled fills; 83 original-schedule cases
 reproduce prior results. [Detailed scopes and checks](reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison).
-Clock timing, add-on references, version scope and adoption remain open. No trading rules, new SQL
-reads/writes, market producers or running apps changed in these offline extensions.
+The operator then retained the original bands and accepted one combined holding for additional buys:
+update average cost but preserve the existing stop and tightest earned gap. The
+[stop/add-on walkthrough](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
+checks current source and illustrative Decimal arithmetic, not add-on simulation or implementation.
+Observation/high timing, version scope and operational adoption remain open. Morning/noon alternatives
+stay deferred research. No trading rules, new SQL reads/writes, market producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

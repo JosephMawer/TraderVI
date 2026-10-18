@@ -13,6 +13,9 @@ cssclasses:
 > rules, stop ownership, execution contracts and protection remain authoritative.
 > **Operator priority:** protecting profit matters more than capturing gains after an exit;
 > a later rise alone does not make a profitable protective exit a failure.
+> **Latest design choices:** retain the original +1.5%/+3%/+5% bands and 1%/0.75%/0.50% gaps.
+> An add-on stays in one combined holding with updated average cost, preserving the existing stop
+> and tightest earned gap. These are design decisions; no implementation is authorized.
 
 ## Problem and goal
 
@@ -54,7 +57,14 @@ the accepted tradeoff, not a tested improvement. That original walkthrough evalu
 or alternative fill. The subsequent limited arithmetic illustration below is separate from a strategy
 replay. Five-minute closes do not describe every within-bar price or instantaneous receipt.
 
-## Recommended first paper-study schedule — not accepted
+<a id="recommended-first-paper-study-schedule--not-accepted"></a>
+
+## Original bands — retained for design, not implemented
+
+After the profit-only and time-based comparisons, the operator chose to keep the original bands for
+now. These numbers are the retained draft baseline, not authorization to change saved policies.
+The earlier recommendation/testing history below is preserved. Morning/noon alternatives remain
+research ideas rather than selected behavior.
 
 The October 17 recommendation starts **extra tightening** once the highest observed purchase profit
 reaches **+1.5%**. Existing loss/break-even protection continues below that point. Use three simple
@@ -73,7 +83,8 @@ ordinary modeled exit friction, then tighten fairly quickly because retaining pr
 priority. The 0.50% minimum bounds the initial proposal. There is no evidence these exact bands are
 optimal across stocks, spreads or volatility. The recommendation uses the highest attained band;
 falling profit cannot widen the gap or lower an established stop. It does not reset on a new morning.
-Precise high/update observations, add-on/cost handling and version scope remain open before adoption.
+The combined-holding add-on contract is confirmed below; precise high/update observations, validation
+and version scope remain open before adoption.
 
 ### DSV arithmetic illustration
 
@@ -138,15 +149,15 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
 
 ## Open before an implementable policy
 
-- Operator review of the proposed activation/gap bands above; a smooth curve or different schedule
-  remains possible. The numeric recommendation is unapproved for operation; the bounded comparison
-  above is not out-of-sample or general efficacy qualification, particularly for its upper bands.
+- Original numeric bands are retained for the design baseline; operating-policy adoption and
+  implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
+  particularly for the upper band. Future alternatives remain possible without changing this baseline.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
-  Clock-based tightening remains open; in this simulation it acts on the first newly received close
-  after a time boundary, can trigger immediately, and cannot undo an earlier day's raised stop.
-  Prior add-ons' effect on cost/high references also remains open; a conditional day illustration does
-  not decide that behavior or authorize resetting an existing stop each morning.
+  Clock-based tightening is deferred from the retained baseline; its simulated receipt-time semantics
+  and carried-stop behavior remain documented for a future research revisit.
+  The add-on contract below is agreed in design, but needs a saved-path simulation; the prior
+  conditional day illustrations do not validate its behavior or permit a daily stop reset.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually
   retained after costs and giveback. Record later upside as secondary context, alongside later purchases
   and re-entry; do not turn capturing every subsequent rally into a success condition. Existing fill
@@ -158,6 +169,49 @@ This is not implementation, training, migration, deployment or trading authoriza
 
 The [concept note](../concepts/progressive-profit-trailing-draft.md) explains the mechanism;
 [open questions](../reviews/open-questions.md#intraday-gain-retention-revisit-soon) own remaining decisions.
+
+## Existing stops and additional purchases — design walkthrough
+
+This walkthrough concerns the daily Shadow portfolios studied above. Their current source retains
+the configured hard-loss stop (5% in V1), a cost-aware break-even floor and a nondecreasing trailing
+stop. The current high is based on completed fifteen-minute closes, with five-minute risk checks;
+the study's five-minute close input is not silently adopted as the future operating input.
+
+Proposed integration: retain existing protection and earlier required exits. Within the existing
+protection owner, a progressive candidate may raise the active stop but cannot lower it. It does not
+create a competing order owner or override a pending exit. These price levels are triggers, not
+guaranteed sale prices; existing execution timing/costs continue to matter.
+
+Illustration before costs: purchase cost $100, high $101.50 gives a $100.485 candidate (1% gap);
+high $103 gives $102.2275 (0.75%); high $105 gives $104.475 (0.50%). An already higher existing
+stop remains higher; a pullback, date change or additional purchase cannot lower established protection.
+
+Current Shadow permits one later-session top-up, following renewed selection, entry qualification,
+profitability and existing cash/risk controls. The source updates quantity and blended purchase cost
+without clearing the old high, armed state or trailing stop. This does not authorize a new add-on
+eligibility rule. Live V1 has separate protection and no add-ons; its policy is not changed here.
+Sources: [Shadow policy](../../Core/Trader/SystemShadowPolicy.cs),
+[add-on qualification](../../Core/Trader/SystemShadowController.cs),
+[blended accounting](../../Core/Db/SystemShadowRepository.cs), [Live V1](0053-delphi-live-v1.md).
+
+**Confirmed add-on design:** the operator accepted one combined holding, with updated average cost
+while preserving the existing stop and tightest earned gap. Retain its actual price-high history.
+After a filled add-on, use the updated weighted average cost for current purchase-profit reporting
+and future band qualification. Do not recalculate historical profit as though the additional shares
+had been owned earlier. A lower blended profit percentage cannot undo a band already earned.
+Recheck the cost-aware break-even candidate and retain the higher protection. One common protective
+exit covers all remaining shares. A fully closed holding followed by an actual new entry starts fresh.
+
+For example, 100 shares at $100, then 25 at $105, gives 125 shares at $101 average cost. If the first
+holding had already earned the 0.50% gap at a $105 high, retain its $104.475 stop and 0.50% gap,
+although current blended purchase profit at $105 is now about 3.96%. The new shares can lose
+individually at that stop; the combined holding remains profitable in this illustration. Preserving
+a price stop does not promise an unchanged profit percentage after adding capital.
+
+The original bands and add-on contract are agreed for design. No implementation, add-on simulation,
+SQL operation or operational verification occurred. Source inspection and independent Decimal
+arithmetic validate the illustrative figures only. Observation timing, version scope and validation
+remain outstanding before a complete implementable policy.
 
 ## Review questions
 

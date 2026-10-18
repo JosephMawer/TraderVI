@@ -382,10 +382,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Record confirmed individual-winner direction: a shrinking trailing percentage gap as purchase
   profit grows, with protecting profit prioritized over post-sale upside. Compare DSV/ARE using complete
   saved paths, without stop/fill simulation. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
-- [ ] Define activation, gap schedule, observation timing and family/version scope before implementation;
-  preserve existing protection and separate later purchases/re-entry. No rule changed; keep repairs secondary.
-  A three-band recommendation and DSV day-only threshold illustration are now prepared in ADR-0090;
-  operating-policy acceptance, broader validation and governing input/execution timing remain outstanding.
+- [x] Retain original bands for design after operator review: +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps;
+  no morning/noon adjustment selected and no implementation authorized.
+- [ ] Define observation/high timing and family/version scope before implementation; preserve existing
+  protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
+  remain outstanding; keep repairs secondary.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
   first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).
@@ -396,9 +397,12 @@ Optional older-history import remains a proposal; no historical reset is approve
   with the original using frozen stock evidence. Reproduce 83 baseline cases and independently check
   415 scenario outcomes. [Mixed results/recommendation](reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison):
   retain original bands as baseline; time-based tightening remains a candidate, not an adopted rule.
-- [ ] Review numeric gaps, clock behavior, observation timing, prior add-on references and policy/version scope.
+- [x] Agree add-on design: one combined holding, updated average cost, preserved price stop/high and
+  tightest earned gap; one common protective exit. Source/arithmetic walkthrough only, not implemented.
+- [ ] Validate that add-on contract on saved paths; do not treat prior conditional day illustrations as
+  entry/add-on replay. [Contract and example](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough).
   Tighter gaps do not consistently retain more profit; +5% survival from entry remains unproven in these
-  cases. Conditional day windows do not adopt a daily reset or settle prior add-on behavior.
+  cases. Conditional day windows do not validate the agreed add-on contract or adopt a daily reset.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun
   ([dated success evidence and remaining limits](project-status.md#latest-operational-evidence)).
 - [x] Observe October 6 WPF opening adoption for all three Live and eight comparison Shadow portfolios,

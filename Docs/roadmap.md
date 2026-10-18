@@ -264,8 +264,8 @@ or completed replacement of the execution work below. See the
 
 - **Revisit intraday-gain retention soon** and carry it into future strategy/risk work. The operator
   preserved this important research goal October 16. October 17 establishes the individual-winner
-  direction below; whole-portfolio protection remains background. No operating policy, threshold or
-  implementation is adopted. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
+  direction below; whole-portfolio protection remains background. No operating policy or implementation
+  is adopted; the retained design bands are described below. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
   **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
   The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
   that question. The operator accepted day-move and purchase-profit measures separately. The
@@ -276,8 +276,10 @@ or completed replacement of the execution work below. See the
   Larger-winner entry tests now exercise +3% in ARE/AGI; +5% has conditional already-held ARE/CAS
   illustrations, with survival from entry unproven. Tightening does not always retain more profit.
   A five-schedule 10 a.m./noon comparison is now complete: mixed individual-stock profit retention
-  supports keeping original bands as baseline; the time hypothesis remains open. Next review clock
-  behavior and settle observation timing, add-on references and policy/version scope.
+  supports keeping original bands as baseline; the operator now retains them for design and accepts
+  combined-holding add-ons with updated cost, preserved stop and tightest earned gap. Morning/noon
+  alternatives stay deferred research. Next validate that add-on contract and settle observation/high
+  timing and policy/version scope. [Walkthrough](adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough).
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

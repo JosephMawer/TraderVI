@@ -14,10 +14,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Confirmed October 16:** preserve this as an **especially important open research goal**, revisit
   soon and integrate it into future work. Keep both whole-portfolio gain protection and protection of
   individual winning positions undecided; do not resolve the experiment during session recovery.
-- **Still open:** experiment scope, whether time of day matters, activation/giveback levels, resulting
+- **Original questions:** experiment scope, whether time of day matters, activation/giveback levels, resulting
   actions, re-entry and how to compare gains retained with later recoveries/opportunities sacrificed.
   The earlier example thresholds were illustrative, not accepted settings. Existing stock/account
-  loss controls do not answer this profit-retention question.
+  loss controls do not answer this profit-retention question. Later design choices and remaining
+  questions are recorded below.
 - **Status:** research only; no new trading rule or implementation chosen. Preserve complete/fresh
   value paths and missingness when assessing the observation. Resume from R01 in the
   [session-work register](../session-work-register.md), with priority in the roadmap.
@@ -49,7 +50,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   profitable protective exit. DSV/ARE illustrate that accepted tradeoff. [Proposed ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
   and its concept note preserve the direction. Activation, gap schedule, observation timing and
   implementation/version scope remain open; no numeric policy or rule change is accepted.
-- **Numeric recommendation, October 17 — unapproved:** extra tightening at +1.5% highest purchase
+- **Initial numeric recommendation, before later design retention:** extra tightening at +1.5% highest purchase
   profit with a 1% gap; at +3% use 0.75%, at +5% use a 0.50% minimum. Existing protection stays active
   below activation and no stop is lowered. [Rationale/DSV illustration](../adr/0090-progressive-individual-profit-trailing.md#recommended-first-paper-study-schedule--not-accepted)
   uses ordered saved closes, not a full trade or fill replay. DSV first crosses the illustrative
@@ -79,6 +80,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   keep original bands as baseline and preserve the time idea; no operating adjustment is accepted.
   All 415 scenario outcomes independently verify. Decide whether clock-based tightening belongs in
   the policy, including observation timing and carried stop behavior; no stop moves down next morning.
+- **Latest design choices / stop-add-on walkthrough, October 17:** retain the original +1.5%/+3%/+5%
+  bands and 1%/0.75%/0.50% gaps, without implementation; morning/noon alternatives are deferred research.
+  The operator accepted one combined holding for additional purchases, updated average cost and
+  preservation of the existing stop and tightest earned gap. The [worked contract](../adr/0090-progressive-individual-profit-trailing.md#existing-stops-and-additional-purchases--design-walkthrough)
+  retains actual price-high history, reports blended purchase profit without crediting new shares with
+  earlier gains, and keeps one protective exit. New shares may lose individually while the combined
+  position is profitable. Source/arithmetic checks are complete; add-on simulation, observation/high
+  timing, policy/version scope and operating adoption remain open.
 
 ### Liquidity and execution-realism research
 

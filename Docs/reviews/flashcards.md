@@ -26,7 +26,8 @@ sessions ("quiz me" / "review").
 ### Q: How does progressive profit trailing differ from a fixed percentage trail?
 
 A: A fixed percentage trail rises with new highs but keeps the same percentage gap. Progressive
-tightening shrinks that gap as profit grows. The direction is confirmed; no operating schedule is selected.
+tightening shrinks that gap as profit grows. The original bands are retained for design; no operating
+policy is implemented.
 
 Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-profit-trailing-draft.md.
 
@@ -51,6 +52,14 @@ A: No. A previously raised stop remains in force. In the saved time-based simula
 tightening can therefore change the following morning's exit even before that day's clock tightening.
 
 Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
+
+### Q: Does adding shares reset progressive profit protection?
+
+A: The agreed design keeps one combined holding: update average cost, preserve its stop and tightest
+earned gap. Current profit can fall after the purchase without undoing that protection; the newest
+shares can individually lose even when the combined holding remains profitable. This is not implemented.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-profit-trailing-draft.md.
 
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
