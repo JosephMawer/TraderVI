@@ -11,13 +11,11 @@ FROM dbo.PaperComparisonAccount a
 JOIN dbo.EngineStrategyVersion v ON v.Family=N'DelphiLive'
 JOIN dbo.DelphiLivePolicyVersion oldPolicy ON oldPolicy.DelphiLivePolicyVersionId=a.LivePolicyVersionId
 JOIN dbo.DelphiLivePolicyVersion newPolicy ON newPolicy.DelphiLivePolicyVersionId=v.VersionId
-CROSS APPLY(SELECT (SELECT LOWER(CONVERT(NVARCHAR(36),v.VersionId)) PolicyVersionId,oldPolicy.PolicyDefinitionName,oldPolicy.PolicyDefinitionSchemaVersion,
-    oldPolicy.EvaluatorVersion,oldPolicy.CollectorVersion,oldPolicy.CollectorSourceContractVersion,
-    oldPolicy.DecisionDossierVersion,oldPolicy.DecisionDossierSchemaVersion,oldPolicy.QuoteFillVersion,
-    oldPolicy.ShadowPortfolioVersion,oldPolicy.ResearchOutcomeVersion,oldPolicy.RankingDiagnosticVersion,
-    oldPolicy.PromotionProtocolVersion FOR JSON PATH,WITHOUT_ARRAY_WRAPPER) OriginalIdentity) identityJson
 WHERE a.LivePortfolioId IS NOT NULL AND v.VersionId<>a.LivePolicyVersionId
-    AND dbo.IsProgressiveProfitProtectionSuccessor(oldPolicy.SettingsJson,identityJson.OriginalIdentity,v.SettingsJson)=1
+    -- The authoritative Live store uses camel-case string enums; the engine catalogue uses
+    -- Pascal-case numeric enums. Compare like encodings in the authoritative policy store.
+    AND JSON_VALUE(v.SettingsJson,'$.UseProgressiveProfitProtection')=N'true'
+    AND TRY_CONVERT(UNIQUEIDENTIFIER,JSON_VALUE(v.SettingsJson,'$.PolicyVersionId'))=v.VersionId
     AND dbo.IsProgressiveProfitProtectionSuccessor(oldPolicy.SettingsJson,NULL,newPolicy.SettingsJson)=1
     AND newPolicy.PolicyDefinitionName=oldPolicy.PolicyDefinitionName
     AND newPolicy.PolicyDefinitionSchemaVersion=oldPolicy.PolicyDefinitionSchemaVersion

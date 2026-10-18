@@ -112,6 +112,7 @@
     <Build Include="dbo/Functions/IsProgressiveProfitProtectionSuccessor.sql" />
     <Build Include="dbo/Views/ProgressiveProfitProtectionComparisonSuccessor.sql" />
     <None Include="Migrations/20261018_044_AllowProgressiveComparisonProtection.sql" />
+    <None Include="Migrations/20261018_045_CompareCanonicalLiveProtectionSettings.sql" />
     <None Include="Migrations/20261017_043_AddProgressiveProfitProtection.sql" />
     <Build Include="dbo/Tables/ShadowOrder.sql" />
     <Build Include="dbo/Tables/ShadowPortfolioEvent.sql" />

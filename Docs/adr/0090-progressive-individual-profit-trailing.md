@@ -51,6 +51,9 @@ Migration 044 gives the database comparison guards the same narrow successor con
 predicate compares every unchanged property/type and the original Live implementation identity,
 allowing only the true progressive flag and new policy ID. Immutable profiles/history remain guarded.
 The Live ledger also requires the matching saved successor assignment. No trigger is disabled.
+Migration 045 compares Live's canonical stored settings with the original canonical policy, retaining
+all implementation-metadata checks; the engine catalogue uses a different enum serialization and is
+not a byte-for-byte representation of that store.
 
 This accepted record extends the risk rules in [ADR-0051](0051-system-shadow-portfolios.md),
 [ADR-0053](0053-delphi-live-v1.md) and the fixed comparison-account contract in

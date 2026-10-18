@@ -1345,8 +1345,10 @@ copy. The app was closed. A dedicated invested-account rollout correction passes
 and the Release desktop build; ordinary settings edits remain pause-and-empty. Before-state evidence
 captures 32 Shadow/five Live open holdings. Migration 043 is installed; the first comparison assignment
 was rejected by the pre-existing fixed-rule SQL guard and rolled back (no assignments changed).
-Migration 044 adds the matching narrow database successor predicate; its SSDT build passes and
-installation/native verification are next. Entry controls remain temporarily paused. Private receipts:
+Migration 044 is installed and passes 12 native predicate checks. Prepared-version validation found
+Live catalogue/stored-policy enum encodings differ; migration 045 compares authoritative stored Live
+settings within their own encoding and passes SSDT. No assignment has changed. Entry controls remain
+temporarily paused while installation completes. Private receipts:
 `artifacts/profit-protection-rollout-20261018/`. Quote investigation remains deferred.
 
 The following research record preserves the earlier studies and their limits; its no-implementation

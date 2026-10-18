@@ -7,8 +7,10 @@ This directory records the exact schema scripts applied to `TraderDB` after adop
 - `20261017_043_AddProgressiveProfitProtection.sql`: additive per-position Shadow protection state,
   installed October 18 after a checksum-verified backup and hash-matched copy.
   The script does not enable the strategy or change existing stops/assignments.
-- `20261018_044_AllowProgressiveComparisonProtection.sql`: prepared narrow database guard extension;
-  SSDT build passes. Permits only the progressive successor while preserving fixed comparison rules.
+- `20261018_044_AllowProgressiveComparisonProtection.sql`: installed October 18; 12 native checks pass.
+  Permits only the progressive successor while preserving fixed comparison rules.
+- `20261018_045_CompareCanonicalLiveProtectionSettings.sql`: prepared canonical Live-setting
+  comparison correction; SSDT build passes. No account or assignment rewrite.
 
 ## Naming
 
