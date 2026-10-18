@@ -107,15 +107,22 @@ Things we punted on and need to revisit. Cleared as decisions are made
   fresh observed price at or below the established stop triggers a sale, without waiting for a close.
   A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
   to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-  Stop-raising high, freshness/monitoring and prospective version integration remain open.
+  Freshness/monitoring and prospective version integration remain open; the high is confirmed below.
   Previous close-based results do not establish touch returns or continuous detection; no implementation.
 - **Scope and price input confirmed, October 17:** the operator wants all portfolios covered,
   including and especially Delphi Live, still without implementation. Fresh valid bid at or below
   the established stop is accepted after explanation. Live already has a fresh-bid floor check;
   this does not qualify other families' quote inputs or apply the progressive bands. Remaining work:
-  exact stop-raising high, bid-check timing/maximum quote age, and transition of existing holdings to
-  prospective versions. Fresh-bid touch validation is remaining work, not an unresolved price choice.
+  bid-check timing/quote age, source qualification, prospective version integration and fresh-bid tests.
   [Scope, explanation and source check](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
+- **High and existing-holding rollout confirmed, October 17:** use the highest completed five-minute
+  close since purchase; include existing holdings as soon as the strategy is enabled, preserving
+  stronger protection. The operator suggests fewer bid checks while safely above the stop and faster
+  checks nearby. Recommended, still unaccepted after a request for explanation: five-minute checks
+  above 0.25% over the stop, one-minute checks nearer, a new quote per check and no more than 60 seconds
+  since receipt. A breached stop triggers on observation without waiting for another interval.
+  Receipt age does not establish market quote age; the Live receipt lacks a bid-event timestamp.
+  [Example/remaining work](../adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
 
 ### Liquidity and execution-realism research
 

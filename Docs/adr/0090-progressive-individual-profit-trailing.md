@@ -20,6 +20,8 @@ cssclasses:
 > decisions; no implementation is authorized.
 > **Scope/input confirmed:** all portfolios, including and especially Delphi Live, use a fresh bid
 > at or below the established stop as the proposed sale trigger. No implementation is authorized.
+> **High/transition confirmed:** use the highest completed five-minute close since purchase. Include
+> existing holdings when the new strategy is enabled, preserving stronger established protection.
 
 ## Problem and goal
 
@@ -156,8 +158,8 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
 - Original numeric bands are retained for the design baseline; operating-policy adoption and
   implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
-- Exact stop-raising high reference and bid freshness/monitoring contract. Completed five-minute
-  updates and fresh-bid touch triggers are agreed for all portfolios; retain non-loosening protection.
+- Bid freshness/monitoring contract. The highest completed five-minute close since purchase and
+  fresh-bid touch triggers are agreed for all portfolios; retain non-loosening protection.
   The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now isolates update cadence with five-minute closing-price breach checks in both versions. It does
   not itself qualify touch detection or replace current native low-based checks.
@@ -265,7 +267,8 @@ code, operating policy or application change occurred in this decision step.
 The operator subsequently requested coverage of **all portfolios, including and especially Delphi
 Live**, while explicitly retaining the no-implementation boundary. This replaces the earlier open
 family-coverage question; individual-stock protection remains the unit of action. Prospective policy
-identities, assignment/rollover and family-specific integration still require a design. Existing
+identities and family-specific transition integration still require engineering design. The operator
+now wants existing holdings included when the strategy is enabled, without waiting for new purchases. Existing
 protection owners, add-on eligibility and real-account activation/execution gates remain authoritative.
 This scope choice does not rewrite frozen policies or authorize activation or broker actions.
 
@@ -286,14 +289,30 @@ for sell-side bid context and the distinction between quoted and executed prices
 
 ### Remaining decisions before implementation
 
-1. **Stop-raising high:** finalize the exact high reference/source. Recommendation, not yet accepted:
-   use the highest completed five-minute closing price observed during ownership. Five-minute updates
-   are already agreed; this is the precise price definition, not a new update-interval decision.
-2. **Bid monitoring:** choose how often bids are checked between stop raises and the maximum allowed
-   quote age. Choosing a fresh bid does not establish continuous monitoring or qualify the feed.
-3. **Transition:** decide how existing holdings move to prospective policy versions, including their
-   initial progressive-band state, while preserving existing stops and earned protection. All-portfolio
-   coverage is settled; assignment timing and migration details are not.
+1. **High — now confirmed:** use the highest completed five-minute closing price since purchase.
+   Preserve the agreed high history across sessions and additional purchases; no daily reset.
+2. **Bid monitoring — still open:** the operator proposes fewer checks with room above the stop and
+   more checks nearby. Recommended starting settings, not accepted: check every five minutes when
+   `bid > stop * 1.0025`; check every minute when `stop < bid <= stop * 1.0025`. An observed valid
+   `bid <= stop` triggers immediately under the agreed design, not after another monitoring interval.
+   Request a new quote at each check and reject observations more than 60 seconds old **since receipt**.
+   For a $100 stop: $100.80 permits five-minute checks; $100.20 switches to one minute; a later $99.98
+   triggers a sale. A fall can cross the stop between polls. Faster existing protection checks must
+   not be slowed; usable quotes already obtained by shared protection may also be evaluated.
+   The operator requested an example rather than accepting these numbers; keep them open.
+3. **Existing holdings — now confirmed:** apply the new strategy to existing as well as future
+   holdings as soon as it is enabled. Preserve stronger existing stops and earned protection.
+   This answers the rollout-scope question; it does not authorize implementation or present activation.
+   Prospective policy identities and safe initialization/handover remain engineering work under the
+   existing ownership and execution boundaries, without rewriting historical actions.
+
+**Freshness limit:** the proposed 60 seconds measures local receipt age, not proven market-data age.
+Current `TmxQuoteFieldsV1` returns price/bid/ask and a local receipt timestamp; it does not expose a
+bid-event timestamp in the Live receipt. A successful new fetch alone cannot establish that the
+provider's market quote is current. Qualify that source contract before claiming current-market
+protection; no external feed was queried here. See
+[quote source](../../Core/Trader/DelphiLive/TmxDelphiLiveMarketDataSource.cs) and
+[causal observation](../../Core/Trader/DelphiLive/DelphiLiveExecutionPolicy.cs).
 
 Separately, implementation/validation work must test fresh-bid triggers and integration with current
 protection/execution owners, especially Live. Prior closing-price simulations do not answer that test.

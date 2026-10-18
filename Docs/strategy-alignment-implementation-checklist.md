@@ -402,8 +402,12 @@ Optional older-history import remains a proposal; no historical reset is approve
   [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
 - [x] Record all-portfolio design scope, including and especially Delphi Live; this does not authorize
   implementation, policy assignment or activation. Fresh bid is now accepted as the touch input.
-- [ ] Finalize the stop-raising high, bid monitoring/maximum quote age and existing-holding transition
-  to prospective versions; [remaining decisions](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+- [x] Record the highest completed five-minute close since purchase and inclusion of existing holdings
+  as soon as the strategy is enabled; preserve stronger existing protection. No implementation authorized.
+- [ ] Agree adaptive bid timing and quote-age limits; five/one minutes at 0.25% above the stop and
+  60 seconds since receipt are recommendations, not accepted. Qualify provider freshness separately;
+  the current Live receipt has no bid-event timestamp. [Decision list/example](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+- [ ] Specify prospective policy identities and safe state initialization/handover for existing holdings.
 - [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
   preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
   remain outstanding; keep repairs secondary.

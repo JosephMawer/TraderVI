@@ -1375,10 +1375,14 @@ waiting for a close. Newly raised stops apply only to later observations. This i
 the close-based studies do not test touch returns. The operator subsequently requested all portfolios,
 including and especially Delphi Live, and after explanation accepted fresh bid as the touch input.
 Source inspection confirms Live already checks fresh bids against its existing floor; this does not
-qualify other families or implement progressive bands. The stop-raising high,
-monitoring/maximum quote age, existing-holding transition, prospective assignments and adoption remain
-open; morning/noon alternatives stay deferred. The [remaining decision list](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation)
-separates these choices from the outstanding fresh-bid trigger test.
+qualify other families or implement progressive bands. The operator now accepts the highest completed
+five-minute close since purchase and existing holdings adopting the strategy as soon as enabled,
+preserving stronger protection. Bid timing remains open: five-/one-minute checks outside/within 0.25%
+above the stop, a new quote per check and a 60-second receipt-age limit are recommendations, not accepted.
+The operator requested an example. Source inspection confirms the current Live quote receipt lacks a
+bid-event timestamp; recent receipt is not proof of current market data. Source qualification, safe
+version handover and fresh-bid tests remain work; morning/noon alternatives stay deferred.
+The [decision list/example](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation) owns details.
 [Agreed scope and bid input](adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 No trading rules, new SQL reads/writes, producers or running apps changed.
 

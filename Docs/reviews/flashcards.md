@@ -84,6 +84,14 @@ are offering to pay. The intended design covers all portfolios, especially Delph
 
 Tags: risk-management, decision-engine. Source: ADR-0090.
 
+### Q: Does a quote received just now prove its market price is current?
+
+A: No. Receipt time says when TraderVI obtained it; market-data age depends on the provider's source
+and timestamps. The proposed 60-second receipt-age limit does not prove a quote is 60 seconds old in
+the market. Adaptive five-/one-minute bid checks remain unaccepted draft settings.
+
+Tags: risk-management, data-pipeline. Source: ADR-0090.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

@@ -25,8 +25,9 @@ The day's price move and profit since purchase remain separate. A recovery today
 below purchase cost; a stock bought later starts its own history at purchase. Tightening one
 winner's stop does not decide whether to make that later purchase.
 
-Existing protection must never be loosened or moved under a competing owner. The precise stop-raising
-high, monitoring, prospective version assignments and validation remain outstanding.
+Existing protection must never be loosened or moved under a competing owner. Monitoring, prospective
+version integration and validation remain outstanding. The high is now the highest completed
+five-minute close since purchase.
 Current rules and saved histories stay unchanged. [ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
 records confirmed direction and the boundary of the proposal.
 
@@ -44,7 +45,7 @@ holding remains profitable. See the [worked example and source boundary](../adr/
 The [bounded saved add-on test](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
 now illustrates this in ARE: +1.58%–1.93% combined profit after an add-on despite a -1.48% return on
 the added shares. It protects a smaller profit earlier than the actual recorded ARE exits. The
-decision is still unimplemented; the stop-raising high and prospective version assignments remain open.
+decision is still unimplemented; monitoring and prospective version integration remain open.
 
 Raising a stop and checking for a breach are separate timings. The operator's [five/fifteen-minute
 comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
@@ -55,8 +56,8 @@ the earlier ARE retains more with five-minute updates, and add-on ARE results ar
 first fresh observed price at or below the established stop, without waiting for a close. This favors
 profit protection but can sell during a dip that later recovers. A new or raised stop applies only to
 later observations, never an earlier low from the bar that raised it. Actual detection depends on
-available fresh data; continuous monitoring is not established. High reference/source, monitoring and
-version assignments remain open. Prior close-based results do not test touch-trigger returns. No
+available fresh data; continuous monitoring is not established. Monitoring and prospective version
+integration remain open. Prior close-based results do not test touch-trigger returns. No
 implementation or operating-policy change is authorized. [Decision and boundaries](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
 
 **Scope now confirmed:** all portfolios, including and especially Delphi Live, still protecting each
@@ -65,9 +66,12 @@ are offering. If the established stop is $104.50, a later observed bid of $104.4
 no five-minute close is required. Live already uses fresh bids for its existing floor; the progressive
 bands are still unimplemented. Quote freshness/monitoring and prospective assignments remain open.
 [Scope and source boundary](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
-Remaining decisions are the precise stop-raising high, bid-check timing/maximum quote age, and transition
-of existing holdings to prospective versions. Fresh-bid trigger validation remains work, not a new
-strategy choice. [Decision list](../adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+The operator now confirms the highest completed five-minute close since purchase and inclusion of
+existing holdings as soon as the strategy is enabled, preserving stronger protection. Bid timing is
+still open: proposed five-minute checks above 0.25% over the stop, one-minute checks nearer, a new
+quote each time and at most 60 seconds since receipt. These numbers are unaccepted pending explanation;
+receipt age does not prove market-data age. Source qualification, safe version handover and fresh-bid
+tests remain work. [Decision list/example](../adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
 
 ## Review questions
 
