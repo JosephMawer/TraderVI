@@ -26,7 +26,7 @@ below purchase cost; a stock bought later starts its own history at purchase. Ti
 winner's stop does not decide whether to make that later purchase.
 
 Existing protection must never be loosened or moved under a competing owner. Governing price/high
-inputs, monitoring, policy/version scope and validation remain outstanding.
+inputs, monitoring, prospective version assignments and validation remain outstanding.
 Current rules and saved histories stay unchanged. [ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
 records confirmed direction and the boundary of the proposal.
 
@@ -56,8 +56,15 @@ first fresh observed price at or below the established stop, without waiting for
 profit protection but can sell during a dip that later recovers. A new or raised stop applies only to
 later observations, never an earlier low from the bar that raised it. Actual detection depends on
 available fresh data; continuous monitoring is not established. Governing price source/monitoring and
-family/version scope remain open. Prior close-based results do not test touch-trigger returns. No
+version assignments remain open. Prior close-based results do not test touch-trigger returns. No
 implementation or operating-policy change is authorized. [Decision and boundaries](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
+
+**Scope now confirmed:** all portfolios, including and especially Delphi Live, still protecting each
+stock individually. **Recommended input, pending acceptance:** a fresh bid, meaning the price buyers
+are offering. If the established stop is $104.50, a later observed bid of $104.48 triggers the exit;
+no five-minute close is required. Live already uses fresh bids for its existing floor; the progressive
+bands are still unimplemented. Quote freshness/monitoring and prospective assignments remain open.
+[Scope and source boundary](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 
 ## Review questions
 

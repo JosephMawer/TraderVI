@@ -400,7 +400,9 @@ Optional older-history import remains a proposal; no historical reset is approve
   trigger on the first fresh observed price at or below the established stop, without waiting for a
   close. Newly raised stops apply only to later observations. No implementation or touch-return test.
   [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-- [ ] Define governing price/high inputs, monitoring and family/version scope, and validate observed-touch
+- [x] Record all-portfolio design scope, including and especially Delphi Live; this does not authorize
+  implementation, policy assignment or activation. Fresh bid recommended as touch input, not yet accepted.
+- [ ] Define governing price/high inputs, monitoring and prospective policy assignments, and validate observed-touch
   behavior before implementation; preserve existing
   protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
   remain outstanding; keep repairs secondary.

@@ -286,8 +286,9 @@ or completed replacement of the execution work below. See the
   profit earlier than the actual sale. A [five/fifteen-minute update comparison](reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now holds breach checks at five minutes: four closed histories favor faster updates, one (DSV)
   favors slower, 56 are equal. The operator subsequently chose completed five-minute raises and fresh
-  observed-touch triggers for design. Next define governing price/monitoring inputs and policy/version
-  scope, then validate touch behavior; the close-based study does not establish its returns.
+  observed-touch triggers for design. Scope now includes all portfolios, especially Delphi Live.
+  Fresh bid is the recommended input, pending acceptance. Next settle price/monitoring inputs and
+  prospective assignments, then validate touch behavior; close-based studies do not establish its returns.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

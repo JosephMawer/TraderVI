@@ -18,6 +18,8 @@ cssclasses:
 > and tightest earned gap. Raise stops from completed five-minute prices; trigger on the first fresh
 > observed price at or below the established stop, without waiting for a close. These are design
 > decisions; no implementation is authorized.
+> **Scope confirmed:** all portfolios, including and especially Delphi Live. Fresh bid is the
+> recommended touch input, pending the operator's answer; see the scope/input section below.
 
 ## Problem and goal
 
@@ -164,7 +166,7 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
   A bounded [saved add-on simulation](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
   now tests the agreed contract. It covers only selected supported paths and no post-add-on 0.50%
   band; the prior conditional day illustrations remain separate and do not permit a daily stop reset.
-- Intended family/version scope and comparison with the existing rules, emphasizing profit actually
+- Prospective policy/version assignment across the agreed all-portfolio scope and comparison with existing rules, emphasizing profit actually
   retained after costs and giveback. Record later upside as secondary context, alongside later purchases
   and re-entry; do not turn capturing every subsequent rally into a success condition. Existing fill
   friction/causal timing still apply.
@@ -247,13 +249,37 @@ A newly created or raised stop applies only to subsequent fresh observations. Do
 earlier in the same completed bar to trigger against the stop just raised at its close. Observed touch
 means detection when valid fresh data actually arrives, not a promise of continuous monitoring or a
 broker-native stop. The governing trade/quote input, freshness/monitoring contract and family/version
-integration remain open. Existing protection ownership and causal execution/cost contracts still apply;
+integration remain open; the later scope decision below includes Delphi Live explicitly. Existing protection ownership and causal execution/cost contracts still apply;
 a trigger does not guarantee the sale price.
 
 The saved comparisons used five-minute **closing-price** breaches, so their returns do not measure
 the newly agreed touch design. Current Shadow checks lows of received completed bars; that does not
 establish real-time first-touch detection. Live has a separate fresh-bid contract. No new simulation,
 code, operating policy or application change occurred in this decision step.
+
+## All-portfolio scope and bid-price recommendation
+
+The operator subsequently requested coverage of **all portfolios, including and especially Delphi
+Live**, while explicitly retaining the no-implementation boundary. This replaces the earlier open
+family-coverage question; individual-stock protection remains the unit of action. Prospective policy
+identities, assignment/rollover and family-specific integration still require a design. Existing
+protection owners, add-on eligibility and real-account activation/execution gates remain authoritative.
+This scope choice does not rewrite frozen policies or authorize activation or broker actions.
+
+**Recommended, not yet accepted:** use a fresh valid positive **bid**, the price buyers are offering,
+at or below the established stop. This relates the trigger to the sell side of the quote. A stop of
+$104.50 and a subsequent observed bid of $104.48 would trigger an exit without waiting for the next
+completed close. A short dip can therefore trigger even if the price later recovers. The trigger
+does not promise a sale at $104.50 or $104.48.
+
+Source inspection confirms Delphi Live already checks a bid received after the floor was persisted
+against that floor, then obtains a separate post-decision quote for its simulated fill. See
+[safety policy](../../Core/Trader/DelphiLive/DelphiLiveSafetyPolicy.cs) and
+[existing Live contract](../concepts/delphi-live.md#provisional-v1-profit-protection).
+Using a fresh bid across other portfolios still needs source/freshness/monitoring qualification;
+saved bar-close/low studies cannot establish quote-touch returns. No fallback price or new collection
+interval is selected by this recommendation. See [SEC order types](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)
+for sell-side bid context and the distinction between quoted and executed prices.
 
 ## Review questions
 

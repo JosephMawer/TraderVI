@@ -76,6 +76,14 @@ does not guarantee the fill price or continuous monitoring. This remains an unim
 
 Tags: risk-management, decision-engine. Source: ADR-0090.
 
+### Q: What does a stop "touch" mean in plain language?
+
+A: The watched price reaches or falls below the stop, telling the system to sell without waiting
+for a five-minute close. Fresh bid is recommended but not yet accepted: it means watching what buyers
+are offering to pay. The intended design covers all portfolios, especially Delphi Live; no implementation.
+
+Tags: risk-management, decision-engine. Source: ADR-0090.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source
