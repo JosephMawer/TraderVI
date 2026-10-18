@@ -1359,8 +1359,11 @@ holds five-minute closing-price breach checks constant: 61 distinct closed histo
 returns, four higher with five-minute updates and one higher with fifteen-minute updates. DSV retains
 +1.29%/+2.03% respectively; earlier ARE +1.25%/+0.82%; add-on ARE is unchanged. All 85 five-minute
 baselines reproduce, and 170 scenario outcomes independently verify. These are controlled samples of
-one price source, not native engine replay or operating cadence adoption. Observation/high timing,
-trigger-price semantics, version scope and adoption remain open; morning/noon alternatives stay deferred.
+one price source, not native engine replay or operating cadence adoption. The operator subsequently
+selected completed five-minute stop updates and accepted first-fresh-observed-touch triggers, without
+waiting for a close. Newly raised stops apply only to later observations. This is a design decision;
+the close-based studies do not test touch returns. Governing price/monitoring inputs, version scope
+and adoption remain open; morning/noon alternatives stay deferred. [Agreed trigger boundary](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
 No trading rules, new SQL reads/writes, producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)

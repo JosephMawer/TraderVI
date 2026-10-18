@@ -15,7 +15,9 @@ cssclasses:
 > a later rise alone does not make a profitable protective exit a failure.
 > **Latest design choices:** retain the original +1.5%/+3%/+5% bands and 1%/0.75%/0.50% gaps.
 > An add-on stays in one combined holding with updated average cost, preserving the existing stop
-> and tightest earned gap. These are design decisions; no implementation is authorized.
+> and tightest earned gap. Raise stops from completed five-minute prices; trigger on the first fresh
+> observed price at or below the established stop, without waiting for a close. These are design
+> decisions; no implementation is authorized.
 
 ## Problem and goal
 
@@ -152,11 +154,11 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
 - Original numeric bands are retained for the design baseline; operating-policy adoption and
   implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
-- Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
-  do not silently substitute this study's five-minute descriptive highs for a governing policy input.
+- Exact governing price source/high reference and monitoring contract. Completed five-minute updates
+  and observed-touch triggers are now agreed for design (see below); retain non-loosening protection.
   The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now isolates update cadence with five-minute closing-price breach checks in both versions. It does
-  not select the operating interval or replace current native low-based checks.
+  not itself qualify touch detection or replace current native low-based checks.
   Clock-based tightening is deferred from the retained baseline; its simulated receipt-time semantics
   and carried-stop behavior remain documented for a future research revisit.
   A bounded [saved add-on simulation](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
@@ -179,7 +181,7 @@ The [concept note](../concepts/progressive-profit-trailing-draft.md) explains th
 This walkthrough concerns the daily Shadow portfolios studied above. Their current source retains
 the configured hard-loss stop (5% in V1), a cost-aware break-even floor and a nondecreasing trailing
 stop. The current high is based on completed fifteen-minute closes, with five-minute risk checks;
-the study's five-minute close input is not silently adopted as the future operating input.
+the later five-minute design choice below does not change this current operating behavior.
 
 Proposed integration: retain existing protection and earlier required exits. Within the existing
 protection owner, a progressive candidate may raise the active stop but cannot lower it. It does not
@@ -220,7 +222,7 @@ sale returns. Six included add-on cost transitions verify, including three activ
 that preserve the stop/0.75% gap; four hypothetical first crossings/fills independently verify. Scope and exclusions live in
 the report. This is a bounded close-based overlay, not a full engine replay or implementation.
 
-The original bands and add-on contract remain agreed for design. Observation/high timing, version
+The original bands and add-on contract remain agreed for design. Governing price/high inputs, version
 scope and operational adoption remain outstanding. No new SQL or operational verification occurred.
 
 ## Update interval comparison — research only
@@ -233,6 +235,25 @@ updates (+1.25% versus +0.82%); all add-on ARE outcomes are unchanged. The recen
 improvement each, so no universal winner is established. All 85 prior five-minute baseline records
 reproduce; 170 scenario outcomes independently verify. The linked report owns source/cadence semantics,
 deduplication and limits. This is not operating-input acceptance, native engine replay or implementation.
+
+## Five-minute updates and observed-touch triggers — agreed design
+
+On October 17, after reviewing the comparison, the operator selected completed five-minute price
+updates for raising the stop. The operator then accepted triggering a sale on the first fresh price
+observed at or below the established stop, without waiting for a five-minute close. This prioritizes
+protecting profit over allowing a brief dip to recover. A touch can therefore exit before a rebound.
+
+A newly created or raised stop applies only to subsequent fresh observations. Do not use a low from
+earlier in the same completed bar to trigger against the stop just raised at its close. Observed touch
+means detection when valid fresh data actually arrives, not a promise of continuous monitoring or a
+broker-native stop. The governing trade/quote input, freshness/monitoring contract and family/version
+integration remain open. Existing protection ownership and causal execution/cost contracts still apply;
+a trigger does not guarantee the sale price.
+
+The saved comparisons used five-minute **closing-price** breaches, so their returns do not measure
+the newly agreed touch design. Current Shadow checks lows of received completed bars; that does not
+establish real-time first-touch detection. Live has a separate fresh-bid contract. No new simulation,
+code, operating policy or application change occurred in this decision step.
 
 ## Review questions
 

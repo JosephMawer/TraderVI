@@ -64,9 +64,17 @@ Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-p
 ### Q: Does raising a stop every fifteen minutes require waiting fifteen minutes to check it?
 
 A: No. Raising the stop and checking for a breach are separate timings. The saved comparison keeps
-five-minute closing-price breach checks in both update variants; the operating input is still undecided.
+five-minute closing-price breach checks in both update variants. The subsequent design selects
+five-minute raises and fresh observed-touch triggers; those touch returns have not been tested.
 
 Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
+
+### Q: Can an earlier bar low trigger a stop just raised at that bar's close?
+
+A: No. A new or raised stop applies only to later fresh observations. An observed-touch trigger also
+does not guarantee the fill price or continuous monitoring. This remains an unimplemented design.
+
+Tags: risk-management, decision-engine. Source: ADR-0090.
 
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 

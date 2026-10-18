@@ -394,7 +394,12 @@ Optional older-history import remains a proposal; no historical reset is approve
   saved paths, without stop/fill simulation. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
 - [x] Retain original bands for design after operator review: +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps;
   no morning/noon adjustment selected and no implementation authorized.
-- [ ] Choose operating update/trigger inputs and family/version scope before implementation; preserve existing
+- [x] Record the operator's subsequent design choice: completed five-minute stop raises and a sale
+  trigger on the first fresh observed price at or below the established stop, without waiting for a
+  close. Newly raised stops apply only to later observations. No implementation or touch-return test.
+  [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
+- [ ] Define governing price/high inputs, monitoring and family/version scope, and validate observed-touch
+  behavior before implementation; preserve existing
   protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
   remain outstanding; keep repairs secondary.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete

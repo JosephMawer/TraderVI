@@ -25,8 +25,8 @@ The day's price move and profit since purchase remain separate. A recovery today
 below purchase cost; a stock bought later starts its own history at purchase. Tightening one
 winner's stop does not decide whether to make that later purchase.
 
-Existing protection must never be loosened or moved under a competing owner. Price-update timing,
-the precise high reference, policy/version scope and validation remain outstanding.
+Existing protection must never be loosened or moved under a competing owner. Governing price/high
+inputs, monitoring, policy/version scope and validation remain outstanding.
 Current rules and saved histories stay unchanged. [ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
 records confirmed direction and the boundary of the proposal.
 
@@ -44,13 +44,20 @@ holding remains profitable. See the [worked example and source boundary](../adr/
 The [bounded saved add-on test](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
 now illustrates this in ARE: +1.58%–1.93% combined profit after an add-on despite a -1.48% return on
 the added shares. It protects a smaller profit earlier than the actual recorded ARE exits. The
-decision is still unimplemented, and operating observation/high timing and version scope remain open.
+decision is still unimplemented, and governing price/high inputs and version scope remain open.
 
 Raising a stop and checking for a breach are separate timings. The operator's [five/fifteen-minute
 comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
 keeps five-minute closing-price breach checks in both: DSV retains more with fifteen-minute updates,
-the earlier ARE retains more with five-minute updates, and add-on ARE results are equal. The operating
-update interval and trigger-price input remain unselected.
+the earlier ARE retains more with five-minute updates, and add-on ARE results are equal.
+
+**Subsequent agreed design:** raise stops using completed five-minute prices; trigger a sale on the
+first fresh observed price at or below the established stop, without waiting for a close. This favors
+profit protection but can sell during a dip that later recovers. A new or raised stop applies only to
+later observations, never an earlier low from the bar that raised it. Actual detection depends on
+available fresh data; continuous monitoring is not established. Governing price source/monitoring and
+family/version scope remain open. Prior close-based results do not test touch-trigger returns. No
+implementation or operating-policy change is authorized. [Decision and boundaries](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
 
 ## Review questions
 

@@ -100,9 +100,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   finds 56 equal, four higher five-minute and one higher fifteen-minute modeled returns across 61
   distinct closed trade/cost histories. DSV retains +1.29%/+2.03%; the earlier ARE +1.25%/+0.82%;
   add-on ARE returns are equal. All 85 prior five-minute baselines reproduce and 170 scenario outcomes
-  verify independently. No operating interval is chosen; decide update cadence, governing price/trigger
-  inputs and policy/version scope. Native bar-low execution semantics are not adopted by this close-based
+  verify independently. The comparison itself does not select an operating interval. Native bar-low
+  execution semantics are not adopted by this close-based
   study. No trading rule, data collection, SQL record or running application changed.
+- **Subsequent agreed design, October 17:** completed five-minute prices raise the stop; the first
+  fresh observed price at or below the established stop triggers a sale, without waiting for a close.
+  A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
+  to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
+  Governing price/high inputs, freshness/monitoring and family/version integration remain open.
+  Previous close-based results do not establish touch returns or continuous detection; no implementation.
 
 ### Liquidity and execution-realism research
 
