@@ -244,6 +244,8 @@ public static class DelphiLiveLedgerIntegrity
         {
             var changed = next.Positions.SingleOrDefault(p => p.PositionId == position.PositionId)
                 ?? throw new InvalidOperationException("A historical position was removed.");
+            if (position.Protection.Progressive is { } earned)
+                ProgressiveProfitProtection.RequirePreserved(earned, changed.Protection.Progressive);
             if (changed.Symbol != position.Symbol || changed.Quantity != position.Quantity ||
                 changed.AveragePurchasePrice != position.AveragePurchasePrice || changed.OpenedUtc != position.OpenedUtc ||
                 changed.EntryActionId != position.EntryActionId || changed.OriginalEntryDossierJson != position.OriginalEntryDossierJson ||

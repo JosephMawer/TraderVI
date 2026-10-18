@@ -149,6 +149,12 @@ public sealed class EngineSettingsTests
         next.Actions[2].ShouldBe(prior.Actions[2]); next.Guards.ShouldBe(prior.Guards);
         next.Revision.ShouldBe(prior.Revision + 1);
         Should.Throw<InvalidOperationException>(() => DelphiLiveLedgerIntegrity.ValidateTransition(prior, next));
+        var progressive = EngineStrategyReassignment.Rebase(prior,
+            policy with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true }, Now);
+        progressive.Actions[0].Status.ShouldBe("Cancelled");
+        progressive.Actions[1].ShouldBe(prior.Actions[1]);
+        progressive.PendingActions.Count().ShouldBe(1);
+        progressive.Positions[0].Protection.FloorPrice!.Value.ShouldBeGreaterThanOrEqualTo(protection.FloorPrice!.Value);
     }
 
     [Fact]

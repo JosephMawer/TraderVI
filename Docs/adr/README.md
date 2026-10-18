@@ -40,7 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0090](0090-progressive-individual-profit-trailing.md) | Progressive trailing protection for individual winners | Proposed policy; shrinking-gap direction confirmed, settings open; no rule change | risk-management, decision-engine |
+| [0090](0090-progressive-individual-profit-trailing.md) | Progressive trailing protection for individual winners | Accepted; implemented/tested across portfolio engines, disabled; migration 043 prepared | risk-management, decision-engine |
 | [0089](0089-tmx-session-context-and-supplementary-records.md) | Stable TMX context, supplementary records and causal clock waits | Installed; observed-end/stale-source follow-up's first scheduled checks/current marks verified | data-pipeline, data-sources, time-series |
 | [0088](0088-source-symbol-aliases-for-monitoring.md) | Source symbol aliases for monitoring | Installed; symbol resolution and comparison-source adoption verified | architecture, data-sources |
 | [0087](0087-ai-momentum-portfolio-boundaries.md) | AI Momentum mandate and enforced protection | Budgeted proposals and learning consultation in source; evaluation, host integration and protection parameters pending | architecture, llm, risk-management |

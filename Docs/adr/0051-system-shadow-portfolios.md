@@ -1,5 +1,9 @@
 # ADR-0051: System-selected Shadow V1 portfolios
 
+**Prospective protection extension (October 17, 2026):** [ADR-0090](0090-progressive-individual-profit-trailing.md)
+adds disabled-by-default progressive profit protection for explicitly assigned new versions. Original
+V1 and historical execution rules remain intact; stronger existing stops and pending protective sells survive.
+
 - **Status:** Accepted
 - **Date:** 2026-09-04
 - **Domains:** architecture, data-pipeline, decision-engine, market-microstructure, risk-management

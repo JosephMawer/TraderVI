@@ -13,6 +13,26 @@ namespace TraderVI.Core.Tests;
 public sealed class TradingRecommendationTests
 {
     [Fact]
+    public void ProgressiveDailyAdviceUsesTheActualBidAndPreservesBlendedHoldingProtection()
+    {
+        var i = HeldInput(105m);
+        var strategy = i.Assignment.Strategy with { ShadowPolicy = i.Assignment.Strategy.ReadShadowPolicy() with { UseProgressiveProfitProtection = true } };
+        i = i with { Assignment = i.Assignment with { Strategy = strategy }, EntriesPaused = true,
+            Quotes = [new("ABC", Now, Now.AddSeconds(1), 105m, 104.475m, 104.49m, "TmxQuoteFieldsV1")] };
+        var result = TradingRecommendationEngine.Evaluate(i);
+        var row = Assert.Single(result.Recommendations);
+        Assert.Equal("Sell", row.Action);
+        Assert.Equal(104.475m, row.ReferencePrice);
+        var progressive = result.Memory.Symbols["ABC"].ShadowProtection!.Progressive!;
+        Assert.Equal(0.005m, progressive.TightestGap);
+        Assert.True(progressive.ExitTriggered);
+        var added = i.CurrentHoldings[0] with { Quantity = 15, CostBasis = 1515m };
+        var later = TradingRecommendationEngine.Evaluate(i with { PreviousMemory = result.Memory, CurrentHoldings = [added], Quotes = [] });
+        Assert.Equal(104.475m, later.Memory.Symbols["ABC"].ShadowProtection!.Progressive!.StopPrice);
+        Assert.Equal("Sell", Assert.Single(later.Recommendations).Action);
+        Assert.Equal(15, Assert.Single(later.Recommendations).Quantity);
+    }
+    [Fact]
     public void DailyRecommendationsUseRealCashAndLeaveAllFinancialFactsUntouched()
     {
         var input = Input(); string before = JsonSerializer.Serialize(input);

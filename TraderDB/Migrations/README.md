@@ -2,6 +2,12 @@
 
 This directory records the exact schema scripts applied to `TraderDB` after adoption of ADR-0018. Existing top-level scripts in `TraderDB` predate this convention.
 
+## Prepared, not installed
+
+- `20261017_043_AddProgressiveProfitProtection.sql`: additive per-position Shadow protection state.
+  Reviewed in source and included in the passing SSDT project build; no installation has run.
+  The script does not enable the strategy or change existing stops/assignments.
+
 ## Naming
 
 Use UTC-independent local calendar order and a same-day sequence:

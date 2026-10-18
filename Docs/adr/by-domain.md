@@ -232,7 +232,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
-- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Proposed individual-winner trail with a shrinking percentage gap; no rule change
+- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Accepted progressive stock protection; implemented/tested, disabled
 
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — Declining risk capacity, hard stops and profit-protection direction
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Preserve strategy and account risk rules across days and portfolio switches
@@ -292,7 +292,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## decision-engine
 
-- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Confirmed research direction; activation, gap schedule and policy adoption remain open
+- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Prospective opt-in across portfolio engines; original policies and established protection preserved
 
 - [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
 

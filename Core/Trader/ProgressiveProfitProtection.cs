@@ -11,6 +11,9 @@ public sealed record ProgressiveProfitProtectionState(
     bool ExitTriggered = false)
 {
     public string RuleVersion { get; init; } = ProgressiveProfitProtection.Version;
+    public DateTime? LastQuoteRequestedUtc { get; init; }
+    public DateTime? LastQuoteReceivedUtc { get; init; }
+    public string? QuoteSourceContract { get; init; }
 }
 
 public sealed record ProgressiveHistoricalClose(DateTime EndUtc, decimal Close, DateTime ReceivedUtc, decimal AverageCost);
@@ -66,9 +69,10 @@ public static class ProgressiveProfitProtection
     }
 
     public static ProgressiveBidDecision ObserveBid(ProgressiveProfitProtectionState state,
-        decimal? bid, DateTime requestedUtc, DateTime receivedUtc, DateTime evaluatedUtc)
+        decimal? bid, DateTime requestedUtc, DateTime receivedUtc, DateTime evaluatedUtc, string sourceContract = "Unspecified")
     {
         Validate(state); Utc(requestedUtc); Utc(receivedUtc); Utc(evaluatedUtc);
+        state = state with { LastQuoteRequestedUtc = requestedUtc, LastQuoteReceivedUtc = receivedUtc, QuoteSourceContract = sourceContract };
         bool usable = bid is > 0m && requestedUtc <= receivedUtc && receivedUtc <= evaluatedUtc &&
             evaluatedUtc - receivedUtc <= MaximumReceiptAge &&
             (state.StopEstablishedUtc is null || requestedUtc >= state.StopEstablishedUtc && receivedUtc > state.StopEstablishedUtc);
@@ -95,6 +99,17 @@ public static class ProgressiveProfitProtection
             NextBidCheckUtc = raised ? null : state.NextBidCheckUtc };
     }
 
+    public static void RequirePreserved(ProgressiveProfitProtectionState prior, ProgressiveProfitProtectionState? next)
+    {
+        Validate(prior);
+        if (next is null || prior.StopPrice.HasValue && (next.StopPrice is null || next.StopPrice < prior.StopPrice) ||
+            prior.HighestClose.HasValue && (next.HighestClose is null || next.HighestClose < prior.HighestClose) ||
+            prior.TightestGap.HasValue && (next.TightestGap is null || next.TightestGap > prior.TightestGap) ||
+            prior.ExitTriggered && !next.ExitTriggered)
+            throw new InvalidOperationException("Earned progressive protection and observed exits cannot be discarded or loosened.");
+        Validate(next);
+    }
+
     public static void Validate(ProgressiveProfitProtectionState state)
     {
         ArgumentNullException.ThrowIfNull(state); Price(state.AverageCost);
@@ -103,7 +118,8 @@ public static class ProgressiveProfitProtection
         if (state.RuleVersion != Version || state.TightestGap is not (null or 0.01m or 0.0075m or 0.005m) ||
             state.StopPrice.HasValue != state.StopEstablishedUtc.HasValue)
             throw new ArgumentException("Invalid progressive protection state.");
-        foreach (var at in new[] { state.LastCloseEndUtc, state.StopEstablishedUtc, state.LastBidReceivedUtc, state.NextBidCheckUtc })
+        foreach (var at in new[] { state.LastCloseEndUtc, state.StopEstablishedUtc, state.LastBidReceivedUtc, state.NextBidCheckUtc,
+            state.LastQuoteRequestedUtc, state.LastQuoteReceivedUtc })
             if (at.HasValue) Utc(at.Value);
     }
     private static void Price(decimal value) { if (value <= 0m) throw new ArgumentOutOfRangeException(nameof(value)); }

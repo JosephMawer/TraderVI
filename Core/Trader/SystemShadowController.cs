@@ -17,7 +17,7 @@ namespace Core.Trader;
 /// before it can create a decision. Signals create durable pending orders;
 /// only a later five-minute bar can supply the simulated fill.
 /// </summary>
-public sealed class SystemShadowController
+public sealed partial class SystemShadowController
 {
     private static readonly TimeSpan RegularOpen = new(9, 30, 0);
     private static readonly TimeSpan EarliestNormalDecision = new(9, 50, 0);
@@ -227,6 +227,14 @@ public sealed class SystemShadowController
                     .Where(x => x.Status == "Open")
                     .ToList();
                 bool portfolioEvidenceHealthy = true;
+
+                try { signals += await ApplyProgressiveProtectionAsync(portfolio, cancellationToken); }
+                catch (Exception error) when (error is not OperationCanceledException)
+                {
+                    // A new protection-store problem must not skip the original stops below.
+                    portfolioEvidenceHealthy = false; blocked++;
+                    warnings.Add($"{portfolio.PortfolioId}: progressive protection unavailable ({error.GetType().Name}); existing protection continues.");
+                }
 
                 foreach (SystemShadowPositionInfo position in openPositions)
                 {

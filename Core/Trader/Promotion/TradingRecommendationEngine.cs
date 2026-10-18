@@ -125,10 +125,37 @@ public static class TradingRecommendationEngine
                     input.HoldingSessionOrdinals.TryGetValue(holding.PositionId, out int ordinal) &&
                     SystemShadowPolicy.ShouldExitAtSessionTwoClose(five.Close, average, ordinal, policy)) exit ??= "SessionTwoUnprofitable";
             }
+            TradingQuote? progressiveQuote = null;
+            if (policy.UseProgressiveProfitProtection || trail.Progressive is not null)
+            {
+                var progressive = trail.Progressive ?? ProgressiveProfitProtection.Carry(average, trail.TrailingStopPrice, input.EvaluatedUtc);
+                DateTime ownedSince = input.ActualFills.Where(f => f.PositionId == holding.PositionId && f.Side == "BUY")
+                    .Select(f => (DateTime?)f.FillUtc).Min() ?? entered;
+                if (input.Bars.TryGetValue(holding.Symbol, out var prices))
+                    foreach (var bar in prices.Where(b => b.Minutes == 5 && b.StartUtc.AddMinutes(5) > ownedSince &&
+                        b.StartUtc.AddMinutes(5) <= input.EvaluatedUtc && b.ReceivedUtc <= input.EvaluatedUtc &&
+                        b.ReceivedUtc >= b.StartUtc.AddMinutes(5) && b.Close > 0m).OrderBy(b => b.StartUtc))
+                    {
+                        var buys = input.ActualFills.Where(f => f.PositionId == holding.PositionId && f.Side == "BUY" && f.FillUtc <= bar.StartUtc.AddMinutes(5)).ToArray();
+                        decimal cost = buys.Length > 0 ? buys.Sum(f => f.Price * f.Quantity) / buys.Sum(f => f.Quantity) : average;
+                        progressive = ProgressiveProfitProtection.ObserveClose(progressive, cost, bar.StartUtc.AddMinutes(5), bar.Close,
+                            input.EvaluatedUtc, trail.TrailingStopPrice);
+                    }
+                progressive = ProgressiveProfitProtection.Preserve(progressive with { AverageCost = average }, trail.TrailingStopPrice, input.EvaluatedUtc);
+                progressiveQuote = Quote(input, holding.Symbol);
+                if (progressiveQuote is not null)
+                {
+                    var bid = ProgressiveProfitProtection.ObserveBid(progressive, progressiveQuote.Bid,
+                        progressiveQuote.RequestedUtc, progressiveQuote.ReceivedUtc, progressiveQuote.ReceivedUtc, progressiveQuote.SourceContract);
+                    progressive = bid.State;
+                }
+                if (progressive.ExitTriggered) exit ??= SystemShadowExitReason.TrailingProfit.ToString();
+                trail = trail with { Progressive = progressive };
+            }
             states[holding.Symbol] = new(holding.PositionId, trail, null, null, null, null, null, ExitReason: exit);
             rows.Add(new(holding.Symbol, exit is null ? "Hold" : "Sell", exit is null ? 0 : holding.Quantity,
-                five?.Close, exit ?? "No protective exit established", holding.PositionId, null, five?.EvidenceId,
-                five?.StartUtc.AddMinutes(5), exit is null ? "Holding" : "RiskExit"));
+                progressiveQuote?.Bid ?? five?.Close, exit ?? "No protective exit established", holding.PositionId, null, five?.EvidenceId,
+                progressiveQuote?.ReceivedUtc ?? five?.StartUtc.AddMinutes(5), exit is null ? "Holding" : "RiskExit"));
         }
         bool entryWindow = input.EvaluatedUtc >= input.SessionOpenUtc.AddMinutes(20) && input.EvaluatedUtc < input.SessionCloseUtc;
         if (!entryWindow || !riskAllowed || nav is null) return;
@@ -229,14 +256,28 @@ public static class TradingRecommendationEngine
                 DelphiLiveProfitProtectionState.Open(holding.PositionId,holding.CostBasis/holding.Quantity),null,null,null,null);
             if(memory.PositionId!=holding.PositionId || memory.LiveProtection is null)
                 memory=memory with {PositionId=holding.PositionId,LiveProtection=DelphiLiveProfitProtectionState.Open(holding.PositionId,holding.CostBasis/holding.Quantity),ExitReason=null};
+            memory = memory with { LiveProtection = memory.LiveProtection! with { AveragePurchasePrice = holding.CostBasis / holding.Quantity } };
             results.TryGetValue(holding.Symbol,out var observed);
             if(states.GetValueOrDefault(holding.Symbol)?.LastLiveBarUtc <= (LastEntry(input,holding.PositionId)??input.Assignment.EffectiveUtc))observed=null;
             var quote=Quote(input,holding.Symbol);
             var safety=observed?.SafetyInput ?? new(true,true,holding.CostBasis/holding.Quantity,null,null,null,null,false,false,false,false,
                 new(DelphiLiveSignalFamily.VolumeSupport,DelphiLiveFamilyState.NotMature,"Missing live observations"),
                 new(DelphiLiveMomentumState.Neutral,DelphiLiveStrongTier.None,DelphiLiveNeutralDetail.None,0,0,0,0),false,memory.LiveProtection);
+            decimal? usableBid = quote?.Bid;
+            if (policy.UseProgressiveProfitProtection || memory.LiveProtection?.Progressive is not null)
+            {
+                var protection = Core.Runtime.EngineStrategyReassignment.Rebase(memory.LiveProtection!, policy, input.EvaluatedUtc);
+                if (quote is not null)
+                {
+                    var observedBid = ProgressiveProfitProtection.ObserveBid(protection.Progressive!, quote.Bid, quote.RequestedUtc,
+                        quote.ReceivedUtc, quote.ReceivedUtc, quote.SourceContract);
+                    protection = protection with { Progressive = observedBid.State };
+                    if (!observedBid.Usable) usableBid = null;
+                }
+                memory = memory with { LiveProtection = protection };
+            }
             var decision=DelphiLiveSafetyPolicy.Evaluate(safety with {IsHeld=true,AveragePurchasePrice=holding.CostBasis/holding.Quantity,
-                ProfitProtection=memory.LiveProtection,CurrentBid=quote?.Bid,CurrentBidReceivedUtc=quote?.ReceivedUtc},policy);
+                ProfitProtection=memory.LiveProtection,CurrentBid=usableBid,CurrentBidReceivedUtc=quote?.ReceivedUtc},policy);
             string? exit=memory.PositionId==holding.PositionId?memory.ExitReason:null;
             exit ??= decision.PrimaryExitRule?.ToString();
             if(quote?.Bid is not >0m) warnings.Add($"{holding.Symbol}: bid-based protection is waiting for an observed bid.");
@@ -274,7 +315,8 @@ public static class TradingRecommendationEngine
 
     private static TradingQuote? Quote(TradingRecommendationInput input,string symbol) => input.Quotes.LastOrDefault(q=>Same(q.Symbol,symbol)&&
         q.SourceContract=="TmxQuoteFieldsV1" && q.RequestedUtc>=input.EvaluatedUtc && q.ReceivedUtc>=q.RequestedUtc &&
-        q.ReceivedUtc<=input.EvaluatedUtc+input.Assignment.Strategy.ReadLivePolicy().QuoteAttemptWindow && q.ReceivedUtc<input.SessionCloseUtc);
+        q.ReceivedUtc<=input.EvaluatedUtc+(input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
+            ? input.Assignment.Strategy.ReadLivePolicy().QuoteAttemptWindow : ProgressiveProfitProtection.MaximumReceiptAge) && q.ReceivedUtc<input.SessionCloseUtc);
     private static bool Held(TradingRecommendationInput i,string symbol)=>i.CurrentHoldings.Any(h=>Same(h.Symbol,symbol));
     private static bool Same(string left,string right)=>string.Equals(left,right,StringComparison.OrdinalIgnoreCase);
     private static int Find(ImmutableArray<TradingRecommendation>.Builder rows,string symbol)=>Enumerable.Range(0,rows.Count).First(i=>Same(rows[i].Symbol,symbol));

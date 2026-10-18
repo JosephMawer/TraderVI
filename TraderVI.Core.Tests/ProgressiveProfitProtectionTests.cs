@@ -54,6 +54,18 @@ public sealed class ProgressiveProfitProtectionTests
     }
 
     [Fact]
+    public void DurableTransitionRejectsLosingEarnedProtectionOrObservedExit()
+    {
+        var state = ProgressiveProfitProtection.Carry(100m, null, At, 105m);
+        state = ProgressiveProfitProtection.ObserveBid(state, 104m, At, At.AddSeconds(1), At.AddSeconds(1)).State;
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtection.RequirePreserved(state, null));
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtection.RequirePreserved(state, state with { TightestGap = 0.01m }));
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtection.RequirePreserved(state, state with { StopPrice = 103m }));
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtection.RequirePreserved(state, state with { ExitTriggered = false }));
+        ProgressiveProfitProtection.RequirePreserved(state, JsonSerializer.Deserialize<ProgressiveProfitProtectionState>(JsonSerializer.Serialize(state))!);
+    }
+
+    [Fact]
     public void QuotesBeforeFloorInvalidMissingOrTooOldCannotTrigger()
     {
         var state = ProgressiveProfitProtection.Carry(99m, 100m, At);

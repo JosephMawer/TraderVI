@@ -72,8 +72,14 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
         }
         return result.ToImmutable();
     }
-    public Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct) =>
-        new TradingRecommendationRepository().ReadBrokerInputAsync(session, ct);
+    public async Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct)
+    {
+        var input = await new TradingRecommendationRepository().ReadBrokerInputAsync(session, ct);
+        if (session.Strategy.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
+            input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null))
+            input = input with { Quotes = await new TradingRecommendationQuoteSource().ReadAsync(input, ct) };
+        return input;
+    }
     public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => resolveSecurity(symbol, ct);
     public async Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct)
     {

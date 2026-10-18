@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Calibration;
+using Core.Runtime;
 using Core.Trader;
 using Core.Trader.DelphiLive;
 using Dapper;
@@ -116,9 +117,20 @@ FROM OPENJSON(@Symbols) WITH(Symbol NVARCHAR(20) '$') s WHERE NOT EXISTS
         if (accounts.Length == 0) return context;
         var assignments = context.Assignments.ToList(); var policies = context.Policies.ToDictionary(x => x.Key, x => x.Value);
         var sources = new Dictionary<Guid, PaperComparisonSource>(); var baselines = context.Baselines.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
-        foreach (var account in accounts)
+        for (int index = 0; index < accounts.Length; index++)
         {
+            var account = accounts[index];
             Guid policy = account.LivePolicyVersionId!.Value;
+            Guid? activePolicy = await c.QuerySingleOrDefaultAsync<Guid?>(new CommandDefinition(
+                "SELECT DelphiLivePolicyVersionId FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id", new { Id = account.AccountId }, cancellationToken: ct));
+            if (activePolicy.HasValue && activePolicy != policy)
+            {
+                var original = await ReadPolicyAsync(c, policy, null, ct);
+                var successor = await ReadPolicyAsync(c, activePolicy.Value, null, ct);
+                ProgressiveProfitProtectionRollout.ValidateChange(original, successor);
+                policy = activePolicy.Value;
+                accounts[index] = account = account with { LivePolicyVersionId = policy };
+            }
             assignments.Add(new(account.AccountId, policy, DelphiLivePolicyRole.GateComparison, date));
             policies[policy] = await ReadPolicyAsync(c, policy, null, ct);
             var source = await PaperComparisonRepository.ReadSourceAsync(c, null, account.BatchId, Date(date), ct);

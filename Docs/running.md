@@ -841,6 +841,37 @@ dotnet run --project TraderVI.WPF
 
 Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The tracked-position monitor has manual ledger-reconciliation controls; its automatic actions remain database-only Ghost exits. The separate manual-buy ticket can submit an explicitly reviewed broker order and does not give this monitor automatic broker authority.
 
+## Progressive profit protection — implemented, disabled
+
+[ADR-0090](adr/0090-progressive-individual-profit-trailing.md) is implemented/tested across Daily Shadow
+variants and Delphi Live, with recommendation/supported managed-account integration. It is **not installed,
+assigned or enabled** by the October 17 implementation task. V1/default flags stay false.
+
+Future rollout is an explicit operation: review/apply manual migration
+`20261017_043_AddProgressiveProfitProtection.sql`, install the reviewed binaries, then save/assign
+new versions with `UseProgressiveProfitProtection=true` under the existing pause/assignment controls.
+The Shadow schema-presence cache requires recreating its repository/app after installation. Do not
+deploy the DACPAC. Review retained holdings/pending sells and verify prospective operation before
+claiming coverage. This document does not authorize those operations.
+
+For paired comparison accounts, use only `EngineSettingsRepository.AssignProgressiveProfitProtectionAsync`
+with a new saved version and explicit target. It validates that only this opt-in changes (plus the new
+Live policy ID); immutable comparison profiles/sources and original gate choices are preserved. Ordinary
+comparison editing remains blocked. Record the prospective intervention separately from old experiment
+returns. Existing real-account execution prerequisites remain unchanged.
+
+Activation carries stronger existing floors and protective sells, reconstructs available actual
+five-minute history since purchase without inventing missing bars, and preserves high/earned gap
+through combined buys and restart. The new floor is persisted before its trigger quote. Independent
+quote-only checks use five minutes while safely above the stop and one minute within 0.25%, on the
+existing host wake cadence during reviewed regular sessions. Missing/invalid/stale-receipt bids cannot
+trigger the new rule; existing protections continue. Live obtains a separate fill quote; Shadow keeps
+its existing later-five-minute fill/friction model.
+
+Additional quote investigation remains deferred, not an added implementation gate. The existing TMX
+receipt contract lacks a bid market timestamp; at most 60 seconds since local receipt does not prove
+upstream freshness. No market/broker requests or SQL writes were used for implementation validation.
+
 ## Delphi Live — explicit paper-monitor activation
 
 The frozen design is [Delphi Live V1](concepts/delphi-live.md); source and validation status are in the

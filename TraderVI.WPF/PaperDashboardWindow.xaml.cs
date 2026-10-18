@@ -232,6 +232,7 @@ public partial class PaperDashboardWindow : Window
                 nextAutomaticPollLocal = PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
                 await RunMonitorCycleAsync("Scheduled");
             }
+            await PortfoliosTabView.CheckProfitProtectionAsync(shutdown.Token);
             if (displayRefresh.ShouldRefresh(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
                 await RefreshSafelyAsync();
         }

@@ -9,6 +9,14 @@ namespace Core.Trader;
 /// <summary>Shadow ledger persistence boundary. SQL and isolated practice stores share the controller.</summary>
 public interface ISystemShadowStore
 {
+    Task<bool> HasProgressiveProtectionSchemaAsync(CancellationToken ct = default) => Task.FromResult(false);
+    Task<ProgressiveProfitProtectionState?> ReadProgressiveProtectionAsync(Guid positionId, CancellationToken ct = default) =>
+        Task.FromResult<ProgressiveProfitProtectionState?>(null);
+    Task SaveProgressiveProtectionAsync(Guid positionId, ProgressiveProfitProtectionState state, CancellationToken ct = default) =>
+        throw new NotSupportedException("Progressive profit protection storage is not installed.");
+    Task<IReadOnlyList<ProgressiveHistoricalClose>> ReadProgressiveClosesAsync(SystemShadowPositionInfo position,
+        DateTime? afterEndUtc, DateTime throughUtc, CancellationToken ct = default) =>
+        Task.FromResult<IReadOnlyList<ProgressiveHistoricalClose>>(Array.Empty<ProgressiveHistoricalClose>());
     Task<bool> HasSchemaAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SystemShadowRuntimePortfolio>> GetRunnablePortfoliosAsync(

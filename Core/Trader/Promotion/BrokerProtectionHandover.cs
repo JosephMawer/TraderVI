@@ -60,9 +60,13 @@ public static class BrokerProtectionHandover
             decimal average = h.CostBasis / h.Quantity;
             var trail = oldState?.ShadowProtection is { } saved ? saved with { AverageCost = average }
                 : SystemShadowTrailingState.Open(average);
-            decimal? floor = new[] { previous?.CarriedFloor, oldState?.LiveProtection?.FloorPrice, trail.TrailingStopPrice }
+            decimal? floor = new[] { previous?.CarriedFloor, oldState?.LiveProtection?.FloorPrice, trail.TrailingStopPrice, trail.Progressive?.StopPrice }
                 .Where(p => p.HasValue).Max();
             if (floor is <= 0) throw new InvalidOperationException("An established protective floor is invalid.");
+            var progressive = trail.Progressive ?? oldState?.LiveProtection?.Progressive;
+            if (progressive is not null)
+                trail = trail with { Progressive = ProgressiveProfitProtection.Preserve(
+                    progressive with { AverageCost = average }, floor, activation.UtcDateTime) };
             // Keep carried levels independently; a fresh quote is not a completed fifteen-minute historical high.
             return new BrokerPositionProtection(h.PositionId, incoming.VersionId.ToString("D"), floor, activation,
                 new(h.PositionId, trail, null, null, null, null, null, ExitReason: oldState?.ExitReason));

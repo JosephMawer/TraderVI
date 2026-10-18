@@ -98,7 +98,14 @@ public sealed class EngineSettingsRepository : SQLBase
         return result;
     }
 
-    public async Task<Guid> AssignAsync(EngineSettingsTarget target, EngineStrategyVersion version, string reason)
+    public Task<Guid> AssignAsync(EngineSettingsTarget target, EngineStrategyVersion version, string reason) =>
+        AssignCoreAsync(target, version, reason, false);
+
+    // Explicit operator operation only; not invoked by construction, polling, migration or tests.
+    public Task<Guid> AssignProgressiveProfitProtectionAsync(EngineSettingsTarget target, EngineStrategyVersion version, string reason) =>
+        AssignCoreAsync(target, version, reason, true);
+
+    private async Task<Guid> AssignCoreAsync(EngineSettingsTarget target, EngineStrategyVersion version, string reason, bool progressiveOnly)
     {
         if (target.Family != version.Family) throw new ArgumentException("A strategy can only be assigned within its own system family.");
         reason = reason.Trim();
@@ -108,6 +115,9 @@ public sealed class EngineSettingsRepository : SQLBase
         await using var c = new SqlConnection(ConnectionString); await c.OpenAsync();
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (!await Installed(c, t)) throw new InvalidOperationException($"Install reviewed migration {Migration} first.");
+        bool progressiveInstalled = await c.ExecuteScalarAsync<int>("SELECT CASE WHEN OBJECT_ID(N'dbo.ShadowProgressiveProtection',N'U') IS NULL THEN 0 ELSE 1 END", transaction: t) == 1;
+        if (settings is SystemShadowPolicyConfig { UseProgressiveProfitProtection: true } && !progressiveInstalled)
+            throw new InvalidOperationException("Install reviewed migration 20261017_043_AddProgressiveProfitProtection.sql before assigning progressive Shadow protection.");
         await c.ExecuteAsync("""
             SET XACT_ABORT ON;
             DECLARE @r int;
@@ -115,7 +125,7 @@ public sealed class EngineSettingsRepository : SQLBase
             IF @r<0 THROW 51313,'An evaluation is still running. Retry the assignment after it completes.',1;
             """, transaction: t, commandTimeout: 40);
         await TradingControlRepository.RequireEditableAsync(c, t, target.Family);
-        if (await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
+        if (!progressiveOnly && await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM dbo.PaperComparisonAccount WHERE AccountId=@Id;", new { Id = target.TargetId }, t) > 0)
             throw new InvalidOperationException("Comparison profiles and their paired rules are fixed. Create a fresh pair for a new experiment.");
         var saved = await c.QuerySingleOrDefaultAsync<EngineStrategyVersion>("SELECT VersionId,Family,Name,SettingsJson,SettingsHash,CreatedUtc FROM dbo.EngineStrategyVersion WHERE VersionId=@Id", new { Id = version.VersionId }, t);
@@ -152,6 +162,20 @@ public sealed class EngineSettingsRepository : SQLBase
             if (target.TargetId != EngineStrategySettings.TrackedTargetId) throw new ArgumentException("Unknown tracked-position target.");
             prior = await c.QuerySingleAsync<string>("SELECT (SELECT PositionId,HighWaterMark FROM dbo.ActivePosition WHERE IsActive=1 FOR JSON PATH)", transaction: t);
         }
+        if (progressiveOnly)
+        {
+            object original;
+            if (live is not null) original = await DelphiLiveSessionRepository.ReadPolicyAsync(c, live.PolicyVersionId, t, default);
+            else if (target.Family == EngineStrategySettings.Shadow)
+            {
+                string? originalJson = current?.SettingsJson;
+                if (originalJson is null && await PaperComparisonRepository.InstalledAsync(c, t))
+                    originalJson = await c.QuerySingleOrDefaultAsync<string>("SELECT ShadowSettingsJson FROM dbo.PaperComparisonAccount WHERE AccountId=@Id", new { Id = target.TargetId }, t);
+                original = originalJson is null ? SystemShadowPolicyConfig.Version1 : EngineStrategySettings.Read(target.Family, originalJson);
+            }
+            else throw new InvalidOperationException("This rollout applies to portfolio engines only.");
+            ProgressiveProfitProtectionRollout.ValidateChange(original, settings);
+        }
         await c.ExecuteAsync("""
             INSERT dbo.EngineStrategyAssignment(AssignmentId,TargetId,VersionId,AssignedUtc,AssignedBy,Reason,PriorStateJson)
             VALUES(@Assignment,@Target,@Version,@Now,@By,@Reason,@Prior)
@@ -172,19 +196,26 @@ public sealed class EngineSettingsRepository : SQLBase
         }
         else if (settings is SystemShadowPolicyConfig shadow)
         {
+            bool preserve = shadow.UseProgressiveProfitProtection || progressiveInstalled && await c.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM dbo.ShadowProgressiveProtection s JOIN dbo.ShadowPosition p ON p.PositionId=s.PositionId WHERE p.PortfolioId=@Target AND p.Status=N'Open'",
+                new { Target = target.TargetId }, t) > 0;
             await c.ExecuteAsync("""
                 UPDATE dbo.ShadowOrder SET Status=N'Cancelled',ReasonCode=N'StrategyReassigned',UpdatedUtc=@Now
-                 WHERE PortfolioId=@Target AND Status=N'Pending';
-                UPDATE dbo.ShadowPosition SET
-                 ProfitProtectionArmed=CASE WHEN COALESCE(HighestFifteenClose,AverageCost)>=AverageCost/(1-@Friction) THEN 1 ELSE 0 END,
-                 TrailingStopPrice=CASE WHEN COALESCE(HighestFifteenClose,AverageCost)<AverageCost/(1-@Friction) THEN NULL
-                 WHEN COALESCE(HighestFifteenClose,AverageCost)*(1-@Trail)>AverageCost/(1-@Friction) THEN COALESCE(HighestFifteenClose,AverageCost)*(1-@Trail)
-                 ELSE AverageCost/(1-@Friction) END
-                 WHERE PortfolioId=@Target AND Status=N'Open';
+                 WHERE PortfolioId=@Target AND Status=N'Pending' AND (@Preserve=0 OR Side=N'Buy');
+                UPDATE p SET
+                 ProfitProtectionArmed=CASE WHEN @Preserve=1 AND p.ProfitProtectionArmed=1 THEN 1 ELSE candidate.Armed END,
+                 TrailingStopPrice=CASE WHEN @Preserve=1 AND p.TrailingStopPrice IS NOT NULL AND
+                    (candidate.StopPrice IS NULL OR p.TrailingStopPrice>candidate.StopPrice) THEN p.TrailingStopPrice ELSE candidate.StopPrice END
+                 FROM dbo.ShadowPosition p CROSS APPLY(SELECT
+                    CASE WHEN COALESCE(p.HighestFifteenClose,p.AverageCost)>=p.AverageCost/(1-@Friction) THEN 1 ELSE 0 END Armed,
+                    CASE WHEN COALESCE(p.HighestFifteenClose,p.AverageCost)<p.AverageCost/(1-@Friction) THEN NULL
+                    WHEN COALESCE(p.HighestFifteenClose,p.AverageCost)*(1-@Trail)>p.AverageCost/(1-@Friction)
+                        THEN COALESCE(p.HighestFifteenClose,p.AverageCost)*(1-@Trail) ELSE p.AverageCost/(1-@Friction) END StopPrice) candidate
+                 WHERE p.PortfolioId=@Target AND p.Status=N'Open';
                 INSERT dbo.ShadowPortfolioEvent(EventId,PortfolioId,OccurredUtc,EventType,ReasonCode,DetailsJson)
                  VALUES(@Assignment,@Target,@Now,N'Lifecycle',N'StrategyReassigned',@Audit);
                 """, new { Target = target.TargetId, Now = now, Friction = shadow.ExitFrictionRate, Trail = shadow.TrailingLossFraction,
-                    Assignment = assignment, Audit = EngineStrategySettings.Serialize(new { version.VersionId, Reason = reason }) }, t);
+                    Preserve = preserve, Assignment = assignment, Audit = EngineStrategySettings.Serialize(new { version.VersionId, Reason = reason }) }, t);
         }
         t.Commit(); return assignment;
     }
@@ -235,7 +266,7 @@ public sealed class EngineSettingsRepository : SQLBase
             JOIN dbo.DelphiLivePortfolioLedger l ON l.GenerationId=g.GenerationId
             CROSS APPLY(SELECT TOP(1) a.AssignmentId,a.VersionId FROM dbo.EngineStrategyAssignment a
               WHERE a.TargetId=l.PortfolioId AND a.AssignedUtc<DATEADD(day,1,@Date) ORDER BY a.Sequence DESC) a
-            WHERE g.EffectiveTradingDate<=@Date AND (g.EndExclusiveTradingDate IS NULL OR g.EndExclusiveTradingDate>@Date)
+            WHERE g.PortfolioRole<>N'GateComparison' AND g.EffectiveTradingDate<=@Date AND (g.EndExclusiveTradingDate IS NULL OR g.EndExclusiveTradingDate>@Date)
             """, new { Date = date.ToDateTime(TimeOnly.MinValue) });
         var updated = assignments.ToList();
         foreach (var row in rows)

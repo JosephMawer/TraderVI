@@ -7,6 +7,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Intraday gain retention (revisit soon)
 
+- **Current October 17 state:** the later implementation request supersedes the design-only boundaries
+  in the research history below. ADR-0090's original bands, completed five-minute highs, adaptive fresh-bid
+  checks and preserved combined-holding protection are implemented/tested across the portfolio engines,
+  with defaults disabled. Migration 043 and prospective assignments remain unapplied. Extra quote-source
+  investigation stays deferred and non-blocking; upstream bid freshness remains unqualified. Future
+  research includes morning/noon gap alternatives and observed outcomes after separately authorized
+  adoption. No additional setting decision is needed before installation review.
 - **Goal:** investigate retaining gains that appear earlier in a session and fade later. The operator
   raised this September 11 in [Assess TraderVI priorities](codex://threads/01a0908e-613a-7713-9de1-dd3851a8a71c).
   The September 18 [account-history investigation](../../artifacts/portfolio-history-20260918/report.md)

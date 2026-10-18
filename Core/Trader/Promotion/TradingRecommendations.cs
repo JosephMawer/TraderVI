@@ -2,6 +2,7 @@
 using Core.Trader.DelphiLive;
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -94,7 +95,9 @@ public sealed class TradingRecommendationWorkflow(ITradingRecommendationStore st
         await using var session = await store.BeginAsync(accountLabel, token);
         if (session is null) return null;
         var input = session.Input;
-        if (quotes is not null && input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive &&
+        if (quotes is not null && (input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive ||
+            input.Assignment.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
+            input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null)) &&
             input.EvaluatedUtc >= input.SessionOpenUtc && input.EvaluatedUtc < input.SessionCloseUtc)
             input = input with { Quotes = await quotes.ReadAsync(input, token) };
         // Keep the source cutoff fixed. Quotes carry their own later causal receipt times.

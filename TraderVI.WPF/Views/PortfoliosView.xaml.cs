@@ -76,6 +76,8 @@ public partial class PortfoliosView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) =>
         viewModel.RefreshAsync(cancellationToken);
 
+    public Task<int> CheckProfitProtectionAsync(CancellationToken ct = default) => controller.PollProgressiveProtectionAsync(ct);
+
     public async Task<SystemShadowPollResult> RunScheduledCycleAsync(
         CancellationToken cancellationToken = default)
     {

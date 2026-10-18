@@ -238,7 +238,7 @@ public sealed class DelphiLiveActionWorkflow
         if (quote is not null && position.Protection.Progressive is { } progressive)
         {
             var observed = ProgressiveProfitProtection.ObserveBid(progressive, quote.Bid,
-                quote.RequestStartedUtc, quote.ReceivedUtc, clock.UtcNow);
+                quote.RequestStartedUtc, quote.ReceivedUtc, clock.UtcNow, quote.SourceContractVersion);
             usableBid &= observed.Usable;
             afterQuote = position with { Protection = position.Protection with { Progressive = observed.State } };
         }

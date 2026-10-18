@@ -25,6 +25,23 @@ public sealed class PracticeShadowStore : ISystemShadowStore
     public List<SystemShadowPendingOrder> PendingOrders { get; } = [];
     public List<PracticeFill> Fills { get; } = [];
     public List<PracticeLedgerEvent> Events { get; } = [];
+    public Dictionary<Guid, ProgressiveProfitProtectionState> ProgressiveStates { get; } = [];
+    public Dictionary<Guid, IReadOnlyList<ProgressiveHistoricalClose>> ProgressiveCloses { get; } = [];
+    public Task<bool> HasProgressiveProtectionSchemaAsync(CancellationToken ct = default) => Task.FromResult(true);
+    public Task<ProgressiveProfitProtectionState?> ReadProgressiveProtectionAsync(Guid positionId, CancellationToken ct = default) =>
+        Task.FromResult(ProgressiveStates.GetValueOrDefault(positionId));
+    public Task SaveProgressiveProtectionAsync(Guid positionId, ProgressiveProfitProtectionState state, CancellationToken ct = default)
+    {
+        ProgressiveProfitProtection.Validate(state);
+        if (ProgressiveStates.TryGetValue(positionId, out var prior))
+            ProgressiveProfitProtection.RequirePreserved(prior, state);
+        ProgressiveStates[positionId] = state;
+        return Task.CompletedTask;
+    }
+    public Task<IReadOnlyList<ProgressiveHistoricalClose>> ReadProgressiveClosesAsync(SystemShadowPositionInfo position,
+        DateTime? afterEndUtc, DateTime throughUtc, CancellationToken ct = default) =>
+        Task.FromResult<IReadOnlyList<ProgressiveHistoricalClose>>(ProgressiveCloses.GetValueOrDefault(position.PositionId, [])
+            .Where(b => b.EndUtc > (afterEndUtc ?? position.EntryUtc) && b.ReceivedUtc <= throughUtc).ToArray());
 
     public PracticeShadowStore(Func<DateTime> now, Func<Guid> newId, Guid generationId,
         SystemShadowPolicyConfig policy, Guid policyId)

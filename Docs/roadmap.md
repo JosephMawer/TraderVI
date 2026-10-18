@@ -267,14 +267,14 @@ or completed replacement of the execution work below. See the
 
 - **Revisit intraday-gain retention soon** and carry it into future strategy/risk work. The operator
   preserved this important research goal October 16. October 17 establishes the individual-winner
-  direction below; whole-portfolio protection remains background. No operating policy or implementation
-  is adopted; the retained design bands are described below. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
+  direction below; whole-portfolio protection remains background. Implementation is complete and
+  tested with defaults disabled; installation/adoption remain separate. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
   **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
   The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
   that question. The operator accepted day-move and purchase-profit measures separately. The
   [stock-level review](reviews/stock-gain-paths-20261017.md) now covers ordinary holding paths, later
   purchases and later upside. The operator then confirmed **a trailing percentage gap that shrinks as
-  purchase profit grows**, prioritizing protected profit over post-sale upside. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md)
+  purchase profit grows**, prioritizing protected profit over post-sale upside. [Accepted ADR-0090](adr/0090-progressive-individual-profit-trailing.md)
   records the three-band proposal and its authorized offline [saved-trade comparison](reviews/progressive-trailing-trade-study-20261017.md).
   Larger-winner entry tests now exercise +3% in ARE/AGI; +5% has conditional already-held ARE/CAS
   illustrations, with survival from entry unproven. Tightening does not always retain more profit.
@@ -291,10 +291,11 @@ or completed replacement of the execution work below. See the
   when enabled are accepted for design. Adaptive bid timing is now accepted too: five/one minutes at
   0.25% distance, new quote per check and a 60-second receipt-age limit. The current source/saved check
   does not qualify Live bid freshness; the operator defers further source investigation as a coding
-  prerequisite. Implementation is now authorized: the shared calculation/Live integration pass 41
-  focused tests; finish Shadow/recommendation integration, handover and broader tests. Keep defaults
-  disabled. Close-based studies do not establish bid-trigger returns.
-  Rules stay unchanged and gap repairs remain secondary.
+  prerequisite. Daily Shadow/Delphi Live integration, prospective comparison assignments, recommendation
+  paths and safe handover are implemented: 166 focused tests including Practice and the final full Core suite pass.
+  Next, separately review installation and prospective assignments; migration 043 is prepared, all
+  defaults remain disabled and no operating rules changed. Close-based studies and synthetic tests do
+  not establish live bid-trigger returns. Gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

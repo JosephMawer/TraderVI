@@ -14,6 +14,14 @@ namespace Core.Trader;
 
 public interface ISystemShadowEnvironment
 {
+    bool IsProtectionSession(DateTime utc)
+    {
+        var local = PaperTradingMonitor.ToToronto(utc);
+        return local.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday) &&
+            local.TimeOfDay >= TimeSpan.FromHours(9.5) && local.TimeOfDay < TimeSpan.FromHours(16);
+    }
+    Task<ProgressiveProtectionQuote> ReadProtectionQuoteAsync(string symbol, CancellationToken ct = default) =>
+        throw new NotSupportedException("No progressive protection bid source is connected.");
     DateTime UtcNow { get; }
     Guid NewId();
     CodeProvenance Code { get; }
@@ -35,6 +43,22 @@ public interface ISystemShadowEnvironment
 
 internal sealed class OperationalSystemShadowEnvironment : ISystemShadowEnvironment
 {
+    public bool IsProtectionSession(DateTime utc)
+    {
+        var calendar = DailyBenchmarkPolicy.LoadCalendar();
+        var day = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(utc));
+        if (!calendar.IsRegularSession(day)) return false;
+        var bounds = calendar.GetSessionBounds(day);
+        return utc >= bounds.OpenUtc && utc < bounds.CloseUtc;
+    }
+    public async Task<ProgressiveProtectionQuote> ReadProtectionQuoteAsync(string symbol, CancellationToken ct = default)
+    {
+        client ??= new TmxClient();
+        DateTime requested = DateTime.UtcNow;
+        var rows = await client.GetQuotesBySymbolsAsync([symbol], ct);
+        var matching = rows.Where(q => string.Equals(q.Symbol, symbol, StringComparison.OrdinalIgnoreCase)).ToArray();
+        return new(matching.Length == 1 ? matching[0].Bid : null, requested, DateTime.UtcNow, "TmxQuoteFieldsV1");
+    }
     public DateTime UtcNow => DateTime.UtcNow;
     public Guid NewId() => Guid.NewGuid();
     public CodeProvenance Code => CalibrationProvenance.ResolveCode();
@@ -73,9 +97,13 @@ internal sealed class OperationalSystemShadowEnvironment : ISystemShadowEnvironm
     {
         var comparison = comparisonAccounts?.SingleOrDefault(a => a.AccountId == portfolio.PortfolioId);
         if (comparison is not null)
-            return portfolio with { ComparisonAccount = comparison, SettingsAssignedUtc = comparison.EffectiveUtc,
-                StrategyVersionId = comparison.ShadowStrategyVersionId,
-                Settings = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, comparison.ShadowSettingsJson!) };
+        {
+            var original = (SystemShadowPolicyConfig)EngineStrategySettings.Read(EngineStrategySettings.Shadow, comparison.ShadowSettingsJson!);
+            var assigned = await new EngineSettingsRepository().ReadAsync(portfolio.PortfolioId, EngineStrategySettings.Shadow, original);
+            if (assigned.VersionId.HasValue) ProgressiveProfitProtectionRollout.ValidateChange(original, assigned.Settings);
+            return portfolio with { ComparisonAccount = comparison, SettingsAssignedUtc = assigned.AssignedUtc ?? comparison.EffectiveUtc,
+                StrategyVersionId = assigned.VersionId ?? comparison.ShadowStrategyVersionId, Settings = assigned.Settings };
+        }
         var assignment = await new EngineSettingsRepository().ReadAsync(portfolio.PortfolioId,
             EngineStrategySettings.Shadow, SystemShadowPolicyConfig.Version1);
         return portfolio with { Settings = assignment.Settings, SettingsAssignedUtc = assignment.AssignedUtc, StrategyVersionId = assignment.VersionId };

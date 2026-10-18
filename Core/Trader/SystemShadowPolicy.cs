@@ -13,6 +13,8 @@ public static class SystemShadowVersions
 
 public sealed record SystemShadowPolicyConfig
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool UseProgressiveProfitProtection { get; init; }
     public decimal InitialAllocationFraction { get; init; } = 0.75m;
     public decimal AddOnAllocationFraction { get; init; } = 0.25m;
     public decimal HardLossFraction { get; init; } = 0.05m;
@@ -69,6 +71,8 @@ public sealed record SystemShadowTrailingState(
     decimal? TrailingStopPrice,
     DateTime? LastProcessedFifteenMinuteBarUtc = null)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgressiveProfitProtectionState? Progressive { get; init; }
     public static SystemShadowTrailingState Open(decimal averageCost)
     {
         if (averageCost <= 0m)

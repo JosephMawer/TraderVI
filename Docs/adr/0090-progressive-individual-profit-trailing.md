@@ -7,35 +7,59 @@ cssclasses:
 **Date:** October 17, 2026. **Status:** Accepted for prospective implementation; not enabled.
 **Domains:** risk-management, decision-engine.
 
-> [!summary] Confirmed direction; no trading-rule change
+> [!summary] Accepted implementation; disabled until separately enabled
 > The operator wants an individual stock's allowed percentage pullback below its highest price
-> to shrink as its profit since purchase grows. The exact policy is still a draft. Existing saved
+> to shrink as its profit since purchase grows. The original bands are accepted for implementation. Existing saved
 > rules, stop ownership, execution contracts and protection remain authoritative.
 > **Operator priority:** protecting profit matters more than capturing gains after an exit;
 > a later rise alone does not make a profitable protective exit a failure.
 > **Latest design choices:** retain the original +1.5%/+3%/+5% bands and 1%/0.75%/0.50% gaps.
 > An add-on stays in one combined holding with updated average cost, preserving the existing stop
 > and tightest earned gap. Raise stops from completed five-minute prices; trigger on the first fresh
-> observed price at or below the established stop, without waiting for a close. These are design
-> decisions; no implementation is authorized.
+> observed bid at or below the established stop, without waiting for a close.
 > **Scope/input confirmed:** all portfolios, including and especially Delphi Live, use a fresh bid
-> at or below the established stop as the proposed sale trigger. No implementation is authorized.
+> at or below the established stop as the sale trigger.
 > **High/transition confirmed:** use the highest completed five-minute close since purchase. Include
 > existing holdings when the new strategy is enabled, preserving stronger established protection.
 > **Polling confirmed:** five minutes with more than 0.25% room above the stop, one minute nearer;
 > request a new quote per check and reject quotes received more than 60 seconds ago. Market freshness
 > is not yet qualified by that receipt-age limit.
-> **Readiness:** the agreed behavior is ready to implement and test once authorized. The operator
+> **Source investigation deferred:** the operator
 > declines the additional market-hours/source-guarantee investigation as an implementation prerequisite;
-> defer it while retaining the documented source limitation. No code change is authorized by that deferral.
+> defers it while retaining the documented source limitation. Receipt age does not prove bid market age.
 
-> [!important] Implementation authorization and checkpoint
+> [!important] Current implementation boundary — October 17
 > The operator subsequently authorized implementation across all portfolios, especially Delphi Live,
 > preserving protection and deferring quote investigation, with testing before any enablement. This
 > supersedes the earlier no-implementation boundaries in the historical design notes below. New
 > saved strategy versions opt in with `UseProgressiveProfitProtection`; all defaults remain false.
-> The shared calculation and Live integration pass 41 focused tests; Shadow/recommendation integration
-> is in progress. Nothing has been installed, assigned, activated or operationally verified.
+> Shared calculations, Daily Shadow variants, Delphi Live, recommendation and supported managed-account
+> paths are implemented and covered by 166 focused tests, including Practice compatibility. Durable state retains earned gaps, highs,
+> stronger floors, pending protective sales and observed exits through restart/handover. A separate
+> quote-only Shadow wake and Live host ticks honor adaptive due times without waiting for AI/display.
+> Migration 043 is prepared, not applied. Nothing has been installed, assigned, activated or operationally verified.
+
+## Prospective adoption and preserved contracts
+
+This accepted record extends the risk rules in [ADR-0051](0051-system-shadow-portfolios.md),
+[ADR-0053](0053-delphi-live-v1.md) and the fixed comparison-account contract in
+[ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) **only for explicitly assigned prospective versions**.
+The original policies, comparison profiles, gate choices, source snapshots and past results remain
+immutable. Comparison accounts use the narrow `AssignProgressiveProfitProtectionAsync` operation,
+which permits the progressive opt-in only; ordinary comparison editing stays blocked. New Live
+versions have distinct policy IDs. This changes future risk behavior and must not be presented as
+an uninterrupted original paired experiment. Existing real-account activation requirements remain.
+
+Shadow stores the new state in `ShadowProgressiveProtection`; Live uses its existing versioned ledger.
+Activation seeds genuine completed five-minute history since the actual purchase, using contemporaneous
+costs where additional buys occurred. Missing history is not invented. Raised stops are saved before
+new trigger requests. A valid positive post-stop bid with no more than 60 seconds local receipt age
+can establish an exit; missing/invalid bids cannot. Existing hard stops, closing exits and pending
+protective actions retain their owners. Live still uses a separate post-decision fill quote; Shadow
+retains its next-five-minute simulated fill/friction contract. A touch does not guarantee the stop price.
+
+The historical design/research notes below retain the authorization boundaries in force when written;
+the implementation authorization and current boundary above supersede those earlier restrictions.
 
 ## Problem and goal
 
@@ -52,7 +76,7 @@ later upside the operator explicitly accepts missing when that tradeoff protects
 - Keep later purchases tied to their own positions/entry times. No earlier unowned gain is credited.
 - Prioritize protecting profit over capturing subsequent gains after a sale. Later price increases
   remain context, not a reason by themselves to reject a profitable protective exit or require re-entry.
-- Stay in research/design. The operator explicitly requested no trading-rule changes yet.
+- Keep installation and enablement separate from implemented/tested source. No operational change in this task.
 
 This direction follows the October 17 stock-level scope correction. Whole-account results remain
 background; no portfolio-wide cutoff, fixed profit target, noon sale or new-entry pause is selected.
@@ -65,7 +89,7 @@ moves down, using a cost-aware break-even floor and a configured fraction below 
 fifteen-minute close. The proposed change concerns how that fraction tightens at larger profits.
 It is not a second competing exit owner or permission to weaken an established stop.
 [ADR-0053](0053-delphi-live-v1.md) retains Live's separate frozen protection/execution semantics.
-Neither ADR is superseded by this proposed record; saved policies are not retrospectively rewritten.
+Their original versions remain unchanged; the prospective opt-in extension is defined above.
 
 ## Evidence and tradeoff
 

@@ -393,36 +393,39 @@ Optional older-history import remains a proposal; no historical reset is approve
   walkthrough. [Findings/coverage](reviews/stock-gain-paths-20261017.md). No new SQL or collection.
 - [x] Record confirmed individual-winner direction: a shrinking trailing percentage gap as purchase
   profit grows, with protecting profit prioritized over post-sale upside. Compare DSV/ARE using complete
-  saved paths, without stop/fill simulation. [Proposed ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
+  saved paths, without stop/fill simulation. [ADR-0090](adr/0090-progressive-individual-profit-trailing.md).
 - [x] Retain original bands for design after operator review: +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps;
-  no morning/noon adjustment selected and no implementation authorized.
+  no morning/noon adjustment selected. Later implementation authorization is recorded below.
 - [x] Record the operator's subsequent design choice: completed five-minute stop raises and a sale
   trigger on the first fresh observed price at or below the established stop, without waiting for a
-  close. Newly raised stops apply only to later observations. No implementation or touch-return test.
+  close. Newly raised stops apply only to later observations; close studies do not test touch returns.
   [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-- [x] Record all-portfolio design scope, including and especially Delphi Live; this does not authorize
-  implementation, policy assignment or activation. Fresh bid is now accepted as the touch input.
+- [x] Record all-portfolio scope, including and especially Delphi Live. Fresh bid is the touch input.
 - [x] Record the highest completed five-minute close since purchase and inclusion of existing holdings
-  as soon as the strategy is enabled; preserve stronger existing protection. No implementation authorized.
+  as soon as the strategy is enabled; preserve stronger existing protection.
 - [x] Agree adaptive bid timing: five/one minutes outside/within 0.25% above the stop, a new quote per
   check and at most 60 seconds since receipt. Design only; no current-market-age guarantee.
 - [x] Review the current Live quote chain and independently recheck the September 29 saved probe:
   no bid-update time, 22 quotes/zero positive bid-ask pairs; freshness remains unqualified.
   [Source finding and limits](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
 - [x] Reconcile design readiness: the operator defers the extra market-hours/source-guarantee study
-  as an implementation prerequisite. Settings are sufficient to start coding/testing once requested;
-  the source limitation remains explicit. No implementation or activation has been authorized.
+  as an implementation prerequisite. The source limitation remains explicit; later source/test
+  authorization does not authorize installation or activation.
 - Deferred/non-blocking: further bid-source freshness investigation. Local receipt age, changing prices
   or a delayed last-trade timestamp alone do not prove market age; do not turn this into a new gate.
 - [x] Receive implementation authorization, retaining deferred quote investigation and disabled defaults.
-- [x] Implement shared progressive calculations and durable Live bid/stop integration; 41 focused
-  tests pass at the October 17 checkpoint, including bid-only exits and persisted adaptive polling.
-- [ ] Complete Shadow/recommendation integration and broader tests before enablement. No migration,
-  assignment, installation or activation has run.
-- [ ] Specify prospective policy identities and safe state initialization/handover for existing holdings.
-- [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
-  preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
-  remain outstanding; keep repairs secondary.
+- [x] Implement shared progressive calculations and durable Live bid/stop integration, including
+  bid-only exits, separate fill quotes and persisted adaptive polling.
+- [x] Complete Shadow/recommendation and supported managed-account integration: 166 focused tests including Practice,
+  final full Core suite (2,422 pass/eight skips), WPF and SSDT builds pass October 17.
+- [x] Define prospective policy identities and safe initialization/handover for existing holdings,
+  retaining stronger floors, earned gaps and pending protective sells. Fixed comparison accounts
+  permit only the narrow progressive successor; original profiles/history remain immutable.
+- [x] Test synthetic fresh-bid touch triggers, restart recovery, combined purchases and prospective
+  policy guards. This is source/test evidence, not upstream freshness or operating qualification.
+- [ ] Separately authorize/install migration 043 and reviewed binaries; assign new opt-in versions
+  prospectively and verify operation before claiming enabled coverage. Nothing is installed or enabled
+  by this implementation task. [Procedure](running.md#progressive-profit-protection--implemented-disabled).
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
   first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).

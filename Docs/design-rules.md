@@ -3,6 +3,19 @@
 > This file is referenced by the repository-root `AGENTS.md`.
 > Rules here are authoritative for decision-engine, model, feature, and indicator changes.
 
+## Progressive individual profit protection
+
+[ADR-0090](adr/0090-progressive-individual-profit-trailing.md) accepts a prospective deterministic risk
+extension across Daily Shadow and Delphi Live portfolio variants. `UseProgressiveProfitProtection`
+defaults false; saved V1 identities and fixed comparison profiles remain unchanged. The narrow
+comparison successor operation may enable this protection only, preserving all gate/other settings.
+Stops/highs/earned gaps and pending protective sales cannot be weakened by add-ons or handover.
+Five-minute closing highs raise stops; only later valid fresh positive bids trigger the new floor.
+Existing hard stops, safety exits and execution owners remain authoritative. Missing bids cannot
+be replaced with last trade or bar lows for this new trigger. Receipt-age enforcement does not
+qualify upstream market age; further source investigation is explicitly deferred, not a new coding gate.
+This source/tested extension remains disabled pending separate installation and prospective assignment.
+
 ## Manual recommendation approval
 
 [ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md) permits explicit human approval of a

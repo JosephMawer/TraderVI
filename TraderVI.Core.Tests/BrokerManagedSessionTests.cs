@@ -331,7 +331,8 @@ public sealed partial class BrokerManagedSessionTests
     {
         var f = new Fixture(); var account = f.Project(); var position = account.Positions.Single();
         var previous = new BrokerPositionProtection(position.PositionId, "operator", 10.5m, f.Now.AddDays(-1),
-            new(position.PositionId, SystemShadowTrailingState.Open(10), null, null, null, null, null));
+            new(position.PositionId, SystemShadowTrailingState.Open(10) with
+                { Progressive = ProgressiveProfitProtection.Carry(10m, null, f.Now.AddDays(-1).UtcDateTime, 10.5m) }, null, null, null, null, null));
         var approval = f.Approval(retain: true) with { Review = f.Approval(retain: true).Review with { CurrentProtection = [previous] } };
         await f.Workflow().ApproveAsync(approval);
         var active = await f.Workflow().TickAsync(f.Binding.BindingId);
@@ -339,6 +340,8 @@ public sealed partial class BrokerManagedSessionTests
         Assert.Equal(10.5m, active.Protection.Single().CarriedFloor);
         Assert.Equal(100m, active.Account.Positions.Single().CostBasis);
         Assert.Equal(10m, active.Memory.Symbols["AAA"].ShadowProtection!.HighestCompletedFifteenMinuteClose);
+        Assert.Equal(0.005m, active.Memory.Symbols["AAA"].ShadowProtection!.Progressive!.TightestGap);
+        Assert.Equal(10.5m, active.Memory.Symbols["AAA"].ShadowProtection!.Progressive!.StopPrice);
         var at = active.ActivatedAt;
         f.Store.Restart(); f.Now = f.Now.AddSeconds(1);
         Assert.Equal(at, (await f.Workflow().TickAsync(f.Binding.BindingId)).ActivatedAt);

@@ -1322,14 +1322,24 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
-**Profit-protection implementation checkpoint, October 17:** the operator authorized implementing
-ADR-0090, with quote investigation deferred and no enablement before tests. The shared band/high/gap,
-bid-age/touch and scheduling calculation plus durable Delphi Live integration pass 41 focused tests
-in the isolated `artifacts/progressive-profit-protection/tests` build. Tests include bid-trigger/fill
-separation and persisted adaptive timing. Existing compiler warnings remain; restore required NuGet
-access outside the sandbox, with security audit disabled for this run. Shadow/recommendation integration
-and broader validation are in progress. Defaults remain disabled; no SQL migration, app restart,
-external market/broker operation or activation ran. [Accepted design](adr/0090-progressive-individual-profit-trailing.md).
+**Profit-protection implementation, October 17:** ADR-0090 is implemented for Daily Shadow variants
+and Delphi Live, including prospective opt-ins for paired comparison accounts, recommendation and
+supported managed-account paths. The shared +1.5%/+3%/+5% bands retain 1%/0.75%/0.50% gaps, five-minute
+completed highs, bid touches, adaptive five-/one-minute polling and the 60-second receipt-age limit.
+State/handover preserve stronger existing stops, tightest earned gaps, combined-holding costs and
+pending protective sells; historical fills and original strategy identities are unchanged. All
+defaults remain disabled. Migration 043 is prepared, not installed. Quote investigation stays deferred;
+the existing provider has no bid market timestamp, so receipt checks do not qualify upstream freshness.
+Validation: 166 focused tests including Practice compatibility and the final full Core suite (2,422 pass/eight skips); WPF project and
+SSDT database project builds pass. An earlier concurrent full run failed two AI timing tests; both
+isolated reruns and the final full run pass. Existing compiler warnings remain. NuGet restore required
+sandbox escalation; no fresh dependency-security audit or full-solution build. Local evidence is in
+`artifacts/progressive-profit-protection*`. No migration, app restart, market/broker request, assignment
+or activation ran. [Accepted contract](adr/0090-progressive-individual-profit-trailing.md),
+[future rollout boundary](running.md#progressive-profit-protection--implemented-disabled).
+
+The following research record preserves the earlier studies and their limits; its no-implementation
+statements describe those earlier steps and are superseded by the implemented/disabled state above.
 
 **Gain-retention research, October 17, 2026:** after the operator corrected the scope to individual
 stocks and accepted day-move/purchase-profit measures separately, the [stock-level review](reviews/stock-gain-paths-20261017.md)
@@ -1394,10 +1404,10 @@ so current market age cannot be verified. A direct reread of the September 29 sa
 That pair flag does not prove bids alone absent, and these are older samples, not new market evidence.
 The source's market freshness remains unverified. The operator subsequently declined additional
 market-hours/source-guarantee investigation as an implementation prerequisite; defer that study.
-The agreed behavior is ready to implement and test using the existing source, with the limitation
-recorded. Safe state/version handover, integration and fresh-bid tests remain engineering work;
-no further trading-rule choice is needed before coding. The readiness question does not authorize
-implementation or activation. [Finding and deferral](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+The later implementation request authorizes source integration and testing using the existing source,
+with that limitation recorded. Integration and synthetic bid tests are complete as summarized above;
+installation, prospective assignments and operational verification remain separate future work.
+[Finding and deferral](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
 No new market requests or SQL access ran; morning/noon alternatives stay deferred.
 The [decision list/example](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation) owns details.
 [Agreed scope and bid input](adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).

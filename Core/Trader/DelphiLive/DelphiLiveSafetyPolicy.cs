@@ -280,6 +280,8 @@ public static class DelphiLiveSafetyPolicy
 
     private static void ValidateProtectionState(DelphiLiveProfitProtectionState state)
     {
+        if (state.Progressive is not null)
+            ProgressiveProfitProtection.Validate(state.Progressive);
         if (state.PositionId == Guid.Empty)
             throw new ArgumentException("Protection state requires a position identity.", nameof(state));
         RequirePrice(state.AveragePurchasePrice, nameof(state.AveragePurchasePrice));

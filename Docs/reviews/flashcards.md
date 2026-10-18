@@ -57,7 +57,8 @@ Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-tr
 
 A: The agreed design keeps one combined holding: update average cost, preserve its stop and tightest
 earned gap. Current profit can fall after the purchase without undoing that protection; the newest
-shares can individually lose even when the combined holding remains profitable. This is not implemented.
+shares can individually lose even when the combined holding remains profitable. Implemented/tested;
+defaults remain disabled.
 
 Tags: risk-management, decision-engine. Source: ADR-0090; concepts/progressive-profit-trailing-draft.md.
 
@@ -72,7 +73,8 @@ Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-tr
 ### Q: Can an earlier bar low trigger a stop just raised at that bar's close?
 
 A: No. A new or raised stop applies only to later fresh observations. An observed-touch trigger also
-does not guarantee the fill price or continuous monitoring. This remains an unimplemented design.
+does not guarantee the fill price or continuous monitoring. Synthetic integration tests preserve
+that causal boundary; operational enablement remains separate.
 
 Tags: risk-management, decision-engine. Source: ADR-0090.
 
@@ -80,7 +82,8 @@ Tags: risk-management, decision-engine. Source: ADR-0090.
 
 A: The watched price reaches or falls below the stop, telling the system to sell without waiting
 for a five-minute close. Fresh bid is now the agreed input: it means watching what buyers
-are offering to pay. The intended design covers all portfolios, especially Delphi Live; no implementation.
+are offering to pay. The implemented opt-in covers the portfolio engines, especially Delphi Live;
+all defaults remain disabled.
 
 Tags: risk-management, decision-engine. Source: ADR-0090.
 

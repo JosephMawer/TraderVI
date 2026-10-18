@@ -143,8 +143,13 @@ public static class EngineStrategyReassignment
         SystemShadowPolicy.ValidateConfig(policy);
         decimal breakEven = prior.AverageCost / (1m - policy.ExitFrictionRate);
         bool armed = prior.HighestCompletedFifteenMinuteClose >= breakEven;
-        return prior with { ProfitProtectionArmed = armed, TrailingStopPrice = armed
-            ? System.Math.Max(breakEven, prior.HighestCompletedFifteenMinuteClose * (1m - policy.TrailingLossFraction)) : null };
+        decimal? stop = armed ? System.Math.Max(breakEven, prior.HighestCompletedFifteenMinuteClose * (1m - policy.TrailingLossFraction)) : null;
+        if (policy.UseProgressiveProfitProtection || prior.Progressive is not null)
+        {
+            if (prior.TrailingStopPrice.HasValue && (!stop.HasValue || prior.TrailingStopPrice > stop)) stop = prior.TrailingStopPrice;
+            armed |= prior.ProfitProtectionArmed;
+        }
+        return prior with { ProfitProtectionArmed = armed, TrailingStopPrice = stop };
     }
     public static DelphiLiveProfitProtectionState Rebase(DelphiLiveProfitProtectionState prior, DelphiLivePolicyDefinition policy, DateTime now)
     {
@@ -157,6 +162,7 @@ public static class EngineStrategyReassignment
         {
             var progressive = prior.Progressive ?? ProgressiveProfitProtection.Carry(prior.AveragePurchasePrice,
                 prior.FloorPrice, now, high);
+            progressive = progressive with { AverageCost = prior.AveragePurchasePrice };
             progressive = ProgressiveProfitProtection.Preserve(progressive, floor, now);
             return prior with { Progressive = progressive, FloorPrice = progressive.StopPrice,
                 Stage = progressive.TightestGap.HasValue ? DelphiLiveProfitProtectionStage.Trailing : prior.Stage,

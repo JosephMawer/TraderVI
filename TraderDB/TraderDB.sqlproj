@@ -108,6 +108,8 @@
     <Build Include="dbo/Tables/PaperComparisonSourceRevision.sql" />
     <Build Include="dbo/Tables/ShadowPortfolioCandidate.sql" />
     <Build Include="dbo/Tables/ShadowPosition.sql" />
+    <Build Include="dbo/Tables/ShadowProgressiveProtection.sql" />
+    <None Include="Migrations/20261017_043_AddProgressiveProfitProtection.sql" />
     <Build Include="dbo/Tables/ShadowOrder.sql" />
     <Build Include="dbo/Tables/ShadowPortfolioEvent.sql" />
     <Build Include="dbo/Tables/ShadowCapitalEvent.sql" />

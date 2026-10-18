@@ -1,5 +1,9 @@
 # ADR-0053: Delphi Live V1
 
+**Prospective protection extension (October 17, 2026):** [ADR-0090](0090-progressive-individual-profit-trailing.md)
+adds disabled-by-default progressive protection through new saved policy IDs. Original V1 remains
+unchanged; existing stronger floors, pending protective sells and separate fill-quote ownership survive.
+
 **Default-template amendment (September 26, 2026):** [ADR-0087](0087-ai-momentum-portfolio-boundaries.md#daily-buying-pause--september-26-decision)
 sets a 7% daily buying pause for new engine templates. The frozen V1 definition and historical evidence
 below retain 3%; saved policies require explicit version creation and assignment to adopt the new default.

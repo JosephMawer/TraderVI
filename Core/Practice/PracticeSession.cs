@@ -238,7 +238,7 @@ public sealed class PracticeSession : ISystemShadowEnvironment
                     string checkpoint = Path.Combine(destination, "checkpoint.json");
                     await File.WriteAllTextAsync(checkpoint + ".tmp", JsonSerializer.Serialize(new
                     { Frame = frame, Completed, Sequence = sequence, Ledger.Portfolios, Ledger.Sessions, Ledger.Candidates,
-                        Ledger.Positions, Ledger.PendingOrders, Ledger.Fills, Ledger.Events, DailyResults }, compact), cancellationToken);
+                        Ledger.Positions, Ledger.PendingOrders, Ledger.Fills, Ledger.Events, Ledger.ProgressiveStates, DailyResults }, compact), cancellationToken);
                     File.Move(checkpoint + ".tmp", checkpoint, true);
                 }
             }
