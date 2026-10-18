@@ -1,14 +1,24 @@
 # TraderVI Project Status
 
-**AI paper delivery / Dots documentation review, October 17, 2026:** the operator requested a
+**AI paper delivery / Dots saved-input trial, October 17, 2026:** the operator requested a
 remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation
 is built; qualified invested inputs/v3 interpretation and recurring reviews/display remain before
 Milestone 1, with action/protection integration, paper execution/switching, outcome learning and
 end-to-end recovery validation still required for Milestone 2. October 14 collection recovery does
-not qualify the separate AI risk reader. Dots is an unresolved connection alternative, documented
+not qualify the separate AI risk reader. The operator authorized one historical, non-executing Dots review and confirms the Dot is ready.
+Its API-replacement feasibility remains unresolved, documented
 in [open questions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026).
-Only repository/official-documentation inspection ran; no runtime test, SQL access, market/model
-call, activation or connection change. Operational verification dates remain unchanged.
+The local ignored bundle `artifacts/ai-dot-saved-review-20261017/` is prepared from the checksum-verified
+October 1 15:05 UTC saved packet (15 choices/four eligible), using current v3 rendering and response
+schema. The original journal checksum is unchanged; the prior request was rejected before generation
+for size. Input dates/eligibility are unchanged. The attachment has 30,781 input characters plus
+instructions/schema. Core build passes (.NET 10.0.401; 260 existing compiler warnings/no errors).
+Ten offline replay-validator checks pass, including current-time rejection of the historical packet;
+these are synthetic validator checks, not a Dot answer. One initial helper export failed on an
+ambiguous JSON overload before export and was corrected. No fresh dependency audit/full solution or
+SSDT build. No SQL access, model/market API call, operational launch or trading ran. Next send the
+prepared attachment to the Dot and validate its returned JSON; interpretation and decision quality
+remain unqualified. [Procedure](running.md#dots-one-saved-input-replay).
 
 **Current follow-up, October 14, 2026:** the nine missing bars are investigated; a narrow live
 request-end correction and clearer stale-source metadata are implemented/tested/installed at

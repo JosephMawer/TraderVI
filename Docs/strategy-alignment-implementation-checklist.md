@@ -96,7 +96,8 @@ Detailed agreed behavior remains binding in [ADR-0087](adr/0087-ai-momentum-port
 [design rules](design-rules.md) and their linked execution decisions. AI Explorer remains deferred.
 This checklist grants no deployment, paid API call or live-order authority.
 The October 17 [Dots alternative](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
-is unresolved; no connection change or completion credit is implied. The same paper input,
+remains unresolved as an API replacement; one historical replay is authorized/prepared, with the Dot
+answer pending. The same paper input,
 protection, execution, recovery and validation requirements apply whichever AI connection is chosen.
 
 #### Delivery milestones
@@ -241,6 +242,12 @@ runtime/display development can proceed while native input qualification remains
    - [x] Measure compressed request space by category offline, including shared definitions and instruction/schema overhead, to support the operator's reduction discussion (October 9; character shares, not token counts or accepted omissions).
    - [x] Implement/test the approved v3 engineering-field omissions and minimal unavailable-choice notices, including small requests and unavailable active choices; preserve independent managed-account/risk/learning context and full audit sources (October 9, 139 focused tests).
    - [x] Verify one authorized count on the largest revised saved request (four eligible choices): 11,859 tokens, below 32,000. Seven saved examples render; no v3 generation or installation (October 9).
+   - [x] Prepare the authorized October 17 Dots saved-input replay: frozen October 1 packet, current v3
+     instructions/schema, unchanged original journal and ten offline validator checks. Private bundle
+     and [procedure](running.md#dots-one-saved-input-replay) are ready; no Dot answer or execution.
+   - [ ] Obtain the single Dot response and validate its JSON schema, packet/choice/version/evidence
+     identities, eligibility, hard-rule limits, learning assessments and review timing against the saved
+     packet. Manually inspect dated reasoning; historical acceptance is not current trading permission.
    - [ ] Qualify compact-input capacity across continuing sessions without raising the cap; saved-request success does not bound future growth or additional eligible choices.
    - [x] Obtain one fresh v3 review authorization and run SELECT-only preflight (October 9, 13:49-13:51 Toronto); invested-account valuation and latest saved bar are stale. No review/generation attempt or extra spend; authorization remains unused.
    - [x] Trace saved held-price updates and current Live/Shadow collection (October 9, about 14:00-14:02 Toronto): collectors continue, but held-symbol Shadow requests fail and the position mark is stalled; saved codes do not establish the exact exception cause. See project status.

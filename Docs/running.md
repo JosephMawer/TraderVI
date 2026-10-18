@@ -1,5 +1,37 @@
 # Running TraderVI
 
+## Dots: one saved-input replay
+
+The operator authorized one historical Dot review October 17; the Dot is ready. The prepared private
+bundle is `artifacts/ai-dot-saved-review-20261017/` (ignored by Git). Attach only
+`dot-review-input.txt` in the Dot chat and ask it to perform the single review specified in that file.
+The attachment contains the current supervisor instructions, exact response schema and current v3
+rendering of the saved October 1 15:05 UTC packet (15 choices/four eligible). No computer/plugin
+connection or market-hours collection is needed for this manual file handoff. Do not attach the
+private source packet, learning journal, credentials, manifest, old answers or future outcomes.
+The replay preserves original dates/expiry/eligibility; its input is not a current trading packet.
+The original call stopped at token admission; its rejected status is retained in the private manifest.
+
+Save the Dot's exact returned JSON as `dot-proposal.json` in that bundle, then run from the repository:
+
+```powershell
+& artifacts/ai-dot-saved-review-20261017/Validate.ps1
+```
+
+The local helper verifies bundle/assembly hashes, validates the packet at its original as-of time,
+and uses PowerShell `Test-Json` plus the existing `AiPortfolioReviewer.ParseAndValidate` method.
+It does not invoke a client, initialize/write operational history or execute a proposal. Preserve the
+raw answer if validation fails; do not silently repair it or rerun the Dot without discussing the result.
+A valid `wait` is allowed; selection is not compulsory. Inspect reasons separately for unsupported
+facts, unavailable-choice misunderstanding or future knowledge. Valid JSON/domain references do not
+prove good investment judgment, timing reliability, unattended operation or paper execution readiness.
+
+`Validate.ps1 -SelfTest` exercises this bundle's synthetic valid wait and rejection cases; October 17
+passes ten checks including rejection of the historical packet for current use. No Dot answer exists
+yet. `Prepare.ps1` is the one-off exporter; do not rerun over an existing manifest or update timestamps
+to make the snapshot current. It read/checksummed the original journal without opening its writer or
+changing it. Keep exported market/paper information and responses private and outside Git.
+
 ## AI review coordinator — prepared, not enabled
 
 The Core coordinator is callable through `AiPortfolioReviewCoordinator.FromSavedPaperInputs`; it

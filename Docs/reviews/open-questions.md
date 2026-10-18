@@ -152,8 +152,10 @@ evidence; this follow-up grants no additional provider requests or database repa
   interface or guaranteed 1–15-minute decision delivery was established by this documentation review.
   A possible paper-only bridge would expose dated TraderVI inputs and accept structured proposals
   through the existing validation/risk boundary, preserving TraderVI-owned protection and execution.
-  This is a feasibility proposal, not an accepted replacement or implementation authorization.
-  Next decide whether to test one saved-input, non-executing review before choosing the connection;
+  The operator subsequently authorized one saved-input, non-executing trial and confirms the Dot
+  is ready. Its historical packet/instructions/schema and offline validation are prepared; the answer
+  remains pending. This does not approve an API replacement, recurring reviews or trading integration.
+  Next submit the attachment and validate the returned JSON under the [replay procedure](../running.md#dots-one-saved-input-replay);
   input qualification, stock actions, switching, runtime/UI and paper validation remain required.
   Sources: [Meet dots](https://learn.chatgpt.com/docs/dots),
   [tasks and memory](https://learn.chatgpt.com/docs/dots/tasks-and-memory),
