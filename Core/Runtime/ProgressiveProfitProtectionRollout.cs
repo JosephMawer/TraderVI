@@ -8,6 +8,12 @@ namespace Core.Runtime;
 /// <summary>The explicit ADR-0090 exception changes profit protection only, including fixed-gate accounts.</summary>
 public static class ProgressiveProfitProtectionRollout
 {
+    public static void ValidateAccess(TradingSettingsAccess access)
+    {
+        if (!access.Installed || !access.Paused)
+            throw new InvalidOperationException("Pause new buys before the progressive-protection rollout; retained holdings and protective sells stay in place.");
+    }
+
     public static void ValidateChange(object original, object proposed)
     {
         object normalized = (original, proposed) switch

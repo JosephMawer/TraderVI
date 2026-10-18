@@ -293,8 +293,9 @@ or completed replacement of the execution work below. See the
   does not qualify Live bid freshness; the operator defers further source investigation as a coding
   prerequisite. Daily Shadow/Delphi Live integration, prospective comparison assignments, recommendation
   paths and safe handover are implemented: 166 focused tests including Practice and the final full Core suite pass.
-  Next, separately review installation and prospective assignments; migration 043 is prepared, all
-  defaults remain disabled and no operating rules changed. Close-based studies and synthetic tests do
+  October 18 installation/enablement is authorized; the verified backup and paused-invested-account
+  rollout path are ready. Next apply migration 043, assign prospective versions and verify preservation.
+  Defaults remain disabled. Close-based studies and synthetic tests do
   not establish live bid-trigger returns. Gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

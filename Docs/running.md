@@ -854,6 +854,11 @@ The Shadow schema-presence cache requires recreating its repository/app after in
 deploy the DACPAC. Review retained holdings/pending sells and verify prospective operation before
 claiming coverage. This document does not authorize those operations.
 
+For retained holdings and paired accounts, save through `SaveProgressiveProfitProtectionAsync`
+and assign through `EngineSettingsRepository.AssignProgressiveProfitProtectionAsync`. New buys must be
+paused; this narrow path permits invested accounts and pending protective sells. Ordinary settings
+editing still requires empty portfolios. Restore the original entry-pause state after verification.
+
 For paired comparison accounts, use only `EngineSettingsRepository.AssignProgressiveProfitProtectionAsync`
 with a new saved version and explicit target. It validates that only this opt-in changes (plus the new
 Live policy ID); immutable comparison profiles/sources and original gate choices are preserved. Ordinary

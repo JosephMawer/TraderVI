@@ -423,9 +423,10 @@ Optional older-history import remains a proposal; no historical reset is approve
   permit only the narrow progressive successor; original profiles/history remain immutable.
 - [x] Test synthetic fresh-bid touch triggers, restart recovery, combined purchases and prospective
   policy guards. This is source/test evidence, not upstream freshness or operating qualification.
-- [ ] Separately authorize/install migration 043 and reviewed binaries; assign new opt-in versions
-  prospectively and verify operation before claiming enabled coverage. Nothing is installed or enabled
-  by this implementation task. [Procedure](running.md#progressive-profit-protection--implemented-disabled).
+- [x] Receive October 18 installation/enablement authorization, create checksum-verified backup and
+  hash-matched copy, and test the narrow paused-invested-account rollout path (59 focused tests).
+- [ ] Install migration 043 and reviewed binaries; assign new opt-in versions prospectively and verify
+  preservation/operation before claiming enabled coverage. [Procedure](running.md#progressive-profit-protection--implemented-disabled).
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
   first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).

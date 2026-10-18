@@ -1338,6 +1338,14 @@ sandbox escalation; no fresh dependency-security audit or full-solution build. L
 or activation ran. [Accepted contract](adr/0090-progressive-individual-profit-trailing.md),
 [future rollout boundary](running.md#progressive-profit-protection--implemented-disabled).
 
+**Rollout preparation, October 18:** installation/enablement is now explicitly authorized for all 15
+active paper accounts (12 Shadow/three Live). A checksum-verified fresh backup and hash-matched
+OneDrive-folder copy are complete; cloud synchronization and restore drill are not established by that
+copy. The app was closed. A dedicated invested-account rollout correction passes 59 focused tests and the full Core suite (2,423 pass/eight skips)
+and the Release desktop build; ordinary settings edits remain pause-and-empty. Before-state evidence
+captures 32 Shadow/five Live open holdings. Migration/assignments have not yet run. Private receipts:
+`artifacts/profit-protection-rollout-20261018/`. Quote investigation remains deferred.
+
 The following research record preserves the earlier studies and their limits; its no-implementation
 statements describe those earlier steps and are superseded by the implemented/disabled state above.
 

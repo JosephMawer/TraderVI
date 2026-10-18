@@ -11,6 +11,16 @@ namespace TraderVI.Core.Tests;
 public sealed class ProgressiveProfitProtectionRolloutTests
 {
     [Fact]
+    public void NarrowRolloutAllowsPausedInvestedAccountsWhileOrdinaryEditsStayBlocked()
+    {
+        var invested = new TradingSettingsAccess(true, true, 12, 3);
+        invested.CanEdit.ShouldBeFalse();
+        ProgressiveProfitProtectionRollout.ValidateAccess(invested);
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtectionRollout.ValidateAccess(invested with { Paused = false }));
+        Should.Throw<InvalidOperationException>(() => ProgressiveProfitProtectionRollout.ValidateAccess(invested with { Installed = false }));
+    }
+
+    [Fact]
     public void RolloutChangesOnlyTheOptInAndProspectiveLiveIdentity()
     {
         var old = DelphiLivePolicyDefinition.Version1;

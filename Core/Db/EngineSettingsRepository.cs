@@ -75,7 +75,17 @@ public sealed class EngineSettingsRepository : SQLBase
         return new(installed, versions, targets);
     }
 
-    public async Task<EngineStrategyVersion> SaveAsync(string family, string name, object settings, string reason)
+    public Task<EngineStrategyVersion> SaveAsync(string family, string name, object settings, string reason) =>
+        SaveCoreAsync(family, name, settings, reason, false);
+
+    public Task<EngineStrategyVersion> SaveProgressiveProfitProtectionAsync(string family, string name,
+        object original, object settings, string reason)
+    {
+        ProgressiveProfitProtectionRollout.ValidateChange(original, settings);
+        return SaveCoreAsync(family, name, settings, reason, true);
+    }
+
+    private async Task<EngineStrategyVersion> SaveCoreAsync(string family, string name, object settings, string reason, bool progressiveOnly)
     {
         name = name.Trim(); reason = reason.Trim();
         if (name.Length is < 1 or > 80 || reason.Length is < 1 or > 512) throw new ArgumentException("Enter a name (1–80 characters) and reason (1–512 characters).");
@@ -88,7 +98,9 @@ public sealed class EngineSettingsRepository : SQLBase
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         if (!await Installed(c, t)) throw new InvalidOperationException($"Install reviewed migration {Migration} before saving versions.");
         await TradingControlRepository.FenceAsync(c, t);
-        await TradingControlRepository.RequireEditableAsync(c, t, family);
+        if (progressiveOnly)
+            ProgressiveProfitProtectionRollout.ValidateAccess(await TradingControlRepository.AccessAsync(c, t, family));
+        else await TradingControlRepository.RequireEditableAsync(c, t, family);
         if (settings is DelphiLivePolicyDefinition live) await DelphiLiveExperimentRepository.RegisterSettingsPolicyAsync(c, t, live, "ADR-0060", default);
         await c.ExecuteAsync("""
             INSERT dbo.EngineStrategyVersion(VersionId,Family,Name,SettingsJson,SettingsHash,CreatedUtc,CreatedBy,Reason)
@@ -124,7 +136,9 @@ public sealed class EngineSettingsRepository : SQLBase
             EXEC @r=sys.sp_getapplock @Resource=N'TraderVI.EngineSettings',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=30000;
             IF @r<0 THROW 51313,'An evaluation is still running. Retry the assignment after it completes.',1;
             """, transaction: t, commandTimeout: 40);
-        await TradingControlRepository.RequireEditableAsync(c, t, target.Family);
+        if (progressiveOnly)
+            ProgressiveProfitProtectionRollout.ValidateAccess(await TradingControlRepository.AccessAsync(c, t, target.Family));
+        else await TradingControlRepository.RequireEditableAsync(c, t, target.Family);
         if (!progressiveOnly && await PaperComparisonRepository.InstalledAsync(c, t) && await c.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM dbo.PaperComparisonAccount WHERE AccountId=@Id;", new { Id = target.TargetId }, t) > 0)
             throw new InvalidOperationException("Comparison profiles and their paired rules are fixed. Create a fresh pair for a new experiment.");

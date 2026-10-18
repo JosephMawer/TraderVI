@@ -41,6 +41,12 @@ cssclasses:
 
 ## Prospective adoption and preserved contracts
 
+**October 18 rollout authorization:** the operator authorizes installation and prospective enablement
+across all active portfolios, preserving protection and deferring quote investigation. The dedicated
+save/assignment operation may run while invested only with new buys paused and only for the validated
+progressive successor. Ordinary editing retains its pause-and-empty restriction. Restore pre-rollout
+entry controls after preservation checks; do not clear capital-review or other safety holds.
+
 This accepted record extends the risk rules in [ADR-0051](0051-system-shadow-portfolios.md),
 [ADR-0053](0053-delphi-live-v1.md) and the fixed comparison-account contract in
 [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) **only for explicitly assigned prospective versions**.
