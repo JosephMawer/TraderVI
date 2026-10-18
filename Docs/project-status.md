@@ -4,9 +4,13 @@
 Trading, Portfolios, Delphi and Delphi Live, with detailed drill-downs to follow. Two fictional-data
 concepts, Focus and Workspace, were prepared; the operator now selects Workspace and requests
 Trading's main layout first. Both Buy and Sell belong in the holding panel. A Trading-only refinement
-is prepared with account summary, assigned strategy, holdings/context panel and compact activity;
-that hierarchy and the proposed in-panel stock lookup remain provisional. ADR-0068 retains the
-account-first boundary. Both concepts' fragment generation and script syntax checks pass; local-file
+uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
+now accepts that arrangement and requests gains/performance refinement. Two top-overview treatments
+are prepared; their hierarchy/periods and in-panel stock lookup remain provisional. The tentative
+Delphi Live/swappable-portfolios expectation awaits scope clarification, with existing family/AI
+contracts unchanged. Source inspection distinguishes existing broker-reported return fields from
+unavailable complete gain calculated from local records; no fresh broker values were read.
+ADR-0068 retains the account-first boundary. All three concepts' fragment generation and script syntax checks pass; local-file
 browser inspection was blocked by browser security policy, so visual fit/interactions remain unverified.
 No WPF implementation, app build, SQL/model/market/broker operation or operational
 launch ran. Starting housekeeping was committed/pushed at `65956789`, including the earlier 184

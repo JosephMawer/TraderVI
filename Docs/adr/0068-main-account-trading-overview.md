@@ -186,8 +186,14 @@ banner row without changing daily-gain dates, comparison math, reference-account
 The operator selected the **Workspace** concept (table beside persistent selection context) and
 requested agreeing Trading's main layout before moving to the other three screens. Both Buy and Sell
 belong in the holding panel. These accepted visual choices retain the account-first overview above;
-the new account-summary/strategy/holdings/activity composition remains a draft for review, as does the
-suggested Find stock route within the panel. Detailed views and order tickets follow later. No new WPF
+the operator subsequently accepts the account-summary/strategy/holdings/activity arrangement and asks
+to refine the top gains/performance overview next. Its Performance first/Account value first treatments
+and the suggested Find stock route remain drafts. The tentative Delphi Live/swappable-portfolios
+expectation needs scope clarification; it does not replace existing engine/family contracts.
+Broker-reported return and complete gain calculated from TraderVI records are different evidence
+sources; a UI must retain each source's period, original valuation time and availability. No new
+performance calculation or period-selection contract is accepted. Detailed views and order tickets
+follow later. No new WPF
 implementation, accounting change, broker operation or execution authority follows from this selection.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
 

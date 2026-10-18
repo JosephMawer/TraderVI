@@ -11,9 +11,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
   detailed drill-downs follow once the visual layout is established.
 - **Accepted follow-up:** Workspace; agree Trading's main layout before moving to other screens;
   both Buy/Sell controls in the holding panel.
-- **Open:** Trading's account-summary/strategy/holdings/activity hierarchy, target window size and
-  later screens' layouts/order. Find stock within the holding panel is a provisional unheld-stock route;
-  search/ticket detail remains deferred with other detailed views.
+- **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
+  compact activity. Next refine the overview's gains/performance.
+- **Open:** Performance first versus Account value first, desired periods and source/availability
+  treatment, target window size and later screens' layouts/order. Existing broker return fields are
+  distinct from unavailable complete gain calculated from local records; percentage display/history
+  still need qualification. Find stock remains a provisional unheld-stock route.
+- **Tentative context:** the operator expects Delphi Live as the assigned engine with swappable
+  portfolios. Clarification is pending: Live's own variants, cross-family execution or AI selection?
+  Do not reinterpret Daily Shadow/AI policies as Live, narrow the agreed all-portfolio scope or assume
+  a changed assignment/switching contract. Engine/selected-portfolio labels can be designed after this
+  meaning is clear. Account results and paper results remain independent.
 - Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
   No new ADR or implementation authorization follows from displaying concepts.
 - [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

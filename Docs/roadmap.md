@@ -22,9 +22,11 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 ## Now — restore a dependable advisory loop
 
 **October 18 UI design track:** explore a fresh, clearer layout for Trading, Portfolios, Delphi and
-Delphi Live before detailed drill-downs. Workspace is selected; agree Trading's main layout before
-moving to the other screens. Both Buy/Sell controls belong in the holding panel. Review the
-Trading-only refinement next; remaining-screen order and WPF implementation are still open.
+Delphi Live before detailed drill-downs. Workspace and Trading's main arrangement are selected;
+refine its gains/performance overview before moving to the other screens. Both Buy/Sell controls
+belong in the holding panel. Review Performance first/Account value first next. Clarify the tentative
+Delphi Live/swappable-portfolios meaning without silently changing existing family/AI scope.
+Remaining-screen order and WPF implementation are still open.
 Existing operating priorities and execution prerequisites below remain.
 [Design draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
 

@@ -540,8 +540,12 @@ milestone are also recorded there; their remaining scope stays visible above.
   or browser/viewport verification.
 - [x] Select Workspace and Trading-first refinement; place both Buy/Sell in the holding panel.
 - [x] Prepare the Trading-only main-layout concept; wrapper/script syntax checked, not visually verified.
-- [ ] Agree Trading's main hierarchy and confirm the target desktop window dimensions.
-- [ ] After Trading's main layout is agreed, refine the other screens' main layouts; their order is open.
+- [x] Agree Trading's overall overview/strategy/holdings-and-panel/activity arrangement.
+- [x] Prepare two gains/performance overview treatments; wrapper/script syntax checked only.
+- [ ] Agree gains/performance prominence, period/source/availability treatment and target desktop dimensions.
+- [ ] Clarify the tentative Delphi Live engine/swappable-portfolios meaning; preserve existing family/AI
+  scope and actual account history until any separately agreed change.
+- [ ] After the Trading refinement, refine the other screens' main layouts; their order is open.
 - [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
   consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.
 - [ ] After implementation is requested, validate the chosen WPF views offline and review any separate
