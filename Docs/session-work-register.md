@@ -74,12 +74,15 @@ before moving to the other screens. Both Buy and Sell belong in the holding pane
 is prepared and its arrangement is now accepted. Next review the two gains/performance treatments;
 their hierarchy/periods and proposed in-panel lookup remain provisional. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
-Delphi Live/swappable-portfolios expectation awaits scope clarification, preserving family/AI contracts.
+Delphi Live expectation now leans toward its own portfolios; the operator requests an explanation
+before settling scope. The recorded original book plus Normal/Portfolio rules only comparison pair
+are explained from source/ADRs, including existing comparison promotion exclusion. No exact choice,
+changed eligibility or wider family/AI contract is agreed; no fresh SQL/host check ran.
 All three concept files' wrapper/script checks pass; browser local-file policy blocked visual inspection.
 No new WPF implementation/operating change is made; detailed views stay deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
 Source review point: this October 18 chat through the accepted arrangement, gains/performance request,
-tentative Delphi Live expectation and overview concept handoff; engine-scope question is unanswered.
+overview concept handoff and tentative Live-only clarification requesting explanation of multiple books.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.

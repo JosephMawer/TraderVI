@@ -38,7 +38,7 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
 | Accepted Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. The operator says “I like this arrangement.” |
-| Tentative operator expectation | Delphi Live will be the assigned engine with different selected portfolios. Whether this means its own intraday variants, cross-family execution or AI selection remains unanswered; do not change existing family/assignment contracts. |
+| Tentative operator expectation | The operator leans toward switching among Delphi Live's own portfolios, but asks for an explanation after forgetting there are multiple paper accounts. No exact configuration or changed selection/assignment contract is agreed. |
 | Provisional overview alternatives | Performance first (recommended) or Account value first; keep broker-reported return, account/cash values and separately scoped TraderVI-recorded gains distinct. |
 | Open | Gains/performance hierarchy and periods, the engine/portfolio meaning, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -109,11 +109,19 @@ remain to qualify; there was no broker read or accounting-method change in this 
 The operator's tentative Delphi Live/swappable-portfolios expectation is useful context, not an
 installed assignment or a supersession of ADR-0085/0087. The proposed UI distinction is **engine**
 (the rules-running component) and **selected portfolio** (its exact reviewed rule configuration).
-Clarification was asked about own Live variants versus Daily Shadow/AI portfolios or AI selection.
-Until answered, preserve actual family rules and do not route every strategy through Live or drop AI
-scope. Whichever configuration is selected, the real account retains its own capital, holdings, gains,
-history and risk; independent paper performance is not real-account return. No live source or account
-assignment changed. The engine/portfolio label design remains open while this meaning is unresolved.
+The operator now says “I think switch between delphi live portfolios,” while asking for an explanation
+of the multiple portfolios. Treat this as leaning toward Live's own configurations, not final policy
+approval or a change to wider family/AI support. The October 18 recorded setup has three Live paper
+accounts: the original operational paper book and ADR-0067's Normal/Portfolio rules only comparison
+pair. The pair isolates daily admission gates while retaining other portfolio/data/risk rules; each
+book has independent simulated financial state. The internal OperationalChampion label is a paper
+role, not proof of real-account readiness. Current `TfsaLiveStrategyCandidate.SupportsCurrentPromotion`
+excludes comparison-account/GateComparison snapshots, matching ADR-0068; three paper books therefore
+do not establish three ready real-account choices. This is source/record explanation, not a new SQL or
+running-host check. Preserve actual family rules and existing comparison restrictions unless separately
+changed. Whichever configuration is selected, the real account retains its own capital, holdings,
+gains, history and risk; adopting rules never imports paper financial state. No exact configuration,
+assignment or switching change is agreed. Engine/portfolio labels remain open pending understanding.
 
 ### Concepts, verification and implementation boundary
 

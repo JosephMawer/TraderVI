@@ -17,11 +17,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
   treatment, target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history
   still need qualification. Find stock remains a provisional unheld-stock route.
-- **Tentative context:** the operator expects Delphi Live as the assigned engine with swappable
-  portfolios. Clarification is pending: Live's own variants, cross-family execution or AI selection?
-  Do not reinterpret Daily Shadow/AI policies as Live, narrow the agreed all-portfolio scope or assume
-  a changed assignment/switching contract. Engine/selected-portfolio labels can be designed after this
-  meaning is clear. Account results and paper results remain independent.
+- **Tentative context:** the operator leans toward switching among Delphi Live portfolios, but asks
+  for an explanation after forgetting there are multiple paper books. The recorded original paper
+  book plus Normal/Portfolio rules only comparison pair are distinct accounts; comparison books are
+  currently excluded from real-account selection. No exact configuration, new comparison eligibility,
+  narrowed wider family/AI support or switching change is agreed. Settle understanding before engine/
+  selected-portfolio labels. Account results and paper results remain independent.
 - Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
   No new ADR or implementation authorization follows from displaying concepts.
 - [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

@@ -7,8 +7,10 @@ Trading's main layout first. Both Buy and Sell belong in the holding panel. A Tr
 uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
 now accepts that arrangement and requests gains/performance refinement. Two top-overview treatments
 are prepared; their hierarchy/periods and in-panel stock lookup remain provisional. The tentative
-Delphi Live/swappable-portfolios expectation awaits scope clarification, with existing family/AI
-contracts unchanged. Source inspection distinguishes existing broker-reported return fields from
+Delphi Live expectation now leans toward its own portfolios; the operator asks for an explanation
+before settling scope. The recorded three-book setup is one original paper book plus two daily-gate
+comparison books, currently excluded from real-account selection by source/ADR-0068. This explanation
+adds no fresh SQL/host verification or changed family/AI contract. Source inspection distinguishes existing broker-reported return fields from
 unavailable complete gain calculated from local records; no fresh broker values were read.
 ADR-0068 retains the account-first boundary. All three concepts' fragment generation and script syntax checks pass; local-file
 browser inspection was blocked by browser security policy, so visual fit/interactions remain unverified.
