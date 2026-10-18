@@ -1383,9 +1383,13 @@ The October 17 source review traces Live's current quote query/model/receipt: no
 so current market age cannot be verified. A direct reread of the September 29 saved probe confirms
 22 current quotes/zero positive bid-ask pairs; the separate delayed endpoint has pairs but no bid time.
 That pair flag does not prove bids alone absent, and these are older samples, not new market evidence.
-The source is not yet qualified for one-minute bid protection. [Finding and bounded next check](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
-No new market requests or SQL access ran. Source qualification, safe
-version handover and fresh-bid tests remain work; morning/noon alternatives stay deferred.
+The source's market freshness remains unverified. The operator subsequently declined additional
+market-hours/source-guarantee investigation as an implementation prerequisite; defer that study.
+The agreed behavior is ready to implement and test using the existing source, with the limitation
+recorded. Safe state/version handover, integration and fresh-bid tests remain engineering work;
+no further trading-rule choice is needed before coding. The readiness question does not authorize
+implementation or activation. [Finding and deferral](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+No new market requests or SQL access ran; morning/noon alternatives stay deferred.
 The [decision list/example](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation) owns details.
 [Agreed scope and bid input](adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 No trading rules, new SQL reads/writes, producers or running apps changed.

@@ -290,8 +290,9 @@ or completed replacement of the execution work below. See the
   Fresh bid, the highest completed five-minute close since purchase, and inclusion of existing holdings
   when enabled are accepted for design. Adaptive bid timing is now accepted too: five/one minutes at
   0.25% distance, new quote per check and a 60-second receipt-age limit. The current source/saved check
-  does not qualify Live bid freshness. Next perform bounded source qualification, design
-  safe version handover, and validate touch behavior. Close-based studies do not establish its returns.
+  does not qualify Live bid freshness; the operator defers further source investigation as a coding
+  prerequisite. The agreed design is ready to implement/test when requested: preserve state through
+  version handover, integrate scheduling/stops and test bid triggers. Close-based studies do not establish its returns.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

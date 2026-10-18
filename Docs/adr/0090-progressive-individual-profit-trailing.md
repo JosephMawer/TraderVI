@@ -25,6 +25,9 @@ cssclasses:
 > **Polling confirmed:** five minutes with more than 0.25% room above the stop, one minute nearer;
 > request a new quote per check and reject quotes received more than 60 seconds ago. Market freshness
 > is not yet qualified by that receipt-age limit.
+> **Readiness:** the agreed behavior is ready to implement and test once authorized. The operator
+> declines the additional market-hours/source-guarantee investigation as an implementation prerequisite;
+> defer it while retaining the documented source limitation. No code change is authorized by that deferral.
 
 ## Problem and goal
 
@@ -156,13 +159,16 @@ Conditional already-held ARE benefits from morning room, without proving ownersh
 Recommendation: retain the original as baseline; preserve the time hypothesis without choosing an
 operating adjustment. The 415 offline scenario checks do not constitute implementation or policy adoption.
 
-## Open before an implementable policy
+<a id="open-before-an-implementable-policy"></a>
+
+## Implementation readiness and remaining engineering
 
 - Original numeric bands are retained for the design baseline; operating-policy adoption and
   implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
-- Provider freshness qualification and monitoring integration. The polling/receipt-age settings below,
-  highest completed five-minute close since purchase and fresh-bid triggers are agreed for design.
+- Monitoring integration remains implementation work; additional provider freshness research is
+  deferred and does not block coding. The polling/receipt-age settings below, highest completed
+  five-minute close since purchase and fresh-bid triggers are agreed for design.
   The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now isolates update cadence with five-minute closing-price breach checks in both versions. It does
   not itself qualify touch detection or replace current native low-based checks.
@@ -340,9 +346,17 @@ This is a current source/saved-evidence review, not proof that every present bid
   generally delayed by 15 minutes or more. That broad warning does not measure this API's exact lag.
   Polling more often and enforcing a 60-second local receipt limit cannot establish upstream freshness.
 
-Next, qualify usable bids and their market-time/freshness meaning with one bounded market-hours
-check and the applicable source contract. Do not substitute last-sale prices, silently switch to the
-delayed endpoint, weaken the bid rule or expand this into general gap repair. Existing source/code
+**Subsequent direction:** the operator does not consider that additional market-hours/source-guarantee
+investigation worthwhile before implementation. Defer it; do not add a new implementation or promotion
+gate. The source limitation remains explicit, without claiming the bids' market age is verified.
+The design is ready for implementation and focused tests using the existing quote source. Engineering
+work still includes prospective policy identities, preserved state for existing holdings, shared
+protection ownership, adaptive scheduling and bid-trigger tests. No further trading-rule choice or
+additional research round is required to start coding. Earlier no-implementation instructions remain
+in force until implementation is requested; existing activation/execution boundaries still apply.
+
+Do not substitute last-sale prices, silently switch to the delayed endpoint, weaken the agreed bid
+rule or expand this into general gap repair. Existing source/code
 and older operational evidence remain unchanged. October 17 is Saturday; no new market/broker calls,
 SQL reads/writes, probes, runtime tests or application changes ran for this review.
 

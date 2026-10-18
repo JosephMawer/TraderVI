@@ -107,13 +107,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   fresh observed price at or below the established stop triggers a sale, without waiting for a close.
   A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
   to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-  Source freshness qualification and prospective version integration remain open; settings are confirmed below.
+  Settings are confirmed below; version integration remains work and extra source investigation is deferred.
   Previous close-based results do not establish touch returns or continuous detection; no implementation.
 - **Scope and price input confirmed, October 17:** the operator wants all portfolios covered,
   including and especially Delphi Live, still without implementation. Fresh valid bid at or below
   the established stop is accepted after explanation. Live already has a fresh-bid floor check;
   this does not qualify other families' quote inputs or apply the progressive bands. Remaining work:
-  source qualification, prospective version integration and fresh-bid tests.
+  prospective version integration and fresh-bid tests. Additional source research is deferred below.
   [Scope, explanation and source check](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 - **High and existing-holding rollout confirmed, October 17:** use the highest completed five-minute
   close since purchase; include existing holdings as soon as the strategy is enabled, preserving
@@ -127,8 +127,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
   but no bid-update/as-of time. Independent reread of the September 29 saved probe confirms 22 current
   quotes without positive bid-ask pairs; the separate delayed endpoint has pairs but no bid timestamp.
   The pair flag does not establish whether a bid alone was absent. This does not qualify present
-  one-minute protection or establish today's bid lag. Next qualify usable bids/source freshness in a
-  bounded market-hours check, keeping gap repair secondary. No new market/broker/SQL access or source
+  one-minute protection or establish today's bid lag. The operator subsequently declined the proposed
+  additional market-hours/source-guarantee investigation as a coding prerequisite: defer it, keeping
+  the limitation explicit and gap repair secondary. The design is ready to implement/test once requested;
+  no further trading-rule decision is required. State/version handover and integration are engineering
+  work, not reasons to demand another research round. No new market/broker/SQL access or source
   changes. [Finding and evidence scope](../adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
 
 ### Liquidity and execution-realism research

@@ -409,8 +409,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Review the current Live quote chain and independently recheck the September 29 saved probe:
   no bid-update time, 22 quotes/zero positive bid-ask pairs; freshness remains unqualified.
   [Source finding and limits](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
-- [ ] Qualify usable bids and market freshness with a bounded market-hours check/source contract;
-  local receipt age, changing prices or a delayed last-trade timestamp alone are insufficient.
+- [x] Reconcile design readiness: the operator defers the extra market-hours/source-guarantee study
+  as an implementation prerequisite. Settings are sufficient to start coding/testing once requested;
+  the source limitation remains explicit. No implementation or activation has been authorized.
+- Deferred/non-blocking: further bid-source freshness investigation. Local receipt age, changing prices
+  or a delayed last-trade timestamp alone do not prove market age; do not turn this into a new gate.
 - [ ] Specify prospective policy identities and safe state initialization/handover for existing holdings.
 - [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
   preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
