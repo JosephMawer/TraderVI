@@ -2,7 +2,7 @@
 
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
-- **October 18 visual redesign:** renewed design exploration across Trading, Portfolios, Delphi and Delphi Live. The operator wants clearer priorities and a fresher layout first, then detailed drill-down views. The new layouts are provisional concepts; no new WPF implementation or operating change is authorized by this exploration.
+- **October 18 visual redesign:** the operator selected Workspace and Trading-first refinement. Both Buy and Sell belong in the holding panel. Fresh, clearer main layouts precede detailed drill-downs; the refined Trading hierarchy remains provisional, with no new WPF implementation or operating change authorized.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -34,9 +34,11 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted October 18 clarification | Prioritize clearer hierarchy/less clutter and a fresh visual style; design detailed drill-downs after establishing the main layout. |
 | Existing accepted direction | Trading leads with the main account, holdings/results and actual assigned strategy; attention supports that overview (ADR-0068). |
 | Provisional | Use shared navigation, typography, spacing, account/mode labels and source-time treatment across the four screens. |
-| Provisional alternatives | **Focus:** broad primary table with a compact selection preview below. **Workspace:** table and persistent selection preview side by side. Both retain an account-first Trading page. |
-| Proposed sequence | Choose the layout direction; refine Trading as the shared visual reference; adapt Portfolios, Delphi and Delphi Live; then design detailed views and consequential-action states before implementation. This order is a recommendation, not an accepted delivery priority. |
-| Open | Preferred concept, final visual style, target window dimensions and exact content hierarchy within each screen. |
+| Accepted October 18 follow-up | Choose **Workspace**: holdings/table and a persistent selection panel side by side. Focus remains a preserved initial alternative. |
+| Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
+| Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
+| Provisional Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. |
+| Open | Final Trading hierarchy, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
 
 ### Screen roles and source inspection
@@ -60,6 +62,28 @@ Live retains account selection, current/replay modes and advanced controls. Thes
 not observations of the installed running application. The concepts deliberately sample the landing
 content; they are not a complete inventory or a decision to remove existing features.
 
+### Trading Workspace refinement
+
+The next concept is `tradervi-trading-workspace.html`, focused only on Trading. It uses a single
+Workspace layout with the account value/cash and separately labelled recorded-sale/open-position gains
+above the assigned-strategy strip. Full account gain remains unavailable. The holdings table has
+stock, shares, value, open gain and decision; narrower desktop widths move decision detail to the panel.
+The side panel shows the selected stock, saved position facts and strategy explanation, with Buy/Sell
+together at its bottom. A compact current-data notice selects the affected holding; there is no large
+page-wide attention banner. Recent account activity is secondary below the holdings.
+
+**Provisional new-stock route:** a small Find stock action within the same panel lets the concept
+select an unheld fictional stock without moving Buy outside the panel. This proposes placement only;
+actual search behavior and order tickets remain for later detail design. Both order buttons are inactive
+in the concept. Selecting a stock is not a recommendation, account change or order.
+
+The concept includes local selection/search and optional panel-width, row-spacing and activity-display
+design controls. Fictional figures reconcile within their stated scopes; separately timed account and
+holding sources must remain explicit in implementation. The operator has accepted the Workspace
+direction, Trading-first sequence and trade-control location, not this full content hierarchy or a
+complete interaction specification. Next review the main Trading composition before refining other
+screens or detailed views.
+
 ### Concepts, verification and implementation boundary
 
 The conversation presents `tradervi-layout-directions.html`, with **Focus** and **Workspace** variants.
@@ -68,7 +92,7 @@ mode. All account amounts, securities, assignments, performance and operational 
 The replay is an illustrative layout, not a backtest or reconstructed historical result. A copy and
 standalone preview are retained in ignored `artifacts/ui-redesign-20261018/`.
 
-Verification: the fragment wrapper generation and Node JavaScript syntax check pass. Browser security
+Verification for both concept files: fragment wrapper generation and Node JavaScript syntax checks pass. Browser security
 policy rejected local-file inspection, so no browser-rendered layout, viewport or interaction test is
 claimed. No app build/test suite was required or run for this concept/documentation-only increment;
 there is no new dependency audit or full-solution/SSDT qualification. No WPF source, database, model,

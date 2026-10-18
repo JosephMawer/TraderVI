@@ -538,9 +538,12 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Prepare provisional Focus/Workspace concepts across Trading, Portfolios, Delphi and Delphi Live
   using fictional data; wrapper generation and script syntax checked. This is not WPF implementation
   or browser/viewport verification.
-- [ ] Choose a visual direction and confirm the target desktop window dimensions.
-- [ ] Refine the four main layouts, then design detailed drill-downs and preserve existing feature,
-  source/mode, missing-data and consequential-action coverage before implementation.
+- [x] Select Workspace and Trading-first refinement; place both Buy/Sell in the holding panel.
+- [x] Prepare the Trading-only main-layout concept; wrapper/script syntax checked, not visually verified.
+- [ ] Agree Trading's main hierarchy and confirm the target desktop window dimensions.
+- [ ] After Trading's main layout is agreed, refine the other screens' main layouts; their order is open.
+- [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
+  consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.
 - [ ] After implementation is requested, validate the chosen WPF views offline and review any separate
   operational rollout. No execution readiness or permission follows from choosing a layout.
 

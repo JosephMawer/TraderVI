@@ -2,6 +2,7 @@
 
 ### Four-screen visual redesign — October 18 exploration
 
+- **Q:** Which layout and trade-control placement were selected? **A:** Workspace, with Trading's main layout agreed first; both Buy and Sell belong in the holding panel. The refined hierarchy and proposed new-stock lookup are still drafts. (ADR-0068, October 18 follow-up)
 - **Q:** What comes before detailed drill-down design in this UI pass? **A:** Establish a fresh, clear main layout across Trading, Portfolios, Delphi and Delphi Live; the detailed views follow the operator's chosen direction.
 - **Q:** Does improving visual hierarchy make dated account evidence current? **A:** No. Keep sources, times, unavailable values and account/paper/replay modes explicit; a refreshed display does not refresh the evidence. (ADR-0068 and workspace explanation contract)
 

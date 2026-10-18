@@ -181,6 +181,16 @@ compact filters and date context, bound to the same selection. The main strategy
 Trading and Strategy review, where it supports account management and promotion. This reclaims the
 banner row without changing daily-gain dates, comparison math, reference-account scope or refresh rules.
 
+## October 18 visual refinement direction
+
+The operator selected the **Workspace** concept (table beside persistent selection context) and
+requested agreeing Trading's main layout before moving to the other three screens. Both Buy and Sell
+belong in the holding panel. These accepted visual choices retain the account-first overview above;
+the new account-summary/strategy/holdings/activity composition remains a draft for review, as does the
+suggested Find stock route within the panel. Detailed views and order tickets follow later. No new WPF
+implementation, accounting change, broker operation or execution authority follows from this selection.
+See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
+
 ## Review questions
 
 1. What should lead the Trading overview, and where should attention items appear?

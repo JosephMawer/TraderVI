@@ -2,10 +2,13 @@
 
 **UI design exploration, October 18, 2026:** the operator requested a fresh, clearer layout for
 Trading, Portfolios, Delphi and Delphi Live, with detailed drill-downs to follow. Two fictional-data
-concepts, Focus and Workspace, are prepared for review; neither is selected or implemented. Source
-inspection preserves ADR-0068's account-first Trading hierarchy. Fragment generation and script
-syntax checks pass; local-file browser inspection was blocked by browser security policy, so visual
-fit/interactions remain unverified. No app build, SQL/model/market/broker operation or operational
+concepts, Focus and Workspace, were prepared; the operator now selects Workspace and requests
+Trading's main layout first. Both Buy and Sell belong in the holding panel. A Trading-only refinement
+is prepared with account summary, assigned strategy, holdings/context panel and compact activity;
+that hierarchy and the proposed in-panel stock lookup remain provisional. ADR-0068 retains the
+account-first boundary. Both concepts' fragment generation and script syntax checks pass; local-file
+browser inspection was blocked by browser security policy, so visual fit/interactions remain unverified.
+No WPF implementation, app build, SQL/model/market/broker operation or operational
 launch ran. Starting housekeeping was committed/pushed at `65956789`, including the earlier 184
 local commits; personal chat photos remain local/ignored. Existing operational dates/readiness are
 unchanged. [Design and next decision](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

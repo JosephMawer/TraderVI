@@ -69,13 +69,14 @@ own the saved-input, non-executing feasibility check. [Setup/return validation](
 
 **R21 — Fresh, clear main layouts before detailed views.** This chat reviewed the existing UI source
 and ADR-0068, then the operator selected clearer priorities/less clutter plus a fresher style, with
-detailed drill-downs afterward. Provisional Focus/Workspace concepts cover Trading, Portfolios, Delphi
-and Delphi Live with fictional data. Wrapper/script checks pass; browser local-file policy blocked
-visual inspection. No concept is chosen and no WPF implementation/operating change is made.
-Next review the concepts and settle the main layout direction; detailed views remain deferred.
+detailed drill-downs afterward. Workspace is now selected; Trading's main layout must be agreed before
+moving to the other screens. Both Buy and Sell belong in the holding panel. A Trading-only refinement
+is prepared; hierarchy and its proposed in-panel unheld-stock lookup remain provisional. Both concept
+files' wrapper/script checks pass; browser local-file policy blocked visual inspection. No new WPF
+implementation/operating change is made. Next review Trading's main composition; details stay deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
-Source review point: this October 18 chat through the operator's “1 and 3” clarification and the
-initial concept handoff. [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
+Source review point: this October 18 chat through the Workspace/Trading-first instruction, the
+“Both in the holding panel” clarification and Trading concept handoff. [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.
 
