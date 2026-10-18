@@ -275,7 +275,9 @@ or completed replacement of the execution work below. See the
   records the three-band proposal and its authorized offline [saved-trade comparison](reviews/progressive-trailing-trade-study-20261017.md).
   Larger-winner entry tests now exercise +3% in ARE/AGI; +5% has conditional already-held ARE/CAS
   illustrations, with survival from entry unproven. Tightening does not always retain more profit.
-  Next review the gaps and settle observation timing, add-on references and policy/version scope.
+  A five-schedule 10 a.m./noon comparison is now complete: mixed individual-stock profit retention
+  supports keeping original bands as baseline; the time hypothesis remains open. Next review clock
+  behavior and settle observation timing, add-on references and policy/version scope.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules

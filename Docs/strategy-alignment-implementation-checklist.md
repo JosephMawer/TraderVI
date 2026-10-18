@@ -392,7 +392,11 @@ Optional older-history import remains a proposal; no historical reset is approve
 - [x] Assess saved larger winners without changing bands: entry-based ARE/AGI exercise +3%; separate
   conditional already-held ARE/CAS windows exercise +5%. Independently verify 24 scenario crossings/fills.
   [Scope/results](reviews/progressive-trailing-trade-study-20261017.md#larger-winner-extension-3-and-5-bands).
-- [ ] Review numeric gaps, observation timing, prior add-on cost/high references and policy/version scope.
+- [x] Compare the authorized 10 a.m./noon schedule, two nearby alternatives and a tighter all-day control
+  with the original using frozen stock evidence. Reproduce 83 baseline cases and independently check
+  415 scenario outcomes. [Mixed results/recommendation](reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison):
+  retain original bands as baseline; time-based tightening remains a candidate, not an adopted rule.
+- [ ] Review numeric gaps, clock behavior, observation timing, prior add-on references and policy/version scope.
   Tighter gaps do not consistently retain more profit; +5% survival from entry remains unproven in these
   cases. Conditional day windows do not adopt a daily reset or settle prior add-on behavior.
 - [x] Verify the October 10–13 on-time scheduled chains and saved daily publications without launching a rerun

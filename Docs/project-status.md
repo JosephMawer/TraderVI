@@ -1317,9 +1317,15 @@ not a full engine backtest or realized profit. The [ADR-0090](adr/0090-progressi
 bands remain unapproved for operation. The larger-winner extension reuses the frozen files: entry-based
 ARE/AGI +3% examples retain modeled +2.64% and +3.06%/+2.10%; conditional already-held +5% illustrations
 retain ARE +12.35% and CAS +4.55%. These day windows do not prove survival from entry; FVI exits under
-a lower band before its later +5% high. Wider-gap comparisons sometimes retain more profit. All 24
-scenario crossings/fills independently verify. Timing, add-on references, version scope and adoption
-remain open. No trading rules, new SQL reads/writes, market producers or running apps changed in this extension.
+a lower band before its later +5% high. The operator then clarified 10 a.m./noon Toronto tightening
+and authorized five fixed schedule comparisons. Of 55 distinct closed trades including DSV, the agreed
+time version improves three, reduces one and leaves 51 unchanged; the gentler version improves three
+and leaves 52 unchanged. Both reduce the separate larger ARE entry's profit (+2.64% to +0.92%), while
+conditional already-held ARE benefits. Recommendation remains original bands as baseline. All 415
+scenario outcomes independently verify, including 101 modeled fills; 83 original-schedule cases
+reproduce prior results. [Detailed scopes and checks](reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison).
+Clock timing, add-on references, version scope and adoption remain open. No trading rules, new SQL
+reads/writes, market producers or running apps changed in these offline extensions.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)
 accounts for 47 prior TraderVI/support chats and this consolidation, using chronological source

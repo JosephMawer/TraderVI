@@ -45,6 +45,13 @@ already-held winner can explain profit protection without proving survival from 
 
 Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
 
+### Q: Does a looser morning gap undo yesterday's afternoon tightening?
+
+A: No. A previously raised stop remains in force. In the saved time-based simulation, afternoon
+tightening can therefore change the following morning's exit even before that day's clock tightening.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; reviews/progressive-trailing-trade-study-20261017.md.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

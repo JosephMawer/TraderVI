@@ -15,6 +15,8 @@ giveback; the root goal is dependable returns. The bands were held fixed through
 The [larger-winner extension](#larger-winner-extension-3-and-5-bands) below adds entry-based ARE/AGI
 examples and separately labeled illustrations of protecting already-held large winners. It does not
 add those illustrations to the 53-trade result above or imply that tighter gaps always retain more profit.
+The later [time-of-day comparison](#time-of-day-gap-comparison) tests the operator's morning/noon idea
+and nearby schedules. Its mixed results support keeping the original bands as the baseline candidate.
 
 ## Ordinary trades first
 
@@ -205,6 +207,132 @@ the first subsequent regular-session bar opening, the 0.25% sell adjustment, pur
 complete window coverage, and actual order-commitment boundaries. These 24 are scenario checks,
 not 24 independent stock trades. Reproduction: ignored `upper-band-study.py`, `upper-band-results.json`,
 `verify-upper-band-study.py` and `upper-band-validation.json` beside the first study's artifacts.
+
+## Time-of-day gap comparison
+
+**October 17. Offline research only; no operating policy adopted.**
+
+The operator proposed more room during the volatile opening period, tightening around **10 a.m.
+Toronto time**, then further at **noon**. The operator clarified that "10pm" meant 10 a.m., authorized
+the proposed comparison schedule and invited a few nearby alternatives. Activation remains +1.5%;
+all bands refer to highest profit since actual purchase. No stop is lowered, including next morning.
+
+The immediate question is whether clock-based gaps protect individual-stock profits better; the
+parent problem is avoiding winner giveback; the root goal remains dependable returns. Morning
+volatility makes the hypothesis plausible: [NYSE research](https://www.nyse.com/data-insights/opening-auction-filling-behaviors-opportunities-early-in-the-day)
+discusses higher volatility after the US open. It does not establish these TSX settings or clock times.
+
+### Fixed test schedules
+
+Every cell below lists gaps for the **+1.5% / +3% / +5% purchase-profit bands**, in that order.
+The variants were set before evaluating them; there was no parameter search or further retuning.
+
+| Schedule | Before 10 a.m. | 10 a.m. to noon | Noon onward |
+|---|---|---|---|
+| Original | 1% / 0.75% / 0.50% | 1% / 0.75% / 0.50% | 1% / 0.75% / 0.50% |
+| Agreed time proposal | 1% / 1% / 0.75% | 1% / 0.75% / 0.50% | 0.75% / 0.50% / 0.50% |
+| Gentler time changes | 1% / 0.875% / 0.625% | 1% / 0.75% / 0.50% | 0.875% / 0.625% / 0.50% |
+| More morning room | 1% / 1.25% / 1% | 1% / 1% / 0.75% | 1% / 0.75% / 0.50% |
+| Tighter all day, comparison | 0.75% / 0.50% / 0.50% | 0.75% / 0.50% / 0.50% | 0.75% / 0.50% / 0.50% |
+
+The tighter all-day comparison helps distinguish clock timing from simply tighter protection.
+At each newly available completed close, update the high and calculate that receipt time's candidate
+stop, then test the close against the greatest stop established so far. A change at 10/noon takes
+effect on the first new eligible price received afterward, not retroactively or through an invented
+exact-clock quote. The current close may immediately be below a newly tightened threshold. No
+separate clock-only order is invented. The original constant schedule reproduces all prior outcomes.
+
+First-receipt grouping, actual purchase cost, pending original-order priority, the next strictly later
+regular-session bar open and 0.25% sell adjustment remain as in the preceding studies. A later morning's
+wider candidate cannot reduce yesterday's stop. Hypothetical sales end ownership; no subsequent rally,
+new purchase, cash reuse or hypothetical re-entry is credited. Actual later entries begin afresh at
+their own recorded cost. Original exits still represent existing protection rather than its engine replay.
+
+### Completed individual-stock trades
+
+The same 75 complete closed position records represent **55 distinct stock/entry/exit paths**, now
+including both DSV paths. The prior non-DSV count is still 53. All are rules-only Shadow records;
+copies across accounts count once, and this is not a portfolio return or matched policy qualification.
+
+| Compared with original proposed bands | Higher sale profit | Lower sale profit | Same sale profit |
+|---|---:|---:|---:|
+| Agreed time proposal | 3 | 1 | 51 |
+| Gentler time changes | 3 | 0 | 52 |
+| More morning room | 0 | 0 | 55 |
+| Tighter all day | 4 | 1 | 50 |
+
+All values below are **profit since purchase after the modeled sell adjustment**, not the day's move.
+
+| Stock / entry | Original bands | Agreed time proposal | Gentler time changes |
+|---|---:|---:|---:|
+| ARE / Sep 10 | +1.25% | +1.63% | +1.27% |
+| BTE / Sep 15 | -1.41% | **+0.48%** | **+0.48%** |
+| SDE / Sep 15 | +1.25% | +1.32% | +1.32% |
+| DSV / Sep 29, 11:15 | +1.29% | **+0.64%** | +1.29% |
+
+The agreed schedule adds one earlier exit, turning BTE's modeled loss into profit. It has nine earlier
+exits, eight profitable, versus eight/seven under the original bands. It reduces DSV's retained profit
+without turning it into a loss. The tighter all-day comparison also improves ARE/BTE/SDE and adds an
+MFC improvement, so the completed-trade gains do not establish a distinct benefit from morning room.
+
+The three improvements occur among entries before September 19. Of 32 distinct later entries, the
+agreed schedule improves none, reduces DSV and leaves 31 unchanged. The gentler version leaves all
+32 unchanged. All 27 distinct after-noon entries have the same sale return under the three time
+variants as under the original. These are useful boundaries on the result, not repair prerequisites.
+
+### Larger winners and conditional day illustrations
+
+The previously selected larger-winner entry tests remain separate; CS overlaps the closed sample.
+
+| Actual entry-based test | Original | Agreed time proposal | Gentler time changes | More morning room |
+|---|---:|---:|---:|---:|
+| ARE / Sep 17, Breakout Top-5 | +2.64% | **+0.92%** | **+0.92%** | +2.90% |
+| AGI / Oct 15, Breakout Top-3 | +3.06% | +3.06% | +3.06% | +3.08% |
+| AGI / Oct 15, Breakout Top-5 | +2.10% | +2.10% | +2.10% | +2.13% |
+| FVI / Oct 15 | +0.94% | +1.11% | +1.08% | +0.94% |
+
+The larger ARE entry illustrates why the gentler version is not a universal upgrade despite its
+three/no-lower result in the closed subset. It takes profit on September 17 rather than September 18;
+both are profits, but the amount retained is smaller. DSV also illustrates persistence: an afternoon
+tightening on September 29 remains in force the next morning, causing a 09:50 rather than 09:55 sale.
+Morning room does not erase a previously raised stop. These comparisons concern sale profits, without
+requiring either position to capture gains after it has sold.
+
+The three **conditional already-held 09:35 windows** retain their earlier limitations; they do not
+prove ownership would survive from purchase under the lower bands or resolve prior add-ons.
+
+| Conditional held-stock window | Original | Agreed time proposal | Gentler time changes | More morning room |
+|---|---:|---:|---:|---:|
+| ARE / Sep 22 | +12.35% | **+13.79%** | +12.35% | +13.58% |
+| CAS / Sep 25 | +4.55% | +4.55% | +4.55% | +4.67% |
+| FVI / Oct 16 | +3.85% | +3.85% | +3.85% | +3.81% |
+
+Under the agreed schedule, already-held ARE reaches a +2.99% day-window rise from 09:35, corresponding
+to +14.86% profit since purchase, before a modeled 10:35 sale retaining +13.79%. The opening observation
+already carried +11.52% purchase profit. Those three gain references are distinct; the +13.79% is not
+all earned that morning. This is a useful illustration of morning room, with no claim of entry-based survival.
+
+### Recommendation and checks
+
+**Keep the original activation/profit bands and gaps as the baseline research candidate for now.**
+The time idea is worth preserving, but automatic noon tightening is not a consistently better
+profit-protection result across the ordinary completed and larger-winner tests. The gentler time
+version is a reasonable candidate for a future comparison, not a selected operating policy. Do not
+pick it solely from its favorable closed subset or optimize around ARE/DSV. No new rule is implemented.
+
+The same three frozen source files are reused, without SQL, provider or application calls. All 83
+original-schedule cases reproduce: 75 underlying closed records, five larger entry tests and three
+conditional windows. An independent verifier checks **415 scenario outcomes**, including 101
+supported modeled fills and 314 retained original exits/window ends, plus all 75 recorded sales and
+five paired summary tables. It recomputes the maximum of the full threshold history, independently
+checks receipt-time phase boundaries, purchase ownership, first crossings, later fills and costs, and
+checks duplicates. Three synthetic boundary/overnight cases validate 10/noon tightening and preservation
+of an earlier day's stop. Scenario counts include duplicated account paths and repeated illustrations;
+they are not counts of independent trades.
+
+Reproduction beside the previous artifacts: `time-gap-study.py`, `time-gap-results.json`,
+`time-gap-summary.json`, `verify-time-gap-study.py` and `time-gap-validation.json`. Raw evidence stays
+ignored. Trading rules, settings, database records, models, brokers and running applications are unchanged.
 
 ## Evidence and validation
 

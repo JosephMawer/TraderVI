@@ -70,6 +70,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Twenty-four scenario crossing/fill checks pass offline. Review gaps, observation timing, policy/version
   scope and prior add-ons' cost/high references; conditional windows do not decide a daily reset or
   add-on policy. Keep profit protection primary and exception repairs secondary.
+- **Time-of-day idea and offline test, October 17:** the operator clarified **10 a.m. Toronto time**,
+  followed by **noon**, and authorized the proposed gaps plus nearby alternatives. The [five-schedule
+  comparison](progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison) finds three higher,
+  one lower and 51 equal modeled returns among 55 distinct closed trades for the agreed time version.
+  The gentler version has three higher/52 equal there, but both reduce retained profit in the separate
+  larger ARE entry. Conditional already-held ARE improves with morning room. Recommendation is to
+  keep original bands as baseline and preserve the time idea; no operating adjustment is accepted.
+  All 415 scenario outcomes independently verify. Decide whether clock-based tightening belongs in
+  the policy, including observation timing and carried stop behavior; no stop moves down next morning.
 
 ### Liquidity and execution-realism research
 

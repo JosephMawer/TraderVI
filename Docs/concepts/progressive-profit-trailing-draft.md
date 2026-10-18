@@ -28,6 +28,12 @@ bands or curve, smallest gap, price-update timing and the precise high reference
 Current rules and saved histories stay unchanged. [ADR-0090](../adr/0090-progressive-individual-profit-trailing.md)
 records confirmed direction and the boundary of the proposal.
 
+The operator also proposed giving winners more room early, then tightening at 10 a.m. Toronto time
+and again at noon. That remains a research hypothesis. The [offline time comparison](../reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison)
+finds mixed results and recommends keeping the original bands as the baseline. A stop raised yesterday
+remains raised this morning: a wider morning candidate cannot move it down. No clock-based policy or
+daily reset is adopted.
+
 ## Review questions
 
 1. Why does a stop moving upward not necessarily mean its percentage gap is tightening?

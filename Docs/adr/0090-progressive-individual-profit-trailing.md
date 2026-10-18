@@ -120,6 +120,22 @@ FVI illustrates an earlier lower-band exit before its later +5% high. Wider-gap 
 retain more profit; these examples do not establish optimal settings. The study owns the tables,
 scope and independent checks. No historical repair is a prerequisite. The operating policy remains proposed.
 
+## Time-of-day research proposal
+
+The operator subsequently suggested more room early, tightening at **10 a.m. Toronto time** and
+further at **noon**, clarified the clock times and authorized the proposed offline schedule plus a
+few nearby alternatives. This is research authorization, not acceptance of a clock-based operating rule.
+The [time comparison](../reviews/progressive-trailing-trade-study-20261017.md#time-of-day-gap-comparison)
+owns the five fixed schedules and results. All retain +1.5% activation, the +3%/+5% profit bands and
+a nondecreasing stop across dates; no original protection is loosened or daily reset adopted.
+
+Against the original schedule, the agreed time version improves three of 55 distinct closed trade
+returns, reduces one and leaves 51 unchanged. Gentler changes improve three/leave 52 unchanged in
+that subset, but both versions reduce the separate larger ARE entry's profit from +2.64% to +0.92%.
+Conditional already-held ARE benefits from morning room, without proving ownership from entry.
+Recommendation: retain the original as baseline; preserve the time hypothesis without choosing an
+operating adjustment. The 415 offline scenario checks do not constitute implementation or policy adoption.
+
 ## Open before an implementable policy
 
 - Operator review of the proposed activation/gap bands above; a smooth curve or different schedule
@@ -127,6 +143,8 @@ scope and independent checks. No historical repair is a prerequisite. The operat
   above is not out-of-sample or general efficacy qualification, particularly for its upper bands.
 - Exact high/profit reference and observation/update timing. Retain existing non-loosening protection;
   do not silently substitute this study's five-minute descriptive highs for a governing policy input.
+  Clock-based tightening remains open; in this simulation it acts on the first newly received close
+  after a time boundary, can trigger immediately, and cannot undo an earlier day's raised stop.
   Prior add-ons' effect on cost/high references also remains open; a conditional day illustration does
   not decide that behavior or authorize resetting an existing stop each morning.
 - Intended family/version scope and comparison with the existing rules, emphasizing profit actually
