@@ -22,6 +22,9 @@ cssclasses:
 > at or below the established stop as the proposed sale trigger. No implementation is authorized.
 > **High/transition confirmed:** use the highest completed five-minute close since purchase. Include
 > existing holdings when the new strategy is enabled, preserving stronger established protection.
+> **Polling confirmed:** five minutes with more than 0.25% room above the stop, one minute nearer;
+> request a new quote per check and reject quotes received more than 60 seconds ago. Market freshness
+> is not yet qualified by that receipt-age limit.
 
 ## Problem and goal
 
@@ -158,8 +161,8 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
 - Original numeric bands are retained for the design baseline; operating-policy adoption and
   implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
-- Bid freshness/monitoring contract. The highest completed five-minute close since purchase and
-  fresh-bid touch triggers are agreed for all portfolios; retain non-loosening protection.
+- Provider freshness qualification and monitoring integration. The polling/receipt-age settings below,
+  highest completed five-minute close since purchase and fresh-bid triggers are agreed for design.
   The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now isolates update cadence with five-minute closing-price breach checks in both versions. It does
   not itself qualify touch detection or replace current native low-based checks.
@@ -283,30 +286,29 @@ against that floor, then obtains a separate post-decision quote for its simulate
 [safety policy](../../Core/Trader/DelphiLive/DelphiLiveSafetyPolicy.cs) and
 [existing Live contract](../concepts/delphi-live.md#provisional-v1-profit-protection).
 Using a fresh bid across other portfolios still needs source/freshness/monitoring qualification;
-saved bar-close/low studies cannot establish quote-touch returns. No fallback price or new collection
-interval is selected by this decision. See [SEC order types](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)
+saved bar-close/low studies cannot establish quote-touch returns. No fallback price is selected;
+polling intervals are now agreed below. See [SEC order types](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)
 for sell-side bid context and the distinction between quoted and executed prices.
 
 ### Remaining decisions before implementation
 
 1. **High — now confirmed:** use the highest completed five-minute closing price since purchase.
    Preserve the agreed high history across sessions and additional purchases; no daily reset.
-2. **Bid monitoring — still open:** the operator proposes fewer checks with room above the stop and
-   more checks nearby. Recommended starting settings, not accepted: check every five minutes when
+2. **Bid monitoring — now confirmed after the example:** check every five minutes when
    `bid > stop * 1.0025`; check every minute when `stop < bid <= stop * 1.0025`. An observed valid
    `bid <= stop` triggers immediately under the agreed design, not after another monitoring interval.
    Request a new quote at each check and reject observations more than 60 seconds old **since receipt**.
    For a $100 stop: $100.80 permits five-minute checks; $100.20 switches to one minute; a later $99.98
    triggers a sale. A fall can cross the stop between polls. Faster existing protection checks must
    not be slowed; usable quotes already obtained by shared protection may also be evaluated.
-   The operator requested an example rather than accepting these numbers; keep them open.
+   These are accepted design settings, not implemented or proof of feed freshness.
 3. **Existing holdings — now confirmed:** apply the new strategy to existing as well as future
    holdings as soon as it is enabled. Preserve stronger existing stops and earned protection.
    This answers the rollout-scope question; it does not authorize implementation or present activation.
    Prospective policy identities and safe initialization/handover remain engineering work under the
    existing ownership and execution boundaries, without rewriting historical actions.
 
-**Freshness limit:** the proposed 60 seconds measures local receipt age, not proven market-data age.
+**Freshness limit:** the accepted 60 seconds measures local receipt age, not proven market-data age.
 Current `TmxQuoteFieldsV1` returns price/bid/ask and a local receipt timestamp; it does not expose a
 bid-event timestamp in the Live receipt. A successful new fetch alone cannot establish that the
 provider's market quote is current. Qualify that source contract before claiming current-market
@@ -317,6 +319,32 @@ protection; no external feed was queried here. See
 Separately, implementation/validation work must test fresh-bid triggers and integration with current
 protection/execution owners, especially Live. Prior closing-price simulations do not answer that test.
 This is remaining work, not another unresolved choice of bands, portfolios or trigger-price type.
+
+### Quote-source freshness check — October 17, 2026
+
+**Finding: the current source is not yet qualified for the new one-minute fresh-bid protection.**
+This is a current source/saved-evidence review, not proof that every present bid is stale.
+
+- Live calls `GetQuotesBySymbolsAsync` / `getQuoteForSymbols`; the current query, DTO, canonical
+  snapshot and Live receipt carry no bid-update/provider-as-of time. The adapter records local UTC
+  receipt time. The action workflow accepts a positive bid received during the session and after
+  the established floor; it cannot verify the underlying market quote's age. This does not establish
+  that the provider offers no other timestamped product or field.
+- Independently rereading the September 29 saved market-hours probe gives 22 requests/attempts,
+  22 current quotes, zero positive two-sided bid/ask pairs and 22 pairs on the separate delayed
+  endpoint. The diagnostic's pair flag does not establish whether a bid alone was absent. Its delayed
+  `lasttradedatetime` dates a trade, not the bid. No sample qualifies bid freshness. This is September
+  evidence, not a new October 17 market observation. Evidence: ignored local
+  `artifacts/ai-risk-values-20260929/quote-timing-native.log` (13:00–13:01 Toronto).
+- [TMX's public website guidance](https://money.tmx.com/en/terms-of-use) says market information is
+  generally delayed by 15 minutes or more. That broad warning does not measure this API's exact lag.
+  Polling more often and enforcing a 60-second local receipt limit cannot establish upstream freshness.
+
+Next, qualify usable bids and their market-time/freshness meaning with one bounded market-hours
+check and the applicable source contract. Do not substitute last-sale prices, silently switch to the
+delayed endpoint, weaken the bid rule or expand this into general gap repair. Existing source/code
+and older operational evidence remain unchanged. October 17 is Saturday; no new market/broker calls,
+SQL reads/writes, probes, runtime tests or application changes ran for this review.
 
 ## Review questions
 

@@ -288,8 +288,9 @@ or completed replacement of the execution work below. See the
   favors slower, 56 are equal. The operator subsequently chose completed five-minute raises and fresh
   observed-touch triggers for design. Scope now includes all portfolios, especially Delphi Live.
   Fresh bid, the highest completed five-minute close since purchase, and inclusion of existing holdings
-  when enabled are accepted for design. Next settle adaptive bid timing/receipt-age limits (proposed
-  five/one minutes at 0.25% distance; 60-second receipt age, not accepted), qualify source freshness and
+  when enabled are accepted for design. Adaptive bid timing is now accepted too: five/one minutes at
+  0.25% distance, new quote per check and a 60-second receipt-age limit. The current source/saved check
+  does not qualify Live bid freshness. Next perform bounded source qualification, design
   safe version handover, and validate touch behavior. Close-based studies do not establish its returns.
   Rules stay unchanged and gap repairs remain secondary.
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare

@@ -404,9 +404,13 @@ Optional older-history import remains a proposal; no historical reset is approve
   implementation, policy assignment or activation. Fresh bid is now accepted as the touch input.
 - [x] Record the highest completed five-minute close since purchase and inclusion of existing holdings
   as soon as the strategy is enabled; preserve stronger existing protection. No implementation authorized.
-- [ ] Agree adaptive bid timing and quote-age limits; five/one minutes at 0.25% above the stop and
-  60 seconds since receipt are recommendations, not accepted. Qualify provider freshness separately;
-  the current Live receipt has no bid-event timestamp. [Decision list/example](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+- [x] Agree adaptive bid timing: five/one minutes outside/within 0.25% above the stop, a new quote per
+  check and at most 60 seconds since receipt. Design only; no current-market-age guarantee.
+- [x] Review the current Live quote chain and independently recheck the September 29 saved probe:
+  no bid-update time, 22 quotes/zero positive bid-ask pairs; freshness remains unqualified.
+  [Source finding and limits](adr/0090-progressive-individual-profit-trailing.md#quote-source-freshness-check--october-17-2026).
+- [ ] Qualify usable bids and market freshness with a bounded market-hours check/source contract;
+  local receipt age, changing prices or a delayed last-trade timestamp alone are insufficient.
 - [ ] Specify prospective policy identities and safe state initialization/handover for existing holdings.
 - [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
   preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation

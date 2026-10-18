@@ -87,8 +87,8 @@ Tags: risk-management, decision-engine. Source: ADR-0090.
 ### Q: Does a quote received just now prove its market price is current?
 
 A: No. Receipt time says when TraderVI obtained it; market-data age depends on the provider's source
-and timestamps. The proposed 60-second receipt-age limit does not prove a quote is 60 seconds old in
-the market. Adaptive five-/one-minute bid checks remain unaccepted draft settings.
+and timestamps. The accepted 60-second receipt-age limit does not prove a quote is 60 seconds old in
+the market. Adaptive five-/one-minute checks are agreed for design; source freshness is unqualified.
 
 Tags: risk-management, data-pipeline. Source: ADR-0090.
 
