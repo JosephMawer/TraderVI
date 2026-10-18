@@ -27,8 +27,14 @@ facts, unavailable-choice misunderstanding or future knowledge. Valid JSON/domai
 prove good investment judgment, timing reliability, unattended operation or paper execution readiness.
 
 `Validate.ps1 -SelfTest` exercises this bundle's synthetic valid wait and rejection cases; October 17
-passes ten checks including rejection of the historical packet for current use. No Dot answer exists
-yet. `Prepare.ps1` is the one-off exporter; do not rerun over an existing manifest or update timestamps
+passes ten checks including rejection of the historical packet for current use. The operator's Dot
+answer subsequently passes schema/domain validation as `wait`, with 16 factual checks against the
+saved packet. It returns a permitted two-minute interval and no rule overrides. Its recognition of
+old scheduling narrative is correct. Review reasoning separately: `FreshAiReviewRequired` is an
+expected pre-review block, not a permanent prohibition on choosing a strategy; the packet builder
+excludes it from choice eligibility because this review supplies that attention. Other risk controls
+still require current rechecks. This one wait does not test selected portfolio/version handling,
+switching, future outcomes or automatic operation. `Prepare.ps1` is the one-off exporter; do not rerun over an existing manifest or update timestamps
 to make the snapshot current. It read/checksummed the original journal without opening its writer or
 changing it. Keep exported market/paper information and responses private and outside Git.
 

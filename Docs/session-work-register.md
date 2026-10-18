@@ -56,10 +56,12 @@ question, not an assumed design choice. R01 above has the operator's explicit re
 ## Dots alternative raised October 17
 
 **R20 — Dots as the AI decision connection (unresolved).** Current-chat source reviewed through
-the authorized saved-input trial setup; the operator confirms the Dot is ready. Official documentation supports ongoing
+the returned Dot answer and its historical validation. Official documentation supports ongoing
 work and connected local tasks, but a TraderVI bridge, decision timing, structured results and
-sustained allowance are unqualified. One historical trial is authorized/prepared (15 choices/four
-eligible; ten offline validator checks); the Dot response remains pending. No API replacement or
+sustained allowance are unqualified. One historical `wait` passes schema/domain validation and 16
+factual checks (15 choices/four eligible); earlier ten synthetic validator checks remain separate.
+Pre-review missing-AI-attention must not become a circular wait condition. No selection/switching or
+unattended operation is qualified. No API replacement or
 recurring operation is approved. R02 remains the delivery work; [open questions](reviews/open-questions.md#ai-managed-portfolio-and-proposed-live-adoption--september-26-2026)
 own the saved-input, non-executing feasibility check. [Setup/return validation](running.md#dots-one-saved-input-replay). No operating AI qualification changed.
 

@@ -159,9 +159,13 @@ evidence; this follow-up grants no additional provider requests or database repa
   A possible paper-only bridge would expose dated TraderVI inputs and accept structured proposals
   through the existing validation/risk boundary, preserving TraderVI-owned protection and execution.
   The operator subsequently authorized one saved-input, non-executing trial and confirms the Dot
-  is ready. Its historical packet/instructions/schema and offline validation are prepared; the answer
-  remains pending. This does not approve an API replacement, recurring reviews or trading integration.
-  Next submit the attachment and validate the returned JSON under the [replay procedure](../running.md#dots-one-saved-input-replay);
+  is ready. Its returned historical `wait` now passes schema/domain validation and 16 factual checks.
+  It correctly recognizes four eligible choices and rejects stale schedule narrative. Wait is
+  defensible, not mandatory; pre-review `FreshAiReviewRequired` is not an independent permanent
+  refusal reason. The review supplies missing AI attention; other controls still need fresh rechecks. This does not approve an API replacement, recurring reviews or trading integration.
+  The [replay procedure](../running.md#dots-one-saved-input-replay) records the result. Selecting or
+  switching an eligible choice, actual decision quality, local bridging, timing and sustained capacity
+  remain unqualified; any further trial needs an agreed scope;
   input qualification, stock actions, switching, runtime/UI and paper validation remain required.
   Sources: [Meet dots](https://learn.chatgpt.com/docs/dots),
   [tasks and memory](https://learn.chatgpt.com/docs/dots/tasks-and-memory),

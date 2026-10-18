@@ -13,12 +13,22 @@ October 1 15:05 UTC saved packet (15 choices/four eligible), using current v3 re
 schema. The original journal checksum is unchanged; the prior request was rejected before generation
 for size. Input dates/eligibility are unchanged. The attachment has 30,781 input characters plus
 instructions/schema. Core build passes (.NET 10.0.401; 260 existing compiler warnings/no errors).
-Ten offline replay-validator checks pass, including current-time rejection of the historical packet;
-these are synthetic validator checks, not a Dot answer. One initial helper export failed on an
+The returned Dot proposal now passes the unchanged JSON schema and production domain validator as
+historical `wait`, with all 12 evidence IDs valid, no overrides and a permitted two-minute interval.
+Sixteen saved-packet factual checks pass; holdings/value arithmetic, candidate guidance, daily gate
+results, incomplete performance history and expiry agree. The Dot correctly distinguishes the old
+schedule explanation from the packet's current evidence. Its wait is permitted, not required by
+candidate eligibility. Interpret the pre-review `FreshAiReviewRequired`/zero allowance carefully:
+the review supplies missing AI attention, so this is not an independent reason for perpetual waiting
+(packet builder deliberately excludes that block from choice eligibility). Breadth/entry guidance
+remain discretionary, requiring recorded exceptions if disregarded. No hallucinated fact or explicit
+hard-rule violation was identified; no later outcomes were used. This proves one valid wait replay,
+not eligible selection/switching, decision quality or unattended execution. Earlier ten synthetic
+validator checks retain their separate scope. One initial helper export failed on an
 ambiguous JSON overload before export and was corrected. No fresh dependency audit/full solution or
-SSDT build. No SQL access, model/market API call, operational launch or trading ran. Next send the
-prepared attachment to the Dot and validate its returned JSON; interpretation and decision quality
-remain unqualified. [Procedure](running.md#dots-one-saved-input-replay).
+SSDT build. This response-validation step required no rebuild, new model/market call, SQL access,
+operational launch or trading. Raw answer and check results remain private in the ignored bundle.
+Any further Dot trial needs its own agreed scope; API replacement and automatic operation remain open. [Procedure](running.md#dots-one-saved-input-replay).
 
 **Current follow-up, October 14, 2026:** the nine missing bars are investigated; a narrow live
 request-end correction and clearer stale-source metadata are implemented/tested/installed at
