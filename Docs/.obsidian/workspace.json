@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "adr/README.md",
+                "file": "reports/local/2026-09-08-session-performance.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "2026-09-08-session-performance"
             }
           }
         ]
@@ -190,6 +190,18 @@
   },
   "active": "c7e6057b9db5a744",
   "lastOpenFiles": [
+    "reviews/intraday-gain-evidence-20261017.md",
+    "reviews/progressive-trailing-trade-study-20261017.md",
+    "oracle-phases.md",
+    "concepts/progressive-profit-trailing-draft.md",
+    "adr/0090-progressive-individual-profit-trailing.md",
+    "reviews/stock-gain-paths-20261017.md",
+    "reviews/paper-gain-patterns-20261017.md",
+    "models.md",
+    "project-status.md",
+    "roadmap.md",
+    "session-work-register.md",
+    "adr/README.md",
     "adr/by-domain.md",
     "concepts/historical-practice-implementation.md",
     "reports/local/2026-09-08-session-performance.md",
@@ -205,15 +217,7 @@
     "adr/0063-historical-practice-environment-direction.md",
     "adr/0055-independent-strategies-to-approved-live-execution.md",
     "adr/0022-champion-challenger-evidence-and-promotion.md",
-    "project-status.md",
     "adr/0062-complete-strategy-recommendation-promotion.md",
-    "concepts/portfolio-comparison.md",
-    "adr/0061-portfolio-comparison-workspace.md",
-    "reviews/model-input-cutover-20260906.md",
-    "reviews/flashcards.md",
-    "architecture.md",
-    "glossary.md",
-    "oracle-phases.md",
-    "database-operations.md"
+    "concepts/portfolio-comparison.md"
   ]
 }

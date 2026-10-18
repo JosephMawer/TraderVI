@@ -336,3 +336,6 @@ ASALocalRun/
 
 # Browser captures can contain broker credentials and private account data.
 *.har
+
+# Personal files attached to Codex chats are not project source.
+.codex-remote-attachments/
