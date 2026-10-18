@@ -79,7 +79,7 @@ Tags: risk-management, decision-engine. Source: ADR-0090.
 ### Q: What does a stop "touch" mean in plain language?
 
 A: The watched price reaches or falls below the stop, telling the system to sell without waiting
-for a five-minute close. Fresh bid is recommended but not yet accepted: it means watching what buyers
+for a five-minute close. Fresh bid is now the agreed input: it means watching what buyers
 are offering to pay. The intended design covers all portfolios, especially Delphi Live; no implementation.
 
 Tags: risk-management, decision-engine. Source: ADR-0090.

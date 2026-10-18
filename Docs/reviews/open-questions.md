@@ -107,13 +107,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   fresh observed price at or below the established stop triggers a sale, without waiting for a close.
   A new/raised stop applies only to later observations. The operator accepts exiting a temporary dip
   to prioritize profit protection. [Contract and limits](../adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
-  Governing price/high inputs, freshness/monitoring and prospective version integration remain open.
+  Stop-raising high, freshness/monitoring and prospective version integration remain open.
   Previous close-based results do not establish touch returns or continuous detection; no implementation.
-- **Scope confirmed / price input recommended, October 17:** the operator wants all portfolios covered,
+- **Scope and price input confirmed, October 17:** the operator wants all portfolios covered,
   including and especially Delphi Live, still without implementation. Fresh valid bid at or below
-  the established stop is recommended, pending acceptance. Live already has a fresh-bid floor check;
+  the established stop is accepted after explanation. Live already has a fresh-bid floor check;
   this does not qualify other families' quote inputs or apply the progressive bands. Remaining work:
-  governing price/high input, freshness/monitoring, prospective assignments and touch validation.
+  exact stop-raising high, bid-check timing/maximum quote age, and transition of existing holdings to
+  prospective versions. Fresh-bid touch validation is remaining work, not an unresolved price choice.
   [Scope, explanation and source check](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 
 ### Liquidity and execution-realism research

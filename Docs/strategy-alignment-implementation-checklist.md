@@ -401,10 +401,11 @@ Optional older-history import remains a proposal; no historical reset is approve
   close. Newly raised stops apply only to later observations. No implementation or touch-return test.
   [Contract](adr/0090-progressive-individual-profit-trailing.md#five-minute-updates-and-observed-touch-triggers--agreed-design).
 - [x] Record all-portfolio design scope, including and especially Delphi Live; this does not authorize
-  implementation, policy assignment or activation. Fresh bid recommended as touch input, not yet accepted.
-- [ ] Define governing price/high inputs, monitoring and prospective policy assignments, and validate observed-touch
-  behavior before implementation; preserve existing
-  protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
+  implementation, policy assignment or activation. Fresh bid is now accepted as the touch input.
+- [ ] Finalize the stop-raising high, bid monitoring/maximum quote age and existing-holding transition
+  to prospective versions; [remaining decisions](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation).
+- [ ] Validate fresh-bid touch triggers and prospective policy integration before enabling new versions;
+  preserve existing protection and separate later purchases/re-entry. Operating-policy adoption and broader validation
   remain outstanding; keep repairs secondary.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,

@@ -1373,11 +1373,13 @@ one price source, not native engine replay or operating cadence adoption. The op
 selected completed five-minute stop updates and accepted first-fresh-observed-touch triggers, without
 waiting for a close. Newly raised stops apply only to later observations. This is a design decision;
 the close-based studies do not test touch returns. The operator subsequently requested all portfolios,
-including and especially Delphi Live. Fresh bid is recommended for the touch input but remains
-unaccepted pending explanation. Source inspection confirms Live already checks fresh bids against its
-existing floor; this does not qualify other families or implement progressive bands. Governing inputs,
-monitoring, prospective assignments and adoption remain open; morning/noon alternatives stay deferred.
-[Scope and price recommendation](adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
+including and especially Delphi Live, and after explanation accepted fresh bid as the touch input.
+Source inspection confirms Live already checks fresh bids against its existing floor; this does not
+qualify other families or implement progressive bands. The stop-raising high,
+monitoring/maximum quote age, existing-holding transition, prospective assignments and adoption remain
+open; morning/noon alternatives stay deferred. The [remaining decision list](adr/0090-progressive-individual-profit-trailing.md#remaining-decisions-before-implementation)
+separates these choices from the outstanding fresh-bid trigger test.
+[Agreed scope and bid input](adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 No trading rules, new SQL reads/writes, producers or running apps changed.
 
 **Session recovery, October 16, 2026:** the [session-work register](session-work-register.md)

@@ -18,8 +18,8 @@ cssclasses:
 > and tightest earned gap. Raise stops from completed five-minute prices; trigger on the first fresh
 > observed price at or below the established stop, without waiting for a close. These are design
 > decisions; no implementation is authorized.
-> **Scope confirmed:** all portfolios, including and especially Delphi Live. Fresh bid is the
-> recommended touch input, pending the operator's answer; see the scope/input section below.
+> **Scope/input confirmed:** all portfolios, including and especially Delphi Live, use a fresh bid
+> at or below the established stop as the proposed sale trigger. No implementation is authorized.
 
 ## Problem and goal
 
@@ -156,8 +156,8 @@ operating adjustment. The 415 offline scenario checks do not constitute implemen
 - Original numeric bands are retained for the design baseline; operating-policy adoption and
   implementation remain unapproved. The bounded comparisons are not general efficacy qualification,
   particularly for the upper band. Future alternatives remain possible without changing this baseline.
-- Exact governing price source/high reference and monitoring contract. Completed five-minute updates
-  and observed-touch triggers are now agreed for design (see below); retain non-loosening protection.
+- Exact stop-raising high reference and bid freshness/monitoring contract. Completed five-minute
+  updates and fresh-bid touch triggers are agreed for all portfolios; retain non-loosening protection.
   The [five/fifteen-minute comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
   now isolates update cadence with five-minute closing-price breach checks in both versions. It does
   not itself qualify touch detection or replace current native low-based checks.
@@ -248,8 +248,9 @@ protecting profit over allowing a brief dip to recover. A touch can therefore ex
 A newly created or raised stop applies only to subsequent fresh observations. Do not use a low from
 earlier in the same completed bar to trigger against the stop just raised at its close. Observed touch
 means detection when valid fresh data actually arrives, not a promise of continuous monitoring or a
-broker-native stop. The governing trade/quote input, freshness/monitoring contract and family/version
-integration remain open; the later scope decision below includes Delphi Live explicitly. Existing protection ownership and causal execution/cost contracts still apply;
+broker-native stop. Fresh bid is now the agreed trigger input for all portfolios, especially Delphi
+Live; freshness/monitoring and prospective version integration remain open. Existing protection
+ownership and causal execution/cost contracts still apply;
 a trigger does not guarantee the sale price.
 
 The saved comparisons used five-minute **closing-price** breaches, so their returns do not measure
@@ -257,7 +258,9 @@ the newly agreed touch design. Current Shadow checks lows of received completed 
 establish real-time first-touch detection. Live has a separate fresh-bid contract. No new simulation,
 code, operating policy or application change occurred in this decision step.
 
-## All-portfolio scope and bid-price recommendation
+<a id="all-portfolio-scope-and-bid-price-recommendation"></a>
+
+## All-portfolio scope and fresh-bid input — agreed design
 
 The operator subsequently requested coverage of **all portfolios, including and especially Delphi
 Live**, while explicitly retaining the no-implementation boundary. This replaces the earlier open
@@ -266,7 +269,7 @@ identities, assignment/rollover and family-specific integration still require a 
 protection owners, add-on eligibility and real-account activation/execution gates remain authoritative.
 This scope choice does not rewrite frozen policies or authorize activation or broker actions.
 
-**Recommended, not yet accepted:** use a fresh valid positive **bid**, the price buyers are offering,
+**Confirmed after explanation:** use a fresh valid positive **bid**, the price buyers are offering,
 at or below the established stop. This relates the trigger to the sell side of the quote. A stop of
 $104.50 and a subsequent observed bid of $104.48 would trigger an exit without waiting for the next
 completed close. A short dip can therefore trigger even if the price later recovers. The trigger
@@ -278,8 +281,23 @@ against that floor, then obtains a separate post-decision quote for its simulate
 [existing Live contract](../concepts/delphi-live.md#provisional-v1-profit-protection).
 Using a fresh bid across other portfolios still needs source/freshness/monitoring qualification;
 saved bar-close/low studies cannot establish quote-touch returns. No fallback price or new collection
-interval is selected by this recommendation. See [SEC order types](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)
+interval is selected by this decision. See [SEC order types](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)
 for sell-side bid context and the distinction between quoted and executed prices.
+
+### Remaining decisions before implementation
+
+1. **Stop-raising high:** finalize the exact high reference/source. Recommendation, not yet accepted:
+   use the highest completed five-minute closing price observed during ownership. Five-minute updates
+   are already agreed; this is the precise price definition, not a new update-interval decision.
+2. **Bid monitoring:** choose how often bids are checked between stop raises and the maximum allowed
+   quote age. Choosing a fresh bid does not establish continuous monitoring or qualify the feed.
+3. **Transition:** decide how existing holdings move to prospective policy versions, including their
+   initial progressive-band state, while preserving existing stops and earned protection. All-portfolio
+   coverage is settled; assignment timing and migration details are not.
+
+Separately, implementation/validation work must test fresh-bid triggers and integration with current
+protection/execution owners, especially Live. Prior closing-price simulations do not answer that test.
+This is remaining work, not another unresolved choice of bands, portfolios or trigger-price type.
 
 ## Review questions
 
