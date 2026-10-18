@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Four-screen visual redesign — October 18 exploration
+
+- **Q:** What comes before detailed drill-down design in this UI pass? **A:** Establish a fresh, clear main layout across Trading, Portfolios, Delphi and Delphi Live; the detailed views follow the operator's chosen direction.
+- **Q:** Does improving visual hierarchy make dated account evidence current? **A:** No. Keep sources, times, unavailable values and account/paper/replay modes explicit; a refreshed display does not refresh the evidence. (ADR-0068 and workspace explanation contract)
+
 ### ADR-0088 — Source symbol aliases
 
 - **Q:** Does translating a broker symbol change a saved trade? **A:** No. Only the monitoring reference changes; the owning account's records and history stay intact.

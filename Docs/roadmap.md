@@ -21,6 +21,12 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
+**October 18 UI design track:** explore a fresh, clearer layout for Trading, Portfolios, Delphi and
+Delphi Live before detailed drill-downs. Review the provisional Focus/Workspace concepts, then refine
+the chosen main layouts. The proposed screen sequence and later WPF implementation are not yet
+accepted; existing operating priorities and execution prerequisites below remain.
+[Design draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
+
 September 26 requested direction: add an AI-managed momentum portfolio and use it for real trading,
 targeting September 28. AI Explorer is deferred to a future session; the first pass is AI Momentum
 in paper and intended live use. [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) accepts

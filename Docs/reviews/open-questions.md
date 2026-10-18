@@ -5,6 +5,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Four-screen visual redesign — October 18, 2026
+
+- **Accepted priority:** fresh, clearer main layouts across Trading, Portfolios, Delphi and Delphi Live;
+  detailed drill-downs follow once the visual layout is established.
+- **Open:** choose the provisional Focus or Workspace direction (or a revised combination), confirm
+  the target window size, and refine each screen's main hierarchy. The proposed Trading → Portfolios
+  → Delphi → Delphi Live sequence is not yet an accepted implementation order.
+- Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
+  No new ADR or implementation authorization follows from displaying concepts.
+- [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
+
 ### Intraday gain retention (revisit soon)
 
 - **Current October 18 state:** the implementation and rollout requests supersede the design-only boundaries

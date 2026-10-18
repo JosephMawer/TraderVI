@@ -1,5 +1,15 @@
 # TraderVI Project Status
 
+**UI design exploration, October 18, 2026:** the operator requested a fresh, clearer layout for
+Trading, Portfolios, Delphi and Delphi Live, with detailed drill-downs to follow. Two fictional-data
+concepts, Focus and Workspace, are prepared for review; neither is selected or implemented. Source
+inspection preserves ADR-0068's account-first Trading hierarchy. Fragment generation and script
+syntax checks pass; local-file browser inspection was blocked by browser security policy, so visual
+fit/interactions remain unverified. No app build, SQL/model/market/broker operation or operational
+launch ran. Starting housekeeping was committed/pushed at `65956789`, including the earlier 184
+local commits; personal chat photos remain local/ignored. Existing operational dates/readiness are
+unchanged. [Design and next decision](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
+
 **AI paper delivery / Dots saved-input trial, October 17, 2026:** the operator requested a
 remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation
 is built; qualified invested inputs/v3 interpretation and recurring reviews/display remain before

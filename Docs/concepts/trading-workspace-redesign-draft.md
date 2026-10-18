@@ -2,6 +2,7 @@
 
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
+- **October 18 visual redesign:** renewed design exploration across Trading, Portfolios, Delphi and Delphi Live. The operator wants clearer priorities and a fresher layout first, then detailed drill-down views. The new layouts are provisional concepts; no new WPF implementation or operating change is authorized by this exploration.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -14,6 +15,71 @@ The operator accepted the main-account direction and explicitly requested implem
 now covers the implemented WPF presentation and its remaining evidence/integration work under ADR-0068.
 The request did not authorize changes to trading rules, broker execution, model training or schema
 deployment. Conversation concepts remain illustrative; the WPF implementation reads existing records.
+
+## October 18 visual redesign — draft
+
+**Immediate problem:** establish a fresh, clear visual layout across the four requested screens.
+**Parent problem:** growing account, strategy and engine information competes for attention.
+**Root goal:** understand the main account and independent paper strategies, inspect their evidence,
+and act deliberately with the existing account, risk and execution boundaries intact.
+
+This section is a draft, not a new accepted ADR or authorization to implement, deploy, migrate,
+train, collect market data or trade. Earlier accepted product behavior remains authoritative.
+
+### Current decision record
+
+| State | Direction |
+| --- | --- |
+| Accepted October 18 | Explore Trading, Portfolios, Delphi and Delphi Live together. |
+| Accepted October 18 clarification | Prioritize clearer hierarchy/less clutter and a fresh visual style; design detailed drill-downs after establishing the main layout. |
+| Existing accepted direction | Trading leads with the main account, holdings/results and actual assigned strategy; attention supports that overview (ADR-0068). |
+| Provisional | Use shared navigation, typography, spacing, account/mode labels and source-time treatment across the four screens. |
+| Provisional alternatives | **Focus:** broad primary table with a compact selection preview below. **Workspace:** table and persistent selection preview side by side. Both retain an account-first Trading page. |
+| Proposed sequence | Choose the layout direction; refine Trading as the shared visual reference; adapt Portfolios, Delphi and Delphi Live; then design detailed views and consequential-action states before implementation. This order is a recommendation, not an accepted delivery priority. |
+| Open | Preferred concept, final visual style, target window dimensions and exact content hierarchy within each screen. |
+| Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
+
+### Screen roles and source inspection
+
+- **Trading:** main real-account overview, holdings and assigned strategy, with compact attention
+  beside affected facts. Broker snapshots, operator-reported records and saved holding prices retain
+  their own sources/times. Open-position gains are not complete account earnings.
+- **Portfolios:** independently running paper accounts, descriptive comparisons and selected-account
+  context. Preserve shared comparison periods, gate profiles, unavailable values and the distinction
+  between account history and exact-version performance. A review is separate from assignment/execution.
+- **Delphi:** saved daily selection, selected lens and dated market context. Refreshing saved evidence
+  remains separate from running official Delphi. Indicators and model outputs retain their meanings.
+- **Delphi Live:** intraday paper candidate progression and reasons, with observation time, missing
+  data and replay/current mode prominent. "Live" does not mean real-money execution.
+
+October 18 inspection read the current XAML for the shell and these four screens, their shared styles,
+and existing UI/measurement contracts. Trading currently includes the broker panel, recorded-account
+disclosure, recommendations and account/report/history controls. Portfolios already exposes a unified
+comparison grid and selected-account evidence. Delphi retains its saved-result/official-run distinction;
+Live retains account selection, current/replay modes and advanced controls. These are source findings,
+not observations of the installed running application. The concepts deliberately sample the landing
+content; they are not a complete inventory or a decision to remove existing features.
+
+### Concepts, verification and implementation boundary
+
+The conversation presents `tradervi-layout-directions.html`, with **Focus** and **Workspace** variants.
+Each includes all four screens, local row selection, daily-lens changes and a labelled sample replay
+mode. All account amounts, securities, assignments, performance and operational states are fictional.
+The replay is an illustrative layout, not a backtest or reconstructed historical result. A copy and
+standalone preview are retained in ignored `artifacts/ui-redesign-20261018/`.
+
+Verification: the fragment wrapper generation and Node JavaScript syntax check pass. Browser security
+policy rejected local-file inspection, so no browser-rendered layout, viewport or interaction test is
+claimed. No app build/test suite was required or run for this concept/documentation-only increment;
+there is no new dependency audit or full-solution/SSDT qualification. No WPF source, database, model,
+broker workflow or operating host changed. Before implementation, verify the chosen concept at the
+actual target window size and specify empty, stale, missing, blocked and replay states; keep actual
+account/source context and consequential controls explicit. Full behavior coverage remains pending.
+
+The starting repository housekeeping was committed/pushed at `65956789` after JSON parsing and exact
+staged-diff review; the push also included 184 pre-existing local commits. Personal chat photos were
+preserved locally and excluded through `.gitignore`. That push does not imply new validation of the
+previously committed application history.
 
 ## Problem and outcome
 
