@@ -95,6 +95,15 @@ the market. Adaptive five-/one-minute checks are agreed for design; source fresh
 
 Tags: risk-management, data-pipeline. Source: ADR-0090.
 
+### Q: Must holdings be sold before enabling progressive protection?
+
+A: No. The dedicated rollout validates the protection-only successor, pauses new buys, carries
+holdings/stronger stops/pending protective sells, then restores the prior entry controls after checks.
+Ordinary strategy editing still requires paused, empty portfolios. October 18 enables all 15 current
+paper portfolios; weekend state checks do not prove a market-session touch or fill.
+
+Tags: risk-management, decision-engine. Source: ADR-0090; running.md.
+
 ### Q: Does a missing minute record prove that no trades occurred in that minute?
 
 A: No. It may reflect sparse source coverage or a provider limitation. Without an explicit source

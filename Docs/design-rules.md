@@ -14,7 +14,8 @@ Five-minute closing highs raise stops; only later valid fresh positive bids trig
 Existing hard stops, safety exits and execution owners remain authoritative. Missing bids cannot
 be replaced with last trade or bar lows for this new trigger. Receipt-age enforcement does not
 qualify upstream market age; further source investigation is explicitly deferred, not a new coding gate.
-This source/tested extension remains disabled pending separate installation and prospective assignment.
+The extension is installed/enabled for all 15 active paper portfolios as of October 18 through
+prospective assignments. Original V1/default flags remain false; historical policies are unchanged.
 
 ## Manual recommendation approval
 

@@ -31,6 +31,12 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
+October 18: ADR-0090 progressive protection is installed and enabled for all three current Live paper
+accounts (and all 12 Shadow accounts). Post-start checks preserve five Live holdings' floors/state,
+cash/history, comparison profiles and pending sells. The installed Core hash/host responsiveness are
+verified. This weekend check does not observe a regular-session bid-trigger sale; quote investigation
+remains deferred. [Operational receipt and limits](project-status.md#reference-map-and-maintenance).
+
 The October 14 full-session comparison qualifies the stable-context/supplementary-record correction
 in [ADR-0089](adr/0089-tmx-session-context-and-supplementary-records.md). The opening native trace
 also identifies SQL receipt-clock rejection; actual-store-time waiting preserves original timestamps

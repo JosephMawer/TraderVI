@@ -1322,37 +1322,39 @@ short-session/calendar handling before **December 24, 2026**. The [roadmap](road
 
 ## Reference map and maintenance
 
-**Profit-protection implementation, October 17:** ADR-0090 is implemented for Daily Shadow variants
-and Delphi Live, including prospective opt-ins for paired comparison accounts, recommendation and
-supported managed-account paths. The shared +1.5%/+3%/+5% bands retain 1%/0.75%/0.50% gaps, five-minute
-completed highs, bid touches, adaptive five-/one-minute polling and the 60-second receipt-age limit.
-State/handover preserve stronger existing stops, tightest earned gaps, combined-holding costs and
-pending protective sells; historical fills and original strategy identities are unchanged. All
-defaults remain disabled. Migration 043 is prepared, not installed. Quote investigation stays deferred;
-the existing provider has no bid market timestamp, so receipt checks do not qualify upstream freshness.
-Validation: 166 focused tests including Practice compatibility and the final full Core suite (2,422 pass/eight skips); WPF project and
-SSDT database project builds pass. An earlier concurrent full run failed two AI timing tests; both
-isolated reruns and the final full run pass. Existing compiler warnings remain. NuGet restore required
-sandbox escalation; no fresh dependency-security audit or full-solution build. Local evidence is in
-`artifacts/progressive-profit-protection*`. No migration, app restart, market/broker request, assignment
-or activation ran. [Accepted contract](adr/0090-progressive-individual-profit-trailing.md),
-[future rollout boundary](running.md#progressive-profit-protection--implemented-disabled).
+**Profit protection installed/enabled, October 18:** all 15 active paper portfolios (12 Daily Shadow,
+three Delphi Live, including the ten paired comparison accounts) have prospective ADR-0090 versions
+assigned. All 37 open holdings (32 Shadow/five Live) have saved progressive state. Native before/after
+checks preserve holdings/costs, cash, recorded fills, stronger existing stops, pending protective sells,
+comparison profiles and safety holds. Original entry-pause settings are restored. Frozen V1/default
+definitions remain unchanged and false; the active assigned versions opt in.
 
-**Rollout preparation, October 18:** installation/enablement is now explicitly authorized for all 15
-active paper accounts (12 Shadow/three Live). A checksum-verified fresh backup and hash-matched
-OneDrive-folder copy are complete; cloud synchronization and restore drill are not established by that
-copy. The app was closed. A dedicated invested-account rollout correction passes 59 focused tests and the full Core suite (2,423 pass/eight skips)
-and the Release desktop build; ordinary settings edits remain pause-and-empty. Before-state evidence
-captures 32 Shadow/five Live open holdings. Migration 043 is installed; the first comparison assignment
-was rejected by the pre-existing fixed-rule SQL guard and rolled back (no assignments changed).
-Migration 044 is installed and passes 12 native predicate checks. Prepared-version validation found
-Live catalogue/stored-policy enum encodings differ; migration 045 compares authoritative stored Live
-settings within their own encoding and passes SSDT. No assignment has changed. Entry controls remain
-temporarily paused while installation completes. Private receipts:
-`artifacts/profit-protection-rollout-20261018/`. Quote investigation remains deferred.
+Migrations 043–045 were individually applied after a fresh checksum-verified backup and hash-matched
+OneDrive-folder copy; cloud synchronization and a restore drill are not established by that copy.
+The narrow invested-account API and comparison SQL guards allow this successor only. Ordinary editing
+still requires paused/empty portfolios. Initial guard/encoding rejections occurred before any assignment;
+they were corrected and every prepared comparison successor passed native validation before rollout.
+No trigger was disabled and no account/profile/history was rewritten.
+
+Validation: 59 rollout-focused tests, full Core suite 2,423 pass/eight skips, Release WPF and SSDT
+project builds pass. The earlier implementation passed 166 focused tests including Practice. Five
+desktop binaries were installed with rollback copies and matching hashes; the normal-path host is
+responsive and loaded the exact installed Core. Post-start readback rechecks all 15 assignments/37
+holdings. The weekend quote-only wake returns zero signals with unchanged orders/quote observations;
+no new Live failure metadata is recorded through 00:19 Toronto. Existing 260 desktop compiler warnings
+remain; no fresh dependency-security audit or full-solution build. Tests before this rollout are in
+`artifacts/progressive-profit-protection*`; private operational receipts are in
+`artifacts/profit-protection-rollout-20261018/`.
+
+This verifies installation, enabled configuration, saved-state preservation and off-session host
+behavior. A regular-session bid touch/sale and continuous timing are not observed by this weekend check.
+Quote investigation remains deferred: local receipt age does not qualify upstream bid freshness.
+The rollout tools requested no market quotes or broker orders; real TFSA execution remains unactivated.
+[Accepted contract](adr/0090-progressive-individual-profit-trailing.md),
+[rollout procedure](running.md#progressive-profit-protection--implemented-disabled).
 
 The following research record preserves the earlier studies and their limits; its no-implementation
-statements describe those earlier steps and are superseded by the implemented/disabled state above.
+statements describe those earlier steps and are superseded by the installed/enabled state above.
 
 **Gain-retention research, October 17, 2026:** after the operator corrected the scope to individual
 stocks and accepted day-move/purchase-profit measures separately, the [stock-level review](reviews/stock-gain-paths-20261017.md)

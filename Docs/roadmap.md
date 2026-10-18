@@ -268,7 +268,8 @@ or completed replacement of the execution work below. See the
 - **Revisit intraday-gain retention soon** and carry it into future strategy/risk work. The operator
   preserved this important research goal October 16. October 17 establishes the individual-winner
   direction below; whole-portfolio protection remains background. Implementation is complete and
-  tested with defaults disabled; installation/adoption remain separate. [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
+  tested and enabled for all 15 active paper portfolios October 18; original defaults stay false.
+  [Research scope](reviews/open-questions.md#intraday-gain-retention-revisit-soon).
   **October 17 scope correction:** the intended unit is **individual stocks within a portfolio**.
   The [whole-account review](reviews/paper-gain-patterns-20261017.md) is background and does not answer
   that question. The operator accepted day-move and purchase-profit measures separately. The
@@ -293,11 +294,11 @@ or completed replacement of the execution work below. See the
   does not qualify Live bid freshness; the operator defers further source investigation as a coding
   prerequisite. Daily Shadow/Delphi Live integration, prospective comparison assignments, recommendation
   paths and safe handover are implemented: 166 focused tests including Practice and the final full Core suite pass.
-  October 18 installation/enablement is authorized; the verified backup and paused-invested-account
-  rollout path are ready. Migration 043 is installed; finish the narrow comparison-guard migration 044,
-  then assign prospective versions and verify preservation.
-  Defaults remain disabled. Close-based studies and synthetic tests do
-  not establish live bid-trigger returns. Gap repairs remain secondary.
+  October 18 rollout is installed/enabled across all 15 active paper portfolios, preserving all 37
+  open holdings' protection, financial facts and comparison profiles; original entry controls are restored.
+  Next observe normal regular-session polling/touch behavior when available. Quote investigation stays
+  deferred and gap repairs secondary; weekend state checks and synthetic studies do not establish
+  bid-trigger returns or continuous coverage. [Dated installation evidence](project-status.md#reference-map-and-maintenance).
 - Backfill `RelativeStrengthFeatures`, including `CompositeScoreZ`, with coverage diagnostics; compare
   raw RS and Z-score rankings before any executed-lens change. Integrate historical RS into Hercules
   only after validated backfill.

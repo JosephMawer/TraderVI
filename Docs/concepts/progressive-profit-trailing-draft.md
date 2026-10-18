@@ -4,7 +4,7 @@ cssclasses:
 ---
 # Progressive profit trailing — accepted behavior
 
-**October 17, 2026. Implemented/tested; disabled and not installed.**
+**October 18, 2026. Installed/enabled for all 15 active paper portfolios; off-session state verified.**
 Domains: risk-management, decision-engine.
 
 A trailing stop follows a stock's highest observed price. Its gap is the percentage pullback
@@ -12,7 +12,7 @@ allowed below that high. With a fixed gap, the stop rises as the stock rises, bu
 percentage pullback remains allowed. The operator confirmed a stronger direction: **as profit
 since purchase grows, that percentage gap should shrink**. After the saved comparisons, the operator
 kept +1.5%/+3%/+5% with 1%/0.75%/0.50% gaps and subsequently authorized implementation/testing.
-No operating assignment or enablement has run.
+Prospective versions are now assigned; original policy definitions and history remain unchanged.
 
 This would give an individual winner less room to surrender profit as it becomes more profitable.
 It also makes an ordinary pullback more likely to end ownership before a later advance.
@@ -46,7 +46,7 @@ holding remains profitable. See the [worked example and source boundary](../adr/
 The [bounded saved add-on test](../reviews/progressive-trailing-trade-study-20261017.md#saved-add-on-trade-comparison)
 now illustrates this in ARE: +1.58%–1.93% combined profit after an add-on despite a -1.48% return on
 the added shares. It protects a smaller profit earlier than the actual recorded ARE exits. The
-behavior is implemented with durable state; prospective assignments remain unapplied.
+behavior is implemented with durable state; the October 18 assignments preserve existing protection.
 
 Raising a stop and checking for a breach are separate timings. The operator's [five/fifteen-minute
 comparison](../reviews/progressive-trailing-trade-study-20261017.md#five-minute-versus-fifteen-minute-stop-updates)
@@ -65,7 +65,8 @@ prospective assignment remains separate. Prior close-based results do not test t
 stock individually. **Input now confirmed:** a fresh bid, meaning the price buyers
 are offering. If the established stop is $104.50, a later observed bid of $104.48 triggers the exit;
 no five-minute close is required. Live already uses fresh bids for its existing floor; the progressive
-bands now share the new opt-in implementation. Source freshness is unverified; prospective assignments remain work.
+bands now share the new opt-in implementation and are assigned across current paper accounts.
+Source freshness remains unverified; the additional investigation stays deferred.
 [Scope and source boundary](../adr/0090-progressive-individual-profit-trailing.md#all-portfolio-scope-and-bid-price-recommendation).
 The operator now confirms the highest completed five-minute close since purchase and inclusion of
 existing holdings as soon as the strategy is enabled, preserving stronger protection. After the example,
@@ -78,8 +79,8 @@ cannot qualify the existing Live quote feed: it has local receipt time but no bi
 September 29 saved samples do not establish usable fresh bids. No new market requests or source changes.
 The operator subsequently declined the extra market-hours/source-guarantee investigation as an
 implementation prerequisite. It is deferred, with the limitation preserved. The agreed design is
-implemented/tested using the existing source. Next review installation and prospective assignments
-separately. All defaults remain false; migration 043 is prepared and unapplied. Historical policies,
+implemented/tested using the existing source and enabled October 18 through prospective assignments.
+All original defaults remain false; migrations 043–045 are installed. Historical policies,
 comparison profiles, pending protective sells and stronger stops are preserved. Daily Shadow keeps its
 existing simulated-fill contract; Live uses a separate post-decision quote, so a touch is not a promise
 of the stop price. [Rollout boundary](../running.md#progressive-profit-protection--implemented-disabled).

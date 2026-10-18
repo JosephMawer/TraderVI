@@ -425,10 +425,15 @@ Optional older-history import remains a proposal; no historical reset is approve
   policy guards. This is source/test evidence, not upstream freshness or operating qualification.
 - [x] Receive October 18 installation/enablement authorization, create checksum-verified backup and
   hash-matched copy, and test the narrow paused-invested-account rollout path (59 focused tests).
-- [x] Install additive state migration 043 after verified backup; add/build migration 044 for the
-  existing fixed-comparison database guards. No trigger is disabled and no profile is rewritten.
-- [ ] Install migration 044 and reviewed binaries; assign new opt-in versions prospectively and verify
-  preservation/operation before claiming enabled coverage. [Procedure](running.md#progressive-profit-protection--implemented-disabled).
+- [x] Install additive migration 043 and comparison-guard migrations 044/045 after verified backup.
+  No trigger is disabled and no profile is rewritten.
+- [x] Install hash-verified desktop binaries and assign prospective opt-ins to all 15 active paper
+  portfolios October 18. Verify saved protection for 37 holdings, stronger stops, pending sells,
+  financial history and comparison profiles; restore original entry controls.
+- [x] Verify the responsive installed host/Core hash, post-start state and off-session quote-only wake
+  (zero signals, unchanged orders/quote observations). [Evidence](project-status.md#reference-map-and-maintenance).
+- [ ] Observe normal regular-session polling/touch execution when available; weekend checks do not
+  prove continuous market coverage or bid-trigger returns. Quote investigation remains deferred.
 - [x] Run the authorized bounded offline trade-overlay comparison without changing rules: 75 complete
   single-purchase Shadow records, 53 distinct non-DSV paths; independently check actual/model fill prices,
   first crossings and commitment timing. [Results](reviews/progressive-trailing-trade-study-20261017.md).

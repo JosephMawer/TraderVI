@@ -9,8 +9,9 @@ This directory records the exact schema scripts applied to `TraderDB` after adop
   The script does not enable the strategy or change existing stops/assignments.
 - `20261018_044_AllowProgressiveComparisonProtection.sql`: installed October 18; 12 native checks pass.
   Permits only the progressive successor while preserving fixed comparison rules.
-- `20261018_045_CompareCanonicalLiveProtectionSettings.sql`: prepared canonical Live-setting
-  comparison correction; SSDT build passes. No account or assignment rewrite.
+- `20261018_045_CompareCanonicalLiveProtectionSettings.sql`: installed October 18 canonical Live-setting
+  comparison correction; SSDT build and native prepared-successor validation pass. No account/profile
+  rewrite. All three scripts used the fresh verified rollout backup; do not replay installed migrations.
 
 ## Naming
 

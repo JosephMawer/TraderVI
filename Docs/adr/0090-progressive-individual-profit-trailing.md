@@ -4,10 +4,10 @@ cssclasses:
 ---
 # ADR-0090 — Progressive trailing protection for individual winners
 
-**Date:** October 17, 2026. **Status:** Accepted for prospective implementation; not enabled.
+**Date:** October 17, 2026. **Status:** Accepted; installed/enabled for all 15 active paper portfolios October 18.
 **Domains:** risk-management, decision-engine.
 
-> [!summary] Accepted implementation; disabled until separately enabled
+> [!summary] Enabled across current paper portfolios; original policy definitions preserved
 > The operator wants an individual stock's allowed percentage pullback below its highest price
 > to shrink as its profit since purchase grows. The original bands are accepted for implementation. Existing saved
 > rules, stop ownership, execution contracts and protection remain authoritative.
@@ -37,7 +37,11 @@ cssclasses:
 > paths are implemented and covered by 166 focused tests, including Practice compatibility. Durable state retains earned gaps, highs,
 > stronger floors, pending protective sales and observed exits through restart/handover. A separate
 > quote-only Shadow wake and Live host ticks honor adaptive due times without waiting for AI/display.
-> Migration 043 is prepared, not applied. Nothing has been installed, assigned, activated or operationally verified.
+> October 18: migrations 043–045 are installed, new versions are assigned to all 15 active paper
+> portfolios, and 37 open holdings have preserved/initialized saved protection. Five installed desktop
+> binaries and the responsive running host/Core hash are verified; post-start state and off-session
+> checks pass. Original entry controls are restored. A regular-session touch/sale is not observed by
+> this weekend verification. Quote investigation stays deferred. [Dated evidence](../project-status.md#reference-map-and-maintenance).
 
 ## Prospective adoption and preserved contracts
 
@@ -90,7 +94,8 @@ later upside the operator explicitly accepts missing when that tradeoff protects
 - Keep later purchases tied to their own positions/entry times. No earlier unowned gain is credited.
 - Prioritize protecting profit over capturing subsequent gains after a sale. Later price increases
   remain context, not a reason by themselves to reject a profitable protective exit or require re-entry.
-- Keep installation and enablement separate from implemented/tested source. No operational change in this task.
+- Distinguish source/tests, installed/enabled assignments and observed operating behavior; the weekend
+  rollout verifies saved state and host operation, not a market-session touch or guaranteed fill.
 
 This direction follows the October 17 stock-level scope correction. Whole-account results remain
 background; no portfolio-wide cutoff, fixed profit target, noon sale or new-entry pause is selected.

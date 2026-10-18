@@ -11,7 +11,8 @@ cssclasses:
 **Narrow prospective extension (October 17, 2026):** [ADR-0090](0090-progressive-individual-profit-trailing.md)
 permits an explicit progressive-profit-protection successor assignment only. Original profiles, gates,
 source snapshots and history stay immutable. Treat adoption as a dated risk-rule intervention, not
-an uninterrupted original experiment. Implemented/tested; no assignments or enablement have run.
+an uninterrupted original experiment. The narrow successors are installed/assigned October 18;
+original profiles/history remain unchanged and off-session preservation checks pass.
 
 > [!summary] Decision
 > Create five fresh matched pairs of paper accounts, each account starting with CAD 1,000. One member

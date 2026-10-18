@@ -232,7 +232,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
-- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Accepted progressive stock protection; implemented/tested, disabled
+- [ADR-0090](0090-progressive-individual-profit-trailing.md) — Progressive stock protection enabled across 15 active paper portfolios; off-session preservation verified
 
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — Declining risk capacity, hard stops and profit-protection direction
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Preserve strategy and account risk rules across days and portfolio switches

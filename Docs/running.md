@@ -841,15 +841,20 @@ dotnet run --project TraderVI.WPF
 
 Keep the app open for future polling. Closing it, signing out, sleeping, or restarting the computer stops the in-process schedule. Version 1 does not install a Windows service or background task. The tracked-position monitor has manual ledger-reconciliation controls; its automatic actions remain database-only Ghost exits. The separate manual-buy ticket can submit an explicitly reviewed broker order and does not give this monitor automatic broker authority.
 
-## Progressive profit protection — implemented, disabled
+<a id="progressive-profit-protection--implemented-disabled"></a>
+
+## Progressive profit protection — installed and enabled
 
 [ADR-0090](adr/0090-progressive-individual-profit-trailing.md) is implemented/tested across Daily Shadow
-variants and Delphi Live, with recommendation/supported managed-account integration. It is **not installed,
-assigned or enabled** by the October 17 implementation task. V1/default flags stay false.
+variants and Delphi Live, with recommendation/supported managed-account integration. It is now installed
+and assigned to **all 15 active paper portfolios** (12 Shadow/three Live), with 37 holdings' protection
+preserved/initialized and post-start state verified. V1/default flags stay false. The running normal-path
+desktop uses the hash-verified installed Core. Weekend checks do not establish a market-session sale.
 
-Future rollout is an explicit operation: review/apply manual migration
-`20261017_043_AddProgressiveProfitProtection.sql`, install the reviewed binaries, then save/assign
+Future rollout remains an explicit operation: review required migration installation and binaries, then save/assign
 new versions with `UseProgressiveProfitProtection=true` under the existing pause/assignment controls.
+Migrations 043, 044 and 045 are installed; do not replay them. Migration 044 adds the narrow comparison
+guards and 045 compares canonical Live settings in their own serialization. No trigger is disabled.
 The Shadow schema-presence cache requires recreating its repository/app after installation. Do not
 deploy the DACPAC. Review retained holdings/pending sells and verify prospective operation before
 claiming coverage. This document does not authorize those operations.
@@ -875,7 +880,8 @@ its existing later-five-minute fill/friction model.
 
 Additional quote investigation remains deferred, not an added implementation gate. The existing TMX
 receipt contract lacks a bid market timestamp; at most 60 seconds since local receipt does not prove
-upstream freshness. No market/broker requests or SQL writes were used for implementation validation.
+upstream freshness. The rollout's native checks requested no market quotes or broker orders. Existing
+real TFSA execution prerequisites remain in force; paper enablement does not activate broker execution.
 
 ## Delphi Live — explicit paper-monitor activation
 
