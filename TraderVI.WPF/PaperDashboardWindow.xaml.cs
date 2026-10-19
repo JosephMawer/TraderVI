@@ -23,6 +23,7 @@ public partial class PaperDashboardWindow : Window
     private readonly PaperDashboardViewModel viewModel = new();
     private readonly DispatcherTimer timer;
     private readonly SemaphoreSlim cycleGate = new(1, 1);
+    private readonly BrokerSetupCycleBarrier brokerSetupCycles = new();
     private readonly CancellationTokenSource shutdown = new();
     private readonly PortfolioDisplayRefreshSchedule displayRefresh = new();
     private bool timerTickRunning;
@@ -37,7 +38,7 @@ public partial class PaperDashboardWindow : Window
 
     public PaperDashboardWindow()
     {
-        manualBuys = new(wealthsimple);
+        manualBuys = new(wealthsimple, brokerSetupCycles);
         InitializeComponent();
         DataContext = viewModel;
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
@@ -238,6 +239,8 @@ public partial class PaperDashboardWindow : Window
     private async void Timer_Tick(object? sender, EventArgs e)
     {
         if (timerTickRunning || shutdown.IsCancellationRequested) return;
+        using var cycle = brokerSetupCycles.TryBeginCycle();
+        if (cycle is null) return;
         timerTickRunning = true;
         try
         {
@@ -365,6 +368,8 @@ public partial class PaperDashboardWindow : Window
 
     private async Task RunMonitorCycleAsync(string source)
     {
+        using var scheduled = brokerSetupCycles.TryBeginCycle();
+        if (scheduled is null) return;
         if (!await cycleGate.WaitAsync(0))
             return;
 

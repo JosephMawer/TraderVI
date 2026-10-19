@@ -85,7 +85,10 @@ Corrected copy 71207c86 starts at 15:06, hashes/one responding owner/no authorit
 The next capture still fails generically; native inspection confirms no checkpoint file. A WPF-only
 stage/category diagnostic (nine focused checks/build pass, Core unchanged) is committed as a78f0810
 and verified running at 15:15 with one owner/no permission, packet or checkpoint. Next inspect the
-failing stage, then successful checkpoint/same-copy restart/native review before
+failing stage. The next native diagnostic is SQL 51413, a settings-lock timeout during reconciliation.
+A WPF-only barrier now sequences setup/enabled-host checks after active desktop paper cycles and
+defers new cycles during that work (199 focused checks/build pass; bounded wait; SQL fences/Core
+unchanged). Next install/verify native checkpoint, then same-copy restart/native review before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 

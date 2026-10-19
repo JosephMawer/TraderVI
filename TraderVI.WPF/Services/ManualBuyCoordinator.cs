@@ -21,13 +21,15 @@ public sealed partial class ManualBuyCoordinator : IDisposable
     private readonly WealthsimpleConnection connection;
     private readonly BrokerReconciliationWorkflow reconciliation;
     private readonly SemaphoreSlim orderGate = new(1, 1);
+    private readonly BrokerSetupCycleBarrier setupCycles;
     private bool reconciling;
     private ManualBuyWindow? window;
     private ManualSellWindow? sellWindow;
     public ManualSellViewModel Sells { get; }
-    public ManualBuyCoordinator(WealthsimpleConnection connection)
+    public ManualBuyCoordinator(WealthsimpleConnection connection, BrokerSetupCycleBarrier? setupCycles = null)
     {
         this.connection = connection;
+        this.setupCycles = setupCycles ?? new();
         journal = new ManualBuyFileJournal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "TraderVI", "Wealthsimple", "ManualOrders"), new WindowsManualBuyProtector());
         workflow = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);

@@ -140,8 +140,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   boundaries; nine focused checks/build pass, mapping-corrected Core unchanged.
 - [x] Install/verify staged diagnostic copy a78f0810 at 15:15:15 Toronto, PID 28564: normal prior
   closure, matching hashes/unchanged Core, one responding owner, absent permission/packet/checkpoint.
-- [ ] Identify/correct the remaining native failure using the staged diagnostic. No checkpoint
-  or qualification success may be inferred from the storage-mapping fix or passing offline tests.
+- [x] Identify SQL 51413 at reconciliation: EngineSettings lock wait timed out. Prepare WPF-only
+  local cycle/setup coordination without altering SQL fences or policies; five barrier cases/199
+  focused checks and WPF build pass, Core unchanged. Actual SQL owner was not inspected.
+- [ ] Install the coordinated copy and verify actual native capture. A local scheduling fix/offline
+  tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and

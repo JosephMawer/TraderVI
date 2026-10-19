@@ -166,7 +166,14 @@ read/validation/protected-save boundary and reports the safe error category/SQL 
 checks and WPF build pass; Core remains this mapping-corrected BFE24D07 build. The **a78f0810**
 checkpoint-diagnostic copy starts at **15:15:15 Toronto**, PID **28564**, after normal prior closure;
 matching hashes/one responding visible owner/absent permission, packet and checkpoint are verified.
-Next native retry for the actual failing stage before checkpoint/restart. Existing
+The next operator capture identifies **SQL 51413** during reconciliation: the 30-second
+EngineSettings application-lock wait failed. Code review shows desktop paper cycles hold shared
+settings leases while import saves require an exclusive fence; the actual SQL lock-owner session
+was not inspected. A WPF-only scheduling barrier is prepared: finish active scheduled/manual paper
+cycles, defer new cycles during setup/enabled-host work, preserve every SQL fence, and resume after
+success/failure/cancellation. Coordination wait is bounded at two minutes and does not cancel active
+paper work. Five barrier cases plus the focused set pass (**199**); WPF build passes, Core unchanged.
+Next install/retry checkpoint to verify the local contention fix; no native success is inferred. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

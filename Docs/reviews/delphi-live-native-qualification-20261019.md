@@ -21,7 +21,13 @@ The next native capture still reports an unexpected failure. Native existence in
 no checkpoint/packet/host permission was created. A separate WPF-only checkpoint diagnostic copy
 adds safe stage/category reporting across calendar, account/order reconciliation, baseline/continuation,
 storage, Normal/source review, validation and protected-save boundaries. Nine focused checks/build
-pass; the mapping-corrected Core SHA stays unchanged. Installation is verified above; native diagnostic retry is next.
+pass; the mapping-corrected Core SHA stays unchanged. Installation is verified above. The next
+operator diagnostic identifies **SQL error 51413 while reconciling native account history**. Its
+source is the 30-second EngineSettings lock wait, not a completed checkpoint. A WPF-only local
+scheduling barrier is prepared (five barrier cases/199 focused checks/build pass): finish active
+desktop paper cycles, defer new cycles during setup/enabled-host work, retain SQL fences and
+resume scheduling on disposal. Waiting is bounded at two minutes without cancelling active work.
+The actual SQL lock-owner session was not inspected. Next install/retry for native confirmation.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,
 then close normally/reopen this exact executable and Prepare first execution review. Preserve the

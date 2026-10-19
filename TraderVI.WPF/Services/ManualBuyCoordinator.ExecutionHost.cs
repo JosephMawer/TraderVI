@@ -86,8 +86,10 @@ public sealed partial class ManualBuyCoordinator
         try
         {
             // Default-off startup reads no SQL, broker or journal and creates no permission file.
-            if (executionHost is null && HostGrants().Read()?.Enabled != true)
+            if (HostGrants().Read()?.Enabled != true)
             { PresentExecution(new("Off", "Automatic trading off. No execution-host permission is enabled.", DateTimeOffset.UtcNow)); return; }
+            using var quiet = setupCycles.BeginSetup();
+            await quiet.WaitForIdleAsync(ct);
             await GetExecutionHost().PollAsync(available, ct);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
@@ -142,12 +144,21 @@ public sealed partial class ManualBuyCoordinator
             if (closed || !currentAccount() || !connection.IsConnected || connection.SessionRevision != revision)
                 throw new InvalidOperationException("The account or sign-in changed. Reopen setup using the current account.");
         }
-        async Task Run(Func<Task> action)
+        async Task Run(Func<Task> action, bool waitForPaperCycles = true)
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
             busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
-            try { await action(); }
+            try
+            {
+                using var quiet = waitForPaperCycles ? setupCycles.BeginSetup() : null;
+                if (quiet is not null)
+                {
+                    Stage("waiting for current desktop paper cycles to finish before account checks");
+                    await quiet.WaitForIdleAsync(lifetime.Token);
+                }
+                await action();
+            }
             catch (OperationCanceledException) { }
             catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; }
             catch (Exception error)
@@ -308,7 +319,7 @@ public sealed partial class ManualBuyCoordinator
             Stage("stopping the execution host");
             await StopExecutionCoreAsync(lifetime.Token);
             summary.Text = ExecutionStatus.Message;
-        });
+        }, waitForPaperCycles: false);
         dialog.Closing += (_, e) => { if (busy) e.Cancel = true; };
         dialog.Closed += (_, _) => { closed = true; lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
         dialog.Show(); await Run(Refresh); await completion.Task;

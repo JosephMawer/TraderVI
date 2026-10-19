@@ -600,3 +600,29 @@ Core/output manifest and no host permission, qualification packet or checkpoint.
 `checkpoint-diagnostic-switch-receipt.json`; manifest `checkpoint-diagnostic-working-copy-hashes.json`.
 Current copy is `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-working-copy/TraderVI.WPF.exe`.
 The actual underlying failure remains unlocated until the next native Capture result supplies its stage.
+
+## SQL 51413 and desktop scheduling coordination — October 19
+
+The next operator Capture reports **SQL 51413** while reconciling native broker history/cash/orders
+with saved history. The exact source is TradingControlRepository.FenceAsync: acquiring the
+TraderVI.EngineSettings application lock failed within its existing 30-second wait. Paper monitor,
+Shadow and Live cycles hold shared settings leases across evaluation/persistence; import saving
+requires exclusive access. This establishes the conflict mechanism, not which SQL session owned
+the lock at that instant. No server/lock DMV diagnostic or native SQL rehearsal is resumed.
+
+Mechanical host fix: a shared WPF cycle barrier counts scheduled/manual dashboard paper work.
+Execution setup and enabled-host polling first defer new desktop cycles, wait for active work to
+finish, then perform their existing broker/SQL operations. Scope disposal resumes scheduling on
+success, failure, cancellation or timeout. The wait is capped at two minutes; it never cancels active
+paper work. Default-off host polling still makes no new SQL/broker call and does not wait for paper
+cycles. Existing SQL fences remain authoritative against other processes; no lock timeout, mode,
+pause flag, order/risk policy or qualification rule changes. Stop host bypasses the paper-cycle wait.
+The agent creates no financial action.
+
+Five deterministic barrier cases cover all-active completion, new-cycle deferral, multiple scopes,
+idempotent release, cancellation, failure and bounded timeout/recovery. **199 focused checks pass**;
+WPF Release passes with existing compiler and cached Pkcs warnings. Runtime Core hash stays BFE24D07
+(full hash above); no full Core rerun is needed for this WPF-only change, and the earlier 2,614 pass/
+nine native skips retain their scope. Prepared output: `setup-cycle-working-copy/TraderVI.WPF.exe`.
+Logs: `setup-cycle-focused.log`, `setup-cycle-wpf-build.log`. Next reviewed normal execution-off
+copy switch, then actual checkpoint retry. Native lock clearance/capture success remain unverified.

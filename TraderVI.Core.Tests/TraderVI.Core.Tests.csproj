@@ -37,6 +37,7 @@
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerRiskSetupDiagnostic.cs" Link="Presentation\BrokerRiskSetupDiagnostic.cs" />
+    <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerSetupCycleBarrier.cs" Link="Presentation\BrokerSetupCycleBarrier.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveWatchlistScope.cs" Link="Presentation\DelphiLiveWatchlistScope.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioDisplayRefresh.cs" Link="Presentation\PortfolioDisplayRefresh.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveQuoteRow.cs" Link="Presentation\DelphiLiveQuoteRow.cs" />
