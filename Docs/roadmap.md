@@ -83,8 +83,9 @@ a four-column/three-constructor storage-readiness mapping bug. The narrow record
 readiness check (257 focused tests/WPF build pass; 2,614 full offline tests pass/nine native skips).
 Corrected copy 71207c86 starts at 15:06, hashes/one responding owner/no authority/checkpoint verified.
 The next capture still fails generically; native inspection confirms no checkpoint file. A WPF-only
-stage/category diagnostic (nine focused checks/build pass, Core unchanged) is prepared. Next install
-and inspect the failing stage, then successful checkpoint/same-copy restart/native review before
+stage/category diagnostic (nine focused checks/build pass, Core unchanged) is committed as a78f0810
+and verified running at 15:15 with one owner/no permission, packet or checkpoint. Next inspect the
+failing stage, then successful checkpoint/same-copy restart/native review before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 

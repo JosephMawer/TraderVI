@@ -1,12 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: first checkpoint capture still pending; automatic execution off.**
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\storage-shape-working-copy\TraderVI.WPF.exe`.
-Source correction **71207c86**; Core SHA-256
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\checkpoint-diagnostic-working-copy\TraderVI.WPF.exe`.
+Core correction **71207c86**, WPF diagnostics **a78f0810**; Core SHA-256
 `BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`.
-The corrected copy starts at **15:06:33 Toronto**, PID **73824**, after normal prior-process closure.
+The diagnostic copy starts at **15:15:15 Toronto**, PID **28564**, after normal prior-process closure.
 Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/storage-shape-switch-receipt.json`.
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
@@ -21,7 +21,7 @@ The next native capture still reports an unexpected failure. Native existence in
 no checkpoint/packet/host permission was created. A separate WPF-only checkpoint diagnostic copy
 adds safe stage/category reporting across calendar, account/order reconciliation, baseline/continuation,
 storage, Normal/source review, validation and protected-save boundaries. Nine focused checks/build
-pass; the mapping-corrected Core SHA stays unchanged. Installation/native diagnostic retry is next.
+pass; the mapping-corrected Core SHA stays unchanged. Installation is verified above; native diagnostic retry is next.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,
 then close normally/reopen this exact executable and Prepare first execution review. Preserve the

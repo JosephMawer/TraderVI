@@ -163,8 +163,10 @@ hashes/one responding owner/absent host permission, packet and checkpoint verifi
 next capture still reports an unexpected failure; native file-existence inspection confirms no
 checkpoint, packet or permission was created. A WPF-only staged diagnostic now covers every native
 read/validation/protected-save boundary and reports the safe error category/SQL number. Nine focused
-checks and WPF build pass; Core remains this mapping-corrected BFE24D07 build. The separate diagnostic
-copy is prepared. Next install/retry for the actual failing stage before checkpoint/restart. Existing
+checks and WPF build pass; Core remains this mapping-corrected BFE24D07 build. The **a78f0810**
+checkpoint-diagnostic copy starts at **15:15:15 Toronto**, PID **28564**, after normal prior closure;
+matching hashes/one responding visible owner/absent permission, packet and checkpoint are verified.
+Next native retry for the actual failing stage before checkpoint/restart. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

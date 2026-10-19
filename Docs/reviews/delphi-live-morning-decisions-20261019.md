@@ -591,3 +591,12 @@ the earlier 2,614 full Core pass/nine native skips retain their scope; no Core c
 Prepared copy: `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-working-copy/TraderVI.WPF.exe`.
 Logs: `checkpoint-diagnostic-tests.log`, `checkpoint-diagnostic-wpf-build.log`. Next switch under
 the existing execution-off startup scope, then operator native retry for the precise failure stage.
+
+WPF diagnostics committed as **a78f0810** and launched at **15:15:15 Toronto**, PID **28564**, after
+PID 73824 closes normally, including its idle modeless setup dialog. Existing closing/busy guards
+retain authority; no force-stop or extra user decision is needed for that normal closure. Native
+inspection confirms the exact diagnostic path, one responding visible desktop, matching unchanged
+Core/output manifest and no host permission, qualification packet or checkpoint. Receipt:
+`checkpoint-diagnostic-switch-receipt.json`; manifest `checkpoint-diagnostic-working-copy-hashes.json`.
+Current copy is `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-working-copy/TraderVI.WPF.exe`.
+The actual underlying failure remains unlocated until the next native Capture result supplies its stage.
