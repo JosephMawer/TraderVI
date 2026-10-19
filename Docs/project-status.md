@@ -1,36 +1,28 @@
 # TraderVI Project Status
 
-**UI design exploration, October 18, 2026:** the operator requested a fresh, clearer layout for
-Trading, Portfolios, Delphi and Delphi Live, with detailed drill-downs to follow. Two fictional-data
-concepts, Focus and Workspace, were prepared; the operator now selects Workspace and requests
-Trading's main layout first. Both Buy and Sell belong in the holding panel. A Trading-only refinement
-uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
-now accepts that arrangement and selects Performance first for the overview. The chosen overview is
-integrated into a full Trading concept with a placeholder strategy row; portfolio choice is explicitly
-deferred. Today is now the default with an Overall switch. Following the title/badge cleanup, the
-whole Main account / Example TFSA / Canadian dollars heading block is removed from the single-account
-draft and overview figures/spacing are compacted; currency remains beside figures. Net deposits are
-now removed from this overview, leaving account value/cash; cash-movement records/calculations are
-unchanged. The operator selects shares in the holding panel only. The concept now uses Stock, Position
-value, Open gain and Strategy status columns; a proposed panel refinement groups position facts before
-the strategy explanation, with both Buy/Sell below; the operator accepts that grouping. The next draft
-shows plain Hold/Sell reasons, rule evidence and next trigger/step, with missing data and submission
-state distinct. Repeated “saved strategy evaluation” wording is removed. A dropdown at the portfolio
-placeholder shows one selected fictional strategy and changes local table/panel examples together.
-Actual portfolio choice and real switch/review interaction remain deferred/open; no assignment changes.
-Daily performance source/
-calculation qualification and in-panel stock lookup remain open; fictional daily values are not native
-evidence. One Delphi Live
-engine runs the recorded original paper book plus two comparison books; comparison selection remains
-excluded by source/ADR-0068. This explanation adds no fresh SQL/host verification or changed family/AI
-contract. Source inspection distinguishes existing broker-reported return fields from
-unavailable complete gain calculated from local records; no fresh broker values were read.
-ADR-0068 retains the account-first boundary. All four concepts' fragment generation and script syntax checks pass; local-file
-browser inspection was blocked by browser security policy, so visual fit/interactions remain unverified.
-No WPF implementation, app build, SQL/model/market/broker operation or operational
-launch ran. Starting housekeeping was committed/pushed at `65956789`, including the earlier 184
-local commits; personal chat photos remain local/ignored. Existing operational dates/readiness are
-unchanged. [Design and next decision](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
+**Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
+Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
+The broker account now leads with compact Today/Overall performance, account value/cash, a strategy
+dropdown, four-column holdings and a selected holding panel containing shares, cost, decision/reason/
+next step and existing manual Buy/Sell commands. Repeated account headings and net deposits are omitted.
+Legacy recorded-account/recommendation tools remain available in a collapsed section.
+The dropdown opens the existing exact-source transition review and restores the actual selection when
+it closes. Current review support remains Delphi Live with comparison sources disabled; no wider family
+restriction or qualification change is agreed. Actual portfolio choice is still deferred.
+The operator accepts queuing old-strategy-only exits as checks allow, including at a loss, with current
+protection retained; shared holdings stay and required exits must reconcile before new buys (ADR-0079).
+Automatic switching/execution remains unfinished and disabled; no assignment or order was changed.
+Today remains unavailable until its daily source/calculation is qualified. Overall uses the broker's
+supplied amount/rate/period/as-of availability. Missing verified holding decisions are not called Hold;
+linked management records can explain planned exits and queued/pending/uncertain sales.
+.NET 10 WPF build and 194 focused tests pass. Four synthetic WPF renders at 1200/900/680 widths verify
+selection, command target, Today/Overall bindings and dropdown label, with no binding errors. Existing
+nullable and unused-variable compiler warnings remain; dependency audit was disabled for restore,
+so no fresh security assessment or full solution/SSDT qualification is claimed. Evidence and remaining
+limits are in the [implementation record](concepts/trading-workspace-redesign-draft.md#october-18-trading-only-implementation).
+This is source/offline validation, not installed or operational verification. No TraderVI host, SQL,
+market, model or broker workflow ran. Earlier HTML concepts retain their browser-preview limitation.
+Starting housekeeping was pushed at `65956789`; later design/implementation checkpoints remain local.
 
 **AI paper delivery / Dots saved-input trial, October 17, 2026:** the operator requested a
 remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation

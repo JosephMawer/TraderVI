@@ -43,6 +43,7 @@
     <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleConnection.Reconciliation.cs" Link="Presentation\WealthsimpleConnection.Reconciliation.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\ManualSellViewModel.cs" Link="Presentation\ManualSellViewModel.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleAccountViewModel.cs" Link="Presentation\WealthsimpleAccountViewModel.cs" />
+    <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleAccountViewModel.TradingWorkspace.cs" Link="Presentation\WealthsimpleAccountViewModel.TradingWorkspace.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerManagedStrategyViewModel.cs" Link="Presentation\BrokerManagedStrategyViewModel.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\ManualBuyTicketViewModel.cs" Link="Presentation\ManualBuyTicketViewModel.cs" />
   </ItemGroup>

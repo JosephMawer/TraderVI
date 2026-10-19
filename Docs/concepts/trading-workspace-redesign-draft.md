@@ -2,7 +2,7 @@
 
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
-- **October 18 visual redesign:** Workspace, Trading-first refinement, the overview/strategy/holdings-and-panel/activity arrangement, both Buy/Sell in the panel and **Performance first** are accepted. **Today** is the default with an **Overall** switch. Remove the account heading block and compact the overview figures/spacing. Portfolio choice stays deferred. Source qualification and desktop dimensions remain open; no new WPF implementation or operating change is authorized.
+- **October 18 redesign / implementation:** Workspace, the Trading arrangement, clear decision explanations, panel Buy/Sell and **Performance first** are accepted. **Today** is default with **Overall** selectable; redundant headings/net deposits are removed. The operator now authorizes Trading-only WPF implementation, built and offline-tested below. Actual portfolio choice, daily-return qualification and execution integration remain open; operational rollout is not authorized by the UI request.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -23,8 +23,9 @@ deployment. Conversation concepts remain illustrative; the WPF implementation re
 **Root goal:** understand the main account and independent paper strategies, inspect their evidence,
 and act deliberately with the existing account, risk and execution boundaries intact.
 
-This section is a draft, not a new accepted ADR or authorization to implement, deploy, migrate,
-train, collect market data or trade. Earlier accepted product behavior remains authoritative.
+This section preserves the design record. The later explicit request authorizes Trading-only UI
+implementation as recorded below; it does not authorize deploy/migration, training, collection,
+broker operations or trading. Earlier accepted product behavior remains authoritative.
 
 ### Current decision record
 
@@ -45,7 +46,9 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted panel grouping | Stock identity → position value/open gain → shares, average cost and saved price/time → strategy status/explanation → Buy/Sell. The operator says this looks good. |
 | Accepted explanation direction | Clearly explain why Hold or Sell; remove repeated “saved strategy evaluation” phrasing. Retain a compact actual check time and missing-data state. |
 | Accepted strategy control placement | One selected account strategy, shown as a dropdown where “Portfolio to be selected” was, as the entry point for manual portfolio/strategy switching. Exact portfolio choice remains deferred. |
-| Provisional explanation treatment | Decision → concrete reason/evidence → next exit trigger or next step; show order state separately from Sell. Current examples/thresholds are fictional, not selected rules. |
+| Accepted explanation treatment | Decision → concrete reason/evidence → next exit trigger or next step; show order state separately from Sell. Mock examples/thresholds remain fictional, not selected rules. |
+| Accepted switch clarification | Queue old-strategy-only exits as soon as existing trading checks allow, even at a loss; do not wait for the old strategy's normal signal. Shared holdings/protection remain; confirmed required exits reconcile before new buys. Only holdings managed by the old strategy are in this scope. |
+| Accepted implementation scope | Implement the agreed Trading UI only; leave other tabs/views/pages alone. This starts UI delivery, not automatic execution or operational rollout. |
 | Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
 | Open | Daily performance source/baseline/cash-flow/percentage qualification, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -117,6 +120,50 @@ family support and current comparison-selection exclusions remain unchanged. Thi
 display state only. Real assignment must retain the existing reviewed exact-version handover, account,
 order and protection contracts (ADRs 0079/0081/0085/0086); dropdown placement does not authorize immediate
 live assignment or an order. Detailed switch/review interaction remains to design.
+
+### October 18 Trading-only implementation
+
+The operator subsequently authorizes implementation in Trading and accepts queueing old-only exits
+when existing checks permit, including at a loss. This clarifies ADR-0079's existing handover: retain
+shared actual positions and established protection, confirm/reconcile required non-overlap sales, then
+permit fresh qualified entries within real available funds and risk limits. It does not wait for
+break-even or copy paper holdings/balances into the real account. Manual/unmanaged holdings remain
+outside implicit management (ADR-0085). No new throttling interval or partial-sale sizing rule is agreed.
+
+`WealthsimpleAccountPanel` implements the compact Performance-first summary, Today/Overall controls,
+four holdings columns, selected holding position/share/average-cost panel, decision/reason/next-step
+and the existing manual Buy more / Sell all commands together. The table stacks above the panel below
+860px. Current broker values retain their currency; snapshot retrieval is explicitly not market-price
+time. The top account heading and net deposits are omitted. Pending orders, connection, risk/import,
+manual-order history, stop/resume-buying and legacy reported-account tools remain accessible below.
+No shared style, navigation shell or other tab's source is changed.
+
+The dropdown loads the existing Delphi Live review catalogue and opens the selected portfolio's
+existing transition review. Unsupported comparison sources remain visible but disabled. If the requested
+source disappears, the review does not silently substitute another. Closing the preview restores the
+actual saved-selection display; it does not approve a strategy, create SQL writes or send orders.
+The existing preview's family limits are implementation limits, not a new restriction on the accepted
+all-family product direction. Gradual automatic switching and broader family execution remain unfinished.
+
+Today shows **Unavailable** because no daily account-return source/calculation is qualified. Overall
+uses the existing broker amount/rate with the supplied period and original as-of availability; retrieval
+time never substitutes for return valuation time. The fictional HTML values are not runtime defaults.
+The broker holding panel reads verified linked management records for exact security/symbol/quantity
+matches: planned required exits, queued intents, acknowledgements and uncertain sales have distinct
+states. Missing explicit current Hold/Sell results stay **Await decision**. This does not derive new
+signals or pretend the unintegrated execution host has evaluated current prices. Full native strategy
+decision/trigger presentation remains a source-integration dependency. Broker rows remain distinct from
+the separately scoped recorded gains available in the legacy recorded-account section.
+
+Validation: .NET SDK 10.0.401; focused WPF build passes; 194 account-reader/control/presentation tests
+pass, including six new workspace/decision tests. Four isolated synthetic WPF renders at 1200/900/680px
+exercise holding selection and exact Sell target, Today/Overall bindings and dropdown label with no
+binding errors; inspected wide and stacked layouts. Evidence is in ignored
+`artifacts/trading-workspace-20261018/` and `artifacts/ui-redesign-20261018/trading-*.log`.
+Known nullable-annotation compiler warnings and `MainWindow.xaml.cs`'s unused variable warning remain.
+Restore used `NuGetAudit=false`, so no fresh dependency-security assessment is claimed. Full solution/
+SSDT validation did not run. This offline fixture does not launch TraderVI or access SQL, broker,
+market services or models. The running app has not been rebuilt/restarted or operationally verified.
 
 ### Account gains and engine/portfolio clarification
 

@@ -20,7 +20,7 @@ public interface IWealthsimpleAccountSource : INotifyPropertyChanged
 }
 
 // Scheduling/presentation only; the host injects the shared reconciliation/history workflow.
-public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisposable
+public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly IWealthsimpleAccountSource source;
     private readonly TimeProvider clock;
@@ -43,6 +43,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
         this.source = source; this.clock = clock ?? TimeProvider.System;
         this.synchronize = synchronize; this.canSynchronize = canSynchronize ?? (() => true);
         ManagedStrategy = managedStrategy;
+        if (ManagedStrategy != null) ManagedStrategy.PropertyChanged += StrategyChanged;
         revision = source.SessionRevision;
         source.PropertyChanged += ConnectionChanged;
     }
@@ -57,6 +58,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
             if (ReferenceEquals(selected, value) || IsBusy || (value != null && !Accounts.Contains(value))) return;
             selected = value; Snapshot = null; PendingOrders = null; message = value == null ? "Choose a self-directed TFSA." : "Ready to load the selected TFSA.";
             ManagedStrategy?.Invalidate(true);
+            selectedHolding = null;
             TradeSyncStatus = "Trade synchronization has not checked this account selection.";
             Notify();
             if (value != null) _ = RefreshAsync();
@@ -83,6 +85,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
                 rowSnapshot = Snapshot;
                 holdingRows = Snapshot?.Holdings.Select(h => new WealthsimpleHoldingRow(h, Snapshot, source.SessionRevision)).ToArray() ?? [];
             }
+            foreach (var row in holdingRows) row.StrategyDecision = DecisionFor(row);
             return holdingRows;
         }
     }
@@ -231,6 +234,7 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
             activeRead?.Cancel();
             ManagedStrategy?.Invalidate(true);
             revision = source.SessionRevision; Accounts = []; selected = null; Snapshot = null; PendingOrders = null; attempted = false;
+            selectedHolding = null;
             failures = 0; nextRefresh = default;
             TradeSyncStatus = "Trade synchronization requires the current sign-in.";
             message = "Sign in with Wealthsimple to load your self-directed TFSA.";
@@ -243,11 +247,12 @@ public sealed class WealthsimpleAccountViewModel : INotifyPropertyChanged, IDisp
     {
         if (disposed) return;
         disposed = true; source.PropertyChanged -= ConnectionChanged; lifetime.Cancel(); lifetime.Dispose();
+        if (ManagedStrategy != null) ManagedStrategy.PropertyChanged -= StrategyChanged;
         ManagedStrategy?.Dispose();
     }
 }
 
-public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, WealthsimpleTfsaSnapshot? snapshot = null, long revision = 0)
+public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, WealthsimpleTfsaSnapshot? snapshot = null, long revision = 0) : INotifyPropertyChanged
 {
     public global::Core.WSTrade.Orders.ManualSellSelection? SellSelection { get; } = snapshot == null ? null :
         global::Core.WSTrade.Orders.ManualSellSelection.FromHolding(holding, snapshot, revision);
@@ -261,4 +266,15 @@ public sealed class WealthsimpleHoldingRow(WealthsimpleHolding holding, Wealthsi
     public string Value => holding.Value?.ToString() ?? "—";
     public string BookValue => holding.BookValue?.ToString() ?? "—";
     public string UnrealizedGain => holding.UnrealizedGain?.ToString() ?? "—";
+    private TradingHoldingDecision strategyDecision = TradingHoldingDecision.Describe(null, null);
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public TradingHoldingDecision StrategyDecision
+    {
+        get => strategyDecision;
+        internal set { if (value == strategyDecision) return; strategyDecision = value; PropertyChanged?.Invoke(this, new(nameof(StrategyDecision))); }
+    }
+    public string AverageCost => holding.Quantity > 0 && holding.BookValue is { } book
+        ? new WealthsimpleMoney(book.Amount / holding.Quantity, book.Currency).ToString() : "Unavailable";
+    public string ValueContext => snapshot == null ? "Snapshot time unavailable"
+        : $"Broker snapshot · {TradingAccountOverview.Local(snapshot.RetrievedAt.UtcDateTime)}; market-price time not supplied.";
 }

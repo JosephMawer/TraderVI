@@ -25,6 +25,7 @@ public partial class TradingRecommendationsView : UserControl
     private TradingReportedBuyRequest? buyRequest;
     private WealthsimpleAccountViewModel? broker;
     private WealthsimpleConnection? brokerConnection;
+    private bool loadingStrategyChoices;
     private Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcileAccount;
     public void InitializeWealthsimple(WealthsimpleConnection connection,
         Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null,
@@ -49,13 +50,36 @@ public partial class TradingRecommendationsView : UserControl
     public TradingRecommendationsView()
     {
         InitializeComponent();
-        BrokerPanel.ReviewTransitionRequested += async (_, _) => await Run(async () =>
+        BrokerPanel.ReviewTransitionRequested += async (_, _) =>
         {
-            if (broker == null || brokerConnection?.IsConnected != true) return;
-            var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
-            var candidates = TfsaLiveStrategySelection.Rank(portfolios);
-            new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount).ShowDialog();
-        });
+            var selected = BrokerPanel.RequestedStrategy;
+            try
+            {
+                await Run(async () =>
+                {
+                    if (broker == null || brokerConnection?.IsConnected != true) return;
+                    var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
+                    var candidates = TfsaLiveStrategySelection.Rank(portfolios);
+                    BrokerPanel.SetStrategyCandidates(candidates);
+                    new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount, selected?.Snapshot.PortfolioId).ShowDialog();
+                });
+            }
+            finally { BrokerPanel.ResetStrategySelection(); }
+        };
+        BrokerPanel.StrategyChoicesRequested += async (_, _) =>
+        {
+            if (loadingStrategyChoices || brokerConnection?.IsConnected != true) return;
+            loadingStrategyChoices = true;
+            long revision = brokerConnection.SessionRevision;
+            try
+            {
+                var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
+                if (brokerConnection.IsConnected && revision == brokerConnection.SessionRevision)
+                    BrokerPanel.SetStrategyCandidates(TfsaLiveStrategySelection.Rank(portfolios));
+            }
+            catch { BrokerPanel.SetStrategyChoiceError(); }
+            finally { loadingStrategyChoices = false; }
+        };
         Account.TextChanged += (_, _) => BrokerPanel.Visibility = string.Equals(Account.Text.Trim(), "TFSA", StringComparison.OrdinalIgnoreCase)
             ? Visibility.Visible : Visibility.Collapsed;
         Loaded += async (_,_) => await Run(async () =>

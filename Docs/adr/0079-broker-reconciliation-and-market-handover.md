@@ -23,6 +23,14 @@ The operator requested an implementation pass before the market open and accepte
    fills and reconciliation before enabling new buys. Overlapping holdings retain their actual shares
    and book value. This is the accepted future execution contract, not an enabled order path today.
 
+**October 18 clarification:** while implementing the Trading UI only, the operator confirms queuing
+old-strategy-only exits as soon as existing market/data/order checks allow, including at a loss, rather
+than waiting for the old strategy's normal exit signal. Retain shared holdings and current protection
+until confirmed sale/handover; required exits reconcile before incoming qualified buys. This concerns
+old-strategy-managed holdings, not implicit enrollment or liquidation of manual/unmanaged holdings.
+No new pacing interval, break-even requirement or partial-sale sizing policy is introduced. The new
+dropdown opens the existing read-only transition review; automatic switching/execution stays unfinished.
+
 ## Implemented reconciliation boundary
 
 The account screen has an explicit **Reconcile account…** action. It reads the owned, selected TFSA's

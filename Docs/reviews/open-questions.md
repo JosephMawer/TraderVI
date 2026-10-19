@@ -24,10 +24,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
   explanation; both Buy/Sell remain below. Explain why Hold/Sell without repeated “saved strategy
   evaluation” wording; retain actual check time and missing-data state.
 - **Accepted strategy control:** one selected strategy dropdown at the former portfolio placeholder
-  is the manual-switch entry point. Exact portfolio is deferred; real switch/review interaction remains
-  open under existing reviewed handover/protection contracts.
-- **Provisional explanation:** decision, concrete reason/evidence and next trigger/step; distinguish Sell
+  is the manual-switch entry point. The read-only transition review is now wired; exact portfolio is
+  deferred and real assignment/execution remains unfinished under existing handover/protection contracts.
+- **Accepted explanation:** decision, concrete reason/evidence and next trigger/step; distinguish Sell
   from submitted/sold. Fictional examples do not set thresholds or imply qualified real strategy choices.
+- **Accepted switching:** queue old-strategy-only exits when trading checks allow, even at a loss; keep
+  shared holdings/protection and reconcile required exits before buys. Manual/unmanaged stocks stay
+  outside implicit management. No new pacing or partial-sale rule is agreed.
+- **Implemented scope:** Trading-only WPF layout and dropdown-to-existing-transition-preview path;
+  other tabs unchanged. Build, 194 focused tests and four synthetic WPF renders pass. Automatic execution,
+  daily-return qualification, full verified Hold/Sell source integration and installed rollout remain open.
 - **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
   target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history
@@ -41,7 +47,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   portfolio choice. One engine/three paper portfolios is clarified again; keep that deferral while
   continuing the UI. Account results and paper results remain independent.
 - Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
-  No new ADR or implementation authorization follows from displaying concepts.
+  Displaying concepts alone grants no operating authority; the later explicit request authorizes Trading-only UI implementation.
 - [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
 
 ### Intraday gain retention (revisit soon)

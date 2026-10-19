@@ -216,6 +216,14 @@ as the entry point for manual switching; actual portfolio selection remains defe
 strategy review, ownership, protection and handover contracts remain (ADRs 0079/0081/0085/0086).
 The mock's dropdown changes local example state only; real switch/review interaction remains to design.
 No holding, valuation or execution behavior changes.
+The subsequent explicit request authorizes implementing this design in **Trading only**, leaving other
+tabs/views/pages alone. The operator confirms queuing old-strategy-only exits when checks allow, even
+at a loss; shared holdings/protection remain and required exits reconcile before new buys (ADR-0079).
+The first WPF increment connects the dropdown to the existing exact-source transition preview and
+keeps manual Buy/Sell commands in the selected holding panel. Today and unverified decisions remain
+unavailable; existing return and linked management facts retain their actual context. WPF build,
+194 focused tests and four synthetic renders pass. This does not enable automatic switching/trading
+or qualify/alter family/comparison support. See the linked implementation record for limits.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
 
 ## Review questions

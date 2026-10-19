@@ -81,7 +81,13 @@ facts before strategy explanation with both Buy/Sell below; this grouping is now
 requests clear Hold/Sell reasons without repeated “saved strategy evaluation” wording and one selected
 strategy dropdown at the portfolio placeholder for manual switching. The new draft uses decision/reason/
 evidence/next trigger, separate missing-data/order states and local fictional strategy changes across
-table/panel; explanation treatment and real switch/review interaction remain open under existing contracts.
+table/panel. The operator accepts the explanation and authorizes Trading-only implementation. They
+confirm queued old-only exits when checks allow, even at a loss; shared holdings/protection remain and
+required exits reconcile before buys. Trading WPF now contains the compact account overview, table/panel
+and dropdown-to-existing-transition-review path. Other tabs/shared styles are unchanged. Actual strategy
+assignment/execution remains unfinished; Today and missing verified decisions are unavailable rather
+than fictional runtime defaults. WPF build, 194 focused tests and four offline synthetic renders pass;
+full decision-source integration and native rollout remain open.
 Source/calculation qualification and proposed in-panel lookup remain open. Portfolio
 choice is explicitly deferred. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
@@ -89,12 +95,14 @@ Delphi Live preference stays context only; one engine/three independent paper po
 again, including the original book, comparison pair and current comparison-selection exclusion. No
 exact choice, changed eligibility or wider family/AI contract is agreed; no fresh SQL/host check ran.
 All four concept files' wrapper/script checks pass; browser local-file policy blocked visual inspection.
-No new WPF implementation/operating change is made; detailed views stay deferred.
+Trading-only WPF source is implemented/offline-tested; no operational host/SQL/broker/model/market
+workflow ran and no app restart was performed. Detailed views remain deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
 Source review point: this October 18 chat through the accepted arrangement, gains/performance request,
 explicit portfolio-choice deferral, Performance first/Today-default decisions, Overall switch, full account
 heading removal, compact overview figures/spacing, net-deposit removal and the accepted panel-only shares
-choice, accepted table/panel grouping and the clear-reason/strategy-dropdown request and draft.
+choice, accepted table/panel/explanations, Trading-only implementation authority, queued-exit clarification
+and the validated first WPF implementation. Operational activation is not inferred.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.

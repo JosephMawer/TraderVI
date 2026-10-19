@@ -21,19 +21,16 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
-**October 18 UI design track:** explore a fresh, clearer layout for Trading, Portfolios, Delphi and
-Delphi Live before detailed drill-downs. Workspace and Trading's main arrangement are selected;
-Performance first is now selected and integrated into the Trading concept. Both Buy/Sell controls
-belong in the holding panel. Portfolio choice is explicitly deferred; existing engine/family and
-comparison-selection contracts remain. Today is the default with an Overall option; the single-account
-concept now omits the whole account heading block and uses smaller figures/tighter overview spacing.
-Net deposits are removed from the overview. Shares are selected for the panel only; the four-column
-holdings concept and grouped position/strategy panel are accepted. A clear decision/reason/next-trigger
-draft and strategy dropdown are prepared; real switching must preserve existing review/handover contracts.
-Next review explanation treatment and switch interaction, then
-remaining Trading visual details and desktop dimensions before
-other screens. Daily performance source/calculation qualification remains an implementation dependency.
-Remaining-screen order and WPF implementation are still open.
+**October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
+operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
+Today/Overall performance, four-column holdings, selected holding Buy/Sell panel and strategy dropdown
+are in source; the dropdown opens the existing transition review. Other tabs remain unchanged.
+Queue old-strategy-only exits as checks allow, including at a loss, preserving shared holdings/protection;
+confirmed required exits reconcile before new buys. Execution/automatic switching remains unfinished.
+Next review the installed Trading layout under separate rollout authority, qualify daily performance
+and complete verified decision/strategy execution integration. Exact portfolio choice stays deferred;
+existing engine/family/comparison contracts remain. Remaining-screen order and detailed views stay open;
+do not redesign other screens during this bounded implementation pass.
 Existing operating priorities and execution prerequisites below remain.
 [Design draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).
 

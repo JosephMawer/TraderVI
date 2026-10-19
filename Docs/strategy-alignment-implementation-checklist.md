@@ -553,7 +553,13 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Accept the position/strategy panel grouping; request clear Hold/Sell reasons without repeated “saved strategy evaluation” wording.
 - [x] Prepare decision/reason/evidence/next-trigger examples, with Await data and submission state distinct; wrapper/script checks only.
 - [x] Agree one selected strategy dropdown at the portfolio placeholder for manual switching; wire local fictional table/panel context together.
-- [ ] Review explanation treatment and real switch/review interaction under existing account/protection/handover contracts; exact portfolio remains deferred.
+- [x] Accept explanation treatment and confirm queuing old-only exits when checks allow, including at a loss, with protection/shared holdings retained and required exits reconciled before buys.
+- [x] Authorize Trading-only WPF implementation; leave other tabs/views/pages unchanged.
+- [x] Implement compact Today/Overall overview, four-column holdings and selected holding manual Buy/Sell panel; retain missing facts as unavailable.
+- [x] Connect the strategy dropdown to the existing exact-source transition preview, with unsupported comparisons disabled and the actual selection restored after review.
+- [x] Validate .NET 10 WPF build, 194 focused tests and four synthetic renders/interaction checks with no binding errors; source/offline evidence only.
+- [ ] Review installed Trading layout under separate operational rollout authority; no restart or live verification ran.
+- [ ] Complete real switching/execution and qualified Hold/Sell source integration under existing account/protection/handover contracts; exact portfolio remains deferred.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
   availability before implementation claims. Missing Today must not display overall return as daily gain.
@@ -565,8 +571,8 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [ ] After the Trading refinement, refine the other screens' main layouts; their order is open.
 - [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
   consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.
-- [ ] After implementation is requested, validate the chosen WPF views offline and review any separate
-  operational rollout. No execution readiness or permission follows from choosing a layout.
+- [x] Validate this Trading implementation offline. Other screens and full execution integration remain
+  separate; no operational rollout or execution readiness follows from the UI implementation.
 
 The [existing workspace draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft)
 owns the decision record. Detailed views are deliberately sequenced after the main visual layout;

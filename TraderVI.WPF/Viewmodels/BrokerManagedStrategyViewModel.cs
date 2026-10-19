@@ -29,6 +29,8 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
         clock.GetUtcNow() >= checkedAt && clock.GetUtcNow() - checkedAt <= TimeSpan.FromMinutes(5);
     public bool CanStopBuying => CanChange && saved?.NewBuysStopped == false;
     public bool CanResumeBuying => CanChange && saved?.NewBuysStopped == true;
+    // Read-only presentation context. This property cannot approve an assignment or start execution.
+    public BrokerManagedSession? VerifiedSession => CanChange ? saved : null;
 
     public void Invalidate(bool clearSelection = false)
     {

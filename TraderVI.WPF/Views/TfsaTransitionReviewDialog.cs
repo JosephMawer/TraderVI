@@ -20,7 +20,8 @@ public sealed class TfsaTransitionReviewDialog : Window
 {
     public TfsaTransitionReviewDialog(Window owner, WealthsimpleConnection connection, WealthsimpleAccountViewModel account,
         IReadOnlyList<TfsaLiveStrategyCandidate> candidates,
-        Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountReconciliation>>? reconcile = null)
+        Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountReconciliation>>? reconcile = null,
+        Guid? selectedPortfolioId = null)
     {
         Owner = owner; Title = "Review TFSA strategy transition"; Width = 980; Height = 780; MinWidth = 700; MinHeight = 500;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -64,7 +65,10 @@ public sealed class TfsaTransitionReviewDialog : Window
         };
         connection.PropertyChanged += sessionChanged;
         Closed += (_, _) => { closed = true; connection.PropertyChanged -= sessionChanged; lifetime.Cancel(); lifetime.Dispose(); };
-        sources.SelectedItem = candidates.FirstOrDefault(c => c.Day.Return.HasValue);
+        sources.SelectedItem = selectedPortfolioId is { } id ? candidates.FirstOrDefault(c => c.Snapshot.PortfolioId == id)
+            : candidates.FirstOrDefault(c => c.SupportsCurrentPromotion);
+        if (selectedPortfolioId.HasValue && sources.SelectedItem == null)
+            status.Text = "The requested strategy is no longer available. Choose a current source; no replacement was selected automatically.";
         refresh.Click += async (_, _) =>
         {
             if (sources.SelectedItem is not TfsaLiveStrategyCandidate selected) return;

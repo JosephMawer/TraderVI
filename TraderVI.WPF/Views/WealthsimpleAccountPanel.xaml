@@ -1,94 +1,105 @@
 <UserControl x:Class="TraderVI.WPF.Views.WealthsimpleAccountPanel"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:TraderVI.WPF.Views"
- xmlns:services="clr-namespace:TraderVI.WPF.Services" Foreground="#E8EEF6">
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:views="clr-namespace:TraderVI.WPF.Views" xmlns:services="clr-namespace:TraderVI.WPF.Services" Foreground="#E8EEF6">
  <UserControl.Resources>
-  <Style x:Key="BrokerCellText" TargetType="TextBlock"><Setter Property="Margin" Value="8,7"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="TradingNumber" TargetType="TextBlock"><Setter Property="FontSize" Value="19"/><Setter Property="Margin" Value="0,4,0,0"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
+  <Style x:Key="TradingCell" TargetType="TextBlock"><Setter Property="Margin" Value="8,10"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="TradingPeriod" TargetType="RadioButton"><Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Margin" Value="10,0,0,0"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="TradingStrategyPicker" TargetType="ComboBox">
+   <Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Background" Value="#1A222D"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
+    <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+     <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#1A222D" BorderBrush="#52657B" BorderThickness="1" CornerRadius="5" Padding="10,8"><ContentPresenter/></Border></ControlTemplate></ToggleButton.Template>
+     <DockPanel><TextBlock DockPanel.Dock="Right" Text="▾" Foreground="#ADBBCC" Margin="12,0,0,0"/><TextBlock Text="{Binding SelectedItem.Label, RelativeSource={RelativeSource AncestorType=ComboBox}}" Foreground="#E8EEF6" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></DockPanel>
+    </ToggleButton>
+    <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False"><Border Background="#1A222D" BorderBrush="#52657B" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"><ScrollViewer MaxHeight="300" HorizontalScrollBarVisibility="Disabled"><ItemsPresenter/></ScrollViewer></Border></Popup>
+   </Grid><ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
  </UserControl.Resources>
- <Border Style="{StaticResource WorkspacePanel}">
-  <StackPanel>
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <StackPanel><TextBlock Text="TFSA" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="WEALTHSIMPLE · SELF-DIRECTED" Style="{StaticResource WorkspaceLabel}" Margin="0,4"/></StackPanel>
-    <Button Grid.Column="1" Content="Refresh Wealthsimple" Style="{StaticResource WorkspaceButton}" IsEnabled="{Binding CanRefresh}" Click="Refresh_Click" VerticalAlignment="Center"/>
-   </Grid>
-   <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="DisplayName" IsEnabled="{Binding CanSelect}" MinHeight="36" Margin="0,14,0,6" HorizontalAlignment="Left" MinWidth="300"/>
-   <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,18" AutomationProperties.LiveSetting="Polite"/>
-   <Border BorderBrush="#344354" BorderThickness="1" CornerRadius="5" Padding="12" Margin="0,0,0,18">
-    <StackPanel DataContext="{Binding ManagedStrategy}">
-     <TextBlock Text="Strategy management" FontSize="18" FontWeight="SemiBold"/>
-     <TextBlock Text="{Binding StrategyName}" Margin="0,6,0,2" FontWeight="SemiBold"/>
-     <TextBlock Text="{Binding Duration}" Style="{StaticResource WorkspaceLabel}"/>
-     <TextBlock Text="{Binding BuyingMode}" Margin="0,6,0,0" TextWrapping="Wrap"/>
-     <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,0" AutomationProperties.LiveSetting="Polite"/>
-     <WrapPanel Margin="0,10,0,0">
-      <Button Content="Stop new buys" IsEnabled="{Binding CanStopBuying}" Click="StopBuying_Click" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"
-       ToolTip="Save a stop on new automatic purchases. Existing sell rules and outstanding orders remain."/>
-      <Button Content="Resume buying" IsEnabled="{Binding CanResumeBuying}" Click="ResumeBuying_Click" Style="{StaticResource WorkspaceButton}"
-       ToolTip="Remove your saved buying stop. This does not clear risk holds or activate execution."/>
-     </WrapPanel>
+ <StackPanel>
+  <Border Style="{StaticResource WorkspacePanel}" Padding="18,14"><StackPanel>
+   <DockPanel LastChildFill="True">
+    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+     <RadioButton Content="Today" GroupName="AccountPerformance" IsChecked="True" Style="{StaticResource TradingPeriod}" Checked="Today_Checked"/>
+     <RadioButton Content="Overall" GroupName="AccountPerformance" IsChecked="{Binding ShowOverallPerformance, Mode=TwoWay}" Style="{StaticResource TradingPeriod}"/>
     </StackPanel>
-   </Border>
-   <TextBlock Text="{Binding TradeSyncStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,0,18" AutomationProperties.LiveSetting="Polite"/>
-   <UniformGrid Columns="3">
-    <StackPanel Margin="0,0,16,0"><TextBlock Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ValueText, FallbackValue=—}" FontSize="30" Margin="0,5"/></StackPanel>
-    <StackPanel Margin="0,0,16,0"><TextBlock Text="Cash · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding CashText, FallbackValue=—}" FontSize="24" Margin="0,5"/></StackPanel>
-    <StackPanel><TextBlock Text="Buying power · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding BuyingPowerText, FallbackValue=—}" FontSize="24" Margin="0,5"/></StackPanel>
-   </UniformGrid>
-   <UniformGrid Columns="2" Margin="0,14,0,20">
-    <StackPanel><TextBlock Text="{Binding ReturnPeriod}" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ReturnText, FallbackValue=Unavailable}" FontSize="21" Margin="0,5"/><TextBlock Text="{Binding ReturnAsOf}" Style="{StaticResource WorkspaceLabel}"/></StackPanel>
-    <StackPanel><TextBlock Text="Net deposits · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding NetDepositsText, FallbackValue=—}" FontSize="21" Margin="0,5"/><TextBlock Text="Deposits less withdrawals; not your TFSA contribution room." Style="{StaticResource WorkspaceLabel}"/></StackPanel>
-   </UniformGrid>
-   <TextBlock Text="Your Wealthsimple holdings" FontSize="20" FontWeight="SemiBold"/>
-   <TextBlock Text="{Binding HoldingsStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,10"/>
-   <DataGrid x:Name="HoldingsGrid" ItemsSource="{Binding Holdings}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow" MinHeight="85" MaxHeight="330" RowHeight="NaN">
-    <DataGrid.Columns>
-     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" ElementStyle="{StaticResource BrokerCellText}" Width="90"/>
-     <DataGridTextColumn Header="Name" Binding="{Binding Name}" ElementStyle="{StaticResource BrokerCellText}" Width="*" MinWidth="150"/>
-     <DataGridTextColumn Header="Shares / units" Binding="{Binding Quantity, StringFormat=0.########}" ElementStyle="{StaticResource BrokerCellText}" Width="110"/>
-     <DataGridTemplateColumn Header="Sell holding" Width="250">
-      <DataGridTemplateColumn.CellTemplate><DataTemplate>
-       <StackPanel Orientation="Horizontal" Margin="5,4" VerticalAlignment="Center">
-        <Button Content="Market sell all" Command="{x:Static views:ManualSellCommands.Market}" CommandParameter="{Binding SellSelection}"
-         ToolTip="{Binding SellAllToolTip}" ToolTipService.ShowOnDisabled="True" Style="{StaticResource WorkspaceButton}" Padding="9,6" Margin="0,0,7,0"/>
-        <Button Content="Limit sell…" Command="{x:Static views:ManualSellCommands.Limit}" CommandParameter="{Binding SellSelection}"
-         ToolTip="Open a limit-price ticket. Limit submission is not available yet." Style="{StaticResource WorkspaceButton}" Padding="9,6"/>
-       </StackPanel>
-      </DataTemplate></DataGridTemplateColumn.CellTemplate>
-     </DataGridTemplateColumn>
-     <DataGridTextColumn Header="Market value" Binding="{Binding Value}" ElementStyle="{StaticResource BrokerCellText}" Width="140"/>
-     <DataGridTextColumn Header="Book value" Binding="{Binding BookValue}" ElementStyle="{StaticResource BrokerCellText}" Width="140"/>
-     <DataGridTextColumn Header="Unrealized gain" Binding="{Binding UnrealizedGain}" ElementStyle="{StaticResource BrokerCellText}" Width="140"/>
-
-    </DataGrid.Columns>
-   </DataGrid>
-   <TextBlock Text="Market sell all sends the entire row's whole-share holding after fresh checks. The broker determines the execution price."
-    Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0"/>
-   <DockPanel Margin="0,10,0,0">
-    <views:MarketBuyButton DockPanel.Dock="Right" Origin="{Binding SelectedItem.BuyOrigin, ElementName=HoldingsGrid}" Content="Buy more…" Style="{StaticResource WorkspaceButton}" Margin="12,0,0,0" ToolTip="Open a manual ticket to buy additional shares of the selected holding. You choose the share quantity."/>
-    <TextBlock Text="{Binding SelectedItem.Symbol, ElementName=HoldingsGrid, StringFormat='Selected holding: {0}', FallbackValue='Select a holding to buy additional shares.'}" Style="{StaticResource WorkspaceLabel}" VerticalAlignment="Center"/>
+    <TextBlock Text="{Binding PerformanceLabel, FallbackValue=Today performance · CAD}" Style="{StaticResource WorkspaceLabel}"/>
    </DockPanel>
-   <TextBlock Text="Pending Wealthsimple orders" FontSize="20" FontWeight="SemiBold" Margin="0,20,0,0"/>
-   <TextBlock Text="{Binding OrdersStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,6,0,10"/>
-   <DataGrid ItemsSource="{Binding Orders}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" MinHeight="65" MaxHeight="220">
-    <DataGrid.Columns>
-     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
-     <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="65"/>
-     <DataGridTextColumn Header="Submitted shares" Binding="{Binding Quantity, StringFormat=0.########}" Width="145"/>
-     <DataGridTextColumn Header="Limit" Binding="{Binding LimitPrice}" Width="120"/>
-     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
-    </DataGrid.Columns>
-   </DataGrid>
-   <TextBlock Text="While signed in, completed broker trades are checked every two minutes and on Refresh. Supported trades update real positions and trade history together. Unresolved orders or conflicting records appear above. Automatic strategy trading remains off." Style="{StaticResource WorkspaceLabel}" Margin="0,14,0,0"/>
-   <WrapPanel Margin="0,14,0,0">
-    <Button Content="Manual buys…" Command="{x:Static views:ManualBuyCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"/>
-    <Button Content="Manual sells…" Command="{x:Static views:ManualSellCommands.Orders}" Style="{StaticResource WorkspaceButton}"/>
-    <Button Content="Reconcile account…" Command="{x:Static views:BrokerReconciliationCommands.Refresh}" CommandParameter="{Binding SelectedAccount}"
-     Style="{StaticResource WorkspaceButton}" Margin="10,0,0,0" ToolTip="Compare confirmed order history with current Wealthsimple holdings and save the result."/>
-    <Button Content="Import account history…" Command="{x:Static views:BrokerImportCommands.Open}" CommandParameter="{Binding SelectedAccount}"
-     Style="{StaticResource WorkspaceButton}" Margin="10,0,0,0" ToolTip="Preview the first database import; refresh saved broker history after linking the account."/>
-    <Button Content="Account risk setup…" Command="{x:Static services:BrokerRiskSetupCommands.Open}" CommandParameter="{Binding SelectedAccount}"
-     Style="{StaticResource WorkspaceButton}" Margin="10,0,0,0"/>
+   <WrapPanel Margin="0,8,0,0"><TextBlock Text="{Binding PerformanceAmount, FallbackValue=Unavailable}" FontSize="26"/><TextBlock Text="{Binding PerformanceRate}" FontSize="17" Margin="12,7,0,0"/></WrapPanel>
+   <TextBlock Text="{Binding PerformanceContext}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,0"/>
+   <UniformGrid Columns="2" Margin="0,16,0,0">
+    <StackPanel Margin="0,0,14,0"><TextBlock Text="Account value · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding ValueText, FallbackValue=—}" Style="{StaticResource TradingNumber}"/></StackPanel>
+    <StackPanel><TextBlock Text="Available cash · CAD" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding CashText, FallbackValue=—}" Style="{StaticResource TradingNumber}"/></StackPanel>
+   </UniformGrid>
+  </StackPanel></Border>
+  <Grid Margin="0,16,0,18"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <StackPanel Margin="0,0,18,0"><TextBlock Text="Strategy" Style="{StaticResource WorkspaceLabel}"/>
+    <ComboBox x:Name="StrategyPicker" MinHeight="36" Width="360" HorizontalAlignment="Left" DisplayMemberPath="Label" Style="{StaticResource TradingStrategyPicker}"
+     DropDownOpened="StrategyPicker_Opened" SelectionChanged="StrategyPicker_SelectionChanged" IsEnabled="{Binding CanRefresh}"
+     AutomationProperties.Name="Strategy to review for this account" ToolTip="Choose a strategy to review its transition. Selection does not activate trading.">
+     <ComboBox.ItemContainerStyle><Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Background" Value="#1A222D"/><Setter Property="IsEnabled" Value="{Binding IsSupported}"/><Setter Property="ToolTip" Value="{Binding Explanation}"/></Style></ComboBox.ItemContainerStyle>
+    </ComboBox>
+    <TextBlock x:Name="StrategyPickerStatus" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
+   </StackPanel>
+   <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="Automatic trading off"/><Button Content="Review switch…" Click="ReviewTransition_Click" IsEnabled="{Binding CanRefresh}" Style="{StaticResource WorkspaceButton}" Padding="10,6" Margin="0,6,0,0"/></StackPanel>
+  </Grid>
+  <Grid x:Name="HoldingsWorkspace"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition x:Name="HoldingsColumn" Width="*"/><ColumnDefinition x:Name="HoldingPanelColumn" Width="290"/></Grid.ColumnDefinitions>
+   <StackPanel x:Name="HoldingsTable" Margin="0,0,18,0">
+    <TextBlock Text="Your holdings" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding HoldingsStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,10"/>
+    <DataGrid x:Name="HoldingsGrid" ItemsSource="{Binding Holdings}" SelectedItem="{Binding SelectedHolding, Mode=TwoWay}"
+     AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
+     MinHeight="95" RowHeight="NaN" FontSize="12" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Account holdings, amounts include currency">
+     <DataGrid.CellStyle><Style TargetType="DataGridCell"><Setter Property="Foreground" Value="#E8EEF6"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="DataGridCell"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"><ContentPresenter VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
+      <Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#233C56"/></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="#9BCAFF"/><Setter Property="BorderThickness" Value="1"/></Trigger></Style.Triggers>
+     </Style></DataGrid.CellStyle>
+     <DataGrid.RowStyle><Style TargetType="DataGridRow"><Setter Property="Background" Value="#11151B"/><Setter Property="Foreground" Value="#E8EEF6"/><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#233C56"/><Setter Property="Foreground" Value="#E8EEF6"/></Trigger></Style.Triggers></Style></DataGrid.RowStyle>
+     <DataGrid.Columns>
+      <DataGridTemplateColumn Header="Stock" Width="*" MinWidth="100"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Margin="8,10"><TextBlock Text="{Binding Symbol}" FontWeight="SemiBold"/><TextBlock Text="{Binding Name}" FontSize="11" Foreground="#ADBBCC" TextWrapping="Wrap"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+      <DataGridTextColumn Header="Position value" Binding="{Binding Value}" ElementStyle="{StaticResource TradingCell}" Width="120"/>
+      <DataGridTextColumn Header="Open gain" Binding="{Binding UnrealizedGain}" ElementStyle="{StaticResource TradingCell}" Width="110"/>
+      <DataGridTextColumn Header="Strategy status" Binding="{Binding StrategyDecision.Status}" ElementStyle="{StaticResource TradingCell}" Width="125"/>
+     </DataGrid.Columns>
+    </DataGrid>
+    <TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite"/>
+    <Expander Header="Recent account activity" Foreground="#E8EEF6" IsExpanded="True" Margin="0,18,0,0"><StackPanel Margin="0,8"><TextBlock Text="{Binding TradeSyncStatus}" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding OrdersStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0"/></StackPanel></Expander>
+   </StackPanel>
+   <Border x:Name="HoldingPanel" Grid.Column="1" Style="{StaticResource WorkspacePanel}" Padding="16" VerticalAlignment="Top"><StackPanel>
+    <TextBlock Text="Selected holding" Style="{StaticResource WorkspaceLabel}"/>
+    <StackPanel DataContext="{Binding SelectedHolding}" Margin="0,7,0,0">
+     <TextBlock Text="{Binding Symbol, FallbackValue=Select a holding}" FontSize="21" FontWeight="SemiBold"/><TextBlock Text="{Binding Name}" Style="{StaticResource WorkspaceLabel}" Margin="0,3,0,14"/>
+     <TextBlock Text="Position value" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Value, FallbackValue=—}" Style="{StaticResource TradingNumber}"/>
+     <TextBlock Text="{Binding UnrealizedGain, StringFormat='Open gain · {0}'}" Style="{StaticResource WorkspaceLabel}" Margin="0,4,0,12"/>
+     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+      <TextBlock Text="Shares held" Style="{StaticResource WorkspaceLabel}"/><TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat=0.########}"/>
+      <TextBlock Grid.Row="1" Text="Average cost" Style="{StaticResource WorkspaceLabel}" Margin="0,7,0,0"/><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding AverageCost}" Margin="0,7,0,0"/>
+     </Grid>
+     <TextBlock Text="{Binding ValueContext}" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,10,0,0"/>
+    </StackPanel>
+    <Border Background="#243244" CornerRadius="5" Padding="12" Margin="0,16,0,14"><StackPanel DataContext="{Binding SelectedDecision}">
+     <TextBlock Text="Strategy decision" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Status}" FontSize="17" FontWeight="SemiBold" Margin="0,4,0,5"/>
+     <TextBlock Text="{Binding Reason}" TextWrapping="Wrap"/><TextBlock Text="Next step" Style="{StaticResource WorkspaceLabel}" Margin="0,12,0,4"/><TextBlock Text="{Binding NextStep}" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Context}" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,10,0,0"/>
+    </StackPanel></Border>
+    <UniformGrid Columns="2"><views:MarketBuyButton Origin="{Binding SelectedHolding.BuyOrigin}" Content="Buy more…" Style="{StaticResource WorkspaceButton}" Padding="8,8" Margin="0,0,8,0"/>
+     <Button Content="Sell all" Command="{x:Static views:ManualSellCommands.Market}" CommandParameter="{Binding SelectedHolding.SellSelection}" ToolTip="{Binding SelectedHolding.SellAllToolTip}" ToolTipService.ShowOnDisabled="True" Style="{StaticResource WorkspaceButton}" Padding="8,8"/>
+    </UniformGrid>
+    <TextBlock Text="Sell all sends a market order after fresh checks. The execution price is set by the broker." Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,8,0,0"/>
+    <Expander Header="Other trade options" Foreground="#E8EEF6" Margin="0,10,0,0"><Button Content="Limit sell…" Command="{x:Static views:ManualSellCommands.Limit}" CommandParameter="{Binding SelectedHolding.SellSelection}" Style="{StaticResource WorkspaceButton}" Margin="0,6,0,0" ToolTip="Limit submission is not available yet."/></Expander>
+   </StackPanel></Border>
+  </Grid>
+  <Expander Header="Account connection and tools" Foreground="#E8EEF6" Margin="0,20,0,0"><StackPanel Margin="0,10">
+   <WrapPanel><ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="DisplayName" IsEnabled="{Binding CanSelect}" MinWidth="240" MinHeight="36" Margin="0,0,12,8"/><Button Content="Refresh Wealthsimple" Style="{StaticResource WorkspaceButton}" IsEnabled="{Binding CanRefresh}" Click="Refresh_Click" Margin="0,0,0,8"/></WrapPanel>
+   <TextBlock Text="{Binding BuyingPowerText, StringFormat='Buying power · {0}'}" Style="{StaticResource WorkspaceLabel}"/>
+   <StackPanel DataContext="{Binding ManagedStrategy}" Margin="0,10"><TextBlock Text="{Binding BuyingMode}"/><TextBlock Text="{Binding Duration}" Style="{StaticResource WorkspaceLabel}"/><TextBlock Text="{Binding Status}" Style="{StaticResource WorkspaceLabel}" Margin="0,5,0,0"/>
+    <WrapPanel Margin="0,8"><Button Content="Stop new buys" IsEnabled="{Binding CanStopBuying}" Click="StopBuying_Click" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,0"/><Button Content="Resume buying" IsEnabled="{Binding CanResumeBuying}" Click="ResumeBuying_Click" Style="{StaticResource WorkspaceButton}"/></WrapPanel>
+   </StackPanel>
+   <WrapPanel><Button Content="Manual buys…" Command="{x:Static views:ManualBuyCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Manual sells…" Command="{x:Static views:ManualSellCommands.Orders}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/>
+    <Button Content="Reconcile account…" Command="{x:Static views:BrokerReconciliationCommands.Refresh}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Import account history…" Command="{x:Static views:BrokerImportCommands.Open}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,10,8"/><Button Content="Account risk setup…" Command="{x:Static services:BrokerRiskSetupCommands.Open}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Margin="0,0,0,8"/>
    </WrapPanel>
-   <Button Content="Review TFSA strategy transition…" Click="ReviewTransition_Click" IsEnabled="{Binding CanRefresh}" Style="{StaticResource WorkspaceButton}" HorizontalAlignment="Left" Margin="0,14,0,0"/>
-  </StackPanel>
- </Border>
+  </StackPanel></Expander>
+  <Expander Header="Pending orders" Foreground="#E8EEF6" Margin="0,10,0,0"><StackPanel Margin="0,10"><TextBlock Text="{Binding OrdersStatus}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,0,8"/>
+   <DataGrid ItemsSource="{Binding Orders}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" MinHeight="65" MaxHeight="220"><DataGrid.Columns><DataGridTextColumn Header="Stock" Binding="{Binding Symbol}" Width="85"/><DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="65"/><DataGridTextColumn Header="Submitted shares" Binding="{Binding Quantity, StringFormat=0.########}" Width="145"/><DataGridTextColumn Header="Limit" Binding="{Binding LimitPrice}" Width="120"/><DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/></DataGrid.Columns></DataGrid>
+  </StackPanel></Expander>
+ </StackPanel>
 </UserControl>
