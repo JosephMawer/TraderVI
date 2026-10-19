@@ -99,6 +99,19 @@ and reconciliation path, not order submission, populated baseline/session recove
 The operator subsequently authorizes preparation of a manual order-verification sequence; execution
 of those orders remains theirs. [Detailed receipt and decisions](reviews/delphi-live-morning-decisions-20261019.md#supervised-working-copy-startup-and-manual-verification-preparation).
 
+**Manual verification preparation, October 19:** the authorized operator-executed sequence is
+[prepared for review](concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19).
+It adds return-to-cash after a test buy, before initial references. The new desktop explicitly selects
+the original two verified sale IDs instead of absorbing all same-day sales; it rejects unrelated,
+partial/conflicting, ambiguous or unmatched records. Early setup now correctly names the four native
+trial checks. **173 focused/2,573 full Core tests pass**, nine native skips; five synthetic UI renders
+and selection assertions pass without binding errors. WPF Release passes. An initial broader run had
+one five-second AI-host timeout; its seven tests and the full serial rerun pass, without AI changes.
+Existing compiler warnings/cached Pkcs security advisories remain separate; no fresh audit/full-solution
+or SSDT claim. A separate `order-review-working-copy` is built, not launched; the 10:52 copy remains
+running. The native packet/independent four-check qualification and actual financial setup are still
+unfinished. No real orders, baseline/grant, SQL rehearsal or memory change ran in this increment.
+
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
 The broker account now leads with compact Today/Overall performance, account value/cash, a strategy

@@ -81,8 +81,13 @@ returns are negative and no automatic-execution qualification follows. [Current 
   one link, zero baselines/continuations/managed revisions, enabled immutable triggers, max JSON column.
 - [x] Switch to the hash-verified prepared copy under separate startup authority, with host off;
   observe native setup and one clean reconciled import/trade-sync receipt in the 10:57 bounded read.
-- [ ] Prepare the authorized manual two-sale/buy/readback/return-to-cash verification route, preserve
-  the two original sale IDs through any additional test liquidation, and record its qualification limits.
+- [x] Prepare the authorized manual two-sale/buy/readback/return-to-cash verification route, preserve
+  the two original sale IDs through explicit selection, and record its qualification limits. 173 focused/
+  2,573 full tests pass, nine native skips; five synthetic renders and WPF Release pass. Separate
+  order-review copy built; not launched. Initial AI timeout passes focused/full-serial rechecks.
+- [ ] Review/switch to that updated copy under operational authority, then complete the independent
+  native proof/publication route before treating the manual sequence as a path to immediate activation.
+  Actual qualification orders and their outcomes remain operator actions, not completed tests.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

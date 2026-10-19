@@ -48,8 +48,7 @@ public sealed class BrokerSupervisedTrialEvidenceFileStore(string path, IManualB
         using (var stream = new FileStream(proofPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
         { stream.Write(proofBytes); stream.Flush(true); }
         var hash = Convert.ToHexString(SHA256.HashData(proofBytes));
-        var native = (prior?.Qualifications ?? []).Where(q => BrokerActivationReview.RequiredChecks.Contains(q.Check) &&
-            q.Check is not ("cash-events" or "opening-values")).ToImmutableArray();
+        var native = (prior?.Qualifications ?? []).Where(q => BrokerActivationReview.LimitedTrialNativeChecks.Contains(q.Check)).ToImmutableArray();
         var scoped = BrokerActivationReview.AdditionalScopedChecks.Where(c => c != "scoped-durable-recovery" ||
             native.Any(q => q.Check == "restart-recovery")).Select(c =>
                 new BrokerQualification(c, scope.BindingId, strategy.Fingerprint, now, hash, proofPath));

@@ -128,6 +128,12 @@ synchronization source. Preparation may append the normal reconciled account imp
 baseline, execution approval, host permission or order. Both holdings must already be fully sold,
 actual inventories empty and reviewed initial references present. Use the existing explicit Sell all
 controls for these first supervised sales; no new automatic opening-liquidation owner is added.
+After authorization to prepare a manual buy/readback verification, the subsequent desktop review
+allows explicit selection of the two original verified sale records. Any later test-position sale
+stays separate. The original request IDs/native facts must still match the baseline import; there
+is no latest-two or first-two heuristic and no change to the required financial/qualification checks.
+The [manual sequence](../concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
+is prepared for operator review, not submitted orders or native qualification.
 
 The review derives its purchase ceiling from actual cash/buying power, retains all six original
 checks for production/older scopes or four native plus five scoped checks for the explicitly flagged

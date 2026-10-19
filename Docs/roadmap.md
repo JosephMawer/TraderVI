@@ -54,8 +54,10 @@ the helper issues no execution proof. The 10:33 small
 storage read confirms empty setup tables/enabled triggers. Actual sales/setup and independent native
 proof remain prerequisites; no automatic trading is enabled. The separately approved prepared-copy
 startup and native setup screen are now observed at 10:52, with a reconciled account import checked
-at 10:57. Next prepare the operator-executed order-verification sequence and distinguish its original
-two sales from any test liquidation; native proof and actual financial setup remain prerequisites.
+at 10:57. The operator-executed verification sequence and explicit original-sale selection are now
+prepared/tested (173 focused/2,573 full, nine native skips; five UI renders). A separate updated copy
+awaits supervised switch. Next complete independent native proof/publication and review the manual
+sequence before any opening liquidation; actual financial setup/activation remain prerequisites.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

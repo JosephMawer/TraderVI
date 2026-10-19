@@ -186,7 +186,8 @@ public sealed partial class ManualBuyCoordinator
             if (baselineState.Import.Binding is null || baselineState.RiskHistory.ExistingBaseline is null)
             {
                 summary.Text = "The first execution review is blocked: reconcile the permanent account and save its reviewed initial risk references first. Both opening holdings must be fully sold before this cash-start approval.\n\n" +
-                    string.Join("\n", BrokerActivationReview.RequiredChecks.Select(c => BrokerFirstExecutionReviewPolicy.Label(c) + ": native qualification still required."));
+                    "The limited first-day trial still requires these four independent native checks, plus its scoped sale/reference/cash/recovery evidence:\n" +
+                    string.Join("\n", BrokerActivationReview.LimitedTrialNativeChecks.Select(c => BrokerFirstExecutionReviewPolicy.Label(c) + ": native qualification still required."));
                 return;
             }
             if (await executionSessions.ReadAsync(baselineState.Import.Binding.BindingId, lifetime.Token) is not null)
@@ -206,10 +207,15 @@ public sealed partial class ManualBuyCoordinator
                 var original = await new BrokerAccountImportRepository().FindAsync(baseline.ImportRequestId, lifetime.Token)
                     ?? throw new InvalidOperationException("Recover the exact import used by the saved initial risk baseline before trial preparation."); Check();
                 var continued = await new BrokerAccountRiskContinuationRepository(executionCalendar!).ReadAsync(baseline.BaselineId, lifetime.Token); Check();
-                var sales = journal.ReadSells().Where(s => s.Intent.IdentityId == original.Plan.Observation.IdentityId &&
-                    s.Intent.AccountId == original.Plan.Observation.AccountId &&
-                    DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == date &&
-                    s.Latest?.IsFilled == true && s.InventoryVerifiedAt <= original.Plan.Observation.SnapshotAt).ToImmutableArray();
+                var recordedSales = journal.ReadSells();
+                var candidates = BrokerSupervisedTrialPreparation.OpeningSaleCandidates(original.Plan.Observation, recordedSales, date);
+                if (candidates.Length < 2)
+                    throw new InvalidOperationException("Recover both original full-sale results and their verified empty inventories before the saved baseline. Trial preparation cannot invent missing sale records.");
+                var selectedIds = BrokerOpeningSalesReview.Select(dialog, candidates); Check();
+                if (selectedIds is null) { summary.Text = "Opening-sale selection cancelled. No trial scope, approval or order was created."; return; }
+                // Re-read rather than trusting the dialog's records if journal recovery occurred during review.
+                var sales = BrokerSupervisedTrialPreparation.SelectOpeningSales(original.Plan.Observation,
+                    journal.ReadSells(), date, selectedIds.Value);
                 var preparedScope = BrokerSupervisedTrialPreparation.Prepare(baseline, original, continued, sales,
                     Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow);
                 evidence = new BrokerSupervisedTrialEvidenceFileStore(ExecutionQualificationPath, new WindowsManualBuyProtector()).Prepare(

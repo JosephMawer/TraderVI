@@ -138,6 +138,68 @@ public sealed partial class BrokerManagedSessionTests
     private sealed class MutableTrialClock(DateTimeOffset value) : TimeProvider
     { internal DateTimeOffset Now = value; public override DateTimeOffset GetUtcNow() => Now; }
 
+    [Fact]
+    public void OperatorCanSelectOriginalSalesWithoutAbsorbingALaterVerificationLiquidation()
+    {
+        var (f, baseline, import, sales, calendar) = TrialFacts();
+        var testSale = sales[0] with { Intent = sales[0].Intent with { RequestId = Guid.NewGuid(),
+            Symbol = "CCC", SecurityId = "security-CCC", Quantity = 1 } };
+        testSale = testSale with { Observations = testSale.Observations.Select(o => o with {
+            SubmittedQuantity = 1, FilledQuantity = 1 }).ToImmutableArray() };
+        var anchor = import.Plan.Observation;
+        var testFact = anchor.Orders.First(o => o.ExternalId == "order-" + sales[0].Intent.RequestId.ToString("D")) with {
+            ExternalId = "order-" + testSale.Intent.RequestId.ToString("D"), Symbol = "CCC", SecurityId = "security-CCC",
+            SubmittedQuantity = 1, FilledQuantity = 1 };
+        anchor = anchor with { Orders = anchor.Orders.Append(testFact).ToArray() };
+        var journal = sales.Add(testSale);
+        var candidates = BrokerSupervisedTrialPreparation.OpeningSaleCandidates(anchor, journal, baseline.TradingDate);
+        Assert.Equal(3, candidates.Length);
+        var ids = sales.Reverse().Select(s => s.Intent.RequestId).ToImmutableArray();
+        var selected = BrokerSupervisedTrialPreparation.SelectOpeningSales(anchor, journal, baseline.TradingDate, ids);
+        Assert.Equal(ids.ToArray(), selected.Select(s => s.Intent.RequestId).ToArray());
+        Assert.DoesNotContain(selected, s => s.Intent.RequestId == testSale.Intent.RequestId);
+        import = import with { Plan = import.Plan with { Observation = anchor } };
+        var scope = BrokerSupervisedTrialPreparation.Prepare(baseline, import, f.Risk, selected, "synthetic", calendar, f.Now);
+        Assert.True(scope.OpeningSalesVerified); Assert.Equal(ids.ToArray(), scope.OpeningSales.Select(s => s.Intent.RequestId).ToArray());
+        Assert.Null(f.Store.State); Assert.Equal(0, f.Transport.Sent);
+    }
+
+    [Theory]
+    [InlineData("one")][InlineData("duplicate selection")][InlineData("unknown")][InlineData("duplicate journal")]
+    [InlineData("same holding")][InlineData("other account")][InlineData("other identity")][InlineData("other day")]
+    [InlineData("partial")][InlineData("unverified inventory")][InlineData("later inventory")]
+    [InlineData("native fact missing")][InlineData("native fact differs")][InlineData("conflict")]
+    public void OriginalSaleSelectionRejectsUnverifiedOrAmbiguousRecords(string change)
+    {
+        var (f, baseline, import, sales, _) = TrialFacts();
+        var ids = sales.Select(s => s.Intent.RequestId).ToImmutableArray();
+        if (change == "one") ids = ids.RemoveAt(1);
+        if (change == "duplicate selection") ids = ids.SetItem(1, ids[0]);
+        if (change == "unknown") ids = ids.SetItem(1, Guid.NewGuid());
+        if (change == "duplicate journal") sales = sales.Add(sales[0]);
+        var first = sales[0];
+        if (change == "same holding") first = first with { Intent = first.Intent with {
+            SecurityId = sales[1].Intent.SecurityId, Symbol = sales[1].Intent.Symbol } };
+        if (change == "other account") first = first with { Intent = first.Intent with { AccountId = "other-account" } };
+        if (change == "other identity") first = first with { Intent = first.Intent with { IdentityId = "other-identity" } };
+        if (change == "other day") first = first with { Intent = first.Intent with { CreatedAt = f.Now.AddDays(-1) } };
+        if (change == "partial") first = first with { Intent = first.Intent with { Quantity = first.Intent.Quantity + 1 } };
+        if (change == "unverified inventory") first = first with { InventoryVerifiedAt = null };
+        if (change == "later inventory") first = first with { InventoryVerifiedAt = f.Now.AddSeconds(1) };
+        if (change == "conflict") first = first with { ConflictingObservation = true };
+        sales = sales.SetItem(0, first);
+        var anchor = import.Plan.Observation;
+        var externalId = "order-" + first.Intent.RequestId.ToString("D");
+        if (change == "native fact missing") anchor = anchor with { Orders = anchor.Orders.Where(o => o.ExternalId != externalId).ToArray() };
+        if (change == "native fact differs") anchor = anchor with { Orders = anchor.Orders.Select(o =>
+            o.ExternalId == externalId ? o with { NetValue = o.NetValue + 1 } : o).ToArray() };
+        if (change == "same holding") anchor = anchor with { Orders = anchor.Orders.Select(o =>
+            o.ExternalId == externalId ? o with { SecurityId = first.Intent.SecurityId, Symbol = first.Intent.Symbol } : o).ToArray() };
+        Assert.Throws<InvalidOperationException>(() => BrokerSupervisedTrialPreparation.SelectOpeningSales(anchor,
+            sales, baseline.TradingDate, ids));
+        Assert.Null(f.Store.State); Assert.Equal(0, f.Transport.Sent);
+    }
+
     [Theory]
     [InlineData(false)][InlineData(true)]
     public void TrialEvidencePublicationNeverManufacturesTheRemainingNativeQualifications(bool nativeProofPresent)

@@ -29,10 +29,12 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
         ["cash-events", "opening-values", "native-order-lifecycle", "strategy-evidence", "restart-recovery", "installed-storage"];
     public static ImmutableArray<string> AdditionalScopedChecks { get; } =
         ["supervised-no-transfer-cash", "scoped-initial-reference", "opening-native-sale-fills", "operator-supervised-trial", "scoped-durable-recovery"];
+    public static ImmutableArray<string> LimitedTrialNativeChecks { get; } =
+        RequiredChecks.Where(c => c is not ("cash-events" or "opening-values")).ToImmutableArray();
     // Only the separately approved first-session trial substitutes scoped cash/reference evidence.
     // Merely adding the older no-transfer scope retains every original production check.
     public static ImmutableArray<string> ChecksFor(BrokerNoTransferSessionScope? scope) => scope is null ? RequiredChecks :
-        (scope.LimitedFirstSessionTrial ? RequiredChecks.Where(c => c is not ("cash-events" or "opening-values")).ToImmutableArray()
+        (scope.LimitedFirstSessionTrial ? LimitedTrialNativeChecks
             : RequiredChecks).AddRange(AdditionalScopedChecks);
     [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => ChecksFor(NoTransferScope);
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);

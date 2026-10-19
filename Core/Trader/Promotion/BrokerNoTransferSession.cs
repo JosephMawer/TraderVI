@@ -22,16 +22,19 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     public bool LimitedFirstSessionTrial { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DateTimeOffset? PurchaseExpiresAt { get; init; }
-    public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 && OpeningSales.All(s => s.IsResolved &&
+    public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 &&
+        OpeningSales.All(s => IsVerifiedOpeningSale(s, CashOnlyAnchor)) &&
+        OpeningSales.Select(s => s.Intent.RequestId).Distinct().Count() == 2 &&
+        OpeningSales.Select(s => s.Intent.SecurityId).Distinct().Count() == 2;
+    internal static bool IsVerifiedOpeningSale(ManualSellRecord s, BrokerAccountReconciliation anchor) => s.IsResolved &&
         s.Latest?.IsFilled == true && s.Latest.FilledQuantity == s.Intent.Quantity &&
-        s.InventoryVerifiedAt <= CashOnlyAnchor.SnapshotAt &&
-        s.Intent.AccountId == CashOnlyAnchor.AccountId && s.Intent.IdentityId == CashOnlyAnchor.IdentityId && CashOnlyAnchor.Orders.Any(o =>
+        s.InventoryVerifiedAt <= anchor.SnapshotAt &&
+        s.Intent.AccountId == anchor.AccountId && s.Intent.IdentityId == anchor.IdentityId && anchor.Orders.Any(o =>
             o.ExternalId == "order-" + s.Intent.RequestId.ToString("D") && o.Side == "SELL" &&
             o.SecurityId == s.Intent.SecurityId && o.Symbol == s.Intent.Symbol && o.Currency == "CAD" && o.IsTerminal &&
             o.FilledQuantity == s.Intent.Quantity && o.SubmittedQuantity == s.Intent.Quantity &&
             o.NetValue == s.Latest.FilledNetValue?.Amount && o.GrossValue == s.Latest.FilledValue?.Amount &&
-            o.Fees == s.Latest.Fees?.Amount && o.Tax == s.Latest.TaxWithholding?.Amount)) &&
-        OpeningSales.Select(s => s.Intent.SecurityId).Distinct().Count() == 2;
+            o.Fees == s.Latest.Fees?.Amount && o.Tax == s.Latest.TaxWithholding?.Amount);
     public void Validate(ITsxSessionCalendar calendar)
     {
         ValidateAnchor();

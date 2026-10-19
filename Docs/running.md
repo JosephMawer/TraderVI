@@ -147,6 +147,11 @@ existing import workflow, reads the exact current Normal definition and reports 
 qualification. Both reviewed holdings must already be fully sold and initial risk setup saved.
 For the explicitly approved October 19 limited trial, preparation recovers the exact import referenced
 by that baseline and both original full-sale journal records, then writes protected scoped proof.
+The subsequent order-review copy asks the operator to identify those two original sales by their
+existing IDs; it never treats a later verification-position sale as a third opening holding.
+The [prepared manual verification sequence](concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
+includes returning the test purchase to cash **before** initial setup. Review its remaining native
+qualification/publication blockers before choosing to trade; preparing that sequence sends no orders.
 It replaces only production cash-event/opening-value checks; the other four native and five scoped
 checks remain. Missing independent proof leaves approval blocked. It never creates a baseline or
 issues native qualifications. Purchase permission ends at the reviewed close, with no next-day buys;

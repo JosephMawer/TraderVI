@@ -4,6 +4,12 @@ The operator requests autonomous implementation overnight, coherent local commit
 copy to review before Monday, October 19. Actual TFSA activation remains the operator's action.
 This record distinguishes completed software from installed or natively verified trading behavior.
 
+**Latest awake continuation:** native prepared-copy startup/reconciliation is observed; host off.
+The manual verification sequence and an updated original-sale-selection copy are prepared/tested,
+but that updated copy is not launched. Four native checks/the reviewed packet and actual financial
+setup still block activation. See the final sections for current evidence; earlier entries retain
+their dated limits and the October 19 trial amendment supersedes only cash/opening qualifications.
+
 ## Decisions made during preparation
 
 | Decision | Reason and morning review point |
@@ -300,3 +306,41 @@ selection of those original records, preserving their request IDs, before this s
 The remaining native qualification packet and unobserved partial/uncertain paths remain blockers,
 not silently approved by manual full fills. Do not ask the operator to liquidate merely to discover
 these unresolved prerequisites afterward.
+
+## Prepared manual sequence and original-sale selection
+
+The [operator runbook](../concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
+now includes the two requested full sales, one operator-selected one-share buy/readback, same-ID
+manual recovery after a normal restart, then explicit sale/reconciliation of the test holding before
+cash-only initial setup. The additional test sale is presented for operator review, not submitted or
+authorized by the agent. No instrument is selected. This adds actual costs/price exposure if the
+operator chooses to execute it. Full-fill/readback would not qualify unobserved partial/uncertain/
+power-loss paths, strategy performance or populated engine recovery. The missing independent four
+checks and reviewed packet/publication route remain explicitly recorded before any liquidation.
+
+Implementation decision: show all matching native full-sale candidates and require the operator to
+identify the original two by symbol, quantity, time and request ID. Re-read/validate the journal after
+selection; never guess the first/latest two or count a test liquidation as an original holding.
+Only same-account/identity/session full fills, inventory verified before the original baseline, and
+matching native quantities/net/gross/fees/tax are eligible. Ambiguous IDs and duplicate holdings block.
+Selection creates no financial reference, approval or order. Existing saved scopes retain their
+original selections. Early pre-baseline readiness now displays the same four native trial checks
+used by the review/producer, without changing production/older scope requirements.
+
+Validation: **173 focused/2,573 full Core tests pass**, nine native skips. The first broader test run
+had one five-second timeout in unchanged `AiReviewHostLoopTests.StopWaitsForInFlightWorkAndRejectsSecondOwner`;
+its seven focused tests then pass, as does the full rerun with a generated serial xUnit configuration.
+The original failed log is retained; no AI code/assertion/time limit changed. Five synthetic WPF
+renders check initial empty selection, exact original IDs, one/three/same-holding rejection and narrow
+layout; no binding errors. Visual inspection caught/fixed low-contrast row labels and added visible
+selection marks before the final renders. WPF Release builds with zero errors; existing compiler
+warnings and cached Pkcs NU1902/NU1903 advisories remain, with no fresh audit/full-solution/SSDT claim.
+Artifacts: `order-review-focused.log`, `order-review-full.log`, `order-review-ai-host-recheck.log`,
+`order-review-full-serial.log`, `order-review-wpf-build.log`, `order-review-ui-preview/`.
+
+Updated executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\order-review-working-copy\TraderVI.WPF.exe`.
+It is built, not launched. The older hash-verified morning working copy/PID 76640 remains the observed
+running copy; do not overwrite it. A supervised switch is separate because normal startup resumes
+paper/account services. No SQL rehearsal, memory change, financial authorization or order was run
+by the code/build/offline checks. Native activation remains NO-GO, not a promise that trading the
+manual sequence alone will complete every qualification.
