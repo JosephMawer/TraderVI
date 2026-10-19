@@ -5,7 +5,10 @@ explicitly approves the first-day acceptance contract below. The native checkpoi
 producer is implemented/tested; no actual packet, baseline, assignment or host grant is issued here.
 Prepared executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\native-review-working-copy\TraderVI.WPF.exe`.
 Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
-It is built, not launched at this checkpoint; the earlier `471ed130` copy is still running.
+Source is committed as **e054e88f**. It is launched at **12:07 Toronto** as PID **43132**, with one
+visible/responding TraderVI window and no host grant, actual qualification packet or checkpoint.
+The 12:08 bounded read verifies a clean new import/trade-sync receipt and empty execution setup.
+At 12:10 the existing manual-buy pause/financial-hold flags are clear; live tickets still recheck them.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual
@@ -106,6 +109,17 @@ counts remain zero. Receipt hash matches mailbox SHA-256
 receipt `artifacts/read-only-db/result-20261019T155420688Z-2ba701ee3b8b4d71a5eb7acb22ca8283.json`.
 This is current metadata only; actual saved-reference and order recovery remain manual prerequisites.
 No additional SQL test, migration, memory setting, actual financial approval or order was performed.
+
+The final copy's startup receipt is `artifacts/delphi-live-tfsa-20261018/native-review-switch-receipt.json`.
+At 12:08 its snapshot/import are 12:07:52.5967952/12:07:53.1528018, with no import/history/observation
+blocks and a matching trade-sync receipt. Baseline/continuation/managed counts remain zero. SQL
+receipt/query hash: `5C1352643283A945D56EDEF1705A360A52513DC4D3DFA510358A6BFFA266CBE9`;
+receipt `artifacts/read-only-db/result-20261019T160843924Z-3a218c43c4c9489aa3e39264356215d8.json`.
+At 12:10 the read-only equivalent of existing manual-buy pause/risk-memory selection finds zero
+global/Tracked pauses and no capital/daily-loss hold (no effective hold date). Query/receipt SHA-256
+`B142ACCF7DCD04253F973FC00D6FE63F1357C2190DF17D178DA686558DA2D81D` matches;
+receipt `artifacts/read-only-db/result-20261019T161031876Z-d9c66024d42f4acdbff351e0ff31365e.json`.
+These are current startup/control observations, not a future order preflight or completed qualification.
 
 The existing [manual runbook](../concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
 owns the fuller control names and observation limits. A manually completed trade is not permission

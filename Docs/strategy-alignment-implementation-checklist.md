@@ -105,7 +105,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
   resume/restart cannot release it or change the operator's saved buying mode/financial holds.
 - [x] Verify the new immutable-storage metadata predicate read-only at 11:54 with matching receipt
   hash; all three immutable triggers/max JSON columns present, setup counts still zero.
-- [ ] Switch to the built native-review copy, then collect actual manual trades/cash-only baseline,
+- [x] Switch to the final hash-verified native-review copy (e054e88f) at 12:07 Toronto; normal old
+  shutdown, one responding native desktop, no host grant/packet/checkpoint. Clean new import/empty
+  setup at 12:08 and existing pause/hold flags clear at 12:10, both bounded query hashes verified.
+- [ ] Collect actual manual trades/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and
   native partial/uncertain/power-loss qualification remain outside this first-day contract.

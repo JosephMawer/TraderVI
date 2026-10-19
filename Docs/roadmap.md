@@ -63,8 +63,9 @@ complete the approved native first-day route below before treating actual activa
 The subsequent explicit native first-day contract is accepted (ADR-0092): exact source/performance
 review with disclosed gaps, actual full-fill/manual normal-restart/reference/storage observations,
 and a durable automatic-order review hold on unsupported outcomes. Its checkpoint/nine-reference
-publisher and first-session-only proof restriction are implemented/tested in a separate unlaunched
-native-review copy. Next switch to that copy, then operator manual verification trades/cash-only
+publisher and first-session-only proof restriction are committed as e054e88f. The native-review copy
+is now running with execution off after the 12:07 switch; clean import/empty setup and existing
+pause/hold flags are checked at 12:08/12:10. Next operator manual verification trades/cash-only
 setup/checkpoint, normal restart and Prepare first execution review. Only actual matching evidence
 publishes the packet; financial approval and host enable remain separate. Broader production and
 unobserved native failure paths remain deferred. [Operator steps](reviews/delphi-live-native-qualification-20261019.md).

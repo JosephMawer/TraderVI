@@ -9,8 +9,9 @@ The manual verification sequence and updated original-sale-selection copy are pr
 the updated copy starts under separate authority at 11:21 Toronto with execution off and a clean
 startup import checked at 11:24. Four native checks/the reviewed packet and actual financial
 setup still block activation. The subsequent explicitly accepted native first-day contract now has a
-tested checkpoint/packet producer, but its actual observations remain pending in the separate unlaunched
-native-review copy. See the final sections for current evidence; earlier entries retain
+tested checkpoint/packet producer. The native-review copy now runs after the 12:07 switch, with
+execution off, clean startup reconciliation and clear existing pause/hold flags. Actual manual native
+observations remain pending. See the final sections for current evidence; earlier entries retain
 their dated limits and the October 19 trial amendment supersedes only cash/opening qualifications.
 
 ## Decisions made during preparation
@@ -428,3 +429,28 @@ Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
 It is built, not launched; current running copy remains the earlier order-review build. No actual
 manual qualification trades, saved baseline/checkpoint, native packet, financial approval or grant
 are created by the implementation. No new SQL test, migration, memory setting or real order ran.
+
+## Final native-review copy installed and running — 12:07 Toronto
+
+The software checkpoint is **e054e88f**. Under the already approved execution-off normal-startup
+scope, all three final manifest hashes match; PID 119176 closes normally, with no force-stop or
+second owner. The native-review executable starts at **12:07:35 Toronto** as PID **43132**. Native
+inspection confirms its exact path, one visible/responding TraderVI window and no host grant,
+qualification packet or today's native checkpoint. Previous output copies remain untouched. Receipt:
+`artifacts/delphi-live-tfsa-20261018/native-review-switch-receipt.json`. Freeze this exact executable
+for the operator checkpoint/restart; another build would need a new exact-implementation review.
+
+At **12:08**, the bounded installed SQL read finds the 12:07:52.5967952 snapshot and 12:07:53.1528018
+import, with no import/history/observation blocks and one matching trade-sync receipt. Baseline,
+continuation and managed-revision counts remain zero. Receipt/query SHA-256 matches
+`5C1352643283A945D56EDEF1705A360A52513DC4D3DFA510358A6BFFA266CBE9`.
+At **12:10**, a separate small read mirrors the manual-buy repository's global/Tracked pause and
+latest report/batch risk-memory selection: both pause counts zero, no capital/daily-loss hold and
+no effective hold date. SHA-256 `B142ACCF7DCD04253F973FC00D6FE63F1357C2190DF17D178DA686558DA2D81D`
+matches. This checks an existing-control blocker before liquidation; it does not replace fresh live
+ticket cash/quote/order checks. Receipt paths are in the [native review](delphi-live-native-qualification-20261019.md).
+
+The four native qualifications/actual packet are still **pending operator observations**, not
+declared complete. The installed app can collect/review/publish them under the accepted first-day
+contract after the exact manual sequence. No real order, baseline, checkpoint, financial approval
+or host grant was created by this startup/diagnostic work; SQL tests/memory changes remain paused.

@@ -129,7 +129,11 @@ without changing the operator's buying mode or financial holds. **205 focused/2,
 pass**, nine native skips; seven synthetic UI renders/WPF Release pass. Existing compiler warnings
 and cached Pkcs advisories remain; no fresh audit/full-solution/SSDT claim. At 11:54 the hash-verified
 bounded read confirms the immutable-storage predicate, with setup tables still empty. The separate
-`native-review-working-copy` is built, not launched. **Actual orders, saved baseline, checkpoint,
+`native-review-working-copy` is committed as **e054e88f** and starts at **12:07 Toronto**, PID 43132:
+hashes match, old instance closes normally, one responding desktop remains, no host grant/packet/
+checkpoint exists. The 12:08 hash-verified bounded read finds its clean new import/trade-sync receipt
+and empty setup. At 12:10 existing global/Tracked pauses and capital/daily-loss hold flags are clear;
+native tickets still recheck them. **Actual orders, saved baseline, checkpoint,
 post-restart observations and packet remain pending; execution is off.** General production/native
 failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 

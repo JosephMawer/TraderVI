@@ -12,6 +12,14 @@ management with preserved financial history, risk references, protection and ord
 
 ## Saved performance comparison
 
+**Subsequent October 19 native trial amendment:** the operator separately accepts disclosed
+performance gaps for the exact supervised first-day engineering trial after native full-fill,
+normal-restart, saved-reference/storage and current-source checks. Its checkpoint/nine-reference
+publisher is implemented/tested and the final native-review copy is running with execution off.
+Actual manual observations and packet are still pending. Production statistical readiness and
+unobserved native failure paths remain unqualified; the paper findings below are unchanged.
+[Current qualification route and exact operator steps](delphi-live-native-qualification-20261019.md).
+
 **October 19 resumed-work update:** the operator expressly approved a flagged limited first-session
 trial replacing only production cash-event/opening-value qualification with the two confirmed full
 sales, original saved cash-only baseline/import and exact cash/order reconciliation. The four other
