@@ -7,6 +7,7 @@ using Core.WSTrade.Accounts;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -174,6 +175,15 @@ public sealed partial class BrokerManagedSessionTests
         scoped = scoped with { Qualifications = scoped.RequiredQualificationChecks.Select(check => new BrokerQualification(
             check, f.Binding.BindingId, f.Strategy.Fingerprint, f.Now, Fixture.Hash, "Synthetic fixture only")).ToImmutableArray() };
         scoped.Validate(f.Project(), f.Now);
+        var packet = new BrokerExecutionQualificationBundle(f.Binding.BindingId, f.Strategy.Fingerprint,
+            f.ImplementationIdentity, review.Session, f.Now, f.Now.AddHours(1), "synthetic fixture", scoped.Qualifications, scope);
+        var reopened = JsonSerializer.Deserialize<BrokerExecutionQualificationBundle>(JsonSerializer.Serialize(packet))!;
+        reopened.Validate(f.Now); Assert.True(reopened.NoTransferScope!.OpeningSalesVerified);
+        var first = BrokerFirstExecutionReviewPolicy.Prepare(new(f.Strategy,
+            new(f.Strategy.PaperAccountId, "Synthetic Normal", "DelphiLive", "{}", ["Synthetic qualification only"]), f.Now.UtcDateTime, []),
+            f.Project(), reopened, f.ImplementationIdentity, f.Now);
+        Assert.True(first.CanApprove, string.Join("; ", first.Blocks)); Assert.Equal(11, first.Checks.Length);
+        Assert.Equal(1000m, first.PurchaseCeiling); // Actual buying power after both verified sales.
         Assert.Throws<InvalidOperationException>(() => (scoped with { NoTransferScope = scope with {
             CashOnlyAnchor = scope.CashOnlyAnchor with { AccountValue = 1101 } } }).Validate(f.Project(), f.Now));
         var incomplete = scoped with { Qualifications = scoped.Qualifications.Where(q => q.Check != "native-order-lifecycle").ToImmutableArray() };

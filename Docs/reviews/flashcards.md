@@ -1702,3 +1702,5 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Can software/testing settings be removed from the AI view without disabling their checks? **A:** Yes. The application still validates the full definitions; only explicitly approved fields are omitted from the model-facing view. Trading and data-quality settings remain. (ADR-0087)
 
 - **Q:** Does enabling the execution host approve a new strategy or clear stopped buying? **A:** No. It enables cycles only for the exact existing approved account/strategy/build. Saved buying mode, risk holds and original order IDs remain authoritative. (ADR-0092)
+- **Q:** Does a protected qualification file with matching hashes prove native broker behavior? **A:** No. Protection and hashes establish identity and integrity. Each referenced qualification must already come from independently reviewed native evidence; synthetic reports and checkboxes cannot replace it. (ADR-0092)
+- **Q:** Does saving the first execution approval start automatic trading? **A:** No. It saves the exact reviewed assignment after fresh checks. Host enable is separate; original orders, capital limits and holds still apply. (ADR-0092)

@@ -41,16 +41,26 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Test the default-off Core host and protected exact-assignment/build permission store: 117 focused
   session/opening/scope tests pass. This creates no actual host permission, session or order.
 - [x] Connect/test the host through the existing desktop poll/shared journal/gate and explicit
-  existing-assignment enable/full-stop controls; build an isolated morning copy. 127 focused tests,
-  2,518 full Core tests/eight native skips and five synthetic WPF renders pass. Copy is not launched.
+  existing-assignment enable/full-stop controls; build an isolated morning copy. Latest validation:
+  153 focused tests, 2,544 full Core tests/nine native skips and nine synthetic WPF renders pass.
+  Copy is not launched; the extra native risk-storage test passes separately under explicit opt-in.
 - [x] Rehearse Normal Live protection/stopped-mode SQL recovery in an isolated synthetic database,
   alongside exclusive leases/interrupted/uncertain saves. This sends no native broker orders.
 - [x] Verify current storage counts/immutable triggers read-only (23:51 Toronto, query hash checked).
 - [x] Rehearse native baseline save/readback and a two-event hold continuation with canonical risk
   tables/triggers in an isolated synthetic database; fix the discovered continuation column mapping.
   91 focused tests and one explicit native test pass. This qualifies persistence, not broker evidence.
-- [ ] Finish native boundary/cash-flow and cash/source/order qualification plus the first
-  execution review; the host setup screen starts only an already-approved assignment.
+- [x] Exercise cash-only Normal host activation, a source-bound purchase, actual-cost fill protection
+  and stopped-buy restoration after restart in one synthetic integration case (128 focused checks).
+  Its test/tracking is part of the subsequent first-review increment.
+- [x] Implement/test first cash-start Normal execution review, missing-qualification display, actual
+  capital ceiling, source/account/evidence rechecks and separate approval/host enable. The read-only
+  protected packet consumer creates no native qualifications. Expanded native SQL approval readback
+  and baseline/session recovery pass (two native tests); no actual account approval was created.
+- [ ] Complete independent native boundary/cash-flow, cash/source and broker lifecycle qualification
+  and install its reviewed evidence packet. Hashes/file protection cannot supply missing proof.
+  The complete native cash-effective/boundary producer and reviewed packet publication remain
+  unfinished production integration; the conditional first-day source is not their replacement.
 - [ ] Verify the scheduled Monday official input and exact current Normal policy observations when
   published. At 00:17 Toronto neither is available; older-policy observations cannot substitute.
 

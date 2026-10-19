@@ -1,6 +1,7 @@
 #nullable enable
 using Core.Db;
 using Core.Runtime;
+using Core.Trader;
 using Core.Trader.DelphiLive;
 using Core.Trader.Promotion;
 using Core.WSTrade.Accounts;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TraderVI.WPF.Views;
 
 namespace TraderVI.WPF.Services;
 
@@ -31,6 +33,9 @@ public sealed partial class ManualBuyCoordinator
     private static string HostGrantPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TraderVI", "Wealthsimple", "ManualOrders", "execution-host.dat");
     private BrokerExecutionHostGrantFileStore HostGrants() => new(HostGrantPath, new WindowsManualBuyProtector());
+    private BrokerExecutionQualificationBundle? ReadExecutionQualification(DateTimeOffset now) =>
+        new BrokerExecutionQualificationFileStore(Path.Combine(Path.GetDirectoryName(HostGrantPath)!, "execution-qualification.dat"),
+            new WindowsManualBuyProtector()).Read(now);
     public event EventHandler? ExecutionHostChanged;
     public BrokerExecutionHostStatus ExecutionStatus { get; private set; } = new("Off", "Automatic trading off. Review execution setup before enabling a host.", default);
 
@@ -112,22 +117,16 @@ public sealed partial class ManualBuyCoordinator
         if (IsSubmitting || !currentAccount()) return;
         var dialog = executionWindow = new Window { Owner = owner, Title = "Delphi Live Normal execution setup",
             Width = 800, Height = 650, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };
-        var body = new StackPanel { Margin = new Thickness(24) };
-        body.Children.Add(new TextBlock { Text = "Delphi Live Normal", FontSize = 26 });
-        body.Children.Add(new TextBlock { Text = "Review the installed host and approved assignment. Enabling the host is separate from strategy approval and account risk setup.",
-            TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,12,0,12) });
-        var summary = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,0,0,16) }; body.Children.Add(summary);
-        var refresh = new Button { Content = "Refresh readiness", Padding = new Thickness(12), Margin = new Thickness(0,0,0,8) };
-        var enable = new Button { Content = "Enable this reviewed execution host", IsEnabled = false, Padding = new Thickness(12), Margin = new Thickness(0,0,0,8) };
-        var stop = new Button { Content = "Stop execution host", Padding = new Thickness(12) };
-        body.Children.Add(refresh); body.Children.Add(enable); body.Children.Add(stop);
-        body.Children.Add(new TextBlock { Text = "Stop new buys remains a separate saved strategy control. Stop execution host stops all new strategy cycles after a running cycle finishes; original orders still require recovery.",
-            TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,14,0,0) });
-        dialog.Content = new ScrollViewer { Content = body, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        var panel = new BrokerExecutionSetupPanel(); dialog.Content = panel;
+        var summary = panel.Summary; var refresh = panel.Refresh; var first = panel.PrepareFirst;
+        var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         bool closed = false, busy = false; long revision = connection.SessionRevision;
         BrokerManagedSession? reviewed = null;
+        BrokerFirstExecutionReview? firstReview = null;
+        BrokerManagedSessionWorkflow? firstWorkflow = null;
+        string? qualificationFingerprint = null;
         void Check()
         {
             if (closed || !currentAccount() || !connection.IsConnected || connection.SessionRevision != revision)
@@ -136,22 +135,22 @@ public sealed partial class ManualBuyCoordinator
         async Task Run(Func<Task> action)
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
-            busy = executionEditing = true; refresh.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
+            busy = executionEditing = true; refresh.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try { await action(); }
             catch (OperationCanceledException) { }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; }
-            catch { if (!closed) summary.Text = "Execution readiness could not be verified. Saved permissions are unchanged; refresh to recover."; reviewed = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; }
+            catch { if (!closed) summary.Text = "Execution readiness could not be verified. Refresh to recover saved approval and permissions before retrying."; reviewed = null; firstReview = null; firstWorkflow = null; }
             finally
             {
                 busy = executionEditing = false;
-                if (!closed) { refresh.IsEnabled = stop.IsEnabled = true; enable.IsEnabled = reviewed is not null; }
+                if (!closed) { refresh.IsEnabled = first.IsEnabled = stop.IsEnabled = true; enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
             }
         }
         async Task Refresh()
         {
-            Check(); reviewed = null;
+            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token);
             var imports = await new BrokerAccountImportRepository().ReadAsync(lifetime.Token); Check();
             var lines = $"Storage: baseline {(storage.BaselineInstalled ? "installed" : "missing")}, continuation {(storage.ContinuationInstalled ? "installed" : "missing")}, session {(storage.SessionInstalled ? "installed" : "missing")}.\n";
@@ -164,7 +163,7 @@ public sealed partial class ManualBuyCoordinator
                 summary.Text = lines + "No strategy is approved to manage this account. Automatic trading remains off.\n\n" +
                     (baselines.RiskHistory.ExistingBaseline is null ? "Initial risk references have not been reviewed/saved.\n" : "Initial risk references exist; continuation still needs current qualification.\n") +
                     "First-session scope: both reviewed holdings must sell completely and usable cash must reconcile. Use the existing Sell all and Account risk setup controls; this window submits no opening sales.\n\n" +
-                    "Before activation, complete the verified cash/risk references, broker order, strategy-input, restart-recovery and storage checks. The strategy execution review is still required. Return here after that review to enable the exact approved assignment.";
+                    "Prepare first execution review to inspect the exact Normal source and required native qualifications. Approval is available only after those checks pass; host enable remains a separate action.";
                 return;
             }
             // Match using broker identity, not a display label or another signed-in account.
@@ -178,7 +177,62 @@ public sealed partial class ManualBuyCoordinator
                 $"Assignment state: {saved.Phase}\n\n{ExecutionStatus.Message}\n\n" +
                 "Enable only this reviewed assignment. Every subsequent cycle rechecks account, original orders, risk permission, source and protection. Missing native cash coverage stops new buys.";
         }
+        async Task PrepareFirst()
+        {
+            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
+            var baselineState = await new BrokerAccountRiskBaselineRepository().ReadAsync(lifetime.Token); Check();
+            if (baselineState.Import.Binding is null || baselineState.RiskHistory.ExistingBaseline is null)
+            {
+                summary.Text = "The first execution review is blocked: reconcile the permanent account and save its reviewed initial risk references first. Both opening holdings must be fully sold before this cash-start approval.\n\n" +
+                    string.Join("\n", BrokerActivationReview.RequiredChecks.Select(c => BrokerFirstExecutionReviewPolicy.Label(c) + ": native qualification still required."));
+                return;
+            }
+            if (await executionSessions.ReadAsync(baselineState.Import.Binding.BindingId, lifetime.Token) is not null)
+            { Check(); await Refresh(); return; }
+            Check(); _ = GetExecutionHost();
+            var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
+            var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(date, lifetime.Token); Check();
+            var normal = TfsaLiveStrategySelection.Rank(portfolios).Where(c => c.SupportsTransitionReview &&
+                c.Snapshot.ComparisonAccount?.Profile == PaperGateProfile.NormalV1).ToArray();
+            if (normal.Length != 1) throw new InvalidOperationException("The exact current Normal source is unavailable or ambiguous. Refresh its source before review.");
+            var exact = await new TradingPromotionRepository().ReviewBrokerAsync(normal[0].Snapshot.PortfolioId,
+                TradingStrategyFamily.DelphiLive, lifetime.Token); Check();
+            var evidence = ReadExecutionQualification(DateTimeOffset.UtcNow);
+            IBrokerRiskEvidenceSource risk = evidence?.NoTransferScope is { } scope
+                ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!) : new UnqualifiedBrokerRiskEvidenceSource();
+            var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal,
+                journal, orderGate, account, executionCalendar!, risk);
+            var projected = await components.AccountSource.SynchronizeAsync([], lifetime.Token); Check();
+            firstReview = BrokerFirstExecutionReviewPolicy.Prepare(exact, projected, evidence,
+                BrokerManagedSessionComposition.ImplementationIdentity, DateTimeOffset.UtcNow);
+            firstWorkflow = firstReview.CanApprove ? components.Workflow : null;
+            qualificationFingerprint = evidence is null ? null : BrokerAccountImport.Hash(evidence);
+            summary.Text = $"Exact strategy: {exact.Strategy.Strategy.Name}\nProfile: {exact.Strategy.GateProfile}\n" +
+                $"Current Normal source checked: {normal[0].Snapshot.UpdatedUtc.ToLocalTime():g}\n" +
+                $"Actual available purchase ceiling: {firstReview.PurchaseCeiling:N2} CAD\n" +
+                "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n" +
+                string.Join("\n", firstReview.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
+                "\n\n" + (firstReview.CanApprove ? "Review the actual capital and evidence above, then explicitly approve. Approval submits no order and leaves the host off."
+                    : "Approval blocked:\n" + string.Join("\n", firstReview.Blocks)) +
+                "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
+        }
         refresh.Click += async (_, _) => await Run(Refresh);
+        first.Click += async (_, _) => await Run(PrepareFirst);
+        approve.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); var prepared = firstReview?.Activation ?? throw new InvalidOperationException("Prepare the complete current execution review first.");
+            var currentEvidence = ReadExecutionQualification(DateTimeOffset.UtcNow);
+            if (currentEvidence is null || BrokerAccountImport.Hash(currentEvidence) != qualificationFingerprint)
+                throw new InvalidOperationException("Qualification evidence changed. Prepare the first execution review again.");
+            var current = await new TradingPromotionRepository().ReviewBrokerAsync(prepared.Strategy.PaperAccountId,
+                TradingStrategyFamily.DelphiLive, lifetime.Token); Check();
+            if (current.Strategy.Fingerprint != prepared.Strategy.Fingerprint || !current.Blocks.IsEmpty)
+                throw new InvalidOperationException("The exact strategy or its operational readiness changed. Prepare review again.");
+            await (firstWorkflow ?? throw new InvalidOperationException("No complete execution review is prepared.")).ApproveAsync(
+                new(prepared, Environment.UserName, "First supervised Delphi Live Normal TFSA session; actual available capital; no outside transfers or trades."), lifetime.Token);
+            Check(); await Refresh(); summary.Text += "\n\nExecution approval saved. No order was sent by approval; enable the reviewed host separately.";
+            BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+        });
         enable.Click += async (_, _) => await Run(async () =>
         {
             Check(); var selected = reviewed ?? throw new InvalidOperationException("Refresh the current approved assignment first.");

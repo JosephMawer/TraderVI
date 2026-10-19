@@ -21,11 +21,18 @@ records the accepted first-session scope. This note describes prepared software,
 5. Establish/read back actual initial risk references without resetting known history or holds. Keep
    the original six launch qualifications and require the additional scoped evidence. Complete the
    shared host, native lifecycle and storage checks before any operator-controlled activation.
+6. In Execution setup, prepare the first execution review. It shows the exact current Normal source,
+   actual available purchase ceiling and all native qualification references. Missing evidence means
+   NO-GO. Approve the completed review explicitly, then enable the reviewed host separately.
 
 The encrypted opening-plan store is immutable. Its stable IDs survive restart; progress belongs to
 the existing original-order journal and SQL receipts. Neither a saved plan nor a successful login
 means a sale was submitted or a strategy was activated. No real opening plan is installed in this
 increment, and no desktop execution loop consumes it.
+The simplest prepared first-day route therefore uses the existing two explicit Sell all actions,
+followed by account risk setup and the new first execution review. The first review is implemented;
+independently qualified native evidence and its installed packet are still required. A successful
+protected-file read or matching hash cannot supply missing native cash, boundary or order proof.
 
 ## What the no-transfer agreement means
 

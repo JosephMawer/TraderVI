@@ -142,8 +142,12 @@ qualification and first execution approval remain unfinished.
 
 Open the [morning working copy](reviews/delphi-live-morning-decisions-20261019.md#desktop-host-and-working-copy)
 after closing the old desktop instance. In Trading, **Execution setup…** reads readiness and an
-existing approved assignment. **Enable this reviewed execution host** is available only for a
-matching saved Normal/account/build; it does not create the first approval or any missing evidence.
+existing approved assignment. **Prepare first execution review** reconciles the account through the
+existing import workflow, reads the exact current Normal definition and reports each required native
+qualification. Both reviewed holdings must already be fully sold and initial risk setup saved.
+**Approve reviewed assignment** is enabled only for a complete compatible review; it rechecks source,
+evidence and account before saving through the existing SQL workflow. Approval sends no order.
+**Enable reviewed host** is a separate action for the matching saved Normal/account/build.
 No host permission is installed by this build. Default-off polling makes no host-driven SQL/broker
 request. A previously enabled exact permission resumes regular-session checks without clearing a
 stopped buying mode, risk hold or original order. Changed builds/assignments require review.
@@ -153,6 +157,14 @@ cycle, disables saved host permission and preserves the assignment/orders; **Sto
 the separate control that retains ordinary exit cycles. The setup view names missing references/
 approval and never treats login, installed tables or synthetic tests as native launch qualification.
 The built copy has no approved actual assignment yet; it is not ready for automatic TFSA orders.
+
+The read-only qualification consumer expects `execution-qualification.dat` beside the protected
+manual-order journal under `%LOCALAPPDATA%\TraderVI\Wealthsimple\ManualOrders`. It contains a
+Windows-protected `BrokerExecutionQualificationBundle` with exact binding/strategy/build/session,
+reviewer/time/expiry, native proof references and the optional first-day scope. Each evidence reference
+must be an absolute file path whose bytes match `EvidenceHash` (SHA-256). No UI or new tool issues
+this packet; an independently reviewed native qualification process is still required. Never populate
+it with synthetic tests, installed-table counts or operator checkboxes as substitutes for real proof.
 
 ## Broker account history import (source milestone, September 16)
 

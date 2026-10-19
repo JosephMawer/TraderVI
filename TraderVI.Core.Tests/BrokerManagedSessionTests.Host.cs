@@ -1,10 +1,13 @@
 #nullable enable
 using Core.Trader.DelphiLive;
+using Core.Trader;
 using Core.WSTrade.Accounts;
 using Core.Trader.Promotion;
 using Core.WSTrade.Orders;
 using System;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -163,6 +166,63 @@ public sealed partial class BrokerManagedSessionTests
         Assert.Same(correct, BrokerManagedSessionComposition.MatchAccount(saved, new[] { wrong, correct }));
         Assert.Throws<InvalidOperationException>(() => BrokerManagedSessionComposition.MatchAccount(saved, new[] { wrong }));
         Assert.Throws<InvalidOperationException>(() => BrokerManagedSessionComposition.MatchAccount(saved, new[] { correct, correct }));
+    }
+
+    [Fact]
+    public async Task CashOnlyNormalHostBuysFromItsOwnSignalAndProtectsTheActualFillAfterRestart()
+    {
+        var f = new Fixture(); UseNormalLive(f); f.Facts.Clear(); f.Cash = 1100;
+        f.Now = new(2026, 9, 23, 13, 40, 0, TimeSpan.Zero);
+        var reference = f.Risk.SessionReference with { EvidenceAt = f.Now.AddMinutes(-10) };
+        f.Risk = f.Risk with { Through = f.Now.AddMinutes(-10), SessionReference = reference, DrawdownReference = reference };
+        await f.Workflow().ApproveAsync(f.Approval(ongoing: true));
+        var grants = new HostGrants(); var host = Host(f, grants); await Enable(host, f);
+        await host.PollAsync(true); Assert.NotNull(f.Store.State!.ActivatedAt); Assert.Equal(0, f.Transport.Sent);
+
+        // Reuse the independently tested rising-market fixture, rebased to the reviewed session.
+        // Normal admission belongs to this exact account/policy; paper lifecycle is removed by Bind.
+        var market = TradingRecommendationTests.LiveInput();
+        var offset = f.Now.UtcDateTime.Date - market.EvaluatedUtc.Date;
+        var date = DateOnly.FromDateTime(f.Now.UtcDateTime);
+        DelphiLiveFiveMinuteSeries Rebase(DelphiLiveFiveMinuteSeries series) => new(series.Symbol, date,
+            series.SessionOpenUtc + offset, series.OperationalContinuityStartUtc + offset,
+            series.Bars.Select(b => new DelphiLiveFiveMinuteBar(b.ObservationId, b.Symbol, date,
+                b.StartUtc + offset, b.EndUtc + offset, b.Open, b.High, b.Low, b.Close, b.Volume,
+                b.ReceivedUtc + offset, b.Provider, b.SourceContractVersion, b.Disposition)));
+        var comparison = f.Strategy.Comparison!;
+        var observations = market.LiveInputs.Select(item =>
+        {
+            var source = item.Input; var daily = source.DailySetup!;
+            return BrokerLiveObservationPolicy.Bind(source with
+            {
+                BarEndUtc = source.BarEndUtc + offset, EvaluatedUtc = source.EvaluatedUtc + offset,
+                Stock = Rebase(source.Stock), Xiu = Rebase(source.Xiu), Policy = f.Strategy.Strategy.ReadLivePolicy(),
+                DailySetup = new DelphiLiveDailySetupQuality(daily.DelphiRunId, daily.CandidateId,
+                    f.Strategy.Strategy.Daily.StrategyVersionId, daily.CommonDelphiComposite, daily.SourceLenses) {
+                    ComparisonAdmission = new(comparison.AccountId, comparison.PairId, comparison.BatchId,
+                        comparison.Profile, Guid.NewGuid(), daily.DelphiRunId, f.Strategy.Strategy.Daily.StrategyVersionId,
+                        f.Strategy.Strategy.PolicyVersionId, comparison.EffectiveUtc) }
+            }, 1, f.Strategy.Strategy, comparison, false);
+        }).ToImmutableArray();
+        f.TransformInput = input => input with { FrozenRunId = market.FrozenRunId, Candidates = market.Candidates,
+            LiveInputs = observations, Quotes = [new("ABC", f.Now.UtcDateTime, f.Now.UtcDateTime.AddSeconds(1),
+                105m, 104.99m, 105.01m, "TmxQuoteFieldsV1")] };
+        f.Now = new(2026, 9, 23, 14, 2, 0, TimeSpan.Zero);
+        await host.PollAsync(true);
+        var order = Assert.Single(f.Store.State!.Orders);
+        Assert.Equal("BUY", order.Side); Assert.Equal("ABC", order.Symbol); Assert.Equal(1, f.Transport.Sent);
+        Assert.InRange(order.Quantity * order.ReferencePrice, 0.01m, f.Store.State.Approval.Review.PurchaseCeiling);
+
+        decimal actualPrice = 105.05m, netCost = order.Quantity * actualPrice;
+        f.Now = f.Now.AddSeconds(31);
+        f.Facts.Add(f.Fact(order.ExternalId, "ABC", "BUY", order.Quantity, netCost, f.Now)); f.Cash -= netCost;
+        await f.Workflow().StopNewBuysAsync(f.Binding.BindingId); f.Store.Restart();
+        await Host(f, grants).PollAsync(true);
+        var restored = f.Store.State!; var protection = Assert.Single(restored.Protection);
+        Assert.True(restored.NewBuysStopped); Assert.Equal(1, f.Transport.Sent);
+        Assert.True(Assert.Single(restored.Orders).Reconciled); Assert.Equal(netCost, restored.CommittedPurchaseCost);
+        Assert.Equal(actualPrice, protection.State.LiveProtection!.AveragePurchasePrice);
+        Assert.Equal(f.Now, protection.EstablishedAt); Assert.Equal(netCost, Assert.Single(restored.Account.Positions).CostBasis);
     }
 
     private sealed class HostClock(Fixture f) : TimeProvider { public override DateTimeOffset GetUtcNow() => f.Now; }

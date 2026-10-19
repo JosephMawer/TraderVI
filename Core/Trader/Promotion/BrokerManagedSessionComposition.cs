@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace Core.Trader.Promotion;
 
+public sealed record BrokerManagedSessionComponents(BrokerManagedSessionWorkflow Workflow, IBrokerManagedAccountSource AccountSource);
+
 /// <summary>Composition only. Creates no timer, performs no reads/writes and grants no execution authority.</summary>
 public static class BrokerManagedSessionComposition
 {
@@ -22,6 +24,13 @@ public static class BrokerManagedSessionComposition
             : throw new InvalidOperationException("The connected account does not uniquely match the approved assignment.");
     }
     public static BrokerManagedSessionWorkflow Create(IBrokerReconciliationSource accountReads,
+        IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
+        IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
+        WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
+        TimeProvider? time = null) => CreateComponents(accountReads, buyBroker, sellBroker, orders, observations,
+            sharedOrderGate, selectedAccount, calendar, riskEvidence, time).Workflow;
+
+    public static BrokerManagedSessionComponents CreateComponents(IBrokerReconciliationSource accountReads,
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
         WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
@@ -48,6 +57,6 @@ public static class BrokerManagedSessionComposition
             new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time);
         var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
             selectedAccount, sharedOrderGate, time);
-        return new(new BrokerManagedSessionRepository(), source, transport, time);
+        return new(new BrokerManagedSessionWorkflow(new BrokerManagedSessionRepository(), source, transport, time), source);
     }
 }

@@ -31,35 +31,37 @@ order, collection/training, application restart or push was performed by this se
 [Procedure and evidence limits](../Operations/ReadOnlyChecks/README.md), [ADR-0091](adr/0091-local-read-only-database-checks.md).
 
 **Delphi Live → TFSA preparation, October 18–19, 2026:** Normal remains the integration target;
-the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns the negative paper returns and
-evidence limits. Actual available capital after both reviewed full sales, no outside transfers/trades
-and stopping new buys on mismatch are accepted first-day constraints (ADR-0092), not launch waivers.
-Core Live source/protection and the default-off host are implemented/tested. The desktop now connects
-the existing 30-second poll, shared journal/gate/connection and SQL lease, with exact-assignment/build
-enable and sign-in-independent full host stop. Buying mode remains separate and preserved on restart.
-After the Codex restart, both fixed helpers run without prompts at 23:43 Toronto (exit 0); SQL query
-hash/scalar and bounded broker account/pending/daily success are checked. No broker mutations occur.
-At 23:51 the hash-verified SQL read finds one link, zero baselines/continuations/managed revisions and
-all three immutable triggers enabled; the configured reviewed calendar exists. The native session
-rehearsal now passes Normal Live protection/stopped-mode SQL readback plus lease/interruption/order
-recovery with synthetic transports, not native broker lifecycle or baseline/continuation saves.
-The subsequent baseline/continuation native rehearsal found and fixed an existing `SELECT *`
-record-mapping failure in continuation recovery. Canonical risk-table Save/Find/Read, a two-event
-hold chain, precise evidence, retained references/holds, retry identity and immutable triggers now
-pass in an isolated synthetic database (91 focused tests and one separate native test). Native
-boundary/cash-flow/source/order qualification remains separate; no actual baseline is created.
-127 focused tests pass; the full Core suite passes 2,518/eight native skips (serial collections).
-Release WPF builds, and five synthetic renders verify account command targets/status without binding
-errors. Existing compiler warnings and cached Pkcs advisories remain; no fresh audit/full-solution or
-SSDT qualification. The isolated working copy is built, not launched against the actual account.
-**Automatic trading is still off/NO-GO:** no real grant, opening plan, baseline, assignment or order
-has been created. First execution approval and native cash/source/order/risk qualification remain.
-The setup screen can enable an existing approval; it cannot create missing qualifications or the
-first assignment. [Morning decisions, working-copy path and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
-At 00:17 Toronto a hash-verified metadata read finds the exact Normal progressive successor but
-zero evaluations under its new policy, and no Monday official run/frozen session/evaluations yet.
-These pending off-hours inputs cannot be replaced with earlier-policy evidence. The existing
-overnight continuation is active again after explicit resume, with no new approval/decision prompts.
+the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns negative paper returns/evidence limits.
+Actual available capital after two full reviewed sales, no outside transfers/trades and stopping new
+buys on mismatch are accepted first-day constraints (ADR-0092), not qualification waivers.
+The default-off desktop host and first cash-start execution review are now implemented/tested.
+The review derives actual available capital, lists every required qualification, and saves approval
+only after exact source/evidence/account rechecks. Approval sends no order; enabling the exact
+approved account/strategy/build is separate. The host shares the existing timer/journal/gate/SQL lease
+and preserves buying mode, risk holds and original order IDs. Two explicit existing Sell all actions
+remain the simplest supervised opening; no new automatic-liquidation owner is installed.
+Latest validation: **153 focused/2,544 full Core tests pass**, nine native skips, plus **two explicit
+native SQL rehearsals pass** in retained synthetic databases. These cover first-review approval
+save/reopen, precise session/protection readback, leases/interrupted and uncertain saves, baseline
+persistence and hold-chain recovery. They found/fixed the existing continuation column-mapping bug.
+All broker/qualification facts in those rehearsals are synthetic. Nine offline WPF renders, including
+blocked/prepared/approved first-review states, pass without binding errors. Release builds pass with
+262 existing compiler warnings; cached Pkcs advisories remain separate. No fresh audit/full-solution
+or SSDT claim; no database schema or actual financial record is changed by this increment.
+The working copy is built for morning review, not launched against the actual account.
+**Automatic trading remains off/NO-GO.** No actual grant, opening plan, baseline, assignment or order
+has been created. An independently qualified native cash/boundary/source/order evidence packet is
+still absent; the new read-only protected consumer verifies references/hashes but issues no native
+qualification. The first review path is implemented; actual qualification and operator approval remain.
+The complete native cash-effective/boundary producer and qualified packet publication remain
+unfinished production software, alongside unobserved actual broker lifecycle paths. The conditional
+first-day reader cannot supply the original full-production qualifications. Morning activation is
+therefore not established by the prepared build.
+At 23:51 Toronto the hash-verified account-storage read finds one link, zero baselines/continuations/
+managed revisions and enabled immutable triggers. At 00:17 the exact Normal progressive successor
+has zero evaluations and no Monday official run/frozen session/evaluations yet; no later source
+availability is inferred. Helper launch successes and later PowerShell-wrapper approval prompts retain
+their separate scope. [Morning decisions, working copy, permission handling and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

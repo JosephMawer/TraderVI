@@ -81,7 +81,7 @@ It adds constraints; it does not waive the existing six launch qualifications. I
 operator's no-transfer agreement plus cash arithmetic is not a complete native cash-event feed.
 No real opening plan, queued sale, baseline, assignment or host permission is created. A default-off
 desktop host and existing-assignment enable/stop controls are now built/tested in an isolated copy;
-first execution approval and native risk/cash/source/order evidence remain unfinished.
+the first-review path is implemented, while actual qualification/approval and native risk/cash/source/order evidence remain unfinished.
 **Automatic TFSA management remains off/NO-GO.**
 
 ## Implemented and offline-tested
@@ -127,7 +127,7 @@ between a planned step, a durable order intent, a native fill and usable proceed
 3. **Qualify the prepared shared host operationally.** Core host and desktop enable/stop/poll
    integration now reuse the existing client, encrypted journal, account gate and SQL lease. The
    built morning copy remains off. It starts an existing approved assignment, not a missing first
-   review or opening liquidation. Finish that review/opening composition after native prerequisites.
+   review or opening liquidation. The subsequent first-review path is now implemented; two explicit existing Sell all controls remain the simplest supervised opening, followed by native qualification and actual approval.
    See the [morning record](delphi-live-morning-decisions-20261019.md) for current source/test evidence.
 4. **Complete native lifecycle qualification and a fresh activation review.** Real orders and
    activation remain operator-controlled actions; this agent does not submit them or enable an
@@ -144,6 +144,13 @@ liquidation instruction remain recorded; neither successful sign-in nor deadline
 qualification. A manual-order workflow is a separate, narrower capability.
 
 ## Validation and scope
+
+**Latest first-review increment:** 153 focused/2,544 full tests pass (nine native skips), plus two
+explicit isolated native SQL tests and nine synthetic WPF renders. First approval saves/reopens
+through native SQL with an actual-capital ceiling and no activation/transmission; qualification and
+broker facts remain synthetic. The implemented review consumes independently qualified protected
+proof references and creates no native qualification. No actual packet/approval/order is installed.
+Release WPF builds with existing warnings; the following earlier increments retain their scopes.
 
 **Risk-storage correction after desktop checkpoint `0563341a`:** 91 focused baseline/continuation
 tests and a separate native SQL test pass. The actual baseline Save/Find/Read and continuation

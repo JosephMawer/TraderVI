@@ -118,3 +118,69 @@ Remaining software scope is explicit: the setup screen enables an existing appro
 the first native-qualified execution-review/opening composition is still unfinished. Current native
 cash/boundary/lifecycle evidence is also incomplete. The prepared copy must therefore remain off;
 neither an enabled follow-up nor a successful build establishes live-order readiness.
+
+The tracked checkpoint was saved as f72c870d, but its wrapped Git commit also generated an approval prompt. The prior assumption about broad saved Git permission was wrong. The unattended continuation now explicitly prohibits every require_escalated call, including helpers and Git. Continue in-sandbox implementation/builds/tests; preserve any new commit-ready changes on disk for morning rather than prompt. The operator's repeated no-prompt instruction supersedes the normal commit cadence for this overnight interval.
+
+## Cash-start host rehearsal after the no-prompt instruction
+
+A new offline integration case passes the actual Normal host/workflow path from an approved cash-only
+synthetic account: activation submits nothing, a subsequent exact-policy/profile signal creates one
+purchase within its reviewed ceiling, and the actual completed fill opens protection at its true
+price/cost after restart. Saved stopped-buying mode, the original order and actual committed cost
+survive. This uses synthetic qualification, market and transport evidence explicitly; it grants no
+real authority. The focused host/opening/scope/control suite now passes **128 tests**. The final combined
+Core suite passes **2,519 tests with nine native skips** (serial collections, 49 seconds). The new
+native risk-storage test accounts for the additional opt-in skip; its separate native pass remains
+recorded above. No production or external workflow was run by this full-suite command.
+
+The added test and this post-checkpoint tracking are intentionally left uncommitted under the
+operator's no-more-escalations instruction. The production host, desktop controls and native risk
+readback fix are already committed. No production source changed after the latest working-copy build.
+
+## First execution review implementation — supersedes the earlier software-gap notes
+
+The user resumed active work and explicitly asked to finish the first review path now. They then
+offered necessary escalation permission before sleeping. The single prepared expanded native SQL
+check was requested at that point and passes both tests; permission for arbitrary future commands
+or real financial activation is not inferred. The permissions control's **Approve for me** mode was
+recommended using official OpenAI documentation; no change of that setting is assumed here.
+
+Decisions made: use the existing explicit Sell all controls for the two supervised opening sales;
+add no competing automatic-liquidation owner. Build the first review into Execution setup, derive
+its cumulative ceiling from actual cash/buying power, and keep approval separate from host enable.
+Preparation reuses existing account reconciliation/import; it creates no baseline/approval/order.
+Missing references, holdings, known holds or native evidence block approval. Before saving, reread
+the current exact source, protected qualification packet/evidence hashes and actual account through
+the durable managed-session workflow. Saved/uncertain approvals recover through SQL rather than
+creating a replacement. All original six and any additional five scoped checks remain required.
+
+The read-only qualification consumer expects an independently reviewed protected packet with exact
+account/strategy/build/session, expiry/reviewer and SHA-256-linked evidence files. It has no UI
+writer and creates no qualification. File protection/digests prove integrity, not native semantics.
+The producer/installation of a complete actually qualified packet remains a blocker; synthetic proof
+used by tests must never be installed for the actual TFSA.
+
+Validation: **153 focused and 2,544 full Core tests pass**, nine native skips (serial collections).
+Both explicit isolated native SQL tests pass, now including first-review approval save/reopen with
+actual-capital ceiling and no activation/transmission. All account/broker/qualification facts are
+synthetic. Nine synthetic desktop renders pass, including blocked/prepared/approved review states
+at two widths; approval/enable start disabled and the stages remain separate. Release WPF builds
+with zero errors/262 existing compiler warnings. Cached Pkcs advisories remain; no fresh audit or
+full-solution/SSDT claim. No actual account order, baseline, grant, packet or assignment is created.
+The expanded artifacts are `first-review-focused.log`, `first-review-full.log`, `first-review-native.log`
+and `first-review-ui-preview/` under the existing ignored preparation folder.
+
+Morning route: close the older TraderVI instance, open the prepared working copy, verify connection;
+complete the two explicit regular-session full sales and reconciliations; save/read actual initial
+risk references; complete/install independent native qualification; prepare first execution review;
+approve only a complete compatible review, then enable the reviewed host separately. Missing native
+cash/boundary/lifecycle evidence, the absent qualification packet and current Normal/session inputs
+remain honest NO-GO conditions. The implemented screen lists blockers; it cannot manufacture proof.
+
+The remaining producer gap is software as well as evidence: the production source still cannot
+issue complete native cash-effective events and matched opening/closing books. Its default remains
+`UnqualifiedBrokerRiskEvidenceSource`; the conditional first-day reader does not satisfy the original
+full-production qualification. No reviewed producer currently publishes the complete native packet.
+Separately, actual broker buy/partial/cancel/recovery paths have not all been observed, and the new
+Normal policy needs its own session inputs. These prevent a promise of morning activation despite
+the completed host/review/storage work; they cannot be resolved by installing a synthetic packet.

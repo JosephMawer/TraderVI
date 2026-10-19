@@ -27,10 +27,11 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
     public BrokerNoTransferSessionScope? NoTransferScope { get; init; }
     public static ImmutableArray<string> RequiredChecks { get; } =
         ["cash-events", "opening-values", "native-order-lifecycle", "strategy-evidence", "restart-recovery", "installed-storage"];
+    public static ImmutableArray<string> AdditionalScopedChecks { get; } =
+        ["supervised-no-transfer-cash", "scoped-initial-reference", "opening-native-sale-fills", "operator-supervised-trial", "scoped-durable-recovery"];
     // A restricted operating scope supplements qualification; it cannot replace native launch evidence.
     [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => NoTransferScope is null ? RequiredChecks :
-        [.. RequiredChecks, "supervised-no-transfer-cash", "scoped-initial-reference", "opening-native-sale-fills",
-            "operator-supervised-trial", "scoped-durable-recovery"];
+        RequiredChecks.AddRange(AdditionalScopedChecks);
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     public void Validate(BrokerAccountProjection account, DateTimeOffset now)
     {

@@ -105,6 +105,25 @@ INSERT dbo.BrokerAccountRiskBaseline VALUES (@Baseline);
             Assert.Equal(JsonSerializer.Serialize(liveProtected), JsonSerializer.Serialize(readLive.Current));
         output.WriteLine("PASS: Normal Live real-cost protection and stopped mode round-trip through the native session repository, with no broker client or transmission.");
 
+        var firstReviewFixture = await Fixture(normalLive: true);
+        firstReviewFixture.Facts.Clear(); firstReviewFixture.Cash = 1100;
+        var definition = new BrokerStrategyReview(firstReviewFixture.Strategy,
+            new(firstReviewFixture.Strategy.PaperAccountId, "Synthetic Normal", "DelphiLive", "{}", ["Synthetic qualification only"]),
+            firstReviewFixture.Now.UtcDateTime, []);
+        var qualification = new BrokerExecutionQualificationBundle(firstReviewFixture.Binding.BindingId,
+            firstReviewFixture.Strategy.Fingerprint, firstReviewFixture.ImplementationIdentity, firstReviewFixture.Risk.TradingDate,
+            firstReviewFixture.Now, firstReviewFixture.Now.AddHours(1), "synthetic fixture", firstReviewFixture.Approval().Review.Qualifications);
+        var prepared = BrokerFirstExecutionReviewPolicy.Prepare(definition, firstReviewFixture.Project(), qualification,
+            firstReviewFixture.ImplementationIdentity, firstReviewFixture.Now);
+        Assert.True(prepared.CanApprove, string.Join("; ", prepared.Blocks));
+        var firstApproved = await Workflow(repository, firstReviewFixture).ApproveAsync(
+            new(prepared.Activation!, "synthetic fixture", "Native SQL persistence rehearsal; all broker/qualification facts synthetic"));
+        Assert.Equal(1000m, firstApproved.Approval.Review.PurchaseCeiling); Assert.Null(firstApproved.ActivatedAt);
+        Assert.Equal(0, firstReviewFixture.Transport.Sent);
+        await using (var firstReadback = await new BrokerManagedSessionRepository(Open).AcquireAsync(firstApproved.BindingId, default))
+            Assert.Equal(JsonSerializer.Serialize(firstApproved), JsonSerializer.Serialize(firstReadback.Current));
+        output.WriteLine("PASS: first cash-start Normal review saves and reopens through actual SQL, without host activation or transmission; qualifications remain synthetic.");
+
         // Interrupt the actual repository command after SQL has inserted but before it can commit.
         await control.ExecuteAsync("""
 CREATE TRIGGER dbo.SqlRehearsalInterrupt ON dbo.BrokerManagedSessionRevision AFTER INSERT AS

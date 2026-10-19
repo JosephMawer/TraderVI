@@ -83,7 +83,7 @@ Historical valid Live signal exits latch through later rebounds and next-session
 cannot stand in for an observed bid touch. A pure opening-plan policy and protected immutable file
 store are tested, but no real opening plan has been saved and no order is queued. The default-off
 desktop host and explicit existing-assignment enable/stop controls are now connected in source and
-an isolated build. Operational installation, first execution review, native risk qualification
+an isolated build. Operational installation, native first-review evidence, risk qualification
 and actual fills remain unfinished. No SQL migration is needed for optional scope fields inside
 existing immutable session JSON. See the [sequence concept](../concepts/supervised-tfsa-opening-sequence.md)
 and [dated evidence](../reviews/delphi-live-tfsa-readiness-20261018.md).
@@ -94,13 +94,35 @@ The regular-session poll coalesces overlap, preserves original orders and saved 
 and uses bounded read-failure backoff. A changed build/assignment cannot inherit the old switch.
 The host/permission store and desktop wiring are built/tested. One shared desktop broker timer polls
 it; it reuses the journal/gate/clients and SQL assignment lease. The independent Stop execution host
-command does not require broker sign-in. The setup screen never creates the first execution approval
-or substitutes evidence checkboxes for missing native qualification. Actual native operation remains
+command does not require broker sign-in. The initial setup screen enabled an existing approval only;
+the subsequent first-review path below adds explicit cash-start approval without evidence overrides. Actual native operation remains
 separate. The native SQL rehearsal includes exact Normal Live protection/stopped-mode recovery with
 synthetic transports; it does not qualify real broker orders or baseline/continuation saves.
 The subsequent canonical risk-storage rehearsal qualifies baseline Save/Find/Read and two hold
 appends/recovery after correcting continuation column selection. It preserves references, both
 holds and original request IDs; native boundary/cash-flow/broker evidence remains separate.
+
+## First execution review path
+
+The desktop now prepares the accepted cash-start Normal review through the existing shared account
+synchronization source. Preparation may append the normal reconciled account import; it creates no
+baseline, execution approval, host permission or order. Both holdings must already be fully sold,
+actual inventories empty and reviewed initial references present. Use the existing explicit Sell all
+controls for these first supervised sales; no new automatic opening-liquidation owner is added.
+
+The review derives its purchase ceiling from actual cash/buying power, retains all six original and
+any additional scoped checks, and lists missing/incompatible native evidence. An independently
+reviewed qualification packet pins account, exact strategy/build/session, expiry, reviewer and proof
+references. Its read-only consumer uses Windows-protected bytes and verifies each referenced file's
+SHA-256 before preparation and again before approval. These establish identity/integrity, **not** the
+semantic truth of native qualification. There is no UI writer, checkbox override or new native
+qualification issuer. Producing the complete independently qualified packet remains an operational
+dependency; synthetic reports must never be published as that packet.
+
+Explicit approval rechecks the current source plus actual account/risk through the existing durable
+workflow and saves no order. The host remains off until separately enabled. Changed evidence,
+cash, source/build, missing references, holdings or retained holds prevent approval; uncertain saves
+recover through the existing SQL assignment before a new attempt. This needs no SQL migration.
 
 ## Review questions
 

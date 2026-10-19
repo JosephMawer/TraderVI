@@ -1,0 +1,47 @@
+#nullable enable
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+namespace TraderVI.WPF.Views;
+
+/// <summary>Presentation only. Construction performs no account, journal, SQL or qualification read.</summary>
+public sealed class BrokerExecutionSetupPanel : UserControl
+{
+    public TextBlock Summary { get; } = new() { TextWrapping = TextWrapping.Wrap, FontSize = 14 };
+    public Button Refresh { get; } = new() { Content = "Refresh readiness" };
+    public Button PrepareFirst { get; } = new() { Content = "Prepare first execution review" };
+    public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
+    public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
+    public Button StopHost { get; } = new() { Content = "Stop execution host" };
+
+    public BrokerExecutionSetupPanel()
+    {
+        Background = new SolidColorBrush(Color.FromRgb(17, 22, 29));
+        Foreground = new SolidColorBrush(Color.FromRgb(232, 238, 246));
+        var layout = new Grid { Margin = new Thickness(24) };
+        layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        layout.RowDefinitions.Add(new() { Height = new GridLength(1, GridUnitType.Star) });
+        layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        var header = new StackPanel();
+        header.Children.Add(new TextBlock { Text = "Delphi Live Normal", FontSize = 26 });
+        header.Children.Add(new TextBlock { Text = "Review actual account readiness and qualifications, approve the exact assignment, then enable its host separately.",
+            TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 16) });
+        layout.Children.Add(header);
+        var scroll = new ScrollViewer { Content = Summary, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Margin = new Thickness(0, 0, 0, 12) };
+        Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
+        var actions = new WrapPanel();
+        foreach (var button in new[] { Refresh, PrepareFirst, ApproveFirst, EnableHost, StopHost })
+        {
+            button.MinWidth = 215; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
+            if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;
+            actions.Children.Add(button);
+        }
+        Grid.SetRow(actions, 2); layout.Children.Add(actions);
+        var note = new TextBlock { Text = "Stop new buys is separate and retains ordinary exit rules. Stop execution host stops all new cycles after a running cycle finishes; existing orders still require recovery.",
+            TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 6, 0, 0) };
+        Grid.SetRow(note, 3); layout.Children.Add(note); Content = layout;
+    }
+}
