@@ -40,6 +40,8 @@ approval requests; Core host recovery/control tests pass. Desktop host/enable/st
 Native baseline/hold storage rehearsal now passes after correcting continuation readback columns.
 Next finish the first execution-approval path and remaining boundary qualification; native
 cash/source/order evidence still blocks actual activation. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
+The 00:17 Toronto read finds no current-policy/Monday inputs yet; inspect scheduled output later
+without launching producers or substituting earlier-policy signals. Continue within existing permissions.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

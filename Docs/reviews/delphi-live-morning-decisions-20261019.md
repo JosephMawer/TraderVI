@@ -17,7 +17,7 @@ This record distinguishes completed software from installed or natively verified
 | Use the installed fixed read-only SQL/broker helpers for available native checks. | They already have narrow approval. Missing market-hour/order evidence stays unverified; no real qualification trade is placed overnight. |
 | Prepare a separate build output for morning review. | Preserve the connected running desktop until the operator opens the reviewed copy. Do not silently replace an active build or rotate credentials. |
 | Save local commits only. | No push, remote deployment or real-account activation is part of preparation. Preserve concurrent documentation/editor changes. |
-| Add an hourly continuation in this same chat through 08:00 Toronto. | Only an idle-work fallback. It is now PAUSED at the operator's subsequent checkpoint/restart request; do not resume it before the operator resumes. |
+| Keep the existing hourly continuation in this same chat through 08:00 Toronto. | It was paused for restart, then resumed after the operator explicitly resumed overnight work. Its prompt prohibits new approval/decision requests, new chats, real activation and orders. |
 
 ## Progress and evidence
 
@@ -95,3 +95,26 @@ The earlier full-suite result retains its scope; the new native test is opt-in.
 The operator subsequently confirmed that routine implementation choices must proceed without
 decision prompts overnight. Continue the accepted scope and record choices here; missing native
 evidence must be implemented/qualified where possible, never marked verified by assumption.
+
+## Unattended checkpoint and next available checks
+
+Risk-storage correction: `d6375591`. The subsequent `git add` approval shown by the operator was
+a filesystem-sandbox prompt, not a design question. Do not request further unapproved escalations
+overnight. Use normal workspace edits/builds/tests and commands already permitted; if a remaining
+operation needs new approval, preserve it for morning and continue independent work. No permission
+configuration is changed. An exact SQL-helper invocation later emitted a newly saved outer
+PowerShell rule, so the earlier successful launcher check is not proof that every shell wrapper
+is prompt-free. Preserve that distinction when resuming.
+
+The bounded SQL metadata read at **00:17 Toronto, October 19**, with a matching query hash, finds
+one exact Normal source with its approved progressive-protection successor. That current policy
+has no saved evaluations yet. Monday has zero fresh official calibration runs, frozen sessions
+or evaluations at this off-hours checkpoint. These are pending scheduled/session inputs, not
+permission to reuse an older policy's signals or launch collection/training from this chat.
+The existing overnight continuation is ACTIVE in this chat; it can inspect later scheduled output
+and continue permitted preparation. No duplicate task was created.
+
+Remaining software scope is explicit: the setup screen enables an existing approved assignment;
+the first native-qualified execution-review/opening composition is still unfinished. Current native
+cash/boundary/lifecycle evidence is also incomplete. The prepared copy must therefore remain off;
+neither an enabled follow-up nor a successful build establishes live-order readiness.

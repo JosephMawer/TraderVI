@@ -56,7 +56,10 @@ SSDT qualification. The isolated working copy is built, not launched against the
 has been created. First execution approval and native cash/source/order/risk qualification remain.
 The setup screen can enable an existing approval; it cannot create missing qualifications or the
 first assignment. [Morning decisions, working-copy path and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
-The overnight fallback remains paused while active implementation continues.
+At 00:17 Toronto a hash-verified metadata read finds the exact Normal progressive successor but
+zero evaluations under its new policy, and no Monday official run/frozen session/evaluations yet.
+These pending off-hours inputs cannot be replaced with earlier-policy evidence. The existing
+overnight continuation is active again after explicit resume, with no new approval/decision prompts.
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

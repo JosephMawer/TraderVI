@@ -51,6 +51,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
   91 focused tests and one explicit native test pass. This qualifies persistence, not broker evidence.
 - [ ] Finish native boundary/cash-flow and cash/source/order qualification plus the first
   execution review; the host setup screen starts only an already-approved assignment.
+- [ ] Verify the scheduled Monday official input and exact current Normal policy observations when
+  published. At 00:17 Toronto neither is available; older-policy observations cannot substitute.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)
