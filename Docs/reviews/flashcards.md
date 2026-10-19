@@ -2,9 +2,10 @@
 
 ### Four-screen visual redesign — October 18 exploration
 
+- **Q:** What is settled for the Trading overview, and what is deferred? **A:** Performance first is selected within the accepted Workspace arrangement; the exact portfolio is explicitly deferred. One Delphi Live engine can run three independent paper portfolios. Period/source treatment and desktop dimensions remain open. (October 18 UI decision)
 - **Q:** Why are three Delphi Live paper books not automatically three selectable TFSA strategies? **A:** One engine runs an original paper book plus a Normal/Portfolio rules only research pair with independent ledgers. Current promotion excludes those comparison accounts; adopting a strategy transfers reviewed rules, never paper balances or results. (ADRs 0067/0068 and current selection source)
 - **Q:** Can a broker-reported return be shown when TraderVI cannot calculate complete account gain from its own records? **A:** Yes, as a separately labelled broker figure with its supplied period/as-of time and availability. Do not reconstruct it by adding open-position gain to a differently scoped recorded-sale figure. (October 18 overview source inspection)
-- **Q:** Which layout and trade-control placement were selected? **A:** Workspace and its Trading overview/strategy/holdings-and-panel/activity arrangement; both Buy and Sell belong in the holding panel. Gains treatment and proposed new-stock lookup remain drafts. (ADR-0068, October 18 follow-up)
+- **Q:** Which layout and trade-control placement were selected? **A:** Workspace and its Trading overview/strategy/holdings-and-panel/activity arrangement, with Performance first and both Buy/Sell in the panel. Period/source treatment and proposed new-stock lookup remain drafts. (ADR-0068, October 18 follow-up)
 - **Q:** What comes before detailed drill-down design in this UI pass? **A:** Establish a fresh, clear main layout across Trading, Portfolios, Delphi and Delphi Live; the detailed views follow the operator's chosen direction.
 - **Q:** Does improving visual hierarchy make dated account evidence current? **A:** No. Keep sources, times, unavailable values and account/paper/replay modes explicit; a refreshed display does not refresh the evidence. (ADR-0068 and workspace explanation contract)
 

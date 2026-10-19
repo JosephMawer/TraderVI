@@ -5,14 +5,14 @@ Trading, Portfolios, Delphi and Delphi Live, with detailed drill-downs to follow
 concepts, Focus and Workspace, were prepared; the operator now selects Workspace and requests
 Trading's main layout first. Both Buy and Sell belong in the holding panel. A Trading-only refinement
 uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
-now accepts that arrangement and requests gains/performance refinement. Two top-overview treatments
-are prepared; their hierarchy/periods and in-panel stock lookup remain provisional. The tentative
-Delphi Live expectation now leans toward its own portfolios; the operator asks for an explanation
-before settling scope. The recorded three-book setup is one original paper book plus two daily-gate
-comparison books, currently excluded from real-account selection by source/ADR-0068. This explanation
-adds no fresh SQL/host verification or changed family/AI contract. Source inspection distinguishes existing broker-reported return fields from
+now accepts that arrangement and selects Performance first for the overview. The chosen overview is
+integrated into a full Trading concept with a placeholder strategy row; portfolio choice is explicitly
+deferred. Performance periods/source treatment and in-panel stock lookup remain open. One Delphi Live
+engine runs the recorded original paper book plus two comparison books; comparison selection remains
+excluded by source/ADR-0068. This explanation adds no fresh SQL/host verification or changed family/AI
+contract. Source inspection distinguishes existing broker-reported return fields from
 unavailable complete gain calculated from local records; no fresh broker values were read.
-ADR-0068 retains the account-first boundary. All three concepts' fragment generation and script syntax checks pass; local-file
+ADR-0068 retains the account-first boundary. All four concepts' fragment generation and script syntax checks pass; local-file
 browser inspection was blocked by browser security policy, so visual fit/interactions remain unverified.
 No WPF implementation, app build, SQL/model/market/broker operation or operational
 launch ran. Starting housekeeping was committed/pushed at `65956789`, including the earlier 184

@@ -13,16 +13,19 @@ Things we punted on and need to revisit. Cleared as decisions are made
   both Buy/Sell controls in the holding panel.
 - **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
   compact activity. Next refine the overview's gains/performance.
-- **Open:** Performance first versus Account value first, desired periods and source/availability
-  treatment, target window size and later screens' layouts/order. Existing broker return fields are
+- **Accepted overview:** Performance first, integrated into the full Trading concept. Account value
+  first remains design history.
+- **Open:** desired periods and source/availability treatment, target window size and later screens'
+  layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history
   still need qualification. Find stock remains a provisional unheld-stock route.
 - **Tentative context:** the operator leans toward switching among Delphi Live portfolios, but asks
   for an explanation after forgetting there are multiple paper books. The recorded original paper
   book plus Normal/Portfolio rules only comparison pair are distinct accounts; comparison books are
   currently excluded from real-account selection. No exact configuration, new comparison eligibility,
-  narrowed wider family/AI support or switching change is agreed. Settle understanding before engine/
-  selected-portfolio labels. Account results and paper results remain independent.
+  narrowed wider family/AI support or switching change is agreed. The operator now explicitly defers
+  portfolio choice. One engine/three paper portfolios is clarified again; keep that deferral while
+  continuing the UI. Account results and paper results remain independent.
 - Preserve ADR-0068's account-first Trading page and existing financial/source/authority contracts.
   No new ADR or implementation authorization follows from displaying concepts.
 - [Decision record and verification limits](../concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

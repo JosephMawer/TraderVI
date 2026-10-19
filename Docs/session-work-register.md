@@ -71,18 +71,18 @@ own the saved-input, non-executing feasibility check. [Setup/return validation](
 and ADR-0068, then the operator selected clearer priorities/less clutter plus a fresher style, with
 detailed drill-downs afterward. Workspace is selected; Trading's accepted arrangement is being refined
 before moving to the other screens. Both Buy and Sell belong in the holding panel. A Trading-only refinement
-is prepared and its arrangement is now accepted. Next review the two gains/performance treatments;
-their hierarchy/periods and proposed in-panel lookup remain provisional. Existing broker-return source
+is prepared and its arrangement is accepted. Performance first is now selected and integrated in the
+full Trading concept; periods/source treatment and proposed in-panel lookup remain open. Portfolio
+choice is explicitly deferred. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
-Delphi Live expectation now leans toward its own portfolios; the operator requests an explanation
-before settling scope. The recorded original book plus Normal/Portfolio rules only comparison pair
-are explained from source/ADRs, including existing comparison promotion exclusion. No exact choice,
-changed eligibility or wider family/AI contract is agreed; no fresh SQL/host check ran.
-All three concept files' wrapper/script checks pass; browser local-file policy blocked visual inspection.
+Delphi Live preference stays context only; one engine/three independent paper portfolios is explained
+again, including the original book, comparison pair and current comparison-selection exclusion. No
+exact choice, changed eligibility or wider family/AI contract is agreed; no fresh SQL/host check ran.
+All four concept files' wrapper/script checks pass; browser local-file policy blocked visual inspection.
 No new WPF implementation/operating change is made; detailed views stay deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
 Source review point: this October 18 chat through the accepted arrangement, gains/performance request,
-overview concept handoff and tentative Live-only clarification requesting explanation of multiple books.
+explicit portfolio-choice deferral, Performance first selection and integrated Trading concept handoff.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.

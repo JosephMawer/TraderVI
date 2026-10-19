@@ -2,7 +2,7 @@
 
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
-- **October 18 visual redesign:** Workspace, Trading-first refinement, the overview/strategy/holdings-and-panel/activity arrangement, and both Buy/Sell in the panel are accepted. Next refine gains/performance in the top overview. The operator tentatively expects Delphi Live with swappable portfolios; its scope needs clarification. No new WPF implementation or operating change is authorized.
+- **October 18 visual redesign:** Workspace, Trading-first refinement, the overview/strategy/holdings-and-panel/activity arrangement, both Buy/Sell in the panel and **Performance first** are accepted. Portfolio choice is explicitly deferred. Next settle performance periods/source treatment and desktop dimensions. No new WPF implementation or operating change is authorized.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -38,9 +38,9 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
 | Accepted Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. The operator says “I like this arrangement.” |
-| Tentative operator expectation | The operator leans toward switching among Delphi Live's own portfolios, but asks for an explanation after forgetting there are multiple paper accounts. No exact configuration or changed selection/assignment contract is agreed. |
-| Provisional overview alternatives | Performance first (recommended) or Account value first; keep broker-reported return, account/cash values and separately scoped TraderVI-recorded gains distinct. |
-| Open | Gains/performance hierarchy and periods, the engine/portfolio meaning, visual styling, target window dimensions and remaining screens' layouts/order. |
+| Accepted overview | **Performance first**: lead with broker-reported dollar gain and percentage, with its period underneath; account value/cash/net deposits and separately scoped recorded gains follow. Account value first remains a preserved alternative. |
+| Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
+| Open | Performance periods/source availability, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
 
 ### Screen roles and source inspection
@@ -93,8 +93,11 @@ The operator accepts the Trading arrangement and requests refining account gains
 **Account value first**, using fictional numbers, a broker period/as-of time, cash and net deposits.
 Separately scoped open-position gain and last-30-calendar-day recorded sale gain remain below; they
 must not be added to reconstruct whole-account return. Availability controls illustrate missing broker
-return without turning it into zero. Neither overview alternative nor a selectable-period contract is
-accepted yet. The existing full Trading concept preserves the earlier overview as design history.
+return without turning it into zero. The operator now selects **Performance first** and explicitly
+defers portfolio choice; a selectable-period contract remains open. The integrated full-screen
+`tradervi-trading-performance-first.html` combines that overview with the accepted Trading arrangement
+and Buy/Sell panel. Its strategy strip is a design placeholder, not a statement that the actual account
+assignment is empty or has changed. Earlier concept files preserve the alternatives and design history.
 
 Source inspection distinguishes two existing paths: `WealthsimpleAuthClient.Accounts` maps optional
 `simpleReturns.amount`, `rate`, `referenceDate` and `asOf` into `WealthsimpleTfsaSnapshot`; the broker
@@ -121,7 +124,9 @@ do not establish three ready real-account choices. This is source/record explana
 running-host check. Preserve actual family rules and existing comparison restrictions unless separately
 changed. Whichever configuration is selected, the real account retains its own capital, holdings,
 gains, history and risk; adopting rules never imports paper financial state. No exact configuration,
-assignment or switching change is agreed. Engine/portfolio labels remain open pending understanding.
+assignment or switching change is agreed. The operator then explicitly defers portfolio choice and
+selects Performance first. Their “three engines” wording is corrected again: one engine runs three
+independent paper portfolios, two created for comparison. The deferred choice does not block UI work.
 
 ### Concepts, verification and implementation boundary
 
@@ -131,7 +136,7 @@ mode. All account amounts, securities, assignments, performance and operational 
 The replay is an illustrative layout, not a backtest or reconstructed historical result. A copy and
 standalone preview are retained in ignored `artifacts/ui-redesign-20261018/`.
 
-Verification for all three concept files: fragment wrapper generation and Node JavaScript syntax checks pass. Browser security
+Verification for all four concept files: fragment wrapper generation and Node JavaScript syntax checks pass. Browser security
 policy rejected local-file inspection, so no browser-rendered layout, viewport or interaction test is
 claimed. No app build/test suite was required or run for this concept/documentation-only increment;
 there is no new dependency audit or full-solution/SSDT qualification. No WPF source, database, model,

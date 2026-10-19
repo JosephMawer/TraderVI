@@ -542,11 +542,13 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Prepare the Trading-only main-layout concept; wrapper/script syntax checked, not visually verified.
 - [x] Agree Trading's overall overview/strategy/holdings-and-panel/activity arrangement.
 - [x] Prepare two gains/performance overview treatments; wrapper/script syntax checked only.
-- [ ] Agree gains/performance prominence, period/source/availability treatment and target desktop dimensions.
+- [x] Select Performance first and integrate it into the full Trading concept; wrapper/script syntax checked.
+- [ ] Agree period/source/availability treatment and target desktop dimensions.
 - [x] Explain the recorded original Live paper book plus the Normal/Portfolio rules only comparison
   pair, independent ledgers and existing comparison promotion exclusion from source/ADRs only.
-- [ ] Settle the tentative Live-portfolio meaning after that explanation; no exact configuration,
-  comparison-eligibility or wider family/AI scope change is agreed. Preserve actual account history.
+- [x] Record explicit deferral of portfolio choice; clarify one engine/three paper portfolios again.
+- [ ] Choose the exact portfolio later (operator-deferred); preserve actual account history and existing
+  comparison eligibility/family/AI scope unless separately changed. This does not block UI refinement.
 - [ ] After the Trading refinement, refine the other screens' main layouts; their order is open.
 - [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
   consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.

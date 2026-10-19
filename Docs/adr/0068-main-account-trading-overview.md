@@ -187,9 +187,11 @@ The operator selected the **Workspace** concept (table beside persistent selecti
 requested agreeing Trading's main layout before moving to the other three screens. Both Buy and Sell
 belong in the holding panel. These accepted visual choices retain the account-first overview above;
 the operator subsequently accepts the account-summary/strategy/holdings/activity arrangement and asks
-to refine the top gains/performance overview next. Its Performance first/Account value first treatments
-and the suggested Find stock route remain drafts. The tentative Delphi Live/swappable-portfolios
-expectation needs scope clarification; it does not replace existing engine/family contracts.
+to refine the top gains/performance overview next. The operator then selects **Performance first**:
+broker-reported dollar gain and percentage lead, with the supplied period visible below; account
+value/cash/net deposits and separately scoped recorded gains follow. Portfolio choice is explicitly
+deferred. The suggested Find stock route remains a draft. One Delphi Live engine can run several
+independent paper portfolios; no existing engine/family or comparison-selection contract changes.
 Broker-reported return and complete gain calculated from TraderVI records are different evidence
 sources; a UI must retain each source's period, original valuation time and availability. No new
 performance calculation or period-selection contract is accepted. Detailed views and order tickets
