@@ -32,6 +32,8 @@
     <Compile Include="..\Sandbox\Probes\WealthsimpleQuoteTimingProbe.cs" Link="Diagnostics\WealthsimpleQuoteTimingProbe.cs" />
     <None Include="..\TraderDB\dbo\Tables\BrokerManagedSessionRevision.sql" Link="SqlRehearsal\BrokerManagedSessionRevision.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\TraderDB\dbo\Triggers\BrokerManagedSessionRevision_Immutable.sql" Link="SqlRehearsal\BrokerManagedSessionRevision_Immutable.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\TraderDB\dbo\Tables\BrokerAccountImportBinding.sql;..\TraderDB\dbo\Tables\BrokerAccountImport.sql;..\TraderDB\dbo\Tables\BrokerAccountRiskBaseline.sql;..\TraderDB\dbo\Tables\BrokerAccountRiskContinuation.sql" Link="SqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\TraderDB\dbo\Triggers\BrokerAccountImportBinding_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountImport_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskBaseline_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskContinuation_Immutable.sql" Link="SqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveWatchlistScope.cs" Link="Presentation\DelphiLiveWatchlistScope.cs" />

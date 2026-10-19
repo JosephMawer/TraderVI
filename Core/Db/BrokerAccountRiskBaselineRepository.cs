@@ -15,10 +15,13 @@ namespace Core.Db;
 public sealed class BrokerAccountRiskBaselineRepository : IBrokerRiskBaselineStore
 {
     public const string RequiredMigration = "20260917_035_AddBrokerAccountRiskBaseline.sql";
+    private readonly Func<CancellationToken, Task<SqlConnection>> open;
+    public BrokerAccountRiskBaselineRepository() : this(Open) { }
+    internal BrokerAccountRiskBaselineRepository(Func<CancellationToken, Task<SqlConnection>> open) => this.open = open;
 
     public async Task<BrokerRiskBaselineState> ReadAsync(CancellationToken ct = default)
     {
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         if (!await Installed(c)) throw new InvalidOperationException("The reported-account schema is required before risk-baseline setup.");
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", false);
@@ -28,14 +31,14 @@ public sealed class BrokerAccountRiskBaselineRepository : IBrokerRiskBaselineSto
 
     public async Task<BrokerRiskBaselineReceipt?> FindAsync(Guid baselineId, CancellationToken ct = default)
     {
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         return await BaselineInstalled(c) ? await Receipt(c, baselineId) : null;
     }
 
     public async Task<BrokerRiskBaselineReceipt> SaveAsync(BrokerRiskBaselineRequest request, CancellationToken ct = default)
     {
         BrokerAccountRiskBaselineWorkflow.Validate(request);
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", true);
         if (!await BaselineInstalled(c, t))

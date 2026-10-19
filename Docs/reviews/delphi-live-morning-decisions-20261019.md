@@ -74,3 +74,24 @@ the absence of an approved live assignment, not launch qualification.
 references, qualified native cash/source/order evidence and any remaining baseline/continuation
 runtime checks. No completed native check is inferred from a deadline or a checked UI item. The
 working host cannot manufacture that evidence. Normal gates, stops and first-day restrictions remain.
+
+## Native risk-storage correction
+
+Desktop checkpoint: `0563341a`. A subsequent isolated native SQL rehearsal exposed an existing
+continuation readback failure: `SELECT *` included the identity `Sequence` column, which did not
+match Dapper's immutable record constructor. Both request recovery and latest-state queries now
+select the exact record columns. This is a mechanical persistence correction, not a risk-policy change.
+
+The actual baseline Save/Find/Read and continuation Append/Find/Read paths now pass against canonical
+import/risk tables and immutable triggers in a retained synthetic database. The test preserves precise
+observation timestamps, known opening/high references, both holds, original request identity and a
+two-event chain through new repository instances. Changed retries and attempts to rewrite history are
+rejected. Minimal synthetic ledger/report parent tables keep this separate from import projection,
+native broker evidence and opening/closing/cash-flow boundary qualification. No TraderDB connection
+or broker client is used. The focused baseline/continuation run passes 91 tests; its native test
+passes separately. Release desktop rebuild passes with zero errors/262 existing compiler warnings.
+The earlier full-suite result retains its scope; the new native test is opt-in.
+
+The operator subsequently confirmed that routine implementation choices must proceed without
+decision prompts overnight. Continue the accepted scope and record choices here; missing native
+evidence must be implemented/qualified where possible, never marked verified by assumption.

@@ -37,7 +37,8 @@ Next qualify native risk/storage, exact source, broker lifecycle and one shared 
 operator-controlled activation. [Assessment](reviews/delphi-live-tfsa-readiness-20261018.md), [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md).
 The operator has resumed after restart. Both fixed read-only helpers now run successfully without
 approval requests; Core host recovery/control tests pass. Desktop host/enable/stop composition and the isolated working copy are now built/tested.
-Next finish available risk-storage qualification and the first execution-approval path; native
+Native baseline/hold storage rehearsal now passes after correcting continuation readback columns.
+Next finish the first execution-approval path and remaining boundary qualification; native
 cash/source/order evidence still blocks actual activation. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

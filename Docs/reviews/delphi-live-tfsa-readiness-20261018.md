@@ -117,7 +117,9 @@ between a planned step, a durable order intent, a native fill and usable proceed
 ## Remaining route
 
 1. **Qualify native risk/source and storage.** Complete cash-event and opening/closing boundary
-   evidence, baseline/continuation save/readback and crash recovery. Preserve known references and
+   evidence and boundary/crash recovery. Baseline save/readback and hold-chain continuation now
+   pass in isolated native SQL after correcting continuation record mapping; this supplies no
+   native valuation/cash-flow evidence. Preserve known references and
    holds. The new conditional reader does not supply the missing broader production proof.
 2. **Verify the exact Live adapter natively.** Check Normal policy/profile/daily identities,
    continuity and raw observations, actual held-cost mapping, current quotes and missed exits.
@@ -142,6 +144,13 @@ liquidation instruction remain recorded; neither successful sign-in nor deadline
 qualification. A manual-order workflow is a separate, narrower capability.
 
 ## Validation and scope
+
+**Risk-storage correction after desktop checkpoint `0563341a`:** 91 focused baseline/continuation
+tests and a separate native SQL test pass. The actual baseline Save/Find/Read and continuation
+Append/Find/Read run against canonical risk tables/triggers with synthetic parent facts. The test
+reproduced the existing extra-column record-mapping failure, now fixed with explicit continuation
+columns; it verifies retained holds/references, timestamps, request retries and a two-event chain.
+No actual account baseline is saved, and native cash/boundary/order evidence remains unqualified.
 
 **Subsequent host increment:** 127 focused checks pass; the full suite passes 2,518/eight native
 skips with serial collections. The isolated native SQL session rehearsal also passes, now including

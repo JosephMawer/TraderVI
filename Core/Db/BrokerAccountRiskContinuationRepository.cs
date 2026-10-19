@@ -13,19 +13,24 @@ using static Core.Db.TradingRecommendationStorage;
 namespace Core.Db;
 
 /// <summary>Append-only account reference history; never updates positions, baseline, paper or legacy risk records.</summary>
-public sealed class BrokerAccountRiskContinuationRepository(ITsxSessionCalendar calendar) : IBrokerAccountRiskContinuationStore
+public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRiskContinuationStore
 {
     public const string RequiredMigration = "20260921_039_AddBrokerAccountRiskContinuation.sql";
+    private readonly ITsxSessionCalendar calendar;
+    private readonly Func<CancellationToken, Task<SqlConnection>> open;
+    public BrokerAccountRiskContinuationRepository(ITsxSessionCalendar calendar) : this(calendar, Open) { }
+    internal BrokerAccountRiskContinuationRepository(ITsxSessionCalendar calendar, Func<CancellationToken, Task<SqlConnection>> open)
+    { this.calendar = calendar; this.open = open; }
 
     public async Task<BrokerRiskContinuationReceipt?> FindAsync(Guid requestId, CancellationToken ct = default)
     {
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         return await IsInstalled(c) ? await Find(c, requestId) : null;
     }
 
     public async Task<BrokerAccountRiskState> ReadAsync(Guid baselineId, CancellationToken ct = default)
     {
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", false);
         await RequireSchema(c, t);
@@ -38,7 +43,7 @@ public sealed class BrokerAccountRiskContinuationRepository(ITsxSessionCalendar 
     public async Task<BrokerRiskContinuationReceipt> AppendAsync(BrokerRiskContinuationRequest request, CancellationToken ct = default)
     {
         BrokerAccountRiskContinuation.Validate(request);
-        await using var c = await Open(ct);
+        await using var c = await open(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", true);
         await RequireSchema(c, t);
@@ -97,7 +102,10 @@ public sealed class BrokerAccountRiskContinuationRepository(ITsxSessionCalendar 
     }
 
     private static async Task<BrokerRiskContinuationReceipt?> Find(SqlConnection c, Guid id, SqlTransaction? t = null) =>
-        Decode(await c.QuerySingleOrDefaultAsync<Row>("SELECT * FROM dbo.BrokerAccountRiskContinuation WHERE RequestId=@Id", new { Id = id }, t));
+        Decode(await c.QuerySingleOrDefaultAsync<Row>("""
+            SELECT RequestId,BaselineId,PreviousRevisionId,TradingDate,SavedUtc,RequestHash,ContentHash,ReceiptJson
+            FROM dbo.BrokerAccountRiskContinuation WHERE RequestId=@Id
+            """, new { Id = id }, t));
 
     private static async Task<BrokerAccountRiskState> State(SqlConnection c, SqlTransaction t, Guid baselineId)
     {
@@ -106,7 +114,8 @@ public sealed class BrokerAccountRiskContinuationRepository(ITsxSessionCalendar 
         var baseline = BrokerAccountRiskBaselineRepository.Decode(row)?.Baseline
             ?? throw new InvalidOperationException("Establish and verify the initial baseline before continuing it.");
         var latest = Decode(await c.QuerySingleOrDefaultAsync<Row>("""
-            SELECT TOP(1) * FROM dbo.BrokerAccountRiskContinuation WHERE BaselineId=@Id ORDER BY Sequence DESC
+            SELECT TOP(1) RequestId,BaselineId,PreviousRevisionId,TradingDate,SavedUtc,RequestHash,ContentHash,ReceiptJson
+            FROM dbo.BrokerAccountRiskContinuation WHERE BaselineId=@Id ORDER BY Sequence DESC
             """, new { Id = baselineId }, t));
         if (latest is null) return BrokerAccountRiskContinuation.Start(baseline);
         if (latest.State.BaselineId != baseline.BaselineId || latest.State.BindingId != baseline.BindingId ||

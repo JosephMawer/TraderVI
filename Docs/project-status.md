@@ -43,6 +43,11 @@ At 23:51 the hash-verified SQL read finds one link, zero baselines/continuations
 all three immutable triggers enabled; the configured reviewed calendar exists. The native session
 rehearsal now passes Normal Live protection/stopped-mode SQL readback plus lease/interruption/order
 recovery with synthetic transports, not native broker lifecycle or baseline/continuation saves.
+The subsequent baseline/continuation native rehearsal found and fixed an existing `SELECT *`
+record-mapping failure in continuation recovery. Canonical risk-table Save/Find/Read, a two-event
+hold chain, precise evidence, retained references/holds, retry identity and immutable triggers now
+pass in an isolated synthetic database (91 focused tests and one separate native test). Native
+boundary/cash-flow/source/order qualification remains separate; no actual baseline is created.
 127 focused tests pass; the full Core suite passes 2,518/eight native skips (serial collections).
 Release WPF builds, and five synthetic renders verify account command targets/status without binding
 errors. Existing compiler warnings and cached Pkcs advisories remain; no fresh audit/full-solution or

@@ -98,6 +98,9 @@ command does not require broker sign-in. The setup screen never creates the firs
 or substitutes evidence checkboxes for missing native qualification. Actual native operation remains
 separate. The native SQL rehearsal includes exact Normal Live protection/stopped-mode recovery with
 synthetic transports; it does not qualify real broker orders or baseline/continuation saves.
+The subsequent canonical risk-storage rehearsal qualifies baseline Save/Find/Read and two hold
+appends/recovery after correcting continuation column selection. It preserves references, both
+holds and original request IDs; native boundary/cash-flow/broker evidence remains separate.
 
 ## Review questions
 

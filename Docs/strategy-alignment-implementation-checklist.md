@@ -46,7 +46,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Rehearse Normal Live protection/stopped-mode SQL recovery in an isolated synthetic database,
   alongside exclusive leases/interrupted/uncertain saves. This sends no native broker orders.
 - [x] Verify current storage counts/immutable triggers read-only (23:51 Toronto, query hash checked).
-- [ ] Finish native risk/baseline/continuation and cash/source/order qualification plus the first
+- [x] Rehearse native baseline save/readback and a two-event hold continuation with canonical risk
+  tables/triggers in an isolated synthetic database; fix the discovered continuation column mapping.
+  91 focused tests and one explicit native test pass. This qualifies persistence, not broker evidence.
+- [ ] Finish native boundary/cash-flow and cash/source/order qualification plus the first
   execution review; the host setup screen starts only an already-approved assignment.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
