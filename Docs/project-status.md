@@ -9,7 +9,10 @@ now accepts that arrangement and selects Performance first for the overview. The
 integrated into a full Trading concept with a placeholder strategy row; portfolio choice is explicitly
 deferred. Today is now the default with an Overall switch. Following the title/badge cleanup, the
 whole Main account / Example TFSA / Canadian dollars heading block is removed from the single-account
-draft and overview figures/spacing are compacted; currency remains beside figures. Daily performance source/
+draft and overview figures/spacing are compacted; currency remains beside figures. Net deposits are
+now removed from this overview, leaving account value/cash; cash-movement records/calculations are
+unchanged. Holdings table/panel refinement is next, with table-versus-panel shares placement awaiting
+the operator's answer. Daily performance source/
 calculation qualification and in-panel stock lookup remain open; fictional daily values are not native
 evidence. One Delphi Live
 engine runs the recorded original paper book plus two comparison books; comparison selection remains

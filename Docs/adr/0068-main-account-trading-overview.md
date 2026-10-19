@@ -189,7 +189,9 @@ belong in the holding panel. These accepted visual choices retain the account-fi
 the operator subsequently accepts the account-summary/strategy/holdings/activity arrangement and asks
 to refine the top gains/performance overview next. The operator then selects **Performance first**:
 selected-period dollar gain and percentage lead, with the period visible below; account
-value/cash/net deposits and separately scoped recorded gains follow. The operator selects **Today**
+value/cash and separately scoped recorded gains follow. Net deposits were initially shown but are
+subsequently removed from the overview; cash-movement records and return calculations are unchanged.
+The operator selects **Today**
 as default with an **Overall** option, and removes the redundant Trading heading/right-hand badge.
 The subsequent refinement removes the whole Main account / Example TFSA / Canadian dollars heading
 block in the single-account concept and reduces the overview figures/spacing; currency remains beside

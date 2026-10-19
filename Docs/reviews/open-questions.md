@@ -12,11 +12,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted follow-up:** Workspace; agree Trading's main layout before moving to other screens;
   both Buy/Sell controls in the holding panel.
 - **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
-  compact activity. Next refine the overview's gains/performance.
+  compact activity. Next refine the holdings table and holding panel.
 - **Accepted overview:** Performance first; Today by default with an Overall option, integrated into
   the full Trading concept. Remove the entire account heading block following the earlier title/badge
   cleanup, and use smaller overview figures/tighter spacing. Currency stays beside figures in this
-  single-account concept. Account value first remains design history.
+  single-account concept. Net deposits are removed from this overview; cash-movement records and
+  calculations are unchanged. Account value first remains design history.
+- **Pending table decision:** proposed stock, position value, open gain and strategy status columns;
+  whether shares stay in the table or only in the holding panel awaits the operator's answer.
 - **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
   target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history

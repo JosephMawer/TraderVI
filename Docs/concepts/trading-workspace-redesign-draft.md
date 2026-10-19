@@ -38,9 +38,10 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
 | Accepted Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. The operator says “I like this arrangement.” |
-| Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash/net deposits and separately scoped recorded gains follow. Account value first remains a preserved alternative. |
+| Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash and separately scoped recorded gains follow. Remove net deposits from this overview. Account value first remains a preserved alternative. |
 | Accepted header cleanup | Remove the entire Main account / Example TFSA / Canadian dollars heading block, following the earlier Trading-title/right-hand-badge removal. This single-account view does not need a repeated account title; retain currency beside figures and source/authority context. |
 | Accepted density refinement | Reduce the performance amount/percentage and tighten overview spacing so the numbers occupy less space. |
+| Current focus | Refine the holdings table and holding panel next. Proposed table: stock, position value, open gain and strategy status; whether shares remain in the table or only in the panel is awaiting the operator's answer. No column change is accepted yet. |
 | Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
 | Open | Daily performance source/baseline/cash-flow/percentage qualification, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -107,6 +108,11 @@ Main account / Example TFSA / Canadian dollars header, superseding the prior acc
 The current single-account concept removes that block; a future account-switching context would need
 clear account identity. Currency remains beside figures. The headline amount is reduced from 33px to
 26px, its percentage from 21px to 17px, with tighter overview padding and spacing. Both periods use fictional values.
+The next request removes net deposits from this overview, leaving account value and available cash
+as two supporting figures, and moves the design focus to holdings/table-panel refinement. Net deposits
+(deposits less withdrawals) can explain contributed capital in account history, but add little to this
+holdings-focused summary. Removing the display does not remove cash-movement records or change return
+calculations. Account history is the recommended later location; its detailed layout is not decided.
 Choosing Today is a display decision, not qualification of a daily-return producer or calculation.
 The daily reference boundary, confirmed cash movements, percentage method and native source coverage
 remain implementation work; existing dated day-value/risk readers do not by themselves prove a daily

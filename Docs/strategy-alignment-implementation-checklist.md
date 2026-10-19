@@ -547,6 +547,8 @@ milestone are also recorded there; their remaining scope stays visible above.
   badge, remove the whole account heading block and compact overview figures/spacing in the single-account
   draft. Draft controls are wired locally; wrapper/script syntax
   checked only, with browser interaction verification pending.
+- [x] Remove net deposits from the concept overview; retain account value/cash and existing financial records/calculations.
+- [ ] Refine holdings table and holding panel; table-versus-panel shares placement awaits the operator's answer.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
   availability before implementation claims. Missing Today must not display overall return as daily gain.
