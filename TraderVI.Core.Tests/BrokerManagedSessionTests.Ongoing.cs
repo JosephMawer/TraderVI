@@ -204,7 +204,7 @@ public sealed partial class BrokerManagedSessionTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task UnsupportedFamilyCannotStartLiquidatingBeforeItsAdapterExists(bool normalComparison)
+    public async Task LiveCannotStartLiquidatingWithoutNativeQualifications(bool normalComparison)
     {
         var f = new Fixture(); var approval = f.Approval(ongoing: true); var policy = DelphiLivePolicyDefinition.Version1;
         var live = new BrokerManagedStrategy(f.Strategy.Strategy with { Family = TradingStrategyFamily.DelphiLive,
@@ -216,10 +216,11 @@ public sealed partial class BrokerManagedSessionTests
                 PaperGateProfile.NormalV1, f.Now.UtcDateTime, live.Strategy.Daily.StrategyVersionId,
                 policy.PolicyVersionId, null, null) };
         approval = approval with { Review = approval.Review with { Strategy = live,
-            Qualifications = approval.Review.Qualifications.Select(q => q with { StrategyFingerprint = live.Fingerprint }).ToImmutableArray() } };
+            Qualifications = approval.Review.Qualifications.Where(q => q.Check != "native-order-lifecycle")
+                .Select(q => q with { StrategyFingerprint = live.Fingerprint }).ToImmutableArray() } };
         live.Validate();
         var error = await Assert.ThrowsAsync<InvalidOperationException>(() => f.Workflow().ApproveAsync(approval));
-        Assert.Contains("adapter", error.Message); Assert.Null(f.Store.State); Assert.Equal(0, f.Transport.Sent);
+        Assert.Contains("native-order-lifecycle", error.Message); Assert.Null(f.Store.State); Assert.Equal(0, f.Transport.Sent);
     }
 
     [Theory]

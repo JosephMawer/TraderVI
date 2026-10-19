@@ -16,6 +16,8 @@ public sealed record BrokerRiskEvidence(ImmutableArray<BrokerRiskContinuationReq
 public interface IBrokerRiskEvidenceSource
 {
     Task<BrokerRiskEvidence> ReadAsync(BrokerImportReceipt import, BrokerAccountRiskState state, CancellationToken ct);
+    Task<BrokerRiskEvidence> ReadAsync(BrokerImportReceipt import, BrokerAccountRiskState state,
+        ImmutableArray<BrokerStrategyOrder> ownedOrders, CancellationToken ct) => ReadAsync(import, state, ct);
 }
 /// <summary>The captured broker feed does not prove cash-effective timing or matched boundary books.</summary>
 public sealed class UnqualifiedBrokerRiskEvidenceSource : IBrokerRiskEvidenceSource
@@ -54,7 +56,7 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
         var baselineState = await baselines.ReadAsync(ct);
         var baseline = baselineState.RiskHistory.ExistingBaseline ?? throw new InvalidOperationException("Establish the reviewed initial risk references first.");
         var state = await continuationStore.ReadAsync(baseline.BaselineId, ct);
-        var evidence = await riskEvidence.ReadAsync(saved, state, ct);
+        var evidence = await riskEvidence.ReadAsync(saved, state, orders, ct);
         foreach (var request in evidence.Continuations)
             state = (await continuation.ApplyAsync(request, ct)).State;
         var projection = BrokerAccountProjector.Project(baselineState.Import.Binding!, saved, state, evidence.Coverage, clock.GetUtcNow());
@@ -75,11 +77,14 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
     public async Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct)
     {
         var input = await new TradingRecommendationRepository().ReadBrokerInputAsync(session, ct);
-        if (session.Strategy.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
-            input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null))
+        if (session.Strategy.Strategy.Family == TradingStrategyFamily.DailyShadow &&
+            (session.Strategy.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
+             input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null)))
             input = input with { Quotes = await new TradingRecommendationQuoteSource().ReadAsync(input, ct) };
         return input;
     }
+    public Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
+        new TradingRecommendationQuoteSource().ReadAsync(input, ct);
     public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => resolveSecurity(symbol, ct);
     public async Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct)
     {

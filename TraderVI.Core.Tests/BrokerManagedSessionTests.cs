@@ -356,11 +356,12 @@ public sealed partial class BrokerManagedSessionTests
         internal readonly Transport Transport = new();
         internal readonly BrokerImportBinding Binding;
         internal BrokerAccountRiskState Risk;
-        internal readonly BrokerManagedStrategy Strategy;
+        internal BrokerManagedStrategy Strategy;
         internal bool Pending;
         internal bool OfferBuy;
         internal int Synchronizations;
         internal Func<TradingRecommendationInput, TradingRecommendationInput>? TransformInput;
+        internal Func<TradingRecommendationInput, ImmutableArray<TradingQuote>>? QuoteRead;
         internal Func<BrokerAccountProjection, BrokerAccountProjection>? TransformAccount;
         internal string? RunningImplementation;
         public string ImplementationIdentity => RunningImplementation ?? Strategy.Strategy.ImplementationIdentity;
@@ -422,6 +423,8 @@ public sealed partial class BrokerManagedSessionTests
             Task.FromResult(account.Positions.Select(p => new BrokerProtectionMark(p.PositionId, 11, Now, Hash)).ToImmutableArray());
         public Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct) => Task.CompletedTask;
         public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => Task.FromResult("security-" + symbol);
+        public Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
+            Task.FromResult(QuoteRead?.Invoke(input) ?? input.Quotes);
         public Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct)
         {
             var assignment = new TradingStrategyAssignment(session.SessionId, "TFSA", Strategy.Strategy, Strategy.PaperAccountId,

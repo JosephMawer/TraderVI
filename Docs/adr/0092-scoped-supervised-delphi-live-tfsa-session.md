@@ -1,0 +1,94 @@
+# ADR-0092 — First supervised Delphi Live TFSA session
+
+**Date:** October 18, 2026. **Status:** Accepted operator scope; Core preparation tested, not installed or activated.
+**Domains:** architecture, risk-management, market-microstructure.
+**Related:** ADR-0053/0055/0067, ADR-0075/0076/0079–0086, ADR-0090.
+
+The immediate problem is getting the Delphi Live engine connected to the real TFSA for October 19.
+This belongs to portfolio-to-broker handover; the root goal is actual, recoverable account management.
+The operator asks to follow the happy path after reviewing the three negative recorded paper returns
+and incomplete launch evidence. Normal is the working target. This is a first supervised real-money
+trial with disclosed evidence limits, not a declaration of profitable or fully qualified automation.
+
+## Explicit operator instructions
+
+- Use the broker-confirmed available capital; the operator's approximate amount is not a sizing input.
+- Sell both currently held stocks in full first thing, then use confirmed available proceeds. This
+  explicitly selects liquidation for these two holdings rather than overlap retention at this launch.
+- For tomorrow's first supervised session, no deposits, withdrawals or trades outside TraderVI.
+  Stop new automatic buys if cash or orders stop reconciling. The operator explicitly accepts this scope.
+- Existing stops, account loss holds, source validity, normal daily gates, whole-share sizing,
+  one-owner submission, intent-before-send and original-order recovery remain in force.
+
+The connected-account read at 22:58 Toronto verifies two CAD whole-share holdings and no pending
+orders. Actual identifiers, quantities and amounts stay private. No order was submitted by that read.
+Every opening order still needs fresh regular-session account, quantity, pending-order and quote checks.
+
+## Bounded first-day cash source
+
+`SupervisedNoTransferCashReconciliationV1` is explicitly conditional on the operator's no-transfer
+agreement. After both verified sales, capture a fresh reconciled cash-only book and save/preserve
+initial risk references using ADR-0081's setup observation. Do not label that reference the market open
+or reset any known reference or hold. The cumulative purchase ceiling is derived from real available
+cash/buying power after confirmed sales, not anticipated proceeds or the approximate amount.
+
+Each later observation must preserve the original orders and account identity. Only identified owned
+strategy orders can explain cash changes; exact net proceeds/costs, including fees, must reconcile.
+Unknown orders, corrections, missing records, stale snapshots or unexplained cash stop new buys.
+Existing protective exits remain independently evaluated with fresh order preflight.
+
+This source does **not** claim a complete native cash-event feed, effective transfer timing, or proof
+that opposing outside movements cannot cancel. That limitation is why the explicit first-day scope
+matters. It issues no daily opening/closing continuation or capital-flow adjustment. It expires at the
+reviewed October 19 regular close; it cannot authorize next-day buys, reset references or clear holds.
+General/native transfer qualification under ADR-0083 remains future work. This conditional source
+does not by itself satisfy the existing production cash-event qualification.
+
+## Trial approval and opening sequence
+
+The launch is separately identified as a supervised trial. Its approval records exact account/build,
+Normal source/profile/policy, no-transfer scope, actual initial references, available-capital ceiling,
+durable storage/recovery checks and the operator's trial instruction. Two original-ID opening sales
+must have complete native fills and reconciled inventories before approval. No partial, uncertain or
+outside result may be treated as a successful liquidation or spendable proceeds.
+
+The scope's additional qualification labels are `supervised-no-transfer-cash`, `scoped-initial-reference`,
+`opening-native-sale-fills`, `operator-supervised-trial` and `scoped-durable-recovery`.
+Do not forge ordinary full-production `cash-events`, `opening-values`, `native-order-lifecycle` or
+`strategy-evidence` qualifications from these narrower facts. All original ADR-0055/0086 launch
+checks remain required as well. The scope is an additional constraint, not a qualification waiver;
+the operator's no-transfer answer did not authorize replacing those checks.
+Native full-fill sales validate their observed path; they do not prove native buy execution, partial
+fills, cancellation or power-loss behavior. Those limits remain visible and unobserved cases stop or
+recover through existing tested controls. No actual engine buy or qualification order is placed by
+this implementation session. Operator-controlled activation and real orders are separate steps.
+
+Use the existing client, protected manual-order journal, shared account gate and SQL assignment
+lease. A durable opening plan pins the two current holdings and deterministic request IDs. A restart
+or lost acknowledgement recovers those IDs; it never generates replacement sales. Required sales
+must reconcile, source/risk checks must pass and the actual cash must be available before any buy.
+No new UI declaration, paper balance or simulated fill can supply those facts.
+
+The same approved strategy remains selected; the first-day scope permits new purchases only on its
+date. Expired/missing future risk permission stops buys while independently permitted protective exits
+can continue. Ongoing assignment never replenishes the cumulative purchase ceiling. Normal may produce
+no buy if its ordinary gates, confirmations or current data do not qualify; the deadline grants no entry
+exception. The October 18 progressive-protection version has no regular-session performance record yet.
+
+## Implementation and verification boundary
+
+Core Live transfer/replay, exact-policy/profile observation binding, save-before-trigger-bid ordering,
+owned-order cash checks and deterministic opening-sale recovery are implemented/offline-tested.
+Historical valid Live signal exits latch through later rebounds and next-session recovery; a bar low
+cannot stand in for an observed bid touch. A pure opening-plan policy and protected immutable file
+store are tested, but no real opening plan has been saved and no order is queued. There is no new
+desktop execution loop or activation control. Installation, native storage readback, host composition
+and actual fills remain unfinished. No SQL migration is needed for optional scope fields inside
+existing immutable session JSON. See the [sequence concept](../concepts/supervised-tfsa-opening-sequence.md)
+and [dated evidence](../reviews/delphi-live-tfsa-readiness-20261018.md).
+
+## Review questions
+
+1. Why does a verified no-transfer agreement plus cash reconciliation differ from a complete cash feed?
+2. Why must both opening sales reconcile before the capital ceiling and first strategy purchase exist?
+3. What keeps working when the first-day cash permission expires, and what cannot reset on restart?

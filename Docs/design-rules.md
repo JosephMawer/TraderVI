@@ -27,6 +27,15 @@ eligibility is deferred to Wealthsimple live trading/automation. A recommendatio
 
 ## Planned real TFSA execution
 
+[ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md) records the accepted first-session
+scope: actual available capital after two reviewed full sales; no outside transfers/trades and stop
+new buys on mismatch. The conditional cash source supplements, never replaces, original production
+launch evidence. Core Live handover uses real costs/identities and independent market observations,
+not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
+valid historical signal exits through restart and never infer a bid touch from a bar low. Opening
+plans retain original order IDs and cannot expand liquidation after holdings change. These are tested
+source boundaries, not installed trading authority; the shared host/native qualification is unfinished.
+
 [ADR-0087](adr/0087-ai-momentum-portfolio-boundaries.md) permits a separately composed AI Momentum
 reviewer to propose existing portfolio versions and explain discretionary exceptions. Its current
 contract has no assignment/order/protection mutation interface. Hard-rule overrides are rejected;

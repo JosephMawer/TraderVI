@@ -122,15 +122,20 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             if (bounds is not null && assignment.Strategy.Family == TradingStrategyFamily.DelphiLive)
             {
                 var saved = await c.QueryAsync<LiveRow>("""
-                    WITH source AS(SELECT e.InputJson,e.ContinuityEpoch,
-                        ROW_NUMBER() OVER(PARTITION BY e.Symbol,e.BarEndUtc ORDER BY e.PolicyVersionId) n
+                    SELECT e.InputJson,e.ContinuityEpoch,
+                        CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
+                            WHERE sl.SessionId=e.SessionId AND sl.ExpectedBarEndUtc=e.BarEndUtc AND sl.Symbol IN(e.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
                         FROM dbo.DelphiLiveEvaluation e JOIN dbo.DelphiLiveSession s ON s.SessionId=e.SessionId
-                        WHERE s.TradingDate=@Date AND e.RecordedUtc<=@Now AND e.BarEndUtc>@Boundary
-                        AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
-                            WHERE sl.SessionId=e.SessionId AND sl.ExpectedBarEndUtc=e.BarEndUtc AND sl.Symbol IN(e.Symbol,N'XIU')))
-                    SELECT InputJson,ContinuityEpoch FROM source WHERE n=1
-                    """, new { Date = date.ToDateTime(TimeOnly.MinValue), Now = now, Boundary = assignment.EffectiveUtc }, t);
-                liveInputs = saved.Select(e => new TradingLiveObservation(DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>(e.InputJson), e.ContinuityEpoch)).ToImmutableArray();
+                        WHERE s.TradingDate>=@FromDate AND s.TradingDate<=@Date AND e.PolicyVersionId=@Policy
+                        AND e.RecordedUtc<=@Now AND e.BarEndUtc>@Boundary
+                        ORDER BY e.BarEndUtc,e.Symbol
+                    """, new { Date = date.ToDateTime(TimeOnly.MinValue),
+                        FromDate = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(protectionReplayFromUtc ?? assignment.EffectiveUtc)).ToDateTime(TimeOnly.MinValue),
+                        Policy = assignment.Strategy.PolicyVersionId, Now = now,
+                        Boundary = protectionReplayFromUtc ?? assignment.EffectiveUtc }, t);
+                liveInputs = saved.Select(e => BrokerLiveObservationPolicy.Bind(
+                    DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>(e.InputJson), e.ContinuityEpoch,
+                    assignment.Strategy, comparison, e.HasConflict)).ToImmutableArray();
                 if (liveInputs.IsEmpty) warnings.Add("Delphi Live needs current durable collection/evaluation inputs. Keep its existing paper monitor available; promotion does not activate it.");
             }
             string[] symbols = financial.Holdings.Select(h => h.Symbol).Concat(candidates.Select(p => p.Symbol)).Concat(liveInputs.Select(e => e.Input.Stock.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
@@ -208,6 +213,6 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
     }
     private static DateTime Utc(DateTime date) => DateTime.SpecifyKind(date, DateTimeKind.Utc);
     private sealed record RunRow(Guid RunId, string StrategyConfigJson, string ModelSnapshotJson);
-    private sealed record LiveRow(string InputJson, int ContinuityEpoch);
+    private sealed record LiveRow(string InputJson, int ContinuityEpoch, bool HasConflict);
     private sealed record BarRow(string Symbol, Guid EvidenceId, DateTime StartUtc, DateTime ReceivedUtc, short Minutes, decimal Open, decimal High, decimal Low, decimal Close);
 }

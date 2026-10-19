@@ -231,7 +231,7 @@ public static class TradingRecommendationEngine
             foreach(var saved in group.OrderBy(e=>e.Input.BarEndUtc))
             {
                 var source=saved.Input;
-                if(source.BarEndUtc <= input.Assignment.EffectiveUtc || source.BarEndUtc < input.SessionOpenUtc ||
+                if(source.BarEndUtc <= input.Assignment.EffectiveUtc || holding is null && source.BarEndUtc < input.SessionOpenUtc ||
                     source.EvaluatedUtc>input.EvaluatedUtc || source.BarEndUtc<=memory.LastLiveBarUtc) continue;
                 var previous=memory.LiveSessionId==source.SessionId && memory.LiveEpoch==saved.ContinuityEpoch
                     ? memory.LiveEvaluation ?? DelphiLiveEvaluationState.Initial(source.DailySetup is not null)
@@ -242,8 +242,12 @@ public static class TradingRecommendationEngine
                 if(holding is not null && evaluated.SafetyInput.CompletedBarClose is decimal close &&
                     source.BarEndUtc>(LastEntry(input,holding.PositionId) ?? input.Assignment.EffectiveUtc))
                     protection=DelphiLiveSafetyPolicy.ApplyCompletedClose(protection!,source.BarEndUtc,close,input.EvaluatedUtc,policy).State;
+                string? exit = memory.PositionId == holding?.PositionId ? memory.ExitReason : null;
+                if (holding is not null && evaluated.ObservationIsValid &&
+                    source.BarEndUtc > (LastEntry(input, holding.PositionId) ?? input.Assignment.EffectiveUtc))
+                    exit ??= evaluated.Safety.PrimaryExitRule?.ToString();
                 memory=memory with {PositionId=holding?.PositionId,LiveProtection=protection,LiveEvaluation=evaluated.NextState,
-                    LiveSessionId=source.SessionId,LastLiveBarUtc=source.BarEndUtc,LiveEpoch=saved.ContinuityEpoch,LastLiveResult=evaluated};
+                    LiveSessionId=source.SessionId,LastLiveBarUtc=source.BarEndUtc,LiveEpoch=saved.ContinuityEpoch,LastLiveResult=evaluated,ExitReason=exit};
             }
             states[symbol]=memory;
             if(memory.LastLiveResult is { } latest && memory.LastLiveBarUtc>=input.SessionOpenUtc &&

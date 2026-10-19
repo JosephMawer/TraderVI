@@ -481,14 +481,15 @@ evidence; this follow-up grants no additional provider requests or database repa
 
 ### Portfolio-wide ongoing TFSA management
 
-- **October 18 Live request:** use the most successful Delphi Live variant toward October 19
-  TFSA management. Normal is the recommended preparation candidate (-0.71% inception return,
-  ahead of Original/rules-only), not a proven profitable choice or approved real assignment.
-  All three lose money in this saved sample; estimated fills, sparse coverage and the new untested
-  protection versions limit inference. Normal's exact transition preview is now implemented/tested,
-  with real execution still NO-GO. Continue risk/storage and Live adapter qualification; budget,
-  ownership, native order verification and a fresh activation packet remain unresolved. No
-  performance-evidence waiver or order authority is inferred. [Assessment](delphi-live-tfsa-readiness-20261018.md).
+- **October 18 Live request:** Normal is the working preparation target after the three-account
+  comparison; all recorded inception returns are negative and evidence remains limited. Capital
+  and opening ownership are now resolved for this first day: use actual available capital after
+  both current holdings sell completely. No outside transfers/trades; stop new buys on cash/order
+  mismatch. Connected read verifies two CAD whole-share holdings/no pending orders. Core Live
+  adapters and opening/cash foundations are tested, not installed/activated. The original launch
+  qualifications remain required. Unresolved: native risk/storage/source/lifecycle qualification,
+  shared-host/control integration, actual opening fills/cash and a fresh activation packet.
+  [ADR-0092](../adr/0092-scoped-supervised-delphi-live-tfsa-session.md), [assessment](delphi-live-tfsa-readiness-20261018.md).
 - **Accepted September 22:** any portfolio must be promotable; keep the exact approved strategy
   managing across days until pause or switch, subject to each day's account/risk checks (ADR-0085).
   Breakout Top 3 is an initial candidate, not the product scope.

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Core.Trader.DelphiLive;
 
 namespace Core.Trader.Promotion;
 
@@ -17,6 +18,8 @@ public static class BrokerProtectionHandover
 {
     public static ImmutableArray<string> RecoveryBlocks(TradingRecommendationInput input, ImmutableArray<BrokerPositionProtection> protection)
     {
+        if (input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive)
+            return BrokerLiveProtection.RecoveryBlocks(input, protection);
         var blocks = ImmutableArray.CreateBuilder<string>();
         foreach (var saved in protection)
         {
@@ -41,9 +44,6 @@ public static class BrokerProtectionHandover
         ImmutableArray<BrokerProtectionMark> marks, DateTimeOffset activation)
     {
         incoming.Validate();
-        // Cross-family execution needs a separately qualified adapter. Do not pretend five/fifteen-minute histories are interchangeable.
-        if (incoming.Strategy.Family != TradingStrategyFamily.DailyShadow)
-            throw new InvalidOperationException("This supervised execution adapter supports the reviewed Daily Shadow family.");
         if (prior.GroupBy(p => p.PositionId).Any(g => g.Count() != 1) || marks.GroupBy(p => p.PositionId).Any(g => g.Count() != 1))
             throw new InvalidOperationException("Protection ownership or price evidence is ambiguous.");
         return holdings.Select(h =>
@@ -58,6 +58,8 @@ public static class BrokerProtectionHandover
             if (oldState is not null && oldState.PositionId != h.PositionId)
                 throw new InvalidOperationException("Protection belongs to another position cycle.");
             decimal average = h.CostBasis / h.Quantity;
+            if (incoming.Strategy.Family == TradingStrategyFamily.DelphiLive)
+                return BrokerLiveProtection.Transfer(incoming, h, previous, activation);
             var trail = oldState?.ShadowProtection is { } saved ? saved with { AverageCost = average }
                 : SystemShadowTrailingState.Open(average);
             decimal? floor = new[] { previous?.CarriedFloor, oldState?.LiveProtection?.FloorPrice, trail.TrailingStopPrice, trail.Progressive?.StopPrice }
@@ -76,6 +78,8 @@ public static class BrokerProtectionHandover
     public static (TradingRecommendationMemory Memory, ImmutableArray<BrokerPositionProtection> Protection) Replay(
         TradingRecommendationInput input, ImmutableArray<BrokerPositionProtection> protection)
     {
+        if (input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive)
+            return BrokerLiveProtection.Replay(input, protection);
         var memory = input.PreviousMemory.Symbols.ToBuilder();
         var updated = protection.ToBuilder();
         for (int index = 0; index < protection.Length; index++)

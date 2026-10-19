@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Trader.DelphiLive;
 
 namespace Core.Trader.Promotion;
 
@@ -28,8 +29,6 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         }
         var account = await source.SynchronizeAsync([], ct);
         approval.Review.Validate(account, clock.GetUtcNow());
-        if (approval.Review.Strategy.Strategy.Family != TradingStrategyFamily.DailyShadow)
-            throw new InvalidOperationException("The selected portfolio needs its qualified execution/protection adapter before approval.");
         if (source.ImplementationIdentity != approval.Review.Strategy.Strategy.ImplementationIdentity)
             throw new InvalidOperationException("Execution approval must identify the running strategy implementation.");
         var state = new BrokerManagedSession(approval.Review.RequestId, approval.Review.BindingId, 0,
@@ -168,8 +167,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         var acquired = account.Positions.Where(p => !state.Protection.Any(s => s.PositionId == p.PositionId)).ToArray();
         if (acquired.Length > 0)
         {
-            var protections = acquired.Select(p => new BrokerPositionProtection(p.PositionId, state.Strategy.VersionId.ToString("D"),
-                null, p.EntryCompletedAt, new(p.PositionId, SystemShadowTrailingState.Open(p.CostBasis / p.Quantity), null, null, null, null, null)));
+            var protections = acquired.Select(p => state.Strategy.Strategy.Family == TradingStrategyFamily.DelphiLive
+                ? BrokerLiveProtection.Transfer(state.Strategy, p, null, p.EntryCompletedAt)
+                : new BrokerPositionProtection(p.PositionId, state.Strategy.VersionId.ToString("D"),
+                    null, p.EntryCompletedAt, new(p.PositionId, SystemShadowTrailingState.Open(p.CostBasis / p.Quantity), null, null, null, null, null)));
             state = await Save(lease, state with { Protection = state.Protection.AddRange(protections) }, "FilledPositionsProtected", ct);
         }
         TradingRecommendationInput input;
@@ -190,6 +191,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
                 Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
         bool currentRiskDay = account.Risk.TradingDate == account.Account.TradingDate;
+        var savedRiskTradingDate = state.Memory.TradingDate;
         input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
             PreviousMemory = state.Memory, ActualFills = account.Fills,
             ProtectionBoundaries = state.Protection.ToImmutableDictionary(p => p.PositionId, p => p.EstablishedAt.UtcDateTime) };
@@ -203,9 +205,20 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention, Blocks = recoveryBlocks }, "ProtectionRecoveryBlocked", ct);
         var replay = BrokerProtectionHandover.Replay(input, state.Protection);
         input = input with { PreviousMemory = replay.Memory };
+        if (state.Strategy.Strategy.Family == TradingStrategyFamily.DelphiLive)
+        {
+            var prepared = TradingRecommendationEngine.Evaluate(input with { Quotes = [] });
+            await source.PreserveRiskHoldsAsync(account, prepared.Memory, ct);
+            state = await Save(lease, state with { Memory = prepared.Memory, Protection = replay.Protection }, "LiveProtectionPrepared", ct);
+            // Persist raised stops and observed exits before requesting a bid that can trigger them.
+            input = input with { EvaluatedUtc = state.SavedAt.UtcDateTime, PreviousMemory = prepared.Memory };
+            input = input with { Quotes = await source.ReadQuotesAsync(input, ct) };
+            replay = BrokerProtectionHandover.Replay(input, state.Protection);
+            input = input with { PreviousMemory = replay.Memory };
+        }
         var result = TradingRecommendationEngine.Evaluate(input);
         if (!currentRiskDay)
-            result = result with { Memory = result.Memory with { TradingDate = state.Memory.TradingDate,
+            result = result with { Memory = result.Memory with { TradingDate = savedRiskTradingDate,
                 DailyLossHold = state.Memory.DailyLossHold || result.Memory.DailyLossHold } };
         await source.PreserveRiskHoldsAsync(account, result.Memory, ct);
         state = await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection }, "StrategyEvaluated", ct);

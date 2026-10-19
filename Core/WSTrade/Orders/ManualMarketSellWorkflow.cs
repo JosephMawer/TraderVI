@@ -18,7 +18,25 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
     public bool IsConnected => broker.IsConnected;
     public IReadOnlyList<ManualSellRecord> ReadOrders() => journal.ReadSells();
 
-    public async Task<ManualSellResult> SellAllAsync(ManualSellSelection selection, CancellationToken ct = default)
+    public Task<ManualSellResult> SellAllAsync(ManualSellSelection selection, CancellationToken ct = default) =>
+        SubmitAsync(selection, Guid.NewGuid(), ct);
+
+    /// <summary>Explicit durable opening-plan authority. A known request is recovered, never resubmitted.</summary>
+    public async Task<ManualSellResult> SellReviewedAsync(ManualSellSelection selection, Guid requestId, CancellationToken ct = default)
+    {
+        if (requestId == Guid.Empty) throw new ArgumentException("A reviewed durable request identity is required.");
+        var saved = journal.ReadSells().SingleOrDefault(o => o.Intent.RequestId == requestId);
+        if (saved is not null)
+        {
+            if (saved.Intent.AccountId != selection.Account.Id || saved.Intent.SecurityId != selection.SecurityId ||
+                saved.Intent.Symbol != selection.Symbol || saved.Intent.Quantity != selection.Quantity)
+                throw new InvalidOperationException("The opening request identity was already used for a different holding.");
+            return await CheckOrderAsync(requestId, ct);
+        }
+        return await SubmitAsync(selection, requestId, ct);
+    }
+
+    private async Task<ManualSellResult> SubmitAsync(ManualSellSelection selection, Guid requestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(selection);
         // A queued second click must never become a second sale after the first finishes.
@@ -27,6 +45,8 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
         {
             if (!broker.IsConnected || selection.SessionRevision != broker.SessionRevision)
                 return new(null, "The connection changed. Sign in and refresh holdings before selling.");
+            if (journal.ReadSells().Any(o => o.Intent.RequestId == requestId))
+                return new(null, "This reviewed request already exists. Recover its original broker order.");
             if (!selection.IsWholeHolding) return new(null, "Sell all requires a whole-share holding. Use Wealthsimple for fractional shares.");
             if (usedSelections.Contains(selection.SelectionId)) return new(null, "This holding was already submitted. Check the saved sell and refresh holdings.");
             if (journal.HasUnresolvedOrders()) return new(null, "A saved manual order is unresolved. Check its status before selling.");
@@ -39,7 +59,7 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
             var error = ManualSellChecks.Validate(selection, context, clock.GetUtcNow());
             if (error != null) return new(null, error);
             ct.ThrowIfCancellationRequested();
-            var intent = new ManualSellIntent(Guid.NewGuid(), context.Security.SourceIdentity!, context.Account.Id, context.Security.Id,
+            var intent = new ManualSellIntent(requestId, context.Security.SourceIdentity!, context.Account.Id, context.Security.Id,
                 context.Account.DisplayName, context.Security.Symbol, context.Security.Exchange, (int)selection.Quantity,
                 selection.SnapshotAt, context.Quote, clock.GetUtcNow());
             var record = new ManualSellRecord(intent, null, []);

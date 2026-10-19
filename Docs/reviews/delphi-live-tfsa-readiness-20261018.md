@@ -53,94 +53,114 @@ This follows the production scorecard's grouping. Twelve independent PowerShell 
 agree with the Python cash, realized P/L, trade counts and both return calculations.
 No missing mark is filled forward or repaired.
 
-## Current readiness
+## Current readiness and accepted first-day scope
 
 SELECT-only metadata at **22:25 Toronto** finds one linked account, **zero saved initial risk
-baselines, zero continuations and zero managed-session revisions**. This is a fresh storage
-observation, not verification of current broker balances, login, orders or positions.
-PID 20036 is responsive. There is no held/unexpired Live host lease and no fresh Monday official
-run in this Sunday-night sample. Those observations do not prove a fault outside market hours;
-Monday's source, host ownership and collection still need pre-open/in-session verification.
+baselines, zero continuations and zero managed-session revisions**. No later write is claimed in
+this implementation session. Sunday has no held/unexpired Live host lease or fresh Monday official
+run; that alone does not prove an off-session fault. Monday's exact source and ownership still need
+verification. The current desktop has not received these Live preparation changes.
 
-Source inspection confirms distinct unfinished boundaries:
+The first broker read failed Windows-protected-session access in the sandbox. The separately
+approved native read then reported NotAuthenticated. After the operator signed in through TraderVI,
+the same read succeeds at **22:58 Toronto**: two CAD whole-share holdings and no pending orders.
+Private snapshots stay CurrentUser-encrypted; no financial identifiers or amounts are printed here.
+This verifies login/account shape through the existing reader, not the newly prepared Live adapter.
+It sends no order, refreshes no token and changes no saved credentials.
 
-- `BrokerManagedSessionWorkflow.ApproveAsync` rejects Delphi Live before saving authority or
-  sending transition exits. `BrokerProtectionHandover` transfers/replays Daily Shadow only.
-- `UnqualifiedBrokerRiskEvidenceSource` cannot qualify effective cash-event timing, complete
-  event coverage and matching opening/closing books. A current broker display is not this source.
-- The broker strategy-input reader needs exact Live policy/profile/source and continuity mapping;
-  it currently chooses saved evaluation input without a complete account/profile adapter. The
-  managed quote path also assumes a Shadow policy. These must be fixed before enabling Live.
-- Initial/continued risk storage needs runtime recovery qualification; broker order lifecycle,
-  populated assignment restart and one-owner execution-host rollout remain unqualified.
-- Existing holdings need explicit ownership and carried protection. Normal's empty paper book
-  is not permission to liquidate the TFSA. Manual/default ownership and ADR-0079/0081/0085 apply.
+The operator has now resolved the launch capital and opening-holding questions:
 
-## Completed first increment and shortest remaining route
+- Use actual available capital, not the operator's approximate account estimate.
+- Sell both current holdings in full first thing, subject to fresh regular-session checks. Confirm
+  each original order and inventory before proceeding, and reconcile usable cash before any new buy.
+- No deposits, withdrawals or trades outside TraderVI for the first supervised session. Stop new
+  automatic buys if cash or orders fail to reconcile.
 
-**Implemented/offline-tested:** the Trading dropdown and transition dialog can inspect the exact
-Normal Live comparison through `ReviewBrokerAsync`. The review pins account, normal profile,
-daily version and live policy; mismatched identities and bypass profiles remain rejected. The
-dialog rechecks the ledger and comparison identity. Recommendation-only comparison approval and
-the Delphi Live execution-family guard remain unchanged. A reviewed source never supplies paper
-cash/holdings as real financial facts. The displayed return ordering remains explicitly daily;
-this report, not that ordering, supports the integration-candidate recommendation.
+[ADR-0092](../adr/0092-scoped-supervised-delphi-live-tfsa-session.md) records that accepted scope.
+It adds constraints; it does not waive the existing six launch qualifications. In particular, an
+operator's no-transfer agreement plus cash arithmetic is not a complete native cash-event feed.
+No real opening plan is saved, no sale is queued, no baseline/assignment is created and no desktop
+execution loop or activation control is added. **Automatic TFSA management remains off/NO-GO.**
 
-This increment is built in an isolated output directory, **not installed into/restarted in the
-running desktop**. Native transition-preview acceptance remains pending. Selecting Normal for
-preview is not selecting a running TFSA strategy.
+## Implemented and offline-tested
 
-Proceed in these dependency-ordered increments:
+The earlier preview increment (`9bdacb8`) exposed the exact Normal definition/transition review,
+pinning its account/profile, daily version and Live policy while excluding recommendation-only
+comparison approval. It retained the old Live-family execution rejection. The following source
+increment replaces that blanket rejection with Live-specific adaptation and keeps all existing
+launch-evidence requirements. It is not an operational approval.
 
-1. **Qualify the actual account/risk source and storage.** Establish complete effective cash-flow
-   coverage and exact family opening/closing valuation, qualify baseline/continuation save and
-   recovery, then review/save actual initial references without clearing existing holds.
-2. **Complete the Live adapter.** Preserve Normal's exact source/policy/profile, independent
-   real-account confirmation/funds, real fills/position ages and ongoing risk state. Implement
-   Live protection transfer/replay and family-aware quote collection. Test restart, missed
-   protective triggers, pending exits and manual-order coordination before relaxing the guard.
-3. **Qualify one execution host and native order lifecycle.** Reuse the shared journal, account
-   lease, existing broker clients and original-ID recovery. Real-order tests require a separately
-   reviewed concrete instrument/quantity and explicit authority; no test order is assumed here.
-4. **Prepare the fresh activation packet.** Identify exact strategy/build, actual account and
-   risk records, protection owners, retained/manual holdings, required exits, evidence limits
-   and a reviewed cumulative purchase ceiling. Required exits reconcile before incoming buys.
-   Review the evidence requirements in ADR-0055/0053/0067; no automatic permission follows from
-   choosing the least-negative result or from an approaching deadline.
-5. **Only after those checks, authorize and observe a supervised run.** Verify confirmed fills,
-   active protection, stop-new-buys, uncertain-order recovery and subsequent-day continuation.
+- Live handover/fills use actual costs and position identity, preserve independent carried floors
+  and pending exits, and avoid fictional paper or cross-family price highs.
+- The broker reader requests the exact Live policy and comparison admission. It clears paper
+  lifecycle/ownership. A latest conflicted stock/XIU observation remains an invalid observation;
+  it cannot disappear to expose an older confirmation.
+- Completed bars replay real protection. Valid historical signal exits remain latched through
+  later rebounds and next-session recovery. Live does not acquire Shadow's Session-2 time exit.
+  A bar low cannot become an observed bid-based breach.
+- The workflow saves raised protection and latched exits before requesting a later trigger bid.
+  Actual funds, ordinary gates, loss holds, original-ID recovery and one-owner submission remain.
+- Reviewed opening sales accept stable request IDs and recover those same IDs after restart.
+  The pure opening-plan policy requires fresh matching inventory/no pending orders, waits before
+  regular open, stops after close, and refuses changed holdings or partial/cancelled outcomes.
+  The protected immutable file store is tested with synthetic data; no runtime plan is installed.
+- The conditional scoped cash reader admits only exact anchor cash plus identified owned net
+  trade costs/proceeds, including fees. Unknown/changed/duplicate orders, unexplained cash and
+  stale or expired observations block new buys. It issues no daily continuation/reference reset.
+  Additional scoped review evidence cannot substitute for any original qualification.
 
-Monday can remain a paper observation day while this work proceeds. A recommendation/manual-order
-workflow is a separate, narrower option; it must not be presented as automatic TFSA management.
-There is no credible verified automatic-order launch commitment for Monday in the current state.
+The [sequence concept](../concepts/supervised-tfsa-opening-sequence.md) explains the distinction
+between a planned step, a durable order intent, a native fill and usable proceeds.
 
-One account-specific consideration also remains: CRA says income from a business carried on in
-a TFSA is taxable. Whether a particular short-term trading operation is a business is fact-specific;
-automating it does not establish tax exemption. Review the intended activity with a Canadian tax
-professional before real short-term automation. This is not a newly invented engine gate.
-[CRA guidance](https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/tax-free-savings-account-tfsa-issuers/taxes.html).
+## Remaining route
+
+1. **Qualify native risk/source and storage.** Complete cash-event and opening/closing boundary
+   evidence, baseline/continuation save/readback and crash recovery. Preserve known references and
+   holds. The new conditional reader does not supply the missing broader production proof.
+2. **Verify the exact Live adapter natively.** Check Normal policy/profile/daily identities,
+   continuity and raw observations, actual held-cost mapping, current quotes and missed exits.
+   Passing synthetic tests does not establish current data coverage or executable prices.
+3. **Finish one shared host and explicit operator controls.** Reuse the existing client, encrypted
+   journal, account gate and SQL lease; add durable opening progression, stopped-buy restoration,
+   clear plan/assignment status, backoff and restart recovery. No new host is present in this change.
+4. **Complete native lifecycle qualification and a fresh activation review.** Real orders and
+   activation remain operator-controlled actions; this agent does not submit them or enable an
+   automatically trading account. Do not manufacture native fill/cancel/restart evidence from tests.
+   Two confirmed opening sales would qualify only their observed path. Use actual available cash
+   and the exact installed build/source in the review, retaining all required launch checks.
+5. **Observe real operation only after activation.** Verify confirmed fills, durable protection,
+   stop-new-buys, uncertain-order recovery and next-session permissions separately. The scoped
+   no-transfer permission expires at the reviewed close without releasing saved holds or authorizing
+   next-day purchases. Ordinary entry gates can still produce no buy.
+
+There is no verified automatic-order launch commitment for October 19. The accepted target and
+liquidation instruction remain recorded; neither successful sign-in nor deadline supplies execution
+qualification. A manual-order workflow is a separate, narrower capability.
 
 ## Validation and scope
 
-.NET SDK 10.0.401. **102 focused tests pass**, including exact Normal/mismatched-profile review
-and rejection of both original/Normal Live execution before any order or session save. WPF builds
-with zero errors; cached dependency-security warnings identify moderate/high advisories on
-`System.Security.Cryptography.Pkcs` 9.0.4, separately from existing compiler warnings. No fresh
-dependency audit, full solution or SSDT qualification is claimed. The full suite passes **2,471
-tests/eight native skips with collection parallelism disabled in the isolated output's runner
-configuration**. Two ordinary parallel runs time out in the AI host-loop stop test; the second
-also times out in desktop deadline cleanup. The stop test passes alone. Those timing failures
-are preserved in the logs; a serial pass does not establish parallel timing stability. No AI host
-logic/test deadlines were changed. The compiled suite also contains unrelated concurrent daily-
-return edits; those remain outside this increment's commit.
+.NET SDK **10.0.401**. The final **179 focused tests pass**. The full Core suite passes **2,501
+tests/eight native skips**, using disabled collection parallelism in the isolated output runner
+configuration. Tests cover real-cost transfer, save-before-bid, prior-session exit latching, scope
+expiry/unknown cash, original-ID sale recovery, opening-plan inventory and protected immutable
+recovery, in addition to the existing session/readiness tests. WPF Release builds with **zero
+errors and 262 existing compiler warnings**. Build/test output is isolated from the running app.
 
-Ignored evidence: `artifacts/delphi-live-tfsa-20261018/` contains SELECT scripts, export,
-analyzer/independent verifier, summaries and build/test logs. Export SHA-256:
+Cached `System.Security.Cryptography.Pkcs` 9.0.4 moderate/high advisories were reported in the earlier
+restore and remain separate from compiler warnings. There is no fresh dependency-security audit,
+complete solution or SSDT claim for this change. Earlier ordinary parallel full-suite runs timed
+out in AI host-loop stop/desktop cleanup; the isolated stop test and serial suites pass. No AI
+logic or deadlines were changed, and a serial pass does not prove parallel timing stability.
+The first follow-up build found an ambiguous ImmutableArray.AddRange overload; it was corrected
+before the passing final tests/build. The independent 12-check paper arithmetic verification and
+performance export from the preview increment retain their original scope.
+
+Ignored evidence remains in `artifacts/delphi-live-tfsa-20261018/`: performance export/analyzers,
+`native-account-read.log` and protected snapshot, `happy-path-focused.log`, `happy-path-full.log`,
+`happy-path-wpf-build.log` and isolated output. Performance-export SHA-256 remains
 `F032D839B1B94370A2B03A094C0B3A9507AFDDA5D6525B04093A959974801806`.
-The first readiness query failed inside the sandbox's SQL security context; the same SELECT-only
-query succeeded with approved local access. Initial analysis helper assumptions about duplicated
-endpoints and variable timestamp precision were corrected before the final verified results.
 
-No database mutation, market/broker diagnostic, model training, live order, account assignment,
-protection transfer, migration, operational restart, automation activation or push ran here.
-Unrelated concurrent daily-return UI/source changes are preserved and excluded from this increment.
+This preparation session performs no SQL mutation/migration, market collection, training, real order,
+opening-plan installation, account assignment, protection handover, operational restart, trading
+activation or push. The broker call described above is read-only. Concurrent broker-read-helper and
+editor work is preserved and excluded from this increment's commit.

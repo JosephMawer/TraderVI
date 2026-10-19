@@ -17,6 +17,20 @@ namespace TraderVI.Core.Tests;
 public class ManualMarketSellWorkflowTests
 {
     [Fact]
+    public async Task ReviewedOpeningRequestRecoversTheSameOrderAcrossWorkflowRestart()
+    {
+        var f = new Fixture(); var request = Guid.NewGuid();
+        var sent = await f.Flow.SellReviewedAsync(f.Selection, request);
+        Assert.Equal(request, sent.Order!.Intent.RequestId); Assert.Equal(1, f.Broker.Submissions);
+        var restarted = new ManualMarketSellWorkflow(f.Broker, f.Journal, f.Clock);
+        var recovered = await restarted.SellReviewedAsync(f.Selection, request);
+        Assert.True(recovered.Order!.IsResolved); Assert.Equal(1, f.Broker.Submissions);
+        Assert.Equal(request, f.Broker.LastReadId);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => restarted.SellReviewedAsync(f.Selection with { Quantity = 19 }, request));
+        Assert.Equal(1, f.Broker.Submissions);
+    }
+
+    [Fact]
     public async Task OneClickSellsExactEntireHoldingOnlyAfterDurableIntentAndFreshChecks()
     {
         var f = new Fixture();

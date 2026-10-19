@@ -23,12 +23,26 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
     // Older approvals remain limited to their reviewed session. Duration is part of the immutable fingerprint.
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public BrokerExecutionDuration Duration { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerNoTransferSessionScope? NoTransferScope { get; init; }
     public static ImmutableArray<string> RequiredChecks { get; } =
         ["cash-events", "opening-values", "native-order-lifecycle", "strategy-evidence", "restart-recovery", "installed-storage"];
+    // A restricted operating scope supplements qualification; it cannot replace native launch evidence.
+    [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => NoTransferScope is null ? RequiredChecks :
+        [.. RequiredChecks, "supervised-no-transfer-cash", "scoped-initial-reference", "opening-native-sale-fills",
+            "operator-supervised-trial", "scoped-durable-recovery"];
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     public void Validate(BrokerAccountProjection account, DateTimeOffset now)
     {
         Strategy.Validate();
+        NoTransferScope?.ValidateAnchor();
+        if (NoTransferScope is { } scope && (scope.BindingId != BindingId || scope.BaselineId != BaselineId ||
+            scope.Session != Session || scope.ApprovedAt > now || Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
+            PurchaseCeiling > scope.CashOnlyAnchor.Cash || PurchaseCeiling > scope.CashOnlyAnchor.BuyingPower ||
+            scope.CashOnlyAnchor.AccountId != account.Import.Plan.Observation.AccountId ||
+            scope.CashOnlyAnchor.IdentityId != account.Import.Plan.Observation.IdentityId || !scope.OpeningSalesVerified ||
+            !RequiredExits.IsEmpty || !RetainedPositions.IsEmpty || !account.Positions.IsEmpty))
+            throw new InvalidOperationException("The supervised no-transfer launch must match the actual cash-only account after required exits and its available-capital ceiling.");
         if (!Enum.IsDefined(Duration) || RequestId == Guid.Empty || BindingId != account.Risk.BindingId || BaselineId != account.Risk.BaselineId ||
             AccountFingerprint != account.Fingerprint || PreparedAt > now || now - PreparedAt > TimeSpan.FromMinutes(2) ||
             Session != account.Account.TradingDate || PurchaseCeiling < 0 || !account.NewRiskBlocks.IsEmpty ||
@@ -41,7 +55,7 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
             CurrentProtection.Select(p => p.PositionId).Distinct().Count() != CurrentProtection.Length ||
             account.Positions.Any(p => p.LegacyPositionId.HasValue && !CurrentProtection.Any(s => s.PositionId == p.PositionId)))
             throw new InvalidOperationException("Activation review is stale, incomplete or differs from the real account. Review again.");
-        foreach (string check in RequiredChecks)
+        foreach (string check in RequiredQualificationChecks)
         {
             var matching = Qualifications.Where(q => q.Check == check).ToArray();
             if (matching.Length != 1 || matching[0].BindingId != BindingId || matching[0].StrategyFingerprint != Strategy.Fingerprint ||
@@ -99,6 +113,8 @@ public interface IBrokerManagedAccountSource
     Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct);
     Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct);
     Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct);
+    Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
+        Task.FromResult(input.Quotes);
     Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct);
     Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct);
 }
