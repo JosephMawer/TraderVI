@@ -19,11 +19,24 @@ This record distinguishes completed software from installed or natively verified
 
 ## Progress and evidence
 
+**Resumed after the operator's Codex restart, October 18 at 23:43 Toronto.** Both exact installed
+launchers returned directly without an approval request. SQL v2 exited 0, returned the expected
+`HelperSmokeCheck = 1`, and its receipt query hash matched the submitted UTF-8 bytes. Broker v1
+exited 0; the bounded seven-request account/pending/daily read succeeded. It sent zero orders,
+refreshed no token and left saved credentials unchanged. This verifies helper access, not automation
+qualification. Private snapshots stay encrypted in ignored artifacts.
+
+| Helper | Approval prompt observed | Exit | Read result |
+|---|---|---|---|
+| Installed SQL v2 | No | 0 | Expected scalar 1; query SHA-256 verified |
+| Installed broker v1 | No | 0 | Account/pending/daily reads succeeded; no mutation |
+
 - Prior preparation: `9bdacb8`, `76f79af8`; 179 focused tests and 2,501 full Core tests pass/eight native skips.
-- Execution-host draft is preserved, uncommitted and not yet covered by host tests or desktop wiring.
-  Its checkpoint Core build passes with zero errors/260 existing compiler warnings, after fixing
-  three namespace-resolution errors. Earlier full-suite/WPF results do not validate the new draft.
-  Work is checkpointed for the requested Codex restart; the [resumption note](delphi-live-restart-checkpoint-20261018.md)
-  specifies first verifying both installed helpers without prompts, then continuing implementation.
+- The default-off Core host and encrypted permission store now pass 117 focused session/opening/scope
+  tests. Explicit enable binds the existing approved Normal SQL session and running build; it creates
+  no approval and submits nothing. Polls reuse the existing workflow, preserve stopped mode/original
+  orders, coalesce overlap and wait/back off when unavailable. Host-specific tests use synthetic
+  accounts/transports only. Desktop wiring and operator review remain next; earlier full-suite/WPF
+  results retain their separate scope. Cached Pkcs advisories and existing compiler warnings remain.
 - No real activation grant, opening order plan, broker order or risk-reference reset has been made
   by this implementation work.

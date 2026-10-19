@@ -50,9 +50,14 @@ has no baseline, continuation or managed session; no later write is claimed. Nat
 broker lifecycle, exact-source and host qualification remain before operator-controlled activation.
 [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md) owns the accepted scope;
 the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns evidence and remaining steps.
-The subsequent host draft is preserved uncommitted, without host tests or desktop wiring. The
-operator requests a Codex restart checkpoint; the overnight continuation is paused. After explicit
-resume, verify both installed helpers actually run without prompts before continuing the host.
+After the operator's restart/resume, both fixed installed helpers execute without an approval
+request at 23:43 Toronto (exit 0). SQL returns the expected scalar with verified query hash;
+the bounded broker account/pending/daily read succeeds without orders/refresh/credential changes.
+The Core host and protected permission store now pass 117 focused session/opening/scope tests,
+including exact assignment/build matching, original-order restart recovery, stopped-mode preservation,
+non-overlap, session waiting, backoff and protected-file recovery. Desktop wiring and activation
+review remain next; no host permission is saved or enabled. The overnight fallback remains paused
+while active implementation continues. Earlier full-suite/WPF results retain their prior scope.
 [Restart checkpoint](reviews/delphi-live-restart-checkpoint-20261018.md), [morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted

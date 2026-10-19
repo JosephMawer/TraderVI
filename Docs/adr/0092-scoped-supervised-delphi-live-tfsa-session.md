@@ -87,6 +87,12 @@ and actual fills remain unfinished. No SQL migration is needed for optional scop
 existing immutable session JSON. See the [sequence concept](../concepts/supervised-tfsa-opening-sequence.md)
 and [dated evidence](../reviews/delphi-live-tfsa-readiness-20261018.md).
 
+The subsequent Core host adds an explicit protected operator switch for one already-approved SQL
+assignment and build. Creating that switch cannot create an approval, baseline or opening order.
+The regular-session poll coalesces overlap, preserves original orders and saved stopped/paused modes,
+and uses bounded read-failure backoff. A changed build/assignment cannot inherit the old switch.
+The host and permission store are offline-tested; desktop wiring and native operation remain separate.
+
 ## Review questions
 
 1. Why does a verified no-transfer agreement plus cash reconciliation differ from a complete cash feed?

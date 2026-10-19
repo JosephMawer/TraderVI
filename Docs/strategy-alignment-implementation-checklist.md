@@ -36,9 +36,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   manufacture the original required qualifications. Monday automatic execution remains NO-GO.
 - [ ] Operator-controlled real orders/activation and subsequent confirmed fills/protection remain
   separate operational steps; none was performed by this preparation session.
-- [ ] After the requested Codex restart and explicit resume, verify actual prompt-free execution
-  of both installed helpers, then test/integrate the preserved host draft. Overnight continuation
-  is paused; [checkpoint and resumption order](reviews/delphi-live-restart-checkpoint-20261018.md).
+- [x] After the requested Codex restart/resume, verify both exact installed helpers execute without
+  approval requests (23:43 Toronto, exit 0, SQL query hash/scalar verified, bounded broker read succeeds).
+- [x] Test the default-off Core host and protected exact-assignment/build permission store: 117 focused
+  session/opening/scope tests pass. This creates no actual host permission, session or order.
+- [ ] Connect the host to the existing desktop broker poll/shared journal/gate and operator controls;
+  then build/verify a morning working copy. Earlier full-suite/WPF results precede this host increment.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

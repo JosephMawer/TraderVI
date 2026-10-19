@@ -1,5 +1,10 @@
 # Delphi Live: checkpoint for the operator's Codex restart
 
+**Resumed October 18 at 23:43 Toronto:** the operator restarted Codex and explicitly resumed this
+task. Both installed helpers now run without an approval request and exit 0; SQL hash/scalar and
+broker read success are checked. The earlier pause/instructions below remain historical checkpoint
+evidence. Current progress is in the [morning record](delphi-live-morning-decisions-20261019.md).
+
 **October 18, 2026, Toronto.** The operator's newer instruction in “Explain recurring sandbox
 issues” requests this checkpoint and a pause for restarting Codex. That human instruction was
 verified directly in the source chat. Do not resume implementation until the operator resumes.
