@@ -152,6 +152,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
   At 15:43 the bounded native read also confirms the latest exact assigned successor.
 - [x] Install/verify corrected successor copy 62c7b5fd at 15:46:33 Toronto, PID 58536: normal prior
   closure, matching hashes/new Core, one responding visible owner, no authority/packet/checkpoint.
+- [x] Diagnose stale source using bounded read/app failure metadata; preserve historical entry policy separately from current protection policy (0accf067). 41 focused/2,622 full offline passes, nine native skips/WPF build. Installed/verified at 15:58:57, PID 59220, exact hashes/one owner/no authority/packet/checkpoint.
+- [ ] Verify fresh native paper publication after the correction: first 16:00 read remains stale. The October 19 trial purchase window expired; a supported later-session contract requires explicit review before activation.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
@@ -743,13 +745,3 @@ authority. Existing positions, rule identities, historical labels and independen
 intact. Keep detailed new validation in linked reports and current state in project status, rather than
 appending another chronology here. The earlier documentation cleanup performed no operational checks;
 the later execution increment has separately dated test/native-read evidence in project status.
-
-**October 19, 15:52 checkpoint blocker:** capture reaches observation validation but Normal's source
-is stale (last saved 09:31 Toronto). Hash-verified bounded read confirms matching pinned daily policy
-and allowed successor. Private app failure metadata traces repeated paper tick failures to original
-entry admission being validated against the later current policy. The correction binds the original
-entry's policy separately in prospective dossiers, preserving immutable entry JSON and all current
-admission/source-freshness rules. 41 focused/2,622 full offline tests pass (nine native skips); WPF Release passes; install
-follow. No checkpoint, packet, authority or real order is created. Do not restart for recovery until
-capture succeeds; today's existing purchase cutoff remains required. Details in the
-[decision log](reviews/delphi-live-morning-decisions-20261019.md).

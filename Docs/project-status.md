@@ -185,7 +185,7 @@ pass (nine native skips); WPF Release passes with existing warnings. At 15:43 a 
 bounded read confirms one active Normal and one latest assigned allowed successor. Corrected copy
 **62c7b5fd** starts at **15:46:33 Toronto**, PID **58536**, after normal prior closure; exact path,
 manifest hashes/new Core, one responding visible owner and absent authority/packet/checkpoint verified.
-Next capture in this exact copy; no checkpoint success is inferred. Existing
+Latest capture fails source freshness: last Normal ledger update 09:31, confirmed by hash-verified 15:52/16:00 bounded reads. App failure metadata identifies original entry admission checked against the newer protection policy. Historical-policy provenance correction **0accf067** passes 41 focused/2,622 full offline tests (nine native skips) and WPF Release; installed at **15:58:57**, PID **59220**, exact path/hashes/one responding owner/no authority, packet or checkpoint verified. The first post-start read at 16:00 still shows stale source; paper publication recovery remains unverified. The October 19 16:00 purchase window has expired; no automatic next-day buying permission. Next verify paper producer recovery and explicitly resolve a supported later-session qualification contract, preserving original anchors. No checkpoint success is inferred. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in
@@ -1675,13 +1675,3 @@ changes. Put long run/build narratives in linked reports or dated history. Keep 
 checklist and priority changes in the roadmap, then reconcile their short links/status labels.
 The earlier September 22 bounded documentation pass changed navigation only; this later execution
 increment adds source/test evidence and explicitly dated native read-only verification.
-
-**October 19, 15:52 checkpoint blocker:** capture reaches observation validation but Normal's source
-is stale (last saved 09:31 Toronto). Hash-verified bounded read confirms matching pinned daily policy
-and allowed successor. Private app failure metadata traces repeated paper tick failures to original
-entry admission being validated against the later current policy. The correction binds the original
-entry's policy separately in prospective dossiers, preserving immutable entry JSON and all current
-admission/source-freshness rules. 41 focused/2,622 full offline tests pass (nine native skips); WPF Release passes; install
-follow. No checkpoint, packet, authority or real order is created. Do not restart for recovery until
-capture succeeds; today's existing purchase cutoff remains required. Details in the
-[decision log](reviews/delphi-live-morning-decisions-20261019.md).

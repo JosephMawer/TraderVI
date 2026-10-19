@@ -706,3 +706,19 @@ entry-policy-full-serial.log, entry-policy-wpf-build.log. Prepared output: entry
 Core SHA-256 `BA8968E52DFE8638757A2B39281753E6C390262E84CD1CFF71E23A2656F64913`.
 No checkpoint success or new source publication is inferred from tests. Preserve saved baseline and
 original orders. Trial purchase cutoff is unchanged even if preparation runs past today's close.
+
+Provenance correction committed as **0accf067** and normally launched at **15:58:57 Toronto**, PID
+**59220**, replacing PID 58536. Exact executable entry-policy-working-copy/TraderVI.WPF.exe,
+one responding visible owner, matching manifest/new Core and absent authority/packet/checkpoint
+verified. Receipt: entry-policy-switch-receipt.json; manifest: entry-policy-working-copy-hashes.json.
+No financial reference, original order or entry dossier is changed by the copy switch.
+
+The first post-start bounded read at **16:00:04 Toronto** still shows Normal last updated 09:31.
+Same query hash above; receipt result-20261019T200004302Z-9651737ea8024f309ff11c484ad2c644.json.
+Latest private app failure entry is 15:58:47 (before corrected startup); this absence of a new error
+alone does not prove paper producer recovery or fresh publication. No checkpoint is saved.
+The approved October 19 purchase window has now expired at regular close. No next-day buying
+permission or supported later-session qualification is implied; do not change dates/reset references
+or repeat verification trades. Next diagnose/verify normal paper source recovery, then explicitly
+resolve a supported later-session contract while preserving original financial anchors. Real execution
+remains off, and no order/approval/transfer was created by the agent. SQL rehearsals remain paused.

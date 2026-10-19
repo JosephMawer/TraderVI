@@ -1,12 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: first checkpoint capture still pending; automatic execution off.**
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\normal-successor-working-copy\TraderVI.WPF.exe`.
-Assigned-successor correction **62c7b5fd**, retaining coordination **943f964b**; Core SHA-256
-`7F2FD4A5944BB20D64F8A5AE785F46444023C52D7484B364F011A2072C82AB0C`.
-The corrected copy starts at **15:46:33 Toronto**, PID **58536**, after normal prior-process closure.
+**Current decision: no successful checkpoint; October 19 purchase window expired; automatic execution off.**
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\entry-policy-working-copy\TraderVI.WPF.exe`.
+Historical entry-policy correction **0accf067**, retaining successor/coordination fixes; Core SHA-256
+`BA8968E52DFE8638757A2B39281753E6C390262E84CD1CFF71E23A2656F64913`.
+The corrected copy starts at **15:58:57 Toronto**, PID **59220**, after normal prior-process closure.
 Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/normal-successor-switch-receipt.json`.
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/entry-policy-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
@@ -38,10 +38,11 @@ WPF Release passes with existing warnings. Corrected output is prepared in
 `artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation is verified above.
 Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
-This correction changes Core identity. Next capture the first successful checkpoint in this copy,
-then close normally/reopen this exact executable and Prepare first execution review. Preserve the
-existing baseline and original orders; never replay trades, reset references or reuse an old-build
-checkpoint. Actual packet/financial approval/host enable remain pending. Earlier UI repairs, the
+This correction changes Core identity. Verify paper publication recovery first. The October 19
+purchase window has expired without a successful checkpoint; a supported later-session contract
+requires explicit review before capture/restart/packet/activation. Preserve the existing baseline
+and original orders; never replay trades, reset references or reuse an old-build checkpoint.
+Actual packet/financial approval/host enable remain pending. Earlier UI repairs, the
 unlocated transient risk-screen failure and detailed receipts are retained in the
 [decision log](delphi-live-morning-decisions-20261019.md). No agent financial action occurred.
 
@@ -162,5 +163,5 @@ for the agent to submit orders, save financial authorizations or enable executio
 
 Latest capture reaches source validation but rejects Normal's stale source (09:31 last update;
 15:52 bounded read). App metadata traces paper tick failure to original-entry/current-policy equality.
-A provenance correction is prepared; no successful checkpoint exists. Do not restart for recovery.
+Provenance correction 0accf067 is tested/installed: 41 focused/2,622 full offline passes, nine native skips/WPF build. A first 16:00 native read still shows stale source; recovery remains unverified. No successful checkpoint exists. Do not restart for recovery. The October 19 purchase window has expired; later-session scope/qualification is not granted by this packet path.
 See the decision log for exact validation/install state; today's buying cutoff is unchanged.

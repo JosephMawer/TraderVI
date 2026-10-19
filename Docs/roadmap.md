@@ -95,7 +95,7 @@ allowed successor; the correction preserves original comparison identity and req
 saved assignment plus exact protection-only policy difference (217 focused/2,621 full offline passes,
 nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Corrected
 copy 62c7b5fd is installed/verified at 15:46, PID 58536, one responding owner/no authority/packet/
-checkpoint. Next verify native checkpoint, then same-copy restart/native review before
+checkpoint. Latest capture fails source freshness. Historical entry-policy correction 0accf067 is tested (41 focused/2,622 full offline passes, nine skips/WPF build) and installed/verified at 15:58, PID 59220. A 16:00 bounded read still shows the stale source. The October 19 purchase window has expired. Next verify paper-source recovery and resolve a supported later-session contract before checkpoint/restart/native review and
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 
@@ -437,13 +437,3 @@ The September 22 documentation cleanup preserves the full prior
 milestones and historical authority, not fresh instructions. Current installed/verified facts live
 only in [project status](project-status.md); this page keeps priorities and links. No operational
 verification date was advanced by the cleanup.
-
-**October 19, 15:52 checkpoint blocker:** capture reaches observation validation but Normal's source
-is stale (last saved 09:31 Toronto). Hash-verified bounded read confirms matching pinned daily policy
-and allowed successor. Private app failure metadata traces repeated paper tick failures to original
-entry admission being validated against the later current policy. The correction binds the original
-entry's policy separately in prospective dossiers, preserving immutable entry JSON and all current
-admission/source-freshness rules. 41 focused/2,622 full offline tests pass (nine native skips); WPF Release passes; install
-follow. No checkpoint, packet, authority or real order is created. Do not restart for recovery until
-capture succeeds; today's existing purchase cutoff remains required. Details in the
-[decision log](reviews/delphi-live-morning-decisions-20261019.md).
