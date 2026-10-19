@@ -76,6 +76,11 @@ Only actual matching evidence
 publishes the packet; financial approval and host enable remain separate. Broader production and
 unobserved native failure paths remain deferred. [Operator steps](reviews/delphi-live-native-qualification-20261019.md).
 
+The corrected risk screen now confirms an unexpected setup failure, not reference values. The next
+WPF-only diagnostic copy identifies the failing stage/category without exposing private error text
+(two tests/build pass, Core unchanged). Next install it and inspect the native diagnostic before
+attempting any initial-reference save; no bypass or replacement baseline is authorized.
+
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
 Today/Overall performance, four-column holdings, selected holding Buy/Sell panel and strategy dropdown

@@ -147,6 +147,14 @@ Actual refreshed-screen preview, saved baseline, checkpoint, post-restart observ
 remain pending; execution is off. General production/native
 failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 
+The operator's subsequent refreshed risk screen shows the generic unexpected-failure message, with
+no values and Save disabled. The 14:49 hash-verified bounded read finds no baseline/managed revision
+or report/recommendation JSON; latest import is the 14:46 startup observation. This does not locate
+the failed step. A WPF-only diagnostic increment adds stage/error-category/SQL-number reporting,
+excluding raw exception messages and preserving the existing failure block. Two privacy tests and
+Release build pass; reviewed Core is unchanged. The separate diagnostic copy is prepared; native
+retry/diagnosis still precedes initial-reference review/save and qualification.
+
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
 The broker account now leads with compact Today/Overall performance, account value/cash, a strategy

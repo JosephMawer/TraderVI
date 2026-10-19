@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TraderVI.WPF.Views;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF.Services;
 
@@ -34,6 +35,7 @@ public sealed partial class ManualBuyCoordinator
         var store = new BrokerAccountRiskBaselineRepository();
         var setup = new BrokerAccountRiskBaselineWorkflow(store);
         BrokerRiskBaselineRequest? request = null;
+        string stage = "checking the selected account";
         void Check()
         {
             if (closed || !currentAccount() || !connection.IsConnected || connection.SessionRevision != revision)
@@ -51,17 +53,31 @@ public sealed partial class ManualBuyCoordinator
             try { Check(); await action(); }
             catch (OperationCanceledException) { if (!closed) summary.Text = "Setup stopped. Reopen to inspect saved references; do not initialize a replacement."; }
             catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; }
-            catch { if (!closed) summary.Text = "Setup could not be verified. Reopen to recover saved references. Existing account history remains authoritative."; }
+            catch (Exception error)
+            {
+                if (!closed) summary.Text = $"Setup could not be verified while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
+                    "Existing account history remains authoritative. Do not save replacement references; report this diagnostic for review.";
+            }
             finally { busy = false; reconciling = false; if (!closed) { refresh.IsEnabled = true; save.IsEnabled = request is not null; } }
         }
         async Task Refresh()
         {
             request = null; summary.Text = "Refreshing linked broker history and preserved risk state…";
             var imports = new BrokerImportWorkflow(new BrokerAccountImportRepository());
-            async Task<BrokerAccountReconciliation> Read(CancellationToken ct) { Check(); return await reconciliation.RefreshAsync(account, revision, ct); }
-            var plan = await imports.PreviewAsync(await Read(lifetime.Token), lifetime.Token); Check();
+            async Task<BrokerAccountReconciliation> Read(CancellationToken ct)
+            {
+                Check(); stage = "reading broker history, balances and the original order journal";
+                var observation = await reconciliation.RefreshAsync(account, revision, ct);
+                stage = "rechecking and saving the linked account-history import";
+                return observation;
+            }
+            var observed = await Read(lifetime.Token);
+            stage = "reading the saved account-history link";
+            var plan = await imports.PreviewAsync(observed, lifetime.Token); Check();
             if (!plan.CanImport || plan.PreviousRequestId is null) { summary.Text = "Complete the existing reviewed account-history link first.\n" + string.Join("\n", plan.Blocks); return; }
+            stage = "rechecking the linked account-history import";
             await imports.ApplyAsync(plan, Guid.NewGuid(), Environment.UserName, Read, lifetime.Token); Check();
+            stage = "reading preserved initial risk references";
             var state = await store.ReadAsync(lifetime.Token); Check();
             if (state.RiskHistory.ExistingBaseline is { } existing)
             {
@@ -71,6 +87,7 @@ public sealed partial class ManualBuyCoordinator
                     "Daily continuation may have newer values. Repeated setup cannot replace these initial references or release holds.";
                 return;
             }
+            stage = "preparing initial risk references from saved account history";
             var preview = await setup.PreviewAsync(Guid.NewGuid(), lifetime.Token); Check();
             var baseline = preview.Preparation.Baseline;
             if (baseline is null)
@@ -92,6 +109,7 @@ public sealed partial class ManualBuyCoordinator
         save.Click += async (_, _) => await Run(async () =>
         {
             if (request is null) return;
+            stage = "saving or recovering the explicitly reviewed initial references";
             var saved = await setup.ApplyAsync(request, lifetime.Token); Check();
             request = null; summary.Text = $"Initial risk references saved. Request: {saved.Baseline.BaselineId:D}.\n" +
                 "Daily/cash-flow source qualification and explicit strategy activation remain separate. No order was submitted.";

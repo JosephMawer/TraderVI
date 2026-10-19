@@ -500,3 +500,19 @@ manifest: `risk-setup-working-copy-hashes.json`. The frozen reviewed Core SHA is
 No new order or saved reference is created. Next ask the operator to reopen Account risk setup,
 Refresh, and supply the actual values or blocker before saving. Display repair/startup is verified;
 native Refresh success and qualification remain unverified.
+
+The next operator screenshot confirms the generic unexpected-exception branch after Refresh, with
+no reference values and Save disabled. Do not approve/save from this screen. At **14:49 Toronto**
+the bounded fixed SQL helper receipt/query hash matches
+`53E0C8701D1ABABE32C004AD71A27A133C66B2B7C2D6D45AC92763347621EAB5`;
+receipt `artifacts/read-only-db/result-20261019T184955282Z-c9a78fd7961e4767be4f88ea4e8c6aa0.json`.
+Baseline/managed counts are zero, report/batch result sets empty, latest import 14:46:16.9475141.
+This excludes saved reference values or an old report to review; it does not identify the exception.
+
+Decision: add WPF-only stage and exception-category diagnostics, including numeric SQL codes and
+inner mapping-error category, without raw error messages/column values/private paths/credentials.
+Two focused privacy tests pass and Release builds with the earlier compiler/Pkcs warnings. No Core
+source or reviewed runtime binary changes; the app's save checks and fail-closed behavior remain.
+Logs: `risk-diagnostic-tests.log`, `risk-diagnostic-wpf-build.log`. The operator has again closed
+the risk dialog; the separately prepared diagnostic copy and native retry are next. No synthetic
+packet, reference initialization, trade replay, schema change or native SQL rehearsal is used.

@@ -26,6 +26,12 @@ manifest hashes match; one visible/responding desktop remains and no host permis
 today's checkpoint exists. Receipt: `artifacts/delphi-live-tfsa-20261018/risk-setup-switch-receipt.json`.
 Actual refreshed-screen verification remains next, before baseline/checkpoint/restart/packet/activation.
 
+The operator's post-refresh screenshot now shows **Setup could not be verified**, no values and
+disabled Save. It is not a reviewable baseline. At 14:49 the bounded helper verifies setup is still
+empty and no prior report/recommendation JSON exists; latest import is 14:46. A WPF-only diagnostic
+copy adds safe stage/category/SQL-number reporting, with two privacy tests/build passing and exact
+reviewed Core unchanged. Actual failure diagnosis and successful preview are still prerequisites.
+
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual
 TFSA. The October 19 amendment to ADR-0092 substitutes only cash/opening proof. It does not automatically

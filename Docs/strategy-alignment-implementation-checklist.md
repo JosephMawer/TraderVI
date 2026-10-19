@@ -118,6 +118,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   qualification/checkpoint. Source and prior order journal remain preserved.
 - [ ] Verify actual risk-setup preview/save/readback. The 14:42 bounded SQL receipt still finds no
   baseline/continuation/managed revisions. Do not reset references or replay trades.
+- [x] Inspect the operator's post-fix native risk screen: unexpected-failure message, no reference
+  values, Save disabled. Prepare stage/category-only diagnostic reporting (two privacy tests and
+  WPF Release pass; reviewed Core unchanged). The 14:49 bounded read verifies setup remains empty.
+- [ ] Install the diagnostic copy and identify/correct the actual native failure before reference
+  review/save. Display repair and a generic error message do not qualify setup.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and
