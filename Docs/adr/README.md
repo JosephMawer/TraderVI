@@ -41,6 +41,7 @@ architecture documentation.
 | # | Title | Status | Domains |
 |---|---|---|---|
 | [0093](0093-narrow-read-only-broker-checks.md) | Narrowly approved broker-read helper | Accepted; installed and native read verified October 18 | architecture, data-sources |
+| [0092](0092-scoped-supervised-delphi-live-tfsa-session.md) | First supervised Delphi Live TFSA scope | Operator scope accepted; Core tested, not installed/activated; original qualifications retained | architecture, risk-management, market-microstructure |
 | [0091](0091-local-read-only-database-checks.md) | Fixed local read-only database checks | Accepted; installed and verified October 18 | architecture, data-pipeline |
 | [0090](0090-progressive-individual-profit-trailing.md) | Progressive trailing protection for individual winners | Accepted; installed/enabled for 15 active paper portfolios October 18; off-session preservation verified | risk-management, decision-engine |
 | [0089](0089-tmx-session-context-and-supplementary-records.md) | Stable TMX context, supplementary records and causal clock waits | Installed; observed-end/stale-source follow-up's first scheduled checks/current marks verified | data-pipeline, data-sources, time-series |

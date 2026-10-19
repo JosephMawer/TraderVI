@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
+
 - [ADR-0093](0093-narrow-read-only-broker-checks.md) — Frozen broker-read helper and narrow command approval
 - [ADR-0091](0091-local-read-only-database-checks.md) — Fixed local read-only SQL diagnostics and narrow command approval
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Resolve monitoring references without rewriting account history
@@ -199,6 +201,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
+- [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
+
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Reconciled exits before buys and one-attempt market orders
 
 - [ADR-0079](0079-broker-reconciliation-and-market-handover.md) — Regular-session market handover direction and cumulative-fill accounting
@@ -235,6 +239,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
 
 - [ADR-0090](0090-progressive-individual-profit-trailing.md) — Progressive stock protection enabled across 15 active paper portfolios; off-session preservation verified
 

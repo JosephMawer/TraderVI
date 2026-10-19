@@ -30,22 +30,30 @@ the separate broker/Windows-protected-login prompt remains outside its scope. No
 order, collection/training, application restart or push was performed by this setup.
 [Procedure and evidence limits](../Operations/ReadOnlyChecks/README.md), [ADR-0091](adr/0091-local-read-only-database-checks.md).
 
-**Delphi Live → TFSA assessment, October 18, 2026:** the operator requests the best-performing
-Live variant and the fastest path toward Monday, October 19. SELECT-only paper evidence through
-October 16 ranks Normal -0.71%, Original -1.28%, rules-only -3.57% since inception; all are negative.
-Normal is the recommended integration candidate, not an activated assignment or proven profitable
-strategy. Only two Normal trades are complete; all 67 Live fills are estimated and shared checkpoint
-coverage is 41.91%. The October 18 protection successors have no regular-session outcome yet.
-Fresh storage metadata finds one linked account but no baseline, continuation or managed session.
-Automatic execution remains NO-GO. The exact Normal comparison can now be inspected through the
-broker-definition/transition preview; identities are pinned, recommendation approval stays excluded
-and the Live execution guard still rejects before saving authority or sending exits. This increment
-is built/offline-tested in isolated output, not installed or natively reviewed. No restart or orders.
-102 focused tests and 12 independent paper arithmetic checks pass; WPF builds with no errors.
-Cached Pkcs dependency-security advisories remain separate from compiler warnings; no fresh audit,
-full-solution or SSDT claim. Full-suite timing results and the dependency-ordered remaining route
-are in the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md). Risk-source/storage qualification,
-Live protection/source adapters, native lifecycle and supervised-host rollout still block activation.
+**Delphi Live → TFSA preparation, October 18, 2026:** Normal remains the working integration
+target: recorded inception returns are Normal -0.71%, Original -1.28%, rules-only -3.57% through
+October 16; sparse estimated paper outcomes do not establish profitable or qualified real execution.
+The operator accepts using actual available capital after selling both current holdings, with no
+outside transfers/trades for the first supervised session and new buys stopped on reconciliation
+failure. A connected read at 22:58 Toronto verifies two whole-share CAD holdings/no pending orders;
+private details stay encrypted. This read sent no order or credential refresh.
+Exact Normal preview, Live real-cost protection/observation adapters, save-before-bid ordering,
+historical exit latching, stable opening-sale recovery and a pure protected opening-plan foundation
+are implemented/offline-tested. The scoped cash reader is conditional on no outside flows; it does
+not replace complete native cash evidence. All original launch qualifications remain required.
+179 focused tests and the full Core suite (2,501 passed/eight native skips, serial collections) pass.
+The isolated Release WPF build has zero errors/262 existing compiler warnings. Cached Pkcs advisories
+remain separate; no fresh dependency audit, full-solution or SSDT claim for this increment.
+**Automatic execution is still off/NO-GO.** No real opening plan is saved, no sales are queued and no
+desktop execution host/activation control has been added or installed. The 22:25 storage read still
+has no baseline, continuation or managed session; no later write is claimed. Native risk/storage,
+broker lifecycle, exact-source and host qualification remain before operator-controlled activation.
+[ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md) owns the accepted scope;
+the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns evidence and remaining steps.
+The subsequent host draft is preserved uncommitted, without host tests or desktop wiring. The
+operator requests a Codex restart checkpoint; the overnight continuation is paused. After explicit
+resume, verify both installed helpers actually run without prompts before continuing the host.
+[Restart checkpoint](reviews/delphi-live-restart-checkpoint-20261018.md), [morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
@@ -54,8 +62,9 @@ dropdown, four-column holdings and a selected holding panel containing shares, c
 next step and existing manual Buy/Sell commands. Repeated account headings and net deposits are omitted.
 Legacy recorded-account/recommendation tools remain available in a collapsed section.
 The dropdown opens the existing exact-source transition review and restores the actual selection when
-it closes. Current review support remains Delphi Live with comparison sources disabled; no wider family
-restriction or qualification change is agreed. Actual portfolio choice is still deferred.
+it closes. The subsequent TFSA preparation exposes exact Normal comparison preview in source;
+recommendation-only comparison approval remains excluded. Normal is the working preparation target,
+with actual assignment/execution still pending the separate qualification route above.
 The operator accepts queuing old-strategy-only exits as checks allow, including at a loss, with current
 protection retained; shared holdings stay and required exits must reconcile before new buys (ADR-0079).
 Automatic switching/execution remains unfinished and disabled; no assignment or order was changed.

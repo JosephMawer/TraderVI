@@ -28,11 +28,16 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 **October 18 execution request:** prioritize the shortest qualified Delphi Live → TFSA route
 for the requested October 19 target, preserving the existing account/protection/execution boundaries.
-Normal is the recommended integration candidate after comparing the three saved books; none is
-profitable or qualified for automatic execution. Exact Normal transition preview is implemented
-offline, with activation still NO-GO. Next qualify risk inputs/storage, complete the Live source/
-protection adapter, and verify the broker lifecycle/host before a fresh activation review. The
-deadline grants no exception. [Assessment and remaining route](reviews/delphi-live-tfsa-readiness-20261018.md).
+Normal is the working integration candidate after comparing the three saved books; none is qualified
+for automatic execution. Exact Normal preview, Core Live protection/source and opening-sequence
+foundations are now implemented/offline-tested. The accepted first-day scope uses actual available
+capital after both current holdings sell, no outside transfers/trades, and stops new buys on mismatch.
+It supplements existing qualification; activation remains NO-GO and no real opening plan is saved.
+Next qualify native risk/storage, exact source, broker lifecycle and one shared execution host before
+operator-controlled activation. [Assessment](reviews/delphi-live-tfsa-readiness-20261018.md), [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md).
+The operator's subsequent restart request pauses implementation/overnight continuation at a
+[saved checkpoint](reviews/delphi-live-restart-checkpoint-20261018.md). First verify both installed
+helpers after explicit resume; then finish/test the preserved host draft and desktop composition.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
@@ -45,8 +50,8 @@ The daily follow-up now reads Wealthsimple's native previous-close one-day retur
 and dated prior-session headings; build and 233 focused tests pass. Current native availability and
 operator comparison remain to verify. The operator defers installation/restart until concurrent
 strategy-switching work is ready. Next obtain Trading feedback and complete verified
-decision/strategy execution integration. Exact portfolio choice stays deferred;
-existing engine/family/comparison contracts remain. Remaining-screen order and detailed views stay open;
+decision/strategy execution integration. The separate TFSA track now prepares Normal, without an
+activated assignment or qualification waiver; existing recommendation-only comparison limits remain. Remaining-screen order and detailed views stay open;
 do not redesign other screens during this bounded implementation pass.
 Existing operating priorities and execution prerequisites below remain.
 [Design draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

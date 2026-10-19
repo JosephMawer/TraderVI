@@ -22,9 +22,23 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Compare saved Live returns/trades/coverage and verify paper accounting independently.
 - [x] Implement/test exact Normal comparison definition/transition preview without recommendation
   approval, execution authority or order submission (102 focused checks; isolated WPF build).
-- [ ] Verify that preview natively; the running desktop has not received this increment.
-- [ ] Complete items 1–7 below, including qualified Live source/protection/ongoing adapters, before
-  a fresh reviewed activation packet. Monday automatic execution remains NO-GO.
+- [x] Record the operator's first-day scope: actual available capital after both current holdings
+  sell; no outside transfers/trades; stop new buys on mismatch (ADR-0092). This waives no launch check.
+- [x] Verify connected account shape read-only at 22:58 Toronto: two CAD whole-share holdings,
+  no pending orders. No sale, order queue, plan installation or assignment follows from that read.
+- [x] Implement/test Core Live real-cost protection, exact source binding, save-before-bid ordering,
+  historical exit recovery, conditional scoped cash checks and immutable opening-plan progression.
+  179 focused/2,501 full Core tests pass; eight native cases skipped; isolated WPF build passes.
+- [ ] Install/verify exact Normal preview and Live adapters natively; the running desktop has not
+  received these increments. No real opening plan or desktop execution loop is installed.
+- [ ] Complete native risk/baseline/continuation, source, broker lifecycle and shared-host checks
+  in items 1–7, then prepare a fresh activation packet. Conditional no-transfer coverage cannot
+  manufacture the original required qualifications. Monday automatic execution remains NO-GO.
+- [ ] Operator-controlled real orders/activation and subsequent confirmed fills/protection remain
+  separate operational steps; none was performed by this preparation session.
+- [ ] After the requested Codex restart and explicit resume, verify actual prompt-free execution
+  of both installed helpers, then test/integrate the preserved host draft. Overnight continuation
+  is paused; [checkpoint and resumption order](reviews/delphi-live-restart-checkpoint-20261018.md).
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)
