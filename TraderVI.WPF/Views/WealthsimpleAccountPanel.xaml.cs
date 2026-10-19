@@ -49,8 +49,8 @@ public partial class WealthsimpleAccountPanel : UserControl
     {
         selecting = true; RequestedStrategy = null;
         StrategyPicker.ItemsSource = new[] { new StrategyChoice(model?.ManagedStrategy?.StrategyName ?? "Choose a strategy to review…", null, true, "Current approved selection; choosing another opens a transition review.") }
-            .Concat(candidates.Select(c => new StrategyChoice(c.DisplayName, c, c.SupportsCurrentPromotion,
-                c.SupportsCurrentPromotion ? "Review the exact strategy and existing holding transitions." : "Comparison portfolio; real-account promotion is not supported."))).ToArray();
+            .Concat(candidates.Select(c => new StrategyChoice(c.DisplayName, c, c.SupportsTransitionReview,
+                c.SupportsTransitionReview ? "Preview the exact strategy and holding transitions; execution is disabled." : "This entry profile is not supported for transition review."))).ToArray();
         StrategyPicker.SelectedIndex = 0; selecting = false;
     }
     private void StrategyPicker_Opened(object sender, EventArgs e)

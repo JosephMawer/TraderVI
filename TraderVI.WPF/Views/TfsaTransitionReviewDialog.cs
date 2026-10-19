@@ -66,7 +66,7 @@ public sealed class TfsaTransitionReviewDialog : Window
         connection.PropertyChanged += sessionChanged;
         Closed += (_, _) => { closed = true; connection.PropertyChanged -= sessionChanged; lifetime.Cancel(); lifetime.Dispose(); };
         sources.SelectedItem = selectedPortfolioId is { } id ? candidates.FirstOrDefault(c => c.Snapshot.PortfolioId == id)
-            : candidates.FirstOrDefault(c => c.SupportsCurrentPromotion);
+            : candidates.FirstOrDefault(c => c.SupportsTransitionReview);
         if (selectedPortfolioId.HasValue && sources.SelectedItem == null)
             status.Text = "The requested strategy is no longer available. Choose a current source; no replacement was selected automatically.";
         refresh.Click += async (_, _) =>
@@ -79,14 +79,15 @@ public sealed class TfsaTransitionReviewDialog : Window
             long revision = connection.SessionRevision;
             try
             {
-                if (!selected.SupportsCurrentPromotion)
-                { status.Text = "This comparison portfolio cannot be promoted yet. Its rules for accepting stocks are not supported for the real account. Select another source to prepare a review."; return; }
+                if (!selected.SupportsTransitionReview)
+                { status.Text = "This source's entry profile is not supported for transition review. Normal can be reviewed; execution remains disabled."; return; }
                 var ledger = await new DelphiLiveLedgerRepository().LoadPortfolioAsync(selected.Snapshot.PortfolioId, lifetime.Token)
                     ?? throw new InvalidOperationException();
                 if (ledger.Revision != selected.Snapshot.Revision || ledger.PolicyVersionId != selected.Snapshot.PolicyVersionId)
                 { status.Text = "The source portfolio changed. Close and reopen the review to rank the latest evidence."; return; }
-                var exact = await new TradingPromotionRepository().ReviewAsync(ledger.PortfolioId, TradingStrategyFamily.DelphiLive, "TFSA", lifetime.Token);
-                if (exact.Strategy.PolicyVersionId != ledger.PolicyVersionId) throw new InvalidOperationException();
+                var exact = await new TradingPromotionRepository().ReviewBrokerAsync(ledger.PortfolioId, TradingStrategyFamily.DelphiLive, lifetime.Token);
+                if (exact.Strategy.Strategy.PolicyVersionId != ledger.PolicyVersionId ||
+                    exact.Strategy.Comparison != ledger.ComparisonAccount) throw new InvalidOperationException();
                 await account.RefreshAsync();
                 if (closed || revision != connection.SessionRevision || !connection.IsConnected || account.Snapshot == null) return;
                 var incoming = new List<TfsaIncomingHolding>();
@@ -112,8 +113,8 @@ public sealed class TfsaTransitionReviewDialog : Window
                 { status.Text = "The source portfolio changed during reconciliation. Reopen the review to use its current intended holdings."; return; }
                 var preview = TfsaTransitionPlanning.PreviewReconciled(account.Snapshot, account.PendingOrders, incoming, cap, DateTimeOffset.UtcNow, reconciliation);
                 grid.ItemsSource = preview.Rows;
-                detail.Text = $"{selected.DailySummary}\nComplete strategy version: {exact.Strategy.VersionId:D}\n" +
-                    $"Source observation: {ledger.UpdatedUtc:yyyy-MM-dd HH:mm:ss} UTC · {ledger.OpenPositions.Count()} held securities\n" +
+                detail.Text = $"{selected.DailySummary}\nComplete strategy version: {exact.Strategy.Strategy.VersionId:D}\n" +
+                    $"Entry profile: {exact.Strategy.GateProfile} · source observation: {ledger.UpdatedUtc:yyyy-MM-dd HH:mm:ss} UTC · {ledger.OpenPositions.Count()} held securities\n" +
                     $"Purchase ceiling from budget, cash and buying power: {preview.AvailablePurchaseCash?.ToString("N2") ?? "Unavailable"} CAD. This is a ceiling, not an order allocation.";
                 status.Text = "Preview prepared. " + (preview.Blocks.Count == 0 ? "Broker snapshot checks passed. " : string.Join(" ", preview.Blocks) + " ") +
                     (incoming.Count == 0 ? "This paper portfolio currently holds no securities. Promotion does not create a buy signal. " : "New positions still require a fresh strategy entry evaluation. ") +

@@ -9,6 +9,12 @@ namespace Core.Trader.Promotion;
 public sealed record TfsaLiveStrategyCandidate(DelphiLivePortfolioSnapshot Snapshot, PortfolioDailyResult Day)
 {
     public bool SupportsCurrentPromotion => Snapshot.ComparisonAccount == null && Snapshot.Role != "GateComparison";
+    // A source can be inspected without being eligible for recommendation approval or execution.
+    public bool SupportsTransitionReview => SupportsCurrentPromotion || Snapshot is
+    {
+        Role: "GateComparison", ComparisonAccount: { Profile: PaperGateProfile.NormalV1, StrategyCode: "DelphiLive",
+            ShadowStrategyVersionId: null, ShadowSettingsJson: null } comparison
+    } && comparison.AccountId == Snapshot.PortfolioId && comparison.LivePolicyVersionId == Snapshot.PolicyVersionId;
     public string DisplayName => Snapshot.ComparisonAccount is { } comparison
         ? $"{comparison.DisplayName} · Delphi Live"
         : $"Delphi Live · {(Snapshot.Role == "OperationalChampion" ? "Operational champion" : Snapshot.Role)} · {Snapshot.PolicyVersionId.ToString("N")[..8]}";

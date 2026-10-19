@@ -202,14 +202,19 @@ public sealed partial class BrokerManagedSessionTests
         Assert.Equal(2, f.Transport.Sent);
     }
 
-    [Fact]
-    public async Task UnsupportedFamilyCannotStartLiquidatingBeforeItsAdapterExists()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task UnsupportedFamilyCannotStartLiquidatingBeforeItsAdapterExists(bool normalComparison)
     {
         var f = new Fixture(); var approval = f.Approval(ongoing: true); var policy = DelphiLivePolicyDefinition.Version1;
         var live = new BrokerManagedStrategy(f.Strategy.Strategy with { Family = TradingStrategyFamily.DelphiLive,
             ShadowPolicy = null, LivePolicy = policy, PolicyVersionId = policy.PolicyVersionId,
             Selection = CompleteTradingStrategy.LiveSelection, MaximumHoldings = policy.MaximumHoldings },
             Guid.NewGuid(), PaperGateProfile.NormalV1, null);
+        if (normalComparison)
+            live = live with { Comparison = new(live.PaperAccountId, Guid.NewGuid(), Guid.NewGuid(), "DelphiLive",
+                PaperGateProfile.NormalV1, f.Now.UtcDateTime, live.Strategy.Daily.StrategyVersionId,
+                policy.PolicyVersionId, null, null) };
         approval = approval with { Review = approval.Review with { Strategy = live,
             Qualifications = approval.Review.Qualifications.Select(q => q with { StrategyFingerprint = live.Fingerprint }).ToImmutableArray() } };
         live.Validate();

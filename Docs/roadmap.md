@@ -21,6 +21,14 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
+**October 18 execution request:** prioritize the shortest qualified Delphi Live → TFSA route
+for the requested October 19 target, preserving the existing account/protection/execution boundaries.
+Normal is the recommended integration candidate after comparing the three saved books; none is
+profitable or qualified for automatic execution. Exact Normal transition preview is implemented
+offline, with activation still NO-GO. Next qualify risk inputs/storage, complete the Live source/
+protection adapter, and verify the broker lifecycle/host before a fresh activation review. The
+deadline grants no exception. [Assessment and remaining route](reviews/delphi-live-tfsa-readiness-20261018.md).
+
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
 Today/Overall performance, four-column holdings, selected holding Buy/Sell panel and strategy dropdown

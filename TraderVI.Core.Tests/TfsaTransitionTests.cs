@@ -133,6 +133,50 @@ public class TfsaTransitionTests
         Assert.Empty(TfsaLiveStrategySelection.Rank([]));
     }
 
+    [Fact]
+    public void ExactNormalComparisonCanBePreviewedWithoutRecommendationPromotion()
+    {
+        var source = Portfolio("GateComparison", 100, 99);
+        var comparison = new PaperComparisonAccount(source.PortfolioId, Guid.NewGuid(), Guid.NewGuid(),
+            "DelphiLive", PaperGateProfile.NormalV1, source.UpdatedUtc, Guid.NewGuid(), source.PolicyVersionId, null, null);
+        var candidate = TfsaLiveStrategySelection.Rank([source with { ComparisonAccount = comparison }]).Single();
+        Assert.True(candidate.SupportsTransitionReview);
+        Assert.False(candidate.SupportsCurrentPromotion);
+        foreach (var mismatch in new[] {
+            comparison with { Profile = PaperGateProfile.PortfolioRulesOnlyV1 },
+            comparison with { AccountId = Guid.NewGuid() },
+            comparison with { LivePolicyVersionId = Guid.NewGuid() },
+            comparison with { StrategyCode = "BreakoutTop3" },
+            comparison with { ShadowStrategyVersionId = Guid.NewGuid() },
+            comparison with { ShadowSettingsJson = "{}" } })
+            Assert.False(TfsaLiveStrategySelection.Rank([source with { ComparisonAccount = mismatch }]).Single().SupportsTransitionReview);
+        Assert.False(TfsaLiveStrategySelection.Rank([source]).Single().SupportsTransitionReview);
+    }
+
+    [Fact]
+    public void BrokerNormalLiveDefinitionPreservesExactComparisonIdentity()
+    {
+        var policy = DelphiLivePolicyDefinition.Version1;
+        var strategy = TradingStrategyResolutionTests.Strategy() with {
+            Family = TradingStrategyFamily.DelphiLive, ShadowPolicy = null, LivePolicy = policy,
+            PolicyVersionId = policy.PolicyVersionId, MaximumHoldings = policy.MaximumHoldings,
+            Selection = CompleteTradingStrategy.LiveSelection };
+        var account = Guid.NewGuid();
+        var comparison = new PaperComparisonAccount(account, Guid.NewGuid(), Guid.NewGuid(), "DelphiLive",
+            PaperGateProfile.NormalV1, Now.UtcDateTime, strategy.Daily.StrategyVersionId, policy.PolicyVersionId, null, null);
+        var reviewed = new BrokerManagedStrategy(strategy, account, comparison.Profile, comparison);
+        reviewed.Validate();
+        foreach (var mismatch in new[] {
+            comparison with { AccountId = Guid.NewGuid() }, comparison with { DailyStrategyVersionId = Guid.NewGuid() },
+            comparison with { LivePolicyVersionId = Guid.NewGuid() }, comparison with { StrategyCode = "BreakoutTop3" },
+            comparison with { ShadowStrategyVersionId = Guid.NewGuid() }, comparison with { ShadowSettingsJson = "{}" } })
+            Assert.Throws<ArgumentException>(() => (reviewed with { Comparison = mismatch }).Validate());
+        var bypass = reviewed with { GateProfile = PaperGateProfile.PortfolioRulesOnlyV1,
+            Comparison = comparison with { Profile = PaperGateProfile.PortfolioRulesOnlyV1 } };
+        Assert.Throws<ArgumentException>(bypass.Validate);
+        Assert.NotEqual(reviewed.Fingerprint, bypass.Fingerprint);
+    }
+
     private static DelphiLivePortfolioSnapshot Portfolio(string role, decimal opening, decimal end)
     {
         var date = new DateOnly(2026, 9, 9); var utc = Now.UtcDateTime.AddHours(-8);

@@ -1,5 +1,22 @@
 # TraderVI Project Status
 
+**Delphi Live → TFSA assessment, October 18, 2026:** the operator requests the best-performing
+Live variant and the fastest path toward Monday, October 19. SELECT-only paper evidence through
+October 16 ranks Normal -0.71%, Original -1.28%, rules-only -3.57% since inception; all are negative.
+Normal is the recommended integration candidate, not an activated assignment or proven profitable
+strategy. Only two Normal trades are complete; all 67 Live fills are estimated and shared checkpoint
+coverage is 41.91%. The October 18 protection successors have no regular-session outcome yet.
+Fresh storage metadata finds one linked account but no baseline, continuation or managed session.
+Automatic execution remains NO-GO. The exact Normal comparison can now be inspected through the
+broker-definition/transition preview; identities are pinned, recommendation approval stays excluded
+and the Live execution guard still rejects before saving authority or sending exits. This increment
+is built/offline-tested in isolated output, not installed or natively reviewed. No restart or orders.
+102 focused tests and 12 independent paper arithmetic checks pass; WPF builds with no errors.
+Cached Pkcs dependency-security advisories remain separate from compiler warnings; no fresh audit,
+full-solution or SSDT claim. Full-suite timing results and the dependency-ordered remaining route
+are in the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md). Risk-source/storage qualification,
+Live protection/source adapters, native lifecycle and supervised-host rollout still block activation.
+
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
 The broker account now leads with compact Today/Overall performance, account value/cash, a strategy

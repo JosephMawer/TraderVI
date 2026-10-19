@@ -141,7 +141,12 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
             live = await DelphiLiveSessionRepository.ReadPolicyAsync(c, portfolio.PolicyVersionId, t, token);
             policyId = live.PolicyVersionId; maximum = live.MaximumHoldings;
             name = $"Delphi Live · {policyId.ToString("N")[..8]}"; selection = CompleteTradingStrategy.LiveSelection;
-            paperName = $"Delphi Live {portfolio.Role} · {portfolio.PortfolioId:D}";
+            paperName = comparison?.DisplayName ?? $"Delphi Live {portfolio.Role} · {portfolio.PortfolioId:D}";
+            if (comparison is not null)
+            {
+                name = $"{comparison.ProfileName} · {name}";
+                notes.Add($"Exact comparison admission profile: {comparison.ProfileName}. This is definition/transition review only; no recommendation approval or execution qualification is granted.");
+            }
             bool researchIntervened = await c.ExecuteScalarAsync<int>("""
                 SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.TradingControlEvent WHERE SystemKey IN(N'Daily',N'DelphiLive') AND Paused=1)
                     OR EXISTS(SELECT 1 FROM dbo.OperatorExitRequest WHERE Family=N'DelphiLive')
@@ -154,6 +159,7 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
                 portfolio.GenerationId,
                 portfolio.PolicyVersionId,
                 portfolio.Role,
+                Comparison = comparison,
                 portfolio.Marks,
                 FillCount = portfolio.Fills.Length,
                 BroadResearchInterventionGuard = researchIntervened,
@@ -162,7 +168,9 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
             });
             notes.Add("Live's champion/control/challenger role applies only inside its paper research family. Live research eligibility is not universal approval.");
             notes.Add(researchIntervened
-                ? "Live's broad research-intervention guard is active. Its internal research promotion remains restricted. You may still approve this separate manual recommendation assignment."
+                ? brokerReview
+                    ? "Live's broad research-intervention guard is active. Its internal research promotion remains restricted; this broker definition review grants no approval."
+                    : "Live's broad research-intervention guard is active. Its internal research promotion remains restricted. You may still approve this separate manual recommendation assignment."
                 : "No broad Live research intervention is recorded. This review does not certify an untouched comparison or calculate a qualifying research score; inspect the saved protocol contexts separately.");
             notes.Add("Live quotes and costs remain paper assumptions; actual reported fills retain their own prices. Its research rules and intervention history remain unchanged.");
         }

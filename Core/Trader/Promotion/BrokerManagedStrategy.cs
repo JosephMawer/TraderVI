@@ -29,8 +29,19 @@ public sealed record BrokerManagedStrategy(CompleteTradingStrategy Strategy, Gui
             return;
         }
         if (Comparison.AccountId != PaperAccountId || Comparison.Profile != GateProfile ||
-            Comparison.DailyStrategyVersionId != Strategy.Daily.StrategyVersionId ||
-            Strategy.Family != TradingStrategyFamily.DailyShadow ||
+            Comparison.DailyStrategyVersionId != Strategy.Daily.StrategyVersionId)
+            throw new ArgumentException("The broker strategy must preserve the source's exact account, daily version and admission profile.");
+        // Definition review only: the execution workflow still rejects Delphi Live until its
+        // execution/protection adapter is qualified. Do not reinterpret a comparison as approval.
+        if (Strategy.Family == TradingStrategyFamily.DelphiLive)
+        {
+            if (GateProfile != PaperGateProfile.NormalV1 || Comparison.StrategyCode != "DelphiLive" ||
+                Comparison.LivePolicyVersionId != Strategy.PolicyVersionId ||
+                Comparison.ShadowStrategyVersionId is not null || Comparison.ShadowSettingsJson is not null)
+                throw new ArgumentException("Delphi Live definition review requires the exact Normal comparison and live policy; bypass profiles remain unsupported.");
+            return;
+        }
+        if (Strategy.Family != TradingStrategyFamily.DailyShadow ||
             Strategy.PolicyVersionId != (Comparison.ShadowStrategyVersionId ?? StableId(SystemShadowVersions.Policy)) ||
             Comparison.StrategyCode != Strategy.Selection[CompleteTradingStrategy.ShadowSelectionPrefix.Length..] + "Top" + Strategy.MaximumHoldings ||
             Comparison.ShadowSettingsJson is null ||

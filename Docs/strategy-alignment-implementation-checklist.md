@@ -16,6 +16,16 @@ Any portfolio must be promotable and keep managing across days until pause or sw
 Ungated Breakout Top 3 is the initial September 23 review candidate. The
 [current launch verdict is NO-GO](reviews/supervised-session-20260923.md).
 
+**October 18 requested Live route:** the operator targets the most successful Delphi Live variant
+for October 19. Normal is the recommended integration candidate; all three recorded inception
+returns are negative and no automatic-execution qualification follows. [Current assessment](reviews/delphi-live-tfsa-readiness-20261018.md).
+- [x] Compare saved Live returns/trades/coverage and verify paper accounting independently.
+- [x] Implement/test exact Normal comparison definition/transition preview without recommendation
+  approval, execution authority or order submission (102 focused checks; isolated WPF build).
+- [ ] Verify that preview natively; the running desktop has not received this increment.
+- [ ] Complete items 1–7 below, including qualified Live source/protection/ongoing adapters, before
+  a fresh reviewed activation packet. Monday automatic execution remains NO-GO.
+
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)
 record them. A prepared migration or passing test never proves broker readiness.
