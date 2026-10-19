@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>TraderVI.BrokerReadOnlyChecks</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+    <!-- Reuse only read-query parsers/models. No Core reference or login/order mutation code. -->
+    <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.Accounts.cs" Link="Readers/Accounts.cs" />
+    <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.Orders.cs" Link="Readers/PendingOrders.cs" />
+    <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.DailyPerformance.cs" Link="Readers/DailyPerformance.cs" />
+    <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleAccountData.cs" Link="Readers/AccountData.cs" />
+    <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleAccountQueries.cs" Link="Readers/Queries.cs" />
+    <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleDailyPerformance.cs" Link="Readers/DailyPerformanceData.cs" />
+  </ItemGroup>
+</Project>

@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0093](0093-narrow-read-only-broker-checks.md) — Frozen broker-read helper and narrow command approval
 - [ADR-0091](0091-local-read-only-database-checks.md) — Fixed local read-only SQL diagnostics and narrow command approval
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Resolve monitoring references without rewriting account history
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope, budgeted client and proposal-only boundary
@@ -141,6 +142,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-sources
 
+- [ADR-0093](0093-narrow-read-only-broker-checks.md) — Exact broker read requests, immutable login use and encrypted observations
 - [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Explicit supplementary-record exclusion without invented prices
 
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Explicit source-scoped stock aliases with verified listing evidence

@@ -32,6 +32,12 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### Done
 
+- [x] Install and qualify the reusable read-only broker diagnostic helper (October 18, ADR-0093):
+  frozen standalone code, exact-request guard, encrypted observations and narrow saved launcher rule.
+  Fifty-four offline cases, four policy checks and the installed seven-request read pass; no orders,
+  refresh or saved-login change. Existing chats must reload/use the helper. This closes diagnostic
+  access setup only; market/risk/source qualification, reconciliation and activation remain separate.
+
 - [x] Install and verify the reusable local read-only SQL diagnostic path (October 18, ADR-0091):
   restricted loginless principal, syntax-limited helper outside sandbox-writable roots and narrow
   saved invocation rule. See [status](project-status.md) for 33 offline/12 native checks, backup and

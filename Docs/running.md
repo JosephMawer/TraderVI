@@ -11,6 +11,18 @@ chats need a Codex restart to reload the rule. Saved broker-logins/current-accou
 separate; a database approval does not cover Windows-protected broker credentials. Installation
 evidence and limits are in [project status](project-status.md) and ADR-0091.
 
+## Read-only broker diagnostics
+
+Use the operator-authorized [installed broker helper](../Operations/BrokerReadOnlyChecks/README.md)
+for current TFSA discovery, balances/holdings, pending orders and daily-performance checks. Its
+fixed command reads the saved Windows-protected login without refreshing or saving credentials;
+only exact read requests can reach the provider. It saves encrypted observations and prints a small
+status report. Missing/expired authentication requires the normal sign-in flow. Do not generate a
+new mutable NativeRead/dotnet command or widen PowerShell approval for covered checks. Existing
+chats must reload rules and use the documented command. History/quotes/other reads require a reviewed
+extension; SQL writes, account changes and execution retain their separate authority. ADR-0093 and
+[project status](project-status.md) record scope/validation; no desktop restart is part of this setup.
+
 ## Dots: one saved-input replay
 
 The operator authorized one historical Dot review October 17; the Dot is ready. The prepared private

@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Fixed broker-read path — October 18
+
+- **Q:** Does an HTTP POST to GraphQL prove a broker request is read-only? **A:** No. The installed helper permits only exact reviewed query documents, matching variables/identity/account and fixed destinations; mutation and token-refresh routes are rejected. (ADR-0093)
+- **Q:** What does an expired or changed saved login do to a diagnostic? **A:** It stops the check without refreshing or saving credentials. Normal sign-in owns recovery; the helper's successful read still does not authorize trading. (ADR-0093)
+
 ### Local diagnostic permissions — October 18
 
 - **Q:** What enforces the local helper's read-only access? **A:** SQL Server's loginless SELECT user and irreversible session context, plus a SQL parser that rejects mutation, procedure and external/cross-database routes before connection. A SELECT label or read-only connection hint alone does not enforce it. (ADR-0091)

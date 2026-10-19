@@ -8,9 +8,10 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-Local diagnostic access now uses the installed [read-only helper](../Operations/ReadOnlyChecks/README.md)
-(ADR-0091); reload existing Codex chats before relying on its saved rule. Broker-session reads and
-operational writes retain their separate authority. This supporting workflow changes no trading priority.
+Local diagnostics now use separate installed [SQL](../Operations/ReadOnlyChecks/README.md) and
+[broker-read](../Operations/BrokerReadOnlyChecks/README.md) helpers (ADRs 0091/0093). Reload existing
+Codex chats and use their fixed commands. Read access does not authorize operational writes or
+strategy activation; this supporting workflow changes no trading priority.
 
 Keep independent paper strategies, deliberately approve an exact complete strategy for the permanent
 TFSA, and enable real execution only after the required account, protection and broker checks.

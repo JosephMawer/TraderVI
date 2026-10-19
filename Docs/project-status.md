@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+**Read-only broker diagnostic access, October 18, 2026:** the operator-authorized fixed helper is
+installed outside sandbox-writable roots with its own narrow no-profile `-File` approval. It compiles
+only the existing read parsers/models plus a fixed session loader and independent exact-request guard;
+no general Core, login/refresh, SQL or order-mutation implementation is linked. Fifty-four synthetic
+offline checks pass. The installed native check succeeds at 23:12 Toronto with seven requests for
+verification, discovery, financials, balances, holdings, pending orders and daily performance. No orders,
+token refresh or saved-login change occurred. Detailed snapshots are CurrentUser-encrypted; only
+counts/flags/times are reported. Four rule-scope tests pass. Release build succeeds with two nullable
+warnings in the linked account reader; local-cache restore had auditing disabled, so no fresh
+dependency-security assessment/full-solution qualification is claimed. Existing chats must reload
+rules and use this fixed command; old mutable NativeRead/dotnet commands retain their approval boundary.
+No migration, app restart, trading activation or push was run. This is read access, not market/risk/
+execution qualification. [Procedure and evidence](../Operations/BrokerReadOnlyChecks/README.md),
+[ADR-0093](adr/0093-narrow-read-only-broker-checks.md).
+
 **Local read-only diagnostic access, October 18, 2026:** the operator-authorized fixed helper is
 installed outside sandbox-writable roots with a narrow no-profile `-File` approval. Migration 046
 adds a loginless dbo-SELECT user; no application rows or existing identities' permissions changed.
