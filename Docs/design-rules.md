@@ -29,8 +29,12 @@ eligibility is deferred to Wealthsimple live trading/automation. A recommendatio
 
 [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md) records the accepted first-session
 scope: actual available capital after two reviewed full sales; no outside transfers/trades and stop
-new buys on mismatch. The conditional cash source supplements, never replaces, original production
-launch evidence. Core Live handover uses real costs/identities and independent market observations,
+new buys on mismatch. Ordinary production and older scopes retain all six launch checks. On October 19
+the operator explicitly approved a flagged first-session trial replacing only production cash-event/
+opening-value evidence with confirmed full sales, the saved cash-only baseline and exact cash/order
+reconciliation. Four other native launch checks and five scoped checks remain; purchases expire at
+the reviewed close, without next-day buying permission or general transfer qualification.
+Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
 valid historical signal exits through restart and never infer a bid touch from a bar low. Opening
 plans retain original order IDs and cannot expand liquidation after holdings change. These are tested

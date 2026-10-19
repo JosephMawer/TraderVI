@@ -145,6 +145,12 @@ after closing the old desktop instance. In Trading, **Execution setup…** reads
 existing approved assignment. **Prepare first execution review** reconciles the account through the
 existing import workflow, reads the exact current Normal definition and reports each required native
 qualification. Both reviewed holdings must already be fully sold and initial risk setup saved.
+For the explicitly approved October 19 limited trial, preparation recovers the exact import referenced
+by that baseline and both original full-sale journal records, then writes protected scoped proof.
+It replaces only production cash-event/opening-value checks; the other four native and five scoped
+checks remain. Missing independent proof leaves approval blocked. It never creates a baseline or
+issues native qualifications. Purchase permission ends at the reviewed close, with no next-day buys;
+ongoing assignment does not renew it. Older scopes retain their original six production requirements.
 **Approve reviewed assignment** is enabled only for a complete compatible review; it rechecks source,
 evidence and account before saving through the existing SQL workflow. Approval sends no order.
 **Enable reviewed host** is a separate action for the matching saved Normal/account/build.

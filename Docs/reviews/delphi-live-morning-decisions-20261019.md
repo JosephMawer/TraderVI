@@ -184,3 +184,55 @@ full-production qualification. No reviewed producer currently publishes the comp
 Separately, actual broker buy/partial/cancel/recovery paths have not all been observed, and the new
 Normal policy needs its own session inputs. These prevent a promise of morning activation despite
 the completed host/review/storage work; they cannot be resolved by installing a synthetic packet.
+
+## SQL memory concern — pause further native database testing
+
+The operator reported SQL Server at 7,164.5 MB and overall memory at 85%. A subsequent read-only
+process check finds SQL Server PID 7224 at 7,286.8 MiB working set / 7,793.2 MiB private memory,
+with no testhost process. The latest isolated two-test SQL run has already completed successfully.
+The tests create and retain synthetic databases on the shared local SQL instance; their cache and
+catalog activity may contribute, but no before/after baseline or server-memory breakdown establishes
+how much of this usage they caused. SQL Server can retain cached pages after work completes.
+The dbo-only installed read helper does not cover server memory configuration/DMVs; an OS CIM
+memory read was denied. No configured SQL memory limit or total/free physical RAM is asserted.
+
+Decision: pause further SQL rehearsals and database diagnostics in unattended continuation. Do not
+restart SQL Server, clear caches, alter memory settings or delete retained databases as a guessed
+remedy. Continue only database-free implementation/builds/offline tests where useful. A confirmed
+server-memory configuration and workload breakdown remains necessary before choosing a remedy.
+
+## Awake continuation — explicit limited-trial amendment and source recovery
+
+The operator requested the staged increment be committed first; it is saved as **cac6502e**. The
+operator expressly resumed both fixed bounded read helpers, while SQL rehearsals, app launches,
+memory-setting changes and real orders stay paused. At **10:03 Toronto October 19**, broker v1
+succeeds with seven reads, one eligible connected account, two CAD whole-share holdings and zero
+pending orders; daily data is available through 10:00. No order, refresh or credential change.
+Receipt: `artifacts/read-only-broker/report-3772cea9723740a2a04ceff7fe12fd3d.json`.
+SQL source counts have matching query/receipt SHA-256
+`6B10B0E2855D52A094B12A996556C01DB25BAFDA023BBC6DE8C9D66936AE7FE6`:
+one Monday official run/frozen session; exact Normal successor has 160 evaluations through 09:55.
+Receipt: `artifacts/read-only-db/result-20261019T140308289Z-36d6309bda9f45acbfe8dfab65780620.json`.
+These replace the earlier unavailable-publication finding, not qualify current executable freshness.
+
+After the cash-source conflict was explained, the operator explicitly approved replacing only the
+production cash-event/opening-value qualifications for a supervised first-session trial. ADR-0092
+records that new permission; the earlier no-transfer answer alone had waived nothing. Existing
+production/older scope approvals remain unchanged. New flagged trials require four native and five
+scoped checks and a purchase deadline exactly at the reviewed close. No next-day buying permission,
+transfer support, risk reset or automatic activation follows; independent protection may continue.
+
+Implementation decision: anchor to the exact immutable import used by the saved cash-only baseline,
+not a later snapshot. Otherwise its newer time would be ahead of the saved risk boundary. Recover the
+two actual original sale records with confirmed inventory, preserve existing references/holds and
+use the already tested conditional source for later owned-order/cash checks. Explicit preparation
+publishes protected scoped evidence, preserves independently reviewed native proofs unchanged and
+shows remaining missing qualifications. It never fabricates the other four proofs. Retries preserve
+the original anchor/proof. The workflow also checks expiry after preflight before reserving a buy.
+
+Validation: **158 focused/2,558 full Core tests pass**, nine native skips. WPF Release passes after a
+corrected local variable naming collision (zero errors; existing compiler/Pkcs warnings remain).
+Evidence: `trial-focused.log`, `trial-full.log`, `trial-wpf-build.log` in the ignored preparation
+folder. No SQL rehearsal, memory change, app startup, baseline/assignment/grant or order is run by
+this increment. The real opening sales/setup and independently reviewed four native checks remain
+operational prerequisites; the general transfer/boundary source is deferred from the limited trial.

@@ -191,8 +191,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
                 Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
         bool currentRiskDay = account.Risk.TradingDate == account.Account.TradingDate;
+        bool trialPurchasesEnded = state.Approval.Review.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
+            (trial.Session != today || trial.PurchaseExpiresAt is null || now >= trial.PurchaseExpiresAt);
         var savedRiskTradingDate = state.Memory.TradingDate;
-        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
+        input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
             PreviousMemory = state.Memory, ActualFills = account.Fills,
             ProtectionBoundaries = state.Protection.ToImmutableDictionary(p => p.PositionId, p => p.EstablishedAt.UtcDateTime) };
         if (!currentRiskDay)
@@ -226,7 +228,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             .OrderBy(r => r.Action == "Sell" ? 0 : 1).FirstOrDefault();
         if (recommendation is null) return state;
         bool sell = recommendation.Action == "Sell";
-        if (!sell && (state.NewBuysStopped || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
+        if (!sell && (state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
         var security = account.Positions.SingleOrDefault(p => p.Symbol == recommendation.Symbol)?.SecurityId ??
             await source.ResolveSecurityAsync(recommendation.Symbol, ct);
         Guid decisionId = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{recommendation.Symbol}:{recommendation.Action}:{recommendation.Kind}:{recommendation.PositionId}:{recommendation.EvidenceId}:{recommendation.CandidateId}");
@@ -244,6 +246,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     {
         await using var preflight = await transport.PrepareAsync(order, state.Account, ct);
         ct.ThrowIfCancellationRequested();
+        if (order.Side == "BUY" && state.Approval.Review.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
+            (trial.PurchaseExpiresAt is null || clock.GetUtcNow() >= trial.PurchaseExpiresAt))
+            return await Save(lease, state with { Blocks = state.Blocks.Add("Limited first-session purchase permission ended; no order was reserved or sent.") },
+                "TrialPurchasesEnded", ct);
         state = await Save(lease, state with { Orders = state.Orders.Add(order) }, "OrderIntentReserved", ct);
         WealthsimpleSubmissionStatus result;
         try { result = await preflight.SubmitOnceAsync(ct); }

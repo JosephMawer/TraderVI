@@ -6,6 +6,7 @@ using Core.Trader.DelphiLive;
 using Core.Trader.Promotion;
 using Core.WSTrade.Accounts;
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -33,8 +34,9 @@ public sealed partial class ManualBuyCoordinator
     private static string HostGrantPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TraderVI", "Wealthsimple", "ManualOrders", "execution-host.dat");
     private BrokerExecutionHostGrantFileStore HostGrants() => new(HostGrantPath, new WindowsManualBuyProtector());
+    private static string ExecutionQualificationPath => Path.Combine(Path.GetDirectoryName(HostGrantPath)!, "execution-qualification.dat");
     private BrokerExecutionQualificationBundle? ReadExecutionQualification(DateTimeOffset now) =>
-        new BrokerExecutionQualificationFileStore(Path.Combine(Path.GetDirectoryName(HostGrantPath)!, "execution-qualification.dat"),
+        new BrokerExecutionQualificationFileStore(ExecutionQualificationPath,
             new WindowsManualBuyProtector()).Read(now);
     public event EventHandler? ExecutionHostChanged;
     public BrokerExecutionHostStatus ExecutionStatus { get; private set; } = new("Off", "Automatic trading off. Review execution setup before enabling a host.", default);
@@ -163,7 +165,7 @@ public sealed partial class ManualBuyCoordinator
                 summary.Text = lines + "No strategy is approved to manage this account. Automatic trading remains off.\n\n" +
                     (baselines.RiskHistory.ExistingBaseline is null ? "Initial risk references have not been reviewed/saved.\n" : "Initial risk references exist; continuation still needs current qualification.\n") +
                     "First-session scope: both reviewed holdings must sell completely and usable cash must reconcile. Use the existing Sell all and Account risk setup controls; this window submits no opening sales.\n\n" +
-                    "Prepare first execution review to inspect the exact Normal source and required native qualifications. Approval is available only after those checks pass; host enable remains a separate action.";
+                    "Prepare first execution review to recover the original cash-only baseline/import and the two confirmed sale records for the limited first-day trial. Automatic purchases end at today's regular close. The other four native launch checks remain required; approval and host enable are separate actions.";
                 return;
             }
             // Match using broker identity, not a display label or another signed-in account.
@@ -198,6 +200,21 @@ public sealed partial class ManualBuyCoordinator
             var exact = await new TradingPromotionRepository().ReviewBrokerAsync(normal[0].Snapshot.PortfolioId,
                 TradingStrategyFamily.DelphiLive, lifetime.Token); Check();
             var evidence = ReadExecutionQualification(DateTimeOffset.UtcNow);
+            if (evidence?.NoTransferScope is null)
+            {
+                var baseline = baselineState.RiskHistory.ExistingBaseline!;
+                var original = await new BrokerAccountImportRepository().FindAsync(baseline.ImportRequestId, lifetime.Token)
+                    ?? throw new InvalidOperationException("Recover the exact import used by the saved initial risk baseline before trial preparation."); Check();
+                var continued = await new BrokerAccountRiskContinuationRepository(executionCalendar!).ReadAsync(baseline.BaselineId, lifetime.Token); Check();
+                var sales = journal.ReadSells().Where(s => s.Intent.IdentityId == original.Plan.Observation.IdentityId &&
+                    s.Intent.AccountId == original.Plan.Observation.AccountId &&
+                    DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == date &&
+                    s.Latest?.IsFilled == true && s.InventoryVerifiedAt <= original.Plan.Observation.SnapshotAt).ToImmutableArray();
+                var preparedScope = BrokerSupervisedTrialPreparation.Prepare(baseline, original, continued, sales,
+                    Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow);
+                evidence = new BrokerSupervisedTrialEvidenceFileStore(ExecutionQualificationPath, new WindowsManualBuyProtector()).Prepare(
+                    preparedScope, exact.Strategy, BrokerManagedSessionComposition.ImplementationIdentity, executionCalendar!, DateTimeOffset.UtcNow);
+            }
             IBrokerRiskEvidenceSource risk = evidence?.NoTransferScope is { } scope
                 ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!) : new UnqualifiedBrokerRiskEvidenceSource();
             var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal,
@@ -210,7 +227,9 @@ public sealed partial class ManualBuyCoordinator
             summary.Text = $"Exact strategy: {exact.Strategy.Strategy.Name}\nProfile: {exact.Strategy.GateProfile}\n" +
                 $"Current Normal source checked: {normal[0].Snapshot.UpdatedUtc.ToLocalTime():g}\n" +
                 $"Actual available purchase ceiling: {firstReview.PurchaseCeiling:N2} CAD\n" +
-                "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n" +
+                (evidence?.NoTransferScope is { LimitedFirstSessionTrial: true } trial
+                    ? $"Limited first-day trial: automatic purchases end {trial.PurchaseExpiresAt?.ToLocalTime():g}. Independent protection remains managed; no next-day buying permission.\n\n"
+                    : "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n") +
                 string.Join("\n", firstReview.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
                 "\n\n" + (firstReview.CanApprove ? "Review the actual capital and evidence above, then explicitly approve. Approval submits no order and leaves the host off."
                     : "Approval blocked:\n" + string.Join("\n", firstReview.Blocks)) +

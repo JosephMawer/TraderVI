@@ -61,8 +61,15 @@ returns are negative and no automatic-execution qualification follows. [Current 
   and install its reviewed evidence packet. Hashes/file protection cannot supply missing proof.
   The complete native cash-effective/boundary producer and reviewed packet publication remain
   unfinished production integration; the conditional first-day source is not their replacement.
-- [ ] Verify the scheduled Monday official input and exact current Normal policy observations when
-  published. At 00:17 Toronto neither is available; older-policy observations cannot substitute.
+- [x] Implement/test the explicitly approved October 19 limited trial: only cash-event/opening-value
+  qualifications are replaced; four other native and five scoped checks remain. Recover the original
+  baseline import/two full sales, publish protected scoped evidence and enforce close-time purchase
+  expiry. Older scopes retain all six. 158 focused/2,558 full tests pass (nine native skips); WPF builds.
+- [x] Verify scheduled Monday input publication read-only at 10:03 Toronto: one official run/frozen
+  session; exact current Normal successor has 160 evaluations through 09:55. Query hash verified.
+- [ ] Independently qualify/install the four remaining native proofs for the limited trial, perform
+  actual opening sales/setup and verify installed current inputs/protection before operator activation.
+  Publication alone does not establish executable freshness. SQL rehearsals remain paused.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

@@ -33,34 +33,43 @@ order, collection/training, application restart or push was performed by this se
 **Delphi Live → TFSA preparation, October 18–19, 2026:** Normal remains the integration target;
 the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns negative paper returns/evidence limits.
 Actual available capital after two full reviewed sales, no outside transfers/trades and stopping new
-buys on mismatch are accepted first-day constraints (ADR-0092), not qualification waivers.
+buys on mismatch are accepted first-day constraints (ADR-0092). The explicit October 19 amendment
+allows a flagged limited trial to replace only production cash-event/opening-value proof; four other
+native launch checks and all five scoped checks remain. Older scopes/production retain all six.
 The default-off desktop host and first cash-start execution review are now implemented/tested.
 The review derives actual available capital, lists every required qualification, and saves approval
 only after exact source/evidence/account rechecks. Approval sends no order; enabling the exact
 approved account/strategy/build is separate. The host shares the existing timer/journal/gate/SQL lease
 and preserves buying mode, risk holds and original order IDs. Two explicit existing Sell all actions
 remain the simplest supervised opening; no new automatic-liquidation owner is installed.
-Latest validation: **153 focused/2,544 full Core tests pass**, nine native skips, plus **two explicit
-native SQL rehearsals pass** in retained synthetic databases. These cover first-review approval
+Latest validation: **158 focused/2,558 full Core tests pass**, nine native skips. The earlier **two
+explicit native SQL rehearsals passed** in retained synthetic databases; they were not rerun after
+the memory pause. Those rehearsals cover first-review approval
 save/reopen, precise session/protection readback, leases/interrupted and uncertain saves, baseline
 persistence and hold-chain recovery. They found/fixed the existing continuation column-mapping bug.
 All broker/qualification facts in those rehearsals are synthetic. Nine offline WPF renders, including
 blocked/prepared/approved first-review states, pass without binding errors. Release builds pass with
 262 existing compiler warnings; cached Pkcs advisories remain separate. No fresh audit/full-solution
 or SSDT claim; no database schema or actual financial record is changed by this increment.
-The working copy is built for morning review, not launched against the actual account.
+The limited-trial producer recovers the original baseline import and both verified full-sale records,
+preserves references/holds, saves protected scoped proof and retains independent native proof unchanged.
+It cannot issue the remaining four native qualifications. Missing proof blocks approval. Purchase
+permission ends at the reviewed close, checked in source/workflow; ongoing protection grants no
+next-day buying permission. The desktop build passes; actual-account startup remains unperformed.
 **Automatic trading remains off/NO-GO.** No actual grant, opening plan, baseline, assignment or order
-has been created. An independently qualified native cash/boundary/source/order evidence packet is
-still absent; the new read-only protected consumer verifies references/hashes but issues no native
-qualification. The first review path is implemented; actual qualification and operator approval remain.
-The complete native cash-effective/boundary producer and qualified packet publication remain
-unfinished production software, alongside unobserved actual broker lifecycle paths. The conditional
-first-day reader cannot supply the original full-production qualifications. Morning activation is
-therefore not established by the prepared build.
+has been created by this session. The remaining independent native source/order/restart/storage
+qualification packet is not installed, and actual opening sales/initial setup remain. The first
+review/scoped reconciliation path is implemented; actual qualification and operator approval remain.
+The complete native cash-effective/boundary producer remains unfinished for general production and
+transfers; the explicitly approved limited trial does not claim that qualification.
 At 23:51 Toronto the hash-verified account-storage read finds one link, zero baselines/continuations/
 managed revisions and enabled immutable triggers. At 00:17 the exact Normal progressive successor
-has zero evaluations and no Monday official run/frozen session/evaluations yet; no later source
-availability is inferred. Helper launch successes and later PowerShell-wrapper approval prompts retain
+had zero evaluations and no Monday official run/frozen session/evaluations yet. At **10:03 Toronto
+October 19**, the two expressly resumed read-only helpers succeed: one connected eligible account,
+two CAD whole-share holdings, zero pending orders; Monday official/frozen inputs exist and the exact
+Normal successor has 160 evaluations through 09:55. Publication does not prove executable freshness
+or strategy/order qualification. The small SQL query's receipt hash matches. No further SQL tests,
+memory setting changes, app launch or financial operation ran. Helper launch successes and later PowerShell-wrapper approval prompts retain
 their separate scope. [Morning decisions, working copy, permission handling and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted

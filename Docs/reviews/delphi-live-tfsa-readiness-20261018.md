@@ -12,6 +12,22 @@ management with preserved financial history, risk references, protection and ord
 
 ## Saved performance comparison
 
+**October 19 resumed-work update:** the operator expressly approved a flagged limited first-session
+trial replacing only production cash-event/opening-value qualification with the two confirmed full
+sales, original saved cash-only baseline/import and exact cash/order reconciliation. The four other
+native checks and five scoped checks remain mandatory. The new scoped producer, original-anchor
+recovery and close-time purchase cutoff are implemented/tested; it issues no remaining native proof.
+Older scopes/production retain all six. Actual qualification, opening sales/setup and operator
+activation remain pending, so the current launch verdict remains NO-GO. General native cash-transfer
+integration remains unfinished and is not needed to claim this expressly narrower trial's readiness.
+
+Latest validation: 158 focused/2,558 full Core tests pass (nine native skips); WPF Release builds pass.
+Earlier nine desktop renders/two isolated native SQL passes retain their earlier scope, not this new
+trial mode. No further SQL test, app startup or financial action ran. At 10:03 Toronto the two
+expressly resumed read helpers confirm two holdings/zero pending orders and Monday input publication
+with 160 current Normal-policy evaluations through 09:55. This is publication/account-shape evidence,
+not executable freshness or full source/order qualification. Details remain in the morning log.
+
 A SELECT-only export at **22:22 Toronto, October 18** reads the three saved paper books through
 the **October 16, 16:00 Toronto** checkpoint. Each began with CAD 1,000 virtual capital.
 No real-account amount, identifier, holding or order is part of this report.

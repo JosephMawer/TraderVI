@@ -5,6 +5,7 @@ using Core.WSTrade.Orders;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,6 +17,11 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
 {
     public const string Contract = "SupervisedNoTransferCashReconciliationV1";
     public ImmutableArray<ManualSellRecord> OpeningSales { get; init; } = [];
+    // Explicit October 19 operator decision. Absent in older scopes: those retain all production checks.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool LimitedFirstSessionTrial { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTimeOffset? PurchaseExpiresAt { get; init; }
     public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 && OpeningSales.All(s => s.IsResolved &&
         s.Latest?.IsFilled == true && s.Latest.FilledQuantity == s.Intent.Quantity &&
         s.InventoryVerifiedAt <= CashOnlyAnchor.SnapshotAt &&
@@ -32,6 +38,8 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
         var bounds = calendar.GetSessionBounds(Session);
         if (CashOnlyAnchor.SnapshotAt < bounds.OpenUtc || CashOnlyAnchor.SnapshotAt >= bounds.CloseUtc)
             throw new InvalidOperationException("The scoped cash-only anchor must belong to its reviewed regular session.");
+        if (LimitedFirstSessionTrial && PurchaseExpiresAt != bounds.CloseUtc)
+            throw new InvalidOperationException("Limited-trial purchase permission must end at the reviewed regular close.");
     }
     public void ValidateAnchor()
     {
@@ -39,6 +47,8 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
             ApprovedAt < CashOnlyAnchor.CheckedAt || string.IsNullOrWhiteSpace(ApprovedBy) ||
             string.IsNullOrWhiteSpace(CashOnlyAnchor.AccountId) || string.IsNullOrWhiteSpace(CashOnlyAnchor.IdentityId) ||
             CashOnlyAnchor.SnapshotAt == default ||
+            LimitedFirstSessionTrial && DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(ApprovedAt.UtcDateTime)) != Session ||
+            LimitedFirstSessionTrial && (PurchaseExpiresAt is null || PurchaseExpiresAt <= ApprovedAt) ||
             CashOnlyAnchor.CheckedAt < CashOnlyAnchor.SnapshotAt || CashOnlyAnchor.Cash is not > 0 ||
             CashOnlyAnchor.AccountValue != CashOnlyAnchor.Cash || CashOnlyAnchor.BuyingPower is null or < 0 ||
             !CashOnlyAnchor.HoldingsMatch || CashOnlyAnchor.Holdings.Any(h => h.BrokerQuantity != 0) ||

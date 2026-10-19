@@ -32,17 +32,21 @@ Normal is the working integration candidate after comparing the three saved book
 for automatic execution. Exact Normal preview, Core Live protection/source and opening-sequence
 foundations are now implemented/offline-tested. The accepted first-day scope uses actual available
 capital after both current holdings sell, no outside transfers/trades, and stops new buys on mismatch.
-It supplements existing qualification; activation remains NO-GO and no real opening plan is saved.
+Ordinary production/older scopes retain their qualification. The separately approved October 19
+limited trial replaces only cash-event/opening-value proof with scoped evidence, retains four native
+and five scoped checks and stops purchases at the reviewed close. Actual activation remains NO-GO.
 Next qualify native risk/storage, exact source, broker lifecycle and one shared execution host before
 operator-controlled activation. [Assessment](reviews/delphi-live-tfsa-readiness-20261018.md), [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md).
 The default-off host, desktop controls and first cash-start execution review are now built/tested.
-Latest checks pass: 153 focused/2,544 full tests (nine native skips), nine synthetic desktop renders
-and two explicit native SQL rehearsals, including first-review approval save/reopen. Native storage
-qualification found/fixed continuation readback. Next complete independently qualified native
-cash/boundary/source/order evidence and its protected packet, then actual account setup/review and
-operator-controlled activation. The UI cannot issue native qualification. At 00:17 Toronto the new
-Normal policy/Monday inputs are not yet published; inspect later scheduled output without substituting
-older-policy signals. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
+Latest checks pass: 158 focused/2,558 full tests (nine native skips), plus the earlier nine synthetic
+desktop renders/two native SQL rehearsals. Native storage checks found/fixed continuation readback.
+The scoped producer now recovers the original saved baseline import/full-sale records and composes
+protected scoped proof without issuing the remaining native qualifications. Next qualify those four
+checks, perform actual sales/setup and review, then operator-controlled activation. General native
+transfer/boundary integration remains deferred from the explicitly limited trial, not declared done.
+At 10:03 Toronto Monday inputs and current-policy evaluations are published; current executable
+freshness still needs review. SQL tests remain paused after the memory concern; only the two bounded
+read helpers were expressly resumed. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

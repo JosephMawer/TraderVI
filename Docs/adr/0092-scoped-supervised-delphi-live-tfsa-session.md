@@ -1,6 +1,6 @@
 # ADR-0092 — First supervised Delphi Live TFSA session
 
-**Date:** October 18, 2026. **Status:** Accepted operator scope; Core preparation tested, not installed or activated.
+**Date:** October 18, 2026; limited-trial amendment accepted October 19. **Status:** Preparation implemented; actual qualification/activation pending.
 **Domains:** architecture, risk-management, market-microstructure.
 **Related:** ADR-0053/0055/0067, ADR-0075/0076/0079–0086, ADR-0090.
 
@@ -26,6 +26,24 @@ Every opening order still needs fresh regular-session account, quantity, pending
 
 ## Bounded first-day cash source
 
+**October 19 amendment:** the awake operator explicitly approved using the two confirmed full sales,
+saved initial risk references and exact cash/order reconciliation **in place of** full-production
+`cash-events` and `opening-values` qualifications for a supervised first-session trial. The prior
+October 18 rule requiring those two qualifications even for this trial is superseded only when the
+new `LimitedFirstSessionTrial` flag is explicitly saved. All four other original checks remain:
+`native-order-lifecycle`, `strategy-evidence`, `restart-recovery`, `installed-storage`, plus the five
+scoped checks below. Ordinary production approvals and older no-transfer scopes retain all six.
+No synthetic test, checkbox or scoped proof may issue any of the remaining native qualifications.
+
+The scoped producer recovers the exact immutable import used by the saved cash-only baseline and
+the two original full-sale records with verified inventories. It preserves the original references
+and holds, never establishes a replacement baseline. Its protected scope evidence states the
+conditional limitations. It can publish incomplete preparation, which leaves approval blocked;
+independently reviewed native references are retained unchanged. Scope retries recover the original
+anchor and proof. `PurchaseExpiresAt` must equal the reviewed session close; the account source and
+execution workflow stop new purchases at expiry. Ongoing assignment/protection may remain, but no
+next-day buying permission or general transfer support follows. This is not full-production readiness.
+
 `SupervisedNoTransferCashReconciliationV1` is explicitly conditional on the operator's no-transfer
 agreement. After both verified sales, capture a fresh reconciled cash-only book and save/preserve
 initial risk references using ADR-0081's setup observation. Do not label that reference the market open
@@ -42,7 +60,8 @@ that opposing outside movements cannot cancel. That limitation is why the explic
 matters. It issues no daily opening/closing continuation or capital-flow adjustment. It expires at the
 reviewed October 19 regular close; it cannot authorize next-day buys, reset references or clear holds.
 General/native transfer qualification under ADR-0083 remains future work. This conditional source
-does not by itself satisfy the existing production cash-event qualification.
+does not satisfy production cash-event qualification; only the explicit October 19 trial amendment
+permits its narrower alternative for first-session purchases.
 
 ## Trial approval and opening sequence
 
@@ -55,9 +74,9 @@ outside result may be treated as a successful liquidation or spendable proceeds.
 The scope's additional qualification labels are `supervised-no-transfer-cash`, `scoped-initial-reference`,
 `opening-native-sale-fills`, `operator-supervised-trial` and `scoped-durable-recovery`.
 Do not forge ordinary full-production `cash-events`, `opening-values`, `native-order-lifecycle` or
-`strategy-evidence` qualifications from these narrower facts. All original ADR-0055/0086 launch
-checks remain required as well. The scope is an additional constraint, not a qualification waiver;
-the operator's no-transfer answer did not authorize replacing those checks.
+`strategy-evidence` qualifications from these narrower facts. The October 18 no-transfer answer alone
+waived nothing. The subsequent explicit October 19 amendment replaces only the first two for the
+flagged limited trial; the other four launch checks and every scoped check remain required.
 Native full-fill sales validate their observed path; they do not prove native buy execution, partial
 fills, cancellation or power-loss behavior. Those limits remain visible and unobserved cases stop or
 recover through existing tested controls. No actual engine buy or qualification order is placed by
@@ -110,8 +129,9 @@ baseline, execution approval, host permission or order. Both holdings must alrea
 actual inventories empty and reviewed initial references present. Use the existing explicit Sell all
 controls for these first supervised sales; no new automatic opening-liquidation owner is added.
 
-The review derives its purchase ceiling from actual cash/buying power, retains all six original and
-any additional scoped checks, and lists missing/incompatible native evidence. An independently
+The review derives its purchase ceiling from actual cash/buying power, retains all six original
+checks for production/older scopes or four native plus five scoped checks for the explicitly flagged
+October 19 trial, and lists missing/incompatible evidence. An independently
 reviewed qualification packet pins account, exact strategy/build/session, expiry, reviewer and proof
 references. Its read-only consumer uses Windows-protected bytes and verifies each referenced file's
 SHA-256 before preparation and again before approval. These establish identity/integrity, **not** the

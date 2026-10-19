@@ -29,9 +29,12 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
         ["cash-events", "opening-values", "native-order-lifecycle", "strategy-evidence", "restart-recovery", "installed-storage"];
     public static ImmutableArray<string> AdditionalScopedChecks { get; } =
         ["supervised-no-transfer-cash", "scoped-initial-reference", "opening-native-sale-fills", "operator-supervised-trial", "scoped-durable-recovery"];
-    // A restricted operating scope supplements qualification; it cannot replace native launch evidence.
-    [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => NoTransferScope is null ? RequiredChecks :
-        RequiredChecks.AddRange(AdditionalScopedChecks);
+    // Only the separately approved first-session trial substitutes scoped cash/reference evidence.
+    // Merely adding the older no-transfer scope retains every original production check.
+    public static ImmutableArray<string> ChecksFor(BrokerNoTransferSessionScope? scope) => scope is null ? RequiredChecks :
+        (scope.LimitedFirstSessionTrial ? RequiredChecks.Where(c => c is not ("cash-events" or "opening-values")).ToImmutableArray()
+            : RequiredChecks).AddRange(AdditionalScopedChecks);
+    [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => ChecksFor(NoTransferScope);
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     public void Validate(BrokerAccountProjection account, DateTimeOffset now)
     {
@@ -42,6 +45,8 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
             PurchaseCeiling > scope.CashOnlyAnchor.Cash || PurchaseCeiling > scope.CashOnlyAnchor.BuyingPower ||
             scope.CashOnlyAnchor.AccountId != account.Import.Plan.Observation.AccountId ||
             scope.CashOnlyAnchor.IdentityId != account.Import.Plan.Observation.IdentityId || !scope.OpeningSalesVerified ||
+            scope.LimitedFirstSessionTrial && (Strategy.GateProfile != PaperGateProfile.NormalV1 || Strategy.Comparison is null ||
+                scope.PurchaseExpiresAt <= now) ||
             !RequiredExits.IsEmpty || !RetainedPositions.IsEmpty || !account.Positions.IsEmpty))
             throw new InvalidOperationException("The supervised no-transfer launch must match the actual cash-only account after required exits and its available-capital ceiling.");
         if (!Enum.IsDefined(Duration) || RequestId == Guid.Empty || BindingId != account.Risk.BindingId || BaselineId != account.Risk.BaselineId ||

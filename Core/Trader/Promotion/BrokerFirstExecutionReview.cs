@@ -79,7 +79,7 @@ public static class BrokerFirstExecutionReviewPolicy
             catch (InvalidOperationException error) { blocks.Add(error.Message); }
         }
         var scope = compatible ? evidence!.NoTransferScope : null;
-        var required = scope is null ? BrokerActivationReview.RequiredChecks : BrokerActivationReview.RequiredChecks.AddRange(BrokerActivationReview.AdditionalScopedChecks);
+        var required = BrokerActivationReview.ChecksFor(scope);
         var checks = required.Select(check =>
         {
             var records = compatible ? evidence!.Qualifications.Where(q => q.Check == check).ToArray() : [];

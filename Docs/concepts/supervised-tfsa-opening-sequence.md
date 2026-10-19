@@ -42,6 +42,13 @@ orders, unknown new orders, conflicting identities and stale account observation
 that equal and opposite outside cash movements never happened. That is why operator attestation is
 a scoped assumption, not a complete native cash-event feed or a substitute for production evidence.
 
+The explicit October 19 amendment permits this bounded evidence in place of production cash-event/
+opening-value checks only for a saved `LimitedFirstSessionTrial`. Four other native checks and all
+five scoped checks remain. Preparation uses the baseline's original immutable import and actual
+full-sale journal records; a newer snapshot cannot repaint the original reference. It publishes
+protected scoped proof but cannot create the remaining native qualifications. Older scopes retain
+all six production checks. Purchase permission ends at the exact reviewed close.
+
 The permission expires at the reviewed regular close. It produces no later-day continuation and
 cannot invent an opening value, replenish the cumulative purchase ceiling or clear a saved hold.
 Existing protective exits remain independently eligible through the managed-session contract, subject
