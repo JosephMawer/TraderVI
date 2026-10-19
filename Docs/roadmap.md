@@ -78,8 +78,11 @@ unobserved native failure paths remain deferred. [Operator steps](reviews/delphi
 
 Latest operator screenshots in bc5a7f09 show successful risk preview from the 14:55 observation and
 explicit initial-reference save confirmation. The earlier unexpected failure did not recur; its cause
-is unlocated. Next reopen/Refresh the same saved references, capture checkpoint, then same-copy
-restart/native review before packet/approval/enable. No reference reset or qualification bypass.
+is unlocated. Reopened setup now confirms the original saved references. Checkpoint capture exposes
+a four-column/three-constructor storage-readiness mapping bug. The narrow record fix preserves every
+readiness check (257 focused tests/WPF build pass; 2,614 full offline tests pass/nine native skips). Next corrected-copy install,
+first checkpoint, then same-copy restart/native review before packet/approval/enable. No baseline
+reset, repeated trades or qualification bypass.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

@@ -539,3 +539,27 @@ Next close/reopen Account risk setup and Refresh to recover the same saved refer
 checkpoint capture and the same-executable normal restart/native packet route. The agent has not
 saved references, submitted orders, approved an assignment or enabled execution. No code/build/test,
 database diagnostic or external operation is needed for this screenshot-review milestone.
+
+## Checkpoint storage-readiness mapping correction — October 19
+
+The operator's reopened risk screen confirms the same original saved request/references, with
+14:56 save time. Its amounts/ID remain private. The next checkpoint screenshot identifies Dapper
+materialization failure: the four Boolean SQL columns (including ImmutableStorageVerified) do not
+match the record's three-argument constructor plus init-only fourth property. A subsequent generic
+failure does not establish checkpoint success. No restart/recovery proof should be inferred.
+
+Mechanical fix: make ImmutableStorageVerified the optional fourth constructor field, default false.
+This matches the actual query shape while preserving older three-argument caller behavior. No SQL,
+immutable-trigger predicate, readiness requirement or policy changes. Seven database-free DataTable/
+Dapper mapping cases preserve all four independent true/false values; 257 focused tests and WPF
+Release pass. WPF has 262 total existing warnings; compiler diagnostics and cached Pkcs advisories remain
+separate; no fresh audit/full-solution/SSDT claim. Full offline suite: 2,614 pass/nine native skips; native SQL tests paused.
+Logs: `storage-shape-focused.log`, `storage-shape-full-serial.log`, `storage-shape-wpf-build.log`.
+
+Prepared replacement: `artifacts/delphi-live-tfsa-20261018/storage-shape-working-copy/TraderVI.WPF.exe`.
+New Core SHA `BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`.
+Unlike the earlier WPF-only repairs, this is a new exact implementation identity. The first successful
+checkpoint must be captured in this copy and recovered after restarting this exact executable.
+Keep the existing saved financial baseline/original orders; do not replay trades or reset references.
+The operator has closed Execution setup for the authorized execution-off switch after checks pass.
+No agent order, financial approval, checkpoint, qualification packet or host permission is created.

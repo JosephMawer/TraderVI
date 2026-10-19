@@ -119,8 +119,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Review operator screenshots of successful native risk preview (14:55 observation) and explicit
   initial-reference save confirmation. Setup sources/holds/empty position protection match the reviewed
   cash-only book. This does not establish independent repository readback or native qualification.
-- [ ] Close/reopen risk setup and Refresh to recover the same saved references. Do not initialize
-  replacement history or repeat verification trades.
+- [x] Review operator screenshot of reopened/refreshed setup recovering the same original request
+  and reference values, saved 14:56. Do not initialize replacement history or repeat trades.
 - [x] Inspect the operator's post-fix native risk screen: unexpected-failure message, no reference
   values, Save disabled. Prepare stage/category-only diagnostic reporting (two privacy tests and
   WPF Release pass; reviewed Core unchanged). The 14:49 bounded read verifies setup remains empty.
@@ -128,6 +128,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   closure, matching hashes, one responding owner and absent host permission/packet/checkpoint.
 - [x] Observe successful native Refresh/save on operator screenshots after diagnostic startup.
   The earlier unexpected exception did not recur; its cause remains unlocated, not claimed fixed.
+- [x] Identify/fix checkpoint's storage-readiness mapping mismatch: SQL returns four Boolean fields,
+  record constructor had three. Seven offline mapper cases/257 focused tests and WPF Release pass;
+  checks remain independent and the optional fourth flag defaults false. 2,614 full offline tests pass/nine native skips.
+- [ ] Install the new Core build and verify actual checkpoint capture. Failed attempts do not count
+  as a checkpoint, restart proof or qualification. Preserve the saved baseline and original orders.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and

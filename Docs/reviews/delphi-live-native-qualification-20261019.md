@@ -31,8 +31,13 @@ The bounded diagnosis and safe WPF diagnostic increment are retained in the deci
 subsequent operator screenshot shows a successful actual 14:55 observation: cash-only setup sources,
 both holds false and no protected positions. The operator explicitly saves and supplies the native
 success confirmation. No replacement reference, guard bypass or agent financial action occurs.
-The earlier exception did not recur; its cause is unlocated. Next close/reopen risk setup and Refresh
-to verify the original saved reference before capturing the checkpoint. Native post-restart order/
+The earlier exception did not recur; its cause is unlocated. The operator then reopens/refreshed setup
+and confirms the same original saved request/reference values (saved 14:56). Checkpoint capture
+fails with a specific storage-readiness constructor mismatch; a later attempt gives a generic error.
+A narrow record fix matches all four SQL Boolean columns; seven database-free mapping cases and
+257 focused tests/WPF Release pass. The separate storage-shape copy is prepared; 2,614 full offline tests pass/nine native skips.
+It has a new Core identity, so capture its first checkpoint after installation and use that same copy
+for restart; preserve existing references/orders. No checkpoint success is yet established. Native post-restart order/
 baseline qualification and packet publication still remain; a save confirmation does not complete them.
 The diagnostic increment is **bc5a7f09**, running at **14:53:20 Toronto** as PID **106248** after
 normal prior-process closure. Exact output/Core hashes, one responding desktop and absent host

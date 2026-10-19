@@ -14,10 +14,8 @@ using static Core.Db.TradingRecommendationStorage;
 
 namespace Core.Db;
 
-public sealed record BrokerManagedStorageReadiness(bool BaselineInstalled, bool ContinuationInstalled, bool SessionInstalled)
-{
-    public bool ImmutableStorageVerified { get; init; }
-}
+public sealed record BrokerManagedStorageReadiness(bool BaselineInstalled, bool ContinuationInstalled,
+    bool SessionInstalled, bool ImmutableStorageVerified = false);
 
 /// <summary>One session lease per permanent broker binding; durable appends commit before broker transmission.</summary>
 public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore

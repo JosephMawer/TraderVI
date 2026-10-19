@@ -151,8 +151,15 @@ failure qualification remains deferred. [Exact operator route and evidence](revi
 PID 106248), Refresh succeeds with an actual 14:55 observation, matching cash-only setup sources,
 no carried financial holds and zero protected positions. The operator then explicitly saves and supplies
 the native success confirmation. These are operator screen observations, not independent SQL readback
-or completed qualification. Next reopen/Refresh to recover the same saved references, then capture
-the checkpoint and perform the same-copy restart/native review. The earlier unexpected failure did
+or completed qualification. A later reopen/Refresh screenshot recovers the same original saved
+request/references (saved 14:56). Capture then fails with a specific four-column storage-readiness
+mapping error; a further attempt shows only the generic failure. No checkpoint success is established.
+The C# record has three constructor arguments while SQL returns four Boolean columns; the fourth
+becomes an optional constructor argument, retaining false for older three-argument callers. Seven
+database-free mapping cases and the broader 257 focused tests pass; WPF Release passes. A separate
+storage-shape copy is prepared with a new Core hash; 2,614 full offline tests pass with nine native skips. Next install
+the corrected copy, capture its first checkpoint, then same-copy restart/native review. Existing
+baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build pass; Core unchanged. Execution remains off. Detailed receipts/history stay in
 the [decision log](reviews/delphi-live-morning-decisions-20261019.md).
