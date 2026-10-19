@@ -41,7 +41,8 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash and separately scoped recorded gains follow. Remove net deposits from this overview. Account value first remains a preserved alternative. |
 | Accepted header cleanup | Remove the entire Main account / Example TFSA / Canadian dollars heading block, following the earlier Trading-title/right-hand-badge removal. This single-account view does not need a repeated account title; retain currency beside figures and source/authority context. |
 | Accepted density refinement | Reduce the performance amount/percentage and tighten overview spacing so the numbers occupy less space. |
-| Current focus | Refine the holdings table and holding panel next. Proposed table: stock, position value, open gain and strategy status; whether shares remain in the table or only in the panel is awaiting the operator's answer. No column change is accepted yet. |
+| Accepted holdings columns | Stock, position value, open gain and strategy status. Shares belong in the selected holding panel only, alongside average cost. |
+| Provisional panel refinement | Stock identity → position value/open gain → shares, average cost and saved price/time → strategy status/explanation → Buy/Sell. Review the visual treatment next. |
 | Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
 | Open | Daily performance source/baseline/cash-flow/percentage qualification, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -88,6 +89,14 @@ holding sources must remain explicit in implementation. The operator has accepte
 direction, Trading-first sequence, trade-control location and overall content arrangement. A complete
 interaction specification remains open. Next refine the top overview's gains/performance before other
 screens or detailed views.
+
+The current integrated `tradervi-trading-performance-first.html` subsequently adopts the operator's
+**shares in the panel only** choice. Its table has four columns: stock, position value, open gain and
+strategy status, with stock name beneath the symbol and a selected-row highlight. The panel groups
+position figures and share/cost/price facts before the strategy explanation, with both trade controls
+below. This panel grouping is a proposed visual refinement, not a newly accepted behavior contract.
+Saved-price and evaluation times remain separate; dated-price warnings stay visible. Selection changes
+the local fictional panel only. Detailed views, source qualification and real order tickets remain open.
 
 ### Account gains and engine/portfolio clarification
 

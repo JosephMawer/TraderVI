@@ -548,7 +548,9 @@ milestone are also recorded there; their remaining scope stays visible above.
   draft. Draft controls are wired locally; wrapper/script syntax
   checked only, with browser interaction verification pending.
 - [x] Remove net deposits from the concept overview; retain account value/cash and existing financial records/calculations.
-- [ ] Refine holdings table and holding panel; table-versus-panel shares placement awaits the operator's answer.
+- [x] Select shares in the panel only and prepare the four-column holdings concept (Stock, Position value, Open gain, Strategy status).
+- [x] Prepare a panel refinement grouping position facts before strategy explanation and both Buy/Sell; wrapper/script checks only.
+- [ ] Review the proposed holding-panel visual treatment and remaining table details.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
   availability before implementation claims. Missing Today must not display overall return as daily gain.

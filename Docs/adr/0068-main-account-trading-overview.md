@@ -205,6 +205,10 @@ sources; a UI must retain each source's period, original valuation time and avai
 period choice is accepted; no new performance calculation or source qualification is established. Detailed views and order tickets
 follow later. No new WPF
 implementation, accounting change, broker operation or execution authority follows from this selection.
+The next holdings refinement accepts Stock, Position value, Open gain and Strategy status as the table
+columns, with shares only in the selected holding panel alongside average cost. The concept proposes
+grouping position facts before the strategy explanation and retains both Buy/Sell below; that visual
+treatment remains for review. No holding, valuation or execution behavior changes.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
 
 ## Review questions

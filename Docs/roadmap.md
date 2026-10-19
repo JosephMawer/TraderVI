@@ -27,7 +27,8 @@ Performance first is now selected and integrated into the Trading concept. Both 
 belong in the holding panel. Portfolio choice is explicitly deferred; existing engine/family and
 comparison-selection contracts remain. Today is the default with an Overall option; the single-account
 concept now omits the whole account heading block and uses smaller figures/tighter overview spacing.
-Net deposits are removed from the overview. Next refine the holdings table and holding panel, then
+Net deposits are removed from the overview. Shares are selected for the panel only; the four-column
+holdings concept and grouped position/strategy panel are prepared. Next review the panel treatment, then
 remaining Trading visual details and desktop dimensions before
 other screens. Daily performance source/calculation qualification remains an implementation dependency.
 Remaining-screen order and WPF implementation are still open.
