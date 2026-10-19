@@ -543,8 +543,9 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Agree Trading's overall overview/strategy/holdings-and-panel/activity arrangement.
 - [x] Prepare two gains/performance overview treatments; wrapper/script syntax checked only.
 - [x] Select Performance first and integrate it into the full Trading concept; wrapper/script syntax checked.
-- [x] Agree Today as default with an Overall option; remove the redundant Trading title/right-hand
-  account badge and keep the account name. Draft controls are wired locally; wrapper/script syntax
+- [x] Agree Today as default with an Overall option; after removing the Trading title/right-hand
+  badge, remove the whole account heading block and compact overview figures/spacing in the single-account
+  draft. Draft controls are wired locally; wrapper/script syntax
   checked only, with browser interaction verification pending.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and

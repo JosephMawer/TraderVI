@@ -2,7 +2,7 @@
 
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
-- **October 18 visual redesign:** Workspace, Trading-first refinement, the overview/strategy/holdings-and-panel/activity arrangement, both Buy/Sell in the panel and **Performance first** are accepted. **Today** is the default with an **Overall** switch; remove the redundant Trading heading and right-hand account badge. Portfolio choice stays deferred. Source qualification and desktop dimensions remain open; no new WPF implementation or operating change is authorized.
+- **October 18 visual redesign:** Workspace, Trading-first refinement, the overview/strategy/holdings-and-panel/activity arrangement, both Buy/Sell in the panel and **Performance first** are accepted. **Today** is the default with an **Overall** switch. Remove the account heading block and compact the overview figures/spacing. Portfolio choice stays deferred. Source qualification and desktop dimensions remain open; no new WPF implementation or operating change is authorized.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -39,7 +39,8 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
 | Accepted Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. The operator says “I like this arrangement.” |
 | Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash/net deposits and separately scoped recorded gains follow. Account value first remains a preserved alternative. |
-| Accepted header cleanup | Remove “Trading” beneath Main account and the right-hand Real account/sample badge. Keep the account name under Main account; account identity, currency and actual source/authority context still apply. |
+| Accepted header cleanup | Remove the entire Main account / Example TFSA / Canadian dollars heading block, following the earlier Trading-title/right-hand-badge removal. This single-account view does not need a repeated account title; retain currency beside figures and source/authority context. |
+| Accepted density refinement | Reduce the performance amount/percentage and tighten overview spacing so the numbers occupy less space. |
 | Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
 | Open | Daily performance source/baseline/cash-flow/percentage qualification, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -101,8 +102,11 @@ and Buy/Sell panel. Its strategy strip is a design placeholder, not a statement 
 assignment is empty or has changed. Earlier concept files preserve the alternatives and design history.
 
 The current integrated draft has functional local Today/Overall controls that update the headline
-amount, percentage and period together. The Main account header now shows the account name without
-the redundant Trading title or the right-hand informational badge. Both periods use fictional values.
+amount, percentage and period together. The operator subsequently requests removing the entire
+Main account / Example TFSA / Canadian dollars header, superseding the prior account-name retention.
+The current single-account concept removes that block; a future account-switching context would need
+clear account identity. Currency remains beside figures. The headline amount is reduced from 33px to
+26px, its percentage from 21px to 17px, with tighter overview padding and spacing. Both periods use fictional values.
 Choosing Today is a display decision, not qualification of a daily-return producer or calculation.
 The daily reference boundary, confirmed cash movements, percentage method and native source coverage
 remain implementation work; existing dated day-value/risk readers do not by themselves prove a daily

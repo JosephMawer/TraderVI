@@ -14,8 +14,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
   compact activity. Next refine the overview's gains/performance.
 - **Accepted overview:** Performance first; Today by default with an Overall option, integrated into
-  the full Trading concept. Remove the redundant Trading heading/right-hand account badge and keep
-  the account name beneath Main account. Account value first remains design history.
+  the full Trading concept. Remove the entire account heading block following the earlier title/badge
+  cleanup, and use smaller overview figures/tighter spacing. Currency stays beside figures in this
+  single-account concept. Account value first remains design history.
 - **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
   target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history

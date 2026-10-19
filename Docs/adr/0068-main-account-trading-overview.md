@@ -190,8 +190,10 @@ the operator subsequently accepts the account-summary/strategy/holdings/activity
 to refine the top gains/performance overview next. The operator then selects **Performance first**:
 selected-period dollar gain and percentage lead, with the period visible below; account
 value/cash/net deposits and separately scoped recorded gains follow. The operator selects **Today**
-as default with an **Overall** option, and removes the redundant Trading heading/right-hand badge;
-the account name remains beneath Main account. Daily-return source/baseline/cash-flow/percentage
+as default with an **Overall** option, and removes the redundant Trading heading/right-hand badge.
+The subsequent refinement removes the whole Main account / Example TFSA / Canadian dollars heading
+block in the single-account concept and reduces the overview figures/spacing; currency remains beside
+figures and account/source/authority contracts still apply. Daily-return source/baseline/cash-flow/percentage
 qualification is still required; an overall broker return cannot stand in for missing daily performance.
 Overall retains the supplied broker period and valuation time. Portfolio choice is explicitly
 deferred. The suggested Find stock route remains a draft. One Delphi Live engine can run several

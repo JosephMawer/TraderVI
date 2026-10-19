@@ -7,8 +7,9 @@ Trading's main layout first. Both Buy and Sell belong in the holding panel. A Tr
 uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
 now accepts that arrangement and selects Performance first for the overview. The chosen overview is
 integrated into a full Trading concept with a placeholder strategy row; portfolio choice is explicitly
-deferred. Today is now the default with an Overall switch; the redundant Trading title/right-hand
-account badge are removed from the draft, with the account name retained. Daily performance source/
+deferred. Today is now the default with an Overall switch. Following the title/badge cleanup, the
+whole Main account / Example TFSA / Canadian dollars heading block is removed from the single-account
+draft and overview figures/spacing are compacted; currency remains beside figures. Daily performance source/
 calculation qualification and in-panel stock lookup remain open; fictional daily values are not native
 evidence. One Delphi Live
 engine runs the recorded original paper book plus two comparison books; comparison selection remains

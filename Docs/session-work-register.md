@@ -72,8 +72,9 @@ and ADR-0068, then the operator selected clearer priorities/less clutter plus a 
 detailed drill-downs afterward. Workspace is selected; Trading's accepted arrangement is being refined
 before moving to the other screens. Both Buy and Sell belong in the holding panel. A Trading-only refinement
 is prepared and its arrangement is accepted. Performance first is now selected and integrated in the
-full Trading concept. Today is now the default with an Overall switch; the redundant Trading title and
-right-hand badge are removed. Source/calculation qualification and proposed in-panel lookup remain open. Portfolio
+full Trading concept. Today is now the default with an Overall switch. After the title/right-hand-badge
+cleanup, the whole account heading block is removed and overview figures/spacing are compacted in the
+single-account draft. Source/calculation qualification and proposed in-panel lookup remain open. Portfolio
 choice is explicitly deferred. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
 Delphi Live preference stays context only; one engine/three independent paper portfolios is explained
@@ -83,7 +84,8 @@ All four concept files' wrapper/script checks pass; browser local-file policy bl
 No new WPF implementation/operating change is made; detailed views stay deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
 Source review point: this October 18 chat through the accepted arrangement, gains/performance request,
-explicit portfolio-choice deferral, Performance first/Today-default decisions, Overall switch and header cleanup.
+explicit portfolio-choice deferral, Performance first/Today-default decisions, Overall switch, full account
+heading removal and compact overview figures/spacing.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.
