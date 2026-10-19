@@ -79,8 +79,10 @@ The operator has now resolved the launch capital and opening-holding questions:
 [ADR-0092](../adr/0092-scoped-supervised-delphi-live-tfsa-session.md) records that accepted scope.
 It adds constraints; it does not waive the existing six launch qualifications. In particular, an
 operator's no-transfer agreement plus cash arithmetic is not a complete native cash-event feed.
-No real opening plan is saved, no sale is queued, no baseline/assignment is created and no desktop
-execution loop or activation control is added. **Automatic TFSA management remains off/NO-GO.**
+No real opening plan, queued sale, baseline, assignment or host permission is created. A default-off
+desktop host and existing-assignment enable/stop controls are now built/tested in an isolated copy;
+first execution approval and native risk/cash/source/order evidence remain unfinished.
+**Automatic TFSA management remains off/NO-GO.**
 
 ## Implemented and offline-tested
 
@@ -120,9 +122,11 @@ between a planned step, a durable order intent, a native fill and usable proceed
 2. **Verify the exact Live adapter natively.** Check Normal policy/profile/daily identities,
    continuity and raw observations, actual held-cost mapping, current quotes and missed exits.
    Passing synthetic tests does not establish current data coverage or executable prices.
-3. **Finish one shared host and explicit operator controls.** Reuse the existing client, encrypted
-   journal, account gate and SQL lease; add durable opening progression, stopped-buy restoration,
-   clear plan/assignment status, backoff and restart recovery. No new host is present in this change.
+3. **Qualify the prepared shared host operationally.** Core host and desktop enable/stop/poll
+   integration now reuse the existing client, encrypted journal, account gate and SQL lease. The
+   built morning copy remains off. It starts an existing approved assignment, not a missing first
+   review or opening liquidation. Finish that review/opening composition after native prerequisites.
+   See the [morning record](delphi-live-morning-decisions-20261019.md) for current source/test evidence.
 4. **Complete native lifecycle qualification and a fresh activation review.** Real orders and
    activation remain operator-controlled actions; this agent does not submit them or enable an
    automatically trading account. Do not manufacture native fill/cancel/restart evidence from tests.
@@ -138,6 +142,14 @@ liquidation instruction remain recorded; neither successful sign-in nor deadline
 qualification. A manual-order workflow is a separate, narrower capability.
 
 ## Validation and scope
+
+**Subsequent host increment:** 127 focused checks pass; the full suite passes 2,518/eight native
+skips with serial collections. The isolated native SQL session rehearsal also passes, now including
+Normal Live protection/stopped-mode readback with synthetic transports. Five offline WPF renders
+and command-target/status checks pass; Release builds succeed with existing compiler/cached Pkcs
+warnings. No operational application startup or real host activation is performed. Baseline-save,
+continuation, native cash/source and actual broker lifecycle qualification remain distinct. The
+following earlier adapter validation retains its original scope.
 
 .NET SDK **10.0.401**. The final **179 focused tests pass**. The full Core suite passes **2,501
 tests/eight native skips**, using disabled collection parallelism in the isolated output runner

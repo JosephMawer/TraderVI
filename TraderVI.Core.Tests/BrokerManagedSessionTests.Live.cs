@@ -14,7 +14,7 @@ namespace TraderVI.Core.Tests;
 
 public sealed partial class BrokerManagedSessionTests
 {
-    private static void UseNormalLive(Fixture f, bool progressive = true)
+    internal static void UseNormalLive(Fixture f, bool progressive = true)
     {
         var policy = DelphiLivePolicyDefinition.Version1 with {
             PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = progressive };

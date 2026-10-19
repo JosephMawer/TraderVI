@@ -43,6 +43,16 @@ public partial class PaperDashboardWindow : Window
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
         TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
+        manualBuys.ExecutionHostChanged += (_, _) => TradingRecommendationsTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
+        CommandBindings.Add(new CommandBinding(BrokerExecutionHostCommands.Stop,
+            async (_, _) => await manualBuys.StopExecutionHostAsync(shutdown.Token),
+            (_, e) => e.CanExecute = !manualBuys.IsSubmitting));
+        CommandBindings.Add(new CommandBinding(BrokerExecutionHostCommands.Open, async (_, e) =>
+        {
+            if (e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account)
+                await manualBuys.OpenExecutionSetupAsync(this, account, () => TradingRecommendationsTabView.IsCurrentBrokerAccount(account));
+        }, (_, e) => e.CanExecute = !manualBuys.IsSubmitting && e.Parameter is Core.WSTrade.Accounts.WealthsimpleTfsaAccount account &&
+            TradingRecommendationsTabView.IsCurrentBrokerAccount(account)));
         manualBuys.BrokerLedgerChanged += async (_, _) =>
         {
             try
@@ -117,7 +127,19 @@ public partial class PaperDashboardWindow : Window
             if (!shutdown.IsCancellationRequested) authTimer.Start();
             if (!shutdown.IsCancellationRequested) brokerTimer.Start();
         };
-        brokerTimer.Tick += async (_, _) => await TradingRecommendationsTabView.PollWealthsimpleAsync();
+        brokerTimer.Tick += async (_, _) =>
+        {
+            if (brokerPolling || shutdown.IsCancellationRequested) return;
+            brokerPolling = true;
+            try
+            {
+                await TradingRecommendationsTabView.PollWealthsimpleAsync();
+                await manualBuys.PollExecutionHostAsync(shutdown.Token);
+            }
+            catch (OperationCanceledException) when (shutdown.IsCancellationRequested) { }
+            catch { /* The next shared broker poll retries; no parallel execution owner is created. */ }
+            finally { brokerPolling = false; }
+        };
         Closed += (_, _) => brokerTimer.Stop();
         authTimer.Tick += async (_, _) =>
         {
@@ -467,6 +489,7 @@ public partial class PaperDashboardWindow : Window
             state == "NeedsAttention" ? "Error" : "Info")));
     }
 
+    private bool brokerPolling;
     private bool closingMonitor;
     private bool monitorStopped;
     protected override async void OnClosing(CancelEventArgs e)

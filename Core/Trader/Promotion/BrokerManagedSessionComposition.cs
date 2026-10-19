@@ -4,6 +4,8 @@ using Core.Trader.DelphiLive;
 using Core.WSTrade.Accounts;
 using Core.WSTrade.Orders;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +14,13 @@ namespace Core.Trader.Promotion;
 /// <summary>Composition only. Creates no timer, performs no reads/writes and grants no execution authority.</summary>
 public static class BrokerManagedSessionComposition
 {
+    public static string ImplementationIdentity => TradingRecommendationStorage.ImplementationIdentity;
+    public static WealthsimpleTfsaAccount MatchAccount(BrokerManagedSession session, IEnumerable<WealthsimpleTfsaAccount> accounts)
+    {
+        var matches = accounts.Where(a => a.Id == session.Account.Import.Plan.Observation.AccountId).ToArray();
+        return matches.Length == 1 ? matches[0]
+            : throw new InvalidOperationException("The connected account does not uniquely match the approved assignment.");
+    }
     public static BrokerManagedSessionWorkflow Create(IBrokerReconciliationSource accountReads,
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,

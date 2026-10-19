@@ -23,7 +23,7 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
     public string BuyingMode => saved is null ? "Refresh the linked account to restore its saved selection."
         : saved.NewBuysStopped ? "New buys stopped · existing exit rules retained" : "Buying allowed after account and risk checks";
     public string Duration => saved is null ? "" : saved.IsOngoing ? "Ongoing strategy selection" : "One trading session only";
-    public string Status { get; private set; } = "Strategy execution is not enabled. Account verification and activation review are still required.";
+    public string Status { get; private set; } = "Account verification and activation review are required. See the separate execution host status.";
     public bool IsBusy => operation is not null;
     private bool CanChange => !disposed && !IsBusy && verified && saved is not null && binding == saved.BindingId &&
         clock.GetUtcNow() >= checkedAt && clock.GetUtcNow() - checkedAt <= TimeSpan.FromMinutes(5);
@@ -36,7 +36,7 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
     {
         generation++; verified = false; operation?.Cancel();
         if (clearSelection) { saved = null; binding = null; }
-        Status = "Refresh the linked account before changing its saved buying mode. Strategy execution is not enabled.";
+        Status = "Refresh the linked account before changing its saved buying mode. See the separate execution host status.";
         Notify();
     }
     public async Task RestoreAsync(Guid bindingId, CancellationToken ct = default)
@@ -52,7 +52,7 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
             if (result is not null && result.BindingId != bindingId) throw new InvalidOperationException("Saved assignment belongs to another account.");
             saved = result; verified = true; checkedAt = clock.GetUtcNow();
             Status = result is null ? "No strategy has been approved to manage this account."
-                : "Saved strategy and buying mode restored. Strategy execution is not enabled; activation checks remain.";
+                : "Saved strategy and buying mode restored. See the separate execution host status; account and risk checks still apply.";
         }
         catch (OperationCanceledException) { }
         catch
@@ -76,8 +76,8 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
             if (result.BindingId != selected.BindingId || result.SessionId != selected.SessionId || result.NewBuysStopped != stopped)
                 throw new InvalidOperationException("The saved buying control could not be confirmed.");
             saved = result;
-            Status = stopped ? "Stopped new buys. Existing exit rules and outstanding orders are unchanged. Strategy execution is not enabled."
-                : "Buying mode saved. Account and risk checks still apply. Strategy execution is not enabled.";
+            Status = stopped ? "Stopped new buys. Existing exit rules and outstanding orders are unchanged. See the separate execution host status."
+                : "Buying mode saved. Account and risk checks still apply. See the separate execution host status.";
         }
         catch (OperationCanceledException) { }
         catch

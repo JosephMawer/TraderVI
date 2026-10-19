@@ -41,7 +41,10 @@
     </ComboBox>
     <TextBlock x:Name="StrategyPickerStatus" Style="{StaticResource WorkspaceLabel}" FontSize="11" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
    </StackPanel>
-   <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="Automatic trading off"/><Button Content="Review switch…" Click="ReviewTransition_Click" IsEnabled="{Binding CanRefresh}" Style="{StaticResource WorkspaceButton}" Padding="10,6" Margin="0,6,0,0"/></StackPanel>
+   <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock x:Name="ExecutionHostLabel" Text="Automatic trading off" TextWrapping="Wrap" MaxWidth="240"/>
+    <Button Content="Execution setup…" Command="{x:Static services:BrokerExecutionHostCommands.Open}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource WorkspaceButton}" Padding="10,6" Margin="0,6,0,0"/>
+    <Button Content="Stop execution host" Command="{x:Static services:BrokerExecutionHostCommands.Stop}" Style="{StaticResource WorkspaceButton}" Padding="10,6" Margin="0,6,0,0"/>
+    <Button Content="Review switch…" Click="ReviewTransition_Click" IsEnabled="{Binding CanRefresh}" Style="{StaticResource WorkspaceButton}" Padding="10,6" Margin="0,6,0,0"/></StackPanel>
   </Grid>
   <Grid x:Name="HoldingsWorkspace"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition x:Name="HoldingsColumn" Width="*"/><ColumnDefinition x:Name="HoldingPanelColumn" Width="290"/></Grid.ColumnDefinitions>
    <StackPanel x:Name="HoldingsTable" Margin="0,0,18,0">

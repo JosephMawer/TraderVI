@@ -45,6 +45,11 @@ public partial class WealthsimpleAccountPanel : UserControl
     public void SetStrategyCandidates(IReadOnlyList<TfsaLiveStrategyCandidate> value)
     { candidates = value; StrategyPickerStatus.Text = value.Count == 0 ? "No current strategy sources are available for review." : ""; ResetStrategySelection(); }
     public void SetStrategyChoiceError() => StrategyPickerStatus.Text = "Choices could not be loaded. Reopen the dropdown to retry; your current strategy is unchanged.";
+    public void SetExecutionHostStatus(BrokerExecutionHostStatus status)
+    {
+        ExecutionHostLabel.Text = status.State == "Off" ? "Automatic trading off" : "Execution host: " + status.State.ToLowerInvariant();
+        ExecutionHostLabel.ToolTip = status.Message;
+    }
     public void ResetStrategySelection()
     {
         selecting = true; RequestedStrategy = null;

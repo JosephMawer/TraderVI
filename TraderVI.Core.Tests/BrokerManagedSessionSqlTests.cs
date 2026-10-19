@@ -65,9 +65,10 @@ CREATE TABLE dbo.BrokerAccountRiskBaseline (BaselineId uniqueidentifier PRIMARY 
                 @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase))
                 if (!string.IsNullOrWhiteSpace(batch)) await control.ExecuteAsync(batch);
 
-        async Task<BrokerManagedSessionTests.Fixture> Fixture()
+        async Task<BrokerManagedSessionTests.Fixture> Fixture(bool normalLive = false)
         {
             var f = new BrokerManagedSessionTests.Fixture();
+            if (normalLive) BrokerManagedSessionTests.UseNormalLive(f);
             f.Now = f.Now.AddTicks(1234567);
             await control.ExecuteAsync("""
 INSERT dbo.BrokerAccountImportBinding VALUES (@Binding);
@@ -76,9 +77,9 @@ INSERT dbo.BrokerAccountRiskBaseline VALUES (@Baseline);
             return f;
         }
         var repository = new BrokerManagedSessionRepository(Open);
-        var fixture = await Fixture();
+        var fixture = await Fixture(normalLive: true);
         var workflow = Workflow(repository, fixture);
-        var approved = await workflow.ApproveAsync(fixture.Approval(ongoing: true));
+        var approved = await workflow.ApproveAsync(fixture.Approval(retain: true, ongoing: true));
         Assert.Equal(1234567, approved.SavedAt.Ticks % TimeSpan.TicksPerSecond);
         Assert.Equal(0, fixture.Transport.Sent);
         await using (var first = await repository.AcquireAsync(fixture.Binding.BindingId, default))
@@ -96,6 +97,13 @@ INSERT dbo.BrokerAccountRiskBaseline VALUES (@Baseline);
             Assert.Equal(approved.Account.Risk, recovered.Current.Account.Risk);
         }
         output.WriteLine("PASS: exact timestamp/JSON readback, competing lease rejection, lease release, saved buying mode and authority.");
+
+        var liveProtected = await workflow.TickAsync(fixture.Binding.BindingId);
+        Assert.NotNull(Assert.Single(liveProtected.Protection).State.LiveProtection);
+        Assert.True(liveProtected.NewBuysStopped); Assert.Equal(0, fixture.Transport.Sent);
+        await using (var readLive = await repository.AcquireAsync(fixture.Binding.BindingId, default))
+            Assert.Equal(JsonSerializer.Serialize(liveProtected), JsonSerializer.Serialize(readLive.Current));
+        output.WriteLine("PASS: Normal Live real-cost protection and stopped mode round-trip through the native session repository, with no broker client or transmission.");
 
         // Interrupt the actual repository command after SQL has inserted but before it can commit.
         await control.ExecuteAsync("""

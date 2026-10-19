@@ -40,8 +40,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
   approval requests (23:43 Toronto, exit 0, SQL query hash/scalar verified, bounded broker read succeeds).
 - [x] Test the default-off Core host and protected exact-assignment/build permission store: 117 focused
   session/opening/scope tests pass. This creates no actual host permission, session or order.
-- [ ] Connect the host to the existing desktop broker poll/shared journal/gate and operator controls;
-  then build/verify a morning working copy. Earlier full-suite/WPF results precede this host increment.
+- [x] Connect/test the host through the existing desktop poll/shared journal/gate and explicit
+  existing-assignment enable/full-stop controls; build an isolated morning copy. 127 focused tests,
+  2,518 full Core tests/eight native skips and five synthetic WPF renders pass. Copy is not launched.
+- [x] Rehearse Normal Live protection/stopped-mode SQL recovery in an isolated synthetic database,
+  alongside exclusive leases/interrupted/uncertain saves. This sends no native broker orders.
+- [x] Verify current storage counts/immutable triggers read-only (23:51 Toronto, query hash checked).
+- [ ] Finish native risk/baseline/continuation and cash/source/order qualification plus the first
+  execution review; the host setup screen starts only an already-approved assignment.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

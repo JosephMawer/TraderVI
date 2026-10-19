@@ -24,7 +24,7 @@ public sealed class BrokerManagedStrategyViewModelTests
         await model.RestoreAsync(f.Binding.BindingId);
         Assert.Equal(f.Strategy.Strategy.Name, model.StrategyName); Assert.Equal("Ongoing strategy selection", model.Duration);
         Assert.True(model.CanResumeBuying); Assert.False(model.CanStopBuying);
-        Assert.Contains("New buys stopped", model.BuyingMode); Assert.Contains("execution is not enabled", model.Status);
+        Assert.Contains("New buys stopped", model.BuyingMode); Assert.Contains("execution host status", model.Status);
         Assert.Equal(0, f.Transport.Sent);
     }
 

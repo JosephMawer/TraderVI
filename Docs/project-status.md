@@ -30,35 +30,28 @@ the separate broker/Windows-protected-login prompt remains outside its scope. No
 order, collection/training, application restart or push was performed by this setup.
 [Procedure and evidence limits](../Operations/ReadOnlyChecks/README.md), [ADR-0091](adr/0091-local-read-only-database-checks.md).
 
-**Delphi Live → TFSA preparation, October 18, 2026:** Normal remains the working integration
-target: recorded inception returns are Normal -0.71%, Original -1.28%, rules-only -3.57% through
-October 16; sparse estimated paper outcomes do not establish profitable or qualified real execution.
-The operator accepts using actual available capital after selling both current holdings, with no
-outside transfers/trades for the first supervised session and new buys stopped on reconciliation
-failure. A connected read at 22:58 Toronto verifies two whole-share CAD holdings/no pending orders;
-private details stay encrypted. This read sent no order or credential refresh.
-Exact Normal preview, Live real-cost protection/observation adapters, save-before-bid ordering,
-historical exit latching, stable opening-sale recovery and a pure protected opening-plan foundation
-are implemented/offline-tested. The scoped cash reader is conditional on no outside flows; it does
-not replace complete native cash evidence. All original launch qualifications remain required.
-179 focused tests and the full Core suite (2,501 passed/eight native skips, serial collections) pass.
-The isolated Release WPF build has zero errors/262 existing compiler warnings. Cached Pkcs advisories
-remain separate; no fresh dependency audit, full-solution or SSDT claim for this increment.
-**Automatic execution is still off/NO-GO.** No real opening plan is saved, no sales are queued and no
-desktop execution host/activation control has been added or installed. The 22:25 storage read still
-has no baseline, continuation or managed session; no later write is claimed. Native risk/storage,
-broker lifecycle, exact-source and host qualification remain before operator-controlled activation.
-[ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md) owns the accepted scope;
-the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns evidence and remaining steps.
-After the operator's restart/resume, both fixed installed helpers execute without an approval
-request at 23:43 Toronto (exit 0). SQL returns the expected scalar with verified query hash;
-the bounded broker account/pending/daily read succeeds without orders/refresh/credential changes.
-The Core host and protected permission store now pass 117 focused session/opening/scope tests,
-including exact assignment/build matching, original-order restart recovery, stopped-mode preservation,
-non-overlap, session waiting, backoff and protected-file recovery. Desktop wiring and activation
-review remain next; no host permission is saved or enabled. The overnight fallback remains paused
-while active implementation continues. Earlier full-suite/WPF results retain their prior scope.
-[Restart checkpoint](reviews/delphi-live-restart-checkpoint-20261018.md), [morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
+**Delphi Live → TFSA preparation, October 18–19, 2026:** Normal remains the integration target;
+the [assessment](reviews/delphi-live-tfsa-readiness-20261018.md) owns the negative paper returns and
+evidence limits. Actual available capital after both reviewed full sales, no outside transfers/trades
+and stopping new buys on mismatch are accepted first-day constraints (ADR-0092), not launch waivers.
+Core Live source/protection and the default-off host are implemented/tested. The desktop now connects
+the existing 30-second poll, shared journal/gate/connection and SQL lease, with exact-assignment/build
+enable and sign-in-independent full host stop. Buying mode remains separate and preserved on restart.
+After the Codex restart, both fixed helpers run without prompts at 23:43 Toronto (exit 0); SQL query
+hash/scalar and bounded broker account/pending/daily success are checked. No broker mutations occur.
+At 23:51 the hash-verified SQL read finds one link, zero baselines/continuations/managed revisions and
+all three immutable triggers enabled; the configured reviewed calendar exists. The native session
+rehearsal now passes Normal Live protection/stopped-mode SQL readback plus lease/interruption/order
+recovery with synthetic transports, not native broker lifecycle or baseline/continuation saves.
+127 focused tests pass; the full Core suite passes 2,518/eight native skips (serial collections).
+Release WPF builds, and five synthetic renders verify account command targets/status without binding
+errors. Existing compiler warnings and cached Pkcs advisories remain; no fresh audit/full-solution or
+SSDT qualification. The isolated working copy is built, not launched against the actual account.
+**Automatic trading is still off/NO-GO:** no real grant, opening plan, baseline, assignment or order
+has been created. First execution approval and native cash/source/order/risk qualification remain.
+The setup screen can enable an existing approval; it cannot create missing qualifications or the
+first assignment. [Morning decisions, working-copy path and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
+The overnight fallback remains paused while active implementation continues.
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

@@ -36,8 +36,9 @@ It supplements existing qualification; activation remains NO-GO and no real open
 Next qualify native risk/storage, exact source, broker lifecycle and one shared execution host before
 operator-controlled activation. [Assessment](reviews/delphi-live-tfsa-readiness-20261018.md), [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md).
 The operator has resumed after restart. Both fixed read-only helpers now run successfully without
-approval requests; Core host recovery/control tests pass. Next connect that tested host to the
-existing desktop poll/shared gate and operator review. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
+approval requests; Core host recovery/control tests pass. Desktop host/enable/stop composition and the isolated working copy are now built/tested.
+Next finish available risk-storage qualification and the first execution-approval path; native
+cash/source/order evidence still blocks actual activation. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

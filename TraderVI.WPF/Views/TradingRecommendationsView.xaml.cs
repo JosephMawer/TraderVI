@@ -44,6 +44,7 @@ public partial class TradingRecommendationsView : UserControl
     public Task RefreshRecordedAccountAsync() => Run(() => RefreshDisplayAsync(Account.Text));
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
     public Task PollWealthsimpleAsync() => broker?.PollAsync() ?? Task.CompletedTask;
+    public void SetExecutionHostStatus(BrokerExecutionHostStatus status) => BrokerPanel.SetExecutionHostStatus(status);
     public bool IsCurrentManualSellSelection(Core.WSTrade.Orders.ManualSellSelection selection) => broker?.IsCurrentSellSelection(selection) == true;
     public bool IsCurrentBrokerAccount(Core.WSTrade.Accounts.WealthsimpleTfsaAccount account) =>
         broker?.CanRefresh == true && ReferenceEquals(broker.SelectedAccount, account);

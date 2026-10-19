@@ -134,8 +134,25 @@ The source TFSA panel restores its saved strategy and buying mode after a succes
 refresh at startup or during polling. **Stop new buys** and **Resume buying** save only that assignment's
 purchase control; they do not approve a strategy or start an execution loop. An uncertain save requires
 Refresh to read back the saved mode. Logout, failed/stale account checks and changed assignments disable
-the controls. **Market sell all** retains its existing separate workflow. The integrated UI needs a fresh launch;
-automatic execution-host startup, native risk/order qualification and Delphi Live handover remain unfinished.
+the controls. **Market sell all** retains its existing separate workflow. The separate default-off
+execution host is now connected in source and an isolated morning build; native risk/order/source
+qualification and first execution approval remain unfinished.
+
+### Prepared Delphi Live Normal host
+
+Open the [morning working copy](reviews/delphi-live-morning-decisions-20261019.md#desktop-host-and-working-copy)
+after closing the old desktop instance. In Trading, **Execution setup…** reads readiness and an
+existing approved assignment. **Enable this reviewed execution host** is available only for a
+matching saved Normal/account/build; it does not create the first approval or any missing evidence.
+No host permission is installed by this build. Default-off polling makes no host-driven SQL/broker
+request. A previously enabled exact permission resumes regular-session checks without clearing a
+stopped buying mode, risk hold or original order. Changed builds/assignments require review.
+
+**Stop execution host** is available without sign-in or a selected account. It finishes a running
+cycle, disables saved host permission and preserves the assignment/orders; **Stop new buys** remains
+the separate control that retains ordinary exit cycles. The setup view names missing references/
+approval and never treats login, installed tables or synthetic tests as native launch qualification.
+The built copy has no approved actual assignment yet; it is not ready for automatic TFSA orders.
 
 ## Broker account history import (source milestone, September 16)
 

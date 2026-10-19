@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Trader.DelphiLive;
+using Core.WSTrade.Accounts;
 using Core.Trader.Promotion;
 using Core.WSTrade.Orders;
 using System;
@@ -150,6 +151,18 @@ public sealed partial class BrokerManagedSessionTests
             File.WriteAllText(path,"corrupt"); Assert.ThrowsAny<Exception>(() => reopened.Read());
         }
         finally { if(File.Exists(path))File.Delete(path); if(File.Exists(path+".lock"))File.Delete(path+".lock"); }
+    }
+
+    [Fact]
+    public async Task HostCompositionMatchesBrokerIdentityRatherThanAnAccountDisplayName()
+    {
+        var f = new Fixture(); UseNormalLive(f);
+        var saved = await f.Workflow().ApproveAsync(f.Approval(retain:true, ongoing:true));
+        var correct = new WealthsimpleTfsaAccount("fixture-account", "Same display name");
+        var wrong = new WealthsimpleTfsaAccount("outside-account", "Same display name");
+        Assert.Same(correct, BrokerManagedSessionComposition.MatchAccount(saved, new[] { wrong, correct }));
+        Assert.Throws<InvalidOperationException>(() => BrokerManagedSessionComposition.MatchAccount(saved, new[] { wrong }));
+        Assert.Throws<InvalidOperationException>(() => BrokerManagedSessionComposition.MatchAccount(saved, new[] { correct, correct }));
     }
 
     private sealed class HostClock(Fixture f) : TimeProvider { public override DateTimeOffset GetUtcNow() => f.Now; }

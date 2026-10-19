@@ -81,8 +81,9 @@ Core Live transfer/replay, exact-policy/profile observation binding, save-before
 owned-order cash checks and deterministic opening-sale recovery are implemented/offline-tested.
 Historical valid Live signal exits latch through later rebounds and next-session recovery; a bar low
 cannot stand in for an observed bid touch. A pure opening-plan policy and protected immutable file
-store are tested, but no real opening plan has been saved and no order is queued. There is no new
-desktop execution loop or activation control. Installation, native storage readback, host composition
+store are tested, but no real opening plan has been saved and no order is queued. The default-off
+desktop host and explicit existing-assignment enable/stop controls are now connected in source and
+an isolated build. Operational installation, first execution review, native risk qualification
 and actual fills remain unfinished. No SQL migration is needed for optional scope fields inside
 existing immutable session JSON. See the [sequence concept](../concepts/supervised-tfsa-opening-sequence.md)
 and [dated evidence](../reviews/delphi-live-tfsa-readiness-20261018.md).
@@ -91,7 +92,12 @@ The subsequent Core host adds an explicit protected operator switch for one alre
 assignment and build. Creating that switch cannot create an approval, baseline or opening order.
 The regular-session poll coalesces overlap, preserves original orders and saved stopped/paused modes,
 and uses bounded read-failure backoff. A changed build/assignment cannot inherit the old switch.
-The host and permission store are offline-tested; desktop wiring and native operation remain separate.
+The host/permission store and desktop wiring are built/tested. One shared desktop broker timer polls
+it; it reuses the journal/gate/clients and SQL assignment lease. The independent Stop execution host
+command does not require broker sign-in. The setup screen never creates the first execution approval
+or substitutes evidence checkboxes for missing native qualification. Actual native operation remains
+separate. The native SQL rehearsal includes exact Normal Live protection/stopped-mode recovery with
+synthetic transports; it does not qualify real broker orders or baseline/continuation saves.
 
 ## Review questions
 

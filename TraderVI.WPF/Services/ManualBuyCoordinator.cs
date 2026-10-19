@@ -20,6 +20,7 @@ public sealed partial class ManualBuyCoordinator : IDisposable
     private readonly ManualMarketBuyWorkflow workflow;
     private readonly WealthsimpleConnection connection;
     private readonly BrokerReconciliationWorkflow reconciliation;
+    private readonly SemaphoreSlim orderGate = new(1, 1);
     private bool reconciling;
     private ManualBuyWindow? window;
     private ManualSellWindow? sellWindow;
@@ -29,13 +30,13 @@ public sealed partial class ManualBuyCoordinator : IDisposable
         this.connection = connection;
         journal = new ManualBuyFileJournal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "TraderVI", "Wealthsimple", "ManualOrders"), new WindowsManualBuyProtector());
-        var orderGate = new SemaphoreSlim(1, 1);
         workflow = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
         Sells = new(new ManualMarketSellWorkflow(connection, journal, orderGate: orderGate));
         reconciliation = new(connection, journal, journal, orderGate);
         Sells.PropertyChanged += (_, _) => CommandManager.InvalidateRequerySuggested();
     }
-    public bool IsSubmitting => window?.IsSubmitting == true || Sells.IsBusy || reconciling;
+    private bool IsManualBusy => window?.IsSubmitting == true || Sells.IsBusy || reconciling;
+    public bool IsSubmitting => IsManualBusy || executionPolling || executionEditing;
     public async Task<BrokerAccountReconciliation> ReconcileForTransitionAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct)
     {
         if (IsSubmitting) throw new InvalidOperationException("Finish the current order or reconciliation first.");
@@ -106,5 +107,5 @@ public sealed partial class ManualBuyCoordinator : IDisposable
             Background = new SolidColorBrush(Color.FromRgb(26, 32, 41)),
             Content = new LimitSellTicketPanel { DataContext = new LimitSellTicketViewModel(selection) } }.ShowDialog();
     }
-    public void Dispose() { Sells.Dispose(); journal.Dispose(); }
+    public void Dispose() { executionDisposed = true; Sells.Dispose(); journal.Dispose(); }
 }

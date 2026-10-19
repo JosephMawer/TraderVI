@@ -31,8 +31,8 @@ public sealed record BrokerManagedStrategy(CompleteTradingStrategy Strategy, Gui
         if (Comparison.AccountId != PaperAccountId || Comparison.Profile != GateProfile ||
             Comparison.DailyStrategyVersionId != Strategy.Daily.StrategyVersionId)
             throw new ArgumentException("The broker strategy must preserve the source's exact account, daily version and admission profile.");
-        // Definition review only: the execution workflow still rejects Delphi Live until its
-        // execution/protection adapter is qualified. Do not reinterpret a comparison as approval.
+        // A compatible definition is separate from the execution workflow's native launch evidence.
+        // Do not reinterpret a comparison preview as an approved real assignment.
         if (Strategy.Family == TradingStrategyFamily.DelphiLive)
         {
             if (GateProfile != PaperGateProfile.NormalV1 || Comparison.StrategyCode != "DelphiLive" ||
