@@ -490,3 +490,13 @@ Native process inspection finds PID 61196 from `TraderVI.WPF/bin/Release/net10.0
 from earlier startup records. The operator has closed the blank risk dialog; corrected-copy switch
 and actual refreshed-screen evidence are next. Trading stays off; no agent order, baseline,
 authorization, migration, memory setting or new SQL rehearsal is created.
+
+The WPF-only correction is committed as **74cb0987**. Under the existing execution-off startup
+authority, the three new manifest hashes verify, PID 61196 closes normally, and the corrected
+risk-setup copy starts at **14:45:58 Toronto**, PID **52288**. Native process inspection confirms
+the exact prepared path, one visible/responding TraderVI window and no host permission, packet or
+today's checkpoint. Receipt: `artifacts/delphi-live-tfsa-20261018/risk-setup-switch-receipt.json`;
+manifest: `risk-setup-working-copy-hashes.json`. The frozen reviewed Core SHA is unchanged.
+No new order or saved reference is created. Next ask the operator to reopen Account risk setup,
+Refresh, and supply the actual values or blocker before saving. Display repair/startup is verified;
+native Refresh success and qualification remain unverified.

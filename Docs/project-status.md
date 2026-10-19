@@ -141,7 +141,9 @@ initial status and explicit busy/empty-result messages (six synthetic renders/bu
 `risk-setup-working-copy` retains the exact reviewed Core hash. The underlying failed refresh still
 needs native screen evidence. At 14:42 a hash-verified bounded read finds zero baseline/continuation/
 managed revisions; process inspection finds the normal bin/Release PID 61196, started 13:57.
-Corrected-copy switch/native preview, saved baseline, checkpoint, post-restart observations and packet
+The corrected 74cb0987 copy starts at 14:45:58 as PID 52288 after normal old-process closure;
+hashes match, one responding desktop remains and host permission/packet/checkpoint are absent.
+Actual refreshed-screen preview, saved baseline, checkpoint, post-restart observations and packet
 remain pending; execution is off. General production/native
 failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 

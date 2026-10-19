@@ -113,9 +113,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Reproduce clipped risk-setup button labels offline; prepare readable Workspace controls and
   visible initial/busy/empty-result states. Six synthetic renders/WPF-only build pass; reviewed Core
   unchanged. The reported failed Refresh itself is not yet explained or operationally fixed.
-- [ ] Install the corrected risk-setup working copy and verify actual preview/save/readback. The
-  14:42 bounded SQL receipt still finds no baseline/continuation/managed revisions; current process
-  inspection finds normal bin/Release, not the earlier native-review copy. Do not reset or replay trades.
+- [x] Install the hash-verified corrected risk-setup working copy (74cb0987) at 14:45 Toronto;
+  normal old-process closure, one responding owner, unchanged reviewed Core, no host permission/
+  qualification/checkpoint. Source and prior order journal remain preserved.
+- [ ] Verify actual risk-setup preview/save/readback. The 14:42 bounded SQL receipt still finds no
+  baseline/continuation/managed revisions. Do not reset references or replay trades.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and

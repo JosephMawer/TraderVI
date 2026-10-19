@@ -20,8 +20,11 @@ and the WPF-only Release build pass. The underlying refresh failure is not yet i
 The separately prepared risk-setup copy retains the exact reviewed Core SHA above; no Core rebuild,
 order replay or reference reset occurs. At 14:42 the hash-verified bounded SQL read finds zero baseline,
 continuation and managed revisions. Process inspection then finds the normal bin/Release copy
-(PID 61196, started 13:57), rather than the earlier native-review path. Corrected-copy installation
-and actual refreshed-screen verification remain next, before checkpoint/restart/packet/activation.
+(PID 61196, started 13:57), rather than the earlier native-review path. The corrected **74cb0987**
+copy starts at **14:45:58 Toronto**, PID **52288**, after normal old-process closure. All three
+manifest hashes match; one visible/responding desktop remains and no host permission, packet or
+today's checkpoint exists. Receipt: `artifacts/delphi-live-tfsa-20261018/risk-setup-switch-receipt.json`.
+Actual refreshed-screen verification remains next, before baseline/checkpoint/restart/packet/activation.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual
