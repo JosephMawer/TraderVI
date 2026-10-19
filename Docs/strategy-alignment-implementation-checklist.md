@@ -149,7 +149,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   differs from its approved progressive successor. Bounded native read confirms one Normal/allowed
   successor. Implement exact assigned-successor review without rewriting the comparison or changing
   recommendation eligibility; 217 focused/2,621 full offline passes, nine native skips/WPF build pass.
-  At 15:43 the bounded native read also confirms the latest exact assigned successor. Install follows.
+  At 15:43 the bounded native read also confirms the latest exact assigned successor.
+- [x] Install/verify corrected successor copy 62c7b5fd at 15:46:33 Toronto, PID 58536: normal prior
+  closure, matching hashes/new Core, one responding visible owner, no authority/packet/checkpoint.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,

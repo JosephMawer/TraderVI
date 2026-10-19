@@ -671,3 +671,11 @@ Prepared copy: normal-successor-working-copy/TraderVI.WPF.exe. Core SHA-256:
 Installation follows. First checkpoint/packet/financial approval/host enable remain unverified/off.
 Preserve the existing initial references and all original order IDs; no repeated trades or resets.
 Today's existing close-time expiry remains mandatory. No agent financial action or native SQL test.
+
+Correction committed as **62c7b5fd**. The reviewed new copy starts at **15:46:33 Toronto**, PID
+**58536**, after PID 74844 closes normally. Native inspection verifies exact normal-successor path,
+one responding visible owner, all three manifest hashes/new Core and absent host permission,
+qualification packet and today's checkpoint. Manifest: normal-successor-working-copy-hashes.json;
+receipt: normal-successor-switch-receipt.json. No original journal/baseline was changed by the switch.
+Next user step: Capture native recovery checkpoint in this exact copy and inspect its result before
+normal restart. No checkpoint, restart proof, packet or activation is inferred from installation.

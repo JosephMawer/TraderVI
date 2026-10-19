@@ -1,12 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: first checkpoint capture still pending; automatic execution off.**
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\setup-cycle-working-copy\TraderVI.WPF.exe`.
-Core correction **71207c86**, WPF coordination **943f964b**; Core SHA-256
-`BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`.
-The coordinated copy starts at **15:30:19 Toronto**, PID **74844**, after normal prior-process closure.
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\normal-successor-working-copy\TraderVI.WPF.exe`.
+Assigned-successor correction **62c7b5fd**, retaining coordination **943f964b**; Core SHA-256
+`7F2FD4A5944BB20D64F8A5AE785F46444023C52D7484B364F011A2072C82AB0C`.
+The corrected copy starts at **15:46:33 Toronto**, PID **58536**, after normal prior-process closure.
 Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/setup-cycle-switch-receipt.json`.
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/normal-successor-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
@@ -35,7 +35,7 @@ exactly one active Normal, its allowed successor and latest saved assignment. Th
 the original comparison, requires that native assignment/view and validates only protection changed;
 recommendation eligibility is unchanged. 217 focused/2,621 full offline checks pass, nine native skips;
 WPF Release passes with existing warnings. Corrected output is prepared in
-`artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation follows.
+`artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation is verified above.
 Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,

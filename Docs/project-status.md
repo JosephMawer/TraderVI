@@ -182,8 +182,10 @@ successor. The correction discovers that immutable account, then requires its la
 assignment, installed successor view and exact original/current policy comparison. Original comparison
 identity and recommendation eligibility remain unchanged. 217 focused and 2,621 full offline checks
 pass (nine native skips); WPF Release passes with existing warnings. At 15:43 a second hash-verified
-bounded read confirms one active Normal and one latest assigned allowed successor. Installation
-follows; no checkpoint success is inferred. Existing
+bounded read confirms one active Normal and one latest assigned allowed successor. Corrected copy
+**62c7b5fd** starts at **15:46:33 Toronto**, PID **58536**, after normal prior closure; exact path,
+manifest hashes/new Core, one responding visible owner and absent authority/packet/checkpoint verified.
+Next capture in this exact copy; no checkpoint success is inferred. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

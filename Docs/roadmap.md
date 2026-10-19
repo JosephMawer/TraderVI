@@ -93,8 +93,9 @@ packet/checkpoint. Capture now passes reconciliation but rejects Normal's approv
 successor as an original-policy mismatch. A bounded native read confirms one active Normal and
 allowed successor; the correction preserves original comparison identity and requires its latest
 saved assignment plus exact protection-only policy difference (217 focused/2,621 full offline passes,
-nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Next install,
-verify native checkpoint, then same-copy restart/native review before
+nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Corrected
+copy 62c7b5fd is installed/verified at 15:46, PID 58536, one responding owner/no authority/packet/
+checkpoint. Next verify native checkpoint, then same-copy restart/native review before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 
