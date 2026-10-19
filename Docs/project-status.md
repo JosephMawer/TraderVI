@@ -7,7 +7,10 @@ Trading's main layout first. Both Buy and Sell belong in the holding panel. A Tr
 uses account summary, assigned strategy, holdings/context panel and compact activity; the operator
 now accepts that arrangement and selects Performance first for the overview. The chosen overview is
 integrated into a full Trading concept with a placeholder strategy row; portfolio choice is explicitly
-deferred. Performance periods/source treatment and in-panel stock lookup remain open. One Delphi Live
+deferred. Today is now the default with an Overall switch; the redundant Trading title/right-hand
+account badge are removed from the draft, with the account name retained. Daily performance source/
+calculation qualification and in-panel stock lookup remain open; fictional daily values are not native
+evidence. One Delphi Live
 engine runs the recorded original paper book plus two comparison books; comparison selection remains
 excluded by source/ADR-0068. This explanation adds no fresh SQL/host verification or changed family/AI
 contract. Source inspection distinguishes existing broker-reported return fields from

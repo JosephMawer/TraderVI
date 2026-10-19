@@ -25,8 +25,9 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 Delphi Live before detailed drill-downs. Workspace and Trading's main arrangement are selected;
 Performance first is now selected and integrated into the Trading concept. Both Buy/Sell controls
 belong in the holding panel. Portfolio choice is explicitly deferred; existing engine/family and
-comparison-selection contracts remain. Next settle performance periods/source treatment and desktop
-dimensions before moving to the other screens.
+comparison-selection contracts remain. Today is the default with an Overall option; redundant heading/
+badge removal is agreed. Next refine remaining Trading visual details and desktop dimensions before
+other screens. Daily performance source/calculation qualification remains an implementation dependency.
 Remaining-screen order and WPF implementation are still open.
 Existing operating priorities and execution prerequisites below remain.
 [Design draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft).

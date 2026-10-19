@@ -13,12 +13,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   both Buy/Sell controls in the holding panel.
 - **Accepted arrangement:** account overview, assigned strategy, holdings beside the stock panel, then
   compact activity. Next refine the overview's gains/performance.
-- **Accepted overview:** Performance first, integrated into the full Trading concept. Account value
-  first remains design history.
-- **Open:** desired periods and source/availability treatment, target window size and later screens'
-  layouts/order. Existing broker return fields are
+- **Accepted overview:** Performance first; Today by default with an Overall option, integrated into
+  the full Trading concept. Remove the redundant Trading heading/right-hand account badge and keep
+  the account name beneath Main account. Account value first remains design history.
+- **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
+  target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history
-  still need qualification. Find stock remains a provisional unheld-stock route.
+  still need qualification. Today needs its own qualified result; never relabel overall return as
+  daily performance if that result is missing. Find stock remains a provisional unheld-stock route.
 - **Tentative context:** the operator leans toward switching among Delphi Live portfolios, but asks
   for an explanation after forgetting there are multiple paper books. The recorded original paper
   book plus Normal/Portfolio rules only comparison pair are distinct accounts; comparison books are

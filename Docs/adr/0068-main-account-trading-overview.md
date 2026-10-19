@@ -188,13 +188,17 @@ requested agreeing Trading's main layout before moving to the other three screen
 belong in the holding panel. These accepted visual choices retain the account-first overview above;
 the operator subsequently accepts the account-summary/strategy/holdings/activity arrangement and asks
 to refine the top gains/performance overview next. The operator then selects **Performance first**:
-broker-reported dollar gain and percentage lead, with the supplied period visible below; account
-value/cash/net deposits and separately scoped recorded gains follow. Portfolio choice is explicitly
+selected-period dollar gain and percentage lead, with the period visible below; account
+value/cash/net deposits and separately scoped recorded gains follow. The operator selects **Today**
+as default with an **Overall** option, and removes the redundant Trading heading/right-hand badge;
+the account name remains beneath Main account. Daily-return source/baseline/cash-flow/percentage
+qualification is still required; an overall broker return cannot stand in for missing daily performance.
+Overall retains the supplied broker period and valuation time. Portfolio choice is explicitly
 deferred. The suggested Find stock route remains a draft. One Delphi Live engine can run several
 independent paper portfolios; no existing engine/family or comparison-selection contract changes.
 Broker-reported return and complete gain calculated from TraderVI records are different evidence
-sources; a UI must retain each source's period, original valuation time and availability. No new
-performance calculation or period-selection contract is accepted. Detailed views and order tickets
+sources; a UI must retain each source's period, original valuation time and availability. The display
+period choice is accepted; no new performance calculation or source qualification is established. Detailed views and order tickets
 follow later. No new WPF
 implementation, accounting change, broker operation or execution authority follows from this selection.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).

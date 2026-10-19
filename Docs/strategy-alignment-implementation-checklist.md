@@ -543,7 +543,12 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Agree Trading's overall overview/strategy/holdings-and-panel/activity arrangement.
 - [x] Prepare two gains/performance overview treatments; wrapper/script syntax checked only.
 - [x] Select Performance first and integrate it into the full Trading concept; wrapper/script syntax checked.
-- [ ] Agree period/source/availability treatment and target desktop dimensions.
+- [x] Agree Today as default with an Overall option; remove the redundant Trading title/right-hand
+  account badge and keep the account name. Draft controls are wired locally; wrapper/script syntax
+  checked only, with browser interaction verification pending.
+- [ ] Confirm target desktop dimensions and remaining Trading visual details.
+- [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
+  availability before implementation claims. Missing Today must not display overall return as daily gain.
 - [x] Explain the recorded original Live paper book plus the Normal/Portfolio rules only comparison
   pair, independent ledgers and existing comparison promotion exclusion from source/ADRs only.
 - [x] Record explicit deferral of portfolio choice; clarify one engine/three paper portfolios again.
