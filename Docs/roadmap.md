@@ -78,7 +78,8 @@ unobserved native failure paths remain deferred. [Operator steps](reviews/delphi
 
 The corrected risk screen now confirms an unexpected setup failure, not reference values. The next
 WPF-only diagnostic copy identifies the failing stage/category without exposing private error text
-(two tests/build pass, Core unchanged). Next install it and inspect the native diagnostic before
+(two tests/build pass, Core unchanged). It is committed as bc5a7f09 and running since 14:53 with
+one responding owner and no host permission/packet/checkpoint. Next inspect the native diagnostic before
 attempting any initial-reference save; no bypass or replacement baseline is authorized.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

@@ -152,8 +152,9 @@ no values and Save disabled. The 14:49 hash-verified bounded read finds no basel
 or report/recommendation JSON; latest import is the 14:46 startup observation. This does not locate
 the failed step. A WPF-only diagnostic increment adds stage/error-category/SQL-number reporting,
 excluding raw exception messages and preserving the existing failure block. Two privacy tests and
-Release build pass; reviewed Core is unchanged. The separate diagnostic copy is prepared; native
-retry/diagnosis still precedes initial-reference review/save and qualification.
+Release build pass; reviewed Core is unchanged. The **bc5a7f09** diagnostic copy starts at 14:53:20
+as PID 106248 after normal prior closure: hashes/one responding owner/no host permission, packet
+or checkpoint verified. Native retry/diagnosis still precedes reference review/save and qualification.
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

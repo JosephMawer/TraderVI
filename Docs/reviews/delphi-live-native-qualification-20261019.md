@@ -3,7 +3,7 @@
 **Current decision: awaiting actual manual observations; automatic execution off.** The operator
 explicitly approves the first-day acceptance contract below. The native checkpoint/review/packet
 producer is implemented/tested; no actual packet, baseline, assignment or host grant is issued here.
-Prepared executable (risk-screen correction): `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-setup-working-copy\TraderVI.WPF.exe`.
+Current executable (risk diagnostics): `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-diagnostic-working-copy\TraderVI.WPF.exe`.
 Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
 The trading-engine source is committed as **e054e88f**. The earlier native-review copy launched at **12:07 Toronto** as PID **43132**, with one
 visible/responding TraderVI window and no host grant, actual qualification packet or checkpoint.
@@ -31,6 +31,11 @@ disabled Save. It is not a reviewable baseline. At 14:49 the bounded helper veri
 empty and no prior report/recommendation JSON exists; latest import is 14:46. A WPF-only diagnostic
 copy adds safe stage/category/SQL-number reporting, with two privacy tests/build passing and exact
 reviewed Core unchanged. Actual failure diagnosis and successful preview are still prerequisites.
+The diagnostic increment is **bc5a7f09**, running at **14:53:20 Toronto** as PID **106248** after
+normal prior-process closure. Exact output/Core hashes, one responding desktop and absent host
+permission/packet/checkpoint are verified. Retry Account risk setup → Refresh for the diagnostic;
+do not save until actual reference values and their sources have been reviewed. Switch receipt:
+`artifacts/delphi-live-tfsa-20261018/risk-diagnostic-switch-receipt.json`.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual

@@ -121,7 +121,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Inspect the operator's post-fix native risk screen: unexpected-failure message, no reference
   values, Save disabled. Prepare stage/category-only diagnostic reporting (two privacy tests and
   WPF Release pass; reviewed Core unchanged). The 14:49 bounded read verifies setup remains empty.
-- [ ] Install the diagnostic copy and identify/correct the actual native failure before reference
+- [x] Install/verify the diagnostic copy bc5a7f09 at 14:53:20 Toronto, PID 106248: normal prior
+  closure, matching hashes, one responding owner and absent host permission/packet/checkpoint.
+- [ ] Identify/correct the actual native failure before reference
   review/save. Display repair and a generic error message do not qualify setup.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,

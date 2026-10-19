@@ -516,3 +516,12 @@ source or reviewed runtime binary changes; the app's save checks and fail-closed
 Logs: `risk-diagnostic-tests.log`, `risk-diagnostic-wpf-build.log`. The operator has again closed
 the risk dialog; the separately prepared diagnostic copy and native retry are next. No synthetic
 packet, reference initialization, trade replay, schema change or native SQL rehearsal is used.
+
+Diagnostic increment committed as **bc5a7f09** and launched under the existing startup scope at
+**14:53:20 Toronto**, PID **106248**, after PID 52288 closes normally. The output manifest and
+unchanged reviewed Core verify; native inspection finds one responding visible desktop and no
+host permission, packet or today's checkpoint. Receipt: `risk-diagnostic-switch-receipt.json`;
+manifest: `risk-diagnostic-working-copy-hashes.json`. Current executable is
+`C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-diagnostic-working-copy\TraderVI.WPF.exe`.
+Next operator Refresh collects the actual diagnostic. The underlying exception is still unlocated;
+no initial reference can be reviewed/saved yet and no qualification is issued.
