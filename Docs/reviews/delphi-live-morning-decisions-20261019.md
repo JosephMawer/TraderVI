@@ -5,8 +5,9 @@ copy to review before Monday, October 19. Actual TFSA activation remains the ope
 This record distinguishes completed software from installed or natively verified trading behavior.
 
 **Latest awake continuation:** native prepared-copy startup/reconciliation is observed; host off.
-The manual verification sequence and an updated original-sale-selection copy are prepared/tested,
-but that updated copy is not launched. Four native checks/the reviewed packet and actual financial
+The manual verification sequence and updated original-sale-selection copy are prepared/tested;
+the updated copy starts under separate authority at 11:21 Toronto with execution off and a clean
+startup import checked at 11:24. Four native checks/the reviewed packet and actual financial
 setup still block activation. See the final sections for current evidence; earlier entries retain
 their dated limits and the October 19 trial amendment supersedes only cash/opening qualifications.
 
@@ -344,3 +345,31 @@ running copy; do not overwrite it. A supervised switch is separate because norma
 paper/account services. No SQL rehearsal, memory change, financial authorization or order was run
 by the code/build/offline checks. Native activation remains NO-GO, not a promise that trading the
 manual sequence alone will complete every qualification.
+
+## Updated-copy supervised switch — October 19 at 11:21 Toronto
+
+The operator explicitly approves the switch to the validated `471ed130` order-review copy with the
+same normal paper/account synchronization scope, execution off and no agent-submitted orders or
+financial approvals. Preflight verifies all three hashes in `order-review-working-copy-hashes.json`,
+the old PID 76640/path and absence of `execution-host.dat`. The old copy closes normally, with no
+force-stop; no other desktop owner remains. The updated executable starts at **11:21:54 Toronto**
+as PID **119176**. Native process inspection confirms its exact path, one visible/responding TraderVI
+window and continued absence of a host grant. The previous running copy is not overwritten.
+Receipt: ignored `artifacts/delphi-live-tfsa-20261018/order-review-switch-receipt.json`.
+
+Updated executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\order-review-working-copy\TraderVI.WPF.exe`.
+Core SHA-256: `CC814668AE48F1A5D456C9268CA043B85386B748904311A3D828E1FB2B3856F4`.
+That is a different implementation identity from the earlier morning build; no prior grant/approval
+is carried across it. No real execution grant or financial reference is created by launch.
+
+At **11:24:04 Toronto**, the exact installed SQL v2 helper succeeds. Its receipt hash matches the
+reviewed UTF-8 mailbox bytes: `19F7404999992027B68206449490EF821C19914A1C2EE80E819EF0A6F0B52B8B`.
+The new snapshot is 11:22:15.946754 and import 11:22:16.9601394, after startup; import can proceed,
+import/history/observation blocks are empty, and one matching trade-sync receipt exists. Initial
+baseline, continuation and managed-revision counts are all zero. Receipt:
+`artifacts/read-only-db/result-20261019T152404302Z-74e2da1eda9a4cad9eb453b036c33345.json`.
+This is one native startup/reconciliation observation, not continuous cadence, native sale-selection
+dialog/fill/restart qualification or strategy readiness. The four independent native qualifications,
+their reviewed packet/publication and actual financial setup remain blockers. No additional SQL
+rehearsal, memory change, migration, financial authorization or real order was performed. Existing
+173 focused/2,573 full/nine-skip and five-render build validation is unchanged; no redundant rerun.

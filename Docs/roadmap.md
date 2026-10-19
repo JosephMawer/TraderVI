@@ -55,8 +55,9 @@ storage read confirms empty setup tables/enabled triggers. Actual sales/setup an
 proof remain prerequisites; no automatic trading is enabled. The separately approved prepared-copy
 startup and native setup screen are now observed at 10:52, with a reconciled account import checked
 at 10:57. The operator-executed verification sequence and explicit original-sale selection are now
-prepared/tested (173 focused/2,573 full, nine native skips; five UI renders). A separate updated copy
-awaits supervised switch. Next complete independent native proof/publication and review the manual
+prepared/tested (173 focused/2,573 full, nine native skips; five UI renders). The updated copy's approved
+11:21 switch/startup and 11:24 clean import check pass with execution off and empty setup. Next
+complete independent native proof/publication and review the manual
 sequence before any opening liquidation; actual financial setup/activation remain prerequisites.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

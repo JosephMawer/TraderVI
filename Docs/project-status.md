@@ -108,9 +108,15 @@ trial checks. **173 focused/2,573 full Core tests pass**, nine native skips; fiv
 and selection assertions pass without binding errors. WPF Release passes. An initial broader run had
 one five-second AI-host timeout; its seven tests and the full serial rerun pass, without AI changes.
 Existing compiler warnings/cached Pkcs security advisories remain separate; no fresh audit/full-solution
-or SSDT claim. A separate `order-review-working-copy` is built, not launched; the 10:52 copy remains
-running. The native packet/independent four-check qualification and actual financial setup are still
-unfinished. No real orders, baseline/grant, SQL rehearsal or memory change ran in this increment.
+or SSDT claim. The separately approved switch to `order-review-working-copy` completes at **11:21
+Toronto**: all three hashes match, the old copy closes normally and PID 119176 has one visible,
+responding TraderVI window. No host grant exists before or after startup. The **11:24** hash-verified
+bounded read finds its 11:22:15 snapshot/11:22:16 import and matching trade-sync receipt, with no import,
+history or observation blocks. Baseline/continuation/managed-revision counts remain zero. This verifies
+the updated copy's startup and one reconciliation, not its unobserved native sale-selection dialog,
+current strategy execution or order lifecycle. The native packet/independent four-check qualification
+and actual financial setup remain unfinished. No real orders, baseline/grant, SQL rehearsal or memory
+change ran in this increment. [Switch receipt/evidence](reviews/delphi-live-morning-decisions-20261019.md#updated-copy-supervised-switch-october-19-at-1121-toronto).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

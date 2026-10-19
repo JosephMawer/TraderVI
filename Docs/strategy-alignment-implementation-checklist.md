@@ -84,9 +84,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Prepare the authorized manual two-sale/buy/readback/return-to-cash verification route, preserve
   the two original sale IDs through explicit selection, and record its qualification limits. 173 focused/
   2,573 full tests pass, nine native skips; five synthetic renders and WPF Release pass. Separate
-  order-review copy built; not launched. Initial AI timeout passes focused/full-serial rechecks.
-- [ ] Review/switch to that updated copy under operational authority, then complete the independent
-  native proof/publication route before treating the manual sequence as a path to immediate activation.
+  order-review copy subsequently launches under separate authority at 11:21. Initial AI timeout passes
+  focused/full-serial rechecks.
+- [x] Switch to the hash-verified updated copy under explicit operator authority at 11:21 Toronto;
+  old instance closes normally, one responding desktop remains, no host grant before/after startup.
+  At 11:24 the bounded query/receipt hashes match: clean new import/trade-sync receipt, zero baseline/
+  continuation/managed revisions. This is startup/reconciliation evidence, not native dialog/order proof.
+- [ ] Complete the independent native proof/publication route before treating the manual sequence as
+  a path to immediate activation.
   Actual qualification orders and their outcomes remain operator actions, not completed tests.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
