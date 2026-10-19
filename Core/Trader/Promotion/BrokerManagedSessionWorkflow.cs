@@ -68,12 +68,19 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         await using var lease = await store.AcquireAsync(bindingId, ct);
         var state = lease.Current ?? throw new InvalidOperationException("Explicit reviewed execution approval is required.");
         bool paused = state.Phase == BrokerManagedPhase.Paused;
+        bool fullFillTrial = state.Approval.Review.NoTransferScope?.FullFillOnlyNativeTrial == true;
+        bool NeedsTrialReview()
+        {
+            try { return state.Orders.Any(o => o.Submission != WealthsimpleSubmissionStatus.Acknowledged) || source.RequiresTrialOrderReview(state.Orders); }
+            catch { return true; } // A corrupt/unreadable owned-order journal cannot restore trial progression.
+        }
         BrokerAccountProjection account;
         try { account = await source.SynchronizeAsync(state.Orders, ct); }
         catch (OperationCanceledException) { throw; }
         catch
         {
-            return await Save(lease, state with { Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
+            return await Save(lease, state with { TrialOrderReviewRequired = state.TrialOrderReviewRequired || fullFillTrial && NeedsTrialReview(),
+                Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
                 Blocks = ["Broker status/account synchronization is incomplete. Preserve every original order ID and retry reads only."] }, "SynchronizationUnavailable", ct);
         }
         if (account.Risk.BindingId != bindingId || account.Risk.BaselineId != state.Approval.Review.BaselineId)
@@ -87,6 +94,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
                 Blocks = ["Current account facts and forward-only risk history are required before execution can resume."] }, "AccountContinuationBlocked", ct);
         var orders = state.Orders.ToBuilder();
+        if (fullFillTrial && NeedsTrialReview()) state = state with { TrialOrderReviewRequired = true };
         for (int i = 0; i < orders.Count; i++)
         {
             var old = orders[i];
@@ -94,9 +102,14 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             if (fact is null || fact.SecurityId != old.SecurityId || fact.Side != old.Side || fact.SubmittedQuantity != old.Quantity ||
                 fact.FilledQuantity < 0 || fact.FilledQuantity > old.Quantity ||
                 old.Latest is { } prior && (fact.FilledQuantity < prior.FilledQuantity || prior.IsTerminal && !fact.IsSameOrPostedSuccessor(prior)))
-                return await Save(lease, state with { Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
+                return await Save(lease, state with { TrialOrderReviewRequired = state.TrialOrderReviewRequired || fullFillTrial,
+                    Phase = paused ? BrokerManagedPhase.Paused : BrokerManagedPhase.NeedsAttention,
                     Blocks = ["An original order is missing or conflicts with saved facts. No replacement order is permitted."] }, "OrderRecoveryBlocked", ct);
             orders[i] = old with { Latest = fact, Reconciled = fact.IsTerminal };
+            if (fullFillTrial && (old.Submission != WealthsimpleSubmissionStatus.Acknowledged ||
+                fact.FilledQuantity > 0 && fact.FilledQuantity < old.Quantity ||
+                fact.IsTerminal && (fact.Status is not ("FILLED" or "POSTED") || fact.FilledQuantity != old.Quantity)))
+                state = state with { TrialOrderReviewRequired = true };
         }
         // The imported history owns financial truth; restore strategy attribution only for exact owned orders.
         var fills = account.Fills.Select(fill =>
@@ -120,9 +133,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
                 DailyLossHold = account.Risk.DailyLossHold || state.Memory.TradingDate == account.Risk.TradingDate && state.Memory.DailyLossHold,
                 CapitalReviewRequired = account.Risk.CapitalReviewRequired || state.Memory.CapitalReviewRequired,
                 HighestClosingValue = account.Risk.DrawdownReference.Value },
-            Phase = paused ? BrokerManagedPhase.Paused : state.ActivatedAt.HasValue ? BrokerManagedPhase.Active : BrokerManagedPhase.Transition,
-            Blocks = paused ? state.Blocks : account.NewRiskBlocks }, "AccountSynchronized", ct);
-        if (paused || state.Orders.Any(o => !o.Reconciled)) return state;
+            Phase = paused || state.TrialOrderReviewRequired ? BrokerManagedPhase.Paused : state.ActivatedAt.HasValue ? BrokerManagedPhase.Active : BrokerManagedPhase.Transition,
+            Blocks = state.TrialOrderReviewRequired ? ["The full-fill-only trial observed a partial, cancelled, conflicting or uncertain order. Original-ID reads may recover facts; operator review is required before any further automatic order."]
+                : paused ? state.Blocks : account.NewRiskBlocks }, "AccountSynchronized", ct);
+        if (paused || state.TrialOrderReviewRequired || state.Orders.Any(o => !o.Reconciled)) return state;
         if (source.ImplementationIdentity != state.Strategy.Strategy.ImplementationIdentity)
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
                 Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
@@ -255,7 +269,10 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         try { result = await preflight.SubmitOnceAsync(ct); }
         catch { result = WealthsimpleSubmissionStatus.OutcomeUnknown; }
         // If this save fails, the durable intent remains unresolved. Recovery only reads its original ID.
-        return await Save(lease, state with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }) },
+        bool trialReview = state.Approval.Review.NoTransferScope?.FullFillOnlyNativeTrial == true && result != WealthsimpleSubmissionStatus.Acknowledged;
+        return await Save(lease, state with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }),
+            TrialOrderReviewRequired = state.TrialOrderReviewRequired || trialReview,
+            Phase = trialReview ? BrokerManagedPhase.Paused : state.Phase },
             "OrderTransmissionObserved", CancellationToken.None);
     }
     private async Task<BrokerManagedSession> Save(IBrokerManagedSessionLease lease, BrokerManagedSession state, string reason, CancellationToken ct)

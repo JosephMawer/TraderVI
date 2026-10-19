@@ -41,6 +41,8 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
     public string ImplementationIdentity => TradingRecommendationStorage.ImplementationIdentity;
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     private readonly BrokerAccountRiskContinuationWorkflow continuation = new(continuationStore, calendar, time);
+    public bool RequiresTrialOrderReview(ImmutableArray<BrokerStrategyOrder> orders) =>
+        BrokerNativeTrialQualification.RequiresOrderReview(buys.ReadOrders(), sells.ReadOrders(), orders);
     public async Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct)
     {
         foreach (var order in orders.Where(o => !o.Reconciled))

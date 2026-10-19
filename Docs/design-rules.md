@@ -34,6 +34,12 @@ the operator explicitly approved a flagged first-session trial replacing only pr
 opening-value evidence with confirmed full sales, the saved cash-only baseline and exact cash/order
 reconciliation. Four other native launch checks and five scoped checks remain; purchases expire at
 the reviewed close, without next-day buying permission or general transfer qualification.
+The subsequent explicit native first-day contract adds `FullFillOnlyNativeTrial`: actual native full
+buy/sale and saved-reference recovery across a normal restart, exact current Normal/source review
+with disclosed performance gaps, and installed immutable storage verification. Proof is marked
+`FirstSessionTrialOnly` and cannot qualify production/older scopes. Partial/cancel/uncertain outcomes
+latch a durable order-review hold; reads retain original IDs, while no new/residual order is reserved
+until operator recovery. Ordinary Resume buying cannot clear it or reset financial holds (ADR-0092).
 Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
 valid historical signal exits through restart and never infer a bid touch from a bar low. Opening

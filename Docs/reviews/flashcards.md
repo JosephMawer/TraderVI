@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Native first-day engineering trial — October 19
+
+- **Q:** Why capture the native checkpoint after every verification trade and cash-only initial setup? **A:** One normal restart can then verify all original order IDs and the unchanged saved references. A test trade after the cash anchor would be an outside change; a replacement baseline cannot erase it. (ADR-0092)
+- **Q:** Does first-day native full-fill proof qualify partial/uncertain or power-loss recovery? **A:** No. Those paths remain unobserved. Their occurrence latches an order-review hold, blocking new/residual orders across restart and Resume buying. Every proof is first-session-only and cannot qualify production. (ADR-0092)
+
 ### First supervised Delphi Live TFSA scope — October 18
 
 - **Q:** Does the no-transfer agreement replace native launch qualification? **A:** No. Conditional exact cash/order reconciliation supplements the original checks and cannot prove a complete native capital-event feed. It expires at the reviewed close without resetting references or holds. (ADR-0092)

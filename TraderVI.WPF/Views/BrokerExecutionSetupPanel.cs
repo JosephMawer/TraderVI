@@ -11,6 +11,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
     public TextBlock Summary { get; } = new() { TextWrapping = TextWrapping.Wrap, FontSize = 14 };
     public Button Refresh { get; } = new() { Content = "Refresh readiness" };
     public Button PrepareFirst { get; } = new() { Content = "Prepare first execution review" };
+    public Button CaptureNativeCheckpoint { get; } = new() { Content = "Capture native recovery checkpoint" };
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
     public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
     public Button StopHost { get; } = new() { Content = "Stop execution host" };
@@ -33,7 +34,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
             Margin = new Thickness(0, 0, 0, 12) };
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
-        foreach (var button in new[] { Refresh, PrepareFirst, ApproveFirst, EnableHost, StopHost })
+        foreach (var button in new[] { Refresh, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst, EnableHost, StopHost })
         {
             button.MinWidth = 215; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
             if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;

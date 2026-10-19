@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		AGENTS.md = AGENTS.md
 		Docs\reviews\delphi-live-restart-checkpoint-20261018.md = Docs\reviews\delphi-live-restart-checkpoint-20261018.md
 		Docs\reviews\delphi-live-morning-decisions-20261019.md = Docs\reviews\delphi-live-morning-decisions-20261019.md
+		Docs\reviews\delphi-live-native-qualification-20261019.md = Docs\reviews\delphi-live-native-qualification-20261019.md
 		Operations\BrokerReadOnlyChecks\README.md = Operations\BrokerReadOnlyChecks\README.md
 		Operations\BrokerReadOnlyChecks\BrokerReadOnlyChecks.csproj = Operations\BrokerReadOnlyChecks\BrokerReadOnlyChecks.csproj
 		Operations\BrokerReadOnlyChecks\Program.cs = Operations\BrokerReadOnlyChecks\Program.cs

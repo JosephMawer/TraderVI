@@ -6,6 +6,11 @@
 
 ## Problem and decision
 
+**October 19 scoped broker exception:** the separately approved native first-day contract in
+[ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md#october-19-accepted-native-first-day-contract)
+permits disclosed performance gaps for that exact engineering trial after its native checks. This
+does not broaden the recommendation-only exception below or qualify ordinary production execution.
+
 The immediate problem was the unavailable promotion action. The parent problem is routing independent
 strategy families to Trading without mixing accounts or evidence. The root goal is human-approved
 recommendations based on actual reported financial facts, before separately authorized broker execution.

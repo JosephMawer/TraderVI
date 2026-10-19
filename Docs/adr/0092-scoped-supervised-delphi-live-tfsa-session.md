@@ -123,6 +123,46 @@ holds and original request IDs; native boundary/cash-flow/broker evidence remain
 
 ## First execution review path
 
+### October 19 accepted native first-day contract
+
+After reviewing the concrete native qualification plan, the operator explicitly approves a further
+first-day contract. This is separate from the earlier cash/opening amendment. The new
+`FullFillOnlyNativeTrial` flag requires `LimitedFirstSessionTrial`; ordinary production, research
+promotion, older scopes and their evidence requirements do not change.
+
+For this engineering trial, `strategy-evidence` requires the native exact Normal/profile/policy/
+daily/build definition and fresh source review, with the previously reviewed comparable performance,
+costs, coverage and downside limitations disclosed and accepted. It does not claim profitability or
+production statistical readiness. ADR-0055/0062's recommendation-only exception is not reused as
+broker authority; this is the separately accepted scoped alternative. ADR-0022 research thresholds
+and provenance/leakage/invalid-report prohibitions remain unchanged.
+
+Native order evidence requires both original full sales, one actual manual one-share buy and its
+separate full sale, all acknowledged and matched to native history, costs/fees and empty inventory.
+The cash-only baseline must follow every verification trade. Then the app captures a protected
+checkpoint. After a normal restart of the **same executable**, it reads the same four original order
+IDs, native history and the unchanged baseline through independent Read/Find calls. Current installed
+immutable triggers/max JSON storage, continued references/holds and current source must still match.
+One normal restart therefore checks orders and risk references without a second verification position.
+
+Partial/cancel/uncertain-send/power-loss and populated engine recovery remain explicitly unobserved.
+Any partial, cancelled, rejected/conflicting or uncertain automatic outcome latches
+`TrialOrderReviewRequired`. The workflow may read original IDs, but reserves no additional order or
+automatic residual. The hold survives restart and ordinary Resume buying; it does not change the
+operator's saved buying mode or reset financial holds. Further execution needs explicit operator
+recovery/review. Existing pending zero-fill acknowledged orders may be read until resolution.
+
+The native producer publishes only after the actual before/after observations satisfy these checks.
+It writes an encrypted, hash-linked review and all four native/five scoped references, pins the
+original cash anchor/account/strategy/build/session and expires at the reviewed close. Every reference
+is marked `FirstSessionTrialOnly`; it cannot qualify production/older scopes. It preserves existing
+packet conclusions and never replaces a baseline, issues a financial approval or enables the host.
+No synthetic test output or operator checkbox can create native observations. The general-production
+cash/native qualification publisher remains outside this bounded implementation.
+
+The [qualification review and operator steps](../reviews/delphi-live-native-qualification-20261019.md)
+own current evidence and remaining manual observations.
+
 The desktop now prepares the accepted cash-start Normal review through the existing shared account
 synchronization source. Preparation may append the normal reconciled account import; it creates no
 baseline, execution approval, host permission or order. Both holdings must already be fully sold,
@@ -141,9 +181,10 @@ October 19 trial, and lists missing/incompatible evidence. An independently
 reviewed qualification packet pins account, exact strategy/build/session, expiry, reviewer and proof
 references. Its read-only consumer uses Windows-protected bytes and verifies each referenced file's
 SHA-256 before preparation and again before approval. These establish identity/integrity, **not** the
-semantic truth of native qualification. There is no UI writer, checkbox override or new native
-qualification issuer. Producing the complete independently qualified packet remains an operational
-dependency; synthetic reports must never be published as that packet.
+semantic truth of native qualification. The subsequent expressly approved native first-day producer
+above adds bounded actual-observation qualification/publication; there is no checkbox override or
+general-production issuer. Actual observations remain an operational dependency; synthetic reports
+must never be published as that packet.
 
 Explicit approval rechecks the current source plus actual account/risk through the existing durable
 workflow and saves no order. The host remains off until separately enabled. Changed evidence,

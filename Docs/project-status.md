@@ -53,7 +53,8 @@ only after exact source/evidence/account rechecks. Approval sends no order; enab
 approved account/strategy/build is separate. The host shares the existing timer/journal/gate/SQL lease
 and preserves buying mode, risk holds and original order IDs. Two explicit existing Sell all actions
 remain the simplest supervised opening; no new automatic-liquidation owner is installed.
-Latest validation: **158 focused/2,558 full Core tests pass**, nine native skips. The earlier **two
+Earlier limited-cash validation: **158 focused/2,558 full Core tests pass**, nine native skips;
+the subsequent native first-day producer validation is recorded below. The earlier **two
 explicit native SQL rehearsals passed** in retained synthetic databases; they were not rerun after
 the memory pause. Those rehearsals cover first-review approval
 save/reopen, precise session/protection readback, leases/interrupted and uncertain saves, baseline
@@ -117,6 +118,20 @@ the updated copy's startup and one reconciliation, not its unobserved native sal
 current strategy execution or order lifecycle. The native packet/independent four-check qualification
 and actual financial setup remain unfinished. No real orders, baseline/grant, SQL rehearsal or memory
 change ran in this increment. [Switch receipt/evidence](reviews/delphi-live-morning-decisions-20261019.md#updated-copy-supervised-switch-october-19-at-1121-toronto).
+
+**Native first-day qualification producer, October 19:** the operator explicitly approves the
+bounded native acceptance contract (ADR-0092), accepting disclosed performance gaps after exact
+source review and native full-fill/normal-restart/reference/storage checks. The checkpoint,
+original-ID readback and protected nine-reference publisher are now implemented/tested. Every proof
+is first-session-only; production/older scopes cannot reuse it. A durable automatic-order review hold
+blocks new/residual orders after partial/cancel/conflict/uncertainty and survives resume/restart,
+without changing the operator's buying mode or financial holds. **205 focused/2,605 full Core tests
+pass**, nine native skips; seven synthetic UI renders/WPF Release pass. Existing compiler warnings
+and cached Pkcs advisories remain; no fresh audit/full-solution/SSDT claim. At 11:54 the hash-verified
+bounded read confirms the immutable-storage predicate, with setup tables still empty. The separate
+`native-review-working-copy` is built, not launched. **Actual orders, saved baseline, checkpoint,
+post-restart observations and packet remain pending; execution is off.** General production/native
+failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

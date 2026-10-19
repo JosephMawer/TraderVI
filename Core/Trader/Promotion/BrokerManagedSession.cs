@@ -13,7 +13,11 @@ namespace Core.Trader.Promotion;
 public enum BrokerManagedPhase { Transition, Active, Paused, NeedsAttention }
 public enum BrokerExecutionDuration { SingleSession, Ongoing }
 public sealed record BrokerQualification(string Check, Guid BindingId, string StrategyFingerprint,
-    DateTimeOffset VerifiedAt, string EvidenceHash, string EvidenceReference);
+    DateTimeOffset VerifiedAt, string EvidenceHash, string EvidenceReference)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool FirstSessionTrialOnly { get; init; }
+}
 public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, BrokerManagedStrategy Strategy,
     Guid BaselineId, string AccountFingerprint, DateOnly Session, DateTimeOffset PreparedAt,
     decimal PurchaseCeiling, ImmutableArray<Guid> RequiredExits, ImmutableArray<Guid> RetainedPositions,
@@ -68,7 +72,8 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
             var matching = Qualifications.Where(q => q.Check == check).ToArray();
             if (matching.Length != 1 || matching[0].BindingId != BindingId || matching[0].StrategyFingerprint != Strategy.Fingerprint ||
                 matching[0].VerifiedAt > now || !CompleteTradingStrategy.IsHash(matching[0].EvidenceHash) ||
-                string.IsNullOrWhiteSpace(matching[0].EvidenceReference))
+                string.IsNullOrWhiteSpace(matching[0].EvidenceReference) ||
+                matching[0].FirstSessionTrialOnly && NoTransferScope is not { LimitedFirstSessionTrial: true, FullFillOnlyNativeTrial: true })
                 throw new InvalidOperationException($"Required launch evidence is missing or incompatible: {check}.");
         }
     }
@@ -94,6 +99,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     // Absent in earlier snapshots: those sessions retain their existing buying behavior.
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool NewBuysStopped { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool TrialOrderReviewRequired { get; init; }
     [JsonIgnore] public BrokerManagedStrategy Strategy => Approval.Review.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
@@ -117,6 +124,8 @@ public interface IBrokerManagedSessionStore
 public interface IBrokerManagedAccountSource
 {
     string ImplementationIdentity { get; }
+    // Local journal inspection after status reads; no extra broker call or submission.
+    bool RequiresTrialOrderReview(ImmutableArray<BrokerStrategyOrder> orders) => false;
     // Recover original order statuses before reconciliation/import. Failed reads must throw, never return an empty account.
     Task<BrokerAccountProjection> SynchronizeAsync(ImmutableArray<BrokerStrategyOrder> orders, CancellationToken ct);
     Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct);

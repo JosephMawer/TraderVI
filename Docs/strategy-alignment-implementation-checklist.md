@@ -93,6 +93,22 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [ ] Complete the independent native proof/publication route before treating the manual sequence as
   a path to immediate activation.
   Actual qualification orders and their outcomes remain operator actions, not completed tests.
+- [x] Record the separately accepted native first-day qualification contract in ADR-0092 and its
+  scoped amendment links from ADR-0055/0062. All four native/five scoped checks remain required;
+  performance gaps/native unobserved paths are disclosed, not certified as production-ready.
+- [x] Implement/test native checkpoint/readback/nine-reference packet publication from complete
+  actual full-fill/normal-restart/baseline/storage/source observations. Restrict proof to the exact
+  first-day account/strategy/build/anchor/expiry. 205 focused/2,605 full tests/nine skips, seven
+  synthetic UI renders and WPF Release pass; no actual packet or financial authority is issued.
+- [x] Implement/test a durable native-trial order-review hold, including repository monotonicity:
+  no new/residual order after partial/cancel/conflict/uncertainty, original-ID reads only; ordinary
+  resume/restart cannot release it or change the operator's saved buying mode/financial holds.
+- [x] Verify the new immutable-storage metadata predicate read-only at 11:54 with matching receipt
+  hash; all three immutable triggers/max JSON columns present, setup counts still zero.
+- [ ] Switch to the built native-review copy, then collect actual manual trades/cash-only baseline,
+  protected checkpoint and same-executable post-restart readback. Complete actual native packet,
+  review all nine checks, then operator financial approval/host activation. General production and
+  native partial/uncertain/power-loss qualification remain outside this first-day contract.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

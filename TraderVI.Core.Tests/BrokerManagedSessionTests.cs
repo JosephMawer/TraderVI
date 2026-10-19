@@ -364,6 +364,8 @@ public sealed partial class BrokerManagedSessionTests
         internal Func<TradingRecommendationInput, ImmutableArray<TradingQuote>>? QuoteRead;
         internal Func<BrokerAccountProjection, BrokerAccountProjection>? TransformAccount;
         internal string? RunningImplementation;
+        internal Func<ImmutableArray<BrokerStrategyOrder>, bool>? TrialOrderReview;
+        public bool RequiresTrialOrderReview(ImmutableArray<BrokerStrategyOrder> orders) => TrialOrderReview?.Invoke(orders) ?? false;
         public string ImplementationIdentity => RunningImplementation ?? Strategy.Strategy.ImplementationIdentity;
         internal decimal Cash = 1000;
         private readonly Guid candidateId = Guid.NewGuid(), runId = Guid.NewGuid();

@@ -121,6 +121,7 @@ public sealed partial class ManualBuyCoordinator
             Width = 800, Height = 650, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var panel = new BrokerExecutionSetupPanel(); dialog.Content = panel;
         var summary = panel.Summary; var refresh = panel.Refresh; var first = panel.PrepareFirst;
+        var checkpoint = panel.CaptureNativeCheckpoint;
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -137,7 +138,7 @@ public sealed partial class ManualBuyCoordinator
         async Task Run(Func<Task> action)
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
-            busy = executionEditing = true; refresh.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
+            busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try { await action(); }
             catch (OperationCanceledException) { }
@@ -146,7 +147,7 @@ public sealed partial class ManualBuyCoordinator
             finally
             {
                 busy = executionEditing = false;
-                if (!closed) { refresh.IsEnabled = first.IsEnabled = stop.IsEnabled = true; enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
+                if (!closed) { refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = true; enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
             }
         }
@@ -165,7 +166,7 @@ public sealed partial class ManualBuyCoordinator
                 summary.Text = lines + "No strategy is approved to manage this account. Automatic trading remains off.\n\n" +
                     (baselines.RiskHistory.ExistingBaseline is null ? "Initial risk references have not been reviewed/saved.\n" : "Initial risk references exist; continuation still needs current qualification.\n") +
                     "First-session scope: both reviewed holdings must sell completely and usable cash must reconcile. Use the existing Sell all and Account risk setup controls; this window submits no opening sales.\n\n" +
-                    "Prepare first execution review to recover the original cash-only baseline/import and the two confirmed sale records for the limited first-day trial. Automatic purchases end at today's regular close. The other four native launch checks remain required; approval and host enable are separate actions.";
+                    "First complete both full sales, one manual one-share buy/readback and its separate full sale. Reconcile back to cash and save Account risk setup. Then Capture native recovery checkpoint, close normally and reopen this exact copy. Prepare first execution review reads the original order IDs and baseline again and publishes only complete first-day native/scoped proof. Partial, cancelled or uncertain results stop automatic order progression for operator review. Purchases end at today's regular close; approval and host enable remain separate.";
                 return;
             }
             // Match using broker identity, not a display label or another signed-in account.
@@ -177,6 +178,7 @@ public sealed partial class ManualBuyCoordinator
             _ = GetExecutionHost(); reviewed = saved;
             summary.Text = lines + $"Approved strategy: {saved.Strategy.Strategy.Name}\nSaved mode: {(saved.NewBuysStopped ? "new buys stopped" : "buying subject to current risk checks")}\n" +
                 $"Assignment state: {saved.Phase}\n\n{ExecutionStatus.Message}\n\n" +
+                (saved.TrialOrderReviewRequired ? "Native trial order review is required. Read/recover original IDs only; ordinary Resume buying cannot release this hold or allow a residual/replacement order.\n\n" : "") +
                 "Enable only this reviewed assignment. Every subsequent cycle rechecks account, original orders, risk permission, source and protection. Missing native cash coverage stops new buys.";
         }
         async Task PrepareFirst()
@@ -207,19 +209,23 @@ public sealed partial class ManualBuyCoordinator
                 var original = await new BrokerAccountImportRepository().FindAsync(baseline.ImportRequestId, lifetime.Token)
                     ?? throw new InvalidOperationException("Recover the exact import used by the saved initial risk baseline before trial preparation."); Check();
                 var continued = await new BrokerAccountRiskContinuationRepository(executionCalendar!).ReadAsync(baseline.BaselineId, lifetime.Token); Check();
-                var recordedSales = journal.ReadSells();
+                var savedCheckpoint = NativeTrialEvidence().ReadCheckpoint(date)
+                    ?? throw new InvalidOperationException("Capture the native recovery checkpoint after all manual trades and cash-only risk setup, then close normally and reopen this exact copy before preparing review.");
+                // The immutable checkpoint retains original inventory-verification times before the baseline.
+                // Post-restart native status reads below independently match these IDs/intents and financial facts.
+                var recordedSales = savedCheckpoint.Sales;
                 var candidates = BrokerSupervisedTrialPreparation.OpeningSaleCandidates(original.Plan.Observation, recordedSales, date);
                 if (candidates.Length < 2)
                     throw new InvalidOperationException("Recover both original full-sale results and their verified empty inventories before the saved baseline. Trial preparation cannot invent missing sale records.");
                 var selectedIds = BrokerOpeningSalesReview.Select(dialog, candidates); Check();
                 if (selectedIds is null) { summary.Text = "Opening-sale selection cancelled. No trial scope, approval or order was created."; return; }
-                // Re-read rather than trusting the dialog's records if journal recovery occurred during review.
                 var sales = BrokerSupervisedTrialPreparation.SelectOpeningSales(original.Plan.Observation,
-                    journal.ReadSells(), date, selectedIds.Value);
+                    savedCheckpoint.Sales, date, selectedIds.Value);
                 var preparedScope = BrokerSupervisedTrialPreparation.Prepare(baseline, original, continued, sales,
-                    Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow);
-                evidence = new BrokerSupervisedTrialEvidenceFileStore(ExecutionQualificationPath, new WindowsManualBuyProtector()).Prepare(
-                    preparedScope, exact.Strategy, BrokerManagedSessionComposition.ImplementationIdentity, executionCalendar!, DateTimeOffset.UtcNow);
+                    Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow) with { FullFillOnlyNativeTrial = true };
+                var nativeAfter = await ReadNativeTrialObservationAsync(account, revision, savedCheckpoint, lifetime.Token); Check();
+                exact = nativeAfter.Strategy;
+                evidence = NativeTrialEvidence().Complete(nativeAfter, preparedScope, executionCalendar!, Environment.UserName, DateTimeOffset.UtcNow);
             }
             IBrokerRiskEvidenceSource risk = evidence?.NoTransferScope is { } scope
                 ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!) : new UnqualifiedBrokerRiskEvidenceSource();
@@ -236,12 +242,20 @@ public sealed partial class ManualBuyCoordinator
                 (evidence?.NoTransferScope is { LimitedFirstSessionTrial: true } trial
                     ? $"Limited first-day trial: automatic purchases end {trial.PurchaseExpiresAt?.ToLocalTime():g}. Independent protection remains managed; no next-day buying permission.\n\n"
                     : "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n") +
+                (evidence?.NoTransferScope?.FullFillOnlyNativeTrial == true ? BrokerNativeTrialQualification.Limits + "\n\n" : "") +
                 string.Join("\n", firstReview.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
                 "\n\n" + (firstReview.CanApprove ? "Review the actual capital and evidence above, then explicitly approve. Approval submits no order and leaves the host off."
                     : "Approval blocked:\n" + string.Join("\n", firstReview.Blocks)) +
                 "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
         }
         refresh.Click += async (_, _) => await Run(Refresh);
+        checkpoint.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
+            var native = await ReadNativeTrialObservationAsync(account, revision, null, lifetime.Token); Check();
+            NativeTrialEvidence().Capture(native);
+            summary.Text = "Native recovery checkpoint saved after completed manual verification and actual cash-only baseline readback. No order, financial approval or host permission was created. Close TraderVI normally, reopen this exact executable and choose Prepare first execution review. It will read the same original order IDs and references, check the native/scoped evidence and publish the packet only if complete. Approval and host enable remain separate.";
+        });
         first.Click += async (_, _) => await Run(PrepareFirst);
         approve.Click += async (_, _) => await Run(async () =>
         {

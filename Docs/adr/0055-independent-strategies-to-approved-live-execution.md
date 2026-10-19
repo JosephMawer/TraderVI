@@ -13,6 +13,12 @@ statistical tiers as an approval gate or certify that they passed. Existing inte
 contracts remain intact. Enforced common evidence eligibility is deferred to Wealthsimple live trading
 and automation; operational pause/empty, account consistency and risk controls remain in force.
 
+**October 19 first-day amendment:** [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md#october-19-accepted-native-first-day-contract)
+separately permits a flagged, supervised engineering trial with disclosed performance gaps after
+native exact-source review and the specified native full-fill/restart/storage checks. Its proof is
+first-session-only and purchases expire at the reviewed close. It does not establish production
+statistical eligibility or change research-promotion thresholds.
+
 ## Context
 
 The immediate problem is making the relationship between Delphi, Delphi Live, paper portfolios and the

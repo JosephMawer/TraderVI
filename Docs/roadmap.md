@@ -38,8 +38,9 @@ and five scoped checks and stops purchases at the reviewed close. Actual activat
 Next qualify native risk/storage, exact source, broker lifecycle and one shared execution host before
 operator-controlled activation. [Assessment](reviews/delphi-live-tfsa-readiness-20261018.md), [ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md).
 The default-off host, desktop controls and first cash-start execution review are now built/tested.
-Latest checks pass: 158 focused/2,558 full tests (nine native skips), plus the earlier nine synthetic
-desktop renders/two native SQL rehearsals. Native storage checks found/fixed continuation readback.
+Latest native-trial checks pass: 205 focused/2,605 full tests (nine native skips), seven synthetic
+renders/WPF Release. Earlier two SQL rehearsals retain their narrower scope and were not repeated.
+Native storage checks found/fixed continuation readback.
 The scoped producer now recovers the original saved baseline import/full-sale records and composes
 protected scoped proof without issuing the remaining native qualifications. Next qualify those four
 checks, perform actual sales/setup and review, then operator-controlled activation. General native
@@ -57,8 +58,16 @@ startup and native setup screen are now observed at 10:52, with a reconciled acc
 at 10:57. The operator-executed verification sequence and explicit original-sale selection are now
 prepared/tested (173 focused/2,573 full, nine native skips; five UI renders). The updated copy's approved
 11:21 switch/startup and 11:24 clean import check pass with execution off and empty setup. Next
-complete independent native proof/publication and review the manual
-sequence before any opening liquidation; actual financial setup/activation remain prerequisites.
+complete the approved native first-day route below before treating actual activation as ready.
+
+The subsequent explicit native first-day contract is accepted (ADR-0092): exact source/performance
+review with disclosed gaps, actual full-fill/manual normal-restart/reference/storage observations,
+and a durable automatic-order review hold on unsupported outcomes. Its checkpoint/nine-reference
+publisher and first-session-only proof restriction are implemented/tested in a separate unlaunched
+native-review copy. Next switch to that copy, then operator manual verification trades/cash-only
+setup/checkpoint, normal restart and Prepare first execution review. Only actual matching evidence
+publishes the packet; financial approval and host enable remain separate. Broader production and
+unobserved native failure paths remain deferred. [Operator steps](reviews/delphi-live-native-qualification-20261019.md).
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

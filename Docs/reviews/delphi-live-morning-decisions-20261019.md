@@ -8,7 +8,9 @@ This record distinguishes completed software from installed or natively verified
 The manual verification sequence and updated original-sale-selection copy are prepared/tested;
 the updated copy starts under separate authority at 11:21 Toronto with execution off and a clean
 startup import checked at 11:24. Four native checks/the reviewed packet and actual financial
-setup still block activation. See the final sections for current evidence; earlier entries retain
+setup still block activation. The subsequent explicitly accepted native first-day contract now has a
+tested checkpoint/packet producer, but its actual observations remain pending in the separate unlaunched
+native-review copy. See the final sections for current evidence; earlier entries retain
 their dated limits and the October 19 trial amendment supersedes only cash/opening qualifications.
 
 ## Decisions made during preparation
@@ -373,3 +375,56 @@ dialog/fill/restart qualification or strategy readiness. The four independent na
 their reviewed packet/publication and actual financial setup remain blockers. No additional SQL
 rehearsal, memory change, migration, financial authorization or real order was performed. Existing
 173 focused/2,573 full/nine-skip and five-render build validation is unchanged; no redundant rerun.
+
+## Accepted native first-day contract and completed publisher software
+
+The operator asks to finish the four native qualifications and packet, with exact manual steps for
+today. Review finds that the existing labels lacked a finished native publisher/first-day acceptance
+contract. ADR-0055/0062 defer common automation eligibility and reserve their existing performance
+exception for recommendations. After the concrete review is prepared, the operator **explicitly
+approves** the native first-day contract in the current chat: disclosed performance gaps after exact
+native source review; actual full buy/sale readback, normal-restart original-order and saved-reference
+recovery, installed storage; stop automatic order progression on partial/cancel/uncertain outcomes.
+This comes from the new answer, not the earlier cash/opening amendment. ADR-0092 and its supersession
+links own the accepted scope; no research/production performance or native power-loss claim follows.
+
+Implementation decisions: capture after **all four manual trades and saved cash-only references**,
+then use one normal restart to verify both orders and references. The app reuses its shared native
+client/journal/gate and existing import/SQL repositories. It reads the four original IDs after restart,
+matches current native history/costs/fees/inventory and baseline Read/Find/continued references,
+validates enabled immutable triggers/max JSON columns and exact fresh Normal/source review. The
+protected checkpoint preserves original inventory-verification times before the baseline; later
+status reads cannot erase them. The operator still explicitly selects the original two sales.
+
+The complete protected review contains actual before/after native observations, accepted limitations
+and scope; all nine references are hash-linked and marked `FirstSessionTrialOnly`. It expires at the
+reviewed close and cannot qualify production/older scopes. Existing packets/conclusions and financial
+anchors cannot be overwritten. Missing/partial/stale/conflicting observations publish no packet.
+Capture/preparation never saves financial references, approves execution, enables a host or sends
+an order. Initial Account risk setup remains an explicit operator action before capture.
+
+`TrialOrderReviewRequired` latches on unsupported automatic outcomes. Original-ID reads may recover
+facts, but no new/residual order proceeds; ordinary resume/restart cannot clear the hold. Repository
+validation enforces this monotonically. Keep the operator's `NewBuysStopped` mode independent:
+initial tests caught attempts to change that human-owned flag through an automatic event, so the
+trial hold now has its own durable state and pause. No financial hold/reference is reset.
+
+Validation: **205 focused/2,605 full Core tests pass**, nine native skips; seven synthetic UI renders
+with no binding errors and WPF Release pass. Positive tests cover protected checkpoint/packet
+readback, all nine scope-limited references, no approval transmission, retries and tamper rejection.
+Negative cases cover same-process/no restart, stale/missing/partial/foreign or changed facts, baseline
+and storage mismatch, expired scope and production reuse. Hold tests cover partial/cancel/expiry/
+unknown/missing acknowledgement, recovery/resume/restart and attempted hold clearing. Initial missing
+namespace/opaque-account access/test-key issues were corrected before final checks. All test broker
+facts are synthetic; native SQL tests remain paused. Existing compiler/Pkcs warnings remain, without
+fresh audit/full-solution/SSDT qualification. Logs: `native-trial-focused.log`,
+`native-trial-full-serial.log`, `native-trial-wpf-build.log`, `native-trial-ui-preview/`.
+
+The 11:54 bounded SQL read verifies the exact new immutable-storage predicate and zero baseline/
+continuation/managed counts. Query/receipt hash `26C23614FCD85AD2825A672F11B61FE47443EF37F4DBFA4F12D27973170E9EF5`
+matches. Detailed receipt and exact manual steps are in the [native qualification review](delphi-live-native-qualification-20261019.md).
+New executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\native-review-working-copy\TraderVI.WPF.exe`,
+Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
+It is built, not launched; current running copy remains the earlier order-review build. No actual
+manual qualification trades, saved baseline/checkpoint, native packet, financial approval or grant
+are created by the implementation. No new SQL test, migration, memory setting or real order ran.

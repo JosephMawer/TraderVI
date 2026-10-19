@@ -140,7 +140,7 @@ qualification and first execution approval remain unfinished.
 
 ### Prepared Delphi Live Normal host
 
-Open the [morning working copy](reviews/delphi-live-morning-decisions-20261019.md#desktop-host-and-working-copy)
+Open the [current native-review copy](reviews/delphi-live-native-qualification-20261019.md)
 after closing the old desktop instance. In Trading, **Execution setup…** reads readiness and an
 existing approved assignment. **Prepare first execution review** reconciles the account through the
 existing import workflow, reads the exact current Normal definition and reports each required native
@@ -151,10 +151,17 @@ The subsequent order-review copy asks the operator to identify those two origina
 existing IDs; it never treats a later verification-position sale as a third opening holding.
 The [prepared manual verification sequence](concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
 includes returning the test purchase to cash **before** initial setup. Review its remaining native
-qualification/publication blockers before choosing to trade; preparing that sequence sends no orders.
+qualification conditions before choosing to trade; preparing that sequence sends no orders.
 It replaces only production cash-event/opening-value checks; the other four native and five scoped
 checks remain. Missing independent proof leaves approval blocked. It never creates a baseline or
-issues native qualifications. Purchase permission ends at the reviewed close, with no next-day buys;
+issues production qualifications. The later explicitly accepted native first-day contract adds
+**Capture native recovery checkpoint** after all verification trades and saved cash-only initial
+references. Close/reopen the same executable, then **Prepare first execution review** reads the same
+four IDs and unchanged baseline/Read/Find, verifies current source/storage and publishes all four
+native/five scoped references only on complete actual observations. The protected packet is explicitly
+first-session-only. Partial/cancel/uncertain automatic outcomes latch an order-review hold that survives
+restart/Resume buying and prevents further orders/residuals while original-ID reads may recover facts.
+Purchase permission ends at the reviewed close, with no next-day buys;
 ongoing assignment does not renew it. Older scopes retain their original six production requirements.
 **Approve reviewed assignment** is enabled only for a complete compatible review; it rechecks source,
 evidence and account before saving through the existing SQL workflow. Approval sends no order.
@@ -173,9 +180,10 @@ The read-only qualification consumer expects `execution-qualification.dat` besid
 manual-order journal under `%LOCALAPPDATA%\TraderVI\Wealthsimple\ManualOrders`. It contains a
 Windows-protected `BrokerExecutionQualificationBundle` with exact binding/strategy/build/session,
 reviewer/time/expiry, native proof references and the optional first-day scope. Each evidence reference
-must be an absolute file path whose bytes match `EvidenceHash` (SHA-256). No UI or new tool issues
-this packet; an independently reviewed native qualification process is still required. Never populate
-it with synthetic tests, installed-table counts or operator checkboxes as substitutes for real proof.
+must be an absolute file path whose bytes match `EvidenceHash` (SHA-256). The approved native first-day
+producer above writes this packet from complete actual observations; it is not a general-production
+issuer. Never populate it with synthetic tests, installed-table counts or operator checkboxes as
+substitutes for real proof.
 
 ## Broker account history import (source milestone, September 16)
 

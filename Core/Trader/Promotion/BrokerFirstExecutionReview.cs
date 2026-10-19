@@ -23,6 +23,8 @@ public sealed record BrokerExecutionQualificationBundle(Guid BindingId, string S
             q.VerifiedAt == default || q.VerifiedAt > ReviewedAt || !CompleteTradingStrategy.IsHash(q.EvidenceHash) ||
             string.IsNullOrWhiteSpace(q.EvidenceReference)) || Qualifications.Select(q => q.Check).Distinct().Count() != Qualifications.Length)
             throw new InvalidOperationException("Native qualification references conflict with their reviewed account or strategy.");
+        if (Qualifications.Any(q => q.FirstSessionTrialOnly) && NoTransferScope is not { LimitedFirstSessionTrial: true, FullFillOnlyNativeTrial: true })
+            throw new InvalidOperationException("First-day native evidence cannot qualify production or an older trial contract.");
     }
     public override string ToString() => "Reviewed execution qualification references (account data omitted)";
 }

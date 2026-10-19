@@ -20,6 +20,8 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     // Explicit October 19 operator decision. Absent in older scopes: those retain all production checks.
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool LimitedFirstSessionTrial { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool FullFillOnlyNativeTrial { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DateTimeOffset? PurchaseExpiresAt { get; init; }
     public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 &&
@@ -48,6 +50,7 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     {
         if (ScopeId == Guid.Empty || BindingId == Guid.Empty || BaselineId == Guid.Empty ||
             ApprovedAt < CashOnlyAnchor.CheckedAt || string.IsNullOrWhiteSpace(ApprovedBy) ||
+            FullFillOnlyNativeTrial && !LimitedFirstSessionTrial ||
             string.IsNullOrWhiteSpace(CashOnlyAnchor.AccountId) || string.IsNullOrWhiteSpace(CashOnlyAnchor.IdentityId) ||
             CashOnlyAnchor.SnapshotAt == default ||
             LimitedFirstSessionTrial && DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(ApprovedAt.UtcDateTime)) != Session ||

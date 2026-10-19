@@ -44,11 +44,11 @@ cash-only start. Review that additional sale and actual costs before choosing to
 No security is selected or recommended by this procedure. The manual whole-share minimum is one share;
 the current ticket must independently accept its instrument, quote and available cash.
 
-**Before any sale:** keep the execution host off. Check the four outstanding native qualifications in
-the table below and the still-missing reviewed packet/publication route. These are reasons not to
-liquidate merely on the expectation of immediate automatic activation. The original morning working
-copy cannot distinguish a third sale during first review; use the separately validated order-review
-copy only after a supervised switch. Do not overwrite a running copy or carry approvals across builds.
+**Before any sale:** keep the execution host off. The operator now explicitly approves the
+[first-day native acceptance contract](../reviews/delphi-live-native-qualification-20261019.md).
+Its checkpoint/review/packet producer is implemented/tested; actual manual observations still remain.
+Use the validated **native-review working copy** after its supervised switch. Older copies lack this
+checkpoint/publication route. Do not overwrite a running copy or carry approvals across builds.
 Record account/instrument/order details only in private local evidence, never committed documentation.
 
 | Step | Operator action in TraderVI | Required observation before proceeding |
@@ -57,10 +57,11 @@ Record account/instrument/order details only in private local evidence, never co
 | 2. First full sale | Select the first original holding and use its existing **Sell all** action. Personally review/submit the displayed full quantity. Open **Manual sells… / Check sell status**. | Complete native fill, actual net proceeds/fees and verified empty remaining inventory for this holding. Retain its original request ID. |
 | 3. Second full sale | Repeat only for the second original holding, using its freshly displayed full quantity and separate original ID. | Both original sales fully filled/resolved, no remaining holdings or pending orders; cash/import/ledger reconcile. Anticipated proceeds are not buying power. |
 | 4. One-share verification buy | Choose the instrument yourself from the existing supported manual-buy selection. Open **Manual buy…**, enter **1**, then **Refresh checks**. Personally review cash, quote, estimate and actual market-order submission. | Existing safety checks pass; the original buy ID receives a complete native fill/readback with actual cost/fees and the one-share holding is visible. Acknowledgement alone is not a fill. Do not enable the engine or hand this position to strategy management. |
-| 5. Recover that same order | With host still off and the completed order resolved, close normally, reopen the **same executable**, then open **Manual orders… / Check order status** for the original ID. | Original intent/fill facts survive restart, no second transmission and actual inventory remains consistent. This checks manual journal recovery, not an enabled engine or power-loss/uncertain-send recovery. |
-| 6. Return the verification purchase to cash | Select the actual test holding and personally review/submit **Sell all**, using fresh ordinary checks. Read back that sale and reconcile account history. | Test position completely sold, no holdings, pending or unresolved orders; actual available cash/buying power and all trade costs reconcile. Keep this third sale separate from the original two. |
-| 7. Save initial references only when launch evidence is ready | Use **Account risk setup…** to review/save/reopen the actual cash-only setup. Preserve existing references/holds. Then **Execution setup… → Prepare first execution review**. | Original baseline/import recovered. Select exactly the two original opening sales by symbol/quantity/time/order ID; exclude the test sale. The protected scope pins those original IDs. Missing independent qualification still blocks approval. |
-| 8. Activation remains separate | Review the fresh exact Normal source, actual cumulative ceiling, close deadline and every evidence item. | Only a complete compatible review permits the operator to approve, then separately enable the host. No grant is created by this runbook or sale selection. |
+| 5. Return the verification purchase to cash | Select the actual test holding and personally review/submit **Sell all**, using fresh ordinary checks. Read back that sale and reconcile account history. | Test position completely sold, no holdings, pending or unresolved orders; actual available cash/buying power and all trade costs reconcile. Keep this third sale separate from the original two. |
+| 6. Save initial references | Use **Account risk setup…** to review/save/reopen the actual cash-only setup after all four trades. Preserve existing references/holds. | Original baseline/import recovered. No test trade may follow this anchor; a new snapshot or net-zero round trip cannot replace it. |
+| 7. Capture and restart | In **Execution setup…**, click **Capture native recovery checkpoint**. After success, close normally and reopen the **same executable**, with host off. | Protected native before-state contains the four completed original IDs, saved baseline/Read/Find, references, source and installed-storage checks. It creates no approval/order. |
+| 8. Complete native review/publication | Click **Prepare first execution review**. Select exactly the two original opening sales by symbol/quantity/time/ID, excluding the test sale. | App reads back the four original orders and unchanged baseline, verifies fresh source/storage/risk and publishes the first-day packet only if every check passes. Missing/contradictory evidence blocks; no synthetic report or checkbox qualifies it. |
+| 9. Activation remains separate | Review the fresh exact Normal source, actual cumulative ceiling, close deadline and every evidence item. | Only a complete compatible review permits the operator to approve, then separately enable the host. No grant is created by this runbook or sale selection. |
 
 On any partial, pending, uncertain or contradictory result, stop this sequence. Use the status control
 for the original ID; never delete a journal/attempt marker or send a replacement under a new ID.
@@ -69,15 +70,14 @@ If the session closes, the October 19 trial does not roll forward or gain next-d
 
 | Native check still required | Evidence already observed | What this manual sequence can and cannot add |
 |---|---|---|
-| `native-order-lifecycle` | Native historical/account reads reconcile; submission remains unverified. | Actual full sell/buy/readback paths if completed. Unobserved partial/cancel/uncertain outcomes stay unqualified and need their separately reviewed recovery assessment. No automatic qualification is issued. |
+| `native-order-lifecycle` | Native historical/account reads reconcile; submission remains unverified. | Actual full sell/buy/readback paths qualify only the expressly approved first-day scope if completed. Partial/cancel/uncertain outcomes remain unobserved; the durable hold prevents automatic progression on them. |
 | `strategy-evidence` | Monday Normal publication is present; paper limitations/negative inception returns are disclosed. | No strategy-performance qualification follows from a manual buy. Exact current policy/profile/daily/build/source and the independent evidence review remain required. |
-| `restart-recovery` | Earlier isolated native SQL rehearsals and synthetic transport recovery pass. | Same-ID manual fill recovery if step 5 succeeds. It does not prove populated actual managed-session/protection or uncertain-send/power-loss recovery. |
+| `restart-recovery` | Earlier isolated native SQL rehearsals and synthetic transport recovery pass. | Same-ID manual fill and unchanged saved-reference recovery if steps 7–8 succeed. It does not prove populated actual managed-session/protection or uncertain-send/power-loss recovery. |
 | `installed-storage` | Installed immutable tables/triggers, earlier isolated SQL save/reopen and a clean actual import/trade-sync receipt. | Actual reviewed baseline readback can add account-specific evidence; installed counts or a blank setup screen alone cannot qualify it. |
 
-The protected qualification consumer and scoped producer exist. The complete independently reviewed
-native packet is still absent; these instructions are neither that packet nor its issuer. Record each
-observed result honestly before deciding whether its required check is actually satisfied. The pending
-packet/publication and independent review work cannot be solved by checking off this table.
+The bounded native producer/reader now exist; the actual packet is still absent until the native
+observations above complete. Each reference is first-session-only, expires at the reviewed close and
+cannot qualify production/older scopes. Checking off this table creates no evidence or authority.
 
 ## What the no-transfer agreement means
 

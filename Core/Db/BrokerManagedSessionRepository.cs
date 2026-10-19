@@ -14,7 +14,10 @@ using static Core.Db.TradingRecommendationStorage;
 
 namespace Core.Db;
 
-public sealed record BrokerManagedStorageReadiness(bool BaselineInstalled, bool ContinuationInstalled, bool SessionInstalled);
+public sealed record BrokerManagedStorageReadiness(bool BaselineInstalled, bool ContinuationInstalled, bool SessionInstalled)
+{
+    public bool ImmutableStorageVerified { get; init; }
+}
 
 /// <summary>One session lease per permanent broker binding; durable appends commit before broker transmission.</summary>
 public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
@@ -32,7 +35,14 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
         return await c.QuerySingleAsync<BrokerManagedStorageReadiness>(new CommandDefinition("""
 SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.BrokerAccountRiskBaseline',N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit) BaselineInstalled,
  CAST(CASE WHEN OBJECT_ID(N'dbo.BrokerAccountRiskContinuation',N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit) ContinuationInstalled,
- CAST(CASE WHEN OBJECT_ID(N'dbo.BrokerManagedSessionRevision',N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit) SessionInstalled;
+ CAST(CASE WHEN OBJECT_ID(N'dbo.BrokerManagedSessionRevision',N'U') IS NOT NULL THEN 1 ELSE 0 END AS bit) SessionInstalled,
+ CAST(CASE WHEN OBJECTPROPERTYEX(OBJECT_ID(N'dbo.BrokerAccountRiskBaseline_Immutable'),N'ExecIsTriggerDisabled')=0
+  AND OBJECTPROPERTYEX(OBJECT_ID(N'dbo.BrokerAccountRiskContinuation_Immutable'),N'ExecIsTriggerDisabled')=0
+  AND OBJECTPROPERTYEX(OBJECT_ID(N'dbo.BrokerManagedSessionRevision_Immutable'),N'ExecIsTriggerDisabled')=0
+  AND COL_LENGTH(N'dbo.BrokerAccountRiskBaseline',N'BaselineJson')=-1
+  AND COL_LENGTH(N'dbo.BrokerAccountRiskContinuation',N'ReceiptJson')=-1
+  AND COL_LENGTH(N'dbo.BrokerManagedSessionRevision',N'SnapshotJson')=-1
+ THEN 1 ELSE 0 END AS bit) ImmutableStorageVerified;
 """, cancellationToken: ct));
     }
     public async Task<IBrokerManagedSessionLease> AcquireAsync(Guid bindingId, CancellationToken ct)
@@ -80,6 +90,9 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
              next.Orders.Length != prior.Orders.Length) ||
             (prior.NewBuysStopped || next.NewBuysStopped) && next.Orders.Skip(prior.Orders.Length).Any(o => o.Side == "BUY"))
             throw new InvalidOperationException("Only an explicit buying-control event may change the saved mode; stopped sessions cannot reserve a purchase.");
+        if (prior.TrialOrderReviewRequired && (!next.TrialOrderReviewRequired || next.Orders.Length != prior.Orders.Length) ||
+            next.TrialOrderReviewRequired && next.Approval.Review.NoTransferScope?.FullFillOnlyNativeTrial != true)
+            throw new InvalidOperationException("A native trial order-review hold cannot be cleared or reserve another order through ordinary recovery or buying controls.");
         if (prior.BindingId != next.BindingId || prior.SessionId != next.SessionId || prior.Approval.Fingerprint != next.Approval.Fingerprint ||
             next.Revision != prior.Revision + 1 || next.PreviousRevisionId != prior.RevisionId || next.SavedAt < prior.SavedAt ||
             prior.ActivatedAt is not null && prior.ActivatedAt != next.ActivatedAt || next.Orders.Length < prior.Orders.Length ||
