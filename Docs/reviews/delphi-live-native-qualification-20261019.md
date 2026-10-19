@@ -159,3 +159,8 @@ These are current startup/control observations, not a future order preflight or 
 The existing [manual runbook](../concepts/supervised-tfsa-opening-sequence.md#operator-review-bounded-native-order-verification-october-19)
 owns the fuller control names and observation limits. A manually completed trade is not permission
 for the agent to submit orders, save financial authorizations or enable execution.
+
+Latest capture reaches source validation but rejects Normal's stale source (09:31 last update;
+15:52 bounded read). App metadata traces paper tick failure to original-entry/current-policy equality.
+A provenance correction is prepared; no successful checkpoint exists. Do not restart for recovery.
+See the decision log for exact validation/install state; today's buying cutoff is unchanged.

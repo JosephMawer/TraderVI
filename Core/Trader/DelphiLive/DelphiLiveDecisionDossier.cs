@@ -26,6 +26,9 @@ public sealed record DelphiLiveOriginalEntryThesis(
     IReadOnlyList<DelphiLiveDossierLensAttribution> SourceLenses)
 {
     public PaperGateAdmission? ComparisonAdmission { get; init; }
+    // Historical entry provenance, distinct from the policy managing this later observation.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? PolicyVersionId { get; init; }
 }
 
 public sealed record DelphiLiveDecisionDossier(
@@ -70,6 +73,14 @@ public sealed record DelphiLiveDecisionDossier(
 
 public static class DelphiLiveDecisionDossierBuilder
 {
+    public static DelphiLiveOriginalEntryThesis OriginalThesis(DelphiLiveDecisionDossier entry)
+    {
+        var original = entry.OriginalEntryThesis ?? new(entry.DecisionId, entry.CalibrationRunId!.Value,
+            entry.CalibrationCandidateId!.Value, entry.DailyStrategyVersionId!.Value, entry.SourceLenses)
+            { ComparisonAdmission = entry.ComparisonAdmission };
+        return original with { PolicyVersionId = original.PolicyVersionId ??
+            original.ComparisonAdmission?.PolicyVersionId ?? entry.DelphiLivePolicyVersionId };
+    }
     // ADR-0065 is one specifically admitted session, never a general gate waiver.
     public static readonly Guid EngineeringTrialId = Guid.Parse("c6d4639d-9c06-4c61-bde3-d76a6fdf1908");
     public static readonly Guid EngineeringSessionId = Guid.Parse("dec4c9e0-f069-48bc-903b-c344fc5f1908");
@@ -156,10 +167,10 @@ public static class DelphiLiveDecisionDossierBuilder
         }
         if (dossier.OriginalEntryThesis is { } original)
         {
-            if (original.EntryDecisionId == Guid.Empty)
+            if (original.EntryDecisionId == Guid.Empty || original.PolicyVersionId == Guid.Empty)
                 throw new ArgumentException("Original entry-decision identity is required.", nameof(dossier));
             original.ComparisonAdmission?.Validate(original.CalibrationRunId, original.DailyStrategyVersionId,
-                dossier.DelphiLivePolicyVersionId, dossier.DecisionUtc);
+                original.PolicyVersionId ?? dossier.DelphiLivePolicyVersionId, dossier.DecisionUtc);
             ValidateThesis(original.CalibrationRunId, original.CalibrationCandidateId,
                 original.DailyStrategyVersionId, original.SourceLenses,
                 labelledTrial && IsEngineeringSource(original.CalibrationRunId, original.DailyStrategyVersionId),

@@ -679,3 +679,30 @@ qualification packet and today's checkpoint. Manifest: normal-successor-working-
 receipt: normal-successor-switch-receipt.json. No original journal/baseline was changed by the switch.
 Next user step: Capture native recovery checkpoint in this exact copy and inspect its result before
 normal restart. No checkpoint, restart proof, packet or activation is inferred from installation.
+
+## Stale Normal source and historical entry-policy validation — October 19
+
+The next operator screenshot is a validation failure, not a saved checkpoint. Native existence
+checks show no checkpoint, packet or host permission. A bounded read at 15:52:57 Toronto finds
+Normal last updated at 09:31:17, matching active pinned daily version and allowed successor. Query
+hash `4A1EDCC22024A2FD16D2DF2CE21C7EBDAF5A7E48A686BD135974E4CCE90E8219` verified against
+`result-20261019T195257543Z-a5dba1c7d764406fb7951a146d80446d.json`. The initial query used the
+wrong table for the daily-version column and failed SQL 207; corrected to the comparison batch,
+without any permission fallback or write. No server/memory/SQL-test diagnostic is run.
+
+Private bounded app failure metadata at 15:38/15:43 identifies PaperGateAdmission.Validate called
+from validation of OriginalEntryThesis in portfolio dossier creation. The paper engine incorrectly
+requires a historical entry admission's policy to equal the current prospective protection policy.
+The fix adds an optional original PolicyVersionId, derived from the immutable entry dossier/admission,
+and validates original admission against that historical identity. Legacy missing-field validation
+keeps its strict current-policy fallback; new derived original theses bind the entry policy explicitly.
+Current admission must still match current policy. Empty/wrong historical identities, run/profile
+mismatches remain rejected; no original stored entry dossier or ledger history is rewritten. The
+existing rollout/store still owns allowed prospective policy changes; this is provenance repair.
+
+41 focused checks pass. WPF Release passes with 262 existing compiler warnings/zero errors; no new
+security audit/full SSDT solution claim. Full offline suite passes: 2,622 tests, nine native skips. Logs: entry-policy-focused.log,
+entry-policy-full-serial.log, entry-policy-wpf-build.log. Prepared output: entry-policy-working-copy.
+Core SHA-256 `BA8968E52DFE8638757A2B39281753E6C390262E84CD1CFF71E23A2656F64913`.
+No checkpoint success or new source publication is inferred from tests. Preserve saved baseline and
+original orders. Trial purchase cutoff is unchanged even if preparation runs past today's close.

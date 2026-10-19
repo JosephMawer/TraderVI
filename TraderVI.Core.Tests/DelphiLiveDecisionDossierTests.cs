@@ -145,6 +145,32 @@ public sealed class DelphiLiveDecisionDossierTests
                 carried with { OriginalEntryThesis = carried.OriginalEntryThesis! with { ComparisonAdmission = invalid } }, Policy));
     }
 
+    [Fact]
+    public void OriginalComparisonPolicyRemainsBoundToEntryAfterProspectiveProtectionChange()
+    {
+        var original = QuoteExit().OriginalEntryThesis!;
+        var admission = new PaperGateAdmission(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            PaperGateProfile.NormalV1, Guid.NewGuid(), original.CalibrationRunId,
+            original.DailyStrategyVersionId, Policy.PolicyVersionId, QuoteExit().DecisionUtc.AddDays(-1));
+        var entry = QuoteExit() with { OriginalEntryThesis = original with { ComparisonAdmission = admission } };
+        var thesis = DelphiLiveDecisionDossierBuilder.OriginalThesis(entry);
+        thesis.PolicyVersionId.ShouldBe(Policy.PolicyVersionId);
+        thesis.ComparisonAdmission.ShouldBe(admission);
+        var successor = Policy with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true };
+        var later = QuoteExit() with { DelphiLivePolicyVersionId = successor.PolicyVersionId, OriginalEntryThesis = thesis };
+        DelphiLiveDecisionDossierBuilder.Serialize(later, successor).ShouldContain(Policy.PolicyVersionId.ToString());
+        foreach (var bad in new[] { thesis with { PolicyVersionId = Guid.Empty },
+            thesis with { PolicyVersionId = successor.PolicyVersionId },
+            thesis with { ComparisonAdmission = admission with { RunId = Guid.NewGuid() } } })
+            Should.Throw<ArgumentException>(() => DelphiLiveDecisionDossierBuilder.Validate(later with { OriginalEntryThesis = bad }, successor));
+        // A current admission still must match the current policy, never the historical one.
+        Should.Throw<ArgumentException>(() => DelphiLiveDecisionDossierBuilder.Validate(later with {
+            CalibrationRunId = original.CalibrationRunId, CalibrationCandidateId = original.CalibrationCandidateId,
+            DailyStrategyVersionId = original.DailyStrategyVersionId, SourceLenses = original.SourceLenses,
+            ComparisonAdmission = admission }, successor));
+        DelphiLiveDecisionDossierBuilder.OriginalThesis(entry with { OriginalEntryThesis = thesis }).ShouldBe(thesis);
+    }
+
     private static DelphiLiveDecisionDossier EngineeringDossier() => QuoteExit() with {
         DelphiLiveSessionId = DelphiLiveDecisionDossierBuilder.EngineeringSessionId,
         CalibrationRunId = DelphiLiveDecisionDossierBuilder.EngineeringRunId,

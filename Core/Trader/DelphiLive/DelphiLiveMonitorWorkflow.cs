@@ -504,8 +504,7 @@ public sealed class DelphiLiveMonitorWorkflow
     {
         if (position is null) return null;
         var dossier = DelphiLiveLedgerJson.Deserialize<DelphiLiveDecisionDossier>(position.OriginalEntryDossierJson);
-        return dossier.OriginalEntryThesis ?? new(dossier.DecisionId, dossier.CalibrationRunId!.Value,
-            dossier.CalibrationCandidateId!.Value, dossier.DailyStrategyVersionId!.Value, dossier.SourceLenses) { ComparisonAdmission = dossier.ComparisonAdmission };
+        return DelphiLiveDecisionDossierBuilder.OriginalThesis(dossier);
     }
 
     private static List<DelphiLivePositionMark> Marks(IEnumerable<DelphiLiveLedgerPosition> positions,

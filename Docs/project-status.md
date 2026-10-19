@@ -1675,3 +1675,13 @@ changes. Put long run/build narratives in linked reports or dated history. Keep 
 checklist and priority changes in the roadmap, then reconcile their short links/status labels.
 The earlier September 22 bounded documentation pass changed navigation only; this later execution
 increment adds source/test evidence and explicitly dated native read-only verification.
+
+**October 19, 15:52 checkpoint blocker:** capture reaches observation validation but Normal's source
+is stale (last saved 09:31 Toronto). Hash-verified bounded read confirms matching pinned daily policy
+and allowed successor. Private app failure metadata traces repeated paper tick failures to original
+entry admission being validated against the later current policy. The correction binds the original
+entry's policy separately in prospective dossiers, preserving immutable entry JSON and all current
+admission/source-freshness rules. 41 focused/2,622 full offline tests pass (nine native skips); WPF Release passes; install
+follow. No checkpoint, packet, authority or real order is created. Do not restart for recovery until
+capture succeeds; today's existing purchase cutoff remains required. Details in the
+[decision log](reviews/delphi-live-morning-decisions-20261019.md).
