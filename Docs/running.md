@@ -280,7 +280,7 @@ acknowledgement/fill semantics, attempt markers and remaining integration work.
 
 ## TFSA strategy transition preview
 
-**October 18 Trading UI source increment (not installed/restarted):** Trading opens with compact
+**October 18 Trading UI increment (Release rebuilt/launched at operator request):** Trading opens with compact
 Today/Overall performance and a four-column holdings table beside the selected holding panel. Today
 remains unavailable until daily-return qualification; Overall retains the supplied Wealthsimple period
 and as-of context. Shares/average cost and the existing Buy more / Sell all commands are in the panel.
@@ -289,7 +289,9 @@ the saved assignment or start execution. Unsupported comparison portfolios remai
 the dropdown restores the actual saved strategy. Account connection/import/risk/stop-buying and pending
 order tools remain below; recorded-account recommendation/report/history controls are in **TraderVI
 records and recommendation tools**. No other tab has been redesigned. Build, 194 focused tests and
-four offline synthetic renders pass; no operational/broker verification follows from those checks.
+four offline synthetic renders pass. The normal Release app launched at 22:15 Toronto and was responsive
+at 22:16 (PID 20036). The operator can now review Trading; launch/offline checks do not qualify native
+Trading bindings, current broker data or strategy execution.
 
 **September 14 / account reconciliation:** **Reconcile account…** on the main Wealthsimple account
 reads the selected owned TFSA's activity/order history and compares reconstructed shares and book

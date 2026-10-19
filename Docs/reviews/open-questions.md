@@ -33,7 +33,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   outside implicit management. No new pacing or partial-sale rule is agreed.
 - **Implemented scope:** Trading-only WPF layout and dropdown-to-existing-transition-preview path;
   other tabs unchanged. Build, 194 focused tests and four synthetic WPF renders pass. Automatic execution,
-  daily-return qualification, full verified Hold/Sell source integration and installed rollout remain open.
+  daily-return qualification and full verified Hold/Sell source integration remain open. The operator-
+  authorized Release rebuild/launch is responsive (October 18, 22:16 Toronto); operator UI feedback and
+  native Trading/broker qualification remain pending.
 - **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
   target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history

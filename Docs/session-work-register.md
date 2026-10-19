@@ -87,7 +87,10 @@ required exits reconcile before buys. Trading WPF now contains the compact accou
 and dropdown-to-existing-transition-review path. Other tabs/shared styles are unchanged. Actual strategy
 assignment/execution remains unfinished; Today and missing verified decisions are unavailable rather
 than fictional runtime defaults. WPF build, 194 focused tests and four offline synthetic renders pass;
-full decision-source integration and native rollout remain open.
+full decision-source integration remains open. The operator then authorized a rebuild/restart and push:
+normal Release build passes with existing warnings; no prior TraderVI process was running. The app
+launched at 22:15 Toronto and PID 20036 is responsive at 22:16. Operator UI feedback/native Trading
+binding verification remains pending; launch does not establish broker or execution readiness.
 Source/calculation qualification and proposed in-panel lookup remain open. Portfolio
 choice is explicitly deferred. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
@@ -95,14 +98,16 @@ Delphi Live preference stays context only; one engine/three independent paper po
 again, including the original book, comparison pair and current comparison-selection exclusion. No
 exact choice, changed eligibility or wider family/AI contract is agreed; no fresh SQL/host check ran.
 All four concept files' wrapper/script checks pass; browser local-file policy blocked visual inspection.
-Trading-only WPF source is implemented/offline-tested; no operational host/SQL/broker/model/market
-workflow ran and no app restart was performed. Detailed views remain deferred.
+Trading-only WPF source is implemented/offline-tested and the rebuilt desktop is now launched under
+explicit authority. Normal configured startup services run; no separate migration, training, broker
+diagnostic, manual order or activation was invoked. Detailed views remain deferred.
 Starting housekeeping pushed at `65956789`; personal photo attachments remain local/ignored.
 Source review point: this October 18 chat through the accepted arrangement, gains/performance request,
 explicit portfolio-choice deferral, Performance first/Today-default decisions, Overall switch, full account
 heading removal, compact overview figures/spacing, net-deposit removal and the accepted panel-only shares
 choice, accepted table/panel/explanations, Trading-only implementation authority, queued-exit clarification
-and the validated first WPF implementation. Operational activation is not inferred.
+and the validated first WPF implementation, followed by authorized Release rebuild/launch and commit/push.
+Operational trading activation is not inferred.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).
 Earlier S19/S26 implementations remain closed milestones, not proof of this new redesign's completion.

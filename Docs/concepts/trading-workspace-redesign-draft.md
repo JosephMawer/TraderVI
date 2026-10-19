@@ -163,7 +163,13 @@ binding errors; inspected wide and stacked layouts. Evidence is in ignored
 Known nullable-annotation compiler warnings and `MainWindow.xaml.cs`'s unused variable warning remain.
 Restore used `NuGetAudit=false`, so no fresh dependency-security assessment is claimed. Full solution/
 SSDT validation did not run. This offline fixture does not launch TraderVI or access SQL, broker,
-market services or models. The running app has not been rebuilt/restarted or operationally verified.
+market services or models. In the later operator-authorized rebuild/restart, the normal Release output
+built successfully (262 existing warnings, zero errors), then launched at 22:15 Toronto; PID 20036 was
+responsive with the TraderVI window at 22:16. Executable path and output WPF/Core hashes are recorded
+in ignored `artifacts/ui-redesign-20261018/`. No old process was running to close. Native Trading
+bindings/operator visual feedback and broker/execution qualification remain unverified. Normal desktop
+startup uses existing configured services; no separate migration, training, broker diagnostic, manual
+order or strategy activation was invoked. The operator requests committing/pushing the pending work.
 
 ### Account gains and engine/portfolio clarification
 

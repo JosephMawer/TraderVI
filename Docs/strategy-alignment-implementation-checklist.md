@@ -558,7 +558,8 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Implement compact Today/Overall overview, four-column holdings and selected holding manual Buy/Sell panel; retain missing facts as unavailable.
 - [x] Connect the strategy dropdown to the existing exact-source transition preview, with unsupported comparisons disabled and the actual selection restored after review.
 - [x] Validate .NET 10 WPF build, 194 focused tests and four synthetic renders/interaction checks with no binding errors; source/offline evidence only.
-- [ ] Review installed Trading layout under separate operational rollout authority; no restart or live verification ran.
+- [x] Rebuild normal Release output and launch under the operator's explicit request; PID 20036 responsive October 18 at 22:16 Toronto, with output hashes recorded.
+- [ ] Obtain the operator's review of the running Trading layout; process responsiveness does not prove native Trading bindings or broker/execution qualification.
 - [ ] Complete real switching/execution and qualified Hold/Sell source integration under existing account/protection/handover contracts; exact portfolio remains deferred.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and

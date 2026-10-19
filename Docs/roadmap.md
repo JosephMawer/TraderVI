@@ -27,7 +27,8 @@ Today/Overall performance, four-column holdings, selected holding Buy/Sell panel
 are in source; the dropdown opens the existing transition review. Other tabs remain unchanged.
 Queue old-strategy-only exits as checks allow, including at a loss, preserving shared holdings/protection;
 confirmed required exits reconcile before new buys. Execution/automatic switching remains unfinished.
-Next review the installed Trading layout under separate rollout authority, qualify daily performance
+The operator-authorized Release rebuild/launch is responsive as of October 18, 22:16 Toronto.
+Next obtain the operator's Trading layout feedback, qualify daily performance
 and complete verified decision/strategy execution integration. Exact portfolio choice stays deferred;
 existing engine/family/comparison contracts remain. Remaining-screen order and detailed views stay open;
 do not redesign other screens during this bounded implementation pass.

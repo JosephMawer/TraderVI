@@ -20,9 +20,15 @@ selection, command target, Today/Overall bindings and dropdown label, with no bi
 nullable and unused-variable compiler warnings remain; dependency audit was disabled for restore,
 so no fresh security assessment or full solution/SSDT qualification is claimed. Evidence and remaining
 limits are in the [implementation record](concepts/trading-workspace-redesign-draft.md#october-18-trading-only-implementation).
-This is source/offline validation, not installed or operational verification. No TraderVI host, SQL,
-market, model or broker workflow ran. Earlier HTML concepts retain their browser-preview limitation.
-Starting housekeeping was pushed at `65956789`; later design/implementation checkpoints remain local.
+At the operator's subsequent rebuild/restart request, the normal Release output rebuilt with zero
+errors and 262 existing compiler warnings. No older TraderVI process was running. The Release desktop
+started at 22:15 Toronto and PID 20036 was responsive with the TraderVI window at 22:16. The executable
+path and output WPF/Core SHA-256 hashes were recorded in ignored `artifacts/ui-redesign-20261018/`.
+This verifies launch/readiness for operator review, not native Trading bindings, broker/data freshness
+or strategy execution. Normal startup runs existing configured services; no separate migration,
+training, broker diagnostic, manual order or strategy activation was invoked. Earlier HTML concepts
+retain their browser-preview limitation. The operator also authorized committing/pushing the pending
+design/implementation checkpoints; remote synchronization is checked at this handoff.
 
 **AI paper delivery / Dots saved-input trial, October 17, 2026:** the operator requested a
 remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation
