@@ -22,8 +22,7 @@ public sealed partial class ManualBuyCoordinator
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
         stage?.Invoke("reading the current native Normal source");
         var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(date, ct);
-        var normal = TfsaLiveStrategySelection.Rank(portfolios).Where(c => c.SupportsTransitionReview &&
-            c.Snapshot.ComparisonAccount?.Profile == PaperGateProfile.NormalV1).ToArray();
+        var normal = TfsaLiveStrategySelection.Rank(portfolios).Where(c => c.HasNormalLiveComparisonIdentity).ToArray();
         if (normal.Length != 1) throw new InvalidOperationException("The exact current Normal source is unavailable or ambiguous.");
         stage?.Invoke("reviewing the exact Normal definition and performance evidence");
         var review = await new TradingPromotionRepository().ReviewBrokerAsync(normal[0].Snapshot.PortfolioId,

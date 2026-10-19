@@ -29,6 +29,13 @@ desktop paper cycles, defer new cycles during setup/enabled-host work, retain SQ
 resume scheduling on disposal. Waiting is bounded at two minutes without cancelling active work.
 The actual SQL lock-owner session was not inspected. The coordinated copy is installed/verified
 above; next Capture may wait for current desktop paper cycles before collecting fresh native facts.
+The next native capture passes reconciliation but source discovery rejects the approved progressive
+successor because original/current policy IDs differ. Bounded hash-verified reads at 15:35/15:43 find
+exactly one active Normal, its allowed successor and latest saved assignment. The correction retains
+the original comparison, requires that native assignment/view and validates only protection changed;
+recommendation eligibility is unchanged. 217 focused/2,621 full offline checks pass, nine native skips;
+WPF Release passes with existing warnings. Corrected output is prepared in
+`artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation follows.
 Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,

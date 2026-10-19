@@ -636,3 +636,38 @@ and no host permission, qualification packet or today's checkpoint. Receipt:
 Next operator Capture can wait for active desktop paper work before native reconciliation; the SQL
 lock clearance and actual checkpoint still require verification. No native orders or financial
 authority are created by the switch; existing references and original order IDs remain authoritative.
+
+## Normal source discovery and approved progressive successor — October 19
+
+The next operator Capture passes reconciliation but reports the exact current Normal source
+unavailable/ambiguous. Source review finds the strict original/current policy-ID predicate rejects
+the ADR-0090 progressive successor already assigned to the fixed comparison. The immutable original
+comparison must stay unchanged. A bounded native read at 15:35 finds one active Normal and one
+allowed successor; mailbox hash `9A57AA0DAAC40C3EFCADF6FD176AF1B92B362AE4683932039E4DBA374219CE56`,
+receipt `result-20261019T193555712Z-5ea28b58ec614b43901c552b31f81aca.json`. The first aggregate query
+failed SQL 130; the corrected LEFT JOIN query succeeds, with no permission fallback or write.
+
+Correction: discovery identifies the exact immutable Normal account without declaring it eligible.
+The broker definition repository requires the latest saved engine assignment and existing installed
+ProgressiveProfitProtectionComparisonSuccessor view. It reads the original canonical policy and
+independently validates that only the new ID/progressive-protection flag differ. Original comparison
+identity, current strategy, exact assignment and original policy are all fingerprint-bound; absent
+successor proofs retain the existing V1 fingerprint. Recommendation promotion/transition predicates
+retain their existing policy equality. No gate, policy, SQL object, assignment or financial reference
+is changed. This implements the already accepted ADR-0090 rollout, not a new qualification exception.
+
+A second bounded native read at 15:43 confirms exactly one active Normal and one latest assigned
+allowed successor. Query hash `40E5608156A91F602166281D53CB0BFDF48CD3C55A2C40E202AA14C2D0D1EAD6`,
+verified receipt `result-20261019T194306308Z-f5e1b318cfdb4be692b96d8221221047.json`.
+
+217 focused and 2,621 full offline tests pass, nine native tests skipped. Two new cases cover discovery
+without promotion and exact successor/provenance/JSON roundtrip plus rejection of other rule/account/
+assignment changes. An initial assertion was corrected to use a separately valid alternate threshold
+so the protection-only comparison itself is exercised. WPF Release passes (262 existing compiler
+warnings, zero errors); no fresh dependency-security audit or full SSDT solution build is claimed.
+Logs: normal-successor-focused.log, normal-successor-full-serial.log, normal-successor-wpf-build.log.
+Prepared copy: normal-successor-working-copy/TraderVI.WPF.exe. Core SHA-256:
+`7F2FD4A5944BB20D64F8A5AE785F46444023C52D7484B364F011A2072C82AB0C`.
+Installation follows. First checkpoint/packet/financial approval/host enable remain unverified/off.
+Preserve the existing initial references and all original order IDs; no repeated trades or resets.
+Today's existing close-time expiry remains mandatory. No agent financial action or native SQL test.

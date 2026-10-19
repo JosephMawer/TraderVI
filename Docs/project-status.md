@@ -175,8 +175,15 @@ success/failure/cancellation. Coordination wait is bounded at two minutes and do
 paper work. Five barrier cases plus the focused set pass (**199**); WPF build passes, Core unchanged.
 The coordinated **943f964b** copy starts at **15:30:19 Toronto**, PID **74844**, after normal prior
 closure. Matching hashes/unchanged Core, one responding visible owner and absent permission, packet
-and checkpoint are verified. Next retry checkpoint to verify local contention clearance; no capture
-success is inferred. Existing
+and checkpoint are verified. The next native capture passes reconciliation and stops at Normal
+source discovery: strict original/current policy equality rejects the already-approved progressive
+successor. A 15:35 hash-verified bounded read finds exactly one active Normal and its allowed
+successor. The correction discovers that immutable account, then requires its latest native saved
+assignment, installed successor view and exact original/current policy comparison. Original comparison
+identity and recommendation eligibility remain unchanged. 217 focused and 2,621 full offline checks
+pass (nine native skips); WPF Release passes with existing warnings. At 15:43 a second hash-verified
+bounded read confirms one active Normal and one latest assigned allowed successor. Installation
+follows; no checkpoint success is inferred. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

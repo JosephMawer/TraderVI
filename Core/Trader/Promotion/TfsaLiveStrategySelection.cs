@@ -10,11 +10,14 @@ public sealed record TfsaLiveStrategyCandidate(DelphiLivePortfolioSnapshot Snaps
 {
     public bool SupportsCurrentPromotion => Snapshot.ComparisonAccount == null && Snapshot.Role != "GateComparison";
     // A source can be inspected without being eligible for recommendation approval or execution.
-    public bool SupportsTransitionReview => SupportsCurrentPromotion || Snapshot is
+    // Discovery only: the native definition review must verify any assigned policy successor.
+    public bool HasNormalLiveComparisonIdentity => Snapshot is
     {
         Role: "GateComparison", ComparisonAccount: { Profile: PaperGateProfile.NormalV1, StrategyCode: "DelphiLive",
             ShadowStrategyVersionId: null, ShadowSettingsJson: null } comparison
-    } && comparison.AccountId == Snapshot.PortfolioId && comparison.LivePolicyVersionId == Snapshot.PolicyVersionId;
+    } && comparison.AccountId == Snapshot.PortfolioId && comparison.LivePolicyVersionId is { } original && original != Guid.Empty;
+    public bool SupportsTransitionReview => SupportsCurrentPromotion || HasNormalLiveComparisonIdentity &&
+        Snapshot.ComparisonAccount!.LivePolicyVersionId == Snapshot.PolicyVersionId;
     public string DisplayName => Snapshot.ComparisonAccount is { } comparison
         ? $"{comparison.DisplayName} · Delphi Live"
         : $"Delphi Live · {(Snapshot.Role == "OperationalChampion" ? "Operational champion" : Snapshot.Role)} · {Snapshot.PolicyVersionId.ToString("N")[..8]}";

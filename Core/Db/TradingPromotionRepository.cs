@@ -27,6 +27,21 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         var review = await Review(c, t, paperAccountId, family, "TFSA", token, brokerReview: true);
         var comparison = (await PaperComparisonRepository.ReadAccountsAsync(c, t, token)).SingleOrDefault(a => a.AccountId == paperAccountId);
         var strategy = new BrokerManagedStrategy(review.Strategy, paperAccountId, comparison?.Profile ?? PaperGateProfile.NormalV1, comparison);
+        if (family == TradingStrategyFamily.DelphiLive && comparison is not null &&
+            comparison.LivePolicyVersionId != review.Strategy.PolicyVersionId)
+        {
+            Guid assignment = await c.QuerySingleOrDefaultAsync<Guid>(new CommandDefinition("""
+SELECT a.AssignmentId FROM dbo.EngineStrategyAssignment a
+JOIN dbo.ProgressiveProfitProtectionComparisonSuccessor allowed
+ ON allowed.AccountId=a.TargetId AND allowed.VersionId=a.VersionId
+WHERE a.TargetId=@Paper AND a.VersionId=@Policy
+ AND a.Sequence=(SELECT MAX(latest.Sequence) FROM dbo.EngineStrategyAssignment latest WHERE latest.TargetId=@Paper);
+""", new { Paper = paperAccountId, Policy = review.Strategy.PolicyVersionId }, t, cancellationToken: token));
+            if (assignment == Guid.Empty || comparison.LivePolicyVersionId is not { } originalId)
+                throw new InvalidOperationException("The current Normal policy is not its installed, explicitly assigned progressive successor.");
+            var original = await DelphiLiveSessionRepository.ReadPolicyAsync(c, originalId, t, token);
+            strategy = strategy with { LiveComparisonSuccessor = new(paperAccountId, assignment, original) };
+        }
         strategy.Validate();
         t.Commit();
         return new(strategy, review.Evidence, review.PreparedUtc, review.OperationalBlocks);

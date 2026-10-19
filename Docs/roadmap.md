@@ -89,7 +89,12 @@ failing stage. The next native diagnostic is SQL 51413, a settings-lock timeout 
 A WPF-only barrier now sequences setup/enabled-host checks after active desktop paper cycles and
 defers new cycles during that work (199 focused checks/build pass; bounded wait; SQL fences/Core
 unchanged). Coordinated copy 943f964b is verified running at 15:30 as PID 74844, no permission/
-packet/checkpoint. Next verify native checkpoint, then same-copy restart/native review before
+packet/checkpoint. Capture now passes reconciliation but rejects Normal's approved progressive
+successor as an original-policy mismatch. A bounded native read confirms one active Normal and
+allowed successor; the correction preserves original comparison identity and requires its latest
+saved assignment plus exact protection-only policy difference (217 focused/2,621 full offline passes,
+nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Next install,
+verify native checkpoint, then same-copy restart/native review before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 

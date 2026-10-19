@@ -145,7 +145,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   focused checks and WPF build pass, Core unchanged. Actual SQL owner was not inspected.
 - [x] Install/verify coordinated copy 943f964b at 15:30:19 Toronto, PID 74844: normal prior closure,
   hashes/unchanged Core, one responding visible owner and no permission/packet/checkpoint.
-- [ ] Verify actual native capture in the coordinated copy. A local scheduling fix/offline
+- [x] Identify Normal source rejection after reconciliation: original immutable comparison policy
+  differs from its approved progressive successor. Bounded native read confirms one Normal/allowed
+  successor. Implement exact assigned-successor review without rewriting the comparison or changing
+  recommendation eligibility; 217 focused/2,621 full offline passes, nine native skips/WPF build pass.
+  At 15:43 the bounded native read also confirms the latest exact assigned successor. Install follows.
+- [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,

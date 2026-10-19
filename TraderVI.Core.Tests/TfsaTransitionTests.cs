@@ -177,6 +177,48 @@ public class TfsaTransitionTests
         Assert.NotEqual(reviewed.Fingerprint, bypass.Fingerprint);
     }
 
+    [Fact]
+    public void NativeDiscoveryFindsOriginalNormalIdentityWithoutApprovingAnUnverifiedPolicy()
+    {
+        var source = Portfolio("GateComparison", 100, 99);
+        var comparison = new PaperComparisonAccount(source.PortfolioId, Guid.NewGuid(), Guid.NewGuid(),
+            "DelphiLive", PaperGateProfile.NormalV1, source.UpdatedUtc, Guid.NewGuid(), Guid.NewGuid(), null, null);
+        var candidate = TfsaLiveStrategySelection.Rank([source with { ComparisonAccount = comparison }]).Single();
+        Assert.True(candidate.HasNormalLiveComparisonIdentity);
+        Assert.False(candidate.SupportsTransitionReview); Assert.False(candidate.SupportsCurrentPromotion);
+        Assert.False(TfsaLiveStrategySelection.Rank([source with { ComparisonAccount = comparison with {
+            Profile = PaperGateProfile.PortfolioRulesOnlyV1 } }]).Single().HasNormalLiveComparisonIdentity);
+    }
+
+    [Fact]
+    public void AssignedProgressiveSuccessorRetainsOriginalComparisonAndRejectsAnyOtherRuleChange()
+    {
+        var original = DelphiLivePolicyDefinition.Version1;
+        var current = original with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true };
+        var strategy = TradingStrategyResolutionTests.Strategy() with {
+            Family = TradingStrategyFamily.DelphiLive, ShadowPolicy = null, LivePolicy = current,
+            PolicyVersionId = current.PolicyVersionId, MaximumHoldings = current.MaximumHoldings,
+            Selection = CompleteTradingStrategy.LiveSelection };
+        var account = Guid.NewGuid();
+        var comparison = new PaperComparisonAccount(account, Guid.NewGuid(), Guid.NewGuid(), "DelphiLive",
+            PaperGateProfile.NormalV1, Now.UtcDateTime, strategy.Daily.StrategyVersionId, original.PolicyVersionId, null, null);
+        var reviewed = new BrokerManagedStrategy(strategy, account, comparison.Profile, comparison);
+        Assert.Throws<ArgumentException>(reviewed.Validate);
+        var proof = new BrokerLiveComparisonSuccessor(account, Guid.NewGuid(), original);
+        reviewed = reviewed with { LiveComparisonSuccessor = proof }; reviewed.Validate();
+        Assert.Equal(original.PolicyVersionId, reviewed.Comparison.LivePolicyVersionId);
+        var reopened = System.Text.Json.JsonSerializer.Deserialize<BrokerManagedStrategy>(
+            System.Text.Json.JsonSerializer.Serialize(reviewed));
+        reopened.Validate(); Assert.Equal(reviewed.Fingerprint, reopened.Fingerprint);
+        foreach (var bad in new[] { proof with { AccountId = Guid.NewGuid() }, proof with { AssignmentId = Guid.Empty },
+            proof with { OriginalPolicy = original with { PolicyVersionId = Guid.NewGuid() } },
+            proof with { OriginalPolicy = original with { UseProgressiveProfitProtection = true } } })
+            Assert.Throws<ArgumentException>(() => (reviewed with { LiveComparisonSuccessor = bad }).Validate());
+        var changed = current with { SelectedRawMoveThreshold = 0.15m };
+        Assert.Throws<ArgumentException>(() => (reviewed with { Strategy = strategy with { LivePolicy = changed } }).Validate());
+        Assert.NotEqual(reviewed.Fingerprint, (reviewed with { LiveComparisonSuccessor = proof with { AssignmentId = Guid.NewGuid() } }).Fingerprint);
+    }
+
     private static DelphiLivePortfolioSnapshot Portfolio(string role, decimal opening, decimal end)
     {
         var date = new DateOnly(2026, 9, 9); var utc = Now.UtcDateTime.AddHours(-8);
