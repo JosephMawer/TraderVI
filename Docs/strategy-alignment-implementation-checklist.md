@@ -131,7 +131,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Identify/fix checkpoint's storage-readiness mapping mismatch: SQL returns four Boolean fields,
   record constructor had three. Seven offline mapper cases/257 focused tests and WPF Release pass;
   checks remain independent and the optional fourth flag defaults false. 2,614 full offline tests pass/nine native skips.
-- [ ] Install the new Core build and verify actual checkpoint capture. Failed attempts do not count
+- [x] Install/verify the new Core build 71207c86 at 15:06:33 Toronto, PID 73824: matching hashes,
+  normal prior closure, one responding visible desktop and absent host permission/packet/checkpoint.
+- [ ] Verify actual checkpoint capture in this new copy. Failed attempts do not count
   as a checkpoint, restart proof or qualification. Preserve the saved baseline and original orders.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,

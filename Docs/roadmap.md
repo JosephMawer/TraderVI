@@ -80,8 +80,9 @@ Latest operator screenshots in bc5a7f09 show successful risk preview from the 14
 explicit initial-reference save confirmation. The earlier unexpected failure did not recur; its cause
 is unlocated. Reopened setup now confirms the original saved references. Checkpoint capture exposes
 a four-column/three-constructor storage-readiness mapping bug. The narrow record fix preserves every
-readiness check (257 focused tests/WPF build pass; 2,614 full offline tests pass/nine native skips). Next corrected-copy install,
-first checkpoint, then same-copy restart/native review before packet/approval/enable. No baseline
+readiness check (257 focused tests/WPF build pass; 2,614 full offline tests pass/nine native skips).
+Corrected copy 71207c86 starts at 15:06, hashes/one responding owner/no authority/checkpoint verified.
+Next first checkpoint, then same-copy restart/native review before packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

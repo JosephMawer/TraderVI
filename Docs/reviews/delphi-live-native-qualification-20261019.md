@@ -1,48 +1,29 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: awaiting actual manual observations; automatic execution off.** The operator
-explicitly approves the first-day acceptance contract below. The native checkpoint/review/packet
-producer is implemented/tested; no actual packet, baseline, assignment or host grant is issued here.
-Current executable (risk diagnostics): `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-diagnostic-working-copy\TraderVI.WPF.exe`.
-Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
-The trading-engine source is committed as **e054e88f**. The earlier native-review copy launched at **12:07 Toronto** as PID **43132**, with one
-visible/responding TraderVI window and no host grant, actual qualification packet or checkpoint.
-The 12:08 bounded read verifies a clean new import/trade-sync receipt and empty execution setup.
-At 12:10 the existing manual-buy pause/financial-hold flags are clear; live tickets still recheck them.
+**Current decision: first checkpoint capture still pending; automatic execution off.**
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\storage-shape-working-copy\TraderVI.WPF.exe`.
+Source correction **71207c86**; Core SHA-256
+`BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`.
+The corrected copy starts at **15:06:33 Toronto**, PID **73824**, after normal prior-process closure.
+Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/storage-shape-switch-receipt.json`.
 
-**Operator progress / risk-screen repair:** supplied screenshots show both original sales and the
-one-share verification buy/sale filled, then a cash-only account with no pending orders. These are
-operator UI observations, not the completed native qualification. Account risk setup remains blocked:
-the operator reports Refresh leaves it blank. Offline reproduction confirms the Material button
-template's fixed 32-pixel height clips the padded labels. The corrected presentation uses the existing
-Workspace style, a visible initial state and explicit busy/empty-result messages; six synthetic renders
-and the WPF-only Release build pass. The underlying refresh failure is not yet independently explained.
-The separately prepared risk-setup copy retains the exact reviewed Core SHA above; no Core rebuild,
-order replay or reference reset occurs. At 14:42 the hash-verified bounded SQL read finds zero baseline,
-continuation and managed revisions. Process inspection then finds the normal bin/Release copy
-(PID 61196, started 13:57), rather than the earlier native-review path. The corrected **74cb0987**
-copy starts at **14:45:58 Toronto**, PID **52288**, after normal old-process closure. All three
-manifest hashes match; one visible/responding desktop remains and no host permission, packet or
-today's checkpoint exists. Receipt: `artifacts/delphi-live-tfsa-20261018/risk-setup-switch-receipt.json`.
-Actual refreshed-screen verification remains next, before baseline/checkpoint/restart/packet/activation.
+Operator screenshots show both original sales and the one-share verification buy/sale filled,
+then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
+save and reopened readback show the same original request/references, saved 14:56. These remain
+operator UI observations; native qualification must independently read original IDs/references.
 
-The earlier post-refresh screenshot showed an unexpected setup failure, with no values/disabled Save.
-The bounded diagnosis and safe WPF diagnostic increment are retained in the decision log. The
-subsequent operator screenshot shows a successful actual 14:55 observation: cash-only setup sources,
-both holds false and no protected positions. The operator explicitly saves and supplies the native
-success confirmation. No replacement reference, guard bypass or agent financial action occurs.
-The earlier exception did not recur; its cause is unlocated. The operator then reopens/refreshed setup
-and confirms the same original saved request/reference values (saved 14:56). Checkpoint capture
-fails with a specific storage-readiness constructor mismatch; a later attempt gives a generic error.
-A narrow record fix matches all four SQL Boolean columns; seven database-free mapping cases and
-257 focused tests/WPF Release pass. The separate storage-shape copy is prepared; 2,614 full offline tests pass/nine native skips.
-It has a new Core identity, so capture its first checkpoint after installation and use that same copy
-for restart; preserve existing references/orders. No checkpoint success is yet established. Native post-restart order/
-baseline qualification and packet publication still remain; a save confirmation does not complete them.
-The diagnostic increment is **bc5a7f09**, running at **14:53:20 Toronto** as PID **106248** after
-normal prior-process closure. Exact output/Core hashes, one responding desktop and absent host
-permission/packet/checkpoint are verified at startup. Preserve this exact copy for recovery. Switch receipt:
-`artifacts/delphi-live-tfsa-20261018/risk-diagnostic-switch-receipt.json`.
+Checkpoint capture then fails: SQL returns four Boolean storage fields but the C# constructor has
+three. The narrow fix matches all four, retaining false for older three-argument callers. Seven
+mapping cases, 257 focused tests, 2,614 full offline tests (nine native skips) and WPF Release pass.
+No storage predicate, policy or qualification requirement changes. No native SQL test is resumed.
+
+This correction changes Core identity. Next capture the first successful checkpoint in this copy,
+then close normally/reopen this exact executable and Prepare first execution review. Preserve the
+existing baseline and original orders; never replay trades, reset references or reuse an old-build
+checkpoint. Actual packet/financial approval/host enable remain pending. Earlier UI repairs, the
+unlocated transient risk-screen failure and detailed receipts are retained in the
+[decision log](delphi-live-morning-decisions-20261019.md). No agent financial action occurred.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual

@@ -563,3 +563,11 @@ checkpoint must be captured in this copy and recovered after restarting this exa
 Keep the existing saved financial baseline/original orders; do not replay trades or reset references.
 The operator has closed Execution setup for the authorized execution-off switch after checks pass.
 No agent order, financial approval, checkpoint, qualification packet or host permission is created.
+
+Correction committed as **71207c86**. The hash-verified storage-shape copy starts at **15:06:33
+Toronto**, PID **73824**, after PID 106248 closes normally under the existing execution-off startup
+scope. Native inspection confirms its exact path, one responding visible TraderVI window and no
+host permission, qualification packet or today's checkpoint. Receipt: `storage-shape-switch-receipt.json`;
+manifest: `storage-shape-working-copy-hashes.json`. Freeze this new exact Core/executable for the
+first successful checkpoint and subsequent normal recovery restart. Native capture success remains
+unverified; next operator action is Capture native recovery checkpoint and review its result.

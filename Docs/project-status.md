@@ -157,11 +157,13 @@ mapping error; a further attempt shows only the generic failure. No checkpoint s
 The C# record has three constructor arguments while SQL returns four Boolean columns; the fourth
 becomes an optional constructor argument, retaining false for older three-argument callers. Seven
 database-free mapping cases and the broader 257 focused tests pass; WPF Release passes. A separate
-storage-shape copy is prepared with a new Core hash; 2,614 full offline tests pass with nine native skips. Next install
-the corrected copy, capture its first checkpoint, then same-copy restart/native review. Existing
+storage-shape copy has a new Core hash; 2,614 full offline tests pass with nine native skips. The
+**71207c86** copy starts at **15:06:33 Toronto**, PID **73824**, after normal prior-process closure:
+hashes/one responding owner/absent host permission, packet and checkpoint verified. Next capture
+its first checkpoint, then same-copy restart/native review. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
-privacy tests/build pass; Core unchanged. Execution remains off. Detailed receipts/history stay in
+privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in
 the [decision log](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
