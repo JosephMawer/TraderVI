@@ -454,3 +454,39 @@ The four native qualifications/actual packet are still **pending operator observ
 declared complete. The installed app can collect/review/publish them under the accepted first-day
 contract after the exact manual sequence. No real order, baseline, checkpoint, financial approval
 or host grant was created by this startup/diagnostic work; SQL tests/memory changes remain paused.
+
+## Risk setup blank-screen investigation — October 19 afternoon
+
+The operator's screenshots show the two original opening sales, one-share verification buy and
+separate test sale filled, with a subsequent cash-only/no-pending account. These are supplied UI
+observations; the native publisher must still read and qualify original IDs/history independently.
+No private balances/symbols/order identifiers are copied into tracked documentation.
+
+The operator reports Account risk setup stays blank after Refresh. Offline reproduction confirms
+the implicit Material button template fixes height at 32 pixels while the dialog applies 12-pixel
+padding, clipping both labels. It does not establish why the native Refresh returned no visible result.
+Decision: mechanical WPF-only repair, using the existing Workspace button style/dark surface,
+readable minimum height, nonblank initial status and explicit busy/empty-result messages. All existing
+broker/import/reference policies, explicit save and disabled-until-reviewed rules remain unchanged.
+No qualification is inferred from the UI fix. Six synthetic states pass render/layout checks; WPF
+Release passes with zero errors, existing unused-variable warnings (two emissions) and cached Pkcs
+NU1902/NU1903 advisories. No fresh security/full-solution/SSDT claim. The first isolated build lacked
+the frozen Core reference; copying the earlier output into the separate target resolves it without
+rebuilding Core. The initial render assertion incorrectly assumed a 16-pixel default-font line;
+explicit readable 14-point control text and the final rerun pass. No native SQL test ran.
+
+Prepared copy: `artifacts/delphi-live-tfsa-20261018/risk-setup-working-copy/TraderVI.WPF.exe`.
+Reviewed Core SHA remains `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
+Offline artifacts: `risk-setup-wpf-build.log`, `risk-setup-ui-preview/` (original reproduction and
+six fixed synthetic states). Never overwrite the running copy or replay qualification trades.
+
+At **14:42 Toronto** the exact installed read-only SQL helper returns hash-matched query
+`5458311211BE4603AA8C47137736158D897BE47A4E7D4EF5D4A403FFF5CD1433`;
+receipt `artifacts/read-only-db/result-20261019T184231706Z-7cf07f8225dc47229e48c24635930ae6.json`.
+Baseline/continuation/managed counts are zero; four imports since 14:00, latest saved 14:31:47.
+This cannot attribute an import to a particular Refresh click or prove that click succeeded.
+Native process inspection finds PID 61196 from `TraderVI.WPF/bin/Release/net10.0-windows`, started
+13:57, rather than the previously launched frozen copy. No pre-restart proof should be inferred
+from earlier startup records. The operator has closed the blank risk dialog; corrected-copy switch
+and actual refreshed-screen evidence are next. Trading stays off; no agent order, baseline,
+authorization, migration, memory setting or new SQL rehearsal is created.

@@ -133,8 +133,16 @@ bounded read confirms the immutable-storage predicate, with setup tables still e
 hashes match, old instance closes normally, one responding desktop remains, no host grant/packet/
 checkpoint exists. The 12:08 hash-verified bounded read finds its clean new import/trade-sync receipt
 and empty setup. At 12:10 existing global/Tracked pauses and capital/daily-loss hold flags are clear;
-native tickets still recheck them. **Actual orders, saved baseline, checkpoint,
-post-restart observations and packet remain pending; execution is off.** General production/native
+native tickets still recheck them. Later operator screenshots show completed original sales and the
+one-share verification round trip, followed by cash-only/no pending orders; these have not yet passed
+the native qualification publisher. Risk setup Refresh reportedly stays blank. Offline reproduction
+confirms clipped Material button labels; a WPF-only correction adds readable Workspace controls,
+initial status and explicit busy/empty-result messages (six synthetic renders/build pass). Its separate
+`risk-setup-working-copy` retains the exact reviewed Core hash. The underlying failed refresh still
+needs native screen evidence. At 14:42 a hash-verified bounded read finds zero baseline/continuation/
+managed revisions; process inspection finds the normal bin/Release PID 61196, started 13:57.
+Corrected-copy switch/native preview, saved baseline, checkpoint, post-restart observations and packet
+remain pending; execution is off. General production/native
 failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted

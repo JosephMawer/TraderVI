@@ -3,12 +3,25 @@
 **Current decision: awaiting actual manual observations; automatic execution off.** The operator
 explicitly approves the first-day acceptance contract below. The native checkpoint/review/packet
 producer is implemented/tested; no actual packet, baseline, assignment or host grant is issued here.
-Prepared executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\native-review-working-copy\TraderVI.WPF.exe`.
+Prepared executable (risk-screen correction): `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-setup-working-copy\TraderVI.WPF.exe`.
 Core SHA-256 `E79EF658B6DF945DFD1575D7D3FE1F316CE5D84F6D7BA3A325760AF60F093FD3`.
-Source is committed as **e054e88f**. It is launched at **12:07 Toronto** as PID **43132**, with one
+The trading-engine source is committed as **e054e88f**. The earlier native-review copy launched at **12:07 Toronto** as PID **43132**, with one
 visible/responding TraderVI window and no host grant, actual qualification packet or checkpoint.
 The 12:08 bounded read verifies a clean new import/trade-sync receipt and empty execution setup.
 At 12:10 the existing manual-buy pause/financial-hold flags are clear; live tickets still recheck them.
+
+**Operator progress / risk-screen repair:** supplied screenshots show both original sales and the
+one-share verification buy/sale filled, then a cash-only account with no pending orders. These are
+operator UI observations, not the completed native qualification. Account risk setup remains blocked:
+the operator reports Refresh leaves it blank. Offline reproduction confirms the Material button
+template's fixed 32-pixel height clips the padded labels. The corrected presentation uses the existing
+Workspace style, a visible initial state and explicit busy/empty-result messages; six synthetic renders
+and the WPF-only Release build pass. The underlying refresh failure is not yet independently explained.
+The separately prepared risk-setup copy retains the exact reviewed Core SHA above; no Core rebuild,
+order replay or reference reset occurs. At 14:42 the hash-verified bounded SQL read finds zero baseline,
+continuation and managed revisions. Process inspection then finds the normal bin/Release copy
+(PID 61196, started 13:57), rather than the earlier native-review path. Corrected-copy installation
+and actual refreshed-screen verification remain next, before checkpoint/restart/packet/activation.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.
 This belongs to first-session execution approval; the root goal is recoverable management of the actual

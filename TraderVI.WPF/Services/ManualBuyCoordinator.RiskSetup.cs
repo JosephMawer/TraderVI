@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
+using TraderVI.WPF.Views;
 
 namespace TraderVI.WPF.Services;
 
@@ -25,15 +25,9 @@ public sealed partial class ManualBuyCoordinator
         if (IsSubmitting || !currentAccount()) return;
         var window = riskWindow = new Window { Owner = owner, Title = "TFSA account risk setup", Width = 780, Height = 620,
             MinWidth = 580, MinHeight = 420, WindowStartupLocation = WindowStartupLocation.CenterOwner };
-        var body = new StackPanel { Margin = new Thickness(24) };
-        var summary = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 16, Margin = new Thickness(0, 16, 0, 16) };
-        body.Children.Add(new TextBlock { Text = "Establish continuous account risk tracking", FontSize = 24, TextWrapping = TextWrapping.Wrap });
-        body.Children.Add(new TextBlock { Text = "Setup preserves known references, holds and position protection. A new reference starts at the verified observation; it does not claim a historical opening or lifetime high. Strategy execution needs its separate review.", TextWrapping = TextWrapping.Wrap });
-        body.Children.Add(summary);
-        var refresh = new Button { Content = "Refresh verified account and references", Margin = new Thickness(0, 8, 0, 8), Padding = new Thickness(12) };
-        var save = new Button { Content = "Save these reviewed initial references", IsEnabled = false, Padding = new Thickness(12) };
-        body.Children.Add(refresh); body.Children.Add(save);
-        window.Content = new ScrollViewer { Content = body, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        var panel = new BrokerRiskSetupPanel();
+        var summary = panel.Summary; var refresh = panel.Refresh; var save = panel.Save;
+        window.Background = panel.Background; window.Foreground = panel.Foreground; window.Content = panel;
         using var lifetime = new CancellationTokenSource();
         bool closed = false, busy = false;
         long revision = connection.SessionRevision;
@@ -47,7 +41,12 @@ public sealed partial class ManualBuyCoordinator
         }
         async Task Run(Func<Task> action)
         {
-            if (busy || IsSubmitting || closed) return;
+            if (busy || closed) return;
+            if (IsSubmitting)
+            {
+                summary.Text = "Another order or account refresh is in progress. Wait for it to finish, then click Refresh again. No initial references were saved by this action.";
+                return;
+            }
             busy = true; reconciling = true; refresh.IsEnabled = save.IsEnabled = false;
             try { Check(); await action(); }
             catch (OperationCanceledException) { if (!closed) summary.Text = "Setup stopped. Reopen to inspect saved references; do not initialize a replacement."; }
@@ -74,7 +73,13 @@ public sealed partial class ManualBuyCoordinator
             }
             var preview = await setup.PreviewAsync(Guid.NewGuid(), lifetime.Token); Check();
             var baseline = preview.Preparation.Baseline;
-            if (baseline is null) { summary.Text = string.Join("\n", preview.Preparation.Blocks); return; }
+            if (baseline is null)
+            {
+                summary.Text = preview.Preparation.Blocks.IsEmpty
+                    ? "No reviewable risk references were returned. Refresh again; do not initialize replacement history."
+                    : string.Join("\n", preview.Preparation.Blocks);
+                return;
+            }
             summary.Text = $"Verified observation: {baseline.ObservationAt.LocalDateTime:g}\n" +
                 $"Daily reference: {baseline.SessionReference.Value:N2} CAD ({baseline.SessionReference.Source})\n" +
                 $"Drawdown reference: {baseline.DrawdownReference.Value:N2} CAD ({baseline.DrawdownReference.Source})\n" +

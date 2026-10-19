@@ -108,7 +108,15 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Switch to the final hash-verified native-review copy (e054e88f) at 12:07 Toronto; normal old
   shutdown, one responding native desktop, no host grant/packet/checkpoint. Clean new import/empty
   setup at 12:08 and existing pause/hold flags clear at 12:10, both bounded query hashes verified.
-- [ ] Collect actual manual trades/cash-only baseline,
+- [x] Review operator screenshots of the original sales and one-share verification buy/sale, followed
+  by cash-only/no pending orders. Native journal/history qualification remains separately required.
+- [x] Reproduce clipped risk-setup button labels offline; prepare readable Workspace controls and
+  visible initial/busy/empty-result states. Six synthetic renders/WPF-only build pass; reviewed Core
+  unchanged. The reported failed Refresh itself is not yet explained or operationally fixed.
+- [ ] Install the corrected risk-setup working copy and verify actual preview/save/readback. The
+  14:42 bounded SQL receipt still finds no baseline/continuation/managed revisions; current process
+  inspection finds normal bin/Release, not the earlier native-review copy. Do not reset or replay trades.
+- [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and
   native partial/uncertain/power-loss qualification remain outside this first-day contract.

@@ -65,8 +65,13 @@ review with disclosed gaps, actual full-fill/manual normal-restart/reference/sto
 and a durable automatic-order review hold on unsupported outcomes. Its checkpoint/nine-reference
 publisher and first-session-only proof restriction are committed as e054e88f. The native-review copy
 is now running with execution off after the 12:07 switch; clean import/empty setup and existing
-pause/hold flags are checked at 12:08/12:10. Next operator manual verification trades/cash-only
-setup/checkpoint, normal restart and Prepare first execution review. Only actual matching evidence
+pause/hold flags are checked at 12:08/12:10. Operator screenshots subsequently show the manual
+round trip complete and cash-only/no pending orders. Risk setup remains blocked by a reported blank
+Refresh result. A WPF-only repair reproduces/fixes clipped labels and adds explicit status/busy messages;
+six synthetic renders/build pass, reviewed Core unchanged. The 14:42 bounded read still finds empty
+setup; the current process is from normal bin/Release. Next install the corrected risk-setup copy,
+verify actual preview/save/readback, capture checkpoint, restart and Prepare first execution review.
+Only actual matching evidence
 publishes the packet; financial approval and host enable remain separate. Broader production and
 unobserved native failure paths remain deferred. [Operator steps](reviews/delphi-live-native-qualification-20261019.md).
 
