@@ -525,3 +525,17 @@ manifest: `risk-diagnostic-working-copy-hashes.json`. Current executable is
 `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\risk-diagnostic-working-copy\TraderVI.WPF.exe`.
 Next operator Refresh collects the actual diagnostic. The underlying exception is still unlocated;
 no initial reference can be reviewed/saved yet and no qualification is issued.
+
+## Operator initial-reference preview and save confirmed — October 19
+
+The next operator screenshot shows successful Refresh in the diagnostic copy, with an actual
+14:55 observation, matching daily/drawdown SetupObservation references, both financial holds false
+and zero preserved position-protection records. The operator then explicitly clicks Save and supplies
+the native initial-reference success confirmation. Financial amounts/request IDs remain private.
+This is reviewed operator UI evidence, not an independent SQL/Find readback or completed native
+qualification. The earlier unexpected exception did not recur; no diagnostic error code was produced
+and its cause remains unlocated. No policy/reference reset or guard change was needed to proceed.
+Next close/reopen Account risk setup and Refresh to recover the same saved references, followed by
+checkpoint capture and the same-executable normal restart/native packet route. The agent has not
+saved references, submitted orders, approved an assignment or enabled execution. No code/build/test,
+database diagnostic or external operation is needed for this screenshot-review milestone.

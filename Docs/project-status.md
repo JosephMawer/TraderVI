@@ -147,14 +147,15 @@ Actual refreshed-screen preview, saved baseline, checkpoint, post-restart observ
 remain pending; execution is off. General production/native
 failure qualification remains deferred. [Exact operator route and evidence](reviews/delphi-live-native-qualification-20261019.md).
 
-The operator's subsequent refreshed risk screen shows the generic unexpected-failure message, with
-no values and Save disabled. The 14:49 hash-verified bounded read finds no baseline/managed revision
-or report/recommendation JSON; latest import is the 14:46 startup observation. This does not locate
-the failed step. A WPF-only diagnostic increment adds stage/error-category/SQL-number reporting,
-excluding raw exception messages and preserving the existing failure block. Two privacy tests and
-Release build pass; reviewed Core is unchanged. The **bc5a7f09** diagnostic copy starts at 14:53:20
-as PID 106248 after normal prior closure: hashes/one responding owner/no host permission, packet
-or checkpoint verified. Native retry/diagnosis still precedes reference review/save and qualification.
+**Latest operator setup evidence:** in the **bc5a7f09** diagnostic copy (verified startup 14:53:20,
+PID 106248), Refresh succeeds with an actual 14:55 observation, matching cash-only setup sources,
+no carried financial holds and zero protected positions. The operator then explicitly saves and supplies
+the native success confirmation. These are operator screen observations, not independent SQL readback
+or completed qualification. Next reopen/Refresh to recover the same saved references, then capture
+the checkpoint and perform the same-copy restart/native review. The earlier unexpected failure did
+not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
+privacy tests/build pass; Core unchanged. Execution remains off. Detailed receipts/history stay in
+the [decision log](reviews/delphi-live-morning-decisions-20261019.md).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

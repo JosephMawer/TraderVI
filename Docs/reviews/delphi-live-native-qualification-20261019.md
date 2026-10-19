@@ -26,15 +26,17 @@ manifest hashes match; one visible/responding desktop remains and no host permis
 today's checkpoint exists. Receipt: `artifacts/delphi-live-tfsa-20261018/risk-setup-switch-receipt.json`.
 Actual refreshed-screen verification remains next, before baseline/checkpoint/restart/packet/activation.
 
-The operator's post-refresh screenshot now shows **Setup could not be verified**, no values and
-disabled Save. It is not a reviewable baseline. At 14:49 the bounded helper verifies setup is still
-empty and no prior report/recommendation JSON exists; latest import is 14:46. A WPF-only diagnostic
-copy adds safe stage/category/SQL-number reporting, with two privacy tests/build passing and exact
-reviewed Core unchanged. Actual failure diagnosis and successful preview are still prerequisites.
+The earlier post-refresh screenshot showed an unexpected setup failure, with no values/disabled Save.
+The bounded diagnosis and safe WPF diagnostic increment are retained in the decision log. The
+subsequent operator screenshot shows a successful actual 14:55 observation: cash-only setup sources,
+both holds false and no protected positions. The operator explicitly saves and supplies the native
+success confirmation. No replacement reference, guard bypass or agent financial action occurs.
+The earlier exception did not recur; its cause is unlocated. Next close/reopen risk setup and Refresh
+to verify the original saved reference before capturing the checkpoint. Native post-restart order/
+baseline qualification and packet publication still remain; a save confirmation does not complete them.
 The diagnostic increment is **bc5a7f09**, running at **14:53:20 Toronto** as PID **106248** after
 normal prior-process closure. Exact output/Core hashes, one responding desktop and absent host
-permission/packet/checkpoint are verified. Retry Account risk setup → Refresh for the diagnostic;
-do not save until actual reference values and their sources have been reviewed. Switch receipt:
+permission/packet/checkpoint are verified at startup. Preserve this exact copy for recovery. Switch receipt:
 `artifacts/delphi-live-tfsa-20261018/risk-diagnostic-switch-receipt.json`.
 
 The immediate problem is completing four evidence reviews and publishing their protected references.

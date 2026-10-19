@@ -76,11 +76,10 @@ Only actual matching evidence
 publishes the packet; financial approval and host enable remain separate. Broader production and
 unobserved native failure paths remain deferred. [Operator steps](reviews/delphi-live-native-qualification-20261019.md).
 
-The corrected risk screen now confirms an unexpected setup failure, not reference values. The next
-WPF-only diagnostic copy identifies the failing stage/category without exposing private error text
-(two tests/build pass, Core unchanged). It is committed as bc5a7f09 and running since 14:53 with
-one responding owner and no host permission/packet/checkpoint. Next inspect the native diagnostic before
-attempting any initial-reference save; no bypass or replacement baseline is authorized.
+Latest operator screenshots in bc5a7f09 show successful risk preview from the 14:55 observation and
+explicit initial-reference save confirmation. The earlier unexpected failure did not recur; its cause
+is unlocated. Next reopen/Refresh the same saved references, capture checkpoint, then same-copy
+restart/native review before packet/approval/enable. No reference reset or qualification bypass.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
