@@ -143,7 +143,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Identify SQL 51413 at reconciliation: EngineSettings lock wait timed out. Prepare WPF-only
   local cycle/setup coordination without altering SQL fences or policies; five barrier cases/199
   focused checks and WPF build pass, Core unchanged. Actual SQL owner was not inspected.
-- [ ] Install the coordinated copy and verify actual native capture. A local scheduling fix/offline
+- [x] Install/verify coordinated copy 943f964b at 15:30:19 Toronto, PID 74844: normal prior closure,
+  hashes/unchanged Core, one responding visible owner and no permission/packet/checkpoint.
+- [ ] Verify actual native capture in the coordinated copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,

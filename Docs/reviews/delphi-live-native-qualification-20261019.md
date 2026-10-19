@@ -1,12 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: first checkpoint capture still pending; automatic execution off.**
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\checkpoint-diagnostic-working-copy\TraderVI.WPF.exe`.
-Core correction **71207c86**, WPF diagnostics **a78f0810**; Core SHA-256
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\setup-cycle-working-copy\TraderVI.WPF.exe`.
+Core correction **71207c86**, WPF coordination **943f964b**; Core SHA-256
 `BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`.
-The diagnostic copy starts at **15:15:15 Toronto**, PID **28564**, after normal prior-process closure.
+The coordinated copy starts at **15:30:19 Toronto**, PID **74844**, after normal prior-process closure.
 Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-switch-receipt.json`.
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/setup-cycle-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
@@ -27,7 +27,9 @@ source is the 30-second EngineSettings lock wait, not a completed checkpoint. A 
 scheduling barrier is prepared (five barrier cases/199 focused checks/build pass): finish active
 desktop paper cycles, defer new cycles during setup/enabled-host work, retain SQL fences and
 resume scheduling on disposal. Waiting is bounded at two minutes without cancelling active work.
-The actual SQL lock-owner session was not inspected. Next install/retry for native confirmation.
+The actual SQL lock-owner session was not inspected. The coordinated copy is installed/verified
+above; next Capture may wait for current desktop paper cycles before collecting fresh native facts.
+Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,
 then close normally/reopen this exact executable and Prepare first execution review. Preserve the

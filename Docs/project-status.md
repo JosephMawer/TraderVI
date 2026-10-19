@@ -173,7 +173,10 @@ was not inspected. A WPF-only scheduling barrier is prepared: finish active sche
 cycles, defer new cycles during setup/enabled-host work, preserve every SQL fence, and resume after
 success/failure/cancellation. Coordination wait is bounded at two minutes and does not cancel active
 paper work. Five barrier cases plus the focused set pass (**199**); WPF build passes, Core unchanged.
-Next install/retry checkpoint to verify the local contention fix; no native success is inferred. Existing
+The coordinated **943f964b** copy starts at **15:30:19 Toronto**, PID **74844**, after normal prior
+closure. Matching hashes/unchanged Core, one responding visible owner and absent permission, packet
+and checkpoint are verified. Next retry checkpoint to verify local contention clearance; no capture
+success is inferred. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

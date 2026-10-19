@@ -626,3 +626,13 @@ WPF Release passes with existing compiler and cached Pkcs warnings. Runtime Core
 nine native skips retain their scope. Prepared output: `setup-cycle-working-copy/TraderVI.WPF.exe`.
 Logs: `setup-cycle-focused.log`, `setup-cycle-wpf-build.log`. Next reviewed normal execution-off
 copy switch, then actual checkpoint retry. Native lock clearance/capture success remain unverified.
+
+Coordination committed as **943f964b** and launched at **15:30:19 Toronto**, PID **74844**, after
+PID 28564 closes normally under existing execution-off startup authority. Native inspection verifies
+the exact setup-cycle path, one responding visible desktop, matching output/unchanged Core manifest,
+and no host permission, qualification packet or today's checkpoint. Receipt:
+`setup-cycle-switch-receipt.json`; manifest `setup-cycle-working-copy-hashes.json`. Current copy:
+`C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\setup-cycle-working-copy\TraderVI.WPF.exe`.
+Next operator Capture can wait for active desktop paper work before native reconciliation; the SQL
+lock clearance and actual checkpoint still require verification. No native orders or financial
+authority are created by the switch; existing references and original order IDs remain authoritative.

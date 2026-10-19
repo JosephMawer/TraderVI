@@ -88,7 +88,8 @@ and verified running at 15:15 with one owner/no permission, packet or checkpoint
 failing stage. The next native diagnostic is SQL 51413, a settings-lock timeout during reconciliation.
 A WPF-only barrier now sequences setup/enabled-host checks after active desktop paper cycles and
 defers new cycles during that work (199 focused checks/build pass; bounded wait; SQL fences/Core
-unchanged). Next install/verify native checkpoint, then same-copy restart/native review before
+unchanged). Coordinated copy 943f964b is verified running at 15:30 as PID 74844, no permission/
+packet/checkpoint. Next verify native checkpoint, then same-copy restart/native review before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 
