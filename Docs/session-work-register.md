@@ -85,13 +85,17 @@ table/panel. The operator accepts the explanation and authorizes Trading-only im
 confirm queued old-only exits when checks allow, even at a loss; shared holdings/protection remain and
 required exits reconcile before buys. Trading WPF now contains the compact account overview, table/panel
 and dropdown-to-existing-transition-review path. Other tabs/shared styles are unchanged. Actual strategy
-assignment/execution remains unfinished; Today and missing verified decisions are unavailable rather
-than fictional runtime defaults. WPF build, 194 focused tests and four offline synthetic renders pass;
+assignment/execution remains unfinished; missing verified decisions remain unavailable rather than
+fictional runtime defaults. The real-data follow-up accepts Wealthsimple's previous-close one-day view.
+Its captured native simple-return contract is now wired through the existing connection/refresh owner,
+with dated prior-day headings and no fallback to Overall or older complete points. WPF build and 233
+focused tests pass; the initial layout has four offline synthetic renders. Current native daily-read
+availability/operator comparison remain unverified; risk references and trading authority are unchanged;
 full decision-source integration remains open. The operator then authorized a rebuild/restart and push:
 normal Release build passes with existing warnings; no prior TraderVI process was running. The app
 launched at 22:15 Toronto and PID 20036 is responsive at 22:16. Operator UI feedback/native Trading
 binding verification remains pending; launch does not establish broker or execution readiness.
-Source/calculation qualification and proposed in-panel lookup remain open. Portfolio
+Current daily-read verification and proposed in-panel lookup remain open. Portfolio
 choice is explicitly deferred. Existing broker-return source
 fields differ from local-record complete-gain availability; no native broker read ran. The tentative
 Delphi Live preference stays context only; one engine/three independent paper portfolios is explained
@@ -106,7 +110,10 @@ Source review point: this October 18 chat through the accepted arrangement, gain
 explicit portfolio-choice deferral, Performance first/Today-default decisions, Overall switch, full account
 heading removal, compact overview figures/spacing, net-deposit removal and the accepted panel-only shares
 choice, accepted table/panel/explanations, Trading-only implementation authority, queued-exit clarification
-and the validated first WPF implementation, followed by authorized Release rebuild/launch and commit/push.
+and the validated first WPF implementation, followed by authorized Release rebuild/launch and commit/push,
+then the accepted native one-day definition and implemented/tested real-data reader. The operator
+explicitly defers rebuilding/restarting until concurrent strategy-switching work is ready; this daily
+increment is not installed in the running app yet.
 Operational trading activation is not inferred.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).

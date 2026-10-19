@@ -226,6 +226,26 @@ unavailable; existing return and linked management facts retain their actual con
 or qualify/alter family/comparison support. See the linked implementation record for limits.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
 
+### October 18 broker one-day performance follow-up
+
+The immediate problem is an unavailable Today card; its parent problem is a useful account overview,
+and the root goal is understanding actual account earnings independently of a strategy's paper results.
+The operator chooses Wealthsimple's one-day view: moves since the previous close, with the returned
+trading day's date visible on weekends. Overall remains a separately scoped broker return.
+
+Use native `simpleReturns.amount`, `rate` and `referenceDateTime` from the latest point in the captured
+`ONE_DAY` / `REGULAR` account graph. Request `includeSimpleReturns=true`; require its reference to match
+the graph's previous close, preserve the point's original valuation time and use Toronto dates in labels.
+The existing capture has two successful included-return responses, each with 79 CAD return points and
+a single reference matching previous close. This qualifies the captured display contract, not current
+service availability. No arithmetic on sampled deposits, local fills or open-position gains is substituted.
+
+Missing latest-point values remain missing; never select an older complete point or use Overall as
+Today. Malformed scope/currency/timestamps/references are rejected. A prior-date graph is explicitly
+dated rather than called Today, and a receipt older than five minutes is disclosed. This is display
+evidence only: the exact-boundary day-value reader, risk references, cash-flow proof, orders and strategy
+execution are unchanged. Current native availability and operator comparison remain separate checks.
+
 ## Review questions
 
 1. What should lead the Trading overview, and where should attention items appear?

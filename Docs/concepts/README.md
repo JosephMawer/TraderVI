@@ -5,7 +5,7 @@
 - [Wealthsimple authentication](wealthsimple-authentication.md) — observed password/OTP protocol, verified direct browser-session handoff, and remaining login integration work.
 - [Wealthsimple account-history contracts](wealthsimple-account-history-contracts.md) — September 16 capture findings, POSTED history support, reusable account-baseline queries and the unresolved null fill quantity.
 
-- [Connected trading workspace design and implementation](trading-workspace-redesign-draft.md) — October 18 Trading-only WPF increment implements Workspace, Today/Overall, the selected holding Buy/Sell panel and dropdown-to-transition-review path; build/tests/offline renders pass and authorized Release launch is responsive. Operator UI feedback, exact portfolio choice, daily-return qualification and full decision/execution integration remain open. Other tabs are unchanged.
+- [Connected trading workspace design and implementation](trading-workspace-redesign-draft.md) — October 18 Trading-only Workspace, Today/Overall, holding Buy/Sell panel and transition-review entry are implemented. Native previous-close one-day returns are now wired; build and 233 focused tests pass. Current daily-read/operator verification, portfolio choice and full decision/execution integration remain open. Other tabs are unchanged.
 - [Manual market-buy ticket](trading-workspace-redesign-draft.md#manual-market-buys--september-10-design-draft) — accepted editable-quantity ticket, shared selection actions and protected recovery; implemented under ADR-0075, native live submission unverified.
 
 - [Global settings design draft](global-settings-design-draft.md) — accepted central navigation, separate save/assign actions and immediate whole-account reassignment.

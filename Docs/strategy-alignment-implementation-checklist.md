@@ -572,8 +572,9 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [ ] Obtain the operator's review of the running Trading layout; process responsiveness does not prove native Trading bindings or broker/execution qualification.
 - [ ] Complete real switching/execution and qualified Hold/Sell source integration under existing account/protection/handover contracts; exact portfolio remains deferred.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
-- [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
-  availability before implementation claims. Missing Today must not display overall return as daily gain.
+- [x] Agree Wealthsimple's previous-close one-day definition; inspect captured native simple returns and implement/test a separate display reader with amount/rate/reference/as-of and dated prior-day headings. 233 focused checks and WPF build pass October 18.
+- [ ] Verify current native daily-read availability and compare the displayed return with Wealthsimple. Captured/offline evidence is not current operational verification; missing Today must never use Overall.
+- [ ] Install the daily-performance increment with the next combined rebuild/restart; operator explicitly chose to wait for concurrent strategy-switching work.
 - [x] Explain the recorded original Live paper book plus the Normal/Portfolio rules only comparison
   pair, independent ledgers and existing comparison promotion exclusion from source/ADRs only.
 - [x] Record explicit deferral of portfolio choice; clarify one engine/three paper portfolios again.

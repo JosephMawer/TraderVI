@@ -10,7 +10,15 @@
 records a local check of the ONE_DAY/REGULAR responses: 79 CAD points at five-minute intervals from
 09:30 to 16:00 Toronto, with offsets preserved. The shared client now implements the daily-value read
 and exact timestamp selection, tested offline. Native morning availability and compatibility with the
-chosen strategy's valuation still need verification; other prospective reads below remain unwired.
+chosen strategy's valuation still need verification.
+
+**October 18 display follow-up:** two captured `ONE_DAY` / `REGULAR` responses request
+`includeSimpleReturns=true`; each has 79 native amount/rate/referenceDateTime results, all CAD and
+referenced to previous close. `ReadTfsaDailyPerformanceAsync` now requests this fixed subset for
+Trading's performance card through the existing desktop connection/refresh owner. It preserves the
+latest point's timestamp, rejects ambiguous scope/references/times/currency and never falls back to
+an older complete return. It does not calculate earnings from net deposits or alter risk baselines.
+Current service availability and operator comparison remain unverified.
 
 The capture contains the account activity feed, one expanded historical order, current account
 financials, several account-chart ranges and supporting security/account queries. It contains no
@@ -57,7 +65,8 @@ It does not change order-submission code or enable new limit/stop-limit placemen
 Account-chart ranges observed: ONE_DAY, ONE_WEEK, ONE_MONTH, THREE_MONTHS, SIX_MONTHS, YEAR_TO_DATE,
 ONE_YEAR and ALL, with REGULAR session requests. An ALL chart can be sampled; its maximum is not
 automatically the lifetime closing high-water value required by the strategy's risk controls. The
-cash/settlement and baseline design remains open. Except for the September 21 daily graph reader,
+cash/settlement and baseline design remains open. Except for the September 21 daily graph reader
+and October 18 display-only native daily-return reader,
 these extra read contracts are documented for future implementation; none is an active strategy input yet.
 
 Public query texts, variable names (no values) and response envelope fields for twelve relevant

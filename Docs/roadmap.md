@@ -36,8 +36,11 @@ are in source; the dropdown opens the existing transition review. Other tabs rem
 Queue old-strategy-only exits as checks allow, including at a loss, preserving shared holdings/protection;
 confirmed required exits reconcile before new buys. Execution/automatic switching remains unfinished.
 The operator-authorized Release rebuild/launch is responsive as of October 18, 22:16 Toronto.
-Next obtain the operator's Trading layout feedback, qualify daily performance
-and complete verified decision/strategy execution integration. Exact portfolio choice stays deferred;
+The daily follow-up now reads Wealthsimple's native previous-close one-day return with original time
+and dated prior-session headings; build and 233 focused tests pass. Current native availability and
+operator comparison remain to verify. The operator defers installation/restart until concurrent
+strategy-switching work is ready. Next obtain Trading feedback and complete verified
+decision/strategy execution integration. Exact portfolio choice stays deferred;
 existing engine/family/comparison contracts remain. Remaining-screen order and detailed views stay open;
 do not redesign other screens during this bounded implementation pass.
 Existing operating priorities and execution prerequisites below remain.

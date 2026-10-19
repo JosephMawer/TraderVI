@@ -33,14 +33,15 @@ Things we punted on and need to revisit. Cleared as decisions are made
   outside implicit management. No new pacing or partial-sale rule is agreed.
 - **Implemented scope:** Trading-only WPF layout and dropdown-to-existing-transition-preview path;
   other tabs unchanged. Build, 194 focused tests and four synthetic WPF renders pass. Automatic execution,
-  daily-return qualification and full verified Hold/Sell source integration remain open. The operator-
+  full verified Hold/Sell source integration remains open. The operator-
   authorized Release rebuild/launch is responsive (October 18, 22:16 Toronto); operator UI feedback and
   native Trading/broker qualification remain pending.
-- **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
-  target window size and later screens' layouts/order. Existing broker return fields are
-  distinct from unavailable complete gain calculated from local records; percentage display/history
-  still need qualification. Today needs its own qualified result; never relabel overall return as
-  daily performance if that result is missing. Find stock remains a provisional unheld-stock route.
+- **Accepted daily source:** Wealthsimple's native one-day simple return since previous close;
+  preserve amount/rate/reference/valuation time and date prior-session responses explicitly. Implemented
+  through the existing connection and refresh loop, with 233 focused tests and WPF build passing.
+- **Open:** current native daily-read availability/operator comparison, target window size and later
+  screens' layouts/order. Native returns remain distinct from unavailable complete gain calculated
+  from local records. Missing daily values never use Overall. Find stock remains provisional.
 - **Tentative context:** the operator leans toward switching among Delphi Live portfolios, but asks
   for an explanation after forgetting there are multiple paper books. The recorded original paper
   book plus Normal/Portfolio rules only comparison pair are distinct accounts; comparison books are

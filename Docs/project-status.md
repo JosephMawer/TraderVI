@@ -29,10 +29,17 @@ restriction or qualification change is agreed. Actual portfolio choice is still 
 The operator accepts queuing old-strategy-only exits as checks allow, including at a loss, with current
 protection retained; shared holdings stay and required exits must reconcile before new buys (ADR-0079).
 Automatic switching/execution remains unfinished and disabled; no assignment or order was changed.
-Today remains unavailable until its daily source/calculation is qualified. Overall uses the broker's
-supplied amount/rate/period/as-of availability. Missing verified holding decisions are not called Hold;
+The subsequent real-data request accepts Wealthsimple's one-day view. Trading now requests the native
+latest `ONE_DAY` / `REGULAR` simple return, verifies its previous-close reference and preserves its
+valuation time. Prior-date results have an explicit dated heading; missing values never use Overall
+or an older complete point. The existing capture qualifies that contract; current native availability
+and operator comparison are still unverified. Overall retains its supplied amount/rate/period/as-of.
+The daily reader is display-only and isolated from risk/accounting/order behavior. It is not installed
+in the running app yet: the operator explicitly requests waiting for concurrent strategy-switching
+work before a combined rebuild/restart. Missing verified holding decisions are not called Hold;
 linked management records can explain planned exits and queued/pending/uncertain sales.
-.NET 10 WPF build and 194 focused tests pass. Four synthetic WPF renders at 1200/900/680 widths verify
+.NET 10 WPF build and 233 focused tests pass, including 39 new daily-reader/control checks.
+Four initial synthetic WPF renders at 1200/900/680 widths verify
 selection, command target, Today/Overall bindings and dropdown label, with no binding errors. Existing
 nullable and unused-variable compiler warnings remain; dependency audit was disabled for restore,
 so no fresh security assessment or full solution/SSDT qualification is claimed. Evidence and remaining
@@ -45,7 +52,8 @@ This verifies launch/readiness for operator review, not native Trading bindings,
 or strategy execution. Normal startup runs existing configured services; no separate migration,
 training, broker diagnostic, manual order or strategy activation was invoked. Earlier HTML concepts
 retain their browser-preview limitation. The operator also authorized committing/pushing the pending
-design/implementation checkpoints; remote synchronization is checked at this handoff.
+design/implementation checkpoints; those checkpoints were synchronized at `b7d70aa2`. The new daily
+reader follow-up is a separate local increment.
 
 **AI paper delivery / Dots saved-input trial, October 17, 2026:** the operator requested a
 remaining-work recap and asked about Dots instead of direct API calls. The reviewer foundation

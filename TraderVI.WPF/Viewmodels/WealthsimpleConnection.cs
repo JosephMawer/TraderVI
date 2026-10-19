@@ -264,6 +264,8 @@ public sealed partial class WealthsimpleConnection(IWealthsimpleSessionStore sto
         ReadAccountDataAsync(c => c.ReadTfsaAccountsAsync(ct), ct);
     public Task<WealthsimpleReadResult<WealthsimpleTfsaSnapshot>> ReadTfsaSnapshotAsync(WealthsimpleTfsaAccount account, CancellationToken ct = default) =>
         ReadAccountDataAsync(c => c.ReadTfsaSnapshotAsync(account, ct), ct);
+    public Task<WealthsimpleReadResult<WealthsimpleDailyPerformance>> ReadTfsaDailyPerformanceAsync(WealthsimpleTfsaAccount account, CancellationToken ct = default) =>
+        ReadAccountDataAsync(c => c.ReadTfsaDailyPerformanceAsync(account, ct), ct);
     public Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(WealthsimpleTfsaAccount account, CancellationToken ct = default) =>
         ReadAccountDataAsync(c => c.ReadTfsaPendingOrdersAsync(account, ct), ct);
     public Task<WealthsimpleReadResult<IReadOnlyList<WealthsimpleCanadianSecurity>>> FindCanadianSecuritiesAsync(string symbol, CancellationToken ct = default) =>

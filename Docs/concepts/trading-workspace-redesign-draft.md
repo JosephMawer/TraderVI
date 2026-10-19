@@ -145,9 +145,16 @@ actual saved-selection display; it does not approve a strategy, create SQL write
 The existing preview's family limits are implementation limits, not a new restriction on the accepted
 all-family product direction. Gradual automatic switching and broader family execution remain unfinished.
 
-Today shows **Unavailable** because no daily account-return source/calculation is qualified. Overall
-uses the existing broker amount/rate with the supplied period and original as-of availability; retrieval
-time never substitutes for return valuation time. The fictional HTML values are not runtime defaults.
+Today now reads the broker's native one-day simple return from `ONE_DAY` / `REGULAR` graph points,
+as agreed in the subsequent real-data request. Amount/rate come directly from the latest point and
+its reference must match previous close. Toronto dates determine Today versus an explicit dated heading
+on weekends or other prior-date responses; the original valuation time remains visible. Missing latest
+returns stay unavailable without falling back to an older point or Overall. A failed daily read does
+not erase loaded balances/holdings. Overall retains its separate broker period/as-of availability;
+retrieval time never substitutes for valuation time. The fictional HTML values are not runtime defaults.
+This display read uses the existing connection owner and refresh loop, including synchronized accounts;
+it does not change the exact-opening/risk reader, cash-flow ledger, database schema or execution.
+See [ADR-0068's follow-up](../adr/0068-main-account-trading-overview.md#october-18-broker-one-day-performance-follow-up).
 The broker holding panel reads verified linked management records for exact security/symbol/quantity
 matches: planned required exits, queued intents, acknowledgements and uncertain sales have distinct
 states. Missing explicit current Hold/Sell results stay **Await decision**. This does not derive new
@@ -155,7 +162,7 @@ signals or pretend the unintegrated execution host has evaluated current prices.
 decision/trigger presentation remains a source-integration dependency. Broker rows remain distinct from
 the separately scoped recorded gains available in the legacy recorded-account section.
 
-Validation: .NET SDK 10.0.401; focused WPF build passes; 194 account-reader/control/presentation tests
+Initial layout validation: .NET SDK 10.0.401; focused WPF build passes; 194 account-reader/control/presentation tests
 pass, including six new workspace/decision tests. Four isolated synthetic WPF renders at 1200/900/680px
 exercise holding selection and exact Sell target, Today/Overall bindings and dropdown label with no
 binding errors; inspected wide and stacked layouts. Evidence is in ignored
@@ -170,6 +177,18 @@ in ignored `artifacts/ui-redesign-20261018/`. No old process was running to clos
 bindings/operator visual feedback and broker/execution qualification remain unverified. Normal desktop
 startup uses existing configured services; no separate migration, training, broker diagnostic, manual
 order or strategy activation was invoked. The operator requests committing/pushing the pending work.
+
+The subsequent daily-reader increment passes 233 focused account/control/presentation checks (39 new
+cases) and an isolated WPF build, with existing compiler warnings. Coverage includes native amount/rate,
+scope/time/reference validation, missing latest values, Toronto dates, stale receipts, connection ownership,
+synchronized refresh, account changes/disconnects and isolated display failures. Evidence:
+`artifacts/trading-daily-performance-20261018/`. Four additional synthetic WPF renders at 1200/900/680px
+verify populated daily amount/rate, dated prior-day heading, selection and period bindings with no
+binding errors; wide and stacked layouts inspected. Preview restore initially failed under network
+sandboxing and succeeded with approved NuGet access; the offline fixture then passed. No new live
+broker diagnostic, database action or order
+was run. The operator explicitly chooses to wait for concurrent strategy-switching work before a
+combined rebuild/restart, so this increment is not yet installed in the running app.
 
 ### Account gains and engine/portfolio clarification
 
@@ -196,11 +215,11 @@ as two supporting figures, and moves the design focus to holdings/table-panel re
 (deposits less withdrawals) can explain contributed capital in account history, but add little to this
 holdings-focused summary. Removing the display does not remove cash-movement records or change return
 calculations. Account history is the recommended later location; its detailed layout is not decided.
-Choosing Today is a display decision, not qualification of a daily-return producer or calculation.
-The daily reference boundary, confirmed cash movements, percentage method and native source coverage
-remain implementation work; existing dated day-value/risk readers do not by themselves prove a daily
-performance result. If daily performance is unavailable, keep Today labelled and show unavailable;
-never substitute the broker's overall return under a Today label. Overall retains the actual provider
+The later accepted daily definition uses Wealthsimple's own one-day simple return since previous close,
+including its amount/rate and dated valuation point; no local cash-movement calculation is introduced.
+Existing dated day-value/risk readers do not by themselves prove a daily performance result. If the
+daily result is unavailable, show unavailable; never substitute the broker's overall return under a
+Today label. Prior-date responses show their actual date. Overall retains the actual provider
 period/as-of context. Switching the headline period does not silently change the separately labelled
 open-position or last-30-day recorded-sale figures. No valuation/risk formula changes here.
 

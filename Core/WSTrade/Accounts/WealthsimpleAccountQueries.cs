@@ -4,6 +4,26 @@ namespace Core.WSTrade.Accounts;
 // Only these fixed query documents can reach the authenticated resource endpoint.
 internal static class WealthsimpleAccountQueries
 {
+    // Display-only subset of FetchAccountGraphData in the September 16 capture.
+    // Use the broker's simple return and reference, not arithmetic on sampled values/deposits.
+    internal const string DailyPerformance = """
+        query TraderVITfsaDailyPerformance($id: ID!, $currency: Currency!, $timeRange: GraphTimeRange!, $marketSession: GraphMarketSession!, $includeSimpleReturns: Boolean = false) {
+          account(id: $id) { id financials { currentCombined(currency: $currency) {
+            graphData(timeRange: $timeRange, marketSession: $marketSession) {
+              previousClose { dateTime }
+              data {
+                dateTime
+                simpleReturns @include(if: $includeSimpleReturns) {
+                  amount { amount currency }
+                  rate
+                  referenceDateTime
+                }
+              }
+            }
+          } } }
+        }
+        """;
+
     // Minimal read from the September 16 account-activity capture. Keep previous close
     // separate from timed points; neither a sampled maximum nor a later point is an opening.
     internal const string DayValues = """

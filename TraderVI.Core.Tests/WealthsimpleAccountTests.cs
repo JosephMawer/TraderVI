@@ -382,6 +382,9 @@ public partial class WealthsimpleAccountTests
             Task.FromResult(new WealthsimpleReadResult<WealthsimplePendingOrders>(WealthsimpleReadStatus.Success, new(a, DateTimeOffset.UtcNow, [])));
         public Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(WealthsimpleTfsaAccount a, CancellationToken ct) =>
             ReadOrders(a);
+        public Func<WealthsimpleTfsaAccount, Task<WealthsimpleReadResult<WealthsimpleDailyPerformance>>> ReadPerformance = _ =>
+            Task.FromResult(new WealthsimpleReadResult<WealthsimpleDailyPerformance>(WealthsimpleReadStatus.Unavailable));
+        public Task<WealthsimpleReadResult<WealthsimpleDailyPerformance>> ReadTfsaDailyPerformanceAsync(WealthsimpleTfsaAccount a, CancellationToken ct) => ReadPerformance(a);
         public void Disconnect() { IsConnected = false; SessionRevision++; PropertyChanged?.Invoke(this, new(null)); }
     }
     private static object Account(string id, string unified = "SELF_DIRECTED_TFSA", string branch = "TR", bool open = true) => new { id, type = "tfsa", branch, unifiedAccountType = unified, isOpen = open, archivedAt = (string)null, closedAt = (string)null, nickname = "TFSA", currency = "CAD" };

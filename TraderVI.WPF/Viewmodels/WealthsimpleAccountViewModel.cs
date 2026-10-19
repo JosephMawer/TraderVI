@@ -17,6 +17,8 @@ public interface IWealthsimpleAccountSource : INotifyPropertyChanged
     Task<WealthsimpleReadResult<IReadOnlyList<WealthsimpleTfsaAccount>>> ReadTfsaAccountsAsync(CancellationToken ct);
     Task<WealthsimpleReadResult<WealthsimpleTfsaSnapshot>> ReadTfsaSnapshotAsync(WealthsimpleTfsaAccount account, CancellationToken ct);
     Task<WealthsimpleReadResult<WealthsimplePendingOrders>> ReadTfsaPendingOrdersAsync(WealthsimpleTfsaAccount account, CancellationToken ct);
+    Task<WealthsimpleReadResult<WealthsimpleDailyPerformance>> ReadTfsaDailyPerformanceAsync(WealthsimpleTfsaAccount account, CancellationToken ct) =>
+        Task.FromResult(new WealthsimpleReadResult<WealthsimpleDailyPerformance>(WealthsimpleReadStatus.Unavailable));
 }
 
 // Scheduling/presentation only; the host injects the shared reconciliation/history workflow.
@@ -56,7 +58,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         set
         {
             if (ReferenceEquals(selected, value) || IsBusy || (value != null && !Accounts.Contains(value))) return;
-            selected = value; Snapshot = null; PendingOrders = null; message = value == null ? "Choose a self-directed TFSA." : "Ready to load the selected TFSA.";
+            selected = value; Snapshot = null; PendingOrders = null; dailyPerformance = null; message = value == null ? "Choose a self-directed TFSA." : "Ready to load the selected TFSA.";
             ManagedStrategy?.Invalidate(true);
             selectedHolding = null;
             TradeSyncStatus = "Trade synchronization has not checked this account selection.";
@@ -142,7 +144,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         activeRead = cancellation;
         ManagedStrategy?.Invalidate();
-        IsBusy = true; attempted = true; PendingOrders = null; rowSnapshot = null; holdingRows = [];
+        IsBusy = true; attempted = true; PendingOrders = null; dailyPerformance = null; rowSnapshot = null; holdingRows = [];
         message = "Reading your TFSA from Wealthsimple…"; Notify();
         try
         {
@@ -176,6 +178,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
                     else strategy.Invalidate(true);
                 }
                 if (!IsCurrent(expected)) return;
+                await ReadDailyPerformanceAsync(selected, expected, cancellation.Token);
                 succeeded = true;
                 return;
             }
@@ -191,6 +194,8 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
                     Failure(orders.Status, orders.Stage);
                 else message += " Pending orders could not be verified; transition review is blocked.";
                 if (PendingOrders is null) TradeSyncStatus = "Trade synchronization is waiting for verified pending-order information.";
+                if (IsCurrent(expected) && selected != null && Snapshot != null)
+                    await ReadDailyPerformanceAsync(selected, expected, cancellation.Token);
             }
             else Failure(result.Status, result.Stage);
         }
@@ -233,7 +238,7 @@ public sealed partial class WealthsimpleAccountViewModel : INotifyPropertyChange
         {
             activeRead?.Cancel();
             ManagedStrategy?.Invalidate(true);
-            revision = source.SessionRevision; Accounts = []; selected = null; Snapshot = null; PendingOrders = null; attempted = false;
+            revision = source.SessionRevision; Accounts = []; selected = null; Snapshot = null; PendingOrders = null; dailyPerformance = null; attempted = false;
             selectedHolding = null;
             failures = 0; nextRefresh = default;
             TradeSyncStatus = "Trade synchronization requires the current sign-in.";

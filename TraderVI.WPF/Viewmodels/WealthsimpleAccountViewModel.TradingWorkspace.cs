@@ -1,27 +1,52 @@
 #nullable enable
 using Core.Trader.Promotion;
 using Core.WSTrade.Orders;
+using Core.WSTrade.Accounts;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TraderVI.WPF.Viewmodels;
 
 public sealed partial class WealthsimpleAccountViewModel
 {
     private bool overallPerformance;
+    private WealthsimpleDailyPerformance? dailyPerformance;
+    private static readonly TimeZoneInfo PerformanceToronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+    private static DateOnly TorontoDate(DateTimeOffset at) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(at, PerformanceToronto).DateTime);
     private WealthsimpleHoldingRow? selectedHolding;
     public bool ShowOverallPerformance
     {
         get => overallPerformance;
         set { if (overallPerformance == value) return; overallPerformance = value; Notify(); }
     }
-    public string PerformanceLabel => overallPerformance ? "Overall account performance · CAD" : "Today's performance · CAD";
-    public string PerformanceAmount => overallPerformance ? ReturnText : "Unavailable";
-    public string PerformanceRate => overallPerformance && Snapshot?.ReturnRate is { } rate
+    public string PerformanceLabel => overallPerformance ? "Overall account performance · CAD" :
+        dailyPerformance?.AsOf is { } at && TorontoDate(at) != TorontoDate(clock.GetUtcNow())
+            ? $"{TorontoDate(at):MMM d, yyyy} performance · CAD" : "Today's performance · CAD";
+    public string PerformanceAmount => overallPerformance ? ReturnText : dailyPerformance?.Amount is { } amount
+        ? amount.Amount.ToString("+#,##0.00;-#,##0.00;0.00") + " CAD" : "Unavailable";
+    public string PerformanceRate => (overallPerformance ? Snapshot?.ReturnRate : dailyPerformance?.Rate) is { } rate
         ? rate.ToString("+0.00%;-0.00%;0.00%") : "";
     public string PerformanceContext => overallPerformance ? $"{ReturnPeriod} · {ReturnAsOf}"
-        : "A verified daily account return is not available. Overall uses the broker's supplied period.";
+        : dailyPerformance?.ReferenceAt is { } reference && dailyPerformance.AsOf is { } at
+            ? $"Wealthsimple one-day return · since {TradingAccountOverview.Local(reference.UtcDateTime)} · as of {TradingAccountOverview.Local(at.UtcDateTime)}." +
+                (clock.GetUtcNow() - dailyPerformance.RetrievedAt > TimeSpan.FromMinutes(5) ? " Refresh overdue." : "")
+            : IsBusy ? "Reading Wealthsimple's one-day performance…" : "Wealthsimple's one-day return is unavailable. Refresh to try again.";
+
+    private async Task ReadDailyPerformanceAsync(WealthsimpleTfsaAccount account, long expected, CancellationToken ct)
+    {
+        try
+        {
+            var result = await source.ReadTfsaDailyPerformanceAsync(account, ct);
+            if (IsCurrent(expected) && ReferenceEquals(selected, account))
+                dailyPerformance = result.Status == WealthsimpleReadStatus.Success && ReferenceEquals(result.Data?.Account, account)
+                    ? result.Data : null;
+        }
+        catch (OperationCanceledException) { throw; }
+        catch { /* A display-only read must not discard successfully loaded balances/holdings. */ }
+    }
 
     public WealthsimpleHoldingRow? SelectedHolding
     {

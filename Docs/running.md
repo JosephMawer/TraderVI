@@ -281,9 +281,15 @@ acknowledgement/fill semantics, attempt markers and remaining integration work.
 ## TFSA strategy transition preview
 
 **October 18 Trading UI increment (Release rebuilt/launched at operator request):** Trading opens with compact
-Today/Overall performance and a four-column holdings table beside the selected holding panel. Today
-remains unavailable until daily-return qualification; Overall retains the supplied Wealthsimple period
-and as-of context. Shares/average cost and the existing Buy more / Sell all commands are in the panel.
+Today/Overall performance and a four-column holdings table beside the selected holding panel. Today's
+follow-up reads native Wealthsimple `ONE_DAY` / `REGULAR` simple returns through the existing signed-in
+connection and five-minute refresh. Latest-point amount/rate use the previous-close reference and
+original valuation time; weekends/prior-date responses have a dated heading. Missing daily values stay
+unavailable without using an older point or Overall. Daily-read failure leaves loaded balances/holdings
+available; an overdue receipt is disclosed. Overall retains its supplied period/as-of context.
+Shares/average cost and the existing Buy more / Sell all commands are in the panel.
+The daily-reader follow-up is built/tested in source, but installation/restart is explicitly deferred
+until concurrent strategy-switching work is ready; the earlier running build still shows Unavailable.
 The strategy dropdown opens the existing transition review for that exact source; it does not change
 the saved assignment or start execution. Unsupported comparison portfolios remain disabled. On return,
 the dropdown restores the actual saved strategy. Account connection/import/risk/stop-buying and pending
