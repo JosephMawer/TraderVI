@@ -207,8 +207,15 @@ follow later. No new WPF
 implementation, accounting change, broker operation or execution authority follows from this selection.
 The next holdings refinement accepts Stock, Position value, Open gain and Strategy status as the table
 columns, with shares only in the selected holding panel alongside average cost. The concept proposes
-grouping position facts before the strategy explanation and retains both Buy/Sell below; that visual
-treatment remains for review. No holding, valuation or execution behavior changes.
+grouping position facts before the strategy explanation and retains both Buy/Sell below; the operator
+accepts that grouping. The next refinement requires a clear Hold/Sell reason without repeated “saved
+strategy evaluation” wording. Decision, concrete reason and next trigger/step are proposed, with actual
+check time, missing-data state and order-submission state distinct. Fictional explanation thresholds do
+not define new rules. One selected strategy appears in a dropdown at the former portfolio placeholder
+as the entry point for manual switching; actual portfolio selection remains deferred. Existing exact
+strategy review, ownership, protection and handover contracts remain (ADRs 0079/0081/0085/0086).
+The mock's dropdown changes local example state only; real switch/review interaction remains to design.
+No holding, valuation or execution behavior changes.
 See the [current draft](../concepts/trading-workspace-redesign-draft.md#trading-workspace-refinement).
 
 ## Review questions

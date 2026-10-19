@@ -28,7 +28,9 @@ belong in the holding panel. Portfolio choice is explicitly deferred; existing e
 comparison-selection contracts remain. Today is the default with an Overall option; the single-account
 concept now omits the whole account heading block and uses smaller figures/tighter overview spacing.
 Net deposits are removed from the overview. Shares are selected for the panel only; the four-column
-holdings concept and grouped position/strategy panel are prepared. Next review the panel treatment, then
+holdings concept and grouped position/strategy panel are accepted. A clear decision/reason/next-trigger
+draft and strategy dropdown are prepared; real switching must preserve existing review/handover contracts.
+Next review explanation treatment and switch interaction, then
 remaining Trading visual details and desktop dimensions before
 other screens. Daily performance source/calculation qualification remains an implementation dependency.
 Remaining-screen order and WPF implementation are still open.

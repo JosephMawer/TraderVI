@@ -13,7 +13,12 @@ draft and overview figures/spacing are compacted; currency remains beside figure
 now removed from this overview, leaving account value/cash; cash-movement records/calculations are
 unchanged. The operator selects shares in the holding panel only. The concept now uses Stock, Position
 value, Open gain and Strategy status columns; a proposed panel refinement groups position facts before
-the strategy explanation, with both Buy/Sell below. Panel styling remains for review. Daily performance source/
+the strategy explanation, with both Buy/Sell below; the operator accepts that grouping. The next draft
+shows plain Hold/Sell reasons, rule evidence and next trigger/step, with missing data and submission
+state distinct. Repeated “saved strategy evaluation” wording is removed. A dropdown at the portfolio
+placeholder shows one selected fictional strategy and changes local table/panel examples together.
+Actual portfolio choice and real switch/review interaction remain deferred/open; no assignment changes.
+Daily performance source/
 calculation qualification and in-panel stock lookup remain open; fictional daily values are not native
 evidence. One Delphi Live
 engine runs the recorded original paper book plus two comparison books; comparison selection remains

@@ -20,8 +20,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   calculations are unchanged. Account value first remains design history.
 - **Accepted table decision:** Stock, Position value, Open gain and Strategy status columns;
   shares appear only in the holding panel alongside average cost.
-- **Provisional panel treatment:** position figures and share/cost/price facts precede strategy
-  explanation; both Buy/Sell remain below. Review visual treatment and remaining table details next.
+- **Accepted panel grouping:** position figures and share/cost/price facts precede strategy
+  explanation; both Buy/Sell remain below. Explain why Hold/Sell without repeated “saved strategy
+  evaluation” wording; retain actual check time and missing-data state.
+- **Accepted strategy control:** one selected strategy dropdown at the former portfolio placeholder
+  is the manual-switch entry point. Exact portfolio is deferred; real switch/review interaction remains
+  open under existing reviewed handover/protection contracts.
+- **Provisional explanation:** decision, concrete reason/evidence and next trigger/step; distinguish Sell
+  from submitted/sold. Fictional examples do not set thresholds or imply qualified real strategy choices.
 - **Open:** daily reference boundary, cash-flow/percentage calculation and source availability,
   target window size and later screens' layouts/order. Existing broker return fields are
   distinct from unavailable complete gain calculated from local records; percentage display/history

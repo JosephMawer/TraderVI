@@ -42,7 +42,10 @@ train, collect market data or trade. Earlier accepted product behavior remains a
 | Accepted header cleanup | Remove the entire Main account / Example TFSA / Canadian dollars heading block, following the earlier Trading-title/right-hand-badge removal. This single-account view does not need a repeated account title; retain currency beside figures and source/authority context. |
 | Accepted density refinement | Reduce the performance amount/percentage and tighten overview spacing so the numbers occupy less space. |
 | Accepted holdings columns | Stock, position value, open gain and strategy status. Shares belong in the selected holding panel only, alongside average cost. |
-| Provisional panel refinement | Stock identity → position value/open gain → shares, average cost and saved price/time → strategy status/explanation → Buy/Sell. Review the visual treatment next. |
+| Accepted panel grouping | Stock identity → position value/open gain → shares, average cost and saved price/time → strategy status/explanation → Buy/Sell. The operator says this looks good. |
+| Accepted explanation direction | Clearly explain why Hold or Sell; remove repeated “saved strategy evaluation” phrasing. Retain a compact actual check time and missing-data state. |
+| Accepted strategy control placement | One selected account strategy, shown as a dropdown where “Portfolio to be selected” was, as the entry point for manual portfolio/strategy switching. Exact portfolio choice remains deferred. |
+| Provisional explanation treatment | Decision → concrete reason/evidence → next exit trigger or next step; show order state separately from Sell. Current examples/thresholds are fictional, not selected rules. |
 | Deferred by operator | Exact portfolio choice. The earlier tentative Delphi Live preference is context only; no assignment, changed comparison eligibility or broader family/AI scope change is agreed. |
 | Open | Daily performance source/baseline/cash-flow/percentage qualification, visual styling, target window dimensions and remaining screens' layouts/order. |
 | Deferred by operator | Detailed drill-down layouts until the fresh main layout is established. |
@@ -94,9 +97,26 @@ The current integrated `tradervi-trading-performance-first.html` subsequently ad
 **shares in the panel only** choice. Its table has four columns: stock, position value, open gain and
 strategy status, with stock name beneath the symbol and a selected-row highlight. The panel groups
 position figures and share/cost/price facts before the strategy explanation, with both trade controls
-below. This panel grouping is a proposed visual refinement, not a newly accepted behavior contract.
+below. The operator accepts this visual grouping and requests refining the strategy explanation next.
 Saved-price and evaluation times remain separate; dated-price warnings stay visible. Selection changes
 the local fictional panel only. Detailed views, source qualification and real order tickets remain open.
+
+**Strategy decision refinement:** the panel now demonstrates Hold, Sell and Await data without repeating
+“saved strategy evaluation.” Hold explains the unmet exit and a concrete exit trigger; Sell explains
+the triggered rule and separately says whether an order was submitted. Await data does not imply a
+current Hold. A short check time remains. Prices/protection levels and continuation failures in this
+concept are fictional examples of explanation structure, not new thresholds, rule changes or verified
+decision outputs. Implementation must use the exact selected strategy's actual applicable rules and
+facts, including manual/unmanaged ownership and existing independent protection where relevant.
+
+The strategy strip now contains a labelled native dropdown in the former placeholder's position.
+Two explicitly fictional Delphi Live examples demonstrate a single selected strategy changing the
+table/panel explanation together; account values, shares, costs and history stay fixed. These examples
+are not the comparison books or qualified real choices. The actual portfolio remains deferred; wider
+family support and current comparison-selection exclusions remain unchanged. This mock changes local
+display state only. Real assignment must retain the existing reviewed exact-version handover, account,
+order and protection contracts (ADRs 0079/0081/0085/0086); dropdown placement does not authorize immediate
+live assignment or an order. Detailed switch/review interaction remains to design.
 
 ### Account gains and engine/portfolio clarification
 
@@ -108,8 +128,9 @@ must not be added to reconstruct whole-account return. Availability controls ill
 return without turning it into zero. The operator now selects **Performance first** and explicitly
 defers portfolio choice. The operator then chooses **Today by default with an Overall option**. The integrated full-screen
 `tradervi-trading-performance-first.html` combines that overview with the accepted Trading arrangement
-and Buy/Sell panel. Its strategy strip is a design placeholder, not a statement that the actual account
-assignment is empty or has changed. Earlier concept files preserve the alternatives and design history.
+and Buy/Sell panel. Its initial strategy placeholder is subsequently replaced by the fictional dropdown
+described above; neither represents the actual account assignment or a change to it. Earlier concept
+files preserve the alternatives and design history.
 
 The current integrated draft has functional local Today/Overall controls that update the headline
 amount, percentage and period together. The operator subsequently requests removing the entire

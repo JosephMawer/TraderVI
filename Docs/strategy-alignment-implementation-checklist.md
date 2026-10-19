@@ -550,7 +550,10 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Remove net deposits from the concept overview; retain account value/cash and existing financial records/calculations.
 - [x] Select shares in the panel only and prepare the four-column holdings concept (Stock, Position value, Open gain, Strategy status).
 - [x] Prepare a panel refinement grouping position facts before strategy explanation and both Buy/Sell; wrapper/script checks only.
-- [ ] Review the proposed holding-panel visual treatment and remaining table details.
+- [x] Accept the position/strategy panel grouping; request clear Hold/Sell reasons without repeated “saved strategy evaluation” wording.
+- [x] Prepare decision/reason/evidence/next-trigger examples, with Await data and submission state distinct; wrapper/script checks only.
+- [x] Agree one selected strategy dropdown at the portfolio placeholder for manual switching; wire local fictional table/panel context together.
+- [ ] Review explanation treatment and real switch/review interaction under existing account/protection/handover contracts; exact portfolio remains deferred.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [ ] Qualify daily performance source/reference boundary, cash-flow handling, percentage method and
   availability before implementation claims. Missing Today must not display overall return as daily gain.
