@@ -13,6 +13,11 @@ This directory records the exact schema scripts applied to `TraderDB` after adop
   comparison correction; SSDT build and native prepared-successor validation pass. No account/profile
   rewrite. All three scripts used the fresh verified rollout backup; do not replay installed migrations.
 
+- `20261018_046_AddReadOnlyDiagnosticUser.sql`: security-only migration installed October 18 for
+  ADR-0091's fixed local diagnostic helper, after a fresh verified backup/hash-matched copy. It adds
+  a loginless dbo-SELECT user; no application rows or existing identity permissions change. Native
+  permission and syntax checks are documented in `Operations/ReadOnlyChecks/README.md`.
+
 ## Naming
 
 Use UTC-independent local calendar order and a same-day sequence:

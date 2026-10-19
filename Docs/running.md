@@ -1,5 +1,16 @@
 # Running TraderVI
 
+## Read-only local database diagnostics
+
+Use the operator-authorized [fixed installed helper](../Operations/ReadOnlyChecks/README.md) for
+task-relevant local SQL reads. Submit reviewed SELECT-based SQL through the ignored mailbox, run
+the documented constant command separately, and match the response's query hash before reading
+private results. Do not broaden sqlcmd/PowerShell approval or use an unrestricted fallback.
+The helper's installed code, SQL-user permissions and syntax policy enforce the boundary. Existing
+chats need a Codex restart to reload the rule. Saved broker-logins/current-account API reads remain
+separate; a database approval does not cover Windows-protected broker credentials. Installation
+evidence and limits are in [project status](project-status.md) and ADR-0091.
+
 ## Dots: one saved-input replay
 
 The operator authorized one historical Dot review October 17; the Dot is ready. The prepared private

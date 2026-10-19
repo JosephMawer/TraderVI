@@ -243,4 +243,8 @@
     <Build Include="dbo/Triggers/AiPortfolioReview_Immutable.sql" />
     <None Include="Migrations/20260930_042_AddAiPortfolioReview.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Security/TraderVIReadOnlyChecks.sql" />
+    <None Include="Migrations/20261018_046_AddReadOnlyDiagnosticUser.sql" />
+  </ItemGroup>
 </Project>

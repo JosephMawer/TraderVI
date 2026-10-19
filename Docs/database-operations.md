@@ -1,5 +1,8 @@
 # TraderDB backup and schema-change operations
 
+For ordinary local inspection, use the [installed read-only helper](../Operations/ReadOnlyChecks/README.md)
+under ADR-0091. Its SQL-user/syntax boundary and saved rule do not authorize migrations or other writes.
+
 This is the operational authority for protecting and changing the local `TraderDB` database. The design decision is recorded in ADR-0018.
 
 ## Chosen operating model

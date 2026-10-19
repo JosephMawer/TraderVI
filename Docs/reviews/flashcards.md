@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Local diagnostic permissions — October 18
+
+- **Q:** What enforces the local helper's read-only access? **A:** SQL Server's loginless SELECT user and irreversible session context, plus a SQL parser that rejects mutation, procedure and external/cross-database routes before connection. A SELECT label or read-only connection hint alone does not enforce it. (ADR-0091)
+- **Q:** Does the SQL helper approval cover a Windows-protected broker login? **A:** No. The fixed local SQL path excludes broker credentials and broker API reads; those require their separate scoped authority. Existing chats must reload saved rules before using the SQL path. (ADR-0091)
+
 ### Four-screen visual redesign — October 18 exploration
 
 - **Q:** What powers Trading's one-day performance? **A:** Wealthsimple's own latest ONE_DAY/REGULAR simple-return amount/rate, referenced to previous close. Preserve its valuation time and date prior-day results explicitly; a missing latest return never falls back to Overall or an older complete point. This display is not a saved trading-risk baseline. (ADR-0068, October 18 follow-up)

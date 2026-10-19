@@ -28,6 +28,7 @@ After the common startup above, use the route matching the work; follow addition
 - Local commits are authorized under the commit cadence below. Never push, create a pull request, deploy a database, publish artifacts, train models, or access external market services unless the user explicitly requests that operation.
 - Do not launch Hermes, Hercules, Delphi, TraderVI, Oracle, database backfills, or Sandbox probes merely to validate a code change. These programs can call external services, train models, or mutate SQL Server.
 - Prefer read-only inspection, focused unit tests, and builds for routine validation. Ask before running workflows with database, model-artifact, trading-record, or external-service side effects.
+- For task-relevant local database reads, use the operator-authorized [installed read-only helper](Operations/ReadOnlyChecks/README.md). Submit SQL through its ignored mailbox and run the exact fixed command separately; its narrow saved approval permits outside-sandbox execution. Verify the receipt's query hash. Do not request a new ad hoc sqlcmd approval or widen shell permissions when this path suffices. Failed permission checks require investigation; do not fall back to an unrestricted connection. Setup/upgrade and database writes still require their own authority.
 - Never expose connection strings, credentials, API keys, private market/trading data, or model artifacts in output or commits.
 
 ## Build and test

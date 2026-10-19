@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+**Local read-only diagnostic access, October 18, 2026:** the operator-authorized fixed helper is
+installed outside sandbox-writable roots with a narrow no-profile `-File` approval. Migration 046
+adds a loginless dbo-SELECT user; no application rows or existing identities' permissions changed.
+A fresh checksum-verified backup and hash-matched destination copy preceded installation; remote
+sync/restore qualification is not claimed. The v2 helper has 33 passing offline SQL-policy cases,
+12 passing native checks and a successful installed-command smoke read. Its standalone Release build
+and the SSDT database project build pass. Dependency restore used the local cache with NuGet auditing
+disabled; no fresh dependency-security assessment or complete solution qualification is claimed.
+Initial native DML-denial evidence is retained separately. The v2 helper also rejects cross-database/
+procedure routes before connecting. The prior broad sqlcmd approval
+is removed. Existing Codex chats need a restart to reload rules. This covers local SQL diagnostics;
+the separate broker/Windows-protected-login prompt remains outside its scope. No broker request,
+order, collection/training, application restart or push was performed by this setup.
+[Procedure and evidence limits](../Operations/ReadOnlyChecks/README.md), [ADR-0091](adr/0091-local-read-only-database-checks.md).
+
 **Delphi Live → TFSA assessment, October 18, 2026:** the operator requests the best-performing
 Live variant and the fastest path toward Monday, October 19. SELECT-only paper evidence through
 October 16 ranks Normal -0.71%, Original -1.28%, rules-only -3.57% since inception; all are negative.

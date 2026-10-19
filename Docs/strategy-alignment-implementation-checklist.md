@@ -32,6 +32,11 @@ record them. A prepared migration or passing test never proves broker readiness.
 
 ### Done
 
+- [x] Install and verify the reusable local read-only SQL diagnostic path (October 18, ADR-0091):
+  restricted loginless principal, syntax-limited helper outside sandbox-writable roots and narrow
+  saved invocation rule. See [status](project-status.md) for 33 offline/12 native checks, backup and
+  installed-read evidence. Existing chats must reload rules; broker reads and live activation remain separate.
+
 - [x] Implement/test the AI Momentum API/proposal foundation (September 26, ADR-0087): explicit
   disabled factory, bounded Astra Responses client, shared durable spending reservations and strict
   portfolio proposals with explained discretionary exceptions. Forty synthetic cases are included

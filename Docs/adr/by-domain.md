@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0091](0091-local-read-only-database-checks.md) — Fixed local read-only SQL diagnostics and narrow command approval
 - [ADR-0088](0088-source-symbol-aliases-for-monitoring.md) — Resolve monitoring references without rewriting account history
 - [ADR-0087](0087-ai-momentum-portfolio-boundaries.md) — AI Momentum scope, budgeted client and proposal-only boundary
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — Any portfolio and ongoing TFSA management until pause or switch
@@ -94,6 +95,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## data-pipeline
 
+- [ADR-0091](0091-local-read-only-database-checks.md) — SQL-enforced read-only diagnostic identity and syntax boundary
 - [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Stable intraday source context and actual-store-time causal waits
 
 - [ADR-0078](0078-isolated-latest-source-nightly-builds.md) — Verified current-source copies and locked isolated builds
