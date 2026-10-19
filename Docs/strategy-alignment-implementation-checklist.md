@@ -135,6 +135,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   normal prior closure, one responding visible desktop and absent host permission/packet/checkpoint.
 - [ ] Verify actual checkpoint capture in this new copy. Failed attempts do not count
   as a checkpoint, restart proof or qualification. Preserve the saved baseline and original orders.
+- [x] Inspect continued generic capture failure and verify native checkpoint/packet/permission files
+  remain absent. Prepare WPF-only stage/category diagnostics across native read/validation/save
+  boundaries; nine focused checks/build pass, mapping-corrected Core unchanged.
+- [ ] Install staged diagnostic copy and identify/correct the remaining native failure. No checkpoint
+  or qualification success may be inferred from the storage-mapping fix or passing offline tests.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and

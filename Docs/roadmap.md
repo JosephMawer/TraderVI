@@ -82,7 +82,10 @@ is unlocated. Reopened setup now confirms the original saved references. Checkpo
 a four-column/three-constructor storage-readiness mapping bug. The narrow record fix preserves every
 readiness check (257 focused tests/WPF build pass; 2,614 full offline tests pass/nine native skips).
 Corrected copy 71207c86 starts at 15:06, hashes/one responding owner/no authority/checkpoint verified.
-Next first checkpoint, then same-copy restart/native review before packet/approval/enable. No baseline
+The next capture still fails generically; native inspection confirms no checkpoint file. A WPF-only
+stage/category diagnostic (nine focused checks/build pass, Core unchanged) is prepared. Next install
+and inspect the failing stage, then successful checkpoint/same-copy restart/native review before
+packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

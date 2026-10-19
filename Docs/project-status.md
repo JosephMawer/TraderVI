@@ -159,8 +159,12 @@ becomes an optional constructor argument, retaining false for older three-argume
 database-free mapping cases and the broader 257 focused tests pass; WPF Release passes. A separate
 storage-shape copy has a new Core hash; 2,614 full offline tests pass with nine native skips. The
 **71207c86** copy starts at **15:06:33 Toronto**, PID **73824**, after normal prior-process closure:
-hashes/one responding owner/absent host permission, packet and checkpoint verified. Next capture
-its first checkpoint, then same-copy restart/native review. Existing
+hashes/one responding owner/absent host permission, packet and checkpoint verified. The operator's
+next capture still reports an unexpected failure; native file-existence inspection confirms no
+checkpoint, packet or permission was created. A WPF-only staged diagnostic now covers every native
+read/validation/protected-save boundary and reports the safe error category/SQL number. Nine focused
+checks and WPF build pass; Core remains this mapping-corrected BFE24D07 build. The separate diagnostic
+copy is prepared. Next install/retry for the actual failing stage before checkpoint/restart. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

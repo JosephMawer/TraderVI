@@ -15,6 +15,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TraderVI.WPF.Views;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.WPF.Services;
 
@@ -130,6 +131,12 @@ public sealed partial class ManualBuyCoordinator
         BrokerFirstExecutionReview? firstReview = null;
         BrokerManagedSessionWorkflow? firstWorkflow = null;
         string? qualificationFingerprint = null;
+        string stage = "checking execution setup";
+        void Stage(string value)
+        {
+            stage = value;
+            if (!closed) summary.Text = $"Checking: {value}…";
+        }
         void Check()
         {
             if (closed || !currentAccount() || !connection.IsConnected || connection.SessionRevision != revision)
@@ -143,7 +150,12 @@ public sealed partial class ManualBuyCoordinator
             try { await action(); }
             catch (OperationCanceledException) { }
             catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; }
-            catch { if (!closed) summary.Text = "Execution readiness could not be verified. Refresh to recover saved approval and permissions before retrying."; reviewed = null; firstReview = null; firstWorkflow = null; }
+            catch (Exception error)
+            {
+                if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
+                    "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
+                reviewed = null; firstReview = null; firstWorkflow = null;
+            }
             finally
             {
                 busy = executionEditing = false;
@@ -154,14 +166,18 @@ public sealed partial class ManualBuyCoordinator
         async Task Refresh()
         {
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
+            Stage("reading installed storage readiness");
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token);
+            Stage("reading the saved account-history link");
             var imports = await new BrokerAccountImportRepository().ReadAsync(lifetime.Token); Check();
             var lines = $"Storage: baseline {(storage.BaselineInstalled ? "installed" : "missing")}, continuation {(storage.ContinuationInstalled ? "installed" : "missing")}, session {(storage.SessionInstalled ? "installed" : "missing")}.\n";
             if (imports.Binding is null)
             { summary.Text = lines + "Link and reconcile the permanent TFSA through the existing account-history controls first."; return; }
+            Stage("recovering any saved strategy assignment");
             var saved = await executionSessions.ReadAsync(imports.Binding.BindingId, lifetime.Token); Check();
             if (saved is null)
             {
+                Stage("reading saved initial risk references");
                 var baselines = await new BrokerAccountRiskBaselineRepository().ReadAsync(lifetime.Token); Check();
                 summary.Text = lines + "No strategy is approved to manage this account. Automatic trading remains off.\n\n" +
                     (baselines.RiskHistory.ExistingBaseline is null ? "Initial risk references have not been reviewed/saved.\n" : "Initial risk references exist; continuation still needs current qualification.\n") +
@@ -184,6 +200,7 @@ public sealed partial class ManualBuyCoordinator
         async Task PrepareFirst()
         {
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
+            Stage("reading initial references for the first execution review");
             var baselineState = await new BrokerAccountRiskBaselineRepository().ReadAsync(lifetime.Token); Check();
             if (baselineState.Import.Binding is null || baselineState.RiskHistory.ExistingBaseline is null)
             {
@@ -194,6 +211,7 @@ public sealed partial class ManualBuyCoordinator
             }
             if (await executionSessions.ReadAsync(baselineState.Import.Binding.BindingId, lifetime.Token) is not null)
             { Check(); await Refresh(); return; }
+            Stage("loading the reviewed calendar and current Normal definition");
             Check(); _ = GetExecutionHost();
             var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
             var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(date, lifetime.Token); Check();
@@ -205,6 +223,7 @@ public sealed partial class ManualBuyCoordinator
             var evidence = ReadExecutionQualification(DateTimeOffset.UtcNow);
             if (evidence?.NoTransferScope is null)
             {
+                Stage("recovering the original baseline import, risk history and checkpoint");
                 var baseline = baselineState.RiskHistory.ExistingBaseline!;
                 var original = await new BrokerAccountImportRepository().FindAsync(baseline.ImportRequestId, lifetime.Token)
                     ?? throw new InvalidOperationException("Recover the exact import used by the saved initial risk baseline before trial preparation."); Check();
@@ -223,14 +242,16 @@ public sealed partial class ManualBuyCoordinator
                     savedCheckpoint.Sales, date, selectedIds.Value);
                 var preparedScope = BrokerSupervisedTrialPreparation.Prepare(baseline, original, continued, sales,
                     Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow) with { FullFillOnlyNativeTrial = true };
-                var nativeAfter = await ReadNativeTrialObservationAsync(account, revision, savedCheckpoint, lifetime.Token); Check();
+                var nativeAfter = await ReadNativeTrialObservationAsync(account, revision, savedCheckpoint, lifetime.Token, Stage); Check();
                 exact = nativeAfter.Strategy;
+                Stage("validating restart evidence and publishing its protected qualification packet");
                 evidence = NativeTrialEvidence().Complete(nativeAfter, preparedScope, executionCalendar!, Environment.UserName, DateTimeOffset.UtcNow);
             }
             IBrokerRiskEvidenceSource risk = evidence?.NoTransferScope is { } scope
                 ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!) : new UnqualifiedBrokerRiskEvidenceSource();
             var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal,
                 journal, orderGate, account, executionCalendar!, risk);
+            Stage("reconciling the current account for execution review");
             var projected = await components.AccountSource.SynchronizeAsync([], lifetime.Token); Check();
             firstReview = BrokerFirstExecutionReviewPolicy.Prepare(exact, projected, evidence,
                 BrokerManagedSessionComposition.ImplementationIdentity, DateTimeOffset.UtcNow);
@@ -252,13 +273,15 @@ public sealed partial class ManualBuyCoordinator
         checkpoint.Click += async (_, _) => await Run(async () =>
         {
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
-            var native = await ReadNativeTrialObservationAsync(account, revision, null, lifetime.Token); Check();
+            var native = await ReadNativeTrialObservationAsync(account, revision, null, lifetime.Token, Stage); Check();
+            Stage("saving and reading back the protected native checkpoint");
             NativeTrialEvidence().Capture(native);
             summary.Text = "Native recovery checkpoint saved after completed manual verification and actual cash-only baseline readback. No order, financial approval or host permission was created. Close TraderVI normally, reopen this exact executable and choose Prepare first execution review. It will read the same original order IDs and references, check the native/scoped evidence and publish the packet only if complete. Approval and host enable remain separate.";
         });
         first.Click += async (_, _) => await Run(PrepareFirst);
         approve.Click += async (_, _) => await Run(async () =>
         {
+            Stage("rechecking the exact reviewed assignment and qualification packet");
             Check(); var prepared = firstReview?.Activation ?? throw new InvalidOperationException("Prepare the complete current execution review first.");
             var currentEvidence = ReadExecutionQualification(DateTimeOffset.UtcNow);
             if (currentEvidence is null || BrokerAccountImport.Hash(currentEvidence) != qualificationFingerprint)
@@ -267,6 +290,7 @@ public sealed partial class ManualBuyCoordinator
                 TradingStrategyFamily.DelphiLive, lifetime.Token); Check();
             if (current.Strategy.Fingerprint != prepared.Strategy.Fingerprint || !current.Blocks.IsEmpty)
                 throw new InvalidOperationException("The exact strategy or its operational readiness changed. Prepare review again.");
+            Stage("saving or recovering the explicitly reviewed execution assignment");
             await (firstWorkflow ?? throw new InvalidOperationException("No complete execution review is prepared.")).ApproveAsync(
                 new(prepared, Environment.UserName, "First supervised Delphi Live Normal TFSA session; actual available capital; no outside transfers or trades."), lifetime.Token);
             Check(); await Refresh(); summary.Text += "\n\nExecution approval saved. No order was sent by approval; enable the reviewed host separately.";
@@ -274,12 +298,14 @@ public sealed partial class ManualBuyCoordinator
         });
         enable.Click += async (_, _) => await Run(async () =>
         {
+            Stage("enabling the exact operator-reviewed host assignment");
             Check(); var selected = reviewed ?? throw new InvalidOperationException("Refresh the current approved assignment first.");
             await GetExecutionHost().EnableAsync(selected.BindingId, selected.SessionId, selected.Strategy.Fingerprint,
                 Environment.UserName, lifetime.Token); Check(); summary.Text = ExecutionStatus.Message;
         });
         stop.Click += async (_, _) => await Run(async () =>
         {
+            Stage("stopping the execution host");
             await StopExecutionCoreAsync(lifetime.Token);
             summary.Text = ExecutionStatus.Message;
         });

@@ -17,6 +17,11 @@ Checkpoint capture then fails: SQL returns four Boolean storage fields but the C
 three. The narrow fix matches all four, retaining false for older three-argument callers. Seven
 mapping cases, 257 focused tests, 2,614 full offline tests (nine native skips) and WPF Release pass.
 No storage predicate, policy or qualification requirement changes. No native SQL test is resumed.
+The next native capture still reports an unexpected failure. Native existence inspection confirms
+no checkpoint/packet/host permission was created. A separate WPF-only checkpoint diagnostic copy
+adds safe stage/category reporting across calendar, account/order reconciliation, baseline/continuation,
+storage, Normal/source review, validation and protected-save boundaries. Nine focused checks/build
+pass; the mapping-corrected Core SHA stays unchanged. Installation/native diagnostic retry is next.
 
 This correction changes Core identity. Next capture the first successful checkpoint in this copy,
 then close normally/reopen this exact executable and Prepare first execution review. Preserve the

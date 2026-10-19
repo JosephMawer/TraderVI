@@ -571,3 +571,23 @@ host permission, qualification packet or today's checkpoint. Receipt: `storage-s
 manifest: `storage-shape-working-copy-hashes.json`. Freeze this new exact Core/executable for the
 first successful checkpoint and subsequent normal recovery restart. Native capture success remains
 unverified; next operator action is Capture native recovery checkpoint and review its result.
+
+## Continued checkpoint failure — safe stage diagnostics
+
+The operator's next capture in the mapping-corrected copy still shows only the unexpected-failure
+message. Native process/file-existence inspection verifies PID 73824 is the single responding owner,
+with no host permission, qualification packet or today's checkpoint. No successful capture or restart
+qualification can be claimed. The specific storage projection fix remains independently validated;
+the next native failure is not yet located.
+
+Mechanical WPF-only change: reuse the tested category-only diagnostic formatter and report the
+current fixed-code stage for every native observation/read, source review, validation and protected
+checkpoint save. No raw exception messages or private account values/paths are added. Reads,
+policies, qualification rules and explicit financial-action buttons retain their existing behavior.
+Nine focused diagnostic/mapping tests and WPF Release build pass (existing unused-variable warnings
+and cached Pkcs NU1902/NU1903 advisories remain separate). Core SHA remains
+`BFE24D07E80B985858616A234E374AD1681991AB5E16E8DB1F67C5B170254AC7`;
+the earlier 2,614 full Core pass/nine native skips retain their scope; no Core change or SQL test.
+Prepared copy: `artifacts/delphi-live-tfsa-20261018/checkpoint-diagnostic-working-copy/TraderVI.WPF.exe`.
+Logs: `checkpoint-diagnostic-tests.log`, `checkpoint-diagnostic-wpf-build.log`. Next switch under
+the existing execution-off startup scope, then operator native retry for the precise failure stage.
