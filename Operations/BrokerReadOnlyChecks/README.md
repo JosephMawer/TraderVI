@@ -29,8 +29,11 @@ launcher rule after four scope checks. The older installer rejects v2 payloads r
 expanded reads under its old rule. Sixty-six offline checks pass, including discovered-only order IDs,
 foreign history/order rejection and the request ceiling; standalone Release build passes with two
 existing nullable warnings in linked readers. The first installed live check at **10:32 Toronto,
-October 19** stops at login verification (`SignInRequiredOrVerificationUnavailable`), before history;
-native history remains **unverified**. Normal sign-in is requested; there is no credential fallback.
+October 19** stopped at login verification before history. After the operator reconnected normally,
+the exact installed v2 command succeeds at **10:38 Toronto**: 42 reads, 33 historical orders
+(28 POSTED/three EXPIRED/two CANCELLED), matching holdings/history, two CAD whole-share holdings and
+zero pending orders. No order, token refresh or credential change. This verifies bounded historical
+reading/reconciliation, not local journal, native submission, partial/uncertain recovery or automation.
 Evidence: ignored `history-v2-installation*.json`, `history-v2-build.log`, `history-v2-publish.log`.
 New saved rules may require chat restart; the exact fixed command can still require an approval in
 the current chat. Installation success does not imply successful native verification.

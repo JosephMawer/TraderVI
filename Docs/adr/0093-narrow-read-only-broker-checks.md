@@ -63,9 +63,11 @@ The expanded ceiling is 64 requests/120 seconds; all previous endpoint/header/qu
 The original installer rejects expanded v2 payloads under the old v1 rule.
 
 Sixty-six offline checks and four installation approval-scope checks pass; build/publish passes with
-two existing nullable warnings. Native verification at 10:32 Toronto stops before history at login
-verification; no successful native history or execution qualification is claimed. Normal sign-in is
-required before another bounded check. The approved installer creates only a new fixed-launcher rule;
+two existing nullable warnings. The first native attempt stopped at login verification at 10:32 Toronto.
+After normal operator reconnection, the installed fixed command succeeds at 10:38: 42 reads, 33
+historical orders with posted/expired/cancelled states, matching current holdings/history and zero
+pending orders. It checks no local order journal, native submission or partial/uncertain recovery;
+no execution qualification is issued. The approved installer creates only a new fixed-launcher rule;
 no general shell/dotnet permission, existing v1 rule, broker credential or financial state changes.
 Procedure/evidence remain in the linked README. Installation does not issue qualification records.
 

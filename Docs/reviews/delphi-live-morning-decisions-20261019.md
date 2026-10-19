@@ -259,3 +259,44 @@ the session snapshot JSON column is max-length storage. Receipt:
 `artifacts/read-only-db/result-20261019T143306033Z-783cf696935c44c2a2c022937ab1f63f.json`.
 No SQL write/rehearsal, restart, cache clear, memory configuration or financial operation ran. This
 is fresh metadata evidence, not populated real-account baseline/session/recovery verification.
+
+After the operator confirms normal reconnection, the exact installed broker v2 command succeeds at
+**10:38 Toronto** with 42 read requests. Thirty-three historical orders contain 28 POSTED, three
+EXPIRED and two CANCELLED states; current holdings/history agree, two CAD whole-share holdings
+remain and no pending order exists. Daily data is available through 10:35. No orders, token refresh
+or saved-credential change. Receipt: `artifacts/read-only-broker/report-373b6e97f2a64399b05d574eec97a953.json`;
+private history is CurrentUser-encrypted beside it. This supersedes the login blocker, but does not
+prove native submission, individual partial fills, uncertain/power-loss recovery or local-journal
+consistency. Those facts are not issued as native lifecycle qualification by this reader.
+History diagnostic checkpoint: **cf5a863d**.
+
+## Supervised working-copy startup and manual verification preparation
+
+The operator separately approves closing the old desktop and opening the prepared copy with normal
+paper/account polling, SQL writes and external reads, with TFSA execution off and no financial
+authorization or order. The old PID 35148 closes normally. All three prepared-copy hashes match
+`working-copy-hashes.json`; no enabled host grant exists before startup. The prepared executable
+starts at **10:52:12 Toronto** as PID **76640**, with a visible, responding TraderVI window. A sandbox
+process read could not see its window; the native process read confirms visibility, not a startup failure.
+The supplied native Execution setup screenshot confirms all three storage components, no initial
+risk references or assignment and disabled approval/enable buttons. This is an observed installed
+screen, not execution qualification.
+
+At **10:57 Toronto**, a bounded installed SQL read finds the new 10:52:28 snapshot/import, saved at
+10:52:28.868, and one matching trade-sync receipt. Import can proceed, history/observation/import
+blocks are empty. Query and receipt SHA-256 match:
+`4C142613AE9AC5CDC078819CEE31EFCC25D079B1E2504C6BE148A62E4DB9E574`.
+Receipt: `artifacts/read-only-db/result-20261019T145713414Z-9e695ed9ffdc4ee2816cb26e57ee55d6.json`.
+This verifies one actual startup reconciliation; it does not imply a continuous refresh cadence,
+native submission, financial setup or populated assignment recovery. No SQL rehearsal or memory
+configuration change resumed.
+
+The operator approves preparing a supervised manual sequence: both requested full sales, then one
+minimum whole-share buy/readback. The agent submits no orders. A test position must subsequently
+be sold and reconciled before the cash-only initial baseline is saved; otherwise first review blocks.
+Reviewing this route finds that the current desktop gathers every same-day full sale, whereas the
+scope needs exactly the two original opening sales. An extra test liquidation therefore needs explicit
+selection of those original records, preserving their request IDs, before this sequence can be used.
+The remaining native qualification packet and unobserved partial/uncertain paths remain blockers,
+not silently approved by manual full fills. Do not ask the operator to liquidate merely to discover
+these unresolved prerequisites afterward.

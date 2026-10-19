@@ -29,8 +29,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Implement/test Core Live real-cost protection, exact source binding, save-before-bid ordering,
   historical exit recovery, conditional scoped cash checks and immutable opening-plan progression.
   179 focused/2,501 full Core tests pass; eight native cases skipped; isolated WPF build passes.
-- [ ] Install/verify exact Normal preview and Live adapters natively; the running desktop has not
-  received these increments. No real opening plan or desktop execution loop is installed.
+- [x] Install the prepared Normal preview/Live adapters/default-off desktop loop and observe its
+  native setup screen after approved 10:52 startup. This does not qualify live source/protection/orders.
+- [ ] Verify exact executable Normal source and Live protection natively with the remaining proofs.
 - [ ] Complete native risk/baseline/continuation, source, broker lifecycle and shared-host checks
   in items 1–7, then prepare a fresh activation packet. Conditional no-transfer coverage cannot
   manufacture the original required qualifications. Monday automatic execution remains NO-GO.
@@ -43,7 +44,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Connect/test the host through the existing desktop poll/shared journal/gate and explicit
   existing-assignment enable/full-stop controls; build an isolated morning copy. Latest validation:
   153 focused tests, 2,544 full Core tests/nine native skips and nine synthetic WPF renders pass.
-  Copy is not launched; the extra native risk-storage test passes separately under explicit opt-in.
+  Copy subsequently launches under separate authority at 10:52 October 19; native storage test
+  remains the earlier separate opt-in pass.
 - [x] Rehearse Normal Live protection/stopped-mode SQL recovery in an isolated synthetic database,
   alongside exclusive leases/interrupted/uncertain saves. This sends no native broker orders.
 - [x] Verify current storage counts/immutable triggers read-only (23:51 Toronto, query hash checked).
@@ -72,10 +74,15 @@ returns are negative and no automatic-execution qualification follows. [Current 
   Publication alone does not establish executable freshness. SQL rehearsals remain paused.
 - [x] Install the explicitly approved history-enabled read-only broker v2 helper, retaining v1:
   66 offline/four scope checks pass; no SQL, order, local-journal or refresh capability is linked.
-- [ ] Verify native history after normal broker reconnect. The 10:32 v2 check stops before history
-  at login verification; installation alone does not qualify lifecycle or allow activation.
+- [x] Verify bounded native history after normal broker reconnect at 10:38: 42 reads, 33 historical
+  orders, matching holdings/history, zero pending orders. Local journal/native submission/partial or
+  uncertain recovery remain unqualified; this does not issue execution proof or allow activation.
 - [x] Read installed storage metadata at 10:33 Toronto with matching SQL receipt/query hash:
   one link, zero baselines/continuations/managed revisions, enabled immutable triggers, max JSON column.
+- [x] Switch to the hash-verified prepared copy under separate startup authority, with host off;
+  observe native setup and one clean reconciled import/trade-sync receipt in the 10:57 bounded read.
+- [ ] Prepare the authorized manual two-sale/buy/readback/return-to-cash verification route, preserve
+  the two original sale IDs through any additional test liquidation, and record its qualification limits.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

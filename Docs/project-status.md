@@ -3,9 +3,11 @@
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
 approval, retaining v1. It adds only exact owned activity/history reads, discovered-order-only request
 guarding and final account/activity cross-checks. Sixty-six offline/four approval-scope checks pass;
-Release publish passes with two existing linked-reader nullable warnings. Its 10:32 Toronto native
-check stops at login verification before history (`SignInRequiredOrVerificationUnavailable`);
-normal reconnect is requested. Native history/order lifecycle remains unqualified. No SQL, journal,
+Release publish passes with two existing linked-reader nullable warnings. After normal reconnect
+following a 10:32 login-verification failure, the exact installed v2 command passes at **10:38 Toronto**:
+42 reads, 33 historical orders (posted/expired/cancelled), matching holdings/history, two CAD whole-share
+holdings and no pending orders. This does not qualify native submission, partial/uncertain recovery
+or the local journal; no execution qualification is issued. No SQL, journal,
 credential refresh or trade mutation code is linked. [Procedure](../Operations/BrokerReadOnlyChecks/README.md),
 [ADR-0093 amendment](adr/0093-narrow-read-only-broker-checks.md#october-19-reviewed-history-extension).
 
@@ -64,7 +66,8 @@ The limited-trial producer recovers the original baseline import and both verifi
 preserves references/holds, saves protected scoped proof and retains independent native proof unchanged.
 It cannot issue the remaining four native qualifications. Missing proof blocks approval. Purchase
 permission ends at the reviewed close, checked in source/workflow; ongoing protection grants no
-next-day buying permission. The desktop build passes; actual-account startup remains unperformed.
+next-day buying permission. The desktop build passes; separately approved actual-account startup
+is recorded below.
 **Automatic trading remains off/NO-GO.** No actual grant, opening plan, baseline, assignment or order
 has been created by this session. The remaining independent native source/order/restart/storage
 qualification packet is not installed, and actual opening sales/initial setup remain. The first
@@ -86,7 +89,15 @@ zero baselines/continuations/managed revisions, all three immutable triggers ena
 JSON column installed as max-length storage. This confirms current metadata, not production writes
 or populated assignment recovery. Trial integration is committed as **ae082d4e** after first-review
 checkpoint **cac6502e**. The rebuilt working copy/hash manifest include the limited-trial path;
-no actual-account launch was performed. Native verification is awaiting normal broker reconnection.
+the operator separately approved closing the old desktop and starting that prepared copy with normal
+account/paper synchronization, leaving execution off. At **10:52 Toronto**, the hash-verified copy
+starts as PID 76640; its visible TraderVI window responds. The supplied native Execution setup
+screenshot confirms installed storage, missing initial references/assignment and disabled approval/
+enable controls. At **10:57**, a hash-verified bounded SQL read finds the 10:52:28 reconciled import
+and matching trade-sync receipt, with no import/history/observation blocks. This verifies that startup
+and reconciliation path, not order submission, populated baseline/session recovery or automatic trading.
+The operator subsequently authorizes preparation of a manual order-verification sequence; execution
+of those orders remains theirs. [Detailed receipt and decisions](reviews/delphi-live-morning-decisions-20261019.md#supervised-working-copy-startup-and-manual-verification-preparation).
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
