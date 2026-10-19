@@ -11,6 +11,7 @@ if ((Resolve-Path -LiteralPath $PSScriptRoot).Path -ne (Join-Path $repo 'Operati
 if ((Test-Path -LiteralPath $install) -or (Test-Path -LiteralPath $rulesPath)) { throw 'Installation already exists; review an upgrade instead.' }
 $sourceExecutable = Join-Path $PublishDirectory 'TraderVI.BrokerReadOnlyChecks.exe'
 $offline = & $sourceExecutable --self-test | ConvertFrom-Json
+if ($offline.HelperVersion -ge 2) { throw 'The history-enabled build requires reviewed Install-HistoryV2.ps1; never install expanded reads under the v1 rule.' }
 if ($LASTEXITCODE -ne 0 -or $offline.OfflineChecksPassed -lt 54 -or $offline.NetworkRequests -ne 0) { throw 'Offline verification failed.' }
 New-Item -ItemType Directory -Path $evidence -Force | Out-Null
 New-Item -ItemType Directory -Path $install | Out-Null

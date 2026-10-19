@@ -51,6 +51,24 @@ and use the fixed command; the general sandbox and unrelated approvals remain in
 Related: ADRs [0070](0070-wealthsimple-desktop-sign-in.md), [0072](0072-wealthsimple-tfsa-account-display.md)
 and [0091](0091-local-read-only-database-checks.md).
 
+## October 19 reviewed history extension
+
+The operator approved a separately installed v2 helper to support the remaining execution review.
+V1 remains unchanged. V2 links only the existing history parser and pure reconciliation models,
+adds two exact read documents, and independently accepts historical order IDs only after learning
+them from the selected owned account's feed. It checks history against later current holdings/pending
+orders and a final activity fingerprint; it reads no local order journal and writes no SQL/trades.
+The expanded ceiling is 64 requests/120 seconds; all previous endpoint/header/query/credential and
+128 KiB response boundaries remain. Detailed v2 snapshots use separate versioned DPAPI entropy.
+The original installer rejects expanded v2 payloads under the old v1 rule.
+
+Sixty-six offline checks and four installation approval-scope checks pass; build/publish passes with
+two existing nullable warnings. Native verification at 10:32 Toronto stops before history at login
+verification; no successful native history or execution qualification is claimed. Normal sign-in is
+required before another bounded check. The approved installer creates only a new fixed-launcher rule;
+no general shell/dotnet permission, existing v1 rule, broker credential or financial state changes.
+Procedure/evidence remain in the linked README. Installation does not issue qualification records.
+
 ## Review questions
 
 1. Why does approving all GraphQL POSTs fail to enforce read-only access?

@@ -19,6 +19,7 @@ internal static class SelfTests
         checks = 0;
         foreach (var operation in ReadOnlyTransport.Queries.Keys)
         {
+            if (operation == "TraderVITfsaHistoricalOrder") continue; // No order ID is trusted before owned-feed discovery.
             using var guard = BoundGuard();
             using var request = Request(operation);
             await guard.ValidateAsync(request); checks++;
@@ -63,13 +64,14 @@ internal static class SelfTests
         using (var guard = new ReadOnlyTransport(Token, inner))
         using (var client = new HttpClient(guard))
         {
-            for (int i = 0; i < 20; i++) { using var request = Info(); using var response = await client.SendAsync(request); }
+            for (int i = 0; i < ReadOnlyTransport.MaximumRequests; i++) { using var request = Info(); using var response = await client.SendAsync(request); }
             using var over = Info(); await MustReject(async () => { using var response = await client.SendAsync(over); });
-            Require(inner.Forwarded == 20);
+            Require(inner.Forwarded == ReadOnlyTransport.MaximumRequests);
         }
         await Pipeline();
         await Pipeline(foreignPosition: true);
         await Pipeline(graphQlError: true);
+        await HistoryBoundary();
         var expiredHandler = new FakeHandler();
         using (var expired = WealthsimpleAuthClient.FromReadOnlySession(Session(DateTimeOffset.UtcNow.AddMinutes(-1)), expiredHandler))
             Require(!await expired.VerifyReadOnlyAsync(default) && expiredHandler.Forwarded == 0);
@@ -78,7 +80,7 @@ internal static class SelfTests
             Require(!await rejected.VerifyReadOnlyAsync(default) && rejectedHandler.Forwarded == 1);
         Require(!typeof(WealthsimpleAuthClient).GetMethods().Any(m => m.Name is "RefreshAsync" or "BeginLoginAsync" or "ProtectSessionAsync" or "FromBrowserHar"));
         Require(!typeof(WealthsimpleAuthClient).Assembly.GetReferencedAssemblies().Any(a => a.Name is "Core" or "Microsoft.Data.SqlClient"));
-        Console.WriteLine(JsonSerializer.Serialize(new { OfflineChecksPassed = checks, NetworkRequests = 0, SavedSessionAccess = false }));
+        Console.WriteLine(JsonSerializer.Serialize(new { HelperVersion = 2, OfflineChecksPassed = checks, NetworkRequests = 0, SavedSessionAccess = false }));
         return 0;
     }
     private static async Task Pipeline(bool foreignPosition = false, bool graphQlError = false)
@@ -101,6 +103,36 @@ internal static class SelfTests
         var daily = await client.ReadTfsaDailyPerformanceAsync(account);
         Require(daily.Status == WealthsimpleReadStatus.Success && daily.Data?.Amount is not null);
         Require(fake.Forwarded == 7 && client.RequestCount == 7);
+        var history = await client.ReadTfsaOrderHistoryAsync(account);
+        Require(history.Status == WealthsimpleReadStatus.Success && history.Data?.Orders.Count == 1);
+        var checkpoint = await client.ReadTfsaActivityCheckpointAsync(account);
+        Require(checkpoint.Status == WealthsimpleReadStatus.Success && checkpoint.Data?.Fingerprint == history.Data!.ActivityFingerprint);
+        Require(fake.Forwarded == 10 && client.RequestCount == 10);
+    }
+    private static async Task HistoryBoundary()
+    {
+        await Denied(r => { }, "TraderVITfsaHistoricalOrder");
+        await Denied(r => r.Content = Body("TraderVITfsaActivityHistory", ReadOnlyTransport.Queries["TraderVITfsaActivityHistory"],
+            new { first = 50, cursor = (string?)null, condition = new { accountIds = new[] { "foreign-account" } },
+                orderBy = new[] { "OCCURRED_AT_DESC" }, accountScope = "OWN" }), "TraderVITfsaActivityHistory");
+        using var guard = BoundGuard(); using var http = new HttpClient(guard);
+        using (var read = Request("TraderVITfsaActivityHistory")) using (await http.SendAsync(read)) { }
+        using (var order = Request("TraderVITfsaHistoricalOrder")) { await guard.ValidateAsync(order); checks++; }
+        using (var unknown = Request("TraderVITfsaHistoricalOrder"))
+        {
+            unknown.Content = Body("TraderVITfsaHistoricalOrder", ReadOnlyTransport.Queries["TraderVITfsaHistoricalOrder"],
+                new { branchId = "TR", externalId = "order-not-discovered" });
+            await MustReject(() => guard.ValidateAsync(unknown));
+        }
+        foreach (bool foreignHistory in new[] { true, false })
+        {
+            using var client = WealthsimpleAuthClient.FromReadOnlySession(Session(),
+                new FakeHandler { ForeignHistory = foreignHistory, ForeignHistoricalOrder = !foreignHistory });
+            Require(await client.VerifyReadOnlyAsync(default));
+            var accounts = await client.ReadTfsaAccountsAsync(); client.SelectReadOnlyAccount(accounts.Data![0]);
+            var rejected = await client.ReadTfsaOrderHistoryAsync(accounts.Data[0]);
+            Require(rejected.Status != WealthsimpleReadStatus.Success && rejected.Data is null);
+        }
     }
     private static byte[] Session(DateTimeOffset? expires = null) => JsonSerializer.SerializeToUtf8Bytes(new
     { version = 1, access = Token, refresh = "synthetic-refresh-must-not-be-used", expires = expires ?? DateTimeOffset.UtcNow.AddHours(1) });
@@ -134,13 +166,16 @@ internal static class SelfTests
         "TraderVITfsaPositions" => new { identityId = Identity, accountIds = new[] { Account }, currency = "CAD", cursor = (string?)null },
         "TraderVITfsaPendingOrders" => new { identityId = Identity, statuses = WealthsimpleAuthClient.ReadOnlyPendingStatuses, cursor = (string?)null },
         "TraderVITfsaDailyPerformance" => new { id = Account, currency = "CAD", timeRange = "ONE_DAY", marketSession = "REGULAR", includeSimpleReturns = true },
+        "TraderVITfsaActivityHistory" => new { first = 50, cursor = (string?)null, condition = new { accountIds = new[] { Account } },
+            orderBy = new[] { "OCCURRED_AT_DESC" }, accountScope = "OWN" },
+        "TraderVITfsaHistoricalOrder" => new { branchId = "TR", externalId = "order-history-fixture" },
         _ => throw new InvalidOperationException()
     };
 
     private sealed class FakeHandler : HttpMessageHandler
     {
         internal int Forwarded;
-        internal bool ForeignPosition, GraphQlError, RejectAuth;
+        internal bool ForeignPosition, GraphQlError, RejectAuth, ForeignHistory, ForeignHistoricalOrder;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
             Forwarded++;
@@ -168,6 +203,12 @@ internal static class SelfTests
                 "TraderVITfsaDailyPerformance" => """
                   {"data":{"account":{"id":"synthetic-tfsa","financials":{"currentCombined":{"graphData":{"previousClose":{"dateTime":"2026-09-15T20:00:00Z"},"data":[{"dateTime":"2026-09-16T20:00:00Z","simpleReturns":{"amount":{"amount":"1","currency":"CAD"},"rate":"0.01","referenceDateTime":"2026-09-15T20:00:00Z"}}]}}}}}}
                   """,
+                "TraderVITfsaActivityHistory" => """
+                  {"data":{"activityFeedItems":{"edges":[{"node":{"accountId":"HISTORY_OWNER","canonicalId":"activity-fixture","externalCanonicalId":"order-history-fixture","type":"DIY_BUY","subType":null,"status":"FILLED","securityId":"s1","assetSymbol":"TEST","assetQuantity":"2"}}],"pageInfo":{"hasNextPage":false,"endCursor":null}}}}
+                  """.Replace("HISTORY_OWNER", ForeignHistory ? "foreign-account" : Account),
+                "TraderVITfsaHistoricalOrder" => """
+                  {"data":{"orderServiceExtendedOrderByExternalId":{"id":"order-history-fixture","canonicalAccountId":"HISTORY_OWNER","identityId":"synthetic-identity","securityId":"s1","side":"BUY","status":"FILLED","securityCurrency":"CAD","submittedQuantity":"2","fillQuantity":"2","averageFillPrice":"9","filledValue":"18","filledNetValue":"18","filledTotalFee":"0","filledTaxWithholding":"0","createdAtUtc":"2026-09-16T13:59:00Z","lastFilledAtUtc":"2026-09-16T14:00:00Z","security":{"id":"s1","securityType":"EQUITY","stock":{"symbol":"TEST","primaryMic":"XTSE"}}}}}
+                  """.Replace("HISTORY_OWNER", ForeignHistoricalOrder ? "foreign-account" : Account),
                 _ => throw new InvalidOperationException("Unrecognized synthetic operation.")
             };
             return new(HttpStatusCode.OK) { Content = new StringContent(result, Encoding.UTF8, "application/json") };

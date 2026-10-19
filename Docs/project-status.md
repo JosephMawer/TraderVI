@@ -1,5 +1,14 @@
 # TraderVI Project Status
 
+**Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
+approval, retaining v1. It adds only exact owned activity/history reads, discovered-order-only request
+guarding and final account/activity cross-checks. Sixty-six offline/four approval-scope checks pass;
+Release publish passes with two existing linked-reader nullable warnings. Its 10:32 Toronto native
+check stops at login verification before history (`SignInRequiredOrVerificationUnavailable`);
+normal reconnect is requested. Native history/order lifecycle remains unqualified. No SQL, journal,
+credential refresh or trade mutation code is linked. [Procedure](../Operations/BrokerReadOnlyChecks/README.md),
+[ADR-0093 amendment](adr/0093-narrow-read-only-broker-checks.md#october-19-reviewed-history-extension).
+
 **Read-only broker diagnostic access, October 18, 2026:** the operator-authorized fixed helper is
 installed outside sandbox-writable roots with its own narrow no-profile `-File` approval. It compiles
 only the existing read parsers/models plus a fixed session loader and independent exact-request guard;
@@ -71,6 +80,13 @@ Normal successor has 160 evaluations through 09:55. Publication does not prove e
 or strategy/order qualification. The small SQL query's receipt hash matches. No further SQL tests,
 memory setting changes, app launch or financial operation ran. Helper launch successes and later PowerShell-wrapper approval prompts retain
 their separate scope. [Morning decisions, working copy, permission handling and remaining checks](reviews/delphi-live-morning-decisions-20261019.md).
+
+At **10:33 Toronto October 19**, the small hash-verified installed-storage read finds one link,
+zero baselines/continuations/managed revisions, all three immutable triggers enabled, and the session
+JSON column installed as max-length storage. This confirms current metadata, not production writes
+or populated assignment recovery. Trial integration is committed as **ae082d4e** after first-review
+checkpoint **cac6502e**. The rebuilt working copy/hash manifest include the limited-trial path;
+no actual-account launch was performed. Native verification is awaiting normal broker reconnection.
 
 **Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.

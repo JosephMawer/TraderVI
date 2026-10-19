@@ -236,3 +236,26 @@ Evidence: `trial-focused.log`, `trial-full.log`, `trial-wpf-build.log` in the ig
 folder. No SQL rehearsal, memory change, app startup, baseline/assignment/grant or order is run by
 this increment. The real opening sales/setup and independently reviewed four native checks remain
 operational prerequisites; the general transfer/boundary source is deferred from the limited trial.
+
+The limited-trial integration is committed as **ae082d4e**. The morning working copy is rebuilt with
+that source; `working-copy-hashes.json` is refreshed. No actual-account application startup occurred.
+
+## Remaining qualification diagnostics — history extension and current storage
+
+The operator approved installing the reviewed broker-history v2 extension and its fixed-launcher
+rule alongside unchanged v1. It compiles only existing read parsers/models and an independent
+discovered-order guard; no Core/SQL, order mutation, local journal or token-refresh code. Sixty-six
+offline checks and four policy-scope checks pass, Release publish succeeds with two existing linked
+reader nullable warnings. Native verification at **10:32 Toronto** stops at saved-login verification
+before history: `SignInRequiredOrVerificationUnavailable`. Normal app reconnect/sign-in is requested;
+no token-refresh fallback or repeated failed read is attempted. Native history remains unverified.
+Installation receipts: `artifacts/read-only-broker/history-v2-installation*.json`; v1 is untouched.
+This helper cannot issue the remaining native qualifications; observed history will have bounded scope.
+
+The small installed-storage query succeeds at **10:33 Toronto** under the fixed SQL reader. Query/
+receipt SHA-256: `2BAB104C4DD57241356FD5FB9EFFC5B331F237D54C68A95426C4467492D3FE19`.
+One link, zero baseline/continuation/managed revision records; all three immutable triggers enabled;
+the session snapshot JSON column is max-length storage. Receipt:
+`artifacts/read-only-db/result-20261019T143306033Z-783cf696935c44c2a2c022937ab1f63f.json`.
+No SQL write/rehearsal, restart, cache clear, memory configuration or financial operation ran. This
+is fresh metadata evidence, not populated real-account baseline/session/recovery verification.

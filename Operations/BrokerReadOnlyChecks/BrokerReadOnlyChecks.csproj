@@ -12,6 +12,8 @@
     <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.Accounts.cs" Link="Readers/Accounts.cs" />
     <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.Orders.cs" Link="Readers/PendingOrders.cs" />
     <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.DailyPerformance.cs" Link="Readers/DailyPerformance.cs" />
+    <Compile Include="../../Core/WSTrade/Authentication/WealthsimpleAuthClient.Reconciliation.cs" Link="Readers/Reconciliation.cs" />
+    <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleReconciliation.cs" Link="Readers/ReconciliationData.cs" />
     <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleAccountData.cs" Link="Readers/AccountData.cs" />
     <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleAccountQueries.cs" Link="Readers/Queries.cs" />
     <Compile Include="../../Core/WSTrade/Accounts/WealthsimpleDailyPerformance.cs" Link="Readers/DailyPerformanceData.cs" />

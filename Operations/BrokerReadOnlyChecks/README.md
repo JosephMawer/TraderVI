@@ -1,5 +1,42 @@
 # Fixed read-only broker checks
 
+## October 19 reviewed history extension (v2)
+
+The v2 helper is installed alongside the unchanged v1 helper after explicit operator approval.
+Use its exact standalone launcher for reviewed history/holdings checks:
+
+```powershell
+& 'C:\Users\joseph.mawer\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.exe' -NoProfile -File 'C:\Users\joseph.mawer\.codex\tools\tradervi-read-only-broker\v2\Invoke.ps1'
+```
+
+V2 adds only the existing exact OWN activity-feed and historical-order read queries. The independent
+HTTP guard learns order IDs from verified selected-account feed responses; arbitrary order IDs,
+foreign accounts, altered queries/variables and mutations are rejected before transmission. The
+linked parser verifies each historical order's account, identity, side and security. History is read
+before current holdings/pending orders, with a final activity checkpoint. No SQL, local order journal,
+token refresh or order mutation code is compiled. History/holdings agreement is only bounded read
+evidence, not native order-lifecycle qualification or automation permission.
+
+Limits are 64 total requests, 120 seconds overall, 30 seconds per HTTP request, 128 KiB per response,
+and 2 MiB private plaintext snapshot. Schema version 2 includes private history/checkpoint/reconciliation
+under DPAPI entropy `TraderVI.BrokerReadOnlyChecks.Snapshot.v2`. Public receipts contain only safe
+counts/status categories/flags/times. `LocalOrderJournalChecked`, `CashEffectiveTimingQualified` and
+`QualifiedForAutomation` remain false. No arbitrary decryption or new snapshot consumer is authorized.
+
+Source now builds v2. `Install-HistoryV2.ps1` is a separately reviewed one-time installer, never an
+approved recurring command. It retains v1, installs/hashes a fresh v2 folder and saves only a new fixed
+launcher rule after four scope checks. The older installer rejects v2 payloads rather than placing
+expanded reads under its old rule. Sixty-six offline checks pass, including discovered-only order IDs,
+foreign history/order rejection and the request ceiling; standalone Release build passes with two
+existing nullable warnings in linked readers. The first installed live check at **10:32 Toronto,
+October 19** stops at login verification (`SignInRequiredOrVerificationUnavailable`), before history;
+native history remains **unverified**. Normal sign-in is requested; there is no credential fallback.
+Evidence: ignored `history-v2-installation*.json`, `history-v2-build.log`, `history-v2-publish.log`.
+New saved rules may require chat restart; the exact fixed command can still require an approval in
+the current chat. Installation success does not imply successful native verification.
+
+## Original v1 procedure and evidence
+
 The operator authorized this reusable Wealthsimple read path on October 18, 2026, to remove repeated
 sandbox approvals for routine account checks. The frozen helper is installed outside sandbox-writable
 roots. Its saved rule approves only this no-profile launcher:

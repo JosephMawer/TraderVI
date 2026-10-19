@@ -10,7 +10,9 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
     internal static readonly Uri QueryUri = new("https://my.wealthsimple.com/graphql");
     private string? identity, account;
     private int requests;
-    internal int RequestCount => Math.Min(requests, 20);
+    internal const int MaximumRequests = 64;
+    private readonly HashSet<string> discoveredOrders = new(StringComparer.Ordinal);
+    internal int RequestCount => Math.Min(requests, MaximumRequests);
     internal void BindIdentity(string id) { if (identity is not null) throw Rejected(); identity = id; }
     internal void BindAccount(string id) { if (identity is null || account is not null) throw Rejected(); account = id; }
 
@@ -21,14 +23,42 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
         ["TraderVITfsaBalances"] = WealthsimpleAccountQueries.Balances,
         ["TraderVITfsaPositions"] = WealthsimpleAccountQueries.Positions,
         ["TraderVITfsaPendingOrders"] = WealthsimpleAuthClient.ReadOnlyPendingQuery,
-        ["TraderVITfsaDailyPerformance"] = WealthsimpleAccountQueries.DailyPerformance
+        ["TraderVITfsaDailyPerformance"] = WealthsimpleAccountQueries.DailyPerformance,
+        ["TraderVITfsaActivityHistory"] = WealthsimpleAuthClient.ReadOnlyHistoryQuery,
+        ["TraderVITfsaHistoricalOrder"] = WealthsimpleAuthClient.ReadOnlyHistoricalOrderQuery
     };
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
         await ValidateAsync(request, ct);
-        if (Interlocked.Increment(ref requests) > 20) throw Rejected();
-        return await base.SendAsync(request, ct);
+        if (Interlocked.Increment(ref requests) > MaximumRequests) throw Rejected();
+        var response = await base.SendAsync(request, ct);
+        try
+        {
+            if (request.Headers.TryGetValues("x-ws-operation-name", out var names) &&
+                names.SequenceEqual(["TraderVITfsaActivityHistory"]) && response.IsSuccessStatusCode)
+            {
+                await response.Content.LoadIntoBufferAsync(128 * 1024, ct);
+                using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+                var root = json.RootElement;
+                if (root.TryGetProperty("errors", out var errors) && errors.ValueKind != JsonValueKind.Null &&
+                    (errors.ValueKind != JsonValueKind.Array || errors.GetArrayLength() != 0)) throw Rejected();
+                var discovered = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var edge in root.GetProperty("data").GetProperty("activityFeedItems").GetProperty("edges").EnumerateArray())
+                {
+                    var node = edge.GetProperty("node");
+                    if (node.GetProperty("accountId").GetString() != account) throw Rejected();
+                    if (node.GetProperty("type").GetString() is not ("DIY_BUY" or "DIY_SELL")) continue;
+                    var id = node.GetProperty("externalCanonicalId").GetString();
+                    if (id is null || !id.StartsWith("order-", StringComparison.Ordinal) || id.Length > 512 || id.Any(char.IsControl)) throw Rejected();
+                    discovered.Add(id);
+                }
+                if (discoveredOrders.Count + discovered.Count > 10000) throw Rejected();
+                discoveredOrders.UnionWith(discovered);
+            }
+            return response;
+        }
+        catch { response.Dispose(); throw; }
     }
 
     internal async Task ValidateAsync(HttpRequestMessage request, CancellationToken ct = default)
@@ -74,6 +104,17 @@ internal sealed class ReadOnlyTransport(string access, HttpMessageHandler inner)
                 Keys(vars, "id", "currency", "timeRange", "marketSession", "includeSimpleReturns");
                 Selected(vars, "id"); Currency(vars); Text(vars, "timeRange", "ONE_DAY"); Text(vars, "marketSession", "REGULAR");
                 if (!vars.GetProperty("includeSimpleReturns").GetBoolean()) throw Rejected();
+                break;
+            case "TraderVITfsaActivityHistory":
+                Keys(vars, "first", "cursor", "condition", "orderBy", "accountScope");
+                if (vars.GetProperty("first").GetInt32() != 50) throw Rejected();
+                Cursor(vars); Text(vars, "accountScope", "OWN");
+                var condition = vars.GetProperty("condition"); Keys(condition, "accountIds"); IdArray(condition, "accountIds");
+                if (!vars.GetProperty("orderBy").EnumerateArray().Select(v => v.GetString()).SequenceEqual(["OCCURRED_AT_DESC"])) throw Rejected();
+                break;
+            case "TraderVITfsaHistoricalOrder":
+                Keys(vars, "branchId", "externalId"); Text(vars, "branchId", "TR");
+                if (account is null || !discoveredOrders.Contains(vars.GetProperty("externalId").GetString() ?? "")) throw Rejected();
                 break;
             default: throw Rejected();
         }

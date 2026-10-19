@@ -85,6 +85,10 @@ public sealed partial class WealthsimpleAuthClient : IDisposable
     }
 
     internal static string ReadOnlyPendingQuery => PendingOrdersQuery;
+    internal static string ReadOnlyHistoryQuery => ReconciliationActivityQuery;
+    internal static string ReadOnlyHistoricalOrderQuery => ReconciliationOrderQuery;
+    private bool OwnsAccount(WealthsimpleTfsaAccount account) => catalogIdentity == session.IdentityId && tfsaAccounts.Contains(account);
+    private static JsonElement RequiredOrNull(JsonElement data, string name) => data.TryGetProperty(name, out var value) ? value : throw Invalid();
     internal static IReadOnlyList<string> ReadOnlyPendingStatuses => PendingOrderStatuses;
     private static bool SafeHeader(string? text) => !string.IsNullOrWhiteSpace(text) && text.Length <= 32768 && text.All(c => c is >= '!' and <= '~');
     private static string? StringValue(JsonElement value, string name) => value.ValueKind == JsonValueKind.Object

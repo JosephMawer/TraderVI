@@ -70,6 +70,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [ ] Independently qualify/install the four remaining native proofs for the limited trial, perform
   actual opening sales/setup and verify installed current inputs/protection before operator activation.
   Publication alone does not establish executable freshness. SQL rehearsals remain paused.
+- [x] Install the explicitly approved history-enabled read-only broker v2 helper, retaining v1:
+  66 offline/four scope checks pass; no SQL, order, local-journal or refresh capability is linked.
+- [ ] Verify native history after normal broker reconnect. The 10:32 v2 check stops before history
+  at login verification; installation alone does not qualify lifecycle or allow activation.
+- [x] Read installed storage metadata at 10:33 Toronto with matching SQL receipt/query hash:
+  one link, zero baselines/continuations/managed revisions, enabled immutable triggers, max JSON column.
 
 A checked item means only the named action is complete. Agreed, implemented, tested, installed and
 operationally verified are different states; the [status tables](project-status.md#implemented-versus-operational)

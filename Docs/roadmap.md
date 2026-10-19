@@ -47,6 +47,11 @@ transfer/boundary integration remains deferred from the explicitly limited trial
 At 10:03 Toronto Monday inputs and current-policy evaluations are published; current executable
 freshness still needs review. SQL tests remain paused after the memory concern; only the two bounded
 read helpers were expressly resumed. [Morning decisions](reviews/delphi-live-morning-decisions-20261019.md).
+The history-enabled v2 broker reader is now separately installed (66 offline/four scope checks);
+its 10:32 native check stops at login verification. Resume native history/source review after normal
+sign-in, without credential refresh or qualification orders from the diagnostic tool. The 10:33 small
+storage read confirms empty setup tables/enabled triggers. Actual sales/setup and independent native
+proof remain prerequisites; no automatic trading is enabled.
 
 **October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

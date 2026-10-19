@@ -14,7 +14,7 @@ try
     if (args.Length != 0) throw new CheckFailure("ArgumentsRejected");
     CheckPath(outputRoot);
     using var lease = new FileStream(Path.Combine(outputRoot, "running.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(120));
     var ct = timeout.Token;
     var sessionPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TraderVI", "Wealthsimple", "session.dat");
@@ -31,12 +31,22 @@ try
         throw new CheckFailure("UniqueOwnedTfsaUnavailable");
     var account = catalog.Data[0];
     client.SelectReadOnlyAccount(account);
+    var history = await client.ReadTfsaOrderHistoryAsync(account, ct);
+    if (history.Status != WealthsimpleReadStatus.Success || history.Data is null)
+        throw new CheckFailure("OrderHistory" + history.Status);
     var current = await client.ReadTfsaSnapshotAsync(account, ct);
     if (current.Status != WealthsimpleReadStatus.Success || current.Data is null)
         throw new CheckFailure("AccountSnapshot" + current.Status);
     var pending = await client.ReadTfsaPendingOrdersAsync(account, ct);
     if (pending.Status != WealthsimpleReadStatus.Success || pending.Data is null)
         throw new CheckFailure("PendingOrders" + pending.Status);
+    var checkpoint = await client.ReadTfsaActivityCheckpointAsync(account, ct);
+    if (checkpoint.Status != WealthsimpleReadStatus.Success || checkpoint.Data is null ||
+        checkpoint.Data.IdentityId != history.Data.IdentityId || checkpoint.Data.AccountId != account.Id ||
+        checkpoint.Data.Fingerprint != history.Data.ActivityFingerprint || checkpoint.Data.RetrievedAt < current.Data.RetrievedAt)
+        throw new CheckFailure("HistoryChangedDuringRead");
+    var reconciled = WealthsimpleReconciliation.Compare(history.Data, current.Data, pending.Data,
+        DateTimeOffset.UtcNow, unresolvedLocalOrders: false);
     var daily = await client.ReadTfsaDailyPerformanceAsync(account, ct);
     if (daily.Status == WealthsimpleReadStatus.NotAuthenticated) throw new CheckFailure("SignInRequired");
     var currentProtectedSession = await ReadProtectedAsync(sessionPath, ct);
@@ -46,18 +56,19 @@ try
     var checkedUtc = DateTimeOffset.UtcNow;
     byte[] privateBytes = JsonSerializer.SerializeToUtf8Bytes(new
     {
-        SchemaVersion = 1, CaptureId = capture, CheckedUtc = checkedUtc,
+        SchemaVersion = 2, CaptureId = capture, CheckedUtc = checkedUtc,
         AccountId = account.Id, Snapshot = current.Data,
         // Preserve identities privately for separately authorized consumers; never tokens/headers.
         HoldingIdentities = current.Data.Holdings.Select(h => new { h.Symbol, h.SecurityId }),
         Pending = pending.Data, OrderIdentities = pending.Data.Orders.Select(o => new { o.OrderId, o.SecurityId }),
-        DailyStatus = daily.Status.ToString(), Daily = daily.Data
+        DailyStatus = daily.Status.ToString(), Daily = daily.Data,
+        History = history.Data, Checkpoint = checkpoint.Data, Reconciliation = reconciled
     });
     byte[] encrypted;
     try
     {
         if (privateBytes.Length > 2 * 1024 * 1024) throw new CheckFailure("SnapshotLimitExceeded");
-        encrypted = ProtectedData.Protect(privateBytes, Encoding.UTF8.GetBytes("TraderVI.BrokerReadOnlyChecks.Snapshot.v1"), DataProtectionScope.CurrentUser);
+        encrypted = ProtectedData.Protect(privateBytes, Encoding.UTF8.GetBytes("TraderVI.BrokerReadOnlyChecks.Snapshot.v2"), DataProtectionScope.CurrentUser);
     }
     finally { CryptographicOperations.ZeroMemory(privateBytes); }
     CheckPath(outputRoot);
@@ -74,6 +85,11 @@ try
         PendingOrderCount = pending.Data.Orders.Count, DailyStatus = daily.Status.ToString(),
         DailyPerformanceAvailable = daily.Data?.Amount is not null && daily.Data.Rate.HasValue,
         DailyAsOfUtc = daily.Data?.AsOf, ReadRequests = client.RequestCount, EncryptedSnapshotFile = snapshotFile,
+        HelperVersion = 2, HistoricalOrderCount = history.Data.Orders.Count,
+        HistoricalStatuses = history.Data.Orders.GroupBy(o => o.Status is "FILLED" or "POSTED" or "CANCELLED" or "CANCELED" or "EXPIRED" or "REJECTED" ? o.Status : "Other")
+            .ToDictionary(g => g.Key, g => g.Count()),
+        BrokerHistoryHoldingsMatch = reconciled.HoldingsMatch, NativeHistoryRead = true,
+        LocalOrderJournalChecked = false, CashEffectiveTimingQualified = false,
         OrdersSent = 0, TokenRefreshes = 0, SavedCredentialsChanged = false, QualifiedForAutomation = false
     };
     var json = JsonSerializer.Serialize(report);
