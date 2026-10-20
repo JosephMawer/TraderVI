@@ -1,5 +1,13 @@
 # TraderVI Project Status
 
+**Close watch requested, October 20:** the operator explicitly requests read-only monitoring through
+today's close and verification of the 16:00 new-buy cutoff. The existing obsolete preparation
+heartbeat is updated to this chat's five-minute close watch, final bounded report by 16:15 Toronto,
+then delete itself. The hash-verified 15:53:35 installed read confirms continued StrategyEvaluated
+at 15:49:57/15:51:20, revision 40/Active, current synchronized account, no saved blocks/automatic
+orders/positions. The screenshot's stale account display is not proof of a stalled execution path.
+Cutoff/continued cadence observations remain pending; monitoring changes no financial controls.
+
 **Host enabled and initial native evaluation verified, October 20:** operator enable confirmation
 and local permission-file creation at **15:19:37 Toronto** are observed, one responding normal-output
 owner (PID 118432). The hash-verified bounded follow-up read at 15:22:03 verifies account synchronization,

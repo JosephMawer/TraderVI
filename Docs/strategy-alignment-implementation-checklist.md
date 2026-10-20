@@ -211,6 +211,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   evaluation, not actual automated submission/fill or sustained operation.
 - [ ] Observe sustained host cadence, any actual automatic order/protection lifecycle and the reviewed
   close cutoff. Preserve original IDs on uncertainty; no next-day buying renewal is authorized.
+  Operator authorizes read-only five-minute close watch, final report by 16:15 Toronto/self-removal.
+  The hash-verified 15:53:35 read confirms evaluations through 15:51:20/revision 40/Active, no saved
+  blocks/automatic orders. Exact close observation remains pending; no control changes/probe trade.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.

@@ -1210,3 +1210,25 @@ renewal follow; original financial references/holds remain authoritative.
 
 The agent performed only bounded installed reads/local metadata inspection and documentation, no
 financial action, native SQL rehearsal, build, restart or trading-control mutation.
+
+### Read-only close watch authorized and scheduled — October 20, 15:53 Toronto
+
+The operator asks to monitor evaluation through today's close and verify new buying stops at 16:00.
+The obsolete October 19 preparation heartbeat is updated in this same chat to five-minute bounded
+read-only checks through close, final verification/report by 16:15 Toronto, then deletion. Routine
+unchanged samples stay quiet; concrete failures and final results are reported. No trading-control
+mutation, app build/restart or forced test trade is authorized by this monitoring request.
+
+The supplied screenshot shows host running but a failed/stale account display. The installed helper
+read at 15:53:35 verifies its submitted query hash and shows StrategyEvaluated at 15:49:57/15:51:20,
+latest revision 40/Active, account synchronized immediately before evaluation, no saved blocks and
+zero automatic orders/positions. Thus the display failure does not establish a stopped execution
+source, while continued cadence and close behavior remain observations to make. Small comparison
+state is retained privately in `artifacts/tfsa-setup-wait-20261020/close-watch-state.json`.
+
+At/after cutoff, inspect saved expiry and new BUY/ADD intent/submission timestamps separately from
+fills of earlier orders. The host intentionally waits outside regular hours before calling tick;
+no post-close strategy evaluation or automatic NewBuysStopped flag change is required. Source also
+pauses trial entries after expiry and checks again before reserving a BUY intent. Observed absence
+of post-cutoff orders is not proof that an attempted buy was rejected; do not generate a probe order.
+If native status/authentication or installed helper access fails, report the precise monitoring gap.

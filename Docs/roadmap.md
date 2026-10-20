@@ -134,6 +134,10 @@ blocks/automatic orders/positions. Initial activation/evaluation are verified. N
 cadence, any actual order lifecycle/protection and reviewed-close expiry observations; no forced
 trade or next-day buying renewal follows. Original rejection
 predicate remains unproven; successful approval is not full-production qualification.
+Operator authorizes read-only monitoring through today's close: same-chat five-minute heartbeat,
+final check/report by 16:15 Toronto and self-removal. The 15:53:35 installed read verifies ongoing
+evaluations through 15:51:20/revision 40/Active, no saved blocks or automatic orders. Next inspect
+cutoff evidence and report its limits; no trading-control mutation or forced probe order.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
 going forward; no further full artifact copies are needed. The normal Release output now has all
