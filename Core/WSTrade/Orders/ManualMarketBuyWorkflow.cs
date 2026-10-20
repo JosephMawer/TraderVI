@@ -118,7 +118,8 @@ public sealed class ManualMarketBuyWorkflow(IManualBuyBroker broker, IManualBuyJ
                 observation.LastFilledAt < observation.CreatedAt ||
                 (saved.Submission == WealthsimpleSubmissionStatus.Rejected && observation.FilledQuantity > 0) ||
                 (previous?.FilledQuantity is { } previousFilled && (observation.FilledQuantity == null || observation.FilledQuantity < previousFilled)) ||
-                (previous?.IsFilled == true && !observation.IsFilled);
+                (previous?.IsFilled == true && (!observation.IsFilled ||
+                    saved.HasCompleteFillFacts && !observation.IsSameCompletedFillAs(previous)));
             // Retain changes to cumulative facts as observations, never incremental local fills.
             var observations = saved.Observations.ToList();
             if (previous == null || observation with { RetrievedAt = previous.RetrievedAt } != previous) observations.Add(observation);

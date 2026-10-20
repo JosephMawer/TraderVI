@@ -59,7 +59,7 @@ public sealed record ManualSellRecord(ManualSellIntent Intent, WealthsimpleSubmi
         WealthsimpleSubmissionStatus.SecurityUnavailable or WealthsimpleSubmissionStatus.PreflightUnavailable or WealthsimpleSubmissionStatus.JournalUnavailable) ||
         (HasTerminalBrokerResult && InventoryVerifiedAt != null));
     public string Status => ConflictingObservation ? "Conflicting results — review at Wealthsimple" : Latest is { } state
-        ? (state.Status switch { "FILLED" => "Filled", "PARTIALLY_FILLED" => "Partially filled", "CANCELLED" or "CANCELED" => "Cancelled",
+        ? (state.Status switch { "FILLED" or "POSTED" => "Filled", "PARTIALLY_FILLED" => "Partially filled", "CANCELLED" or "CANCELED" => "Cancelled",
             "EXPIRED" => "Expired", "REJECTED" => "Rejected", _ => "Pending" }) +
             (HasTerminalBrokerResult && !IsResolved ? " — awaiting holdings update" : !HasCompleteFillFacts ? " — fill details pending" : "")
         : Submission switch { WealthsimpleSubmissionStatus.Acknowledged => "Submitted — awaiting fill",

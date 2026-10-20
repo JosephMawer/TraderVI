@@ -95,7 +95,7 @@ public sealed partial class WealthsimpleAuthClient
             var status = RequiredText(data, "status");
             var lastFill = Timestamp(data, "lastFilledAtUtc");
             if (filled < 0 || filled > order.Quantity || (filled > 0 && (average is null or <= 0 || lastFill == null)) ||
-                (status == "FILLED" && filled != order.Quantity)) throw Invalid();
+                (status is "FILLED" or "POSTED" && filled != order.Quantity)) throw Invalid();
             WealthsimpleMoney? Cad(string name) => NullableNumber(RequiredOrNull(data, name)) is { } amount ? new(amount, "CAD") : null;
             return new WealthsimpleMarketOrderState(status, order.Quantity, filled, average.HasValue ? new(average.Value, "CAD") : null,
                 Cad("filledValue"), Cad("filledNetValue"), Cad("filledTotalFee"), Cad("filledTaxWithholding"),

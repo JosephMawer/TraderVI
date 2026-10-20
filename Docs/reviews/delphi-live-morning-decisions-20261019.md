@@ -814,3 +814,21 @@ Synthetic end-to-end coverage publishes nine references across normal restart, v
 initial references, rejects missing/changed carry, cash/reference/order changes and later-date reuse,
 and stops cash permission at the reviewed close. No actual packet or financial authority is saved.
 WPF original-ID pre-capture readback and carry preview/explicit save remain the next increment.
+
+### Next-session implementation increment 3 — unchanged overnight full-fill readback
+
+Actual next-day order verification must accept an original fully filled order becoming POSTED.
+Manual buy/sell models and parser now recognize full posted quantity consistently with existing
+native reconciliation. The original completed financial/intent times must remain exact; unchanged
+FILLED→POSTED and repeated identical status reads preserve the same ID/inventory proof. Changed full
+costs/proceeds/fees/taxes/other completed facts or reverse status progression remain conflicting.
+No replacement transmission is introduced; the four new workflow cases retain one original submission.
+
+Native restart proof now uses LastCheckedAt from a successful original-ID broker read in the current
+process. Unchanged repeated status reads intentionally do not append a new cumulative fill observation;
+requiring that older observation's RetrievedAt to follow restart incorrectly rejects a successful
+read. The successful-read time must fall within the current process/capture interval, original facts
+still reconcile against fresh native account history, and absent/pre-restart read time is rejected.
+No time is refreshed on failed native reads and no source/account freshness limit is relaxed.
+376 focused checks pass (next-session-posted-focused.log); WPF original-ID capture and UI integration
+remain pending. No real order, account authority or native SQL rehearsal was performed.

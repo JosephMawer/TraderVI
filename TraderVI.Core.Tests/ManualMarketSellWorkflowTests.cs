@@ -16,6 +16,22 @@ namespace TraderVI.Core.Tests;
 
 public class ManualMarketSellWorkflowTests
 {
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task OvernightPostedSaleRetainsInventoryProofAndRejectsChangedCompletedProceeds(bool changed)
+    {
+        var f=new Fixture();var sent=await f.Flow.SellAllAsync(f.Selection);
+        var filled=f.State(20);f.Broker.State=filled;
+        var complete=(await f.Flow.CheckOrderAsync(sent.Order!.Intent.RequestId)).Order!;
+        Assert.True(complete.IsResolved);
+        f.Clock.Now=f.Clock.Now.AddDays(1);
+        f.Broker.State=filled with {Status="POSTED",RetrievedAt=f.Clock.Now,
+            FilledNetValue=changed ? new(201,"CAD") : filled.FilledNetValue};
+        var result=(await f.Flow.CheckOrderAsync(sent.Order.Intent.RequestId)).Order!;
+        Assert.Equal(!changed,result.IsResolved);Assert.Equal(changed,result.ConflictingObservation);
+        Assert.Equal(complete.InventoryVerifiedAt,result.InventoryVerifiedAt);
+        Assert.Equal(sent.Order.Intent.RequestId,result.Intent.RequestId);Assert.Equal(1,f.Broker.Submissions);
+    }
     [Fact]
     public async Task ReviewedOpeningRequestRecoversTheSameOrderAcrossWorkflowRestart()
     {

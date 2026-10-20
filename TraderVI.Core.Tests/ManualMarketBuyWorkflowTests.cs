@@ -16,6 +16,21 @@ namespace TraderVI.Core.Tests;
 public class ManualMarketBuyWorkflowTests
 {
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task OvernightPostedReadbackRetainsSameOrderAndRejectsChangedCompletedCost(bool changed)
+    {
+        var f=new Fixture();var sent=await f.Flow.SubmitAsync(await f.Prepare(),7);
+        var filled=f.State(7,7);f.Broker.State=filled;
+        Assert.True((await f.Flow.CheckOrderAsync(sent.Order!.Intent.RequestId)).Order.IsResolved);
+        f.Clock.Now=f.Clock.Now.AddDays(1);
+        f.Broker.State=filled with {Status="POSTED",RetrievedAt=f.Clock.Now,
+            FilledNetValue=changed ? new(71,"CAD") : filled.FilledNetValue};
+        var result=await f.Flow.CheckOrderAsync(sent.Order.Intent.RequestId);
+        Assert.Equal(!changed,result.Order.IsResolved);Assert.Equal(changed,result.Order.ConflictingObservation);
+        Assert.Equal(sent.Order.Intent.RequestId,result.Order.Intent.RequestId);Assert.Equal(1,f.Broker.Submissions);
+        Assert.Single(f.Journal.ReadAll());
+    }
+    [Theory]
     [InlineData(1)] [InlineData(7)] [InlineData(17)] [InlineData(20)]
     public async Task ExactOperatorQuantityIsSavedBeforeOneSubmission(int quantity)
     {

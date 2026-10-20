@@ -75,7 +75,7 @@ the separate operator step below.
 - [x] Implement the trial-only append request/readback and native repository recheck, with exact unchanged-anchor validation,
   original reference preservation, no clearing of holds and production-projection exclusion. 51 focused tests pass; native save remains unverified and UI/scope integration remains pending.
 - [x] Extend Core trial scope/native producer to distinguish original verification date from the execution
-  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged. 217 focused checks pass; WPF original-ID capture/UI integration remains pending.
+  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged. 217 scoped/native checks pass; 376 broader lifecycle checks cover unchanged overnight posting and successful original-ID read times without duplicate fill observations. WPF capture/UI integration remains pending.
 - [ ] Expose preview and explicit carry save through the native execution setup screen; no baseline
   resave, trade replay, packet checkbox or implicit financial save during capture/preparation.
 - [ ] Validate focused/full offline tests and WPF build; commit each coherent increment. Install the

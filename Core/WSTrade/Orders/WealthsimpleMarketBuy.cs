@@ -42,6 +42,9 @@ public sealed record WealthsimpleMarketBuyState(string Status, int SubmittedQuan
     WealthsimpleMoney? Fees, WealthsimpleMoney? TaxWithholding, DateTimeOffset CreatedAt,
     DateTimeOffset? LastFilledAt, DateTimeOffset? ExpiresAt, string TradingSession, DateTimeOffset RetrievedAt)
 {
-    public bool IsFilled => Status == "FILLED" && FilledQuantity == SubmittedQuantity;
+    public bool IsFilled => Status is "FILLED" or "POSTED" && FilledQuantity == SubmittedQuantity;
+    internal bool IsSameCompletedFillAs(WealthsimpleMarketBuyState previous) => IsFilled && previous.IsFilled &&
+        (Status == previous.Status || previous.Status == "FILLED" && Status == "POSTED") &&
+        this with { Status = previous.Status, RetrievedAt = previous.RetrievedAt } == previous;
     public override string ToString() => "Wealthsimple market-buy state (financial data omitted)";
 }

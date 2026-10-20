@@ -70,11 +70,11 @@ public sealed record ManualBuyRecord(ManualBuyIntent Intent, WealthsimpleSubmiss
         WealthsimpleSubmissionStatus.SessionRequired or WealthsimpleSubmissionStatus.AccountUnavailable or
         WealthsimpleSubmissionStatus.SecurityUnavailable or WealthsimpleSubmissionStatus.PreflightUnavailable or
         WealthsimpleSubmissionStatus.JournalUnavailable) ||
-        (HasCompleteFillFacts && Latest?.Status is "FILLED" or "CANCELLED" or "CANCELED" or "EXPIRED" or "REJECTED"));
+        (HasCompleteFillFacts && Latest?.Status is "FILLED" or "POSTED" or "CANCELLED" or "CANCELED" or "EXPIRED" or "REJECTED"));
     public string Status => ConflictingObservation ? "Fill conflict — review required" : Latest is { } state
         ? state.Status switch
         {
-            "FILLED" => HasCompleteFillFacts ? "Filled" : "Filled — cost details pending",
+            "FILLED" or "POSTED" => HasCompleteFillFacts ? "Filled" : "Filled — cost details pending",
             "PARTIALLY_FILLED" => "Partially filled",
             "CANCELLED" or "CANCELED" => HasCompleteFillFacts ? "Cancelled" : "Cancelled — fill details pending",
             "EXPIRED" => HasCompleteFillFacts ? "Expired" : "Expired — fill details pending",

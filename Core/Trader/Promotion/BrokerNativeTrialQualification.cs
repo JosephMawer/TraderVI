@@ -100,6 +100,8 @@ public static class BrokerNativeTrialQualification
             throw new InvalidOperationException("Review the exact native Normal profile/policy/daily/build, fresh source and disclosed paper evidence before the trial checkpoint.");
         var buys = o.Buys.Where(b => SameAccount(b.Intent.IdentityId, b.Intent.AccountId, account) && Today(b.Intent.CreatedAt, baseline)).ToArray();
         var sales = o.Sales.Where(s => SameAccount(s.Intent.IdentityId, s.Intent.AccountId, account) && Today(s.Intent.CreatedAt, baseline)).ToArray();
+        if (carry is not null && (buys.Any(b => !FreshOriginalRead(b.LastCheckedAt, o)) || sales.Any(s => !FreshOriginalRead(s.LastCheckedAt, o))))
+            throw new InvalidOperationException("Read back the same four original order IDs in this running process before the next-session checkpoint.");
         if (buys.Length != 1 || buys[0].Intent.Quantity != 1 || !VerifiedBuy(buys[0], account) || sales.Length != 3 ||
             sales.Select(s => s.Intent.RequestId).Distinct().Count() != 3 ||
             sales.Any(s => !BrokerNoTransferSessionScope.IsVerifiedOpeningSale(s, account)) ||
@@ -110,6 +112,8 @@ public static class BrokerNativeTrialQualification
     }
     private static bool Today(DateTimeOffset at, BrokerAccountRiskBaseline baseline) =>
         DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(at.UtcDateTime)) == baseline.TradingDate;
+    private static bool FreshOriginalRead(DateTimeOffset? at, BrokerNativeTrialObservation observation) => at is { } read &&
+        read >= observation.ProcessStartedAt && read <= observation.CapturedAt;
     private static bool SameAccount(string identity, string account, BrokerAccountReconciliation book) => identity == book.IdentityId && account == book.AccountId;
     private static bool VerifiedBuy(ManualBuyRecord b, BrokerAccountReconciliation account) => b.IsResolved && b.Latest?.IsFilled == true &&
         b.Latest.FilledQuantity == b.Intent.Quantity && account.Orders.Any(f =>
@@ -147,11 +151,11 @@ public static class BrokerNativeTrialQualification
         var sales = after.Sales.Where(s => SameAccount(s.Intent.IdentityId, s.Intent.AccountId, after.Account) && Today(s.Intent.CreatedAt, after.Baseline)).ToArray();
         var closing = sales.Where(s => !originalIds.Contains(s.Intent.RequestId)).ToArray();
         if (oldBuy is null || BrokerAccountImport.Hash(oldBuy.Intent) != BrokerAccountImport.Hash(buy.Intent) ||
-            buy.Latest!.RetrievedAt < after.ProcessStartedAt || buy.Latest.LastFilledAt is null ||
+            !FreshOriginalRead(buy.LastCheckedAt, after) || buy.Latest!.LastFilledAt is null ||
             scope.OpeningSales.Any(s => !sales.Any(n => n.Intent.RequestId == s.Intent.RequestId) ||
                 s.Latest?.LastFilledAt is null || s.Latest.LastFilledAt > buy.Intent.CreatedAt) ||
             closing.Length != 1 || closing[0].Intent.SecurityId != buy.Intent.SecurityId || closing[0].Intent.Quantity != 1 ||
-            closing[0].Intent.CreatedAt < buy.Latest.LastFilledAt || sales.Any(s => s.Latest!.RetrievedAt < after.ProcessStartedAt ||
+            closing[0].Intent.CreatedAt < buy.Latest.LastFilledAt || sales.Any(s => !FreshOriginalRead(s.LastCheckedAt, after) ||
                 !before.Sales.Any(old => old.Intent.RequestId == s.Intent.RequestId && BrokerAccountImport.Hash(old.Intent) == BrokerAccountImport.Hash(s.Intent))))
             throw new InvalidOperationException("Read back the same original full buy and all three sale IDs after restart. Original sales must precede the test buy, followed by its separate liquidation before baseline setup.");
     }

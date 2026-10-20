@@ -91,4 +91,15 @@ public sealed partial class BrokerManagedSessionTests
         Assert.Throws<InvalidOperationException>(()=>BrokerNativeTrialQualification.ValidateRecovery(before,after,scope,BrokerTrialCarryForwardTests.Calendar(),f.Now));
         Assert.Equal(0,f.Transport.Sent);Assert.Null(f.Store.State);
     }
+    [Fact]
+    public void UnchangedNativeReadbackDoesNotNeedAnotherCumulativeFillObservation()
+    {
+        var (f,before,after,scope)=NextSessionFacts();
+        after=after with {
+            Buys=after.Buys.Select(b=>b with {Observations=before.Buys.Single(p=>p.Intent.RequestId==b.Intent.RequestId).Observations}).ToImmutableArray(),
+            Sales=after.Sales.Select(s=>s with {Observations=before.Sales.Single(p=>p.Intent.RequestId==s.Intent.RequestId).Observations}).ToImmutableArray() };
+        BrokerNativeTrialQualification.ValidateRecovery(before,after,scope,BrokerTrialCarryForwardTests.Calendar(),f.Now);
+        var missingRead=after with {Buys=after.Buys.Select(b=>b with {LastCheckedAt=before.CapturedAt}).ToImmutableArray()};
+        Assert.Throws<InvalidOperationException>(()=>BrokerNativeTrialQualification.ValidateRecovery(before,missingRead,scope,BrokerTrialCarryForwardTests.Calendar(),f.Now));
+    }
 }

@@ -92,8 +92,9 @@ public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSe
                 observation.CreatedAt > observation.RetrievedAt || observation.LastFilledAt > observation.RetrievedAt ||
                 observation.LastFilledAt < observation.CreatedAt || (observation.FilledQuantity > 0 && observation.LastFilledAt == null) ||
                 (saved.Submission == WealthsimpleSubmissionStatus.Rejected && observation.FilledQuantity > 0) ||
-                (saved.HasTerminalBrokerResult && previous != null &&
-                    (observation.FilledQuantity != previous.FilledQuantity || observation.Status != previous.Status)) ||
+                (saved.HasTerminalBrokerResult && previous != null && (previous.IsFilled
+                    ? !observation.IsSameCompletedFillAs(previous)
+                    : observation.FilledQuantity != previous.FilledQuantity || observation.Status != previous.Status)) ||
                 (previous?.FilledQuantity is { } filled && (observation.FilledQuantity == null || observation.FilledQuantity < filled)) ||
                 (previous?.IsFilled == true && !observation.IsFilled);
             var observations = saved.Observations.ToList();
