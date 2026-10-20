@@ -18,6 +18,7 @@ namespace TraderVI.WPF.Viewmodels;
 
 public sealed class PaperDashboardViewModel : INotifyPropertyChanged
 {
+    private readonly DisplayRefreshFlight refreshFlight = new();
     private readonly Dictionary<Guid, PaperPositionMonitorResult> latestResults = [];
     private int openGhostCount;
     private int openRealCount;
@@ -171,8 +172,12 @@ public sealed class PaperDashboardViewModel : INotifyPropertyChanged
     public bool CanPollNow => PaperTradingMonitor.IsAutomaticPollTime(
         PaperTradingMonitor.ToToronto(DateTime.UtcNow));
 
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+    public Task RefreshAsync(CancellationToken cancellationToken = default) =>
+        refreshFlight.RunAsync(() => RefreshOnceAsync(cancellationToken), cancellationToken);
+
+    private async Task RefreshOnceAsync(CancellationToken cancellationToken)
     {
+        using var timing = Core.Runtime.PaperCycleTimings.Start(Core.Runtime.PaperCycleStage.TrackedDisplay);
         bool trackedSchema = await TrackedExecutionSchema.IsInstalledAsync(cancellationToken);
         TrackedExecutionSchemaInstalled = trackedSchema;
         ExecutionSchemaStatus = trackedSchema

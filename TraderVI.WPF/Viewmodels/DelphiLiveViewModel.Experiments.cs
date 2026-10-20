@@ -134,8 +134,9 @@ public sealed partial class DelphiLiveViewModel
             DateOnly.ParseExact(CorporateFrom.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture),
             DateOnly.ParseExact(CorporateThrough.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture), OperatorReason.Trim(), token), ct);
     public void ShowExperimentEvidence() => SelectedDossier = FormatJson(DelphiLiveLedgerJson.Serialize(new { experiment, promotionScore }));
-    public void ShowResearchEvidence() => SelectedDossier = researchEvidence;
-    private string researchEvidence = "No persisted research evidence";
+    public void ShowResearchEvidence() => SelectedDossier = displayedResearch is null
+        ? "No persisted research evidence" : FormatJson(DelphiLiveLedgerJson.Serialize(displayedResearch));
+    private DelphiLiveResearchPresentation? displayedResearch;
 
     public async Task LoadResearchAsync(CancellationToken ct = default)
     {
@@ -167,7 +168,7 @@ public sealed partial class DelphiLiveViewModel
         try
         {
             await command(ct);
-            Apply(await service.SnapshotAsync(ct));
+            await ApplyAsync(await service.SnapshotAsync(ct), ct);
             OperatorReason = "";
         }
         finally { SetBusy(false); gate.Release(); }
@@ -233,9 +234,11 @@ public sealed partial class DelphiLiveViewModel
 
     private void ApplyResearch(DelphiLiveResearchPresentation? research)
     {
+        // The service publishes immutable cached research. Scheduled ticks do not change it.
+        if (ReferenceEquals(displayedResearch, research)) return;
+        displayedResearch = research;
         ResearchText = research is null ? "No persisted research coverage" :
             $"Stock operational slots: {CoverageText(research.StockOperationalCoverage)}\nXIU operational slots: {CoverageText(research.XiuOperationalCoverage)}";
-        researchEvidence = research is null ? "No persisted research evidence" : FormatJson(DelphiLiveLedgerJson.Serialize(research));
         Replace(ResearchMetrics, research?.Metrics.Select(m => new DelphiLiveResearchMetricRow(m.Horizon.ToString(), m.Metric,
             m.Coverage.ValidCount, m.Coverage.DegradedCount, m.Coverage.InvalidCount, m.Coverage.PendingCount, m.Coverage.NotApplicableCount,
             m.Coverage.ApplicableCount, Percent(m.Coverage.CompletionCoverage), Percent(m.Coverage.UsableCoverage), m.Coverage.Readiness.ToString(),

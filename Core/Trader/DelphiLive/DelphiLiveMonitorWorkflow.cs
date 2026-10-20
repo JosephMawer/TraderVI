@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Runtime;
 
 namespace Core.Trader.DelphiLive;
 
@@ -220,10 +221,13 @@ public sealed class DelphiLiveMonitorWorkflow
             var targets = PlanTargets(context, previous, tracked, portfolios, end);
             var cycle = new DelphiLiveCollectionCycle(cycleId, context.Session.SessionId, end.AddMinutes(-5), end,
                 end.AddMinutes(2), end.AddMinutes(7), lease.FencingToken, recovery!.EpochNumber);
-            var collected = await collector.RunCycleAsync(cycle, targets, lease, ct);
+            DelphiLiveCollectionRunResult collected;
+            using (PaperCycleTimings.Start(PaperCycleStage.LiveCollect))
+                collected = await collector.RunCycleAsync(cycle, targets, lease, ct);
             collectionWarnings = collected.Warnings.ToArray();
             var bars = await collection.GetSessionBarsAsync(context.Session.SessionId, end, ct);
             var saved = new List<DelphiLiveStoredEvaluation>();
+            using var evaluationTiming = PaperCycleTimings.Start(PaperCycleStage.LiveEvaluate);
             // Every policy judgment is durable before any cycle action is considered.
             foreach (var assignment in context.Assignments.DistinctBy(a => a.PolicyVersionId))
             {
@@ -283,6 +287,8 @@ public sealed class DelphiLiveMonitorWorkflow
                     saved.Add(new(input, result, recovery.EpochNumber));
                 }
             }
+            evaluationTiming.Dispose();
+            using var actionsTiming = PaperCycleTimings.Start(PaperCycleStage.LiveActions);
             if (context.SourceRevision is null && context.ComparisonAccounts.Count == 0 && PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
             DelphiLivePortfolioSnapshot? operationalAfterActions = null;
             foreach (var portfolio in portfolios)

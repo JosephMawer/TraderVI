@@ -2,6 +2,7 @@
 
 using Core.Calibration;
 using Core.Db;
+using Core.Runtime;
 using Core.TMX;
 using Core.TMX.Models.Domain;
 using System;
@@ -39,6 +40,7 @@ public sealed partial class SystemShadowController
         await pollGate.WaitAsync(cancellationToken);
         try
         {
+            using var preparationTiming = PaperCycleTimings.Start(PaperCycleStage.ShadowPrepare);
             await using var settingsLease = await environment.AcquireLeaseAsync(cancellationToken);
             DateTime startedUtc = environment.UtcNow;
             Guid pollCycleId = environment.NewId();
@@ -140,6 +142,8 @@ public sealed partial class SystemShadowController
                 code);
             var fiveMinute = new Dictionary<string, TmxIntradayBatch>(StringComparer.OrdinalIgnoreCase);
             var fifteenMinute = new Dictionary<string, TmxIntradayBatch>(StringComparer.OrdinalIgnoreCase);
+            preparationTiming.Dispose();
+            using var collectionTiming = PaperCycleTimings.Start(PaperCycleStage.ShadowCollect);
             foreach (string symbol in symbols.OrderBy(x => x))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -160,6 +164,8 @@ public sealed partial class SystemShadowController
                 }
             }
 
+            collectionTiming.Dispose();
+            using var applyTiming = PaperCycleTimings.Start(PaperCycleStage.ShadowApply);
             int fills = 0;
             foreach (SystemShadowRuntimePortfolio portfolio in portfolios)
             {

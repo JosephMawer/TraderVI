@@ -18,6 +18,7 @@ public partial class DelphiLiveView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) => viewModel.RefreshAsync(cancellationToken);
     public Task TickAsync(CancellationToken cancellationToken = default) => viewModel.TickAsync(cancellationToken);
     public Task StopAsync(CancellationToken cancellationToken = default) => viewModel.StopAsync(cancellationToken);
+    public void SetCycleBarrier(BrokerSetupCycleBarrier barrier) => viewModel.CycleBarrier = barrier;
     public async Task SelectAccountAsync(Guid? portfolioId, CancellationToken token = default)
     {
         await viewModel.RefreshAsync(token);

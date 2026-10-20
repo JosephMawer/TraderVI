@@ -167,9 +167,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
   one visible responding owner; execution permission/packet/both dated checkpoints absent.
 - [ ] Operator performs actual October 20 carry save/readback, fresh source, native checkpoint/restart
   and all nine references. An installed screen/offline tests do not qualify those observations.
-- [ ] Recover October 20 Preview past the desktop-paper-cycle wait: first attempt timed out before
-  account checks. Bounded 10:20:26 read shows recent ledger publication/lease renewal; no carry
-  preview/save is confirmed. Retry once after current paper work; diagnose any repeated timeout.
+- [x] Trace the repeated October 20 Preview wait/UI freeze; implement worker invocation, joined/single
+  display refreshes, bounded quote rows and financial-stage barrier scopes with bounded diagnostics.
+  65 focused/2,660 full offline passes, nine native skips; isolated WPF Release passes. Synthetic
+  dispatcher gap 614.6 → 26.3 ms; this does not locate the longest native stage or prove live response.
+  [Evidence and switch steps](reviews/desktop-paper-responsiveness-20261020.md).
+- [ ] Approve/perform the separate corrected-copy switch without overwriting the next-session copy;
+  record native stage times, responsive controls and successful idle boundary before carry/capture.
+  Existing same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
@@ -690,7 +695,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound growing account-history CPU/memory and establish collection/display capacity. Sep 24 direct typed reconstruction, report sharing and streaming integrity checks implemented/tested and installed at 09:30:32; loaded binaries and resumed compact writes verified. Sustained memory/capacity qualification remains. Next bound display/history loads and avoid unchanged-revision reconstruction with explicit freshness/integrity rules. Repeated reads and full lifetime collections remain; evidence in project status and private `artifacts/wpf-memory-20260924/`. |
+| S4 | Bound growing account-history CPU/memory and establish collection/display capacity. September 24 reconstruction correction remains installed. October 20 worker/display/barrier correction and bounded timings are separately prepared/offline tested, not installed; synthetic dispatcher gap improves but native slowest-stage/CPU/memory/setup behavior remains unqualified. Next approved switch/native stage attribution, then bound lifetime reconstruction only under explicit integrity/freshness rules. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |

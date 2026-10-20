@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Trader.DelphiLive;
+using Core.Runtime;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,9 @@ public static class DelphiLiveSnapshotStorage
     private static async Task<string> SaveJsonCoreAsync(SqlConnection connection, SqlTransaction transaction,
         string fullJson, CancellationToken token = default)
     {
-        var package = DelphiLiveSnapshotCodec.PackJson(fullJson);
+        DelphiLiveSnapshotPackage package;
+        using (PaperCycleTimings.Start(PaperCycleStage.SnapshotPack))
+            package = DelphiLiveSnapshotCodec.PackJson(fullJson);
         var identity = JsonNode.Parse(package.SnapshotJson)!;
         await using var setup = new SqlCommand("""
 DECLARE @lock int;
@@ -84,7 +87,8 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
             await write.ExecuteNonQueryAsync(token);
             // This also catches a missing part or an incorrect historical revision selection before commit.
             var verified = await ReadPartsAsync(connection, transaction, package.SnapshotJson, token);
-            DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
+            using (PaperCycleTimings.Start(PaperCycleStage.SnapshotVerify))
+                DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
             saved = true;
             return package.SnapshotJson;
         }
@@ -105,6 +109,7 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
             if (!DelphiLiveSnapshotCodec.IsCompact(json))
                 return DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
             var saved = await ReadPartsAsync(connection, transaction, json, token);
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.SnapshotUnpack);
             return DelphiLiveSnapshotCodec.Unpack(json, saved.Items, saved.Contents);
         }, token);
 
@@ -123,6 +128,7 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
     private static async Task<(List<DelphiLiveSnapshotItem> Items, Dictionary<string, string> Contents)> ReadPartsAsync(
         SqlConnection connection, SqlTransaction? transaction, string json, CancellationToken token)
     {
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.SnapshotRead);
         var root = JsonNode.Parse(json)!.AsObject();
         var counts = DelphiLiveSnapshotCodec.ReadCounts(json);
         await using var read = new SqlCommand("""

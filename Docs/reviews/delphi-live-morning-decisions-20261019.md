@@ -895,3 +895,12 @@ of the active cycle or qualification. Receipt: artifacts/read-only-db/result-202
 Next retry Preview once after active work completes. If timeout repeats, identify the active cycle/
 stage before changing coordination. No SQL test/diagnostic workflow beyond the authorized bounded
 read, schema change, financial save, order, restart or authority change was performed in this review.
+
+### October 20 repeated timeout and responsiveness follow-up
+
+The operator reports the second timeout, UI freezes and PID 73252 near 31% CPU/1.8 GB. The bounded
+read above remains evidence of progress only. The separate implementation chat traces dispatcher
+continuations, repeated display reads and barrier occupancy, prepares a mechanical correction and
+bounded stage timings, and validates offline. The reviewed next-session copy remains unchanged;
+native stage attribution/response/setup success and an approved normal switch remain pending.
+[Findings, measured synthetic comparison and exact switch steps](desktop-paper-responsiveness-20261020.md).

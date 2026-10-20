@@ -127,6 +127,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 
     private async Task<DelphiLiveRuntimeSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.LiveSnapshot);
         DateOnly date = Today();
         ResetNotificationsFor(date);
         var warnings = new List<string>(notifications);
@@ -166,6 +167,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 
     private async Task<DelphiLiveRuntimeSnapshot> TickCoreAsync(CancellationToken cancellationToken)
     {
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.LiveEngine);
         await using var settingsLease = await EngineSettingsLease.AcquireAsync(cancellationToken);
         ResetNotificationsFor(Today());
         if (workflow is null || !await HasSchemaAsync(cancellationToken)) return await SnapshotAsync(cancellationToken);
@@ -329,6 +331,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
 
     private async Task<DelphiLiveRuntimeSnapshot> WithExperimentAsync(DelphiLiveRuntimeSnapshot snapshot, CancellationToken token)
     {
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.LiveProtocol);
         var state = await experiments.LoadAsync(token);
         bool manual = await EngineSettingsRepository.HasLiveOverridesAsync(token);
         if (manual) snapshot = snapshot with { Warnings = snapshot.Warnings.Append("Operator intervention recorded · research promotion paused; assigned portfolio rules remain authoritative.").ToArray() };

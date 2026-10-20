@@ -38,6 +38,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     private IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios = Array.Empty<DelphiLivePortfolioSnapshot>();
     private IReadOnlyDictionary<Guid, string> accountNames = new Dictionary<Guid, string>();
     private (Guid PortfolioId, long Revision)? shownPortfolio;
+    public BrokerSetupCycleBarrier? CycleBarrier { private get; set; }
 
     public DelphiLiveViewModel(DelphiLiveDesktopService service)
     {
@@ -103,7 +104,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
         {
             await service.ActivateAsync(amount, Currency.Trim().ToUpperInvariant(), ActivationReason.Trim(), cancellationToken);
             activationRequested = true;
-            Apply(await service.SnapshotAsync(cancellationToken));
+            await ApplyAsync(await service.SnapshotAsync(cancellationToken), cancellationToken);
             Status = "Activation recorded for the next regular session";
         }
         finally { SetBusy(false); gate.Release(); }
@@ -124,14 +125,23 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
                 Coverage = "No operational session has started";
                 return;
             }
-            var snapshot = tick ? await service.TickAsync(cancellationToken) : await service.SnapshotAsync(cancellationToken);
+            DelphiLiveRuntimeSnapshot snapshot;
+            // The idle boundary is after the engine/settings lease is released. Display work
+            // has no financial side effects and must not keep broker setup waiting.
+            if (tick)
+            {
+                using var cycle = CycleBarrier?.TryBeginCycle();
+                if (CycleBarrier is not null && cycle is null) return;
+                snapshot = await service.TickAsync(cancellationToken);
+            }
+            else snapshot = await service.SnapshotAsync(cancellationToken);
             // Optional display labels must never prevent the engine's scheduled work.
             if (!tick || accountNames.Count == 0)
             {
                 try { accountNames = (await new Core.Db.PaperComparisonRepository().ReadAccountsAsync(cancellationToken)).ToDictionary(a => a.AccountId, a => a.DisplayName); }
                 catch (Exception error) when (error is Microsoft.Data.SqlClient.SqlException or InvalidOperationException) { /* Stable account IDs remain visible. */ }
             }
-            Apply(snapshot);
+            await ApplyAsync(snapshot, cancellationToken);
             if (!tick || dailyPreview.Run is null) await RefreshDailyPreviewAsync(cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
@@ -143,7 +153,28 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
         finally { SetBusy(false); gate.Release(); }
     }
 
-    private void Apply(DelphiLiveRuntimeSnapshot snapshot)
+    private async Task ApplyAsync(DelphiLiveRuntimeSnapshot snapshot, CancellationToken ct)
+    {
+        var rows = await PaperCycleWorker.RunAsync(PaperCycleStage.LivePrepareDisplay,
+            () => Task.FromResult(PrepareObservations(snapshot)), ct);
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.LiveApplyDisplay);
+        Apply(snapshot, rows);
+    }
+
+    private static DelphiLiveObservationRow[] PrepareObservations(DelphiLiveRuntimeSnapshot snapshot)
+    {
+        var ordered = snapshot.Evaluations.OrderBy(e => e.Input.Policy.PolicyVersionId)
+            .ThenBy(e => e.Result.RankCandidate, DelphiLiveRankingComparer.Instance)
+            .ThenBy(e => e.Input.Stock.Symbol, StringComparer.OrdinalIgnoreCase).ToArray();
+        return ordered.SelectMany((e, index) =>
+        {
+            var matching = snapshot.Portfolios.Where(p => p.PolicyVersionId == e.Input.Policy.PolicyVersionId).ToArray();
+            return matching.Length == 0 ? new[] { ObservationRow(e, index + 1, null) } :
+                matching.Select(p => ObservationRow(e, index + 1, p));
+        }).ToArray();
+    }
+
+    private void Apply(DelphiLiveRuntimeSnapshot snapshot, DelphiLiveObservationRow[] rows)
     {
         Status = snapshot.Status;
         portfolios = snapshot.Portfolios;
@@ -161,15 +192,6 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
             : "DelphiLivePolicyV1 · no active Operational Champion portfolio";
 
         string? selection = SelectedObservation?.SelectionKey;
-        var ordered = snapshot.Evaluations.OrderBy(e => e.Input.Policy.PolicyVersionId)
-            .ThenBy(e => e.Result.RankCandidate, DelphiLiveRankingComparer.Instance)
-            .ThenBy(e => e.Input.Stock.Symbol, StringComparer.OrdinalIgnoreCase).ToArray();
-        var rows = ordered.SelectMany((e, index) =>
-        {
-            var matching = portfolios.Where(p => p.PolicyVersionId == e.Input.Policy.PolicyVersionId).ToArray();
-            return matching.Length == 0 ? new[] { ObservationRow(e, index + 1, null) } :
-                matching.Select(p => ObservationRow(e, index + 1, p));
-        }).ToArray();
         Replace(AllObservations, rows);
         Replace(Opportunities, rows.Where(r => r.Role == "OperationalChampion" && r.PolicyVersionId == championId && r.Activity == "Active" && !r.IsHeld && !r.IsExitPending)
             .Select((row, index) => row with { Rank = index + 1 }));
@@ -238,7 +260,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
             a.DossierJson)) ?? []);
         Replace(Fills, portfolio?.Fills.Reverse().Select(f => new DelphiLiveFillRow(f.Symbol, f.Side.ToString(), f.Quantity,
             f.Price, f.Confidence.ToString(), f.Field.ToString(), TorontoTime(f.FilledUtc))) ?? []);
-        Replace(Quotes, portfolio?.Quotes.Reverse().Select(q => new DelphiLiveQuoteRow(q.Observation.Symbol, q.Purpose,
+        Replace(Quotes, portfolio?.Quotes.TakeLast(250).Reverse().Select(q => new DelphiLiveQuoteRow(q.Observation.Symbol, q.Purpose,
             q.Observation.Bid, q.Observation.Ask, q.Observation.Price, q.Disposition,
             TorontoTime(q.Observation.RequestStartedUtc), TorontoTime(q.Observation.ReceivedUtc),
             q)) ?? []);

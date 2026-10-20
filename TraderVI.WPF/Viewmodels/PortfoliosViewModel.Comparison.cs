@@ -15,7 +15,7 @@ namespace TraderVI.WPF.Viewmodels;
 public sealed partial class PortfoliosViewModel
 {
     private readonly Dictionary<string, IReadOnlyList<PortfolioClosingObservation>> closingHistory = [];
-    private readonly SemaphoreSlim refreshGate = new(1, 1);
+    private readonly DisplayRefreshFlight refreshFlight = new();
     private int selectedView, selectedPeriod = 2;
     private bool includeReferenceAccounts;
     private bool isRefreshing;
@@ -57,9 +57,12 @@ public sealed partial class PortfoliosViewModel
     public string MetricNotes => "Period return uses matching saved closing dates and costs already recorded by each paper engine. Maximum closing decline is the largest observed peak-to-trough fall in this window; it excludes intraday moves. Missing values are not zero. Account history can span earlier rules. These figures do not certify promotion readiness.";
     public string PrimaryPerformanceText => "Version-specific performance is not established by these lifetime account returns. The approved source identifies its supporting paper account; review policy and daily-input histories before comparing.";
 
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+    public Task RefreshAsync(CancellationToken cancellationToken = default) =>
+        refreshFlight.RunAsync(() => RefreshOnceAsync(cancellationToken), cancellationToken);
+
+    private async Task RefreshOnceAsync(CancellationToken cancellationToken)
     {
-        await refreshGate.WaitAsync(cancellationToken);
+        using var timing = Core.Runtime.PaperCycleTimings.Start(Core.Runtime.PaperCycleStage.PortfolioDisplay);
         IsRefreshing = true;
         try { await RefreshCoreAsync(cancellationToken); }
         catch
@@ -68,7 +71,7 @@ public sealed partial class PortfoliosViewModel
             OnPropertyChanged(nameof(ComparisonDataStatus));
             throw;
         }
-        finally { IsRefreshing = false; refreshGate.Release(); }
+        finally { IsRefreshing = false; }
     }
 
     private async Task RefreshComparisonAsync(CancellationToken token)
@@ -82,7 +85,7 @@ public sealed partial class PortfoliosViewModel
             {
                 foreach (Guid generationId in Portfolios.Where(r => r.SystemGenerationId.HasValue).Select(r => r.SystemGenerationId!.Value).Distinct())
                 {
-                    var history = await new PortfolioHistoryReader().ReadShadowDaysAsync(generationId, token);
+                    var history = await Task.Run(() => new PortfolioHistoryReader().ReadShadowDaysAsync(generationId, token), token);
                     foreach (var row in Portfolios.Where(r => r.SystemPortfolioId.HasValue))
                         if (history.TryGetValue(row.SystemPortfolioId!.Value, out var days))
                         {
@@ -155,16 +158,21 @@ public sealed partial class PortfoliosViewModel
             : $"{dates[0]:dd MMM yyyy} – {dates[^1]:dd MMM yyyy} · {dates.Length} observed dates";
         string? selectedCode = SelectedPortfolio?.StableCode;
         var displayed = Portfolios.Where(r => IncludeReferenceAccounts || r.SystemPortfolioId.HasValue || r.IsDelphiLive);
-        StableDisplayRows.Apply(ComparisonRows, displayed
-            .Select(r => new PortfolioComparisonRow(r, PortfolioComparison.Calculate(
-                closingHistory.GetValueOrDefault(r.StableCode) ?? [], dates))
-                { Day = PortfolioDailyPerformance.Calculate(dailyHistory.GetValueOrDefault(r.StableCode) ?? [], SelectedDay) })
-            .OrderBy(r => r.StrategyName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(r => r.Source.ComparisonPairId).ThenBy(r => r.Source.GateProfile).ThenBy(r => r.StableCode, StringComparer.Ordinal),
-            (left, right) => left.HasSameValues(right));
-        SelectedPortfolio = ComparisonRows.FirstOrDefault(r => r.Source.StableCode == selectedCode)?.Source
-            ?? ComparisonRows.FirstOrDefault(r => r.Source.SystemPortfolioId.HasValue || r.Source.DelphiLivePortfolioId.HasValue)?.Source
-            ?? ComparisonRows.FirstOrDefault()?.Source;
+        void ApplyRows()
+        {
+            StableDisplayRows.Apply(ComparisonRows, displayed
+                .Select(r => new PortfolioComparisonRow(r, PortfolioComparison.Calculate(
+                    closingHistory.GetValueOrDefault(r.StableCode) ?? [], dates))
+                    { Day = PortfolioDailyPerformance.Calculate(dailyHistory.GetValueOrDefault(r.StableCode) ?? [], SelectedDay) })
+                .OrderBy(r => r.StrategyName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(r => r.Source.ComparisonPairId).ThenBy(r => r.Source.GateProfile).ThenBy(r => r.StableCode, StringComparer.Ordinal),
+                (left, right) => left.HasSameValues(right));
+            SelectedPortfolio = ComparisonRows.FirstOrDefault(r => r.Source.StableCode == selectedCode)?.Source
+                ?? ComparisonRows.FirstOrDefault(r => r.Source.SystemPortfolioId.HasValue || r.Source.DelphiLivePortfolioId.HasValue)?.Source
+                ?? ComparisonRows.FirstOrDefault()?.Source;
+        }
+        if (IsRefreshing) ApplyRefreshedSelection(ApplyRows);
+        else ApplyRows();
         OnPropertyChanged(nameof(WindowText));
         OnPropertyChanged(nameof(HasComparisonRows));
         OnPropertyChanged(nameof(PortfolioListSummary));

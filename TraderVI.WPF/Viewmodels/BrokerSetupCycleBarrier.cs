@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Runtime;
 
 namespace TraderVI.WPF.Viewmodels;
 
@@ -36,8 +37,11 @@ public sealed class BrokerSetupCycleBarrier
 
     public sealed class Setup(Task idle, IDisposable release) : IDisposable
     {
-        public Task WaitForIdleAsync(CancellationToken ct, TimeSpan? maximumWait = null) =>
-            idle.WaitAsync(maximumWait ?? TimeSpan.FromMinutes(2), ct);
+        public async Task WaitForIdleAsync(CancellationToken ct, TimeSpan? maximumWait = null)
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.SetupWait);
+            await idle.WaitAsync(maximumWait ?? TimeSpan.FromMinutes(2), ct).ConfigureAwait(false);
+        }
         public void Dispose() => release.Dispose();
     }
 

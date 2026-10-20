@@ -1,5 +1,19 @@
 # TraderVI Project Status
 
+**Desktop responsiveness, October 20, 2026:** two carry-preview waits and reported UI freezes led
+to a mechanical worker/display correction, prepared separately and **not installed**. Tracked/Shadow/
+recommendation work can capture WPF's dispatcher; scheduled portfolio reads repeat and Live prepares
+evidence there. Worker isolation, one final scheduled refresh, joined display reads, bounded quote
+rows and financial-stage barrier scopes are implemented. A fictional 3,000-quote reconstruction
+reduces maximum dispatcher gap from **614.6 to 26.3 ms** with full history/integrity retained. This
+does not locate the longest native stage or establish a memory leak/SQL bottleneck. **65 focused/
+2,660 full offline tests pass, nine native skipped; WPF Release passes** with 260 existing compiler
+warnings. No fresh security audit/full solution/SSDT qualification. Bounded stage/pulse diagnostics
+are prepared for native follow-up. Reviewed next-session copy is preserved; switch/restart and actual
+responsiveness/setup success require separate operational approval/observation. No native SQL
+rehearsal, profiler attachment, financial action or external workflow ran.
+[Findings, measurements and exact installation steps](reviews/desktop-paper-responsiveness-20261020.md).
+
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
 approval, retaining v1. It adds only exact owned activity/history reads, discovered-order-only request
 guarding and final account/activity cross-checks. Sixty-six offline/four approval-scope checks pass;
@@ -206,8 +220,9 @@ October 20 operator Preview times out at the two-minute desktop-paper-cycle wait
 checks; no carry preview/save is confirmed. A hash-verified bounded read at **10:20:26 Toronto**
 shows the session Monitoring/Blocked with its host gap retained, recent ledger publication at
 10:20:16 and lease renewal at 10:18:54. This proves ongoing paper progress, not completed idle or
-qualification. No new private Delphi failure metadata exists beyond October 19. Retry Preview once
-after the active work completes; repeated timeout needs cycle-stage diagnosis, not a waived barrier.
+qualification. No new private Delphi failure metadata exists beyond October 19. The second reported
+timeout now leads to the separately prepared [responsiveness correction and stage diagnostics](reviews/desktop-paper-responsiveness-20261020.md);
+native cause attribution and setup success remain unverified, with the barrier intact.
 Preserve original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic

@@ -27,6 +27,15 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
     private string portfolioDisplayName = "";
     private bool schemaInstalled;
     private bool busy;
+    public bool IsApplyingSelection { get; private set; }
+
+    private void ApplyRefreshedSelection(Action apply)
+    {
+        bool wasApplying = IsApplyingSelection;
+        IsApplyingSelection = true;
+        try { apply(); }
+        finally { IsApplyingSelection = wasApplying; }
+    }
 
     public ObservableCollection<PortfolioOverviewRow> Portfolios { get; } = [];
     public ObservableCollection<PortfolioCandidateRow> Candidates { get; } = [];
@@ -99,10 +108,13 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             var tracked = await BuildTrackedRowsAsync(null, null);
             var liveRows = await ReadDelphiLiveRowsAsync(cancellationToken);
             selectedCode = SelectedPortfolio?.StableCode;
-            Replace(Portfolios, tracked.Concat(liveRows));
-            SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
-            await RefreshDetailsAsync(cancellationToken);
+            ApplyRefreshedSelection(() =>
+            {
+                Replace(Portfolios, tracked.Concat(liveRows));
+                SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
+            });
             await RefreshComparisonAsync(cancellationToken);
+            await RefreshDetailsAsync(cancellationToken);
             NotifyActions();
             return;
         }
@@ -136,17 +148,20 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         }
         await DescribeGateComparisonsAsync(rows, cancellationToken);
         selectedCode = SelectedPortfolio?.StableCode;
-        Replace(Portfolios, rows);
-        if (selectedCode is not null)
-            SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
+        ApplyRefreshedSelection(() =>
+        {
+            Replace(Portfolios, rows);
+            if (selectedCode is not null)
+                SelectedPortfolio = Portfolios.FirstOrDefault(x => x.StableCode == selectedCode);
+        });
         GenerationStatus = generation is null
             ? "Shadow off · enter TFSA capital to begin"
             : $"Started with {generation.PolicyVersion} · {generation.Status} · current strategies in Settings";
         Status = generation is null
             ? "Daily Shadow is off. Delphi Live accounts have their own activation and execution."
             : "Daily Shadow and Delphi Live use independent virtual accounts and execution rules.";
-        await RefreshDetailsAsync(cancellationToken);
         await RefreshComparisonAsync(cancellationToken);
+        await RefreshDetailsAsync(cancellationToken);
         NotifyActions();
     }
 

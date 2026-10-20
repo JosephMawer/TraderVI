@@ -34,7 +34,7 @@ public sealed partial class PortfoliosViewModel
 
     private async Task<IReadOnlyList<PortfolioOverviewRow>> ReadDelphiLiveRowsAsync(CancellationToken token)
     {
-        try { return ApplyDelphiLiveAccounts(await liveReader.ReadAsync(token), DateTime.UtcNow); }
+        try { return ApplyDelphiLiveAccounts(await Task.Run(() => liveReader.ReadAsync(token), token), DateTime.UtcNow); }
         catch (Exception error) when (error is SqlException or JsonException or InvalidOperationException or ArgumentException)
         {
             liveAccounts.Clear();

@@ -19,6 +19,8 @@ public partial class TradingRecommendationsView : UserControl
     private readonly TradingPromotionRepository promotions = new();
     private readonly TradingRecommendationRepository recommendations = new();
     private readonly SemaphoreSlim gate = new(1, 1);
+    private BrokerSetupCycleBarrier? cycleBarrier;
+    public void SetCycleBarrier(BrokerSetupCycleBarrier barrier) => cycleBarrier = barrier;
     private TradingAccountView? snapshot;
     private TradingAccountView? displayed;
     private TradingAccountReportRequest? reportRequest;
@@ -146,9 +148,17 @@ public partial class TradingRecommendationsView : UserControl
         if (!await gate.WaitAsync(0, token)) return;
         try
         {
-            var workflow = new TradingRecommendationWorkflow(recommendations, new TradingRecommendationQuoteSource());
-            if(PaperTradingMonitor.IsAutomaticPollTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
-                foreach (var account in await recommendations.AssignedAccountsAsync(token)) await workflow.EvaluateAsync(account, token);
+            using (var cycle = cycleBarrier?.TryBeginCycle())
+            {
+                if (cycleBarrier is not null && cycle is null) return;
+                await PaperCycleWorker.RunAsync(Core.Runtime.PaperCycleStage.Recommendations, async () =>
+                {
+                    var workflow = new TradingRecommendationWorkflow(recommendations, new TradingRecommendationQuoteSource());
+                    if (PaperTradingMonitor.IsAutomaticPollTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
+                        foreach (var account in await recommendations.AssignedAccountsAsync(token)) await workflow.EvaluateAsync(account, token);
+                    return true;
+                }, token);
+            }
             // Do not overwrite account-report fields while the operator is editing them.
             if(IsVisible && snapshot is not null) await RefreshDisplayAsync(snapshot.AccountLabel,token);
         }

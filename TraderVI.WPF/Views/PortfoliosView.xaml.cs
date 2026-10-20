@@ -14,6 +14,8 @@ public partial class PortfoliosView : UserControl
 {
     private readonly PortfoliosViewModel viewModel = new();
     private readonly SystemShadowController controller = new();
+    private BrokerSetupCycleBarrier? cycleBarrier;
+    public void SetCycleBarrier(BrokerSetupCycleBarrier barrier) => cycleBarrier = barrier;
     private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text);
     public async Task NavigateAsync(string account, Guid? portfolioId = null)
     {
@@ -67,7 +69,7 @@ public partial class PortfoliosView : UserControl
         DataContext = viewModel;
         viewModel.PropertyChanged += async (_, change) =>
         {
-            if (change.PropertyName == nameof(PortfoliosViewModel.SelectedPortfolio))
+            if (change.PropertyName == nameof(PortfoliosViewModel.SelectedPortfolio) && !viewModel.IsApplyingSelection)
                 await RunUiActionAsync(() => viewModel.RefreshDetailsAsync());
         };
         Loaded += PortfoliosView_Loaded;
@@ -76,14 +78,29 @@ public partial class PortfoliosView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) =>
         viewModel.RefreshAsync(cancellationToken);
 
-    public Task<int> CheckProfitProtectionAsync(CancellationToken ct = default) => controller.PollProgressiveProtectionAsync(ct);
+    public async Task<int> CheckProfitProtectionAsync(CancellationToken ct = default)
+    {
+        using var cycle = cycleBarrier?.TryBeginCycle();
+        if (cycleBarrier is not null && cycle is null) return 0;
+        return await PaperCycleWorker.RunAsync(Core.Runtime.PaperCycleStage.ShadowProtection,
+            () => controller.PollProgressiveProtectionAsync(ct), ct);
+    }
 
     public async Task<SystemShadowPollResult> RunScheduledCycleAsync(
         CancellationToken cancellationToken = default)
     {
-        SystemShadowPollResult result = await controller.PollOnceAsync(cancellationToken);
+        using var cycle = cycleBarrier?.TryBeginCycle();
+        if (cycleBarrier is not null && cycle is null)
+            throw new InvalidOperationException("Paper monitoring is deferred while broker setup completes. Retry afterwards.");
+        return await RunAdmittedCycleAsync(cancellationToken);
+    }
+
+    // Dashboard already owns the admission for its ordered tracked + Shadow operation.
+    internal async Task<SystemShadowPollResult> RunAdmittedCycleAsync(CancellationToken cancellationToken)
+    {
+        SystemShadowPollResult result = await PaperCycleWorker.RunAsync(Core.Runtime.PaperCycleStage.ShadowMonitor,
+            () => controller.PollOnceAsync(cancellationToken), cancellationToken);
         viewModel.ApplyPollResult(result);
-        await viewModel.RefreshAsync(cancellationToken);
         return result;
     }
 
@@ -113,6 +130,7 @@ public partial class PortfoliosView : UserControl
             DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
             if (PaperTradingMonitor.IsAutomaticPollTime(localNow))
                 await RunScheduledCycleAsync();
+            await viewModel.RefreshAsync();
         });
     }
 

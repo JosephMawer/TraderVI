@@ -31,6 +31,18 @@ action and contributes zero clean cohorts. The live collection and durability tr
 
 ## Operational prerequisites
 
+October 20 responsiveness correction is implemented/offline validated and separately prepared;
+it is not installed. Native slowest-stage attribution, responsive controls during paper cycles and
+actual setup idle-boundary success remain unverified. The two-minute barrier and every SQL/lease/
+qualification guard remain. [Measurements, diagnostics and approved-switch prerequisites](reviews/desktop-paper-responsiveness-20261020.md).
+
+- [x] Isolate remaining desktop monitor CPU continuations, remove duplicate scheduled display reads,
+  bound quote rows and add bounded stage/pulse diagnostics; 65 focused/2,660 full offline passes,
+  nine native skips/WPF Release pass. Synthetic dispatcher gap 614.6 → 26.3 ms.
+- [ ] Separately approve the corrected-copy switch; observe native stage duration, completed cycles,
+  responsive controls/setup idle and sustained capacity. Preserve the reviewed TFSA copy and
+  recapture same-copy proof after any build change. No native SQL rehearsal is resumed.
+
 October 18: ADR-0090 progressive protection is installed and enabled for all three current Live paper
 accounts (and all 12 Shadow accounts). Post-start checks preserve five Live holdings' floors/state,
 cash/history, comparison profiles and pending sells. The installed Core hash/host responsiveness are

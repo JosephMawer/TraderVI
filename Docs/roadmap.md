@@ -103,9 +103,12 @@ Next complete actual October 20 carry save/source/checkpoint/restart/all nine
 checks before manual approval/enable. Native SQL rehearsals stay paused. No baseline
 reset, repeated trades or qualification bypass.
 
-October 20 first Preview stops at the two-minute paper-cycle wait, before account checks. Bounded
-10:20 native reads show recent paper publication/renewal, not a completed idle boundary. Next retry
-Preview once after active work finishes; diagnose a repeated timeout before financial save/capture.
+October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.
+Bounded 10:20 evidence shows progress, not idle. The [worker/display correction and bounded stage
+diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are implemented/offline validated in
+separate outputs; the reviewed next-session copy is unchanged. Next coordinate an approved normal
+switch, measure native stages/UI response and verify setup obtains idle. Preserve same-copy recovery,
+all qualification and the dated trial expiry; financial preparation/activation remain separate.
 
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

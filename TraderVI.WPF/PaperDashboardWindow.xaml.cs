@@ -2,6 +2,7 @@
 
 using Core.Db;
 using Core.Oracle;
+using Core.Runtime;
 using Core.Trader;
 using System;
 using System.ComponentModel;
@@ -35,11 +36,23 @@ public partial class PaperDashboardWindow : Window
     private DateTime nextAutomaticPollLocal;
     private Task aiReviewTask = Task.CompletedTask;
     private bool aiReviewStarted;
+    private readonly DispatcherTimer responsivenessTimer = new(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(1) };
+    private long lastDispatcherPulse;
 
     public PaperDashboardWindow()
     {
         manualBuys = new(wealthsimple, brokerSetupCycles);
         InitializeComponent();
+        DelphiLiveTabView.SetCycleBarrier(brokerSetupCycles);
+        PortfoliosTabView.SetCycleBarrier(brokerSetupCycles);
+        TradingRecommendationsTabView.SetCycleBarrier(brokerSetupCycles);
+        responsivenessTimer.Tick += (_, _) =>
+        {
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (lastDispatcherPulse != 0 && System.Diagnostics.Stopwatch.GetElapsedTime(lastDispatcherPulse, now) is var gap && gap > TimeSpan.FromSeconds(2))
+                PaperCycleTimings.DispatcherDelay(gap);
+            lastDispatcherPulse = now;
+        };
         DataContext = viewModel;
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
         TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
@@ -215,9 +228,15 @@ public partial class PaperDashboardWindow : Window
         if (family == Core.Runtime.EngineStrategySettings.Shadow)
         {
             var result = await PortfoliosTabView.RunScheduledCycleAsync(shutdown.Token);
+            await PortfoliosTabView.RefreshAsync(shutdown.Token);
             return $"Reevaluated Shadow: {result.SignalsCreated} signals; {result.Warnings.Count} evidence warnings. See Portfolios.";
         }
-        var cycle = await monitor.PollOnceAsync(viewModel.AutomaticGhostExitsEnabled, shutdown.Token);
+        using var admission = brokerSetupCycles.TryBeginCycle();
+        if (admission is null) return "Paper monitoring is deferred until broker setup finishes. Retry afterwards.";
+        bool exitsEnabled = viewModel.AutomaticGhostExitsEnabled;
+        var cycle = await PaperCycleWorker.RunAsync(PaperCycleStage.TrackedMonitor,
+            () => monitor.PollOnceAsync(exitsEnabled, shutdown.Token), shutdown.Token);
+        admission.Dispose();
         viewModel.ApplyCycle(cycle); await viewModel.RefreshAsync(shutdown.Token);
         return "Trading monitor reevaluated. See Trading for position results and evidence availability.";
     }
@@ -233,15 +252,16 @@ public partial class PaperDashboardWindow : Window
             : "History mode";
         await RefreshSafelyAsync();
         await DelphiLiveTabView.RefreshAsync(shutdown.Token);
+        lastDispatcherPulse = System.Diagnostics.Stopwatch.GetTimestamp();
+        responsivenessTimer.Start();
         timer.Start();
     }
 
     private async void Timer_Tick(object? sender, EventArgs e)
     {
         if (timerTickRunning || shutdown.IsCancellationRequested) return;
-        using var cycle = brokerSetupCycles.TryBeginCycle();
-        if (cycle is null) return;
         timerTickRunning = true;
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.Dashboard);
         try
         {
             viewModel.RefreshClock();
@@ -254,8 +274,8 @@ public partial class PaperDashboardWindow : Window
             DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
             if (PaperTradingMonitor.IsAutomaticPollTime(localNow) && localNow >= nextAutomaticPollLocal)
             {
-                nextAutomaticPollLocal = PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
-                await RunMonitorCycleAsync("Scheduled");
+                if (await RunMonitorCycleAsync("Scheduled", refreshDisplay: false))
+                    nextAutomaticPollLocal = PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
             }
             await PortfoliosTabView.CheckProfitProtectionAsync(shutdown.Token);
             if (displayRefresh.ShouldRefresh(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
@@ -366,12 +386,12 @@ public partial class PaperDashboardWindow : Window
         catch(Exception ex){MessageBox.Show(this,ex.Message,"Exit could not be recorded",MessageBoxButton.OK,MessageBoxImage.Warning);}
     }
 
-    private async Task RunMonitorCycleAsync(string source)
+    private async Task<bool> RunMonitorCycleAsync(string source, bool refreshDisplay = true)
     {
         using var scheduled = brokerSetupCycles.TryBeginCycle();
-        if (scheduled is null) return;
+        if (scheduled is null) return false;
         if (!await cycleGate.WaitAsync(0))
-            return;
+            return false;
 
         try
         {
@@ -379,18 +399,17 @@ public partial class PaperDashboardWindow : Window
             if (!PaperTradingMonitor.IsAutomaticPollTime(localNow))
             {
                 viewModel.MonitorStatus = "Market closed · poll skipped";
-                return;
+                return false;
             }
 
             PollNowButton.IsEnabled = false;
             viewModel.MonitorStatus = $"{source} poll running…";
             try
             {
-                PaperMonitorCycleResult cycle = await monitor.PollOnceAsync(
-                    viewModel.AutomaticGhostExitsEnabled,
-                    shutdown.Token);
+                bool exitsEnabled = viewModel.AutomaticGhostExitsEnabled;
+                PaperMonitorCycleResult cycle = await PaperCycleWorker.RunAsync(PaperCycleStage.TrackedMonitor,
+                    () => monitor.PollOnceAsync(exitsEnabled, shutdown.Token), shutdown.Token);
                 viewModel.ApplyCycle(cycle);
-                await viewModel.RefreshAsync(shutdown.Token);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -399,7 +418,7 @@ public partial class PaperDashboardWindow : Window
 
             try
             {
-                SystemShadowPollResult shadowCycle = await PortfoliosTabView.RunScheduledCycleAsync(shutdown.Token);
+                SystemShadowPollResult shadowCycle = await PortfoliosTabView.RunAdmittedCycleAsync(shutdown.Token);
                 viewModel.AddEvent(
                     shadowCycle.CompletedUtc,
                     $"Shadow: {shadowCycle.OrdersFilled} fill(s), {shadowCycle.SignalsCreated} signal(s), {shadowCycle.Warnings.Count} warning(s).",
@@ -409,6 +428,11 @@ public partial class PaperDashboardWindow : Window
             {
                 viewModel.AddEvent(DateTime.UtcNow, $"Shadow monitor: {ex.GetType().Name}: {ex.Message}", "Error");
             }
+            // Both financial stages have completed and disposed their settings leases.
+            // Let a pending setup proceed before optional display reads.
+            scheduled.Dispose();
+            if (refreshDisplay) await RefreshSafelyAsync();
+            return true;
         }
         catch (OperationCanceledException) when (shutdown.IsCancellationRequested)
         {
@@ -423,6 +447,7 @@ public partial class PaperDashboardWindow : Window
             PollNowButton.IsEnabled = viewModel.CanPollNow;
             cycleGate.Release();
         }
+        return false;
     }
 
     private async Task RefreshSafelyAsync()
@@ -455,6 +480,7 @@ public partial class PaperDashboardWindow : Window
     private void Window_Closed(object? sender, EventArgs e)
     {
         timer.Stop();
+        responsivenessTimer.Stop();
         authTimer.Stop();
         shutdown.Cancel();
         manualBuys.Dispose();
@@ -523,6 +549,7 @@ public partial class PaperDashboardWindow : Window
         e.Cancel = true;
         closingMonitor = true;
         timer.Stop();
+        responsivenessTimer.Stop();
         authTimer.Stop();
         shutdown.Cancel();
         connectionWindow?.Close();
