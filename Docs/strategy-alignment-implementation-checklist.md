@@ -200,18 +200,19 @@ returns are negative and no automatic-execution qualification follows. [Current 
   show all nine reviewed native/scoped references, NormalV1/current source, original-reference carry,
   reviewed close expiry and assignment approval available. Read-only packet file existence is
   confirmed; host permission absent. Protected contents are not independently decoded/audited.
-- [ ] Observe explicit operator assignment approval/save confirmation, then separate host enable.
-  The operator reports the immediate retry also fails quickly. Hash-verified installed read confirms
-  zero managed revisions/unchanged recent financial imports; last retained setup wait 4.49 seconds.
-  Exact failing predicate remains unknown; no stale-review waiver is authorized.
+- [x] Observe explicit operator assignment approval/save confirmation in the October 20 screenshot:
+  approved Normal, Transition, buying subject to current checks, automatic trading off/no order sent.
+  Earlier rejected attempts/zero-revision read remain historical; original predicate is unproven.
+- [ ] Observe separate operator host enable/readback and actual first-cycle status. Approval alone
+  creates neither host permission nor completed automatic execution.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
 - [x] Verify operator normal closure/process exit and install the two corrected UI output files in
   standard Release output, October 20 at 14:41 Toronto. All 123 other runtime hashes and protected
   checkpoint/packet hashes remain unchanged; no host permission. No app started by installation.
-- [ ] Reopen with normal project --no-build and observe the native approval diagnostic or saved
-  confirmation; separate host enable remains manual.
+- [x] Verify normal-output restart (PID 118432, corrected UI/original Core hashes) and observe saved
+  approval confirmation. Local packet present/host permission absent; host enable remains manual.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.

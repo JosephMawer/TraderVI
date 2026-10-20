@@ -1,23 +1,29 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: October 20 native first execution review displays all nine evidence references after same-build restart; assignment approval/host enable pending. October 19 permission remains expired.**
-The next operator screenshot shows stale/incomplete/account-mismatch rejection instead of saved
+**Current decision: October 20 assignment approval saved/read back in operator UI; host off, separate enable/first-cycle observation pending. October 19 permission remains expired.**
+After desktop correction/restart, the latest screenshot explicitly confirms approved Normal,
+Transition, buying subject to current risk checks, automatic trading off and execution approval
+saved/no order sent. One normal-output owner (PID 118432), corrected UI/original Core hashes, packet
+present/host permission absent are independently checked. No enabled execution or completed live
+cycle is inferred. Next separate operator enable and actual status; original rejection predicate
+remains unproven, and the native/full-production limitations remain unchanged.
+An earlier operator screenshot showed stale/incomplete/account-mismatch rejection instead of saved
 assignment confirmation; an immediate fresh retry is also reported to fail quickly. Installed read
 confirms zero managed revisions and unchanged financial imports; exact predicate remains unknown.
 Desktop-only bounded review admission/exact rejected-account diagnostics are prepared/tested (17
 focused/2,676 full offline passes, nine native skips/WPF compile). Core and protected packet identity
 remain unchanged. Operator normal close/process exit is verified; the two UI files are installed
 in standard Release output at 14:41 Toronto, all 123 other runtime and protected checkpoint/packet
-hashes unchanged, no host permission. Next normal project --no-build startup and actual diagnostic/
-approval confirmation; installation starts no app and grants no financial authority.
+hashes unchanged, no host permission at installation. Normal project --no-build startup and actual
+approval confirmation are subsequently observed above; installation itself started no app or financial action.
 Do not repeat trades, replace references/checkpoint/packet or enable the host to resolve this error.
 Operator screenshots after selection of the two original liquidation sales show exact NormalV1,
 current source review, carried original references, actual capital ceiling, today's regular-close
 expiry and all nine native/scoped reviewed references. Assignment approval is available; host enable
 is disabled. Local read-only metadata confirms protected qualification packet creation; host
 permission remains absent. This records native UI/file-existence evidence, not independent protected
-content inspection or full-production qualification. Next operator explicitly approves assignment,
-checks saved confirmation, then separately chooses whether to enable real automatic execution.
+content inspection or full-production qualification. Operator assignment approval/saved confirmation
+are subsequently observed above; separate host enable remains required for automatic execution.
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
 are implemented/offline tested and installed with execution off. Operator carry save/readback and
 checkpoint capture are observed; post-restart first review now displays all nine references as above.

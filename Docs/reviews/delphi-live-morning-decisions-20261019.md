@@ -1150,3 +1150,23 @@ Receipt: `artifacts/tfsa-setup-wait-20261020/approval-ui-install-receipt.json`. 
 normal `dotnet run --project TraderVI.WPF -c Release --no-build`, prepares the current first review
 and explicitly approves promptly if the reviewed facts/all nine checks match. Actual saved
 confirmation or the precise rejection diagnostic remains required before separate host enable.
+
+### Operator assignment approval saved/read back — October 20
+
+The latest operator screenshot explicitly shows execution approval saved/no order sent, approved
+Normal, buying subject to current risk checks, Transition state and automatic trading off/no host
+permission. This supersedes the earlier approval blocker; the original failed predicate remains
+unproven and no precise rejection is observed after the desktop correction.
+
+Read-only local process/hash/existence checks confirm one normal-output owner, PID 118432, the
+installed UI hash CE77B3CA2FF03965162917CCE6B221A8931A484835E8B1052DABF4737272929C and original Core
+hash EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F. Qualification packet present,
+host permission absent. No SQL/broker helper, financial save, order, build or launch is performed by
+the agent for this check. Native approval is observed from supplied UI/readback; it does not prove
+enabled execution or a completed live cycle.
+
+Next the operator may explicitly Enable reviewed host when ready for real automatic orders under
+the accepted trial, keep the app running and inspect its status. Enable saves/readbacks the exact
+assignment permission; fresh account/order/risk/source/protection checks precede action. Waiting may
+be the first status. New buying still expires at October 20 regular close; no next-day renewal or
+general production qualification follows. Record actual first-cycle and close behavior separately.

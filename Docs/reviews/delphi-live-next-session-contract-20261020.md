@@ -1,12 +1,17 @@
 # Delphi Live Normal — accepted October 20 first execution session
 
-**Status: explicitly accepted October 19; implemented, offline tested and installed. October 20 native first review displays all nine evidence references; assignment approval/host enable remain pending.**
+**Status: explicitly accepted October 19; October 20 native first review/all nine references observed and assignment approval saved/read back. Host off; separate operator enable/first-cycle observation pending.**
+The latest operator screenshot confirms approved Normal, Transition, buying subject to current risk
+checks, automatic trading off and execution approval saved/no order sent. One corrected normal-output
+owner (PID 118432), exact UI/original Core hashes, packet present/host permission absent are verified.
+Next manual host enable and actual status. The earlier rejection predicate is unproven; successful
+approval does not expand the accepted trial or today's close expiry.
 After normal same-build restart, operator screenshots show the two original opening sales selected,
 exact NormalV1/current source, carried references, actual capital ceiling, today's close expiry and
 all nine reviewed evidence references. Approval is available; host enable is disabled. Read-only
 metadata confirms the protected qualification packet exists and host permission remains absent.
-Protected contents are not independently decoded. Next operator approves the reviewed assignment
-and verifies save confirmation before separate host enable; agent performs neither action.
+Protected contents are not independently decoded. Operator assignment approval/save confirmation
+are subsequently observed above; separate host enable remains. The agent performs neither action.
 The next operator screenshot is instead a stale/incomplete/account-mismatch rejection. It confirms
 no saved approval. Source validates before session append and applies a two-minute review lifetime,
 fresh account/fingerprint and unchanged risk/position checks. One fresh Prepare first execution
@@ -18,8 +23,9 @@ through the existing review window and reports the exact rejected-account valida
 17 focused/2,676 full offline passes, nine native skips/WPF compile pass. Core identity remains
 unchanged. After verified operator normal closure/process exit, the two corrected UI files are
 installed in normal Release output at 14:41 Toronto. All 123 other runtime and protected checkpoint/
-packet hashes remain unchanged, no host permission. Next normal project --no-build startup/native
-diagnostic or approval confirmation. No new proof, baseline, trade or financial permission was saved.
+packet hashes remain unchanged, no host permission at installation. Normal project --no-build startup
+and successful approval confirmation are subsequently observed above. Installation saved no new
+proof, baseline, trade or financial permission.
 October 20: two reported paper-cycle wait timeouts block Preview before account checks. A separate
 [responsiveness correction](desktop-paper-responsiveness-20261020.md) 55e429d5 is installed under explicit
 approval at 11:03:56, execution off; the reviewed copy below is preserved. Two native wakes expose
@@ -139,7 +145,8 @@ the separate operator step below.
 - [x] Observe actual October 20 carry/checkpoint save, same-build normal restart and native first
   review displaying all nine references. Screenshots/file metadata support this observation;
   protected contents are not independently decoded/audited.
-- [ ] Operator reviews and approves the assignment, then separately enables the reviewed host.
+- [x] Observe operator assignment approval saved/read back in October 20 native UI; no order sent.
+- [ ] Operator separately enables the reviewed host and verifies actual first-cycle status.
 
 ## Operator sequence
 

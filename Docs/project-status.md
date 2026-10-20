@@ -1,6 +1,14 @@
 # TraderVI Project Status
 
-**Assignment approval blocked, October 20:** the operator reports the immediate fresh-review retry
+**Assignment approval saved, October 20:** the operator screenshot now explicitly confirms execution
+approval saved, approved Normal, Transition state, buying subject to current risk checks and automatic
+trading off; approval sent no order. One normal-output owner (PID 118432), corrected UI/original Core
+hashes, packet present and absent host permission are independently checked. This is observed native
+approval/readback, not enabled execution or a completed live cycle. Next separate operator host enable
+and actual status/first-cycle observation. The original rejection predicate remains unproven; no
+diagnostic exception is observed after the correction.
+
+**Earlier assignment approval blocker, October 20:** the operator reports the immediate fresh-review retry
 also fails quickly. A hash-verified installed read finds zero managed revisions and unchanged financial
 facts in eight recent imports; the last retained setup wait is 4.49 seconds. These do not identify the
 exact failing validation predicate. Desktop-only correction retains paper admission through the
@@ -10,7 +18,7 @@ serial offline tests pass**, nine native skipped; Release WPF compilation passes
 qualification identity remains unchanged. After operator normal close and verified process exit,
 the two corrected UI files are installed in standard Release output at **14:41 Toronto**. All 123
 other runtime hashes and protected checkpoint/packet hashes remain unchanged; no host permission.
-Next operator normal project `--no-build` startup and native diagnostic/approval readback.
+Subsequent normal project restart and successful native approval confirmation are observed above.
 No financial save/host enable/order is performed by the agent. [Evidence](reviews/delphi-live-morning-decisions-20261019.md#desktop-approval-diagnosis-and-review-admission-correction--october-20).
 
 **First execution review observed, October 20:** after the normal-output same-build restart, the
@@ -19,8 +27,8 @@ original references, current source review, actual purchase ceiling, today's reg
 and all nine native/scoped evidence references present; assignment approval is available and host
 enable remains disabled. Read-only file metadata confirms the protected qualification packet now
 exists and host permission remains absent. This is native UI/file-existence evidence, not an
-independent audit of protected contents. Next explicit operator assignment approval/readback, then
-separate host enable. No approval, order or host enable is performed by the agent.
+independent audit of protected contents. Subsequent operator assignment approval/readback is observed
+above; separate host enable remains. No approval, order or host enable is performed by the agent.
 
 **Normal checkout startup, October 20:** the operator requires the normal `dotnet run --project
 TraderVI.WPF -c Release` workflow on `master`; all TFSA/performance/setup-wait code is already there.
@@ -33,7 +41,7 @@ environment and independently verified outside the sandbox. The operator restart
 output with `--no-build` at **13:43:30 Toronto**, PID **72928**. Read-only inspection verifies one
 owner, all 125 runtime hashes unchanged and the dated checkpoint present; qualification packet and
 host permission remained absent at the restart check. Subsequent native first review is observed
-above; process restart alone did not qualify recovery. Assignment/activation remain pending.
+above; process restart alone did not qualify recovery. Assignment is subsequently saved; host enable remains pending.
 Related ignored artifact folders total about **8.45 GiB**, principally repeated build/dependency
 copies. No deletion occurred; preserve live output/proof and retained evidence while obsolete-output
 cleanup is deferred until normal-output recovery is verified. [Normal commands](running.md#build-and-run-the-local-desktop-checkout).
@@ -64,7 +72,7 @@ cash-only baseline readback. Read-only local inspection confirms the October 20 
 packet/host permission remain absent, PID 78688 uses the exact copy and all 125 manifest hashes
 still match. No checkpoint content is decoded or rewritten. The normal-output same-build restart
 is subsequently verified above, followed by native UI evidence of all nine references. Operator
-assignment approval/enable remain pending. Both performance commits remain included; further
+assignment approval is subsequently observed above; host enable remains pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 
