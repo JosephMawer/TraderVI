@@ -188,8 +188,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Observe initial readiness and reviewed carry Preview after the queued wait correction:
   October 20 operator screenshots show retained original references/evidence, unchanged cash-only
   book, no holds/pending orders and all four original order facts matching. This is UI evidence only.
-- [ ] Confirm actual manual carry save/readback; same-copy capture/restart and all nine references
-  remain required. A preview is not a saved carry or execution qualification.
+- [x] Observe actual manual carry save/readback confirmation in the October 20 operator screenshot:
+  original reference records/values/source times/holds unchanged; no order/assignment/host permission.
+- [ ] Capture a native checkpoint with fresh source, then same-copy normal restart and all nine
+  references. UI save/readback confirmation is not completed execution qualification.
 - [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
   queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
   existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial
@@ -198,7 +200,7 @@ returns are negative and no automatic-execution qualification follows. [Current 
   and verified prior exit; all 125 manifest files/calendar match, one exact owner/no authority/packet/
   checkpoints. Both performance fixes remain included. Native interactive acceptance is unverified.
 - [x] Observe successful readiness/carry-preview UI in that copy; sustained capacity and native
-  financial save/readback/source/same-copy qualification remain unverified.
+  source/same-copy qualification remain unverified; manual carry save/readback UI is observed above.
 - [x] After explicit TFSA-session switch approval, normally close standard Release PID 61768 and
   open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
   124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.

@@ -18,9 +18,11 @@ owner, no host permission, packet or either dated checkpoint. Core SHA-256:
 `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`. Subsequent October 20 operator
 screenshots confirm readiness completes and carry Preview displays retained original reference
 values/evidence times, unchanged cash/buying power, no holdings/pending orders/holds and matching
-four original order facts, with today's reviewed close expiry. This is operator UI evidence, not
-independent save/readback or qualification. Next explicit manual carry save and confirmed readback;
-source/checkpoint/restart/nine references/assignment/enable remain pending. Both performance commits remain included; further
+four original order facts, with today's reviewed close expiry. The operator then explicitly saves
+the carry; a subsequent screenshot confirms saved/readback with original references/values/source
+times/holds unchanged, no reconstructed historical close/open and no order/assignment/host permission.
+This is operator UI save/readback evidence; native qualification independently rechecks it next.
+Fresh source/checkpoint/restart/nine references/assignment/enable remain pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

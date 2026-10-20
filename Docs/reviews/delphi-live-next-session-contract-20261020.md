@@ -21,8 +21,11 @@ The setup-wait copy 2cf08c33 starts at 12:27:51, PID 78688, after operator norma
 process exit; all 125 manifest files/calendar match, one exact owner, no authority/packet/checkpoints.
 The operator subsequently supplies successful readiness and carry Preview screenshots, preserving
 original references/evidence, unchanged cash-only account/all four original order facts, no holds
-and the reviewed October 20 expiry. Manual save/readback and all subsequent qualification remain
-pending; use this same copy for capture/recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
+and the reviewed October 20 expiry. The operator explicitly saves the carry and supplies a saved/
+readback-confirmed screenshot: original reference records/values/source times/holds remain unchanged,
+no historical close/open is invented and no order/assignment/host permission is created. Next native
+checkpoint/source/restart/nine-reference qualification independently rechecks it; use this same copy
+for capture/recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk

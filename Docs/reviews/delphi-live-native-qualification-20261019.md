@@ -25,9 +25,11 @@ correction is prepared/offline tested: interactive waiting retains admission, re
 and can be cancelled by closing setup before checks start. Installation is verified above; native
 readiness and carry Preview are subsequently observed in October 20 operator screenshots. The
 preview preserves original references/evidence, unchanged cash-only book, no holds/pending orders,
-matching four original order facts and today's expiry. No save/readback is yet confirmed. Next
-manual carry save, then native source/checkpoint/restart/nine-reference review; no qualification is
-inferred from the preview or coordination correction.
+matching four original order facts and today's expiry. The operator then explicitly saves the
+carry; a subsequent screenshot confirms saved/readback, original reference records/values/source
+times/holds unchanged, no invented historical close/open and no order/assignment/host permission.
+Next native source/checkpoint/restart/nine-reference review independently rechecks saved evidence;
+no completed execution qualification is inferred from the screenshot or coordination correction.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

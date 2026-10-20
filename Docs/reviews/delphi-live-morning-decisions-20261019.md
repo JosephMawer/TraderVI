@@ -1000,3 +1000,14 @@ October 20 carry action. It is not a confirmed save or independent native packet
 readback confirmation before checkpoint capture; assignment/host enable stay separate. No agent
 financial action, source waiver, new trade or reference reset occurs. This establishes actual
 readiness/preview UI progress after the coordination fix, not sustained capacity or profitability.
+
+### Operator carry save/readback confirmed — October 20
+
+The operator explicitly clicks Save reviewed October 20 carry and supplies the saved/readback
+confirmation. It states original initial reference records/values/source times/holds are unchanged,
+no historical closing/opening value is reconstructed, and no order, strategy approval or host
+permission is created. This is operator UI evidence of the save/readback, not an independently
+issued native qualification or authority for the agent to save financial records. Next Capture
+native recovery checkpoint using a fresh Normal source; wait for successful save before normal
+same-copy restart. Do not change the executable/build, repeat trades or reset initial references.
+All nine references and separate operator assignment approval/host enable remain pending.
