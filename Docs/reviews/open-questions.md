@@ -18,6 +18,12 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### After the October 20 supervised trial — October 19, 2026
 
+- **October 20 follow-up:** the operator now requests tomorrow's readiness without repeating setup.
+  A concrete [October 21-only continuation proposal](delphi-live-continuation-contract-20261021.md)
+  is prepared for decision: existing assignment and original references/holds/trades preserved,
+  unchanged cash-only/no-outside-change condition, fresh all-nine-check/native build review, explicit
+  dated approval and separate host enable. Acceptance/implementation remain pending. It deliberately
+  does not assume the October 20 carry or old enabled host grant can renew buying automatically.
 - **Deferred:** determine the reviewed transition from the trial-only carried original references to
   later buying or ordinary production continuation. The accepted October 20 exception neither
   recovers missing historical closing/opening evidence nor supplies full external cash-event proof.

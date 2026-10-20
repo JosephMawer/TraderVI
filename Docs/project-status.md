@@ -1,5 +1,14 @@
 # TraderVI Project Status
 
+**October 21 preparation requested, October 20:** the operator asks to preserve saved trades/risk
+references and avoid repeating initial setup. The concrete [continuation proposal](reviews/delphi-live-continuation-contract-20261021.md)
+is drafted; acceptance is pending. Existing dated scope/carry cannot roll again and the durable
+session has no implemented renewal action. Proposed path: a separately approved, cash-only October
+21 permission on the existing assignment, original records/holds unchanged, all nine checks/current
+source/build reviewed, exact next close expiry and separate host enable. Core changes still require
+actual new-build recovery evidence, not relabelling yesterday's packet. No new permission, code or
+financial mutation is implemented by drafting; tomorrow is not yet ready to activate.
+
 **October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy
 evaluations run from 15:20:59 through 16:00:00.470, latest revision 49/Active. Gaps are 67.79–234.20
 seconds (mean 156.04), not a guaranteed 30-second cadence. Pre-close evaluations have no saved

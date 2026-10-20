@@ -165,8 +165,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   passes/nine native skips; WPF Release and six synthetic panel renders pass. October 19 remains expired.
 - [x] Install/verify b1095ae9 next-session copy at 23:08:41 Toronto, PID 83608, exact output/Core hashes,
   one visible responding owner; execution permission/packet/both dated checkpoints absent.
-- [ ] Operator performs actual October 20 carry save/readback, fresh source, native checkpoint/restart
-  and all nine references. An installed screen/offline tests do not qualify those observations.
+- [x] Observe October 20 operator carry save/readback, fresh source, native checkpoint/restart and
+  all nine references, then approval/enable/initial evaluation and cutoff as detailed below.
+  These are dated native observations, not conclusions from installation/offline tests.
 - [x] Trace the repeated October 20 Preview wait/UI freeze; implement worker invocation, joined/single
   display refreshes, bounded quote rows and financial-stage barrier scopes with bounded diagnostics.
   65 focused/2,660 full offline passes, nine native skips; isolated WPF Release passes. Synthetic
@@ -219,6 +220,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   heartbeat deleted. No attempted rejected-buy was exercised and no controls were changed.
 - [ ] Observe actual automatic submission/fill/populated protection in a separately authorized
   session; preserve original IDs on uncertainty. This trial grants no next-day buying renewal.
+- [x] Draft the requested October 21 existing-assignment continuation with original trades/references/
+  holds preserved and no repeated verification trades or baseline setup. [Concrete proposal](reviews/delphi-live-continuation-contract-20261021.md).
+- [ ] Obtain explicit acceptance of the October 21-only exception; implement/validate append-only
+  continuation, exact native proof/recovery and explicit session review/approval/host enable.
+  Proposal is not installed readiness or financial authority; all nine checks/close expiry remain.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.

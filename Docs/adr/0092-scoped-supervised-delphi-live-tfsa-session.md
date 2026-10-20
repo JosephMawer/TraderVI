@@ -1,6 +1,6 @@
 # ADR-0092 — First supervised Delphi Live TFSA session
 
-**Date:** October 18, 2026; limited-trial amendment accepted October 19. **Status:** Preparation implemented; actual qualification/activation pending.
+**Date:** October 18, 2026; limited-trial amendment accepted October 19. **Status:** October 20 scoped trial activated/evaluated and expired at close; later buying remains unauthorized.
 **Domains:** architecture, risk-management, market-microstructure.
 **Related:** ADR-0053/0055/0067, ADR-0075/0076/0079–0086, ADR-0090.
 
@@ -204,6 +204,11 @@ carry may preserve the original references/holds for October 20 only, without re
 historical close/open or changing production/older scopes. No financial save or activation is granted
 by this ADR edit. All nine checks, current source, same-copy restart and separate operator carry save,
 assignment approval/host enable remain required; buying expires at the reviewed October 20 close.
+
+## Proposed October 21 continuation
+
+The operator's subsequent October 21 readiness request has a [concrete continuation proposal](../reviews/delphi-live-continuation-contract-20261021.md).
+It is not yet accepted or implemented and does not supersede the dated limits above.
 
 ## Review questions
 

@@ -26,6 +26,11 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
+**October 21 preparation:** review/accept the concrete [dated continuation proposal](reviews/delphi-live-continuation-contract-20261021.md),
+then implement append-only existing-assignment renewal and its UI/native evidence integration.
+Preserve original trades/references/holds; no repeating initial setup, silent date extension or
+inherited host enable. Operator policy decision remains pending; October 20 permission stays expired.
+
 **October 18 execution request:** prioritize the shortest qualified Delphi Live → TFSA route
 for the requested October 19 target, preserving the existing account/protection/execution boundaries.
 Normal is the working integration candidate after comparing the three saved books; none is qualified

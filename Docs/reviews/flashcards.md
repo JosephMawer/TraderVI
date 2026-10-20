@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Retained assignment and dated buying permission — October 20
+
+- **Q:** Does an ongoing Normal assignment authorize buying tomorrow after a dated trial expires? **A:** No. The assignment/history remain, but the scope's buying permission expires. A later session needs its own accepted contract, current evidence and explicit permission; enabling the old host does not supply them. (ADR-0092)
+- **Q:** Does fresh next-session verification require repeating the original test trades or saving new initial risk references? **A:** No. Recover original records/IDs and preserve references/holds. New date/build qualification must be real; any necessary build-recovery restart re-reads those same orders rather than replaying trades. (October 21 proposal, not yet accepted)
+
 ### Native first-day engineering trial — October 19
 
 - **Q:** Why capture the native checkpoint after every verification trade and cash-only initial setup? **A:** One normal restart can then verify all original order IDs and the unchanged saved references. A test trade after the cash anchor would be an outside change; a replacement baseline cannot erase it. (ADR-0092)
