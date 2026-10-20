@@ -191,8 +191,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
   queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
   existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial
   passes, nine native skipped/WPF Release. No source, fence or financial guard change.
-- [ ] Install/observe the separate setup-wait copy with both performance fixes retained. Actual
-  idle-boundary/carry preview and new same-copy qualification remain unverified.
+- [x] Launch separate setup-wait copy 2cf08c33 at 12:27:51, PID 78688, after operator normal closure
+  and verified prior exit; all 125 manifest files/calendar match, one exact owner/no authority/packet/
+  checkpoints. Both performance fixes remain included. Native interactive acceptance is unverified.
+- [ ] Observe actual idle-boundary/carry preview and new same-copy qualification in that copy.
 - [x] After explicit TFSA-session switch approval, normally close standard Release PID 61768 and
   open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
   124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.

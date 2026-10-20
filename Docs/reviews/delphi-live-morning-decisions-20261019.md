@@ -963,3 +963,26 @@ Release build passes, wpf-build.log, 262 existing compiler warnings; cached Pkcs
 advisories remain separate. No fresh audit/full-solution/SSDT or native SQL rehearsal claim.
 Prepared output: artifacts/tfsa-setup-wait-20261020/working-copy; installation and actual wait/preview
 are the next steps. No agent order, financial save, risk-reference reset or activation occurred.
+
+### Setup-wait copy launched — October 20, 12:27 Toronto
+
+After tests/review, 2cf08c33 is committed and the final Release output is rebuilt against that source.
+The separate manifest includes 125 files and reviewed calendar; both performance commits remain
+ancestors. The first automated normal-close request does not exit the old process within 30 seconds;
+no second owner is started. The operator reports closure, but the old owner still exists, so the
+guarded launch refuses. After clarification, the operator closes the remaining app; zero owners are
+verified before launching. No force-stop, window-message override or financial reset is used.
+
+The guarded launcher starts PID **78688** at **12:27:51 Toronto**, exact setup-wait artifact path.
+All 125 output hashes/calendar match. Core SHA-256:
+EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F.
+One exact owner is verified, with a scoped process responding sample; native UI interaction is not
+claimed. Host permission/qualification packet/both dated checkpoints remain absent. Receipt:
+artifacts/tfsa-setup-wait-20261020/switch-receipt.json. Normal approved paper/account synchronization
+resumes. No SQL rehearsal, actual order, carry/reference save, assignment, host enable or waiver.
+
+The operator instructions now point to this exact copy and its Run-ReviewedDelphiLiveNormal.cmd for
+normal recovery restart. All older copies/helpers remain preserved. Next open Execution setup and
+allow its initial queued readiness wait to finish, then confirm the unchanged no-outside-change
+condition and click Preview. Leave setup open while elapsed status advances; closing cancels waiting.
+Actual idle, preview/readback, fresh source and all nine references remain unverified.

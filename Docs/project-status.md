@@ -11,9 +11,14 @@ busy-close guard. The noninteractive host wait/SQL fences/source/financial check
 Nine focused and **2,668 full serial offline tests pass**, nine native skipped; separate Release WPF
 build passes with 262 existing compiler warnings and cached Pkcs NU1902/NU1903 advisories. No fresh
 audit/full-solution/SSDT claim, SQL rehearsal, agent financial action or qualification waiver.
-Output is separate in `artifacts/tfsa-setup-wait-20261020/working-copy`; installation/native wait and
-carry preview remain pending. Both performance commits remain included; further history-cost work
-stays deferred. The decision log owns the detailed evidence and next native observations.
+After the automated close does not exit the old app, the operator closes it normally; no owner is
+left before launch. Copy **2cf08c33** starts **12:27:51 Toronto**, PID **78688**, in separate
+`artifacts/tfsa-setup-wait-20261020/working-copy`. All **125 manifest files/calendar** match, one exact
+owner, no host permission, packet or either dated checkpoint. Core SHA-256:
+`EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`. Native UI interaction,
+actual idle and carry preview remain unverified. Both performance commits remain included; further
+history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
+The decision log owns detailed evidence and next native observations.
 
 **Desktop responsiveness, October 20, 2026:** the separately approved serialization follow-up
 **30775d12 starts at 11:32:14 Toronto**, PID **131204**, execution off, all 124 manifest files matching.

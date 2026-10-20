@@ -9,20 +9,21 @@ Earlier October 20 Preview stopped before account checks at the two-minute deskt
 No carry preview/save is confirmed. A bounded 10:20:26 Toronto read confirms ongoing paper publication
 and lease renewal; it does not establish an idle boundary, source qualification or carry save. Retry
 Preview once after active paper work finishes; preserve all original evidence if it times out again.
-Current executable: `C:\src\TraderVI\artifacts\desktop-history-cost-20261020\working-copy\TraderVI.WPF.exe`.
-Reviewed performance source **30775d12** includes **55e429d5**, retaining all next-session qualification
-and risk controls; Core SHA-256 `CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF`.
-After separate explicit operator approval and normal standard-Release closure, it starts October 20
-at **11:53:41 Toronto**, PID **102648**. All 124 manifest files/calendar, one responding visible
-desktop and absent host permission/packet/both October 19/20 checkpoints are verified. Receipt:
-`artifacts/desktop-history-cost-20261020/tfsa-resume-switch-receipt.json`.
-The old b1095ae9 copy remains preserved. Retry carry Preview now; actual setup idle and financial
-qualification remain unverified. Capture/recovery must both use this corrected copy.
+Current executable: `C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\working-copy\TraderVI.WPF.exe`.
+Reviewed source **2cf08c33** adds cancellable queued setup waiting, includes **55e429d5/30775d12**, and
+retains all next-session qualification/risk controls. Core SHA-256:
+`EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`.
+After normal operator closure and verified old-process exit, it starts October 20 at **12:27:51
+Toronto**, PID **78688**. All 125 manifest files/calendar, one exact owner and absent host permission/
+packet/both October 19/20 checkpoints are verified. Native UI acceptance remains unverified. Receipt:
+`artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
+Older copies remain preserved. Actual setup idle and financial qualification remain unverified;
+capture/recovery must both use this corrected copy.
 The next performance-copy screenshot again stops at the paper-cycle wait before account checks;
 the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
 correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time
-and can be cancelled by closing setup before checks start. Installation/native idle/preview remain
-pending; no account/reference/financial qualification is inferred from this coordination change.
+and can be cancelled by closing setup before checks start. Installation is verified above; native
+idle/preview remain pending. No account/reference qualification is inferred from coordination.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

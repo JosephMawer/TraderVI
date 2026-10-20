@@ -17,7 +17,10 @@ The prepared setup-wait follow-up keeps interactive setup queued until existing 
 shows elapsed time and lets closing the setup window cancel that wait. No financial action starts
 before idle and account/sign-in recheck; actual financial actions remain protected against closure.
 This does not alter qualifications, purchase expiry or noninteractive host polling's timeout.
-Separate output: `artifacts/tfsa-setup-wait-20261020/working-copy`; installation/actual preview pending.
+The setup-wait copy 2cf08c33 starts at 12:27:51, PID 78688, after operator normal closure/verified old
+process exit; all 125 manifest files/calendar match, one exact owner, no authority/packet/checkpoints.
+Actual interactive wait and carry preview remain unverified; use this same new copy for capture/
+recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk
@@ -109,11 +112,11 @@ the separate operator step below.
 
 **Current October 20 copy:** keep execution off. No additional buy/sale, new initial baseline or
 manual risk-reference reset is required. Installed executable:
-`C:\src\TraderVI\artifacts\desktop-history-cost-20261020\working-copy\TraderVI.WPF.exe`.
-Source 30775d12 includes both performance fixes, 55e429d5 and 30775d12. Installed Core SHA-256:
-`CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF`.
+`C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\working-copy\TraderVI.WPF.exe`.
+Source 2cf08c33 includes the queued setup wait and both performance fixes, 55e429d5 and 30775d12.
+Installed Core SHA-256: `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`.
 For the required normal recovery restart, first close this app normally, then use
-`C:\src\TraderVI\artifacts\desktop-history-cost-20261020\Run-ReviewedDelphiLiveNormal.cmd`.
+`C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\Run-ReviewedDelphiLiveNormal.cmd`.
 It invokes the existing manifest/calendar-checked launcher with the repository working directory,
 refuses another running owner or existing host-permission file, and preserves checkpoint/packet
 evidence. Script syntax is checked; the guarded switch separately proves this executable starts.
@@ -125,6 +128,9 @@ The helper grants no financial authority.
 1. Use the launch helper above to open the exact reviewed working copy, sign in normally if needed,
    and confirm the intended TFSA.
    Leave host enable untouched. Keep the app running so ordinary paper publication can resume.
+   Opening setup may initially wait for admitted paper work. Leave it open while elapsed time
+   updates; new cycles are deferred until the checks finish. Closing setup cancels only that wait.
+   Wait for initial readiness to finish before checking the confirmation and requesting Preview.
 2. After the regular session starts, wait for a fresh Normal source. Refresh the account and verify
    cash-only holdings, no pending orders, and no intervening account changes. There is no requirement
    for Normal to generate a buy; its ordinary confirmation/data/entry gates still decide.
