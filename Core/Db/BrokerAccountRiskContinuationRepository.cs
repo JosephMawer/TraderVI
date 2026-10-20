@@ -2,6 +2,7 @@
 using Core.Runtime;
 using Core.Trader.DelphiLive;
 using Core.Trader.Promotion;
+using Core.WSTrade.Accounts;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
@@ -54,6 +55,17 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
             ct.ThrowIfCancellationRequested(); t.Commit(); return saved;
         }
         var previous = await State(c, t, request.BaselineId);
+        if (request.TrialCarry is { } carry)
+        {
+            var original = BrokerAccountRiskBaselineRepository.Decode(await c.QuerySingleOrDefaultAsync<BrokerAccountRiskBaselineRepository.Row>(
+                "SELECT * FROM dbo.BrokerAccountRiskBaseline WHERE BaselineId=@Id", new { Id = request.BaselineId }, t))?.Baseline
+                ?? throw new InvalidOperationException("Recover the original baseline before a trial carry.");
+            var import = await BrokerAccountImportRepository.Receipt(c, original.ImportRequestId, t)
+                ?? throw new InvalidOperationException("Recover the original baseline import before a trial carry.");
+            if (BrokerAccountImport.Hash(original) != BrokerAccountImport.Hash(carry.Baseline) ||
+                BrokerAccountImport.Hash(import.Plan.Observation) != BrokerAccountImport.Hash(carry.OriginalAnchor))
+                throw new InvalidOperationException("The carry cannot replace the immutable original baseline or cash-only import.");
+        }
         var now = DateTimeOffset.UtcNow;
         var state = BrokerAccountRiskContinuation.Apply(previous, request, calendar, now);
         if (request.CashFlows is not null)

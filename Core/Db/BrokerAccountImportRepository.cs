@@ -115,7 +115,7 @@ public sealed class BrokerAccountImportRepository : IBrokerImportStore
         var financial = await Financial(c, "TFSA", t);
         return new("TFSA", BrokerAccountImport.Hash(new { financial.Fingerprint, positions, trades }), positions, trades);
     }
-    private static async Task<BrokerImportReceipt?> Receipt(SqlConnection c, Guid id, SqlTransaction? t = null) => Decode(
+    internal static async Task<BrokerImportReceipt?> Receipt(SqlConnection c, Guid id, SqlTransaction? t = null) => Decode(
         await c.QuerySingleOrDefaultAsync<ReceiptRow>("""
             SELECT RequestId,BindingId,RequestHash,PlanFingerprint,SnapshotUtc,SavedUtc,PlanJson FROM dbo.BrokerAccountImport WHERE RequestId=@Id
             """, new { Id = id }, t));

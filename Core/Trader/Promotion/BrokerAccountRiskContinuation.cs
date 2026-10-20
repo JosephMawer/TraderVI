@@ -17,10 +17,12 @@ public sealed record BrokerAccountRiskState(Guid BaselineId, Guid BindingId, str
     BrokerRiskReference DrawdownReference, bool DailyLossHold, bool CapitalReviewRequired,
     DateOnly? LastCompletedSession, DateTimeOffset Through)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerTrialCarryForward? TrialCarry { get; init; }
     public override string ToString() => "Continuing account risk state (financial data omitted)";
 }
 
-public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows }
+public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows, TrialCarryForward }
 
 /// <summary>
 /// A successful cash-flow reconciliation of this interval is required. This contract supports ONLY
@@ -46,6 +48,8 @@ public sealed record BrokerRiskContinuationRequest(Guid RequestId, Guid Baseline
     // Omit absent evidence to preserve hashes of previously saved requests.
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerRiskCashFlowInterval? CashFlows { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerTrialCarryForward? TrialCarry { get; init; }
     [JsonIgnore]
     public string RequestHash => EngineStrategySettings.Hash(JsonSerializer.Serialize(this));
     public override string ToString() => "Account risk continuation request (no order authority)";
@@ -98,6 +102,10 @@ public static class BrokerAccountRiskContinuation
                 CapitalReviewRequired = state.CapitalReviewRequired || holds.CapitalReviewRequired };
         }
 
+        if (request.Kind == BrokerRiskContinuationKind.TrialCarryForward)
+            return BrokerTrialCarryForward.Apply(state, request, calendar, now);
+        if (state.TrialCarry is not null)
+            throw new InvalidOperationException("A trial-only carry cannot qualify ordinary historical boundaries, transfers or another session. Preserve its history for reviewed recovery.");
         if (request.Kind == BrokerRiskContinuationKind.CashFlows)
             return BrokerAccountCashFlowContinuation.Apply(state, request, calendar, now);
 
@@ -146,12 +154,15 @@ public static class BrokerAccountRiskContinuation
         ArgumentNullException.ThrowIfNull(request);
         if (request.RequestId == Guid.Empty || request.BaselineId == Guid.Empty ||
             request.PreviousRevisionId == Guid.Empty || request.PreviousRevisionId == request.RequestId ||
+            (request.Kind == BrokerRiskContinuationKind.TrialCarryForward) != (request.TrialCarry is not null) ||
             !Enum.IsDefined(request.Kind) ||
             (request.Kind switch
             {
                 BrokerRiskContinuationKind.HoldObservation => request.Holds is null || request.Boundary is not null ||
                     request.NoFlows is not null || request.CashFlows is not null,
                 BrokerRiskContinuationKind.CashFlows => request.CashFlows is null || request.Holds is not null ||
+                    request.Boundary is not null || request.NoFlows is not null,
+                BrokerRiskContinuationKind.TrialCarryForward => request.Holds is not null || request.CashFlows is not null ||
                     request.Boundary is not null || request.NoFlows is not null,
                 _ => request.Holds is not null || request.CashFlows is not null || request.Boundary is null || request.NoFlows is null
             }))

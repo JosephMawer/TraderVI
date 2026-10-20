@@ -779,3 +779,23 @@ Owning contract: delphi-live-next-session-contract-20261020.md; ADR-0092 and des
 Implementation/native qualification remain pending. No account/financial authority is saved by this
 acceptance or documentation commit. Production/older scopes and ordinary historical continuation
 rules stay unchanged. A trial-specific carry claims no recovered historical close or market opening.
+
+### Next-session implementation increment 1 — original-reference carry
+
+Trial-only carry request/state and immutable repository recheck are implemented. The exact accepted
+October 19→20 dates and next regular-session relation are enforced. Preview uses original baseline
+and immutable import plus a current cash-only account and explicit no-outside-change confirmation.
+Every original order must match (only unchanged filled→posted advancement allowed); changed cash,
+holdings, pending/extra/missing/conflicting history, held/advanced/recarried risk and stale/off-session
+reads are rejected. Saving appends through the existing serializable account fence and immutable
+continuation JSON; the repository independently reloads and compares the actual original baseline/
+import under that transaction. No schema change/migration is needed. The carry retains original
+reference objects/values/evidence times, all holds and LastCompletedSession, and records the actual
+review observation as Through. Ordinary boundaries/transfer continuation cannot consume it, and
+production projection blocks it without the exact trial cash coverage contract. No historical close
+or opening is invented. Hold observations still only add holds; old absent-field hashes stay stable.
+
+51 focused offline tests pass (next-session-carry-focused.log). An initial compile/import and test
+assertion issue was corrected before validation. No native SQL tests, save, financial permission or
+order was performed. Native scope/producer/UI integration remains pending; this increment alone
+cannot activate the trial. The existing 256-KiB continuation size limit remains enforced.
