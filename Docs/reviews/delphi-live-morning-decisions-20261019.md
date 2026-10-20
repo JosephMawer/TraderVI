@@ -755,3 +755,15 @@ the actual failure; excluded supplementary records retain aligned-only source ru
 intervention pauses research promotion while assigned portfolio rules remain authoritative. None is
 waived/cleared or converted to qualification. Today's trial expired without checkpoint/packet/authority;
 no next-day buying permission, baseline reset, repeated trade, migration or native SQL test is inferred.
+
+Closing fix committed as **cf0eee49**. After normal PID 59220 closure, the corrected copy starts at
+**22:20:53 Toronto**, PID **1036**, exact path
+`C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\close-once-working-copy\TraderVI.WPF.exe`.
+All three manifest hashes/new Core and absent host permission/packet/checkpoint are verified. The
+first native response check is false during startup, then true on recheck (same visible owner/handle).
+Receipt: close-once-switch-receipt.json; manifest: close-once-working-copy-hashes.json. No original
+entry/journal/baseline was rewritten; no native order/approval/transfer/migration/SQL rehearsal occurred.
+This installation does not reproduce a market close; next-boundary native verification remains open.
+Remaining activation blockers: supported later-session contract, fresh in-session source and matching
+account/risk continuation, successful checkpoint/same-copy restart/all nine native/scoped references,
+then operator assignment approval and separate host enable. Existing research-gap warnings remain.

@@ -158,7 +158,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
   16:03:48 as Incomplete/Blocked with historical gap retained (21:57 bounded read).
 - [x] Diagnose later SQL 52202 as repeated after-close finalization with expired lease; implement
   close-once renewal/persist/release and status-only later wakes. 37 focused checks/WPF build pass.
-- [ ] Install closing fix (2,624 full offline passes/nine native skips); verify native next-boundary behavior separately.
+- [x] Install/verify closing fix cf0eee49 at 22:20:53, PID 1036: exact hashes/new Core, one visible responding owner, no authority/packet/checkpoint (2,624 full offline passes/nine native skips).
+- [ ] Verify native closing behavior at the next actual boundary; installation is not a closing rehearsal.
 - [ ] Resolve supported later-session qualification: October 19 trial expired; no next-day permission.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.

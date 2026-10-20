@@ -95,7 +95,7 @@ allowed successor; the correction preserves original comparison identity and req
 saved assignment plus exact protection-only policy difference (217 focused/2,621 full offline passes,
 nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Corrected
 copy 62c7b5fd is installed/verified at 15:46, PID 58536, one responding owner/no authority/packet/
-checkpoint. Later native read confirms Normal publication recovered at 16:03:40 and finalization at 16:03:48; host-gap coverage stays blocked. A separate 16:21 expired-lease error comes from repeated finalization. Close-once renewal/release fix passes 37 focused/2,624 full offline passes (nine native skips)/WPF build; install follows. Overnight publication is not expected. The October 19 trial expired; resolve supported later-session qualification before
+checkpoint. Later native read confirms Normal publication recovered at 16:03:40 and finalization at 16:03:48; host-gap coverage stays blocked. A separate 16:21 expired-lease error comes from repeated finalization. Close-once renewal/release fix passes 37 focused/2,624 full offline passes (nine native skips)/WPF build; cf0eee49 installed/verified at 22:20, PID 1036, hashes/one responding owner/no authority/packet/checkpoint. Overnight publication is not expected. The October 19 trial expired; resolve supported later-session qualification before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 

@@ -192,8 +192,7 @@ and allowed successor. Operator UI shows the 16:00 checkpoint/120 observations. 
 read confirms session finalization at **16:03:48**, honestly Incomplete/Blocked with a host gap.
 Private app metadata records a later **16:21 SQL 52202**: repeated finalization reused an expired
 lease. A close-once host fix renews before finalization, persists closing/research once, releases
-its lease and reads status on later wakes; 37 focused/2,624 full offline passes (nine native skips)/WPF build, with
-installation follow. No SQL fence/history/coverage rule changes. No new regular-session publication
+its lease and reads status on later wakes; 37 focused/2,624 full offline passes (nine native skips)/WPF build. Correction **cf0eee49** starts at **22:20:53 Toronto**, PID **1036**, after normal prior closure; exact output/Core hashes, one visible responding owner and absent authority/packet/checkpoint are verified. Initial startup response was false, then true on recheck. No SQL fence/history/coverage rule changes. No new regular-session publication
 is expected overnight. The October 19 trial purchase window expired without checkpoint/packet/
 authority; next-day buying is not authorized. Next resolve supported later-session qualification
 while preserving original anchors and verify the closing fix at the next actual boundary. Existing

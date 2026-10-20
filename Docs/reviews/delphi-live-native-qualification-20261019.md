@@ -1,12 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: no successful checkpoint; October 19 purchase window expired; automatic execution off.**
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\entry-policy-working-copy\TraderVI.WPF.exe`.
-Historical entry-policy correction **0accf067**, retaining successor/coordination fixes; Core SHA-256
-`BA8968E52DFE8638757A2B39281753E6C390262E84CD1CFF71E23A2656F64913`.
-The corrected copy starts at **15:58:57 Toronto**, PID **59220**, after normal prior-process closure.
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\close-once-working-copy\TraderVI.WPF.exe`.
+Closing-lease correction **cf0eee49**, retaining earlier source/coordination fixes; Core SHA-256
+`53BA8FBB5FA71F04E26EB77A812B3661BC487435B98A2EB3840C4D8D2DB079D8`.
+The corrected copy starts at **22:20:53 Toronto**, PID **1036**, after normal prior-process closure.
 Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/entry-policy-switch-receipt.json`.
+verified. Receipt: `artifacts/delphi-live-tfsa-20261018/close-once-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit
@@ -38,7 +38,7 @@ WPF Release passes with existing warnings. Corrected output is prepared in
 `artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation is verified above.
 Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
-Normal publication recovery through the close is now verified by the 21:56 bounded read (saved 16:03:40); session finalized 16:03:48 with historical host-gap coverage retained. A separate repeated-finalization lease error is being corrected; next actual boundary verification remains required. Overnight publication is not expected. This correction changes Core identity. The October 19
+Normal publication recovery through the close is now verified by the 21:56 bounded read (saved 16:03:40); session finalized 16:03:48 with historical host-gap coverage retained. The repeated-finalization lease correction cf0eee49 is tested and installed; next actual boundary verification remains required. Overnight publication is not expected. This correction changes Core identity. The October 19
 purchase window has expired without a successful checkpoint; a supported later-session contract
 requires explicit review before capture/restart/packet/activation. Preserve the existing baseline
 and original orders; never replay trades, reset references or reuse an old-build checkpoint.
