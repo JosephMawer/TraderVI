@@ -7,7 +7,11 @@ SHA-256 unchanged at `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C78
 changed since source 2cf08c33. Pending checkpoint recovery can therefore use normal project output
 with `--no-build`, without a launcher, new source code, proof rewrite or new financial save. The
 existing reviewed calendar path is persisted under explicit approval in the real Windows user
-environment and independently verified outside the sandbox. No app restart/activation occurs here.
+environment and independently verified outside the sandbox. The operator restarts from normal Release
+output with `--no-build` at **13:43:30 Toronto**, PID **72928**. Read-only inspection verifies one
+owner, all 125 runtime hashes unchanged and the dated checkpoint present; qualification packet and
+host permission remain absent. Native first execution review/all nine references remain pending;
+process restart alone is not completed recovery qualification. No activation occurs here.
 Related ignored artifact folders total about **8.45 GiB**, principally repeated build/dependency
 copies. No deletion occurred; preserve live output/proof and retained evidence while obsolete-output
 cleanup is deferred until normal-output recovery is verified. [Normal commands](running.md#build-and-run-the-local-desktop-checkout).
@@ -36,8 +40,9 @@ times/holds unchanged, no reconstructed historical close/open and no order/assig
 The next operator screenshot confirms native checkpoint save after full manual verification and
 cash-only baseline readback. Read-only local inspection confirms the October 20 checkpoint exists,
 packet/host permission remain absent, PID 78688 uses the exact copy and all 125 manifest hashes
-still match. No checkpoint content is decoded or rewritten. Next normal same-copy restart and
-first execution review; nine references/assignment/enable remain pending. Both performance commits remain included; further
+still match. No checkpoint content is decoded or rewritten. The normal-output same-build restart
+is subsequently verified above; first execution review/nine references/assignment/enable remain
+pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

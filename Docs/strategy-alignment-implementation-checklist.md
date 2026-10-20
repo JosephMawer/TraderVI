@@ -193,14 +193,18 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Observe native checkpoint saved after full manual verification/cash-only baseline readback
   in the October 20 operator screenshot. Local read-only check confirms dated file exists, packet/
   host permission absent, exact process copy and all 125 file hashes unchanged. No proof decoded.
-- [ ] Perform normal restart of that exact copy and first execution review with all nine references.
-  Capture alone is not completed restart recovery or execution qualification.
+- [x] Observe operator normal restart of the identical captured build from standard Release output:
+  October 20, 13:43:30 Toronto, PID 72928; one owner/all 125 hashes match/checkpoint present,
+  qualification packet and host permission absent. No proof decoded or modified.
+- [ ] Complete native first execution review with all nine references. Capture and process restart
+  alone are not completed recovery qualification.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.
-- [ ] Restart from normal project output with `dotnet run --project TraderVI.WPF -c Release --no-build`
-  for this checkpoint, then complete native first review. Normal build-enabled command is the default
-  before future qualification. Remove obsolete generated outputs only after reviewed cleanup scope.
+- [x] Restart from normal project output with `dotnet run --project TraderVI.WPF -c Release --no-build`
+  for this checkpoint; exact build/process verification recorded above. Normal build-enabled command
+  is the default before future qualification.
+- [ ] Remove obsolete generated outputs only after native recovery and reviewed cleanup scope.
 - [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
   queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
   existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial

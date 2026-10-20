@@ -113,13 +113,16 @@ readiness completes and a matching original-reference/cash-only/four-order carry
 operator saves it; the next screenshot confirms saved/readback with original references/holds
 unchanged and no order/assignment/host permission. The next screenshot confirms checkpoint saved;
 local read-only inspection verifies its dated file and unchanged 125-file build, no packet/host
-permission. Next same-copy normal restart/first review/nine references before assignment/enable. This changes
+permission. Normal-output same-build restart is now verified; next native first review/nine
+references before assignment/enable. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
 going forward; no further full artifact copies are needed. The normal Release output now has all
 125 captured-build files byte-identical. For this saved checkpoint's one recovery restart use the
-same command with `--no-build`, preserving the engine hash, then complete first review/nine checks.
+same command with `--no-build`. Operator restart at 13:43:30 Toronto, PID 72928, is verified against
+all 125 captured hashes; checkpoint present, packet/host permission absent. Complete native first
+review/nine checks next; process restart alone does not qualify recovery.
 Calendar user-setting persistence is approved/verified. Obsolete generated-output cleanup follows
 verified normal-output recovery, preserving financial proof/evidence; no files are deleted yet.
 

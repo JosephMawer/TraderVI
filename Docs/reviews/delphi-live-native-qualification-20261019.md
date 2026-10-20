@@ -1,25 +1,25 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: October 20 checkpoint saved; same-copy restart/packet qualification pending; automatic execution off. October 19 permission remains expired.**
+**Current decision: October 20 checkpoint saved and same-build process restart verified; native recovery/packet qualification pending; automatic execution off. October 19 permission remains expired.**
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
 are implemented/offline tested and installed with execution off. Operator carry save/readback and
 checkpoint capture are observed; post-restart native recovery and all nine references remain pending.
 The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
 Earlier October 20 Preview stopped before account checks at the two-minute desktop-paper-cycle wait.
-No carry preview/save is confirmed. A bounded 10:20:26 Toronto read confirms ongoing paper publication
-and lease renewal; it does not establish an idle boundary, source qualification or carry save. Retry
-Preview once after active paper work finishes; preserve all original evidence if it times out again.
-Current executable: `C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\working-copy\TraderVI.WPF.exe`.
+At that earlier point no carry preview/save was confirmed. A bounded 10:20:26 Toronto read confirmed
+ongoing paper publication and lease renewal, not an idle boundary or qualification. Later operator
+carry/checkpoint confirmations supersede that earlier blocker as recorded below.
+Current executable: `C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`.
 Reviewed source **2cf08c33** adds cancellable queued setup waiting, includes **55e429d5/30775d12**, and
 retains all next-session qualification/risk controls. Core SHA-256:
 `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`.
 After normal operator closure and verified old-process exit, it starts October 20 at **12:27:51
 Toronto**, PID **78688**. All 125 manifest files/calendar, one exact owner and absent host permission/
-packet/both October 19/20 checkpoints are verified. Native UI acceptance remains unverified. Receipt:
+packet/both October 19/20 checkpoints are verified at that launch. Later UI evidence follows. Receipt:
 `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
-Older copies remain preserved. Actual setup idle and financial qualification remain unverified;
-capture/recovery must both use this corrected copy.
+Older copies remain preserved. Capture/recovery must both use this corrected build; actual
+post-restart financial qualification remains required.
 The operator subsequently requires ordinary command-line startup on `master`. All 125 captured
 runtime files are hash-verified in the normal Release output with the same Core identity; no source
 code changed since 2cf08c33, only documentation. Restart this pending checkpoint with normal
@@ -27,6 +27,10 @@ code changed since 2cf08c33, only documentation. Restart this pending checkpoint
 The existing calendar path is persisted/verified as an approved Windows user setting. Protected proof
 is unchanged; post-restart review still must independently recover/qualify it. A build-enabled run
 can change identity and is not a replacement for this checkpoint's same-build recovery.
+The operator now restarts with that command at **13:43:30 Toronto**, PID **72928**. Read-only
+inspection verifies one owner in normal Release output, all 125 runtime hashes identical, dated
+checkpoint present and packet/host permission absent. Process restart is confirmed; native recovery
+of original IDs/references and publication of all nine checks still require first execution review.
 The next performance-copy screenshot again stops at the paper-cycle wait before account checks;
 the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
 correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time
@@ -38,9 +42,9 @@ carry; a subsequent screenshot confirms saved/readback, original reference recor
 times/holds unchanged, no invented historical close/open and no order/assignment/host permission.
 The next operator screenshot confirms native checkpoint saved after completed manual verification
 and actual cash-only baseline readback. Local read-only inspection confirms the October 20 protected
-file exists, packet/host permission remain absent, PID 78688 is the exact current path and all 125
-manifest hashes match. No protected content is decoded/modified. Next normal same-copy restart,
-Prepare first execution review and all nine references; capture is not completed restart recovery
+file exists, packet/host permission remain absent, PID 78688 used the captured artifact path and all
+125 manifest hashes matched. No protected content is decoded/modified. After the verified normal-
+output restart above, next Prepare first execution review and all nine references; capture is not completed restart recovery
 or financial assignment/host enable.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,

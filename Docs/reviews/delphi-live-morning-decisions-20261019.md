@@ -1052,3 +1052,18 @@ evidence. Open a new Command Prompt to inherit the setting. No financial configu
 Next normal-output same-build restart and native first review; retain current proof/original risk
 references, then scope cleanup of obsolete generated builds. Normal startup is the default going
 forward; no further full snapshot copies are needed.
+
+### Operator normal-output restart verified — October 20, 13:43 Toronto
+
+The operator reports restarting with `dotnet run --project TraderVI.WPF -c Release --no-build`.
+Read-only process/file inspection confirms one owner, PID 72928, started 13:43:30 Toronto, using
+`C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`. All 125 captured
+runtime file hashes match the saved manifest and the Core identity remains unchanged. The dated
+checkpoint is present; qualification packet and host permission remain absent. No build, protected
+proof read/write, SQL/broker helper or financial action is performed for this inspection.
+
+This confirms the process/build restart only. Next the operator opens Execution setup and chooses
+Prepare first execution review, selecting the two original liquidation sales if requested, excluding
+the later verification-position sale. Native original-ID/reference recovery and all nine checks
+must still complete before separate manual assignment approval/host enable. Cleanup remains deferred
+until native recovery and an explicit cleanup scope are reviewed.

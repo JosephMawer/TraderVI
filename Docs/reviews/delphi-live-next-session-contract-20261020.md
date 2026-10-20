@@ -26,8 +26,11 @@ readback-confirmed screenshot: original reference records/values/source times/ho
 no historical close/open is invented and no order/assignment/host permission is created. Next native
 qualification independently rechecks it. A subsequent screenshot confirms checkpoint saved after
 full manual verification/cash-only baseline readback. Local inspection confirms dated file exists,
-unchanged 125-file build and exact owner, no packet/host permission. Next normal restart and first
-execution review in this same copy; all nine references/assignment/enable remain pending. Startup
+unchanged 125-file build and exact owner, no packet/host permission. The operator subsequently
+restarts from normal Release output with `--no-build` at 13:43:30 Toronto, PID 72928. Read-only
+inspection verifies one owner, all 125 captured runtime hashes unchanged and checkpoint present,
+packet/host permission absent. Native original-ID/reference recovery and first execution review
+remain pending; all nine references/assignment/enable remain required. Startup
 receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
