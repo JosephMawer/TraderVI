@@ -1,5 +1,20 @@
 # TraderVI Project Status
 
+**TFSA setup coordination follow-up, October 20:** the reviewed performance copy still hits the
+two-minute setup wait before account checks. Private stage timings identify an admitted Live cycle
+starting 11:54:43, collection 11:58:02–11:58:11, evaluation through 11:58:13 and subsequent actions;
+setup waits 11:57:12–11:59:12. This is an overlapping long financial cycle, not completed idle proof.
+The prepared correction retains interactive setup's admission until active work drains, reports
+elapsed time and allows closing setup to cancel only the wait. New paper cycles remain deferred;
+account/sign-in are rechecked after idle, before the queued action. Financial saves retain their
+busy-close guard. The noninteractive host wait/SQL fences/source/financial checks are unchanged.
+Nine focused and **2,668 full serial offline tests pass**, nine native skipped; separate Release WPF
+build passes with 262 existing compiler warnings and cached Pkcs NU1902/NU1903 advisories. No fresh
+audit/full-solution/SSDT claim, SQL rehearsal, agent financial action or qualification waiver.
+Output is separate in `artifacts/tfsa-setup-wait-20261020/working-copy`; installation/native wait and
+carry preview remain pending. Both performance commits remain included; further history-cost work
+stays deferred. The decision log owns the detailed evidence and next native observations.
+
 **Desktop responsiveness, October 20, 2026:** the separately approved serialization follow-up
 **30775d12 starts at 11:32:14 Toronto**, PID **131204**, execution off, all 124 manifest files matching.
 The previous 55e429d5 dashboard finishes at 11:31:57 and exits normally before the new launch.

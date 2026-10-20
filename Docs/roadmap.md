@@ -103,6 +103,13 @@ Next complete actual October 20 carry save/source/checkpoint/restart/all nine
 checks before manual approval/enable. Native SQL rehearsals stay paused. No baseline
 reset, repeated trades or qualification bypass.
 
+After the performance-copy retry still times out, stage logs confirm active Live work spans the
+entire wait. Interactive setup now has a prepared cancellable queued wait with elapsed status,
+retaining its admission until active work finishes; closing setup cancels the wait only. Nine
+focused/2,668 full serial passes, nine native skipped/WPF Release. Next install the separate
+setup-wait copy off and observe actual idle/preview before any manual financial save. This changes
+neither host polling's timeout nor qualification, and preserves both performance improvements.
+
 October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.
 Bounded 10:20 evidence shows progress, not idle. The [worker/display correction and bounded stage
 diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are installed under explicit approval

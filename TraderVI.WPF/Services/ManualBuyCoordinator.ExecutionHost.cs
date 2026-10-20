@@ -129,7 +129,7 @@ public sealed partial class ManualBuyCoordinator
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        bool closed = false, busy = false; long revision = connection.SessionRevision;
+        bool closed = false, busy = false, waitingForPaper = false; long revision = connection.SessionRevision;
         BrokerManagedSession? reviewed = null;
         BrokerFirstExecutionReview? firstReview = null;
         BrokerManagedSessionWorkflow? firstWorkflow = null;
@@ -157,8 +157,14 @@ public sealed partial class ManualBuyCoordinator
                 using var quiet = waitForPaperCycles ? setupCycles.BeginSetup() : null;
                 if (quiet is not null)
                 {
-                    Stage("waiting for current desktop paper cycles to finish before account checks");
-                    await quiet.WaitForIdleAsync(lifetime.Token);
+                    waitingForPaper = true;
+                    try
+                    {
+                        await quiet.WaitForIdleWithProgressAsync(lifetime.Token, elapsed =>
+                            Stage($"waiting for admitted desktop paper work to finish ({elapsed:mm\\:ss} elapsed). New paper cycles are deferred. Close this window to cancel waiting; account checks have not started"));
+                    }
+                    finally { waitingForPaper = false; }
+                    Check();
                 }
                 await action();
             }
@@ -406,7 +412,7 @@ public sealed partial class ManualBuyCoordinator
             await StopExecutionCoreAsync(lifetime.Token);
             summary.Text = ExecutionStatus.Message;
         }, waitForPaperCycles: false);
-        dialog.Closing += (_, e) => { if (busy) e.Cancel = true; };
+        dialog.Closing += (_, e) => { if (busy && !waitingForPaper) e.Cancel = true; };
         dialog.Closed += (_, _) => { closed = true; lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
         dialog.Show(); await Run(Refresh); await completion.Task;
     }

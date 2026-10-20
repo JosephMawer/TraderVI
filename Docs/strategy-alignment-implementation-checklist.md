@@ -187,6 +187,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   later, preserving history/both copies and execution off; validate separately before another switch.
 - [ ] Verify actual setup idle before carry/capture. Existing
   same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
+- [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
+  queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
+  existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial
+  passes, nine native skipped/WPF Release. No source, fence or financial guard change.
+- [ ] Install/observe the separate setup-wait copy with both performance fixes retained. Actual
+  idle-boundary/carry preview and new same-copy qualification remain unverified.
 - [x] After explicit TFSA-session switch approval, normally close standard Release PID 61768 and
   open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
   124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.

@@ -12,6 +12,12 @@ and normal recovery restart of that same corrected copy; the dated financial sco
 At 11:53:41 the TFSA session separately performs the approved normal switch from standard Release
 back to 30775d12 (including 55e429d5), PID 102648. All 124 manifest files/calendar match, one visible
 responding owner, no permission/packet/dated checkpoint. Operator Preview remains the next step.
+The next operator screenshot still shows the two-minute wait expiring before account checks.
+The prepared setup-wait follow-up keeps interactive setup queued until existing paper work drains,
+shows elapsed time and lets closing the setup window cancel that wait. No financial action starts
+before idle and account/sign-in recheck; actual financial actions remain protected against closure.
+This does not alter qualifications, purchase expiry or noninteractive host polling's timeout.
+Separate output: `artifacts/tfsa-setup-wait-20261020/working-copy`; installation/actual preview pending.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk

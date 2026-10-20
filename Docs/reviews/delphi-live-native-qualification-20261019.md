@@ -18,6 +18,11 @@ desktop and absent host permission/packet/both October 19/20 checkpoints are ver
 `artifacts/desktop-history-cost-20261020/tfsa-resume-switch-receipt.json`.
 The old b1095ae9 copy remains preserved. Retry carry Preview now; actual setup idle and financial
 qualification remain unverified. Capture/recovery must both use this corrected copy.
+The next performance-copy screenshot again stops at the paper-cycle wait before account checks;
+the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
+correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time
+and can be cancelled by closing setup before checks start. Installation/native idle/preview remain
+pending; no account/reference/financial qualification is inferred from this coordination change.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

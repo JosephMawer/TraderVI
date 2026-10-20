@@ -70,4 +70,73 @@ public sealed class BrokerSetupCycleBarrierTests
             await Assert.ThrowsAsync<TimeoutException>(() => setup.WaitForIdleAsync(default, TimeSpan.Zero));
         using var resumed = barrier.TryBeginCycle(); Assert.NotNull(resumed);
     }
+
+    [Fact]
+    public async Task InteractiveWaitKeepsAdmissionAcrossProgressUpdatesUntilEveryCycleFinishes()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        var first = barrier.TryBeginCycle(); var second = barrier.TryBeginCycle();
+        using (var setup = barrier.BeginSetup())
+        {
+            int updates = 0;
+            await setup.WaitForIdleWithProgressAsync(default, elapsed =>
+            {
+                Assert.True(elapsed >= TimeSpan.Zero);
+                Assert.Null(barrier.TryBeginCycle());
+                if (++updates == 1) first!.Dispose();
+                if (updates == 3) second!.Dispose();
+            }, TimeSpan.FromMilliseconds(1));
+            Assert.Equal(3, updates);
+            Assert.Null(barrier.TryBeginCycle());
+        }
+        using var resumed = barrier.TryBeginCycle(); Assert.NotNull(resumed);
+    }
+
+    [Fact]
+    public async Task ClosingInteractiveWaitCancelsChecksWithoutInterruptingActivePaperWork()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        var cycle = barrier.TryBeginCycle();
+        using var cancellation = new CancellationTokenSource();
+        bool accountChecked = false;
+        using (var setup = barrier.BeginSetup())
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await setup.WaitForIdleWithProgressAsync(cancellation.Token, _ => cancellation.Cancel());
+                accountChecked = true;
+            });
+            Assert.False(accountChecked);
+            Assert.Null(barrier.TryBeginCycle());
+        }
+        // Cancelling setup does not complete the independent, already admitted cycle.
+        using (var retry = barrier.BeginSetup())
+        {
+            await Assert.ThrowsAsync<TimeoutException>(() => retry.WaitForIdleAsync(default, TimeSpan.Zero));
+            cycle!.Dispose();
+            await retry.WaitForIdleAsync(default);
+        }
+        using var resumed = barrier.TryBeginCycle(); Assert.NotNull(resumed);
+    }
+
+    [Fact]
+    public async Task CancellationAtIdleBoundaryStillPreventsQueuedChecks()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        var cycle = barrier.TryBeginCycle();
+        using var setup = barrier.BeginSetup();
+        using var cancellation = new CancellationTokenSource();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => setup.WaitForIdleWithProgressAsync(
+            cancellation.Token, _ => { cycle!.Dispose(); cancellation.Cancel(); }));
+    }
+
+    [Fact]
+    public async Task IdleInteractiveSetupHonorsCancellationWithoutInvokingProgress()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        using var setup = barrier.BeginSetup();
+        using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => setup.WaitForIdleWithProgressAsync(
+            cancellation.Token, _ => throw new InvalidOperationException("No active work")));
+    }
 }

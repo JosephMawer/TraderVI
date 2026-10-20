@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Runtime;
@@ -41,6 +42,26 @@ public sealed class BrokerSetupCycleBarrier
         {
             using var timing = PaperCycleTimings.Start(PaperCycleStage.SetupWait);
             await idle.WaitAsync(maximumWait ?? TimeSpan.FromMinutes(2), ct).ConfigureAwait(false);
+        }
+
+        // Interactive setup keeps its admission while an existing financial cycle drains.
+        // Closing setup cancels only this wait; it never cancels the admitted paper work.
+        public async Task WaitForIdleWithProgressAsync(CancellationToken ct, Action<TimeSpan> progress,
+            TimeSpan? updateInterval = null)
+        {
+            ArgumentNullException.ThrowIfNull(progress);
+            var interval = updateInterval ?? TimeSpan.FromSeconds(1);
+            if (interval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(updateInterval));
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.SetupWait);
+            long started = Stopwatch.GetTimestamp();
+            while (!idle.IsCompleted)
+            {
+                ct.ThrowIfCancellationRequested();
+                progress(Stopwatch.GetElapsedTime(started));
+                await Task.WhenAny(idle, Task.Delay(interval, ct));
+            }
+            await idle.WaitAsync(ct);
+            ct.ThrowIfCancellationRequested();
         }
         public void Dispose() => release.Dispose();
     }

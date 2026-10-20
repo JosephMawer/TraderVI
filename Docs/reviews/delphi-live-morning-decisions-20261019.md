@@ -937,3 +937,29 @@ the instruction for this build's recovery. Next operator confirms connected/no o
 opens Execution setup and retries Preview October 20 carry; do not save until its facts are reviewed.
 Actual setup idle, carry save, fresh source and same-copy checkpoint/restart/all nine references
 remain unverified. Further history-cost investigation stays explicitly deferred.
+
+### Performance-copy setup retry — active cycle outlasts the fixed wait
+
+The next operator screenshots show initial waiting then TimeoutException before account checks,
+with the confirmation unchecked. This establishes neither a carry preview nor saved authority.
+Existing bounded private stage metadata for PID 102648 shows Dashboard/LiveEngine starting
+11:54:43.325 Toronto; SetupWait 11:57:12.669–11:59:12.674 (120,005 ms); collection
+11:58:02.601–11:58:11.813, evaluation through 11:58:13.106 and LiveActions starting then. Active
+financial work therefore overlaps the entire two-minute interval. No SQL/native probe was needed.
+
+Interactive setup now retains its existing admission while that work drains, reports elapsed time
+and permits closing its window to cancel only the pre-action wait. It defers new paper work rather
+than releasing/rejoining the queue every two minutes. Cancellation at the idle boundary still
+prevents the queued account/financial action; sign-in/account are rechecked after idle. Once an
+action starts, the prior busy-close guard remains. The noninteractive execution-host wait remains
+two minutes, and all SQL fences, financial/source checks, session expiry and separate manual saves
+remain unchanged. This is local coordination, not a relaxation of qualification or cancellation of
+an admitted paper operation. Both performance fixes are retained; history-cost work stays deferred.
+
+Nine focused coordination tests pass, including multi-cycle progress, cancellation without paper
+interruption, admission retention and cancellation at an idle boundary. Full serial offline suite:
+2,668 passed/nine native skipped, artifacts/tfsa-setup-wait-20261020/full-tests.log. Separate WPF
+Release build passes, wpf-build.log, 262 existing compiler warnings; cached Pkcs NU1902/NU1903
+advisories remain separate. No fresh audit/full-solution/SSDT or native SQL rehearsal claim.
+Prepared output: artifacts/tfsa-setup-wait-20261020/working-copy; installation and actual wait/preview
+are the next steps. No agent order, financial save, risk-reference reset or activation occurred.
