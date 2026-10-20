@@ -860,3 +860,20 @@ Core SHA-256: 4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F.
 Installation remains the next step, with execution off. Actual October 20 carry save/source/native
 checkpoint/same-copy restart/all nine references remain unverified. The dated contract owns exact
 manual actions; open-questions.md retains the deferred later-session/production transition.
+
+### Next-session copy installed — October 19, 23:08 Toronto
+
+Reviewed implementation b1095ae9 is installed in next-session-working-copy after normal closure of
+the exact prior PID 1036. New PID **83608** starts at **23:08:41 Toronto**; bounded startup checks
+verify one exact owner, a visible responsive window and all three output manifest hashes. Core hash
+is the prepared hash above. Host permission, qualification packet and both October 19/20 checkpoints
+are absent before/after startup. No orders or financial approvals are submitted by the switch.
+Receipt: artifacts/delphi-live-tfsa-20261018/next-session-switch-receipt.json.
+
+Run-DelphiLiveNormal.cmd/Start-DelphiLiveNormal.ps1 provide the hash-checked same-copy manual launch
+with the repository working directory/reviewed calendar. Script syntax is checked; the installation
+switch separately proves the executable starts. The launcher preserves checkpoint/packet evidence
+on normal restart, reuses one already-running exact owner and refuses another copy. Normal paper/
+account synchronization remains within the earlier approved scope. No native SQL rehearsal, schema
+change, risk-reference reset, financial carry save or activation is performed. Actual next-session
+source/carry/checkpoint/restart/nine-reference qualification remains the operator's sequence tomorrow.

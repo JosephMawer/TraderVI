@@ -163,8 +163,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Implement the accepted October 20 trial-only carry, explicit preview/save UI and original-ID
   capture/restart integration, retaining original references and all nine checks. 2,655 full offline
   passes/nine native skips; WPF Release and six synthetic panel renders pass. October 19 remains expired.
-- [ ] Install/verify the exact next-session copy with execution off; then operator performs actual
-  October 20 carry save/readback, fresh source, native checkpoint/restart and all nine references.
+- [x] Install/verify b1095ae9 next-session copy at 23:08:41 Toronto, PID 83608, exact output/Core hashes,
+  one visible responding owner; execution permission/packet/both dated checkpoints absent.
+- [ ] Operator performs actual October 20 carry save/readback, fresh source, native checkpoint/restart
+  and all nine references. An installed screen/offline tests do not qualify those observations.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,

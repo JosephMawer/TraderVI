@@ -2,15 +2,15 @@
 
 **Current decision: no successful checkpoint; October 19 purchase window expired; automatic execution off.**
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
-are implemented/offline tested and prepared for installation. Actual carry save, fresh source,
+are implemented/offline tested and installed with execution off. Actual carry save, fresh source,
 native recovery and all nine references remain unverified. The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\close-once-working-copy\TraderVI.WPF.exe`.
-Closing-lease correction **cf0eee49**, retaining earlier source/coordination fixes; Core SHA-256
-`53BA8FBB5FA71F04E26EB77A812B3661BC487435B98A2EB3840C4D8D2DB079D8`.
-The corrected copy starts at **22:20:53 Toronto**, PID **1036**, after normal prior-process closure.
-Manifest hashes, one responding visible desktop and absent host permission/packet/checkpoint are
-verified. Receipt: `artifacts/delphi-live-tfsa-20261018/close-once-switch-receipt.json`.
+Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
+Next-session correction **b1095ae9**, retaining closing-lease/source/coordination fixes; Core SHA-256
+`4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
+The corrected copy starts October 19 at **23:08:41 Toronto**, PID **83608**, after normal prior-process
+closure. Manifest hashes, one responding visible desktop and absent host permission/packet/both
+October 19/20 checkpoints are verified. Receipt: `artifacts/delphi-live-tfsa-20261018/next-session-switch-receipt.json`.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

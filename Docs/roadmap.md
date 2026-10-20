@@ -97,8 +97,9 @@ nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assi
 copy 62c7b5fd is installed/verified at 15:46, PID 58536, one responding owner/no authority/packet/
 checkpoint. Later native read confirms Normal publication recovered at 16:03:40 and finalization at 16:03:48; host-gap coverage stays blocked. A separate 16:21 expired-lease error comes from repeated finalization. Close-once renewal/release fix passes 37 focused/2,624 full offline passes (nine native skips)/WPF build; cf0eee49 installed/verified at 22:20, PID 1036, hashes/one responding owner/no authority/packet/checkpoint. Overnight publication is not expected. The October 19 trial expired; implement the explicitly accepted [October 20 carry contract](reviews/delphi-live-next-session-contract-20261020.md) before
 packet/approval/enable. Its Core/UI integration is now implemented and prepared: **2,655 full offline
-passes/nine native skips**, WPF build and six synthetic renders pass. Next install the exact copy
-with execution off, then complete actual October 20 carry save/source/checkpoint/restart/all nine
+passes/nine native skips**, WPF build and six synthetic renders pass. Copy b1095ae9 is installed and
+verified at 23:08, PID 83608, exact hashes/one visible responding owner/no authority/packet/checkpoints.
+Next complete actual October 20 carry save/source/checkpoint/restart/all nine
 checks before manual approval/enable. Native SQL rehearsals stay paused. No baseline
 reset, repeated trades or qualification bypass.
 

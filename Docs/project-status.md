@@ -197,8 +197,10 @@ is expected overnight. The October 19 trial purchase window expired without chec
 authority. The accepted [October 20 contract](reviews/delphi-live-next-session-contract-20261020.md)
 is implemented: separate preview/explicit carry save, immutable original-anchor rechecks, original-ID
 capture/restart and all nine trial-only references. The full offline suite has **2,655 passes/nine
-native skips**; WPF Release and six synthetic panel renders pass. The next-session copy is prepared,
-with installation pending. Actual October 20 carry save, fresh source/native checkpoint, same-copy
+native skips**; WPF Release and six synthetic panel renders pass. Copy **b1095ae9** is installed at
+**23:08:41 Toronto**, PID **83608**, next-session-working-copy: manifest/Core hashes match, one visible
+responding owner; host permission, packet and both dated checkpoints are absent. Actual October 20
+carry save, fresh source/native checkpoint, same-copy
 restart, packet, operator assignment and enable remain unverified. No agent financial action occurred.
 Preserve original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did

@@ -1,6 +1,6 @@
 # Delphi Live Normal — accepted October 20 first execution session
 
-**Status: explicitly accepted October 19; implemented, offline tested and prepared. Installation and actual October 20 qualification remain separate. No trading authority is saved.**
+**Status: explicitly accepted October 19; implemented, offline tested and installed with execution off. Actual October 20 qualification remains required. No trading authority is saved.**
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk
@@ -82,16 +82,18 @@ the separate operator step below.
   synthetic panel renders pass at minimum/default sizes with no binding errors. The Release WPF
   build succeeds with 262 existing compiler warnings and cached Pkcs security advisories; no fresh
   audit, native SQL rehearsal or full solution/SSDT validation is claimed.
-- [ ] Install the exact reviewed copy with execution off; record path/hash/owner.
+- [x] Install the exact reviewed copy with execution off: b1095ae9 started October 19 **23:08:41
+  Toronto**, PID **83608**; manifest/Core hashes match, one visible responding owner. Host permission,
+  packet and both October 19/20 checkpoints are absent. Receipt: `artifacts/delphi-live-tfsa-20261018/next-session-switch-receipt.json`.
 - [ ] Perform actual October 20 account/source/carry/checkpoint/restart/nine-reference observations.
 - [ ] Operator reviews and approves the assignment, then separately enables the reviewed host.
 
 ## Operator sequence
 
 **Tonight:** contract accepted; keep execution off. No additional buy/sale, new initial
-baseline or manual risk-reference reset is required. Prepared executable:
+baseline or manual risk-reference reset is required. Installed executable:
 `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
-Prepared Core SHA-256: `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
+Installed Core SHA-256: `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
 The local launch helper, `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\Run-DelphiLiveNormal.cmd`,
 will open only that hash-checked copy with the repository working directory and reviewed calendar.
 It will reuse an existing exact owner, refuse another copy, and retain all financial evidence on a
