@@ -7,6 +7,11 @@ all nine reviewed evidence references. Approval is available; host enable is dis
 metadata confirms the protected qualification packet exists and host permission remains absent.
 Protected contents are not independently decoded. Next operator approves the reviewed assignment
 and verifies save confirmation before separate host enable; agent performs neither action.
+The next operator screenshot is instead a stale/incomplete/account-mismatch rejection. It confirms
+no saved approval. Source validates before session append and applies a two-minute review lifetime,
+fresh account/fingerprint and unchanged risk/position checks. One fresh Prepare first execution
+review followed by prompt approval of unchanged facts is the next step; repeated rejection requires
+diagnosis. Paper-cycle waiting also consumes review lifetime; do not infer expiry as the proven cause.
 October 20: two reported paper-cycle wait timeouts block Preview before account checks. A separate
 [responsiveness correction](desktop-paper-responsiveness-20261020.md) 55e429d5 is installed under explicit
 approval at 11:03:56, execution off; the reviewed copy below is preserved. Two native wakes expose
@@ -172,7 +177,9 @@ created and no stored proof/reference is modified by preparing normal output.
    and carry revision again. It must publish all nine checks from actual matching observations.
 7. Review the exact account/Normal strategy/build, disclosed evidence limits, capital ceiling,
    carried original references, all nine checks and October 20 expiry. If complete, personally click
-   Approve reviewed assignment. Verify its saved confirmation. This does not send an order.
+   Approve reviewed assignment promptly: the prepared review expires after two minutes, including
+   paper-cycle waiting. If it expires during an external review, prepare a fresh review and compare
+   the facts again. Verify saved confirmation before progressing. This does not send an order.
 8. Separately click Enable reviewed host only when ready for real automatic orders. Stay available
    for the supervised trial. Use Stop execution host to stop new cycles if needed; existing orders
    still require original-ID recovery and closing the window does not cancel them.

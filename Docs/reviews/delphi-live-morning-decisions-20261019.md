@@ -1087,3 +1087,19 @@ it does not erase the already saved carry or gate assignment approval. Approval 
 packet fingerprint, exact strategy/readiness and workflow account constraints. The operator should
 approve only while the accepted no-outside-change condition remains true, then review the saved
 confirmation before separate host enable. No activation is inferred from the review screen.
+
+### Assignment approval rejected before save — October 20
+
+The operator reports saved approval, but the supplied screenshot actually shows "Activation review
+is stale, incomplete or differs from the real account. Review again." No saved assignment is
+confirmed. BrokerManagedSessionWorkflow.ApproveAsync synchronizes and validates before constructing
+or appending the approved session. BrokerActivationReview.Validate groups the two-minute prepared-
+review lifetime, fresh account snapshot/fingerprint and unchanged risk/position requirements under
+this message; the exact failed predicate cannot be established from the screenshot. Approval's
+desktop-paper-cycle wait occurs before validation and consumes the same review lifetime.
+
+The prior instruction to await screenshot review can therefore exhaust the pending review. Next
+prepare a fresh first execution review, compare all previously reviewed facts and approve promptly
+if unchanged without another chat pause. If that single fresh retry fails, preserve the diagnostic
+and investigate timing/account differences before further progression. No guard extension, new
+build, proof/reference rewrite, SQL helper, order or agent financial approval is performed here.

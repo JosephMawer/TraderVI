@@ -1,6 +1,12 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: October 20 native first execution review displays all nine evidence references after same-build restart; assignment approval/host enable pending. October 19 permission remains expired.**
+The next operator screenshot shows stale/incomplete/account-mismatch rejection instead of saved
+assignment confirmation. Source places this validation before session append. A prepared review
+expires after two minutes, including approval's paper-cycle wait; account freshness/fingerprint and
+position/risk mismatches share this message. The exact failing predicate is unproven. Next prepare
+one fresh review and approve promptly only if reviewed facts match; diagnose recurrence and keep
+host enable untouched. No saved assignment is inferred from this rejected attempt.
 Operator screenshots after selection of the two original liquidation sales show exact NormalV1,
 current source review, carried original references, actual capital ceiling, today's regular-close
 expiry and all nine native/scoped reviewed references. Assignment approval is available; host enable

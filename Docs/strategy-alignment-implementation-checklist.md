@@ -201,6 +201,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   reviewed close expiry and assignment approval available. Read-only packet file existence is
   confirmed; host permission absent. Protected contents are not independently decoded/audited.
 - [ ] Observe explicit operator assignment approval/save confirmation, then separate host enable.
+  The next October 20 screenshot instead shows stale/incomplete/account-mismatch rejection before
+  session append. Two-minute review lifetime includes paper waiting; exact failed predicate unknown.
+  Prepare one fresh review/approve promptly if unchanged; investigate recurrence before progression.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.

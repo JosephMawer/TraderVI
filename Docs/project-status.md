@@ -1,5 +1,14 @@
 # TraderVI Project Status
 
+**Assignment approval blocked, October 20:** the operator's next screenshot shows "Activation review
+is stale, incomplete or differs from the real account. Review again," rather than a saved approval.
+Source validation occurs before session append. The guard includes a two-minute prepared-review
+limit, current account freshness/fingerprint and unchanged risk/position requirements; the message
+does not identify which predicate failed. Screenshot-review time and any approval paper-cycle wait
+consume that review lifetime. Next prepare one fresh review, compare the same reviewed facts and
+approve promptly if unchanged; repeated rejection needs diagnosis, not a guard waiver. Host enable
+remains pending; no saved assignment is confirmed by this result.
+
 **First execution review observed, October 20:** after the normal-output same-build restart, the
 operator selects the two original liquidation sales. Screenshots show exact Normal/NormalV1, carried
 original references, current source review, actual purchase ceiling, today's regular-close cutoff
