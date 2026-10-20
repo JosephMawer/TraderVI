@@ -1170,3 +1170,43 @@ the accepted trial, keep the app running and inspect its status. Enable saves/re
 assignment permission; fresh account/order/risk/source/protection checks precede action. Waiting may
 be the first status. New buying still expires at October 20 regular close; no next-day renewal or
 general production qualification follows. Record actual first-cycle and close behavior separately.
+
+### Operator host enabled; first-cycle observation pending — October 20, 15:20 Toronto
+
+The operator supplies the admitted-paper wait screenshot and then the exact enabled-assignment
+confirmation. Read-only file metadata confirms host-permission creation at 15:19:37 Toronto; one
+normal-output process (PID 118432) responds. No permission contents are decoded or changed by the
+agent. The installed helper's query hash is verified against the submitted bounded status read.
+At 15:20:23 it returns only revision zero/ExecutionApproved/Transition, no activation timestamp,
+zero automatic orders/positions, no saved blocks and the accepted October 20 close expiry.
+
+Local bounded timing shows enable waited 78.16 seconds for paper work to drain, completing 15:19:37.
+Another paper cycle begins 15:19:50 and the first host setup wait begins 15:20:06. Thus enablement
+is observed, but no completed native strategy cycle or actual automatic order is yet established.
+The noninteractive host wait retains its existing two-minute timeout and no in-flight financial
+work is cancelled. Next observe durable synchronization/evaluation or actual blocked status.
+No order, financial permission mutation, SQL rehearsal, build, restart or source qualification waiver
+is performed by the agent. Scope remains supervised, no outside account changes, new purchases
+expire at today's regular close and no next-day buying renewal follows.
+
+### Initial native activation and strategy evaluation verified — October 20, 15:22 Toronto
+
+The admitted Live cycle ends 15:20:53; the first host setup wait completes after 47.02 seconds.
+The follow-up installed read at 15:22:03 has the same verified query hash as the first status read.
+It returns four durable events at 15:20:59: AccountSynchronized, ProtectionTransferredAndStrategyActivated,
+LiveProtectionPrepared and StrategyEvaluated. Latest revision is four, phase Active, with activation
+timestamp, current account observation, no saved account blocks, zero automatic orders/positions and
+the accepted 16:00 purchase expiry. This verifies initial native activation/evaluation, beyond enable.
+
+It does not prove actual automatic submission/fill, a populated protection path, uninterrupted
+polling/cadence or correct close behavior; those remain operational observations. No buy is required
+on every evaluation and no synthetic order is needed for this status check. The current Trading
+host status may show Running, Waiting or a later blocker and remains the immediate operator display.
+Keep app/account connected, avoid outside account changes, inspect original order status on any
+partial/cancelled/uncertain outcome, and never replay an order to clear a hold. Stop execution host
+stops new cycles after in-flight work finishes; existing orders still require recovery. Stop new
+buys is separate and retains ordinary exits. At today's cutoff, no new trial purchases or next-day
+renewal follow; original financial references/holds remain authoritative.
+
+The agent performed only bounded installed reads/local metadata inspection and documentation, no
+financial action, native SQL rehearsal, build, restart or trading-control mutation.

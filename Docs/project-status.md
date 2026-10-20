@@ -1,11 +1,19 @@
 # TraderVI Project Status
 
+**Host enabled and initial native evaluation verified, October 20:** operator enable confirmation
+and local permission-file creation at **15:19:37 Toronto** are observed, one responding normal-output
+owner (PID 118432). The hash-verified bounded follow-up read at 15:22:03 verifies account synchronization,
+protection handover/activation at **15:20:59 Toronto**, LiveProtectionPrepared and StrategyEvaluated
+through revision four/Active. No saved account blocks, automatic orders or positions. Initial
+activation/evaluation are verified; sustained cadence, actual automatic submission/fill/protection
+and close behavior remain unverified. Keep app/account connected, inspect current host/order status,
+preserve original IDs and the accepted October 20 16:00 purchase cutoff; no next-day renewal.
+
 **Assignment approval saved, October 20:** the operator screenshot now explicitly confirms execution
 approval saved, approved Normal, Transition state, buying subject to current risk checks and automatic
-trading off; approval sent no order. One normal-output owner (PID 118432), corrected UI/original Core
-hashes, packet present and absent host permission are independently checked. This is observed native
-approval/readback, not enabled execution or a completed live cycle. Next separate operator host enable
-and actual status/first-cycle observation. The original rejection predicate remains unproven; no
+trading off at approval; approval sent no order. One normal-output owner (PID 118432), corrected UI/original Core
+hashes, packet present and then-absent host permission are independently checked. Subsequent host
+enablement and initial evaluation are observed above. The original rejection predicate remains unproven; no
 diagnostic exception is observed after the correction.
 
 **Earlier assignment approval blocker, October 20:** the operator reports the immediate fresh-review retry
@@ -28,7 +36,7 @@ and all nine native/scoped evidence references present; assignment approval is a
 enable remains disabled. Read-only file metadata confirms the protected qualification packet now
 exists and host permission remains absent. This is native UI/file-existence evidence, not an
 independent audit of protected contents. Subsequent operator assignment approval/readback is observed
-above; separate host enable remains. No approval, order or host enable is performed by the agent.
+above, followed by operator host enable/native initial evaluation. No financial action is performed by the agent.
 
 **Normal checkout startup, October 20:** the operator requires the normal `dotnet run --project
 TraderVI.WPF -c Release` workflow on `master`; all TFSA/performance/setup-wait code is already there.
@@ -41,7 +49,7 @@ environment and independently verified outside the sandbox. The operator restart
 output with `--no-build` at **13:43:30 Toronto**, PID **72928**. Read-only inspection verifies one
 owner, all 125 runtime hashes unchanged and the dated checkpoint present; qualification packet and
 host permission remained absent at the restart check. Subsequent native first review is observed
-above; process restart alone did not qualify recovery. Assignment is subsequently saved; host enable remains pending.
+above; process restart alone did not qualify recovery. Assignment/host enable and initial evaluation are subsequently verified.
 Related ignored artifact folders total about **8.45 GiB**, principally repeated build/dependency
 copies. No deletion occurred; preserve live output/proof and retained evidence while obsolete-output
 cleanup is deferred until normal-output recovery is verified. [Normal commands](running.md#build-and-run-the-local-desktop-checkout).
@@ -72,7 +80,7 @@ cash-only baseline readback. Read-only local inspection confirms the October 20 
 packet/host permission remain absent, PID 78688 uses the exact copy and all 125 manifest hashes
 still match. No checkpoint content is decoded or rewritten. The normal-output same-build restart
 is subsequently verified above, followed by native UI evidence of all nine references. Operator
-assignment approval is subsequently observed above; host enable remains pending. Both performance commits remain included; further
+assignment/host enable and initial native evaluation are subsequently verified above. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

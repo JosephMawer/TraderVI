@@ -117,7 +117,7 @@ permission. Normal-output same-build restart is verified; subsequent operator sc
 complete native first review/all nine references and approval available, with host enable disabled.
 Protected packet existence is independently observed; operator assignment approval/readback
 is subsequently confirmed saved in native UI, Transition state/automatic trading off. Next separate
-operator enable and actual first-cycle status. This changes
+operator enable/initial native evaluation are subsequently verified below. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
 Approval and the immediate retry are rejected before append; installed read confirms zero managed
 revisions and unchanged recent financial imports. Desktop-only review admission/precise rejection
@@ -126,8 +126,13 @@ Core/proof identity and every validation guard remain unchanged. Operator normal
 exit is verified and the two UI files are installed in standard Release output at 14:41 Toronto;
 123 other runtime/protected checkpoint/packet hashes remain unchanged, no host permission. Next
 normal project --no-build restart is subsequently verified (one owner, PID 118432, exact corrected UI/
-original Core hashes), and operator screenshot confirms assignment saved/no order/host off. Host
-permission remains absent; next manual enable and native cycle observation. Original rejection
+original Core hashes), and operator screenshot confirms assignment saved/no order/host off at approval.
+Operator subsequently enables the exact host; permission creation is observed at 15:19:37 Toronto.
+After the first paper wait, the hash-verified 15:22:03 installed read shows synchronization,
+activation/protection handover and StrategyEvaluated at 15:20:59, revision four/Active, no saved
+blocks/automatic orders/positions. Initial activation/evaluation are verified. Next sustained
+cadence, any actual order lifecycle/protection and reviewed-close expiry observations; no forced
+trade or next-day buying renewal follows. Original rejection
 predicate remains unproven; successful approval is not full-production qualification.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow

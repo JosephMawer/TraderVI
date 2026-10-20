@@ -1,11 +1,18 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: October 20 assignment approval saved/read back in operator UI; host off, separate enable/first-cycle observation pending. October 19 permission remains expired.**
+**Current decision: October 20 assignment/host enabled; native initial activation and strategy evaluation verified. Sustained/order/close behavior remains unverified. October 19 permission remains expired.**
+The latest operator screenshot confirms host enabled for the reviewed assignment. Permission file
+creation is independently observed at 15:19:37 Toronto; normal-output owner PID 118432 responds.
+The first read at 15:20:23 showed only Transition while host waited for admitted paper work. The
+hash-verified follow-up at 15:22:03 verifies AccountSynchronized, protection handover/activation,
+LiveProtectionPrepared and StrategyEvaluated at 15:20:59, revision four/Active. No saved account
+blocks, automatic orders or positions. Initial activation/evaluation are established; no actual
+automated submission/fill or sustained operation is claimed. Next cadence/order/close observation.
 After desktop correction/restart, the latest screenshot explicitly confirms approved Normal,
 Transition, buying subject to current risk checks, automatic trading off and execution approval
 saved/no order sent. One normal-output owner (PID 118432), corrected UI/original Core hashes, packet
 present/host permission absent are independently checked. No enabled execution or completed live
-cycle is inferred. Next separate operator enable and actual status; original rejection predicate
+cycle was inferred at approval. Subsequent enable/initial evaluation are verified above; original rejection predicate
 remains unproven, and the native/full-production limitations remain unchanged.
 An earlier operator screenshot showed stale/incomplete/account-mismatch rejection instead of saved
 assignment confirmation; an immediate fresh retry is also reported to fail quickly. Installed read
@@ -23,7 +30,7 @@ expiry and all nine native/scoped reviewed references. Assignment approval is av
 is disabled. Local read-only metadata confirms protected qualification packet creation; host
 permission remains absent. This records native UI/file-existence evidence, not independent protected
 content inspection or full-production qualification. Operator assignment approval/saved confirmation
-are subsequently observed above; separate host enable remains required for automatic execution.
+are subsequently observed, followed by separate operator enable/native initial evaluation as recorded above.
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
 are implemented/offline tested and installed with execution off. Operator carry save/readback and
 checkpoint capture are observed; post-restart first review now displays all nine references as above.

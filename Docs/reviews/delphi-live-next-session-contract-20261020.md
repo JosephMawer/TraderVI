@@ -1,17 +1,22 @@
 # Delphi Live Normal — accepted October 20 first execution session
 
-**Status: explicitly accepted October 19; October 20 native first review/all nine references observed and assignment approval saved/read back. Host off; separate operator enable/first-cycle observation pending.**
+**Status: October 20 review/all nine references, assignment/host enable and native initial activation/evaluation verified. Sustained/order/close behavior remains unverified.**
+Host enable confirmation is supplied by the operator; permission file creation is observed at
+15:19:37 Toronto. The first read shows Transition while waiting for paper work. The hash-verified
+follow-up read at 15:22:03 confirms activation/protection handover and StrategyEvaluated at 15:20:59,
+revision four/Active, no saved blocks/automatic orders/positions. Next sustained cadence, any actual
+orders/protection and the reviewed close. The accepted cutoff/limitations and original records remain.
 The latest operator screenshot confirms approved Normal, Transition, buying subject to current risk
 checks, automatic trading off and execution approval saved/no order sent. One corrected normal-output
 owner (PID 118432), exact UI/original Core hashes, packet present/host permission absent are verified.
-Next manual host enable and actual status. The earlier rejection predicate is unproven; successful
+Subsequent manual host enable/native initial evaluation are verified above. The earlier rejection predicate is unproven; successful
 approval does not expand the accepted trial or today's close expiry.
 After normal same-build restart, operator screenshots show the two original opening sales selected,
 exact NormalV1/current source, carried references, actual capital ceiling, today's close expiry and
 all nine reviewed evidence references. Approval is available; host enable is disabled. Read-only
 metadata confirms the protected qualification packet exists and host permission remains absent.
 Protected contents are not independently decoded. Operator assignment approval/save confirmation
-are subsequently observed above; separate host enable remains. The agent performs neither action.
+are subsequently observed, followed by separate operator enable/native initial evaluation above. The agent performs no financial action.
 The next operator screenshot is instead a stale/incomplete/account-mismatch rejection. It confirms
 no saved approval. Source validates before session append and applies a two-minute review lifetime,
 fresh account/fingerprint and unchanged risk/position checks. One fresh Prepare first execution
@@ -146,7 +151,11 @@ the separate operator step below.
   review displaying all nine references. Screenshots/file metadata support this observation;
   protected contents are not independently decoded/audited.
 - [x] Observe operator assignment approval saved/read back in October 20 native UI; no order sent.
-- [ ] Operator separately enables the reviewed host and verifies actual first-cycle status.
+- [x] Observe operator host enable confirmation and permission-file creation, October 20 at 15:19:37 Toronto.
+- [x] Verify initial native synchronization, protection handover/activation and strategy evaluation
+  through revision four/Active at 15:20:59 Toronto; hash-verified installed follow-up read, no saved
+  blocks/automatic orders/positions. No actual automated submission/fill is claimed.
+- [ ] Observe sustained cadence, any actual order/protection lifecycle and reviewed close expiry.
 
 ## Operator sequence
 

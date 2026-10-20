@@ -203,8 +203,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Observe explicit operator assignment approval/save confirmation in the October 20 screenshot:
   approved Normal, Transition, buying subject to current checks, automatic trading off/no order sent.
   Earlier rejected attempts/zero-revision read remain historical; original predicate is unproven.
-- [ ] Observe separate operator host enable/readback and actual first-cycle status. Approval alone
-  creates neither host permission nor completed automatic execution.
+- [x] Observe separate operator host enable confirmation in October 20 UI; permission file creation
+  at 15:19:37 Toronto independently observed, one responding normal-output owner. No agent enable.
+- [x] Verify initial native account synchronization, protection handover/activation, LiveProtectionPrepared
+  and StrategyEvaluated at 15:20:59 Toronto, revision four/Active, through the hash-verified bounded
+  15:22:03 installed read. No saved blocks/automatic orders/positions. This is initial activation/
+  evaluation, not actual automated submission/fill or sustained operation.
+- [ ] Observe sustained host cadence, any actual automatic order/protection lifecycle and the reviewed
+  close cutoff. Preserve original IDs on uncertainty; no next-day buying renewal is authorized.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
@@ -212,7 +218,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
   standard Release output, October 20 at 14:41 Toronto. All 123 other runtime hashes and protected
   checkpoint/packet hashes remain unchanged; no host permission. No app started by installation.
 - [x] Verify normal-output restart (PID 118432, corrected UI/original Core hashes) and observe saved
-  approval confirmation. Local packet present/host permission absent; host enable remains manual.
+  approval confirmation. Packet present/host permission absent at that check; separate operator
+  enable/native initial evaluation are subsequently verified above.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.
