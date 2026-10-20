@@ -178,7 +178,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Prepare the minimal redundant-serialization follow-up in separate outputs: 61 focused/2,664
   full serial offline passes, nine native skips/WPF Release; synthetic retained-history validation
   307 → 0.244 ms and 248 MB → 1,064 bytes. Native cycle benefit remains unverified.
-- [ ] Coordinate the follow-up switch and verify actual setup idle before carry/capture. Existing
+- [x] Perform the approved normal follow-up switch to 30775d12 at 11:32:14, PID 131204, after the
+  prior dashboard finishes; execution off, 124 manifest matches, both previous copies preserved.
+- [x] Observe four completed follow-up wakes through 11:42:00, including a 217.46-second collection/
+  action wake; short UI applies/no recorded pulse gap over two seconds, one held lease/durable progress.
+  Native cycle speedup is not established; sustained response/capacity remain open.
+- [ ] Resolve remaining history cost and verify actual setup idle before carry/capture. Existing
   same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
@@ -700,7 +705,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound account-history CPU/memory and establish capacity. October 20 worker/display correction 55e429d5 is installed, execution off; two native wakes have bounded UI timing but take 7.2/4.8 minutes, dominated by Live snapshot/protection/action work. Redundant-serialization removal is separately prepared/offline validated, not installed. Next approved follow-up switch/native cycle and idle validation; sustained memory/capacity and any further history work retain explicit integrity/freshness boundaries. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
+| S4 | Bound account-history CPU/memory and establish capacity. October 20 worker/display correction 55e429d5 and serialization follow-up 30775d12 are separately installed, execution off/both prior copies preserved. Four follow-up wakes have bounded UI timing but no clear full-cycle speedup; snapshot/protection/action cost remains substantial. Next resolve remaining history cost within existing integrity/freshness contracts, qualify actual setup idle/interactive acceptance and sustained memory/capacity. Same-copy recovery still requires fresh proof. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |

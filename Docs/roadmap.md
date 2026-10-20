@@ -108,8 +108,11 @@ Bounded 10:20 evidence shows progress, not idle. The [worker/display correction 
 diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are installed under explicit approval
 at 11:03:56, execution off; the original next-session copy is preserved. Native wakes still take
 7.2/4.8 minutes, dominated by Live snapshot/protection/action work, while bounded dispatcher timing
-improves. A minimal redundant-serialization correction is prepared/offline validated separately,
-not installed. Next coordinate that follow-up switch and measure actual cycle/idle behavior.
+improves. Serialization follow-up 30775d12 is separately installed under explicit approval at
+11:32:14, execution off, after normal completion/closure of the preceding copy; both earlier copies
+remain preserved. Four native wakes show bounded UI timing but no clear full-cycle speedup; snapshot/
+action work remains expensive. Next address remaining history cost within existing integrity/freshness
+contracts and qualify actual setup idle, sustained response/capacity and same-copy recovery.
 Preserve all qualification, same-copy proof and the dated trial expiry; financial actions stay separate.
 
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The

@@ -4,8 +4,10 @@
 October 20: two reported paper-cycle wait timeouts block Preview before account checks. A separate
 [responsiveness correction](desktop-paper-responsiveness-20261020.md) 55e429d5 is installed under explicit
 approval at 11:03:56, execution off; the reviewed copy below is preserved. Two native wakes expose
-long snapshot/protection/action cost. A further serialization fix is prepared only; setup idle remains
-unverified. Changing builds requires new checkpoint capture
+long snapshot/protection/action cost. Serialization follow-up 30775d12 is separately installed under
+explicit approval at 11:32:14, PID 131204, execution off, preserving both previous copies. Native
+observation finds four completed wakes/short UI applies but no clear full-cycle speedup; setup idle
+remains unverified. Changing builds requires new checkpoint capture
 and normal recovery restart of that same corrected copy; the dated financial scope does not renew.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.

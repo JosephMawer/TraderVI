@@ -32,10 +32,12 @@ action and contributes zero clean cohorts. The live collection and durability tr
 ## Operational prerequisites
 
 October 20 worker/display correction 55e429d5 is installed under explicit approval at 11:03:56,
-execution off. Two native wakes expose long Live snapshot/protection/action cost; bounded UI timing
-improves, while actual setup idle/sustained capacity remain unverified. A minimal serialization
-follow-up is separately prepared/offline validated, not installed. The two-minute barrier and every
-SQL/lease/qualification guard remain. [Evidence and switch procedure](reviews/desktop-paper-responsiveness-20261020.md).
+execution off. Native wakes expose long Live snapshot/protection/action cost; bounded UI timing
+improves, while actual setup idle/sustained capacity remain unverified. Serialization follow-up
+30775d12 is separately installed under explicit approval at 11:32:14, PID 131204, execution off;
+four completed wakes have bounded UI timing but no clear full-cycle speedup. Both prior copies remain
+preserved. The two-minute barrier and every SQL/lease/qualification guard remain.
+[Evidence and switch procedure](reviews/desktop-paper-responsiveness-20261020.md).
 
 - [x] Isolate remaining desktop monitor CPU continuations, remove duplicate scheduled display reads,
   bound quote rows and add bounded stage/pulse diagnostics; 65 focused/2,660 full offline passes,
@@ -45,8 +47,13 @@ SQL/lease/qualification guard remain. [Evidence and switch procedure](reviews/de
   execution off. No force-stop or financial action; historical host gap remains.
 - [x] Measure/test redundant immutable-prefix and normal-commit serialization removal; 61 focused/
   2,664 full offline passes, nine native skips/WPF Release. Prepare a separate follow-up copy.
-- [ ] Coordinate the follow-up switch, measure native cycle benefit and actual setup idle/sustained
-  capacity. Recapture same-copy proof after any changed build. Native SQL rehearsals remain paused.
+- [x] Perform the approved normal serialization-copy switch after the prior dashboard finishes;
+  verify one owner, all 124 manifest files and execution off. Preserve both previous copies/history.
+- [x] Observe four follow-up dashboard wakes (91.23/73.07/217.46/65.05 s), including collection/actions;
+  five UI applies 19.98–41.70 ms, no recorded pulse gap over two seconds through 11:42:00. One hash-
+  verified read confirms a held lease and durable progress; full-cycle speedup is not established.
+- [ ] Resolve remaining history cost and qualify actual setup idle/sustained response/capacity.
+  Recapture same-copy proof after any changed build. Native SQL rehearsals remain paused.
 
 October 18: ADR-0090 progressive protection is installed and enabled for all three current Live paper
 accounts (and all 12 Shadow accounts). Post-start checks preserve five Live holdings' floors/state,

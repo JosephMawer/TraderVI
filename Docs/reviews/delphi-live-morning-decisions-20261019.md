@@ -905,6 +905,9 @@ bounded stage timings, and validates offline. The reviewed next-session copy rem
 the approved normal switch subsequently installs 55e429d5 at 11:03:56, PID 78872, execution off,
 preserving the original TFSA copy. Two wakes show 7.2/4.8-minute dashboard duration, dominated by Live
 snapshot/protection/action cost; bounded UI timing improves. A minimal redundant-serialization
-follow-up is separately prepared/tested, not installed. Setup idle, same-copy proof and all financial
-steps remain unverified; no force-stop, native SQL rehearsal or agent financial action occurs.
+follow-up 30775d12 is separately installed under explicit approval at 11:32:14, PID 131204, execution
+off, after the preceding dashboard finishes and its desktop exits normally. Both previous copies are
+preserved. Four follow-up wakes have bounded UI timing but no clear full-cycle speedup; setup idle,
+same-copy proof and all financial steps remain unverified; no force-stop, native SQL rehearsal or
+agent financial action occurs.
 [Findings, measured synthetic comparison and exact switch steps](desktop-paper-responsiveness-20261020.md).

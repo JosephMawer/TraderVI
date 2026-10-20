@@ -1,23 +1,24 @@
 # TraderVI Project Status
 
-**Desktop responsiveness, October 20, 2026:** the explicitly approved normal switch installs
-**55e429d5 at 11:03:56 Toronto**, PID **78872**, with execution off and all 124 manifest files matching.
-The original TFSA copy/launcher remain unchanged. Two dashboard wakes take **431.65/289.38 seconds**;
-Live dominates at 419.44/277.67 seconds, with actions 162.19/193.23 seconds. Collection takes
-3.03/3.34 seconds, evaluation 0.80/1.17 seconds, tracked/Shadow each under three seconds. Three UI
-applies take 26.1–53.3 ms, and no dispatcher gap over two seconds is recorded through 11:17:50;
-this bounded evidence does not qualify sustained response/memory or setup idle. Repeated snapshot
-processing remains substantial. Two hash-verified installed read-only checks confirm one lease,
-new publication/evaluations and retained historical coverage gap, not financial qualification.
-A minimal serialization follow-up is **prepared, not installed**: retain same immutable history
-objects without serializing both sides, preserve exact checks for reopened/distinct records, and
-avoid an unused full serialization on normal commits. Fictional 3,000-quote append validation falls
-from **307 ms/248 MB allocated to 0.244 ms/1,064 bytes**. **61 focused/2,664 full serial offline
-tests pass, nine native skipped; isolated WPF Release passes** with existing compiler warnings.
-Native cycle benefit remains unverified. No fresh security audit/full solution/SSDT claim. No
-force-stop, profiler attachment, native SQL rehearsal, order, financial save or trading enable ran;
-normal approved paper/account synchronization continued. Next coordinate the separate follow-up
-switch and actual idle/setup observation while preserving original anchors and same-copy recovery.
+**Desktop responsiveness, October 20, 2026:** the separately approved serialization follow-up
+**30775d12 starts at 11:32:14 Toronto**, PID **131204**, execution off, all 124 manifest files matching.
+The previous 55e429d5 dashboard finishes at 11:31:57 and exits normally before the new launch.
+Both preceding copies and the original TFSA launcher/history are preserved. Four follow-up dashboard
+wakes take **91.23/73.07/217.46/65.05 seconds**; the full collection/action wake has **125.13 seconds**
+of actions, effectively unchanged from the preceding copy's last 125.31-second action stage. No clear
+native cycle speedup is established. Five UI applies take **19.98–41.70 ms**, with no recorded pulse
+gap over two seconds and all 38 process samples responding through **11:42:00**. Memory remains
+variable (714–3,168 MiB). Actual tab-navigation/Stop invocation, setup idle and sustained capacity
+remain unverified. One hash-verified installed read confirms a single lease and new publication/
+11:35 evaluation with the historical gap retained; the desktop remains running with execution off.
+The worker/display correction previously exposed Live snapshot/protection/action cost while bounding
+UI applies. The serialization change preserves exact reopened-history checks, lease fencing and
+durability: fictional retained-object validation falls from 307 ms/248 MB allocated to 0.244 ms/
+1,064 bytes. **61 focused/2,664 full serial offline tests pass, nine native skipped; isolated WPF
+Release passes** with existing compiler warnings. No fresh security audit/full solution/SSDT claim.
+No force-stop, profiler attachment, native SQL rehearsal, agent order, financial save or trading
+enable ran; normal approved paper/account synchronization continues. Same-copy checkpoint/restart,
+source and financial qualification remain separate requirements after the build change.
 [Findings, measurements and exact installation steps](reviews/desktop-paper-responsiveness-20261020.md).
 
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
