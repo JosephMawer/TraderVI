@@ -123,17 +123,22 @@ manual risk-reference reset is required. Installed executable:
 `C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\working-copy\TraderVI.WPF.exe`.
 Source 2cf08c33 includes the queued setup wait and both performance fixes, 55e429d5 and 30775d12.
 Installed Core SHA-256: `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`.
-For the required normal recovery restart, first close this app normally, then use
-`C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\Run-ReviewedDelphiLiveNormal.cmd`.
-It invokes the existing manifest/calendar-checked launcher with the repository working directory,
-refuses another running owner or existing host-permission file, and preserves checkpoint/packet
-evidence. Script syntax is checked; the guarded switch separately proves this executable starts.
-The original October 19 copy/launcher remains preserved and must not be used for this build's proof.
-The helper grants no financial authority.
+The operator requires normal command-line startup from `C:\src\TraderVI`; all implementation is
+already on `master`. All 125 reviewed runtime files have been placed and independently hash-verified
+in `C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows`, preserving this exact Core identity.
+For the pending recovery restart, close setup and the main app normally, then run from the root:
+`dotnet run --project TraderVI.WPF -c Release --no-build`.
+This uses the identical captured bytes in normal output; path relocation does not change the
+Core-hash identity. It needs no separate launcher or checkpoint replacement. Use `--no-build` for
+this captured-build review; building can change the hash, including Git revision metadata.
+The ordinary default before future qualification is `dotnet run --project TraderVI.WPF -c Release`.
+The reviewed calendar user setting is persisted/verified; start a new Command Prompt to inherit it.
+Earlier copies/helpers remain preserved pending obsolete-output cleanup. No financial authority is
+created and no stored proof/reference is modified by preparing normal output.
 
 **October 20, one step at a time:**
 
-1. Use the launch helper above to open the exact reviewed working copy, sign in normally if needed,
+1. Use the appropriate normal command above to open the captured build, sign in normally if needed,
    and confirm the intended TFSA.
    Leave host enable untouched. Keep the app running so ordinary paper publication can resume.
    Opening setup may initially wait for admitted paper work. Leave it open while elapsed time

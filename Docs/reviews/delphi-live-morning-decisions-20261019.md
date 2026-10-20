@@ -1027,3 +1027,28 @@ must reread the original IDs/references and publish all nine checks only on comp
 evidence. Select the two original liquidation sales, excluding the verification-position sale.
 Normal post-restart recovery/packet, assignment approval and host enable remain unverified; no
 actual automatic trading is enabled by successful capture.
+
+### Normal checkout launch preference and duplicate-output inventory — October 20
+
+The operator rejects the separate-launcher/snapshot workflow and wants normal `dotnet run --project
+TraderVI.WPF -c Release` from the main checkout. All implementation is already committed on master.
+Git confirms changes after 2cf08c33 are documentation only. The generated TFSA artifact root is
+7,618.1 MiB, history-cost root 699.9 MiB and setup-wait root 338.9 MiB: about 8.45 GiB combined,
+primarily repeated full builds/dependencies. These are ignored repository artifacts, not separate
+source branches. No cleanup/deletion or additional application source is introduced here.
+
+To preserve the current checkpoint without a separate launcher, copy the 125 manifest-verified
+captured files into the existing normal Release output after verifying that output is not in use.
+Verify all destination hashes; Core remains EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F.
+The approved recovery uses normal `dotnet run --project TraderVI.WPF -c Release --no-build` once,
+preserving the exact binary identity. Default future prequalification launch is the ordinary build-
+enabled command. No checkpoint is decoded, rewritten or removed, and no app is started/restarted.
+
+Calendar inspection finds the known reviewed path only in the current process environment; actual
+Windows User/Machine settings are absent despite older installation prose. Under explicit tool
+approval, setx persists that same reviewed path for the real user; a separate outside-sandbox registry
+read verifies it. Sandbox user-environment reads are isolated/unreliable and are not persistence
+evidence. Open a new Command Prompt to inherit the setting. No financial configuration changes.
+Next normal-output same-build restart and native first review; retain current proof/original risk
+references, then scope cleanup of obsolete generated builds. Normal startup is the default going
+forward; no further full snapshot copies are needed.

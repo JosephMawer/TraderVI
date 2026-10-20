@@ -20,6 +20,13 @@ packet/both October 19/20 checkpoints are verified. Native UI acceptance remains
 `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Older copies remain preserved. Actual setup idle and financial qualification remain unverified;
 capture/recovery must both use this corrected copy.
+The operator subsequently requires ordinary command-line startup on `master`. All 125 captured
+runtime files are hash-verified in the normal Release output with the same Core identity; no source
+code changed since 2cf08c33, only documentation. Restart this pending checkpoint with normal
+`dotnet run --project TraderVI.WPF -c Release --no-build`, preserving its identity without a launcher.
+The existing calendar path is persisted/verified as an approved Windows user setting. Protected proof
+is unchanged; post-restart review still must independently recover/qualify it. A build-enabled run
+can change identity and is not a replacement for this checkpoint's same-build recovery.
 The next performance-copy screenshot again stops at the paper-cycle wait before account checks;
 the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
 correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time

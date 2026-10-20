@@ -116,6 +116,13 @@ local read-only inspection verifies its dated file and unchanged 125-file build,
 permission. Next same-copy normal restart/first review/nine references before assignment/enable. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
 
+Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
+going forward; no further full artifact copies are needed. The normal Release output now has all
+125 captured-build files byte-identical. For this saved checkpoint's one recovery restart use the
+same command with `--no-build`, preserving the engine hash, then complete first review/nine checks.
+Calendar user-setting persistence is approved/verified. Obsolete generated-output cleanup follows
+verified normal-output recovery, preserving financial proof/evidence; no files are deleted yet.
+
 October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.
 Bounded 10:20 evidence shows progress, not idle. The [worker/display correction and bounded stage
 diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are installed under explicit approval

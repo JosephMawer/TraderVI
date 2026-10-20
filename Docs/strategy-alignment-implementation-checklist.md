@@ -195,6 +195,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   host permission absent, exact process copy and all 125 file hashes unchanged. No proof decoded.
 - [ ] Perform normal restart of that exact copy and first execution review with all nine references.
   Capture alone is not completed restart recovery or execution qualification.
+- [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
+  files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
+  verify the same reviewed calendar as an approved Windows user setting. No source/proof change.
+- [ ] Restart from normal project output with `dotnet run --project TraderVI.WPF -c Release --no-build`
+  for this checkpoint, then complete native first review. Normal build-enabled command is the default
+  before future qualification. Remove obsolete generated outputs only after reviewed cleanup scope.
 - [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
   queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
   existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial

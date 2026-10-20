@@ -96,6 +96,26 @@ Set-Location C:\src\TraderVI
 dotnet run --project TraderVI.WPF -c Release
 ```
 
+The operator reaffirmed this as the default on October 20: keep implementation on the main checkout
+and use ordinary build outputs. Separate full artifact copies/helpers are not the normal launch
+workflow. All current TFSA/performance/setup-wait implementation is on `master`.
+
+**One current-checkpoint recovery exception:** the October 20 checkpoint binds the reviewed Core
+binary hash. Its 125 verified runtime files have been placed, byte-identically, in the normal
+`TraderVI.WPF/bin/Release/net10.0-windows` output; source changes since that build are documentation
+only. After closing the existing app normally, use this once for the pending recovery review:
+
+```powershell
+dotnet run --project TraderVI.WPF -c Release --no-build
+```
+
+This uses normal output and retains the captured engine identity; it requires no separate launcher
+or proof rewrite. A build-enabled run can change the engine hash, including embedded Git revision
+metadata, so complete this saved checkpoint flow before rebuilding. Ordinary development/startup
+uses the original command above before qualification. The reviewed calendar path was persisted
+under explicit approval in the Windows user environment and verified outside the sandbox; open a
+new Command Prompt after that setting change. No financial setting/reference was reset.
+
 This builds and runs that checkout. It does not merge another branch/worktree or replace an already
 running process. No separate installer or manual binary copy is needed. The September 25 integration
 combines the strategy controls with the September 24 memory and broker-trade synchronization fixes.

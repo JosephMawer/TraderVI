@@ -1,5 +1,17 @@
 # TraderVI Project Status
 
+**Normal checkout startup, October 20:** the operator requires the normal `dotnet run --project
+TraderVI.WPF -c Release` workflow on `master`; all TFSA/performance/setup-wait code is already there.
+The 125 captured-build runtime files are placed and hash-verified in normal Release output, Core
+SHA-256 unchanged at `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`; only docs
+changed since source 2cf08c33. Pending checkpoint recovery can therefore use normal project output
+with `--no-build`, without a launcher, new source code, proof rewrite or new financial save. The
+existing reviewed calendar path is persisted under explicit approval in the real Windows user
+environment and independently verified outside the sandbox. No app restart/activation occurs here.
+Related ignored artifact folders total about **8.45 GiB**, principally repeated build/dependency
+copies. No deletion occurred; preserve live output/proof and retained evidence while obsolete-output
+cleanup is deferred until normal-output recovery is verified. [Normal commands](running.md#build-and-run-the-local-desktop-checkout).
+
 **TFSA setup coordination follow-up, October 20:** the reviewed performance copy still hits the
 two-minute setup wait before account checks. Private stage timings identify an admitted Live cycle
 starting 11:54:43, collection 11:58:02–11:58:11, evaluation through 11:58:13 and subsequent actions;

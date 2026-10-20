@@ -5,6 +5,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Obsolete generated build copies — October 20, 2026
+
+- **Operator preference:** normal checkout/Release output and `dotnet run` are the default; avoid
+  further full snapshot copies/helper launchers. All implementation is on `master`.
+- **Cleanup follow-up:** the related TFSA and performance artifact folders total about 8.45 GiB,
+  mostly copied build dependencies. Scope obsolete generated outputs for removal after the captured
+  binary is verified through normal-output recovery; preserve active output, protected account/
+  checkpoint/packet stores, logs/receipts/review evidence and source. No blanket artifacts/runtime/
+  package-cache deletion is authorized or performed by this inventory. No new application code is
+  required to restore the normal workflow.
+
 ### After the October 20 supervised trial — October 19, 2026
 
 - **Deferred:** determine the reviewed transition from the trial-only carried original references to
