@@ -21,6 +21,12 @@ enable ran; normal approved paper/account synchronization continues. Same-copy c
 source and financial qualification remain separate requirements after the build change.
 [Findings, measurements and exact installation steps](reviews/desktop-paper-responsiveness-20261020.md).
 
+**Operator handoff:** further history-cost investigation/implementation is explicitly deferred.
+Code commits **55e429d5/30775d12** and native evidence **d3ce404d** are on `master` in
+`C:\src\TraderVI`, the same checkout used by **Enable live TFSA trading**. That session can resume
+qualification using the current corrected copy; all existing financial/source/recovery checks remain.
+No additional code change or operational switch is part of this handoff.
+
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
 approval, retaining v1. It adds only exact owned activity/history reads, discovered-order-only request
 guarding and final account/activity cross-checks. Sixty-six offline/four approval-scope checks pass;

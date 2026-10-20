@@ -52,7 +52,10 @@ preserved. The two-minute barrier and every SQL/lease/qualification guard remain
 - [x] Observe four follow-up dashboard wakes (91.23/73.07/217.46/65.05 s), including collection/actions;
   five UI applies 19.98–41.70 ms, no recorded pulse gap over two seconds through 11:42:00. One hash-
   verified read confirms a held lease and durable progress; full-cycle speedup is not established.
-- [ ] Resolve remaining history cost and qualify actual setup idle/sustained response/capacity.
+- [ ] **Deferred by operator:** investigate remaining history cost and implement the simplest safe
+  fix later; preserve history/both previous copies, execution off, separate validation before any
+  separately coordinated switch.
+- [ ] Qualify actual setup idle/sustained response/capacity.
   Recapture same-copy proof after any changed build. Native SQL rehearsals remain paused.
 
 October 18: ADR-0090 progressive protection is installed and enabled for all three current Live paper

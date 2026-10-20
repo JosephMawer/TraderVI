@@ -250,6 +250,13 @@ trading enable, profiler attachment, competing build/test or native SQL rehearsa
 
 ## Exact switch procedure — repeat only with operational approval
 
+Operator handoff: further history-processing investigation/implementation is explicitly deferred.
+Source commits **55e429d5/30775d12** and observation commit **d3ce404d** are already on `master` in
+`C:\src\TraderVI`. The **Enable live TFSA trading** session uses that same checkout; no merge or
+cherry-pick is needed. Resume future history work with the simplest safe fix, preserving history and
+both previous copies, execution off, separate validation and another explicitly coordinated switch.
+This deferral does not waive actual setup idle, source, checkpoint/restart or financial qualification.
+
 1. The current serialization follow-up is the separate
    `artifacts/desktop-history-cost-20261020/working-copy`. For a future approved restart, review its
    manifest; both preceding copies remain preserved.

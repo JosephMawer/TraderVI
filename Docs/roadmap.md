@@ -111,8 +111,11 @@ at 11:03:56, execution off; the original next-session copy is preserved. Native 
 improves. Serialization follow-up 30775d12 is separately installed under explicit approval at
 11:32:14, execution off, after normal completion/closure of the preceding copy; both earlier copies
 remain preserved. Four native wakes show bounded UI timing but no clear full-cycle speedup; snapshot/
-action work remains expensive. Next address remaining history cost within existing integrity/freshness
-contracts and qualify actual setup idle, sustained response/capacity and same-copy recovery.
+action work remains expensive. The operator explicitly defers further history-cost investigation/fix
+until later. Resume that work within existing integrity/freshness contracts, preserving history and
+both previous copies, execution off, separate validation and a separately coordinated switch.
+TFSA qualification can continue in its own session; actual setup idle, sustained response/capacity
+and same-copy recovery remain unverified.
 Preserve all qualification, same-copy proof and the dated trial expiry; financial actions stay separate.
 
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
