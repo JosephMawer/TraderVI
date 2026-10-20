@@ -911,3 +911,29 @@ preserved. Four follow-up wakes have bounded UI timing but no clear full-cycle s
 same-copy proof and all financial steps remain unverified; no force-stop, native SQL rehearsal or
 agent financial action occurs.
 [Findings, measured synthetic comparison and exact switch steps](desktop-paper-responsiveness-20261020.md).
+
+### TFSA session resumes in the reviewed performance copy — October 20, 11:53
+
+The operator confirms the other session is finished for now and explicitly approves normal close/
+open with execution off, requiring the committed UI/performance work. Current process inspection
+finds standard Release PID 61768 with different hashes, not the previously observed PID 131204.
+The reason for that intervening standard launch is not inferred. Both proof files and both dated
+checkpoints are absent. The prepared manifest SourceCommit is 30775d12; Git ancestry confirms it
+includes 55e429d5. All 124 files/calendar match, retaining both worker/display and serialization fixes.
+
+The guarded switch normally closes only expected PID/path/hash, verifies exit, then invokes the
+reviewed guarded launcher. New PID **102648** starts **11:53:41 Toronto**, one visible responding
+owner, corrected artifact path/Core hash, no host permission/packet/dated checkpoints. Core hash:
+CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF.
+Receipt: artifacts/desktop-history-cost-20261020/tfsa-resume-switch-receipt.json.
+No force-stop, financial save, order, SQL test/schema change or qualification waiver occurs. Normal
+approved paper/account synchronization resumes. Existing baseline/orders/initial references and
+both older artifact copies are preserved; native financial readback remains the operator sequence.
+
+Run-ReviewedDelphiLiveNormal.cmd invokes the existing manifest/calendar-checked launcher in this
+performance artifact directory. It requires no owner/host permission, preserves existing checkpoints
+and uses repository working directory. The original launcher remains unchanged and is no longer
+the instruction for this build's recovery. Next operator confirms connected/no outside changes,
+opens Execution setup and retries Preview October 20 carry; do not save until its facts are reviewed.
+Actual setup idle, carry save, fresh source and same-copy checkpoint/restart/all nine references
+remain unverified. Further history-cost investigation stays explicitly deferred.

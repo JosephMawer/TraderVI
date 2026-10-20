@@ -27,6 +27,17 @@ Code commits **55e429d5/30775d12** and native evidence **d3ce404d** are on `mast
 qualification using the current corrected copy; all existing financial/source/recovery checks remain.
 No additional code change or operational switch is part of this handoff.
 
+**TFSA session resumed, October 20, 11:53 Toronto:** following separate operator approval, the
+unexpected standard Release owner PID 61768 closes normally. The reviewed performance copy
+**30775d12**, including **55e429d5**, starts at **11:53:41**, PID **102648**, in
+`artifacts/desktop-history-cost-20261020/working-copy`. All 124 manifest files and the calendar are
+verified; one visible responding owner, no host permission, qualification packet or October 19/20
+checkpoint. Core SHA-256 remains `CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF`.
+Normal paper/account synchronization resumes within the approved scope. Original records/copies
+remain preserved; no agent financial action or SQL rehearsal. Next operator retries the October 20
+carry preview; actual idle/account/source/carry and same-copy recovery remain unverified.
+Receipt: `artifacts/desktop-history-cost-20261020/tfsa-resume-switch-receipt.json`.
+
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
 approval, retaining v1. It adds only exact owned activity/history reads, discovered-order-only request
 guarding and final account/activity cross-checks. Sixty-six offline/four approval-scope checks pass;

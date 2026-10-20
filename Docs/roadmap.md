@@ -117,6 +117,10 @@ both previous copies, execution off, separate validation and a separately coordi
 TFSA qualification can continue in its own session; actual setup idle, sustained response/capacity
 and same-copy recovery remain unverified.
 Preserve all qualification, same-copy proof and the dated trial expiry; financial actions stay separate.
+The operator subsequently approves the TFSA-session switch from standard Release back to the
+reviewed performance copy. At 11:53:41, 30775d12 (including 55e429d5) starts as PID 102648, 124 manifest
+matches/one visible responding owner/no authority/packet/checkpoints. Next retry carry Preview in
+this copy; use it again for checkpoint recovery, retaining the October 20 close-time expiry.
 
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

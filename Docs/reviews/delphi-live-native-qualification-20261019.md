@@ -5,16 +5,19 @@ The separately accepted [October 20 contract and manual steps](delphi-live-next-
 are implemented/offline tested and installed with execution off. Actual carry save, fresh source,
 native recovery and all nine references remain unverified. The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
-October 20 Preview currently stops before account checks at the two-minute desktop-paper-cycle wait.
+Earlier October 20 Preview stopped before account checks at the two-minute desktop-paper-cycle wait.
 No carry preview/save is confirmed. A bounded 10:20:26 Toronto read confirms ongoing paper publication
 and lease renewal; it does not establish an idle boundary, source qualification or carry save. Retry
 Preview once after active paper work finishes; preserve all original evidence if it times out again.
-Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
-Next-session correction **b1095ae9**, retaining closing-lease/source/coordination fixes; Core SHA-256
-`4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
-The corrected copy starts October 19 at **23:08:41 Toronto**, PID **83608**, after normal prior-process
-closure. Manifest hashes, one responding visible desktop and absent host permission/packet/both
-October 19/20 checkpoints are verified. Receipt: `artifacts/delphi-live-tfsa-20261018/next-session-switch-receipt.json`.
+Current executable: `C:\src\TraderVI\artifacts\desktop-history-cost-20261020\working-copy\TraderVI.WPF.exe`.
+Reviewed performance source **30775d12** includes **55e429d5**, retaining all next-session qualification
+and risk controls; Core SHA-256 `CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF`.
+After separate explicit operator approval and normal standard-Release closure, it starts October 20
+at **11:53:41 Toronto**, PID **102648**. All 124 manifest files/calendar, one responding visible
+desktop and absent host permission/packet/both October 19/20 checkpoints are verified. Receipt:
+`artifacts/desktop-history-cost-20261020/tfsa-resume-switch-receipt.json`.
+The old b1095ae9 copy remains preserved. Retry carry Preview now; actual setup idle and financial
+qualification remain unverified. Capture/recovery must both use this corrected copy.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

@@ -9,6 +9,9 @@ explicit approval at 11:32:14, PID 131204, execution off, preserving both previo
 observation finds four completed wakes/short UI applies but no clear full-cycle speedup; setup idle
 remains unverified. Changing builds requires new checkpoint capture
 and normal recovery restart of that same corrected copy; the dated financial scope does not renew.
+At 11:53:41 the TFSA session separately performs the approved normal switch from standard Release
+back to 30775d12 (including 55e429d5), PID 102648. All 124 manifest files/calendar match, one visible
+responding owner, no permission/packet/dated checkpoint. Operator Preview remains the next step.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk
@@ -98,14 +101,18 @@ the separate operator step below.
 
 ## Operator sequence
 
-**Tonight:** contract accepted; keep execution off. No additional buy/sale, new initial
-baseline or manual risk-reference reset is required. Installed executable:
-`C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
-Installed Core SHA-256: `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
-The local launch helper, `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\Run-DelphiLiveNormal.cmd`,
-will open only that hash-checked copy with the repository working directory and reviewed calendar.
-It will reuse an existing exact owner, refuse another copy, and retain all financial evidence on a
-normal restart. The helper grants no financial authority.
+**Current October 20 copy:** keep execution off. No additional buy/sale, new initial baseline or
+manual risk-reference reset is required. Installed executable:
+`C:\src\TraderVI\artifacts\desktop-history-cost-20261020\working-copy\TraderVI.WPF.exe`.
+Source 30775d12 includes both performance fixes, 55e429d5 and 30775d12. Installed Core SHA-256:
+`CCC43CE8A4BFB5D8DF703E843E8E8590275EA0BAA41A6EC0728ADAA2311236AF`.
+For the required normal recovery restart, first close this app normally, then use
+`C:\src\TraderVI\artifacts\desktop-history-cost-20261020\Run-ReviewedDelphiLiveNormal.cmd`.
+It invokes the existing manifest/calendar-checked launcher with the repository working directory,
+refuses another running owner or existing host-permission file, and preserves checkpoint/packet
+evidence. Script syntax is checked; the guarded switch separately proves this executable starts.
+The original October 19 copy/launcher remains preserved and must not be used for this build's proof.
+The helper grants no financial authority.
 
 **October 20, one step at a time:**
 

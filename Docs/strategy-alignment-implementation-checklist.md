@@ -187,6 +187,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
   later, preserving history/both copies and execution off; validate separately before another switch.
 - [ ] Verify actual setup idle before carry/capture. Existing
   same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
+- [x] After explicit TFSA-session switch approval, normally close standard Release PID 61768 and
+  open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
+  124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.
+  No financial action. Actual carry preview, source and new same-copy recovery remain unchecked.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
