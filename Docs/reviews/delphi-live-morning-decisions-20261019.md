@@ -1067,3 +1067,23 @@ Prepare first execution review, selecting the two original liquidation sales if 
 the later verification-position sale. Native original-ID/reference recovery and all nine checks
 must still complete before separate manual assignment approval/host enable. Cleanup remains deferred
 until native recovery and an explicit cleanup scope are reviewed.
+
+### Native first execution review observed — October 20
+
+The operator selects the two original liquidation sales in Prepare first execution review after
+the normal-output same-build restart. Two supplied screenshots show exact NormalV1/current source,
+carried original references, actual capital ceiling, today's regular-close purchase expiry, all nine
+native/scoped reviewed references and assignment approval available; host enable is disabled. The
+disclosed performance/failure-path limitations remain visible and unchanged.
+
+Read-only local file metadata confirms the protected qualification packet exists with last-write
+time 17:57:40 UTC; the checkpoint remains present and host permission is absent. No protected content
+is decoded/rewritten and no SQL/broker helper, build, order or financial approval is run by the agent.
+This is observed native UI/file-existence evidence rather than an independent audit of packet
+contents or full-production qualification.
+
+Source inspection confirms the unchecked no-outside-change checkbox gates carry preview/save only;
+it does not erase the already saved carry or gate assignment approval. Approval rechecks the current
+packet fingerprint, exact strategy/readiness and workflow account constraints. The operator should
+approve only while the accepted no-outside-change condition remains true, then review the saved
+confirmation before separate host enable. No activation is inferred from the review screen.

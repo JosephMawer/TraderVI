@@ -196,8 +196,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Observe operator normal restart of the identical captured build from standard Release output:
   October 20, 13:43:30 Toronto, PID 72928; one owner/all 125 hashes match/checkpoint present,
   qualification packet and host permission absent. No proof decoded or modified.
-- [ ] Complete native first execution review with all nine references. Capture and process restart
-  alone are not completed recovery qualification.
+- [x] Observe native first execution review after the normal restart: October 20 operator screenshots
+  show all nine reviewed native/scoped references, NormalV1/current source, original-reference carry,
+  reviewed close expiry and assignment approval available. Read-only packet file existence is
+  confirmed; host permission absent. Protected contents are not independently decoded/audited.
+- [ ] Observe explicit operator assignment approval/save confirmation, then separate host enable.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.

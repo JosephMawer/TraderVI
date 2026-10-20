@@ -1,5 +1,14 @@
 # TraderVI Project Status
 
+**First execution review observed, October 20:** after the normal-output same-build restart, the
+operator selects the two original liquidation sales. Screenshots show exact Normal/NormalV1, carried
+original references, current source review, actual purchase ceiling, today's regular-close cutoff
+and all nine native/scoped evidence references present; assignment approval is available and host
+enable remains disabled. Read-only file metadata confirms the protected qualification packet now
+exists and host permission remains absent. This is native UI/file-existence evidence, not an
+independent audit of protected contents. Next explicit operator assignment approval/readback, then
+separate host enable. No approval, order or host enable is performed by the agent.
+
 **Normal checkout startup, October 20:** the operator requires the normal `dotnet run --project
 TraderVI.WPF -c Release` workflow on `master`; all TFSA/performance/setup-wait code is already there.
 The 125 captured-build runtime files are placed and hash-verified in normal Release output, Core
@@ -10,8 +19,8 @@ existing reviewed calendar path is persisted under explicit approval in the real
 environment and independently verified outside the sandbox. The operator restarts from normal Release
 output with `--no-build` at **13:43:30 Toronto**, PID **72928**. Read-only inspection verifies one
 owner, all 125 runtime hashes unchanged and the dated checkpoint present; qualification packet and
-host permission remain absent. Native first execution review/all nine references remain pending;
-process restart alone is not completed recovery qualification. No activation occurs here.
+host permission remained absent at the restart check. Subsequent native first review is observed
+above; process restart alone did not qualify recovery. Assignment/activation remain pending.
 Related ignored artifact folders total about **8.45 GiB**, principally repeated build/dependency
 copies. No deletion occurred; preserve live output/proof and retained evidence while obsolete-output
 cleanup is deferred until normal-output recovery is verified. [Normal commands](running.md#build-and-run-the-local-desktop-checkout).
@@ -41,8 +50,8 @@ The next operator screenshot confirms native checkpoint save after full manual v
 cash-only baseline readback. Read-only local inspection confirms the October 20 checkpoint exists,
 packet/host permission remain absent, PID 78688 uses the exact copy and all 125 manifest hashes
 still match. No checkpoint content is decoded or rewritten. The normal-output same-build restart
-is subsequently verified above; first execution review/nine references/assignment/enable remain
-pending. Both performance commits remain included; further
+is subsequently verified above, followed by native UI evidence of all nine references. Operator
+assignment approval/enable remain pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

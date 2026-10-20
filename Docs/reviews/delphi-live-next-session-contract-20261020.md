@@ -1,6 +1,12 @@
 # Delphi Live Normal — accepted October 20 first execution session
 
-**Status: explicitly accepted October 19; implemented, offline tested and installed with execution off. Actual October 20 qualification remains required. No trading authority is saved.**
+**Status: explicitly accepted October 19; implemented, offline tested and installed. October 20 native first review displays all nine evidence references; assignment approval/host enable remain pending.**
+After normal same-build restart, operator screenshots show the two original opening sales selected,
+exact NormalV1/current source, carried references, actual capital ceiling, today's close expiry and
+all nine reviewed evidence references. Approval is available; host enable is disabled. Read-only
+metadata confirms the protected qualification packet exists and host permission remains absent.
+Protected contents are not independently decoded. Next operator approves the reviewed assignment
+and verifies save confirmation before separate host enable; agent performs neither action.
 October 20: two reported paper-cycle wait timeouts block Preview before account checks. A separate
 [responsiveness correction](desktop-paper-responsiveness-20261020.md) 55e429d5 is installed under explicit
 approval at 11:03:56, execution off; the reviewed copy below is preserved. Two native wakes expose
@@ -30,7 +36,8 @@ unchanged 125-file build and exact owner, no packet/host permission. The operato
 restarts from normal Release output with `--no-build` at 13:43:30 Toronto, PID 72928. Read-only
 inspection verifies one owner, all 125 captured runtime hashes unchanged and checkpoint present,
 packet/host permission absent. Native original-ID/reference recovery and first execution review
-remain pending; all nine references/assignment/enable remain required. Startup
+were pending at that point; subsequent native UI first review is recorded above. Assignment/enable
+remain required. Startup
 receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
@@ -116,14 +123,16 @@ the separate operator step below.
 - [x] Install the exact reviewed copy with execution off: b1095ae9 started October 19 **23:08:41
   Toronto**, PID **83608**; manifest/Core hashes match, one visible responding owner. Host permission,
   packet and both October 19/20 checkpoints are absent. Receipt: `artifacts/delphi-live-tfsa-20261018/next-session-switch-receipt.json`.
-- [ ] Perform actual October 20 account/source/carry/checkpoint/restart/nine-reference observations.
+- [x] Observe actual October 20 carry/checkpoint save, same-build normal restart and native first
+  review displaying all nine references. Screenshots/file metadata support this observation;
+  protected contents are not independently decoded/audited.
 - [ ] Operator reviews and approves the assignment, then separately enables the reviewed host.
 
 ## Operator sequence
 
 **Current October 20 copy:** keep execution off. No additional buy/sale, new initial baseline or
 manual risk-reference reset is required. Installed executable:
-`C:\src\TraderVI\artifacts\tfsa-setup-wait-20261020\working-copy\TraderVI.WPF.exe`.
+`C:\src\TraderVI\TraderVI.WPF\bin\Release\net10.0-windows\TraderVI.WPF.exe`.
 Source 2cf08c33 includes the queued setup wait and both performance fixes, 55e429d5 and 30775d12.
 Installed Core SHA-256: `EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`.
 The operator requires normal command-line startup from `C:\src\TraderVI`; all implementation is

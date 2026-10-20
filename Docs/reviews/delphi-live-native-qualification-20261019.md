@@ -1,9 +1,16 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: October 20 checkpoint saved and same-build process restart verified; native recovery/packet qualification pending; automatic execution off. October 19 permission remains expired.**
+**Current decision: October 20 native first execution review displays all nine evidence references after same-build restart; assignment approval/host enable pending. October 19 permission remains expired.**
+Operator screenshots after selection of the two original liquidation sales show exact NormalV1,
+current source review, carried original references, actual capital ceiling, today's regular-close
+expiry and all nine native/scoped reviewed references. Assignment approval is available; host enable
+is disabled. Local read-only metadata confirms protected qualification packet creation; host
+permission remains absent. This records native UI/file-existence evidence, not independent protected
+content inspection or full-production qualification. Next operator explicitly approves assignment,
+checks saved confirmation, then separately chooses whether to enable real automatic execution.
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
 are implemented/offline tested and installed with execution off. Operator carry save/readback and
-checkpoint capture are observed; post-restart native recovery and all nine references remain pending.
+checkpoint capture are observed; post-restart first review now displays all nine references as above.
 The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
 Earlier October 20 Preview stopped before account checks at the two-minute desktop-paper-cycle wait.
@@ -30,7 +37,8 @@ can change identity and is not a replacement for this checkpoint's same-build re
 The operator now restarts with that command at **13:43:30 Toronto**, PID **72928**. Read-only
 inspection verifies one owner in normal Release output, all 125 runtime hashes identical, dated
 checkpoint present and packet/host permission absent. Process restart is confirmed; native recovery
-of original IDs/references and publication of all nine checks still require first execution review.
+of original IDs/references and publication of all nine checks required the subsequent first review,
+now observed in the operator screenshots above.
 The next performance-copy screenshot again stops at the paper-cycle wait before account checks;
 the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
 correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time
@@ -44,7 +52,7 @@ The next operator screenshot confirms native checkpoint saved after completed ma
 and actual cash-only baseline readback. Local read-only inspection confirms the October 20 protected
 file exists, packet/host permission remain absent, PID 78688 used the captured artifact path and all
 125 manifest hashes matched. No protected content is decoded/modified. After the verified normal-
-output restart above, next Prepare first execution review and all nine references; capture is not completed restart recovery
+output restart above, first review/all nine references are subsequently observed; capture alone is not completed restart recovery
 or financial assignment/host enable.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
