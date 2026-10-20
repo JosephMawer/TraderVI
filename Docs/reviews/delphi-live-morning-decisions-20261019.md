@@ -1136,3 +1136,17 @@ all other captured files/protected state, then use the normal project --no-build
 approve once. Exact native rejection or saved confirmation remains required before host enable.
 Validation logs remain in the existing ignored setup-wait artifact folder; no private records are
 included in tracked documentation.
+
+### Normal-output UI-only installation verified — October 20, 14:41 Toronto
+
+The operator confirms normal closure; process inspection verifies no TraderVI owner remains. The
+compiled 902cefd1 UI DLL/PDB replace only their existing files in standard Release output. Installed
+UI DLL SHA-256 is CE77B3CA2FF03965162917CCE6B221A8931A484835E8B1052DABF4737272929C. All 123 other
+captured runtime hashes match, including the original Core hash; protected checkpoint/packet hashes
+are unchanged, host permission absent. No protected contents are decoded and no app, SQL/broker
+workflow, order or financial approval is started by installation.
+
+Receipt: `artifacts/tfsa-setup-wait-20261020/approval-ui-install-receipt.json`. Next operator uses
+normal `dotnet run --project TraderVI.WPF -c Release --no-build`, prepares the current first review
+and explicitly approves promptly if the reviewed facts/all nine checks match. Actual saved
+confirmation or the precise rejection diagnostic remains required before separate host enable.

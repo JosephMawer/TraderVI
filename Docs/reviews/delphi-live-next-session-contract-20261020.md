@@ -16,8 +16,10 @@ The operator reports the immediate retry fails quickly too. Installed read confi
 assignment and unchanged recent financial imports. A desktop-only correction keeps paper admission
 through the existing review window and reports the exact rejected-account validation categories;
 17 focused/2,676 full offline passes, nine native skips/WPF compile pass. Core identity remains
-unchanged. Installation in normal Release output/native diagnostic remains pending; no new proof,
-baseline, trade or financial permission is required to install this UI-only change.
+unchanged. After verified operator normal closure/process exit, the two corrected UI files are
+installed in normal Release output at 14:41 Toronto. All 123 other runtime and protected checkpoint/
+packet hashes remain unchanged, no host permission. Next normal project --no-build startup/native
+diagnostic or approval confirmation. No new proof, baseline, trade or financial permission was saved.
 October 20: two reported paper-cycle wait timeouts block Preview before account checks. A separate
 [responsiveness correction](desktop-paper-responsiveness-20261020.md) 55e429d5 is installed under explicit
 approval at 11:03:56, execution off; the reviewed copy below is preserved. Two native wakes expose

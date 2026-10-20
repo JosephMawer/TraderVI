@@ -207,8 +207,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
-- [ ] Close normally/install the two corrected UI output files in standard Release output, then
-  observe the native approval diagnostic or saved confirmation; separate host enable remains manual.
+- [x] Verify operator normal closure/process exit and install the two corrected UI output files in
+  standard Release output, October 20 at 14:41 Toronto. All 123 other runtime hashes and protected
+  checkpoint/packet hashes remain unchanged; no host permission. No app started by installation.
+- [ ] Reopen with normal project --no-build and observe the native approval diagnostic or saved
+  confirmation; separate host enable remains manual.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.

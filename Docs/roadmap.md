@@ -121,8 +121,10 @@ neither host polling's timeout nor qualification, and preserves both performance
 Approval and the immediate retry are rejected before append; installed read confirms zero managed
 revisions and unchanged recent financial imports. Desktop-only review admission/precise rejection
 diagnostics are prepared: 17 focused/2,676 full offline passes, nine native skips, WPF compile passes.
-Core/proof identity and every validation guard remain unchanged. Next normal-close UI-only update
-in standard Release output, then actual predicate diagnosis/approval confirmation before enable.
+Core/proof identity and every validation guard remain unchanged. Operator normal closure/process
+exit is verified and the two UI files are installed in standard Release output at 14:41 Toronto;
+123 other runtime/protected checkpoint/packet hashes remain unchanged, no host permission. Next
+normal project --no-build startup and actual predicate diagnosis/approval confirmation before enable.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
 going forward; no further full artifact copies are needed. The normal Release output now has all
