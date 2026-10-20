@@ -172,9 +172,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
   65 focused/2,660 full offline passes, nine native skips; isolated WPF Release passes. Synthetic
   dispatcher gap 614.6 → 26.3 ms; this does not locate the longest native stage or prove live response.
   [Evidence and switch steps](reviews/desktop-paper-responsiveness-20261020.md).
-- [ ] Approve/perform the separate corrected-copy switch without overwriting the next-session copy;
-  record native stage times, responsive controls and successful idle boundary before carry/capture.
-  Existing same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
+- [x] Perform the explicitly approved normal switch to 55e429d5 at 11:03:56, PID 78872, execution off,
+  all 124 hashes match/original TFSA copy preserved. Observe two completed wakes and bounded UI timing;
+  Live still takes 419/278 seconds, with substantial snapshot/protection/action work.
+- [x] Prepare the minimal redundant-serialization follow-up in separate outputs: 61 focused/2,664
+  full serial offline passes, nine native skips/WPF Release; synthetic retained-history validation
+  307 → 0.244 ms and 248 MB → 1,064 bytes. Native cycle benefit remains unverified.
+- [ ] Coordinate the follow-up switch and verify actual setup idle before carry/capture. Existing
+  same-copy proof must be recaptured on a changed build; no carry preview/save is confirmed.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,
@@ -695,7 +700,7 @@ source before implementation; historical phase labels are not new priorities or 
 | S1 | References, mapping and protection transfer source tested; qualify native risk producer and actual ownership before cutover. |
 | S2 | Reconcile published versus eligible consumers without changing entry gates; a published Hold is not a Buy. |
 | S3 | Make Oracle cache identity/replacement correct; Oracle gains no trading authority. |
-| S4 | Bound growing account-history CPU/memory and establish collection/display capacity. September 24 reconstruction correction remains installed. October 20 worker/display/barrier correction and bounded timings are separately prepared/offline tested, not installed; synthetic dispatcher gap improves but native slowest-stage/CPU/memory/setup behavior remains unqualified. Next approved switch/native stage attribution, then bound lifetime reconstruction only under explicit integrity/freshness rules. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
+| S4 | Bound account-history CPU/memory and establish capacity. October 20 worker/display correction 55e429d5 is installed, execution off; two native wakes have bounded UI timing but take 7.2/4.8 minutes, dominated by Live snapshot/protection/action work. Redundant-serialization removal is separately prepared/offline validated, not installed. Next approved follow-up switch/native cycle and idle validation; sustained memory/capacity and any further history work retain explicit integrity/freshness boundaries. [Evidence/steps](reviews/desktop-paper-responsiveness-20261020.md). |
 | S5 | Improve Core boundaries incrementally after consequential contracts are protected. |
 | S6 | Broaden CI host coverage beyond existing five-host checks; retain failure propagation. |
 | S7 | Resolve short sessions/calendar coverage before 2026-12-24, including carried-position protection. |

@@ -105,10 +105,12 @@ reset, repeated trades or qualification bypass.
 
 October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.
 Bounded 10:20 evidence shows progress, not idle. The [worker/display correction and bounded stage
-diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are implemented/offline validated in
-separate outputs; the reviewed next-session copy is unchanged. Next coordinate an approved normal
-switch, measure native stages/UI response and verify setup obtains idle. Preserve same-copy recovery,
-all qualification and the dated trial expiry; financial preparation/activation remain separate.
+diagnostics](reviews/desktop-paper-responsiveness-20261020.md) are installed under explicit approval
+at 11:03:56, execution off; the original next-session copy is preserved. Native wakes still take
+7.2/4.8 minutes, dominated by Live snapshot/protection/action work, while bounded dispatcher timing
+improves. A minimal redundant-serialization correction is prepared/offline validated separately,
+not installed. Next coordinate that follow-up switch and measure actual cycle/idle behavior.
+Preserve all qualification, same-copy proof and the dated trial expiry; financial actions stay separate.
 
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.

@@ -35,6 +35,15 @@ internal static class Program
             "Observed", new string('x', 20_000));
         snapshot = snapshot with { Quotes = Enumerable.Range(0, 3000).Select(_ => quote with { QuoteId = Guid.NewGuid() }).ToImmutableArray() };
         var package = DelphiLiveSnapshotCodec.Pack(snapshot);
+        var next = snapshot with { Revision = snapshot.Revision + 1, UpdatedUtc = open.AddMinutes(1),
+            Quotes = snapshot.Quotes.Add(quote with { QuoteId = Guid.NewGuid() }) };
+        DelphiLiveLedgerIntegrity.ValidateTransition(snapshot, next);
+        long transitionAllocated = GC.GetAllocatedBytesForCurrentThread();
+        var transitionClock = Stopwatch.StartNew();
+        DelphiLiveLedgerIntegrity.ValidateTransition(snapshot, next);
+        transitionClock.Stop();
+        Console.WriteLine(JsonSerializer.Serialize(new { mode = "AppendHistoryValidation", elapsedMs = transitionClock.Elapsed.TotalMilliseconds,
+            allocatedBytes = GC.GetAllocatedBytesForCurrentThread() - transitionAllocated, historyCount = snapshot.Quotes.Length }));
         // Warm serializers; comparison measures the same verified reconstruction in both cases.
         DelphiLiveSnapshotCodec.Unpack(package.SnapshotJson, package.Items, package.Contents);
         foreach (bool worker in new[] { false, true })

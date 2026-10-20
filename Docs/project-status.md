@@ -1,17 +1,23 @@
 # TraderVI Project Status
 
-**Desktop responsiveness, October 20, 2026:** two carry-preview waits and reported UI freezes led
-to a mechanical worker/display correction, prepared separately and **not installed**. Tracked/Shadow/
-recommendation work can capture WPF's dispatcher; scheduled portfolio reads repeat and Live prepares
-evidence there. Worker isolation, one final scheduled refresh, joined display reads, bounded quote
-rows and financial-stage barrier scopes are implemented. A fictional 3,000-quote reconstruction
-reduces maximum dispatcher gap from **614.6 to 26.3 ms** with full history/integrity retained. This
-does not locate the longest native stage or establish a memory leak/SQL bottleneck. **65 focused/
-2,660 full offline tests pass, nine native skipped; WPF Release passes** with 260 existing compiler
-warnings. No fresh security audit/full solution/SSDT qualification. Bounded stage/pulse diagnostics
-are prepared for native follow-up. Reviewed next-session copy is preserved; switch/restart and actual
-responsiveness/setup success require separate operational approval/observation. No native SQL
-rehearsal, profiler attachment, financial action or external workflow ran.
+**Desktop responsiveness, October 20, 2026:** the explicitly approved normal switch installs
+**55e429d5 at 11:03:56 Toronto**, PID **78872**, with execution off and all 124 manifest files matching.
+The original TFSA copy/launcher remain unchanged. Two dashboard wakes take **431.65/289.38 seconds**;
+Live dominates at 419.44/277.67 seconds, with actions 162.19/193.23 seconds. Collection takes
+3.03/3.34 seconds, evaluation 0.80/1.17 seconds, tracked/Shadow each under three seconds. Three UI
+applies take 26.1–53.3 ms, and no dispatcher gap over two seconds is recorded through 11:17:50;
+this bounded evidence does not qualify sustained response/memory or setup idle. Repeated snapshot
+processing remains substantial. Two hash-verified installed read-only checks confirm one lease,
+new publication/evaluations and retained historical coverage gap, not financial qualification.
+A minimal serialization follow-up is **prepared, not installed**: retain same immutable history
+objects without serializing both sides, preserve exact checks for reopened/distinct records, and
+avoid an unused full serialization on normal commits. Fictional 3,000-quote append validation falls
+from **307 ms/248 MB allocated to 0.244 ms/1,064 bytes**. **61 focused/2,664 full serial offline
+tests pass, nine native skipped; isolated WPF Release passes** with existing compiler warnings.
+Native cycle benefit remains unverified. No fresh security audit/full solution/SSDT claim. No
+force-stop, profiler attachment, native SQL rehearsal, order, financial save or trading enable ran;
+normal approved paper/account synchronization continued. Next coordinate the separate follow-up
+switch and actual idle/setup observation while preserving original anchors and same-copy recovery.
 [Findings, measurements and exact installation steps](reviews/desktop-paper-responsiveness-20261020.md).
 
 **Broker history diagnostic extension, October 19, 2026:** v2 is separately installed under explicit
@@ -221,8 +227,9 @@ checks; no carry preview/save is confirmed. A hash-verified bounded read at **10
 shows the session Monitoring/Blocked with its host gap retained, recent ledger publication at
 10:20:16 and lease renewal at 10:18:54. This proves ongoing paper progress, not completed idle or
 qualification. No new private Delphi failure metadata exists beyond October 19. The second reported
-timeout now leads to the separately prepared [responsiveness correction and stage diagnostics](reviews/desktop-paper-responsiveness-20261020.md);
-native cause attribution and setup success remain unverified, with the barrier intact.
+timeout leads to the [responsiveness correction and stage diagnostics](reviews/desktop-paper-responsiveness-20261020.md),
+installed under explicit approval at 11:03:56. Native timings expose long Live snapshot/protection/
+action work; a serialization follow-up is prepared only. Setup idle remains unverified, barrier intact.
 Preserve original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic

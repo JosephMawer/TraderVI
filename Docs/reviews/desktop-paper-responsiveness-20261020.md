@@ -1,7 +1,9 @@
 # Desktop paper-cycle responsiveness — October 20, 2026
 
-Status: correction implemented and offline validated; separate outputs prepared. Not installed or
-natively verified. The running reviewed TFSA copy and its launcher are unchanged.
+Status: worker/display correction **55e429d5 installed with execution off at 11:03:56 Toronto**,
+PID 78872. Two native dashboard cycles are observed; long Live runtime remains. A further minimal
+history-serialization correction is offline validated/prepared, **not installed**. The original
+reviewed TFSA copy and launcher remain unchanged. No successful carry/checkpoint/qualification follows.
 
 ## Evidence and limits
 
@@ -92,9 +94,97 @@ versus read stages, UI apply time and dispatcher gaps. Then retry native setup u
 If a financial stage itself still exceeds two minutes, preserve its start/finish evidence and diagnose
 that stage. Do not enlarge the timeout, cancel it, bypass the barrier or substitute stale data.
 
-## Exact installation and acceptance steps — separate approval required
+## Approved switch and native observations — October 20
 
-1. Review the prepared manifest and separate `artifacts/desktop-responsiveness-20261020/working-copy`.
+The operator explicitly approves the normal switch with execution off and observation of paper
+cycles/timings. All 124 prepared files match the manifest. Host permission/qualification packet are
+absent; the old setup dialog shows the prior timeout with financial save/approve/enable disabled.
+Its idle dialog closes through Alt+F4, followed by normal main-window closure. PID 73252 exits normally
+before the guarded launcher runs; no process is killed or financial operation force-stopped. Close
+button/index inputs had unavailable geometry, so standard keyboard closure was used. The corrected
+copy starts at **11:03:56**, PID **78872**, with one enumerated TraderVI window and responding process.
+UI accessibility confirms automatic trading off and Stop available; Stop is not invoked. Keyboard
+focus/tab-navigation changes were not confirmed, so full interactive acceptance is not claimed.
+
+Installed path: `artifacts/desktop-responsiveness-20261020/working-copy/TraderVI.WPF.exe`.
+Core SHA-256: `4CAFAA334AB686E11E96B893D6327AC895540F249BD3DB3682F2AEF1CA7E4325`.
+WPF DLL SHA-256: `ED06E94CC13F83C032089C6ADC1753406484C398509097A2F7D73BF3819C01BC`.
+The original next-session Core remains `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
+No saved grant, qualification or checkpoint is created by this switch. Same-copy proof must be
+captured anew before recovery review; original account anchors/orders must not be repeated/reset.
+
+Fixed-stage observation covers **11:03:59–11:17:50 Toronto**. Two complete dashboard scopes:
+
+| Stage | First wake | Second wake |
+|---|---:|---:|
+| Dashboard | 431.65 s | 289.38 s |
+| Live engine, including snapshot/protocol work | 419.44 s | 277.67 s |
+| Before collection, including initialization/protection | 253.38 s | 79.86 s |
+| Live collection | 3.03 s | 3.34 s |
+| Live evaluation/persistence | 0.80 s | 1.17 s |
+| Live action phase, including snapshot work | 162.19 s | 193.23 s |
+| Tracked monitor | 0.44 s | 0.38 s |
+| Shadow monitor | 2.87 s | 1.56 s |
+
+The pre-collection duration is derived from engine-start to collection-start, not a separately
+instrumented protection-only measurement. It includes initialization on the first wake. Nested
+durations overlap. Second-window timing overlaps subsequent offline builds/tests and is not an
+isolated throughput comparison. Across retained observations, 798 snapshot reconstructions finish
+on workers; largest reconstruction 7.33 s, pack 6.21 s, verification 3.14 s. Snapshot read includes
+SQL and materialization; its maximum is 10.00 s. These data identify substantial repeated snapshot
+work but do not prove a server-side SQL bottleneck or precise inclusive CPU attribution.
+
+Three Live display applies take **26.1–53.3 ms** (maximum 53.3 ms); no dispatcher-pulse gaps over two
+seconds are recorded through the two completed wakes. UI accessibility reads take 74–2,781 ms;
+this includes automation overhead and is not a dispatcher benchmark. Process working set fluctuates
+about 1,052–4,137 MiB in the sampled windows, with later large falls; no leak diagnosis is established.
+Do not claim sustained capacity or that all freezes are eliminated from this bounded observation.
+
+Two exact installed read-only helper checks use query SHA-256
+`D77D9A52D35061F18E69751E116990D63EB405B62E4B15CD92AEA400B251B68B`, verified against both result receipts.
+At **11:08:05**, paper publication is 11:07:43 with the first wake still active: progress, not idle.
+At **11:17:29**, one held lease is renewed 11:17:25 (expires 11:32:25), publication is 11:16:58,
+and the 11:10 evaluation bar is saved at 11:13:50. Session remains Monitoring/Blocked with its
+historical host gap retained. No new safe failure entry is observed since startup at those checks.
+The second completed dashboard ends 11:17:15; the next wake has already begun. No setup-preview or
+financial-save action is taken, and actual setup idle success remains unverified.
+
+Receipts/observations: `artifacts/desktop-responsiveness-20261020/switch-receipt.json`,
+`native-process-samples.json`, `native-stage-entries.json`, `native-second-process-samples.json`,
+`native-second-stage-entries.json`, `native-stage-summary-corrected.json`; bounded SQL result files
+`artifacts/read-only-db/result-20261020T150805018Z-c3ff9c420f2e4860a42cbcbf0ded5aa1.json` and
+`result-20261020T151729426Z-d7d98cf1f7844ae4ac250940d039d930.json`.
+
+## Measured history-serialization follow-up — prepared only
+
+Source inspection finds `PreservePrefix` serializes both sides of every historical fill/quote/mark,
+even when an in-process transition retains the identical immutable object. It runs before the
+repository's independent reloaded-state validation. The repository also serializes the whole next
+snapshot unconditionally before discovering that the exact-retry comparison is unnecessary.
+
+The follow-up skips only same-object prefix comparisons; distinct/reopened records retain the exact
+JSON comparison. It removes the unused next-snapshot serialization on normal revisions, keeping
+exact-retry comparison, revision checks, lease fencing, transition validation, compact reconstruction,
+full fingerprints and save verification. No SQL, policy, timing guard, risk or history rule changes.
+
+The same warmed fictional 3,000-quote append validation measures **307.00 ms/248,065,064 bytes before**
+and **0.244 ms/1,064 bytes after**. This isolates retained-object validation, not total cycle latency;
+reloaded-state checks, packing, reads and full hashing still cost work. Four new offline cases check
+bounded allocation, exact reopened history, report whitespace, decimal representation, reorder,
+drop and replacement rejection. **61 focused/2,664 full serial offline tests pass, nine native
+skipped; WPF Release passes** with the existing 260 compiler warnings. No fresh dependency-security
+audit/full-solution/SSDT or native SQL rehearsal is claimed.
+
+Prepared output: `artifacts/desktop-history-cost-20261020/working-copy/TraderVI.WPF.exe`, with its own
+`manifest.json` and guarded `Launch-Prepared.ps1`. Neither the installed responsiveness copy nor the
+original TFSA copy is overwritten. Next coordinate a separate normal switch, repeat native timings,
+and test actual setup idle under the unchanged two-minute wait. No live improvement from this
+follow-up or native persistence qualification is claimed before that switch.
+
+## Exact switch procedure — repeat only with operational approval
+
+1. For the pending serialization follow-up, review the manifest and separate
+   `artifacts/desktop-history-cost-20261020/working-copy`. The responsiveness copy remains installed.
    Recheck execution is off and whether a checkpoint/packet has been created since the last evidence.
    Changing Core/build invalidates prior same-copy proof. Preserve existing proof/history; capture
    anew in the corrected copy and restart that same corrected executable for recovery review.
@@ -115,7 +205,7 @@ that stage. Do not enlarge the timeout, cancel it, bypass the barrier or substit
    Native SQL rehearsals remain paused. No order, authorization save, risk reset or trading enable
    is part of installing or accepting this responsiveness correction.
 
-Remaining: native cause attribution, actual idle-boundary/setup success, sustained CPU/memory and
-held-source capacity, bound lifetime reconstruction under separately reviewed integrity/freshness
-rules if timings justify it, and the next actual closing-boundary observation. Unit tests and the
-synthetic dispatcher measurements do not establish live responsiveness.
+Remaining: install/observe the separate serialization follow-up, actual idle-boundary/setup success,
+sustained UI/CPU/memory and held-source capacity, any further lifetime reconstruction work under
+separately reviewed integrity/freshness rules, and the next actual closing-boundary observation.
+The two bounded native wakes qualify only the described response/timing observations.

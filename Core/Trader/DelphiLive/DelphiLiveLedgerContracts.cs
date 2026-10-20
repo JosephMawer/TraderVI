@@ -268,7 +268,11 @@ public static class DelphiLiveLedgerIntegrity
 
     private static void PreservePrefix<T>(ImmutableArray<T> prior, ImmutableArray<T> next, string name)
     {
+        // In-process transitions retain immutable historical objects. Comparing an object
+        // with itself by serializing both sides copies every old report for every commit.
+        // Reopened/distinct objects still require the original exact serialized comparison.
         if (next.Length < prior.Length || prior.Where((item, index) =>
+                !ReferenceEquals(item, next[index]) &&
                 DelphiLiveLedgerJson.Serialize(item) != DelphiLiveLedgerJson.Serialize(next[index])).Any())
             throw new InvalidOperationException($"Persisted {name} are append-only.");
     }

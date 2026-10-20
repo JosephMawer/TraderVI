@@ -143,8 +143,8 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
         await RequireLease(connection, transaction, lease, cancellationToken);
         var prior = await Read(connection, transaction, next.PortfolioId, true, cancellationToken)
             ?? throw new InvalidOperationException("Portfolio does not exist.");
-        string json = DelphiLiveLedgerJson.Serialize(next);
-        if (prior.Revision == next.Revision && DelphiLiveLedgerJson.Serialize(prior) == json)
+        if (prior.Revision == next.Revision &&
+            DelphiLiveLedgerJson.Serialize(prior) == DelphiLiveLedgerJson.Serialize(next))
         {
             await transaction.CommitAsync(cancellationToken);
             return prior; // Exact retry following an ambiguous commit.
@@ -152,7 +152,7 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
         if (prior.Revision != expectedRevision)
             throw new InvalidOperationException("Portfolio revision changed; reload before taking an action.");
         DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);
-        json = await DelphiLiveSnapshotStorage.SaveAsync(connection, transaction, next, cancellationToken);
+        string json = await DelphiLiveSnapshotStorage.SaveAsync(connection, transaction, next, cancellationToken);
         await using (var command = new SqlCommand("""
 UPDATE [dbo].[DelphiLivePortfolioLedger]
 SET [Revision] = @Revision, [SnapshotJson] = @Json, [UpdatedUtc] = @Updated
