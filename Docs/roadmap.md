@@ -103,6 +103,10 @@ Next complete actual October 20 carry save/source/checkpoint/restart/all nine
 checks before manual approval/enable. Native SQL rehearsals stay paused. No baseline
 reset, repeated trades or qualification bypass.
 
+October 20 first Preview stops at the two-minute paper-cycle wait, before account checks. Bounded
+10:20 native reads show recent paper publication/renewal, not a completed idle boundary. Next retry
+Preview once after active work finishes; diagnose a repeated timeout before financial save/capture.
+
 **October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
 Today/Overall performance, four-column holdings, selected holding Buy/Sell panel and strategy dropdown

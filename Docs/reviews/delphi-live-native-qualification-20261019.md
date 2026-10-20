@@ -5,6 +5,10 @@ The separately accepted [October 20 contract and manual steps](delphi-live-next-
 are implemented/offline tested and installed with execution off. Actual carry save, fresh source,
 native recovery and all nine references remain unverified. The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
+October 20 Preview currently stops before account checks at the two-minute desktop-paper-cycle wait.
+No carry preview/save is confirmed. A bounded 10:20:26 Toronto read confirms ongoing paper publication
+and lease renewal; it does not establish an idle boundary, source qualification or carry save. Retry
+Preview once after active paper work finishes; preserve all original evidence if it times out again.
 Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
 Next-session correction **b1095ae9**, retaining closing-lease/source/coordination fixes; Core SHA-256
 `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.

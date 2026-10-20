@@ -167,6 +167,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   one visible responding owner; execution permission/packet/both dated checkpoints absent.
 - [ ] Operator performs actual October 20 carry save/readback, fresh source, native checkpoint/restart
   and all nine references. An installed screen/offline tests do not qualify those observations.
+- [ ] Recover October 20 Preview past the desktop-paper-cycle wait: first attempt timed out before
+  account checks. Bounded 10:20:26 read shows recent ledger publication/lease renewal; no carry
+  preview/save is confirmed. Retry once after current paper work; diagnose any repeated timeout.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,

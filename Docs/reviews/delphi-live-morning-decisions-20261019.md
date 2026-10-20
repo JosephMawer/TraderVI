@@ -877,3 +877,21 @@ on normal restart, reuses one already-running exact owner and refuses another co
 account synchronization remains within the earlier approved scope. No native SQL rehearsal, schema
 change, risk-reference reset, financial carry save or activation is performed. Actual next-session
 source/carry/checkpoint/restart/nine-reference qualification remains the operator's sequence tomorrow.
+
+### October 20 first carry preview — coordination timeout before account checks
+
+The operator's connected/readiness screen retains the original initial references and shows host
+off. After checking the confirmation, Preview reports TimeoutException while waiting for current
+desktop paper cycles, before account checks. No reviewed carry or successful save is established.
+The implemented barrier allows two minutes for already-running work and blocks new cycles only for
+that attempt; timeout releases deferral without cancelling/force-stopping the active work. No timeout
+or guard was changed. Existing private Delphi failure metadata has no new entry after October 19.
+
+The installed bounded read-only SQL helper succeeds at **10:20:26 Toronto**, with matching query hash
+F4E5B89B1620BD11C39DE84BC245DBF1F41B31316A4962D1AC6AAE6042D1DCA6. Session is Monitoring/Blocked,
+historical host-gap flag retained, updated 10:18:57; latest paper ledger publication 10:20:16; latest
+held lease renewed 10:18:54, expires 10:31:16. This establishes recent paper progress, not completion
+of the active cycle or qualification. Receipt: artifacts/read-only-db/result-20261020T142025531Z-c3a6748bbdf2445fa8e930d6bddee58d.json.
+Next retry Preview once after active work completes. If timeout repeats, identify the active cycle/
+stage before changing coordination. No SQL test/diagnostic workflow beyond the authorized bounded
+read, schema change, financial save, order, restart or authority change was performed in this review.

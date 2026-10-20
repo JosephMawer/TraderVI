@@ -202,6 +202,12 @@ native skips**; WPF Release and six synthetic panel renders pass. Copy **b1095ae
 responding owner; host permission, packet and both dated checkpoints are absent. Actual October 20
 carry save, fresh source/native checkpoint, same-copy
 restart, packet, operator assignment and enable remain unverified. No agent financial action occurred.
+October 20 operator Preview times out at the two-minute desktop-paper-cycle wait, before account
+checks; no carry preview/save is confirmed. A hash-verified bounded read at **10:20:26 Toronto**
+shows the session Monitoring/Blocked with its host gap retained, recent ledger publication at
+10:20:16 and lease renewal at 10:18:54. This proves ongoing paper progress, not completed idle or
+qualification. No new private Delphi failure metadata exists beyond October 19. Retry Preview once
+after the active work completes; repeated timeout needs cycle-stage diagnosis, not a waived barrier.
 Preserve original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
