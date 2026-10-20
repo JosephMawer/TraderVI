@@ -722,3 +722,36 @@ permission or supported later-session qualification is implied; do not change da
 or repeat verification trades. Next diagnose/verify normal paper source recovery, then explicitly
 resolve a supported later-session contract while preserving original financial anchors. Real execution
 remains off, and no order/approval/transfer was created by the agent. SQL rehearsals remain paused.
+
+## Source recovery confirmed; repeated close uses expired lease — October 19 evening
+
+Operator screenshots show Portfolio rules only selected, with the 16:00 checkpoint and 120/120
+latest policy observations at Normal confidence. Account selection changes display only. A bounded
+Normal read at **21:56 Toronto** independently confirms publication at **16:03:40**, matching pinned
+daily and allowed progressive successor. Query hash `4A1EDCC22024A2FD16D2DF2CE21C7EBDAF5A7E48A686BD135974E4CCE90E8219`
+verified against receipt `result-20261020T015611294Z-06f7967c3dfa4eaf90cd2821f51a15e3.json`.
+This supersedes the 16:00 snapshot that was still stale; the entry-policy repair recovered publication.
+No newer regular-session observation is expected overnight; age now does not imply a fresh fault.
+
+A second bounded read at **21:57** confirms session finalization **16:03:48**, Incomplete/Blocked with
+HostGapObserved true. Query hash `35D464EFF02C662B46CF6C31709C730E2C346845D1D431E3867E6B00FAE804DC`
+verified against `result-20261020T015725704Z-b4847b4e1fec48f1983a9e32a5b64068.json`. Private failure
+metadata records a distinct 16:21:48 SQL52202 at FinishSessionAsync, after successful close. Code
+calls finalization on every later wake before lease renewal, eventually using an expired lease.
+
+Mechanical host fix: both closing paths renew the still-owned lease, finish persisted session and
+research, release ownership and mark this local session finalized only after every action succeeds.
+Later same-date wakes read saved status without another finalization/provider request. Failed lease
+renewal refuses closing/research progression; SQL fencing/history/coverage rules stay unchanged.
+A future process still uses durable recovery, not this local marker. 37 focused tests/WPF Release
+pass (262 existing compiler warnings, zero errors); full offline validation passes: 2,624 tests/nine native skips. Tests cover
+final-bar and delayed closing, repeated later wakes/Stop, no extra source requests/acquisition and
+lost-lease refusal. Prepared output: close-once-working-copy. Core SHA-256:
+`53BA8FBB5FA71F04E26EB77A812B3661BC487435B98A2EB3840C4D8D2DB079D8`.
+Logs: close-once-focused.log, close-once-full-serial.log, close-once-wpf-build.log.
+
+Warnings remain distinct: host gap invalidates clean research evidence; monitoring interrupted records
+the actual failure; excluded supplementary records retain aligned-only source rules; recorded operator
+intervention pauses research promotion while assigned portfolio rules remain authoritative. None is
+waived/cleared or converted to qualification. Today's trial expired without checkpoint/packet/authority;
+no next-day buying permission, baseline reset, repeated trade, migration or native SQL test is inferred.

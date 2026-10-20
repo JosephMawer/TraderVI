@@ -153,7 +153,13 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Install/verify corrected successor copy 62c7b5fd at 15:46:33 Toronto, PID 58536: normal prior
   closure, matching hashes/new Core, one responding visible owner, no authority/packet/checkpoint.
 - [x] Diagnose stale source using bounded read/app failure metadata; preserve historical entry policy separately from current protection policy (0accf067). 41 focused/2,622 full offline passes, nine native skips/WPF build. Installed/verified at 15:58:57, PID 59220, exact hashes/one owner/no authority/packet/checkpoint.
-- [ ] Verify fresh native paper publication after the correction: first 16:00 read remains stale. The October 19 trial purchase window expired; a supported later-session contract requires explicit review before activation.
+- [x] Verify paper publication recovery through the close: 21:56 bounded read confirms Normal saved
+  16:03:40; pinned daily/successor match. UI shows 16:00 checkpoint/120 observations. Session finalized
+  16:03:48 as Incomplete/Blocked with historical gap retained (21:57 bounded read).
+- [x] Diagnose later SQL 52202 as repeated after-close finalization with expired lease; implement
+  close-once renewal/persist/release and status-only later wakes. 37 focused checks/WPF build pass.
+- [ ] Install closing fix (2,624 full offline passes/nine native skips); verify native next-boundary behavior separately.
+- [ ] Resolve supported later-session qualification: October 19 trial expired; no next-day permission.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,

@@ -95,7 +95,7 @@ allowed successor; the correction preserves original comparison identity and req
 saved assignment plus exact protection-only policy difference (217 focused/2,621 full offline passes,
 nine native skips/WPF build pass). A 15:43 bounded read confirms the latest assignment. Corrected
 copy 62c7b5fd is installed/verified at 15:46, PID 58536, one responding owner/no authority/packet/
-checkpoint. Latest capture fails source freshness. Historical entry-policy correction 0accf067 is tested (41 focused/2,622 full offline passes, nine skips/WPF build) and installed/verified at 15:58, PID 59220. A 16:00 bounded read still shows the stale source. The October 19 purchase window has expired. Next verify paper-source recovery and resolve a supported later-session contract before checkpoint/restart/native review and
+checkpoint. Later native read confirms Normal publication recovered at 16:03:40 and finalization at 16:03:48; host-gap coverage stays blocked. A separate 16:21 expired-lease error comes from repeated finalization. Close-once renewal/release fix passes 37 focused/2,624 full offline passes (nine native skips)/WPF build; install follows. Overnight publication is not expected. The October 19 trial expired; resolve supported later-session qualification before
 packet/approval/enable. No baseline
 reset, repeated trades or qualification bypass.
 

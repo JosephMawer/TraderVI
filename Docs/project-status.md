@@ -185,7 +185,18 @@ pass (nine native skips); WPF Release passes with existing warnings. At 15:43 a 
 bounded read confirms one active Normal and one latest assigned allowed successor. Corrected copy
 **62c7b5fd** starts at **15:46:33 Toronto**, PID **58536**, after normal prior closure; exact path,
 manifest hashes/new Core, one responding visible owner and absent authority/packet/checkpoint verified.
-Latest capture fails source freshness: last Normal ledger update 09:31, confirmed by hash-verified 15:52/16:00 bounded reads. App failure metadata identifies original entry admission checked against the newer protection policy. Historical-policy provenance correction **0accf067** passes 41 focused/2,622 full offline tests (nine native skips) and WPF Release; installed at **15:58:57**, PID **59220**, exact path/hashes/one responding owner/no authority, packet or checkpoint verified. The first post-start read at 16:00 still shows stale source; paper publication recovery remains unverified. The October 19 16:00 purchase window has expired; no automatic next-day buying permission. Next verify paper producer recovery and explicitly resolve a supported later-session qualification contract, preserving original anchors. No checkpoint success is inferred. Existing
+Historical-policy fix **0accf067** is installed/verified at 15:58:57 (PID 59220), with 41 focused/
+2,622 full offline passes, nine native skips/WPF Release. The first 16:00 read was stale, but a
+21:56 hash-verified read now confirms Normal published at **16:03:40**, with matching pinned daily
+and allowed successor. Operator UI shows the 16:00 checkpoint/120 observations. A 21:57 bounded
+read confirms session finalization at **16:03:48**, honestly Incomplete/Blocked with a host gap.
+Private app metadata records a later **16:21 SQL 52202**: repeated finalization reused an expired
+lease. A close-once host fix renews before finalization, persists closing/research once, releases
+its lease and reads status on later wakes; 37 focused/2,624 full offline passes (nine native skips)/WPF build, with
+installation follow. No SQL fence/history/coverage rule changes. No new regular-session publication
+is expected overnight. The October 19 trial purchase window expired without checkpoint/packet/
+authority; next-day buying is not authorized. Next resolve supported later-session qualification
+while preserving original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

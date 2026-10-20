@@ -28,6 +28,7 @@ public sealed class DelphiLiveMonitorWorkflow
     private DelphiLiveSessionContext? context;
     private DelphiLiveCollectionRecovery? recovery;
     private DateTime? nextEnd;
+    private DateOnly? finalizedSessionDate;
     private DateTime continuityStart;
     private readonly Dictionary<Guid, DateTime> policyAssignmentBoundaries = new();
     private DateTime ContinuityStartFor(Guid policy)
@@ -96,6 +97,7 @@ public sealed class DelphiLiveMonitorWorkflow
             DateTime now = clock.UtcNow;
             DateOnly date = LocalDate(now);
             if (!calendar.IsRegularSession(date)) return await SnapshotAsync(ct);
+            if (finalizedSessionDate == date) return await SnapshotAsync(ct);
             var bounds = calendar.GetSessionBounds(date);
             if (now < bounds.OpenUtc)
             {
@@ -114,8 +116,7 @@ public sealed class DelphiLiveMonitorWorkflow
             {
                 if (context?.Session.TradingDate == date && lease is not null)
                 {
-                    await collection.FinishSessionAsync(context.Session.SessionId, lease, false, ct);
-                    if (PersistSessionResearchAsync is not null) await PersistSessionResearchAsync(context, lease, ct);
+                    await FinalizeCurrentSessionAsync(ct);
                 }
                 return await SnapshotAsync(ct);
             }
@@ -382,8 +383,7 @@ public sealed class DelphiLiveMonitorWorkflow
             nextEnd = end < bounds.CloseUtc ? end.AddMinutes(5) : null;
             if (nextEnd is null)
             {
-                await collection.FinishSessionAsync(context.Session.SessionId, lease, false, ct);
-                if (PersistSessionResearchAsync is not null) await PersistSessionResearchAsync(context, lease, ct);
+                await FinalizeCurrentSessionAsync(ct);
             }
             return await SnapshotAsync(ct);
         }
@@ -403,6 +403,21 @@ public sealed class DelphiLiveMonitorWorkflow
             throw;
         }
         finally { gate.Release(); }
+    }
+
+    private async Task FinalizeCurrentSessionAsync(CancellationToken ct)
+    {
+        if (context is null || lease is null) throw new InvalidOperationException("An owned session is required for finalization.");
+        var now = clock.UtcNow;
+        if (!await collection.TryRenewAsync(lease, now, now.AddMinutes(15), ct))
+            throw new InvalidOperationException("Delphi Live host lease was lost; session finalization requires recovery.");
+        await collection.FinishSessionAsync(context.Session.SessionId, lease, false, ct);
+        if (PersistSessionResearchAsync is not null) await PersistSessionResearchAsync(context, lease, ct);
+        await collection.ReleaseAsync(lease, clock.UtcNow, ct);
+        // Mark locally complete only after every durable closing action succeeds. Later wakes read
+        // saved status, rather than refinalizing with a lease that can expire after the close.
+        finalizedSessionDate = context.Session.TradingDate;
+        lease = null; context = null; recovery = null; nextEnd = null; sessionProtectionStarted = false; preOpenHeartbeat = null;
     }
 
     public async Task StopAsync(CancellationToken ct = default)

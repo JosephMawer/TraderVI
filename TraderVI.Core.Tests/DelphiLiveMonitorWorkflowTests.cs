@@ -201,10 +201,50 @@ public sealed class DelphiLiveMonitorWorkflowTests
         h.Clock.Now = Open.AddHours(6.5).AddMinutes(7);
         await h.Workflow.TickAsync();
         closedCallbacks.ShouldBe(1);
+        h.Clock.Now = Open.AddHours(7);
+        await h.Workflow.TickAsync();
         await h.Workflow.StopAsync();
-        closedCallbacks.ShouldBe(2);
+        closedCallbacks.ShouldBe(1);
+        h.Collection.FinishCount.ShouldBe(1);
+        h.Collection.ReleaseCount.ShouldBe(1);
         h.Source.BarRequests.ShouldBeEmpty();
         h.Source.QuoteRequests.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task ClosingBarFinalizesOnceAndLaterWakesDoNotReacquireOrRequestData()
+    {
+        var h = new Harness();
+        h.Clock.Now = Open.AddHours(6.5).AddMinutes(-1);
+        await h.Workflow.TickAsync();
+        h.Clock.Now = Open.AddHours(6.5).AddMinutes(2);
+        await h.Workflow.TickAsync();
+        h.Collection.FinishCount.ShouldBe(1);
+        h.Collection.ReleaseCount.ShouldBe(1);
+        int barRequests = h.Source.BarRequests.Count, quoteRequests = h.Source.QuoteRequests.Count;
+        h.Clock.Now = Open.AddHours(7);
+        await h.Workflow.TickAsync();
+        await h.Workflow.StopAsync();
+        h.Collection.FinishCount.ShouldBe(1);
+        h.Collection.AcquireCount.ShouldBe(1);
+        h.Collection.ReleaseCount.ShouldBe(1);
+        h.Source.BarRequests.Count.ShouldBe(barRequests);
+        h.Source.QuoteRequests.Count.ShouldBe(quoteRequests);
+    }
+
+    [Fact]
+    public async Task LostClosingLeaseCannotCompleteSessionOrResearch()
+    {
+        var h = new Harness();
+        int research = 0;
+        h.Workflow.PersistSessionResearchAsync = (_, _, _) => { research++; return Task.CompletedTask; };
+        await h.Workflow.TickAsync();
+        h.Collection.AllowRenewal = false;
+        h.Clock.Now = Open.AddHours(6.5).AddMinutes(7);
+        await Should.ThrowAsync<InvalidOperationException>(() => h.Workflow.TickAsync());
+        research.ShouldBe(0);
+        h.Collection.NormalFinishCount.ShouldBe(0);
+        h.Collection.ReleaseCount.ShouldBe(1);
     }
 
     [Fact]
@@ -534,12 +574,15 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public int AcquireCount;
         public int ReleaseCount;
         public int RecoveryCount;
+        public int FinishCount;
+        public int NormalFinishCount;
+        public bool AllowRenewal = true;
         public bool LastArmedAtOpen;
         public readonly List<DelphiLiveFiveMinuteBar> Bars = new();
         private DelphiLiveLease? current;
         public Task<DelphiLiveLease?> TryAcquireAsync(string ownerId, DateTime acquiredUtc, DateTime expiresUtc, CancellationToken cancellationToken = default)
         { AcquireCount++; current = new(Guid.NewGuid(), ownerId, AcquireCount, acquiredUtc, expiresUtc); return Task.FromResult<DelphiLiveLease?>(current); }
-        public Task<bool> TryRenewAsync(DelphiLiveLease lease, DateTime renewedUtc, DateTime expiresUtc, CancellationToken cancellationToken = default) => Task.FromResult(current?.LeaseId == lease.LeaseId);
+        public Task<bool> TryRenewAsync(DelphiLiveLease lease, DateTime renewedUtc, DateTime expiresUtc, CancellationToken cancellationToken = default) => Task.FromResult(AllowRenewal && current?.LeaseId == lease.LeaseId);
         public Task ReleaseAsync(DelphiLiveLease lease, DateTime releasedUtc, CancellationToken cancellationToken = default) { ReleaseCount++; current = null; return Task.CompletedTask; }
         public Task<DelphiLiveCollectionRecovery> RecoverSessionAsync(Guid sessionId, DelphiLiveLease lease, CancellationToken cancellationToken = default,
             bool wasArmedAtSessionOpen = false)
@@ -555,7 +598,8 @@ public sealed class DelphiLiveMonitorWorkflowTests
             return Task.FromResult(receipt);
         }
         public Task CompleteCycleAsync(Guid cycleId, DateTime completedUtc, string status, CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public Task FinishSessionAsync(Guid sessionId, DelphiLiveLease lease, bool hostStopping, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task FinishSessionAsync(Guid sessionId, DelphiLiveLease lease, bool hostStopping, CancellationToken cancellationToken = default)
+        { FinishCount++; if (!hostStopping) NormalFinishCount++; return Task.CompletedTask; }
         public Task<IReadOnlyList<DelphiLiveFiveMinuteBar>> GetSessionBarsAsync(Guid sessionId, DateTime throughBarEndUtc, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<DelphiLiveFiveMinuteBar>>(Bars.Where(b => b.EndUtc <= throughBarEndUtc).ToArray());
     }

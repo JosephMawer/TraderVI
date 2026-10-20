@@ -38,7 +38,7 @@ WPF Release passes with existing warnings. Corrected output is prepared in
 `artifacts/delphi-live-tfsa-20261018/normal-successor-working-copy`; installation is verified above.
 Checkpoint success remains unverified; do not restart for recovery until the save is confirmed.
 
-This correction changes Core identity. Verify paper publication recovery first. The October 19
+Normal publication recovery through the close is now verified by the 21:56 bounded read (saved 16:03:40); session finalized 16:03:48 with historical host-gap coverage retained. A separate repeated-finalization lease error is being corrected; next actual boundary verification remains required. Overnight publication is not expected. This correction changes Core identity. The October 19
 purchase window has expired without a successful checkpoint; a supported later-session contract
 requires explicit review before capture/restart/packet/activation. Preserve the existing baseline
 and original orders; never replay trades, reset references or reuse an old-build checkpoint.
@@ -161,7 +161,4 @@ The existing [manual runbook](../concepts/supervised-tfsa-opening-sequence.md#op
 owns the fuller control names and observation limits. A manually completed trade is not permission
 for the agent to submit orders, save financial authorizations or enable execution.
 
-Latest capture reaches source validation but rejects Normal's stale source (09:31 last update;
-15:52 bounded read). App metadata traces paper tick failure to original-entry/current-policy equality.
-Provenance correction 0accf067 is tested/installed: 41 focused/2,622 full offline passes, nine native skips/WPF build. A first 16:00 native read still shows stale source; recovery remains unverified. No successful checkpoint exists. Do not restart for recovery. The October 19 purchase window has expired; later-session scope/qualification is not granted by this packet path.
-See the decision log for exact validation/install state; today's buying cutoff is unchanged.
+Latest native evidence: Normal publication through the 16:00 close recovered after the entry-policy fix. The first 16:00 read was stale; later read confirms 16:03:40 publication/16:03:48 finalization. Historical host-gap warnings remain authoritative. The October 19 trial expired without checkpoint/packet/authority. See the decision log for the separate repeated-finalization lease repair and current installation state.
