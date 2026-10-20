@@ -27,15 +27,30 @@ public partial class WealthsimpleAccountPanel : UserControl
             if (model != null) model.PropertyChanged += AccountChanged;
             candidates = Array.Empty<TfsaLiveStrategyCandidate>(); ResetStrategySelection();
         };
-        SizeChanged += (_, _) =>
-        {
-            bool narrow = ActualWidth < 860;
-            Grid.SetColumn(HoldingPanel, narrow ? 0 : 1); Grid.SetRow(HoldingPanel, narrow ? 1 : 0);
-            HoldingPanelColumn.Width = narrow ? new GridLength(0) : new GridLength(290);
-            HoldingPanel.Margin = narrow ? new Thickness(0, 16, 0, 0) : new Thickness(0);
-            HoldingsTable.Margin = narrow ? new Thickness(0) : new Thickness(0, 0, 18, 0);
-        };
+        SizeChanged += (_, _) => ArrangeHoldingDetails();
         ResetStrategySelection();
+    }
+    private void ArrangeHoldingDetails()
+    {
+        bool wide = ActualWidth >= 1100, twoColumns = ActualWidth >= 720;
+        PositionColumn.Width = twoColumns ? new GridLength(wide ? 420 : 260) : new GridLength(1, GridUnitType.Star);
+        DecisionColumn.Width = twoColumns ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        ActionsColumn.Width = wide ? new GridLength(220) : new GridLength(0);
+        Grid.SetColumn(HoldingDecision, twoColumns ? 1 : 0);
+        Grid.SetRow(HoldingDecision, twoColumns ? 0 : 1);
+        Grid.SetColumn(HoldingActions, wide ? 2 : 0);
+        Grid.SetRow(HoldingActions, wide ? 0 : twoColumns ? 1 : 2);
+        Grid.SetColumnSpan(HoldingActions, !wide && twoColumns ? 2 : 1);
+        HoldingFacts.Margin = twoColumns ? new Thickness(0, 0, 18, 0) : new Thickness(0);
+        HoldingDecision.Margin = wide ? new Thickness(0, 0, 18, 0) : twoColumns ? new Thickness(0) : new Thickness(0, 14, 0, 0);
+        HoldingActions.Margin = wide ? new Thickness(0) : new Thickness(0, 14, 0, 0);
+        HoldingActions.MaxWidth = wide ? double.PositiveInfinity : 440;
+        HoldingActions.HorizontalAlignment = wide ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+        IdentityColumn.Width = wide ? new GridLength(150) : new GridLength(1, GridUnitType.Star);
+        MetricsColumn.Width = wide ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        Grid.SetColumn(PositionMetrics, wide ? 1 : 0);
+        Grid.SetRow(PositionMetrics, wide ? 0 : 1);
+        HoldingIdentity.Margin = wide ? new Thickness(0, 0, 14, 0) : new Thickness(0, 0, 0, 12);
     }
     private void AccountChanged(object sender, PropertyChangedEventArgs e)
     {

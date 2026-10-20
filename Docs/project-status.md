@@ -208,11 +208,15 @@ not recur and its cause remains unlocated; no guard or reference reset was used.
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in
 the [decision log](reviews/delphi-live-morning-decisions-20261019.md).
 
-**Trading UI implementation, October 18, 2026:** the operator authorized implementing the accepted
+**Trading UI implementation, October 18–19, 2026:** the operator authorized implementing the accepted
 Workspace layout in Trading only; other tabs, shared styles and decision/execution engines are unchanged.
 The broker account now leads with compact Today/Overall performance, account value/cash, a strategy
-dropdown, four-column holdings and a selected holding panel containing shares, cost, decision/reason/
-next step and existing manual Buy/Sell commands. Repeated account headings and net deposits are omitted.
+dropdown and four-column holdings. October 19 running-screen feedback moves the selected holding
+into a horizontal panel above the full-width table, with position facts, strategy explanation and
+existing Buy/Sell controls. Narrow windows wrap those sections; an empty selection is compact.
+The layout is built/offline-verified with six synthetic renders at 1700/1200/900/680px and no binding
+errors, including exact Sell targets and full table width. It is not installed in the running app.
+Repeated account headings and net deposits are omitted.
 Legacy recorded-account/recommendation tools remain available in a collapsed section.
 The dropdown opens the existing exact-source transition review and restores the actual selection when
 it closes. The subsequent TFSA preparation exposes exact Normal comparison preview in source;
@@ -224,11 +228,12 @@ Automatic switching/execution remains unfinished and disabled; no assignment or 
 The subsequent real-data request accepts Wealthsimple's one-day view. Trading now requests the native
 latest `ONE_DAY` / `REGULAR` simple return, verifies its previous-close reference and preserves its
 valuation time. Prior-date results have an explicit dated heading; missing values never use Overall
-or an older complete point. The existing capture qualifies that contract; current native availability
-and operator comparison are still unverified. Overall retains its supplied amount/rate/period/as-of.
-The daily reader is display-only and isolated from risk/accounting/order behavior. It is not installed
-in the running app yet: the operator explicitly requests waiting for concurrent strategy-switching
-work before a combined rebuild/restart. Missing verified holding decisions are not called Hold;
+or an older complete point. The existing capture qualifies that contract; native access has separate
+read-only helper evidence above, while comparison against Wealthsimple remains unverified here.
+Overall retains its supplied amount/rate/period/as-of. The daily reader is display-only and isolated
+from risk/accounting/order behavior; its initial restart deferral is historical, and the operator's
+October 19 screenshot shows a populated performance card. This layout pass runs no new broker read.
+Missing verified holding decisions are not called Hold;
 linked management records can explain planned exits and queued/pending/uncertain sales.
 .NET 10 WPF build and 233 focused tests pass, including 39 new daily-reader/control checks.
 Four initial synthetic WPF renders at 1200/900/680 widths verify

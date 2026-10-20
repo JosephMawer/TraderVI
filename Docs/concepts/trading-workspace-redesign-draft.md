@@ -3,6 +3,7 @@
 - **Status:** Accepted and implemented in WPF, 2026-09-09; original workspace observed running. Unified portfolio grid and collapsible navigation verified offline; runtime rebuild/restart pending.
 - **September 10 follow-up:** the manual market-buy section below was accepted and implemented under [ADR-0075](../adr/0075-manual-market-buy-ticket.md), with offline verification; native live submission remains unverified.
 - **October 18 redesign / implementation:** Workspace, the Trading arrangement, clear decision explanations, panel Buy/Sell and **Performance first** are accepted. **Today** is default with **Overall** selectable; redundant headings/net deposits are removed. The operator now authorizes Trading-only WPF implementation, built and offline-tested below. Actual portfolio choice, daily-return qualification and execution integration remain open; operational rollout is not authorized by the UI request.
+- **October 19 layout refinement:** the selected holding is now a horizontal panel above the full-width table, superseding its right-hand placement. Implemented and verified offline; the running app has not received this layout increment.
 - **Domains:** desktop, explainability, portfolios
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
@@ -36,9 +37,10 @@ broker operations or trading. Earlier accepted product behavior remains authorit
 | Existing accepted direction | Trading leads with the main account, holdings/results and actual assigned strategy; attention supports that overview (ADR-0068). |
 | Provisional | Use shared navigation, typography, spacing, account/mode labels and source-time treatment across the four screens. |
 | Accepted October 18 follow-up | Choose **Workspace**: holdings/table and a persistent selection panel side by side. Focus remains a preserved initial alternative. |
+| Accepted October 19 refinement | Move the selected-holding panel above the table and arrange it horizontally, reclaiming the table's full width. This supersedes the side-by-side placement. More grid information is a later refinement; retain the four existing columns now. |
 | Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
-| Accepted Trading hierarchy | Account overview → assigned strategy → holdings beside the selected-stock panel; compact recent account activity below holdings. Supporting data issues stay beside the affected holding. The operator says “I like this arrangement.” |
+| Accepted Trading hierarchy | Account overview → assigned strategy → horizontal selected-holding panel → full-width holdings table; compact recent account activity below holdings. Supporting data issues stay with the affected holding. |
 | Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash and separately scoped recorded gains follow. Remove net deposits from this overview. Account value first remains a preserved alternative. |
 | Accepted header cleanup | Remove the entire Main account / Example TFSA / Canadian dollars heading block, following the earlier Trading-title/right-hand-badge removal. This single-account view does not need a repeated account title; retain currency beside figures and source/authority context. |
 | Accepted density refinement | Reduce the performance amount/percentage and tighten overview spacing so the numbers occupy less space. |
@@ -132,8 +134,8 @@ outside implicit management (ADR-0085). No new throttling interval or partial-sa
 
 `WealthsimpleAccountPanel` implements the compact Performance-first summary, Today/Overall controls,
 four holdings columns, selected holding position/share/average-cost panel, decision/reason/next-step
-and the existing manual Buy more / Sell all commands together. The table stacks above the panel below
-860px. Current broker values retain their currency; snapshot retrieval is explicitly not market-price
+and the existing manual Buy more / Sell all commands together. The initial side-by-side arrangement is
+superseded by the October 19 horizontal panel above the full-width table below. Current broker values retain their currency; snapshot retrieval is explicitly not market-price
 time. The top account heading and net deposits are omitted. Pending orders, connection, risk/import,
 manual-order history, stop/resume-buying and legacy reported-account tools remain accessible below.
 No shared style, navigation shell or other tab's source is changed.
@@ -189,6 +191,25 @@ sandboxing and succeeded with approved NuGet access; the offline fixture then pa
 broker diagnostic, database action or order
 was run. The operator explicitly chooses to wait for concurrent strategy-switching work before a
 combined rebuild/restart, so this increment is not yet installed in the running app.
+
+### October 19 horizontal selected-holding implementation
+
+The operator's running-screen feedback requests moving the right-hand selected-holding panel above
+the grid and making it horizontal, freeing table width for later information refinement. WPF now
+orders the panel before the full-width table. Wide windows show identity/position facts, strategy
+decision/reason/next step and existing Buy/Sell controls across the panel. Medium windows keep facts
+and explanation side by side with actions beneath; narrow windows stack the same sections, always
+above the table. A null selection shows only a compact prompt. Four table columns remain unchanged;
+shares and average cost stay in the selected holding. No new column set is agreed.
+
+The WPF build and six synthetic renders at 1700/1200/900/680px pass, including populated and empty
+states, full table width, panel ordering, exact selected Sell target, period bindings and no binding
+errors. Wide/stacked/empty layouts are inspected. Evidence: ignored
+`artifacts/trading-horizontal-holding-20261019/`. Existing nullable/unused-variable compiler warnings
+remain; restore used the local cache with auditing disabled, so no new dependency-security assessment
+or full-solution/SSDT claim is made. No live account/SQL read, order, application restart or push ran.
+This layout is implemented/offline-verified, not installed in the running app. The unrelated Obsidian
+workspace change is preserved. Other screens, shared styles and trading behavior are unchanged.
 
 ### Account gains and engine/portfolio clarification
 

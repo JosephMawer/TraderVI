@@ -360,15 +360,18 @@ acknowledgement/fill semantics, attempt markers and remaining integration work.
 ## TFSA strategy transition preview
 
 **October 18 Trading UI increment (Release rebuilt/launched at operator request):** Trading opens with compact
-Today/Overall performance and a four-column holdings table beside the selected holding panel. Today's
+Today/Overall performance. The October 19 source refinement places the selected holding horizontally
+above a full-width four-column holdings table; narrow windows wrap its sections and empty selection
+has a compact prompt. Today's
 follow-up reads native Wealthsimple `ONE_DAY` / `REGULAR` simple returns through the existing signed-in
 connection and five-minute refresh. Latest-point amount/rate use the previous-close reference and
 original valuation time; weekends/prior-date responses have a dated heading. Missing daily values stay
 unavailable without using an older point or Overall. Daily-read failure leaves loaded balances/holdings
 available; an overdue receipt is disclosed. Overall retains its supplied period/as-of context.
 Shares/average cost and the existing Buy more / Sell all commands are in the panel.
-The daily-reader follow-up is built/tested in source, but installation/restart is explicitly deferred
-until concurrent strategy-switching work is ready; the earlier running build still shows Unavailable.
+The horizontal-layout refinement is built/offline-verified in six synthetic renders, but is not
+installed in the running app. The earlier daily-reader deferral is historical; the operator's October
+19 screenshot shows a populated performance card. No new native account read or restart ran in this UI pass.
 The strategy dropdown opens the existing transition review for that exact source; it does not change
 the saved assignment or start execution. Unsupported comparison portfolios remain disabled. On return,
 the dropdown restores the actual saved strategy. Account connection/import/risk/stop-buying and pending

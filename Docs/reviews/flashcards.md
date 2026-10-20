@@ -23,6 +23,7 @@
 
 ### Four-screen visual redesign — October 18 exploration
 
+- **Q:** Where does selected-holding context now belong? **A:** In a horizontal panel above the full-width holdings grid, with position facts, strategy explanation and Buy/Sell together. Narrow windows wrap those sections; empty selection is compact. More table columns remain a later refinement. (ADR-0068, October 19)
 - **Q:** What powers Trading's one-day performance? **A:** Wealthsimple's own latest ONE_DAY/REGULAR simple-return amount/rate, referenced to previous close. Preserve its valuation time and date prior-day results explicitly; a missing latest return never falls back to Overall or an older complete point. This display is not a saved trading-risk baseline. (ADR-0068, October 18 follow-up)
 - **Q:** What happens to old-strategy holdings during a switch? **A:** Keep shared positions and protection; queue old-only exits when trading checks permit, even at a loss. Required sales must be confirmed/reconciled before incoming qualified buys. The dropdown currently opens a review; this UI does not enable automatic execution. (ADR-0079, October 18 clarification)
 - **Q:** What should explain a holding's strategy decision? **A:** State Hold/Sell and the actual rule/fact behind it, with the next trigger or step and a compact check time. Missing data is not a current Hold, and a Sell signal is not a submitted order or fill. One selected strategy supplies the context; changing a mock dropdown is not live assignment. (ADR-0068, October 18 strategy-status refinement)

@@ -728,7 +728,9 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Connect the strategy dropdown to the existing exact-source transition preview, with unsupported comparisons disabled and the actual selection restored after review.
 - [x] Validate .NET 10 WPF build, 194 focused tests and four synthetic renders/interaction checks with no binding errors; source/offline evidence only.
 - [x] Rebuild normal Release output and launch under the operator's explicit request; PID 20036 responsive October 18 at 22:16 Toronto, with output hashes recorded.
-- [ ] Obtain the operator's review of the running Trading layout; process responsiveness does not prove native Trading bindings or broker/execution qualification.
+- [x] Obtain the operator's October 19 running-layout feedback: move the right-hand selected holding above the grid and make it horizontal. Screenshot feedback does not establish broker/execution qualification.
+- [x] Implement the horizontal panel, full-width table and compact empty state; WPF build and six synthetic renders/selection/width checks pass October 19, with no binding errors.
+- [ ] Install and review the horizontal layout in the running desktop; no restart was performed by this UI pass.
 - [ ] Complete real switching/execution and qualified Hold/Sell source integration under existing account/protection/handover contracts; exact portfolio remains deferred.
 - [ ] Confirm target desktop dimensions and remaining Trading visual details.
 - [x] Agree Wealthsimple's previous-close one-day definition; inspect captured native simple returns and implement/test a separate display reader with amount/rate/reference/as-of and dated prior-day headings. 233 focused checks and WPF build pass October 18.

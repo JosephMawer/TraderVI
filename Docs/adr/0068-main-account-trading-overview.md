@@ -246,6 +246,23 @@ dated rather than called Today, and a receipt older than five minutes is disclos
 evidence only: the exact-boundary day-value reader, risk references, cash-flow proof, orders and strategy
 execution are unchanged. Current native availability and operator comparison remain separate checks.
 
+### October 19 horizontal selected-holding panel
+
+The immediate problem is the right-hand panel narrowing the holdings table; the parent problem is
+showing position context and strategy explanations without crowding account information. The root
+goal remains an understandable main account with deliberate, correctly scoped trade actions.
+
+The operator requests moving the selected holding above the grid and arranging it horizontally.
+This supersedes the October 18 side-by-side placement. On wide windows, position identity/facts,
+strategy reason/next step and existing Buy/Sell controls sit across one full-width panel. The table
+uses the full width beneath it. Narrow windows wrap the same content above the table; no selection
+shows a compact prompt instead of empty facts or an apparent strategy decision.
+
+Keep the existing four table columns for this increment; additional grid information remains a later
+refinement. Shares/average cost stay in the panel. Selection targets, command behavior, sources/times,
+strategy evaluation and execution authority are unchanged. This authorizes the Trading presentation
+change, not an operational restart or edits to other screens.
+
 ## Review questions
 
 1. What should lead the Trading overview, and where should attention items appear?

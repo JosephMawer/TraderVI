@@ -67,7 +67,13 @@ own the saved-input, non-executing feasibility check. [Setup/return validation](
 
 ## Four-screen UI redesign opened October 18
 
-**R21 — Fresh, clear main layouts before detailed views.** This chat reviewed the existing UI source
+**R21 — Fresh, clear main layouts before detailed views.** October 19 running-screen feedback requests
+moving the right-hand selected-holding panel above the grid and arranging it horizontally. This is
+implemented in Trading only: full-width table, horizontal position/explanation/actions at wide widths,
+responsive wrapping and a compact empty prompt. WPF build and six synthetic renders/selection/width
+checks pass without binding errors; not installed in the running app. More table information is a
+later refinement; the four current columns remain. No restart, live broker/SQL read, trade or push ran.
+The earlier portion of this chat reviewed the existing UI source
 and ADR-0068, then the operator selected clearer priorities/less clutter plus a fresher style, with
 detailed drill-downs afterward. Workspace is selected; Trading's accepted arrangement is being refined
 before moving to the other screens. Both Buy and Sell belong in the holding panel. A Trading-only refinement
@@ -111,9 +117,10 @@ explicit portfolio-choice deferral, Performance first/Today-default decisions, O
 heading removal, compact overview figures/spacing, net-deposit removal and the accepted panel-only shares
 choice, accepted table/panel/explanations, Trading-only implementation authority, queued-exit clarification
 and the validated first WPF implementation, followed by authorized Release rebuild/launch and commit/push,
-then the accepted native one-day definition and implemented/tested real-data reader. The operator
-explicitly defers rebuilding/restarting until concurrent strategy-switching work is ready; this daily
-increment is not installed in the running app yet.
+then the accepted native one-day definition and implemented/tested real-data reader, with an initial
+restart deferral. The source review now covers the October 19 screenshot and implemented/offline-
+verified horizontal holding panel. The screenshot shows the performance card populated; this pass
+does not repeat native daily-return qualification. The horizontal layout is not installed yet.
 Operational trading activation is not inferred.
 [Draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft),
 [checklist](strategy-alignment-implementation-checklist.md#four-screen-ui-redesign--october-18-design-track).

@@ -103,17 +103,20 @@ Next complete actual October 20 carry save/source/checkpoint/restart/all nine
 checks before manual approval/enable. Native SQL rehearsals stay paused. No baseline
 reset, repeated trades or qualification bypass.
 
-**October 18 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
+**October 18–19 UI track:** Workspace and Trading's main arrangement/explanations are accepted. The
 operator authorized Trading-only implementation; its first WPF increment is built and offline-tested.
 Today/Overall performance, four-column holdings, selected holding Buy/Sell panel and strategy dropdown
 are in source; the dropdown opens the existing transition review. Other tabs remain unchanged.
+October 19 feedback replaces the right-hand holding panel with a horizontal panel above the full-width
+table. This is built/offline-verified in six synthetic renders; the new layout still needs installation
+and operator review. Additional table information is a later refinement; keep the four current columns.
 Queue old-strategy-only exits as checks allow, including at a loss, preserving shared holdings/protection;
 confirmed required exits reconcile before new buys. Execution/automatic switching remains unfinished.
 The operator-authorized Release rebuild/launch is responsive as of October 18, 22:16 Toronto.
 The daily follow-up now reads Wealthsimple's native previous-close one-day return with original time
 and dated prior-session headings; build and 233 focused tests pass. Current native availability and
-operator comparison remain to verify. The operator defers installation/restart until concurrent
-strategy-switching work is ready. Next obtain Trading feedback and complete verified
+operator comparison remain to verify. The earlier daily-reader restart deferral is historical; this
+new horizontal layout has not been installed. Next obtain layout feedback and complete verified
 decision/strategy execution integration. The separate TFSA track now prepares Normal, without an
 activated assignment or qualification waiver; existing recommendation-only comparison limits remain. Remaining-screen order and detailed views stay open;
 do not redesign other screens during this bounded implementation pass.
