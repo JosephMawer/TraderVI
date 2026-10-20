@@ -121,10 +121,11 @@ public sealed partial class ManualBuyCoordinator
         if (executionWindow is not null) { executionWindow.Activate(); return; }
         if (IsSubmitting || !currentAccount()) return;
         var dialog = executionWindow = new Window { Owner = owner, Title = "Delphi Live Normal execution setup",
-            Width = 800, Height = 650, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+            Width = 800, Height = 800, MinWidth = 620, MinHeight = 650, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var panel = new BrokerExecutionSetupPanel(); dialog.Content = panel;
         var summary = panel.Summary; var refresh = panel.Refresh; var first = panel.PrepareFirst;
         var checkpoint = panel.CaptureNativeCheckpoint;
+        var previewCarry = panel.PreviewCarry; var saveCarry = panel.SaveCarry; var noOutside = panel.NoOutsideChanges;
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -133,6 +134,7 @@ public sealed partial class ManualBuyCoordinator
         BrokerFirstExecutionReview? firstReview = null;
         BrokerManagedSessionWorkflow? firstWorkflow = null;
         string? qualificationFingerprint = null;
+        BrokerRiskContinuationRequest? carryReview = null;
         string stage = "checking execution setup";
         void Stage(string value)
         {
@@ -147,7 +149,8 @@ public sealed partial class ManualBuyCoordinator
         async Task Run(Func<Task> action, bool waitForPaperCycles = true)
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
-            busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled = false;
+            busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled =
+                previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try
             {
@@ -160,23 +163,25 @@ public sealed partial class ManualBuyCoordinator
                 await action();
             }
             catch (OperationCanceledException) { }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; }
             catch (Exception error)
             {
                 if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
                     "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
-                reviewed = null; firstReview = null; firstWorkflow = null;
+                reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null;
             }
             finally
             {
                 busy = executionEditing = false;
-                if (!closed) { refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = true; enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
+                if (!closed) { refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = previewCarry.IsEnabled = noOutside.IsEnabled = true;
+                    saveCarry.IsEnabled = carryReview is not null && noOutside.IsChecked == true;
+                    enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
             }
         }
         async Task Refresh()
         {
-            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;
+            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null;
             Stage("reading installed storage readiness");
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token);
             Stage("reading the saved account-history link");
@@ -190,6 +195,19 @@ public sealed partial class ManualBuyCoordinator
             {
                 Stage("reading saved initial risk references");
                 var baselines = await new BrokerAccountRiskBaselineRepository().ReadAsync(lifetime.Token); Check();
+                if (baselines.RiskHistory.ExistingBaseline is { } original && original.TradingDate == BrokerTrialCarryForward.VerificationDate)
+                {
+                    _ = GetExecutionHost();
+                    var risk = await new BrokerAccountRiskContinuationRepository(executionCalendar!).ReadAsync(original.BaselineId, lifetime.Token); Check();
+                    summary.Text = lines + "No strategy is approved. Automatic trading remains off.\n\n" +
+                        $"Original initial references remain saved for {original.TradingDate:yyyy-MM-dd}. Do not repeat the completed trades or save another baseline.\n" +
+                        (risk.TrialCarry is null
+                            ? "Accepted October 20 path: during its regular session, confirm the no-outside-change condition, Preview October 20 carry, review unchanged original references/cash/orders, then explicitly Save reviewed October 20 carry.\n\n"
+                            : $"Reviewed trial carry is saved for {risk.TrialCarry.Session:yyyy-MM-dd}; original reference values, source times and holds remain preserved.\n\n") +
+                        "Then capture a native recovery checkpoint with a fresh Normal source, confirm successful save, close normally/reopen this exact copy, and Prepare first execution review. Select the two original liquidation sales, excluding the test-position sale. All nine checks remain required.\n\n" +
+                        "New purchases expire at the reviewed October 20 regular close; no later-day renewal. Assignment approval and host enable remain separate. No order is submitted by preview, carry save or assignment approval.";
+                    return;
+                }
                 summary.Text = lines + "No strategy is approved to manage this account. Automatic trading remains off.\n\n" +
                     (baselines.RiskHistory.ExistingBaseline is null ? "Initial risk references have not been reviewed/saved.\n" : "Initial risk references exist; continuation still needs current qualification.\n") +
                     "First-session scope: both reviewed holdings must sell completely and usable cash must reconcile. Use the existing Sell all and Account risk setup controls; this window submits no opening sales.\n\n" +
@@ -243,13 +261,13 @@ public sealed partial class ManualBuyCoordinator
                 // The immutable checkpoint retains original inventory-verification times before the baseline.
                 // Post-restart native status reads below independently match these IDs/intents and financial facts.
                 var recordedSales = savedCheckpoint.Sales;
-                var candidates = BrokerSupervisedTrialPreparation.OpeningSaleCandidates(original.Plan.Observation, recordedSales, date);
+                var candidates = BrokerSupervisedTrialPreparation.OpeningSaleCandidates(original.Plan.Observation, recordedSales, baseline.TradingDate);
                 if (candidates.Length < 2)
                     throw new InvalidOperationException("Recover both original full-sale results and their verified empty inventories before the saved baseline. Trial preparation cannot invent missing sale records.");
                 var selectedIds = BrokerOpeningSalesReview.Select(dialog, candidates); Check();
                 if (selectedIds is null) { summary.Text = "Opening-sale selection cancelled. No trial scope, approval or order was created."; return; }
                 var sales = BrokerSupervisedTrialPreparation.SelectOpeningSales(original.Plan.Observation,
-                    savedCheckpoint.Sales, date, selectedIds.Value);
+                    savedCheckpoint.Sales, baseline.TradingDate, selectedIds.Value);
                 var preparedScope = BrokerSupervisedTrialPreparation.Prepare(baseline, original, continued, sales,
                     Environment.UserName, executionCalendar!, DateTimeOffset.UtcNow) with { FullFillOnlyNativeTrial = true };
                 var nativeAfter = await ReadNativeTrialObservationAsync(account, revision, savedCheckpoint, lifetime.Token, Stage); Check();
@@ -270,6 +288,8 @@ public sealed partial class ManualBuyCoordinator
             summary.Text = $"Exact strategy: {exact.Strategy.Strategy.Name}\nProfile: {exact.Strategy.GateProfile}\n" +
                 $"Current Normal source checked: {normal[0].Snapshot.UpdatedUtc.ToLocalTime():g}\n" +
                 $"Actual available purchase ceiling: {firstReview.PurchaseCeiling:N2} CAD\n" +
+                (evidence?.NoTransferScope?.TrialCarry is { } carried
+                    ? $"Original references carried from {carried.Baseline.TradingDate:yyyy-MM-dd}; no historical close/open is claimed. Original verification trades remain on that date.\n" : "") +
                 (evidence?.NoTransferScope is { LimitedFirstSessionTrial: true } trial
                     ? $"Limited first-day trial: automatic purchases end {trial.PurchaseExpiresAt?.ToLocalTime():g}. Independent protection remains managed; no next-day buying permission.\n\n"
                     : "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n") +
@@ -280,6 +300,73 @@ public sealed partial class ManualBuyCoordinator
                 "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
         }
         refresh.Click += async (_, _) => await Run(Refresh);
+        noOutside.Checked += (_, _) => saveCarry.IsEnabled = !busy && carryReview is not null;
+        noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = false; carryReview = null; };
+        previewCarry.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); carryReview = null; reviewed = null; firstReview = null; firstWorkflow = null;
+            if (noOutside.IsChecked != true)
+                throw new InvalidOperationException("Confirm the no-outside-change condition above before reviewing the October 20 carry. If any outside change occurred, preserve the original records for recovery.");
+            var facts = await ReadTrialCarryInputsAsync(account, lifetime.Token, Check, Stage); Check();
+            var repository = new BrokerAccountRiskContinuationRepository(executionCalendar!);
+            var prior = await repository.FindAsync(BrokerTrialCarryForward.RequestId(facts.Baseline.BaselineId), lifetime.Token); Check();
+            if (prior is not null)
+            {
+                if (prior.Request.TrialCarry?.Fingerprint != facts.Risk.TrialCarry?.Fingerprint ||
+                    BrokerAccountImport.Hash(prior.State) != BrokerAccountImport.Hash(facts.Risk))
+                    throw new InvalidOperationException("Saved carry or risk history changed. Preserve the original carry for reviewed recovery.");
+                summary.Text = "The original reviewed October 20 carry is already saved and recovered. No new financial event was written. Original initial references remain unchanged. Next Capture native recovery checkpoint with a fresh Normal source; do not repeat trades or save another baseline.";
+                return;
+            }
+            carryReview = BrokerTrialCarryForward.Prepare(facts.Baseline, facts.Original, facts.Risk, facts.Account,
+                Environment.UserName, true, executionCalendar!, DateTimeOffset.UtcNow);
+            var carry = carryReview.TrialCarry!;
+            var originalOrders = journal.ReadAll().Where(b => BrokerNativeTrialQualification.MatchesAccount(account, b.Intent.AccountId) &&
+                DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(b.Intent.CreatedAt.UtcDateTime)) == facts.Baseline.TradingDate)
+                .Select(b => $"BUY {b.Intent.Symbol} · {b.Intent.Quantity} share(s) · {b.Intent.RequestId:D}")
+                .Concat(journal.ReadSells().Where(s => BrokerNativeTrialQualification.MatchesAccount(account, s.Intent.AccountId) &&
+                    DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == facts.Baseline.TradingDate)
+                    .Select(s => $"SELL {s.Intent.Symbol} · {s.Intent.Quantity} share(s) · {s.Intent.RequestId:D}"));
+            summary.Text = $"Review October 20 trial carry\nOriginal baseline: {facts.Baseline.TradingDate:yyyy-MM-dd}, saved {facts.Baseline.EstablishedAt.ToLocalTime():g}\n" +
+                $"Daily reference retained: {facts.Risk.SessionReference.Value:N2} CAD · {facts.Risk.SessionReference.Source} · original evidence {facts.Risk.SessionReference.EvidenceAt.ToLocalTime():g}\n" +
+                $"Drawdown reference retained: {facts.Risk.DrawdownReference.Value:N2} CAD · {facts.Risk.DrawdownReference.Source} · original evidence {facts.Risk.DrawdownReference.EvidenceAt.ToLocalTime():g}\n" +
+                $"Daily hold: {facts.Risk.DailyLossHold} · Capital review hold: {facts.Risk.CapitalReviewRequired}\n" +
+                $"Fresh unchanged cash: {facts.Account.Cash:N2} CAD · Buying power: {facts.Account.BuyingPower:N2} CAD\nNo holdings or pending orders; all original order facts match.\n" +
+                $"Execution date: {carry.Session:yyyy-MM-dd} · new purchases expire {executionCalendar!.GetSessionBounds(carry.Session).CloseUtc.ToLocalTime():g}\n\n" +
+                "Original verification order IDs:\n" + string.Join("\n", originalOrders) +
+                "\n\nNo historical close/open is reconstructed; original references and holds are preserved.\n\n" +
+                "Review these facts, then explicitly Save reviewed October 20 carry. Saving appends only this trial carry after fresh checks. It submits no order and leaves assignment approval/host enable separate.";
+        });
+        saveCarry.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); var preview = carryReview?.TrialCarry ?? throw new InvalidOperationException("Preview the exact October 20 carry before saving.");
+            if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change condition must still be confirmed.");
+            var facts = await ReadTrialCarryInputsAsync(account, lifetime.Token, Check, Stage); Check();
+            if (BrokerAccountImport.Hash(preview.Baseline) != BrokerAccountImport.Hash(facts.Baseline) ||
+                BrokerAccountImport.Hash(preview.OriginalAnchor) != BrokerAccountImport.Hash(facts.Original.Plan.Observation))
+                throw new InvalidOperationException("The original baseline/import changed. Preserve references and review the original records.");
+            BrokerTrialCarryForward.RequireUnchangedBook(preview.ReviewedAccount, facts.Account);
+            var repository = new BrokerAccountRiskContinuationRepository(executionCalendar!);
+            var prior = await repository.FindAsync(BrokerTrialCarryForward.RequestId(facts.Baseline.BaselineId), lifetime.Token); Check();
+            if (prior is not null)
+            {
+                if (prior.Request.TrialCarry?.Fingerprint != facts.Risk.TrialCarry?.Fingerprint ||
+                    BrokerAccountImport.Hash(prior.State) != BrokerAccountImport.Hash(facts.Risk))
+                    throw new InvalidOperationException("Recover the original carry and current risk history before retrying; no replacement event was saved.");
+            }
+            else
+            {
+                var request = BrokerTrialCarryForward.Prepare(facts.Baseline, facts.Original, facts.Risk, facts.Account,
+                    Environment.UserName, true, executionCalendar!, DateTimeOffset.UtcNow);
+                Stage("saving or recovering the explicitly reviewed October 20 trial carry");
+                prior = await new BrokerAccountRiskContinuationWorkflow(repository, executionCalendar!).ApplyAsync(request, lifetime.Token); Check();
+                var readback = await repository.ReadAsync(facts.Baseline.BaselineId, lifetime.Token); Check();
+                if (BrokerAccountImport.Hash(readback) != BrokerAccountImport.Hash(prior.State))
+                    throw new InvalidOperationException("Carry save needs recovery: readback changed. Preserve the original event; do not save another baseline.");
+            }
+            carryReview = null;
+            summary.Text = "Reviewed October 20 trial carry saved/read back. Original initial reference records, values, source times and holds remain unchanged. No historical close/open was invented. No order, strategy approval or host permission was created.\n\nNext Capture native recovery checkpoint with a fresh Normal source. Continue to same-copy normal restart only after successful checkpoint save.";
+        });
         checkpoint.Click += async (_, _) => await Run(async () =>
         {
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null;

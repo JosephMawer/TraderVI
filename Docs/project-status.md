@@ -194,8 +194,13 @@ Private app metadata records a later **16:21 SQL 52202**: repeated finalization 
 lease. A close-once host fix renews before finalization, persists closing/research once, releases
 its lease and reads status on later wakes; 37 focused/2,624 full offline passes (nine native skips)/WPF build. Correction **cf0eee49** starts at **22:20:53 Toronto**, PID **1036**, after normal prior closure; exact output/Core hashes, one visible responding owner and absent authority/packet/checkpoint are verified. Initial startup response was false, then true on recheck. No SQL fence/history/coverage rule changes. No new regular-session publication
 is expected overnight. The October 19 trial purchase window expired without checkpoint/packet/
-authority; next-day buying is not authorized. October 20 next-session contract is now explicitly accepted; next complete its native/UI integration after implementing the trial-only append/repository recheck (51 focused tests pass; no native save)
-while preserving original anchors and verify the closing fix at the next actual boundary. Existing
+authority. The accepted [October 20 contract](reviews/delphi-live-next-session-contract-20261020.md)
+is implemented: separate preview/explicit carry save, immutable original-anchor rechecks, original-ID
+capture/restart and all nine trial-only references. The full offline suite has **2,655 passes/nine
+native skips**; WPF Release and six synthetic panel renders pass. The next-session copy is prepared,
+with installation pending. Actual October 20 carry save, fresh source/native checkpoint, same-copy
+restart, packet, operator assignment and enable remain unverified. No agent financial action occurred.
+Preserve original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
 privacy tests/build passed before this Core correction. Execution remains off. Detailed receipts/history stay in

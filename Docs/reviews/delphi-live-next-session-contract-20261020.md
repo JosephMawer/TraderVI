@@ -1,11 +1,11 @@
-# Delphi Live Normal — proposed October 20 first execution session
+# Delphi Live Normal — accepted October 20 first execution session
 
-**Status: explicitly accepted October 19; implementation/native qualification pending. No trading authority is saved.**
+**Status: explicitly accepted October 19; implemented, offline tested and prepared. Installation and actual October 20 qualification remain separate. No trading authority is saved.**
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
-qualification packet, strategy assignment or host enable. This proposal grants none of those actions.
+qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk
 references. [ADR-0092](../adr/0092-scoped-supervised-delphi-live-tfsa-session.md) remains authoritative
-with the October 20 amendment below now explicitly accepted; implementation/native checks remain required.
+with the October 20 amendment below explicitly accepted; actual native checks remain required.
 
 ## Accepted contract
 
@@ -73,33 +73,43 @@ the separate operator step below.
 
 - [x] Operator explicitly accepts the complete October 20 contract in this chat on October 19.
 - [x] Implement the trial-only append request/readback and native repository recheck, with exact unchanged-anchor validation,
-  original reference preservation, no clearing of holds and production-projection exclusion. 51 focused tests pass; native save remains unverified and UI/scope integration remains pending.
+  original reference preservation, no clearing of holds and production-projection exclusion. Native save remains unverified.
 - [x] Extend Core trial scope/native producer to distinguish original verification date from the execution
-  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged. 217 scoped/native checks pass; 376 broader lifecycle checks cover unchanged overnight posting and successful original-ID read times without duplicate fill observations. WPF capture/UI integration remains pending.
-- [ ] Expose preview and explicit carry save through the native execution setup screen; no baseline
+  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged. Unchanged overnight posting and successful original-ID read times are covered without duplicate fill observations.
+- [x] Expose preview and explicit carry save through the native execution setup screen; no baseline
   resave, trade replay, packet checkbox or implicit financial save during capture/preparation.
-- [ ] Validate focused/full offline tests and WPF build; commit each coherent increment. Install the
-  exact reviewed copy with execution off; record path/hash/owner. Native SQL rehearsals stay paused.
+- [x] Validate focused/full offline tests and WPF build: 2,655 full passes, nine native skips; six
+  synthetic panel renders pass at minimum/default sizes with no binding errors. The Release WPF
+  build succeeds with 262 existing compiler warnings and cached Pkcs security advisories; no fresh
+  audit, native SQL rehearsal or full solution/SSDT validation is claimed.
+- [ ] Install the exact reviewed copy with execution off; record path/hash/owner.
 - [ ] Perform actual October 20 account/source/carry/checkpoint/restart/nine-reference observations.
 - [ ] Operator reviews and approves the assignment, then separately enables the reviewed host.
 
-## Operator sequence once accepted and implemented
+## Operator sequence
 
 **Tonight:** contract accepted; keep execution off. No additional buy/sale, new initial
-baseline or manual risk-reference reset is required. The prepared copy and installation evidence
-will be recorded here after validation; this draft is not an executable readiness claim.
+baseline or manual risk-reference reset is required. Prepared executable:
+`C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\next-session-working-copy\TraderVI.WPF.exe`.
+Prepared Core SHA-256: `4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F`.
+The local launch helper, `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\Run-DelphiLiveNormal.cmd`,
+will open only that hash-checked copy with the repository working directory and reviewed calendar.
+It will reuse an existing exact owner, refuse another copy, and retain all financial evidence on a
+normal restart. The helper grants no financial authority.
 
 **October 20, one step at a time:**
 
-1. Open the exact reviewed working copy, sign in normally if needed, and confirm the intended TFSA.
+1. Use the launch helper above to open the exact reviewed working copy, sign in normally if needed,
+   and confirm the intended TFSA.
    Leave host enable untouched. Keep the app running so ordinary paper publication can resume.
 2. After the regular session starts, wait for a fresh Normal source. Refresh the account and verify
    cash-only holdings, no pending orders, and no intervening account changes. There is no requirement
    for Normal to generate a buy; its ordinary confirmation/data/entry gates still decide.
-3. Open Trading → Execution setup. Preview the next-session cash-only carry. Review original
+3. Open Trading → Execution setup. Check the no-outside-change confirmation, then click
+   **Preview October 20 carry**. Review original
    references, verification date/order identities, next execution date, unchanged cash/holds and
-   close-time expiry. Confirm the no-outside-change condition. Explicitly save only that reviewed
-   carry; do not use Account risk setup to save another baseline.
+   close-time expiry. Click **Save reviewed October 20 carry** only after reviewing those facts;
+   wait for saved/readback confirmation. Do not use Account risk setup to save another baseline.
 4. Capture native recovery checkpoint. Continue only after an explicit successful-save message.
 5. Close TraderVI normally and reopen that same exact executable. Do not change builds between the
    successful capture and recovery review.

@@ -832,3 +832,31 @@ still reconcile against fresh native account history, and absent/pre-restart rea
 No time is refreshed on failed native reads and no source/account freshness limit is relaxed.
 376 focused checks pass (next-session-posted-focused.log); WPF original-ID capture and UI integration
 remain pending. No real order, account authority or native SQL rehearsal was performed.
+
+### Next-session implementation increment 4 — explicit native carry review/save UI
+
+The setup screen now exposes an unchecked no-outside-change confirmation and separate Preview/Save
+October 20 carry controls. Preview reads the original baseline/import, all four original broker IDs,
+fresh native account reconciliation and current risk history. Save rechecks unchanged preview facts,
+uses the stable carry request and independently reads it back. A lost-response retry recovers that
+original event; it cannot create a replacement baseline or trade. The SQL transaction also rejects
+an existing managed assignment. A preview made before close cannot be saved at/after close.
+
+Capture rereads all original IDs before restart as well as afterward; original opening-sale selection
+continues to use the baseline date, excluding the later test-position sale. Busy UI actions use the
+existing paper-cycle barrier and disable confirmation/save/approval/enable during work. Save remains
+disabled without a current preview and explicit confirmation. All financial/host actions remain the
+operator's manual controls. No agent carry, packet, assignment, host grant or order is written.
+
+Full offline validation: **2,655 passed, nine native skipped**, next-session-full-serial.log. Release
+WPF build succeeds (next-session-wpf-build.log), 262 existing compiler warnings; cached Pkcs 9.0.4
+NU1902/NU1903 advisories are separate. No fresh security audit/full-solution or SSDT claim. Six isolated
+synthetic renders at minimum/default sizes pass visibility/default-off/binding checks; the unchecked
+confirmation is visibly distinct on the dark background. UI render program instantiates only the
+panel and synthetic facts, without app synchronization, SQL or broker calls. No native SQL rehearsal.
+
+Prepared path: artifacts/delphi-live-tfsa-20261018/next-session-working-copy/TraderVI.WPF.exe.
+Core SHA-256: 4BBBD6F141CD50F1D634BEAA4D0533ECFF307B4C65642B84C6C25346214DC07F.
+Installation remains the next step, with execution off. Actual October 20 carry save/source/native
+checkpoint/same-copy restart/all nine references remain unverified. The dated contract owns exact
+manual actions; open-questions.md retains the deferred later-session/production transition.

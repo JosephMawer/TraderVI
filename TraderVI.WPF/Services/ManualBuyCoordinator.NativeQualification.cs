@@ -48,13 +48,12 @@ public sealed partial class ManualBuyCoordinator
                 recover.Strategy.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity)
                 throw new InvalidOperationException("Recover the original checkpoint in the same account and executable; a different build cannot inherit it.");
             stage?.Invoke("reading back the same original manual-order IDs after restart");
-            var sales = new ManualMarketSellWorkflow(connection, journal, orderGate: orderGate);
-            foreach (var buy in recover.Buys.Where(b => b.Intent.AccountId == recover.Account.AccountId &&
-                DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(b.Intent.CreatedAt.UtcDateTime)) == recover.Baseline.TradingDate))
-            { await workflow.CheckOrderAsync(buy.Intent.RequestId, ct); Check(); }
-            foreach (var sale in recover.Sales.Where(s => s.Intent.AccountId == recover.Account.AccountId &&
-                DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == recover.Baseline.TradingDate))
-            { await sales.CheckOrderAsync(sale.Intent.RequestId, ct); Check(); }
+            await ReadOriginalTrialOrdersAsync(account, recover.Baseline.TradingDate, ct, Check, recover);
+        }
+        else if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) == BrokerTrialCarryForward.ExecutionDate)
+        {
+            stage?.Invoke("reading back the original verification order IDs before the next-session checkpoint");
+            await ReadOriginalTrialOrdersAsync(account, BrokerTrialCarryForward.VerificationDate, ct, Check);
         }
         stage?.Invoke("reconciling native broker history, cash and orders with saved account history");
         var synchronized = await new BrokerAccountSynchronizationWorkflow(new BrokerImportWorkflow(new BrokerAccountImportRepository()))
@@ -72,6 +71,9 @@ public sealed partial class ManualBuyCoordinator
         var found = await repository.FindAsync(baseline.BaselineId, ct) ?? throw new InvalidOperationException("The original saved baseline could not be read back."); Check();
         stage?.Invoke("reading preserved daily and drawdown risk history");
         var risk = await new BrokerAccountRiskContinuationRepository(executionCalendar!).ReadAsync(baseline.BaselineId, ct); Check();
+        if (baseline.TradingDate == BrokerTrialCarryForward.VerificationDate &&
+            DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) == BrokerTrialCarryForward.ExecutionDate && risk.TrialCarry is null)
+            throw new InvalidOperationException("Preview and explicitly save the reviewed October 20 carry before capturing the native checkpoint. Preserve the original initial references and trades.");
         stage?.Invoke("verifying installed immutable storage metadata");
         var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct); Check();
         var normal = await ReadNativeNormalAsync(ct, stage); Check();

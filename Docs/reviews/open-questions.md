@@ -5,6 +5,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### After the October 20 supervised trial — October 19, 2026
+
+- **Deferred:** determine the reviewed transition from the trial-only carried original references to
+  later buying or ordinary production continuation. The accepted October 20 exception neither
+  recovers missing historical closing/opening evidence nor supplies full external cash-event proof.
+  No October 21 renewal or baseline/reference reset is authorized. Recover/qualify the required
+  historical and cash sources and agree the transition explicitly before granting later buying.
+  This is follow-up work, not a condition silently waived by the trial or its implementation.
+  [Accepted dated contract](delphi-live-next-session-contract-20261020.md), ADRs 0083/0092.
+
 ### Four-screen visual redesign — October 18, 2026
 
 - **Accepted priority:** fresh, clearer main layouts across Trading, Portfolios, Delphi and Delphi Live;

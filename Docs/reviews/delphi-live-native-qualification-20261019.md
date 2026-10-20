@@ -1,6 +1,10 @@
 # Delphi Live Normal native qualification — October 19
 
 **Current decision: no successful checkpoint; October 19 purchase window expired; automatic execution off.**
+The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
+are implemented/offline tested and prepared for installation. Actual carry save, fresh source,
+native recovery and all nine references remain unverified. The October 19 observations below remain
+historical evidence; no completed checkpoint or financial authority is inferred from preparation.
 Current executable: `C:\src\TraderVI\artifacts\delphi-live-tfsa-20261018\close-once-working-copy\TraderVI.WPF.exe`.
 Closing-lease correction **cf0eee49**, retaining earlier source/coordination fixes; Core SHA-256
 `53BA8FBB5FA71F04E26EB77A812B3661BC487435B98A2EB3840C4D8D2DB079D8`.

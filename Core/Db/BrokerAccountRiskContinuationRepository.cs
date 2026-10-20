@@ -57,6 +57,9 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
         var previous = await State(c, t, request.BaselineId);
         if (request.TrialCarry is { } carry)
         {
+            if (await c.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@BindingId",
+                new { BindingId = previous.BindingId }, t) != 0)
+                throw new InvalidOperationException("An existing managed assignment requires its own recovery; the first-session carry cannot replace it.");
             var original = BrokerAccountRiskBaselineRepository.Decode(await c.QuerySingleOrDefaultAsync<BrokerAccountRiskBaselineRepository.Row>(
                 "SELECT * FROM dbo.BrokerAccountRiskBaseline WHERE BaselineId=@Id", new { Id = request.BaselineId }, t))?.Baseline
                 ?? throw new InvalidOperationException("Recover the original baseline before a trial carry.");

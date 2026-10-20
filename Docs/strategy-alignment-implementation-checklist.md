@@ -160,7 +160,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   close-once renewal/persist/release and status-only later wakes. 37 focused checks/WPF build pass.
 - [x] Install/verify closing fix cf0eee49 at 22:20:53, PID 1036: exact hashes/new Core, one visible responding owner, no authority/packet/checkpoint (2,624 full offline passes/nine native skips).
 - [ ] Verify native closing behavior at the next actual boundary; installation is not a closing rehearsal.
-- [ ] October 20 carry contract explicitly accepted; trial-only append/repository checks implemented with 51 focused passes; Core scope/native path has 217 focused passes; complete WPF capture/UI integration/install before qualification; overnight full-fill/posted recovery has 376 focused passes. October 19 permission remains expired.
+- [x] Implement the accepted October 20 trial-only carry, explicit preview/save UI and original-ID
+  capture/restart integration, retaining original references and all nine checks. 2,655 full offline
+  passes/nine native skips; WPF Release and six synthetic panel renders pass. October 19 remains expired.
+- [ ] Install/verify the exact next-session copy with execution off; then operator performs actual
+  October 20 carry save/readback, fresh source, native checkpoint/restart and all nine references.
 - [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
   tests do not establish lock-owner diagnosis, checkpoint success or qualification.
 - [ ] Collect actual native order qualification/cash-only baseline,

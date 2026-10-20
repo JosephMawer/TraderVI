@@ -140,6 +140,14 @@ qualification and first execution approval remain unfinished.
 
 ### Prepared Delphi Live Normal host
 
+The October 19 buying window has expired. For the separately accepted October 20 supervised trial,
+use the [dated contract and exact manual sequence](reviews/delphi-live-next-session-contract-20261020.md).
+Its prepared copy adds an unchecked no-outside-change confirmation, **Preview October 20 carry**
+and a separate **Save reviewed October 20 carry**. These retain the original baseline/references
+and four order IDs; do not repeat trades or save initial setup again. Actual carry save, fresh
+source, checkpoint/restart, nine references, assignment approval and host enable remain operator
+steps. Use the hash-checked launch helper linked there for the same-copy restart and working directory.
+
 Open the [current native-review copy](reviews/delphi-live-native-qualification-20261019.md)
 after closing the old desktop instance. In Trading, **Execution setup…** reads readiness and an
 existing approved assignment. **Prepare first execution review** reconciles the account through the

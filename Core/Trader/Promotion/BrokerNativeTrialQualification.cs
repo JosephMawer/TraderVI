@@ -25,6 +25,7 @@ public sealed record BrokerNativeTrialObservation(Guid ObservationId, int Proces
 public static class BrokerNativeTrialQualification
 {
     public static bool MatchesAccount(WealthsimpleTfsaAccount account, BrokerAccountReconciliation observation) => account.Id == observation.AccountId;
+    public static bool MatchesAccount(WealthsimpleTfsaAccount account, string accountId) => account.Id == accountId;
     public static bool RequiresOrderReview(IReadOnlyList<ManualBuyRecord> buys, IReadOnlyList<ManualSellRecord> sales,
         ImmutableArray<BrokerStrategyOrder> owned)
     {

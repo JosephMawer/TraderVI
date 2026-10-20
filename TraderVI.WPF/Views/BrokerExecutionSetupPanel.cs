@@ -15,11 +15,19 @@ public sealed class BrokerExecutionSetupPanel : UserControl
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
     public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
     public Button StopHost { get; } = new() { Content = "Stop execution host" };
+    public Button PreviewCarry { get; } = new() { Content = "Preview October 20 carry" };
+    public Button SaveCarry { get; } = new() { Content = "Save reviewed October 20 carry", IsEnabled = false };
+    public CheckBox NoOutsideChanges { get; } = new() { Margin = new Thickness(0, 0, 0, 12), Height = double.NaN,
+        MinHeight = 40, HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        Content = new TextBlock { Text = "I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline, and will keep that scope through the reviewed October 20 close.",
+            TextWrapping = TextWrapping.Wrap, FontSize = 12 } };
 
     public BrokerExecutionSetupPanel()
     {
         Background = new SolidColorBrush(Color.FromRgb(17, 22, 29));
         Foreground = new SolidColorBrush(Color.FromRgb(232, 238, 246));
+        NoOutsideChanges.Foreground = Foreground;
+        NoOutsideChanges.Style = new Style(typeof(CheckBox));
         var layout = new Grid { Margin = new Thickness(24) };
         layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
         layout.RowDefinitions.Add(new() { Height = new GridLength(1, GridUnitType.Star) });
@@ -29,14 +37,15 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         header.Children.Add(new TextBlock { Text = "Delphi Live Normal", FontSize = 26 });
         header.Children.Add(new TextBlock { Text = "Review actual account readiness and qualifications, approve the exact assignment, then enable its host separately.",
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 16) });
+        header.Children.Add(NoOutsideChanges);
         layout.Children.Add(header);
         var scroll = new ScrollViewer { Content = Summary, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             Margin = new Thickness(0, 0, 0, 12) };
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
-        foreach (var button in new[] { Refresh, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst, EnableHost, StopHost })
+        foreach (var button in new[] { Refresh, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst, EnableHost, StopHost })
         {
-            button.MinWidth = 215; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
+            button.MinWidth = 215; button.MinHeight = 44; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
             if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;
             actions.Children.Add(button);
         }

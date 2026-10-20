@@ -100,4 +100,14 @@ public sealed class BrokerTrialCarryForwardTests
             new(baseline.BindingId,risk.Through,Now,Now,"Unrelated production source",new string('A',64)),Now);
         Assert.Contains(projection.NewRiskBlocks,b=>b.Contains("cannot qualify production"));
     }
+    [Fact]
+    public void ABeforeClosePreviewCannotBeSavedAfterThePurchaseWindowEnds()
+    {
+        var (baseline,import,risk,current)=Facts();
+        var close=Calendar().GetSessionBounds(BrokerTrialCarryForward.ExecutionDate).CloseUtc;
+        var reviewed=close.AddSeconds(-10);
+        var request=BrokerTrialCarryForward.Prepare(baseline,import,risk,
+            current with {SnapshotAt=reviewed,CheckedAt=reviewed},"fixture",true,Calendar(),reviewed);
+        Assert.Throws<InvalidOperationException>(()=>BrokerAccountRiskContinuation.Apply(risk,request,Calendar(),close));
+    }
 }

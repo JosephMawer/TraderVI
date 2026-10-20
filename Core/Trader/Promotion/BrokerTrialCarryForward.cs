@@ -73,6 +73,7 @@ public sealed record BrokerTrialCarryForward(BrokerAccountRiskBaseline Baseline,
         carry.Validate(calendar);
         if (request.RequestId != RequestId(carry.Baseline.BaselineId) || request.BaselineId != carry.Baseline.BaselineId ||
             carry.ReviewedAt > now || now - carry.ReviewedAt > TimeSpan.FromSeconds(30) ||
+            now >= calendar.GetSessionBounds(carry.Session).CloseUtc ||
             BrokerAccountImport.Hash(state) != BrokerAccountImport.Hash(BrokerAccountRiskContinuation.Start(carry.Baseline)) ||
             state.DailyLossHold || state.CapitalReviewRequired || state.TrialCarry is not null)
             throw new InvalidOperationException("The trial carry preserves the original unadvanced risk state and all holds. Changed, held or already-carried history requires separate recovery.");
