@@ -24,8 +24,11 @@ original references/evidence, unchanged cash-only account/all four original orde
 and the reviewed October 20 expiry. The operator explicitly saves the carry and supplies a saved/
 readback-confirmed screenshot: original reference records/values/source times/holds remain unchanged,
 no historical close/open is invented and no order/assignment/host permission is created. Next native
-checkpoint/source/restart/nine-reference qualification independently rechecks it; use this same copy
-for capture/recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
+qualification independently rechecks it. A subsequent screenshot confirms checkpoint saved after
+full manual verification/cash-only baseline readback. Local inspection confirms dated file exists,
+unchanged 125-file build and exact owner, no packet/host permission. Next normal restart and first
+execution review in this same copy; all nine references/assignment/enable remain pending. Startup
+receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk

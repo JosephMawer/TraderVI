@@ -21,8 +21,11 @@ values/evidence times, unchanged cash/buying power, no holdings/pending orders/h
 four original order facts, with today's reviewed close expiry. The operator then explicitly saves
 the carry; a subsequent screenshot confirms saved/readback with original references/values/source
 times/holds unchanged, no reconstructed historical close/open and no order/assignment/host permission.
-This is operator UI save/readback evidence; native qualification independently rechecks it next.
-Fresh source/checkpoint/restart/nine references/assignment/enable remain pending. Both performance commits remain included; further
+The next operator screenshot confirms native checkpoint save after full manual verification and
+cash-only baseline readback. Read-only local inspection confirms the October 20 checkpoint exists,
+packet/host permission remain absent, PID 78688 uses the exact copy and all 125 manifest hashes
+still match. No checkpoint content is decoded or rewritten. Next normal same-copy restart and
+first execution review; nine references/assignment/enable remain pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

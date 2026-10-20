@@ -111,8 +111,9 @@ is launched at 12:27:51, PID 78688, after operator normal closure/verified prior
 files/calendar match, one owner/no authority/packet/checkpoints. Operator screenshots now show
 readiness completes and a matching original-reference/cash-only/four-order carry Preview. The
 operator saves it; the next screenshot confirms saved/readback with original references/holds
-unchanged and no order/assignment/host permission. Next fresh source/checkpoint/restart/
-nine references before assignment/enable. This changes
+unchanged and no order/assignment/host permission. The next screenshot confirms checkpoint saved;
+local read-only inspection verifies its dated file and unchanged 125-file build, no packet/host
+permission. Next same-copy normal restart/first review/nine references before assignment/enable. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
 
 October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.

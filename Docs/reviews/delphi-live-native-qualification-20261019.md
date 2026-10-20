@@ -1,9 +1,10 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: no successful checkpoint; October 19 purchase window expired; automatic execution off.**
+**Current decision: October 20 checkpoint saved; same-copy restart/packet qualification pending; automatic execution off. October 19 permission remains expired.**
 The separately accepted [October 20 contract and manual steps](delphi-live-next-session-contract-20261020.md)
-are implemented/offline tested and installed with execution off. Actual carry save, fresh source,
-native recovery and all nine references remain unverified. The October 19 observations below remain
+are implemented/offline tested and installed with execution off. Operator carry save/readback and
+checkpoint capture are observed; post-restart native recovery and all nine references remain pending.
+The October 19 observations below remain
 historical evidence; no completed checkpoint or financial authority is inferred from preparation.
 Earlier October 20 Preview stopped before account checks at the two-minute desktop-paper-cycle wait.
 No carry preview/save is confirmed. A bounded 10:20:26 Toronto read confirms ongoing paper publication
@@ -28,8 +29,12 @@ preview preserves original references/evidence, unchanged cash-only book, no hol
 matching four original order facts and today's expiry. The operator then explicitly saves the
 carry; a subsequent screenshot confirms saved/readback, original reference records/values/source
 times/holds unchanged, no invented historical close/open and no order/assignment/host permission.
-Next native source/checkpoint/restart/nine-reference review independently rechecks saved evidence;
-no completed execution qualification is inferred from the screenshot or coordination correction.
+The next operator screenshot confirms native checkpoint saved after completed manual verification
+and actual cash-only baseline readback. Local read-only inspection confirms the October 20 protected
+file exists, packet/host permission remain absent, PID 78688 is the exact current path and all 125
+manifest hashes match. No protected content is decoded/modified. Next normal same-copy restart,
+Prepare first execution review and all nine references; capture is not completed restart recovery
+or financial assignment/host enable.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

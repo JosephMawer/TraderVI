@@ -1011,3 +1011,19 @@ issued native qualification or authority for the agent to save financial records
 native recovery checkpoint using a fresh Normal source; wait for successful save before normal
 same-copy restart. Do not change the executable/build, repeat trades or reset initial references.
 All nine references and separate operator assignment approval/host enable remain pending.
+
+### Native checkpoint capture observed and file verified — October 20
+
+The operator clicks Capture native recovery checkpoint and supplies explicit saved confirmation
+after completed manual verification and actual cash-only baseline readback. It states no order,
+financial approval or host permission is created and directs a normal same-executable restart.
+Read-only local inspection independently confirms native-trial-checkpoint-20261020.dat exists,
+execution-qualification.dat/execution-host.dat remain absent, process PID 78688 uses the exact
+setup-wait artifact copy, and all 125 manifest hashes still match source 2cf08c33. No protected proof
+content is decoded/rewritten, no build is run and no SQL/broker helper/workflow is launched.
+Next operator closes setup and then the main app normally, waits for process exit, and uses the
+setup-wait Run-ReviewedDelphiLiveNormal.cmd to reopen the same copy. Prepare first execution review
+must reread the original IDs/references and publish all nine checks only on complete matching
+evidence. Select the two original liquidation sales, excluding the verification-position sale.
+Normal post-restart recovery/packet, assignment approval and host enable remain unverified; no
+actual automatic trading is enabled by successful capture.

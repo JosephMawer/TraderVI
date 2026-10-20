@@ -190,8 +190,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   book, no holds/pending orders and all four original order facts matching. This is UI evidence only.
 - [x] Observe actual manual carry save/readback confirmation in the October 20 operator screenshot:
   original reference records/values/source times/holds unchanged; no order/assignment/host permission.
-- [ ] Capture a native checkpoint with fresh source, then same-copy normal restart and all nine
-  references. UI save/readback confirmation is not completed execution qualification.
+- [x] Observe native checkpoint saved after full manual verification/cash-only baseline readback
+  in the October 20 operator screenshot. Local read-only check confirms dated file exists, packet/
+  host permission absent, exact process copy and all 125 file hashes unchanged. No proof decoded.
+- [ ] Perform normal restart of that exact copy and first execution review with all nine references.
+  Capture alone is not completed restart recovery or execution qualification.
 - [x] Identify the performance-copy retry timeout overlapping active Live work; implement interactive
   queued idle wait/elapsed status with close-to-cancel before account checks, retaining admission,
   existing financial close guards and the noninteractive host wait. Nine focused/2,668 full serial
@@ -205,8 +208,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
   open reviewed performance copy 30775d12 (includes 55e429d5), 11:53:41 Toronto, PID 102648. Verify
   124 manifest files/calendar, one visible responding owner, no authority/packet/dated checkpoints.
   No financial action. Actual carry preview, source and new same-copy recovery remain unchecked.
-- [ ] Verify actual native capture in the corrected copy. A local scheduling fix/offline
-  tests do not establish lock-owner diagnosis, checkpoint success or qualification.
+- [x] Verify actual capture UI success/dated file presence in the corrected copy as above. Offline
+  tests alone did not establish it; native post-restart packet qualification remains separate.
 - [ ] Collect actual native order qualification/cash-only baseline,
   protected checkpoint and same-executable post-restart readback. Complete actual native packet,
   review all nine checks, then operator financial approval/host activation. General production and
