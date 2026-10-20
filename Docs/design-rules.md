@@ -40,6 +40,11 @@ with disclosed performance gaps, and installed immutable storage verification. P
 `FirstSessionTrialOnly` and cannot qualify production/older scopes. Partial/cancel/uncertain outcomes
 latch a durable order-review hold; reads retain original IDs, while no new/residual order is reserved
 until operator recovery. Ordinary Resume buying cannot clear it or reset financial holds (ADR-0092).
+The explicitly accepted October 20 amendment permits one reviewed trial-only cash-only carry from
+the original October 19 baseline. Preserve original reference records/values/holds and original four
+verification order IDs; claim no historical close/open. Native next-session carry save, all nine
+checks, fresh Normal source and same-copy recovery remain required before separate approval/enable.
+It expires at the October 20 reviewed close and cannot qualify production/older scopes or roll again.
 Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
 valid historical signal exits through restart and never infer a bid touch from a bar low. Opening

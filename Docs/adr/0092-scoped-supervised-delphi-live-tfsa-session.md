@@ -191,6 +191,20 @@ workflow and saves no order. The host remains off until separately enabled. Chan
 cash, source/build, missing references, holdings or retained holds prevent approval; uncertain saves
 recover through the existing SQL assignment before a new attempt. This needs no SQL migration.
 
+## Accepted October 20 next-session amendment
+
+The October 19 trial expired without activation. The operator requests preparation for October 20
+while preserving completed trades and initial references. The concrete
+[October 20 contract](../reviews/delphi-live-next-session-contract-20261020.md) defines an explicitly
+reviewed, one-session cash-only carry that preserves original reference records/holds and original
+verification order IDs. It claims no historical close/open and changes no production/older scope.
+The operator explicitly accepts that complete dated contract on October 19 in the current chat.
+Implementation and native observations remain required. A separately reviewed append-only trial
+carry may preserve the original references/holds for October 20 only, without reconstructing a
+historical close/open or changing production/older scopes. No financial save or activation is granted
+by this ADR edit. All nine checks, current source, same-copy restart and separate operator carry save,
+assignment approval/host enable remain required; buying expires at the reviewed October 20 close.
+
 ## Review questions
 
 1. Why does a verified no-transfer agreement plus cash reconciliation differ from a complete cash feed?

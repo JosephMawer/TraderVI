@@ -767,3 +767,15 @@ This installation does not reproduce a market close; next-boundary native verifi
 Remaining activation blockers: supported later-session contract, fresh in-session source and matching
 account/risk continuation, successful checkpoint/same-copy restart/all nine native/scoped references,
 then operator assignment approval and separate host enable. Existing research-gap warnings remain.
+
+## October 20 contract accepted — October 19
+
+The operator explicitly accepts the complete drafted October 20 contract in this chat: preserve the
+original cash-only baseline/import/reference records and all holds, reread original four verification
+order IDs, require the operator no-outside-change confirmation from the original anchor through the
+new session, retain all nine checks/fresh Normal/same-copy restart, and expire buying at the next
+reviewed close. Carry save, assignment approval and host enable remain separate manual actions.
+Owning contract: delphi-live-next-session-contract-20261020.md; ADR-0092 and design rules amended.
+Implementation/native qualification remain pending. No account/financial authority is saved by this
+acceptance or documentation commit. Production/older scopes and ordinary historical continuation
+rules stay unchanged. A trial-specific carry claims no recovered historical close or market opening.

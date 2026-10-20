@@ -194,7 +194,7 @@ Private app metadata records a later **16:21 SQL 52202**: repeated finalization 
 lease. A close-once host fix renews before finalization, persists closing/research once, releases
 its lease and reads status on later wakes; 37 focused/2,624 full offline passes (nine native skips)/WPF build. Correction **cf0eee49** starts at **22:20:53 Toronto**, PID **1036**, after normal prior closure; exact output/Core hashes, one visible responding owner and absent authority/packet/checkpoint are verified. Initial startup response was false, then true on recheck. No SQL fence/history/coverage rule changes. No new regular-session publication
 is expected overnight. The October 19 trial purchase window expired without checkpoint/packet/
-authority; next-day buying is not authorized. Next resolve supported later-session qualification
+authority; next-day buying is not authorized. October 20 next-session contract is now explicitly accepted; next implement its trial-only carry/native path
 while preserving original anchors and verify the closing fix at the next actual boundary. Existing
 baseline/orders remain preserved. The earlier unexpected risk-screen failure did
 not recur and its cause remains unlocated; no guard or reference reset was used. Two diagnostic
