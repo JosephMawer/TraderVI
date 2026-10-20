@@ -23,7 +23,11 @@ The next performance-copy screenshot again stops at the paper-cycle wait before 
 the confirmation remains unchecked, so no reviewed carry is displayed. A separate setup-wait
 correction is prepared/offline tested: interactive waiting retains admission, reports elapsed time
 and can be cancelled by closing setup before checks start. Installation is verified above; native
-idle/preview remain pending. No account/reference qualification is inferred from coordination.
+readiness and carry Preview are subsequently observed in October 20 operator screenshots. The
+preview preserves original references/evidence, unchanged cash-only book, no holds/pending orders,
+matching four original order facts and today's expiry. No save/readback is yet confirmed. Next
+manual carry save, then native source/checkpoint/restart/nine-reference review; no qualification is
+inferred from the preview or coordination correction.
 
 Operator screenshots show both original sales and the one-share verification buy/sale filled,
 then cash-only/no pending orders. Initial risk preview succeeds from the 14:55 observation; explicit

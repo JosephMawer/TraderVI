@@ -108,8 +108,10 @@ entire wait. Interactive setup now has a prepared cancellable queued wait with e
 retaining its admission until active work finishes; closing setup cancels the wait only. Nine
 focused/2,668 full serial passes, nine native skipped/WPF Release. Separate setup-wait copy 2cf08c33
 is launched at 12:27:51, PID 78688, after operator normal closure/verified prior exit; all 125 manifest
-files/calendar match, one owner/no authority/packet/checkpoints. Next observe actual idle/preview
-before any manual financial save. This changes
+files/calendar match, one owner/no authority/packet/checkpoints. Operator screenshots now show
+readiness completes and a matching original-reference/cash-only/four-order carry Preview. Next
+operator saves that reviewed carry and verifies readback, then fresh source/checkpoint/restart/
+nine references before assignment/enable. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
 
 October 20 Preview times out twice at the two-minute paper-cycle wait, before account checks.

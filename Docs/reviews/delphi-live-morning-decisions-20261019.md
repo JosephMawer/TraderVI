@@ -986,3 +986,17 @@ normal recovery restart. All older copies/helpers remain preserved. Next open Ex
 allow its initial queued readiness wait to finish, then confirm the unchanged no-outside-change
 condition and click Preview. Leave setup open while elapsed status advances; closing cancels waiting.
 Actual idle, preview/readback, fresh source and all nine references remain unverified.
+
+### Operator carry preview observed — October 20
+
+After successful initial readiness, the operator checks the no-outside-change confirmation and
+supplies the actual carry Preview. It shows original baseline save/evidence dates/times and both
+reference values retained, unchanged native cash/buying power, no holdings/pending orders, no daily/
+capital holds, and all four original order facts matching. The original two liquidation sales and
+separate verification buy/sale are listed distinctly; execution date and expiry match the accepted
+October 20 contract. Private amounts/order IDs are not copied into this tracked record.
+The preview matches the approved carry and can proceed to the operator's explicit Save reviewed
+October 20 carry action. It is not a confirmed save or independent native packet. Request saved/
+readback confirmation before checkpoint capture; assignment/host enable stay separate. No agent
+financial action, source waiver, new trade or reference reset occurs. This establishes actual
+readiness/preview UI progress after the coordination fix, not sustained capacity or profitability.

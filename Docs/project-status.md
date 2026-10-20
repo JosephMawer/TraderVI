@@ -15,8 +15,12 @@ After the automated close does not exit the old app, the operator closes it norm
 left before launch. Copy **2cf08c33** starts **12:27:51 Toronto**, PID **78688**, in separate
 `artifacts/tfsa-setup-wait-20261020/working-copy`. All **125 manifest files/calendar** match, one exact
 owner, no host permission, packet or either dated checkpoint. Core SHA-256:
-`EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`. Native UI interaction,
-actual idle and carry preview remain unverified. Both performance commits remain included; further
+`EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F`. Subsequent October 20 operator
+screenshots confirm readiness completes and carry Preview displays retained original reference
+values/evidence times, unchanged cash/buying power, no holdings/pending orders/holds and matching
+four original order facts, with today's reviewed close expiry. This is operator UI evidence, not
+independent save/readback or qualification. Next explicit manual carry save and confirmed readback;
+source/checkpoint/restart/nine references/assignment/enable remain pending. Both performance commits remain included; further
 history-cost work stays deferred. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 The decision log owns detailed evidence and next native observations.
 

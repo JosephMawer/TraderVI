@@ -19,8 +19,10 @@ before idle and account/sign-in recheck; actual financial actions remain protect
 This does not alter qualifications, purchase expiry or noninteractive host polling's timeout.
 The setup-wait copy 2cf08c33 starts at 12:27:51, PID 78688, after operator normal closure/verified old
 process exit; all 125 manifest files/calendar match, one exact owner, no authority/packet/checkpoints.
-Actual interactive wait and carry preview remain unverified; use this same new copy for capture/
-recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
+The operator subsequently supplies successful readiness and carry Preview screenshots, preserving
+original references/evidence, unchanged cash-only account/all four original order facts, no holds
+and the reviewed October 20 expiry. Manual save/readback and all subsequent qualification remain
+pending; use this same copy for capture/recovery. Receipt: `artifacts/tfsa-setup-wait-20261020/switch-receipt.json`.
 Prepared October 19 Toronto. October 19 buying permission expired without a native checkpoint,
 qualification packet, strategy assignment or host enable. Acceptance saves none of those actions.
 The operator requested preparation for October 20 while preserving completed trades and saved risk
