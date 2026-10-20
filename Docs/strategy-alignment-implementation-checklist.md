@@ -201,9 +201,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
   reviewed close expiry and assignment approval available. Read-only packet file existence is
   confirmed; host permission absent. Protected contents are not independently decoded/audited.
 - [ ] Observe explicit operator assignment approval/save confirmation, then separate host enable.
-  The next October 20 screenshot instead shows stale/incomplete/account-mismatch rejection before
-  session append. Two-minute review lifetime includes paper waiting; exact failed predicate unknown.
-  Prepare one fresh review/approve promptly if unchanged; investigate recurrence before progression.
+  The operator reports the immediate retry also fails quickly. Hash-verified installed read confirms
+  zero managed revisions/unchanged recent financial imports; last retained setup wait 4.49 seconds.
+  Exact failing predicate remains unknown; no stale-review waiver is authorized.
+- [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
+  unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
+  pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
+- [ ] Close normally/install the two corrected UI output files in standard Release output, then
+  observe the native approval diagnostic or saved confirmation; separate host enable remains manual.
 - [x] Honor normal checkout startup: all code is on `master`; put/hash-verify the 125 captured runtime
   files in normal Release output, retaining identical Core hash and existing checkpoint. Persist/
   verify the same reviewed calendar as an approved Windows user setting. No source/proof change.

@@ -9,6 +9,48 @@ namespace TraderVI.Core.Tests;
 public sealed class BrokerSetupCycleBarrierTests
 {
     [Fact]
+    public async Task PreparedReviewHandsAdmissionToApprovalWithoutStartingAnotherPaperCycle()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        using var expiry = new CancellationTokenSource();
+        IDisposable review;
+        using (var prepare = barrier.BeginSetup())
+        {
+            await prepare.WaitForIdleAsync(default);
+            review = barrier.HoldReview(expiry.Token);
+        }
+        Assert.Null(barrier.TryBeginCycle());
+        using (var approval = barrier.BeginSetup())
+        {
+            review.Dispose();
+            Assert.Null(barrier.TryBeginCycle());
+            await approval.WaitForIdleAsync(default, TimeSpan.Zero);
+        }
+        using var resumed = barrier.TryBeginCycle(); Assert.NotNull(resumed);
+    }
+
+    [Fact]
+    public void ExpiringOrClosingReviewResumesPaperSchedulingWithoutExtendingItsLifetime()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        using var expiry = new CancellationTokenSource();
+        using var review = barrier.HoldReview(expiry.Token);
+        Assert.Null(barrier.TryBeginCycle());
+        expiry.Cancel();
+        using var resumed = barrier.TryBeginCycle(); Assert.NotNull(resumed);
+        review.Dispose(); review.Dispose();
+    }
+
+    [Fact]
+    public void AlreadyExpiredReviewDoesNotDeferPaperWork()
+    {
+        var barrier = new BrokerSetupCycleBarrier();
+        using var expiry = new CancellationTokenSource(); expiry.Cancel();
+        using var review = barrier.HoldReview(expiry.Token);
+        using var cycle = barrier.TryBeginCycle(); Assert.NotNull(cycle);
+    }
+
+    [Fact]
     public async Task SetupWaitsForEveryAlreadyRunningCycleAndBlocksNewOnes()
     {
         var barrier = new BrokerSetupCycleBarrier();

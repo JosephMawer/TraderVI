@@ -33,6 +33,15 @@ public sealed class BrokerSetupCycleBarrier
         }
     }
 
+    // Transfer an already-idle setup into a bounded human review without admitting a paper cycle
+    // between Prepare and Approve. The caller owns the existing review expiry, never a renewal.
+    public IDisposable HoldReview(CancellationToken expires)
+    {
+        var setup = BeginSetup();
+        var registration = expires.Register(setup.Dispose);
+        return new Release(() => { registration.Dispose(); setup.Dispose(); });
+    }
+
     private static TaskCompletionSource Completed()
     { var result = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); result.SetResult(); return result; }
 

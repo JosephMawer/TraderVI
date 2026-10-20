@@ -1103,3 +1103,36 @@ prepare a fresh first execution review, compare all previously reviewed facts an
 if unchanged without another chat pause. If that single fresh retry fails, preserve the diagnostic
 and investigate timing/account differences before further progression. No guard extension, new
 build, proof/reference rewrite, SQL helper, order or agent financial approval is performed here.
+
+### Desktop approval diagnosis and review admission correction — October 20
+
+The operator reports immediate fresh preparation/approval still fails quickly, distinguishing that
+observation from the usual up-to-three-minute paper wait. A bounded installed helper read (receipt
+query hash verified) finds zero managed revisions and eight recent imports with identical raw
+financial fields, differing only in observation times. The last retained setup wait is 4.49 seconds.
+Neither observation proves which grouped activation predicate failed. The earlier expiry explanation
+remains a hypothesis rather than native diagnosis.
+
+The UI released paper admission at the end of Prepare, allowing a long cycle before Approve. The
+desktop-only correction transfers admission through the original two-minute review window and into
+the next setup action without a gap. Expiry, window close and other actions release it; expiry
+disables approval and requires a new review. It does not renew the review or change financial guards.
+An approval-only adapter runs the existing Core workflow and captures its actual synchronization
+result, emitting safe categories/ages on the existing grouped rejection. Its transport cannot send
+orders. No extra broker read, session append bypass, Core source/assembly change or proof rewrite.
+
+Seventeen focused checks and the full serial offline suite pass: 2,676 passed/nine native skipped.
+Release WPF compilation passes; two existing CS0168 warnings are separate from cached Pkcs NU1902/
+NU1903 advisories in the test build. No fresh audit/full solution/SSDT/native SQL rehearsal claim.
+Initial Compile-only/redirected-output attempts were unsuitable for WPF generated/project-reference
+paths. The successful no-copy build's incremental cleanup removed 102 unlocked normal-output
+dependencies and warned on locked files; all missing files were immediately restored from the
+existing captured copy and all 125 original runtime hashes verified. No new full runtime snapshot
+was created. Compiled UI DLL/PDB remain in normal obj output awaiting normal app closure; the running
+UI has not changed. Core remains EAF137241560CAE2AF18042B885708DF6D39353CEC4D448AB3B3DC6C786BD35F.
+
+Next close normally, replace only the two UI output files in the standard Release folder, preserve
+all other captured files/protected state, then use the normal project --no-build command and prepare/
+approve once. Exact native rejection or saved confirmation remains required before host enable.
+Validation logs remain in the existing ignored setup-wait artifact folder; no private records are
+included in tracked documentation.

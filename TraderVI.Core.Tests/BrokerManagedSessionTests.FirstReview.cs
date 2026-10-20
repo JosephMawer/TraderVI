@@ -10,11 +10,46 @@ using System.Text.Json;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Xunit;
+using TraderVI.WPF.Viewmodels;
 
 namespace TraderVI.Core.Tests;
 
 public sealed partial class BrokerManagedSessionTests
 {
+    [Fact]
+    public async Task DesktopApprovalUsesTheActualWorkflowAndNeverSubmitsAnOrder()
+    {
+        var f = FirstReviewFixture(); var review = FirstReview(f, FirstQualifications(f));
+        var runner = new BrokerFirstApprovalRunner(f.Store, f, new ApprovalClock(() => f.Now));
+        var result = await runner.ApproveAsync(new(review.Activation!, "fixture", "synthetic"), default);
+        Assert.Equal("ExecutionApproved", result.Event);
+        Assert.Null(result.ActivatedAt); Assert.Equal(0, f.Transport.Sent);
+    }
+
+    [Theory]
+    [InlineData("changed account", "AccountOrRiskFingerprintChanged")]
+    [InlineData("changed risk", "AccountOrRiskFingerprintChanged")]
+    [InlineData("expired", "ReviewExpiredOrFuture")]
+    [InlineData("stale snapshot", "AccountSnapshotStaleOrFuture")]
+    public async Task DesktopApprovalDiagnosesItsActualRejectedValidationInput(string change, string diagnostic)
+    {
+        var f = FirstReviewFixture(); var review = FirstReview(f, FirstQualifications(f));
+        if (change == "changed account") f.Cash -= 1;
+        if (change == "changed risk") f.Risk = f.Risk with { DailyLossHold = true };
+        if (change == "expired") f.Now = f.Now.AddMinutes(3);
+        if (change == "stale snapshot") f.TransformAccount = a => a with
+        { Import = a.Import with { Plan = a.Import.Plan with { Observation = a.Import.Plan.Observation with { SnapshotAt = f.Now.AddSeconds(-31) } } } };
+        var runner = new BrokerFirstApprovalRunner(f.Store, f, new ApprovalClock(() => f.Now));
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => runner.ApproveAsync(
+            new(review.Activation!, "fixture", "synthetic"), default));
+        Assert.Contains(diagnostic, error.Message);
+        Assert.DoesNotContain(f.Binding.BrokerKey, error.Message);
+        Assert.Null(f.Store.State); Assert.Equal(0, f.Transport.Sent);
+    }
+
+    private sealed class ApprovalClock(Func<DateTimeOffset> now) : TimeProvider
+    { public override DateTimeOffset GetUtcNow() => now(); }
+
     private static Fixture FirstReviewFixture()
     { var f = new Fixture(); UseNormalLive(f); f.Facts.Clear(); f.Cash = 1100; return f; }
     private static BrokerStrategyReview FirstStrategyReview(Fixture f) => new(f.Strategy,

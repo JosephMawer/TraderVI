@@ -118,10 +118,11 @@ complete native first review/all nine references and approval available, with ho
 Protected packet existence is independently observed; next operator assignment approval/readback,
 then separate enable. This changes
 neither host polling's timeout nor qualification, and preserves both performance improvements.
-The next approval attempt is rejected by the stale/incomplete/account-mismatch guard, before append;
-no saved assignment is confirmed. Prepare one fresh review and approve promptly if facts are unchanged.
-The two-minute lifetime includes UI review and paper-wait time; the exact failed predicate is not
-identified. Diagnose a repeated rejection before host enable, preserving all checks/proof/references.
+Approval and the immediate retry are rejected before append; installed read confirms zero managed
+revisions and unchanged recent financial imports. Desktop-only review admission/precise rejection
+diagnostics are prepared: 17 focused/2,676 full offline passes, nine native skips, WPF compile passes.
+Core/proof identity and every validation guard remain unchanged. Next normal-close UI-only update
+in standard Release output, then actual predicate diagnosis/approval confirmation before enable.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
 going forward; no further full artifact copies are needed. The normal Release output now has all

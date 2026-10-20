@@ -1,13 +1,15 @@
 # TraderVI Project Status
 
-**Assignment approval blocked, October 20:** the operator's next screenshot shows "Activation review
-is stale, incomplete or differs from the real account. Review again," rather than a saved approval.
-Source validation occurs before session append. The guard includes a two-minute prepared-review
-limit, current account freshness/fingerprint and unchanged risk/position requirements; the message
-does not identify which predicate failed. Screenshot-review time and any approval paper-cycle wait
-consume that review lifetime. Next prepare one fresh review, compare the same reviewed facts and
-approve promptly if unchanged; repeated rejection needs diagnosis, not a guard waiver. Host enable
-remains pending; no saved assignment is confirmed by this result.
+**Assignment approval blocked, October 20:** the operator reports the immediate fresh-review retry
+also fails quickly. A hash-verified installed read finds zero managed revisions and unchanged financial
+facts in eight recent imports; the last retained setup wait is 4.49 seconds. These do not identify the
+exact failing validation predicate. Desktop-only correction retains paper admission through the
+existing two-minute review/approval handoff, releases on expiry/close/action, and diagnoses the actual
+account input rejected by the unchanged Core approval workflow. Seventeen focused and **2,676 full
+serial offline tests pass**, nine native skipped; Release WPF compilation passes. Core/protected
+qualification identity remains unchanged. The running app still uses the preceding UI; normal close,
+replacement of the two UI output files, then native diagnostic/approval readback remain required.
+No financial save/host enable/order is performed by the agent. [Evidence](reviews/delphi-live-morning-decisions-20261019.md#desktop-approval-diagnosis-and-review-admission-correction--october-20).
 
 **First execution review observed, October 20:** after the normal-output same-build restart, the
 operator selects the two original liquidation sales. Screenshots show exact Normal/NormalV1, carried

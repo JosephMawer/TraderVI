@@ -132,9 +132,16 @@ public sealed partial class ManualBuyCoordinator
         bool closed = false, busy = false, waitingForPaper = false; long revision = connection.SessionRevision;
         BrokerManagedSession? reviewed = null;
         BrokerFirstExecutionReview? firstReview = null;
-        BrokerManagedSessionWorkflow? firstWorkflow = null;
+        BrokerFirstApprovalRunner? firstWorkflow = null;
         string? qualificationFingerprint = null;
         BrokerRiskContinuationRequest? carryReview = null;
+        CancellationTokenSource? reviewExpiry = null;
+        IDisposable? reviewAdmission = null;
+        void ReleaseReviewAdmission()
+        {
+            reviewAdmission?.Dispose(); reviewAdmission = null;
+            reviewExpiry?.Dispose(); reviewExpiry = null;
+        }
         string stage = "checking execution setup";
         void Stage(string value)
         {
@@ -155,6 +162,8 @@ public sealed partial class ManualBuyCoordinator
             try
             {
                 using var quiet = waitForPaperCycles ? setupCycles.BeginSetup() : null;
+                // Acquire the next action's admission before releasing the prepared review's hold.
+                ReleaseReviewAdmission();
                 if (quiet is not null)
                 {
                     waitingForPaper = true;
@@ -289,8 +298,23 @@ public sealed partial class ManualBuyCoordinator
             var projected = await components.AccountSource.SynchronizeAsync([], lifetime.Token); Check();
             firstReview = BrokerFirstExecutionReviewPolicy.Prepare(exact, projected, evidence,
                 BrokerManagedSessionComposition.ImplementationIdentity, DateTimeOffset.UtcNow);
-            firstWorkflow = firstReview.CanApprove ? components.Workflow : null;
+            firstWorkflow = firstReview.CanApprove ? new(new BrokerManagedSessionRepository(), components.AccountSource) : null;
             qualificationFingerprint = evidence is null ? null : BrokerAccountImport.Hash(evidence);
+            if (firstReview.CanApprove)
+            {
+                var activation = firstReview.Activation!;
+                var remaining = activation.PreparedAt.AddMinutes(2) - DateTimeOffset.UtcNow;
+                if (remaining <= TimeSpan.Zero) throw new InvalidOperationException("The prepared review expired before display. Prepare first execution review again.");
+                reviewExpiry = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+                reviewAdmission = setupCycles.HoldReview(reviewExpiry.Token);
+                reviewExpiry.Token.Register(() => dialog.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (closed || busy || !ReferenceEquals(firstReview?.Activation, activation)) return;
+                    ReleaseReviewAdmission(); firstReview = null; firstWorkflow = null; approve.IsEnabled = false;
+                    summary.Text = "The two-minute assignment review expired. No approval or order was saved. Paper scheduling has resumed. Prepare first execution review again before approval.";
+                })));
+                reviewExpiry.CancelAfter(remaining);
+            }
             summary.Text = $"Exact strategy: {exact.Strategy.Strategy.Name}\nProfile: {exact.Strategy.GateProfile}\n" +
                 $"Current Normal source checked: {normal[0].Snapshot.UpdatedUtc.ToLocalTime():g}\n" +
                 $"Actual available purchase ceiling: {firstReview.PurchaseCeiling:N2} CAD\n" +
@@ -301,7 +325,7 @@ public sealed partial class ManualBuyCoordinator
                     : "Duration: ongoing selection; first-day scope still expires at its reviewed close.\n\n") +
                 (evidence?.NoTransferScope?.FullFillOnlyNativeTrial == true ? BrokerNativeTrialQualification.Limits + "\n\n" : "") +
                 string.Join("\n", firstReview.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
-                "\n\n" + (firstReview.CanApprove ? "Review the actual capital and evidence above, then explicitly approve. Approval submits no order and leaves the host off."
+                "\n\n" + (firstReview.CanApprove ? "Review the actual capital and evidence above, then explicitly approve within two minutes. New desktop paper cycles are deferred during this review. Approval submits no order and leaves the host off."
                     : "Approval blocked:\n" + string.Join("\n", firstReview.Blocks)) +
                 "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
         }
@@ -413,7 +437,7 @@ public sealed partial class ManualBuyCoordinator
             summary.Text = ExecutionStatus.Message;
         }, waitForPaperCycles: false);
         dialog.Closing += (_, e) => { if (busy && !waitingForPaper) e.Cancel = true; };
-        dialog.Closed += (_, _) => { closed = true; lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
+        dialog.Closed += (_, _) => { closed = true; ReleaseReviewAdmission(); lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
         dialog.Show(); await Run(Refresh); await completion.Task;
     }
 }
