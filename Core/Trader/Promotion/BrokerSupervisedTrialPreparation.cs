@@ -42,18 +42,27 @@ public static class BrokerSupervisedTrialPreparation
     {
         var anchor = baselineImport.Plan.Observation;
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        var carry = continued.TrialCarry;
+        bool originalSession = carry is null && baseline.TradingDate == date && continued.Through == baseline.ObservationAt;
+        bool carriedSession = carry is not null && carry.Session == date &&
+            BrokerAccountImport.Hash(carry.Baseline) == BrokerAccountImport.Hash(baseline) &&
+            BrokerAccountImport.Hash(carry.OriginalAnchor) == BrokerAccountImport.Hash(anchor) &&
+            continued.RevisionId == BrokerTrialCarryForward.RequestId(baseline.BaselineId) &&
+            continued.Through == carry.ReviewedAccount.SnapshotAt;
         if (baselineImport.RequestId != baseline.ImportRequestId || !baselineImport.Plan.CanImport ||
             baselineImport.BindingId != baseline.BindingId || baseline.AccountLabel != "TFSA" ||
-            baseline.ObservationAt != anchor.SnapshotAt || baseline.TradingDate != date ||
+            baseline.ObservationAt != anchor.SnapshotAt || !(originalSession || carriedSession) ||
             continued.BaselineId != baseline.BaselineId || continued.BindingId != baseline.BindingId ||
-            continued.TradingDate != date || continued.Through != baseline.ObservationAt ||
+            continued.TradingDate != date ||
             continued.SessionReference != baseline.SessionReference || continued.DrawdownReference != baseline.DrawdownReference ||
             continued.DailyLossHold || continued.CapitalReviewRequired)
             throw new InvalidOperationException("Use the original saved cash-only baseline/import and preserve its current references and holds. Trial preparation cannot reset or replace them.");
         var scope = new BrokerNoTransferSessionScope(
-            BrokerManagedStrategy.StableId($"{baseline.BaselineId:D}:{baselineImport.RequestId:D}:LimitedFirstSessionTrialV1"),
+            BrokerManagedStrategy.StableId($"{baseline.BaselineId:D}:{baselineImport.RequestId:D}:LimitedFirstSessionTrialV1" +
+                (carry is null ? "" : ":" + carry.Fingerprint)),
             baseline.BindingId, baseline.BaselineId, date, now, reviewedBy, anchor)
-            { OpeningSales = openingSales, LimitedFirstSessionTrial = true,
+            { OpeningSales = openingSales, LimitedFirstSessionTrial = true, TrialCarry = carry,
+                FullFillOnlyNativeTrial = carry is not null,
                 PurchaseExpiresAt = calendar.GetSessionBounds(date).CloseUtc };
         scope.Validate(calendar);
         if (now >= calendar.GetSessionBounds(date).CloseUtc || !scope.OpeningSalesVerified)

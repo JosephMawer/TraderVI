@@ -58,6 +58,19 @@ public static class BrokerNativeTrialQualification
     {
         o.Strategy.Strategy.Validate();
         var account = o.Account; var baseline = o.Baseline;
+        var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(o.CapturedAt.UtcDateTime));
+        var carry = o.Risk.TrialCarry;
+        bool carriedSession = carry is not null && carry.Session == BrokerTrialCarryForward.ExecutionDate &&
+            baseline.TradingDate == BrokerTrialCarryForward.VerificationDate && carry.Session == date &&
+            carry.NoOutsideChangesConfirmed && carry.ReviewedAt <= o.CapturedAt &&
+            BrokerAccountImport.Hash(carry.Baseline) == BrokerAccountImport.Hash(baseline) &&
+            o.Risk.RevisionId == BrokerTrialCarryForward.RequestId(baseline.BaselineId) &&
+            o.Risk.Through == carry.ReviewedAccount.SnapshotAt;
+        if (carry is not null)
+        {
+            if (!carriedSession) throw new InvalidOperationException("Recover the exact reviewed next-session carry and original baseline; no replacement reference is permitted.");
+            BrokerTrialCarryForward.RequireUnchangedBook(carry.OriginalAnchor, account);
+        }
         if (o.ObservationId == Guid.Empty || o.ProcessId <= 0 || o.ProcessStartedAt == default || o.ProcessStartedAt > o.CapturedAt ||
             o.CapturedAt > now || now - o.CapturedAt > TimeSpan.FromSeconds(30) ||
             account.CheckedAt > o.CapturedAt || account.SnapshotAt > account.CheckedAt ||
@@ -72,10 +85,10 @@ public static class BrokerNativeTrialQualification
             BrokerAccountImport.Hash(baseline) != BrokerAccountImport.Hash(o.FoundBaseline.Baseline) ||
             !CompleteTradingStrategy.IsHash(o.FoundBaseline.RequestHash) ||
             o.Risk.BaselineId != baseline.BaselineId || o.Risk.BindingId != baseline.BindingId ||
-            o.Risk.TradingDate != baseline.TradingDate || o.Risk.Through != baseline.ObservationAt ||
+            o.Risk.TradingDate != date || (carry is null && o.Risk.Through != baseline.ObservationAt) ||
             o.Risk.SessionReference != baseline.SessionReference || o.Risk.DrawdownReference != baseline.DrawdownReference ||
             o.Risk.DailyLossHold || o.Risk.CapitalReviewRequired ||
-            baseline.TradingDate != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(o.CapturedAt.UtcDateTime)))
+            (carry is null && baseline.TradingDate != date))
             throw new InvalidOperationException("Installed native storage and matching saved baseline/Find/readback references are required; no known reference or hold may be reset.");
         var strategy = o.Strategy.Strategy;
         if (strategy.Strategy.Family != TradingStrategyFamily.DelphiLive || strategy.GateProfile != Core.Trader.PaperGateProfile.NormalV1 ||
@@ -109,6 +122,9 @@ public static class BrokerNativeTrialQualification
         BrokerNoTransferSessionScope scope, ITsxSessionCalendar calendar, DateTimeOffset now)
     {
         ValidateObservation(before, before.CapturedAt); ValidateObservation(after, now); scope.Validate(calendar);
+        if (scope.TrialCarry?.Fingerprint != before.Risk.TrialCarry?.Fingerprint ||
+            scope.TrialCarry?.Fingerprint != after.Risk.TrialCarry?.Fingerprint)
+            throw new InvalidOperationException("Recover the same original saved trial carry on both sides of the native restart.");
         if (!scope.LimitedFirstSessionTrial || !scope.FullFillOnlyNativeTrial || !scope.OpeningSalesVerified ||
             scope.PurchaseExpiresAt <= now || scope.BindingId != after.Baseline.BindingId || scope.BaselineId != after.Baseline.BaselineId ||
             before.ProcessId == after.ProcessId || after.ProcessStartedAt <= before.CapturedAt ||
@@ -159,15 +175,16 @@ public sealed class BrokerNativeTrialEvidenceFileStore(string packetPath, IManua
         BrokerNativeTrialQualification.ValidateObservation(observation, observation.CapturedAt);
         Directory.CreateDirectory(Path.GetDirectoryName(packetPath)!);
         using var lease = new FileStream(packetPath + ".prepare.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        var prior = ReadCheckpoint(observation.Baseline.TradingDate);
+        var prior = ReadCheckpoint(observation.Risk.TradingDate);
         if (prior is not null)
         {
             if (prior.ProcessId != observation.ProcessId || prior.Strategy.Strategy.Fingerprint != observation.Strategy.Strategy.Fingerprint ||
-                BrokerAccountImport.Hash(prior.Baseline) != BrokerAccountImport.Hash(observation.Baseline))
+                BrokerAccountImport.Hash(prior.Baseline) != BrokerAccountImport.Hash(observation.Baseline) ||
+                BrokerAccountImport.Hash(prior.Risk) != BrokerAccountImport.Hash(observation.Risk))
                 throw new InvalidOperationException("Preserve the original recovery checkpoint; prepare the first review after restart instead of replacing it.");
             return prior;
         }
-        Write(CheckpointPath(observation.Baseline.TradingDate), observation, false); return ReadCheckpoint(observation.Baseline.TradingDate)!;
+        Write(CheckpointPath(observation.Risk.TradingDate), observation, false); return ReadCheckpoint(observation.Risk.TradingDate)!;
     }
     public BrokerExecutionQualificationBundle Complete(BrokerNativeTrialObservation after, BrokerNoTransferSessionScope scope,
         ITsxSessionCalendar calendar, string reviewedBy, DateTimeOffset now)

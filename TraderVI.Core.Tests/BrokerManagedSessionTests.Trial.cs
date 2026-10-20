@@ -20,9 +20,11 @@ namespace TraderVI.Core.Tests;
 public sealed partial class BrokerManagedSessionTests
 {
     private static (Fixture F, BrokerAccountRiskBaseline Baseline, BrokerImportReceipt Import,
-        ImmutableArray<ManualSellRecord> Sales, ITsxSessionCalendar Calendar) TrialFacts()
+        ImmutableArray<ManualSellRecord> Sales, ITsxSessionCalendar Calendar) TrialFacts(DateTimeOffset? at = null)
     {
-        var f = new Fixture(); UseNormalLive(f);
+        var f = new Fixture();
+        if (at is { } changed) { f.Now = changed; f.Risk = f.Risk with { TradingDate = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(changed.UtcDateTime)) }; }
+        UseNormalLive(f);
         var records = ImmutableArray.CreateBuilder<ManualSellRecord>();
         var quote = new ManualBuyQuote(10.01m, 10, f.Now, "OPEN", f.Now.AddHours(-1), f.Now.AddHours(1), f.Now);
         foreach (string symbol in new[] { "AAA", "BBB" })

@@ -799,3 +799,18 @@ or opening is invented. Hold observations still only add holds; old absent-field
 assertion issue was corrected before validation. No native SQL tests, save, financial permission or
 order was performed. Native scope/producer/UI integration remains pending; this increment alone
 cannot activate the trial. The existing 256-KiB continuation size limit remains enforced.
+
+### Next-session implementation increment 2 — Core scope/native date separation
+
+The execution session now remains distinct from the original verification/baseline date. Trial scope
+pins the exact carry; original-anchor regular-session checks remain unchanged for older scopes.
+Cash coverage uses the exact carried risk marker and trial-specific contract, retaining original
+cash/order reconciliation and expiry. Production/older activation cannot inherit carried risk.
+Native observations verify unchanged original baseline/references and exact saved carry revision,
+and checkpoint filenames follow the actual execution risk session, retaining original trade dates.
+Before/after risk/carry hashes must match, all nine references remain trial-only, and no dates are
+rewritten to make a former checkpoint pass. 217 focused offline checks pass; next-session-native-focused.log.
+Synthetic end-to-end coverage publishes nine references across normal restart, verifies unchanged
+initial references, rejects missing/changed carry, cash/reference/order changes and later-date reuse,
+and stops cash permission at the reviewed close. No actual packet or financial authority is saved.
+WPF original-ID pre-capture readback and carry preview/explicit save remain the next increment.

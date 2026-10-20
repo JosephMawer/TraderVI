@@ -46,6 +46,8 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
     {
         Strategy.Validate();
         NoTransferScope?.ValidateAnchor();
+        if (account.Risk.TrialCarry?.Fingerprint != NoTransferScope?.TrialCarry?.Fingerprint)
+            throw new InvalidOperationException("Trial-carried risk references require the exact next-session scope; production and older approvals cannot inherit them.");
         if (NoTransferScope is { } scope && (scope.BindingId != BindingId || scope.BaselineId != BaselineId ||
             scope.Session != Session || scope.ApprovedAt > now || Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
             PurchaseCeiling > scope.CashOnlyAnchor.Cash || PurchaseCeiling > scope.CashOnlyAnchor.BuyingPower ||

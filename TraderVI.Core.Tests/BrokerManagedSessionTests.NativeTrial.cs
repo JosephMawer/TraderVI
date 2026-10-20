@@ -16,9 +16,9 @@ namespace TraderVI.Core.Tests;
 public sealed partial class BrokerManagedSessionTests
 {
     private static (Fixture F, BrokerNativeTrialObservation Before, BrokerNativeTrialObservation After,
-        BrokerNoTransferSessionScope Scope, ITsxSessionCalendar Calendar) NativeTrialFacts()
+        BrokerNoTransferSessionScope Scope, ITsxSessionCalendar Calendar) NativeTrialFacts(DateTimeOffset? at = null)
     {
-        var (f, baseline, _, originals, calendar) = TrialFacts();
+        var (f, baseline, _, originals, calendar) = TrialFacts(at);
         var buyAt = f.Now.AddMinutes(1); var sellAt = f.Now.AddMinutes(2);
         var buyId = Guid.NewGuid(); var sellId = Guid.NewGuid();
         f.Facts.Add(f.Fact("order-" + buyId.ToString("D"), "CCC", "BUY", 1, 10, buyAt));

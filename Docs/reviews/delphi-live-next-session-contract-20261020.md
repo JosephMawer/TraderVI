@@ -74,8 +74,8 @@ the separate operator step below.
 - [x] Operator explicitly accepts the complete October 20 contract in this chat on October 19.
 - [x] Implement the trial-only append request/readback and native repository recheck, with exact unchanged-anchor validation,
   original reference preservation, no clearing of holds and production-projection exclusion. 51 focused tests pass; native save remains unverified and UI/scope integration remains pending.
-- [ ] Extend trial scope/native producer to distinguish original verification date from the execution
-  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged.
+- [x] Extend Core trial scope/native producer to distinguish original verification date from the execution
+  date; require original-ID history and exact next-session/carry linkage. Older scopes stay unchanged. 217 focused checks pass; WPF original-ID capture/UI integration remains pending.
 - [ ] Expose preview and explicit carry save through the native execution setup screen; no baseline
   resave, trade replay, packet checkbox or implicit financial save during capture/preparation.
 - [ ] Validate focused/full offline tests and WPF build; commit each coherent increment. Install the

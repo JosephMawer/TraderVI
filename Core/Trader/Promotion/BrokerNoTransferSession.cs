@@ -24,6 +24,8 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     public bool FullFillOnlyNativeTrial { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DateTimeOffset? PurchaseExpiresAt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerTrialCarryForward? TrialCarry { get; init; }
     public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 &&
         OpeningSales.All(s => IsVerifiedOpeningSale(s, CashOnlyAnchor)) &&
         OpeningSales.Select(s => s.Intent.RequestId).Distinct().Count() == 2 &&
@@ -41,7 +43,15 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     {
         ValidateAnchor();
         var bounds = calendar.GetSessionBounds(Session);
-        if (CashOnlyAnchor.SnapshotAt < bounds.OpenUtc || CashOnlyAnchor.SnapshotAt >= bounds.CloseUtc)
+        if (TrialCarry is { } carry)
+        {
+            carry.Validate(calendar);
+            if (!LimitedFirstSessionTrial || !FullFillOnlyNativeTrial || carry.Session != Session ||
+                carry.Baseline.BindingId != BindingId || carry.Baseline.BaselineId != BaselineId ||
+                carry.ReviewedAt > ApprovedAt || BrokerAccountImport.Hash(carry.OriginalAnchor) != BrokerAccountImport.Hash(CashOnlyAnchor))
+                throw new InvalidOperationException("The next-session scope must preserve its exact original anchor and explicitly saved trial carry.");
+        }
+        else if (CashOnlyAnchor.SnapshotAt < bounds.OpenUtc || CashOnlyAnchor.SnapshotAt >= bounds.CloseUtc)
             throw new InvalidOperationException("The scoped cash-only anchor must belong to its reviewed regular session.");
         if (LimitedFirstSessionTrial && PurchaseExpiresAt != bounds.CloseUtc)
             throw new InvalidOperationException("Limited-trial purchase permission must end at the reviewed regular close.");
@@ -51,6 +61,10 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
         if (ScopeId == Guid.Empty || BindingId == Guid.Empty || BaselineId == Guid.Empty ||
             ApprovedAt < CashOnlyAnchor.CheckedAt || string.IsNullOrWhiteSpace(ApprovedBy) ||
             FullFillOnlyNativeTrial && !LimitedFirstSessionTrial ||
+            TrialCarry is not null && (!LimitedFirstSessionTrial || !FullFillOnlyNativeTrial ||
+                TrialCarry.Session != Session || TrialCarry.Baseline.BaselineId != BaselineId ||
+                TrialCarry.Baseline.BindingId != BindingId ||
+                BrokerAccountImport.Hash(TrialCarry.OriginalAnchor) != BrokerAccountImport.Hash(CashOnlyAnchor)) ||
             string.IsNullOrWhiteSpace(CashOnlyAnchor.AccountId) || string.IsNullOrWhiteSpace(CashOnlyAnchor.IdentityId) ||
             CashOnlyAnchor.SnapshotAt == default ||
             LimitedFirstSessionTrial && DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(ApprovedAt.UtcDateTime)) != Session ||
@@ -83,6 +97,8 @@ public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionSc
         var now = clock.GetUtcNow(); var bounds = calendar.GetSessionBounds(scope.Session);
         var current = import.Plan.Observation; var anchor = scope.CashOnlyAnchor;
         BrokerRiskEvidence Block(string reason) => new([], null, [reason]);
+        if (scope.TrialCarry?.Fingerprint != state.TrialCarry?.Fingerprint)
+            return Task.FromResult(Block("The exact saved next-session carry does not match this trial scope. New buys stay stopped."));
         if (scope.ApprovedAt > now || state.BaselineId != scope.BaselineId || state.BindingId != scope.BindingId ||
             import.BindingId != scope.BindingId || state.TradingDate != scope.Session ||
             now < bounds.OpenUtc || now >= bounds.CloseUtc || state.Through < anchor.SnapshotAt ||
@@ -115,6 +131,6 @@ public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionSc
             Scope = scope, Current = BrokerAccountImport.FinancialFingerprint(current), ExpectedCash = expected,
             OwnedOrders = ownedOrders.Select(o => new { o.ExternalId, o.Side, o.SecurityId, o.Quantity }) });
         return Task.FromResult(new BrokerRiskEvidence([], new(scope.BindingId, state.Through, current.SnapshotAt,
-            now, BrokerNoTransferSessionScope.Contract, hash), []));
+            now, scope.TrialCarry is null ? BrokerNoTransferSessionScope.Contract : BrokerTrialCarryForward.Contract, hash), []));
     }
 }
