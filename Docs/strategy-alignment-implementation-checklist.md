@@ -209,11 +209,16 @@ returns are negative and no automatic-execution qualification follows. [Current 
   and StrategyEvaluated at 15:20:59 Toronto, revision four/Active, through the hash-verified bounded
   15:22:03 installed read. No saved blocks/automatic orders/positions. This is initial activation/
   evaluation, not actual automated submission/fill or sustained operation.
-- [ ] Observe sustained host cadence, any actual automatic order/protection lifecycle and the reviewed
-  close cutoff. Preserve original IDs on uncertainty; no next-day buying renewal is authorized.
-  Operator authorizes read-only five-minute close watch, final report by 16:15 Toronto/self-removal.
-  The hash-verified 15:53:35 read confirms evaluations through 15:51:20/revision 40/Active, no saved
-  blocks/automatic orders. Exact close observation remains pending; no control changes/probe trade.
+- [x] Observe October 20 session cadence through close: hash-verified 16:04:27 installed read finds
+  sixteen evaluations from 15:20:59 to 16:00:00.470/revision 49, gaps 67.79–234.20 seconds, mean
+  156.04 seconds; pre-close evaluations have no saved account blocks. This is not sustained capacity
+  proof or guaranteed 30-second execution cadence.
+- [x] Observe native cutoff enforcement: 16:00:00.148 account synchronization records expired scoped
+  permission/new-buy-stop blocks, retained through final evaluation; exact 16:00 saved expiry,
+  zero automatic orders/positions or post-cutoff buy intents at 16:04:27. Requested watch completed/
+  heartbeat deleted. No attempted rejected-buy was exercised and no controls were changed.
+- [ ] Observe actual automatic submission/fill/populated protection in a separately authorized
+  session; preserve original IDs on uncertainty. This trial grants no next-day buying renewal.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.

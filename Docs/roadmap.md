@@ -131,13 +131,15 @@ Operator subsequently enables the exact host; permission creation is observed at
 After the first paper wait, the hash-verified 15:22:03 installed read shows synchronization,
 activation/protection handover and StrategyEvaluated at 15:20:59, revision four/Active, no saved
 blocks/automatic orders/positions. Initial activation/evaluation are verified. Next sustained
-cadence, any actual order lifecycle/protection and reviewed-close expiry observations; no forced
-trade or next-day buying renewal follows. Original rejection
+cadence and cutoff are subsequently verified below; actual automatic order/populated protection
+paths remain unexercised. No forced trade or next-day buying renewal follows. Original rejection
 predicate remains unproven; successful approval is not full-production qualification.
-Operator authorizes read-only monitoring through today's close: same-chat five-minute heartbeat,
-final check/report by 16:15 Toronto and self-removal. The 15:53:35 installed read verifies ongoing
-evaluations through 15:51:20/revision 40/Active, no saved blocks or automatic orders. Next inspect
-cutoff evidence and report its limits; no trading-control mutation or forced probe order.
+Authorized close watch completes with a hash-verified installed read at 16:04:27: sixteen saved
+evaluations through 16:00:00.470/revision 49, 67.79–234.20-second gaps, pre-close evaluations unblocked.
+Native expired-scope/new-buy-stop blocks are recorded at 16:00:00.148; exact 16:00 expiry and zero
+automatic orders/post-cutoff buy intents. Heartbeat deleted, no financial/control mutation. Next
+retain the trial's limitations: no attempted rejected-buy or populated order/protection proof,
+remaining display/performance work and no next-day renewal under this accepted contract.
 
 Use the operator's normal `master` checkout/`dotnet run --project TraderVI.WPF -c Release` workflow
 going forward; no further full artifact copies are needed. The normal Release output now has all

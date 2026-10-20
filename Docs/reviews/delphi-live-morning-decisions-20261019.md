@@ -1232,3 +1232,28 @@ no post-close strategy evaluation or automatic NewBuysStopped flag change is req
 pauses trial entries after expiry and checks again before reserving a BUY intent. Observed absence
 of post-cutoff orders is not proof that an attempted buy was rejected; do not generate a probe order.
 If native status/authentication or installed helper access fails, report the precise monitoring gap.
+
+### Final close observation and monitor completion — October 20, 16:04 Toronto
+
+The final installed helper read completes at 16:04:27; its submitted query hash is verified. All
+sixteen StrategyEvaluated records span 15:20:59.887–16:00:00.470, latest revision 49/Active. The
+fifteen gaps range 67.790–234.198 seconds, mean 156.039 seconds. Pre-close evaluations have no saved
+account blocks; this confirms progressing native evaluations, not a 30-second cadence guarantee
+or longer-run capacity/profitability. The account display's earlier refresh failure remains a
+separate unresolved display/read path observation.
+
+At 16:00:00.148 AccountSynchronized records expiry-related blocks: the trial carry cannot qualify
+production/older scopes, ordinary full cash coverage is unqualified, and the supervised scope is
+expired with new buys stopped. LiveProtectionPrepared at 16:00:00.434 and StrategyEvaluated at
+16:00:00.470 retain those blocks. Current account observation is 15:59:59.761; saved purchase expiry
+is exactly 16:00 Toronto. There are zero automatic orders/positions and zero new post-cutoff buy
+intents in the saved original-order list. Thus native expiry/new-risk blocking was actually
+observed across the boundary; no attempted rejected purchase or populated protective path was
+exercised. No probe trade, financial reference reset or permission change is needed or performed.
+
+The obsolete preparation/temporary close-watch heartbeat is deleted after this adequate post-close
+verification. Private comparison state and the final read path/hash/metrics are saved under the
+existing setup-wait artifact folder. Project status/roadmap/checklist/register are reconciled.
+New buying has no next-day renewal under this accepted trial. Actual automatic order/fill/populated
+protection, longer-run cadence/capacity and separate display/history-cost follow-ups remain open.
+No app restart/build, native SQL rehearsal, order, host/buying-control or financial mutation ran.

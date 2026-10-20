@@ -1,21 +1,24 @@
 # TraderVI Project Status
 
-**Close watch requested, October 20:** the operator explicitly requests read-only monitoring through
-today's close and verification of the 16:00 new-buy cutoff. The existing obsolete preparation
-heartbeat is updated to this chat's five-minute close watch, final bounded report by 16:15 Toronto,
-then delete itself. The hash-verified 15:53:35 installed read confirms continued StrategyEvaluated
-at 15:49:57/15:51:20, revision 40/Active, current synchronized account, no saved blocks/automatic
-orders/positions. The screenshot's stale account display is not proof of a stalled execution path.
-Cutoff/continued cadence observations remain pending; monitoring changes no financial controls.
+**October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy
+evaluations run from 15:20:59 through 16:00:00.470, latest revision 49/Active. Gaps are 67.79–234.20
+seconds (mean 156.04), not a guaranteed 30-second cadence. Pre-close evaluations have no saved
+account blocks. At 16:00:00.148, native synchronization records the expired scoped permission and
+"New buys stay stopped"; final protection/evaluation records retain those blocks. Saved purchase
+expiry is exactly 16:00; no automatic orders/positions or post-cutoff buy intents are present.
+Native cutoff blocking is observed; an attempted rejected order/populated protection path was not
+exercised. The requested close watch is complete and its heartbeat deleted. No trading control,
+financial reference, order or application state was changed by monitoring. Display refresh failure
+remains distinct from the progressing execution path; next-day buying is not authorized.
 
 **Host enabled and initial native evaluation verified, October 20:** operator enable confirmation
 and local permission-file creation at **15:19:37 Toronto** are observed, one responding normal-output
 owner (PID 118432). The hash-verified bounded follow-up read at 15:22:03 verifies account synchronization,
 protection handover/activation at **15:20:59 Toronto**, LiveProtectionPrepared and StrategyEvaluated
 through revision four/Active. No saved account blocks, automatic orders or positions. Initial
-activation/evaluation are verified; sustained cadence, actual automatic submission/fill/protection
-and close behavior remain unverified. Keep app/account connected, inspect current host/order status,
-preserve original IDs and the accepted October 20 16:00 purchase cutoff; no next-day renewal.
+activation/evaluation are verified; observed session cadence and cutoff are subsequently verified
+above. Actual automatic submission/fill/populated protection and longer-run capacity remain unverified.
+Preserve original IDs/references and the accepted cutoff; no next-day renewal.
 
 **Assignment approval saved, October 20:** the operator screenshot now explicitly confirms execution
 approval saved, approved Normal, Transition state, buying subject to current risk checks and automatic

@@ -1,13 +1,22 @@
 # Delphi Live Normal native qualification — October 19
 
-**Current decision: October 20 assignment/host enabled; native initial activation and strategy evaluation verified. Sustained/order/close behavior remains unverified. October 19 permission remains expired.**
+**Current decision: October 20 native activation, sixteen evaluations and close-time new-risk blocking verified. Buying scope expired at 16:00; no next-day renewal. Automatic order/populated protection paths remain unexercised.**
+The final hash-verified installed read at 16:04:27 Toronto observes sixteen evaluations from
+15:20:59 through 16:00:00.470, revision 49/Active. Gaps 67.79–234.20 seconds, pre-close evaluations
+have no saved account blocks. Native synchronization at 16:00:00.148 records expired scoped
+permission and new-buy-stop blocks retained through final evaluation. Exact saved 16:00 expiry,
+zero automatic orders/positions and no post-cutoff buy intents are observed. This establishes
+native expiration blocking and observed absence of orders, not an attempted rejected purchase.
+Monitoring heartbeat is deleted; no trading control/reference/order changed. Display refresh and
+longer-run performance issues remain separate from this progressing execution path.
 The latest operator screenshot confirms host enabled for the reviewed assignment. Permission file
 creation is independently observed at 15:19:37 Toronto; normal-output owner PID 118432 responds.
 The first read at 15:20:23 showed only Transition while host waited for admitted paper work. The
 hash-verified follow-up at 15:22:03 verifies AccountSynchronized, protection handover/activation,
 LiveProtectionPrepared and StrategyEvaluated at 15:20:59, revision four/Active. No saved account
 blocks, automatic orders or positions. Initial activation/evaluation are established; no actual
-automated submission/fill or sustained operation is claimed. Next cadence/order/close observation.
+automated submission/fill or sustained capacity is claimed. Session cadence/close observations are
+subsequently recorded above; populated financial paths remain unexercised.
 After desktop correction/restart, the latest screenshot explicitly confirms approved Normal,
 Transition, buying subject to current risk checks, automatic trading off and execution approval
 saved/no order sent. One normal-output owner (PID 118432), corrected UI/original Core hashes, packet

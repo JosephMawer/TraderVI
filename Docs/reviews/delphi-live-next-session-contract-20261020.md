@@ -1,11 +1,18 @@
 # Delphi Live Normal — accepted October 20 first execution session
 
-**Status: October 20 review/all nine references, assignment/host enable and native initial activation/evaluation verified. Sustained/order/close behavior remains unverified.**
+**Status: October 20 trial activation/evaluation/cutoff observations complete. Buying scope expired at 16:00; no next-day renewal. Actual automatic order/populated protection paths remain unexercised.**
+Final hash-verified installed read at 16:04:27 Toronto shows sixteen evaluations through
+16:00:00.470/revision 49; gaps 67.79–234.20 seconds and no saved account blocks on pre-close
+evaluations. Native account synchronization at 16:00:00.148 records expired-scope/new-buy-stop
+blocks retained through final evaluation. Saved expiry exactly 16:00, zero automatic orders/
+positions or post-cutoff buy intents. No attempted rejected purchase was generated. The temporary
+watch is deleted; monitoring did not alter host permissions, records or financial controls.
 Host enable confirmation is supplied by the operator; permission file creation is observed at
 15:19:37 Toronto. The first read shows Transition while waiting for paper work. The hash-verified
 follow-up read at 15:22:03 confirms activation/protection handover and StrategyEvaluated at 15:20:59,
 revision four/Active, no saved blocks/automatic orders/positions. Next sustained cadence, any actual
-orders/protection and the reviewed close. The accepted cutoff/limitations and original records remain.
+orders/protection remain unexercised; session cadence/reviewed close are subsequently verified above.
+The accepted limitations and original records remain.
 The latest operator screenshot confirms approved Normal, Transition, buying subject to current risk
 checks, automatic trading off and execution approval saved/no order sent. One corrected normal-output
 owner (PID 118432), exact UI/original Core hashes, packet present/host permission absent are verified.
@@ -155,7 +162,11 @@ the separate operator step below.
 - [x] Verify initial native synchronization, protection handover/activation and strategy evaluation
   through revision four/Active at 15:20:59 Toronto; hash-verified installed follow-up read, no saved
   blocks/automatic orders/positions. No actual automated submission/fill is claimed.
-- [ ] Observe sustained cadence, any actual order/protection lifecycle and reviewed close expiry.
+- [x] Observe session cadence and native reviewed-close new-risk blocking through the 16:04:27
+  installed read: sixteen evaluations, zero automatic orders/positions, exact expiry and native
+  expired-scope/new-buy-stop blocks. Temporary heartbeat deleted, no control changes.
+- [ ] Actual automatic order/populated protection paths and longer-run capacity remain unverified;
+  no next-day buying renewal follows this trial.
 
 ## Operator sequence
 
