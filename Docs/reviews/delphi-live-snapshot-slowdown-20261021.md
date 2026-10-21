@@ -58,6 +58,21 @@ five-minute capacity, uninterrupted continuity, order activity and cutoff verifi
 
 ## Installation and acceptance
 
+**Second full cycle and uninterrupted early warmup,14:17–14:18:** second full cycle finishes14:15:56
+in265.13s/Actions120.99s. Actual evaluation advances14:16:03/revision196/profile1, consuming37symbols'
+14:10bar. Durable targetinputs333 through14:10/latestrecord14:13:55; selectedsource14:16:55,
+sessionMonitoring/onelease14:16:31. Stock and benchmark continuity remain epoch13/start14:05,
+30/37on-time, zero mature/confirmed; two endpoints are early warmup, not20minute acceptance.
+Zeroorders/positions/holds/savedblocks; same16:00expiry. No application failure newer than13:43:22
+observed. RespondingPID97192 samples2,231MiBworking set/2,607MiBprivate memory; one sample does not
+establish a leak or steady-state bound. Receipts:
+`result-20261021T181708433Z-d98a9c4760ab41f4adb5f9ac2e494af4.json` (progress) and
+`result-20261021T181804259Z-dcd0ec6421464c3481a4d017fb6cc4b1.json` (continuity). Continue the existing
+read-only five-minute watch through close. Alert on a new post-build deadline/reset, over10minute
+real-evaluation stall or other meaningful blocker/order activity. Verify later on-time bars under
+the same epoch and actual mature signal families before accepting sustained recovery; do not force
+orders or change any confirmation/data/financial rule. This remains the open native dependency.
+
 **First new-build real execution verified14:13:** user reports updated-build approval/enable.
 One responding standard-Release ownerPID97192 starts14:02:38; all12reviewed source/runtime hashes
 match. Durable ImplementationReviewed is revision190/14:06:29; new effective Core identity matches.

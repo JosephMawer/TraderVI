@@ -19,8 +19,9 @@ The September 22 documentation cleanup preserves the
 - [x] Operator starts normally, signs in, reviews/approves the exact updated build and enables
   separately.14:13read proves build approval14:06:29/first real14:11:23/revision193; original risk,
   source/signal/financial history and16:00expiry preserved, zeroorders/holds/blocks.
-- [ ] Verify sustained native continuity/latency before claiming recovery. First fullcycle283.69s
-  improves earlier observations, but first execution alone does not prove five-minute capacity.
+- [ ] Verify sustained native continuity/latency before claiming recovery. First two fullcycles283.69/
+  265.13s improve earlier observations; real14:16:03/revision196 and epoch13/start14:05 verified14:18.
+  No post-build failure observed, but20minute maturity/sustained capacity remain open under the watch.
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.

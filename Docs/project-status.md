@@ -11,9 +11,11 @@ approval/expiry/recovery checks pass. Operator normal stop/closure confirmed; ze
 125output hashes recorded, Core copy matches. Operator startup/review/approval/enable are now reported;
 14:13read verifies revision190/build approval14:06:29 and first new-build real evaluation14:11:23/
 revision193/Active/profile1; PID97192/12source-runtime hashes match. Original scope/risk/history/
-signal memory/16:00expiry preserved; zeroorders/positions/holds/blocks. First full cycle283.69s is
-faster than preceding observations but still near five minutes; sustained native capacity/continuity
-remain unverified. No app launch, financial approval or trading action was performed by the agent.
+signal memory/16:00expiry preserved; zeroorders/positions/holds/blocks. First two full cycles283.69/
+265.13s improve earlier observations.14:17read proves next real14:16:03/revision196 consumes14:10bar;
+14:18metadata preserves epoch13/start14:05,30/37on-time/zero mature. No post-build failure observed,
+but sustained capacity/20minute continuity remain unverified; existing five-minute watch continues.
+No app launch, financial approval or trading action was performed by the agent.
 The 13:58 read verifies real evaluation13:52:53/revision186/profile1, zero orders/positions/holds/
 blocks, same16:00expiry. Diagnostics additionally show the known52232deadline recurring13:43:22;
 13:59metadata verifies epoch12/13:45continuity and zero mature symbols. The same slowdown remains

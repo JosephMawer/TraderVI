@@ -25,8 +25,10 @@ Final offline validation: 2,821 Core pass/nine native skips/Debug WPF pass. Oper
 confirmed; zero owners14:00:57/14:01:12. Release from484f8cff installs14:02/zero errors/125hashes/
 matching Core. Operator startup, build approval14:06:29 and separate enable are followed by verified
 real14:11:23/revision193/newbuild/profile1/PID97192/matchinghashes. Original financial/signal history
-and16:00expiry preserved; zeroorders/holds/blocks. First fullcycle283.69s improves earlier observations
-but sustained capacity/continuity remain pending;
+and16:00expiry preserved; zeroorders/holds/blocks. Two fullcycles283.69/265.13s improve earlier
+observations; next real14:16:03/revision196 consumes14:10bar, epoch13/start14:05 verified14:18.
+No post-build appfailure observed; sustained capacity/20minute continuity remain pending and the
+existing five-minute read-only watch continues;
 older SQL-save retry draft is still excluded. [Owning evidence/acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md).
 Source review point advances through13:58–13:59heartbeat: real13:52:53/revision186, zeroorders/holds/
 blocks/same16:00; another known52232occurrence13:43:22 and epoch12/start13:45/zero mature are recorded
