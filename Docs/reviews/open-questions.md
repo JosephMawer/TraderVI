@@ -16,8 +16,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   established; lock contention versus slow execution is not. Do not conflate this with the older
   import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
 - **Distinct recurring failure:** safe diagnostics subsequently record SQL52232 in observation-set
-  synchronization at10:43:05 and11:07:47, enforcing the existing seven-minute collection deadline.
-  Real execution recovers10:52:16 and11:16:46 after roughly12-minute gaps. The later paper-actions
+  synchronization at10:43:05,11:07:47 and11:37:51, enforcing the existing seven-minute collection deadline.
+  Real execution recovers10:52:16,11:16:46 and11:46:51 after roughly12-minute gaps. The 11:16 paper-actions
   stage lasts138.85s; the original cause of arriving late remains unresolved. Investigate this
   separately from SQL-2; the partial evaluation-save retry does not establish a deadline correction.
 - **Deferred October 21:** operator requests a focused correction, then defers it to tonight to

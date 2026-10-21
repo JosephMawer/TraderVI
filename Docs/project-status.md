@@ -2,6 +2,14 @@
 
 ## October 21 post-open execution watch
 
+**Latest execution read 11:49:25 Toronto:** revision131/Active/StrategyEvaluated at11:46:51,
+27real evaluations,no saved execution blocks/orders/fills/positions,same16:00expiry. Safe local
+diagnostics identify a third observation deadline error52232 at11:37:51; real evaluations gap from
+11:34:43 to11:46:51 (roughly12m8s) and recover before this read. Source advances11:46:33;
+2,109paper evaluations/latest11:44:14,one current lease11:47:12,responding desktop/matching hashes.
+Recurrence/recovery is distinct from the daily Breadth admission finding below; no operational or
+control changes. Receipt: `result-20261021T154924844Z-af54c8ad20ae45dcb7f131ddbfda02da.json`.
+
 **No-buy cause established by bounded reads 11:43–11:46 Toronto:** today's latest adopted source
 for the approved Normal comparison contains 35 published stocks (50 lens entries); **zero are
 admitted by Normal**. Every published lens entry is ineligible with first failure **Breadth**.

@@ -18,6 +18,12 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 third deadline recovery (R04):**11:49 hash-verified read confirms real recovery11:46:51/
+revision131/27evaluations after12m8s gap;safe diagnostic52232 at11:37:51. No orders/saved execution
+blocks,unchanged16:00expiry;desktop/hashes match. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through this heartbeat; recurrence/recovery reported once, no controls
+or deferred code changed. Daily Breadth remains a separate established admission issue.
+
 **October 21 no-buy cause clarified (R04):** user asks the main reason for no purchases. Bounded
 11:43–11:46 reads establish zero Normal daily admission:35published stocks/50lens entries, all
 first fail Breadth. All saved Normal inputs lack DailySetup; momentum confirmations in the monitored

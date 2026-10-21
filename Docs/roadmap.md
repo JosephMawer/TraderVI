@@ -57,6 +57,8 @@ at 10:52:16 after roughly 12½ minutes. The same deadline failure recurs at 11:0
 11:16 follow-up confirms another recovery at 11:16:46 after roughly twelve minutes, still no orders.
 Include this distinct recurring deadline failure in tonight's investigation; the SQL-2 retry draft
 does not establish its correction. The fix stays deferred and controls remain.
+The11:49 check verifies a third52232 occurrence11:37:51 and real recovery11:46:51 after another
+roughly12-minute gap,27real evaluations/no orders; sustained reliability remains unresolved.
 The 11:46 no-buy analysis establishes a separate primary gate: Normal admits zero of today's35
 published stocks; all50 lens entries first fail Breadth. Intraday momentum confirmation alone cannot
 authorize a purchase. Earlier confirmation-only explanations are incomplete; preserve the approved
