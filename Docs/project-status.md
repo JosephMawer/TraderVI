@@ -1,5 +1,12 @@
 # TraderVI Project Status
 
+**October 20 evening understanding check:** the operator requests a separate execution-status icon
+and buying-permission UI review. Static inspection finds existing Off/Waiting/Running/Paused/Blocked
+host states, a short desktop label and tooltip-only reason; Running does not establish permission
+to buy. Scope and any next-morning-start semantics remain open in the
+[follow-up record](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
+No implementation, runtime verification or financial authority follows from this discussion.
+
 **October 21 continuation accepted and implemented in source, October 20:** after clarifying that
 original order-ID readback does not restrict which eligible stocks Normal may buy, the operator
 explicitly accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).

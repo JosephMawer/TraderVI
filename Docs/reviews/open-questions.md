@@ -5,6 +5,25 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Real TFSA execution status and permission UI — October 20, 2026
+
+- **Requested follow-up:** in a separate session, review a visible icon plus plain-language status
+  for real-account automatic execution and simplify the buying-permission screen. Agree the small
+  presentation scope before implementation; the understanding-check conversation continues separately.
+- **Static finding:** `BrokerExecutionHost` reports Off, Waiting, Running, Paused and Blocked.
+  `WealthsimpleAccountPanel.SetExecutionHostStatus` displays a short label with the reason in a
+  tooltip. Running can accompany blocked new purchases; Waiting covers several different causes.
+  A useful presentation should distinguish saved host enablement, observed activity/freshness,
+  buying permission/expiry and the reason purchases cannot proceed. A saved grant alone is not
+  evidence that a cycle is currently running.
+- **Open design question:** the operator suggested a possible state meaning automatic start next
+  morning. No scheduling or new trading authority is agreed. Inspect existing restart/wait behavior
+  before proposing labels; October 21 still requires fresh native review, manual dated approval and
+  separate host enable. Do not present an expired grant as tomorrow's readiness or extend the cutoff.
+- Keep changes based on actual findings, preserve financial history and all existing controls, and
+  validate offline. Coordinate normal closure before replacing loaded standard Release output.
+  This records a request and open questions, not an implemented UI or broker verification.
+
 ### Obsolete generated build copies — October 20, 2026
 
 - **Operator preference:** normal checkout/Release output and `dotnet run` are the default; avoid

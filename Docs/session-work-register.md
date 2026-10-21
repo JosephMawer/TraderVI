@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 20 evening understanding-check follow-up (R04):** the operator requests a separate
+execution-status icon/buying-permission UI session while continuing the understanding discussion.
+Existing host states/tooltip presentation were inspected statically; presentation scope and a
+possible next-morning-start state are unresolved, with no new automatic-start authority. Resume at
+the [request/open questions](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
+Source review point: this conversation, through the host-enable explanation and requested UI handoff;
+the remaining original-order/risk/current-account and tomorrow-step discussion is still pending.
+
 IDs are stable references, not a new implementation order. A source/test milestone does not imply
 installation, continuous operation or trading readiness. Dates below describe recovered evidence;
 the original consolidation performed no fresh operational qualification. The October 17 research
