@@ -18,6 +18,8 @@ reliability and lower actual-host latency remain unproved.
 15:23diagnosis verifies two transient confirmations15:16, then zero15:22 as momentum weakens;
 zeroorders/holds. Lower host latency and visibility of quote/recommendation rejection reasons remain
 open. Preserve the existing15:45strategy entry cutoff and16:00outer purchase permission.
+At15:52entry window has ended; zeroorders, real progression verified through15:48. Complete final
+16:05bounded read and remove today's heartbeat without extending execution permission.
 Preserve the approved Portfolio
 rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
 capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.

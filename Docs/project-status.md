@@ -23,6 +23,10 @@ Actual host lag remains material: latest15:15bar is7m15s old at the quote-stage 
 existing7minute freshness allowance. Earlier confirmed signals fit one share at saved bar prices;
 their native quote/recommendation outcomes are not persisted, so their lack of orders is unresolved.
 Existing strategy entry cutoff15:45 and outer purchase permission16:00 both remain unchanged.
+15:52watch verifies real15:48:25/revision253/21new-build evaluations,26mature/two confirmed on
+15:40bar; zeroorders/positions/holds/savedblocks. Entry window has ended; final16:05read remains.
+One responding owner/all12hashes match, source/inputs/lease advance; historicalBlockedcoverage and
+residual latency remain. This is no attempted-order cutoff test.
 No app launch, financial approval or trading action was performed by the agent.
 The 13:58 read verifies real evaluation13:52:53/revision186/profile1, zero orders/positions/holds/
 blocks, same16:00expiry. Diagnostics additionally show the known52232deadline recurring13:43:22;

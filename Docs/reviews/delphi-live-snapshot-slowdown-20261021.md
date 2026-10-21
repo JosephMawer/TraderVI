@@ -58,6 +58,19 @@ five-minute capacity, uninterrupted continuity, order activity and cutoff verifi
 
 ## Installation and acceptance
 
+**15:52 through-close watch:** actual execution advances to15:48:25/revision253,21real evaluations
+after the updated-build approval. Actual15:40bar has26mature/two confirmed signals, but the existing
+15:45strategy entry window has now ended and this observed bar is already8m25s old at saved
+evaluation. No automatic orders, fills, managed/protected positions or saved risk/attention blocks.
+Original source approval, reviewed build and16:00outer expiry remain; original financial controls
+preserved. Selected source advances15:52:03,1,036target inputs through15:45/latestrecord15:51:13,
+onelease15:51:08. One responding standard-Release owner97192/all12expected hashes match15:52;
+failure diagnostic file remains last updated13:43:22. Historical coverage remains Blocked/host gap.
+This is no attempted-order cutoff test or proof of every transient native quote outcome. Entry-window
+milestone notified once; final bounded16:05read and heartbeat deletion remain pending. Receipt
+result-20261021T195214502Z-b4a7b2c580fb44fabe494c1661235da2.json, combined reviewed
+BoundedRecoveryWatch/ReviewRead SQL hash50668B271C49635C2D940082A7D0BF2D26955D91C3ACD585F53C3D130C943AFB.
+
 **15:16–15:23 no-buy diagnosis:** actual15:16:03/revision235 consumes15:10bar,24/37mature.
 Two published daily-admitted signals are ConfirmedLiveEligible/StrongConfirmationCompleted/streak2;
 three more published signals have first Strong/streak1. One additional completed confirmation is

@@ -29,6 +29,8 @@ The September 22 documentation cleanup preserves the
   existing7minute signal freshness allowance at15:22; lower host latency remains open. Prior
   confirmed signals fit one share at saved closes, but native quote/recommendation outcomes are
   not persisted. Existing15:45strategy entry cutoff and16:00outer permission remain unchanged.
+  15:52watch: real15:48:25/revision253/21new-build evaluations/26mature/two confirmed/zeroorders,
+  positions/holds/savedblocks; owner/all12hashes match. Entry window ended; final16:05read pending.
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.

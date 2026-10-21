@@ -36,6 +36,9 @@ at saved closes, but native quote/recommendation outcomes are not persisted; no 
 cause. Preserve15:45strategy entry cutoff plus16:00outer permission. R04/R08 lower host latency and
 quote/recommendation rejection visibility remain unresolved; source review point includes these reads;
 older SQL-save retry draft is still excluded. [Owning evidence/acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md).
+Source review point includes15:52watch: real15:48:25/revision253/21new-build evaluations,
+26mature/two confirmed on15:40bar, zeroorders/positions/holds/savedblocks; owner/all12hashes match.
+Existing15:45entry window ended;16:00outer permission unchanged; final16:05read/deletion pending.
 Source review point advances through13:58–13:59heartbeat: real13:52:53/revision186, zeroorders/holds/
 blocks/same16:00; another known52232occurrence13:43:22 and epoch12/start13:45/zero mature are recorded
 in the owning report. Source review point includes operator closure,14:02installation and14:13native
