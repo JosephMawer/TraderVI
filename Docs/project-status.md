@@ -2,6 +2,21 @@
 
 ## October 21 post-open execution watch
 
+**Post-switch input consumption recovery verified, 13:02 Toronto:** bounded hash-verified read
+confirms realStrategyEvaluated12:57:33/revision156/Active/profile1, no automatic orders/positions/
+saved blocks or financial holds, same16:00expiry. Actual strategy memory has processed37symbols
+through the **12:50bar**, after12:43:10 source approval; **zero mature/confirmed-eligible symbols**.
+Target-policy durable inputs resume37records for12:50bar saved12:54:27, then74total post-approval
+inputs through12:55bar saved13:00:47. Latest real check precedes that newer12:55batch; do not claim
+it consumed the newer batch. Selected source advances13:02:33; sessionMonitoring/onelease renews
+13:00:43, historicalBlocked coverage retained. One responding owner and expected hashes verified
+at earlier bounded check in this wake; no newer app failure than12:47:13 is observed. Notify actual
+input-processing recovery once, retain pending warmup/confirmation and sustained-reliability limits.
+The preceding successful LiveEngine cycle takes372.33s and paperActions172.49s; latency remains.
+No code/control/restart/trading action. Receipts:
+`result-20261021T165726129Z-db242b0c2ab84da496af5b9b950f96f7.json` (BoundedWatch.sql) and
+`result-20261021T170248244Z-2bf08ecd111343d5906044e163ff3e26.json` (BoundedRecoveryWatch.sql).
+
 **Post-switch fresh-input blocker, 12:50–12:51 Toronto:** narrow hash-verified read shows real
 StrategyEvaluated12:47:27/revision150/Active/profile1, zero automatic orders/positions/saved blocks,
 no daily/capital holds and unchanged16:00expiry. One normal Release ownerPID39964 responds and

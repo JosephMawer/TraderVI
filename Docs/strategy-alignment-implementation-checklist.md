@@ -25,8 +25,9 @@ The September 22 documentation cleanup preserves the
   16:00cutoff and first real evaluation12:43:34/revision147. Zero orders/fills/positions at12:44.
 - [ ] Verify fresh post-approval market inputs and sustained real progression; continue watching
   meaningful orders/fills/protection, blockers and close expiry. First check is not sustained proof.
-  12:51target input count remainszero after12:47SQL52232; real check advances12:47:27/revision150,
-  with no orders/positions/risk holds/saved blocks and same16:00cutoff. Data recovery still pending.
+  Recovery verified13:02: real12:57:33/revision156 consumes37post-approval12:50bar inputs, all
+  immature/unconfirmed.74target inputs nowthrough12:55bar; newerbatch not yetproved consumed.
+  Zeroorders/positions/holds/savedblocks,same16:00cutoff; sustainedfreshness/confirmation pending.
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **October21 Portfolio rules only source is

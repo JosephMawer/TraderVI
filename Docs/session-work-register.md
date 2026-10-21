@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 post-switch input recovery (R04):**13:02bounded hash-verified read confirms real
+12:57:33/revision156/profile1 has consumed37symbols'12:50bar after approval; all immature/
+unconfirmed.74target inputs through12:55bar now saved, newerbatchafterlatestrealcheck. Noorders/
+positions/holds/savedblocks,same16:00;source13:02:33/sessionMonitoring/onelease,expectedowner/hashes.
+[Owning evidence](project-status.md#october-21-post-open-execution-watch). Recovery notified once;
+continue warmup/confirmation/sustained-progress watch, preserve historicalfailures/coverage and
+eveningdeferral. Source review point advances through this heartbeat/bounded consumption proof.
+No code/control/order/restart action; preferred monitor query nowBoundedRecoveryWatch.sql.
+
 **October21 post-switch source delay (R04):**12:50narrow read confirms real12:47:27/revision150/
 profile1/zeroorders/positions/holds/savedblocks/same16:00; one responding owner/newhashes match.
 App52232 observation deadline recurs12:47:13.12:51bounded target read verifieszero post-approval
