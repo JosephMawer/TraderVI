@@ -5,6 +5,20 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Live evaluation save timeout — October 21, 2026
+
+- **Observed:** SQL timeout -2 at 09:37:46 in DelphiLiveEvaluationRepository.PersistAsync, a 30.10 s
+  stage, no initial durable five-minute evaluations and a stale Normal source. Real evaluations gap
+  from 09:32:50 to 09:45:45. Shared evaluations subsequently persist; actions add 115.53 s before
+  source/real execution recovery. Current Watching/immature/unconfirmed signals also explain no
+  orders after recovery. [Current evidence](../project-status.md#october-21-post-open-execution-watch).
+- **Unresolved:** exact database wait/blocking/plan cause and repeatability. Timeout location is
+  established; lock contention versus slow execution is not. Do not conflate this with the older
+  import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
+- **Next:** diagnose with bounded authorized read-only SQL/process/stage evidence, then propose a
+  focused correction if warranted. No running-build replacement, native SQL rehearsal, restart or
+  operational recovery was authorized by the diagnostic question; preserve original history/holds.
+
 ### TFSA review waiting for paper work — October 20, 2026
 
 - **Recovered rationale:** the [October 19 SQL 51413 diagnosis](delphi-live-morning-decisions-20261019.md#sql-51413-and-desktop-scheduling-coordination--october-19)

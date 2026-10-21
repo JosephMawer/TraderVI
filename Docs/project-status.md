@@ -2,14 +2,26 @@
 
 ## October 21 post-open execution watch
 
-**First real execution confirmed, bounded read 09:37:24 Toronto:** hash-verified SQL evidence shows
-two real `StrategyEvaluated` events at **09:31:41 and 09:32:50**, latest revision 56/Active, matching
-today's continuation/exact 16:00 expiry, no saved execution blocks and zero automatic orders/positions.
-This proves actual post-open evaluation rather than only Armed UI or paper progress. At observation,
-today's Live session is Monitoring/Pending with no host gap and one renewing paper lease; Normal's
-latest saved update remains 09:31:23 and no five-minute paper evaluation is yet saved. Source waiting
-is possible, not an independently observed host-status cause. Continued execution freshness remains
-to be checked; no-order counts alone do not prove a failure or a qualifying trading opportunity.
+**Current bounded read 09:45:51 Toronto:** actual TFSA execution resumes at **09:45:45**, revision
+59/Active/StrategyEvaluated, matching today's continuation/exact 16:00 expiry, no saved blocks and
+zero automatic orders/positions. There are three post-open evaluations: 09:31:41, 09:32:50 and
+09:45:45. The earlier successful loop observations did not establish fresh five-minute signal inputs.
+For the approved Normal policy, all 37 latest 09:40-bar candidates are `Watching`, with
+`familiesMature=false` and no confirmed eligibility (29 on-time, eight invalid/missing/stale).
+Current no-order evidence therefore indicates no mature confirmed buy signal; sustained execution
+and automatic fills remain separate qualifications.
+
+**Technical interruption also observed:** a safe local diagnostic records SQL timeout -2 in
+`DelphiLiveEvaluationRepository.PersistAsync` at **09:37:46**; the evaluation stage lasts 30.10 s.
+At 09:41 the real revision/source are unchanged and no paper evaluation is saved; today's session
+has gained a host gap/Blocked coverage. Exact database timeout cause is not established. The next
+collection completes at 09:42:19 (38 slots: 30 usable, five NoCompletedBar, three StaleNoNewBar),
+111 shared evaluations persist by 09:42:32, and paper actions take another 115.53 s. Normal source
+advances at 09:44:19, followed by resumed TFSA evaluation after a roughly 13-minute gap. Original
+gap/coverage history is retained, not repaired by recovery. At 09:43 there is one responding normal
+desktop owner; saved daily/capital/order-review/operator-buy-stop flags do not explain the stall.
+The [timeout-cause follow-up](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026)
+is open; no code/control change, restart or timeout relaxation was performed.
 
 The operator requests same-chat after-open/blocker/order monitoring today. Heartbeat
 `delphi-live-tfsa-watch-october-21` is created/verified Active every five minutes, bounded to today,
@@ -18,9 +30,12 @@ a final cutoff report after 16:05 before self-removal (hard stop 16:15). It chan
 or orders. Reviewed SELECTs, query-hash-verified receipt
 `result-20261021T133723700Z-046ca161894d40f3baa0c29c824a8fbc.json` and notification baseline are ignored
 under `artifacts/delphi-live-watch-20261021/`. No app restart, broker/market call, financial mutation,
-model operation or trading gate change is performed by monitoring. Actual fills/protection and
-today's native cutoff observation remain pending. This documents monitoring setup and the initial
-observation, not uninterrupted progress through the day.
+model operation or trading gate change is performed by monitoring. Subsequent hash-verified reads
+and safe stage/failure evidence are in the same ignored directory; latest receipt is
+`result-20261021T134551441Z-4501242515e1475e994213d1825f5dc4.json`. The blocker/recovery and no-signal
+diagnosis are reported, with the watch baseline advanced to avoid repeating unchanged historical
+alerts. Actual fills/protection and today's native cutoff observation remain pending; continuous
+health is not established by the recovered evaluation.
 
 ## October 21 pre-open approval implementation
 

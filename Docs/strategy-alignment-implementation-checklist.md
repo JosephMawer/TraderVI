@@ -266,6 +266,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   bounded through today's close/final report/self-removal. [Scope and first evidence](project-status.md#october-21-post-open-execution-watch).
 - [ ] Observe sustained current execution, automatic order/fill behavior when eligible, and exact cutoff. Earlier all-nine-check/
   verification-restart implementation/validation above remain historical under ADR-0095.
+- [x] Diagnose the October 21 no-order question with bounded read-only evidence through 09:45:51:
+  SQL evaluation-save timeout/roughly 13-minute execution gap, then recovery at 09:45:45/revision 59;
+  all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.
+- [ ] Establish the exact SQL evaluation-save timeout cause and agree any correction before changing
+  the running system. [Open investigation](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
