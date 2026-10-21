@@ -15,6 +15,9 @@ output/source hashes are ignored under `artifacts/operator-path-simplification-2
 No app launch, native SQL rehearsal, financial save, broker/market operation or execution enable.
 No native latency improvement is claimed. October 21 review/approval/enable and actual automatic
 fills/populated protection remain unverified. ADR-0094 layout/status work is untouched.
+Follow-up explanation recovers the documented October 19 SQL 51413 lock-contention rationale for
+the remaining review/approval wait; [narrower import coordination is open](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026),
+not accepted or implemented. No new operational observation or October 21 prerequisite follows.
 
 **October 20 current-readiness amendment accepted:** the operator explicitly requests removing
 daily replay of completed broker verification. [ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md)

@@ -35,6 +35,8 @@ passes 243 focused/2,723 full offline tests (nine native skips) and the standard
 The accepted operator-path follow-up removes paper-work waits from setup opening, saved readiness
 refresh and host enable only, and corrects historical setup instructions; 274 focused offline tests
 and standard Release build pass. Review/approval/execution waits and all timing/financial controls remain.
+An [open follow-up](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026)
+questions the broad paper/import lock coupling; it is not an added October 21 prerequisite or agreed code scope.
 Next obtain actual October 21 current review, manual approval and separate host enable. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.

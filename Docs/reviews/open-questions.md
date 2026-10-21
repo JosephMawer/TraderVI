@@ -5,6 +5,26 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### TFSA review waiting for paper work — October 20, 2026
+
+- **Recovered rationale:** the [October 19 SQL 51413 diagnosis](delphi-live-morning-decisions-20261019.md#sql-51413-and-desktop-scheduling-coordination--october-19)
+  records a real contention failure: paper cycles hold a shared `TraderVI.EngineSettings` lock
+  across work; TFSA import saving requests it exclusively. Both continuation preparation and
+  approval call account synchronization, which can save the reconciled import. The desktop barrier
+  lets existing paper work drain and defers new cycles before attempting those operations. SQL
+  locks and financial validation remain authoritative; the desktop barrier helps avoid timeouts,
+  rather than establishing a financial requirement that paper accounts be idle.
+- **Current distinction:** a successful review holds desktop admission through its original
+  two-minute window and into approval. Normally approval has no second long paper wait. This
+  does not prevent other processes changing evidence or replace approval's fresh checks.
+- **Open proposal, not an accepted implementation:** investigate narrower coordination for the
+  conflicting import write, preserving account/legacy-ledger integrity, risk/reference checks,
+  order recovery and strategy/source identity. Removing the blanket wait alone can restore the
+  known lock timeout; offline concurrency validation is needed for any narrower lock contract.
+  No new code, financial authority or timing change follows from this explanation. This is not
+  an added October 21 prerequisite. Keep the current workaround until a replacement is agreed
+  and validated; do not generalize its existence into a permanent trading rule.
+
 ### Real TFSA execution status and permission UI — October 20, 2026
 
 - **Accepted scope, detailed design for review:** the operator accepts the small display/layout

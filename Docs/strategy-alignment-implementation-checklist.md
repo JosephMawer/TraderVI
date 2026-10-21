@@ -249,6 +249,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [ ] Operator performs actual October 21 current-readiness review, explicit continuation approval
   and separate host enable; observe native activation and exact cutoff. Earlier all-nine-check/
   verification-restart implementation and validation above remain historical under ADR-0095.
+- [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
+  coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
   session: Running follows an Active cycle result, purchase blockers remain independent, and shared
   account/paper waits can delay new status. No code or operational validation in this checkpoint.

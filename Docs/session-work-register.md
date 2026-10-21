@@ -27,6 +27,10 @@ operation. Source review point: this operator-process conversation through accep
 implementation/offline validation and local handoff. [Findings/tradeoffs](reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20).
 Next: actual October 21 current review, explicit approval and separate enable. ADR-0094 work and
 the separate understanding discussion below retain their own review points.
+Source review point advances through the operator's question about the remaining paper wait:
+the existing SQL 51413 contention diagnosis explains the workaround, while the successful-review
+hold normally avoids another approval wait. [Narrower import coordination](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026)
+is an open proposal only; no source/control change or new October 21 prerequisite is agreed.
 
 **October 20 evening understanding-check follow-up (R04):** the operator requests a separate
 execution-status icon/buying-permission UI session while continuing the understanding discussion.
