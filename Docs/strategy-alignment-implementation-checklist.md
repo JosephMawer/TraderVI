@@ -235,8 +235,15 @@ returns are negative and no automatic-execution qualification follows. [Current 
   c27a3cf8, output hashes recorded at 20:50 Toronto, zero running owners/no launch or copied runtime.
   Source/offline checks do not qualify actual October 21 recovery or financial approval; all nine
   checks/close expiry remain. [Manual steps](running.md#october-21-only-normal-continuation).
-- [ ] Operator performs actual October 21 native current-build recovery, reviewed continuation
-  approval and separate host enable; observe native activation and exact cutoff for this date.
+- [x] Accept the current-readiness simplification: completed broker tests stay development evidence,
+  with no new daily qualification packet/test-ID qualification reread/verification restart (ADR-0095).
+- [x] Validate/build the changed current-account/risk/source/storage/dated-permission review and
+  original-request recovery: 243 focused/2,723 full serial offline passes, nine native SQL skips;
+  normal WPF Release passes after zero running owners are independently checked. No app launch,
+  SQL rehearsal/migration or broker action. Preserve all financial history and execution controls.
+- [ ] Operator performs actual October 21 current-readiness review, explicit continuation approval
+  and separate host enable; observe native activation and exact cutoff. Earlier all-nine-check/
+  verification-restart implementation and validation above remain historical under ADR-0095.
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
   session: Running follows an Active cycle result, purchase blockers remain independent, and shared
   account/paper waits can delay new status. No code or operational validation in this checkpoint.

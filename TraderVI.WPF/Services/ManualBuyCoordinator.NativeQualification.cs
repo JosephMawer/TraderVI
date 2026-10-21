@@ -16,10 +16,8 @@ namespace TraderVI.WPF.Services;
 
 public sealed partial class ManualBuyCoordinator
 {
-    private static string ContinuationQualificationPath => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(HostGrantPath)!,
-        "execution-qualification-20261021-" + BrokerAccountImport.Hash(BrokerManagedSessionComposition.ImplementationIdentity)[..16] + ".dat");
-    private BrokerNativeTrialEvidenceFileStore NativeTrialEvidence(bool continuation = false) =>
-        new(continuation ? ContinuationQualificationPath : ExecutionQualificationPath, new WindowsManualBuyProtector());
+    private BrokerNativeTrialEvidenceFileStore NativeTrialEvidence() =>
+        new(ExecutionQualificationPath, new WindowsManualBuyProtector());
     private static async Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReadNativeNormalAsync(CancellationToken ct, Action<string>? stage = null)
     {
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));

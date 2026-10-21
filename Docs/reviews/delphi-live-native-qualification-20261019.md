@@ -1,5 +1,10 @@
 # Delphi Live Normal native qualification — October 19
 
+**October 21 approval amendment:** [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md)
+retains these actual tests as development evidence and replaces repeated qualification with current
+account/risk/source/storage/permission review. The historical checkpoint/packet instructions below
+describe the original verification, not tomorrow's required operator steps.
+
 **Current decision: October 20 native activation, sixteen evaluations and close-time new-risk blocking verified. Buying scope expired at 16:00; no next-day renewal. Automatic order/populated protection paths remain unexercised.**
 The final hash-verified installed read at 16:04:27 Toronto observes sixteen evaluations from
 15:20:59 through 16:00:00.470, revision 49/Active. Gaps 67.79–234.20 seconds, pre-close evaluations

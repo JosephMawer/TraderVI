@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Completed verification and current approval — October 20
+
+- **Q:** Must October 21 approval requalify the old four-trade test or restart for a new test checkpoint? **A:** No. ADR-0095 keeps that completed test in development evidence; approval checks current account/history/orders, risk, source/build, storage and dated permission.
+- **Q:** Can an old order disappear because the test no longer gates approval? **A:** No. The trade remains financial history and ordinary reconciliation still rejects missing/changed facts. Historical test evidence and account integrity have different purposes.
+
 ### Execution status and buying permission — October 20
 
 - **Q:** Does a saved enabled host grant establish that a cycle is currently running? **A:** No. It permits the exact reviewed host to run; current activity needs an observed cycle start, and old observations must show their age. (ADR-0094)
@@ -9,7 +14,7 @@
 ### Retained assignment and dated buying permission — October 20
 
 - **Q:** Does an ongoing Normal assignment authorize buying tomorrow after a dated trial expires? **A:** No. The assignment/history remain, but the scope's buying permission expires. A later session needs its own accepted contract, current evidence and explicit permission; enabling the old host does not supply them. (ADR-0092)
-- **Q:** Does fresh next-session verification require repeating the original test trades or saving new initial risk references? **A:** No. Recover original records/IDs and preserve references/holds. New date/build qualification must be real; any necessary build-recovery restart re-reads those same orders rather than replaying trades. (Accepted October 21 contract, ADR-0092)
+- **Q:** Does October 21 continuation require repeating test trades or saving new initial references? **A:** No. Preserve original financial records/references/holds and review current readiness. ADR-0095 removes the new daily qualification packet and verification restart; completed test evidence retains its actual historical limits.
 - **Q:** Do the original verification order IDs limit which stocks Normal may buy? **A:** No. They identify historical evidence to recover. After explicit dated approval/enable, Normal may select previously unowned eligible stocks under its ordinary gates, real cash and risk controls. (ADR-0092)
 
 ### Native first-day engineering trial — October 19

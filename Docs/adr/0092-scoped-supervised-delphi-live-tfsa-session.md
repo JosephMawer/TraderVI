@@ -207,6 +207,11 @@ assignment approval/host enable remain required; buying expires at the reviewed 
 
 ## Accepted October 21 continuation
 
+**October 20 simplification:** [ADR-0095](0095-current-readiness-without-daily-verification-replay.md)
+supersedes the daily test-packet/original-ID qualification reread/current-build verification restart
+requirements below. Historical tests remain development evidence; current account, risk, source,
+storage and dated permission are checked. Financial history and all execution controls remain.
+
 After clarifying that rereading original order IDs does not restrict new stock selection, the
 operator explicitly accepts the [October 21-only continuation contract](../reviews/delphi-live-continuation-contract-20261021.md)
 and directs implementation. This amends only the October 20 prohibition on another dated trial

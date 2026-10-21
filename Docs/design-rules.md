@@ -48,8 +48,12 @@ It expires at the October 20 reviewed close and cannot qualify production/older 
 without an explicit amendment. On October 20 the operator accepts one separately reviewed October
 21-only continuation on the existing assignment. Preserve original trades/IDs, references/provenance,
 holds, memory, prior approvals and expiry evidence. Require unchanged cash-only/no outside changes,
-all nine checks/current Normal/source/build and actual new-build restart recovery; append linked
-risk/permission records and enable their host separately. Purchases expire at the October 21 reviewed
+current account/order/risk readiness, exact Normal/source/build and installed immutable storage;
+append linked risk/permission records and enable their host separately. The explicitly accepted
+[ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md) removes daily qualification
+packet/test-ID reread and verification-restart requirements for this continuation. Historical broker
+tests stay development evidence; ordinary financial-history reconciliation remains required.
+Purchases expire at the October 21 reviewed
 close; no October 22 or recurring buying authority follows. Original order IDs are verification
 records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).
 Core Live handover uses real costs/identities and independent market observations,

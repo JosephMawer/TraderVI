@@ -1,5 +1,22 @@
 # TraderVI Project Status
 
+**October 20 current-readiness amendment accepted:** the operator explicitly requests removing
+daily replay of completed broker verification. [ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md)
+and the amended [October 21 flow](running.md#october-21-only-normal-continuation) separate historical
+development evidence from current account/history/orders, risk, source/build, storage and dated
+permission checks. Source changes remove the continuation packet/test-ID qualification reads and
+verification restart; **243 focused and 2,723 full serial offline tests pass**, nine native SQL
+tests skipped. Standard WPF Release build passes (262 warnings, zero errors) after an independently
+checked zero-owner state; no app launch or runtime copy. Twenty-one added cases cover current-readiness
+blockers, changed-build approval without historical certificates, retained financial history and
+workflow/repository rejection of a continuation disguised as a new initial session.
+Financial history, original approval/references/holds/memory, append-only recovery, separate host enable
+and 4 PM cutoff remain. No October 21 financial approval, broker check, enablement or order is performed.
+Ignored build/hash receipt and logs use `artifacts/continuation-current-readiness-*`. Existing Pkcs
+9.0.4 NU1902/NU1903 dependency advisories remain separate from compiler warnings; no fresh audit,
+full-solution/SSDT build, SQL rehearsal/migration or external workflow ran. Actual October 21 current
+review/approval/activation remains pending, as do automatic fills/populated protection observations.
+
 **October 20 execution UI design:** the operator accepts the small display/layout scope, including
 separate activity/permission summaries and the five-minute display-only stale warning, then requests
 design documents before code. [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md) records
@@ -10,10 +27,11 @@ preview validation only. Source inspection
 finds host `Running` is a completed Active result, not current in-progress proof; shared account/paper
 waits can leave it unchanged. No product code, binary or financial state changes in this design pass.
 Normal closure remains required before replacing loaded output. Automatic tomorrow start is deferred;
-October 21 native recovery/review, explicit dated approval, separate enable and 4 PM Toronto cutoff
-remain unchanged. [Remaining UI review](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
+October 21 approval, separate enable and 4 PM Toronto cutoff remain. ADR-0095 above subsequently
+replaces the native test-recovery requirement with current readiness checks.
+[Remaining UI review](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
 
-**October 21 continuation accepted and implemented in source, October 20:** after clarifying that
+**Earlier October 21 continuation implementation, October 20 (qualification flow superseded by ADR-0095 above):** after clarifying that
 original order-ID readback does not restrict which eligible stocks Normal may buy, the operator
 explicitly accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
 Core/desktop now preserve the original assignment/approval, trades, references, holds and memory;

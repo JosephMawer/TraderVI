@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Current continuation readiness; completed tests remain development evidence
+
 - [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Separate observed execution activity from dated buying permission
 
 - [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
@@ -241,6 +243,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Preserve financial/risk history while removing daily verification replay
 
 - [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
 

@@ -20,14 +20,15 @@ public sealed partial class BrokerManagedSessionTests
     internal static BrokerOctober21Continuation SyntheticOctober21Continuation() => ContinuedFixture().Continuation;
     private sealed record ContinuedFacts(Fixture F, BrokerManagedSession Close, BrokerOctober21Continuation Continuation,
         BrokerNativeTrialObservation Before, BrokerNativeTrialObservation After, BrokerNoTransferSessionScope Scope,
-        BrokerExecutionQualificationBundle Packet, ContinuationRisks Risks, HostGrants Grants)
+        ContinuationRisks Risks, HostGrants Grants)
     {
         internal BrokerContinuationWorkflow Workflow() => new(F.Store, Risks, F, Grants,
             BrokerTrialCarryForwardTests.Calendar(), new HostClock(F));
         internal BrokerExecutionApproval Approval()
         {
-            var review = BrokerFirstExecutionReviewPolicy.Prepare(After.Strategy with { PreparedUtc = F.Now.UtcDateTime },
-                F.TransformAccount!(F.Project()), Packet, F.ImplementationIdentity, F.Now);
+            var review = BrokerContinuationReviewPolicy.Prepare(Close, Continuation,
+                After.Strategy with { PreparedUtc = F.Now.UtcDateTime }, F.Now, F.TransformAccount!(F.Project()), true,
+                F.ImplementationIdentity, BrokerTrialCarryForwardTests.Calendar(), F.Now);
             Assert.True(review.CanApprove, string.Join(";", review.Blocks));
             return new(review.Activation! with { RequestId = Scope.ScopeId,
                 PurchaseCeiling = Math.Min(review.PurchaseCeiling, Close.EffectiveReview.PurchaseCeiling - Close.CommittedPurchaseCost) },
@@ -74,11 +75,7 @@ public sealed partial class BrokerManagedSessionTests
             return BrokerAccountProjector.Project(f.Binding, import, expected, coverage.Coverage, f.Now) with
                 { NewRiskBlocks = coverage.Blocks };
         };
-        var packet = new BrokerExecutionQualificationBundle(f.Binding.BindingId, f.Strategy.Fingerprint,
-            f.ImplementationIdentity, scope.Session, f.Now, scope.PurchaseExpiresAt!.Value, "fixture",
-            BrokerActivationReview.ChecksFor(scope).Select(check => new BrokerQualification(check, f.Binding.BindingId,
-                f.Strategy.Fingerprint, f.Now, Fixture.Hash, "Synthetic fixture; never native evidence") { FirstSessionTrialOnly = true }).ToImmutableArray(), scope);
-        return new(f, close, continuation, before, after, scope, packet, new(originalRisk, calendar, () => f.Now), new());
+        return new(f, close, continuation, before, after, scope, new(originalRisk, calendar, () => f.Now), new());
     }
 
     private sealed class ContinuationRisks(BrokerAccountRiskState initial, ITsxSessionCalendar calendar,
@@ -103,8 +100,10 @@ public sealed partial class BrokerManagedSessionTests
     public async Task October21PreservesOriginalAssignmentAndFinancialHistoryAndRequiresSeparateEnable()
     {
         var x = ContinuedFixture(); var old = x.Close;
-        BrokerNativeTrialQualification.ValidateRecovery(x.Before, x.After, x.Scope, BrokerTrialCarryForwardTests.Calendar(), x.F.Now);
-        var saved = await x.Workflow().ApproveAsync(x.Approval());
+        var approval = x.Approval();
+        Assert.Empty(approval.Review.Qualifications);
+        Assert.Empty(approval.Review.RequiredQualificationChecks);
+        var saved = await x.Workflow().ApproveAsync(approval);
         Assert.Equal(old.Approval.Fingerprint, saved.Approval.Fingerprint);
         Assert.Equal(old.SessionId, saved.SessionId); Assert.Equal(old.ActivatedAt, saved.ActivatedAt);
         Assert.Equal(BrokerAccountImport.Hash(old.Memory), BrokerAccountImport.Hash(saved.Memory));
@@ -141,7 +140,7 @@ public sealed partial class BrokerManagedSessionTests
     [Theory]
     [InlineData("revision")][InlineData("risk hold")][InlineData("memory hold")][InlineData("order")]
     [InlineData("source")][InlineData("build")][InlineData("cash")][InlineData("no confirmation")]
-    [InlineData("missing check")][InlineData("old host")][InlineData("expired review")][InlineData("after close")][InlineData("refilled ceiling")]
+    [InlineData("account block")][InlineData("old host")][InlineData("expired review")][InlineData("after close")][InlineData("refilled ceiling")]
     public async Task ContinuationRejectsChangedOrIncompleteEvidenceWithoutSavingAuthority(string change)
     {
         var x = ContinuedFixture(); var approval = x.Approval();
@@ -153,7 +152,7 @@ public sealed partial class BrokerManagedSessionTests
         if (change == "build") x.F.RunningImplementation = "other build";
         if (change == "cash") { var source = x.F.TransformAccount!; x.F.TransformAccount = a => { var p = source(a); return p with { Import = p.Import with { Plan = p.Import.Plan with { Observation = p.Import.Plan.Observation with { Cash = 999 } } } }; }; }
         if (change == "no confirmation") approval = approval with { Review = approval.Review with { NoTransferScope = x.Scope with { Continuation = x.Continuation with { NoOutsideChangesConfirmed = false } } } };
-        if (change == "missing check") approval = approval with { Review = approval.Review with { Qualifications = approval.Review.Qualifications.RemoveAt(0) } };
+        if (change == "account block") { var source = x.F.TransformAccount!; x.F.TransformAccount = a => source(a) with { NewRiskBlocks = ["unresolved current order"] }; }
         if (change == "refilled ceiling") approval = approval with { Review = approval.Review with { PurchaseCeiling = x.Close.EffectiveReview.PurchaseCeiling + 1 } };
         if (change == "old host") x.Grants.Value = new(x.Close.BindingId, x.Close.SessionId, x.F.Strategy.Fingerprint, x.F.ImplementationIdentity, x.F.Now, "fixture", true);
         if (change == "expired review") x.F.Now = x.F.Now.AddMinutes(3);
@@ -177,6 +176,96 @@ public sealed partial class BrokerManagedSessionTests
     }
 
     [Fact]
+    public async Task CurrentBuildCanReviewContinuationWithoutHistoricalCertificateOrVerificationRestart()
+    {
+        var x = ContinuedFixture();
+        var strategy = x.After.Strategy with { Strategy = x.F.Strategy with
+            { Strategy = x.F.Strategy.Strategy with { ImplementationIdentity = "reviewed current build" } } };
+        x.F.RunningImplementation = "reviewed current build";
+        var review = BrokerContinuationReviewPolicy.Prepare(x.Close, x.Continuation, strategy, x.F.Now,
+            x.F.TransformAccount!(x.F.Project()), true, x.F.ImplementationIdentity,
+            BrokerTrialCarryForwardTests.Calendar(), x.F.Now);
+        Assert.True(review.CanApprove, string.Join(";", review.Blocks));
+        Assert.Equal(5, review.Checks.Length); Assert.All(review.Checks, c => Assert.True(c.Verified));
+        Assert.Empty(review.Activation!.Qualifications);
+        var original = BrokerAccountImport.Hash(x.Close);
+        var saved = await x.Workflow().ApproveAsync(new(review.Activation!, "fixture", "Current readiness only"));
+        Assert.Equal(original, BrokerAccountImport.Hash(x.Close));
+        Assert.Equal(x.Close.Approval.Fingerprint, saved.Approval.Fingerprint);
+        Assert.Equal("reviewed current build", saved.Strategy.Strategy.ImplementationIdentity);
+        Assert.Null(x.Grants.Value); Assert.Equal(0, x.F.Transport.Sent);
+    }
+
+    [Fact]
+    public async Task CurrentContinuationCannotBypassFirstSessionQualificationByCreatingAnotherInitialSession()
+    {
+        var x = ContinuedFixture(); var approval = x.Approval();
+        var fabricatedInitial = x.Close with { Revision = 0, PreviousRevisionId = null,
+            Approval = approval, SessionId = approval.Review.RequestId, RevisionId = approval.Review.RequestId,
+            SavedAt = x.F.Now, ActivatedAt = null, Phase = BrokerManagedPhase.Transition,
+            Account = x.F.TransformAccount!(x.F.Project()) };
+        x.F.Store.State = null;
+        await Assert.ThrowsAsync<InvalidOperationException>(() => x.F.Workflow().ApproveAsync(approval));
+        Assert.Throws<InvalidOperationException>(() => BrokerManagedSessionRepository.ValidateNext(null, fabricatedInitial,
+            BrokerTrialCarryForwardTests.Calendar()));
+        Assert.Null(x.F.Store.State); Assert.Equal(0, x.Risks.Appends); Assert.Equal(0, x.F.Transport.Sent);
+    }
+
+    [Theory]
+    [InlineData("stale snapshot")][InlineData("future snapshot")][InlineData("pending order")]
+    [InlineData("history conflict")][InlineData("cash")][InlineData("buying power")]
+    [InlineData("risk hold")][InlineData("account hold")][InlineData("account block")]
+    [InlineData("stale source")][InlineData("future source")][InlineData("stale strategy")]
+    [InlineData("source block")][InlineData("storage")][InlineData("build")][InlineData("reference")]
+    public void CurrentContinuationReadinessRejectsActualBlockersWithoutHistoricalQualifications(string change)
+    {
+        var x = ContinuedFixture(); var now = x.F.Now;
+        var account = x.F.TransformAccount!(x.F.Project()); var observation = account.Import.Plan.Observation;
+        var strategy = x.After.Strategy; var updated = now;
+        if (change == "stale snapshot") observation = observation with { SnapshotAt = now.AddSeconds(-31) };
+        if (change == "future snapshot") observation = observation with { SnapshotAt = now.AddSeconds(1) };
+        if (change == "pending order") observation = observation with { Orders = observation.Orders.Select((o, i) => i == 0 ? o with { Status = "SUBMITTED" } : o).ToArray() };
+        if (change == "history conflict") observation = observation with { HistoryConflicts = ["changed historical order"] };
+        if (change == "cash") observation = observation with { Cash = observation.Cash + 1, AccountValue = observation.AccountValue + 1 };
+        if (change == "buying power") observation = observation with { BuyingPower = 0 };
+        account = account with { Import = account.Import with { Plan = account.Import.Plan with { Observation = observation } } };
+        if (change == "risk hold") account = account with { Risk = account.Risk with { DailyLossHold = true } };
+        if (change == "account hold") account = account with { Account = account.Account with { CapitalReviewRequired = true } };
+        if (change == "account block") account = account with { NewRiskBlocks = ["Unresolved current order"] };
+        if (change == "reference") account = account with { Risk = account.Risk with
+            { SessionReference = account.Risk.SessionReference with { Value = account.Risk.SessionReference.Value + 1 } } };
+        if (change == "stale source") updated = now.AddMinutes(-3);
+        if (change == "future source") updated = now.AddSeconds(1);
+        if (change == "stale strategy") strategy = strategy with { PreparedUtc = now.UtcDateTime.AddMinutes(-3) };
+        if (change == "source block") strategy = strategy with { Blocks = ["Current source unavailable"] };
+        var review = BrokerContinuationReviewPolicy.Prepare(x.Close, x.Continuation, strategy, updated, account,
+            change != "storage", change == "build" ? "different running build" : x.F.ImplementationIdentity,
+            BrokerTrialCarryForwardTests.Calendar(), now);
+        Assert.False(review.CanApprove); Assert.Null(review.Activation); Assert.NotEmpty(review.Blocks);
+        Assert.Null(x.F.Store.State!.Continuation); Assert.Equal(0, x.Risks.Appends); Assert.Equal(0, x.F.Transport.Sent);
+    }
+
+    [Theory]
+    [InlineData("missing")][InlineData("changed")][InlineData("outside order")]
+    public void CurrentAccountReconciliationStillPreservesHistoricalFinancialOrders(string change)
+    {
+        var x = ContinuedFixture(); var account = x.F.TransformAccount!(x.F.Project());
+        var observation = account.Import.Plan.Observation;
+        var orders = observation.Orders.ToArray();
+        orders = change switch
+        {
+            "missing" => orders.Skip(1).ToArray(),
+            "changed" => orders.Select((o, i) => i == 0 ? o with { NetValue = o.NetValue + 1 } : o).ToArray(),
+            _ => orders.Append(orders[0] with { ExternalId = "unexplained-outside-order" }).ToArray()
+        };
+        account = account with { Import = account.Import with { Plan = account.Import.Plan with
+            { Observation = observation with { Orders = orders } } } };
+        var review = BrokerContinuationReviewPolicy.Prepare(x.Close, x.Continuation, x.After.Strategy, x.F.Now, account,
+            true, x.F.ImplementationIdentity, BrokerTrialCarryForwardTests.Calendar(), x.F.Now);
+        Assert.False(review.CanApprove); Assert.Contains(review.Checks, c => c.Check == "current-account" && !c.Verified);
+    }
+
+    [Fact]
     public async Task RiskOnlySaveCannotQualifyOldPermissionAndOrdinaryResumeCannotRenewExpiry()
     {
         var x = ContinuedFixture(); var calendar = BrokerTrialCarryForwardTests.Calendar();
@@ -196,7 +285,7 @@ public sealed partial class BrokerManagedSessionTests
     }
 
     [Fact]
-    public void NewBuildRequiresItsOwnNativeRecoveryAndPreservesEarlierPacketBytes()
+    public void HistoricalVerificationPublisherPreservesItsOriginalBuildLimitsAndEarlierPacketBytes()
     {
         var x = ContinuedFixture(); var calendar = BrokerTrialCarryForwardTests.Calendar();
         var dir = Path.Combine(Path.GetTempPath(), "TraderVI-continuation-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(dir);

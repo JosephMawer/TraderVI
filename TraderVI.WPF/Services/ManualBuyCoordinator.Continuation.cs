@@ -13,10 +13,10 @@ namespace TraderVI.WPF.Services;
 public sealed partial class ManualBuyCoordinator
 {
     private sealed record ContinuationPreparation(BrokerFirstExecutionReview Review, BrokerStrategyReview Exact, BrokerAccountProjection Account,
-        BrokerContinuationWorkflow Workflow, string PacketFingerprint);
+        BrokerContinuationWorkflow Workflow);
 
-    private async Task<ContinuationPreparation?> PrepareContinuationAsync(WealthsimpleTfsaAccount account,
-        long connectionRevision, CancellationToken ct, Action check, Action<string> stage, Action<string> present)
+    private async Task<ContinuationPreparation> PrepareContinuationAsync(WealthsimpleTfsaAccount account,
+        CancellationToken ct, Action check, Action<string> stage)
     {
         check(); _ = GetExecutionHost();
         var now = DateTimeOffset.UtcNow;
@@ -35,53 +35,32 @@ public sealed partial class ManualBuyCoordinator
             throw new InvalidOperationException("October 21 continuation is already saved. Refresh readiness and separately enable its reviewed host; no new approval is needed.");
         var risks = new BrokerAccountRiskContinuationRepository(executionCalendar);
         var actual = await risks.ReadAsync(original.BaselineId, ct); check();
-        var evidence = new BrokerExecutionQualificationFileStore(ContinuationQualificationPath, new WindowsManualBuyProtector()).Read(now);
-        if (evidence is null)
-        {
-            var checkpoint = NativeTrialEvidence(true).ReadCheckpoint(BrokerOctober21Continuation.ExecutionDate);
-            var continued = checkpoint?.ContinuationReview ?? new BrokerOctober21Continuation(saved.SessionId, saved.RevisionId,
-                BrokerAccountImport.Hash(saved), saved.SavedAt, actual with { TrialCarry = null },
-                saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the original October 20 trial scope."),
-                now, Environment.UserName, true) { PurchaseExpiresAt = bounds.CloseUtc };
-            continued.RequirePrior(saved, executionCalendar);
-            var native = await ReadNativeTrialObservationAsync(account, connectionRevision, checkpoint, ct, stage, continued); check();
-            BrokerOctober21Continuation.RequireSameDefinition(saved.Strategy, native.Strategy.Strategy);
-            if (checkpoint is null)
-            {
-                NativeTrialEvidence(true).Capture(native);
-                present("October 21 current-build checkpoint saved/read back using the original four order IDs and unchanged risk references. No continuation approval or order was saved. Close TraderVI normally, reopen this same Release build with --no-build, confirm no outside changes again and choose Review next session. Do not repeat trades, baseline setup or opening-sale selection.");
-                return null;
-            }
-            stage("verifying current-build restart recovery and publishing October 21 evidence");
-            evidence = NativeTrialEvidence(true).Complete(native, continued.Scope(executionCalendar), executionCalendar,
-                Environment.UserName, DateTimeOffset.UtcNow);
-        }
-        var continuation = evidence.NoTransferScope?.Continuation
-            ?? throw new InvalidOperationException("The October 21 packet has no linked continuation. Preserve it for recovery.");
+        // A partially saved approval recovers its original risk request. Historical verification
+        // files remain untouched and are not dependencies of current-session permission.
+        var recoveredRisk = await risks.FindAsync(BrokerOctober21Continuation.RequestId(original.BaselineId), ct); check();
+        var continuation = recoveredRisk?.Request.Continuation ?? new BrokerOctober21Continuation(saved.SessionId, saved.RevisionId,
+            BrokerAccountImport.Hash(saved), saved.SavedAt, actual with { TrialCarry = null },
+            saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the original October 20 trial scope."),
+            now, Environment.UserName, true) { PurchaseExpiresAt = bounds.CloseUtc };
         continuation.RequirePrior(saved, executionCalendar);
-        stage("reading the four original verification order IDs for continuation review");
-        await ReadOriginalTrialOrdersAsync(account, original.TradingDate, ct, check);
+        var scope = continuation.Scope(executionCalendar);
+        stage("checking current immutable account and permission storage");
+        var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         var normal = await ReadNativeNormalAsync(ct, stage); check();
         BrokerOctober21Continuation.RequireSameDefinition(saved.Strategy, normal.Review.Strategy);
         if (DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2) || normal.Updated > DateTimeOffset.UtcNow)
             throw new InvalidOperationException("Refresh the current October 21 Normal source before continuation review.");
         var prospective = new BrokerContinuationPreviewRiskStore(risks, continuation, executionCalendar);
         var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal, journal,
-            orderGate, account, executionCalendar, new BrokerNoTransferRiskEvidenceSource(evidence.NoTransferScope!, executionCalendar),
+            orderGate, account, executionCalendar, new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar),
             previewRisk: prospective);
         stage("reconciling the current cash-only account against the prospective continuation");
         var projected = await components.AccountSource.SynchronizeAsync(saved.Orders, ct); check();
         BrokerTrialCarryForward.RequireUnchangedBook(continuation.PreviousScope.CashOnlyAnchor, projected.Import.Plan.Observation);
-        var review = BrokerFirstExecutionReviewPolicy.Prepare(normal.Review, projected, evidence,
-            BrokerManagedSessionComposition.ImplementationIdentity, DateTimeOffset.UtcNow);
-        if (review.Activation is { } activation)
-        {
-            var ceiling = Math.Min(activation.PurchaseCeiling, saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost);
-            review = review with { PurchaseCeiling = ceiling,
-                Activation = activation with { RequestId = BrokerOctober21Continuation.RequestId(original.BaselineId), PurchaseCeiling = ceiling } };
-        }
+        var review = BrokerContinuationReviewPolicy.Prepare(saved, continuation, normal.Review, normal.Updated, projected,
+            storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
+            BrokerManagedSessionComposition.ImplementationIdentity, executionCalendar, DateTimeOffset.UtcNow);
         return new(review, normal.Review, projected,
-            new(new BrokerManagedSessionRepository(executionCalendar), risks, components.AccountSource, HostGrants(), executionCalendar),
-            BrokerAccountImport.Hash(evidence));
+            new(new BrokerManagedSessionRepository(executionCalendar), risks, components.AccountSource, HostGrants(), executionCalendar));
     }
 }

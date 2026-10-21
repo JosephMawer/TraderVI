@@ -37,6 +37,90 @@ public sealed record BrokerFirstExecutionReview(BrokerManagedStrategy Strategy, 
     public override string ToString() => "First execution review (financial data omitted; no execution authority)";
 }
 
+/// <summary>Current dated readiness for the existing assignment. Historical broker tests are not daily permissions.</summary>
+public static class BrokerContinuationReviewPolicy
+{
+    public static BrokerFirstExecutionReview Prepare(BrokerManagedSession prior, BrokerOctober21Continuation continuation,
+        BrokerStrategyReview strategyReview, DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account,
+        bool storageReady, string implementation, Core.Trader.DelphiLive.ITsxSessionCalendar calendar, DateTimeOffset now)
+    {
+        continuation.RequirePrior(prior, calendar);
+        var scope = continuation.Scope(calendar);
+        var strategy = strategyReview.Strategy;
+        BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, strategy);
+        var blocks = ImmutableArray.CreateBuilder<string>();
+        var checks = ImmutableArray.CreateBuilder<BrokerExecutionReviewCheck>();
+        void Check(string key, string label, Action validate)
+        {
+            try { validate(); checks.Add(new(key, label, true, "Current readiness check passed.")); }
+            catch (InvalidOperationException error)
+            { blocks.Add(error.Message); checks.Add(new(key, label, false, error.Message)); }
+        }
+        Check("current-account", "Current account, cash and orders", () =>
+        {
+            RequireCurrentAccount(account, now);
+            BrokerTrialCarryForward.RequireUnchangedBook(scope.CashOnlyAnchor, account.Import.Plan.Observation);
+        });
+        Check("current-risk", "Preserved risk references and holds", () =>
+        {
+            if (BrokerAccountImport.Hash(account.Risk) != BrokerAccountImport.Hash(continuation.Apply(continuation.PreviousRisk, calendar)))
+                throw new InvalidOperationException("Current risk history differs from the reviewed continuation; preserve references and holds for recovery.");
+        });
+        Check("current-source", "Current Normal strategy, source and build", () =>
+        {
+            if (!strategyReview.Blocks.IsEmpty || strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
+                strategy.GateProfile != PaperGateProfile.NormalV1 || strategy.Comparison is null ||
+                strategy.Strategy.ImplementationIdentity != implementation ||
+                strategyReview.Evidence.PaperAccountId != strategy.PaperAccountId ||
+                strategyReview.PreparedUtc.Kind != DateTimeKind.Utc || strategyReview.PreparedUtc > now.UtcDateTime ||
+                now.UtcDateTime - strategyReview.PreparedUtc > TimeSpan.FromMinutes(2) ||
+                sourceUpdatedAt > now || now - sourceUpdatedAt > TimeSpan.FromMinutes(2))
+                throw new InvalidOperationException("Refresh the exact current Normal definition, source and running build before approval.");
+        });
+        Check("current-storage", "Installed immutable account and permission storage", () =>
+        {
+            if (!storageReady) throw new InvalidOperationException("Current immutable baseline, continuation and session storage checks must pass before approval.");
+        });
+        var ceiling = System.Math.Min(System.Math.Min(account.Import.Plan.Observation.Cash ?? 0,
+            account.Import.Plan.Observation.BuyingPower ?? 0), prior.EffectiveReview.PurchaseCeiling - prior.CommittedPurchaseCost);
+        BrokerActivationReview? activation = null;
+        Check("dated-permission", "October 21 scope and purchase cutoff", () =>
+        {
+            if (now < calendar.GetSessionBounds(scope.Session).OpenUtc || now >= scope.PurchaseExpiresAt || ceiling <= 0)
+                throw new InvalidOperationException("Review October 21 permission during its regular session, with remaining purchase allowance and before its close.");
+        });
+        if (blocks.Count == 0)
+        {
+            activation = new(scope.ScopeId, account.Risk.BindingId, strategy, account.Risk.BaselineId, account.Fingerprint,
+                scope.Session, now, ceiling, [], [], [], [])
+                { ReviewedPositions = account.Positions, Duration = BrokerExecutionDuration.Ongoing, NoTransferScope = scope };
+            try { activation.Validate(account, now); }
+            catch (InvalidOperationException error) { blocks.Add(error.Message); activation = null; }
+        }
+        return new(strategy, ceiling, checks.ToImmutable(), blocks.Distinct().ToImmutableArray(), activation);
+    }
+
+    public static void RequireCurrentAccount(BrokerAccountProjection account, DateTimeOffset now)
+    {
+        var observation = account.Import.Plan.Observation;
+        var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        if (now == default || account.Account.ReportedUtc > now.UtcDateTime ||
+            now.UtcDateTime - account.Account.ReportedUtc > TimeSpan.FromSeconds(30) ||
+            observation.SnapshotAt > now || now - observation.SnapshotAt > TimeSpan.FromSeconds(30) ||
+            observation.CheckedAt < observation.SnapshotAt || observation.CheckedAt > now ||
+            !observation.HoldingsMatch || observation.Blocks.Count != 0 || observation.HistoryConflicts.Count != 0 ||
+            observation.Holdings.Any(h => h.BrokerQuantity != 0) || observation.Orders.Any(o => !o.IsTerminal) ||
+            observation.Orders.Select(o => o.ExternalId).Distinct().Count() != observation.Orders.Count ||
+            !account.Positions.IsEmpty || !account.Account.Holdings.IsEmpty || !account.NewRiskBlocks.IsEmpty ||
+            account.Risk.DailyLossHold || account.Risk.CapitalReviewRequired ||
+            account.Account.DailyLossHold || account.Account.CapitalReviewRequired ||
+            observation.Cash is not > 0 || observation.BuyingPower is not > 0 || observation.AccountValue != observation.Cash ||
+            account.Account.AvailableCash != System.Math.Min(observation.Cash ?? 0, observation.BuyingPower ?? 0) ||
+            account.Risk.TradingDate != date || account.Account.TradingDate != date)
+            throw new InvalidOperationException("Refresh and reconcile the current cash-only account, cash/buying power and orders; resolve holds or account blockers before approval.");
+    }
+}
+
 /// <summary>Prepare the accepted cash-start Normal review. It does not save approval, enable a host or send orders.</summary>
 public static class BrokerFirstExecutionReviewPolicy
 {

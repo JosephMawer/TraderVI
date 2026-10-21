@@ -244,8 +244,8 @@ public sealed partial class ManualBuyCoordinator
                 if (saved.Continuation is null)
                 {
                     summary.Text = lines + "The saved Normal assignment and original trades/risk references remain preserved. October 20 buying permission is expired; it does not renew itself.\n\n" +
-                        "October 21-only continuation is implemented for fresh native review. Stop execution host first, then during October 21 regular trading confirm no outside account changes and choose Review next session. The current-build recovery check may request one normal restart; original trades, baseline setup and opening-sale selection are reused.\n\n" +
-                        "Review all nine checks, unchanged cash-only book, exact Normal/build and the October 21 close expiry. Approve October 21 continuation explicitly, then separately Enable reviewed host. No October 22 buying authority is granted.";
+                        "Stop execution host first, then during October 21 regular trading confirm no outside account changes and choose Review next session. Completed broker verification remains historical; no new verification checkpoint, restart or test trade is required.\n\n" +
+                        "Review the current cash-only account, preserved risk references/holds, current Normal/source/build, installed storage and October 21 close expiry. Approve October 21 continuation explicitly, then separately Enable reviewed host. No October 22 buying authority is granted.";
                     return;
                 }
                 if (today != BrokerOctober21Continuation.ExecutionDate || saved.EffectiveReview.NoTransferScope?.PurchaseExpiresAt <= DateTimeOffset.UtcNow)
@@ -359,8 +359,7 @@ public sealed partial class ManualBuyCoordinator
             Check(); reviewed = null; continuationReview = null;
             if (noOutside.IsChecked != true)
                 throw new InvalidOperationException("Confirm no outside account changes before reviewing October 21 continuation. Changed facts require separate recovery, never another setup baseline.");
-            continuationReview = await PrepareContinuationAsync(account, revision, lifetime.Token, Check, Stage, text => summary.Text = text);
-            if (continuationReview is null) return;
+            continuationReview = await PrepareContinuationAsync(account, lifetime.Token, Check, Stage);
             var prepared = continuationReview.Review;
             var facts = continuationReview.Account;
             summary.Text = $"October 21 continuation review\nExact Normal: {prepared.Strategy.Strategy.Name}\nProfile: {prepared.Strategy.GateProfile}\n" +
@@ -370,9 +369,9 @@ public sealed partial class ManualBuyCoordinator
                 $"Original daily reference: {facts.Risk.SessionReference.Value:N2} CAD · {facts.Risk.SessionReference.Source} · evidence {facts.Risk.SessionReference.EvidenceAt.ToLocalTime():g}\n" +
                 $"Original drawdown reference: {facts.Risk.DrawdownReference.Value:N2} CAD · {facts.Risk.DrawdownReference.Source} · evidence {facts.Risk.DrawdownReference.EvidenceAt.ToLocalTime():g}\n" +
                 $"Daily hold: {facts.Risk.DailyLossHold} · capital review hold: {facts.Risk.CapitalReviewRequired}\n" +
-                "No holdings or pending orders; original four verification IDs checked. Original sale selection, memory, prior approval and all history remain preserved.\n" +
+                "Original trades, sale selection, memory, prior approval and all history remain preserved. Completed verification is retained in development records; approval checks current readiness.\n" +
                 $"New purchases end {prepared.Activation?.NoTransferScope?.PurchaseExpiresAt?.ToLocalTime():g}. No later-day buying permission.\n\n" +
-                string.Join("\n", prepared.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
+                string.Join("\n", prepared.Checks.Select(c => c.Label + (c.Verified ? ": current check passed." : ": blocked — " + c.Detail))) +
                 "\n\n" + BrokerNativeTrialQualification.Limits + "\n\n" +
                 (prepared.CanApprove ? "Review these facts, then Approve October 21 continuation within two minutes. New paper cycles are deferred during review. Approval submits no order and leaves the host off."
                     : "Approval blocked:\n" + string.Join("\n", prepared.Blocks)) +
@@ -396,10 +395,10 @@ public sealed partial class ManualBuyCoordinator
         {
             Check(); var prepared = continuationReview ?? throw new InvalidOperationException("Review next session before approval.");
             if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change confirmation is required.");
-            Stage("rechecking the exact continuation packet and current Normal source");
-            var packet = new BrokerExecutionQualificationFileStore(ContinuationQualificationPath, new WindowsManualBuyProtector()).Read(DateTimeOffset.UtcNow);
-            if (packet is null || BrokerAccountImport.Hash(packet) != prepared.PacketFingerprint)
-                throw new InvalidOperationException("The continuation evidence changed. Review next session again.");
+            Stage("rechecking current immutable storage and Normal source");
+            var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token); Check();
+            if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || !storage.ImmutableStorageVerified)
+                throw new InvalidOperationException("Current immutable storage checks failed. Keep execution off and recover storage before approval.");
             var normal = await ReadNativeNormalAsync(lifetime.Token, Stage); Check();
             if (normal.Review.Strategy.Fingerprint != prepared.Exact.Strategy.Fingerprint || !normal.Review.Blocks.IsEmpty ||
                 normal.Updated > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2))

@@ -64,8 +64,8 @@ Buying permission & execution                    Normal · TFSA
    October 21 only. Reuse the original trades and references.
    [ ] I confirm no outside account changes … [existing full wording]
    [Review next session] [Refresh readiness]
-   Progress / restart instruction / precise blocker
-   [Evidence details: nine required checks, exact strategy, source,
+   Progress / precise blocker
+   [Readiness details: current account/orders/risk/storage, exact strategy, source,
     build, cash ceiling, original references, provenance and holds]
 
 2  Approve dated buying permission
@@ -84,7 +84,9 @@ Buying permission & execution                    Normal · TFSA
 The three groups organize existing actions; they are not a new wizard or gate. Preserve current
 enable/disable predicates. Explain unavailable actions using actual prerequisites/results; never
 invent evidence or imply a review passed merely because a previous step was clicked. Retain all
-nine actual qualification labels/references and exact review content in evidence details. Primary
+current readiness checks and exact review content in details. ADR-0095 removes the repeated
+test qualification packet from October 21 approval; earlier first-session qualification details
+retain their historical meaning. Primary
 reasons and the expiry remain visible when details are collapsed.
 
 For this existing assignment, October 20 carry, initial checkpoint and first-approval actions belong
@@ -94,9 +96,9 @@ available. For a genuinely unassigned account, expose its existing first-session
 The original orders and two-sale selection are recovered automatically on October 21.
 
 While waiting for paper work, show elapsed time and **Close this window to cancel waiting**.
-After work begins, retain the existing busy-close guard. A required native checkpoint/restart gets
-its own visible instruction; it is not represented as successful recovery until the existing
-current-build check confirms it. No replacement launcher or runtime copy is introduced.
+After work begins, retain the existing busy-close guard. October 21 continuation requires no
+new verification checkpoint/restart under ADR-0095. Earlier first-session recovery instructions
+retain their existing meaning. No replacement launcher or runtime copy is introduced.
 
 ## Execution states and freshness
 
@@ -148,7 +150,7 @@ The accepted scope is recorded in [ADR-0094](../adr/0094-real-tfsa-execution-sta
 Detailed layout/wording await operator feedback. **Starts automatically tomorrow** is deferred;
 no scheduling, startup or new trading authority is included. The
 [October 21 contract](../reviews/delphi-live-continuation-contract-20261021.md) remains authoritative:
-native current-build recovery/review, all nine checks, explicit approval, separate host enable and
+current account/risk/source/storage review under [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md), explicit approval, separate host enable and
 no purchases after 4 PM Toronto. No October 22 renewal follows.
 
 After design review, implement passive observation/presentation and reuse existing setup actions.

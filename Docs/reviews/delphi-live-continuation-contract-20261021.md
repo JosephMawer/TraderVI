@@ -3,6 +3,12 @@
 **Status: explicitly accepted October 20; source implemented and offline validated.
 No October 21 financial permission or host enable is saved by this development work.**
 
+**October 20 accepted simplification:** [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md)
+keeps completed broker tests in development records. Current approval no longer depends on a new
+qualification packet, individual rereads of the four test orders, or a verification checkpoint/restart.
+The original financial history, risk controls, current account/source/storage checks and dated
+approval/separate enable remain. Earlier development validation below records the superseded flow.
+
 The immediate problem is tomorrow's buying permission: today's managed Normal assignment is durable,
 but its deliberately limited buying scope expired at October 20 close. The parent problem is safe
 next-session continuation without repeating initial account setup. The root goal is recoverable
@@ -30,7 +36,8 @@ review; do not liquidate, reset references or reinterpret a mismatch to qualify 
 ## Financial and evidence invariants
 
 1. Preserve the original October 19 baseline/import, both original full-sale records, verification
-   buy/sale records and their original IDs. Re-read those orders; never repeat verification trades.
+   buy/sale records and their original IDs. Ordinary financial reconciliation retains those facts;
+   never repeat verification trades or use their completed test as another daily permission.
 2. Preserve the original daily/drawdown reference objects, amounts, provenance, observation times,
    holds, prior trial carry, account ledger and all managed-session revisions. Never overwrite the
    October 20 approval, qualification packet/checkpoint or expiration evidence.
@@ -43,7 +50,7 @@ review; do not liquidate, reset references or reinterpret a mismatch to qualify 
    account changes since the original cash-only baseline, continuing through October 21 close.
    Equal cash alone does not establish absence of outside activity. Fresh native identity, original
    order facts, cash/buying power, inventories and pending orders must reconcile exactly.
-5. Retain all four native and five scoped checks, the full-fill-only trial limits, ordinary Normal
+5. Retain the full-fill-only trial limits, ordinary Normal
    gates, real capital ceiling, whole-share sizing, one execution owner, durable intent-before-send,
    original-ID recovery and independent protection. Unobserved partial/cancel/uncertain/power-loss
    paths remain unqualified and stop automatic progression for operator review.
@@ -51,10 +58,10 @@ review; do not liquidate, reset references or reinterpret a mismatch to qualify 
    running build for October 21. Existing evidence is historical input, not automatically fresh
    qualification for another date/build. Incompatible/changed strategy definitions require explicit
    review rather than silent substitution. Missing source/storage/account evidence blocks approval.
-7. Use append-only/versioned continuation proof. Reuse historical native facts only with their true
-   dates and qualification limits; re-read required records and publish the October 21 packet from
-   actual matching observations. If Core changes, current-build native capture/normal-restart
-   recovery remains required. Preserve earlier proof; never relabel its date/hash or replay a trade.
+7. Preserve historical native proof with its true dates/builds and qualification limits in development
+   records. Current continuation checks account/risk/source/build and immutable storage directly;
+   it does not publish another test packet or require a verification restart. Ordinary account-history
+   reconciliation still rejects changed or missing financial orders. Never relabel old proof or replay a trade.
 8. New permission ends at the calendar's reviewed October 21 regular close. Recheck expiry before
    reserving a buy and immediately before transmission. No replacement/residual order, automatic
    scope renewal or ordinary Resume buying action may bypass that deadline or an order-review hold.
@@ -67,19 +74,17 @@ These controls are built in normal Release output; actual October 21 native chec
    Before changing the installed build or saving a continuation, stop the old execution host normally
    and confirm it is stopped; original orders and independent holds remain authoritative.
 2. Run the reviewed build from the normal checkout/Release output. No separate launcher or full
-   copied runtime is needed. Use the build command appropriate to its reviewed native qualification;
-   do not claim the current October 20 Core hash qualifies changed code.
-3. During October 21 regular trading, confirm the no-outside-change condition and choose a new
+   copied runtime is needed. Review the exact running build; do not relabel an October 20 test
+   observation as native qualification of changed code.
+3. During October 21 regular trading, confirm the no-outside-change condition and choose
    **Review next session** action. It recovers the existing assignment and original references/
-   orders automatically, show all nine checks, cash ceiling, preserved holds, exact Normal/build/
+   orders automatically, show current readiness checks, cash ceiling, preserved holds, exact Normal/build/
    current source and October 21 expiry. Show any changed fact or blocker before requesting approval.
-4. This implementation changes Core. The first **Review next session** saves and reads back a new
-   October 21/current-build checkpoint from the original four order IDs and asks for one normal
-   restart. Close normally, reopen with `dotnet run --project TraderVI.WPF -c Release --no-build`,
-   confirm no outside changes again and choose **Review next session** again. It automatically
-   recovers the original two-sale selection and publishes all nine references only after actual
-   same-build restart recovery. No trades or baseline setup are repeated. Subsequent retries of
-   this review reuse that current-build packet, not another restart.
+4. Review the current cash-only account and orders, preserved references/holds, exact fresh Normal
+   source/running build, installed immutable storage and dated permission. Completed manual tests
+   remain development evidence; no new checkpoint, test trade, old-sale selection or verification
+   restart is required. A normal app restart to load a newly built program is ordinary installation,
+   not another qualification exercise.
 5. Explicitly **Approve October 21 continuation** after review. This appends the dated permission
    and linked risk association, preserving the existing assignment/history. Save/read back under
    the same account/revision fences; recover an uncertain/partial save by its original request ID.
@@ -93,17 +98,32 @@ These controls are built in normal Release output; actual October 21 native chec
 - [x] Operator explicitly accepts this complete dated continuation contract after the order-ID clarification.
 - [x] Add append-only risk/session continuation with previous-revision fencing, original-reference/
   memory preservation, idempotent recovery and no authority inherited from old host grants.
-- [x] Integrate current-source/all-nine-check review and versioned original-ID/native build evidence;
-  preserve expired October 20 packets/checkpoints/approval. No qualification waiver.
+- [x] Implement initial all-nine-check/native build review (historical; superseded by ADR-0095).
+  Preserve expired October 20 packets/checkpoints/approval and their actual evidence limits.
 - [x] Expose continuation review/explicit approval instead of routing an existing assignment through
   first-execution setup. Keep host enable separate and display the exact permission expiry.
 - [x] Validate changed financial facts, holds, stale source/build, existing orders, conflicting prior
   revisions, uncertain save/restart recovery and both cutoff guards with meaningful offline tests.
 - [x] Build the desktop project and coordinate normal-output installation without full runtime copies;
   no SQL migration/native rehearsal or external workflow is implied by preparation.
-- [ ] Operator performs actual October 21 native review/approval/enable; observe activation and cutoff.
+- [x] Validate/build the accepted current-readiness simplification: 243 focused/2,723 full serial
+  offline passes, nine native SQL skips; standard WPF Release passes after verified zero owners.
+  No app launch or broker verification is inferred. Current status owns the build evidence.
+- [ ] Operator performs actual October 21 current-account review/approval/enable; observe activation and cutoff.
 
-### Development validation — October 20
+### Current readiness validation — October 20, ADR-0095
+
+Twenty-one added offline cases plus the existing managed-session suite pass (243 focused); full serial
+regression passes 2,723 tests with nine native SQL skips. Tests cover current source/build/account/
+storage/permission blockers, changed/missing financial history, approval on a reviewed current build
+without historical qualification references, unchanged first-session qualification and existing
+original-request lost-acknowledgement recovery. Workflow/repository guards reject using a continuation
+to create a new initial session. Normal WPF Release build passes with 262 warnings/
+zero errors after an outside-sandbox process read confirms no running TraderVI owner. The app is
+not launched. Logs and hash receipt are ignored under `artifacts/continuation-current-readiness-*`.
+Actual October 21 account approval/activation and automated fills/protection remain unverified.
+
+### Earlier development validation — October 20, before ADR-0095
 
 The focused managed-session/transport/carry set passes **252 tests**, including 26 new continuation/
 native-transmission tests. Synthetic tests cover lost risk/session acknowledgements and original-ID
@@ -128,6 +148,12 @@ separate from existing nullable/unreachable/unused-variable compiler warnings. N
 build, SQL migration/rehearsal, market-data workflow, application launch or broker mutation ran.
 
 ## Implementation notes
+
+The original qualification-packet/checkpoint implementation described below is historical under
+ADR-0095. Current continuation instead reads current storage, source and account/risk state, prepares
+an approval with no historical qualification references, and retains the same linked financial-save
+workflow. A partial risk save recovers its original continuation request from risk storage before
+review; no old test file is needed. First-session proof producers retain their original behavior.
 
 The original managed approval remains immutable. An optional continuation contains its own explicit
 approval and risk request; execution resolves the effective dated review without replacing the

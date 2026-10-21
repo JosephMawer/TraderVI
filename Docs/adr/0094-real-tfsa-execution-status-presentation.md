@@ -31,8 +31,10 @@ controls; the root goal is recoverable Normal management without accidental fina
 4. Reorganize existing setup actions without changing their eligibility or side effects. Preserve
    review deadlines, original-ID recovery, account fences, busy-close behavior and separate enable.
 5. Scheduling and “starts automatically tomorrow” remain deferred. Retaining a strategy/grant cannot
-   renew the October 20 permission. October 21 retains actual native recovery/review, all nine checks,
-   explicit dated approval, separate host enable and the 4 PM Toronto cutoff. No October 22 authority.
+   renew the October 20 permission. The subsequent
+   [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) replaces October 21's
+   repeated native qualification/restart with current readiness checks; explicit dated approval,
+   separate host enable and the 4 PM Toronto cutoff remain. No October 22 authority.
 6. Preserve all assignment/history, original trades/orders/sale selection, references/provenance,
    holds, memory and evidence. Validate offline and coordinate normal closure before replacing loaded
    normal output. This design authorizes no financial save, order, host enable or operational test.

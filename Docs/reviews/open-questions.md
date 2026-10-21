@@ -63,6 +63,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### After the October 20 supervised trial — October 19, 2026
 
+- **October 20 simplification accepted in the understanding discussion:**
+  [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md) removes daily
+  qualification replay from October 21 approval. Current account/history/orders, risk, source/build,
+  storage and dated permission remain required; completed native tests retain their historical
+  dates/limits in development records. Current approval no longer needs an old test packet or a
+  verification restart. Ordinary reconciliation still protects the original financial history.
+  Source/validation/install progress is owned by project status/checklist. This closes the question
+  of daily reuse for October 21; later recurring/production permission remains deferred below.
 - **October 20 follow-up:** the operator accepts tomorrow's readiness contract without repeating setup.
   The [October 21-only continuation contract](delphi-live-continuation-contract-20261021.md)
   preserves the existing assignment and original references/holds/trades, with the

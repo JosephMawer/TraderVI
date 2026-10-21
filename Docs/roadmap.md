@@ -27,10 +27,12 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 ## Now — restore a dependable advisory loop
 
 **October 21 preparation:** the operator accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
-Append-only existing-assignment continuation and UI/native evidence integration are implemented;
-offline validation passes (252 focused/2,702 full, nine native SQL skips), and the compact-record
-normal Release build is ready. Next obtain actual October 21 current-build native
-recovery, all-nine-check review, manual continuation approval and separate host enable. Preserve
+Append-only existing-assignment continuation is implemented. The operator subsequently accepts
+[ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md): retain completed broker
+tests as development evidence and check current account/history/orders, risk, exact Normal/source/build,
+storage and dated permission without another test packet or verification restart. The simplification
+passes 243 focused/2,723 full offline tests (nine native skips) and the standard Release build.
+Next obtain actual October 21 current review, manual approval and separate host enable. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.
 

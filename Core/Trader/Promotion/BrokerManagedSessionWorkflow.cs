@@ -18,6 +18,8 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
 
     public async Task<BrokerManagedSession> ApproveAsync(BrokerExecutionApproval approval, CancellationToken ct = default)
     {
+        if (approval.Review.NoTransferScope?.Continuation is not null)
+            throw new InvalidOperationException("Use the existing-assignment continuation workflow; a dated continuation cannot create a new initial session.");
         if (string.IsNullOrWhiteSpace(approval.Reviewer) || approval.Reviewer.Length > 128 ||
             string.IsNullOrWhiteSpace(approval.Reason) || approval.Reason.Length > 1024)
             throw new ArgumentException("Explicit execution approval needs its reviewer and reason.");

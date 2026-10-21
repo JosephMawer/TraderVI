@@ -40,12 +40,17 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
     public static ImmutableArray<string> ChecksFor(BrokerNoTransferSessionScope? scope) => scope is null ? RequiredChecks :
         (scope.LimitedFirstSessionTrial ? LimitedTrialNativeChecks
             : RequiredChecks).AddRange(AdditionalScopedChecks);
-    [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks => ChecksFor(NoTransferScope);
+    // Completed first-day verification stays historical. The explicitly reviewed October 21
+    // continuation validates current readiness, not another dated qualification certificate.
+    [JsonIgnore] public ImmutableArray<string> RequiredQualificationChecks =>
+        NoTransferScope?.Continuation is not null ? [] : ChecksFor(NoTransferScope);
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     public void Validate(BrokerAccountProjection account, DateTimeOffset now)
     {
         Strategy.Validate();
         NoTransferScope?.ValidateAnchor();
+        if (NoTransferScope?.Continuation is not null)
+            BrokerContinuationReviewPolicy.RequireCurrentAccount(account, now);
         if (account.Risk.TrialCarry?.Fingerprint != NoTransferScope?.TrialCarry?.Fingerprint)
             throw new InvalidOperationException("Trial-carried risk references require the exact next-session scope; production and older approvals cannot inherit them.");
         if (account.Risk.Continuation?.Fingerprint != NoTransferScope?.Continuation?.Fingerprint)

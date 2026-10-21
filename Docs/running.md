@@ -100,19 +100,18 @@ The operator reaffirmed this as the default on October 20: keep implementation o
 and use ordinary build outputs. Separate full artifact copies/helpers are not the normal launch
 workflow. All current TFSA/performance/setup-wait implementation is on `master`.
 
-**Native checkpoint restart:** the October 20 checkpoint/recovery is completed. The accepted
-October 21 continuation changes Core and requires one actual current-build capture/restart using
-the same original orders and saved references. Build before capturing that checkpoint. When the
-app confirms checkpoint saved/read back, close it normally and reopen the unchanged normal output:
+**Completed verification:** the October 20 checkpoint/recovery is completed. Under
+[ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md), October 21 approval checks
+current account/risk/source/storage and permission, without a new verification checkpoint or restart.
+After building reviewed source with the app normally closed, the unchanged normal output can be opened with:
 
 ```powershell
 dotnet run --project TraderVI.WPF -c Release --no-build
 ```
 
-This uses normal output and retains the captured engine identity; it requires no separate launcher
-or proof rewrite. A build-enabled run can change the engine hash, including embedded Git revision
-metadata, so complete a saved checkpoint flow before rebuilding. Ordinary development/startup
-uses the original command above before qualification. The reviewed calendar path was persisted
+This uses normal output; it requires no separate launcher or proof rewrite. A build-enabled run can
+change the engine hash, including embedded Git revision metadata. Approval still reviews the exact
+running build, and a changed build cannot inherit an old host enable. The reviewed calendar path was persisted
 under explicit approval in the Windows user environment and verified outside the sandbox; open a
 new Command Prompt after that setting change. No financial setting/reference was reset.
 
@@ -124,17 +123,17 @@ risk references. Do not repeat sales/test trades, Account risk setup or the Octo
 Stop the old execution host normally before changing the build or reviewing continuation.
 
 During October 21 regular trading, sign in and open **Trading → Execution setup**. Confirm no outside
-account changes since the original cash-only baseline, then choose **Review next session**. On the
-first current-build review, the app saves/readbacks a separate checkpoint and requests one normal
-restart with the `--no-build` command above. After reopening, confirm no outside changes again and
-choose **Review next session**. The original sale selection is recovered automatically. Fresh
-Normal source, original IDs/account/cash, installed storage, references/holds and all nine checks
-must qualify; an unchanged cash-only book is required before this continuation can activate.
+account changes since the original cash-only baseline, then choose **Review next session**.
+The app checks the fresh account/history/cash/buying power and orders, exact current Normal
+source/build, installed immutable storage, preserved references/holds and October 21 permission.
+The original financial records/sale selection remain saved. Completed broker verification stays in
+development records; no new test packet, verification restart or individual test-ID reread is required.
+An unchanged cash-only book remains required before this continuation can activate.
 
 Review the displayed cash ceiling, original reference values/provenance/holds, exact Normal
 policy/daily/build and October 21 close expiry. Explicitly **Approve October 21 continuation** within
 two minutes, confirm saved/read back, then separately **Enable reviewed host**. The host stays off
-after approval. Stay available for this supervised session. New buys expire at the reviewed close;
+after approval. Stay available for this supervised session. New buys expire at **4 PM Toronto on October 21**;
 there is no October 22 renewal, and ordinary Resume buying cannot extend permission. An incomplete
 or uncertain save recovers the original request; keep the host off if records do not agree.
 
