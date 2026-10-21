@@ -58,6 +58,26 @@ five-minute capacity, uninterrupted continuity, order activity and cutoff verifi
 
 ## Installation and acceptance
 
+**Initial twenty-minute recovery verified14:31–14:32:** real StrategyEvaluated14:31:12/revision202/
+Active/profile1 consumes the14:25bar with **26/37actual families mature**, zero confirmed entries,
+orders, positions, savedblocks or daily/capitalholds; original16:00expiry. Source continuity remains
+epoch13/start14:05 for stock and benchmark through14:25;34/37latest observations are on time.
+The20minute warmup completes without another source reset. Targetinputs444/latestrecord14:29:00;
+source14:31:32/sessionMonitoring/onelease14:31:31. Latest fullcycle273.62s/Actions125.02s; captured
+fullcycles283.69/265.13/264.38/273.62s are below five minutes. All12source/runtime hashes still match
+one respondingPID97192 at14:32:30; no appfailure newer than13:43:22. This verifies initial recovery
+and actual mature-signal consumption after the focused correction, not guaranteed future latency,
+eligible entries, fills, whole-day reliability or restored historical coverage. The existing watch
+continues through close for regressions/orders/cutoff; historicalCoverageState remainsBlocked.
+
+Hash-verified receipts: `result-20261021T182959519Z-e7424b81dfc54216b19a94a7f55bb31e.json`
+(MaturityTiming.sql,26source mature/34on-time/epoch13/start14:05/14:25bar),
+`result-20261021T183138970Z-1b9b382d28f64a6a962fb3e781d19814.json` (BoundedRecoveryWatch.sql,
+actual26mature/zero confirmed/real14:31:12). Earlier14:28read also verifies real14:26:03/
+revision199/actual14:20bar/zero mature and unchanged epoch. A real-evaluation gap near ten minutes
+occurred between14:16:03 and14:26:03 while paper source inputs progressed; lower latency and
+longer-running host cadence remain limitations to watch, not silently closed by source maturity.
+
 **Second full cycle and uninterrupted early warmup,14:17–14:18:** second full cycle finishes14:15:56
 in265.13s/Actions120.99s. Actual evaluation advances14:16:03/revision196/profile1, consuming37symbols'
 14:10bar. Durable targetinputs333 through14:10/latestrecord14:13:55; selectedsource14:16:55,

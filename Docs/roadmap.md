@@ -12,8 +12,9 @@ and source review points; use its owning-record links when resuming work.
 [snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md) passes 2,821 offline Core
 checks/nine native skips and Debug WPF build. Standard Release is installed14:02 after normal
 closure/zero-owner verification; operator updated-build approval/enable and first real evaluation
-are verified14:13. Two fullcycles283.69/265.13s and next real14:16:03 are verified14:18; next prove
-sustained native capacity and20minute uninterrupted signal continuity through the existing watch.
+are verified14:13. Initial20minute continuity/mature actual signals and four sub-five-minute captured
+cycles are verified14:31. Continue the existing watch for regressions/orders/close; whole-day
+reliability and lower actual-host latency remain unproved.
 Preserve the approved Portfolio
 rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
 capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.

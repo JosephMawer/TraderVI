@@ -9,7 +9,9 @@ it does not itself grant operational authorization.
 October 21 capacity follow-up is resumed now by operator request: bounded exact fresh-payload
 snapshot reuse passes 2,821 offline Core checks/nine native skips/Debug WPF build. Standard Release
 is installed14:02 after normal closure/zero-owner verification. Operator build approval/enable and
-first real evaluation are verified14:13; native sustained capacity acceptance remains pending.
+first real evaluation are verified14:13; initial20minute continuity and actual mature signals are
+verified14:31 with four captured cycles under five minutes. Whole-day capacity/reliability remains
+under the existing through-close watch; historical coverage is stillBlocked.
 [Correction and remaining acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md),
 [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md).
 
