@@ -1,5 +1,11 @@
 # Review Flashcards
 
+### Execution status and buying permission — October 20
+
+- **Q:** Does a saved enabled host grant establish that a cycle is currently running? **A:** No. It permits the exact reviewed host to run; current activity needs an observed cycle start, and old observations must show their age. (ADR-0094)
+- **Q:** Does a normally completed cycle or an unexpired permission prove a purchase can proceed? **A:** No. A cycle can return blockers, and each purchase retains fresh account, order, source, risk and sizing checks. (ADR-0094)
+- **Q:** What does the five-minute stale-status warning change? **A:** Only the display's confidence in observed activity. It cannot alter financial freshness, expiry, holds or execution authority. (ADR-0094)
+
 ### Retained assignment and dated buying permission — October 20
 
 - **Q:** Does an ongoing Normal assignment authorize buying tomorrow after a dated trial expires? **A:** No. The assignment/history remain, but the scope's buying permission expires. A later session needs its own accepted contract, current evidence and explicit permission; enabling the old host does not supply them. (ADR-0092)

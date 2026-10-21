@@ -1,18 +1,17 @@
 # TraderVI Project Status
 
-**October 20 evening understanding check:** the operator requests a separate execution-status icon
-and buying-permission UI review. Static inspection finds existing Off/Waiting/Running/Paused/Blocked
-host states, a short desktop label and tooltip-only reason; Running does not establish permission
-to buy. Scope and any next-morning-start semantics remain open in the
-[follow-up record](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
-No implementation, runtime verification or financial authority follows from this discussion.
-
-**October 20 dedicated UI inspection:** host `Running` is a last-completed Active result, not a
-cycle-in-progress observation; the shared account/paper waits can leave that label unchanged.
-The small status/expiry/setup proposal is recorded in the linked follow-up above and awaits scope
-agreement. No code or financial state changed. One normal Release instance is open; normal closure
-must precede replacement of loaded output. October 21 native recovery/review/approval/enable and
-the 4 PM Toronto buying cutoff remain unchanged.
+**October 20 execution UI design:** the operator accepts the small display/layout scope, including
+separate activity/permission summaries and the five-minute display-only stale warning, then requests
+design documents before code. [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md) records
+the accepted boundary; the [design draft](concepts/real-tfsa-execution-ui-design-draft.md) contains
+account/setup wireframes, state wording and offline acceptance cases for review. The companion
+mockup passes 60 offline screen/state/width checks and normal/narrow visual review; this is design
+preview validation only. Source inspection
+finds host `Running` is a completed Active result, not current in-progress proof; shared account/paper
+waits can leave it unchanged. No product code, binary or financial state changes in this design pass.
+Normal closure remains required before replacing loaded output. Automatic tomorrow start is deferred;
+October 21 native recovery/review, explicit dated approval, separate enable and 4 PM Toronto cutoff
+remain unchanged. [Remaining UI review](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
 
 **October 21 continuation accepted and implemented in source, October 20:** after clarifying that
 original order-ID readback does not restrict which eligible stocks Normal may buy, the operator

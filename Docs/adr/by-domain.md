@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Separate observed execution activity from dated buying permission
+
 - [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
 
 - [ADR-0093](0093-narrow-read-only-broker-checks.md) — Frozen broker-read helper and narrow command approval
@@ -377,6 +379,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Visible activity/freshness and buying expiry, with ordered setup
 
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — One portfolio promotion flow with persistent selection
 

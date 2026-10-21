@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0094](0094-real-tfsa-execution-status-presentation.md) | Real TFSA execution and buying permission presentation | Scope accepted; detailed design draft for review before code | architecture, user-interface |
 | [0093](0093-narrow-read-only-broker-checks.md) | Narrowly approved broker-read helper | Accepted; installed and native read verified October 18 | architecture, data-sources |
 | [0092](0092-scoped-supervised-delphi-live-tfsa-session.md) | First supervised Delphi Live TFSA scope | Operator scope accepted; Core tested, not installed/activated; original qualifications retained | architecture, risk-management, market-microstructure |
 | [0091](0091-local-read-only-database-checks.md) | Fixed local read-only database checks | Accepted; installed and verified October 18 | architecture, data-pipeline |

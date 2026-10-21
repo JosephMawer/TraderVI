@@ -7,18 +7,22 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Real TFSA execution status and permission UI — October 20, 2026
 
-- **Requested follow-up:** in a separate session, review a visible icon plus plain-language status
-  for real-account automatic execution and simplify the buying-permission screen. Agree the small
-  presentation scope before implementation; the understanding-check conversation continues separately.
+- **Accepted scope, detailed design for review:** the operator accepts the small display/layout
+  proposal, including the five-minute display-only stale warning, then requests design documents
+  before code. [ADR-0094](../adr/0094-real-tfsa-execution-status-presentation.md) records that boundary;
+  the [design draft](../concepts/real-tfsa-execution-ui-design-draft.md) contains account/setup
+  wireframes, state/permission wording and offline acceptance cases. Layout/wording review and
+  implementation remain pending; the understanding-check conversation continues separately.
 - **Static finding:** `BrokerExecutionHost` reports Off, Waiting, Running, Paused and Blocked.
   `WealthsimpleAccountPanel.SetExecutionHostStatus` displays a short label with the reason in a
   tooltip. Running can accompany blocked new purchases; Waiting covers several different causes.
   A useful presentation should distinguish saved host enablement, observed activity/freshness,
   buying permission/expiry and the reason purchases cannot proceed. A saved grant alone is not
   evidence that a cycle is currently running.
-- **Open design question:** the operator suggested a possible state meaning automatic start next
-  morning. No scheduling or new trading authority is agreed. Inspect existing restart/wait behavior
-  before proposing labels; October 21 still requires fresh native review, manual dated approval and
+- **Deferred design question:** the operator suggested a possible state meaning automatic start next
+  morning. Existing startup can resume polling an exact matching enabled grant while the app is
+  open; it neither starts a closed app nor renews buying permission. No scheduling or new trading
+  authority is agreed. October 21 still requires fresh native review, manual dated approval and
   separate host enable. Do not present an expired grant as tomorrow's readiness or extend the cutoff.
 - Keep changes based on actual findings, preserve financial history and all existing controls, and
   validate offline. Coordinate normal closure before replacing loaded standard Release output.
@@ -30,7 +34,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   Enabled grants are reread after startup and resume polling only for the matching assignment/build/
   continuation; they neither start a closed app nor renew the dated purchase scope. The saved-mode
   display currently says buying is allowed after checks without showing the scoped expiry.
-- **Proposal awaiting operator scope agreement:** show an icon/text for stopped, enabled/waiting,
+- **Accepted presentation scope:** show an icon/text for stopped, enabled/waiting,
   cycle in progress, paused or blocked; keep the reason visible and show observed last check and
   last completed cycle separately. Add a five-minute display-only stale-status warning, updated
   independently of financial polling. Show new-purchase mode, dated expiry and known saved blockers
@@ -39,7 +43,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
   retain older first-session actions in a secondary section. Keep current status visible during
   setup actions. Do not change controls, qualification, scheduling, financial authority or execution
   rules. Defer “starts automatically tomorrow” pending a separate behavioral decision.
-- **Implementation boundary:** no code changed in this inspection checkpoint. Offline tests should
+- **Implementation boundary:** no product code or binaries changed in this design checkpoint. Offline tests should
   cover stale/missing observations, cycle start/completion/failure, expiry at the exact cutoff,
   account changes and independent purchase blockers. A normal Release owner is open at inspection;
   coordinate normal closure before any build replaces its loaded output. October 21 still requires

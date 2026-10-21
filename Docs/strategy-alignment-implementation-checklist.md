@@ -240,8 +240,14 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
   session: Running follows an Active cycle result, purchase blockers remain independent, and shared
   account/paper waits can delay new status. No code or operational validation in this checkpoint.
-- [ ] Agree the proposed small activity/permission display and ordered setup scope, then implement
-  and validate offline, coordinating normal closure before replacing loaded standard output.
+- [x] Agree the small activity/permission display and ordered setup scope, including the five-minute
+  display-only stale warning. [ADR-0094](adr/0094-real-tfsa-execution-status-presentation.md).
+- [x] Draft requested design documents before code: account/setup wireframes, state/permission
+  wording and offline acceptance cases. [Design draft](concepts/real-tfsa-execution-ui-design-draft.md).
+- [x] Verify the design preview offline: 60 screen/state/width checks, bundled icons and normal/
+  narrow visual review; no WPF runtime or financial qualification is inferred.
+- [ ] Review layout/wording with the operator, then implement and validate offline, coordinating
+  normal closure before replacing loaded standard output.
   [Request/open questions](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026);
   automatic next-morning startup is not an accepted requirement or trading authority.
 - [x] Observe the expected October 21 regular-session-only refusal in the operator's October 20

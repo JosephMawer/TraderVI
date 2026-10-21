@@ -1,5 +1,7 @@
 # Concepts
 
+- [Real TFSA execution and buying permission UI design draft](real-tfsa-execution-ui-design-draft.md) — accepted display scope; account/setup wireframes, state meanings and offline checks for review before code.
+
 - [Progressive profit trailing draft](progressive-profit-trailing-draft.md) — a shrinking percentage gap for individual winners; confirmed direction, unchosen operating settings.
 
 - [Wealthsimple authentication](wealthsimple-authentication.md) — observed password/OTP protocol, verified direct browser-session handoff, and remaining login integration work.
