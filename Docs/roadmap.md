@@ -10,8 +10,10 @@ and source review points; use its owning-record links when resuming work.
 
 **October 21 immediate priority:** operator resumed the slowdown fix now. The focused
 [snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md) passes 2,821 offline Core
-checks/nine native skips and Debug WPF build. Next coordinate normal closure, standard Release
-installation and a new explicit build review/enable. Preserve the approved Portfolio
+checks/nine native skips and Debug WPF build. Standard Release is installed14:02 after normal
+closure/zero-owner verification; operator updated-build approval/enable and first real evaluation
+are verified14:13. Next prove sustained native capacity and uninterrupted signal continuity.
+Preserve the approved Portfolio
 rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
 capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.
 

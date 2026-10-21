@@ -21,10 +21,18 @@ cross-session index, not a second authority or permission to run anything.
 **October 21 slowdown resumed now (R04/R08):** latest human request supersedes evening deferral for
 the focused snapshot correction. Exact fresh-payload reuse and dated same-source build review are
 implemented under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md).
-Final offline validation: 2,821 Core pass/nine native skips/Debug WPF pass. Normal-close Release
-installation and operator approval/enable remain pending;
+Final offline validation: 2,821 Core pass/nine native skips/Debug WPF pass. Operator normal closure
+confirmed; zero owners14:00:57/14:01:12. Release from484f8cff installs14:02/zero errors/125hashes/
+matching Core. Operator startup, build approval14:06:29 and separate enable are followed by verified
+real14:11:23/revision193/newbuild/profile1/PID97192/matchinghashes. Original financial/signal history
+and16:00expiry preserved; zeroorders/holds/blocks. First fullcycle283.69s improves earlier observations
+but sustained capacity/continuity remain pending;
 older SQL-save retry draft is still excluded. [Owning evidence/acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md).
-Source review point advances through this request and13:36hash-verified read, with no financial action.
+Source review point advances through13:58–13:59heartbeat: real13:52:53/revision186, zeroorders/holds/
+blocks/same16:00; another known52232occurrence13:43:22 and epoch12/start13:45/zero mature are recorded
+in the owning report. Source review point includes operator closure,14:02installation and14:13native
+first-execution/memory-preservation checks;
+no app launch, financial approval, host enable or trading action was performed by the agent.
 
 **October21 second post-switch recovery (R04):**13:18read verifies real13:18:39/revision168/
 profile1 consumes37symbols13:10bar,0mature/confirmed/orders/positions/holds/blocks,same16:00.

@@ -51,11 +51,68 @@ cached Pkcs9.0.4 dependency advisories NU1902/NU1903 remain separate. Full solut
 Current native diagnostic sample has59unpacks averaging1,132ms versus62SQL reads averaging269ms;
 this supports targeting repeated unpack work, without establishing SQL server wait attribution.
 
-Nothing installed, restarted, approved or enabled by this work yet. No schema,
+Standard Release installation is recorded below; no app was launched, approved or enabled by the
+agent. No schema,
 market-service, training, broker mutation or native write rehearsal was run. Native sustained
 five-minute capacity, uninterrupted continuity, order activity and cutoff verification remain open.
 
 ## Installation and acceptance
+
+**First new-build real execution verified14:13:** user reports updated-build approval/enable.
+One responding standard-Release ownerPID97192 starts14:02:38; all12reviewed source/runtime hashes
+match. Durable ImplementationReviewed is revision190/14:06:29; new effective Core identity matches.
+Real StrategyEvaluated follows14:11:23/revision193/Active/profile1. Original source approval12:43:10,
+original approval/continuation, financial risk history, orders/protection and exact16:00expiry remain.
+No orders/positions/savedblocks/daily/capitalholds or order-review/invalidation hold at this check.
+
+The initial SQL comparison of whole serialized Memory returns unequal bytes; 50symbol entries remain,
+no financial scalar properties differ, but37nested symbol payloads also differ as serialized text.
+This was investigated rather than accepted as preservation. A recursive SQL diagnostic first fails
+type/collation validation, then its corrected version times out; neither failure is an application
+SQL failure. The installed helper subsequently reads just the two reviewed Memory objects into
+ignored evidence; local recursive object-key sorting (array order/scalars preserved) verifies equal
+canonical SHA256. **All signal/financial memory is semantically preserved; only JSON object order
+differs across processes.** No private payload is displayed or committed. Evidence scripts/receipts
+remain ignored. ReviewRead now labels its raw-byte comparison MemorySerializationBytesMatch so a
+false raw comparison is not presented as a semantic failure.
+
+Receipts: `result-20261021T181320200Z-eb4ce9f5f80a48449e05d9c4c06789cf.json` (review/execution),
+`result-20261021T180856707Z-890c07f72e2e4a3790c2c110e91db87c.json` (aggregate memory properties),
+`result-20261021T181226623Z-577b3ec4f49e4f9dbabcae4f25255b88.json` (private memory input;
+queryhashD050251D3090CDBDFD9C16AE05082B59BADABF0FF81D7D1BDC31C996F07B8EB2), with
+`artifacts/snapshot-slowdown-20261021/Compare-Memory.ps1` producing CanonicalMemoryMatches=true.
+
+Initial restart engine pass takes161.64s. First full observed cycle completes14:11:15 in283.69s
+(Collect3.59s/Evaluate0.73s/Actions127.61s), versus preceding353.67/372.33/502.90s observations;
+workload/cold-start differences limit this comparison. A setup wait still times out after120.02s
+before another wait drains81.85s; first live evaluation is confirmed only after that boundary.
+Current unpack sample157loads averages365.5ms versus prior59loads/1,132ms. No newer application
+failure than13:43:22 observed. This is first execution/performance evidence, **not sustained capacity
+or uninterrupted continuity acceptance**; next complete cycles and fresh source inputs must be read.
+
+**Installed14:02 Toronto:** operator confirms Stop execution host/normal close. Independent owner
+counts are zero14:00:57 and14:01:12. Standard Release builds from code commit484f8cff2c6dac3874ef8bf4a1fdb1a48442b7db
+with zero errors (262existing warning emissions, including CS8632/CS0168 and separate Pkcs dependency
+advisories). Full solution/SSDT not run. All125previous output files are preserved with hashes under
+`artifacts/snapshot-slowdown-20261021/before-release`; the three prior runtime binaries match the
+previous reviewed manifest. The new125file manifest, reviewed source/runtime hashes, installation
+receipt and build log are in the same artifact folder. WPF's installed Core matches the Release Core
+output. No owners remain at the installation receipt. No app startup, SQL mutation, broker operation,
+financial approval or host enable was performed. Operator normal --configuration Release --no-build
+startup/sign-in, Review updated build, Approve reviewed build and separate Enable reviewed host are
+pending. Normal restart can require one fresh warmup; sustained native timing/continuity is unverified.
+
+**Read-only watch while closure is pending,13:58–13:59:** one responding unchanged standard-Release
+ownerPID39964; all three expected runtime hashes still match the prior reviewed copy. Real evaluation
+advances to13:52:53/revision186/profile1, actual37symbols through13:45bar, zero mature/confirmed,
+automaticorders/positions/savedblocks/daily/capitalholds; original16:00expiry. Targetinputs259 through
+13:50bar recorded13:56:46; source13:58:40/sessionMonitoring/onelease13:56:42. App diagnostic latest
+52232occurrence is13:43:22; current stock/benchmark continuity is epoch12/start13:45,30/37on-time,
+zero mature. This is another occurrence of the already-known pending-fix blocker, with real evaluation
+recovery; it does not establish sustained recovery or a purchase ETA. No repeated unchanged alert or
+installation/approval/control action. Hash-verified receipts:
+`result-20261021T175849064Z-74e214881e364842a4b9cce71ce8dbfc.json` (BoundedRecoveryWatch.sql) and
+`result-20261021T175928124Z-51b5df67ffe84d76bb986a01792f2f5a.json` (MaturityTiming.sql).
 
 1. Complete offline regression/build review and commit the focused change.
 2. Operator stops execution host and closes TraderVI normally; independently verify zero owners.

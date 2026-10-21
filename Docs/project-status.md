@@ -6,10 +6,19 @@
 snapshot reuse and explicit same-source updated-build review are implemented under
 [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Final offline validation:
 2,821 Core pass/nine native skips; Debug WPF build passes. Large-history/cache/corruption and exact
-approval/expiry/recovery checks pass. Normal-close installation and operator build approval/enable remain pending.
-The existing app stays on its approved build; no trading/control action is authorized by diagnostics.
-The 13:36 read verifies real evaluation13:32:31/revision177/profile1, zero orders/positions/holds/
-blocks, same16:00expiry. Detailed evidence and remaining acceptance:
+approval/expiry/recovery checks pass. Operator normal stop/closure confirmed; zero owners verified
+14:00:57 and again14:01:12. Standard Release from484f8cff builds/installs14:02 with zero errors;
+125output hashes recorded, Core copy matches. Operator startup/review/approval/enable are now reported;
+14:13read verifies revision190/build approval14:06:29 and first new-build real evaluation14:11:23/
+revision193/Active/profile1; PID97192/12source-runtime hashes match. Original scope/risk/history/
+signal memory/16:00expiry preserved; zeroorders/positions/holds/blocks. First full cycle283.69s is
+faster than preceding observations but still near five minutes; sustained native capacity/continuity
+remain unverified. No app launch, financial approval or trading action was performed by the agent.
+The 13:58 read verifies real evaluation13:52:53/revision186/profile1, zero orders/positions/holds/
+blocks, same16:00expiry. Diagnostics additionally show the known52232deadline recurring13:43:22;
+13:59metadata verifies epoch12/13:45continuity and zero mature symbols. The same slowdown remains
+unresolved on the prior build at that read; no new purchase ETA or native fix acceptance is claimed.
+Detailed evidence and remaining acceptance:
 [slowdown correction](reviews/delphi-live-snapshot-slowdown-20261021.md). The older SQL-save retry
 draft remains parked; the evening reminder does not defer this newly requested focused work.
 

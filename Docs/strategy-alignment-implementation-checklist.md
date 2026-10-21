@@ -14,8 +14,13 @@ The September 22 documentation cleanup preserves the
   review under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Preserve
   financial/signal history and 16:00 cutoff. 2,821 Core pass/nine native skips/Debug WPF build pass.
   [Evidence and acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md).
-- [ ] Install validated slowdown build after normal closure; operator reviews/approves the exact
-  updated build and enables separately. Verify sustained native continuity/latency before claiming recovery.
+- [x] Install validated slowdown build after normal closure/zero-owner verification14:01.
+  Standard Release from484f8cff succeeds14:02;125output hashes recorded/Core matches.
+- [x] Operator starts normally, signs in, reviews/approves the exact updated build and enables
+  separately.14:13read proves build approval14:06:29/first real14:11:23/revision193; original risk,
+  source/signal/financial history and16:00expiry preserved, zeroorders/holds/blocks.
+- [ ] Verify sustained native continuity/latency before claiming recovery. First fullcycle283.69s
+  improves earlier observations, but first execution alone does not prove five-minute capacity.
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.
