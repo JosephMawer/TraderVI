@@ -18,6 +18,13 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 review freshness (R04):** operator shares source-switch review/source-expired screen.
+New normalRelease ownerPID39964 responds12:34:11, expected hashes match; hash-verified12:34:42 read
+finds target refreshed12:34:29, samepair/policysettings,sessionMonitoring/onelease. No source approval,
+orders/positions or cutoff change. Advise new review/approval within two minutes then separateenable;
+freshness remains unchanged. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through screenshot and bounded diagnostic. No code/financial action.
+
 **October 21 source-switch implementation (R04):** user explicitly requests implementation now
 for personal review/approval, preserving risk and 16:00. Exact matched Portfolio rules only workflow
 and review UI implemented; 73 focused/2,780 full offline checks and Debug build pass, nine native

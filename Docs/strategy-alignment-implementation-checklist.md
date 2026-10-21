@@ -20,6 +20,8 @@ The September 22 documentation cleanup preserves the
 - [x] Install standard Release after operator normal closure and zero-owner verification12:27:18.
   Build succeeds from5dc368fd; warnings/evidence in project status. No app launch or financial action.
 - [ ] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
+  App reopened/responds12:34; target source fresh after startup, but prior review/source expired.
+  Retry a fresh review; no switch is saved by the12:34 bounded read.
 - [ ] Read-only verification proves the new effective source/build, unchanged scope/risk/cutoff and
   advancing real evaluations after approval. Actual orders/fills/protection remain separate evidence.
 

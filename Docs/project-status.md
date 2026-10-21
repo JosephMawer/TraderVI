@@ -2,6 +2,16 @@
 
 ## October 21 post-open execution watch
 
+**Source-review freshness after restart, 12:34 Toronto:** one standard Release ownerPID39964 starts
+12:31:56; initial startup does not respond, then responds with a main window at12:34:11. Expected
+new output hashes match. Operator shows source-switch review/source-expired message; no source
+approval is saved. At12:34:42 the ungated source has just advanced12:34:29, same matched pair and
+zero non-identity policy differences. Live sessionMonitoring/one renewing lease resumes; historical
+Blocked coverage remains. TFSA stays Normal/revision143/latest12:19:12,zero orders/positions,
+same16:00expiry. Advise a fresh Review Portfolio rules only, explicit approval within two minutes,
+then separate enable; do not weaken freshness or infer execution from app/source progress. Receipt:
+`result-20261021T163442557Z-f8c531c05f32416ea54c067e832c90cb.json`, hash-verified ReviewExpiry.sql.
+
 **Portfolio rules only switch implementation, October 21:** the operator explicitly requests
 implementation now, preserving risk and today's 16:00 expiry, for personal review/approval.
 [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md) records the narrow

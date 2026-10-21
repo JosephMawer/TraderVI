@@ -31,7 +31,8 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 and explicit desktop review/approval are implemented under
 [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md). Offline validation
 passes and standard Release is installed after normal closure/zero-owner verification. Next: operator
-normal startup/sign-in, exact-source approval and separate enable, followed by read-only verification.
+exact-source approval and separate enable, followed by read-only verification. App reopened/responds;
+after an expired-source review, the target source is fresh at12:34 and a new review is required.
 Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
 [Facts](project-status.md#october-21-post-open-execution-watch),
 [operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
