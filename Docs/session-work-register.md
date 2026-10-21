@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 no-buy cause clarified (R04):** user asks the main reason for no purchases. Bounded
+11:43–11:46 reads establish zero Normal daily admission:35published stocks/50lens entries, all
+first fail Breadth. All saved Normal inputs lack DailySetup; momentum confirmations in the monitored
+universe do not establish purchase eligibility. Earlier confirmation-only explanations are incomplete.
+Repeated recovery/warmup resets are an additional operational impairment, not proof that otherwise
+eligible buys were missed. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through this question and hash-verified daily admission/history reads.
+No policy/gate/control/source change; deferred evening reliability work and watch continue.
+
 **October 21 repeated deadline failure/recovery (R04):** 11:16:24 read finds another over-ten-minute
 real-evaluation gap, but source has just advanced. Safe diagnostics identify SQL52232 at11:07:47;
 LiveActions finishes11:16:29 after138.85s. Bounded hash-verified follow-up11:16:51 confirms real

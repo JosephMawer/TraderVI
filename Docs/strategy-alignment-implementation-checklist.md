@@ -280,6 +280,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
   all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.
 - [ ] Establish the exact SQL evaluation-save timeout cause and agree any correction before changing
   the running system. [Open investigation](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
+- [x] Establish the upstream no-buy reason with11:43–11:46 read-only evidence:zero of35published
+  stocks admitted to Normal; all50lens entries first fail Breadth. Monitored momentum confirmation
+  cannot substitute for daily admission. Correct earlier confirmation-only explanations; gates stay.
+  [Evidence](project-status.md#october-21-post-open-execution-watch).
 - [x] Record operator deferral of the partial SQL reliability fix until tonight and create the
   21:00 Toronto one-time reminder. Source remains uninstalled/incomplete; preserve today's running
   build/gates/risk/16:00 expiry. [Progress and limits](project-status.md#october-21-post-open-execution-watch).

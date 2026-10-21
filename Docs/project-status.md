@@ -2,6 +2,24 @@
 
 ## October 21 post-open execution watch
 
+**No-buy cause established by bounded reads 11:43–11:46 Toronto:** today's latest adopted source
+for the approved Normal comparison contains 35 published stocks (50 lens entries); **zero are
+admitted by Normal**. Every published lens entry is ineligible with first failure **Breadth**.
+The daily screen's market-participation gate is therefore an upstream reason no buy can be created,
+independent of intraday confirmation. All 703 saved Normal-policy observations across 37 monitored
+symbols at the follow-up lack `DailySetup`; ten momentum-confirmation completions exist in this
+observation-only set but none is fully buy-eligible. The earlier two candidates were momentum
+watch observations, not established daily-admitted purchase candidates. Earlier explanations that
+focused only on waiting for confirmation were incomplete. The 11:43 execution read still shows
+revision128/latest11:34:43,26 real evaluations,no saved blocks/daily/capital holds or automatic orders/
+positions,exact16:00expiry. Repeated continuity recoveries additionally reset signal history; epochs
+3 and4 have no mature saved evaluations, with epoch5 starting11:38:14. These operational losses do
+not explain away the separately established zero daily admission. The first-failure trace does not
+prove later gates pass; no threshold/gate/profile/control change is proposed or performed.
+Hash-verified receipts: `result-20261021T154337094Z-39ff177a82cf42d2ae7cff91d8ee15a8.json`,
+`result-20261021T154435478Z-6aedd01548584f1ab569c5aa21b6be3a.json` and
+`result-20261021T154659094Z-5f602c79c3d442ddaed5c73d3990480d.json` (reviewed ignored SQL files).
+
 **Repeated deadline failure and recovery verified 11:16:51 Toronto:** real execution advances to
 revision 119/Active/StrategyEvaluated at **11:16:46**, twenty-three post-open evaluations, no saved
 execution blocks and zero automatic orders/fills/positions. The first 11:16:24 read still has the

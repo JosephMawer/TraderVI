@@ -57,6 +57,10 @@ at 10:52:16 after roughly 12½ minutes. The same deadline failure recurs at 11:0
 11:16 follow-up confirms another recovery at 11:16:46 after roughly twelve minutes, still no orders.
 Include this distinct recurring deadline failure in tonight's investigation; the SQL-2 retry draft
 does not establish its correction. The fix stays deferred and controls remain.
+The 11:46 no-buy analysis establishes a separate primary gate: Normal admits zero of today's35
+published stocks; all50 lens entries first fail Breadth. Intraday momentum confirmation alone cannot
+authorize a purchase. Earlier confirmation-only explanations are incomplete; preserve the approved
+Normal profile and daily gate. [Evidence](project-status.md#october-21-post-open-execution-watch).
 Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
