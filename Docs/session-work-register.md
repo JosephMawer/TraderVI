@@ -26,6 +26,15 @@ the [request/open questions](reviews/open-questions.md#real-tfsa-execution-statu
 Source review point: this conversation, through the host-enable explanation and requested UI handoff;
 the remaining original-order/risk/current-account and tomorrow-step discussion is still pending.
 
+**October 20 dedicated UI session (R04):** source inspection confirms Running means a completed
+Active cycle and may coexist with purchase blocks; shared account/paper waits can leave status
+unchanged. The [concrete proposal](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026)
+separates activity/freshness from buying mode/expiry/blockers and orders setup into review, dated
+approval and host enable. Scope agreement is pending; no code, financial save or operational check.
+Source review point: this UI conversation through the initial proposal/scope question. Preserve the
+separate understanding discussion's review point above. One normal Release owner is open; coordinate
+normal closure before replacing loaded output. October 21 approval/enable/cutoff remain unchanged.
+
 IDs are stable references, not a new implementation order. A source/test milestone does not imply
 installation, continuous operation or trading readiness. Dates below describe recovered evidence;
 the original consolidation performed no fresh operational qualification. The October 17 research

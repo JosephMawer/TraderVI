@@ -23,6 +23,28 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - Keep changes based on actual findings, preserve financial history and all existing controls, and
   validate offline. Coordinate normal closure before replacing loaded standard Release output.
   This records a request and open questions, not an implemented UI or broker verification.
+- **October 20 dedicated inspection:** the shared desktop timer awaits account refresh before host
+  polling, which itself waits for admitted paper work. `CheckedAt` changes only on a presented host
+  result; no separate cycle-start/completion history is exposed. Core `Running` is presented after
+  an Active result, including a result with purchase blocks, rather than while `tick` is executing.
+  Enabled grants are reread after startup and resume polling only for the matching assignment/build/
+  continuation; they neither start a closed app nor renew the dated purchase scope. The saved-mode
+  display currently says buying is allowed after checks without showing the scoped expiry.
+- **Proposal awaiting operator scope agreement:** show an icon/text for stopped, enabled/waiting,
+  cycle in progress, paused or blocked; keep the reason visible and show observed last check and
+  last completed cycle separately. Add a five-minute display-only stale-status warning, updated
+  independently of financial polling. Show new-purchase mode, dated expiry and known saved blockers
+  separately; an unexpired permission remains subject to fresh checks, never a purchase guarantee.
+  Group setup into review account/evidence, explicit dated approval, then separate host enable;
+  retain older first-session actions in a secondary section. Keep current status visible during
+  setup actions. Do not change controls, qualification, scheduling, financial authority or execution
+  rules. Defer “starts automatically tomorrow” pending a separate behavioral decision.
+- **Implementation boundary:** no code changed in this inspection checkpoint. Offline tests should
+  cover stale/missing observations, cycle start/completion/failure, expiry at the exact cutoff,
+  account changes and independent purchase blockers. A normal Release owner is open at inspection;
+  coordinate normal closure before any build replaces its loaded output. October 21 still requires
+  actual current-build native recovery/review, explicit dated approval and separate host enable;
+  new purchases stop at 4 PM Toronto. No orders, permission saves or operational validation here.
 
 ### Obsolete generated build copies — October 20, 2026
 

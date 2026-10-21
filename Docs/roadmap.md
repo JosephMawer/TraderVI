@@ -36,6 +36,10 @@ grant or October 22 renewal. October 20 permission stays expired.
 
 The operator requests a separate [execution-status/buying-permission UI review](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
 Agree a small presentation scope first; automatic next-morning startup remains an open suggestion.
+Dedicated source inspection now identifies completed-cycle versus in-progress ambiguity and shared
+polling waits. The proposed separate activity/permission display and ordered setup await scope
+agreement; implement/test offline only after agreement and coordinate normal closure before building
+over loaded standard output.
 
 **October 18 execution request:** prioritize the shortest qualified Delphi Live → TFSA route
 for the requested October 19 target, preserving the existing account/protection/execution boundaries.

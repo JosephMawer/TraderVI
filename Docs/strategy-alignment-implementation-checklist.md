@@ -237,8 +237,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   checks/close expiry remain. [Manual steps](running.md#october-21-only-normal-continuation).
 - [ ] Operator performs actual October 21 native current-build recovery, reviewed continuation
   approval and separate host enable; observe native activation and exact cutoff for this date.
-- [ ] In a separate session, agree/review a small execution-status and buying-permission UI
-  improvement grounded in existing host states, permission expiry and actual activity/freshness.
+- [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
+  session: Running follows an Active cycle result, purchase blockers remain independent, and shared
+  account/paper waits can delay new status. No code or operational validation in this checkpoint.
+- [ ] Agree the proposed small activity/permission display and ordered setup scope, then implement
+  and validate offline, coordinating normal closure before replacing loaded standard output.
   [Request/open questions](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026);
   automatic next-morning startup is not an accepted requirement or trading authority.
 - [x] Observe the expected October 21 regular-session-only refusal in the operator's October 20

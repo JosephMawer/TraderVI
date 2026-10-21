@@ -7,6 +7,13 @@ to buy. Scope and any next-morning-start semantics remain open in the
 [follow-up record](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026).
 No implementation, runtime verification or financial authority follows from this discussion.
 
+**October 20 dedicated UI inspection:** host `Running` is a last-completed Active result, not a
+cycle-in-progress observation; the shared account/paper waits can leave that label unchanged.
+The small status/expiry/setup proposal is recorded in the linked follow-up above and awaits scope
+agreement. No code or financial state changed. One normal Release instance is open; normal closure
+must precede replacement of loaded output. October 21 native recovery/review/approval/enable and
+the 4 PM Toronto buying cutoff remain unchanged.
+
 **October 21 continuation accepted and implemented in source, October 20:** after clarifying that
 original order-ID readback does not restrict which eligible stocks Normal may buy, the operator
 explicitly accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
