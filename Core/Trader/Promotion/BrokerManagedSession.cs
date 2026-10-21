@@ -116,6 +116,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     public BrokerLiveSourceSwitch? SourceSwitch { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerImplementationReview? ImplementationReview { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerDecisionTrace? LatestDecision { get; init; }
     [JsonIgnore] public BrokerActivationReview EffectiveReview
     {
         get
@@ -158,6 +160,8 @@ public interface IBrokerManagedAccountSource
     Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct);
     Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
         Task.FromResult(input.Quotes);
+    async Task<TradingQuoteReadResult> ReadQuoteObservationAsync(TradingRecommendationInput input, CancellationToken ct) =>
+        new(await ReadQuotesAsync(input, ct), [], ["SourceDoesNotProvideAttemptDiagnostics"]);
     Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct);
     Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct);
 }

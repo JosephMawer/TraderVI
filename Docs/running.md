@@ -163,6 +163,19 @@ continuation above. Account risk setup can display retained references; do not s
 
 ### October 21 reviewed Portfolio rules only switch
 
+**Later lag/diagnostics preparation:** ADRs0099/0100 optimize exact report processing and add private
+`LatestDecision` evidence to the existing broker session revisions. They do not renew the dated
+scope. Use [DelphiLiveDecisionSummary.sql](../Operations/ReadOnlyChecks/DelphiLiveDecisionSummary.sql)
+only through the installed read-only SQL mailbox/helper and verify its query hash. The query shows
+aggregate first-failed entry checks, quote-attempt outcomes, selected-action stage and safe preflight
+check names; per-symbol details remain in private SQL. A returned quote, recommendation, intent,
+broker acknowledgement and confirmed fill are distinct. Read trace timestamps and pending states.
+Fixed BrokerAdmission/SourceRead/AccountRead/InputRead/LivePrepare/QuoteRead/Evaluate/StateSave/
+SecurityRead/Preflight/Submit stages share the existing bounded local timing log. Missing telemetry
+does not permit an assumption that checks passed. Build with isolated outputs while the app is open;
+normal stop/closure must precede standard Release replacement. October22 review/permission is a
+separate unresolved preparation question; never extend an October21 grant by changing a date or file.
+
 For the subsequent performance build, [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md)
 adds **Review updated build** and **Approve reviewed build** after normal stop/closure, installation
 and sign-in. It retains the already approved source, signal memory and financial history. Confirm

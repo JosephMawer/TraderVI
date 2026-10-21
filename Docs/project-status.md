@@ -7,8 +7,13 @@ automatic orders/fills/positions or post-cutoff buy intents. Saved purchase perm
 16:00Toronto, entry cutoff15:45 unchanged. SessionIncomplete/CoverageBlocked retains today's gaps;
 no attempted-order cutoff test. Final read reported and heartbeat deleted; no October22 renewal.
 **New implementation request:** remove remaining lag and persist exact decision reasons, preserving
-risk. Direct typed packing/exact report comparisons are implemented under ADR-0099; 44focused codec/action/transition
-tests pass, further validation and diagnostics pending. No new build installed or activated.
+risk. ADR-0099 direct typed packing/exact report comparisons are committed8a81ed39; ADR-0100 private
+entry/quote/selection/preflight/intent traces and fixed stage timings are implemented. Final2,852Core
+pass/nine native SQL skips with test concurrency disabled; default-parallel full runs expose an
+unrelated AI cleanup-wait timing failure, which passes in isolation and serialized suites. Isolated
+WPF Release build passes; aggregate diagnostic SQL parses. Standard installation awaits normal closure;
+native timing/publication remain pending. Operator now explicitly authorizes preparing the October22
+review path only as the next increment; no new approval or authority is activated.
 [Owning evidence and remaining work](reviews/delphi-live-lag-and-decisions-20261021.md).
 
 **Slowdown correction resumed on operator request, October 21 afternoon:** targeted exact-payload
@@ -24,7 +29,7 @@ signal memory/16:00expiry preserved; zeroorders/positions/holds/blocks. Initial2
 verified14:31: actual14:31:12/revision202 consumes14:25bar,26/37mature/zero confirmed entries,
 unchanged epoch13/start14:05,34/37on-time. Captured fullcycles283.69/265.13/264.38/273.62s stay under
 five minutes; no post-build appfailure observed.12hashes/one respondingPID97192 verified14:32.
-Whole-day reliability/lower actual-host latency remain unproved; existing five-minute watch continues.
+Whole-day reliability/lower actual-host latency remain unproved; that watch completed16:06 as above.
 15:23read verifies real15:22:15/revision238:24mature/zero confirmed, zeroorders/holds/savedblocks.
 Two daily-admitted signals briefly confirmed at15:16:03, then lost Strong momentum on the next bar.
 All24mature observations remain valid/Normal confidence/no safety veto; current waiting is momentum.
@@ -33,7 +38,7 @@ existing7minute freshness allowance. Earlier confirmed signals fit one share at 
 their native quote/recommendation outcomes are not persisted, so their lack of orders is unresolved.
 Existing strategy entry cutoff15:45 and outer purchase permission16:00 both remain unchanged.
 15:52watch verifies real15:48:25/revision253/21new-build evaluations,26mature/two confirmed on
-15:40bar; zeroorders/positions/holds/savedblocks. Entry window has ended; final16:05read remains.
+15:40bar; zeroorders/positions/holds/savedblocks. Entry window ended; final16:06read is recorded above.
 One responding owner/all12hashes match, source/inputs/lease advance; historicalBlockedcoverage and
 residual latency remain. This is no attempted-order cutoff test.
 No app launch, financial approval or trading action was performed by the agent.

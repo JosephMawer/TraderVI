@@ -197,6 +197,14 @@ acceptance are complete. New WPF writes use the compact representation. See
 
 ## Complete-strategy recommendations
 
+[ADR-0100](adr/0100-live-entry-and-order-decision-traces.md) adds optional private decision traces to
+the existing broker session JSON. The engine observes its existing confirmed-entry predicates;
+quote attempts and final single-action selection/preflight/intent/submission retain separate outcomes.
+Trace metadata grants no permission and is never used by the financial gates. Old absent fields
+remain omitted. Fixed local timing stages expose admission and execution cost without private data.
+The [SELECT-only summary](../Operations/ReadOnlyChecks/DelphiLiveDecisionSummary.sql) reads aggregate
+reasons and original evidence timestamps; pending/missing traces and acknowledgements are not fills.
+
 [ADR-0088](adr/0088-source-symbol-aliases-for-monitoring.md) adds explicit source-scoped symbol aliases
 at the Live observation boundary. Real broker holdings resolve to existing stock identifiers while
 retaining their owning record IDs and permissions. Stored account history is unchanged. Migration 041

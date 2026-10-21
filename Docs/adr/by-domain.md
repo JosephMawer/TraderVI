@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Private durable reasons from confirmation through order selection/submission
+
 - [ADR-0099](0099-exact-report-sharing-in-live-writes.md) — Direct typed packing with unchanged complete fingerprints
 
 - [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Exact fresh-payload snapshot reuse and unchanged-source build approval
@@ -252,6 +254,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Preserve existing preflight checks, intent recovery and dated permission
+
 - [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Preserve dated financial/signal history through explicit build review
 
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Preserve references, history, spending limits and 16:00 expiry through a source switch
@@ -319,6 +323,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0053](0053-delphi-live-v1.md) — Delphi Live V1
 
 ## decision-engine
+
+- [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Observe existing entry predicates without changing decisions
 
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Existing ungated comparison source; independent post-approval confirmation
 - [ADR-0090](0090-progressive-individual-profit-trailing.md) — Prospective opt-in across portfolio engines; original policies and established protection preserved

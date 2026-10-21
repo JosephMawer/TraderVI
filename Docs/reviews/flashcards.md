@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Confirmed signals and orders — October 21
+
+- **Q:** Does ConfirmedLiveEligible prove an order or fill? **A:** No. Fresh quotes, sizing, selection, broker preflight and dated permission still apply. An acknowledgement is not a fill. (ADR-0100)
+- **Q:** Can a diagnostic failure justify retrying an order? **A:** No. Retain the original intent and recover its status; a missing/pending trace is incomplete evidence. (ADR-0100)
+
 ### Remaining Live write cost — October 21
 
 - **Q:** Does direct typed packing allow fewer fingerprint bytes or weaker SQL verification? **A:** No. It avoids repeated report escaping and giant buffers while preserving every original canonical byte, content hash, readback and financial check. (ADR-0099)

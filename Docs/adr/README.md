@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0100](0100-live-entry-and-order-decision-traces.md) | Live entry and order decision traces | Accepted October 21; source/offline validation | architecture, decision-engine, risk-management |
 | [0099](0099-exact-report-sharing-in-live-writes.md) | Exact report sharing in Live snapshot writes | Accepted October 21; offline validation in progress | architecture, data-pipeline |
 | [0098](0098-verified-snapshot-read-reuse-and-build-review.md) | Verified snapshot read reuse and dated build review | Accepted October 21; native acceptance pending | architecture, risk-management |
 | [0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) | Reviewed October 21 Portfolio rules only source switch | Accepted October 21; explicit operator approval/enable required | architecture, risk-management, decision-engine, user-interface |

@@ -53,7 +53,8 @@ public sealed class BrokerManagedTransportTests
             await Assert.ThrowsAsync<InvalidOperationException>(() => prepared.SubmitOnceAsync(default));
         }
         Assert.False(f.Safety.Held); Assert.Equal(1, f.Gate.CurrentCount);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => f.Transport.PrepareAsync(f.Order, f.Projection, default));
+        var failure = await Assert.ThrowsAsync<InvalidOperationException>(() => f.Transport.PrepareAsync(f.Order, f.Projection, default));
+        Assert.Equal(BrokerOrderCheck.OriginalOrderRecoveryRequired, BrokerOrderFailureEvidence.Read(failure)!.Check);
         Assert.Equal(1, f.Buys.Submissions);
     }
 
@@ -77,7 +78,16 @@ public sealed class BrokerManagedTransportTests
             case "stale": f.Buys.Context = context with { Quote = context.Quote with { QuotedAt = f.Clock.Now.AddHours(-1) } }; break;
             default: f.Risk.State = f.Risk.State with { CapitalReviewRequired = true }; break;
         }
-        await Assert.ThrowsAsync<InvalidOperationException>(() => f.Transport.PrepareAsync(f.Order, f.Projection, default));
+        var failure = await Assert.ThrowsAsync<InvalidOperationException>(() => f.Transport.PrepareAsync(f.Order, f.Projection, default));
+        Assert.Equal(problem switch
+        {
+            "ask" => BrokerOrderCheck.AskAboveDecisionReference,
+            "cost" => BrokerOrderCheck.HoldingsChanged,
+            "cash" => BrokerOrderCheck.CashChanged,
+            "account" => BrokerOrderCheck.ManualBuyValidation,
+            "stale" => BrokerOrderCheck.ManualBuyValidation,
+            _ => BrokerOrderCheck.RiskChanged
+        }, BrokerOrderFailureEvidence.Read(failure)!.Check);
         Assert.Empty(f.Journal.ReadAll()); Assert.Equal(0, f.Buys.Submissions);
         Assert.Equal(1, f.Gate.CurrentCount); Assert.False(f.Safety.Held);
     }

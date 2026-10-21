@@ -12,10 +12,14 @@ The September 22 documentation cleanup preserves the
 
 - [x] Final October21 bounded read/report16:06 and deletion of today's heartbeat; zeroorders/fills/
   positions/post-cutoff intents, exact16:00expiry. SessionIncomplete/Blockedcoverage retained.
-- [ ] Complete remaining lag/confirmed-decision diagnostics requested for tomorrow's preparation.
-  ADR-0099 direct typed writes/exact report comparisons implemented; 44focused codec/action/transition tests pass.
-  Further regressions, diagnostics, builds, reviewed installation and native timing remain; no new
-  execution date or permission. [Evidence](reviews/delphi-live-lag-and-decisions-20261021.md).
+- [x] Implement remaining write/report optimization and private confirmed-entry/quote/selection/
+  preflight/intent diagnostics under ADRs0099/0100. Final2,852Core pass/nine native skips with test
+  concurrency disabled; isolated WPF Release build and diagnostic SQL parse pass. Full-parallel AI
+  cleanup timing failure remains a validation limitation. [Evidence](reviews/delphi-live-lag-and-decisions-20261021.md).
+- [ ] Install after normal closure, then verify native timing/decision publication under fresh exact
+  build/source review and separately enabled dated authority. October22 review preparation is now
+  explicitly authorized as a separate increment; actual review/approval/enable remain pending;
+  no new execution date or permission is inferred from code preparation.
 
 - [x] Implement and validate operator-requested immediate snapshot slowdown correction and same-source build
   review under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Preserve
@@ -29,15 +33,9 @@ The September 22 documentation cleanup preserves the
 - [x] Verify initial twenty-minute recovery after installation: epoch13/start14:05 persists through
   14:25bar; real14:31:12/revision202 consumes it with26mature/zero confirmed signals. Four captured
   fullcycles283.69/265.13/264.38/273.62s stay under five minutes; no post-build appfailure observed.
-- [ ] Continue through-close regression/order/cutoff watch. Initial recovery does not prove whole-day
-  reliability, lower real-host latency, eligible orders or fills; historicalBlockedcoverage remains.
-  Latest15:23read: real15:22:15/revision238/24mature/zero confirmed/orders/holds/savedblocks.
-  Two transient confirmations15:16 lose Strong momentum next bar. Quote-stage lag7m15s exceeds
-  existing7minute signal freshness allowance at15:22; lower host latency remains open. Prior
-  confirmed signals fit one share at saved closes, but native quote/recommendation outcomes are
-  not persisted. Existing15:45strategy entry cutoff and16:00outer permission remain unchanged.
-  15:52watch: real15:48:25/revision253/21new-build evaluations/26mature/two confirmed/zeroorders,
-  positions/holds/savedblocks; owner/all12hashes match. Entry window ended; final16:05read pending.
+- [x] Complete October21 through-close watch and final16:06bounded report/deletion. Historical
+  Blockedcoverage remains; zero automatic orders/fills do not qualify native filled protection,
+  uninterrupted whole-day capacity or an attempted-order cutoff test.
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.

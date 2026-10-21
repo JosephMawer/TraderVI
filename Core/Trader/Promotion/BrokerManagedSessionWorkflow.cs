@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Trader.DelphiLive;
+using Core.Runtime;
 
 namespace Core.Trader.Promotion;
 
@@ -82,7 +83,11 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             catch { return true; } // A corrupt/unreadable owned-order journal cannot restore trial progression.
         }
         BrokerAccountProjection account;
-        try { account = await source.SynchronizeAsync(state.Orders, ct); }
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerAccountRead);
+            account = await source.SynchronizeAsync(state.Orders, ct);
+        }
         catch (OperationCanceledException) { throw; }
         catch
         {
@@ -208,7 +213,11 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             state = await Save(lease, state with { Protection = state.Protection.AddRange(protections) }, "FilledPositionsProtected", ct);
         }
         TradingRecommendationInput input;
-        try { input = await source.ReadStrategyInputAsync(state, ct); }
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerInputRead);
+            input = await source.ReadStrategyInputAsync(state, ct);
+        }
         catch (OperationCanceledException) { throw; }
         catch
         {
@@ -241,72 +250,181 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention, Blocks = recoveryBlocks }, "ProtectionRecoveryBlocked", ct);
         var replay = BrokerProtectionHandover.Replay(input, state.Protection);
         input = input with { PreviousMemory = replay.Memory };
+        TradingQuoteReadResult? observedQuotes = null;
         if (state.Strategy.Strategy.Family == TradingStrategyFamily.DelphiLive)
         {
-            var prepared = TradingRecommendationEngine.Evaluate(input with { Quotes = [] });
+            TradingRecommendationResult prepared;
+            using (PaperCycleTimings.Start(PaperCycleStage.BrokerLivePrepare))
+                prepared = TradingRecommendationEngine.Evaluate(input with { Quotes = [] });
             await source.PreserveRiskHoldsAsync(account, prepared.Memory, ct);
-            state = await Save(lease, state with { Memory = prepared.Memory, Protection = replay.Protection }, "LiveProtectionPrepared", ct);
+            state = await Save(lease, state with { Memory = prepared.Memory, Protection = replay.Protection,
+                LatestDecision = CaptureTrace(input, prepared, null, null, "QuoteObservationPending") }, "LiveProtectionPrepared", ct);
             // Persist raised stops and observed exits before requesting a bid that can trigger them.
             input = input with { EvaluatedUtc = state.SavedAt.UtcDateTime, PreviousMemory = prepared.Memory };
-            input = input with { Quotes = await source.ReadQuotesAsync(input, ct) };
-            replay = BrokerProtectionHandover.Replay(input, state.Protection);
+            try
+            {
+                using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerQuoteRead);
+                observedQuotes = await source.ReadQuoteObservationAsync(input, ct);
+            }
+            catch (Exception error)
+            {
+                await RecordDecisionFailure(lease, state, error is OperationCanceledException ? "QuoteObservationCancelled" : "QuoteObservationFailed", error);
+                throw;
+            }
+            input = input with { Quotes = observedQuotes.Quotes };
+            if (state.LatestDecision is { } awaiting)
+                state = state with { LatestDecision = awaiting with { QuoteAttempts = observedQuotes.Attempts,
+                    QuoteReadBlocks = observedQuotes.NewRiskBlocks, SelectionOutcome = "QuotesObservedPendingEvaluation" } };
+            try { replay = BrokerProtectionHandover.Replay(input, state.Protection); }
+            catch (Exception error)
+            {
+                await RecordDecisionFailure(lease, state, "ProtectionReplayFailed", error);
+                throw;
+            }
             input = input with { PreviousMemory = replay.Memory };
         }
-        var result = TradingRecommendationEngine.Evaluate(input);
+        TradingRecommendationResult result;
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerEvaluate);
+            result = TradingRecommendationEngine.Evaluate(input);
+        }
+        catch (Exception error)
+        {
+            await RecordDecisionFailure(lease, state, "FinalEvaluationFailed", error);
+            throw;
+        }
         if (!currentRiskDay)
             result = result with { Memory = result.Memory with { TradingDate = savedRiskTradingDate,
                 DailyLossHold = state.Memory.DailyLossHold || result.Memory.DailyLossHold } };
-        await source.PreserveRiskHoldsAsync(account, result.Memory, ct);
-        state = await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection }, "StrategyEvaluated", ct);
+        if (state.LatestDecision is not null)
+            state = state with { LatestDecision = CaptureTrace(input, result, observedQuotes, null, "RiskHoldPersistencePending") };
+        try { await source.PreserveRiskHoldsAsync(account, result.Memory, ct); }
+        catch (Exception error)
+        {
+            await RecordDecisionFailure(lease, state, "RiskHoldPersistenceFailed", error);
+            throw;
+        }
         var recommendation = result.Recommendations.Where(r => r.Action is "Sell" or "Buy" or "Add")
             .OrderBy(r => r.Action == "Sell" ? 0 : 1).FirstOrDefault();
+        var trace = CaptureTrace(input, result, observedQuotes, recommendation, recommendation is null ? "NoRecommendation" : "SelectedPendingFinalChecks");
+        state = await Save(lease, state with { Memory = result.Memory, Protection = replay.Protection, LatestDecision = trace }, "StrategyEvaluated", ct);
         if (recommendation is null) return state;
         bool sell = recommendation.Action == "Sell";
-        if (!sell && (state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired)) return state;
-        var security = account.Positions.SingleOrDefault(p => p.Symbol == recommendation.Symbol)?.SecurityId ??
-            await source.ResolveSecurityAsync(recommendation.Symbol, ct);
+        if (!sell && (state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty || state.Memory.DailyLossHold || state.Memory.CapitalReviewRequired))
+            return await SaveDecisionOutcome(lease, state, "NewRiskBlockedBeforeReservation", ct);
+        string security;
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerSecurityRead);
+            security = account.Positions.SingleOrDefault(p => p.Symbol == recommendation.Symbol)?.SecurityId ??
+                await source.ResolveSecurityAsync(recommendation.Symbol, ct);
+        }
+        catch (Exception error)
+        {
+            await RecordDecisionFailure(lease, state, "SecurityResolutionFailed", error);
+            throw;
+        }
         Guid decisionId = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{recommendation.Symbol}:{recommendation.Action}:{recommendation.Kind}:{recommendation.PositionId}:{recommendation.EvidenceId}:{recommendation.CandidateId}");
-        if (state.Orders.Any(o => o.DecisionId == decisionId)) return state;
+        if (state.Orders.Any(o => o.DecisionId == decisionId))
+            return await SaveDecisionOutcome(lease, state, "OriginalDecisionAlreadyReserved", ct);
         decimal price = recommendation.ReferencePrice ?? 0;
         if (recommendation.Quantity < 1 || !sell && (price <= 0 || recommendation.Quantity * price >
-            System.Math.Min(account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost))) return state;
+            System.Math.Min(account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost)))
+            return await SaveDecisionOutcome(lease, state, recommendation.Quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
         return await Submit(lease, state, new(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
             recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", recommendation.Quantity,
-            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct);
+            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct, evaluatedDecision: true);
     }
 
     private async Task<BrokerManagedSession> Submit(IBrokerManagedSessionLease lease, BrokerManagedSession state,
-        BrokerStrategyOrder order, CancellationToken ct)
+        BrokerStrategyOrder order, CancellationToken ct, bool evaluatedDecision = false)
     {
-        await using var preflight = await transport.PrepareAsync(order, state.Account, ct);
+        IBrokerManagedOrderPreflight prepared;
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerPreflight);
+            prepared = await transport.PrepareAsync(order, state.Account, ct);
+        }
+        catch (Exception error)
+        {
+            if (evaluatedDecision) await RecordDecisionFailure(lease, state, "PreflightFailed", error);
+            throw;
+        }
+        await using var preflight = prepared;
         ct.ThrowIfCancellationRequested();
         if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
             (trial.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
              trial.PurchaseExpiresAt is null || clock.GetUtcNow() >= trial.PurchaseExpiresAt))
-            return await Save(lease, state with { Blocks = state.Blocks.Add("Limited first-session purchase permission ended; no order was reserved or sent.") },
+            return await Save(lease, Outcome(state, evaluatedDecision, "PermissionExpiredBeforeReservation") with { Blocks = state.Blocks.Add("Limited first-session purchase permission ended; no order was reserved or sent.") },
                 "TrialPurchasesEnded", ct);
-        state = await Save(lease, state with { Orders = state.Orders.Add(order) }, "OrderIntentReserved", ct);
+        state = await Save(lease, Outcome(state, evaluatedDecision, "IntentReserved") with { Orders = state.Orders.Add(order) }, "OrderIntentReserved", ct);
         if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } beforeSend &&
             (beforeSend.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
              beforeSend.PurchaseExpiresAt is null || clock.GetUtcNow() >= beforeSend.PurchaseExpiresAt))
-            return await Save(lease, state with { TrialOrderReviewRequired = beforeSend.FullFillOnlyNativeTrial,
+            return await Save(lease, Outcome(state, evaluatedDecision, "PermissionExpiredAfterReservationNoSend") with { TrialOrderReviewRequired = beforeSend.FullFillOnlyNativeTrial,
                 Phase = BrokerManagedPhase.NeedsAttention, Blocks = ["Purchase permission expired after intent save. No transmission was attempted; recover this original intent before further orders."] },
                 "ReservedBuyExpiredBeforeSend", CancellationToken.None);
         WealthsimpleSubmissionStatus result;
-        try { result = await preflight.SubmitOnceAsync(ct); }
-        catch { result = WealthsimpleSubmissionStatus.OutcomeUnknown; }
+        try
+        {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerSubmit);
+            result = await preflight.SubmitOnceAsync(ct);
+        }
+        catch (Exception error)
+        {
+            result = WealthsimpleSubmissionStatus.OutcomeUnknown;
+            if (evaluatedDecision) state = DecisionFailure(state, "SubmissionOutcomeUnknown", error);
+        }
         // If this save fails, the durable intent remains unresolved. Recovery only reads its original ID.
         bool trialReview = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true && result != WealthsimpleSubmissionStatus.Acknowledged;
-        return await Save(lease, state with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }),
+        return await Save(lease, Outcome(state, evaluatedDecision, "Submission" + result) with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }),
             TrialOrderReviewRequired = state.TrialOrderReviewRequired || trialReview,
             Phase = trialReview ? BrokerManagedPhase.Paused : state.Phase },
             "OrderTransmissionObserved", CancellationToken.None);
     }
     private async Task<BrokerManagedSession> Save(IBrokerManagedSessionLease lease, BrokerManagedSession state, string reason, CancellationToken ct)
     {
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerStateSave);
         var current = lease.Current!;
         var next = state with { Revision = current.Revision + 1, PreviousRevisionId = current.RevisionId,
             RevisionId = Guid.NewGuid(), SavedAt = clock.GetUtcNow(), Event = reason };
         await lease.AppendAsync(next, ct); return next;
+    }
+
+    private static BrokerManagedSession Outcome(BrokerManagedSession state, bool applies, string outcome) =>
+        applies && state.LatestDecision is { } trace ? state with { LatestDecision = trace with { SelectionOutcome = outcome } } : state;
+
+    private BrokerDecisionTrace? CaptureTrace(TradingRecommendationInput input, TradingRecommendationResult result,
+        TradingQuoteReadResult? quotes, TradingRecommendation? selected, string outcome) => result.EntryDecisions is { } entries
+        ? new(input.EvaluatedUtc, clock.GetUtcNow(), entries.Select(e => e.Outcome != "Recommended" ? e : e with
+        {
+            ExecutionSelection = selected is null ? null : selected.Symbol == e.Symbol && selected.Action is "Buy" or "Add"
+                ? "Selected" : selected?.Action == "Sell" ? "DeferredForProtectiveExit" : "DeferredForEarlierRecommendation"
+        }).ToImmutableArray(), quotes?.Attempts ?? [], result.EntryRiskBlocks ?? [], outcome, selected?.Symbol, selected?.Action)
+        { QuoteReadBlocks = quotes?.NewRiskBlocks ?? [] } : null;
+
+    private Task<BrokerManagedSession> SaveDecisionOutcome(IBrokerManagedSessionLease lease, BrokerManagedSession state,
+        string outcome, CancellationToken ct) => state.LatestDecision is null ? Task.FromResult(state)
+        : Save(lease, Outcome(state, true, outcome), "DecisionDeferred", ct);
+
+    private async Task RecordDecisionFailure(IBrokerManagedSessionLease lease, BrokerManagedSession state, string outcome, Exception error)
+    {
+        if (state.LatestDecision is not { } trace) return;
+        try
+        {
+            await Save(lease, DecisionFailure(state, outcome, error),
+                "DecisionStageFailed", CancellationToken.None);
+        }
+        catch { /* Preserve the original failure and any already-saved intent; never retry a financial action for telemetry. */ }
+    }
+
+    private static BrokerManagedSession DecisionFailure(BrokerManagedSession state, string outcome, Exception error)
+    {
+        if (state.LatestDecision is not { } trace) return state;
+        var known = BrokerOrderFailureEvidence.Read(error);
+        return state with { LatestDecision = trace with { SelectionOutcome = outcome, FailureType = error.GetType().Name,
+            FailedOrderCheck = known?.Check, LocalCheckExplanation = known?.LocalExplanation,
+            FailureSqlNumber = error is Microsoft.Data.SqlClient.SqlException sql ? sql.Number : null } };
     }
 }

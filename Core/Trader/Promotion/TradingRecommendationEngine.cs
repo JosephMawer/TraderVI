@@ -23,6 +23,7 @@ public static class TradingRecommendationEngine
             throw new ArgumentException("Evaluation must follow its approved assignment and have a valid session boundary.");
         var warnings = input.SourceWarnings.ToBuilder();
         var rows = ImmutableArray.CreateBuilder<TradingRecommendation>();
+        var entries = ImmutableArray.CreateBuilder<TradingEntryDecision>();
         var memory = input.PreviousMemory;
         if (memory.TradingDate != input.TradingDate)
             memory = memory with { TradingDate = input.TradingDate, DailyLossHold = false };
@@ -39,11 +40,14 @@ public static class TradingRecommendationEngine
         var readiness = TradingAccountReadinessPolicy.Evaluate(input.Account, input.Assignment.AccountLabel,
             input.TradingDate, input.EvaluatedUtc, input.CurrentLedgerFingerprint, input.EntriesPaused);
         warnings.AddRange(readiness.NewRiskBlocks);
+        var entryBlocks = readiness.NewRiskBlocks.ToBuilder();
+        if (strategy.ImplementationIdentity != input.ImplementationIdentity) entryBlocks.Add("ImplementationMismatch");
         bool riskAllowed = readiness.CanConsiderNewRisk && strategy.ImplementationIdentity == input.ImplementationIdentity;
         if (input.CurrentDailyStrategyId != strategy.Daily.StrategyVersionId || input.FrozenRunId is null)
         {
             warnings.Add("New entries need a valid frozen daily run using the approved daily model/strategy version.");
             riskAllowed = false;
+            entryBlocks.Add(input.CurrentDailyStrategyId != strategy.Daily.StrategyVersionId ? "DailyDefinitionMismatch" : "FrozenRunUnavailable");
         }
         if (input.EvaluatedUtc < input.SessionOpenUtc || input.EvaluatedUtc > input.SessionCloseUtc.AddMinutes(45))
         {
@@ -61,7 +65,7 @@ public static class TradingRecommendationEngine
             if (price is null) { nav = null; warnings.Add($"{holding.Symbol}: current holding price is unavailable; new risk waits."); }
             else if (nav.HasValue) nav += holding.Quantity * price.Close;
         }
-        if (nav is not > 0m) riskAllowed = false;
+        if (nav is not > 0m) { riskAllowed = false; entryBlocks.Add("NetAssetValueUnavailable"); }
         if (nav is > 0m && input.Account?.SessionOpeningValue is > 0m && input.Account.HighestClosingValue is > 0m)
         {
             decimal high = System.Math.Max(input.Account.HighestClosingValue.Value, memory.HighestClosingValue ?? 0m);
@@ -80,17 +84,26 @@ public static class TradingRecommendationEngine
             }
         }
         if (memory.DailyLossHold || memory.CapitalReviewRequired)
-        { riskAllowed = false; warnings.Add("The account's loss/capital-review hold is active. Promotion and ordinary resume do not clear it."); }
+        {
+            riskAllowed = false;
+            if (memory.DailyLossHold) entryBlocks.Add("DailyLossHold");
+            if (memory.CapitalReviewRequired) entryBlocks.Add("CapitalReviewRequired");
+            warnings.Add("The account's loss/capital-review hold is active. Promotion and ordinary resume do not clear it.");
+        }
         if (strategy.Family == TradingStrategyFamily.DailyShadow)
             Shadow(input, nav, riskAllowed, symbols, rows, warnings);
         else
-            Live(input, nav, riskAllowed, symbols, rows, warnings);
+            Live(input, nav, riskAllowed, symbols, rows, warnings, entries);
         memory = memory with { Symbols = symbols.ToImmutable() };
         if(strategy.Family==TradingStrategyFamily.DailyShadow && riskAllowed && nav is >0m &&
             input.EvaluatedUtc>=input.SessionOpenUtc.AddMinutes(20) && input.EvaluatedUtc<input.SessionCloseUtc)
             memory=memory with {ShadowOpeningReviewed=input.TradingDate};
         return new(rows.Any(r => r.Action is "Buy" or "Add" or "Sell") ? "Recommendations ready" : warnings.Count > 0 ? "Waiting / review notes" : "No qualifying action",
-            rows.ToImmutable(), warnings.Distinct().ToImmutableArray(), memory);
+            rows.ToImmutable(), warnings.Distinct().ToImmutableArray(), memory)
+        {
+            EntryDecisions = strategy.Family == TradingStrategyFamily.DelphiLive ? entries.ToImmutable() : null,
+            EntryRiskBlocks = strategy.Family == TradingStrategyFamily.DelphiLive ? entryBlocks.Distinct().ToImmutableArray() : null
+        };
     }
 
     private static void Shadow(TradingRecommendationInput input, decimal? nav, bool riskAllowed,
@@ -217,7 +230,7 @@ public static class TradingRecommendationEngine
 
     private static void Live(TradingRecommendationInput input, decimal? nav, bool riskAllowed,
         ImmutableDictionary<string,TradingSymbolState>.Builder states, ImmutableArray<TradingRecommendation>.Builder rows,
-        ImmutableArray<string>.Builder warnings)
+        ImmutableArray<string>.Builder warnings, ImmutableArray<TradingEntryDecision>.Builder entries)
     {
         var policy=input.Assignment.Strategy.ReadLivePolicy();
         var results=new Dictionary<string,DelphiLiveEvaluationResult>(StringComparer.OrdinalIgnoreCase);
@@ -253,6 +266,9 @@ public static class TradingRecommendationEngine
             if(memory.LastLiveResult is { } latest && memory.LastLiveBarUtc>=input.SessionOpenUtc &&
                 input.EvaluatedUtc-memory.LastLiveBarUtc.Value <= policy.BarInterval+policy.CollectionOffset)
                 results[symbol]=latest;
+            else if (memory.LastLiveResult?.ConfirmedLiveEligible == true)
+                entries.Add(new(symbol, memory.LastLiveBarUtc,
+                    memory.LastLiveBarUtc < input.SessionOpenUtc ? "SignalOutsideSession" : "SignalTooOld"));
         }
         foreach(var holding in input.CurrentHoldings)
         {
@@ -291,30 +307,58 @@ public static class TradingRecommendationEngine
                 exit??"No protective exit established",holding.PositionId,null,observed?.CurrentStockObservationId,
                 quote?.ReceivedUtc,exit is null?"Holding":"RiskExit"));
         }
-        if(!riskAllowed || nav is null) return;
+        if(!riskAllowed || nav is null)
+        {
+            foreach (var pair in results.Where(p => p.Value.ConfirmedLiveEligible))
+                entries.Add(new(pair.Key, states[pair.Key].LastLiveBarUtc, "NewRiskBlocked"));
+            return;
+        }
         decimal cash=input.Account!.AvailableCash!.Value; int occupied=input.CurrentHoldings.Length;
         var ranking=DelphiLiveRanking.Order(results.Values.Where(r=>r.RankCandidate is not null).Select(r=>r.RankCandidate!));
         foreach(var rank in ranking)
         {
             var result=results[rank.Symbol]; var quote=Quote(input,rank.Symbol);
-            if(Held(input,rank.Symbol)||!result.ConfirmedLiveEligible || quote is null) continue;
-            if(rank.DailySetup?.DailyStrategyVersionId!=input.Assignment.Strategy.Daily.StrategyVersionId || rank.DailySetup.DelphiRunId!=input.FrozenRunId) continue;
+            void Record(string reason) => entries.Add(new(rank.Symbol, states[rank.Symbol].LastLiveBarUtc, reason));
+            if(Held(input,rank.Symbol)||!result.ConfirmedLiveEligible || quote is null)
+            {
+                if (result.ConfirmedLiveEligible) Record(Held(input,rank.Symbol) ? "ExistingPosition" : QuoteRejection(input,rank.Symbol));
+                continue;
+            }
+            if(rank.DailySetup?.DailyStrategyVersionId!=input.Assignment.Strategy.Daily.StrategyVersionId || rank.DailySetup.DelphiRunId!=input.FrozenRunId)
+            { Record("DailyCandidateIdentityMismatch"); continue; }
             DateTime entryStart=input.SessionOpenUtc+(policy.EntryWindowStart.ToTimeSpan()-TimeSpan.FromHours(9.5));
             DateTime cutoff=input.SessionOpenUtc+(policy.EntryCutoff.ToTimeSpan()-TimeSpan.FromHours(9.5));
-            if(input.EvaluatedUtc<entryStart || quote.ReceivedUtc>=cutoff) continue;
+            if(input.EvaluatedUtc<entryStart || quote.ReceivedUtc>=cutoff)
+            { Record(input.EvaluatedUtc<entryStart ? "BeforeEntryWindow" : "EntryCutoffPassed"); continue; }
             var fills=input.ActualFills.Where(f=>Same(f.Symbol,rank.Symbol)).ToArray();
-            if(fills.Count(f=>f.Side=="BUY"&&f.TradingDate==input.TradingDate)>=policy.MaximumSameSessionEntriesPerSymbol) continue;
+            if(fills.Count(f=>f.Side=="BUY"&&f.TradingDate==input.TradingDate)>=policy.MaximumSameSessionEntriesPerSymbol)
+            { Record("SameSessionEntryLimit"); continue; }
             DateTime? lastExit=fills.Where(f=>f.Side=="SELL").Select(f=>(DateTime?)f.FillUtc).Max();
-            if(lastExit.HasValue && (result.ConfirmationStartedBarEndUtc is null || result.ConfirmationStartedBarEndUtc<=lastExit)) continue;
+            if(lastExit.HasValue && (result.ConfirmationStartedBarEndUtc is null || result.ConfirmationStartedBarEndUtc<=lastExit))
+            { Record("ReentryNeedsFreshConfirmation"); continue; }
             decimal? price=quote.Ask is >0m?quote.Ask:quote.Price;
-            if(price is not >0m) continue;
+            if(price is not >0m) { Record("QuotePriceUnavailable"); continue; }
             var sized=DelphiLivePortfolioPolicy.SizeWholeShareEntry(new(true,nav,[],"Reported account marks"),cash,price.Value,
                 occupied,false,new(false,false,0m,0m,input.Account.HighestClosingValue!.Value),policy);
-            if(!sized.IsAllowed) continue;
+            if(!sized.IsAllowed) { Record(sized.ReasonCode); continue; }
             rows.Add(new(rank.Symbol,"Buy",sized.Quantity,price,"StrongConfirmationCompleted",null,rank.DailySetup.CandidateId,
                 result.CurrentStockObservationId,quote.ReceivedUtc,"Initial",sized.TargetNotional));
             cash-=sized.RequiredCash; occupied++;
+            Record("Recommended");
         }
+    }
+
+    private static string QuoteRejection(TradingRecommendationInput input, string symbol)
+    {
+        var quote = input.Quotes.LastOrDefault(q => Same(q.Symbol, symbol));
+        if (quote is null) return "QuoteNotReturned";
+        if (quote.SourceContract.StartsWith("Unavailable:", StringComparison.Ordinal)) return "QuoteUnavailable";
+        if (quote.SourceContract != "TmxQuoteFieldsV1") return "QuoteContractMismatch";
+        if (quote.RequestedUtc < input.EvaluatedUtc) return "QuoteRequestedBeforeEvaluation";
+        if (quote.ReceivedUtc < quote.RequestedUtc) return "QuoteReceiptBeforeRequest";
+        if (quote.ReceivedUtc > input.EvaluatedUtc + input.Assignment.Strategy.ReadLivePolicy().QuoteAttemptWindow) return "QuoteAttemptWindowExceeded";
+        if (quote.ReceivedUtc >= input.SessionCloseUtc) return "QuoteAfterSessionClose";
+        return "QuoteNotUsable";
     }
 
     private static TradingQuote? Quote(TradingRecommendationInput input,string symbol) => input.Quotes.LastOrDefault(q=>Same(q.Symbol,symbol)&&

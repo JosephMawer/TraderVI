@@ -9,26 +9,19 @@ and source review points; use its owning-record links when resuming work.
 ## Accepted direction — prove strategies, then adopt one deliberately
 
 **Current request after today's close:** finish remaining Live processing optimization and exact
-confirmed-signal/order diagnostics without weakening any control. ADR-0099 write optimization is in
-source/offline validation; diagnostics, installation and native timing remain. Today's final16:06
+confirmed-signal/order diagnostics without weakening any control. ADR-0099 write optimization and
+ADR-0100 durable decision/quote/preflight evidence are implemented;2,852Core checks pass/nine skips
+with test concurrency disabled, isolated WPF Release passes. Normal closure/installation and native
+timing remain. Today's final16:06
 read and heartbeat deletion are complete; no orders/fills/post-cutoff intents, permission expired16:00.
 Preparing for tomorrow does not renew the dated scope. [Owning work](reviews/delphi-live-lag-and-decisions-20261021.md).
 
-**October 21 immediate priority:** operator resumed the slowdown fix now. The focused
-[snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md) passes 2,821 offline Core
-checks/nine native skips and Debug WPF build. Standard Release is installed14:02 after normal
-closure/zero-owner verification; operator updated-build approval/enable and first real evaluation
-are verified14:13. Initial20minute continuity/mature actual signals and four sub-five-minute captured
-cycles are verified14:31. Continue the existing watch for regressions/orders/close; whole-day
-reliability and lower actual-host latency remain unproved.
-15:23diagnosis verifies two transient confirmations15:16, then zero15:22 as momentum weakens;
-zeroorders/holds. Lower host latency and visibility of quote/recommendation rejection reasons remain
-open. Preserve the existing15:45strategy entry cutoff and16:00outer purchase permission.
-At15:52entry window has ended; zeroorders, real progression verified through15:48. Complete final
-16:05bounded read and remove today's heartbeat without extending execution permission.
-Preserve the approved Portfolio
-rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
-capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.
+**Earlier October21 milestones:** the [first snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md)
+was installed14:02, operator-approved/enabled and verified with initial20minute recovery14:31.
+Later confirmations were transient; their native quote outcomes were not persisted. The completed
+watch retains historicalBlockedcoverage and unproved whole-day/lower-host-latency acceptance.
+Preserve Portfolio rules only, financial/signal history,15:45entry cutoff and original16:00expiry.
+The older SQL-save retry draft stays parked separately; do not restore it over reviewed source.
 
 Local diagnostics now use separate installed [SQL](../Operations/ReadOnlyChecks/README.md) and
 [broker-read](../Operations/BrokerReadOnlyChecks/README.md) helpers (ADRs 0091/0093). Reload existing

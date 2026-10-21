@@ -133,7 +133,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             Present(result.Phase == BrokerManagedPhase.Active ? "Running" : "Waiting",
                 result.Blocks.IsEmpty ? result.NewBuysStopped
                     ? "New automatic buys are stopped; ordinary exit rules remain enabled."
-                    : "Reviewed strategy cycle complete. Existing account, order and protection controls remain authoritative."
+                    : result.LatestDecision?.Summary ?? "Reviewed strategy cycle complete. Existing account, order and protection controls remain authoritative."
                     : string.Join(" ", result.Blocks), nextCheck);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }

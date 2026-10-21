@@ -18,7 +18,9 @@ public enum PaperCycleStage
     SnapshotPack, SnapshotVerify, TrackedMonitor, ShadowMonitor, ShadowProtection,
     LivePrepareDisplay, LiveApplyDisplay, PortfolioDisplay, TrackedDisplay, SetupWait,
     DispatcherDelay, Recommendations, ShadowPrepare, ShadowCollect, ShadowApply,
-    LiveCollect, LiveEvaluate, LiveActions
+    LiveCollect, LiveEvaluate, LiveActions, BrokerAdmission, BrokerSourceRead, BrokerAccountRead,
+    BrokerInputRead, BrokerLivePrepare, BrokerQuoteRead, BrokerEvaluate, BrokerStateSave,
+    BrokerSecurityRead, BrokerPreflight, BrokerSubmit
 }
 
 /// <summary>Best-effort bounded diagnostics. All file I/O runs on one worker, never the dispatcher.</summary>

@@ -66,7 +66,13 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
 }
 
 public sealed record TradingRecommendationResult(string Status, ImmutableArray<TradingRecommendation> Recommendations,
-    ImmutableArray<string> Warnings, TradingRecommendationMemory Memory);
+    ImmutableArray<string> Warnings, TradingRecommendationMemory Memory)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableArray<TradingEntryDecision>? EntryDecisions { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableArray<string>? EntryRiskBlocks { get; init; }
+}
 public sealed record TradingRecommendationBatch(Guid BatchId, string AccountLabel, Guid PromotionId,
     Guid? AccountReportId, Guid? PriorBatchId, DateTime EvaluatedUtc, string InputFingerprint,
     TradingRecommendationResult Result)

@@ -89,7 +89,8 @@ public sealed partial class ManualBuyCoordinator
             if (HostGrants().Read()?.Enabled != true)
             { PresentExecution(new("Off", "Automatic trading off. No execution-host permission is enabled.", DateTimeOffset.UtcNow)); return; }
             using var quiet = setupCycles.BeginSetup();
-            await quiet.WaitForIdleAsync(ct);
+            using (PaperCycleTimings.Start(PaperCycleStage.BrokerAdmission))
+                await quiet.WaitForIdleAsync(ct);
             await GetExecutionHost().PollAsync(available, ct);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
@@ -102,6 +103,7 @@ public sealed partial class ManualBuyCoordinator
     {
         if (saved.EffectiveReview.NoTransferScope?.Continuation?.PreOpenApproved == true && saved.Orders.IsEmpty)
         {
+            using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerSourceRead);
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct);
             var normal = saved.SourceSwitch is null ? await ReadNativeNormalAsync(ct)
                 : await ReadUngatedLiveAsync(ct, _ => { });

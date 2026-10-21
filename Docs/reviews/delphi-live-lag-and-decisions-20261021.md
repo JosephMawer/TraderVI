@@ -24,9 +24,39 @@ The first isolated no-restore attempt lacks assets; sandbox restore cannot reach
 cancelled. The separately approved normal restore succeeds outside the sandbox. No dependency
 version change is intended. Existing compiler warnings remain distinct from security advisories.
 
-Next implement bounded durable per-evaluation decision and quote-attempt evidence, then complete
-full offline tests/builds and review before any standard Release replacement. No database mutation,
-market call, app launch/restart, approval, enable or broker order was performed by this work.
+Storage increment is committed as8a81ed39. [ADR-0100](../adr/0100-live-entry-and-order-decision-traces.md)
+now adds optional private LatestDecision records: first existing failed entry predicate, quote
+request/skip/return/failure, final selection and deferral, exact safe broker preflight check, original
+intent/reservation/expiry/submission outcome. Prepared/pending traces survive an interrupted quote
+phase; failure metadata contains fixed checks, type/SQL number and known local validation text only.
+No raw exception/provider payload, account amount or quote price is added to telemetry. Host summaries
+and fixed bounded timing stages expose the current last decision and where execution time is spent.
+The [read-only aggregate query](../../Operations/ReadOnlyChecks/DelphiLiveDecisionSummary.sql) parses
+with zero ScriptDom errors; it was not executed against production because this build is not installed.
+
+Final source validation: **2,852 Core pass/nine native SQL skips/2,861total** with xUnit collection
+concurrency disabled in an ignored output-only xunit.runner.json; full final log is
+`artifacts/lag-and-decisions-20261021-full-tests-serial-final.log`. Both default-parallel full runs
+hit the unrelated AiReviewDesktopTestTests.DeadlineCancelsInFlightWorkAndWaitsForItsCleanup five-second
+cleanup wait; the same test passes in the372related/timing-test run and both serialized full runs.
+The first full run also exposes an incorrect new expectation: the existing manual account validation
+rejects before the later account-comparison guard; corrected the expected diagnostic without changing
+the guard. Test compilation initially used read-only daily-setup properties in a fixture, corrected
+by rebuilding the immutable fixture. No production workaround for the unrelated timing test was added.
+New diagnostics cover28cases, including one selected order from two recommendations, pending quote
+failure, independent held-position quotes while buys pause, preserved private traces through restart,
+exact preflight rejection and lost-intent acknowledgement without resubmission. Existing source,
+financial risk, progressive protection, expiry and native-intent guard tests remain part of the suite.
+
+Final isolated WPF Release build succeeds/zero errors/260existing warning emissions:
+`artifacts/lag-and-decisions-20261021-wpf-release-final.log`. Compiler warnings are CS8632/CS0162/CS0168;
+known Pkcs9.0.4 dependency advisories remain separate, with no fresh security audit/upgrade claimed.
+Full solution/SSDT was not built. Standard Release replacement is pending normal operator stop/closure;
+no changed loaded files, app launch/restart, live mutation, market call, approval, enable or broker order.
+Native post-install processing latency and diagnostic publication remain unverified. Code preparation
+does not renew tomorrow's permission. The operator subsequently explicitly authorizes preparing
+tomorrow's review only: implement the bounded October22 path as a separate increment, preserving
+the existing Portfolio rules only assignment/history/risk and16:00expiry, without approval or enable.
 
 ## Final October 21 watch
 

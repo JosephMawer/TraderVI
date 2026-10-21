@@ -5,6 +5,19 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Delphi Live tomorrow readiness — October 21, 2026
+
+- User requests remaining lag fixed and exact confirmed-signal/order reasons recorded so the app
+  is ready for tomorrow, preserving risk. ADRs0099/0100 cover the focused code changes and evidence.
+- Native timing after installation remains unproved; today's exact16:00permission is expired.
+  Current source/build review flows are explicitly October21-only (ADRs0097/0098). No October22
+  authority follows from performance fixes, source approval, app startup or a protected-file edit.
+- Operator explicitly answers **Prepare tomorrow's review only**: prepare an October22-only review/
+  approval path for the existing Portfolio rules only assignment, retaining original financial
+  history/risk and16:00expiry. This is the next implementation increment; no approval, grant or
+  financial mutation is authorized by that answer. Exact review and separate enable remain operator
+  actions; validated lag/diagnostics code is checkpointed independently first.
+
 ### Delphi Live ungated TFSA source request — October 21, 2026
 
 - **User direction:** use an existing ungated Delphi Live portfolio. The existing profile is

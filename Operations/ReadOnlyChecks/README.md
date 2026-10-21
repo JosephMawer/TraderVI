@@ -35,6 +35,12 @@ Do not replace this with a broad approval for PowerShell, dotnet, sqlcmd, or rep
 
 ## Enforced boundary
 
+The reviewed [Delphi Live decision summary](DelphiLiveDecisionSummary.sql) can be copied into the
+same mailbox without extending the helper. It reads the new optional private decision traces as
+aggregate reasons/counts, no symbols/account values. No trace on an older build is unavailable
+evidence, not a successful check. Pending quotes/selection, acknowledgement and confirmed fills
+remain distinct; the trace timestamp may precede the latest account-synchronization revision.
+
 - Hard-coded endpoint `localhost`, database `TraderDB`, integrated Windows authentication.
 - Dedicated database user `TraderVIReadOnlyChecks`, created **WITHOUT LOGIN**: no password or new
   server login. Only CONNECT and SELECT on dbo are granted; mutation, procedure execution, ownership,

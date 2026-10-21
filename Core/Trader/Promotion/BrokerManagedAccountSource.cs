@@ -87,6 +87,8 @@ public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reco
     }
     public Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
         new TradingRecommendationQuoteSource().ReadAsync(input, ct);
+    public Task<TradingQuoteReadResult> ReadQuoteObservationAsync(TradingRecommendationInput input, CancellationToken ct) =>
+        new TradingRecommendationQuoteSource().ReadDetailedAsync(input, ct);
     public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => resolveSecurity(symbol, ct);
     public async Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct)
     {
