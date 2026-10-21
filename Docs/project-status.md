@@ -2,6 +2,18 @@
 
 ## October 21 post-open execution watch
 
+**Ungated target clarification and selection provenance, 11:56 Toronto:** operator requests the
+existing Delphi Live **Portfolio rules only** source. Normal was recommended during October 18
+preparation from limited saved paper results; the scoped setup then explicitly selected only Normal.
+It was not an automatic runtime winner choice. Initial execution approval was saved October 20 at
+14:54:08; today's continuation retains it. Approval of the preset does not establish an informed
+preference for gated trading. The ungated source exists/updates 11:55:52, while revision 134 remains
+Normal for both initial/continued review, zero automatic orders/positions and exact 16:00 expiry.
+Display selection cannot replace the assignment. [Explicit transition remains pending](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026);
+preserve original financial history/risk and intraday/data/order controls. No code, source switch,
+SQL mutation or new financial approval is performed. Receipt:
+`result-20261021T155605890Z-1257597b6d944374afdab03d469ddd46.json`.
+
 **Latest execution read 11:49:25 Toronto:** revision131/Active/StrategyEvaluated at11:46:51,
 27real evaluations,no saved execution blocks/orders/fills/positions,same16:00expiry. Safe local
 diagnostics identify a third observation deadline error52232 at11:37:51; real evaluations gap from

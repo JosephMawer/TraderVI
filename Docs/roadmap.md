@@ -26,6 +26,14 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
+**October 21 target clarification:** operator requests existing **Delphi Live · Portfolio rules only**
+instead of Normal. Earlier Normal-specific preparation/approval describes installed state, not the
+newly clarified preference. The current scoped setup is Normal-only; prepare/review an explicit
+source transition preserving financial history/risk, intraday/data/order controls and 16:00 expiry.
+[Facts](project-status.md#october-21-post-open-execution-watch),
+[pending transition](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+No current approval silently expands to another complete strategy.
+
 **October 21 preparation:** the operator accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
 Append-only existing-assignment continuation is implemented. The operator subsequently accepts
 [ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md): retain completed broker

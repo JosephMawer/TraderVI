@@ -5,6 +5,22 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Delphi Live ungated TFSA source request — October 21, 2026
+
+- **User direction:** use an existing ungated Delphi Live portfolio. The existing profile is
+  Portfolio rules only: daily admission gates are bypassed, while intraday confirmation, data,
+  capital/stock risk, order reconciliation and cutoff remain (ADR-0067).
+- **Current mismatch:** October 18 preparation recommended Normal from a limited paper comparison.
+  The operator approved the Normal preset, initially saved October 20 and continued today. The
+  scoped setup/native qualification explicitly selects Normal; display selection has no assignment
+  effect. This was not autonomous daily winner selection, and approval does not establish informed
+  preference for gates. The 11:56 read confirms the ungated source exists but TFSA remains Normal.
+- **Pending transition:** prepare a concrete complete-source review/approval path preserving original
+  financial history/risk references/holds and full-fill-only recovery restrictions. Normal's scoped
+  qualification/continuation guards do not silently qualify another definition. Do not relabel Normal
+  or overwrite paper history. No switch, financial mutation or control change has occurred. Today's
+  16:00 expiry remains; no later-session authority. SQL-fix evening deferral is independent.
+
 ### Live evaluation save timeout — October 21, 2026
 
 - **Observed:** SQL timeout -2 at 09:37:46 in DelphiLiveEvaluationRepository.PersistAsync, a 30.10 s

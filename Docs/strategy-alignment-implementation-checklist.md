@@ -10,6 +10,12 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Recover the Normal selection provenance and record October 21 requested replacement:
+  existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.
+- [ ] Prepare/review an explicit ungated-source transition preserving paper/real history, financial
+  references/holds, intraday/data/order controls and 16:00 expiry. Exact source approval/enable remains
+  an operator action. [Pending scope](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **Automatic strategy trading is still off.**
 Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).

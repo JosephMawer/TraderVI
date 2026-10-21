@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 ungated Live request (R04):** user wants an ungated portfolio and asks who chose Normal.
+Recover October 18 recommendation from limited paper results, Normal-only setup, October 20 initial
+approval and today's retained continuation. Do not infer informed preference for gates from approval
+of that preset. Requested target: existing Delphi Live/Portfolio rules only. The 11:56 read confirms
+both profiles exist, TFSA remains Normal/no orders. [Facts](project-status.md#october-21-post-open-execution-watch),
+[pending transition](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+Source review point advances through this request/question and provenance inspection. No code,
+switch or financial mutation; SQL-fix evening deferral is not an inferred deferral of this request.
+
 **October21 third deadline recovery (R04):**11:49 hash-verified read confirms real recovery11:46:51/
 revision131/27evaluations after12m8s gap;safe diagnostic52232 at11:37:51. No orders/saved execution
 blocks,unchanged16:00expiry;desktop/hashes match. [Evidence](project-status.md#october-21-post-open-execution-watch).
