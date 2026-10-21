@@ -10,15 +10,27 @@ the desktop displays exact identity/gate bypass/retained controls and requires s
 and host enable. Original approval/continuation, financial memory/references/holds, ceiling and
 cutoff remain. Only derived confirmation state resets, with inputs after approval required.
 73 focused and 2,780 full offline Core checks pass (nine native skips); Debug WPF build passes.
-Standard Release installation remains pending normal closure. No source approval, host enable, order or native write rehearsal
-was performed. A 12:14 hash-verified metadata read confirms the existing sources share their exact
+Operator reports normal host stop/app closure; zero owners verified **12:27:18 Toronto**. Standard
+Release build succeeds from local source commit **5dc368fd**; expected hashes/installation metadata
+are retained in `artifacts/ungated-source-switch-20261021/`. Startup/sign-in and operator exact-source
+approval/separate host enable remain pending. No source approval, host enable, order or native write
+rehearsal was performed. Build warnings: existing compiler nullable/unused-variable warnings,
+cached Pkcs9.0.4 NU1902/NU1903 dependency advisories, and a nonfatal WPF temporary-project cleanup
+file-lock warning (build exit0,0errors). No full SSDT solution qualification is claimed.
+A 12:14 hash-verified metadata read confirms the existing sources share their exact
 comparison pair and all non-identity policy settings; TFSA remains Normal, revision140/latest
 StrategyEvaluated12:12:51, zero automatic orders/positions. Receipt:
 `result-20261021T161421143Z-597b2d06ff494b7ea6159279d8cfdbf7.json`.
 The unrelated SQL reliability draft is preserved byte-for-byte outside compiled source under
 `artifacts/deferred-sql-20261021/saved-source/` (manifest, patch, source copies). Resume instructions
 are updated; it is uninstalled and excluded from this build. Normal closure/zero-owner inspection
-is required before standard Release replacement; operator review/approval/enable remain pending.
+was completed before standard Release replacement. The **12:28:34** hash-verified bounded read
+still has Normal/profile0/noSourceSwitch,revision143/31real evaluations/latest12:19:12,zero automatic
+orders/fills/positions/no saved blocks and unchanged16:00expiry. Paperlease0 after normal closure;
+sessionIncomplete/Blocked is historical coverage. Updated read-only watch resolves the effective
+source from the explicit switch first, uses the authorized new hashes and treats this planned
+closure/review interval separately from unexplained stalls. It cannot approve/enable or infer a
+switch from installation. Receipt: `result-20261021T162834394Z-deae0f03ff3e4171bbe7d98d4c5a5aac.json`.
 
 **Ungated target clarification and selection provenance, 11:56 Toronto:** operator requests the
 existing Delphi Live **Portfolio rules only** source. Normal was recommended during October 18

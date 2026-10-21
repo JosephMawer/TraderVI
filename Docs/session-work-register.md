@@ -21,7 +21,11 @@ cross-session index, not a second authority or permission to run anything.
 **October 21 source-switch implementation (R04):** user explicitly requests implementation now
 for personal review/approval, preserving risk and 16:00. Exact matched Portfolio rules only workflow
 and review UI implemented; 73 focused/2,780 full offline checks and Debug build pass, nine native
-skips. Normal closure/standard Release installation pending. [Decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md),
+skips. Localcommit5dc368fd; operator normal stop/closure and zero-owner verification12:27:18 precede
+successful standardRelease build. Operator startup/sign-in/source approval/separate enable remain
+pending;12:28hash-verified read stillNormal/noSourceSwitch,noorders/positions,same16:00expiry.
+Watch now reads effective source and new expected hashes, without inferring financial approval.
+[Decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md),
 [owning evidence](project-status.md#october-21-post-open-execution-watch),
 [remaining steps](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 Source review point advances through this implementation request. No live source/host/order action

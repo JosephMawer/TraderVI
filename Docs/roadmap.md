@@ -30,8 +30,9 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 **Delphi Live · Portfolio rules only** instead of Normal. The prospective source-switch workflow
 and explicit desktop review/approval are implemented under
 [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md). Offline validation
-passes; complete normal closure/standard Release installation, then operator exact-source approval and separate
-enable. Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
+passes and standard Release is installed after normal closure/zero-owner verification. Next: operator
+normal startup/sign-in, exact-source approval and separate enable, followed by read-only verification.
+Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
 [Facts](project-status.md#october-21-post-open-execution-watch),
 [operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 No current approval silently expands to another complete strategy.

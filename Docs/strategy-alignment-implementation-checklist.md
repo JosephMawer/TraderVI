@@ -17,7 +17,8 @@ The September 22 documentation cleanup preserves the
   ([ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)).
 - [x] Validate offline: 73 focused/2,780 full Core checks pass, nine native skips; Debug WPF build passes.
   SQL reliability draft is parked outside compiled source, not included.
-- [ ] Install standard Release after normal app closure and independent zero-owner verification.
+- [x] Install standard Release after operator normal closure and zero-owner verification12:27:18.
+  Build succeeds from5dc368fd; warnings/evidence in project status. No app launch or financial action.
 - [ ] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
 - [ ] Read-only verification proves the new effective source/build, unchanged scope/risk/cutoff and
   advancing real evaluations after approval. Actual orders/fills/protection remain separate evidence.
