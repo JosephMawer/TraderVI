@@ -1,5 +1,27 @@
 # TraderVI Project Status
 
+## October 21 post-open execution watch
+
+**First real execution confirmed, bounded read 09:37:24 Toronto:** hash-verified SQL evidence shows
+two real `StrategyEvaluated` events at **09:31:41 and 09:32:50**, latest revision 56/Active, matching
+today's continuation/exact 16:00 expiry, no saved execution blocks and zero automatic orders/positions.
+This proves actual post-open evaluation rather than only Armed UI or paper progress. At observation,
+today's Live session is Monitoring/Pending with no host gap and one renewing paper lease; Normal's
+latest saved update remains 09:31:23 and no five-minute paper evaluation is yet saved. Source waiting
+is possible, not an independently observed host-status cause. Continued execution freshness remains
+to be checked; no-order counts alone do not prove a failure or a qualifying trading opportunity.
+
+The operator requests same-chat after-open/blocker/order monitoring today. Heartbeat
+`delphi-live-tfsa-watch-october-21` is created/verified Active every five minutes, bounded to today,
+with first-execution notification delivered, change-only blocker/order/recovery notifications and
+a final cutoff report after 16:05 before self-removal (hard stop 16:15). It changes no trading controls
+or orders. Reviewed SELECTs, query-hash-verified receipt
+`result-20261021T133723700Z-046ca161894d40f3baa0c29c824a8fbc.json` and notification baseline are ignored
+under `artifacts/delphi-live-watch-20261021/`. No app restart, broker/market call, financial mutation,
+model operation or trading gate change is performed by monitoring. Actual fills/protection and
+today's native cutoff observation remain pending. This documents monitoring setup and the initial
+observation, not uninterrupted progress through the day.
+
 ## October 21 pre-open approval implementation
 
 The operator explicitly requests approval before the open and automatic eligible polling from
@@ -31,8 +53,9 @@ This verifies the saved pre-open approval and observed host arming, not post-ope
 SQL receipt `result-20261021T132242624Z-d86ad7805159497793a99c18ebf1e2c2.json` and safe/native owner
 receipts remain ignored with the build logs. No protected grant content was independently decoded.
 
-No further setup click is needed while the same app remains running/signed in; next observe fresh
-post-open evaluation and cutoff. Automatic fills/populated protection remain unverified. No agent
+No further setup click is needed while the same app remains running/signed in. Initial post-open
+evaluation is subsequently verified above; sustained progress/cutoff and automatic fills/populated
+protection remain unverified. No agent
 app launch, financial save, host enable, order, SQL write/migration/native rehearsal, market workflow
 or push. Operator startup/approval/enable are separately observed above. Original history and the
 unrelated Obsidian edit remain preserved.

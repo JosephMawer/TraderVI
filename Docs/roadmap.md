@@ -43,8 +43,10 @@ one responding normal desktop was observed before the subsequent coordinated bui
 The operator then accepts [pre-open approval/arming](adr/0096-pre-open-october21-approval-and-armed-host.md):
 implemented with 284 focused/2,738 full offline passes (nine native skips) and normal Release build.
 Native operator pre-open review/approval/arming is now observed; SQL revision 50 confirms today's
-flag/16:00 expiry, and one responding owner matches the tested output. Next observe fresh post-open
-execution and cutoff, with no further routine setup clicks while the same host runs. Preserve
+flag/16:00 expiry, and one responding owner matches the tested output. The [first post-open check](project-status.md#october-21-post-open-execution-watch)
+verifies two actual evaluations, no saved blocks or automatic orders; continue the explicitly requested
+same-chat five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
+automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.
 

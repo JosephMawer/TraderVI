@@ -260,7 +260,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   explicit continuation approval and Armed host UI. Hash-verified 09:22 SQL read confirms revision 50,
   pre-open flag/today's scope/exact 16:00 expiry/no automatic orders or positions; one responding
   owner matches both tested output hashes. [Native evidence](project-status.md#october-21-pre-open-approval-implementation).
-- [ ] Observe actual fresh post-open evaluation and exact cutoff. Earlier all-nine-check/
+- [x] Verify actual post-open execution with the hash-matched 09:37 read: StrategyEvaluated at
+  09:31:41/09:32:50, revision 56/Active/today's permission/no saved blocks or automatic orders/positions.
+- [x] Create the operator-requested same-chat five-minute read-only execution/blocker/order watch,
+  bounded through today's close/final report/self-removal. [Scope and first evidence](project-status.md#october-21-post-open-execution-watch).
+- [ ] Observe sustained current execution, automatic order/fill behavior when eligible, and exact cutoff. Earlier all-nine-check/
   verification-restart implementation/validation above remain historical under ADR-0095.
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
