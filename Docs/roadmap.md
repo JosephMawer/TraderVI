@@ -48,9 +48,9 @@ verifies initial operation; a subsequent SQL evaluation-save timeout causes a ro
 before real evaluation resumes at 09:45:45; candidates at that read are Watching/immature, with no
 confirmed eligibility or orders. Track the [open timeout cause](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026)
 with implementation now **operator-deferred to tonight** (21:00 Toronto reminder); preserve the
-incomplete uninstalled source work and leave the running build unchanged. The 10:10 read shows
-twelve real evaluations and two candidates starting strong confirmation, still no confirmed eligible
-signal or order. Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
+incomplete uninstalled source work and leave the running build unchanged. The 10:18 follow-up shows
+fifteen real evaluations and no orders; both previously confirming candidates lost confirmation on
+the 10:10 bar and return to Watching. Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.

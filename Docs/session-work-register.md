@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 candidate follow-up (R04):** operator asks whether the two previously confirming
+candidates confirmed or placed orders. Hash-verified 10:18:09 read traces the exact original pair:
+both lose confirmation at 10:10 and are Watching at 10:15; neither becomes confirmed eligible.
+Latest real evaluation 10:16/revision 95/Active, fifteen evaluations/no saved execution blocks or
+automatic orders/fills/positions. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through this question and direct cohort-history read. Watch continues;
+evening fix deferral, trading controls and cutoff are unchanged.
+
 **October 21 timeout fix deferred to evening (R04):** user first requests a reliability correction
 without changing gates/risk/16:00, then explicitly defers it to tonight and asks to focus on live
 app/trades. One-time same-chat 21:00 Toronto reminder `delphi-live-sql-fix-reminder` is Active.

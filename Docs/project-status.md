@@ -2,15 +2,16 @@
 
 ## October 21 post-open execution watch
 
-**Updated bounded read 10:10:31 Toronto:** real execution advances to revision 86/Active/
-StrategyEvaluated at **10:09:39**, twelve post-open evaluations, no saved execution blocks and
-zero automatic orders/positions. Normal source advances at 10:09:14; one current paper lease and
-666 shared evaluations are saved. The 10:05-bar Normal candidates now include two mature
-`StrongConfirmationStarted` and 23 mature `Watching`; twelve others remain immature (six on-time,
-six not on-time). All 37 still have `ConfirmedLiveEligible=false`. Confirmation has begun for two
-candidates, but no confirmed eligible signal/order is established. One normal Release owner PID
-37148 is responding. Exact October 21 16:00 purchase expiry and the earlier historical coverage
-gap remain. Hash-verified receipt: `result-20261021T141031190Z-e717a0fc53b94c0885e0c972c68b8985.json`.
+**Updated bounded read 10:18:09 Toronto:** real execution is revision 95/Active/StrategyEvaluated
+at **10:16:00**, fifteen post-open evaluations, no saved execution blocks and zero automatic orders,
+recorded fills or positions. The two candidates that started strong confirmation on the 10:05 bar
+both record `StrongConfirmationBroken` on the 10:10 bar and `Watching` on the 10:15 bar. Neither
+has any confirmed eligible observation in that interval; latest evidence is mature/on-time for one
+and immature/not-on-time for the other. This establishes failed confirmation, not an order or a
+current saved execution blocker. Exact October 21 16:00 expiry and the earlier historical coverage
+gap remain. Hash-verified `ConfirmationFollowup.sql` receipt:
+`result-20261021T141808456Z-be3c0b588f7d490dabace51b5940d6e6.json`. The 10:16 watch separately
+verified fresh Normal source, one renewing lease, responding PID 37148 and matching Release hashes.
 
 **Reliability work deferred by operator:** after requesting a SQL timeout correction, the operator
 asks to leave implementation until tonight and focus on the running app/trades. A one-time same-chat

@@ -277,6 +277,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Verify continued operation at 10:10:31: twelve real evaluations/latest 10:09:39, no saved
   execution blocks or orders; two candidates start strong confirmation, all 37 remain unconfirmed.
   Sustained operation/fills/cutoff remain unchecked above; historical coverage gap is preserved.
+- [x] Trace the two original confirming candidates through 10:15 using a hash-verified 10:18 read:
+  both lose confirmation on the 10:10 bar and return to Watching; neither confirms. Fifteen real
+  evaluations/latest 10:16, no saved execution blocks/orders/fills/positions. [Evidence](project-status.md#october-21-post-open-execution-watch).
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
