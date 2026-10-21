@@ -2,7 +2,16 @@
 
 ## October 21 post-open execution watch
 
-**New bounded stall read 10:51:23 Toronto:** real execution remains revision 107/Active with nineteen
+**Recovery verified 10:56:24 Toronto:** real execution advances to revision 110/Active/
+StrategyEvaluated at **10:52:16**, twenty post-open evaluations, no saved execution blocks and zero
+automatic orders/fills/positions. Normal source advances at 10:51:52; shared evaluations reach 1,443
+at 10:55:38 and one current lease renews at 10:55:34. Responding desktop/output hashes still match.
+The interval from 10:39:42 to 10:52:16 is roughly 12 minutes 33 seconds. This verifies resumed
+execution after the deadline rejection, not a fixed cause or sustained reliability. Historical
+coverage gap, controls and exact 16:00 expiry remain; no restart or deferred fix installation.
+Hash-verified receipt: `result-20261021T145624358Z-1a0a1f65ec604e859146ab820c49cabd.json`.
+
+**Earlier bounded stall read 10:51:23 Toronto:** real execution remains revision 107/Active with nineteen
 evaluations/latest **10:39:42** (11 minutes 40 seconds without progress), no saved execution blocks,
 zero automatic orders/fills/positions and unchanged 16:00 expiry. Normal source remains 10:39:12,
 although shared evaluations advance to 1,332 at 10:49:29 and a current lease renews at 10:49:25.

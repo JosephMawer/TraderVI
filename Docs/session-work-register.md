@@ -18,6 +18,13 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 second recovery (R04):** hash-verified 10:56:24 read confirms Normal source10:51:52
+and real StrategyEvaluated10:52:16/revision110/Active/twenty evaluations after the deadline-related
+roughly12½-minute gap. No saved execution blocks/orders/fills/positions;16:00expiry unchanged.
+[Evidence](project-status.md#october-21-post-open-execution-watch). Recovery reported; watch baseline
+clears the current stall without erasing its history. Source review point advances through this
+bounded heartbeat. No restart/control/source mutation; sustained reliability is unproven.
+
 **October 21 new stall (R04):** 10:51:23 heartbeat exceeds the ten-minute no-real-evaluation alert
 threshold; source also stalls, while shared evaluations resume and desktop responds. A new safe
 10:43:05 SQL52232 diagnostic identifies observation membership arriving after the existing collection
