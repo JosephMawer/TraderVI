@@ -58,6 +58,39 @@ five-minute capacity, uninterrupted continuity, order activity and cutoff verifi
 
 ## Installation and acceptance
 
+**15:16–15:23 no-buy diagnosis:** actual15:16:03/revision235 consumes15:10bar,24/37mature.
+Two published daily-admitted signals are ConfirmedLiveEligible/StrongConfirmationCompleted/streak2;
+three more published signals have first Strong/streak1. One additional completed confirmation is
+observation-only/no DailySetup and is not buy eligible. All24mature observations are valid, confidence
+Normal and without safety veto. Maturity supplies sufficient history; it does not establish the
+required consecutive Strong momentum. At this read17/24 PriceMovement families have
+NoMeaningfulVotingWindow,11/24 VolumeSupport families weaken and12/24 PriceStructure families lean
+negative. Zero automatic orders, saved blocks, account new-risk blocks or daily/capital holds.
+
+Latest real15:22:15/revision238 consumes15:15bar:24mature,zero confirmed. The five previously Strong
+published signals now have StrongConfirmationBroken; all mature momentum is below Strong, with
+valid observations/Normal confidence/no safety veto. This is changed momentum, not evidence of a
+technical warmup reset. Active daily definition matches, current CAD account/risk dates and positive
+reported NAV are verified; NewBuysStopped/order-review flags are false. Two earlier confirmed
+signals both match the approved daily definition and fit one share within the saved20%NAV/cash
+budget at their completed-bar closes. This does not verify the actual native ask or quote outcome.
+
+Residual latency remains: LiveProtectionPrepared15:22:15.413 uses15:15bar, beyond the existing
+7minute (5minute interval+2minute offset) freshness condition for recommendation/quote selection.
+Earlier prepared15:16:02.728 uses15:10bar within that allowance. Native quote receipts, recommendation
+rows and their rejection reasons are not saved in BrokerManagedSessionRevision; absence of saved
+blocks cannot prove every later predicate passes. The precise reason those earlier two confirmations
+produced no order remains unverified; do not attribute it to affordability or a known risk hold.
+The approved existing strategy entry window is09:50–15:45 Toronto, inside the separate original
+dated purchase permission ending16:00. Both limits remain unchanged; no strategy or operational
+action was performed. Through-close watch continues, lower host latency and decision diagnostics
+remain open. No new tests/builds are needed for this read-only finding.
+
+Ignored hash-verified evidence: ActualNoBuyReasons.sql/B4CF1F8A receipts191623741 and192325851;
+ActualConfirmationFollowup.sql/6285296F receipt191825921; ConfirmedSizingRead.sql/C7A711ED
+receipt192122795; ConfirmationFreshness.sql/2DBE10E2 receipt192302077. Full receipt filenames and
+query text remain under artifacts/read-only-db and artifacts/delphi-live-watch-20261021.
+
 **Continued recovery checked15:02–15:03:** twelve real evaluations after updated-build approval,
 first14:11:23/latest15:01:48/revision226/Active/profile1, matching reviewed Core and original16:00
 expiry. Actual37symbols through14:55bar retain26mature/zero confirmed entry signals. No orders,

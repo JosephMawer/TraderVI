@@ -15,7 +15,9 @@ closure/zero-owner verification; operator updated-build approval/enable and firs
 are verified14:13. Initial20minute continuity/mature actual signals and four sub-five-minute captured
 cycles are verified14:31. Continue the existing watch for regressions/orders/close; whole-day
 reliability and lower actual-host latency remain unproved.
-Recovery continues through15:03/twelve real evaluations; no confirmed entries/orders/holds, same cutoff.
+15:23diagnosis verifies two transient confirmations15:16, then zero15:22 as momentum weakens;
+zeroorders/holds. Lower host latency and visibility of quote/recommendation rejection reasons remain
+open. Preserve the existing15:45strategy entry cutoff and16:00outer purchase permission.
 Preserve the approved Portfolio
 rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
 capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.

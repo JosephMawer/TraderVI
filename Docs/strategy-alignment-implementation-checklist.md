@@ -24,8 +24,11 @@ The September 22 documentation cleanup preserves the
   fullcycles283.69/265.13/264.38/273.62s stay under five minutes; no post-build appfailure observed.
 - [ ] Continue through-close regression/order/cutoff watch. Initial recovery does not prove whole-day
   reliability, lower real-host latency, eligible orders or fills; historicalBlockedcoverage remains.
-  Recovery remains verified15:03/latestreal15:01:48/revision226/twelve new-build evaluations,
-  26mature/zero confirmed entries/orders/holds/blocks/same16:00; no post-build appfailure observed.
+  Latest15:23read: real15:22:15/revision238/24mature/zero confirmed/orders/holds/savedblocks.
+  Two transient confirmations15:16 lose Strong momentum next bar. Quote-stage lag7m15s exceeds
+  existing7minute signal freshness allowance at15:22; lower host latency remains open. Prior
+  confirmed signals fit one share at saved closes, but native quote/recommendation outcomes are
+  not persisted. Existing15:45strategy entry cutoff and16:00outer permission remain unchanged.
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.

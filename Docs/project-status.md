@@ -16,8 +16,13 @@ verified14:31: actual14:31:12/revision202 consumes14:25bar,26/37mature/zero conf
 unchanged epoch13/start14:05,34/37on-time. Captured fullcycles283.69/265.13/264.38/273.62s stay under
 five minutes; no post-build appfailure observed.12hashes/one respondingPID97192 verified14:32.
 Whole-day reliability/lower actual-host latency remain unproved; existing five-minute watch continues.
-15:03read extends recovery to12new-build real evaluations/latest15:01:48/revision226;26mature/zero
-confirmed entry signals/orders/holds/blocks, same16:00expiry, no post-build appfailure observed.
+15:23read verifies real15:22:15/revision238:24mature/zero confirmed, zeroorders/holds/savedblocks.
+Two daily-admitted signals briefly confirmed at15:16:03, then lost Strong momentum on the next bar.
+All24mature observations remain valid/Normal confidence/no safety veto; current waiting is momentum.
+Actual host lag remains material: latest15:15bar is7m15s old at the quote-stage boundary, beyond the
+existing7minute freshness allowance. Earlier confirmed signals fit one share at saved bar prices;
+their native quote/recommendation outcomes are not persisted, so their lack of orders is unresolved.
+Existing strategy entry cutoff15:45 and outer purchase permission16:00 both remain unchanged.
 No app launch, financial approval or trading action was performed by the agent.
 The 13:58 read verifies real evaluation13:52:53/revision186/profile1, zero orders/positions/holds/
 blocks, same16:00expiry. Diagnostics additionally show the known52232deadline recurring13:43:22;
