@@ -2,6 +2,19 @@
 
 ## October 21 post-open execution watch
 
+**New bounded stall read 10:51:23 Toronto:** real execution remains revision 107/Active with nineteen
+evaluations/latest **10:39:42** (11 minutes 40 seconds without progress), no saved execution blocks,
+zero automatic orders/fills/positions and unchanged 16:00 expiry. Normal source remains 10:39:12,
+although shared evaluations advance to 1,332 at 10:49:29 and a current lease renews at 10:49:25.
+The normal desktop responds and both Release hashes still match. Local safe diagnostics record
+SQL **52232 at 10:43:05** in observation-set synchronization: the existing seven-minute collection
+deadline rejects late observation membership. This is a different error from the earlier save timeout
+-2; the reason processing reached the deadline is not established. At the bounded stage read,
+LiveActions starts 10:49:29 without a completion yet recorded. No restart, guard relaxation or deferred
+fix installation is performed. Continue observing source and real-loop recovery; retained Active state
+alone does not establish current execution. Hash-verified receipt:
+`result-20261021T145123104Z-ea0f62f4fccb4d529cebf095e8a4f985.json`.
+
 **Updated bounded read 10:18:09 Toronto:** real execution is revision 95/Active/StrategyEvaluated
 at **10:16:00**, fifteen post-open evaluations, no saved execution blocks and zero automatic orders,
 recorded fills or positions. The two candidates that started strong confirmation on the 10:05 bar

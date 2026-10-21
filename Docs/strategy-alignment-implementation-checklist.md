@@ -266,6 +266,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   bounded through today's close/final report/self-removal. [Scope and first evidence](project-status.md#october-21-post-open-execution-watch).
 - [ ] Observe sustained current execution, automatic order/fill behavior when eligible, and exact cutoff. Earlier all-nine-check/
   verification-restart implementation/validation above remain historical under ADR-0095.
+- [x] Detect/report the new 10:51 over-ten-minute real-evaluation/source stall with safe observation
+  deadline error52232 at 10:43; distinguish it from SQL-2 and keep guards/expiry unchanged.
+  [Evidence](project-status.md#october-21-post-open-execution-watch). Recovery remains unverified at that read.
 - [x] Diagnose the October 21 no-order question with bounded read-only evidence through 09:45:51:
   SQL evaluation-save timeout/roughly 13-minute execution gap, then recovery at 09:45:45/revision 59;
   all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.

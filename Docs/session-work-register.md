@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 new stall (R04):** 10:51:23 heartbeat exceeds the ten-minute no-real-evaluation alert
+threshold; source also stalls, while shared evaluations resume and desktop responds. A new safe
+10:43:05 SQL52232 diagnostic identifies observation membership arriving after the existing collection
+deadline, distinct from the original SQL-2 save timeout. Root timing cause is unestablished. No
+orders/fills/positions or saved execution blocks; expiry unchanged. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through this read-only heartbeat/diagnostic. Notify new blocker once,
+then recovery/changes only. Fix remains deferred; no operational/control/source mutation.
+
 **October 21 candidate follow-up (R04):** operator asks whether the two previously confirming
 candidates confirmed or placed orders. Hash-verified 10:18:09 read traces the exact original pair:
 both lose confirmation at 10:10 and are Watching at 10:15; neither becomes confirmed eligible.

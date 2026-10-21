@@ -50,7 +50,10 @@ confirmed eligibility or orders. Track the [open timeout cause](reviews/open-que
 with implementation now **operator-deferred to tonight** (21:00 Toronto reminder); preserve the
 incomplete uninstalled source work and leave the running build unchanged. The 10:18 follow-up shows
 fifteen real evaluations and no orders; both previously confirming candidates lost confirmation on
-the 10:10 bar and return to Watching. Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
+the 10:10 bar and return to Watching. A new 10:51 check finds over eleven minutes without real
+evaluation and stale source; local diagnostics identify a 10:43 observation collection-deadline
+rejection (52232), distinct from the earlier timeout. Report/watch recovery while the fix stays
+deferred and controls remain. Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.
