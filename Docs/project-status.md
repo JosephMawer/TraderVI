@@ -2,6 +2,22 @@
 
 ## October 21 post-open execution watch
 
+**Post-switch fresh-input blocker, 12:50–12:51 Toronto:** narrow hash-verified read shows real
+StrategyEvaluated12:47:27/revision150/Active/profile1, zero automatic orders/positions/saved blocks,
+no daily/capital holds and unchanged16:00expiry. One normal Release ownerPID39964 responds and
+expected hashes match. Safe app diagnostics record another observation-set deadline rejection,
+SQL52232 at12:47:13; its LiveEngine cycle12:43:37–12:47:13 lasts215.74s, then another starts12:47:37.
+Bounded target-policy read at12:51:55 confirms **zero durable market inputs with bar end after
+12:43:10 source approval**. Real checking has progressed, but fresh post-approval signal development
+is delayed by the data pipeline; this is not an account-risk hold or a stock-selection rejection.
+No new over-ten-minute real-evaluation stall is established at this read. The broader monitoring
+query and its correlated-CTE follow-up independently time outSQL-2 without results; narrow progress
+and scalar-bound input SELECTs succeed with verified hashes. Do not conflate monitoring timeout
+with app52232 or infer a query-plan root cause. Notify new source failure/input blocker once;
+preserve evening reliability deferral and all controls. Receipts:
+`result-20261021T165012563Z-bb54b36acc5c41acb4f4f059302269d7.json` (NarrowProgress.sql) and
+`result-20261021T165155243Z-39c0407336424127993c6bb3b1fbcd60.json` (TargetInputsBounded.sql).
+
 **Portfolio rules only approved and first real execution verified, 12:44 Toronto:** operator
 reports review/approval/separate enable and supplies the enabled-host screen. Hash-verified saved
 read confirms source approval **12:43:10**, effective profile1 and **StrategyEvaluated12:43:34**,

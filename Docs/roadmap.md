@@ -35,6 +35,8 @@ source approval/separate enable and first real evaluation are verified12:44. Nex
 of fresh post-approval market inputs, sustained real execution, orders/blockers and today's cutoff.
 The7m19s setup wait drains12:42:30; snapshot/action cost and narrower coordination remain an open
 investigation. This source switch does not install the deferred SQL reliability fix.
+At12:51 fresh post-approval inputs remain absent after another12:47 deadline rejection, despite
+another real check. Monitor data recovery; keep the separately deferred reliability work explicit.
 Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
 [Facts](project-status.md#october-21-post-open-execution-watch),
 [operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).

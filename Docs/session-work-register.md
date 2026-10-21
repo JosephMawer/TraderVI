@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 post-switch source delay (R04):**12:50narrow read confirms real12:47:27/revision150/
+profile1/zeroorders/positions/holds/savedblocks/same16:00; one responding owner/newhashes match.
+App52232 observation deadline recurs12:47:13.12:51bounded target read verifieszero post-approval
+bar inputs. Broader monitoring reads time outSQL-2 withoutresults; narrower SELECTs succeed, with
+hashes verified. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+New source failure/input blocker notified once; fresh-input recovery remains pending. No over10m
+realstall yet, no control/restart/fix operation; evening deferral retained. Source review point
+advances through this heartbeat and bounded diagnostics.
+
 **October21 switched-source execution (R04):** operator reports review/approval/enable and shares
 enabled-host screen. Hash-verified12:44read proves PortfolioRulesOnly approval12:43:10 and first
 realStrategyEvaluated12:43:34/revision147,originalaccount/session/approval/continuation/baseline/risk
