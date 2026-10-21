@@ -34,7 +34,7 @@ public static class BrokerManagedSessionComposition
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
         WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
-        TimeProvider? time = null)
+        TimeProvider? time = null, IBrokerAccountRiskContinuationStore? previewRisk = null)
     {
         // Callers must supply their existing clients, journal and gate, not create another submission owner.
         ArgumentNullException.ThrowIfNull(sharedOrderGate);
@@ -53,7 +53,7 @@ public static class BrokerManagedSessionComposition
             return context.Security.Id;
         }
         var source = new BrokerManagedAccountSource(reconcile, () => accountReads.SessionRevision, selectedAccount,
-            new BrokerAccountRiskBaselineRepository(), risk, calendar, riskEvidence,
+            new BrokerAccountRiskBaselineRepository(), previewRisk ?? risk, calendar, riskEvidence,
             new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time);
         var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
             selectedAccount, sharedOrderGate, time);

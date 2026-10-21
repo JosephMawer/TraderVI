@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Trader.Promotion;
+using Core.Trader;
 using Core.WSTrade.Accounts;
 using System;
 using System.Linq;
@@ -50,10 +51,14 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                 return new Preflight(orderGate, safetyLease, async token =>
                 {
                     CheckRevision(revision);
+                    RequirePurchaseWindow(projected.Risk);
                     var recheck = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
                     if (recheck is not null) throw new InvalidOperationException(recheck);
                     var saved = new ManualBuyRecord(intent, null, []);
                     journal.Save(saved);
+                    // The durable journal write may itself cross the cutoff. Never transmit then;
+                    // the original reserved intent/journal remains available for operator recovery.
+                    RequirePurchaseWindow(projected.Risk);
                     WealthsimpleSubmissionStatus status;
                     try { status = (await buys.SubmitManualBuyAsync(new(account, context.Security, order.Quantity, order.RequestId), token)).Status; }
                     catch { status = WealthsimpleSubmissionStatus.OutcomeUnknown; }
@@ -91,6 +96,14 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
     {
         if (!buys.IsConnected || !sells.IsConnected || buys.SessionRevision != revision || sells.SessionRevision != revision)
             throw new InvalidOperationException("Broker login changed. Recover the saved intent before further execution.");
+    }
+    private void RequirePurchaseWindow(BrokerAccountRiskState risk)
+    {
+        if (risk.Continuation is not { } continued) return;
+        var now = clock.GetUtcNow();
+        if (BrokerOctober21Continuation.ExecutionDate != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
+            continued.PurchaseExpiresAt == default || now >= continued.PurchaseExpiresAt)
+            throw new InvalidOperationException("The dated trial purchase permission expired before broker transmission.");
     }
     private static void RequireSameAccount(BrokerAccountProjection projected, WealthsimpleTfsaSnapshot snapshot, string actualSecurity, string expectedSecurity)
     {

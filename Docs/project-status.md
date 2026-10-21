@@ -1,13 +1,17 @@
 # TraderVI Project Status
 
-**October 21 preparation requested, October 20:** the operator asks to preserve saved trades/risk
-references and avoid repeating initial setup. The concrete [continuation proposal](reviews/delphi-live-continuation-contract-20261021.md)
-is drafted; acceptance is pending. Existing dated scope/carry cannot roll again and the durable
-session has no implemented renewal action. Proposed path: a separately approved, cash-only October
-21 permission on the existing assignment, original records/holds unchanged, all nine checks/current
-source/build reviewed, exact next close expiry and separate host enable. Core changes still require
-actual new-build recovery evidence, not relabelling yesterday's packet. No new permission, code or
-financial mutation is implemented by drafting; tomorrow is not yet ready to activate.
+**October 21 continuation accepted and implemented in source, October 20:** after clarifying that
+original order-ID readback does not restrict which eligible stocks Normal may buy, the operator
+explicitly accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
+Core/desktop now preserve the original assignment/approval, trades, references, holds and memory;
+append linked October 21-only risk/permission records with revision fences and original-request
+recovery; require all nine checks/current exact Normal/source/build and separate manual host enable.
+Old grants cannot run the new permission, even with the same strategy fingerprint. Current-build
+capture/restart uses the original four IDs and original two-sale selection automatically; dated,
+build-specific proof preserves October 20 files. Cutoff guards cover reservation and transmission.
+Focused tests and desktop Debug compilation pass; final validation/normal Release installation are
+being completed. No SQL migration, rehearsal, financial permission, order or host enable was run by
+this implementation. Actual October 21 native review/approval/enable remains required.
 
 **October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy
 evaluations run from 15:20:59 through 16:00:00.470, latest revision 49/Active. Gaps are 67.79–234.20

@@ -38,7 +38,8 @@ public static class BrokerAccountProjector
             throw new InvalidOperationException("Fresh, complete, matching broker holdings/history and the same permanent binding are required.");
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
         var blocks = ImmutableArray.CreateBuilder<string>();
-        if (risk.TrialCarry is not null && cashCoverage?.Contract != BrokerTrialCarryForward.Contract)
+        if (risk.TrialCarry is not null && cashCoverage?.Contract !=
+            (risk.Continuation is null ? BrokerTrialCarryForward.Contract : BrokerOctober21Continuation.Contract))
             blocks.Add("Trial-carried references require their exact next-session trial scope; they cannot qualify production or older scopes.");
         if (risk.TradingDate != date || risk.Through > observed.SnapshotAt)
             blocks.Add("Continue the saved account risk session before new buys.");

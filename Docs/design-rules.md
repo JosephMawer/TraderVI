@@ -44,7 +44,14 @@ The explicitly accepted October 20 amendment permits one reviewed trial-only cas
 the original October 19 baseline. Preserve original reference records/values/holds and original four
 verification order IDs; claim no historical close/open. Native next-session carry save, all nine
 checks, fresh Normal source and same-copy recovery remain required before separate approval/enable.
-It expires at the October 20 reviewed close and cannot qualify production/older scopes or roll again.
+It expires at the October 20 reviewed close and cannot qualify production/older scopes or roll again
+without an explicit amendment. On October 20 the operator accepts one separately reviewed October
+21-only continuation on the existing assignment. Preserve original trades/IDs, references/provenance,
+holds, memory, prior approvals and expiry evidence. Require unchanged cash-only/no outside changes,
+all nine checks/current Normal/source/build and actual new-build restart recovery; append linked
+risk/permission records and enable their host separately. Purchases expire at the October 21 reviewed
+close; no October 22 or recurring buying authority follows. Original order IDs are verification
+records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).
 Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
 valid historical signal exits through restart and never infer a bid touch from a bar low. Opening

@@ -48,6 +48,8 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
         NoTransferScope?.ValidateAnchor();
         if (account.Risk.TrialCarry?.Fingerprint != NoTransferScope?.TrialCarry?.Fingerprint)
             throw new InvalidOperationException("Trial-carried risk references require the exact next-session scope; production and older approvals cannot inherit them.");
+        if (account.Risk.Continuation?.Fingerprint != NoTransferScope?.Continuation?.Fingerprint)
+            throw new InvalidOperationException("The saved continuation risk association must match the reviewed dated permission.");
         if (NoTransferScope is { } scope && (scope.BindingId != BindingId || scope.BaselineId != BaselineId ||
             scope.Session != Session || scope.ApprovedAt > now || Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
             PurchaseCeiling > scope.CashOnlyAnchor.Cash || PurchaseCeiling > scope.CashOnlyAnchor.BuyingPower ||
@@ -103,7 +105,10 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     public bool NewBuysStopped { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool TrialOrderReviewRequired { get; init; }
-    [JsonIgnore] public BrokerManagedStrategy Strategy => Approval.Review.Strategy;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerManagedContinuation? Continuation { get; init; }
+    [JsonIgnore] public BrokerActivationReview EffectiveReview => Continuation?.Approval.Review ?? Approval.Review;
+    [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")

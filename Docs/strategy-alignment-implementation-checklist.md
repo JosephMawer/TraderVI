@@ -222,9 +222,16 @@ returns are negative and no automatic-execution qualification follows. [Current 
   session; preserve original IDs on uncertainty. This trial grants no next-day buying renewal.
 - [x] Draft the requested October 21 existing-assignment continuation with original trades/references/
   holds preserved and no repeated verification trades or baseline setup. [Concrete proposal](reviews/delphi-live-continuation-contract-20261021.md).
-- [ ] Obtain explicit acceptance of the October 21-only exception; implement/validate append-only
-  continuation, exact native proof/recovery and explicit session review/approval/host enable.
-  Proposal is not installed readiness or financial authority; all nine checks/close expiry remain.
+- [x] Obtain explicit acceptance of the October 21-only exception after clarifying historical order
+  readback versus new stock selection; preserve all original trades/references/holds.
+- [x] Implement append-only existing-assignment continuation, linked risk/permission original-request
+  recovery, read-only preview, current-build native proof/restart integration and explicit desktop
+  Review next session / Approve October 21 continuation / separate host enable. Old host grants
+  cannot inherit authority; original approval/memory and cumulative allowance remain preserved.
+- [ ] Finish validation and normal Release handoff of the continuation; source/offline checks do not
+  qualify actual October 21 recovery or financial approval. All nine checks/close expiry remain.
+- [ ] Operator performs actual October 21 native current-build recovery, reviewed continuation
+  approval and separate host enable; observe native activation and exact cutoff for this date.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.

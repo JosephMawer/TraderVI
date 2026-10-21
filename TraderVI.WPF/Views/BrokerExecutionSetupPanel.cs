@@ -15,6 +15,8 @@ public sealed class BrokerExecutionSetupPanel : UserControl
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
     public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
     public Button StopHost { get; } = new() { Content = "Stop execution host" };
+    public Button ReviewNextSession { get; } = new() { Content = "Review next session", Visibility = Visibility.Collapsed };
+    public Button ApproveContinuation { get; } = new() { Content = "Approve October 21 continuation", IsEnabled = false, Visibility = Visibility.Collapsed };
     public Button PreviewCarry { get; } = new() { Content = "Preview October 20 carry" };
     public Button SaveCarry { get; } = new() { Content = "Save reviewed October 20 carry", IsEnabled = false };
     public CheckBox NoOutsideChanges { get; } = new() { Margin = new Thickness(0, 0, 0, 12), Height = double.NaN,
@@ -43,7 +45,8 @@ public sealed class BrokerExecutionSetupPanel : UserControl
             Margin = new Thickness(0, 0, 0, 12) };
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
-        foreach (var button in new[] { Refresh, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst, EnableHost, StopHost })
+        foreach (var button in new[] { Refresh, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst,
+            ReviewNextSession, ApproveContinuation, EnableHost, StopHost })
         {
             button.MinWidth = 215; button.MinHeight = 44; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
             if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;

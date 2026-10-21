@@ -68,7 +68,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         await using var lease = await store.AcquireAsync(bindingId, ct);
         var state = lease.Current ?? throw new InvalidOperationException("Explicit reviewed execution approval is required.");
         bool paused = state.Phase == BrokerManagedPhase.Paused;
-        bool fullFillTrial = state.Approval.Review.NoTransferScope?.FullFillOnlyNativeTrial == true;
+        bool fullFillTrial = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
         bool NeedsTrialReview()
         {
             try { return state.Orders.Any(o => o.Submission != WealthsimpleSubmissionStatus.Acknowledged) || source.RequiresTrialOrderReview(state.Orders); }
@@ -205,7 +205,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
                 Blocks = ["The running strategy implementation changed. Review execution authority before placing further orders."] }, "ImplementationChanged", ct);
         bool currentRiskDay = account.Risk.TradingDate == account.Account.TradingDate;
-        bool trialPurchasesEnded = state.Approval.Review.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
+        bool trialPurchasesEnded = state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
             (trial.Session != today || trial.PurchaseExpiresAt is null || now >= trial.PurchaseExpiresAt);
         var savedRiskTradingDate = state.Memory.TradingDate;
         input = input with { EntriesPaused = input.EntriesPaused || state.NewBuysStopped || trialPurchasesEnded || !currentRiskDay || !account.NewRiskBlocks.IsEmpty,
@@ -249,7 +249,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         if (state.Orders.Any(o => o.DecisionId == decisionId)) return state;
         decimal price = recommendation.ReferencePrice ?? 0;
         if (recommendation.Quantity < 1 || !sell && (price <= 0 || recommendation.Quantity * price >
-            System.Math.Min(account.Account.AvailableCash ?? 0, state.Approval.Review.PurchaseCeiling - state.CommittedPurchaseCost))) return state;
+            System.Math.Min(account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost))) return state;
         return await Submit(lease, state, new(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
             recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", recommendation.Quantity,
             price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct);
@@ -260,16 +260,23 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     {
         await using var preflight = await transport.PrepareAsync(order, state.Account, ct);
         ct.ThrowIfCancellationRequested();
-        if (order.Side == "BUY" && state.Approval.Review.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
-            (trial.PurchaseExpiresAt is null || clock.GetUtcNow() >= trial.PurchaseExpiresAt))
+        if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } trial &&
+            (trial.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
+             trial.PurchaseExpiresAt is null || clock.GetUtcNow() >= trial.PurchaseExpiresAt))
             return await Save(lease, state with { Blocks = state.Blocks.Add("Limited first-session purchase permission ended; no order was reserved or sent.") },
                 "TrialPurchasesEnded", ct);
         state = await Save(lease, state with { Orders = state.Orders.Add(order) }, "OrderIntentReserved", ct);
+        if (order.Side == "BUY" && state.EffectiveReview.NoTransferScope is { LimitedFirstSessionTrial: true } beforeSend &&
+            (beforeSend.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(clock.GetUtcNow().UtcDateTime)) ||
+             beforeSend.PurchaseExpiresAt is null || clock.GetUtcNow() >= beforeSend.PurchaseExpiresAt))
+            return await Save(lease, state with { TrialOrderReviewRequired = beforeSend.FullFillOnlyNativeTrial,
+                Phase = BrokerManagedPhase.NeedsAttention, Blocks = ["Purchase permission expired after intent save. No transmission was attempted; recover this original intent before further orders."] },
+                "ReservedBuyExpiredBeforeSend", CancellationToken.None);
         WealthsimpleSubmissionStatus result;
         try { result = await preflight.SubmitOnceAsync(ct); }
         catch { result = WealthsimpleSubmissionStatus.OutcomeUnknown; }
         // If this save fails, the durable intent remains unresolved. Recovery only reads its original ID.
-        bool trialReview = state.Approval.Review.NoTransferScope?.FullFillOnlyNativeTrial == true && result != WealthsimpleSubmissionStatus.Acknowledged;
+        bool trialReview = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true && result != WealthsimpleSubmissionStatus.Acknowledged;
         return await Save(lease, state with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }),
             TrialOrderReviewRequired = state.TrialOrderReviewRequired || trialReview,
             Phase = trialReview ? BrokerManagedPhase.Paused : state.Phase },

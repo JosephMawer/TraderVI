@@ -205,10 +205,18 @@ historical close/open or changing production/older scopes. No financial save or 
 by this ADR edit. All nine checks, current source, same-copy restart and separate operator carry save,
 assignment approval/host enable remain required; buying expires at the reviewed October 20 close.
 
-## Proposed October 21 continuation
+## Accepted October 21 continuation
 
-The operator's subsequent October 21 readiness request has a [concrete continuation proposal](../reviews/delphi-live-continuation-contract-20261021.md).
-It is not yet accepted or implemented and does not supersede the dated limits above.
+After clarifying that rereading original order IDs does not restrict new stock selection, the
+operator explicitly accepts the [October 21-only continuation contract](../reviews/delphi-live-continuation-contract-20261021.md)
+and directs implementation. This amends only the October 20 prohibition on another dated trial
+association: one October 21 supervised cash-only continuation is permitted after fresh all-nine-check
+Normal/source/build review, with original trades/references/holds preserved and expiry at the
+reviewed close. There is no October 22 or recurring authority. The original approval remains immutable;
+new risk and permission records must agree before a separate manual host enable. A changed Core
+requires actual current-build capture/restart recovery of original IDs, never repeated trades or
+relabelled old proof. Source implementation/offline tests do not save financial authority or prove
+native operation. Production qualification and unobserved failure paths remain separate.
 
 ## Review questions
 

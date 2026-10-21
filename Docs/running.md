@@ -100,10 +100,10 @@ The operator reaffirmed this as the default on October 20: keep implementation o
 and use ordinary build outputs. Separate full artifact copies/helpers are not the normal launch
 workflow. All current TFSA/performance/setup-wait implementation is on `master`.
 
-**One current-checkpoint recovery exception:** the October 20 checkpoint binds the reviewed Core
-binary hash. Its 125 verified runtime files have been placed, byte-identically, in the normal
-`TraderVI.WPF/bin/Release/net10.0-windows` output; source changes since that build are documentation
-only. After closing the existing app normally, use this once for the pending recovery review:
+**Native checkpoint restart:** the October 20 checkpoint/recovery is completed. The accepted
+October 21 continuation changes Core and requires one actual current-build capture/restart using
+the same original orders and saved references. Build before capturing that checkpoint. When the
+app confirms checkpoint saved/read back, close it normally and reopen the unchanged normal output:
 
 ```powershell
 dotnet run --project TraderVI.WPF -c Release --no-build
@@ -111,10 +111,32 @@ dotnet run --project TraderVI.WPF -c Release --no-build
 
 This uses normal output and retains the captured engine identity; it requires no separate launcher
 or proof rewrite. A build-enabled run can change the engine hash, including embedded Git revision
-metadata, so complete this saved checkpoint flow before rebuilding. Ordinary development/startup
+metadata, so complete a saved checkpoint flow before rebuilding. Ordinary development/startup
 uses the original command above before qualification. The reviewed calendar path was persisted
 under explicit approval in the Windows user environment and verified outside the sandbox; open a
 new Command Prompt after that setting change. No financial setting/reference was reset.
+
+### October 21-only Normal continuation
+
+The [accepted continuation contract](reviews/delphi-live-continuation-contract-20261021.md) reuses
+the existing assignment, original four verification IDs, original selected opening sales and saved
+risk references. Do not repeat sales/test trades, Account risk setup or the October 20 carry save.
+Stop the old execution host normally before changing the build or reviewing continuation.
+
+During October 21 regular trading, sign in and open **Trading → Execution setup**. Confirm no outside
+account changes since the original cash-only baseline, then choose **Review next session**. On the
+first current-build review, the app saves/readbacks a separate checkpoint and requests one normal
+restart with the `--no-build` command above. After reopening, confirm no outside changes again and
+choose **Review next session**. The original sale selection is recovered automatically. Fresh
+Normal source, original IDs/account/cash, installed storage, references/holds and all nine checks
+must qualify; an unchanged cash-only book is required before this continuation can activate.
+
+Review the displayed cash ceiling, original reference values/provenance/holds, exact Normal
+policy/daily/build and October 21 close expiry. Explicitly **Approve October 21 continuation** within
+two minutes, confirm saved/read back, then separately **Enable reviewed host**. The host stays off
+after approval. Stay available for this supervised session. New buys expire at the reviewed close;
+there is no October 22 renewal, and ordinary Resume buying cannot extend permission. An incomplete
+or uncertain save recovers the original request; keep the host off if records do not agree.
 
 This builds and runs that checkout. It does not merge another branch/worktree or replace an already
 running process. No separate installer or manual binary copy is needed. The September 25 integration

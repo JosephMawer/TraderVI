@@ -447,8 +447,10 @@ public sealed partial class BrokerManagedSessionTests
     }
     internal sealed class Store : IBrokerManagedSessionStore
     {
+        internal global::Core.Trader.DelphiLive.ITsxSessionCalendar? Calendar;
         internal BrokerManagedSession? State;
         internal string? LoseResponseAtEvent;
+        internal Action<string>? AfterAppend;
         private readonly SemaphoreSlim gate = new(1);
         public async Task<IBrokerManagedSessionLease> AcquireAsync(Guid id, CancellationToken ct)
         { await gate.WaitAsync(ct); return new Lease(this); }
@@ -458,7 +460,8 @@ public sealed partial class BrokerManagedSessionTests
             public BrokerManagedSession? Current => store.State;
             public Task AppendAsync(BrokerManagedSession next, CancellationToken ct)
             {
-                BrokerManagedSessionRepository.ValidateNext(store.State, next); store.State = next;
+                BrokerManagedSessionRepository.ValidateNext(store.State, next, store.Calendar); store.State = next;
+                store.AfterAppend?.Invoke(next.Event);
                 if (store.LoseResponseAtEvent == next.Event) { store.LoseResponseAtEvent = null; throw new IOExceptionForTest(); }
                 return Task.CompletedTask;
             }
@@ -467,9 +470,9 @@ public sealed partial class BrokerManagedSessionTests
     }
     internal sealed class Transport : IBrokerManagedOrderTransport
     {
-        internal int Sent; internal bool ThrowOnSubmit; internal Action? BeforeSend;
-        public Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection account, CancellationToken ct) =>
-            Task.FromResult<IBrokerManagedOrderPreflight>(new Prepared(this));
+        internal int Sent; internal bool ThrowOnSubmit; internal Action? BeforeSend; internal Action? BeforePrepare;
+        public Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection account, CancellationToken ct)
+        { BeforePrepare?.Invoke(); return Task.FromResult<IBrokerManagedOrderPreflight>(new Prepared(this)); }
         private sealed class Prepared(Transport owner) : IBrokerManagedOrderPreflight
         {
             public Task<WealthsimpleSubmissionStatus> SubmitOnceAsync(CancellationToken ct)

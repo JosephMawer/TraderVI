@@ -6,12 +6,42 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Xunit;
 
 namespace TraderVI.Core.Tests;
 
 public sealed class BrokerManagedTransportTests
 {
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task NativeBuyBoundaryRejectsCutoffBeforeAndAfterDurableJournalSave(bool crossesDuringSave)
+    {
+        var continuation = BrokerManagedSessionTests.SyntheticOctober21Continuation();
+        var at = continuation.PurchaseExpiresAt.AddSeconds(-1);
+        var f = new Fixture(at);
+        var projection = f.Projection with { Risk = f.Projection.Risk with { Continuation = continuation } };
+        f.Risk.State = projection.Risk;
+        var account = f.Buys.Context.Account;
+        var sells = new ManualMarketSellWorkflowTests.Broker(new(account, f.Buys.Context.Security,
+            f.Buys.Context.Snapshot, f.Buys.Context.PendingOrders, f.Buys.Context.Quote));
+        var journal = new CallbackJournal(f.Journal, () => { if (crossesDuringSave) f.Clock.Now = continuation.PurchaseExpiresAt; });
+        var transport = new BrokerManagedOrderTransport(f.Buys, sells, journal, f.Safety, f.Risk, account, f.Gate, f.Clock);
+        await using var prepared = await transport.PrepareAsync(f.Order, projection, default);
+        if (!crossesDuringSave) f.Clock.Now = continuation.PurchaseExpiresAt;
+        await Assert.ThrowsAsync<InvalidOperationException>(() => prepared.SubmitOnceAsync(default));
+        Assert.Equal(0, f.Buys.Submissions);
+        Assert.Equal(crossesDuringSave ? 1 : 0, f.Journal.ReadAll().Count);
+        if (crossesDuringSave) Assert.Equal(f.Order.RequestId, Assert.Single(f.Journal.ReadAll()).Intent.RequestId);
+    }
+    private sealed class CallbackJournal(IManualSellJournal inner, Action afterSave) : IManualSellJournal
+    {
+        public IReadOnlyList<ManualBuyRecord> ReadAll() => inner.ReadAll();
+        public IReadOnlyList<ManualSellRecord> ReadSells() => inner.ReadSells();
+        public void Save(ManualBuyRecord record) { inner.Save(record); afterSave(); }
+        public void SaveSell(ManualSellRecord record) => inner.SaveSell(record);
+        public void Dispose() { }
+    }
     [Fact]
     public async Task ExistingJournalAndSafetyLeaseCoverOneAttemptAndRejectDuplicate()
     {
@@ -83,9 +113,11 @@ public sealed class BrokerManagedTransportTests
         internal readonly RiskStore Risk;
         internal readonly BrokerManagedOrderTransport Transport;
         internal readonly BrokerStrategyOrder Order;
-        internal Fixture()
+        internal Fixture(DateTimeOffset? at = null)
         {
-            var f = new BrokerManagedSessionTests.Fixture(); Projection = f.Project();
+            var f = new BrokerManagedSessionTests.Fixture();
+            if (at is { } now) { f.Now = now; f.Risk = f.Risk with { TradingDate = DateOnly.FromDateTime(now.UtcDateTime) }; }
+            Projection = f.Project();
             Clock = new() { Now = f.Now }; var account = new WealthsimpleTfsaAccount("fixture-account", "Fixture TFSA");
             var security = new WealthsimpleCanadianSecurity("security-BBB", "BBB", "XTSE") { SourceIdentity = "fixture-identity" };
             var holding = new WealthsimpleHolding("AAA", "Fixture", "EQUITY", 10, new(100, "CAD"), new(100, "CAD"), null) { SecurityId = "security-AAA" };

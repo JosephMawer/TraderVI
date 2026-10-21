@@ -106,7 +106,7 @@ public sealed partial class ManualBuyCoordinator
             accounts.Status != WealthsimpleReadStatus.Success || accounts.Data is null)
             throw new InvalidOperationException("The current owned TFSA could not be verified.");
         var account = BrokerManagedSessionComposition.MatchAccount(saved, accounts.Data);
-        IBrokerRiskEvidenceSource risk = saved.Approval.Review.NoTransferScope is { } scope
+        IBrokerRiskEvidenceSource risk = saved.EffectiveReview.NoTransferScope is { } scope
             ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!)
             : new UnqualifiedBrokerRiskEvidenceSource();
         var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal, journal,
@@ -127,6 +127,7 @@ public sealed partial class ManualBuyCoordinator
         var checkpoint = panel.CaptureNativeCheckpoint;
         var previewCarry = panel.PreviewCarry; var saveCarry = panel.SaveCarry; var noOutside = panel.NoOutsideChanges;
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
+        var nextSession = panel.ReviewNextSession; var approveContinuation = panel.ApproveContinuation;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         bool closed = false, busy = false, waitingForPaper = false; long revision = connection.SessionRevision;
@@ -135,6 +136,7 @@ public sealed partial class ManualBuyCoordinator
         BrokerFirstApprovalRunner? firstWorkflow = null;
         string? qualificationFingerprint = null;
         BrokerRiskContinuationRequest? carryReview = null;
+        ContinuationPreparation? continuationReview = null;
         CancellationTokenSource? reviewExpiry = null;
         IDisposable? reviewAdmission = null;
         void ReleaseReviewAdmission()
@@ -157,7 +159,7 @@ public sealed partial class ManualBuyCoordinator
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
             busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled =
-                previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = false;
+                previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = nextSession.IsEnabled = approveContinuation.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try
             {
@@ -178,25 +180,27 @@ public sealed partial class ManualBuyCoordinator
                 await action();
             }
             catch (OperationCanceledException) { }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; }
             catch (Exception error)
             {
                 if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
                     "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
-                reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null;
+                reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null;
             }
             finally
             {
                 busy = executionEditing = false;
                 if (!closed) { refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = previewCarry.IsEnabled = noOutside.IsEnabled = true;
                     saveCarry.IsEnabled = carryReview is not null && noOutside.IsChecked == true;
+                    nextSession.IsEnabled = true;
+                    approveContinuation.IsEnabled = continuationReview?.Review.CanApprove == true && noOutside.IsChecked == true;
                     enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
             }
         }
         async Task Refresh()
         {
-            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null;
+            Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null; continuationReview = null;
             Stage("reading installed storage readiness");
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token);
             Stage("reading the saved account-history link");
@@ -231,6 +235,22 @@ public sealed partial class ManualBuyCoordinator
             }
             // Match using broker identity, not a display label or another signed-in account.
             _ = BrokerManagedSessionComposition.MatchAccount(saved, new[] { account });
+            if (saved.Approval.Review.NoTransferScope?.TrialCarry is not null)
+            {
+                nextSession.Visibility = approveContinuation.Visibility = Visibility.Visible;
+                first.Visibility = approve.Visibility = previewCarry.Visibility = saveCarry.Visibility = checkpoint.Visibility = Visibility.Collapsed;
+                ((TextBlock)noOutside.Content).Text = "I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline, and will keep that scope through the reviewed October 21 close.";
+                var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
+                if (saved.Continuation is null)
+                {
+                    summary.Text = lines + "The saved Normal assignment and original trades/risk references remain preserved. October 20 buying permission is expired; it does not renew itself.\n\n" +
+                        "October 21-only continuation is implemented for fresh native review. Stop execution host first, then during October 21 regular trading confirm no outside account changes and choose Review next session. The current-build recovery check may request one normal restart; original trades, baseline setup and opening-sale selection are reused.\n\n" +
+                        "Review all nine checks, unchanged cash-only book, exact Normal/build and the October 21 close expiry. Approve October 21 continuation explicitly, then separately Enable reviewed host. No October 22 buying authority is granted.";
+                    return;
+                }
+                if (today != BrokerOctober21Continuation.ExecutionDate || saved.EffectiveReview.NoTransferScope?.PurchaseExpiresAt <= DateTimeOffset.UtcNow)
+                { summary.Text = lines + "The saved October 21 continuation is expired or outside its reviewed date. New buying stays blocked; history and protection remain preserved."; return; }
+            }
             if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || saved.ReviewInvalidated ||
                 saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity ||
                 saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive || saved.Strategy.GateProfile != Core.Trader.PaperGateProfile.NormalV1)
@@ -238,6 +258,7 @@ public sealed partial class ManualBuyCoordinator
             _ = GetExecutionHost(); reviewed = saved;
             summary.Text = lines + $"Approved strategy: {saved.Strategy.Strategy.Name}\nSaved mode: {(saved.NewBuysStopped ? "new buys stopped" : "buying subject to current risk checks")}\n" +
                 $"Assignment state: {saved.Phase}\n\n{ExecutionStatus.Message}\n\n" +
+                (saved.Continuation is not null ? $"October 21 continuation saved. New purchases expire {saved.EffectiveReview.NoTransferScope?.PurchaseExpiresAt?.ToLocalTime():g}; no next-day renewal.\n\n" : "") +
                 (saved.TrialOrderReviewRequired ? "Native trial order review is required. Read/recover original IDs only; ordinary Resume buying cannot release this hold or allow a residual/replacement order.\n\n" : "") +
                 "Enable only this reviewed assignment. Every subsequent cycle rechecks account, original orders, risk permission, source and protection. Missing native cash coverage stops new buys.";
         }
@@ -330,8 +351,65 @@ public sealed partial class ManualBuyCoordinator
                 "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
         }
         refresh.Click += async (_, _) => await Run(Refresh);
-        noOutside.Checked += (_, _) => saveCarry.IsEnabled = !busy && carryReview is not null;
-        noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = false; carryReview = null; };
+        noOutside.Checked += (_, _) => { saveCarry.IsEnabled = !busy && carryReview is not null;
+            approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true; };
+        noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = approveContinuation.IsEnabled = false; carryReview = null; continuationReview = null; };
+        nextSession.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); reviewed = null; continuationReview = null;
+            if (noOutside.IsChecked != true)
+                throw new InvalidOperationException("Confirm no outside account changes before reviewing October 21 continuation. Changed facts require separate recovery, never another setup baseline.");
+            continuationReview = await PrepareContinuationAsync(account, revision, lifetime.Token, Check, Stage, text => summary.Text = text);
+            if (continuationReview is null) return;
+            var prepared = continuationReview.Review;
+            var facts = continuationReview.Account;
+            summary.Text = $"October 21 continuation review\nExact Normal: {prepared.Strategy.Strategy.Name}\nProfile: {prepared.Strategy.GateProfile}\n" +
+                $"Policy: {prepared.Strategy.Strategy.PolicyVersionId:D}\nDaily definition: {prepared.Strategy.Strategy.Daily.StrategyVersionId:D}\n" +
+                $"Current build review: {BrokerAccountImport.Hash(BrokerManagedSessionComposition.ImplementationIdentity)[..16]}\n" +
+                $"Available purchase ceiling: {prepared.PurchaseCeiling:N2} CAD\nFresh cash: {facts.Import.Plan.Observation.Cash:N2} CAD · buying power: {facts.Import.Plan.Observation.BuyingPower:N2} CAD\n" +
+                $"Original daily reference: {facts.Risk.SessionReference.Value:N2} CAD · {facts.Risk.SessionReference.Source} · evidence {facts.Risk.SessionReference.EvidenceAt.ToLocalTime():g}\n" +
+                $"Original drawdown reference: {facts.Risk.DrawdownReference.Value:N2} CAD · {facts.Risk.DrawdownReference.Source} · evidence {facts.Risk.DrawdownReference.EvidenceAt.ToLocalTime():g}\n" +
+                $"Daily hold: {facts.Risk.DailyLossHold} · capital review hold: {facts.Risk.CapitalReviewRequired}\n" +
+                "No holdings or pending orders; original four verification IDs checked. Original sale selection, memory, prior approval and all history remain preserved.\n" +
+                $"New purchases end {prepared.Activation?.NoTransferScope?.PurchaseExpiresAt?.ToLocalTime():g}. No later-day buying permission.\n\n" +
+                string.Join("\n", prepared.Checks.Select(c => c.Label + (c.Verified ? ": reviewed evidence reference present." : ": unverified."))) +
+                "\n\n" + BrokerNativeTrialQualification.Limits + "\n\n" +
+                (prepared.CanApprove ? "Review these facts, then Approve October 21 continuation within two minutes. New paper cycles are deferred during review. Approval submits no order and leaves the host off."
+                    : "Approval blocked:\n" + string.Join("\n", prepared.Blocks)) +
+                "\n\nPaper performance limitations:\n" + string.Join("\n", continuationReview.Exact.Evidence.Limitations);
+            if (prepared.Activation is { } activation)
+            {
+                var held = continuationReview;
+                reviewExpiry = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+                reviewAdmission = setupCycles.HoldReview(reviewExpiry.Token);
+                reviewExpiry.Token.Register(() => dialog.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (closed || busy || !ReferenceEquals(continuationReview, held)) return;
+                    ReleaseReviewAdmission(); continuationReview = null; approveContinuation.IsEnabled = false;
+                    summary.Text = "The continuation review expired. No approval or order was saved. Choose Review next session again.";
+                })));
+                var remaining = activation.PreparedAt.AddMinutes(2) - DateTimeOffset.UtcNow;
+                reviewExpiry.CancelAfter(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero);
+            }
+        });
+        approveContinuation.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); var prepared = continuationReview ?? throw new InvalidOperationException("Review next session before approval.");
+            if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change confirmation is required.");
+            Stage("rechecking the exact continuation packet and current Normal source");
+            var packet = new BrokerExecutionQualificationFileStore(ContinuationQualificationPath, new WindowsManualBuyProtector()).Read(DateTimeOffset.UtcNow);
+            if (packet is null || BrokerAccountImport.Hash(packet) != prepared.PacketFingerprint)
+                throw new InvalidOperationException("The continuation evidence changed. Review next session again.");
+            var normal = await ReadNativeNormalAsync(lifetime.Token, Stage); Check();
+            if (normal.Review.Strategy.Fingerprint != prepared.Exact.Strategy.Fingerprint || !normal.Review.Blocks.IsEmpty ||
+                normal.Updated > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2))
+                throw new InvalidOperationException("The current Normal source changed or expired. Review next session again.");
+            Stage("saving or recovering the explicitly approved October 21 continuation");
+            await prepared.Workflow.ApproveAsync(new(prepared.Review.Activation!, Environment.UserName,
+                "Explicit October 21-only supervised continuation; original trades/references preserved; no outside changes; no recurring authority."), lifetime.Token);
+            Check(); await Refresh(); summary.Text += "\n\nOctober 21 continuation saved/read back. No order was sent. Enable reviewed host separately.";
+            BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+        });
         previewCarry.Click += async (_, _) => await Run(async () =>
         {
             Check(); carryReview = null; reviewed = null; firstReview = null; firstWorkflow = null;

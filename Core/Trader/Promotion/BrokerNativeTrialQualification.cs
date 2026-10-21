@@ -19,6 +19,8 @@ public sealed record BrokerNativeTrialObservation(Guid ObservationId, int Proces
     BrokerAccountRiskState Risk, bool BaselineInstalled, bool ContinuationInstalled, bool SessionInstalled, bool ImmutableStorageVerified,
     ImmutableArray<ManualBuyRecord> Buys, ImmutableArray<ManualSellRecord> Sales)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOctober21Continuation? ContinuationReview { get; init; }
     public override string ToString() => "Native limited-trial observation (financial data omitted)";
 }
 
@@ -61,8 +63,13 @@ public static class BrokerNativeTrialQualification
         var account = o.Account; var baseline = o.Baseline;
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(o.CapturedAt.UtcDateTime));
         var carry = o.Risk.TrialCarry;
+        bool continuationSession = o.ContinuationReview is { } continuation &&
+            date == BrokerOctober21Continuation.ExecutionDate &&
+            BrokerAccountImport.Hash(continuation.PreviousRisk) == BrokerAccountImport.Hash(o.Risk) &&
+            continuation.PreviousScope.TrialCarry?.Fingerprint == carry?.Fingerprint &&
+            continuation.ConfirmedAt <= o.CapturedAt;
         bool carriedSession = carry is not null && carry.Session == BrokerTrialCarryForward.ExecutionDate &&
-            baseline.TradingDate == BrokerTrialCarryForward.VerificationDate && carry.Session == date &&
+            baseline.TradingDate == BrokerTrialCarryForward.VerificationDate && (carry.Session == date || continuationSession) &&
             carry.NoOutsideChangesConfirmed && carry.ReviewedAt <= o.CapturedAt &&
             BrokerAccountImport.Hash(carry.Baseline) == BrokerAccountImport.Hash(baseline) &&
             o.Risk.RevisionId == BrokerTrialCarryForward.RequestId(baseline.BaselineId) &&
@@ -86,7 +93,7 @@ public static class BrokerNativeTrialQualification
             BrokerAccountImport.Hash(baseline) != BrokerAccountImport.Hash(o.FoundBaseline.Baseline) ||
             !CompleteTradingStrategy.IsHash(o.FoundBaseline.RequestHash) ||
             o.Risk.BaselineId != baseline.BaselineId || o.Risk.BindingId != baseline.BindingId ||
-            o.Risk.TradingDate != date || (carry is null && o.Risk.Through != baseline.ObservationAt) ||
+            o.Risk.TradingDate != date && !continuationSession || (carry is null && o.Risk.Through != baseline.ObservationAt) ||
             o.Risk.SessionReference != baseline.SessionReference || o.Risk.DrawdownReference != baseline.DrawdownReference ||
             o.Risk.DailyLossHold || o.Risk.CapitalReviewRequired ||
             (carry is null && baseline.TradingDate != date))
@@ -127,6 +134,9 @@ public static class BrokerNativeTrialQualification
         BrokerNoTransferSessionScope scope, ITsxSessionCalendar calendar, DateTimeOffset now)
     {
         ValidateObservation(before, before.CapturedAt); ValidateObservation(after, now); scope.Validate(calendar);
+        if (scope.Continuation?.Fingerprint != before.ContinuationReview?.Fingerprint ||
+            scope.Continuation?.Fingerprint != after.ContinuationReview?.Fingerprint)
+            throw new InvalidOperationException("Recover the same explicitly reviewed continuation on both sides of the build restart.");
         if (scope.TrialCarry?.Fingerprint != before.Risk.TrialCarry?.Fingerprint ||
             scope.TrialCarry?.Fingerprint != after.Risk.TrialCarry?.Fingerprint)
             throw new InvalidOperationException("Recover the same original saved trial carry on both sides of the native restart.");
@@ -165,7 +175,9 @@ public static class BrokerNativeTrialQualification
 /// <summary>Protected native observations and scoped publication. Never saves financial references/authority or sends orders.</summary>
 public sealed class BrokerNativeTrialEvidenceFileStore(string packetPath, IManualBuyProtector protector)
 {
-    private string CheckpointPath(DateOnly date) => Path.Combine(Path.GetDirectoryName(packetPath)!, $"native-trial-checkpoint-{date:yyyyMMdd}.dat");
+    private string CheckpointPath(DateOnly date) => Path.Combine(Path.GetDirectoryName(packetPath)!,
+        Path.GetFileNameWithoutExtension(packetPath).StartsWith("execution-qualification-20261021-", StringComparison.Ordinal)
+            ? Path.GetFileNameWithoutExtension(packetPath) + "-checkpoint.dat" : $"native-trial-checkpoint-{date:yyyyMMdd}.dat");
     private T Read<T>(string path)
     {
         if (new FileInfo(path).Length > 8 * 1024 * 1024) throw new InvalidDataException("Native trial evidence exceeds the supported size.");
@@ -180,16 +192,18 @@ public sealed class BrokerNativeTrialEvidenceFileStore(string packetPath, IManua
         BrokerNativeTrialQualification.ValidateObservation(observation, observation.CapturedAt);
         Directory.CreateDirectory(Path.GetDirectoryName(packetPath)!);
         using var lease = new FileStream(packetPath + ".prepare.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        var prior = ReadCheckpoint(observation.Risk.TradingDate);
+        var date = observation.ContinuationReview is null ? observation.Risk.TradingDate : BrokerOctober21Continuation.ExecutionDate;
+        var prior = ReadCheckpoint(date);
         if (prior is not null)
         {
             if (prior.ProcessId != observation.ProcessId || prior.Strategy.Strategy.Fingerprint != observation.Strategy.Strategy.Fingerprint ||
                 BrokerAccountImport.Hash(prior.Baseline) != BrokerAccountImport.Hash(observation.Baseline) ||
-                BrokerAccountImport.Hash(prior.Risk) != BrokerAccountImport.Hash(observation.Risk))
+                BrokerAccountImport.Hash(prior.Risk) != BrokerAccountImport.Hash(observation.Risk) ||
+                prior.ContinuationReview?.Fingerprint != observation.ContinuationReview?.Fingerprint)
                 throw new InvalidOperationException("Preserve the original recovery checkpoint; prepare the first review after restart instead of replacing it.");
             return prior;
         }
-        Write(CheckpointPath(observation.Risk.TradingDate), observation, false); return ReadCheckpoint(observation.Risk.TradingDate)!;
+        Write(CheckpointPath(date), observation, false); return ReadCheckpoint(date)!;
     }
     public BrokerExecutionQualificationBundle Complete(BrokerNativeTrialObservation after, BrokerNoTransferSessionScope scope,
         ITsxSessionCalendar calendar, string reviewedBy, DateTimeOffset now)

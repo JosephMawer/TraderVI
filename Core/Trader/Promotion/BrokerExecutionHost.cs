@@ -10,6 +10,8 @@ namespace Core.Trader.Promotion;
 public sealed record BrokerExecutionHostGrant(Guid BindingId, Guid SessionId, string StrategyFingerprint,
     string ImplementationIdentity, DateTimeOffset ReviewedAt, string ReviewedBy, bool Enabled)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? ContinuationId { get; init; }
     public void Validate()
     {
         if (BindingId == Guid.Empty || SessionId == Guid.Empty || !CompleteTradingStrategy.IsHash(StrategyFingerprint) ||
@@ -55,8 +57,19 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
                 ?? throw new InvalidOperationException("No approved managed assignment exists. Complete its execution review first.");
             if (saved.SessionId != sessionId || saved.Strategy.Fingerprint != reviewedStrategyFingerprint)
                 throw new InvalidOperationException("The displayed assignment changed. Review its current identity before activation.");
+            if (saved.Continuation is not null)
+            {
+                var scope = saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the saved continuation scope.");
+                scope.Validate(calendar);
+                var now = clock.GetUtcNow();
+                if (scope.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
+                    now < calendar.GetSessionBounds(scope.Session).OpenUtc || scope.PurchaseExpiresAt <= now ||
+                    scope.Continuation?.Fingerprint != saved.Account.Risk.Continuation?.Fingerprint)
+                    throw new InvalidOperationException("Enable only the current October 21 permission after its risk/approval records agree and before its reviewed close.");
+            }
             var grant = new BrokerExecutionHostGrant(bindingId, sessionId, reviewedStrategyFingerprint,
-                implementationIdentity, clock.GetUtcNow(), reviewer, true);
+                implementationIdentity, clock.GetUtcNow(), reviewer, true)
+                { ContinuationId = saved.Continuation?.Approval.Review.RequestId };
             grant.Validate(); RequireMatchingAssignment(grant, saved);
             ct.ThrowIfCancellationRequested();
             grants.Write(grants.Read(), grant);
@@ -132,6 +145,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
     {
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
+            grant.ContinuationId != saved.Continuation?.Approval.Review.RequestId ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
             saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive || saved.Strategy.GateProfile != PaperGateProfile.NormalV1 ||
             saved.Strategy.Comparison is null || grant.ReviewedAt > clock.GetUtcNow())

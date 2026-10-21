@@ -16,7 +16,10 @@ namespace TraderVI.WPF.Services;
 
 public sealed partial class ManualBuyCoordinator
 {
-    private BrokerNativeTrialEvidenceFileStore NativeTrialEvidence() => new(ExecutionQualificationPath, new WindowsManualBuyProtector());
+    private static string ContinuationQualificationPath => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(HostGrantPath)!,
+        "execution-qualification-20261021-" + BrokerAccountImport.Hash(BrokerManagedSessionComposition.ImplementationIdentity)[..16] + ".dat");
+    private BrokerNativeTrialEvidenceFileStore NativeTrialEvidence(bool continuation = false) =>
+        new(continuation ? ContinuationQualificationPath : ExecutionQualificationPath, new WindowsManualBuyProtector());
     private static async Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReadNativeNormalAsync(CancellationToken ct, Action<string>? stage = null)
     {
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
@@ -31,7 +34,8 @@ public sealed partial class ManualBuyCoordinator
     }
 
     private async Task<BrokerNativeTrialObservation> ReadNativeTrialObservationAsync(WealthsimpleTfsaAccount account,
-        long revision, BrokerNativeTrialObservation? recover, CancellationToken ct, Action<string>? stage = null)
+        long revision, BrokerNativeTrialObservation? recover, CancellationToken ct, Action<string>? stage = null,
+        BrokerOctober21Continuation? continuation = null)
     {
         void Check()
         {
@@ -50,7 +54,7 @@ public sealed partial class ManualBuyCoordinator
             stage?.Invoke("reading back the same original manual-order IDs after restart");
             await ReadOriginalTrialOrdersAsync(account, recover.Baseline.TradingDate, ct, Check, recover);
         }
-        else if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) == BrokerTrialCarryForward.ExecutionDate)
+        else if (continuation is not null || DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) == BrokerTrialCarryForward.ExecutionDate)
         {
             stage?.Invoke("reading back the original verification order IDs before the next-session checkpoint");
             await ReadOriginalTrialOrdersAsync(account, BrokerTrialCarryForward.VerificationDate, ct, Check);
@@ -63,10 +67,12 @@ public sealed partial class ManualBuyCoordinator
         stage?.Invoke("reading the original saved baseline and account link");
         var read = await repository.ReadAsync(ct); Check();
         var baseline = read.RiskHistory.ExistingBaseline ?? throw new InvalidOperationException("Complete the manual trades, reconcile back to cash and explicitly save initial Account risk setup before capturing the native checkpoint.");
-        stage?.Invoke("verifying the account has no existing managed assignment");
+        stage?.Invoke("verifying the saved managed assignment boundary");
+        var managed = await executionSessions.ReadAsync(saved.BindingId, ct); Check();
         if (read.Import.Binding?.BindingId != saved.BindingId || baseline.BindingId != saved.BindingId ||
-            await executionSessions.ReadAsync(saved.BindingId, ct) is not null)
+            continuation is null && managed is not null || continuation is not null && managed is null)
             throw new InvalidOperationException("Native first-session qualification requires this linked account and no existing managed assignment.");
+        if (continuation is not null) continuation.RequirePrior(managed!, executionCalendar!);
         stage?.Invoke("recovering the original baseline by its saved request ID");
         var found = await repository.FindAsync(baseline.BaselineId, ct) ?? throw new InvalidOperationException("The original saved baseline could not be read back."); Check();
         stage?.Invoke("reading preserved daily and drawdown risk history");
@@ -85,7 +91,8 @@ public sealed partial class ManualBuyCoordinator
             journal.ReadAll().Where(b => b.Intent.AccountId == saved.Plan.Observation.AccountId && b.Intent.IdentityId == saved.Plan.Observation.IdentityId &&
                 DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(b.Intent.CreatedAt.UtcDateTime)) == baseline.TradingDate).ToImmutableArray(),
             journal.ReadSells().Where(s => s.Intent.AccountId == saved.Plan.Observation.AccountId && s.Intent.IdentityId == saved.Plan.Observation.IdentityId &&
-                DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == baseline.TradingDate).ToImmutableArray());
+                DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(s.Intent.CreatedAt.UtcDateTime)) == baseline.TradingDate).ToImmutableArray())
+            { ContinuationReview = continuation };
         stage?.Invoke("validating complete native source, order, cash, storage and reference observations");
         BrokerNativeTrialQualification.ValidateObservation(observation, DateTimeOffset.UtcNow);
         return observation;
