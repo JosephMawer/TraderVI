@@ -18,6 +18,12 @@ built/hash-recorded at 20:50 Toronto with zero running TraderVI processes. No ne
 copy or application launch. No SQL migration, rehearsal, financial permission, order or host enable
 was run by this implementation. Actual October 21 native review/approval/enable remains required.
 
+**October 20 evening handoff:** the operator screenshot of Review next session shows the expected
+October 21 regular-session-only guard. This confirms the after-hours refusal, not checkpoint save,
+source/account qualification or continuation approval; restarting tonight cannot remove that date
+restriction. Under explicit push authority, `master` through 609c3e1c (including performance fixes
+and continuation commits) is pushed to origin. The unrelated Obsidian workspace edit remains local.
+
 **October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy
 evaluations run from 15:20:59 through 16:00:00.470, latest revision 49/Active. Gaps are 67.79–234.20
 seconds (mean 156.04), not a guaranteed 30-second cadence. Pre-close evaluations have no saved

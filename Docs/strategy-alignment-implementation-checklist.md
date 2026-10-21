@@ -237,6 +237,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
   checks/close expiry remain. [Manual steps](running.md#october-21-only-normal-continuation).
 - [ ] Operator performs actual October 21 native current-build recovery, reviewed continuation
   approval and separate host enable; observe native activation and exact cutoff for this date.
+- [x] Observe the expected October 21 regular-session-only refusal in the operator's October 20
+  evening screenshot. No checkpoint, account/source qualification or approval follows from this
+  after-hours check; restarting does not remove the date restriction.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
   unchanged Core workflow/qualification identity. Seventeen focused/2,676 full serial offline tests
   pass, nine native skips; Release WPF compile passes. No native financial operation is inferred.
