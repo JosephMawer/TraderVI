@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 maturity/slowdown question (R04):** operator asks how long warmup takes and what still
+slows execution. Verify existing20m interval history/two consecutive5m Strong readings, and native
+epoch9 continuity12:50: earliestmature13:10/possibleconfirmation13:15, conditional on validdata/
+continuity/strength and later processing.13:05read real13:03:44/revision159 consumes12:55bar with
+0mature/confirmed/orders/holds/savedblocks,same16:00. Completed papercycle353.67s/Actions163.61s;
+actualbar lag8m44s. [Owning evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through this question/source inspection/hash-verified metadata read.
+No new policy/design/implementation authority or code/control/trading action.
+
 **October21 post-switch input recovery (R04):**13:02bounded hash-verified read confirms real
 12:57:33/revision156/profile1 has consumed37symbols'12:50bar after approval; all immature/
 unconfirmed.74target inputs through12:55bar now saved, newerbatchafterlatestrealcheck. Noorders/

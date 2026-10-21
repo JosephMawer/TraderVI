@@ -2,6 +2,24 @@
 
 ## October 21 post-open execution watch
 
+**Warmup timing explained and current delay checked, 13:05–13:07 Toronto:** source uses four
+five-minute intervals/20-minute measurement history, then two immediately consecutive qualifying
+Strong observations, five minutes apart. The 1h/2h/3h windows are not an obligatory initial wait:
+the price family can use its mature20m window before1h matures. Source continuity epoch9 begins
+**12:50** for stock and benchmark. With uninterrupted valid data,13:10 is the earliest mature bar,
+and13:15 could complete confirmation if both mature readings qualify. Collection offset and host/
+paper processing add time; another missed cycle can move the continuity boundary and reset this
+estimate. Do not present these times as purchase permission or a promised order.
+Hash-verified13:05 read: revision159/Active/StrategyEvaluated13:03:44,actual37symbols through12:55,
+0mature/confirmed,0orders/positions/holds/savedblocks,same16:00expiry. The12:55bar reaches actual
+evaluation8m44s after bar end. Latest completed papercycle353.67s/Actions163.61s; exact root cost
+allocation remains unproved. At13:07 latest source bar12:55 has26/37 valid on-time observations,
+continuity12:50/epoch9,0mature; individual data failures can further delay eligibility. No newer
+failure than12:47:13 observed in the bounded diagnostic read. Receipts:
+`result-20261021T170544231Z-9f9fac09e02f4a3d9b1397256a053d02.json` (BoundedRecoveryWatch.sql) and
+`result-20261021T170746033Z-c7cba4bfdcca40f7b7cee5a47d52efc3.json` (MaturityTiming.sql, camel-case
+paper evaluation JSON paths). This explains existing behavior; no code/control change or test run.
+
 **Post-switch input consumption recovery verified, 13:02 Toronto:** bounded hash-verified read
 confirms realStrategyEvaluated12:57:33/revision156/Active/profile1, no automatic orders/positions/
 saved blocks or financial holds, same16:00expiry. Actual strategy memory has processed37symbols

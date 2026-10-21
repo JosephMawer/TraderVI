@@ -38,6 +38,9 @@ investigation. This source switch does not install the deferred SQL reliability 
 Following the12:47 deadline rejection, post-approval input processing recovers by the12:57 real
 check (verified13:02). Signals are still immature/unconfirmed; monitor sustained progress and
 normal selection while keeping the separately deferred reliability work explicit.
+Current wait includes20m uninterrupted measurement history plus two consecutive Strong readings;
+observed paper/host processing still adds minutes. Timing estimates depend on continuity, not an
+order target or authorization to bypass confirmation.
 Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
 [Facts](project-status.md#october-21-post-open-execution-watch),
 [operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
