@@ -9,8 +9,11 @@ recovery; require all nine checks/current exact Normal/source/build and separate
 Old grants cannot run the new permission, even with the same strategy fingerprint. Current-build
 capture/restart uses the original four IDs and original two-sale selection automatically; dated,
 build-specific proof preserves October 20 files. Cutoff guards cover reservation and transmission.
-Focused tests and desktop Debug compilation pass; final validation/normal Release installation are
-being completed. No SQL migration, rehearsal, financial permission, order or host enable was run by
+252 focused and 2,702 full serial offline tests pass (nine native SQL skips); Debug and initial
+normal Release builds pass after operator normal closure/verified process exit. A read-only saved-
+shape size check found duplicated carry would exceed the existing 256 KiB risk-event bound; compact
+storage now reconstructs the exact old risk hash, with an approximately 185 KB candidate shape.
+Final compact-source normal Release rebuild is pending. No SQL migration, rehearsal, financial permission, order or host enable was run by
 this implementation. Actual October 21 native review/approval/enable remains required.
 
 **October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy

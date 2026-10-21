@@ -50,7 +50,7 @@ public sealed partial class BrokerManagedSessionTests
         f.Store.State = close; f.Store.Calendar = calendar;
         f.Now = new(2026, 10, 21, 14, 0, 0, TimeSpan.Zero);
         var continuation = new BrokerOctober21Continuation(close.SessionId, close.RevisionId, BrokerAccountImport.Hash(close),
-            close.SavedAt, originalRisk, scope20, f.Now, "fixture", true)
+            close.SavedAt, originalRisk with { TrialCarry = null }, scope20, f.Now, "fixture", true)
             { PurchaseExpiresAt = calendar.GetSessionBounds(new(2026,10,21)).CloseUtc };
         var scope = continuation.Scope(calendar); scope.Validate(calendar);
         BrokerNativeTrialObservation Observe(int process, DateTimeOffset started) => native20 with
@@ -215,6 +215,44 @@ public sealed partial class BrokerManagedSessionTests
             Assert.Equal(x.Continuation.Fingerprint, store.ReadCheckpoint(new(2026,10,21))!.ContinuationReview!.Fingerprint);
         }
         finally { Directory.Delete(dir, true); }
+    }
+
+    [Fact]
+    public void ContinuationStoresHistoricalCarryOnceAndPreservesExactPriorRiskAcrossJsonRecovery()
+    {
+        var x = ContinuedFixture(); var c = x.Continuation;
+        var reopened = JsonSerializer.Deserialize<BrokerOctober21Continuation>(JsonSerializer.Serialize(c))!;
+        Assert.Null(reopened.RiskAnchor.TrialCarry);
+        Assert.Equal(BrokerAccountImport.Hash(c.PreviousRisk), BrokerAccountImport.Hash(reopened.PreviousRisk));
+        Assert.Equal(c.RiskRequest().RequestHash, reopened.RiskRequest().RequestHash);
+        Assert.Equal(c.Fingerprint, reopened.Fingerprint);
+        var oldDuplicatedShape = JsonSerializer.SerializeToUtf8Bytes(new { c.SessionId, c.PreviousRevisionId,
+            c.PreviousSessionHash, c.CloseObservedAt, c.PreviousRisk, c.PreviousScope, c.ConfirmedAt, c.ConfirmedBy,
+            c.NoOutsideChangesConfirmed, c.PurchaseExpiresAt });
+        Assert.True(JsonSerializer.SerializeToUtf8Bytes(c).Length < oldDuplicatedShape.Length);
+    }
+
+    [Fact]
+    public void ReconciledHistoricalBookFitsExistingRiskEventLimitWithoutDiscardingOrders()
+    {
+        var x = ContinuedFixture(); var carry = x.Continuation.PreviousScope.TrialCarry!;
+        var original = carry.OriginalAnchor;
+        // Older completed round trips are legitimate account history; the four current
+        // verification records are not the whole history and cannot be used as a sizing proxy.
+        var historical = Enumerable.Range(0, 15).SelectMany(i => new[]
+        {
+            x.F.Fact("historical-buy-" + i, "HISTORY" + i, "BUY", 1, 10, original.SnapshotAt.AddDays(-2).AddMinutes(i)),
+            x.F.Fact("historical-sale-" + i, "HISTORY" + i, "SELL", 1, 10, original.SnapshotAt.AddDays(-1).AddMinutes(i))
+        }).ToArray();
+        BrokerAccountReconciliation WithHistory(BrokerAccountReconciliation book) => book with
+            { Orders = historical.Concat(book.Orders).ToArray() };
+        carry = carry with { OriginalAnchor = WithHistory(original), ReviewedAccount = WithHistory(carry.ReviewedAccount) };
+        var c = x.Continuation with { PreviousScope = x.Continuation.PreviousScope with
+            { CashOnlyAnchor = carry.OriginalAnchor, TrialCarry = carry } };
+        var receipt = new BrokerRiskContinuationReceipt(c.RiskRequest(), c.Apply(c.PreviousRisk,
+            BrokerTrialCarryForwardTests.Calendar()), x.F.Now);
+        Assert.InRange(JsonSerializer.SerializeToUtf8Bytes(receipt).Length, 1, 256 * 1024);
+        Assert.Equal(historical.Length + original.Orders.Count, receipt.State.TrialCarry!.OriginalAnchor.Orders.Count);
     }
 
     private static void OfferContinuationSignal(ContinuedFacts x)

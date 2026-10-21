@@ -8,7 +8,7 @@ namespace Core.Trader.Promotion;
 
 /// <summary>A single explicit continuation, never recurring authority or a reconstructed opening value.</summary>
 public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRevisionId,
-    string PreviousSessionHash, DateTimeOffset CloseObservedAt, BrokerAccountRiskState PreviousRisk,
+    string PreviousSessionHash, DateTimeOffset CloseObservedAt, BrokerAccountRiskState RiskAnchor,
     BrokerNoTransferSessionScope PreviousScope, DateTimeOffset ConfirmedAt, string ConfirmedBy,
     bool NoOutsideChangesConfirmed)
 {
@@ -17,6 +17,9 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
     public static DateOnly ExecutionDate => new(2026, 10, 21);
     public static Guid RequestId(Guid baselineId) => BrokerManagedStrategy.StableId($"{baselineId:D}:{Contract}");
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
+    // The immutable carry already belongs to PreviousScope. Store it once, then reconstruct the
+    // exact prior state for hash comparisons; never enlarge the existing risk-event size limit.
+    [JsonIgnore] public BrokerAccountRiskState PreviousRisk => RiskAnchor with { TrialCarry = PreviousScope.TrialCarry };
 
     public void Validate(ITsxSessionCalendar calendar)
     {
@@ -26,6 +29,7 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
             !CompleteTradingStrategy.IsHash(PreviousSessionHash) || !NoOutsideChangesConfirmed ||
             string.IsNullOrWhiteSpace(ConfirmedBy) || ConfirmedAt < bounds.OpenUtc || ConfirmedAt >= bounds.CloseUtc ||
             PurchaseExpiresAt != bounds.CloseUtc ||
+            RiskAnchor.TrialCarry is not null || RiskAnchor.Continuation is not null ||
             CloseObservedAt < calendar.GetSessionBounds(BrokerTrialCarryForward.ExecutionDate).CloseUtc || CloseObservedAt > ConfirmedAt ||
             calendar.GetNextSession(PreviousScope.Session) != ExecutionDate ||
             PreviousScope.Session != BrokerTrialCarryForward.ExecutionDate || PreviousScope.Continuation is not null ||

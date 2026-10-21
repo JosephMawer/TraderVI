@@ -40,7 +40,7 @@ public sealed partial class ManualBuyCoordinator
         {
             var checkpoint = NativeTrialEvidence(true).ReadCheckpoint(BrokerOctober21Continuation.ExecutionDate);
             var continued = checkpoint?.ContinuationReview ?? new BrokerOctober21Continuation(saved.SessionId, saved.RevisionId,
-                BrokerAccountImport.Hash(saved), saved.SavedAt, actual,
+                BrokerAccountImport.Hash(saved), saved.SavedAt, actual with { TrialCarry = null },
                 saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the original October 20 trial scope."),
                 now, Environment.UserName, true) { PurchaseExpiresAt = bounds.CloseUtc };
             continued.RequirePrior(saved, executionCalendar);

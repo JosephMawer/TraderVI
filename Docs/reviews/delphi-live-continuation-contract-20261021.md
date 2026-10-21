@@ -1,6 +1,6 @@
 # Delphi Live Normal — accepted October 21 continuation
 
-**Status: explicitly accepted October 20; source implementation and offline validation in progress.
+**Status: explicitly accepted October 20; source implemented and offline validated.
 No October 21 financial permission or host enable is saved by this development work.**
 
 The immediate problem is tomorrow's buying permission: today's managed Normal assignment is durable,
@@ -97,7 +97,7 @@ These controls are implemented in source; installation and actual October 21 nat
   preserve expired October 20 packets/checkpoints/approval. No qualification waiver.
 - [x] Expose continuation review/explicit approval instead of routing an existing assignment through
   first-execution setup. Keep host enable separate and display the exact permission expiry.
-- [ ] Validate changed financial facts, holds, stale source/build, existing orders, conflicting prior
+- [x] Validate changed financial facts, holds, stale source/build, existing orders, conflicting prior
   revisions, uncertain save/restart recovery and both cutoff guards with meaningful offline tests.
 - [ ] Build the desktop project and coordinate normal-output installation without full runtime copies;
   no SQL migration/native rehearsal or external workflow is implied by preparation.
@@ -105,13 +105,15 @@ These controls are implemented in source; installation and actual October 21 nat
 
 ### Development validation — October 20
 
-The focused managed-session/transport/carry set passes **250 tests**, including 24 new continuation/
+The focused managed-session/transport/carry set passes **252 tests**, including 26 new continuation/
 native-transmission tests. Synthetic tests cover lost risk/session acknowledgements and original-ID
 recovery, changed account/revision/holds/source/build, missing evidence, no enlarged spending
 allowance, old-grant rejection, current-build restart evidence, nine-reference publication, no
 historical proof overwrite, previously unowned eligible-stock selection and cutoff before/after
-durable intent/journal saves. Desktop Debug build passes. Full serial regression and normal Release
-handoff remain in progress. This is offline validation, not actual October 21 account qualification.
+durable intent/journal saves. Desktop Debug and initial normal Release builds pass. Full serial
+regression passes **2,702 tests**, with nine native SQL tests skipped. The compact-record follow-up
+needs its final normal Release rebuild after commit. This is offline validation, not actual October
+21 account qualification.
 
 Existing dependency advisories for `System.Security.Cryptography.Pkcs` 9.0.4 (NU1902/NU1903) remain
 separate from existing nullable/unreachable/unused-variable compiler warnings. No full solution/SSDT
@@ -133,6 +135,15 @@ linked permission revision is appended. A lost acknowledgement recovers the dete
 request. An incomplete pair cannot qualify the old scope or enable the new host; changed intervening
 risk/session history fails closed. Preview uses a read-only prospective risk view and cannot append
 financial events. Actual native synchronization may still append normal reconciled account imports.
+
+The historical carry is stored once within the continuation, with the small prior risk anchor
+reconstructing its exact original hash. The fixed read-only helper verifies latest revision 49 and
+existing JSON fragment sizes. An offline serialized-shape check using those private saved fragments
+is approximately 185 KB after compaction versus 270 KB with duplicated carry, under the unchanged
+256 KiB risk-event limit. Hash-preserving JSON recovery and a synthetic larger historical book are
+unit-tested; this is size/read evidence, not native SQL append qualification. Query receipts remain
+private in ignored artifacts (hashes `FA3472A85537BA880A602D2A10D7DA9DA09D37AE9B2EF307A4BA5D6EFB4A78D6`
+and `0A6B92020E65D8ABFCBF50D11DA1C670B67CF62C04B98FBA6FF8FB1120CD18CB`).
 
 Each protected October 21 packet/checkpoint filename includes the current implementation identity;
 the October 20 files are never overwritten. A new host grant pins the exact continuation ID as well
