@@ -100,6 +100,15 @@ public sealed partial class ManualBuyCoordinator
 
     private async Task<BrokerManagedSession> TickReviewedExecutionAsync(BrokerManagedSession saved, CancellationToken ct)
     {
+        if (saved.EffectiveReview.NoTransferScope?.Continuation?.PreOpenApproved == true && saved.Orders.IsEmpty)
+        {
+            var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct);
+            var normal = await ReadNativeNormalAsync(ct);
+            if (!storage.ImmutableStorageVerified || !storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled ||
+                normal.Review.Strategy.Fingerprint != saved.Strategy.Fingerprint || !normal.Review.Blocks.IsEmpty ||
+                normal.Updated > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2))
+                throw new InvalidOperationException("Armed execution is waiting for current immutable storage and fresh matching Normal source. No order was sent.");
+        }
         long revision = connection.SessionRevision;
         var accounts = await connection.ReadTfsaAccountsAsync(ct);
         if (!connection.IsConnected || revision != connection.SessionRevision ||
@@ -244,7 +253,7 @@ public sealed partial class ManualBuyCoordinator
                 if (saved.Continuation is null)
                 {
                     summary.Text = lines + "The saved Normal assignment and original trades/risk references remain preserved. October 20 buying permission is expired; it does not renew itself.\n\n" +
-                        "Stop execution host first, then during October 21 regular trading confirm no outside account changes and choose Review next session. Completed broker verification remains historical; no new verification checkpoint, restart or test trade is required.\n\n" +
+                        "Stop execution host first, then on October 21 (including pre-open) confirm no outside account changes and choose Review next session. Completed broker verification remains historical; no new verification checkpoint, restart or test trade is required.\n\n" +
                         "Review the current cash-only account, preserved risk references/holds, current Normal/source/build, installed storage and October 21 close expiry. Approve October 21 continuation explicitly, then separately Enable reviewed host. No October 22 buying authority is granted.";
                     return;
                 }
@@ -371,6 +380,8 @@ public sealed partial class ManualBuyCoordinator
                 $"Original drawdown reference: {facts.Risk.DrawdownReference.Value:N2} CAD · {facts.Risk.DrawdownReference.Source} · evidence {facts.Risk.DrawdownReference.EvidenceAt.ToLocalTime():g}\n" +
                 $"Daily hold: {facts.Risk.DailyLossHold} · capital review hold: {facts.Risk.CapitalReviewRequired}\n" +
                 "Original trades, sale selection, memory, prior approval and all history remain preserved. Completed verification is retained in development records; approval checks current readiness.\n" +
+                (prepared.Activation?.NoTransferScope?.Continuation?.PreOpenApproved == true
+                    ? "Pre-open approval: enable the reviewed host now to arm it for 9:30 AM Toronto. Keep this app running and signed in. No pre-open orders; fresh account, Normal source and risk checks at the open can delay or block execution.\n" : "") +
                 $"New purchases end {prepared.Activation?.NoTransferScope?.PurchaseExpiresAt?.ToLocalTime():g}. No later-day buying permission.\n\n" +
                 string.Join("\n", prepared.Checks.Select(c => c.Label + (c.Verified ? ": current check passed." : ": blocked — " + c.Detail))) +
                 "\n\n" + BrokerNativeTrialQualification.Limits + "\n\n" +
@@ -401,8 +412,11 @@ public sealed partial class ManualBuyCoordinator
             if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || !storage.ImmutableStorageVerified)
                 throw new InvalidOperationException("Current immutable storage checks failed. Keep execution off and recover storage before approval.");
             var normal = await ReadNativeNormalAsync(lifetime.Token, Stage); Check();
+            var continued = prepared.Review.Activation!.NoTransferScope!.Continuation!;
+            var preOpenSource = await new TradingPromotionRepository().HasPreOpenDailySourceAsync(normal.Review.Strategy,
+                executionCalendar!, DateTimeOffset.UtcNow, lifetime.Token); Check();
             if (normal.Review.Strategy.Fingerprint != prepared.Exact.Strategy.Fingerprint || !normal.Review.Blocks.IsEmpty ||
-                normal.Updated > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2))
+                !BrokerOctober21Continuation.SourceReady(continued, normal.Updated, executionCalendar!, DateTimeOffset.UtcNow, preOpenSource))
                 throw new InvalidOperationException("The current Normal source changed or expired. Review next session again.");
             Stage("saving or recovering the explicitly approved October 21 continuation");
             await prepared.Workflow.ApproveAsync(new(prepared.Review.Activation!, Environment.UserName,

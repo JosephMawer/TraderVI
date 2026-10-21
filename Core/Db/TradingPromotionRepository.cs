@@ -18,6 +18,28 @@ namespace Core.Db;
 
 public sealed class TradingPromotionRepository : ITradingPromotionStore
 {
+    // Definition readiness only: no synthetic current-session Live evaluation is created.
+    public async Task<bool> HasPreOpenDailySourceAsync(BrokerManagedStrategy strategy, ITsxSessionCalendar calendar,
+        DateTimeOffset now, CancellationToken token = default)
+    {
+        if (!BrokerOctober21Continuation.IsPreOpenReview(calendar, now)) return false;
+        var date = BrokerOctober21Continuation.ExecutionDate;
+        await using var c = await Open(token);
+        var row = await c.QuerySingleOrDefaultAsync<PreOpenDailyRow>(new CommandDefinition("""
+SELECT TOP(1) AuditState,MarketDataAsOf,StrategyVersionId,CreatedUtc,StrategyConfigJson,ModelSnapshotJson
+FROM dbo.CalibrationRun WHERE RunPurpose=N'OfficialPaper' AND RecommendationDate=@Date
+ORDER BY CreatedUtc DESC,RunId;
+""", new { Date = date.ToDateTime(TimeOnly.MinValue) }, cancellationToken: token));
+        if (row is null || row.AuditState != "Valid" || row.StrategyVersionId != strategy.Strategy.Daily.StrategyVersionId ||
+            DateOnly.FromDateTime(row.MarketDataAsOf) != calendar.GetImmediatelyPrecedingSession(date) ||
+            row.CreatedUtc > now.UtcDateTime || row.CreatedUtc >= calendar.GetSessionBounds(date).OpenUtc) return false;
+        var models = Read<ImmutableArray<Core.Calibration.ModelArtifactProvenance>>(row.ModelSnapshotJson);
+        return strategy.Strategy.Daily.Matches(Read<StrategyConfig>(row.StrategyConfigJson),
+            models.Select(m => new TradingModelIdentity(m.ModelId,m.TaskType,m.ArtifactSha256)).ToImmutableArray());
+    }
+    private sealed record PreOpenDailyRow(string AuditState, DateTime MarketDataAsOf, Guid? StrategyVersionId,
+        DateTime CreatedUtc, string StrategyConfigJson, string ModelSnapshotJson);
+
     // Read-only strategy definition for broker setup. This never uses the recommendation-only approval exception.
     public async Task<BrokerStrategyReview> ReviewBrokerAsync(Guid paperAccountId, TradingStrategyFamily family,
         CancellationToken token = default)

@@ -14,6 +14,8 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
 {
     public const string Contract = "October21CashOnlyContinuationV1";
     public DateTimeOffset PurchaseExpiresAt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool PreOpenApproved { get; init; }
     public static DateOnly ExecutionDate => new(2026, 10, 21);
     public static Guid RequestId(Guid baselineId) => BrokerManagedStrategy.StableId($"{baselineId:D}:{Contract}");
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
@@ -27,7 +29,10 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
         var bounds = calendar.GetSessionBounds(ExecutionDate);
         if (SessionId == Guid.Empty || PreviousRevisionId == Guid.Empty ||
             !CompleteTradingStrategy.IsHash(PreviousSessionHash) || !NoOutsideChangesConfirmed ||
-            string.IsNullOrWhiteSpace(ConfirmedBy) || ConfirmedAt < bounds.OpenUtc || ConfirmedAt >= bounds.CloseUtc ||
+            string.IsNullOrWhiteSpace(ConfirmedBy) || ConfirmedAt >= bounds.CloseUtc ||
+            (PreOpenApproved
+                ? DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(ConfirmedAt.UtcDateTime)) != ExecutionDate || ConfirmedAt >= bounds.OpenUtc
+                : ConfirmedAt < bounds.OpenUtc) ||
             PurchaseExpiresAt != bounds.CloseUtc ||
             RiskAnchor.TrialCarry is not null || RiskAnchor.Continuation is not null ||
             CloseObservedAt < calendar.GetSessionBounds(BrokerTrialCarryForward.ExecutionDate).CloseUtc || CloseObservedAt > ConfirmedAt ||
@@ -95,6 +100,19 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
             throw new InvalidOperationException("The Normal profile, policy, daily/model definition or source identity changed. This continuation cannot silently replace the original strategy; separate review is required.");
     }
     public override string ToString() => "October 21 continuation (financial data omitted)";
+
+    public static bool IsPreOpenReview(ITsxSessionCalendar calendar, DateTimeOffset now) =>
+        DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) == ExecutionDate &&
+        now < calendar.GetSessionBounds(ExecutionDate).OpenUtc;
+
+    public static bool SourceReady(BrokerOctober21Continuation continuation, DateTimeOffset updated,
+        ITsxSessionCalendar calendar, DateTimeOffset now, bool validPreOpenDailySource)
+    {
+        if (updated > now) return false;
+        if (continuation.PreOpenApproved && IsPreOpenReview(calendar, now))
+            return validPreOpenDailySource && updated >= calendar.GetSessionBounds(continuation.PreviousScope.Session).OpenUtc;
+        return now - updated <= TimeSpan.FromMinutes(2);
+    }
 }
 
 public sealed record BrokerManagedContinuation(BrokerExecutionApproval Approval, BrokerRiskContinuationRequest RiskRequest)

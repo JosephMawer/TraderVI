@@ -63,7 +63,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
                 scope.Validate(calendar);
                 var now = clock.GetUtcNow();
                 if (scope.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
-                    now < calendar.GetSessionBounds(scope.Session).OpenUtc || scope.PurchaseExpiresAt <= now ||
+                    now < calendar.GetSessionBounds(scope.Session).OpenUtc && scope.Continuation?.PreOpenApproved != true || scope.PurchaseExpiresAt <= now ||
                     scope.Continuation?.Fingerprint != saved.Account.Risk.Continuation?.Fingerprint)
                     throw new InvalidOperationException("Enable only the current October 21 permission after its risk/approval records agree and before its reviewed close.");
             }
@@ -75,7 +75,11 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             grants.Write(grants.Read(), grant);
             if (grants.Read() != grant) throw new InvalidOperationException("Host activation was not confirmed. Read back its saved permission before retrying.");
             failures = 0; nextCheck = default;
-            Present("Waiting", "Execution host enabled for the reviewed assignment. Fresh session/account/order checks precede every action.");
+            var open = calendar.GetSessionBounds(saved.EffectiveReview.Session).OpenUtc;
+            Present("Waiting", clock.GetUtcNow() < open
+                ? "Armed for 9:30 AM Toronto. No pre-open execution; fresh account, source and risk checks are required at the open. Purchases end at today's reviewed close."
+                : "Execution host enabled for the reviewed assignment. Fresh session/account/order checks precede every action.",
+                clock.GetUtcNow() < open ? new DateTimeOffset(open) : null);
         }
         finally { IsBusy = false; gate.Release(); }
     }
@@ -111,7 +115,8 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             if (!calendar.IsRegularSession(date)) { Present("Waiting", "Execution is waiting for a reviewed regular TSX session."); return; }
             var bounds = calendar.GetSessionBounds(date);
             if (now.UtcDateTime < bounds.OpenUtc || now.UtcDateTime >= bounds.CloseUtc)
-            { Present("Waiting", "Execution is waiting for regular trading hours. No opening order is submitted outside the session."); return; }
+            { Present("Waiting", "Execution is waiting for regular trading hours. No opening order is submitted outside the session.",
+                now.UtcDateTime < bounds.OpenUtc ? new DateTimeOffset(bounds.OpenUtc) : null); return; }
             if (now < nextCheck) return;
             var saved = await sessions.ReadAsync(grant.BindingId, ct)
                 ?? throw new InvalidOperationException("The approved assignment could not be recovered.");

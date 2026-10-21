@@ -1,5 +1,42 @@
 # TraderVI Project Status
 
+## October 21 pre-open approval implementation
+
+The operator explicitly requests approval before the open and automatic eligible polling from
+09:30 while preserving risk controls/16:00 cutoff. [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md)
+records the accepted timing amendment. Source/UI now save an explicit pre-open continuation flag,
+retain separate host enable and show armed/waiting before the open. Review checks fresh account/
+orders/risk/storage and exact stored Normal definition plus today's latest Valid daily/config/model
+input without relabelling old observations. Actual execution still requires fresh matching Normal
+source and current account/risk at/after the open. Wrong dates, changed facts/builds, old grants,
+holds, uncertainty and the original cumulative purchase ceiling remain fenced. A first eligible
+poll/available signal is not a guarantee of a 09:30 purchase; paper-work admission remains.
+
+**Validation:** 284 focused offline tests pass; full serial offline regression passes **2,738**,
+nine native SQL tests skipped. New cases cover pre-open approval/recovery/separate enable, no tick/
+order before open, open/close boundaries, source/account freshness, holds/storage and wrong dates.
+After operator-confirmed Stop execution host/normal closure, independent 09:18 Toronto process
+inventory confirms zero desktop owners. Standard WPF Release build succeeds with 262 warnings/zero
+errors in normal output. Existing compiler warnings and cached Pkcs NU1902/NU1903 dependency advisories
+remain separate; no fresh audit or full-solution/SSDT qualification. Logs/source/output hashes are
+ignored under `artifacts/preopen-approval-20261021/`.
+
+**Native pre-open review/approval/arming observed:** operator screenshots show all five readiness
+checks passed and pre-open instructions, followed by reported approval and the UI's **Armed for
+9:30 AM Toronto** confirmation. A hash-verified installed read at 09:22 confirms revision 50,
+`October21ContinuationApproved`, `PreOpenApproved=true`, October 21 scope and exact 16:00 expiry,
+with zero automatic orders/managed positions. Independent 09:22:55 inspection verifies one responding
+normal-Release owner PID 37148, started 09:20:20, with both output hashes matching the validated build.
+This verifies the saved pre-open approval and observed host arming, not post-open execution.
+SQL receipt `result-20261021T132242624Z-d86ad7805159497793a99c18ebf1e2c2.json` and safe/native owner
+receipts remain ignored with the build logs. No protected grant content was independently decoded.
+
+No further setup click is needed while the same app remains running/signed in; next observe fresh
+post-open evaluation and cutoff. Automatic fills/populated protection remain unverified. No agent
+app launch, financial save, host enable, order, SQL write/migration/native rehearsal, market workflow
+or push. Operator startup/approval/enable are separately observed above. Original history and the
+unrelated Obsidian edit remain preserved.
+
 ## October 21 pre-open readiness
 
 **Read-only checks through 09:06 Toronto:** the nightly runner reports current-source build and
@@ -22,8 +59,9 @@ one original baseline and one October 20 risk continuation; no October 21 permis
 An old host-grant file exists, without its protected contents being inspected. No current Live paper
 lease or October 21 frozen session exists at this pre-open observation; original coverage gaps remain.
 Current account import activity is observed after operator startup, not an execution cycle.
-Next stop the old host normally, then follow the [regular-session review/approval/enable sequence](running.md#october-21-only-normal-continuation)
-from 09:30 Toronto. Confirm actual activation after enable; new buys expire at 16:00 today.
+The subsequently accepted/built pre-open amendment above permits operator review/approval/arming
+before 09:30 using the [updated sequence](running.md#october-21-only-normal-continuation).
+Confirm actual post-open execution after enable; new buys expire at 16:00 today.
 No repeated verification trades, baseline setup or carry save is required. Fresh account/risk/source
 checks, unchanged-book comparison and actual activation remain pending; pre-open evidence cannot
 guarantee readiness at submission time. Automatic fills/populated protection remain unverified.

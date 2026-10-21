@@ -97,7 +97,7 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
 /// proof of a complete capital-event feed; it never advances daily references or supports transfers.
 /// </summary>
 public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionScope scope,
-    ITsxSessionCalendar calendar, TimeProvider? time = null) : IBrokerRiskEvidenceSource
+    ITsxSessionCalendar calendar, TimeProvider? time = null, bool preOpenReviewOnly = false) : IBrokerRiskEvidenceSource
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     public Task<BrokerRiskEvidence> ReadAsync(BrokerImportReceipt import, BrokerAccountRiskState state, CancellationToken ct) =>
@@ -117,7 +117,8 @@ public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionSc
             return Task.FromResult(Block("Continuation risk and permission do not agree. Recover the original request; new buys stay stopped."));
         if (scope.ApprovedAt > now || state.BaselineId != scope.BaselineId || state.BindingId != scope.BindingId ||
             import.BindingId != scope.BindingId || state.TradingDate != scope.Session ||
-            now < bounds.OpenUtc || now >= bounds.CloseUtc || state.Through < anchor.SnapshotAt ||
+            now < bounds.OpenUtc && !(preOpenReviewOnly && scope.Continuation?.PreOpenApproved == true &&
+                BrokerOctober21Continuation.IsPreOpenReview(calendar, now)) || now >= bounds.CloseUtc || state.Through < anchor.SnapshotAt ||
             state.Through > current.SnapshotAt || current.SnapshotAt < anchor.SnapshotAt ||
             current.SnapshotAt > now || now - current.SnapshotAt > TimeSpan.FromSeconds(30) ||
             current.CheckedAt < current.SnapshotAt || current.CheckedAt > now || !current.HoldingsMatch ||

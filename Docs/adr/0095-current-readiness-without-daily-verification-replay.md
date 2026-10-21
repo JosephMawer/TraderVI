@@ -27,6 +27,11 @@ historical and unchanged. No new qualification claims are issued or old proof da
 
 ## Current approval and preserved controls
 
+**October 21 timing amendment:** [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md)
+supersedes the regular-session-only review/enable wording below for this dated continuation only.
+Pre-open explicit approval and separate host arming retain current financial checks and the cutoff;
+actual execution still waits for the open and fresh account/Normal/risk readiness.
+
 1. Recover the existing assignment, original financial baseline, risk history and saved October 20
    close revision. Preserve original sales/IDs, provenance, holds, protection, memory and prior approval.
 2. During October 21 regular trading, confirm no outside account changes, stop the old host and

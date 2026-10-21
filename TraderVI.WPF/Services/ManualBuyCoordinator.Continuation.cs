@@ -21,8 +21,8 @@ public sealed partial class ManualBuyCoordinator
         check(); _ = GetExecutionHost();
         var now = DateTimeOffset.UtcNow;
         var bounds = executionCalendar!.GetSessionBounds(BrokerOctober21Continuation.ExecutionDate);
-        if (now < bounds.OpenUtc || now >= bounds.CloseUtc)
-            throw new InvalidOperationException("October 21 continuation can be reviewed only during its regular session. Preserve the saved trades/references; buying has no later-day renewal.");
+        if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) != BrokerOctober21Continuation.ExecutionDate || now >= bounds.CloseUtc)
+            throw new InvalidOperationException("October 21 continuation can be reviewed on October 21 before its close, including pre-open. Buying has no later-day renewal.");
         if (HostGrants().Read()?.Enabled == true)
             throw new InvalidOperationException("Stop execution host first. Continuation approval cannot inherit an enabled old host.");
         stage("recovering the original baseline and expired assignment");
@@ -41,25 +41,28 @@ public sealed partial class ManualBuyCoordinator
         var continuation = recoveredRisk?.Request.Continuation ?? new BrokerOctober21Continuation(saved.SessionId, saved.RevisionId,
             BrokerAccountImport.Hash(saved), saved.SavedAt, actual with { TrialCarry = null },
             saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the original October 20 trial scope."),
-            now, Environment.UserName, true) { PurchaseExpiresAt = bounds.CloseUtc };
+            now, Environment.UserName, true) { PurchaseExpiresAt = bounds.CloseUtc,
+                PreOpenApproved = BrokerOctober21Continuation.IsPreOpenReview(executionCalendar, now) };
         continuation.RequirePrior(saved, executionCalendar);
         var scope = continuation.Scope(executionCalendar);
         stage("checking current immutable account and permission storage");
         var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         var normal = await ReadNativeNormalAsync(ct, stage); check();
         BrokerOctober21Continuation.RequireSameDefinition(saved.Strategy, normal.Review.Strategy);
-        if (DateTimeOffset.UtcNow - normal.Updated > TimeSpan.FromMinutes(2) || normal.Updated > DateTimeOffset.UtcNow)
+        var preOpenSource = await new TradingPromotionRepository().HasPreOpenDailySourceAsync(normal.Review.Strategy,
+            executionCalendar, DateTimeOffset.UtcNow, ct); check();
+        if (!BrokerOctober21Continuation.SourceReady(continuation, normal.Updated, executionCalendar, DateTimeOffset.UtcNow, preOpenSource))
             throw new InvalidOperationException("Refresh the current October 21 Normal source before continuation review.");
         var prospective = new BrokerContinuationPreviewRiskStore(risks, continuation, executionCalendar);
         var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal, journal,
-            orderGate, account, executionCalendar, new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar),
+            orderGate, account, executionCalendar, new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar, preOpenReviewOnly: true),
             previewRisk: prospective);
         stage("reconciling the current cash-only account against the prospective continuation");
         var projected = await components.AccountSource.SynchronizeAsync(saved.Orders, ct); check();
         BrokerTrialCarryForward.RequireUnchangedBook(continuation.PreviousScope.CashOnlyAnchor, projected.Import.Plan.Observation);
         var review = BrokerContinuationReviewPolicy.Prepare(saved, continuation, normal.Review, normal.Updated, projected,
             storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
-            BrokerManagedSessionComposition.ImplementationIdentity, executionCalendar, DateTimeOffset.UtcNow);
+            BrokerManagedSessionComposition.ImplementationIdentity, executionCalendar, DateTimeOffset.UtcNow, preOpenSource);
         return new(review, normal.Review, projected,
             new(new BrokerManagedSessionRepository(executionCalendar), risks, components.AccountSource, HostGrants(), executionCalendar));
     }

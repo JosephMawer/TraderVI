@@ -1,7 +1,16 @@
 # Delphi Live Normal — accepted October 21 continuation
 
 **Status: explicitly accepted October 20; source implemented and offline validated.
-No October 21 financial permission or host enable is saved by this development work.**
+Development work saves no financial permission or host enable; subsequent operator pre-open approval
+and Armed UI confirmation are observed October 21 in [current status](../project-status.md#october-21-pre-open-approval-implementation).**
+
+**October 21 accepted pre-open amendment:** [ADR-0096](../adr/0096-pre-open-october21-approval-and-armed-host.md)
+replaces the regular-session-only review/enable timing in the original flow below. The operator may
+approve on October 21 before 09:30 and separately arm the running host. Pre-open source review checks
+stored Normal definition and today's Valid daily/config/model input; execution waits for the open,
+fresh matching Normal evidence and renewed account/order/risk/storage checks. No pre-open order,
+automatic application startup, guaranteed opening fill or October 22 renewal follows. The reviewed
+16:00 Toronto cutoff and original financial history/holds/ceiling remain. See the updated [operator flow](../running.md#october-21-only-normal-continuation).
 
 **October 20 accepted simplification:** [ADR-0095](../adr/0095-current-readiness-without-daily-verification-replay.md)
 keeps completed broker tests in development records. Current approval no longer depends on a new

@@ -122,13 +122,16 @@ the existing assignment, original four verification IDs, original selected openi
 risk references. Do not repeat sales/test trades, Account risk setup or the October 20 carry save.
 Stop the old execution host normally before changing the build or reviewing continuation.
 
-During October 21 regular trading, sign in and open **Trading → Execution setup**. Confirm no outside
+On October 21, including before 09:30 Toronto under [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md),
+sign in and open **Trading → Execution setup**. Confirm no outside
 account changes since the original cash-only baseline, then choose **Review next session**.
 The app checks the fresh account/history/cash/buying power and orders, exact current Normal
 source/build, installed immutable storage, preserved references/holds and October 21 permission.
 The original financial records/sale selection remain saved. Completed broker verification stays in
 development records; no new test packet, verification restart or individual test-ID reread is required.
-An unchanged cash-only book remains required before this continuation can activate.
+An unchanged cash-only book remains required before this continuation can activate. Pre-open review
+checks the stored exact Normal definition and today's latest Valid OfficialPaper daily/config/model
+input; it does not claim current-session signal freshness or create a synthetic Live session.
 
 Opening setup and **Refresh readiness** read saved state without first waiting for desktop paper
 work to finish. **Enable reviewed host** likewise saves only the matching reviewed host grant;
@@ -139,7 +142,12 @@ admission and current checks; a readiness display is not fresh financial approva
 Review the displayed cash ceiling, original reference values/provenance/holds, exact Normal
 policy/daily/build and October 21 close expiry. Explicitly **Approve October 21 continuation** within
 two minutes, confirm saved/read back, then separately **Enable reviewed host**. The host stays off
-after approval. Stay available for this supervised session. New buys expire at **4 PM Toronto on October 21**;
+after approval. Before 09:30, enable arms the host: keep the app running and signed in. At the first
+eligible poll at/after 09:30 it rechecks immutable storage, fresh matching Normal source, the current
+unchanged cash-only account/orders and risk. Source collection, paper-work admission and strategy
+gates can delay or block purchases; arming does not promise a fill at exactly the open. No further
+operator clicks are needed for the waiting host to poll once readiness is available, unless recovery
+is required. Stay available for this supervised session. New buys expire at **4 PM Toronto on October 21**;
 there is no October 22 renewal, and ordinary Resume buying cannot extend permission. An incomplete
 or uncertain save recovers the original request; keep the host off if records do not agree.
 

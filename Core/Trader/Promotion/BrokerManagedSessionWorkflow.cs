@@ -69,6 +69,11 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     {
         await using var lease = await store.AcquireAsync(bindingId, ct);
         var state = lease.Current ?? throw new InvalidOperationException("Explicit reviewed execution approval is required.");
+        if (state.EffectiveReview.NoTransferScope?.Continuation is { PreOpenApproved: true } armed)
+        {
+            var open = Core.Trader.DelphiLive.ReviewedTsxSessionCalendar.At(BrokerOctober21Continuation.ExecutionDate, new TimeOnly(9, 30));
+            if (clock.GetUtcNow() < open) return state; // No broker read, save, protection action or order before the open.
+        }
         bool paused = state.Phase == BrokerManagedPhase.Paused;
         bool fullFillTrial = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
         bool NeedsTrialReview()
@@ -89,6 +94,19 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             throw new InvalidOperationException("The account or initial risk baseline changed. No execution is allowed.");
         var now = clock.GetUtcNow();
         var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        if (state.EffectiveReview.NoTransferScope?.Continuation?.PreOpenApproved == true && state.Orders.IsEmpty)
+        {
+            try
+            {
+                BrokerContinuationReviewPolicy.RequireCurrentAccount(account, now);
+                BrokerTrialCarryForward.RequireUnchangedBook(state.EffectiveReview.NoTransferScope.CashOnlyAnchor, account.Import.Plan.Observation);
+            }
+            catch (InvalidOperationException)
+            {
+                return await Save(lease, state with { Phase = BrokerManagedPhase.NeedsAttention,
+                    Blocks = ["Armed execution requires a fresh unchanged cash-only account with no unresolved orders or risk holds."] }, "PreOpenAccountRecheckBlocked", ct);
+            }
+        }
         if (account.Account.TradingDate != today || account.Account.ReportedUtc > now.UtcDateTime ||
             now.UtcDateTime - account.Account.ReportedUtc > TimeSpan.FromSeconds(30) ||
             account.Risk.TradingDate > today || account.Risk.TradingDate < state.Account.Risk.TradingDate ||

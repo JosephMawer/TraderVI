@@ -53,6 +53,11 @@ append linked risk/permission records and enable their host separately. The expl
 [ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md) removes daily qualification
 packet/test-ID reread and verification-restart requirements for this continuation. Historical broker
 tests stay development evidence; ordinary financial-history reconciliation remains required.
+[ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md) accepts October 21-only pre-open
+review/approval and separate host arming. Fresh current account/risk/order checks remain; pre-open
+definition/daily readiness cannot substitute for fresh matching Normal evidence at/after the open.
+No execution before 09:30 Toronto, no automatic app startup or next-day renewal, and the same 16:00
+purchase cutoff. Keep the supervised desktop running/signed in; data/gates may delay or block orders.
 Purchases expire at the October 21 reviewed
 close; no October 22 or recurring buying authority follows. Original order IDs are verification
 records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).

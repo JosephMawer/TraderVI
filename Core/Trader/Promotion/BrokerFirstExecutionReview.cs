@@ -42,7 +42,8 @@ public static class BrokerContinuationReviewPolicy
 {
     public static BrokerFirstExecutionReview Prepare(BrokerManagedSession prior, BrokerOctober21Continuation continuation,
         BrokerStrategyReview strategyReview, DateTimeOffset sourceUpdatedAt, BrokerAccountProjection account,
-        bool storageReady, string implementation, Core.Trader.DelphiLive.ITsxSessionCalendar calendar, DateTimeOffset now)
+        bool storageReady, string implementation, Core.Trader.DelphiLive.ITsxSessionCalendar calendar, DateTimeOffset now,
+        bool validPreOpenDailySource = false)
     {
         continuation.RequirePrior(prior, calendar);
         var scope = continuation.Scope(calendar);
@@ -74,7 +75,7 @@ public static class BrokerContinuationReviewPolicy
                 strategyReview.Evidence.PaperAccountId != strategy.PaperAccountId ||
                 strategyReview.PreparedUtc.Kind != DateTimeKind.Utc || strategyReview.PreparedUtc > now.UtcDateTime ||
                 now.UtcDateTime - strategyReview.PreparedUtc > TimeSpan.FromMinutes(2) ||
-                sourceUpdatedAt > now || now - sourceUpdatedAt > TimeSpan.FromMinutes(2))
+                !BrokerOctober21Continuation.SourceReady(continuation, sourceUpdatedAt, calendar, now, validPreOpenDailySource))
                 throw new InvalidOperationException("Refresh the exact current Normal definition, source and running build before approval.");
         });
         Check("current-storage", "Installed immutable account and permission storage", () =>
@@ -86,8 +87,9 @@ public static class BrokerContinuationReviewPolicy
         BrokerActivationReview? activation = null;
         Check("dated-permission", "October 21 scope and purchase cutoff", () =>
         {
-            if (now < calendar.GetSessionBounds(scope.Session).OpenUtc || now >= scope.PurchaseExpiresAt || ceiling <= 0)
-                throw new InvalidOperationException("Review October 21 permission during its regular session, with remaining purchase allowance and before its close.");
+            if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) != scope.Session ||
+                now < calendar.GetSessionBounds(scope.Session).OpenUtc && !continuation.PreOpenApproved || now >= scope.PurchaseExpiresAt || ceiling <= 0)
+                throw new InvalidOperationException("Review October 21 permission on its date, with explicit pre-open approval when applicable, remaining allowance and the unchanged close cutoff.");
         });
         if (blocks.Count == 0)
         {

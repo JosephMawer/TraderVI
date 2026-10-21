@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — Pre-open approval, armed wait and fresh checks at the open
 - [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Current continuation readiness; completed tests remain development evidence
 
 - [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Separate observed execution activity from dated buying permission
@@ -244,6 +245,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — October 21 pre-open permission retains risk checks and 16:00 cutoff
 - [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Preserve financial/risk history while removing daily verification replay
 
 - [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation

@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Pre-open approval and execution — October 21
+
+- **Q:** Does approving before 09:30 make old market evidence fresh? **A:** No. Pre-open definition/daily readiness is distinct from fresh Normal/account/risk checks at the open. The armed host waits and data/gates can delay or block orders. (ADR-0096)
+- **Q:** Does arming the host renew permission tomorrow? **A:** No. Separate operator approval/enable applies only to October 21; buys expire at 16:00 Toronto and existing risk/history/uncertain-order controls remain. (ADR-0096)
+
 ### Operator waits and actual execution — October 20
 
 - **Q:** Why can setup opening/readiness refresh and host enable skip waiting for paper work? **A:** They read saved state or save the exact reviewed host grant, without running a trading cycle. SQL fences and assignment/build/continuation checks remain; fresh review, approval and actual execution still take paper-work admission. Storage reads and actual execution can still wait. (ADR-0095)

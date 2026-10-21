@@ -39,8 +39,12 @@ An [open follow-up](reviews/open-questions.md#tfsa-review-waiting-for-paper-work
 questions the broad paper/import lock coupling; it is not an added October 21 prerequisite or agreed code scope.
 October 21 [pre-open checks](project-status.md#october-21-pre-open-readiness) confirm successful nightly
 stages, Valid daily input, immutable storage and a signed-in cash-only/order-free broker snapshot;
-one responding normal desktop is observed. Current Normal/account/risk review remains for regular trading.
-Next stop the old host, obtain actual October 21 current review, manual approval and separate host enable. Preserve
+one responding normal desktop was observed before the subsequent coordinated build closure.
+The operator then accepts [pre-open approval/arming](adr/0096-pre-open-october21-approval-and-armed-host.md):
+implemented with 284 focused/2,738 full offline passes (nine native skips) and normal Release build.
+Native operator pre-open review/approval/arming is now observed; SQL revision 50 confirms today's
+flag/16:00 expiry, and one responding owner matches the tested output. Next observe fresh post-open
+execution and cutoff, with no further routine setup clicks while the same host runs. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.
 

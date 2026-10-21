@@ -28,14 +28,14 @@ public sealed partial class BrokerManagedSessionTests
         {
             var review = BrokerContinuationReviewPolicy.Prepare(Close, Continuation,
                 After.Strategy with { PreparedUtc = F.Now.UtcDateTime }, F.Now, F.TransformAccount!(F.Project()), true,
-                F.ImplementationIdentity, BrokerTrialCarryForwardTests.Calendar(), F.Now);
+                F.ImplementationIdentity, BrokerTrialCarryForwardTests.Calendar(), F.Now, Continuation.PreOpenApproved);
             Assert.True(review.CanApprove, string.Join(";", review.Blocks));
             return new(review.Activation! with { RequestId = Scope.ScopeId,
                 PurchaseCeiling = Math.Min(review.PurchaseCeiling, Close.EffectiveReview.PurchaseCeiling - Close.CommittedPurchaseCost) },
                 "fixture", "October 21 only; synthetic offline test");
         }
     }
-    private static ContinuedFacts ContinuedFixture()
+    private static ContinuedFacts ContinuedFixture(bool preOpen = false)
     {
         var (f, _, native20, scope20) = NextSessionFacts();
         var calendar = BrokerTrialCarryForwardTests.Calendar();
@@ -49,10 +49,10 @@ public sealed partial class BrokerManagedSessionTests
             TradingRecommendationMemory.Empty with { TradingDate = scope20.Session, HighestClosingValue = originalRisk.DrawdownReference.Value },
             [], ["The supervised no-transfer scope is expired. New buys stay stopped."]);
         f.Store.State = close; f.Store.Calendar = calendar;
-        f.Now = new(2026, 10, 21, 14, 0, 0, TimeSpan.Zero);
+        f.Now = new(2026, 10, 21, preOpen ? 13 : 14, 0, 0, TimeSpan.Zero);
         var continuation = new BrokerOctober21Continuation(close.SessionId, close.RevisionId, BrokerAccountImport.Hash(close),
             close.SavedAt, originalRisk with { TrialCarry = null }, scope20, f.Now, "fixture", true)
-            { PurchaseExpiresAt = calendar.GetSessionBounds(new(2026,10,21)).CloseUtc };
+            { PurchaseExpiresAt = calendar.GetSessionBounds(new(2026,10,21)).CloseUtc, PreOpenApproved = preOpen };
         var scope = continuation.Scope(calendar); scope.Validate(calendar);
         BrokerNativeTrialObservation Observe(int process, DateTimeOffset started) => native20 with
         {
@@ -70,7 +70,7 @@ public sealed partial class BrokerManagedSessionTests
         {
             var observation = after.Account with { SnapshotAt = f.Now, CheckedAt = f.Now };
             var import = account.Import with { Plan = account.Import.Plan with { Observation = observation } };
-            var coverage = new BrokerNoTransferRiskEvidenceSource(scope, calendar, new HostClock(f))
+            var coverage = new BrokerNoTransferRiskEvidenceSource(scope, calendar, new HostClock(f), preOpenReviewOnly: preOpen)
                 .ReadAsync(import, expected, [], CancellationToken.None).GetAwaiter().GetResult();
             return BrokerAccountProjector.Project(f.Binding, import, expected, coverage.Coverage, f.Now) with
                 { NewRiskBlocks = coverage.Blocks };

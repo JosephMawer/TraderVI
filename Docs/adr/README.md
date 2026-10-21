@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0096](0096-pre-open-october21-approval-and-armed-host.md) | Pre-open October 21 approval and armed execution host | Accepted October 21 | architecture, risk-management |
 | [0095](0095-current-readiness-without-daily-verification-replay.md) | Current approval without replaying completed broker verification | Accepted October 20; current-readiness continuation | architecture, risk-management |
 | [0094](0094-real-tfsa-execution-status-presentation.md) | Real TFSA execution and buying permission presentation | Scope accepted; detailed design draft for review before code | architecture, user-interface |
 | [0093](0093-narrow-read-only-broker-checks.md) | Narrowly approved broker-read helper | Accepted; installed and native read verified October 18 | architecture, data-sources |

@@ -251,9 +251,17 @@ returns are negative and no automatic-execution qualification follows. [Current 
   broker check succeeds after operator sign-in with zero holdings/pending orders and matching history.
   One responding normal-Release owner is observed after operator startup/rebuild. [Evidence/limits](project-status.md#october-21-pre-open-readiness).
   This does not qualify the fresh Normal/account/risk review, save permission or activate execution.
-- [ ] Operator stops the old host and performs actual October 21 regular-session current-readiness review, explicit continuation approval
-  and separate host enable; observe native activation and exact cutoff. Earlier all-nine-check/
-  verification-restart implementation and validation above remain historical under ADR-0095.
+- [x] Accept/implement October 21-only pre-open review/approval and separate host arming, preserving
+  current account/risk/storage/definition checks and requiring fresh matching source/account at open.
+  No pre-open tick/order; exact date/build/ceiling/history/holds and 16:00 cutoff remain. [ADR-0096](adr/0096-pre-open-october21-approval-and-armed-host.md).
+- [x] Validate 284 focused/2,738 full serial offline passes (nine native skips) and standard Release
+  build after operator normal Stop/closure and independently verified zero owners. [Evidence](project-status.md#october-21-pre-open-approval-implementation).
+- [x] Observe operator normal updated-output startup and all five native pre-open review checks,
+  explicit continuation approval and Armed host UI. Hash-verified 09:22 SQL read confirms revision 50,
+  pre-open flag/today's scope/exact 16:00 expiry/no automatic orders or positions; one responding
+  owner matches both tested output hashes. [Native evidence](project-status.md#october-21-pre-open-approval-implementation).
+- [ ] Observe actual fresh post-open evaluation and exact cutoff. Earlier all-nine-check/
+  verification-restart implementation/validation above remain historical under ADR-0095.
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20
@@ -268,7 +276,8 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [ ] Review layout/wording with the operator, then implement and validate offline, coordinating
   normal closure before replacing loaded standard output.
   [Request/open questions](reviews/open-questions.md#real-tfsa-execution-status-and-permission-ui--october-20-2026);
-  automatic next-morning startup is not an accepted requirement or trading authority.
+  automatic application startup remains deferred. Separately accepted October 21 pre-open host arming
+  is implemented above; it creates no next-day authority.
 - [x] Observe the expected October 21 regular-session-only refusal in the operator's October 20
   evening screenshot. No checkpoint, account/source qualification or approval follows from this
   after-hours check; restarting does not remove the date restriction.
