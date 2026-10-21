@@ -1,5 +1,21 @@
 # TraderVI Project Status
 
+**October 20 operator-path simplification accepted and built:** setup opening, saved readiness
+refresh and host enable no longer drain desktop paper work first. Source inspection confirms those
+actions retain saved-state SQL fences and exact host matching; enable creates no cycle. Review,
+approval and actual execution retain paper-work admission, freshness checks and all financial
+controls. The [accepted findings/tradeoffs](reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20)
+also identify/correct stale no-baseline/no-assignment and expired copied-runtime instructions in
+the running guide. **274 focused offline tests pass** (zero skips); standard WPF Release passes
+with 262 total warnings/zero errors after outside-sandbox inventory confirms zero TraderVI owners.
+Existing compiler warnings and Pkcs 9.0.4 NU1902/NU1903 dependency advisories remain; no fresh audit
+or full-solution/SSDT build. Existing host, continuation, approval and paper-admission tests exercise
+the retained boundaries; the desktop call-site wiring is compiled and reviewed. Logs and
+output/source hashes are ignored under `artifacts/operator-path-simplification-20261020/`.
+No app launch, native SQL rehearsal, financial save, broker/market operation or execution enable.
+No native latency improvement is claimed. October 21 review/approval/enable and actual automatic
+fills/populated protection remain unverified. ADR-0094 layout/status work is untouched.
+
 **October 20 current-readiness amendment accepted:** the operator explicitly requests removing
 daily replay of completed broker verification. [ADR-0095](adr/0095-current-readiness-without-daily-verification-replay.md)
 and the amended [October 21 flow](running.md#october-21-only-normal-continuation) separate historical

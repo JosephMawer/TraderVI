@@ -32,6 +32,9 @@ Append-only existing-assignment continuation is implemented. The operator subseq
 tests as development evidence and check current account/history/orders, risk, exact Normal/source/build,
 storage and dated permission without another test packet or verification restart. The simplification
 passes 243 focused/2,723 full offline tests (nine native skips) and the standard Release build.
+The accepted operator-path follow-up removes paper-work waits from setup opening, saved readiness
+refresh and host enable only, and corrects historical setup instructions; 274 focused offline tests
+and standard Release build pass. Review/approval/execution waits and all timing/financial controls remain.
 Next obtain actual October 21 current review, manual approval and separate host enable. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.

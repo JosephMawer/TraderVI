@@ -93,6 +93,22 @@ These controls are built in normal Release output; actual October 21 native chec
 6. Separately **Enable reviewed host** for this exact saved October 21 permission/build/assignment.
    This remains the operator's activation action. Stay available for the supervised session.
 
+### Accepted operator-path simplification — October 20
+
+The operator accepts removing the desktop paper-work wait from setup opening, readiness refresh
+and host enable only. The reviewed time window and actual execution poll's admission remain unchanged.
+
+| Finding | Current operator burden and purpose | Existing protection and smallest change | Tradeoff |
+|---|---|---|---|
+| Unnecessary paper-work wait (implementation choice) | Opening setup, refreshing saved readiness and enabling an already approved host each drain admitted paper work, although they neither prepare fresh financial authority nor execute a cycle. The shared wrapper was intended to avoid competition during financial review/save. | Skip that wrapper's paper wait for these three entry points. Saved reads retain SQL fences/leases; enable rereads and matches the exact assignment/build/continuation and creates no cycle. The actual execution poll still drains paper work. Review/approval retain their admission and checks. | Saved readiness can be displayed while paper work continues. It is not fresh financial approval; storage reads can still block/fail and actual execution can still wait. |
+| Stale running instructions (factual documentation defect) | The running guide still says no baseline/assignment exists and directs readers toward expired October 20 copied-runtime/checkpoint steps. These described first-day setup and its then-unverified state. | State the observed scoped setup/activation facts and label the first-day sequence historical, with the current October 21 route first. Keep original evidence and its limits. | General production and unobserved paths must still be distinguished from the observed limited trial. |
+
+No further removal is justified by this inspection. The no-outside-change confirmation covers
+activity equal cash cannot establish; approval's fresh account/risk/source checks protect against
+changes since review. Separate approval/enable and all deadlines remain agreed boundaries. The
+two-minute review lifetime is retained; no native timing measurement or deadline change is claimed.
+ADR-0094 owns the separate status/layout design; this increment changes no layout or status wording.
+
 ## Implementation and readiness blockers
 
 - [x] Operator explicitly accepts this complete dated continuation contract after the order-ID clarification.

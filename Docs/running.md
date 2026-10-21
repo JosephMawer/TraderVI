@@ -130,6 +130,12 @@ The original financial records/sale selection remain saved. Completed broker ver
 development records; no new test packet, verification restart or individual test-ID reread is required.
 An unchanged cash-only book remains required before this continuation can activate.
 
+Opening setup and **Refresh readiness** read saved state without first waiting for desktop paper
+work to finish. **Enable reviewed host** likewise saves only the matching reviewed host grant;
+the actual execution poll still waits for admitted paper work before running. These actions can
+still wait on their own storage reads. Account/source review and approval retain their paper-work
+admission and current checks; a readiness display is not fresh financial approval.
+
 Review the displayed cash ceiling, original reference values/provenance/holds, exact Normal
 policy/daily/build and October 21 close expiry. Explicitly **Approve October 21 continuation** within
 two minutes, confirm saved/read back, then separately **Enable reviewed host**. The host stays off
@@ -143,16 +149,18 @@ combines the strategy controls with the September 24 memory and broker-trade syn
 
 In **Trading**, leave **Real account** set to **TFSA**. The Wealthsimple panel should show
 **Strategy management** and **Account risk setup…**. With no approved managed assignment, disabled
-stop/resume controls and an execution-not-enabled message are expected. First verify sign-in, fresh
-holdings/cash/pending orders and refresh status. Risk setup can be reviewed, but native storage recovery
-and risk-input qualification still precede the operational baseline and trading activation.
+stop/resume controls and an execution-not-enabled message are expected. Verify sign-in, fresh
+holdings/cash/pending orders and refresh status. For the existing Normal assignment, use the dated
+continuation above. Account risk setup can display retained references; do not save initial setup again.
 
 ## Broker risk and managed-session storage (ADRs 0081, 0083, 0086)
 
-The initial-baseline preparation, reviewed save/recovery workflow and SQL repository are implemented
-in source, with an account setup screen included in the integrated checkout. Its native use is unverified and
-there is no operational baseline yet. Installing storage alone does
-not establish a baseline, change recommendation inputs or enable orders.
+The original risk baseline is saved and its native readback was observed during the October 19–20
+supervised preparation. The October 20 assignment/activation and close expiry were subsequently
+observed; see [current status](project-status.md) for the dated evidence and limits. Preserve those
+records. October 21 uses the continuation above, not another initial setup. General production
+cash-event/opening-value qualification remains incomplete. Installing storage alone does not
+establish financial references or enable orders.
 
 Migrations `035_AddBrokerAccountRiskBaseline`, `039_AddBrokerAccountRiskContinuation` and
 `040_AddBrokerManagedSession` were individually reviewed and installed on September 22 at 23:34 Toronto
@@ -162,12 +170,13 @@ account records were verified. **Do not replay these migrations**, migration 034
 Never publish the DACPAC. See the [installation evidence](reviews/supervised-session-20260923.md).
 
 The integrated strategy panel and recurring account/history persistence were observed September 25.
-The isolated managed-session SQL rehearsal below passed; next qualify baseline/continuation repository
-runtime recovery and verify the setup dialog. The workflow requires a
+The isolated managed-session SQL rehearsal below passed; later scoped native setup/recovery
+observations are recorded in [current status](project-status.md), without qualifying unobserved
+failure paths or general production evidence. The workflow requires a
 fresh saved linked observation and a consistent read of existing risk state; a failed read cannot be
 treated as an empty history. Request recovery can read an already committed result without repeating
 setup. Daily/cash-flow continuation, Daily Shadow protection handover and broker projection are source
-tested; native risk evidence and operational verification remain. Core now supports explicitly approved
+tested; general-production risk evidence and unobserved operational paths remain incomplete. Core supports explicitly approved
 ongoing Daily Shadow assignments under [ADR-0085](adr/0085-portfolio-wide-ongoing-tfsa-management.md).
 Older one-day approvals still expire, and ongoing scope does not replenish the approved purchase ceiling.
 
@@ -176,12 +185,18 @@ refresh at startup or during polling. **Stop new buys** and **Resume buying** sa
 purchase control; they do not approve a strategy or start an execution loop. An uncertain save requires
 Refresh to read back the saved mode. Logout, failed/stale account checks and changed assignments disable
 the controls. **Market sell all** retains its existing separate workflow. The separate default-off
-execution host is now connected in source and an isolated morning build; native risk/order/source
-qualification and first execution approval remain unfinished.
+execution host is connected in the normal checkout. October 20 supervised activation is observed;
+October 21 requires its own explicit continuation approval and separate enable. Actual automatic
+fills and populated protection remain unverified.
 
 ### Prepared Delphi Live Normal host
 
-The October 19 buying window has expired. For the separately accepted October 20 supervised trial,
+**Current route:** use [October 21-only Normal continuation](#october-21-only-normal-continuation)
+above. The first-day/October 20 procedures below are historical setup instructions, not recurring
+operator duties. Their dated evidence remains preserved. No copied runtime or qualification restart
+is required for October 21 under ADR-0095.
+
+The October 19 and October 20 buying windows have expired. For the historical October 20 supervised trial,
 use the [dated contract and exact manual sequence](reviews/delphi-live-next-session-contract-20261020.md).
 Its prepared copy adds an unchecked no-outside-change confirmation, **Preview October 20 carry**
 and a separate **Save reviewed October 20 carry**. These retain the original baseline/references
@@ -223,7 +238,8 @@ stopped buying mode, risk hold or original order. Changed builds/assignments req
 cycle, disables saved host permission and preserves the assignment/orders; **Stop new buys** remains
 the separate control that retains ordinary exit cycles. The setup view names missing references/
 approval and never treats login, installed tables or synthetic tests as native launch qualification.
-The built copy has no approved actual assignment yet; it is not ready for automatic TFSA orders.
+The earlier first-day copy initially had no approved actual assignment. The later saved assignment
+and October 20 activation are recorded in current status; neither grants October 21 buying authority.
 
 The read-only qualification consumer expects `execution-qualification.dat` beside the protected
 manual-order journal under `%LOCALAPPDATA%\TraderVI\Wealthsimple\ManualOrders`. It contains a

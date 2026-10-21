@@ -47,6 +47,14 @@ historical and unchanged. No new qualification claims are issued or old proof da
 
 ## Development verification
 
+**October 20 operator-path refinement:** the operator accepts skipping the desktop paper-cycle drain
+when opening setup, refreshing saved readiness or enabling the already approved host. These actions
+retain their saved-state reads/SQL fences and exact assignment/build/continuation matching; enable
+does not invoke execution. Account/source review, approval and actual host execution retain their
+paper-work admission. No freshness deadline, financial authority or session timing rule changes.
+The [continuation contract's operator-path review](../reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20)
+records the finding, purpose, existing protections and tradeoff. ADR-0094's presentation design stays separate.
+
 Keep native manual full-fill/restart observations in their existing dated reports/protected files.
 They establish only the paths actually observed. Automatic submission/fills, populated protection,
 partial/cancel/uncertain/power-loss behavior remain unverified where previously unobserved.

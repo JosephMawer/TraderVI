@@ -350,7 +350,8 @@ public sealed partial class ManualBuyCoordinator
                     : "Approval blocked:\n" + string.Join("\n", firstReview.Blocks)) +
                 "\n\nPaper performance limitations:\n" + string.Join("\n", exact.Evidence.Limitations);
         }
-        refresh.Click += async (_, _) => await Run(Refresh);
+        // Saved-state display needs no paper-cycle drain. Review/approval still take admission.
+        refresh.Click += async (_, _) => await Run(Refresh, waitForPaperCycles: false);
         noOutside.Checked += (_, _) => { saveCarry.IsEnabled = !busy && carryReview is not null;
             approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true; };
         noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = approveContinuation.IsEnabled = false; carryReview = null; continuationReview = null; };
@@ -506,7 +507,7 @@ public sealed partial class ManualBuyCoordinator
             Check(); var selected = reviewed ?? throw new InvalidOperationException("Refresh the current approved assignment first.");
             await GetExecutionHost().EnableAsync(selected.BindingId, selected.SessionId, selected.Strategy.Fingerprint,
                 Environment.UserName, lifetime.Token); Check(); summary.Text = ExecutionStatus.Message;
-        });
+        }, waitForPaperCycles: false); // Enable saves the grant; PollExecutionHostAsync drains paper work before execution.
         stop.Click += async (_, _) => await Run(async () =>
         {
             Stage("stopping the execution host");
@@ -515,6 +516,6 @@ public sealed partial class ManualBuyCoordinator
         }, waitForPaperCycles: false);
         dialog.Closing += (_, e) => { if (busy && !waitingForPaper) e.Cancel = true; };
         dialog.Closed += (_, _) => { closed = true; ReleaseReviewAdmission(); lifetime.Cancel(); executionWindow = null; completion.TrySetResult(); };
-        dialog.Show(); await Run(Refresh); await completion.Task;
+        dialog.Show(); await Run(Refresh, waitForPaperCycles: false); await completion.Task;
     }
 }

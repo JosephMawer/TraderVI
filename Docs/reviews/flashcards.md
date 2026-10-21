@@ -1,5 +1,9 @@
 # Review Flashcards
 
+### Operator waits and actual execution — October 20
+
+- **Q:** Why can setup opening/readiness refresh and host enable skip waiting for paper work? **A:** They read saved state or save the exact reviewed host grant, without running a trading cycle. SQL fences and assignment/build/continuation checks remain; fresh review, approval and actual execution still take paper-work admission. Storage reads and actual execution can still wait. (ADR-0095)
+
 ### Completed verification and current approval — October 20
 
 - **Q:** Must October 21 approval requalify the old four-trade test or restart for a new test checkpoint? **A:** No. ADR-0095 keeps that completed test in development evidence; approval checks current account/history/orders, risk, source/build, storage and dated permission.

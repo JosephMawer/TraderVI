@@ -241,6 +241,11 @@ returns are negative and no automatic-execution qualification follows. [Current 
   original-request recovery: 243 focused/2,723 full serial offline passes, nine native SQL skips;
   normal WPF Release passes after zero running owners are independently checked. No app launch,
   SQL rehearsal/migration or broker action. Preserve all financial history and execution controls.
+- [x] Accept/implement the small operator-path simplification: skip paper-work waits for setup
+  opening, saved readiness refresh and host enable only; correct stale running instructions.
+  Review/approval/execution admission and all timing/financial controls remain. 274 focused offline
+  tests and standard Release build pass after verified zero owners; no app launch or native operation.
+  [Finding and tradeoff](reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20).
 - [ ] Operator performs actual October 21 current-readiness review, explicit continuation approval
   and separate host enable; observe native activation and exact cutoff. Earlier all-nine-check/
   verification-restart implementation and validation above remain historical under ADR-0095.
