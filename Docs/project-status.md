@@ -2,6 +2,17 @@
 
 ## October 21 post-open execution watch
 
+**Slowdown correction resumed on operator request, October 21 afternoon:** targeted exact-payload
+snapshot reuse and explicit same-source updated-build review are implemented under
+[ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Final offline validation:
+2,821 Core pass/nine native skips; Debug WPF build passes. Large-history/cache/corruption and exact
+approval/expiry/recovery checks pass. Normal-close installation and operator build approval/enable remain pending.
+The existing app stays on its approved build; no trading/control action is authorized by diagnostics.
+The 13:36 read verifies real evaluation13:32:31/revision177/profile1, zero orders/positions/holds/
+blocks, same16:00expiry. Detailed evidence and remaining acceptance:
+[slowdown correction](reviews/delphi-live-snapshot-slowdown-20261021.md). The older SQL-save retry
+draft remains parked; the evening reminder does not defer this newly requested focused work.
+
 **Input recovery after the13:07 failure verified, 13:18–13:21 Toronto:** realStrategyEvaluated
 13:18:39/revision168/Active/profile1 consumes37symbols'**13:10bar**, all immature/unconfirmed.
 111post-approval inputs now exist through13:10bar, recorded13:15:32. Maturity metadata verifies

@@ -184,7 +184,8 @@ public static class DelphiLiveSnapshotCodec
         if (expected != items.Count) throw new InvalidOperationException("Snapshot contains unexpected collection items.");
         string expectedHash = metadata["fullHash"]!.GetValue<string>();
         root.Remove(Marker);
-        if (!string.Equals(Fingerprint(writer => WriteCanonical(writer, root)), expectedHash, StringComparison.Ordinal))
+        var strings = new CanonicalStrings();
+        if (!string.Equals(Fingerprint(writer => WriteCanonical(writer, root, strings)), expectedHash, StringComparison.Ordinal))
             throw new InvalidOperationException("Reconstructed portfolio snapshot fingerprint does not match.");
         return root;
     }
@@ -231,23 +232,50 @@ public static class DelphiLiveSnapshotCodec
         if (writer.BytesPending >= 16 * 1024) writer.Flush();
     }
 
-    private static void WriteCanonical(Utf8JsonWriter writer, JsonNode? node)
+    // Local to one verification: exact escaped bytes are shared, not verification results.
+    // Every byte still passes through the full original SHA-256 fingerprint stream.
+    private sealed class CanonicalStrings
+    {
+        private const int MaximumBytes = 4 * 1024 * 1024;
+        private readonly Dictionary<string, byte[]> saved = new(StringComparer.Ordinal);
+        private int bytes;
+
+        public void Write(Utf8JsonWriter writer, JsonValue value)
+        {
+            if (value.TryGetValue<string>(out var text) && text is not null && text.Length >= 1024)
+            {
+                if (saved.TryGetValue(text, out var encoded))
+                { writer.WriteRawValue(encoded, skipInputValidation: true); return; }
+                // Six bytes per UTF-16 code unit bounds JSON escaping without allocating
+                // an unbounded temporary for a large or mostly unique report population.
+                if (saved.Count < 256 && text.Length <= (MaximumBytes - bytes - 2) / 6)
+                {
+                    encoded = JsonSerializer.SerializeToUtf8Bytes(text, DelphiLiveLedgerJson.Options);
+                    saved.Add(text, encoded); bytes += encoded.Length;
+                    writer.WriteRawValue(encoded, skipInputValidation: true); return;
+                }
+            }
+            value.WriteTo(writer, DelphiLiveLedgerJson.Options);
+        }
+    }
+
+    private static void WriteCanonical(Utf8JsonWriter writer, JsonNode? node, CanonicalStrings strings)
     {
         if (node is JsonObject obj)
         {
             writer.WriteStartObject();
             foreach (var property in obj.OrderBy(p => p.Key, StringComparer.Ordinal))
-            { writer.WritePropertyName(property.Key); WriteCanonical(writer, property.Value); }
+            { writer.WritePropertyName(property.Key); WriteCanonical(writer, property.Value, strings); }
             writer.WriteEndObject();
         }
         else if (node is JsonArray array)
         {
             writer.WriteStartArray();
-            foreach (var child in array) WriteCanonical(writer, child);
+            foreach (var child in array) WriteCanonical(writer, child, strings);
             writer.WriteEndArray();
         }
         else if (node is null) writer.WriteNullValue();
-        else node.WriteTo(writer, DelphiLiveLedgerJson.Options);
+        else strings.Write(writer, (JsonValue)node);
         if (writer.BytesPending >= 16 * 1024) writer.Flush();
     }
 }

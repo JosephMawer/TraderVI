@@ -163,6 +163,13 @@ continuation above. Account risk setup can display retained references; do not s
 
 ### October 21 reviewed Portfolio rules only switch
 
+For the subsequent performance build, [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md)
+adds **Review updated build** and **Approve reviewed build** after normal stop/closure, installation
+and sign-in. It retains the already approved source, signal memory and financial history. Confirm
+unchanged account facts, review/approve within two minutes, then separately **Enable reviewed host**.
+The original16:00Toronto expiry remains. Orders/positions/holds block this cash-only workflow;
+they require separate recovery. No repeated qualification trades or new baseline are requested.
+
 For the operator-requested source replacement, follow [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md).
 Stop the execution host normally and close TraderVI before replacing standard Release output.
 After the reviewed build, open the normal Release copy and sign in. Keep TFSA as the real account.

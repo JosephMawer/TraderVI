@@ -184,6 +184,104 @@ public sealed class DelphiLiveSnapshotCodecTests
         GC.KeepAlive(direct);
     }
 
+    [Fact]
+    public void RepeatedReportValidationRetainsIndependentFullFingerprint()
+    {
+        string report = string.Concat(Enumerable.Repeat("é <>& \\\"quoted\\\"\n😀", 2048));
+        var state = State(1000, report);
+        var package = DelphiLiveSnapshotCodec.Pack(state);
+        DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, package.Items, package.Contents);
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < 3; i++)
+            DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, package.Items, package.Contents);
+        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        output.WriteLine($"Three repeated-report validations: {watch.ElapsedMilliseconds} ms; {allocated:N0} allocated bytes.");
+        package.FullHash.ShouldBe(OriginalFingerprint(DelphiLiveLedgerJson.Serialize(state)));
+    }
+
+    [Fact]
+    public void VerifiedReadCacheRequiresAllFreshBytesAndCopiesMembership()
+    {
+        var package = DelphiLiveSnapshotCodec.Pack(State(8, "original report"));
+        var items = package.Items.ToList();
+        var contents = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+        var cache = new DelphiLiveSnapshotReadCache();
+        var first = cache.Read(package.SnapshotJson, items, contents);
+        Assert.Same(first, cache.Read(package.SnapshotJson, items, contents));
+        string key = items[0].ContentHash;
+        contents[key] += " "; // Semantically identical JSON still violates its stored content hash.
+        Should.Throw<InvalidOperationException>(() => cache.Read(package.SnapshotJson, items, contents));
+        contents[key] = package.Contents[key];
+        contents.Remove(key);
+        Should.Throw<InvalidOperationException>(() => cache.Read(package.SnapshotJson, items, contents));
+        contents[key] = package.Contents[key];
+        items.RemoveAt(0);
+        Should.Throw<InvalidOperationException>(() => cache.Read(package.SnapshotJson, items, contents));
+        var changed = JsonNode.Parse(package.SnapshotJson)!;
+        changed["cash"] = 1;
+        Should.Throw<InvalidOperationException>(() => cache.Read(changed.ToJsonString(), package.Items, contents));
+        Assert.Same(first, cache.Read(package.SnapshotJson, package.Items, package.Contents));
+    }
+
+    [Fact]
+    public void VerifiedReadCacheIsBoundedAndSeparatesAccountsAndRevisions()
+    {
+        var a = DelphiLiveSnapshotCodec.Pack(State(2, "a"));
+        var b = DelphiLiveSnapshotCodec.Pack(State(2, "b"));
+        var cache = new DelphiLiveSnapshotReadCache(capacity: 1);
+        var first = cache.Read(a.SnapshotJson, a.Items, a.Contents);
+        var second = cache.Read(b.SnapshotJson, b.Items, b.Contents);
+        first.PortfolioId.ShouldNotBe(second.PortfolioId);
+        Assert.NotSame(first, cache.Read(a.SnapshotJson, a.Items, a.Contents));
+        var disabled = new DelphiLiveSnapshotReadCache(maximumBytes: 1);
+        Assert.NotSame(disabled.Read(a.SnapshotJson, a.Items, a.Contents),
+            disabled.Read(a.SnapshotJson, a.Items, a.Contents));
+        var changed = DelphiLiveSnapshotCodec.Pack(first with { Revision = first.Revision + 1 });
+        cache.Read(changed.SnapshotJson, changed.Items, changed.Contents).Revision.ShouldBe(first.Revision + 1);
+    }
+
+    [Fact]
+    public void VerifiedReadCacheAvoidsRepeatedExpandedHistoryWork()
+    {
+        var package = DelphiLiveSnapshotCodec.Pack(State(1000, new string('x', 8192)));
+        var cache = new DelphiLiveSnapshotReadCache();
+        var verified = cache.Read(package.SnapshotJson, package.Items, package.Contents);
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        for (int i = 0; i < 100; i++) Assert.Same(verified, cache.Read(package.SnapshotJson, package.Items, package.Contents));
+        output.WriteLine($"100 exact fresh-payload cache reads: {watch.ElapsedMilliseconds} ms.");
+        DelphiLiveLedgerJson.Serialize(verified).ShouldBe(DelphiLiveLedgerJson.Serialize(StateCopy()));
+        DelphiLivePortfolioSnapshot StateCopy() => DelphiLiveSnapshotCodec.Unpack(package.SnapshotJson, package.Items, package.Contents);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task VerifiedReadCacheHandlesConcurrentMissesAndRejectsChangedOrdinals()
+    {
+        var package = DelphiLiveSnapshotCodec.Pack(State(8, "shared report"));
+        var cache = new DelphiLiveSnapshotReadCache(capacity: 2);
+        var results = await System.Threading.Tasks.Task.WhenAll(Enumerable.Range(0, 12).Select(_ =>
+            System.Threading.Tasks.Task.Run(() => cache.Read(package.SnapshotJson, package.Items, package.Contents))));
+        foreach (var result in results) result.PortfolioId.ShouldBe(results[0].PortfolioId);
+        var changedItems = package.Items.ToList();
+        changedItems[0] = changedItems[0] with { Ordinal = 999 };
+        Should.Throw<InvalidOperationException>(() => cache.Read(package.SnapshotJson, changedItems, package.Contents));
+    }
+
+    [Fact]
+    public void VerifiedReadCacheAdmitsLargeHistoryWithinBoundedAllowance()
+    {
+        // The actual current source contains >15,000 distinct small immutable item contents.
+        // A small-fixture-only benchmark must not hide a budget that bypasses production loads.
+        var package = DelphiLiveSnapshotCodec.Pack(State(16000, new string('x', 1024)));
+        var cache = new DelphiLiveSnapshotReadCache();
+        var first = cache.Read(package.SnapshotJson, package.Items, package.Contents);
+        Assert.Same(first, cache.Read(package.SnapshotJson, package.Items, package.Contents));
+        var next = DelphiLiveSnapshotCodec.Pack(first with { Revision = first.Revision + 1 });
+        var updated = cache.Read(next.SnapshotJson, next.Items, next.Contents);
+        Assert.Same(updated, cache.Read(next.SnapshotJson, next.Items, next.Contents));
+        Assert.NotSame(first, cache.Read(package.SnapshotJson, package.Items, package.Contents));
+    }
+
     private static DelphiLivePortfolioSnapshot ExpandedRead(DelphiLiveSnapshotPackage package) =>
         DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(
             DelphiLiveSnapshotCodec.RestoreJson(package.SnapshotJson, package.Items, package.Contents));

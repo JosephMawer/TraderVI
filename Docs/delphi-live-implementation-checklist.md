@@ -6,6 +6,12 @@ it does not itself grant operational authorization.
 
 ## Reviewable phases
 
+October 21 capacity follow-up is resumed now by operator request: bounded exact fresh-payload
+snapshot reuse passes 2,821 offline Core checks/nine native skips/Debug WPF build; no deployed change
+or native capacity acceptance yet.
+[Correction and remaining acceptance](reviews/delphi-live-snapshot-slowdown-20261021.md),
+[ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md).
+
 | Phase | Source boundary | Status |
 |---|---|---|
 | 1 | ADR, review aids, immutable identities and validated settings | Reconciled; frozen concept unchanged |

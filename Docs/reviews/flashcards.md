@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Snapshot reuse and updated-build review — October 21
+
+- **Q:** Can a cached snapshot replace a fresh SQL read? **A:** No. Root, ordered item membership and every raw content string must first match fresh revision-scoped SQL contents exactly; differences take full validation. (ADR-0098)
+- **Q:** Can approving a performance build reset signals, extend the close or start trading? **A:** No. It preserves source/signal/financial history and exact dated cutoff. Host enable remains a separate operator action. (ADR-0098)
+
 ### Portfolio rules only source switch — October 21
 
 - **Q:** Does Portfolio rules only remove all trading safeguards? **A:** No. It bypasses the existing daily admission gates; intraday confirmation, valid fresh data, sizing/cash/account/stock risk, stops, reconciliation and cutoff remain. (ADR-0097)

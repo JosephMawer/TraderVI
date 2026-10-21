@@ -114,9 +114,18 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     public BrokerManagedContinuation? Continuation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerLiveSourceSwitch? SourceSwitch { get; init; }
-    [JsonIgnore] public BrokerActivationReview EffectiveReview => SourceSwitch is null
-        ? Continuation?.Approval.Review ?? Approval.Review
-        : (Continuation?.Approval.Review ?? Approval.Review) with { Strategy = SourceSwitch.SourceReview.Strategy };
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerImplementationReview? ImplementationReview { get; init; }
+    [JsonIgnore] public BrokerActivationReview EffectiveReview
+    {
+        get
+        {
+            var review = Continuation?.Approval.Review ?? Approval.Review;
+            if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
+            return ImplementationReview is null ? review : review with { Strategy = review.Strategy with
+                { Strategy = review.Strategy.Strategy with { ImplementationIdentity = ImplementationReview.ImplementationIdentity } } };
+        }
+    }
     [JsonIgnore] public DateTime? StrategyEffectiveUtc => SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;

@@ -152,6 +152,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
             grant.ContinuationId != saved.Continuation?.Approval.Review.RequestId ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
+            saved.ImplementationReview is not null && grant.ReviewedAt < saved.ImplementationReview.ApprovedAt ||
             saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
             saved.Strategy.GateProfile != PaperGateProfile.NormalV1 &&
                 (saved.SourceSwitch is null || saved.Strategy.GateProfile != PaperGateProfile.PortfolioRulesOnlyV1 || grant.ReviewedAt < saved.SourceSwitch.ApprovedAt) ||

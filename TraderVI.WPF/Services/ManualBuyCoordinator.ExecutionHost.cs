@@ -149,6 +149,8 @@ public sealed partial class ManualBuyCoordinator
         BrokerRiskContinuationRequest? carryReview = null;
         ContinuationPreparation? continuationReview = null;
         SourceSwitchPreparation? sourceSwitchReview = null;
+        BuildReviewPreparation? buildReview = null;
+        bool reviewingBuild = false;
         CancellationTokenSource? reviewExpiry = null;
         IDisposable? reviewAdmission = null;
         void ReleaseReviewAdmission()
@@ -193,12 +195,12 @@ public sealed partial class ManualBuyCoordinator
                 await action();
             }
             catch (OperationCanceledException) { }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; }
             catch (Exception error)
             {
                 if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
                     "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
-                reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null;
+                reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null;
             }
             finally
             {
@@ -207,7 +209,7 @@ public sealed partial class ManualBuyCoordinator
                     saveCarry.IsEnabled = carryReview is not null && noOutside.IsChecked == true;
                     nextSession.IsEnabled = true;
                     reviewSwitch.IsEnabled = true;
-                    approveSwitch.IsEnabled = sourceSwitchReview is not null && noOutside.IsChecked == true;
+                    approveSwitch.IsEnabled = (sourceSwitchReview is not null || buildReview is not null) && noOutside.IsChecked == true;
                     approveContinuation.IsEnabled = continuationReview?.Review.CanApprove == true && noOutside.IsChecked == true;
                     enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
@@ -217,6 +219,8 @@ public sealed partial class ManualBuyCoordinator
         {
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null; continuationReview = null;
             sourceSwitchReview = null;
+            buildReview = null; reviewingBuild = false;
+            reviewSwitch.Content = "Review Portfolio rules only"; approveSwitch.Content = "Approve reviewed source switch";
             reviewSwitch.Visibility = approveSwitch.Visibility = Visibility.Collapsed;
             Stage("reading installed storage readiness");
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token);
@@ -274,6 +278,16 @@ public sealed partial class ManualBuyCoordinator
                     summary.Text = lines + "Current assignment: Delphi Live Normal.\n\n" +
                         "Requested source: Delphi Live · Portfolio rules only. This build requires an explicit source-switch review; the old host grant cannot authorize the changed source/build.\n\n" +
                         "Stop execution host, confirm no outside account changes, then choose Review Portfolio rules only. Review the exact source, daily-gate bypass, preserved risk references and today's 4 PM cutoff. Approval and Enable reviewed host are separate; review/approval submit no order.";
+                    return;
+                }
+                if (saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity)
+                {
+                    reviewingBuild = true;
+                    reviewSwitch.Content = "Review updated build"; approveSwitch.Content = "Approve reviewed build";
+                    reviewSwitch.Visibility = approveSwitch.Visibility = Visibility.Visible;
+                    summary.Text = lines + "The saved Portfolio rules only source uses an earlier build.\n\n" +
+                        "Stop execution host, confirm no outside account changes, then choose Review updated build. " +
+                        "Review the same source, preserved financial history and today's 4 PM cutoff. Approval and Enable reviewed host remain separate; no signal history or financial references are reset.";
                     return;
                 }
             }
@@ -382,13 +396,30 @@ public sealed partial class ManualBuyCoordinator
         refresh.Click += async (_, _) => await Run(Refresh, waitForPaperCycles: false);
         noOutside.Checked += (_, _) => { saveCarry.IsEnabled = !busy && carryReview is not null;
             approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true;
-            approveSwitch.IsEnabled = !busy && sourceSwitchReview is not null; };
+            approveSwitch.IsEnabled = !busy && (sourceSwitchReview is not null || buildReview is not null); };
         noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = approveContinuation.IsEnabled = approveSwitch.IsEnabled = false;
-            carryReview = null; continuationReview = null; sourceSwitchReview = null; ReleaseReviewAdmission(); };
+            carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; ReleaseReviewAdmission(); };
         reviewSwitch.Click += async (_, _) => await Run(async () =>
         {
-            Check(); reviewed = null; sourceSwitchReview = null;
+            Check(); reviewed = null; sourceSwitchReview = null; buildReview = null;
             if (noOutside.IsChecked != true) throw new InvalidOperationException("Confirm no outside account changes before reviewing the source switch.");
+            if (reviewingBuild)
+            {
+                buildReview = await PrepareBuildReviewAsync(account, lifetime.Token, Check, Stage); Check();
+                summary.Text = buildReview.Summary;
+                reviewExpiry = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+                reviewAdmission = setupCycles.HoldReview(reviewExpiry.Token);
+                var heldBuild = buildReview;
+                reviewExpiry.Token.Register(() => dialog.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (closed || busy || !ReferenceEquals(buildReview, heldBuild)) return;
+                    ReleaseReviewAdmission(); buildReview = null; approveSwitch.IsEnabled = false;
+                    summary.Text = "The updated-build review expired. No approval or order was saved. Review updated build again.";
+                })));
+                var remainingBuild = heldBuild.Proposal.Review.PreparedAt.AddMinutes(2) - DateTimeOffset.UtcNow;
+                reviewExpiry.CancelAfter(remainingBuild > TimeSpan.Zero ? remainingBuild : TimeSpan.Zero);
+                return;
+            }
             sourceSwitchReview = await PrepareSourceSwitchAsync(account, lifetime.Token, Check, Stage); Check();
             summary.Text = sourceSwitchReview.Summary;
             reviewExpiry = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
@@ -405,6 +436,15 @@ public sealed partial class ManualBuyCoordinator
         });
         approveSwitch.Click += async (_, _) => await Run(async () =>
         {
+            if (reviewingBuild)
+            {
+                Check(); var preparedBuild = buildReview ?? throw new InvalidOperationException("Review updated build first.");
+                if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change confirmation is required.");
+                await ApproveBuildReviewAsync(preparedBuild, lifetime.Token, Check, Stage);
+                await Refresh(); summary.Text += "\n\nUpdated build approval saved/read back. No order was sent. Enable reviewed host separately.";
+                BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+                return;
+            }
             Check(); var prepared = sourceSwitchReview ?? throw new InvalidOperationException("Review Portfolio rules only first.");
             if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change confirmation is required.");
             await ApproveSourceSwitchAsync(prepared, lifetime.Token, Check, Stage);

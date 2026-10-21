@@ -17,6 +17,7 @@ namespace Core.Db;
 public static class DelphiLiveSnapshotStorage
 {
     public const string Migration = "20260917_037_AddCompactDelphiLiveSnapshots.sql";
+    private static readonly DelphiLiveSnapshotReadCache verifiedReads = new();
 
     public static Task<string> SaveAsync(SqlConnection connection, SqlTransaction transaction,
         DelphiLivePortfolioSnapshot snapshot, CancellationToken token = default) =>
@@ -110,7 +111,7 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
                 return DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(json);
             var saved = await ReadPartsAsync(connection, transaction, json, token);
             using var timing = PaperCycleTimings.Start(PaperCycleStage.SnapshotUnpack);
-            return DelphiLiveSnapshotCodec.Unpack(json, saved.Items, saved.Contents);
+            return verifiedReads.Read(json, saved.Items, saved.Contents);
         }, token);
 
     public static Task<string> ReadJsonAsync(SqlConnection connection, SqlTransaction? transaction,

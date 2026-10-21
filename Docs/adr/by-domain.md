@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Exact fresh-payload snapshot reuse and unchanged-source build approval
+
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Exact prospective source switch within original October 21 authority
 - [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — Pre-open approval, armed wait and fresh checks at the open
 - [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Current continuation readiness; completed tests remain development evidence
@@ -245,6 +247,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Preserve dated financial/signal history through explicit build review
 
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Preserve references, history, spending limits and 16:00 expiry through a source switch
 - [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — October 21 pre-open permission retains risk checks and 16:00 cutoff

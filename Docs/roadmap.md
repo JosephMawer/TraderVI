@@ -8,6 +8,13 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October 21 immediate priority:** operator resumed the slowdown fix now. The focused
+[snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md) passes 2,821 offline Core
+checks/nine native skips and Debug WPF build. Next coordinate normal closure, standard Release
+installation and a new explicit build review/enable. Preserve the approved Portfolio
+rules only source, signal memory, financial controls and today's 16:00 expiry. Native sustained
+capacity remains an acceptance dependency. Earlier SQL-save retry work stays parked separately.
+
 Local diagnostics now use separate installed [SQL](../Operations/ReadOnlyChecks/README.md) and
 [broker-read](../Operations/BrokerReadOnlyChecks/README.md) helpers (ADRs 0091/0093). Reload existing
 Codex chats and use their fixed commands. Read access does not authorize operational writes or
