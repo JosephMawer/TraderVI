@@ -261,7 +261,7 @@ public static class DelphiLiveLedgerIntegrity
                 changed.TradingDate != action.TradingDate || changed.CreatedCycleId != action.CreatedCycleId ||
                 changed.PrimaryReason != action.PrimaryReason || changed.DossierJson != action.DossierJson ||
                 changed.AttemptCount < action.AttemptCount || (action.Status is not ("Pending" or "ExitPendingOvernight") &&
-                    DelphiLiveLedgerJson.Serialize(changed) != DelphiLiveLedgerJson.Serialize(action)))
+                    !SameHistoryItem(changed, action)))
                 throw new InvalidOperationException("Action identity, original reason, and completed history cannot be rewritten.");
         }
     }
@@ -270,10 +270,24 @@ public static class DelphiLiveLedgerIntegrity
     {
         // In-process transitions retain immutable historical objects. Comparing an object
         // with itself by serializing both sides copies every old report for every commit.
-        // Reopened/distinct objects still require the original exact serialized comparison.
+        // Reopened/distinct records still compare every serialized field. Compare report text
+        // directly so identical large immutable reports need not be escaped twice per quote.
         if (next.Length < prior.Length || prior.Where((item, index) =>
                 !ReferenceEquals(item, next[index]) &&
-                DelphiLiveLedgerJson.Serialize(item) != DelphiLiveLedgerJson.Serialize(next[index])).Any())
+                !SameHistoryItem(item, next[index])).Any())
             throw new InvalidOperationException($"Persisted {name} are append-only.");
     }
+
+    private static bool SameHistoryItem<T>(T left, T right) => (left, right) switch
+    {
+        (DelphiLiveLedgerQuote a, DelphiLiveLedgerQuote b) =>
+            string.Equals(a.DossierJson, b.DossierJson, StringComparison.Ordinal) &&
+            DelphiLiveLedgerJson.Serialize(a with { DossierJson = null! }) ==
+            DelphiLiveLedgerJson.Serialize(b with { DossierJson = null! }),
+        (DelphiLiveLedgerAction a, DelphiLiveLedgerAction b) =>
+            string.Equals(a.DossierJson, b.DossierJson, StringComparison.Ordinal) &&
+            DelphiLiveLedgerJson.Serialize(a with { DossierJson = null! }) ==
+            DelphiLiveLedgerJson.Serialize(b with { DossierJson = null! }),
+        _ => DelphiLiveLedgerJson.Serialize(left) == DelphiLiveLedgerJson.Serialize(right)
+    };
 }

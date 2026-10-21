@@ -40,12 +40,41 @@ public static class DelphiLiveSnapshotCodec
     }
     public static bool IsCompact(string json) => JsonNode.Parse(json)?.AsObject().ContainsKey(Marker) == true;
 
-    public static DelphiLiveSnapshotPackage Pack(DelphiLivePortfolioSnapshot snapshot) => PackJson(DelphiLiveLedgerJson.Serialize(snapshot));
+    public static DelphiLiveSnapshotPackage Pack(DelphiLivePortfolioSnapshot snapshot)
+    {
+        // Reports may be repeated thousands of times. Build a tree of small records sharing
+        // the original immutable strings instead of serializing/parsing the expanded history.
+        var root = JsonSerializer.SerializeToNode(snapshot with
+        {
+            SessionOpeningPositions = [], Positions = [], Actions = [], Fills = [], Quotes = [], Marks = []
+        }, DelphiLiveLedgerJson.Options)!.AsObject();
+        root["sessionOpeningPositions"] = Array(snapshot.SessionOpeningPositions, Position);
+        root["positions"] = Array(snapshot.Positions, Position);
+        root["actions"] = Array(snapshot.Actions, item => WithReport(item with { DossierJson = null! }, "dossierJson", item.DossierJson));
+        root["fills"] = Array(snapshot.Fills, Node);
+        root["quotes"] = Array(snapshot.Quotes, item => WithReport(item with { DossierJson = null! }, "dossierJson", item.DossierJson));
+        root["marks"] = Array(snapshot.Marks, Node);
+        string hash = Fingerprint(writer => WriteCanonical(writer, root, new CanonicalStrings()));
+        return PackRoot(root, hash);
+
+        static JsonObject Node<T>(T item) => JsonSerializer.SerializeToNode(item, DelphiLiveLedgerJson.Options)!.AsObject();
+        static JsonObject WithReport<T>(T item, string field, string? report)
+        { var node = Node(item); node[field] = report is null ? null : JsonValue.Create(report); return node; }
+        static JsonObject Position(DelphiLiveLedgerPosition item) => WithReport(
+            item with { OriginalEntryDossierJson = null! }, "originalEntryDossierJson", item.OriginalEntryDossierJson);
+        static JsonArray Array<T>(ImmutableArray<T> items, Func<T, JsonObject> read) =>
+            new(items.Select(item => (JsonNode)read(item)).ToArray());
+    }
 
     public static DelphiLiveSnapshotPackage PackJson(string full)
     {
         var root = JsonNode.Parse(full)!.AsObject();
         if (root.ContainsKey(Marker)) throw new InvalidOperationException("Cannot compact an already compact snapshot.");
+        return PackRoot(root, Fingerprint(full));
+    }
+
+    private static DelphiLiveSnapshotPackage PackRoot(JsonObject root, string fullHash)
+    {
         var contents = new Dictionary<string, string>(StringComparer.Ordinal);
         var reportHashes = new Dictionary<string, string>(StringComparer.Ordinal);
         var items = new List<DelphiLiveSnapshotItem>();
@@ -74,7 +103,6 @@ public static class DelphiLiveSnapshotCodec
             }
             root[name] = new JsonArray();
         }
-        string fullHash = Fingerprint(full);
         root[Marker] = new JsonObject { ["version"] = 2, ["fullHash"] = fullHash, ["counts"] = counts };
         return new(root.ToJsonString(DelphiLiveLedgerJson.Options), fullHash, contents, items);
     }

@@ -21,18 +21,21 @@ public static class DelphiLiveSnapshotStorage
 
     public static Task<string> SaveAsync(SqlConnection connection, SqlTransaction transaction,
         DelphiLivePortfolioSnapshot snapshot, CancellationToken token = default) =>
-        Task.Run(() => SaveJsonCoreAsync(connection, transaction, DelphiLiveLedgerJson.Serialize(snapshot), token), token);
+        Task.Run(() => SavePackageAsync(connection, transaction, Pack(() => DelphiLiveSnapshotCodec.Pack(snapshot)), token), token);
 
     public static Task<string> SaveJsonAsync(SqlConnection connection, SqlTransaction transaction,
         string fullJson, CancellationToken token = default) =>
-        Task.Run(() => SaveJsonCoreAsync(connection, transaction, fullJson, token), token);
+        Task.Run(() => SavePackageAsync(connection, transaction, Pack(() => DelphiLiveSnapshotCodec.PackJson(fullJson)), token), token);
 
-    private static async Task<string> SaveJsonCoreAsync(SqlConnection connection, SqlTransaction transaction,
-        string fullJson, CancellationToken token = default)
+    private static DelphiLiveSnapshotPackage Pack(Func<DelphiLiveSnapshotPackage> pack)
     {
-        DelphiLiveSnapshotPackage package;
-        using (PaperCycleTimings.Start(PaperCycleStage.SnapshotPack))
-            package = DelphiLiveSnapshotCodec.PackJson(fullJson);
+        using var timing = PaperCycleTimings.Start(PaperCycleStage.SnapshotPack);
+        return pack();
+    }
+
+    private static async Task<string> SavePackageAsync(SqlConnection connection, SqlTransaction transaction,
+        DelphiLiveSnapshotPackage package, CancellationToken token)
+    {
         var identity = JsonNode.Parse(package.SnapshotJson)!;
         await using var setup = new SqlCommand("""
 DECLARE @lock int;

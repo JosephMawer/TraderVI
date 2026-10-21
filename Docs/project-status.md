@@ -2,6 +2,15 @@
 
 ## October 21 post-open execution watch
 
+**Final watch complete16:06:** latest real15:59:21/revision259/23updated-build evaluations; zero
+automatic orders/fills/positions or post-cutoff buy intents. Saved purchase permission expired exactly
+16:00Toronto, entry cutoff15:45 unchanged. SessionIncomplete/CoverageBlocked retains today's gaps;
+no attempted-order cutoff test. Final read reported and heartbeat deleted; no October22 renewal.
+**New implementation request:** remove remaining lag and persist exact decision reasons, preserving
+risk. Direct typed packing/exact report comparisons are implemented under ADR-0099; 44focused codec/action/transition
+tests pass, further validation and diagnostics pending. No new build installed or activated.
+[Owning evidence and remaining work](reviews/delphi-live-lag-and-decisions-20261021.md).
+
 **Slowdown correction resumed on operator request, October 21 afternoon:** targeted exact-payload
 snapshot reuse and explicit same-source updated-build review are implemented under
 [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Final offline validation:

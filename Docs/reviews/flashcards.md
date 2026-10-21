@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Remaining Live write cost — October 21
+
+- **Q:** Does direct typed packing allow fewer fingerprint bytes or weaker SQL verification? **A:** No. It avoids repeated report escaping and giant buffers while preserving every original canonical byte, content hash, readback and financial check. (ADR-0099)
+- **Q:** Does preparing faster code renew tomorrow's trading authority? **A:** No. Installation, observed native timing, exact build/source review and dated permission remain separate. (ADR-0099)
+
 ### Snapshot reuse and updated-build review — October 21
 
 - **Q:** Can a cached snapshot replace a fresh SQL read? **A:** No. Root, ordered item membership and every raw content string must first match fresh revision-scoped SQL contents exactly; differences take full validation. (ADR-0098)

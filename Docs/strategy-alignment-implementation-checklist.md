@@ -10,6 +10,13 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Final October21 bounded read/report16:06 and deletion of today's heartbeat; zeroorders/fills/
+  positions/post-cutoff intents, exact16:00expiry. SessionIncomplete/Blockedcoverage retained.
+- [ ] Complete remaining lag/confirmed-decision diagnostics requested for tomorrow's preparation.
+  ADR-0099 direct typed writes/exact report comparisons implemented; 44focused codec/action/transition tests pass.
+  Further regressions, diagnostics, builds, reviewed installation and native timing remain; no new
+  execution date or permission. [Evidence](reviews/delphi-live-lag-and-decisions-20261021.md).
+
 - [x] Implement and validate operator-requested immediate snapshot slowdown correction and same-source build
   review under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Preserve
   financial/signal history and 16:00 cutoff. 2,821 Core pass/nine native skips/Debug WPF build pass.

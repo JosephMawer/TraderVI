@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 remaining lag/decision evidence request (R04/R08):** operator explicitly resumes further
+optimization and exact confirmed-signal/order diagnostics now for tomorrow's preparation, preserving
+risk. ADR-0099 typed packing/exact report comparison is implemented, 44focused codec/action/transition tests pass;
+diagnostics/full validation/installation/native acceptance remain. Today's final16:06read/report and
+heartbeat deletion are complete: latestreal15:59:21/revision259/23new-build evaluations, zeroorders/
+fills/positions/post-cutoff intents, exact16:00permission expired. HistoricalIncomplete/Blockedcoverage
+retained; no October22 authority inferred. [Owning work](reviews/delphi-live-lag-and-decisions-20261021.md).
+
 **October 21 slowdown resumed now (R04/R08):** latest human request supersedes evening deferral for
 the focused snapshot correction. Exact fresh-payload reuse and dated same-source build review are
 implemented under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md).

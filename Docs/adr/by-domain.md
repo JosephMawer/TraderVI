@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0099](0099-exact-report-sharing-in-live-writes.md) — Direct typed packing with unchanged complete fingerprints
+
 - [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Exact fresh-payload snapshot reuse and unchanged-source build approval
 
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Exact prospective source switch within original October 21 authority
@@ -105,6 +107,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0099](0099-exact-report-sharing-in-live-writes.md) — Exact report sharing without expanded write buffers
 
 - [ADR-0091](0091-local-read-only-database-checks.md) — SQL-enforced read-only diagnostic identity and syntax boundary
 - [ADR-0089](0089-tmx-session-context-and-supplementary-records.md) — Stable intraday source context and actual-store-time causal waits

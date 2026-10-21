@@ -20,6 +20,64 @@ public sealed class DelphiLiveSnapshotCodecTests
     public DelphiLiveSnapshotCodecTests(ITestOutputHelper output) => this.output = output;
 
     [Fact]
+    public void ReopenedHistoryChecksDoNotExpandReportsAndStillRejectEveryChangedField()
+    {
+        string report = new('x', 16_384);
+        var state = State(1000, report) with { Cash = 979m };
+        var next = DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(DelphiLiveLedgerJson.Serialize(state))
+            with { Revision = state.Revision + 1 };
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        DelphiLiveLedgerIntegrity.ValidateTransition(state, next);
+        long bytes = GC.GetAllocatedBytesForCurrentThread() - before;
+        output.WriteLine($"Reopened 1000quote prefix validation: {bytes:N0} allocated bytes.");
+        Assert.True(bytes < 16_384_000, $"Prefix check allocated {bytes} bytes.");
+        Reject(next.Quotes[0] with { DossierJson = report + " " });
+        Reject(next.Quotes[0] with { Disposition = "rewritten" });
+        Reject(next.Quotes[0] with { Observation = next.Quotes[0].Observation with { Price = 10.51m } });
+        // Numeric representation was part of the original exact serialized comparison too.
+        Reject(next.Quotes[0] with { Observation = next.Quotes[0].Observation with { Price = 10.500m } });
+        Should.Throw<InvalidOperationException>(() => DelphiLiveLedgerIntegrity.ValidateTransition(state,
+            next with { Actions = next.Actions.SetItem(0, next.Actions[0] with { SupportingReasons = ["changed"] }) }));
+        void Reject(DelphiLiveLedgerQuote quote) => Should.Throw<InvalidOperationException>(() =>
+            DelphiLiveLedgerIntegrity.ValidateTransition(state, next with { Quotes = next.Quotes.SetItem(0, quote) }));
+    }
+
+    [Fact]
+    public void TypedPackingPreservesEveryOriginalContentHashAndFullFingerprint()
+    {
+        var state = State(40, "é <>& / \"quoted\"\n😀");
+        var original = DelphiLiveSnapshotCodec.PackJson(DelphiLiveLedgerJson.Serialize(state));
+        var direct = DelphiLiveSnapshotCodec.Pack(state);
+        direct.FullHash.ShouldBe(original.FullHash);
+        direct.SnapshotJson.ShouldBe(original.SnapshotJson);
+        direct.Items.ShouldBe(original.Items);
+        direct.Contents.OrderBy(p => p.Key).ShouldBe(original.Contents.OrderBy(p => p.Key));
+        DelphiLiveSnapshotCodec.Validate(direct.SnapshotJson, direct.Items, direct.Contents);
+        DelphiLiveLedgerJson.Serialize(DelphiLiveSnapshotCodec.Unpack(direct.SnapshotJson, direct.Items, direct.Contents))
+            .ShouldBe(DelphiLiveLedgerJson.Serialize(state));
+    }
+
+    [Fact]
+    public void TypedPackingAvoidsExpandedReportBuffersWhileRetainingOriginalVerification()
+    {
+        var state = State(1000, new string('x', 16_384));
+        _ = DelphiLiveSnapshotCodec.Pack(state);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        var expanded = DelphiLiveSnapshotCodec.PackJson(DelphiLiveLedgerJson.Serialize(state));
+        long expandedBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+        long expandedMs = watch.ElapsedMilliseconds;
+        before = GC.GetAllocatedBytesForCurrentThread(); watch.Restart();
+        var direct = DelphiLiveSnapshotCodec.Pack(state);
+        long directBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+        output.WriteLine($"1000 quotes / 16KiB report: expanded pack {expandedMs}ms/{expandedBytes:N0} bytes; direct pack {watch.ElapsedMilliseconds}ms/{directBytes:N0} bytes.");
+        Assert.True(directBytes < expandedBytes / 3, $"Direct {directBytes} versus expanded {expandedBytes} bytes.");
+        direct.FullHash.ShouldBe(expanded.FullHash);
+        direct.Items.ShouldBe(expanded.Items);
+        DelphiLiveSnapshotCodec.Validate(direct.SnapshotJson, direct.Items, direct.Contents);
+    }
+
+    [Fact]
     public void CompleteDomainSnapshot_RoundTripsAndOldReaderFailsClosed()
     {
         var open = new DateTime(2026, 9, 17, 13, 30, 0, DateTimeKind.Utc);

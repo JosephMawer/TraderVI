@@ -8,6 +8,12 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**Current request after today's close:** finish remaining Live processing optimization and exact
+confirmed-signal/order diagnostics without weakening any control. ADR-0099 write optimization is in
+source/offline validation; diagnostics, installation and native timing remain. Today's final16:06
+read and heartbeat deletion are complete; no orders/fills/post-cutoff intents, permission expired16:00.
+Preparing for tomorrow does not renew the dated scope. [Owning work](reviews/delphi-live-lag-and-decisions-20261021.md).
+
 **October 21 immediate priority:** operator resumed the slowdown fix now. The focused
 [snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md) passes 2,821 offline Core
 checks/nine native skips and Debug WPF build. Standard Release is installed14:02 after normal
