@@ -30,6 +30,8 @@ The September 22 documentation cleanup preserves the
   Zeroorders/positions/holds/savedblocks,same16:00cutoff; sustainedfreshness/confirmation pending.
   13:05real check consumes12:55bar,still0mature/confirmed. Verified12:50continuity permits earliest
   mature13:10bar/possible13:15confirmation only if valid/consecutiveStrong; processing adds delay.
+  That conditional estimate is invalidated by13:07:41SQL52232;13:11read real13:07:53/revision162,
+  still12:55actualsignalbar/0mature/confirmed/orders/holds/blocks. Verify new continuity before ETA.
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **October21 Portfolio rules only source is

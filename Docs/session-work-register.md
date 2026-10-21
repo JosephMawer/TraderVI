@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 repeated deadline/ETA invalidation (R04):**13:11hash-verified read real13:07:53/
+revision162/profile1/noorders/positions/holds/blocks/same16:00. App52232recurs13:07:41/213.72scycle;
+input count still74through12:55bar andactual37symbols stillimmature/unconfirmed. Recoveryclears
+context; earlierconditional13:10/13:15estimate invalidated,newcontinuitynotverified. Sourceledger/
+lease/desktop advance/respond,hashesmatch,notproofnewinputs. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Newfailure/forecastinvalidationnotifiedonce. Source review point advances through heartbeat;
+no control/restart/fix/tradingaction; preserve9PMdeferral and monitorrecovery.
+
 **October21 maturity/slowdown question (R04):** operator asks how long warmup takes and what still
 slows execution. Verify existing20m interval history/two consecutive5m Strong readings, and native
 epoch9 continuity12:50: earliestmature13:10/possibleconfirmation13:15, conditional on validdata/

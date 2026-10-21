@@ -2,6 +2,19 @@
 
 ## October 21 post-open execution watch
 
+**Another deadline failure invalidates the warmup estimate, 13:11 Toronto:** bounded read shows
+realStrategyEvaluated13:07:53/revision162/Active/profile1,zero orders/positions/holds/savedblocks,
+same16:00expiry. App diagnostics record observation-set SQL52232 at**13:07:41**; its cycle lasts
+213.72s. Catch/recovery clears source context, requiring fresh continuity. Target inputs remain
+74through12:55bar/latest13:00:47 and actualmemory remains37symbols/12:55/0mature/confirmed.
+The earlier13:10maturity/13:15confirmation estimate was conditional on intact12:50continuity and
+is now invalidated; a new continuity start is not yet verified. Source ledger advances13:11:14,
+sessionMonitoring/onelease13:08:08, but those do not prove fresh signal inputs. One normalRelease
+ownerPID39964 responds; expected hashes match. No over10m real-evaluation stall at this read.
+Notify new failure/forecast invalidation once; no restart, approval, gate/risk change or deferred
+fix installation. Hash-verified BoundedRecoveryWatch.sql receipt:
+`result-20261021T171129706Z-1198b4fdb4bb4c0c8351c6dc1d48ef2d.json`.
+
 **Warmup timing explained and current delay checked, 13:05–13:07 Toronto:** source uses four
 five-minute intervals/20-minute measurement history, then two immediately consecutive qualifying
 Strong observations, five minutes apart. The 1h/2h/3h windows are not an obligatory initial wait:
