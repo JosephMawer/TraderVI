@@ -19,15 +19,16 @@ The September 22 documentation cleanup preserves the
   SQL reliability draft is parked outside compiled source, not included.
 - [x] Install standard Release after operator normal closure and zero-owner verification12:27:18.
   Build succeeds from5dc368fd; warnings/evidence in project status. No app launch or financial action.
-- [ ] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
-  App reopened/responds12:34; target source fresh after startup, but prior review/source expired.
-  Retry a fresh review; no switch is saved by the12:34 bounded read.
-- [ ] Read-only verification proves the new effective source/build, unchanged scope/risk/cutoff and
-  advancing real evaluations after approval. Actual orders/fills/protection remain separate evidence.
+- [x] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
+  Saved approval12:43:10; enabled-host screen supplied after the438.82s paper wait drains12:42:30.
+- [x] Read-only verification proves new effective source/build, preserved original scope/risk/ceiling/
+  16:00cutoff and first real evaluation12:43:34/revision147. Zero orders/fills/positions at12:44.
+- [ ] Verify fresh post-approval market inputs and sustained real progression; continue watching
+  meaningful orders/fills/protection, blockers and close expiry. First check is not sustained proof.
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
-while keeping paper and real histories independent. **October 21 Normal execution has been verified;
-the requested Portfolio rules only switch is not yet approved or enabled.**
+while keeping paper and real histories independent. **October21 Portfolio rules only source is
+operator-approved/enabled, with first real evaluation verified; automatic orders/fills remain unobserved.**
 Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).
 Ungated Breakout Top 3 is the initial September 23 review candidate. The
 [current launch verdict is NO-GO](reviews/supervised-session-20260923.md).

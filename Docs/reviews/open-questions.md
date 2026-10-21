@@ -52,6 +52,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### TFSA review waiting for paper work — October 20, 2026
 
+- **October21 observed cost:** during the requested source-switch review, setup waits438.82s
+  (12:35:11–12:42:30) for an admitted LiveEngine cycle lasting502.90s. Collection3.34s/evaluation
+  1.49s are short; paperActions take188.39s, and numerous snapshot reads/unpacks progress during
+  the cycle. Investigate source-context/history/snapshot reconstruction and repeated loads, then
+  the narrower import coordination boundary. Exact SQL-versus-CPU cost/root cause remains unknown.
+  The wait drains normally; no bypass or implementation change is accepted merely by this report.
+  [Dated evidence](../project-status.md#october-21-post-open-execution-watch).
+
 - **Recovered rationale:** the [October 19 SQL 51413 diagnosis](delphi-live-morning-decisions-20261019.md#sql-51413-and-desktop-scheduling-coordination--october-19)
   records a real contention failure: paper cycles hold a shared `TraderVI.EngineSettings` lock
   across work; TFSA import saving requests it exclusively. Both continuation preparation and

@@ -2,6 +2,33 @@
 
 ## October 21 post-open execution watch
 
+**Portfolio rules only approved and first real execution verified, 12:44 Toronto:** operator
+reports review/approval/separate enable and supplies the enabled-host screen. Hash-verified saved
+read confirms source approval **12:43:10**, effective profile1 and **StrategyEvaluated12:43:34**,
+revision147/Active: first real evaluation after the switch (32today total). Original managed
+account/session, approval, continuation, baseline, daily/drawdown reference objects and spending
+ceiling remain unchanged; reviewed Core identity and installed output hashes match. No daily/
+capital hold, invalidation or saved execution block; zero automatic orders/fills/positions and
+exact **October21 16:00** expiry. Source ledger advances12:44:37; one paper lease renews12:43:37.
+Latest durable shared market evaluation is still12:39:22, before source approval: fresh
+post-approval signals/confirmation must develop, and one completed real check does not establish
+sustained source freshness, an order/fill or populated protection. Historical coverage remains
+Blocked. Continue read-only watch for new-source progress/orders/blockers; SQL reliability draft
+stays deferred/uninstalled. No approval, enable or order is performed by the agent. Receipt:
+`result-20261021T164446584Z-cf426697d13c49ff9b35c2eb013badfc.json`, hash-verified VerifiedWatch.sql.
+
+**Long paper-work wait diagnosed and drained, 12:42 Toronto:** operator reports a5:22 setup wait.
+Safe local stage records forPID39964 show the admitted LiveEngine cycle12:34:07–12:42:30
+(502.90s), with collection12:39:17–12:39:20 (3.34s), evaluation1.49s and paperActions12:39:22–
+12:42:30 (188.39s). SetupWait12:35:11–12:42:30 finishes after438.82s. Many snapshot reads/unpacks
+complete throughout the cycle; exact SQL/CPU/root cost allocation is not established. This is a
+paper-pipeline/coordination delay before broker account checks, not a rejected stock signal or
+proof of expired sign-in. At12:42:07 target source advanced12:41:47, shared evaluations2664/latest
+12:39:22/onelease; TFSA stillNormal/noSourceSwitch/zeroorders/positions/same16:00expiry. Receipt:
+`result-20261021T164207548Z-d50267b539874b1bbd70aebeeeaf36dd.json`, hash-verified ReviewExpiry.sql.
+Wait completion was reported; operator approval/enable and first real execution are subsequently
+verified above. No barrier bypass, cancellation, restart or code/control change addressed this wait.
+
 **Source-review freshness after restart, 12:34 Toronto:** one standard Release ownerPID39964 starts
 12:31:56; initial startup does not respond, then responds with a main window at12:34:11. Expected
 new output hashes match. Operator shows source-switch review/source-expired message; no source
@@ -22,9 +49,9 @@ cutoff remain. Only derived confirmation state resets, with inputs after approva
 73 focused and 2,780 full offline Core checks pass (nine native skips); Debug WPF build passes.
 Operator reports normal host stop/app closure; zero owners verified **12:27:18 Toronto**. Standard
 Release build succeeds from local source commit **5dc368fd**; expected hashes/installation metadata
-are retained in `artifacts/ungated-source-switch-20261021/`. Startup/sign-in and operator exact-source
-approval/separate host enable remain pending. No source approval, host enable, order or native write
-rehearsal was performed. Build warnings: existing compiler nullable/unused-variable warnings,
+are retained in `artifacts/ungated-source-switch-20261021/`. Operator startup, exact-source approval/
+separate enable and first real evaluation are subsequently verified above. The agent performed no
+financial approval/enable/order or native write rehearsal. Build warnings: existing compiler nullable/unused-variable warnings,
 cached Pkcs9.0.4 NU1902/NU1903 dependency advisories, and a nonfatal WPF temporary-project cleanup
 file-lock warning (build exit0,0errors). No full SSDT solution qualification is claimed.
 A 12:14 hash-verified metadata read confirms the existing sources share their exact

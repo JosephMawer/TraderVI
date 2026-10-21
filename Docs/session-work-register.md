@@ -18,6 +18,24 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 switched-source execution (R04):** operator reports review/approval/enable and shares
+enabled-host screen. Hash-verified12:44read proves PortfolioRulesOnly approval12:43:10 and first
+realStrategyEvaluated12:43:34/revision147,originalaccount/session/approval/continuation/baseline/risk
+references/ceiling preserved,currentbuildmatches,same16:00expiry,zeroorders/fills/positions/no saved
+blocks. Shared marketinputs stillpre-approval; sustainedfreshness/confirmation/orderproofpending.
+[Owning evidence](project-status.md#october-21-post-open-execution-watch),
+[dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
+Source review point advances through operator confirmation/screenshot and saved verification.
+First switched execution notified; continue read-only watch without repeating it or forcing trades.
+
+**October21 long setup wait (R04):** operator reports5:22 paper-work wait. Read-only timing diagnosis
+finds admitted LiveEngine502.90s/paperActions188.39s/many snapshot read-unpack completions; setupwait
+438.82s clears12:42:30. Targetsource advances12:41:47, but12:42boundedSQLstillNormal/noSourceSwitch/
+noorders/positions/same16:00. Wait completion reported; user proceeds to current review/approval and
+separateenable. No code/control/restart/cancellation; retain narrower-coordination/performance work
+as [open investigation](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
+Source review point advances through complaint, safe timing inspection and verified drain.
+
 **October21 review freshness (R04):** operator shares source-switch review/source-expired screen.
 New normalRelease ownerPID39964 responds12:34:11, expected hashes match; hash-verified12:34:42 read
 finds target refreshed12:34:29, samepair/policysettings,sessionMonitoring/onelease. No source approval,
