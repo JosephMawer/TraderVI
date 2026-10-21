@@ -37,7 +37,10 @@ refresh and host enable only, and corrects historical setup instructions; 274 fo
 and standard Release build pass. Review/approval/execution waits and all timing/financial controls remain.
 An [open follow-up](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026)
 questions the broad paper/import lock coupling; it is not an added October 21 prerequisite or agreed code scope.
-Next obtain actual October 21 current review, manual approval and separate host enable. Preserve
+October 21 [pre-open checks](project-status.md#october-21-pre-open-readiness) confirm successful nightly
+stages, Valid daily input, immutable storage and a signed-in cash-only/order-free broker snapshot;
+one responding normal desktop is observed. Current Normal/account/risk review remains for regular trading.
+Next stop the old host, obtain actual October 21 current review, manual approval and separate host enable. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.
 

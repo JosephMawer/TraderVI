@@ -1,5 +1,40 @@
 # TraderVI Project Status
 
+## October 21 pre-open readiness
+
+**Read-only checks through 09:06 Toronto:** the nightly runner reports current-source build and
+Hermes/Delphi/Athena succeeded, completed 00:39. Hash-verified SQL reads independently confirm an
+October 21 `Valid` OfficialPaper run using October 20 market data, with a strategy present, and
+installed baseline/continuation/session storage with enabled immutable triggers and max JSON columns.
+The reviewed calendar covers today. This qualifies the daily input and storage checks, not today's
+fresh Normal review or execution activation.
+
+The first installed broker-v2 check requires sign-in. After the operator starts/signs into the normal
+desktop, the 09:02 bounded check succeeds: one eligible TFSA, zero holdings/pending orders and matching
+broker history/holdings. It does not inspect the local order journal or qualify automation. The daily
+performance observation remains dated October 20 close. Independent process inspection at 09:06
+confirms one responding normal-Release owner, PID 90408, started 08:57:19. Startup rebuilt source
+`d828b41`; generated assembly metadata and current Core/WPF hashes are recorded in the ignored receipt,
+distinct from last night's output. Only the pre-existing Obsidian workspace edit is dirty.
+
+Saved execution remains revision 49/October 20 close with zero automatic orders/managed positions,
+one original baseline and one October 20 risk continuation; no October 21 permission is saved.
+An old host-grant file exists, without its protected contents being inspected. No current Live paper
+lease or October 21 frozen session exists at this pre-open observation; original coverage gaps remain.
+Current account import activity is observed after operator startup, not an execution cycle.
+Next stop the old host normally, then follow the [regular-session review/approval/enable sequence](running.md#october-21-only-normal-continuation)
+from 09:30 Toronto. Confirm actual activation after enable; new buys expire at 16:00 today.
+No repeated verification trades, baseline setup or carry save is required. Fresh account/risk/source
+checks, unchanged-book comparison and actual activation remain pending; pre-open evidence cannot
+guarantee readiness at submission time. Automatic fills/populated protection remain unverified.
+
+Evidence: ignored `artifacts/delphi-morning-readiness-20261021/receipt.json`, broker capture
+`84f65b2a-5afe-4237-a128-b3046959ce9c`, and three SQL receipts referenced there; each successful query
+hash was matched before interpretation. Initial diagnostic queries failed with SQL 207 because the
+event is stored inside snapshot JSON; corrected reads succeed. No source change, new test/build run,
+agent app launch, SQL write/migration, model/market workflow, financial save, enablement or order.
+Existing build warnings/security advisories retain their prior scope; no fresh dependency audit.
+
 **October 20 operator-path simplification accepted and built:** setup opening, saved readiness
 refresh and host enable no longer drain desktop paper work first. Source inspection confirms those
 actions retain saved-state SQL fences and exact host matching; enable creates no cycle. Review,

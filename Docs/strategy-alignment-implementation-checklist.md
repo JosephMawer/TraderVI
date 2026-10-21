@@ -246,7 +246,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   Review/approval/execution admission and all timing/financial controls remain. 274 focused offline
   tests and standard Release build pass after verified zero owners; no app launch or native operation.
   [Finding and tradeoff](reviews/delphi-live-continuation-contract-20261021.md#accepted-operator-path-simplification--october-20).
-- [ ] Operator performs actual October 21 current-readiness review, explicit continuation approval
+- [x] Complete October 21 pre-open read-only checks through 09:06 Toronto: nightly stages succeeded,
+  daily OfficialPaper input Valid for today/prior October 20 data, immutable storage verified, and
+  broker check succeeds after operator sign-in with zero holdings/pending orders and matching history.
+  One responding normal-Release owner is observed after operator startup/rebuild. [Evidence/limits](project-status.md#october-21-pre-open-readiness).
+  This does not qualify the fresh Normal/account/risk review, save permission or activate execution.
+- [ ] Operator stops the old host and performs actual October 21 regular-session current-readiness review, explicit continuation approval
   and separate host enable; observe native activation and exact cutoff. Earlier all-nine-check/
   verification-restart implementation and validation above remain historical under ADR-0095.
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
