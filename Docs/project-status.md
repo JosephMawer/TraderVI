@@ -16,6 +16,8 @@ verified14:31: actual14:31:12/revision202 consumes14:25bar,26/37mature/zero conf
 unchanged epoch13/start14:05,34/37on-time. Captured fullcycles283.69/265.13/264.38/273.62s stay under
 five minutes; no post-build appfailure observed.12hashes/one respondingPID97192 verified14:32.
 Whole-day reliability/lower actual-host latency remain unproved; existing five-minute watch continues.
+15:03read extends recovery to12new-build real evaluations/latest15:01:48/revision226;26mature/zero
+confirmed entry signals/orders/holds/blocks, same16:00expiry, no post-build appfailure observed.
 No app launch, financial approval or trading action was performed by the agent.
 The 13:58 read verifies real evaluation13:52:53/revision186/profile1, zero orders/positions/holds/
 blocks, same16:00expiry. Diagnostics additionally show the known52232deadline recurring13:43:22;

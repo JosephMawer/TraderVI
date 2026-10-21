@@ -58,6 +58,17 @@ five-minute capacity, uninterrupted continuity, order activity and cutoff verifi
 
 ## Installation and acceptance
 
+**Continued recovery checked15:02–15:03:** twelve real evaluations after updated-build approval,
+first14:11:23/latest15:01:48/revision226/Active/profile1, matching reviewed Core and original16:00
+expiry. Actual37symbols through14:55bar retain26mature/zero confirmed entry signals. No orders,
+positions, savedblocks, daily/capitalholds, review invalidation or trial-order hold. Original
+approval/continuation/source/risk/orders/protection checks remain unchanged. PID97192 responds;
+latest appfailure is still13:43:22, before restart. Targetinputs666 through14:55/latestrecord14:57:55,
+source15:02:57/sessionMonitoring/onelease15:02:02. This extends observed recovery beyond the first
+warmup; eligible signals/orders remain absent, not forced. Through-close watch remains active.
+Receipts`result-20261021T190251542Z-0da0b95c227a45cf9b7592b3bb267c15.json` (ReviewRead.sql hashAAD448F4BA9787D0847BF0B766026BBA4118FFF29B7983E351513C3ED5ADB8BF)
+and`result-20261021T190305567Z-10b1b91e04644d6b8a2a75568f1dd627.json` (BoundedRecoveryWatch.sql).
+
 **Initial twenty-minute recovery verified14:31–14:32:** real StrategyEvaluated14:31:12/revision202/
 Active/profile1 consumes the14:25bar with **26/37actual families mature**, zero confirmed entries,
 orders, positions, savedblocks or daily/capitalholds; original16:00expiry. Source continuity remains
