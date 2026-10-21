@@ -18,6 +18,23 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 timeout fix deferred to evening (R04):** user first requests a reliability correction
+without changing gates/risk/16:00, then explicitly defers it to tonight and asks to focus on live
+app/trades. One-time same-chat 21:00 Toronto reminder `delphi-live-sql-fix-reminder` is Active.
+Partial retry/diagnostic code and incomplete updated-build review source remain uncommitted and
+uninstalled; only the earlier retry-only 29-test increment passed, not the later uncompiled changes.
+Read `artifacts/live-evaluation-timeout-20261021/Resume.md` before resuming. Review build-identity/
+expiry authority afresh: today's approval cannot carry into tonight or a future session. Exact SQL
+wait cause remains unknown; expected indexes exist and helper metadata permissions are limited.
+No Release replacement/restart/schema or financial operation. The 10:10:31 hash-verified read shows
+revision 86/Active, twelve real evaluations/latest 10:09:39, no saved execution blocks/orders/positions,
+and two StrongConfirmationStarted candidates, all 37 still unconfirmed. Normal source advances;
+one responding owner. Continue today's read-only watch and preserve historical coverage gap.
+[Owning evidence](project-status.md#october-21-post-open-execution-watch),
+[open work](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
+Source review point advances through the explicit fix request, operator deferral/reminder request,
+partial offline work and 10:10 live-state check; no accepted same-day deployment requirement remains.
+
 **October 21 no-order diagnosis (R04):** user asks signal waiting versus blocker. Read-only evidence
 finds both in sequence: SQL evaluation-save timeout 09:37:46 with stale source/no durable evaluations,
 then recovery at 09:42:32 (paper inputs), 09:44:19 (Normal source), 09:45:45 (real revision 59).

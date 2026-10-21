@@ -45,9 +45,12 @@ implemented with 284 focused/2,738 full offline passes (nine native skips) and n
 Native operator pre-open review/approval/arming is now observed; SQL revision 50 confirms today's
 flag/16:00 expiry, and one responding owner matches the tested output. The [first post-open check](project-status.md#october-21-post-open-execution-watch)
 verifies initial operation; a subsequent SQL evaluation-save timeout causes a roughly 13-minute gap
-before real evaluation resumes at 09:45:45. Current Normal candidates are Watching/immature, with no
+before real evaluation resumes at 09:45:45; candidates at that read are Watching/immature, with no
 confirmed eligibility or orders. Track the [open timeout cause](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026)
-and continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
+with implementation now **operator-deferred to tonight** (21:00 Toronto reminder); preserve the
+incomplete uninstalled source work and leave the running build unchanged. The 10:10 read shows
+twelve real evaluations and two candidates starting strong confirmation, still no confirmed eligible
+signal or order. Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.

@@ -271,6 +271,12 @@ returns are negative and no automatic-execution qualification follows. [Current 
   all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.
 - [ ] Establish the exact SQL evaluation-save timeout cause and agree any correction before changing
   the running system. [Open investigation](reviews/open-questions.md#live-evaluation-save-timeout--october-21-2026).
+- [x] Record operator deferral of the partial SQL reliability fix until tonight and create the
+  21:00 Toronto one-time reminder. Source remains uninstalled/incomplete; preserve today's running
+  build/gates/risk/16:00 expiry. [Progress and limits](project-status.md#october-21-post-open-execution-watch).
+- [x] Verify continued operation at 10:10:31: twelve real evaluations/latest 10:09:39, no saved
+  execution blocks or orders; two candidates start strong confirmation, all 37 remain unconfirmed.
+  Sustained operation/fills/cutoff remain unchecked above; historical coverage gap is preserved.
 - [ ] Optional follow-up, not an October 21 prerequisite: review the broad paper/import settings-lock
   coupling and agree a narrower coordination scope before code. [Rationale/open proposal](reviews/open-questions.md#tfsa-review-waiting-for-paper-work--october-20-2026).
 - [x] Inspect the real execution-status/buying-permission UI paths in the dedicated October 20

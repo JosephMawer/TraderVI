@@ -2,13 +2,36 @@
 
 ## October 21 post-open execution watch
 
-**Current bounded read 09:45:51 Toronto:** actual TFSA execution resumes at **09:45:45**, revision
+**Updated bounded read 10:10:31 Toronto:** real execution advances to revision 86/Active/
+StrategyEvaluated at **10:09:39**, twelve post-open evaluations, no saved execution blocks and
+zero automatic orders/positions. Normal source advances at 10:09:14; one current paper lease and
+666 shared evaluations are saved. The 10:05-bar Normal candidates now include two mature
+`StrongConfirmationStarted` and 23 mature `Watching`; twelve others remain immature (six on-time,
+six not on-time). All 37 still have `ConfirmedLiveEligible=false`. Confirmation has begun for two
+candidates, but no confirmed eligible signal/order is established. One normal Release owner PID
+37148 is responding. Exact October 21 16:00 purchase expiry and the earlier historical coverage
+gap remain. Hash-verified receipt: `result-20261021T141031190Z-e717a0fc53b94c0885e0c972c68b8985.json`.
+
+**Reliability work deferred by operator:** after requesting a SQL timeout correction, the operator
+asks to leave implementation until tonight and focus on the running app/trades. A one-time same-chat
+21:00 Toronto reminder `delphi-live-sql-fix-reminder` is created/verified Active. Partial local source
+work is preserved **uncommitted, uninstalled and not ready for use**: bounded immutable evaluation-save
+retry/diagnostics plus an incomplete explicit updated-build review path. The initial retry-only
+focused run passes 29 tests; later build-review changes are uncompiled/untested, so that result does
+not qualify the entire pending diff. Resume notes/logs remain ignored under
+`artifacts/live-evaluation-timeout-20261021/`. Metadata reads find expected indexes enabled but cannot
+establish the historical wait/plan cause with the helper's available permissions. No schema/write
+rehearsal, Release replacement, restart or financial action is performed. Preserve today's running
+build, gates, risk and cutoff; the evening reminder confers no next-session permission or authority
+to use today's before-close build-review draft after expiry.
+
+**Earlier bounded read 09:45:51 Toronto:** actual TFSA execution resumes at **09:45:45**, revision
 59/Active/StrategyEvaluated, matching today's continuation/exact 16:00 expiry, no saved blocks and
 zero automatic orders/positions. There are three post-open evaluations: 09:31:41, 09:32:50 and
 09:45:45. The earlier successful loop observations did not establish fresh five-minute signal inputs.
 For the approved Normal policy, all 37 latest 09:40-bar candidates are `Watching`, with
 `familiesMature=false` and no confirmed eligibility (29 on-time, eight invalid/missing/stale).
-Current no-order evidence therefore indicates no mature confirmed buy signal; sustained execution
+At that read, no-order evidence indicates no mature confirmed buy signal; sustained execution
 and automatic fills remain separate qualifications.
 
 **Technical interruption also observed:** a safe local diagnostic records SQL timeout -2 in

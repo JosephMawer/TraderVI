@@ -15,9 +15,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Unresolved:** exact database wait/blocking/plan cause and repeatability. Timeout location is
   established; lock contention versus slow execution is not. Do not conflate this with the older
   import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
-- **Next:** diagnose with bounded authorized read-only SQL/process/stage evidence, then propose a
-  focused correction if warranted. No running-build replacement, native SQL rehearsal, restart or
-  operational recovery was authorized by the diagnostic question; preserve original history/holds.
+- **Deferred October 21:** operator requests a focused correction, then defers it to tonight to
+  prioritize the running app/trades. One-time 21:00 Toronto reminder is Active. Partial bounded
+  immutable-save retry/diagnostics passes an initial 29-test focused run; subsequent explicit
+  updated-build review work is incomplete/uncompiled/untested. All source remains uncommitted and
+  uninstalled. Expected indexes are enabled; available helper permissions do not expose the historical
+  wait/plan cause. [Resume notes/current evidence](../project-status.md#october-21-post-open-execution-watch).
+- **Next:** resume the focused reliability investigation offline, review/test the entire pending
+  diff and resolve build identity/session expiry before any installation. Today's dated approval
+  cannot be extended or reused for evening/next-session execution. Continue today's read-only watch
+  meanwhile; no Release replacement, native SQL rehearsal, restart or financial operation is performed.
 
 ### TFSA review waiting for paper work — October 20, 2026
 
