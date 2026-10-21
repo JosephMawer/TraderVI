@@ -272,6 +272,9 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Verify recovery at the 10:56 read: source10:51:52 and real evaluation10:52:16/revision110,
   twenty evaluations/no saved execution blocks/orders/fills/positions; roughly12½-minute gap.
   Preserve history/controls/16:00 expiry; sustained reliability remains unverified.
+- [x] Detect/report repeated observation deadline error52232 at11:07:47 and verify bounded recovery
+  at11:16:46/revision119 after a roughly12-minute gap,23evaluations/no saved blocks or orders.
+  Include the recurrence in tonight's unresolved reliability investigation; no control/expiry change.
 - [x] Diagnose the October 21 no-order question with bounded read-only evidence through 09:45:51:
   SQL evaluation-save timeout/roughly 13-minute execution gap, then recovery at 09:45:45/revision 59;
   all 37 Normal candidates Watching/immature/unconfirmed, no saved account blocks or orders.

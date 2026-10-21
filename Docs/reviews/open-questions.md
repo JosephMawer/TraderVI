@@ -15,6 +15,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Unresolved:** exact database wait/blocking/plan cause and repeatability. Timeout location is
   established; lock contention versus slow execution is not. Do not conflate this with the older
   import-lock diagnosis below or loosen freshness/gates/timeouts to manufacture progress.
+- **Distinct recurring failure:** safe diagnostics subsequently record SQL52232 in observation-set
+  synchronization at10:43:05 and11:07:47, enforcing the existing seven-minute collection deadline.
+  Real execution recovers10:52:16 and11:16:46 after roughly12-minute gaps. The later paper-actions
+  stage lasts138.85s; the original cause of arriving late remains unresolved. Investigate this
+  separately from SQL-2; the partial evaluation-save retry does not establish a deadline correction.
 - **Deferred October 21:** operator requests a focused correction, then defers it to tonight to
   prioritize the running app/trades. One-time 21:00 Toronto reminder is Active. Partial bounded
   immutable-save retry/diagnostics passes an initial 29-test focused run; subsequent explicit

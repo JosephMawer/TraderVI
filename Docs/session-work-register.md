@@ -18,6 +18,15 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 repeated deadline failure/recovery (R04):** 11:16:24 read finds another over-ten-minute
+real-evaluation gap, but source has just advanced. Safe diagnostics identify SQL52232 at11:07:47;
+LiveActions finishes11:16:29 after138.85s. Bounded hash-verified follow-up11:16:51 confirms real
+evaluation11:16:46/revision119/Active/23evaluations, no saved execution blocks/orders/fills/positions,
+same16:00expiry. [Evidence](project-status.md#october-21-post-open-execution-watch). Recurrence/recovery
+reported together; watch baseline advanced. Preserve the evening deferral and investigate this
+distinct failure as well as SQL-2; incomplete retry source is not its qualification. Source review
+point advances through this heartbeat and safe diagnostics; no operational/source/control mutation.
+
 **October 21 second recovery (R04):** hash-verified 10:56:24 read confirms Normal source10:51:52
 and real StrategyEvaluated10:52:16/revision110/Active/twenty evaluations after the deadline-related
 roughly12½-minute gap. No saved execution blocks/orders/fills/positions;16:00expiry unchanged.

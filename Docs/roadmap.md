@@ -53,7 +53,10 @@ fifteen real evaluations and no orders; both previously confirming candidates lo
 the 10:10 bar and return to Watching. A new 10:51 check finds over eleven minutes without real
 evaluation and stale source; local diagnostics identify a 10:43 observation collection-deadline
 rejection (52232), distinct from the earlier timeout. The 10:56 read verifies resumed real execution
-at 10:52:16 after roughly 12½ minutes, still no orders. The fix stays deferred and controls remain.
+at 10:52:16 after roughly 12½ minutes. The same deadline failure recurs at 11:07:47; a bounded
+11:16 follow-up confirms another recovery at 11:16:46 after roughly twelve minutes, still no orders.
+Include this distinct recurring deadline failure in tonight's investigation; the SQL-2 retry draft
+does not establish its correction. The fix stays deferred and controls remain.
 Continue the requested five-minute read-only progress/blocker/order watch through today's cutoff. Sustained progress,
 automatic fills and cutoff evidence remain separate; no routine setup clicks are needed. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host

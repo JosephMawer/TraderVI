@@ -2,14 +2,20 @@
 
 ## October 21 post-open execution watch
 
-**Recovery verified 10:56:24 Toronto:** real execution advances to revision 110/Active/
-StrategyEvaluated at **10:52:16**, twenty post-open evaluations, no saved execution blocks and zero
-automatic orders/fills/positions. Normal source advances at 10:51:52; shared evaluations reach 1,443
-at 10:55:38 and one current lease renews at 10:55:34. Responding desktop/output hashes still match.
-The interval from 10:39:42 to 10:52:16 is roughly 12 minutes 33 seconds. This verifies resumed
-execution after the deadline rejection, not a fixed cause or sustained reliability. Historical
-coverage gap, controls and exact 16:00 expiry remain; no restart or deferred fix installation.
-Hash-verified receipt: `result-20261021T145624358Z-1a0a1f65ec604e859146ab820c49cabd.json`.
+**Repeated deadline failure and recovery verified 11:16:51 Toronto:** real execution advances to
+revision 119/Active/StrategyEvaluated at **11:16:46**, twenty-three post-open evaluations, no saved
+execution blocks and zero automatic orders/fills/positions. The first 11:16:24 read still has the
+11:04:30 evaluation (over eleven minutes old); Normal source has just advanced at 11:16:21. A safe
+local diagnostic records another observation-set deadline rejection, SQL **52232 at 11:07:47**.
+LiveActions finishes at 11:16:29 after 138.85 seconds. A bounded follow-up verifies real progression;
+the real-evaluation interval is roughly 12 minutes 16 seconds. Shared evaluations reach 1,665 at
+11:14:10 and one current lease renews at 11:14:07. Desktop responds and both Release hashes match.
+This follows the earlier 10:43 rejection/10:52:16 recovery (roughly 12½-minute gap); the initial
+retry-only SQL-2 draft is not evidence that these deadline failures are addressed. Exact timing
+cause remains unresolved. Historical coverage gap, controls and exact 16:00 expiry remain; no
+restart or deferred fix installation. Hash-verified receipts:
+`result-20261021T151624122Z-93364054004c4b7980eb794fdfa17bfc.json` and
+`result-20261021T151651518Z-208d1f4f8fdb430abf3a811da4428833.json`.
 
 **Earlier bounded stall read 10:51:23 Toronto:** real execution remains revision 107/Active with nineteen
 evaluations/latest **10:39:42** (11 minutes 40 seconds without progress), no saved execution blocks,
