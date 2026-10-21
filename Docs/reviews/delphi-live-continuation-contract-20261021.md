@@ -61,7 +61,7 @@ review; do not liquidate, reset references or reinterpret a mismatch to qualify 
 
 ## Intended operator flow
 
-These controls are implemented in source; installation and actual October 21 native checks remain separate.
+These controls are built in normal Release output; actual October 21 native checks remain separate.
 
 1. Keep the existing saved records. No Sell all, test buy/sale or Account risk setup save is needed.
    Before changing the installed build or saving a continuation, stop the old execution host normally
@@ -99,7 +99,7 @@ These controls are implemented in source; installation and actual October 21 nat
   first-execution setup. Keep host enable separate and display the exact permission expiry.
 - [x] Validate changed financial facts, holds, stale source/build, existing orders, conflicting prior
   revisions, uncertain save/restart recovery and both cutoff guards with meaningful offline tests.
-- [ ] Build the desktop project and coordinate normal-output installation without full runtime copies;
+- [x] Build the desktop project and coordinate normal-output installation without full runtime copies;
   no SQL migration/native rehearsal or external workflow is implied by preparation.
 - [ ] Operator performs actual October 21 native review/approval/enable; observe activation and cutoff.
 
@@ -110,10 +110,18 @@ native-transmission tests. Synthetic tests cover lost risk/session acknowledgeme
 recovery, changed account/revision/holds/source/build, missing evidence, no enlarged spending
 allowance, old-grant rejection, current-build restart evidence, nine-reference publication, no
 historical proof overwrite, previously unowned eligible-stock selection and cutoff before/after
-durable intent/journal saves. Desktop Debug and initial normal Release builds pass. Full serial
-regression passes **2,702 tests**, with nine native SQL tests skipped. The compact-record follow-up
-needs its final normal Release rebuild after commit. This is offline validation, not actual October
-21 account qualification.
+durable intent/journal saves. Desktop Debug and final normal Release builds pass. Full serial
+regression passes **2,702 tests**, with nine native SQL tests skipped. After operator normal closure
+and verified process exit, source c27a3cf8 is built directly into normal Release output, verified at
+20:50 Toronto; no application launch or copied runtime. Initial implementation is 235e7abf.
+This is offline validation/build installation, not actual October 21 account qualification.
+
+Normal output Core SHA-256 is `5DD82AA86CBC398D83AD4EE5BC771B75D6FD13CBD55B3A35861B60D80867CD12`;
+WPF SHA-256 is `EA10936380CC1DA4697877A88CB9BFEF1BD708B19C1DA0D3692AA2B3BB13DF02`.
+The ignored receipt is `artifacts/continuation-release-receipt.json`; build/test logs use the
+`artifacts/continuation-*` prefix. Existing October 20 proof remains historical; tomorrow's capture
+binds whichever reviewed Release binary actually runs. Build before capture and use `--no-build`
+only for the subsequent same-build recovery restart.
 
 Existing dependency advisories for `System.Security.Cryptography.Pkcs` 9.0.4 (NU1902/NU1903) remain
 separate from existing nullable/unreachable/unused-variable compiler warnings. No full solution/SSDT

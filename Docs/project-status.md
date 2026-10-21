@@ -9,12 +9,14 @@ recovery; require all nine checks/current exact Normal/source/build and separate
 Old grants cannot run the new permission, even with the same strategy fingerprint. Current-build
 capture/restart uses the original four IDs and original two-sale selection automatically; dated,
 build-specific proof preserves October 20 files. Cutoff guards cover reservation and transmission.
-252 focused and 2,702 full serial offline tests pass (nine native SQL skips); Debug and initial
+252 focused and 2,702 full serial offline tests pass (nine native SQL skips); Debug and final
 normal Release builds pass after operator normal closure/verified process exit. A read-only saved-
 shape size check found duplicated carry would exceed the existing 256 KiB risk-event bound; compact
 storage now reconstructs the exact old risk hash, with an approximately 185 KB candidate shape.
-Final compact-source normal Release rebuild is pending. No SQL migration, rehearsal, financial permission, order or host enable was run by
-this implementation. Actual October 21 native review/approval/enable remains required.
+Compact source is committed as c27a3cf8 (initial implementation 235e7abf); normal Release output is
+built/hash-recorded at 20:50 Toronto with zero running TraderVI processes. No new launcher/runtime
+copy or application launch. No SQL migration, rehearsal, financial permission, order or host enable
+was run by this implementation. Actual October 21 native review/approval/enable remains required.
 
 **October 20 close verified, final bounded read 16:04:27 Toronto:** sixteen durable strategy
 evaluations run from 15:20:59 through 16:00:00.470, latest revision 49/Active. Gaps are 67.79–234.20

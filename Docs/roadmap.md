@@ -28,8 +28,8 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 **October 21 preparation:** the operator accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).
 Append-only existing-assignment continuation and UI/native evidence integration are implemented;
-offline validation passes (252 focused/2,702 full, nine native SQL skips). Finish the compact-record
-normal Release handoff, then obtain actual October 21 current-build native
+offline validation passes (252 focused/2,702 full, nine native SQL skips), and the compact-record
+normal Release build is ready. Next obtain actual October 21 current-build native
 recovery, all-nine-check review, manual continuation approval and separate host enable. Preserve
 original trades/references/holds; no repeated initial setup, silent date extension, inherited host
 grant or October 22 renewal. October 20 permission stays expired.

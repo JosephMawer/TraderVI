@@ -231,8 +231,10 @@ returns are negative and no automatic-execution qualification follows. [Current 
 - [x] Validate continuation/transport/carry with 252 focused and 2,702 full serial offline passes,
   nine native SQL skips; Debug/initial normal Release compile pass. Compact carry storage preserves
   the exact original risk hash and fits the saved-data shape under the existing risk-event limit.
-- [ ] Finish compact-record normal Release rebuild/handoff. Source/offline checks do not qualify
-  actual October 21 recovery or financial approval. All nine checks/close expiry remain.
+- [x] Finish compact-record normal Release rebuild/handoff after operator normal closure: source
+  c27a3cf8, output hashes recorded at 20:50 Toronto, zero running owners/no launch or copied runtime.
+  Source/offline checks do not qualify actual October 21 recovery or financial approval; all nine
+  checks/close expiry remain. [Manual steps](running.md#october-21-only-normal-continuation).
 - [ ] Operator performs actual October 21 native current-build recovery, reviewed continuation
   approval and separate host enable; observe native activation and exact cutoff for this date.
 - [x] Prepare desktop-only bounded review admission and exact failed-input diagnostics, retaining
