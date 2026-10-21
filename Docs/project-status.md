@@ -2,6 +2,19 @@
 
 ## October 21 post-open execution watch
 
+**Input recovery after the13:07 failure verified, 13:18–13:21 Toronto:** realStrategyEvaluated
+13:18:39/revision168/Active/profile1 consumes37symbols'**13:10bar**, all immature/unconfirmed.
+111post-approval inputs now exist through13:10bar, recorded13:15:32. Maturity metadata verifies
+new continuity **epoch10/start13:10** for stock and benchmark,31/37valid on-time observations.
+Earlier12:50-based ETA stays retired; do not promise another purchase time from this first fresh
+endpoint. No orders/positions/savedblocks or daily/capital holds,same16:00expiry. Selectedsource
+advances13:18:02/sessionMonitoring/onelease13:15:26; respondingPID39964 and expected hashes match.
+Latest observed failure remains13:07:41. Recovery notification delivered once; sustained continuity,
+maturity/confirmation and reliable low latency remain unproved. HistoricalBlocked coverage retained;
+no code/control/restart/trading action. Hash-verified receipts:
+`result-20261021T171857206Z-d4a0794e49db41f8a7d7dbf5ed8664c8.json` (BoundedRecoveryWatch.sql) and
+`result-20261021T172112434Z-b045199d1c8c4f9bba9a4853216f9e33.json` (MaturityTiming.sql).
+
 **Another deadline failure invalidates the warmup estimate, 13:11 Toronto:** bounded read shows
 realStrategyEvaluated13:07:53/revision162/Active/profile1,zero orders/positions/holds/savedblocks,
 same16:00expiry. App diagnostics record observation-set SQL52232 at**13:07:41**; its cycle lasts

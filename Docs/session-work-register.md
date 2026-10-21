@@ -18,6 +18,14 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October21 second post-switch recovery (R04):**13:18read verifies real13:18:39/revision168/
+profile1 consumes37symbols13:10bar,0mature/confirmed/orders/positions/holds/blocks,same16:00.
+13:21metadata verifies epoch10/continuity13:10 stock/benchmark,31valid ontime/37. Source/lease/
+responsiveowner/hashesagree; no newer failure than13:07:41 observed. Recovery notified once,
+earlierETAretired; sustainedcontinuity/confirmation remains pending. [Evidence](project-status.md#october-21-post-open-execution-watch).
+Source review point advances through heartbeat/hash-verified recovery and boundary read. No
+code/control/restart/order action; keep deferred reliability work separate.
+
 **October21 repeated deadline/ETA invalidation (R04):**13:11hash-verified read real13:07:53/
 revision162/profile1/noorders/positions/holds/blocks/same16:00. App52232recurs13:07:41/213.72scycle;
 input count still74through12:55bar andactual37symbols stillimmature/unconfirmed. Recoveryclears

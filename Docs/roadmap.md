@@ -35,9 +35,9 @@ source approval/separate enable and first real evaluation are verified12:44. Nex
 of fresh post-approval market inputs, sustained real execution, orders/blockers and today's cutoff.
 The7m19s setup wait drains12:42:30; snapshot/action cost and narrower coordination remain an open
 investigation. This source switch does not install the deferred SQL reliability fix.
-Post-approval input processing recovers by the12:57 real check, but another13:07 deadline failure
-interrupts continuity again. Monitor fresh-input recovery and sustained progress while keeping
-the separately deferred reliability work explicit; no qualifying signal or order is established.
+After another13:07 deadline failure, real input processing recovers13:18 with a new13:10 continuity
+window. Monitor sustained progress/maturity/confirmation while keeping the separately deferred
+reliability work explicit; no qualifying signal or order is established.
 Current wait includes20m uninterrupted measurement history plus two consecutive Strong readings;
 observed paper/host processing still adds minutes. Timing estimates depend on continuity, not an
 order target or authorization to bypass confirmation.

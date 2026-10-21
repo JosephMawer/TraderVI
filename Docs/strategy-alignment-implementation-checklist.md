@@ -32,6 +32,8 @@ The September 22 documentation cleanup preserves the
   mature13:10bar/possible13:15confirmation only if valid/consecutiveStrong; processing adds delay.
   That conditional estimate is invalidated by13:07:41SQL52232;13:11read real13:07:53/revision162,
   still12:55actualsignalbar/0mature/confirmed/orders/holds/blocks. Verify new continuity before ETA.
+  Recovery13:18:39/revision168 consumes13:10bar; nativeepoch10/start13:10 verified13:21.37symbols
+  remainimmature/unconfirmed,0orders/holds/blocks,same16:00; no renewed purchase ETA is promised.
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
 while keeping paper and real histories independent. **October21 Portfolio rules only source is
