@@ -154,7 +154,7 @@ public class TfsaTransitionTests
     }
 
     [Fact]
-    public void BrokerNormalLiveDefinitionPreservesExactComparisonIdentity()
+    public void BrokerLiveDefinitionsPreserveExactComparisonProfileIdentity()
     {
         var policy = DelphiLivePolicyDefinition.Version1;
         var strategy = TradingStrategyResolutionTests.Strategy() with {
@@ -173,7 +173,8 @@ public class TfsaTransitionTests
             Assert.Throws<ArgumentException>(() => (reviewed with { Comparison = mismatch }).Validate());
         var bypass = reviewed with { GateProfile = PaperGateProfile.PortfolioRulesOnlyV1,
             Comparison = comparison with { Profile = PaperGateProfile.PortfolioRulesOnlyV1 } };
-        Assert.Throws<ArgumentException>(bypass.Validate);
+        bypass.Validate(); // Definition review is available; execution still needs explicit dated source approval.
+        Assert.Throws<ArgumentException>(() => (bypass with { Comparison = comparison }).Validate());
         Assert.NotEqual(reviewed.Fingerprint, bypass.Fingerprint);
     }
 

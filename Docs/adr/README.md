@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) | Reviewed October 21 Portfolio rules only source switch | Accepted October 21; explicit operator approval/enable required | architecture, risk-management, decision-engine, user-interface |
 | [0096](0096-pre-open-october21-approval-and-armed-host.md) | Pre-open October 21 approval and armed execution host | Accepted October 21 | architecture, risk-management |
 | [0095](0095-current-readiness-without-daily-verification-replay.md) | Current approval without replaying completed broker verification | Accepted October 20; current-readiness continuation | architecture, risk-management |
 | [0094](0094-real-tfsa-execution-status-presentation.md) | Real TFSA execution and buying permission presentation | Scope accepted; detailed design draft for review before code | architecture, user-interface |

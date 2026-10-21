@@ -152,9 +152,11 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
             grant.ContinuationId != saved.Continuation?.Approval.Review.RequestId ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
-            saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive || saved.Strategy.GateProfile != PaperGateProfile.NormalV1 ||
+            saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
+            saved.Strategy.GateProfile != PaperGateProfile.NormalV1 &&
+                (saved.SourceSwitch is null || saved.Strategy.GateProfile != PaperGateProfile.PortfolioRulesOnlyV1 || grant.ReviewedAt < saved.SourceSwitch.ApprovedAt) ||
             saved.Strategy.Comparison is null || grant.ReviewedAt > clock.GetUtcNow())
-            throw new InvalidOperationException("Execution permission must match the exact approved Normal Live assignment, account and running build.");
+            throw new InvalidOperationException("Execution permission must match the exact approved Live source, account and running build.");
     }
     private void Present(string state, string message, DateTimeOffset? next = null)
     {

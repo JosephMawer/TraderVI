@@ -15,6 +15,8 @@ public sealed class BrokerExecutionSetupPanel : UserControl
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
     public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
     public Button StopHost { get; } = new() { Content = "Stop execution host" };
+    public Button ReviewSourceSwitch { get; } = new() { Content = "Review Portfolio rules only", Visibility = Visibility.Collapsed };
+    public Button ApproveSourceSwitch { get; } = new() { Content = "Approve reviewed source switch", IsEnabled = false, Visibility = Visibility.Collapsed };
     public Button ReviewNextSession { get; } = new() { Content = "Review next session", Visibility = Visibility.Collapsed };
     public Button ApproveContinuation { get; } = new() { Content = "Approve October 21 continuation", IsEnabled = false, Visibility = Visibility.Collapsed };
     public Button PreviewCarry { get; } = new() { Content = "Preview October 20 carry" };
@@ -36,7 +38,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
         layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
         var header = new StackPanel();
-        header.Children.Add(new TextBlock { Text = "Delphi Live Normal", FontSize = 26 });
+        header.Children.Add(new TextBlock { Text = "Delphi Live execution", FontSize = 26 });
         header.Children.Add(new TextBlock { Text = "Review actual account readiness and qualifications, approve the exact assignment, then enable its host separately.",
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 16) });
         header.Children.Add(NoOutsideChanges);
@@ -46,7 +48,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
         foreach (var button in new[] { Refresh, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst,
-            ReviewNextSession, ApproveContinuation, EnableHost, StopHost })
+            ReviewNextSession, ApproveContinuation, ReviewSourceSwitch, ApproveSourceSwitch, EnableHost, StopHost })
         {
             button.MinWidth = 215; button.MinHeight = 44; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
             if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;

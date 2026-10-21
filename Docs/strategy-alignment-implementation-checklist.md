@@ -12,12 +12,19 @@ The September 22 documentation cleanup preserves the
 
 - [x] Recover the Normal selection provenance and record October 21 requested replacement:
   existing Delphi Live/Portfolio rules only. Prior approval retained the Normal-only setup preset.
-- [ ] Prepare/review an explicit ungated-source transition preserving paper/real history, financial
-  references/holds, intraday/data/order controls and 16:00 expiry. Exact source approval/enable remains
-  an operator action. [Pending scope](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+- [x] Implement the explicitly requested dated source-switch workflow and review UI preserving
+  paper/real history, financial references/holds, intraday/data/order controls and 16:00 expiry
+  ([ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)).
+- [x] Validate offline: 73 focused/2,780 full Core checks pass, nine native skips; Debug WPF build passes.
+  SQL reliability draft is parked outside compiled source, not included.
+- [ ] Install standard Release after normal app closure and independent zero-owner verification.
+- [ ] Operator reviews/approves the exact Portfolio rules only source and separately enables its host.
+- [ ] Read-only verification proves the new effective source/build, unchanged scope/risk/cutoff and
+  advancing real evaluations after approval. Actual orders/fills/protection remain separate evidence.
 
 **Goal:** choose a paper portfolio and let its exact reviewed strategy manage the permanent real TFSA,
-while keeping paper and real histories independent. **Automatic strategy trading is still off.**
+while keeping paper and real histories independent. **October 21 Normal execution has been verified;
+the requested Portfolio rules only switch is not yet approved or enabled.**
 Any portfolio must be promotable and keep managing across days until pause or switch (ADR-0085).
 Ungated Breakout Top 3 is the initial September 23 review candidate. The
 [current launch verdict is NO-GO](reviews/supervised-session-20260923.md).

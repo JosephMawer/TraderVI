@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Portfolio rules only source switch — October 21
+
+- **Q:** Does Portfolio rules only remove all trading safeguards? **A:** No. It bypasses the existing daily admission gates; intraday confirmation, valid fresh data, sizing/cash/account/stock risk, stops, reconciliation and cutoff remain. (ADR-0097)
+- **Q:** Can source approval reuse a paper confirmation or extend permission? **A:** No. Actual confirmations begin after approval, original financial history/limits remain, host enable is separate, and purchases still expire at 16:00 Toronto October 21. (ADR-0097)
+
 ### Pre-open approval and execution — October 21
 
 - **Q:** Does approving before 09:30 make old market evidence fresh? **A:** No. Pre-open definition/daily readiness is distinct from fresh Normal/account/risk checks at the open. The armed host waits and data/gates can delay or block orders. (ADR-0096)

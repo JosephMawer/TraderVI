@@ -161,6 +161,30 @@ stop/resume controls and an execution-not-enabled message are expected. Verify s
 holdings/cash/pending orders and refresh status. For the existing Normal assignment, use the dated
 continuation above. Account risk setup can display retained references; do not save initial setup again.
 
+### October 21 reviewed Portfolio rules only switch
+
+For the operator-requested source replacement, follow [ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md).
+Stop the execution host normally and close TraderVI before replacing standard Release output.
+After the reviewed build, open the normal Release copy and sign in. Keep TFSA as the real account.
+Open **Trading → Execution setup**, confirm no outside account changes, then choose
+**Review Portfolio rules only**. Review the exact matched source/profile/policy/daily/build,
+daily-gate bypass, current cash/remaining ceiling, preserved original risk references and
+**October 21 4 PM Toronto** expiry. Within two minutes choose **Approve reviewed source switch**,
+confirm saved/readback, then separately **Enable reviewed host**.
+
+Review and approval wait for admitted paper work and defer new cycles during the review. Expired
+reviews require another review. Approval submits no order and leaves execution off. Existing host
+permission cannot authorize a different source/build. The workflow blocks an invested book,
+automatic order history, holds, invalidation, source/policy mismatch or changed financial scope;
+it never liquidates positions or resets references to make switching possible.
+
+Only the existing daily admission gates are bypassed. Published selection, post-approval intraday
+confirmation, fresh valid source data, sizing/cash/account/stock risk, stops, reconciliation and
+full-fill-only outcome controls remain. Original history/approvals and purchase ceiling remain;
+no earlier paper position or confirmation transfers. A fresh signal may take time or never qualify.
+Today’s cutoff does not renew. The independent SQL reliability work remains deferred and can still
+interrupt fresh-source progress. Do not install that draft as part of this source switch.
+
 ## Broker risk and managed-session storage (ADRs 0081, 0083, 0086)
 
 The original risk baseline is saved and its native readback was observed during the October 19–20

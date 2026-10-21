@@ -112,7 +112,12 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     public bool TrialOrderReviewRequired { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerManagedContinuation? Continuation { get; init; }
-    [JsonIgnore] public BrokerActivationReview EffectiveReview => Continuation?.Approval.Review ?? Approval.Review;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerLiveSourceSwitch? SourceSwitch { get; init; }
+    [JsonIgnore] public BrokerActivationReview EffectiveReview => SourceSwitch is null
+        ? Continuation?.Approval.Review ?? Approval.Review
+        : (Continuation?.Approval.Review ?? Approval.Review) with { Strategy = SourceSwitch.SourceReview.Strategy };
+    [JsonIgnore] public DateTime? StrategyEffectiveUtc => SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.

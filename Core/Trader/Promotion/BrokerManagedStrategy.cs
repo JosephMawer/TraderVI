@@ -44,9 +44,9 @@ public sealed record BrokerManagedStrategy(CompleteTradingStrategy Strategy, Gui
         // Do not reinterpret a comparison preview as an approved real assignment.
         if (Strategy.Family == TradingStrategyFamily.DelphiLive)
         {
-            if (GateProfile != PaperGateProfile.NormalV1 || Comparison.StrategyCode != "DelphiLive" ||
+            if (Comparison.StrategyCode != "DelphiLive" ||
                 Comparison.ShadowStrategyVersionId is not null || Comparison.ShadowSettingsJson is not null)
-                throw new ArgumentException("Delphi Live definition review requires the exact Normal comparison and live policy; bypass profiles remain unsupported.");
+                throw new ArgumentException("Delphi Live definition review requires its exact comparison profile and live policy.");
             if (Comparison.LivePolicyVersionId != Strategy.PolicyVersionId)
             {
                 var successor = LiveComparisonSuccessor;

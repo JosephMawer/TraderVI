@@ -9,6 +9,11 @@ namespace Core.Trader.Promotion;
 public sealed record TfsaLiveStrategyCandidate(DelphiLivePortfolioSnapshot Snapshot, PortfolioDailyResult Day)
 {
     public bool SupportsCurrentPromotion => Snapshot.ComparisonAccount == null && Snapshot.Role != "GateComparison";
+    public bool HasPortfolioRulesOnlyLiveComparisonIdentity => Snapshot is
+    {
+        Role: "GateComparison", ComparisonAccount: { Profile: PaperGateProfile.PortfolioRulesOnlyV1, StrategyCode: "DelphiLive",
+            ShadowStrategyVersionId: null, ShadowSettingsJson: null } comparison
+    } && comparison.AccountId == Snapshot.PortfolioId && comparison.LivePolicyVersionId is { } original && original != Guid.Empty;
     // A source can be inspected without being eligible for recommendation approval or execution.
     // Discovery only: the native definition review must verify any assigned policy successor.
     public bool HasNormalLiveComparisonIdentity => Snapshot is

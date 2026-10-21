@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Exact prospective source switch within original October 21 authority
 - [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — Pre-open approval, armed wait and fresh checks at the open
 - [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Current continuation readiness; completed tests remain development evidence
 
@@ -245,6 +246,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Preserve references, history, spending limits and 16:00 expiry through a source switch
 - [ADR-0096](0096-pre-open-october21-approval-and-armed-host.md) — October 21 pre-open permission retains risk checks and 16:00 cutoff
 - [ADR-0095](0095-current-readiness-without-daily-verification-replay.md) — Preserve financial/risk history while removing daily verification replay
 
@@ -310,6 +312,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## decision-engine
 
+- [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Existing ungated comparison source; independent post-approval confirmation
 - [ADR-0090](0090-progressive-individual-profit-trailing.md) — Prospective opt-in across portfolio engines; original policies and established protection preserved
 
 - [ADR-0067](0067-fixed-gate-paper-comparison-pairs.md) — Fixed-gate paper comparison pairs
@@ -386,6 +389,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## user-interface
 
+- [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Explicit source review/approval followed by separate host enable
 - [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Visible activity/freshness and buying expiry, with ordered setup
 
 - [ADR-0085](0085-portfolio-wide-ongoing-tfsa-management.md) — One portfolio promotion flow with persistent selection

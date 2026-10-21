@@ -26,12 +26,14 @@ initial candidate. The [September 23 activation review](reviews/supervised-sessi
 
 ## Now — restore a dependable advisory loop
 
-**October 21 target clarification:** operator requests existing **Delphi Live · Portfolio rules only**
-instead of Normal. Earlier Normal-specific preparation/approval describes installed state, not the
-newly clarified preference. The current scoped setup is Normal-only; prepare/review an explicit
-source transition preserving financial history/risk, intraday/data/order controls and 16:00 expiry.
+**October 21 source switch:** operator explicitly requests implementation now of existing
+**Delphi Live · Portfolio rules only** instead of Normal. The prospective source-switch workflow
+and explicit desktop review/approval are implemented under
+[ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md). Offline validation
+passes; complete normal closure/standard Release installation, then operator exact-source approval and separate
+enable. Preserve original financial history/risk, intraday/data/order controls and 16:00 expiry.
 [Facts](project-status.md#october-21-post-open-execution-watch),
-[pending transition](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+[operational dependencies](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 No current approval silently expands to another complete strategy.
 
 **October 21 preparation:** the operator accepts the [dated continuation contract](reviews/delphi-live-continuation-contract-20261021.md).

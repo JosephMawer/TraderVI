@@ -49,7 +49,7 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", false);
         var assignment = new TradingStrategyAssignment(session.SessionId, "TFSA", session.Strategy.Strategy,
-            session.Strategy.PaperAccountId, session.SessionId, null, session.ActivatedAt.Value.UtcDateTime,
+            session.Strategy.PaperAccountId, session.SessionId, null, session.StrategyEffectiveUtc!.Value,
             session.Approval.Reviewer, session.Approval.Reason);
         var account = session.Account.Account;
         var input = await BuildInput(c, t, "TFSA", assignment, account,

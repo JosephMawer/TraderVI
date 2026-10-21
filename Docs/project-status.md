@@ -2,6 +2,24 @@
 
 ## October 21 post-open execution watch
 
+**Portfolio rules only switch implementation, October 21:** the operator explicitly requests
+implementation now, preserving risk and today's 16:00 expiry, for personal review/approval.
+[ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md) records the narrow
+cash-only/no-automatic-order transition. Core saves an immutable prospective source-switch review;
+the desktop displays exact identity/gate bypass/retained controls and requires separate approval
+and host enable. Original approval/continuation, financial memory/references/holds, ceiling and
+cutoff remain. Only derived confirmation state resets, with inputs after approval required.
+73 focused and 2,780 full offline Core checks pass (nine native skips); Debug WPF build passes.
+Standard Release installation remains pending normal closure. No source approval, host enable, order or native write rehearsal
+was performed. A 12:14 hash-verified metadata read confirms the existing sources share their exact
+comparison pair and all non-identity policy settings; TFSA remains Normal, revision140/latest
+StrategyEvaluated12:12:51, zero automatic orders/positions. Receipt:
+`result-20261021T161421143Z-597b2d06ff494b7ea6159279d8cfdbf7.json`.
+The unrelated SQL reliability draft is preserved byte-for-byte outside compiled source under
+`artifacts/deferred-sql-20261021/saved-source/` (manifest, patch, source copies). Resume instructions
+are updated; it is uninstalled and excluded from this build. Normal closure/zero-owner inspection
+is required before standard Release replacement; operator review/approval/enable remain pending.
+
 **Ungated target clarification and selection provenance, 11:56 Toronto:** operator requests the
 existing Delphi Live **Portfolio rules only** source. Normal was recommended during October 18
 preparation from limited saved paper results; the scoped setup then explicitly selected only Normal.
@@ -9,9 +27,9 @@ It was not an automatic runtime winner choice. Initial execution approval was sa
 14:54:08; today's continuation retains it. Approval of the preset does not establish an informed
 preference for gated trading. The ungated source exists/updates 11:55:52, while revision 134 remains
 Normal for both initial/continued review, zero automatic orders/positions and exact 16:00 expiry.
-Display selection cannot replace the assignment. [Explicit transition remains pending](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026);
-preserve original financial history/risk and intraday/data/order controls. No code, source switch,
-SQL mutation or new financial approval is performed. Receipt:
+Display selection cannot replace the assignment. The [subsequent transition decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)
+preserves original financial history/risk and intraday/data/order controls. This earlier provenance
+inspection performed no code/source switch, SQL mutation or financial approval. Receipt:
 `result-20261021T155605890Z-1257597b6d944374afdab03d469ddd46.json`.
 
 **Latest execution read 11:49:25 Toronto:** revision131/Active/StrategyEvaluated at11:46:51,
@@ -82,7 +100,8 @@ verified fresh Normal source, one renewing lease, responding PID 37148 and match
 **Reliability work deferred by operator:** after requesting a SQL timeout correction, the operator
 asks to leave implementation until tonight and focus on the running app/trades. A one-time same-chat
 21:00 Toronto reminder `delphi-live-sql-fix-reminder` is created/verified Active. Partial local source
-work is preserved **uncommitted, uninstalled and not ready for use**: bounded immutable evaluation-save
+work is preserved **uninstalled and not ready for use** in the ignored byte-for-byte checkpoint
+`artifacts/deferred-sql-20261021/saved-source/`, excluded from compiled source: bounded immutable evaluation-save
 retry/diagnostics plus an incomplete explicit updated-build review path. The initial retry-only
 focused run passes 29 tests; later build-review changes are uncompiled/untested, so that result does
 not qualify the entire pending diff. Resume notes/logs remain ignored under

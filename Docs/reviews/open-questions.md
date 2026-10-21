@@ -15,11 +15,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   scoped setup/native qualification explicitly selects Normal; display selection has no assignment
   effect. This was not autonomous daily winner selection, and approval does not establish informed
   preference for gates. The 11:56 read confirms the ungated source exists but TFSA remains Normal.
-- **Pending transition:** prepare a concrete complete-source review/approval path preserving original
-  financial history/risk references/holds and full-fill-only recovery restrictions. Normal's scoped
-  qualification/continuation guards do not silently qualify another definition. Do not relabel Normal
-  or overwrite paper history. No switch, financial mutation or control change has occurred. Today's
-  16:00 expiry remains; no later-session authority. SQL-fix evening deferral is independent.
+- **Resolved design:** the operator subsequently explicitly requests implementation now, for personal
+  review/approval. [ADR-0097](../adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md)
+  accepts an exact matched-source, prospective cash-only transition within original authority/risk/
+  history/full-fill restrictions and today's 16:00 expiry. Code/review UI are implemented; installation
+  and operator approval/enable are tracked in the checklist. No financial switch is inferred from
+  implementation. SQL-fix evening deferral is independent. General portfolio switching and invested
+  handover remain the broader ADR-0085 work, not an expansion of this dated path.
 
 ### Live evaluation save timeout — October 21, 2026
 
@@ -40,7 +42,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   prioritize the running app/trades. One-time 21:00 Toronto reminder is Active. Partial bounded
   immutable-save retry/diagnostics passes an initial 29-test focused run; subsequent explicit
   updated-build review work is incomplete/uncompiled/untested. All source remains uncommitted and
-  uninstalled. Expected indexes are enabled; available helper permissions do not expose the historical
+  uninstalled, now byte-for-byte parked outside compiled source under
+  `artifacts/deferred-sql-20261021/saved-source/` for the independent source-switch build. Expected indexes are enabled; available helper permissions do not expose the historical
   wait/plan cause. [Resume notes/current evidence](../project-status.md#october-21-post-open-execution-watch).
 - **Next:** resume the focused reliability investigation offline, review/test the entire pending
   diff and resolve build identity/session expiry before any installation. Today's dated approval

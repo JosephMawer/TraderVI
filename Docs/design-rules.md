@@ -58,6 +58,13 @@ review/approval and separate host arming. Fresh current account/risk/order check
 definition/daily readiness cannot substitute for fresh matching Normal evidence at/after the open.
 No execution before 09:30 Toronto, no automatic app startup or next-day renewal, and the same 16:00
 purchase cutoff. Keep the supervised desktop running/signed in; data/gates may delay or block orders.
+[ADR-0097](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md) subsequently permits an
+explicit October 21 source switch to the existing matched Delphi Live Portfolio rules only comparison.
+It supersedes the Normal-only source restriction for this reviewed cash-only/no-automatic-order path.
+Preserve original financial authority/history/risk and 16:00 expiry; bypass only the existing profile's
+daily admission gates. Fresh post-approval intraday confirmation and all data/sizing/order/protection
+controls remain. Source approval leaves the host off; the operator enables the exact new source/build
+separately. No paper history is relabelled and no generic ungated or later-day execution is qualified.
 Purchases expire at the October 21 reviewed
 close; no October 22 or recurring buying authority follows. Original order IDs are verification
 records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).

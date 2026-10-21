@@ -18,12 +18,24 @@ cross-session index, not a second authority or permission to run anything.
 
 ## Resume from here
 
+**October 21 source-switch implementation (R04):** user explicitly requests implementation now
+for personal review/approval, preserving risk and 16:00. Exact matched Portfolio rules only workflow
+and review UI implemented; 73 focused/2,780 full offline checks and Debug build pass, nine native
+skips. Normal closure/standard Release installation pending. [Decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md),
+[owning evidence](project-status.md#october-21-post-open-execution-watch),
+[remaining steps](strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
+Source review point advances through this implementation request. No live source/host/order action
+was performed. Preserve unrelated Obsidian edits. Deferred SQL source is byte-for-byte parked in
+`artifacts/deferred-sql-20261021/saved-source/` and excluded from compiled source; read its updated
+`artifacts/live-evaluation-timeout-20261021/Resume.md` before evening work. Original dated authority
+does not extend tonight; source switch is independent of that deferral.
+
 **October 21 ungated Live request (R04):** user wants an ungated portfolio and asks who chose Normal.
 Recover October 18 recommendation from limited paper results, Normal-only setup, October 20 initial
 approval and today's retained continuation. Do not infer informed preference for gates from approval
 of that preset. Requested target: existing Delphi Live/Portfolio rules only. The 11:56 read confirms
 both profiles exist, TFSA remains Normal/no orders. [Facts](project-status.md#october-21-post-open-execution-watch),
-[pending transition](reviews/open-questions.md#delphi-live-ungated-tfsa-source-request--october-21-2026).
+[subsequent decision](adr/0097-reviewed-october21-portfolio-rules-only-source-switch.md).
 Source review point advances through this request/question and provenance inspection. No code,
 switch or financial mutation; SQL-fix evening deferral is not an inferred deferral of this request.
 
