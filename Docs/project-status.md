@@ -2,12 +2,19 @@
 
 ## October 21 post-open execution watch
 
-**Latest request — architecture and storage investigation for discussion:** current source confirms
+**Latest design decision — real trading independent of paper research:** operator accepts the
+dependency direction in [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md), requesting
+a simple revised architecture before implementation. [Draft](concepts/independent-real-processing-design.md)
+proposes direct shared inputs, independent managers, current state plus events, and evidence references.
+Integrity/audit timing, freshness replacement, host lifecycle and retention remain open. No code,
+installation or operational behavior changes; no new capacity verification.
+
+**Earlier architecture and storage investigation:** current source confirms
 background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot
 remove real-host waits. Hash-verified read-only SQL and filesystem inspection distinguish repeated
 history processing from evaluation storage and accumulated build outputs. The pinned architecture's
-logical boundaries still apply; its execution-status labels are historical. No redesign, cleanup or
-paper-off switch is accepted. [Findings, measurements and proposed direction](reviews/paper-workload-architecture-20261021.md).
+logical boundaries still apply; its execution-status labels are historical. Detailed redesign, cleanup
+and paper-off behavior remain unaccepted. [Findings](reviews/paper-workload-architecture-20261021.md).
 
 **Earlier evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
 defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with

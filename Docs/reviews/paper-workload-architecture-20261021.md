@@ -1,6 +1,9 @@
 # Paper workload, execution waits and storage — October 21, 2026
 
-Status: investigation for discussion, not an accepted redesign or implementation authority.
+Status: investigation retained; operator subsequently accepts real/paper research independence in
+[ADR-0103](../adr/0103-real-execution-independent-of-paper-research.md). The
+[revised architecture](../concepts/independent-real-processing-design.md) is a draft for discussion,
+not implementation authority. Measurements below retain their original investigation dates.
 The immediate problem is multi-minute waits and an apparently blocked desktop. The parent problem
 is research/account history sharing the time-sensitive execution path. The root goal is responsive
 supervision and timely execution of the approved strategy with unchanged financial controls.
@@ -140,9 +143,9 @@ Private receipts under `artifacts/read-only-db/`:
    recovery backups. Preserve source identities, evidence, models, active copies and rollback needs.
    Review Windows-specific runtime packaging so copies need not carry irrelevant platform libraries.
 
-First discussion question: should timely real execution be independent of optional paper/research
-completion, while sharing verified inputs and retaining independent protection? Recommendation: yes.
-No choice of implementation, retention limits, cleanup, paper-off mode or permission change is accepted.
+The first discussion question is now answered: the operator accepts independence of real trading
+from paper research. Implementation mechanisms, integrity changes, retention limits, cleanup,
+paper-off mode and permission changes remain unaccepted; see the linked draft and ADR-0103.
 
 Acceptance for a later implementation must measure bar-to-real-evaluation age, admission delay,
 dispatcher gaps and cycle capacity separately; prove equivalent decisions/history, corrupted-evidence

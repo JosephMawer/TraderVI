@@ -1,5 +1,11 @@
 # Review Flashcards
 
+### Independent real processing — ADR-0103 and design draft
+
+- **Q:** What is accepted so far? **A:** Real trading must be independent of optional paper research. The process layout, storage changes and verification policy remain draft.
+- **Q:** What does a checkpoint save? **A:** Verified current account state at a known event sequence, so recovery can process later events. It does not automatically authorize weaker historical integrity checks.
+- **Q:** Can sharing a benchmark bar share account confirmation too? **A:** No. Market facts and rule code may be shared; each account owns its confirmation, money, protection and history.
+
 ### Paper workload architecture — October 21 investigation
 
 - **Q:** Does an asynchronous paper cycle allow real execution to proceed? **A:** Only if its dependencies permit it. Today's host still waits for admitted paper work and the shared settings fence.

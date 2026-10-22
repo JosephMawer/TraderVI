@@ -11,11 +11,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
   [Findings and proposed boundaries](paper-workload-architecture-20261021.md) distinguish background
   execution from admission waits, full-history processing from compact storage, and database evidence
   growth from retained development libraries.
-- Recommended first decision: real processing should not wait for optional paper/research completion,
-  while shared verified market inputs and all held-position protections remain timely. This is open,
-  not accepted; lock/lease/integrity/restart contracts must be designed before changing coordination.
-- Incremental state, shared immutable evaluation inputs, build retention and special-backup retention
-  are separate open proposals. No paper-off switch, deletion, migration or implementation is authorized.
+- **Accepted direction:** real trading is independent of paper research (ADR-0103). The operator asks
+  to review a simple revised architecture before implementation; see the
+  [draft](../concepts/independent-real-processing-design.md).
+- **Next decision:** verify current state/new events/exact decision inputs immediately, with full
+  historical integrity audits separate? Recommended for bounded work, but this changes detection timing
+  for unrelated historical corruption. Checkpoint trust and failed-audit behavior need review.
+- Incremental state, shared immutable inputs, direct source-freshness proof, host lifecycle, resource
+  budgets, build retention and special-backup retention remain proposals. No implementation is authorized.
 
 ### Delphi Live tomorrow readiness — October 21, 2026
 

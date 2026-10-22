@@ -8,11 +8,11 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**Current request — explain paper-workload architecture and disk growth before choosing a fix:**
-review the pinned architecture, distinguish UI responsiveness from execution admission, and discuss
-independent real processing, incremental account state, shared evidence and build retention. These
-are proposals, not accepted implementation or cleanup scope. Preserve risk/history and the separate
-paper-switch deferral. [Investigation](reviews/paper-workload-architecture-20261021.md).
+**Current request — review revised architecture before implementation:** real trading independence
+from paper research is accepted under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
+Discuss the [draft](concepts/independent-real-processing-design.md): shared inputs, independent managers,
+current state plus new events and referenced evidence. Decide the integrity/audit boundary next;
+host/freshness/retention details remain open. No implementation or cleanup scope is accepted.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

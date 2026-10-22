@@ -12,8 +12,12 @@ The September 22 documentation cleanup preserves the
 
 - [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
   code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).
-- [ ] Discuss and agree the boundary between timely real execution and optional paper/research work,
-  incremental history processing, evidence sharing and build retention. No redesign/cleanup is accepted.
+- [x] Accept real trading independence from paper research under
+  [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md); prepare the requested
+  [architecture draft](concepts/independent-real-processing-design.md) before implementation.
+- [ ] Review the proposed current-state/event/evidence architecture; decide checkpoint trust and
+  immediate versus historical verification, then freshness/host lifecycle/resource/retention details.
+  Mechanisms remain draft; no implementation/cleanup authority follows from the direction decision.
 - [ ] After an agreed design, define concurrency/integrity/restart and long-history capacity acceptance;
   current source inspection and old timings do not qualify latest-build native responsiveness/capacity.
 

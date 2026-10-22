@@ -5,6 +5,15 @@ This document describes the current state of the TraderVI trading system — wha
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
+## Accepted direction: independent real processing (ADR-0103)
+
+Real trading must be independent of optional paper research. The
+[architecture draft](concepts/independent-real-processing-design.md) proposes shared immutable inputs,
+independent account managers, compact current state plus events, and research over retained history.
+These mechanisms are not implemented or accepted as a complete contract. Current broad admission and
+full-history verification still operate; integrity/freshness/host/retention details remain open.
+[ADR-0103](adr/0103-real-execution-independent-of-paper-research.md) records the accepted direction only.
+
 ## Dated Portfolio rules only review (ADR-0101)
 
 Evaluation persistence separately supports [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md):

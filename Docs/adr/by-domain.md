@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Real execution independent of optional paper research; mechanisms remain draft
+
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — One identical evaluation-save replay without order or permission retries
 
 - [ADR-0101](0101-october22-portfolio-rules-only-review.md) — One dated follow-on review preserving prior financial authority
@@ -113,6 +115,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Shared inputs with independent real/paper consumers; storage and integrity design remain draft
 
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — Fresh-connection save recovery with unchanged evidence/lease guards
 
