@@ -1,6 +1,6 @@
 # ADR-0104: Scoped recovery and sequential history audits
 
-**Date:** October 22, 2026. **Status:** Accepted direction; implemented in source, native qualification pending.
+**Date:** October 22, 2026. **Status:** Accepted direction; installed, real-only recovery/clearance verified; Paper coverage and full native capacity qualification remain pending.
 **Domains:** architecture, data-pipeline. **Related:** ADR-0103, ADR-0082, ADR-0098.
 
 ## Problem

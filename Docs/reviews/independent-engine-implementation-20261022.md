@@ -1,7 +1,7 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release444026c7 runs in normal mode with trading Off; Real recovery and real-only
-hold clearance pass; Paper continues independently. Native dashboard refresh needs an RPC correction.**
+Status: **standard Release c86f375d runs normally with trading Off; Real recovery/real-only clearance,
+dashboard account synchronization and October23 setup display pass. Paper continues independently.**
 The overnight target was missed. Full paper coverage and remaining native acceptance are incomplete.
 
 ## Normal-mode installation and dashboard transport correction
@@ -19,7 +19,7 @@ The16:57:19 fixed broker-read receipt verifies cash-only history/holdings and no
 46reads, zero orders/token refreshes and unchanged credentials. It does not check the protected local
 journal or qualify cash-flow timing. Dashboard refresh itself fails: private account constructors/IDs
 cannot round-trip through default RPC JSON, and reconstructed account objects cannot satisfy native
-selection/reference checks. Execution setup remains disabled pending correction.
+selection/reference checks. That initial setup block is resolved by the installed correction below.
 
 The corrective source uses RPC-only wire contracts, opaque engine-issued account handles and a
 current-session catalogue. The server resolves handles back to its actual authenticated account;
@@ -29,7 +29,32 @@ performance round-trip, while native order-submission provenance is never export
 JSON/hashes are unchanged. Protocol2 requires matching engine/dashboard versions. Fourteen focused
 checks use real named-pipe messages and the actual broker dispatch; isolated WPF Release passes with
 260existing compiler warnings. All3,074Core tests pass/nine native SQL skips with collection concurrency
-disabled. Controlled installation/dashboard acceptance remain. No new dependency-security/full-solution qualification.
+disabled. No new dependency-security/full-solution qualification.
+
+Correction c86f375d is installed after normal dashboard closure, graceful engine58696 stop at18:10:20
+Toronto and verified zero owners. Standard Release rebuild has zero errors/260existing warnings;
+Core product version matches the commit, all seven engine/dashboard runtime files and source copies
+match, and the complete output manifest is saved. Engine49716 starts18:12:24 from normal WPF Release
+with `--run`; installed controls/process identity prove Running/non-verification, Connected and Off.
+Dashboard113392 opens18:21:33. At18:21:51 it reports successful account/history synchronization;
+zero pending orders and saved strategy/buying mode restoration are observed. The ordinary engine
+reconciliation checks its protected local journal; this does not qualify external cash-flow timing.
+Joseph opens Execution setup after the mouse helper cannot target it reliably. At18:30 the screen
+shows installed baseline/continuation/session storage, Review2026-10-23 and disabled continuation
+approval/enable, retaining original risk/history/allowance and requiring fresh checks on that date.
+No review/approval/enable or order button was activated by the agent.
+
+The18:22:29 fixed SQL receipt has the expected query SHA256 and all receipt/checkpoint hash flags valid.
+Real260 remains Complete; unresolved Broker/Global=0, Paper=7. Paper28,299/205,058planned upper-bound
+units resume the same run/plan/cursor (27,611 before stop); incomplete coverage is not a pass.
+Private `account-transport-*` launch/manifest/control/cutover/UI receipts and `monitor-state.json` own
+this evidence. The15-minute monitor follows the new PID and reports only meaningful changes.
+
+Preparation is complete, not financial activation. On October23 (including pre-open), refresh account,
+daily/direct-source, exact strategy/build and immutable storage, review the no-outside-change interval,
+explicitly approve the dated continuation after Joseph reviews results, then separately enable only
+if authorized. Paper completion is not a prerequisite. Market-hours freshness/latency, actual populated
+order/protection, remaining concurrency/abnormal restore and weekly paper capacity remain unqualified.
 
 ## Authorized next-session flow and normal-mode cutover — October 22
 
@@ -42,7 +67,7 @@ exact build/storage and daily/direct-source evidence remain required. No permiss
 
 Full Core 3,070 pass/nine native SQL skips with test concurrency disabled; final broker-focused
 847 pass/two native skips; isolated WPF Release
-succeeds with 260 existing compiler warnings/zero errors. The subsequent normal-mode milestone is recorded above; dashboard reconciliation still needs the RPC correction. Dependency-security and full solution are not requalified. The 16:30:37 Toronto fixed-helper receipt rechecks unchanged relevant heads
+succeeds with 260 existing compiler warnings/zero errors. The subsequent normal-mode and dashboard correction milestones are recorded above. Dependency-security and full solution are not requalified. The 16:30:37 Toronto fixed-helper receipt rechecks unchanged relevant heads
 (broker259/shared0/content0), exact real projection and the same eight covered candidates. This is
 read-only evidence, not actual clearance. Receipts/build logs remain in the ignored native directory.
 The authorized installed guarded clear command succeeds (`real-only-clearance-receipt.json=true`).

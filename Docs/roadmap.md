@@ -12,8 +12,8 @@ and source review points; use its owning-record links when resuming work.
 storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
 clearance pass; Paper continues with seven restrictions. ADR-0105 selected-session review is installed
 in normal mode with automatic trading off. The saved login and fixed broker-read checks pass.
-Finish the account RPC correction exposed by native dashboard refresh, verify reconciliation/setup,
-and prepare tomorrow's current daily/direct-source checks before exact-build/dated approval and separate
+Account RPC correction and native dashboard synchronization/setup now pass in c86f375d. Next, perform
+October23 current account/daily/direct-source checks before exact-build/dated approval and separate
 enable. Keep real trading disabled until Joseph reviews the results; do not wait for paper completion.
 
 Complete remaining paper coverage and native concurrency, market-hours latency, interruption/restore

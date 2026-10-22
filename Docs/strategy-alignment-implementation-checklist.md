@@ -58,7 +58,7 @@ The overnight target was missed. Completed source work is separate from installe
   startup in broker-disabled mode plus persisted audit resume. Restore the original nightly enabled
   state without launching it. Record private runtime hashes and process/mode evidence.
 - [ ] Complete remaining Paper recovery coverage, review and explicitly resolve relevant holds, and finish remaining
-  native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
+  native concurrency/latency/restore acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
 - [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
@@ -71,8 +71,12 @@ The overnight target was missed. Completed source work is separate from installe
   preserve the original paper cursor across graceful stop/restart.
 - [x] Verify fixed-helper current cash-only broker history/holdings and no pending orders (16:57Toronto).
   This read does not check the local journal or qualify cash-flow timing.
-- [ ] Install/verify the account RPC correction exposed by dashboard refresh. Verify dashboard/local
-  journal reconciliation and setup, then current direct inputs/concurrent paper independence before enable.
+- [x] Install c86f375d account RPC correction after graceful stop/zero-owner/hash checks. Native account
+  refresh, broker/local-journal history synchronization, zero pending orders and strategy restore pass.
+- [x] Observe installed setup after Joseph opens it: storage installed, Review2026-10-23, approval and
+  enable disabled. Core3,074pass/nine native skips; both Release builds pass/260existing warnings.
+- [ ] On October23 perform current account, daily/direct-source and exact-build review; operator explicitly
+  approves the dated continuation, then separately enables only after results review. Paper remains independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive

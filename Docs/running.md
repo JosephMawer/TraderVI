@@ -4,8 +4,8 @@
 
 The ADR-0103/0104 host and ADR-0105 selected-session flow are installed in standard Release.
 Normal mode reconnects the broker; native execution status is Off. Real recovery and authorized
-real-only hold clearance pass independently of Paper. Dashboard account transport correction and
-remaining acceptance are tracked in the [cutover review](reviews/independent-engine-implementation-20261022.md).
+real-only hold clearance pass independently of Paper. Installed c86f375d dashboard account refresh,
+synchronization and October23 setup display pass; remaining acceptance is tracked in the [cutover review](reviews/independent-engine-implementation-20261022.md).
 Keep real trading disabled until operator results review. Readiness requires verified storage/guards,
 continuity, applicable holds and exact real subscription; current account/direct-source checks,
 exact-build/dated permission and separate enable remain mandatory.
