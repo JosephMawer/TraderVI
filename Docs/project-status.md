@@ -4,10 +4,19 @@
 
 **Real recovery complete; paper proceeds independently.** Standard Release0082a88a is installed;
 PID57400and native status prove verification-only mode. Real recovery verifies all260broker revisions
-and its exact current subscription in39.78seconds, completing15:32:46Toronto. At15:38, separate Paper
-recovery has8,657/205,058planned units verified, including the first portfolio's complete history and
+and its exact current subscription in39.78seconds, completing15:32:46Toronto. At15:57, separate Paper
+recovery has14,376/205,058planned units verified, including the first portfolio's complete history and
 working checkpoint. All receipt/checkpoint hashes pass; ten incidents remain (including the two new
 request holds), with no new failure after this correction. No holds are cleared or trading enabled.
+
+**Real-only readiness review15:59:** relevant real/shared heads still match the completed proof.
+Three broker holds are resolution candidates; five global findings can retain linked paper restrictions;
+two existing paper holds remain. Clearance is prepared, not executed. The broker helper could not
+verify the saved login; current reconciliation remains unproved. Saved permission expired October21,
+and its approved build differs from the installed build. The continuation path supports October22
+only: next-session renewal needs implementation/review, followed by explicit dated/build approval.
+Controlled normal-mode cutover, real-only clearance and fresh direct-input/concurrency checks remain
+before separate enable. Paper completion is not their prerequisite.
 
 **Installed correction:** exact saved boundaries identify legacy SQL timestamp rounding
 and process-dependent dictionary serialization. Audit-only representation reconstruction preserves all
@@ -26,7 +35,7 @@ dashboard-close survival, graceful stop and saved-cursor resume pass; nightly's 
 was restored13:21Toronto without launching it. Earlier full Core3,028pass/nine native skips and49SQL
 batches parse. No complete-solution or dependency-security requalification follows from this correction.
 
-Real trading stays disabled until operator results review. Complete paper recovery/explicit hold resolution,
+Real trading stays disabled pending operator authorization and remaining real-path checks. Paper recovery,
 sustained input latency, concurrency, interruption/restore and weekly capacity remain open. The overnight
 target was missed. The old reader's11–18-hour paper-only extrapolation does not estimate the corrected
 reader. Full-run throughput and disk savings remain unmeasured; no historical conversion/deletion or

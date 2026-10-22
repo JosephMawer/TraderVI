@@ -5,10 +5,17 @@ inputs/recovery, separate consumers, compact/shared storage and fresh sequential
 implemented. Backup/copy/sync, migrations047–051 and checkpoints are installed with original evidence
 preserved. The overnight target was missed. Standard Release0082a88a is installed in verification-only
 mode; real trading remains disabled until Joseph reviews the results. Native Real recovery completes
-260/260in39.78seconds at15:32:46Toronto while separate Paper recovery continues (8,657/205,058at15:38).
+260/260in39.78seconds at15:32:46Toronto while separate Paper recovery continues (14,376/205,058at15:57).
 The paper failure boundary and first portfolio/working checkpoint pass. Ten holds remain; all original
 receipt/checkpoint hashes verify and no new failure follows the correction. Current broker/source/dated
 permission and explicit verified real-only hold resolution remain before live operation.
+
+The subsequent real-results review confirms unchanged real/shared heads and prepares three broker
+resolutions plus five global-to-paper restrictions, without submitting them. Broker-read verification
+requires normal reconnect or resolution of unavailable verification. Saved permission expired October21;
+the installed continuation supports October22 only, leaving next-session implementation/review open.
+Controlled normal-mode cutover/clearance, fresh broker/source acceptance and exact-build/dated approval
+remain before separate enable. Reviewing results is not authorization for these operational mutations.
 
 The correction preserves exact legacy hashes despite SQL timestamp projection and process-dependent
 immutable dictionary ordering. Original failed receipts remain; new scoped recovery passes are explicit.
@@ -43,7 +50,9 @@ above and the strategy checklist; do not repeat source work or infer installatio
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)
 through the explicit implementation request, independent engine, history/storage, recovery, readers
 and conditional readiness source checkpoints, followed by explicit backup/migrations047–051/checkpoint/
-native-verification authority with real trading disabled. S44's original pinned architecture/complete
+native-verification authority with real trading disabled, then the real-results/remaining-readiness review.
+The next-session continuation gap is identified but its implementation approach is not decided.
+S44's original pinned architecture/complete
 available turn was reviewed. Native acceptance and retention remain open.
 
 **Earlier SQL-only correction (R04/R08):** operator resumes SQL reliability now and selects Fix SQL

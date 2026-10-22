@@ -62,6 +62,14 @@ The overnight target was missed. Completed source work is separate from installe
   coverage is not a pass. Real trading remains disabled until operator review of results.
 - [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
+- [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the
+  eight-incident real-only proposal. Broker-read check cannot verify saved login; no current account proof.
+- [ ] Obtain authority for controlled normal-mode cutover and verified real-only clearance with execution
+  off; preserve paper restrictions and cursor. Reconnect normally and verify current account/order state,
+  local order recovery, fresh direct inputs and concurrent paper-work independence before enable.
+- [ ] Implement/review valid next-session continuation: installed path supports October22 only, while
+  saved permission remains expired October21. Preserve original risk history and explicit dated/current-
+  build approval. The implementation approach is unresolved; no automatic renewal is accepted.
 - [ ] Complete realistic whole-run/weekly capacity and live collection independence acceptance.
   Partial paper progress and dashboard availability are not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,

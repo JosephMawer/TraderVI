@@ -5,6 +5,22 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Real recovery to next-session operation — October 22, 2026
+
+- Real recovery completes independently; the15:59read confirms unchanged relevant heads and identifies
+  known holds eligible for explicit real-only resolution while preserving paper restrictions. Nothing
+  was cleared. Normal-mode/broker/direct-input acceptance remains; the broker-read helper cannot verify
+  the saved login. [Results review](independent-engine-implementation-20261022.md#real-account-results-review--october-22-1559-toronto).
+- Saved permission expired October21; the installed continuation contract only supports October22.
+  Decide and implement the next-session review path before claiming October23 readiness. Recommended:
+  a bounded session-date review preserving original risk/account history and explicit per-session/current-
+  build approval, rather than another unconditional date substitution. This is a proposal, not accepted
+  automatic renewal or a change to existing capital-flow/valuation rules. Operator confirmation of
+  outside account activity and fresh broker reconciliation remain necessary under the existing contract.
+- Paper completion is not a prerequisite for these real checks. Hold clearance can resume market
+  collection even in verification mode; normal engine mode permits broker access. Both are operational
+  changes, separate from this read-only review and subsequent explicit execution enable.
+
 ### Paper workload architecture and storage — October 21, 2026
 
 - User requests investigation and plain discussion, using the pinned architecture as reference.
@@ -23,14 +39,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - **Lifecycle accepted:** closing the dashboard leaves the engine running, with a separate stop control.
   The operator then requested implementation through history/storage. Source implementation and offline
   tests are recorded in the [cutover review](independent-engine-implementation-20261022.md). The overnight
-  target was missed. Standard Release a94c474a is installed in verification mode; ownership/close/stop/
-  resume checks pass. Full recovery, concurrency, resource and audit-capacity acceptance remain open.
+  target was missed. Standard Release0082a88a is installed in verification mode; ownership/close/stop/
+  resume checks and separate Real recovery pass. Paper coverage, concurrency, resource and audit-capacity acceptance remain open.
   Retention is separate before cleanup; no installed saving is claimed.
-- **October22 cost/availability finding:** each paper revision still reconstructs overlapping complete
-  states. The broad recovery hold also pauses collection/paper workers, leaving the dashboard usable
-  for viewing but real trading unavailable. Proposed follow-up: a single-pass archive verifier and a
-  separately proven real-account/current-input recovery boundary, so unrelated archives can finish
-  independently. This is not approval to bypass existing holds. [Measured scope and limits](independent-engine-implementation-20261022.md#audit-cost-and-actual-app-availability--october-22-1358-toronto).
+- **October22 cost/availability correction:** ADR-0104 sequential reads/decodes and separate real recovery
+  are installed. Real verification passes; explicit known-hold resolution remains before collection
+  can resume independently of paper. Original full-state checksums still require per-revision work;
+  full-run capacity remains unproved. [Measured scope and limits](independent-engine-implementation-20261022.md).
 - Checkpoint trust, exact references, locking, direct freshness/progress, resource/acceptance budgets and
   incident persistence/release mechanics are engineering work under accepted rules. Bring back substantive
   behavior/authority trade-offs, not routine algorithm choices. Special-backup retention remains separate.

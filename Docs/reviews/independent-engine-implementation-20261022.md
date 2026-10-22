@@ -2,7 +2,7 @@
 
 Status: **standard Release0082a88a installed in verification mode; Real recovery complete260/260, separate Paper recovery running; trading disabled**.
 The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
-recovery coverage, remaining native acceptance and operator review have not been completed.
+paper recovery coverage, remaining native acceptance and operator authorization have not been completed.
 
 ## Sequential audit and scoped recovery correction — October 22
 
@@ -96,6 +96,51 @@ Real trading remains disabled pending Joseph's review. Verified real-only hold r
 broker/source/dated authorization checks are still required before live operation; no need to wait for
 paper coverage merely to review this real result. Read-only supervision now follows the remaining
 Paper run, retains the already reported Real completion, and reports new failures/progress/completion.
+
+## Real-account results review — October 22, 15:59 Toronto
+
+The operator requests a review of what is needed to resume real operation without paper completion.
+This is review authority, not hold clearance, broker sign-in, renewed buying permission or enable.
+The 15:57 fixed-helper observation confirms Real Complete260/260, Paper Running14,376, ten unchanged
+incidents, and valid audit/checkpoint hashes. Engine57400 retains its installed path/start identity.
+The separate 15:59 metadata read confirms the exact relevant recovery heads remain unchanged:
+broker259, shared inputs0 and shared content0. The real observation matches its current head/hash.
+
+Read-only classification against the installed policy finds three broker resolution candidates and
+five global findings eligible to become linked paper-only restrictions, all inside the real proof's
+boundary. The two existing paper findings remain. These are candidates, not completed clearance:
+the installed serializable clear transaction must still recheck the database identity, guards,
+all saved receipts, exact current heads and the typed current real subscription. Unknown findings
+must remain blocked. A private eight-incident proposal is prepared but has not been submitted.
+
+The installed broker-read v2 helper returns `SignInRequiredOrVerificationUnavailable` at15:57:03;
+no fresh broker reconciliation was obtained, no token refresh or credential change occurred, and
+no order was sent. Normal reconnect/sign-in and fresh holdings/pending-order/local-journal checks
+remain required. This does not diagnose whether the saved login expired or verification was unavailable.
+
+The latest broker revision is still259 from October21. Its saved reviewed session is October21,
+permission expired October21 at16:00Toronto, and its approved implementation differs from installed
+0082a88a. The installed continuation contract explicitly supports October22 only and requires its
+confirmation on that date; it cannot authorize October23. A reviewed next-session continuation path
+is therefore a remaining software dependency, not an automatic renewal or an audit wait. Preserve
+the original account/risk history and explicit dated/exact-build approval; the implementation approach
+is unresolved. Today's existing15:45new-buy cutoff is already past.
+
+Recommended operational sequence, still pending authority: controlled real-only hold resolution and
+normal-mode engine cutover with saved execution off; normal broker reconnect/reconciliation; verify
+new real-source publications, freshness and responsive operation while paper continues; prepare and
+review valid next-session/current-build permission; then separately enable execution only after the
+remaining real-path checks pass. Clearing the global findings can itself resume market collection
+even under `--verify`; this is an operational transition, not a read-only administrative change.
+Normal mode is necessary for broker access. A graceful restart preserves the paper cursor; if real/
+shared heads changed before clearance, obtain a fresh Real proof, never wait for or reset Paper.
+Installed concurrency, direct-input latency, order-recovery/protection and reconnect acceptance must
+remain explicit qualification limits; this review does not waive them or declare the host trade-ready.
+
+Evidence: ignored `real-readiness-review.sql/json`, `real-hold-resolution-proposal.json`, and fixed
+helper receipts at19:57/19:59UTC. Review-query SHA256 is
+`91F4182ECD327BDA1989F9E871766397B5B789709B98CDB7F3DCF0B1C838CCD1`.
+No hold, grant, engine mode, market workflow or financial record was changed by this review.
 
 ## Authorized native preparation — October 22
 
