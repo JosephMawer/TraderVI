@@ -17,6 +17,8 @@ The September 22 documentation cleanup preserves the
   including full-archive validation of compact-state buy/protection/overnight/retry flows. SSDT/WPF build.
 - [ ] Qualify paper SQL concurrency, current-state/replay protection and real independence on the
   authorized native environment; complete broker/display/recovery integration before cutover.
+- [x] Share unchanged candidate state across version-3 roots; 84 related tests pass with exact
+  restoration and corrupted-reference rejection. No old revisions were converted.
 
 - [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
   code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).

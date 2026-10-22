@@ -126,7 +126,11 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
             counts[name] = tree.Count; roots[name] = tree.Root;
             foreach (var pair in tree.Nodes) contents[pair.Key] = pair.Value;
         }
-        string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson, counts, roots);
+        string candidateJson = DelphiLiveSnapshotCodec.CanonicalJson(JsonNode.Parse(package.SnapshotJson)!["candidateStates"]!.ToJsonString());
+        string candidateHash = DelphiLiveSnapshotCodec.Hash(candidateJson);
+        if (!priorContents.TryGetValue(candidateHash, out string? previousCandidates)) contents[candidateHash] = candidateJson;
+        else if (previousCandidates != candidateJson) throw new InvalidDataException("Candidate state changed under the same checksum.");
+        string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson, counts, roots, candidateHash);
         var selection = DelphiLiveWorkingState.Select(next);
         var compact = DelphiLiveSnapshotCodec.Pack(selection.Snapshot);
         var checkpoint = new DelphiLiveWorkingCheckpoint(1, compact.SnapshotJson, selection.Snapshot.WorkingTotals!,
@@ -154,6 +158,9 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
     private static string Header(string json)
     {
         var root = JsonNode.Parse(json)!.AsObject(); root.Remove(DelphiLiveSnapshotCodec.Marker);
+        if (DelphiLiveSnapshotCodec.CandidateStateReference(json) is null)
+            root["candidateStates"] = new JsonObject { ["$contentHash"] = DelphiLiveSnapshotCodec.Hash(
+                DelphiLiveSnapshotCodec.CanonicalJson(root["candidateStates"]!.ToJsonString())) };
         foreach (string name in DelphiLiveSnapshotCodec.Collections) root[name] = new JsonArray();
         return DelphiLiveSnapshotCodec.Fingerprint(root.ToJsonString());
     }

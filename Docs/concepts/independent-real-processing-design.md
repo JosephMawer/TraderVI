@@ -285,6 +285,9 @@ Immutable archive item ordinals remain stable. A version-3 root commits to scala
 collection counts/roots. Positions/actions use binary hash trees, so changing one item updates only its
 path. Append-only fills/quotes/marks use hash chains: each new root commits to the preceding root and
 new record, without extra stored tree nodes per append. Exact item/report content stays shared.
+Unchanged candidate-state dictionaries also use one canonical content record; each archive root carries
+its exact checksum. Working checkpoints retain their verified current dictionary, and archive readers
+resolve/check the original reference without joining to a later evaluation.
 Legacy version-2 roots remain readable; old revisions are not rewritten. Full readers/audits recompute
 the collection roots from all original referenced items, while operational appends verify only their
 current checkpoint, changed items and tree paths. A compact checkpoint is tied to the exact archive

@@ -39,6 +39,7 @@ WHERE Kind=N'PaperWorking' AND OwnerId=@Owner;
         var checkpoint = DelphiLiveLedgerJson.Deserialize<DelphiLiveWorkingCheckpoint>(row.StateJson);
         var contents = await ReadContentsAsync(c, t, checkpoint.Items.Select(i => i.ContentHash), ct);
         var reports = new HashSet<string>(StringComparer.Ordinal);
+        if (DelphiLiveSnapshotCodec.CandidateStateReference(root) is string candidateHash) reports.Add(candidateHash);
         foreach (var item in contents.Values)
         {
             var node = JsonNode.Parse(item)!;

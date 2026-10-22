@@ -209,6 +209,7 @@ WHERE i.rn=1 ORDER BY i.CollectionName,i.Ordinal;
         var items = new List<DelphiLiveSnapshotItem>();
         var contents = new Dictionary<string, string>(StringComparer.Ordinal);
         var reports = new HashSet<string>(StringComparer.Ordinal);
+        if (DelphiLiveSnapshotCodec.CandidateStateReference(json) is string candidateHash) reports.Add(candidateHash);
         await using (var reader = await read.ExecuteReaderAsync(CommandBehavior.SequentialAccess, token))
         {
             while (await reader.ReadAsync(token))

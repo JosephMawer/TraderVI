@@ -10,6 +10,9 @@ overnight/retry flows and stable ordinals after pruning. A 100,000-leaf mutable 
 archive needs one new record and no tree reads, with exact reconstruction across day rollover.
 SSDT, engine and isolated WPF builds pass (WPF two existing warnings); 32 SQL batches parse. Migration051
 and --prepare-working-state are prepared only. Native concurrency/qualification remain; no installation.
+Unchanged candidate state now uses one shared content record across archive revisions. 84 related
+checks pass, including exact 200-symbol reconstruction and damaged-reference rejection; the synthetic
+root is under one fifth of its previous size. Installed storage savings remain unmeasured.
 
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
 by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`

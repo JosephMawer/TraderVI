@@ -15,6 +15,37 @@ namespace TraderVI.Core.Tests;
 public sealed class DelphiLiveWorkingCheckpointTests
 {
     [Fact]
+    public async Task RepeatedCandidateStateIsSharedOnceAcrossSmallArchiveRoots()
+    {
+        var full = DelphiLiveWorkingStateTests.History(2) with
+        {
+            CandidateStates = Enumerable.Range(0, 200).ToImmutableDictionary(i => "SYM" + i,
+                i => new DelphiLivePortfolioCandidateState(DelphiLiveLifecycleSnapshot.NewSession(true), 0, Guid.NewGuid(), DateTime.UnixEpoch))
+        };
+        var package = DelphiLiveSnapshotCodec.Pack(full);
+        var qualified = DelphiLiveWorkingCheckpoint.Qualify(full, package);
+        var contents = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var pair in qualified.NewContents) contents[pair.Key] = pair.Value;
+        var small = qualified.Snapshot;
+        var first = await qualified.Checkpoint.AdvanceAsync(small, small with { Revision = small.Revision + 1 }, contents,
+            (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), CancellationToken.None);
+        first.NewContents.Count.ShouldBe(1);
+        first.Archive.SnapshotJson.Length.ShouldBeLessThan(package.SnapshotJson.Length / 5);
+        string hash = DelphiLiveSnapshotCodec.CandidateStateReference(first.Archive.SnapshotJson)!;
+        foreach (var pair in first.NewContents) contents[pair.Key] = pair.Value;
+        var second = await first.Checkpoint.AdvanceAsync(first.Snapshot, first.Snapshot with { Revision = first.Snapshot.Revision + 1 }, contents,
+            (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), CancellationToken.None);
+        second.NewContents.ShouldBeEmpty();
+        DelphiLiveSnapshotCodec.CandidateStateReference(second.Archive.SnapshotJson).ShouldBe(hash);
+        var restored = DelphiLiveSnapshotCodec.Unpack(second.Archive.SnapshotJson, package.Items, contents);
+        restored.CandidateStates.Count.ShouldBe(200);
+        DelphiLiveSnapshotCodec.Fingerprint(DelphiLiveLedgerJson.Serialize(restored.CandidateStates))
+            .ShouldBe(DelphiLiveSnapshotCodec.Fingerprint(DelphiLiveLedgerJson.Serialize(full.CandidateStates)));
+        contents[hash] += " ";
+        Should.Throw<InvalidOperationException>(() => DelphiLiveSnapshotCodec.Unpack(second.Archive.SnapshotJson, package.Items, contents));
+    }
+
+    [Fact]
     public async Task UpdatingAnOpenPositionAfterPruningPreservesItsOriginalArchiveOrdinal()
     {
         var full = DelphiLiveWorkingStateTests.History(1_000);
@@ -78,7 +109,7 @@ public sealed class DelphiLiveWorkingCheckpointTests
             { reads++; return Task.FromResult(contents.GetValueOrDefault(key)); }, CancellationToken.None);
             reads.ShouldBe(0);
             prepared.ChangedItems.Length.ShouldBe(1);
-            prepared.NewContents.Count.ShouldBe(1);
+            prepared.NewContents.Count.ShouldBe(day == 0 ? 2 : 1); // The initial candidate-state fragment is shared by later roots.
             foreach (var item in prepared.ChangedItems) archiveItems[(item.Collection, item.Ordinal)] = item;
             foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
             archiveRoot = prepared.Archive.SnapshotJson;

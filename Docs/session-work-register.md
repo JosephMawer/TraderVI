@@ -3,6 +3,7 @@
 **October22 current-state integration:** compact paper windows and incremental archive roots are wired
 to atomic SQL/checkpoint/replay-identity updates (83 related checks, SSDT/engine/WPF build, 32 SQL parses).
 Original history reconstructs across day rollover; append-only fills/quotes/marks add no tree records.
+Candidate-state sharing removes repeated unchanged root payloads;84 related tests pass.
 Migration051 and explicit qualification are prepared. Continue broker/display/recovery integration and
 native qualification. Source coverage includes the active overnight implementation request; no installation
 or native qualification is claimed. See [design contract](concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress).

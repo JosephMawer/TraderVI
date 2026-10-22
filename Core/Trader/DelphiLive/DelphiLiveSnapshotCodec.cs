@@ -51,10 +51,11 @@ public static class DelphiLiveSnapshotCodec
 
     /// <summary>The header contains original account fields; collection roots commit to the complete archive.</summary>
     public static string CreateIncrementalRoot(string compactHeader, IReadOnlyDictionary<string, int> counts,
-        IReadOnlyDictionary<string, string> roots)
+        IReadOnlyDictionary<string, string> roots, string? candidateStateHash = null)
     {
         var root = JsonNode.Parse(compactHeader)!.AsObject();
         root.Remove(Marker);
+        if (candidateStateHash is not null) root["candidateStates"] = new JsonObject { ["$contentHash"] = candidateStateHash };
         var countNode = new JsonObject(); var rootNode = new JsonObject();
         foreach (string name in Collections)
         {
@@ -64,6 +65,17 @@ public static class DelphiLiveSnapshotCodec
         root[Marker] = new JsonObject { ["version"] = 3, ["counts"] = countNode, ["roots"] = rootNode };
         root[Marker]!["fullHash"] = Fingerprint(root.ToJsonString());
         return root.ToJsonString(DelphiLiveLedgerJson.Options);
+    }
+
+    public static string? CandidateStateReference(string json)
+    {
+        var node = JsonNode.Parse(json)!;
+        if (node[Marker]?["version"]?.GetValue<int>() != 3 || node["candidateStates"] is not JsonObject candidates ||
+            !candidates.ContainsKey("$contentHash")) return null;
+        if (candidates.Count != 1 || candidates["$contentHash"] is not JsonValue value ||
+            !value.TryGetValue<string>(out var hash) || hash.Length != 64 || !hash.All(char.IsAsciiHexDigitUpper))
+            throw new InvalidOperationException("Invalid candidate-state archive reference.");
+        return hash;
     }
 
     public static IReadOnlyDictionary<string, string> ReadRoots(string json)
@@ -258,6 +270,8 @@ public static class DelphiLiveSnapshotCodec
         if (expected != items.Count) throw new InvalidOperationException("Snapshot contains unexpected collection items.");
         string expectedHash = metadata["fullHash"]!.GetValue<string>();
         root.Remove(Marker);
+        if (version == 3 && CandidateStateReference(json) is string candidateHash)
+            root["candidateStates"] = JsonNode.Parse(RequireContent(contents, candidateHash))!.AsObject();
         var strings = new CanonicalStrings();
         if (version == 2 && !string.Equals(Fingerprint(writer => WriteCanonical(writer, root, strings)), expectedHash, StringComparison.Ordinal))
             throw new InvalidOperationException("Reconstructed portfolio snapshot fingerprint does not match.");
