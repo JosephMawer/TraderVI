@@ -2,6 +2,7 @@
 
 ### Independent real processing — ADR-0103 and design draft
 
+- **Q:** Does restarting the engine prove recovery or renew trading permission? **A:** No. The local/SQL witnesses detect interrupted or changed state; affected history/current projections must be verified and holds explicitly cleared. Original approval and expiry still apply.
 - **Q:** How can a small paper window preserve lifetime profit? **A:** Original capital stays unchanged; verified archived cash/profit totals accompany retained current records, while every original record remains in the reconstructible archive.
 
 - **Q:** Does a completed nightly batch clear an integrity incident? **A:** No. Clearing needs explicit recovery verification, unchanged history heads, intact guards and an operator action; the original finding remains.

@@ -136,6 +136,11 @@ public sealed class DelphiLiveWorkingCheckpointTests
             checkpoint = prepared.Checkpoint;
             var reopened = DelphiLiveSnapshotCodec.Unpack(archiveRoot, archiveItems.Values.ToArray(), contents);
             DelphiLiveLedgerJson.Serialize(reopened).ShouldBe(DelphiLiveLedgerJson.Serialize(full));
+            var reconstructed = DelphiLiveWorkingCheckpoint.Qualify(reopened,
+                new(archiveRoot, DelphiLiveSnapshotCodec.Hash(archiveRoot), contents, archiveItems.Values.ToArray()));
+            checkpoint.RequireSameReconstruction(reconstructed.Checkpoint);
+            Should.Throw<InvalidDataException>(() => (checkpoint with { Totals = checkpoint.Totals with { ArchivedEstimatedFillCount = 500 } })
+                .RequireSameReconstruction(reconstructed.Checkpoint));
             checkpoint.Restore(archiveRoot, contents).Cash.ShouldBe(full.Cash);
         }
         Should.Throw<InvalidDataException>(() => (checkpoint with { Totals = checkpoint.Totals with { ArchivedCashNet = 1m } }).Restore(archiveRoot, contents));

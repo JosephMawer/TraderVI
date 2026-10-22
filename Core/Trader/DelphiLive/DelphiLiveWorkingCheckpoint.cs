@@ -16,6 +16,13 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
     ImmutableArray<DelphiLiveWorkingItem> Items, ImmutableDictionary<string, int> Counts, ImmutableDictionary<string, string> Roots)
 {
     public string? CandidateStateHash { get; init; }
+    public void RequireSameReconstruction(DelphiLiveWorkingCheckpoint reconstructed)
+    {
+        static string Canonical(DelphiLiveWorkingCheckpoint value) => DelphiLiveSnapshotCodec.CanonicalJson(
+            DelphiLiveLedgerJson.Serialize(value with { SnapshotRoot = DelphiLiveSnapshotCodec.CanonicalJson(value.SnapshotRoot) }));
+        if (Canonical(this) != Canonical(reconstructed))
+            throw new InvalidDataException("Current paper checkpoint differs from independently reconstructed history.");
+    }
     public sealed record Prepared(DelphiLiveWorkingCheckpoint Checkpoint, DelphiLivePortfolioSnapshot Snapshot,
         DelphiLiveSnapshotPackage Archive, ImmutableArray<DelphiLiveSnapshotItem> ChangedItems,
         ImmutableDictionary<string, string> NewContents, ImmutableArray<DelphiLiveSnapshotItem> NewIdentities);

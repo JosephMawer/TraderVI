@@ -103,6 +103,8 @@ IF EXISTS(SELECT 1 FROM @Nodes n LEFT JOIN dbo.DelphiLiveSnapshotContent c ON c.
  THROW 54462,'Archive tree qualification read-back failed.',1;
 """, new { NodesJson = EngineEvidenceStorage.Serialize(qualified.NewContents) }, t, cancellationToken: ct));
         await SaveIdentitiesAsync(c, t, qualified, qualification: true, ct);
+        await EnginePaperObservationStore.SaveIfInstalledAsync(c, t, qualified.Archive, ct,
+            DelphiLiveObservationPortfolio.From(qualified.Snapshot));
         await SaveStateAsync(c, t, qualified.Checkpoint, originalRoot, qualified.Snapshot, ct);
     }
 
@@ -129,8 +131,7 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineCurrentState WHERE Kind=N'PaperWorking' AN
             Hash = DelphiLiveSnapshotCodec.Hash(json), Json = json }, t, cancellationToken: ct));
     }
 
-    private static async Task SaveIdentitiesAsync(SqlConnection c, SqlTransaction t, DelphiLiveWorkingCheckpoint.Prepared next,
-        bool qualification, CancellationToken ct)
+    private static List<Identity> Identities(DelphiLiveWorkingCheckpoint.Prepared next)
     {
         var identities = new List<Identity>();
         foreach (var item in next.NewIdentities)
@@ -142,6 +143,12 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineCurrentState WHERE Kind=N'PaperWorking' AN
             if (item.Collection == "actions" && node["intent"]!["side"]!.GetValue<int>() == (int)DelphiLiveActionSide.Buy && node["evaluationId"] is JsonValue id)
                 identities.Add(new("buyEvaluation", id.GetValue<Guid>(), item.Ordinal));
         }
+        return identities;
+    }
+    private static async Task SaveIdentitiesAsync(SqlConnection c, SqlTransaction t, DelphiLiveWorkingCheckpoint.Prepared next,
+        bool qualification, CancellationToken ct)
+    {
+        var identities = Identities(next);
         if (identities.Count == 0) return;
         await c.ExecuteAsync(new CommandDefinition("""
 DECLARE @Ids TABLE(Kind nvarchar(32),RecordId uniqueidentifier,Ordinal int,PRIMARY KEY(Kind,RecordId),UNIQUE(Kind,Ordinal));
@@ -182,6 +189,33 @@ SELECT StateJson FROM dbo.EngineCurrentState WITH(UPDLOCK,HOLDLOCK)
 WHERE Kind=N'PaperWorking' AND OwnerId=@Owner AND Revision=@Revision;
 """, new { Owner = source.Snapshot.PortfolioId, source.Snapshot.Revision }, t, cancellationToken: ct));
         if (actual != source.StateJson) throw new InvalidOperationException("Current paper checkpoint changed while preparing its append.");
+    }
+
+    internal static async Task VerifyCurrentAsync(SqlConnection c, Guid owner, long revision, CancellationToken ct)
+    {
+        string root = await c.QuerySingleAsync<string>(new CommandDefinition(
+            "SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Owner AND Revision=@Revision;",
+            new { Owner = owner, Revision = revision }, cancellationToken: ct));
+        var verified = await DelphiLiveSnapshotStorage.ReadVerifiedAsync(c, root, ct, fresh: true);
+        var package = new DelphiLiveSnapshotPackage(root, DelphiLiveSnapshotCodec.Hash(root), verified.Contents, verified.Items);
+        var reconstructed = DelphiLiveWorkingCheckpoint.Qualify(verified.Snapshot, package);
+        var current = await ReadAsync(c, null, root, ct);
+        current.Checkpoint.RequireSameReconstruction(reconstructed.Checkpoint);
+        var nodes = await ReadContentsAsync(c, null, reconstructed.NewContents.Keys, ct);
+        if (reconstructed.NewContents.Any(p => nodes[p.Key] != p.Value)) throw new InvalidDataException("Current archive paths differ from reconstructed history.");
+        var identities = (await c.QueryAsync<Identity>(new CommandDefinition(
+            "SELECT Kind,RecordId,Ordinal FROM dbo.EnginePaperRecordIdentity WHERE PortfolioId=@Owner;",
+            new { Owner = owner }, cancellationToken: ct))).OrderBy(i => i.Kind, StringComparer.Ordinal).ThenBy(i => i.Ordinal);
+        if (!identities.SequenceEqual(Identities(reconstructed).OrderBy(i => i.Kind, StringComparer.Ordinal).ThenBy(i => i.Ordinal)))
+            throw new InvalidDataException("Current replay identities differ from original archived records.");
+        var observation = await c.QuerySingleAsync<StateRow>(new CommandDefinition(
+            "SELECT Revision,SourceHash,StateHash,StateJson FROM dbo.EngineCurrentState WHERE Kind=N'PaperObservation' AND OwnerId=@Owner;",
+            new { Owner = owner }, cancellationToken: ct));
+        string expectedObservation = DelphiLiveLedgerJson.Serialize(DelphiLiveObservationPortfolio.From(verified.Snapshot));
+        if (observation.Revision != revision || observation.SourceHash != DelphiLiveSnapshotCodec.Hash(root) ||
+            observation.StateHash != DelphiLiveSnapshotCodec.Hash(observation.StateJson) ||
+            DelphiLiveSnapshotCodec.Fingerprint(observation.StateJson) != DelphiLiveSnapshotCodec.Fingerprint(expectedObservation))
+            throw new InvalidDataException("Paper observation membership differs from its reconstructed revision.");
     }
 
     public async Task<int> QualifyExistingAsync(CancellationToken ct = default)

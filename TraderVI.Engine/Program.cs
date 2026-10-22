@@ -45,8 +45,14 @@ internal static class Program
             var orderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TraderVI", "Wealthsimple", "ManualOrders");
             using var journal = new ManualBuyFileJournal(orderPath, new WindowsManualBuyProtector());
             var grants = new BrokerExecutionHostGrantFileStore(Path.Combine(orderPath, "execution-host.dat"), new WindowsManualBuyProtector());
+            var continuity = new EngineContinuity(new EngineContinuityRepository(),
+                new EngineContinuityFile(Path.Combine(EnginePaths.DirectoryPath, "continuity.dat"), new WindowsManualBuyProtector()));
             var broker = new EngineBrokerService(connection, journal, sessionStore, grants, calendar,
-                IndependentExecutionReadiness.VerifyAsync);
+                async (saved, ct) =>
+                {
+                    await continuity.VerifyAsync(ct).ConfigureAwait(false);
+                    await IndependentExecutionReadiness.VerifyAsync(saved, ct).ConfigureAwait(false);
+                });
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
             var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
@@ -56,6 +62,7 @@ internal static class Program
             bool stopping = false;
             market.ApplySessionBoundaryAsync = research.ApplyBoundaryAsync;
             var engine = new IndependentEngine([
+                new("Engine continuity", TimeSpan.FromSeconds(10), continuity.TickAsync),
                 new("Connection", TimeSpan.FromSeconds(10), broker.PollAuthenticationAsync),
                 new("Collection ownership", TimeSpan.FromSeconds(30), market.MaintainLeaseAsync),
                 new("Market inputs", TimeSpan.FromSeconds(30), market.TickAsync),
@@ -69,7 +76,11 @@ internal static class Program
                 new("Shadow protection", TimeSpan.FromSeconds(10), auxiliary.ShadowProtectionAsync),
                 new("AI research", TimeSpan.FromSeconds(30), auxiliary.CheckAiAsync),
                 new("Historical audits", TimeSpan.FromSeconds(30), audits.TickAsync)
-            ], async () => { await broker.StartAsync().ConfigureAwait(false); await auxiliary.StartAsync().ConfigureAwait(false); }, async () =>
+            ], async () =>
+            {
+                await continuity.StartAsync().ConfigureAwait(false);
+                await broker.StartAsync().ConfigureAwait(false); await auxiliary.StartAsync().ConfigureAwait(false);
+            }, async () =>
             {
                 try
                 {
@@ -80,6 +91,7 @@ internal static class Program
                     await market.StopAsync().ConfigureAwait(false);
                 }
                 finally { await broker.CloseAsync().ConfigureAwait(false); }
+                await continuity.CloseAsync().ConfigureAwait(false);
             });
             using var stopAccepting = new CancellationTokenSource();
             var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
@@ -94,10 +106,15 @@ internal static class Program
                 if (request.Operation == EngineOperation.PollTrackedPaper) return await auxiliary.PollTrackedAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.PollShadowPaper) return await auxiliary.PollShadowAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.IntegrityStatus) return await new EngineIntegrityRepository().ReadStatusAsync().ConfigureAwait(false);
-                if (request.Operation == EngineOperation.VerifyRecovery) return await audits.StartRecoveryAsync().ConfigureAwait(false);
+                if (request.Operation == EngineOperation.VerifyRecovery)
+                {
+                    await continuity.VerifyAsync().ConfigureAwait(false);
+                    return await audits.StartRecoveryAsync().ConfigureAwait(false);
+                }
                 if (request.Operation == EngineOperation.ClearIntegrityHolds)
                 {
                     var clear = request.Payload.Deserialize<EngineClearIntegrityHolds>() ?? throw new ArgumentException("Missing recovery command.");
+                    await continuity.VerifyAsync().ConfigureAwait(false);
                     await audits.ClearAsync(clear.RecoveryRunId, clear.Incidents, clear.Reason).ConfigureAwait(false);
                     return true;
                 }
@@ -122,6 +139,8 @@ internal static class Program
                     }).ConfigureAwait(false);
                     return true;
                 }
+                if (request.Operation is EngineOperation.PrepareBuy or EngineOperation.SubmitBuy or EngineOperation.SellAll or EngineOperation.EnableExecution)
+                    await continuity.VerifyAsync().ConfigureAwait(false);
                 return await broker.DispatchAsync(request).ConfigureAwait(false);
             });
             var serving = server.RunAsync(stopAccepting.Token);

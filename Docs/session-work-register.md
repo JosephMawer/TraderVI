@@ -1,5 +1,10 @@
 # TraderVI session-work register
 
+**October22 recovery checkpoint:** paired protected local/SQL witnesses and reconstructed current-state
+recovery are in source;431 related tests/one native skip and engine build pass. Native restoration,
+metadata permissions, concurrency and audit throughput remain unqualified. Continue these and broker
+current-state/diagnostics; the new real host is still blocked and installed behavior unchanged.
+
 **October22 follow-through:** the overnight delivery target was missed. Real subscription projection
 and approved-definition overlay now remove the paper-champion requirement; paper membership failures
 are scoped to paper and Shadow source adoption runs on the paper lane.423 related tests/one native

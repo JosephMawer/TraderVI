@@ -138,7 +138,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
                     throw new InvalidOperationException("Established protection ownership, floors and exit obligations cannot be reset.");
             }
     }
-    internal static async Task VerifyRevisionAsync(SqlConnection connection, Guid binding, long revision,
+    internal static async Task<BrokerManagedSession> VerifyRevisionAsync(SqlConnection connection, Guid binding, long revision,
         Core.Trader.DelphiLive.ITsxSessionCalendar calendar, CancellationToken ct)
     {
         async Task<BrokerManagedSession> ReadRevision(long number)
@@ -150,6 +150,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
         }
         var next = await ReadRevision(revision);
         ValidateNext(revision == 0 ? null : await ReadRevision(revision - 1), next, calendar);
+        return next;
     }
 
     private static BrokerManagedSession Decode(Row row, IReadOnlyDictionary<string, string> contents)

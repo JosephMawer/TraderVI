@@ -11,6 +11,11 @@ it at its actual processing boundary.423 related tests pass/one native skip;16 r
 Isolated engine/WPF builds pass (258/260 existing compiler warnings); dependency audit not requalified.
 Explicit --prepare-real-observations is prepared only. Restart/restore trust, broker current-state
 processing, native concurrency/capacity and final acceptance remain; real-host readiness stays blocked.
+Restart/restore witnesses are now in source: protected local/SQL pairing, dirty startup, drained clean
+shutdown, periodic/admission checks and durable holds on mismatch. Recovery also reconstructs current
+paper checkpoints/archive paths/replay IDs and collection projections.431 related tests pass/one native
+skip; engine builds with258 existing compiler warnings. Actual restart/restore/concurrency remains
+unqualified. Current recovery still scans the full archive; throughput needs further work.
 
 October22 paper current-state integration now reads qualified compact checkpoints and atomically saves
 changed archive records, current/observation state and immutable replay IDs. Full-history administrative

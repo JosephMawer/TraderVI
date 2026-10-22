@@ -10,6 +10,11 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Implement/test paired protected local/SQL continuity witnesses, interrupted/restored-state holds,
+  drained clean shutdown and recovery reconstruction of checkpoints/paths/replay IDs/projections.
+  431 related checks pass/one native skip; engine build passes. No native recovery qualification.
+- [ ] Qualify database identity visibility, restore/interruption/concurrency behavior and recovery audit
+  capacity. Full-archive recovery remains potentially expensive and is not operationally accepted.
 - [x] Derive real collection subscriptions from broker revisions; include approved definitions/holdings
   with absent/reassigned paper accounts, preserve real-only held-symbol evidence, and separate Shadow
   source adoption from market publication.423 related checks pass/one native skip;16 SQL batches parse.

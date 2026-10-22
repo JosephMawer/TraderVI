@@ -163,6 +163,17 @@ artifacts, install a scheduler, start a host, renew trading permission or place 
 
 ## Review questions
 
+Source-only restart contract: the engine pairs a protected local witness with a small SQL witness,
+records an unclean running state before starting workers and records clean closure only after draining.
+Missing/mismatched witnesses, interrupted runs or changed database/recovery identities create a durable
+global hold. Runtime mismatch blocks admission until restart and explicit recovery; no restart clears
+an incident or renews authority. Recovery verifies current paper checkpoints, archive paths, replay IDs
+and paper/real collection projections against reconstructed history before an operator can clear holds.
+The metadata check uses database/family/recovery-fork GUIDs documented by
+[Microsoft](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-recovery-status-transact-sql);
+metadata visibility and actual restore behavior still require native qualification. Paired witnesses add
+rollback/interruption detection; they are not a substitute for current broker reconciliation.
+
 Source-only current-state detail: the [implementation contract](../concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress)
 uses version-3 collection roots and stable archive ordinals, with a separate authenticated working
 checkpoint. It retains latest-exit/original-entry context and archived cash/profit totals without changing

@@ -24,13 +24,14 @@ public static class DelphiLiveSnapshotStorage
     internal sealed record PreparedSnapshot(DelphiLiveSnapshotPackage Package, DelphiLiveSnapshotDelta Delta,
         DelphiLiveObservationPortfolio Observation, bool CurrentStateManaged = false);
 
-    internal static Task<VerifiedSnapshot> ReadVerifiedAsync(SqlConnection connection, string root, CancellationToken token) =>
+    internal static Task<VerifiedSnapshot> ReadVerifiedAsync(SqlConnection connection, string root, CancellationToken token, bool fresh = false) =>
         Task.Run(async () =>
     {
         if (!DelphiLiveSnapshotCodec.IsCompact(root))
             throw new InvalidOperationException("Complete reviewed compact-history conversion before writing this portfolio.");
         var parts = await ReadPartsAsync(connection, null, root, token);
-        var snapshot = verifiedReads.Read(root, parts.Items, parts.Contents);
+        var snapshot = fresh ? DelphiLiveSnapshotCodec.Unpack(root, parts.Items, parts.Contents)
+            : verifiedReads.Read(root, parts.Items, parts.Contents);
         return new VerifiedSnapshot(root, snapshot, parts.Items, parts.Contents);
     }, token);
 

@@ -41,6 +41,8 @@ The overnight target was missed; continue source completion and report acceptanc
 Real input subscriptions now come from broker state and survive absent/reassigned paper accounts;
 paper source adoption is separate from publication. Finish restart/restore trust and broker current-state
 work, then full offline acceptance and a concrete separately authorized cutover.
+Continuity witnesses and recovery reconstruction are implemented offline. Finish audit throughput,
+broker current-state/diagnostic integration and native restart/restore qualification.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

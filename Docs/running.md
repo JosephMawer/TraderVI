@@ -17,6 +17,11 @@ the reviewed migration/cutover operation is authorized. Builds and unit tests do
 `--prepare-real-observations` separately derives collection subscriptions from fully decoded broker
 revision heads under each binding's exclusive lease. It saves only the current projection, not a new
 approval or order. Run only as part of authorized stopped-engine maintenance; no command has run.
+The independent engine also requires visible database/family/recovery-fork metadata and paired SQL/local
+continuity witnesses. First startup or interrupted/restored state creates a durable hold; use explicit
+recovery verification and clear controls after inspecting the cause. A runtime witness mismatch requires
+engine stop/restart before recovery. Never delete the protected witness to bypass a hold. Working-state
+qualification now also prepares observation projections for ended accounts included in recovery.
 
 ## Read-only local database diagnostics
 

@@ -5,6 +5,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,9 +27,18 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
         {
             case EngineAuditFamily.PaperRevisions:
                 await VerifyPaperAsync(c, target.OwnerId!.Value, p.NextRevision, ct);
+                if (run.Plan.Kind == EngineAuditKind.Recovery && p.NextRevision == target.ThroughRevision)
+                    await EnginePaperWorkingStore.VerifyCurrentAsync(c, target.OwnerId.Value, p.NextRevision, ct);
                 return p.Verified(run.Plan, p.NextRevision + 1, null);
             case EngineAuditFamily.BrokerRevisions:
-                await BrokerManagedSessionRepository.VerifyRevisionAsync(c, target.OwnerId!.Value, p.NextRevision, calendar, ct);
+                var broker = await BrokerManagedSessionRepository.VerifyRevisionAsync(c, target.OwnerId!.Value, p.NextRevision, calendar, ct);
+                if (run.Plan.Kind == EngineAuditKind.Recovery && p.NextRevision == target.ThroughRevision)
+                {
+                    var observation = (await new EngineRealObservationStore().ReadAsync(ct)).Single(r => r.BindingId == broker.BindingId);
+                    if (DelphiLiveSnapshotCodec.Fingerprint(DelphiLiveLedgerJson.Serialize(observation)) !=
+                        DelphiLiveSnapshotCodec.Fingerprint(DelphiLiveLedgerJson.Serialize(EngineRealObservation.From(broker))))
+                        throw new InvalidDataException("Real observation subscription differs from reconstructed broker history.");
+                }
                 return p.Verified(run.Plan, p.NextRevision + 1, null);
             case EngineAuditFamily.SharedContent:
                 var content = await c.QueryFirstOrDefaultAsync<ContentRow>(new CommandDefinition("""

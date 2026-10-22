@@ -272,6 +272,14 @@ has already been observed. Report any remaining scope and failed acceptance hone
 
 ### Current-state implementation contract in progress
 
+The engine now has a protected local/SQL continuity witness. Startup records running state before any
+worker, and only drained explicit shutdown records clean state. A missing witness, interrupted process,
+SQL/file mismatch or changed database recovery identity creates a global integrity hold. Periodic checks
+and order/host-enable admission verify the pair. Runtime loss requires stop/restart and explicit recovery;
+successful restart never clears a hold. Recovery independently reconstructs paper checkpoints, their
+archive paths/replay IDs and paper/real observation projections before explicit hold resolution.
+This implementation remains source-only; restore/concurrency acceptance and audit capacity are unproved.
+
 Real collection subscriptions are a separate current projection of the exact broker revision: approved
 strategy/admission definitions plus held and pending-order symbols. They neither grant execution nor
 replace fresh broker reconciliation. Initial qualification reads complete broker state once; later
