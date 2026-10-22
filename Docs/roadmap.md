@@ -11,9 +11,11 @@ and source review points; use its owning-record links when resuming work.
 **Current request — review revised architecture before implementation:** real trading independence
 from paper research is accepted under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
 Immediate/historical verification separation and nightly/weekly audit/failure policy are also accepted.
-Resolve the [draft](concepts/independent-real-processing-design.md) engine lifecycle and staged-cutover
-choices, then complete engineering contracts/acceptance for the first increment. Build retention is
-separate before cleanup. No implementation, audit scheduling, migration or cleanup scope is accepted.
+Dashboard-close continuation and a separate stop are accepted; staged delivery is accepted conditional
+on completion tonight, with feasibility unverified. The [draft](concepts/independent-real-processing-design.md)
+proposes independent host/broker lifetime plus direct shared inputs as the first useful increment.
+Complete engineering contracts/acceptance before the switch. Build retention is separate before cleanup.
+Latest request asks for the first implementation step; no replacement, audit job or migration has started.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

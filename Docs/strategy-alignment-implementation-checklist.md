@@ -19,7 +19,13 @@ The September 22 documentation cleanup preserves the
   under ADR-0103. This is a design decision, not an installed integrity change.
 - [x] Adopt nightly new-history audits, weekly archive coverage target and scoped failure/recovery
   responses under ADR-0103. No audit job is implemented or installed.
-- [ ] Resolve proposed engine lifecycle and staged delivery/cutover; decide retention separately before cleanup.
+- [x] Accept continued engine operation after dashboard closure and a separate stop control.
+- [x] Accept staged delivery with the requested tonight target; feasibility is unverified, not a completion promise.
+- [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
+  from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
+  and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
+  Latest user asks what this first step would be; runtime work has not started.
+- [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
   resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.
   Implementation and operational authority remain separate from these design decisions.

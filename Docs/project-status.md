@@ -2,20 +2,22 @@
 
 ## October 21 post-open execution watch
 
-**Latest design decisions — audit policy adopted:** operator accepts nightly new-history audits,
-weekly complete-archive coverage as a capacity-qualified target, and scoped failure/recovery behavior
-alongside real/paper independence and verification separation under
-[ADR-0103](adr/0103-real-execution-independent-of-paper-research.md). The
-[draft](concepts/independent-real-processing-design.md) now distinguishes remaining lifecycle/cutover
-choices from engineering contracts; build retention is separate before cleanup. These choices remain
-proposed. Documentation only: no implementation, installed audit jobs, operational change or new capacity evidence.
+**Latest design decisions — dashboard-independent operation accepted:** closing the dashboard leaves
+the engine running, with a separate stop control, under
+[ADR-0103](adr/0103-real-execution-independent-of-paper-research.md). The operator accepts staged delivery
+conditional on completion tonight; target feasibility is unverified. The
+[draft](concepts/independent-real-processing-design.md#proposed-first-implementation-increment-independent-operational-host)
+defines the proposed first increment: extract UI-owned execution/broker lifetime into a separate host
+and give real management direct shared inputs. Current input reads still depend on paper evaluation
+records; moving the host alone would not remove that dependency. Accepted independence, audit policy
+and verification separation remain. Documentation/source review only; no implementation or installation.
 
 **Earlier architecture and storage investigation:** current source confirms
 background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot
 remove real-host waits. Hash-verified read-only SQL and filesystem inspection distinguish repeated
 history processing from evaluation storage and accumulated build outputs. The pinned architecture's
-logical boundaries still apply; its execution-status labels are historical. Detailed redesign, cleanup
-and paper-off behavior remain unaccepted. [Findings](reviews/paper-workload-architecture-20261021.md).
+logical boundaries still apply; its execution-status labels are historical. Accepted redesign decisions
+are recorded above; cleanup remains undecided. [Findings](reviews/paper-workload-architecture-20261021.md).
 
 **Earlier evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
 defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with

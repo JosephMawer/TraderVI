@@ -1,8 +1,9 @@
 # Independent real processing — architecture draft
 
 **October 21, 2026.** Accepted under ADR-0103: real trading independence, immediate/historical
-verification separation, and the nightly/weekly audit policy with scoped failure responses.
-Lifecycle, cutover, retention and implementation mechanics below remain proposals, not implementation authority.
+verification separation, the nightly/weekly audit policy, and continued engine operation after dashboard
+closure with an explicit stop control. Staged delivery is accepted with a requested tonight target;
+feasibility is unverified. Exact cutover, retention and implementation mechanics remain proposals.
 This is a design outline, not yet an implementation-ready specification.
 
 The immediate problem is delayed real decisions and an apparently blocked UI. The parent problem
@@ -33,8 +34,9 @@ collection, trading loops or full-history reconstruction.
 Proposed runtime layout: a supervised operational host owns separate schedules for collection and
 real management; paper management/research runs separately from that host, with paper protection
 scheduled independently of expensive research. WPF displays saved/current status and submits requests.
-All reuse Core strategy logic. This extends ADR-0083's independent-host direction; startup, shutdown,
-disconnect and closing-the-UI behavior remain to be agreed. No automatic startup or permission renewal.
+All reuse Core strategy logic. This extends ADR-0083's independent-host direction. Dashboard closure
+now explicitly leaves the engine running; a separate stop control requests orderly shutdown. Manual
+start is the initial proposal; automatic Windows startup remains later work. Neither renews permission.
 
 Use the existing SQL Server initially with distinct evidence/account ownership and short transactions.
 Resource budgets and bounded batches keep research from overwhelming shared CPU, memory, provider
@@ -165,13 +167,14 @@ failure behavior or authority, rather than reopening the accepted policy for rou
 
 ## Remaining decisions before implementation
 
-The main principles and audit policy are settled. Two operator choices remain for the first delivery;
-retention is a separate decision before cleanup and need not block the architecture work.
+The main principles, audit policy and dashboard-close behavior are settled. The operator accepts the
+staged method with a requested tonight deadline; completion feasibility remains unverified. Retention
+is a separate decision before cleanup and need not block the architecture work.
 
 | Choice | Recommended initial behavior | Status |
 |---|---|---|
-| Engine lifecycle | Run the engine separately from the dashboard, with manual start for the first delivery. Closing the dashboard leaves an already-running engine operating within existing authority; display that clearly. Keep Stop new buys distinct from a deliberate full engine stop. After a computer restart, reopen/reconcile saved state; buying requires still-valid permission and fresh checks. Automatic Windows startup is a later installation step under ADR-0083. | Proposed; ask next about dashboard-close behavior |
-| Delivery and cutover | Deliver in stages. First extract shared inputs and real processing through compatible readers; introduce current-state/event/evidence storage behind verified adapters. Compare the replacement against identical saved inputs/state without order authority, then switch a single execution owner after validation. Preserve old history and a reviewed recovery route. | Proposed initial rollout; installing/migrating/switching later requires its own concrete review |
+| Engine lifecycle | Run the engine separately from the dashboard, with manual start proposed for the first delivery. Closing the dashboard leaves an already-running engine operating within existing authority; display that clearly. Keep Stop new buys distinct from a deliberate full engine stop. After a computer restart, reopen/reconcile saved state; buying requires still-valid permission and fresh checks. Automatic Windows startup is a later installation step under ADR-0083. | Dashboard-close continuation and separate stop accepted; detailed lifecycle mechanics to implement/test |
+| Delivery and cutover | Deliver in compact stages within the same implementation effort. First extract shared inputs and real processing through compatible readers; introduce current-state/event/evidence storage behind verified adapters. Compare the replacement against identical saved inputs/state without order authority, then switch a single execution owner after validation. Preserve old history and a reviewed recovery route. | Staged method accepted conditional on tonight; target feasibility unverified, exact installation/migration/switch still requires concrete review |
 | Build retention | Retain the deployed build plus two known-good rollback builds and explicitly pinned investigation copies. Preserve source/manifests, models and financial/research history. Special recovery backups remain separate from regular full-backup retention. | Proposed; decide before cleanup, not a prerequisite for core implementation |
 
 The lifecycle choice includes explicit stop/disconnect presentation and orderly shutdown; a closed UI
@@ -189,9 +192,51 @@ signal/risk rules and audit responses; ask only if a technical finding creates a
 
 No additional decision is needed to preserve the current strategy, original history, freshness limits,
 buying permission/expiry or independent protection. These are existing requirements, not new options.
-The user has requested remaining-decision clarification, not implementation; after resolving choices,
-present the concrete first increment and obtain an implementation instruction rather than treating
-discussion as approval to code, install, migrate, run audits or trade.
+The latest request accepts lifecycle/delivery direction and asks for the first implementation step.
+Present that concrete increment; no runtime implementation or operational switch has started.
+
+## Proposed first implementation increment: independent operational host
+
+First extract the UI-owned execution coordinator and broker-session lifetime into a UI-independent
+service in shared code. Give it explicit start, status, command and orderly-stop boundaries, with one
+order owner shared by manual and automatic actions. Wire that service into a separate local executable;
+the dashboard becomes a client that can disconnect/reconnect without cancelling the engine. Initially
+prove it with synthetic feeds and broker substitutes, not a second live order-capable process.
+
+Host extraction alone does not remove paper dependence. Current `PollExecutionHostAsync` waits on
+`BrokerSetupCycleBarrier`, while `TradingRecommendationRepository.BuildInput` reconstructs Live inputs
+from `DelphiLiveEvaluation.InputJson`. The source review also checks paper progress. Therefore the
+first useful operating increment must extract shared collection/input publication from paper evaluation,
+preserve exact approved definitions and original observation/receipt/continuity information, and let real
+management consume it directly with its own progress and confirmation. Short coordinated writes replace
+whole-paper-cycle admission only after their revision/ownership guarantees are implemented and tested.
+
+Concrete source references: `TraderVI.WPF/Services/ManualBuyCoordinator.ExecutionHost.cs`,
+`TraderVI.WPF/Viewmodels/WealthsimpleConnection.cs`, `TraderVI.WPF/PaperDashboardWindow.xaml.cs`,
+`Core/Trader/Promotion/BrokerManagedSessionComposition.cs`, `Core/Db/TradingRecommendationRepository.cs`
+and `Core/Trader/DelphiLive/DelphiLiveMonitorWorkflow.cs`. Reuse existing Core workflows and protected
+sign-in/session storage; do not introduce an unreviewed credential transfer or second submission path.
+
+Acceptance for this increment:
+
+- Closing/reopening the client leaves the same engine owner and broker-session lifetime intact;
+  reconnect reports current status, while stale/disconnected status is plainly marked.
+- An intentionally stalled/disabled paper research worker cannot stop shared publication or real
+  evaluation of a new input. Test direct input identity/continuity and freshness without paper rows.
+- Duplicate starts/commands cannot create two order owners or duplicate submissions; pending actions
+  recover by original identity, and explicit stop reports its real completion state.
+- Expired permission, absent/stale/conflicting evidence and saved holds still block the same actions;
+  existing protection and manual operations use the one coordinated path.
+- Settings changes and real/paper writes remain coherent under concurrency; removing a UI wait alone
+  is not acceptance. Resource and lock contention must be measured before operational claims.
+
+This increment proves independent ownership and input flow. It does not by itself remove all lifetime
+history reads or shrink existing storage. Compact current state, shared evidence, historical audit jobs
+and any reviewed data conversion follow as separate validated increments in the same requested effort.
+Use short offline equivalence checks and builds as development checkpoints, not an invented multi-day
+waiting period. Tonight is the requested target for delivery; there is no measured basis yet to promise
+the complete redesign and validated native switch tonight, or to claim next-session trading behavior
+has already been observed. Report any remaining scope and failed acceptance honestly.
 
 ## Storage retention and delivery
 
@@ -210,5 +255,5 @@ Acceptance must include a deliberately slow/stopped research worker while collec
 paper protection and UI remain timely; equal decisions and preserved account/risk/order history;
 bounded real admission and long-history scaling; reconstructible exact evidence; no duplicate orders;
 freshness/continuity blocks on genuinely late or missing data. Numeric latency/resource budgets and
-shutdown behavior are still open. No code, tests, migrations, cleanup or operational actions are performed
+shutdown mechanics are still to be specified and tested; dashboard-close continuation is accepted. No code, tests, migrations, cleanup or operational actions are performed
 by this draft.

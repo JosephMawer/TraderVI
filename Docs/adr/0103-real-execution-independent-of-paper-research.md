@@ -1,6 +1,6 @@
 # ADR-0103: Real execution independent of paper research
 
-**Date:** October 21, 2026. **Status:** Independence, verification separation and audit policy accepted; lifecycle/cutover and detailed mechanisms remain draft, implementation has not been requested.
+**Date:** October 21, 2026. **Status:** Independence, verification separation, audit policy and dashboard-independent lifecycle accepted; staged delivery accepted with a requested tonight target, feasibility unverified. First implementation increment is proposed, not started.
 **Domains:** architecture, data-pipeline.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 
@@ -21,7 +21,7 @@ and exact decision inputs immediately, with complete historical checking perform
 acknowledges later detection of corruption in unrelated older records, without permitting known bad
 evidence to authorize trading. [The design draft](../concepts/independent-real-processing-design.md)
 proposes the mechanics. The operator subsequently adopts the audit policy below. Checkpoint trust,
-process lifecycle, storage mechanics, cutover and retention still need a complete design; this is not
+storage mechanics, exact cutover and retention still need a complete design; this is not
 yet an implementation-ready replacement integrity contract.
 
 ## Accepted historical audit policy
@@ -43,6 +43,24 @@ This accepts policy, not installation of audit jobs. Exact scheduling/resource b
 checkpoint construction and durable incident/release mechanics are engineering work under this policy.
 The [draft](../concepts/independent-real-processing-design.md) separates remaining operator choices
 from implementation details; do not require the operator to choose hashing, transaction or batching algorithms.
+
+## Accepted lifecycle and delivery direction
+
+Closing the dashboard leaves the separate engine running within its existing authority. Provide an
+explicit engine-stop control, distinct from stopping new buys. Reopening the dashboard reconnects to
+the same owner; it must not create another broker session/order writer. A deliberate engine stop must
+report completion or unresolved work accurately; it does not liquidate holdings or cancel broker orders
+implicitly. Existing permission expiry, reconciliation and protection requirements remain.
+
+The operator accepts staged delivery on the condition that it is done tonight. Treat tonight as the
+requested target, not a demonstrated completion estimate. Use compact implementation/verification
+checkpoints within the same effort; do not invent a multi-day trial requirement. The full storage
+conversion, migration and native acceptance have not been estimated or qualified. A deadline cannot
+turn failed checks into a successful cutover or claim market-hours evidence obtained overnight.
+
+The requested next answer is the concrete first implementation step. The draft defines a standalone
+operational-host increment, beginning with extraction of UI-owned broker/execution services and a direct
+shared-input boundary. This proposal does not install or start a replacement host.
 
 ## Boundaries and consequences
 

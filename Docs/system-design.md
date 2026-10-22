@@ -11,8 +11,10 @@ Real trading must be independent of optional paper research. The
 [architecture draft](concepts/independent-real-processing-design.md) proposes shared immutable inputs,
 independent account managers, compact current state plus events, and research over retained history.
 Immediate current-state/new-event/input verification separate from full historical audits is also
-accepted, together with nightly/weekly audit cadence and scoped failure/recovery policy. The draft
-separates remaining lifecycle/cutover choices from checkpoint/freshness/resource engineering contracts.
+accepted, together with nightly/weekly audit cadence and scoped failure/recovery policy. Closing the
+dashboard leaves the engine running with a separate stop control. Staged delivery is accepted with a
+requested tonight target, feasibility unverified. The draft describes the first independent-host/direct-input
+increment and remaining checkpoint/freshness/resource engineering contracts.
 No replacement is implemented; current broad admission/full-history verification still operate.
 Retention choices remain separate before cleanup.
 [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md) records the accepted design decisions.

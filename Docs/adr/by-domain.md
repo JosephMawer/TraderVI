@@ -4,7 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
-- [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Independent real execution, separate immediate/historical checks and accepted audit policy
+- [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Independent real execution, dashboard-independent lifecycle and accepted audit policy
 
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — One identical evaluation-save replay without order or permission retries
 
