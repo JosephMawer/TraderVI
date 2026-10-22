@@ -389,8 +389,13 @@
                         <Button Content="Back to all portfolios" Click="BackToCompare_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
                         <Button Content="Latest saved Delphi source" Click="DailySource_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
                         <Button Content="Open this intraday account" Click="LiveAccount_Click" IsEnabled="{Binding IsLiveSelected}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
+                        <Button Content="Load full history" Click="LiveHistory_Click" IsEnabled="{Binding CanLoadLiveHistory}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
+                        <Button Content="Newer" Click="NewerLiveHistory_Click" IsEnabled="{Binding CanShowNewerLiveHistory}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
+                        <Button Content="Older" Click="OlderLiveHistory_Click" IsEnabled="{Binding CanShowOlderLiveHistory}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
+                        <Button Content="Current activity" Click="CurrentLiveActivity_Click" IsEnabled="{Binding IsLiveSelected}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"/>
                         <Button Content="Use as main strategy…" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}" Margin="0,0,0,8"/>
                     </WrapPanel>
+                    <TextBlock Text="{Binding LiveActivityScope}" Style="{StaticResource WorkspaceLabel}" Margin="0,0,0,12"/>
         <Border Style="{StaticResource Card}" Margin="0,0,0,14" Height="230">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>

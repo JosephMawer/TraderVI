@@ -4,6 +4,7 @@ using Core.Trader.DelphiLive;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -17,6 +18,19 @@ public sealed partial class PortfoliosViewModel
     private readonly DelphiLivePortfolioReader liveReader = new();
     private readonly Dictionary<Guid, DelphiLivePortfolioAccount> liveAccounts = [];
     private int detailRequest;
+    private sealed record HistoryView(Guid PortfolioId, DateTime AsOfUtc, PortfolioHoldingRow[] Holdings, PortfolioEventRow[] Events);
+    private HistoryView? historyView;
+    private int historyPage;
+    private int historyRequest;
+    private bool historyLoading;
+    private CancellationTokenSource? historyCancellation;
+    private bool ShowingHistory => IsLiveSelected && historyView?.PortfolioId == SelectedPortfolio?.DelphiLivePortfolioId;
+    public bool CanLoadLiveHistory => IsLiveSelected && !historyLoading;
+    public bool CanShowNewerLiveHistory => ShowingHistory && historyPage > 0;
+    public bool CanShowOlderLiveHistory => ShowingHistory && (historyPage + 1) * 100 < Math.Max(historyView!.Holdings.Length, historyView.Events.Length);
+    public string LiveActivityScope => !IsLiveSelected ? "Recent saved activity" : historyLoading ? "Loading saved history…" : ShowingHistory
+        ? $"Saved history as of {historyView!.AsOfUtc.ToLocalTime():g} · page {historyPage + 1}. Return to current activity to manage holdings."
+        : "Current session activity and latest closed positions. Earlier history is available on request.";
     private string liveAccountsStatus = "Delphi Live accounts not loaded";
     public string LiveAccountsStatus { get => liveAccountsStatus; private set { if (Set(ref liveAccountsStatus, value)) OnPropertyChanged(nameof(DisplayStatus)); } }
     public string DisplayStatus => IsLiveSelected ? LiveAccountsStatus : Status;
@@ -35,7 +49,7 @@ public sealed partial class PortfoliosViewModel
     private async Task<IReadOnlyList<PortfolioOverviewRow>> ReadDelphiLiveRowsAsync(CancellationToken token)
     {
         try { return ApplyDelphiLiveAccounts(await Task.Run(() => liveReader.ReadAsync(token), token), DateTime.UtcNow); }
-        catch (Exception error) when (error is SqlException or JsonException or InvalidOperationException or ArgumentException)
+        catch (Exception error) when (error is SqlException or JsonException or InvalidOperationException or ArgumentException or IOException)
         {
             liveAccounts.Clear();
             LiveAccountsStatus = "Delphi Live accounts unavailable · refresh to retry";
@@ -60,7 +74,7 @@ public sealed partial class PortfoliosViewModel
                 IsDelphiLive = true, DelphiLivePortfolioId = p.PortfolioId, Currency = p.Currency,
                 StrategyName = $"Live policy {p.PolicyVersionId.ToString("N")[..8]}",
                 Explanation = $"{account.DisplayName}. {account.StatusAt(nowUtc)}. Starts {p.EffectiveSession:MMM d, yyyy}; starting cash {p.StartingCapital:N2} {p.Currency}. " +
-                    $"{value.Explanation} {p.Fills.Count(f => f.Confidence == DelphiLiveFillConfidence.EstimatedFill)} estimated fill(s). " +
+                    $"{value.Explanation} {DelphiLiveWorkingState.EstimatedFillCount(p)} estimated fill(s). " +
                     "Manage this account in Delphi Live → Setup & advanced. Historical replay accounts are viewed in Delphi Live → Replay account."
             };
         }).ToList();
@@ -71,6 +85,7 @@ public sealed partial class PortfoliosViewModel
         LiveAccountsStatus = !read.SchemaInstalled ? "Delphi Live schema not installed" : hasMain
             ? $"Delphi Live · {read.Accounts.Count} saved account(s), including history" : "Delphi Live · main paper account not activated";
         OnPropertyChanged(nameof(SelectedAccountExplanation));
+        NotifyLiveHistory();
         return rows;
     }
 
@@ -88,6 +103,13 @@ public sealed partial class PortfoliosViewModel
         Replace(Candidates, p.CandidateStates.OrderBy(c => c.Key, StringComparer.Ordinal).Select(c =>
             new PortfolioCandidateRow(null, c.Key, Words(c.Value.Lifecycle.State.ToString()), null, null, null, null,
                 Words(c.Value.Lifecycle.ReasonCode), c.Value.EvaluatedUtc)));
+        if (ShowingHistory)
+        {
+            Replace(Holdings, historyView!.Holdings.Skip(historyPage * 100).Take(100));
+            Replace(Events, historyView.Events.Skip(historyPage * 100).Take(100));
+            NotifyLiveHistory();
+            return;
+        }
         Replace(Holdings, p.Positions.OrderByDescending(position => position.OpenedUtc).Select(position =>
         {
             var sale = p.Fills.SingleOrDefault(f => f.ActionId == position.ExitActionId && f.Side == DelphiLiveActionSide.Sell);
@@ -104,6 +126,55 @@ public sealed partial class PortfoliosViewModel
         var fills = p.Fills.Select(f => new PortfolioEventRow(f.FilledUtc.ToLocalTime(), $"{f.Side} fill",
             Words(f.Confidence.ToString()), $"{f.Symbol} · {f.Quantity} shares at {f.Price:N4} {p.Currency} · {f.Field}"));
         Replace(Events, actions.Concat(fills).OrderByDescending(e => e.TimeLocal).Take(100));
+        NotifyLiveHistory();
+    }
+
+    public async Task LoadLiveHistoryAsync(CancellationToken ct = default)
+    {
+        if (!CanLoadLiveHistory || SelectedPortfolio?.DelphiLivePortfolioId is not Guid id) return;
+        int request = ++historyRequest;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        historyCancellation = cancellation;
+        var historyToken = cancellation.Token;
+        historyLoading = true; NotifyLiveHistory();
+        try
+        {
+            var view = await Task.Run(async () =>
+            {
+                var p = await new DelphiLiveLedgerRepository().LoadPortfolioAsync(id, historyToken)
+                    ?? throw new InvalidOperationException("That account's saved history is unavailable.");
+                var sales = p.Fills.Where(f => f.Side == DelphiLiveActionSide.Sell).ToDictionary(f => f.ActionId);
+                var reasons = p.Actions.ToDictionary(a => a.Intent.ActionId, a => a.PrimaryReason);
+                var rows = p.Positions.OrderByDescending(position => position.OpenedUtc).Select(position =>
+                {
+                    var sale = position.ExitActionId is Guid exit && sales.TryGetValue(exit, out var found) ? found : null;
+                    string reason = position.ExitActionId is Guid action && reasons.TryGetValue(action, out var code) ? Words(code) : "—";
+                    // Saved history is read-only. Current activity owns the holding action controls.
+                    return new PortfolioHoldingRow(position.Symbol, position.ClosedUtc.HasValue ? "Closed" : "Held", position.Quantity,
+                        position.AveragePurchasePrice, sale?.Price, null,
+                        sale is null ? null : (sale.Price - position.AveragePurchasePrice) * sale.Quantity,
+                        position.Protection.FloorPrice, position.OpenedUtc.ToLocalTime(), reason);
+                }).ToArray();
+                var actions = p.Actions.Select(a => new PortfolioEventRow(a.Intent.DecisionUtc.ToLocalTime(), $"{a.Intent.Side} decision",
+                    Words(a.PrimaryReason), $"{a.Intent.Symbol} · {a.Status} · {a.AttemptCount} quote attempt(s) · {Words(a.TerminalReason ?? "Pending")}"));
+                var fills = p.Fills.Select(f => new PortfolioEventRow(f.FilledUtc.ToLocalTime(), $"{f.Side} fill", Words(f.Confidence.ToString()),
+                    $"{f.Symbol} · {f.Quantity} shares at {f.Price:N4} {p.Currency} · {f.Field}"));
+                return new HistoryView(id, p.UpdatedUtc, rows, actions.Concat(fills).OrderByDescending(e => e.TimeLocal).ToArray());
+            }, historyToken);
+            if (request != historyRequest || SelectedPortfolio?.DelphiLivePortfolioId != id) return;
+            historyView = view; historyPage = 0; ShowDelphiLiveDetails();
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        finally { historyCancellation = null; historyLoading = false; NotifyLiveHistory(); }
+    }
+    public void ShowEarlierLiveHistory() { if (CanShowOlderLiveHistory) { historyPage++; ShowDelphiLiveDetails(); } }
+    public void ShowNewerLiveHistory() { if (CanShowNewerLiveHistory) { historyPage--; ShowDelphiLiveDetails(); } }
+    public void ShowCurrentLiveActivity() { ResetLiveHistory(); ShowDelphiLiveDetails(); }
+    private void ResetLiveHistory() { historyRequest++; historyCancellation?.Cancel(); historyView = null; historyPage = 0; }
+    private void NotifyLiveHistory()
+    {
+        OnPropertyChanged(nameof(CanLoadLiveHistory)); OnPropertyChanged(nameof(CanShowNewerLiveHistory));
+        OnPropertyChanged(nameof(CanShowOlderLiveHistory)); OnPropertyChanged(nameof(LiveActivityScope));
     }
 
     private static string Words(string value) => Regex.Replace(value, "(?<=[a-z])(?=[A-Z])", " ");

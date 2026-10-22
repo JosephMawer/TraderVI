@@ -7,7 +7,10 @@ using System.Linq;
 namespace Core.Trader.DelphiLive;
 
 /// <summary>Totals for archived records excluded from the operational window. Never changes original capital.</summary>
-public sealed record DelphiLiveWorkingTotals(decimal ArchivedCashNet, decimal ArchivedRealizedProfitLoss);
+public sealed record DelphiLiveWorkingTotals(decimal ArchivedCashNet, decimal ArchivedRealizedProfitLoss)
+{
+    public long ArchivedEstimatedFillCount { get; init; }
+}
 
 public sealed record DelphiLiveWorkingSelection(DelphiLivePortfolioSnapshot Snapshot,
     IReadOnlyDictionary<string, ImmutableArray<int>> RetainedIndices);
@@ -26,12 +29,12 @@ public static class DelphiLiveWorkingState
             .Select(g => g.MaxBy(p => p.ClosedUtc)!.PositionId).ToHashSet();
         var positions = Keep("positions", state.Positions, p => p.ClosedUtc is null ||
             LocalDate(p.ClosedUtc.Value) >= date || latestClosed.Contains(p.PositionId));
-        var actions = Keep("actions", state.Actions, a => a.TradingDate >= date || a.Status is "Pending" or "ExitPendingOvernight");
+        var exitIds = positions.Where(p => p.ClosedUtc.HasValue).Select(p => p.ExitActionId).ToHashSet();
+        var actions = Keep("actions", state.Actions, a => a.TradingDate >= date || a.Status is "Pending" or "ExitPendingOvernight" || exitIds.Contains(a.Intent.ActionId));
         var pending = actions.Where(a => a.Status is "Pending" or "ExitPendingOvernight")
             .ToDictionary(a => a.Intent.ActionId, a => a.AttemptCount);
         var quotes = Keep("quotes", state.Quotes, q => q.ActionId is Guid action &&
             pending.TryGetValue(action, out int attempt) && q.Observation.AttemptNumber == attempt);
-        var exitIds = positions.Where(p => p.ClosedUtc.HasValue).Select(p => p.ExitActionId).ToHashSet();
         var fills = Keep("fills", state.Fills, f => f.TradingDate >= date || exitIds.Contains(f.ActionId));
         var lastMark = state.Marks.LastOrDefault()?.MarkId;
         var marks = Keep("marks", state.Marks, m => m.TradingDate >= date || m.MarkId == lastMark);
@@ -41,7 +44,10 @@ public static class DelphiLiveWorkingState
         decimal newlyArchivedProfit = state.Positions.Where(p => p.ClosedUtc.HasValue && !keptPositionIds.Contains(p.PositionId))
             .Sum(p => sales[p.ExitActionId!.Value].Quantity * (sales[p.ExitActionId.Value].Price - p.AveragePurchasePrice));
         var totals = new DelphiLiveWorkingTotals(state.Cash - state.StartingCapital - CashNet(fills),
-            (state.WorkingTotals?.ArchivedRealizedProfitLoss ?? 0m) + newlyArchivedProfit);
+            (state.WorkingTotals?.ArchivedRealizedProfitLoss ?? 0m) + newlyArchivedProfit)
+        {
+            ArchivedEstimatedFillCount = EstimatedFillCount(state) - fills.LongCount(f => f.Confidence == DelphiLiveFillConfidence.EstimatedFill)
+        };
         return new(state with { Positions = positions, Actions = actions, Fills = fills, Quotes = quotes, Marks = marks,
             WorkingTotals = totals }, retained);
 
@@ -55,5 +61,7 @@ public static class DelphiLiveWorkingState
 
     public static decimal CashNet(IEnumerable<DelphiLiveLedgerFill> fills) =>
         fills.Sum(f => (f.Side == DelphiLiveActionSide.Sell ? 1m : -1m) * f.Price * f.Quantity);
+    public static long EstimatedFillCount(DelphiLivePortfolioSnapshot state) =>
+        (state.WorkingTotals?.ArchivedEstimatedFillCount ?? 0) + state.Fills.LongCount(f => f.Confidence == DelphiLiveFillConfidence.EstimatedFill);
     private static DateOnly LocalDate(DateTime utc) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(utc, Zone));
 }

@@ -38,9 +38,17 @@ ORDER BY CASE WHEN g.EndExclusiveTradingDate IS NULL AND a.CancelledUtc IS NULL 
                 reader.IsDBNull(2) ? null : DateOnly.FromDateTime(reader.GetDateTime(2)),
                 reader.IsDBNull(3) ? null : DateTime.SpecifyKind(reader.GetDateTime(3), DateTimeKind.Utc)));
         await reader.DisposeAsync();
+        bool working = await EnginePaperWorkingStore.InstalledAsync(connection, null, cancellationToken);
         var accounts = new List<DelphiLivePortfolioAccount>();
         foreach (var row in saved)
-            accounts.Add(new(await DelphiLiveSnapshotStorage.ReadAsync(connection, null, row.Json, cancellationToken), row.Open, row.End, row.Cancelled));
+        {
+            var snapshot = working
+                ? await DelphiLiveLedgerRepository.ReadWorkingAsync(connection,
+                    System.Text.Json.Nodes.JsonNode.Parse(row.Json)!["portfolioId"]!.GetValue<Guid>(), cancellationToken)
+                    ?? throw new InvalidOperationException("A paper account disappeared during refresh.")
+                : await DelphiLiveSnapshotStorage.ReadAsync(connection, null, row.Json, cancellationToken);
+            accounts.Add(new(snapshot, row.Open, row.End, row.Cancelled));
+        }
         return new(true, accounts);
     }
 }

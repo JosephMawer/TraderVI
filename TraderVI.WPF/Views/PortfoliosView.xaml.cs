@@ -52,6 +52,10 @@ public partial class PortfoliosView : UserControl
         catch(Exception error){MessageBox.Show(Window.GetWindow(this),error.Message,"Promotion review unavailable",MessageBoxButton.OK,MessageBoxImage.Warning);}
     }
     private void BackToCompare_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = 0;
+    private async void LiveHistory_Click(object sender, RoutedEventArgs e) => await RunUiActionAsync(() => viewModel.LoadLiveHistoryAsync());
+    private void OlderLiveHistory_Click(object sender, RoutedEventArgs e) => viewModel.ShowEarlierLiveHistory();
+    private void NewerLiveHistory_Click(object sender, RoutedEventArgs e) => viewModel.ShowNewerLiveHistory();
+    private void CurrentLiveActivity_Click(object sender, RoutedEventArgs e) => viewModel.ShowCurrentLiveActivity();
     private void ReviewAssignments_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Daily");
     private void InspectStrategy_Click(object sender, RoutedEventArgs e)
     {

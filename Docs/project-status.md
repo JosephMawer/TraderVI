@@ -13,6 +13,11 @@ and --prepare-working-state are prepared only. Native concurrency/qualification 
 Unchanged candidate state now uses one shared content record across archive revisions. 84 related
 checks pass, including exact 200-symbol reconstruction and damaged-reference rejection; the synthetic
 root is under one fifth of its previous size. Installed storage savings remain unmeasured.
+Dashboard refresh now uses qualified current checkpoints; explicit full history loads on a worker
+and displays 100-row pages. Lifetime estimated-fill totals and latest exit reasons survive pruning.
+Current checkpoints also reference shared candidate content. 86 related tests and incremental WPF
+build pass (two existing compiler warnings); no native UI or SQL qualification. Initial qualification
+now covers all saved accounts, including ended accounts needed by the dashboard.
 
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
 by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`

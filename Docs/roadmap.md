@@ -27,7 +27,9 @@ operational current-state processing without reloading lifetime history.
 The incremental paper archive/window is wired to atomic SQL writes, record-identity protection and
 explicit full-history qualification (migration051 prepared). Finish remaining broker/display/recovery
 work and native qualification; preserve old archive revisions and original financial history.
-Candidate-state sharing also removes repeated unchanged signal state from archive roots.
+Candidate-state sharing removes repeated unchanged signal state from archive roots and checkpoints.
+Dashboard refresh uses current checkpoints; explicit background history is paged. Complete remaining
+broker/recovery and collection-dependency review before native qualification.
 Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
 native concurrency qualification before claiming the wait is resolved.
 Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish

@@ -214,7 +214,7 @@ VALUES (@Event, @Portfolio, @Revision, @Kind, @Time, @Json);
         return working?.Snapshot ?? next;
     }
 
-    private static async Task<DelphiLivePortfolioSnapshot?> ReadWorkingAsync(SqlConnection connection, Guid portfolio, CancellationToken ct)
+    internal static async Task<DelphiLivePortfolioSnapshot?> ReadWorkingAsync(SqlConnection connection, Guid portfolio, CancellationToken ct)
     {
         // The small root/checkpoint read is coherent while immutable content remains independently hash checked.
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, ct);

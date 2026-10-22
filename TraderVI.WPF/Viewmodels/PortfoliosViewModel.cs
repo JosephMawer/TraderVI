@@ -71,7 +71,9 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         get => selectedPortfolio;
         set
         {
+            var oldLiveId = selectedPortfolio?.DelphiLivePortfolioId;
             if (!Set(ref selectedPortfolio, value)) return;
+            if (oldLiveId != value?.DelphiLivePortfolioId) ResetLiveHistory();
             PortfolioDisplayName = value?.DisplayName ?? "";
             NotifyActions();
             OnPropertyChanged(nameof(CandidateHint));
@@ -79,6 +81,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(SelectedAccountExplanation));
             OnPropertyChanged(nameof(DisplayStatus));
             NotifyComparisonSelection();
+            NotifyLiveHistory();
         }
     }
 

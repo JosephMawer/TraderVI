@@ -10,6 +10,19 @@ namespace TraderVI.Core.Tests;
 
 public sealed class DelphiLiveWorkingStateTests
 {
+    [Fact]
+    public void DisplayCountsRetainAllEstimatedFillsAfterRepeatedWindowSelection()
+    {
+        var full = History(100);
+        full = full with { Fills = full.Fills.Select(f => f with { Confidence = DelphiLiveFillConfidence.EstimatedFill }).ToImmutableArray() };
+        var small = DelphiLiveWorkingState.Select(full).Snapshot;
+        small.Fills.Length.ShouldBe(1);
+        small.WorkingTotals!.ArchivedEstimatedFillCount.ShouldBe(199);
+        DelphiLiveWorkingState.EstimatedFillCount(small).ShouldBe(200);
+        DelphiLiveWorkingState.EstimatedFillCount(DelphiLiveWorkingState.Select(small).Snapshot).ShouldBe(200);
+        DelphiLiveWorkingState.EstimatedFillCount(full).ShouldBe(200);
+    }
+
     [Theory]
     [InlineData(2)] [InlineData(10_000)]
     public void CompletedHistoryRollsIntoTotalsWithoutChangingCapitalCashValuationOrLastExit(int count)

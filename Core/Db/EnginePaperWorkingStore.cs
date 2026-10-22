@@ -39,6 +39,7 @@ WHERE Kind=N'PaperWorking' AND OwnerId=@Owner;
         var checkpoint = DelphiLiveLedgerJson.Deserialize<DelphiLiveWorkingCheckpoint>(row.StateJson);
         var contents = await ReadContentsAsync(c, t, checkpoint.Items.Select(i => i.ContentHash), ct);
         var reports = new HashSet<string>(StringComparer.Ordinal);
+        if (checkpoint.CandidateStateHash is string checkpointCandidateHash) reports.Add(checkpointCandidateHash);
         if (DelphiLiveSnapshotCodec.CandidateStateReference(root) is string candidateHash) reports.Add(candidateHash);
         foreach (var item in contents.Values)
         {
@@ -199,8 +200,7 @@ IF @lock<0 THROW 54469,'Another snapshot writer prevents working-state qualifica
 """, cancellationToken: ct));
             if (!await InstalledAsync(c, null, ct)) throw new InvalidOperationException("Install reviewed migration 051 before qualification.");
             var roots = await c.QueryAsync<string>(new CommandDefinition("""
-SELECT l.SnapshotJson FROM dbo.DelphiLivePortfolioLedger l JOIN dbo.DelphiLivePortfolioGeneration g ON g.GenerationId=l.GenerationId
-WHERE g.EndExclusiveTradingDate IS NULL;
+SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger ORDER BY PortfolioId;
 """, cancellationToken: ct));
             int count = 0;
             foreach (string root in roots)

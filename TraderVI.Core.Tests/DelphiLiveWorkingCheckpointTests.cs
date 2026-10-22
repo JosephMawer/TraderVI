@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,6 +15,23 @@ namespace TraderVI.Core.Tests;
 
 public sealed class DelphiLiveWorkingCheckpointTests
 {
+    [Fact]
+    public void LegacyOptionalHeaderFieldsCanBeQualifiedWithoutRewritingTheOriginalRoot()
+    {
+        var full = DelphiLiveWorkingStateTests.History(2);
+        var json = JsonNode.Parse(DelphiLiveLedgerJson.Serialize(full))!.AsObject();
+        json.Remove("candidateStates"); json.Remove("dailySourceRevisionId"); json.Remove("comparisonAccount");
+        var package = DelphiLiveSnapshotCodec.PackJson(json.ToJsonString());
+        var decoded = DelphiLiveSnapshotCodec.Unpack(package.SnapshotJson, package.Items, package.Contents);
+        var qualified = DelphiLiveWorkingCheckpoint.Qualify(decoded, package);
+        var contents = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var pair in qualified.NewContents) contents[pair.Key] = pair.Value;
+        var current = qualified.Checkpoint.Restore(package.SnapshotJson, contents);
+        current.Cash.ShouldBe(full.Cash);
+        current.StartingCapital.ShouldBe(full.StartingCapital);
+        qualified.Archive.SnapshotJson.ShouldBe(package.SnapshotJson);
+    }
+
     [Fact]
     public async Task RepeatedCandidateStateIsSharedOnceAcrossSmallArchiveRoots()
     {
@@ -29,8 +47,9 @@ public sealed class DelphiLiveWorkingCheckpointTests
         var small = qualified.Snapshot;
         var first = await qualified.Checkpoint.AdvanceAsync(small, small with { Revision = small.Revision + 1 }, contents,
             (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), CancellationToken.None);
-        first.NewContents.Count.ShouldBe(1);
+        first.NewContents.ShouldBeEmpty();
         first.Archive.SnapshotJson.Length.ShouldBeLessThan(package.SnapshotJson.Length / 5);
+        first.Checkpoint.SnapshotRoot.Length.ShouldBeLessThan(package.SnapshotJson.Length / 5);
         string hash = DelphiLiveSnapshotCodec.CandidateStateReference(first.Archive.SnapshotJson)!;
         foreach (var pair in first.NewContents) contents[pair.Key] = pair.Value;
         var second = await first.Checkpoint.AdvanceAsync(first.Snapshot, first.Snapshot with { Revision = first.Snapshot.Revision + 1 }, contents,
@@ -59,7 +78,8 @@ public sealed class DelphiLiveWorkingCheckpointTests
         var qualified = DelphiLiveWorkingCheckpoint.Qualify(full, package);
         var all = package.Contents.ToDictionary(p => p.Key, p => p.Value);
         foreach (var pair in qualified.NewContents) all[pair.Key] = pair.Value;
-        var currentContents = DelphiLiveSnapshotCodec.Pack(qualified.Snapshot).Contents;
+        var currentContents = DelphiLiveSnapshotCodec.Pack(qualified.Snapshot).Contents.ToDictionary(p => p.Key, p => p.Value);
+        currentContents[qualified.Checkpoint.CandidateStateHash!] = qualified.NewContents[qualified.Checkpoint.CandidateStateHash!];
         var small = qualified.Checkpoint.Restore(package.SnapshotJson, currentContents);
         small.Positions.Length.ShouldBe(2);
         var changedPosition = position with { Protection = position.Protection with { HighestCompletedFiveMinuteClose = 11m } };
@@ -109,7 +129,7 @@ public sealed class DelphiLiveWorkingCheckpointTests
             { reads++; return Task.FromResult(contents.GetValueOrDefault(key)); }, CancellationToken.None);
             reads.ShouldBe(0);
             prepared.ChangedItems.Length.ShouldBe(1);
-            prepared.NewContents.Count.ShouldBe(day == 0 ? 2 : 1); // The initial candidate-state fragment is shared by later roots.
+            prepared.NewContents.Count.ShouldBe(1); // Candidate state was qualified once and is shared by every current/archive root.
             foreach (var item in prepared.ChangedItems) archiveItems[(item.Collection, item.Ordinal)] = item;
             foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
             archiveRoot = prepared.Archive.SnapshotJson;

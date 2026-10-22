@@ -3,8 +3,9 @@
 **October22 current-state integration:** compact paper windows and incremental archive roots are wired
 to atomic SQL/checkpoint/replay-identity updates (83 related checks, SSDT/engine/WPF build, 32 SQL parses).
 Original history reconstructs across day rollover; append-only fills/quotes/marks add no tree records.
-Candidate-state sharing removes repeated unchanged root payloads;84 related tests pass.
-Migration051 and explicit qualification are prepared. Continue broker/display/recovery integration and
+Candidate-state sharing removes repeated root/checkpoint payloads. Dashboard refresh uses compact
+state; requested history loads on a worker with 100-row display pages.86 related tests/WPF build pass.
+Migration051 and all-account qualification are prepared. Continue broker/recovery integration and
 native qualification. Source coverage includes the active overnight implementation request; no installation
 or native qualification is claimed. See [design contract](concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress).
 

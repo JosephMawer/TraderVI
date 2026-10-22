@@ -286,7 +286,7 @@ collection counts/roots. Positions/actions use binary hash trees, so changing on
 path. Append-only fills/quotes/marks use hash chains: each new root commits to the preceding root and
 new record, without extra stored tree nodes per append. Exact item/report content stays shared.
 Unchanged candidate-state dictionaries also use one canonical content record; each archive root carries
-its exact checksum. Working checkpoints retain their verified current dictionary, and archive readers
+its exact checksum. Version-2 working checkpoints reference that same verified dictionary, and archive readers
 resolve/check the original reference without joining to a later evaluation.
 Legacy version-2 roots remain readable; old revisions are not rewritten. Full readers/audits recompute
 the collection roots from all original referenced items, while operational appends verify only their
@@ -304,7 +304,11 @@ root/revision and events commit together. Scoped integrity is checked again insi
 Rare full-history administrative writers refresh the checkpoint too. 83 related tests pass, including
 full-archive validation of compact buy/protection/overnight/retry flows and exact restoration across
 10,000 historical marks/day rollover. Migration051 and --prepare-working-state are prepared; native
-SQL/concurrency and remaining broker/display/recovery work remain. No installed behavior changed.
+SQL/concurrency and remaining broker/recovery work remain. No installed behavior changed.
+Dashboard refresh reads these checkpoints, including ended accounts qualified during preparation.
+Full history is explicitly requested, loaded/transformed on a worker and displayed in 100-row pages;
+historical rows cannot submit holding actions. Lifetime estimated-fill totals and latest exit reasons
+are retained in the working view.86 related checks and incremental WPF build pass; native UI untested.
 
 Historical evidence stays available. Separately, propose retention for reproducible build binaries and
 platform-specific packaging; preserve source manifests, models, active outputs and recovery evidence.

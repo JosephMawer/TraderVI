@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ public sealed record DelphiLiveWorkingItem(string Collection, int Ordinal, int A
 public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoot, DelphiLiveWorkingTotals Totals,
     ImmutableArray<DelphiLiveWorkingItem> Items, ImmutableDictionary<string, int> Counts, ImmutableDictionary<string, string> Roots)
 {
+    public string? CandidateStateHash { get; init; }
     public sealed record Prepared(DelphiLiveWorkingCheckpoint Checkpoint, DelphiLivePortfolioSnapshot Snapshot,
         DelphiLiveSnapshotPackage Archive, ImmutableArray<DelphiLiveSnapshotItem> ChangedItems,
         ImmutableDictionary<string, string> NewContents, ImmutableArray<DelphiLiveSnapshotItem> NewIdentities);
@@ -32,19 +34,28 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
             foreach (var pair in tree.Nodes) nodes[pair.Key] = pair.Value;
         }
         var selection = DelphiLiveWorkingState.Select(full);
-        var compact = DelphiLiveSnapshotCodec.Pack(selection.Snapshot);
+        string candidateJson = DelphiLiveSnapshotCodec.CandidateStateReference(package.SnapshotJson) is string originalCandidateHash
+            ? package.Contents[originalCandidateHash]
+            : DelphiLiveSnapshotCodec.CanonicalJson(JsonSerializer.Serialize(full.CandidateStates, DelphiLiveLedgerJson.Options));
+        string candidateHash = DelphiLiveSnapshotCodec.Hash(candidateJson);
+        nodes[candidateHash] = candidateJson;
+        var compact = DelphiLiveSnapshotCodec.Pack(selection.Snapshot with { CandidateStates = ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty });
         var items = SelectItems(package.Items, selection.RetainedIndices);
-        var checkpoint = new DelphiLiveWorkingCheckpoint(1, compact.SnapshotJson, selection.Snapshot.WorkingTotals!, items,
-            counts, roots.ToImmutable());
-        _ = checkpoint.Restore(package.SnapshotJson, package.Contents);
+        var checkpoint = new DelphiLiveWorkingCheckpoint(2, compact.SnapshotJson, selection.Snapshot.WorkingTotals!, items,
+            counts, roots.ToImmutable()) { CandidateStateHash = candidateHash };
+        var proofContents = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+        proofContents[candidateHash] = candidateJson;
+        _ = checkpoint.Restore(package.SnapshotJson, proofContents);
         return new(checkpoint, selection.Snapshot, package, [], nodes.ToImmutable(), package.Items.Where(i => i.Collection != "sessionOpeningPositions").ToImmutableArray());
     }
 
     public DelphiLivePortfolioSnapshot Restore(string archiveRoot, IReadOnlyDictionary<string, string> contents)
     {
-        if (Version != 1 || Counts.Count != 6 || Roots.Count != 6 || Totals is null)
+        if (Version is not (1 or 2) || Counts.Count != 6 || Roots.Count != 6 || Totals is null || Totals.ArchivedEstimatedFillCount < 0 ||
+            Version == 2 && (CandidateStateHash is not { Length: 64 } || !CandidateStateHash.All(char.IsAsciiHexDigitUpper)) ||
+            Version == 1 && CandidateStateHash is not null)
             throw new InvalidDataException("Unsupported current paper checkpoint.");
-        if (Header(SnapshotRoot) != Header(archiveRoot)) throw new InvalidDataException("Current paper header differs from its archive revision.");
+        if (Header(SnapshotRoot, CandidateStateHash) != Header(archiveRoot)) throw new InvalidDataException("Current paper header differs from its archive revision.");
         var fullCounts = DelphiLiveSnapshotCodec.ReadCounts(archiveRoot);
         var fullRoots = DelphiLiveSnapshotCodec.IsIncremental(archiveRoot) ? DelphiLiveSnapshotCodec.ReadRoots(archiveRoot) : null;
         foreach (string name in DelphiLiveSnapshotCodec.Collections)
@@ -58,6 +69,13 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
         }
         var snapshot = DelphiLiveSnapshotCodec.Unpack(SnapshotRoot,
             Items.Select(i => new DelphiLiveSnapshotItem(i.Collection, i.Ordinal, i.ContentHash)).ToArray(), contents) with { WorkingTotals = Totals };
+        if (CandidateStateHash is string hash)
+        {
+            if (!contents.TryGetValue(hash, out string? candidateJson) || DelphiLiveSnapshotCodec.Hash(candidateJson) != hash)
+                throw new InvalidDataException("Current paper candidate state is missing or damaged.");
+            snapshot = snapshot with { CandidateStates = JsonSerializer.Deserialize<ImmutableDictionary<string, DelphiLivePortfolioCandidateState>>(
+                candidateJson, DelphiLiveLedgerJson.Options) ?? throw new InvalidDataException("Missing current candidate dictionary.") };
+        }
         if (snapshot.Cash != snapshot.StartingCapital + Totals.ArchivedCashNet + DelphiLiveWorkingState.CashNet(snapshot.Fills))
             throw new InvalidDataException("Current paper cash does not reconcile to its checkpoint.");
         return snapshot;
@@ -132,9 +150,9 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
         else if (previousCandidates != candidateJson) throw new InvalidDataException("Candidate state changed under the same checksum.");
         string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson, counts, roots, candidateHash);
         var selection = DelphiLiveWorkingState.Select(next);
-        var compact = DelphiLiveSnapshotCodec.Pack(selection.Snapshot);
-        var checkpoint = new DelphiLiveWorkingCheckpoint(1, compact.SnapshotJson, selection.Snapshot.WorkingTotals!,
-            SelectItems(mapped, selection.RetainedIndices), counts.ToImmutable(), roots.ToImmutable());
+        var compact = DelphiLiveSnapshotCodec.Pack(selection.Snapshot with { CandidateStates = ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty });
+        var checkpoint = new DelphiLiveWorkingCheckpoint(2, compact.SnapshotJson, selection.Snapshot.WorkingTotals!,
+            SelectItems(mapped, selection.RetainedIndices), counts.ToImmutable(), roots.ToImmutable()) { CandidateStateHash = candidateHash };
         return new(checkpoint, selection.Snapshot, new(root, DelphiLiveSnapshotCodec.Hash(root), contents, changed.ToImmutable()),
             changed.ToImmutable(), contents.ToImmutable(), identities.ToImmutable());
     }
@@ -155,13 +173,22 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
         }
         return result.ToImmutable();
     }
-    private static string Header(string json)
+    private static string Header(string json, string? candidateHash = null)
     {
         var root = JsonNode.Parse(json)!.AsObject(); root.Remove(DelphiLiveSnapshotCodec.Marker);
-        if (DelphiLiveSnapshotCodec.CandidateStateReference(json) is null)
-            root["candidateStates"] = new JsonObject { ["$contentHash"] = DelphiLiveSnapshotCodec.Hash(
-                DelphiLiveSnapshotCodec.CanonicalJson(root["candidateStates"]!.ToJsonString())) };
+        candidateHash ??= DelphiLiveSnapshotCodec.CandidateStateReference(json);
+        if (candidateHash is null)
+        {
+            var candidates = root["candidateStates"]?.Deserialize<ImmutableDictionary<string, DelphiLivePortfolioCandidateState>>(DelphiLiveLedgerJson.Options)
+                ?? ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty;
+            candidateHash = DelphiLiveSnapshotCodec.Hash(DelphiLiveSnapshotCodec.CanonicalJson(JsonSerializer.Serialize(candidates, DelphiLiveLedgerJson.Options)));
+        }
+        root["candidateStates"] = new JsonObject();
         foreach (string name in DelphiLiveSnapshotCodec.Collections) root[name] = new JsonArray();
+        // Older roots may omit subsequently added optional fields. Compare their decoded meaning;
+        // the enclosing checkpoint still binds the exact original root bytes separately.
+        root = JsonSerializer.SerializeToNode(root.Deserialize<DelphiLivePortfolioSnapshot>(DelphiLiveLedgerJson.Options), DelphiLiveLedgerJson.Options)!.AsObject();
+        root["candidateStates"] = new JsonObject { ["$contentHash"] = candidateHash };
         return DelphiLiveSnapshotCodec.Fingerprint(root.ToJsonString());
     }
 

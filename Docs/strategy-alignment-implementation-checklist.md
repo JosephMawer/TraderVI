@@ -19,6 +19,9 @@ The September 22 documentation cleanup preserves the
   authorized native environment; complete broker/display/recovery integration before cutover.
 - [x] Share unchanged candidate state across version-3 roots; 84 related tests pass with exact
   restoration and corrupted-reference rejection. No old revisions were converted.
+- [x] Use compact checkpoints for dashboard refresh; load requested history on a worker with 100-row
+  display pages. Share checkpoint candidate content and preserve lifetime estimated-fill totals/latest
+  exit reasons. 86 related tests and incremental WPF build pass; native UI/SQL remain unqualified.
 
 - [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
   code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).

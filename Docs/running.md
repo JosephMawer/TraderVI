@@ -10,7 +10,7 @@ No DACPAC deployment or automatic cleanup is part of this work.
 
 The explicit `TraderVI.Engine --prepare-observations` and `--prepare-working-state` commands are
 database-writing maintenance operations, not routine tests. With engine/app ownership stopped,
-the latter locks collection/storage maintenance, fully verifies current active portfolios, creates shared
+the latter locks collection/storage maintenance, fully verifies all saved portfolios, creates shared
 archive paths and immutable replay IDs, and saves hash-bound working checkpoints. It does not rewrite
 old snapshots, alter capital, clear integrity holds or authorize trading. Do not run either command until
 the reviewed migration/cutover operation is authorized. Builds and unit tests do not launch the host.
