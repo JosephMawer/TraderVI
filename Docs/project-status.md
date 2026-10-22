@@ -1,32 +1,36 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 authorized native preparation
+## Independent engine — October 22 installed verification
 
 The revised engine, direct shared inputs, independent paper/research consumers, compact paper state,
 shared storage, audit/hold/recovery controls and current-state dashboard readers are implemented in
 source. The temporary unconditional execution block is replaced by verified storage/continuity/current
 subscription prerequisites; original exact-build/account/dated approval and explicit enable remain.
 
-Full Core: **3,003 passed, nine native skips** with explicit xUnit concurrency disabled. Engine,
-WPF and SSDT builds pass; nineteen final changed SQL batches parse. Existing compiler warnings
+Full Core: **3,016 passed, nine native skips** with explicit xUnit concurrency disabled. Engine,
+WPF and SSDT builds pass; changed SQL parsing and native schema/guard checks pass. Existing compiler warnings
 remain; dependency-security audit was not requalified. [Evidence, retained checkpoints and concrete
 cutover sequence](reviews/independent-engine-implementation-20261022.md).
 
 **Native preparation authorized; not operationally accepted.** On October22 the operator explicitly
 authorizes the backup, migrations047–051, checkpoint preparation and native verification, with real
 trading disabled until results review. Zero owners/active leases were verified; the idle nightly task
-is temporarily disabled with its original state saved. A fresh checksum-verified full backup and
+was temporarily disabled with its original state saved. A fresh checksum-verified full backup and
 SHA256-matched second copy completed11:32Toronto; Windows confirmed OneDrive synchronization11:41.
 Migrations047–051 are installed; nine tables/fifteen guards and original roots/history counts verify.
-Paper/real checkpoints prepared successfully; verification engine runs with real trading disabled.
-Native tests rejected a second owner and exposed an audit timestamp-binding defect plus an unhandled
-dashboard connection-command failure; corrected verification advances through1,354original revisions.
-Original financial roots/counts and checkpoint hashes still verify. Full Core3,016pass/nine skips;
-standard Release builds with260existing compiler warnings/zero errors. Its native launch exposed a
-missing shared-runtime declaration, now corrected and built; installed resume remains pending.
-The old verification owner drained cleanly; nightly is still temporarily disabled. The overnight
-target was missed. Next: complete protected
-native qualification of ownership/reconnect, SQL concurrency, restore/holds, latency and audit coverage.
+Paper/real checkpoints prepared successfully. Standard Release **a94c474a** is installed and running
+in broker-disabled verification mode; native process/mode proof is current13:27Toronto. Corrected
+audit timestamp/value comparisons, dashboard command failures and shared-runtime packaging are
+included. Native second-owner rejection, dashboard-close survival, graceful stop and persisted audit
+resume pass. Original financial roots/counts and checkpoint hashes still verify. The nightly task's
+original enabled state was restored13:21 without launching it.
+
+**Initial recovery is incomplete:** 3,409 verified units of a 205,318 planned upper bound at 13:34 Toronto;
+all five unresolved holds remain, with no new incidents or bad checkpoint hashes. A 15-minute read-only progress monitor reports significant progress,
+new failures or completion. Real trading remains disabled until operator results review. The overnight
+target was missed; no completion ETA or full native acceptance is claimed. Remaining acceptance covers
+complete recovery/explicit hold resolution, sustained input latency, SQL concurrency, interruption/
+restore and weekly audit capacity. Reopened-window accessibility was unavailable, limiting UI acceptance.
 Broker changed appends still serialize full logical state under the 8MiB
 cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.
 Retention and any historical conversion/deletion remain undecided.

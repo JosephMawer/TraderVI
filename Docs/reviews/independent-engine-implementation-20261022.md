@@ -1,8 +1,8 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: implemented in source and validated offline; **authorized native preparation in progress**.
-The requested overnight delivery target was missed. The last recorded installed application remains
-October 21 build `c4d094fd`; no later operational verification is implied by this document.
+Status: **standard Release a94c474a installed; initial native recovery audit running, real trading disabled**.
+The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
+recovery coverage, remaining native acceptance and operator review have not been completed.
 
 ## Authorized native preparation — October 22
 
@@ -79,7 +79,24 @@ declared only the base runtime. Normal verification startup therefore failed aft
 stopped cleanly13:15:47. No order or financial record was changed. The engine now explicitly declares
 the same installed shared runtime, avoiding another copied library set. Restore/build succeeds with
 zero incremental warnings/errors; the engine runtime configuration now lists both required shared
-frameworks. Installed native resume and nightly restoration remain pending the corrected launch.
+frameworks. At that checkpoint, installed native resume and nightly restoration awaited the corrected launch.
+
+**Installed verification checkpoint13:27Toronto:** standard Releasea94c474a starts successfully from
+the normal WPF output directory, PID80744, with`--verify`; the process/path/argument check confirms the
+mode. Five engine/dashboard runtime files match and the complete output manifest is retained. The
+same recovery run resumes from1,662verified units without resetting its cursor. The original enabled
+nightly task state is restored13:21:39 (Ready); no scheduled stage was launched. The 13:34 hash-verified
+read reports 3,409 verified units, 205,318 planned upper bound, five unresolved incidents, and zero bad
+current-checkpoint hashes. Recovery remains Running, not accepted or complete. Earlier failed receipts
+and all holds are retained. Source checkpoints this turn:c34e1a22,3280d802,3805cef1,a94c474a.
+
+Read-only heartbeat`tradervi-native-recovery-progress` checks every15minutes in this chat, reporting
+new failures, stalled progress, each further5,000verified records or completion. Its baseline is in
+`native/monitor-state.json`; the bounded helper query is
+`Operations/ReadOnlyChecks/IndependentEngineRecoveryStatus.sql`. It is instructed not to clear holds, change SQL,
+restart the host or enable trading. Keep this computer and the app running for local progress checks.
+The monitor ends after reporting completion; remaining qualification is still owned by the checklist.
+No order, grant renewal, historical conversion/deletion, database restore or cleanup was performed.
 
 ## What changed
 

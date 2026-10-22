@@ -43,9 +43,12 @@ The overnight target was missed. Completed source work is separate from installe
   paper/real checkpoint preparation; verify original roots/counts and required schema/guards.
 - [x] Correct native timestamp/decimal comparison and dashboard command-error defects; verify recovery
   advances, dashboard closure preserves engine identity, and full Core3,016pass/nine skips.
-- [ ] Qualify installed shared-runtime packaging and repeated native cutover acceptance. Restore the
-  nightly task's original enabled state when maintenance safely completes. No new trading
-  permission follows from this operational authorization or source tests.
+- [x] Correct shared-runtime packaging, install matching standard Release a94c474a and verify native
+  startup in broker-disabled mode plus persisted audit resume. Restore the original nightly enabled
+  state without launching it. Record private runtime hashes and process/mode evidence.
+- [ ] Complete initial recovery coverage, review and explicitly resolve its holds, and finish remaining
+  native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
+  coverage is not a pass. Real trading remains disabled until operator review of results.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

@@ -1,13 +1,16 @@
 # Running TraderVI
 
-## Independent engine preparation — source only, October 22
+## Independent engine — installed verification, October 22
 
-The ADR-0103 host is not installed or operationally qualified. Source readiness now requires verified
+The ADR-0103 host is installed as standard Releasea94c474a and running with`--verify`; complete native
+acceptance is pending its initial recovery audit and remaining checklist checks. Real trading stays
+disabled until operator review. Readiness requires verified
 independent storage/guards, continuity, applicable holds and an exact current broker subscription;
 original exact-build/account/dated permission and separate enable remain mandatory. Follow the
 [concrete qualification/cutover review](reviews/independent-engine-implementation-20261022.md).
-Prepared migrations047–051 require separate review/authorization, stopped writers and a fresh verified
-checksum full backup. Migration050 retires the legacy evaluation writer;051 permits version-3 roots.
+Migrations047–051 and initial paper/real checkpoint preparation were explicitly authorized and completed
+with stopped writers and a fresh verified/synchronized full backup. Do not replay them. Migration050
+retires the legacy evaluation writer;051 permits version-3 roots.
 After the first new append, old binaries cannot read those roots, so rollback requires a compatible reader.
 No DACPAC deployment or automatic cleanup is part of this work.
 
@@ -19,12 +22,21 @@ old snapshots, alter capital, clear integrity holds or authorize trading. Do not
 the reviewed migration/cutover operation is authorized. Builds and unit tests do not launch the host.
 `--prepare-real-observations` separately derives collection subscriptions from fully decoded broker
 revision heads under each binding's exclusive lease. It saves only the current projection, not a new
-approval or order. Run only as part of authorized stopped-engine maintenance; no command has run.
+approval or order. Run only as part of authorized stopped-engine maintenance.
 The independent engine also requires visible database/family/recovery-fork metadata and paired SQL/local
 continuity witnesses. First startup or interrupted/restored state creates a durable hold; use explicit
 recovery verification and clear controls after inspecting the cause. A runtime witness mismatch requires
 engine stop/restart before recovery. Never delete the protected witness to bypass a hold. Working-state
 qualification now also prepares observation projections for ended accounts included in recovery.
+
+`TraderVI.Engine --verify` persistently disables the saved execution grant and rejects broker access,
+order and enable commands for that process. It otherwise exercises the actual engine/audit schedules.
+The engine and dashboard share the installed Windows desktop runtime; matching engine files must be
+present beside WPF. Dashboard closure does not stop the engine; use its separate Stop engine control.
+`--control Status|IntegrityStatus|Stop|VerifyRecovery <new-private-output.json>` supports bounded local
+maintenance. `ClearIntegrityHolds` additionally requires an explicit input JSON file identifying the
+completed recovery run, selected incidents and reason. Existing output files prevent command replay;
+inspect an uncertain/empty receipt before any retry. Commands confer no trading authority.
 
 ## Read-only local database diagnostics
 

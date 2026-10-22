@@ -1,6 +1,6 @@
 # ADR-0103: Real execution independent of paper research
 
-**Date:** October 21, 2026. **Status:** Accepted architecture; implementation explicitly requested, including the independent engine followed by history/storage changes tonight. Implementation underway; no native cutover or migration performed.
+**Date:** October 21, 2026. **Status:** Accepted architecture; source implemented and October22 migrations/checkpoints installed. Native verification is running with real trading disabled; full acceptance remains pending the linked cutover review.
 **Domains:** architecture, data-pipeline.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 

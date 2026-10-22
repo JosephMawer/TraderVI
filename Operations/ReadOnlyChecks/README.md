@@ -35,6 +35,10 @@ Do not replace this with a broad approval for PowerShell, dotnet, sqlcmd, or rep
 
 ## Enforced boundary
 
+`IndependentEngineRecoveryStatus.sql` reads bounded recovery progress, unresolved incident counts and
+current-checkpoint checksum status without archive/account payloads. Its planned count is an upper
+bound (identity gaps may exist), not a completion claim; only the saved Complete status proves coverage.
+
 The reviewed [Delphi Live decision summary](DelphiLiveDecisionSummary.sql) can be copied into the
 same mailbox without extending the helper. It reads the new optional private decision traces as
 aggregate reasons/counts, no symbols/account values. No trace on an older build is unavailable
