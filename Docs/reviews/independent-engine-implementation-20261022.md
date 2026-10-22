@@ -4,6 +4,31 @@ Status: **standard Release a94c474a installed; initial native recovery audit run
 The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
 recovery coverage, remaining native acceptance and operator review have not been completed.
 
+## Sequential audit and scoped recovery correction — October 22
+
+The operator explicitly authorizes fixing repeated history work and separating real recovery from
+paper research, with availability prioritized and real trading disabled until results review.
+[ADR-0104](../adr/0104-scoped-recovery-and-sequential-history-audits.md) records the concrete contract.
+Source now reads each portfolio's immutable membership changes once, fetches/hashes/decodes unique
+content once per fresh pass, carries adjacent paper/broker state and pages legacy inputs. Active
+batches admit4,096steps/five seconds and yield one second; idle checks remain30seconds. Original v2
+full-state checksum bytes still require hashing per revision, and current-checkpoint reconstruction
+remains an explicit final check. No history bytes, saved cursor or original audit plan are rewritten.
+
+Real recovery has priority and an independent broker/shared-input/content boundary. Clear controls
+verify exact relevant heads, database recovery identity, guards, saved receipts and real subscription;
+known global recovery findings atomically retain linked paper holds. Unknown/shared findings stay
+global. Original failed runs/incidents remain. Held paper assignments, holdings, experimental settings
+and auxiliary work no longer gate real collection. No new schema is needed.
+
+Full Core3,028passed/nine native skips with concurrency disabled;49 SQL batches parse after expanding
+Dapper list placeholders for syntax checking. Focused tests cover original fingerprint equivalence,
+one decode per unique item, reused immutable records, missing/corrupt/reordered content, v3 roots,
+scope isolation, unknown/newer findings and retained discovery boundaries. Native install and measured
+throughput remain pending. The14:28 hash-verified read finds29,699paper item versions across three owners
+(largest22,436) and40,708,962bytes of shared snapshot content, within the reader's configured bounds.
+This is audit working-set evidence, not disk reclamation or a financial performance result.
+
 ## Authorized native preparation — October 22
 
 The operator explicitly authorizes the backup, migrations047–051, checkpoint preparation and native

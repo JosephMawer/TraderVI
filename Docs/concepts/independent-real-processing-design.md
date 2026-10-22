@@ -349,3 +349,21 @@ bounded real admission and long-history scaling; reconstructible exact evidence;
 freshness/continuity blocks on genuinely late or missing data. Numeric latency/resource budgets and
 shutdown mechanics are still to be specified and tested; dashboard-close continuation is accepted. No code, tests, migrations, cleanup or operational actions are performed
 by this draft.
+
+## Reading history once — accepted October 22 correction
+
+Think of history as a saved notebook: decisions, prices observed, fills, holdings and account changes.
+It lets us establish what happened and whether the current account follows from those records. An audit
+checks that evidence; it does not rerun today's strategy to invent yesterday's decisions.
+
+The earlier reader repeatedly reopened all earlier notebook pages when checking the next saved state.
+ADR-0104 reads and decodes each distinct stored record once during a fresh pass, then carries verified
+records forward. Its temporary memory is released rather than saved as another disk copy. Old snapshots
+also contain a checksum of their entire state; checking that checksum still hashes those original bytes.
+That remaining work cannot be removed by calling it asynchronous or silently trusting a different hash.
+
+Real-account recovery now has its own checklist: real account history, its required shared evidence and
+the current collection subscription. Paper research retains its own restrictions until checked. A real
+pass cannot turn unfinished paper coverage into a pass, and neither pass enables trading. See
+[ADR-0104](../adr/0104-scoped-recovery-and-sequential-history-audits.md) and the implementation review
+for source versus installed qualification.

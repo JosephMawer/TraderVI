@@ -16,6 +16,8 @@ public sealed class EnginePaperObservationStore : SQLBase
 {
     public async Task<IReadOnlyList<DelphiLiveObservationPortfolio>> ReadForCollectionAsync(DateOnly date, CancellationToken ct = default)
     {
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(Core.Runtime.EngineIntegrityScope.Paper, null, ct)).ProtectionAllowed)
+            return Array.Empty<DelphiLiveObservationPortfolio>();
         try { return await ReadAsync(date, ct); }
         catch (Exception error) when (error is InvalidDataException or System.Text.Json.JsonException)
         {

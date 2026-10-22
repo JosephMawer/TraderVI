@@ -55,7 +55,8 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
     public async Task<IReadOnlyList<DelphiLivePolicyAssignment>> GetAssignmentsForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default)
     {
         await using var connection = new SqlConnection(ConnectionString);
-        var paper = await ReadAssignmentsAsync(connection, tradingDate, null, cancellationToken);
+        IReadOnlyList<DelphiLivePolicyAssignment> paper = await PaperAvailableAsync(cancellationToken)
+            ? await ReadAssignmentsAsync(connection, tradingDate, null, cancellationToken) : Array.Empty<DelphiLivePolicyAssignment>();
         return realObservations is null ? paper : Core.Runtime.EngineRealObservation.IncludeAssignments(
             paper, await realObservations.ReadAsync(cancellationToken), tradingDate);
     }
@@ -82,7 +83,10 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         now = Utc(await connection.QuerySingleAsync<DateTime>(new CommandDefinition("SELECT SYSUTCDATETIME();", transaction: transaction, cancellationToken: cancellationToken)));
         DelphiLiveFrozenSession? existing = await ReadFrozenAsync(connection, request.TradingDate, transaction, cancellationToken);
         if (existing is not null) { await transaction.CommitAsync(cancellationToken); return existing; }
-        var assignments = await ReadAssignmentsAsync(connection, request.TradingDate, transaction, cancellationToken);
+        IReadOnlyList<DelphiLivePolicyAssignment> assignments = realObservations is not null &&
+            !Core.Runtime.EngineIntegrityAccess.Evaluate(await EngineIntegrityRepository.ReadOpenAsync(connection, transaction, cancellationToken),
+                Core.Runtime.EngineIntegrityScope.Paper, null).ProtectionAllowed
+            ? Array.Empty<DelphiLivePolicyAssignment>() : await ReadAssignmentsAsync(connection, request.TradingDate, transaction, cancellationToken);
         if ((assignments.Count > 0 || realObservations is null) && assignments.Count(a => a.Role == DelphiLivePolicyRole.OperationalChampion) != 1 || assignments.Count > 3 ||
             (realObservations is null
                 ? !assignments.Select(a => a.AssignmentId).Order().SequenceEqual(request.Assignments.Select(a => a.AssignmentId).Order())
@@ -95,7 +99,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         {
             Session = sessionId, TradingDate = Date(request.TradingDate), Open = bounds.OpenUtc, Close = bounds.CloseUtc,
             Prior = Date(request.ExpectedMarketDataAsOf), Now = now, Calendar = calendar.Version,
-            Code = code.Commit, Tree = code.WorkingTreeState, Holdings = holdingJson
+            Code = code.Commit, Tree = code.WorkingTreeState, Holdings = holdingJson, IncludePaper = assignments.Count > 0
         }, transaction, cancellationToken: cancellationToken));
         var symbols = (await connection.QueryAsync<string>(new CommandDefinition(
             "SELECT Symbol FROM dbo.DelphiLiveSessionSymbol WHERE SessionId=@Session ORDER BY Symbol;",
@@ -165,7 +169,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         await using var connection = new SqlConnection(ConnectionString);
         var session = await ReadFrozenAsync(connection, date, null, cancellationToken);
         if (session is null) return null;
-        var assignments = (await connection.QueryAsync(new CommandDefinition(
+        var assignments = !await PaperAvailableAsync(cancellationToken) ? Array.Empty<DelphiLivePolicyAssignment>() : (await connection.QueryAsync(new CommandDefinition(
             "SELECT AssignmentId,DelphiLivePolicyVersionId,PolicyRole,ExperimentId FROM dbo.DelphiLiveSessionPolicy WHERE SessionId=@Session ORDER BY RoleSlot;",
             new { Session = session.SessionId }, cancellationToken: cancellationToken))).Select(row => new DelphiLivePolicyAssignment(
                 (Guid)row.AssignmentId, (Guid)row.DelphiLivePolicyVersionId, Enum.Parse<DelphiLivePolicyRole>((string)row.PolicyRole), date, (Guid?)row.ExperimentId)).ToArray();
@@ -204,23 +208,28 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         if (frozen is null) return null;
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
-        var assignments = (await EngineSettingsRepository.OverlayLiveAsync(connection, date, frozen.Assignments.ToArray(), cancellationToken)).ToList();
+        bool paperAvailable = await PaperAvailableAsync(cancellationToken);
+        var assignments = frozen.Assignments.ToList();
         var policies = frozen.Policies.ToDictionary(p => p.Key, p => p.Value);
-        foreach (var assignment in assignments)
-            policies[assignment.PolicyVersionId] = await ReadPolicyAsync(connection, assignment.PolicyVersionId, null, cancellationToken);
-        // An unchanged control can still use the original champion policy after the operational target switches.
-        var controls = await connection.QueryAsync(new CommandDefinition("""
-            SELECT g.AssignmentId,l.DelphiLivePolicyVersionId FROM dbo.DelphiLivePortfolioLedger l
-            JOIN dbo.DelphiLivePortfolioGeneration g ON g.GenerationId=l.GenerationId
-            WHERE g.PortfolioRole=N'ChampionControl' AND g.EffectiveTradingDate<=@Date
-             AND (g.EndExclusiveTradingDate IS NULL OR g.EndExclusiveTradingDate>@Date)
-            """, new { Date = Date(date) }, cancellationToken: cancellationToken));
-        foreach (var control in controls)
+        if (paperAvailable)
         {
-            Guid policy = (Guid)control.DelphiLivePolicyVersionId;
-            if (assignments.All(a => a.PolicyVersionId != policy))
-                assignments.Add(new((Guid)control.AssignmentId, policy, DelphiLivePolicyRole.ChampionControl, date));
-            if (!policies.ContainsKey(policy)) policies[policy] = await ReadPolicyAsync(connection, policy, null, cancellationToken);
+            assignments = (await EngineSettingsRepository.OverlayLiveAsync(connection, date, frozen.Assignments.ToArray(), cancellationToken)).ToList();
+            foreach (var assignment in assignments)
+                policies[assignment.PolicyVersionId] = await ReadPolicyAsync(connection, assignment.PolicyVersionId, null, cancellationToken);
+            // An unchanged control can still use the original champion policy after the operational target switches.
+            var controls = await connection.QueryAsync(new CommandDefinition("""
+                SELECT g.AssignmentId,l.DelphiLivePolicyVersionId FROM dbo.DelphiLivePortfolioLedger l
+                JOIN dbo.DelphiLivePortfolioGeneration g ON g.GenerationId=l.GenerationId
+                WHERE g.PortfolioRole=N'ChampionControl' AND g.EffectiveTradingDate<=@Date
+                 AND (g.EndExclusiveTradingDate IS NULL OR g.EndExclusiveTradingDate>@Date)
+                """, new { Date = Date(date) }, cancellationToken: cancellationToken));
+            foreach (var control in controls)
+            {
+                Guid policy = (Guid)control.DelphiLivePolicyVersionId;
+                if (assignments.All(a => a.PolicyVersionId != policy))
+                    assignments.Add(new((Guid)control.AssignmentId, policy, DelphiLivePolicyRole.ChampionControl, date));
+                if (!policies.ContainsKey(policy)) policies[policy] = await ReadPolicyAsync(connection, policy, null, cancellationToken);
+            }
         }
         var revision = await ReadSourceRevisionAsync(connection, frozen.Session.SessionId, null, cancellationToken);
         var operational = revision is null ? frozen with { Assignments = assignments, Policies = policies } : frozen with
@@ -233,7 +242,7 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
             Baselines = frozen.Baselines.Concat(revision.Baselines).GroupBy(p => p.Key, StringComparer.Ordinal)
                 .ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
         };
-        operational = await WithComparisonsAsync(connection, operational, date, cancellationToken);
+        if (paperAvailable) operational = await WithComparisonsAsync(connection, operational, date, cancellationToken);
         if (realObservations is null) return operational;
         var real = await realObservations.ReadAsync(cancellationToken);
         var realSources = new Dictionary<Guid, PaperComparisonSource>();
@@ -244,6 +253,9 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         }
         return Core.Runtime.EngineRealObservation.IncludeDefinitions(operational, real, realSources);
     }
+
+    private async Task<bool> PaperAvailableAsync(CancellationToken ct) => realObservations is null ||
+        (await new EngineIntegrityRepository().ReadAccessAsync(Core.Runtime.EngineIntegrityScope.Paper, null, ct)).ProtectionAllowed;
 
     private static async Task<DelphiLiveFrozenSession?> ReadFrozenAsync(SqlConnection connection, DateOnly date, SqlTransaction? transaction, CancellationToken ct)
     {
@@ -311,6 +323,8 @@ SELECT @Session,@TradingDate,@Open,@Close,@Open,@Now,@Prior,
  @Run,@Strategy,r.RunPurpose,r.AuditState,r.RecommendationDate,r.MarketDataAsOf,r.StartedUtc,r.CreatedUtc,
  N'IntradayEvidenceCollectorV3',1,@Calendar,@Code,@Tree,N'Frozen',N'Pending',0
 FROM (SELECT 1 AS Dummy) d LEFT JOIN dbo.CalibrationRun r ON r.RunId=@Run;
+IF @IncludePaper=1
+BEGIN
 INSERT dbo.DelphiLiveSessionPolicy
 (SessionPolicyId,SessionId,AssignmentId,DelphiLivePolicyVersionId,DailyStrategyVersionId,PolicyRole,RoleSlot,
  ExperimentId,IsOperationallyEnabled,PolicySettingsJson,PolicySettingsSha256,FrozenUtc)
@@ -318,6 +332,7 @@ SELECT NEWID(),@Session,a.AssignmentId,a.DelphiLivePolicyVersionId,@Strategy,a.P
 FROM dbo.DelphiLivePolicyAssignment a JOIN dbo.DelphiLivePolicyVersion p ON p.DelphiLivePolicyVersionId=a.DelphiLivePolicyVersionId
 WHERE a.EffectiveTradingDate<=@TradingDate AND (a.EndExclusiveTradingDate IS NULL OR a.EndExclusiveTradingDate>@TradingDate)
  AND a.CancelledUtc IS NULL AND a.RoleSlot<3;
+END;
 IF EXISTS (SELECT l.Lens,l.Rank FROM dbo.CalibrationCandidate c JOIN dbo.CalibrationLensEvaluation l ON l.CandidateId=c.CandidateId
  WHERE c.RunId=@Run AND l.IsPublished=1 AND l.IsEligible=1 AND l.Rank BETWEEN 1 AND 25 GROUP BY l.Lens,l.Rank HAVING COUNT(*)>1)
  THROW 51201,'Frozen daily source has duplicate published ranks.',1;

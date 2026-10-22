@@ -18,6 +18,7 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
     private readonly EngineHistoryVerifier verifier = new(calendar);
     private readonly SemaphoreSlim gate = new(1, 1);
     private volatile bool closing;
+    private DateTime nextObservation;
     public void BeginStop() => closing = true;
     public async Task DrainAsync() { await gate.WaitAsync().ConfigureAwait(false); gate.Release(); }
     public async Task TickAsync()
@@ -27,6 +28,8 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
         {
             if (closing) return;
             DateTime now = DateTime.UtcNow;
+            if (now < nextObservation) return;
+            nextObservation = now.AddSeconds(30);
             EngineIntegrityStatus status;
             try { status = await repository.ReadStatusAsync().ConfigureAwait(false); }
             catch (Exception ex) when (ex is InvalidDataException or InvalidOperationException or JsonException or ArgumentException)
@@ -63,22 +66,34 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
                 await repository.StartAsync(EngineAuditKind.Archive).ConfigureAwait(false);
             status = await repository.ReadStatusAsync().ConfigureAwait(false);
             var run = status.Runs.Where(r => r.Status == "Running").OrderByDescending(r => r.Plan.Kind == EngineAuditKind.Recovery)
-                .ThenBy(r => r.UpdatedUtc).FirstOrDefault();
+                .ThenByDescending(r => r.Plan.Scope == EngineRecoveryScope.Real)
+                .ThenBy(r => r.Plan.Kind).ThenBy(r => r.Plan.BoundaryUtc).FirstOrDefault();
             if (run is null) return;
+            nextObservation = DateTime.MinValue;
             EngineAuditProgress next;
+            bool prerequisitesVerified = false;
             try
             {
+                // Reuse is limited to one pass with the same database identity and intact immutable guards.
+                // A resume in a new process hydrates only the preceding state, never restarts the audit cursor.
+                try { await verifier.BeginBatchAsync(run).ConfigureAwait(false); }
+                catch (Exception error) when (error is InvalidDataException or InvalidOperationException)
+                { throw new EngineAuditBatchFailure(run.Progress, error); }
+                prerequisitesVerified = true;
                 next = await EngineAuditBatch.VerifyAsync(run, verifier.VerifyNextAsync,
-                    () => !closing && (run.Plan.Kind == EngineAuditKind.Recovery || OutsideTradingWindow(DateTime.UtcNow))).ConfigureAwait(false);
+                    () => !closing && (run.Plan.Kind == EngineAuditKind.Recovery || OutsideTradingWindow(DateTime.UtcNow)),
+                    maximumSteps: 4096).ConfigureAwait(false);
             }
             catch (EngineAuditBatchFailure failure)
             {
-                // Classification remains conservative unless isolation is proven. A broker row has an exact owner;
-                // shared/paper dependencies are uncertain and therefore create a global hold.
+                // Shared evidence remains global; isolated paper history cannot hold the real account.
                 var target = run.Plan.Targets[failure.Verified.TargetIndex];
-                bool broker = target.Family == EngineAuditFamily.BrokerRevisions;
-                await repository.RaiseAsync(broker ? EngineIntegrityScope.Broker : EngineIntegrityScope.Global,
-                    broker ? target.OwnerId : null, $"{target.Family}/{target.OwnerId:D}/{failure.Verified.NextRevision}/{failure.Verified.LastKey}",
+                var scope = !prerequisitesVerified ? EngineIntegrityScope.Global : target.Family switch { EngineAuditFamily.BrokerRevisions => EngineIntegrityScope.Broker,
+                    EngineAuditFamily.PaperRevisions => EngineIntegrityScope.Paper, EngineAuditFamily.LegacyInputs => EngineIntegrityScope.Research,
+                    _ => EngineIntegrityScope.Global };
+                await repository.RaiseAsync(scope,
+                    scope is EngineIntegrityScope.Broker or EngineIntegrityScope.Paper ? target.OwnerId : null,
+                    prerequisitesVerified ? $"{target.Family}/{target.OwnerId:D}/{failure.Verified.NextRevision}/{failure.Verified.LastKey}" : "AuditPassPrerequisites",
                     "ArchiveVerificationFailed", protectionUntrusted: true).ConfigureAwait(false);
                 await repository.SaveProgressAsync(run, failure.Verified, failed: true).ConfigureAwait(false);
                 await notifier.NotifyAsync(new("Error", "IntegrityIncident",
@@ -89,23 +104,24 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
         }
         finally { gate.Release(); }
     }
-    public async Task<Guid> StartRecoveryAsync()
+    public async Task<Guid> StartRecoveryAsync(EngineRecoveryScope scope = EngineRecoveryScope.All)
     {
         await gate.WaitAsync().ConfigureAwait(false);
         try
         {
             if (closing) throw new InvalidOperationException("Engine is stopping.");
-            return (await repository.StartAsync(EngineAuditKind.Recovery).ConfigureAwait(false)).RunId;
+            nextObservation = DateTime.MinValue;
+            return (await repository.StartAsync(EngineAuditKind.Recovery, scope: scope).ConfigureAwait(false)).RunId;
         }
         finally { gate.Release(); }
     }
-    public async Task ClearAsync(Guid recovery, ImmutableArray<Guid> incidents, string reason)
+    public async Task ClearAsync(Guid recovery, ImmutableArray<Guid> incidents, string reason, EngineRecoveryScope scope = EngineRecoveryScope.All)
     {
         await gate.WaitAsync().ConfigureAwait(false);
         try
         {
             if (closing) throw new InvalidOperationException("Engine is stopping.");
-            await repository.ClearVerifiedAsync(recovery, incidents, reason).ConfigureAwait(false);
+            await repository.ClearVerifiedAsync(recovery, incidents, reason, scope: scope, calendar: calendar).ConfigureAwait(false);
         }
         finally { gate.Release(); }
     }

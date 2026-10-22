@@ -344,6 +344,78 @@ public sealed class DelphiLiveSnapshotCodecTests
         DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(
             DelphiLiveSnapshotCodec.RestoreJson(package.SnapshotJson, package.Items, package.Contents));
 
+    [Fact]
+    public void AuditPassDecodesEachImmutableItemOnceAndPreservesOriginalFingerprints()
+    {
+        var decoder = new DelphiLiveSnapshotCodec.AuditDecoder();
+        var state = State(1000, "é <>& / \"quoted\"\n😀" + new string('x', 4096)) with { Cash = 979m };
+        DelphiLivePortfolioSnapshot? previous = null;
+        var all = new HashSet<string>();
+        for (int n = 0; n < 12; n++)
+        {
+            var package = DelphiLiveSnapshotCodec.Pack(state);
+            foreach (var content in package.Contents)
+                if (all.Add(content.Key)) decoder.Add(content.Key, content.Value);
+            var restored = decoder.Read(package.SnapshotJson, package.Items);
+            DelphiLiveLedgerJson.Serialize(restored).ShouldBe(DelphiLiveLedgerJson.Serialize(state));
+            if (previous is not null)
+            {
+                Assert.Same(previous.Quotes[0], restored.Quotes[0]);
+                Assert.Same(previous.Actions[0], restored.Actions[0]);
+                DelphiLiveLedgerIntegrity.ValidateTransition(previous, restored);
+            }
+            previous = restored;
+            state = state with { Revision = state.Revision + 1,
+                Quotes = state.Quotes.Add(state.Quotes[0] with { QuoteId = Guid.NewGuid() }) };
+        }
+        decoder.ContentCount.ShouldBe(all.Count);
+        // One position content is decoded for each of its two domain collections; reports aren't records.
+        decoder.DecodedCount.ShouldBe(all.Count);
+    }
+
+    [Fact]
+    public void AuditPassRejectsChangedMissingDuplicatedAndWronglyAttributedEvidence()
+    {
+        var package = DelphiLiveSnapshotCodec.Pack(State(3, "report"));
+        var decoder = new DelphiLiveSnapshotCodec.AuditDecoder();
+        foreach (var pair in package.Contents) decoder.Add(pair.Key, pair.Value);
+        _ = decoder.Read(package.SnapshotJson, package.Items);
+        var pair0 = package.Contents.First();
+        Should.Throw<InvalidDataException>(() => decoder.Add(pair0.Key, pair0.Value + " "));
+        Should.Throw<InvalidDataException>(() => new DelphiLiveSnapshotCodec.AuditDecoder().Add(pair0.Key, pair0.Value + " "));
+        Should.Throw<InvalidDataException>(() => new DelphiLiveSnapshotCodec.AuditDecoder().Read(package.SnapshotJson, package.Items));
+        Should.Throw<InvalidDataException>(() => decoder.Read(package.SnapshotJson, package.Items.Skip(1).ToArray()));
+        Should.Throw<InvalidDataException>(() => decoder.Read(package.SnapshotJson, package.Items.Concat([package.Items[0]]).ToArray()));
+        var root = JsonNode.Parse(package.SnapshotJson)!;
+        root["cash"] = 123m;
+        Should.Throw<InvalidDataException>(() => decoder.Read(root.ToJsonString(), package.Items));
+        var changed = package.Items.ToArray();
+        var quotes = changed.Select((item, index) => (item, index)).Where(x => x.item.Collection == "quotes").ToArray();
+        changed[quotes[0].index] = quotes[0].item with { ContentHash = quotes[1].item.ContentHash };
+        Should.Throw<InvalidDataException>(() => decoder.Read(package.SnapshotJson, changed));
+    }
+
+    [Fact]
+    public void AuditPassVerifiesIncrementalRootsAndSharedCandidateState()
+    {
+        var state = State(3, "report");
+        var package = DelphiLiveSnapshotCodec.Pack(state);
+        var counts = DelphiLiveSnapshotCodec.ReadCounts(package.SnapshotJson);
+        var roots = DelphiLiveSnapshotCodec.Collections.ToDictionary(name => name, name =>
+            DelphiLiveArchiveTree.BuildCollection(name, package.Items.Where(i => i.Collection == name).Select(i => i.ContentHash).ToArray()).Root);
+        var candidates = JsonNode.Parse(package.SnapshotJson)!["candidateStates"]!.ToJsonString();
+        string hash = DelphiLiveSnapshotCodec.Hash(candidates);
+        string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson, counts, roots, hash);
+        var decoder = new DelphiLiveSnapshotCodec.AuditDecoder();
+        foreach (var pair in package.Contents) decoder.Add(pair.Key, pair.Value);
+        Should.Throw<InvalidDataException>(() => decoder.Read(root, package.Items));
+        decoder.Add(hash, candidates);
+        DelphiLiveLedgerJson.Serialize(decoder.Read(root, package.Items)).ShouldBe(DelphiLiveLedgerJson.Serialize(state));
+        var damaged = JsonNode.Parse(root)!; damaged["cash"] = 9m;
+        Should.Throw<InvalidOperationException>(() => decoder.Read(damaged.ToJsonString(), package.Items));
+        Should.Throw<InvalidDataException>(() => new DelphiLiveSnapshotCodec.AuditDecoder(1).Add(hash, candidates));
+    }
+
     private static DelphiLivePortfolioSnapshot State(int quoteCount, string report)
     {
         var open = new DateTime(2026, 9, 17, 13, 30, 0, DateTimeKind.Utc);

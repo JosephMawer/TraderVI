@@ -93,6 +93,7 @@ public sealed class IndependentResearchService
 
     public async Task ApplyBoundaryAsync(DateOnly date, DateTime open, DelphiLiveLease lease, CancellationToken ct)
     {
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Research, null, ct)).NewExposureAllowed) return;
         if (await EngineSettingsRepository.HasLiveOverridesAsync(ct)) return;
         // Collection never waits for archive work. An unprepared boundary stays pending; frozen sessions cannot be relabelled later.
         if (!await gate.WaitAsync(0, ct)) return;

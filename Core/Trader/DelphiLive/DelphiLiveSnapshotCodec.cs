@@ -16,7 +16,7 @@ public sealed record DelphiLiveSnapshotPackage(string SnapshotJson, string FullH
     IReadOnlyDictionary<string, string> Contents, IReadOnlyList<DelphiLiveSnapshotItem> Items);
 
 /// <summary>Lossless storage representation. Domain snapshots and trading rules are unchanged.</summary>
-public static class DelphiLiveSnapshotCodec
+public static partial class DelphiLiveSnapshotCodec
 {
     public const string Marker = "$storage";
     public static ImmutableArray<string> Collections { get; } =
@@ -326,9 +326,8 @@ public static class DelphiLiveSnapshotCodec
 
     // Local to one verification: exact escaped bytes are shared, not verification results.
     // Every byte still passes through the full original SHA-256 fingerprint stream.
-    private sealed class CanonicalStrings
+    private sealed class CanonicalStrings(int maximumBytes = 4 * 1024 * 1024)
     {
-        private const int MaximumBytes = 4 * 1024 * 1024;
         private readonly Dictionary<string, byte[]> saved = new(StringComparer.Ordinal);
         private int bytes;
 
@@ -340,7 +339,7 @@ public static class DelphiLiveSnapshotCodec
                 { writer.WriteRawValue(encoded, skipInputValidation: true); return; }
                 // Six bytes per UTF-16 code unit bounds JSON escaping without allocating
                 // an unbounded temporary for a large or mostly unique report population.
-                if (saved.Count < 256 && text.Length <= (MaximumBytes - bytes - 2) / 6)
+                if (saved.Count < 256 && text.Length <= (maximumBytes - bytes - 2) / 6)
                 {
                     encoded = JsonSerializer.SerializeToUtf8Bytes(text, DelphiLiveLedgerJson.Options);
                     saved.Add(text, encoded); bytes += encoded.Length;

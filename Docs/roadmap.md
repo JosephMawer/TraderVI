@@ -19,8 +19,10 @@ are installed; standard Release a94c474a runs in broker-disabled verification mo
 saved recovery cursor. Nightly scheduling is restored. Finish the initial recovery audit, review its
 results/holds, and qualify remaining concurrency, latency and archive capacity. No disk
 reclamation is claimed. The October22 cost review confirms repeated full-state audit reconstruction
-and a global recovery dependency that also pauses collection/paper work. Prioritize an efficient
-audit pass and separately proven real recovery scope; no hold bypass is accepted. Build/evidence
+and a global recovery dependency that also pauses collection/paper work. The operator authorizes the
+fix: ADR-0104 sequential reads/decodes and separate real recovery are implemented and tested in source.
+Prioritize installed qualification and independent real recovery completion; preserve paper restrictions
+and keep real trading disabled until results review. No hold bypass is accepted. Build/evidence
 retention is separate before cleanup.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
 [accepted architecture](adr/0103-real-execution-independent-of-paper-research.md).

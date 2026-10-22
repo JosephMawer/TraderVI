@@ -15,7 +15,7 @@ namespace Core.Db;
 public sealed class EngineContinuityRepository : IEngineContinuityStore
 {
     private static readonly Guid Owner = new("EEC83433-0955-4502-A26E-2BFD1BEDF4F3");
-    private static Task<EngineDatabaseIdentity> IdentityAsync(SqlConnection c, SqlTransaction t, CancellationToken ct) =>
+    internal static Task<EngineDatabaseIdentity> IdentityAsync(SqlConnection c, SqlTransaction t, CancellationToken ct) =>
         c.QuerySingleAsync<EngineDatabaseIdentity>(new CommandDefinition("""
 SELECT database_guid [Database],family_guid Family,recovery_fork_guid RecoveryFork
 FROM sys.database_recovery_status WHERE database_id=DB_ID();

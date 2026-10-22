@@ -85,7 +85,7 @@ internal static class Program
                 new("Shadow paper", TimeSpan.FromSeconds(30), auxiliary.ShadowTickAsync),
                 new("Shadow protection", TimeSpan.FromSeconds(10), auxiliary.ShadowProtectionAsync),
                 new("AI research", TimeSpan.FromSeconds(30), auxiliary.CheckAiAsync),
-                new("Historical audits", TimeSpan.FromSeconds(30), audits.TickAsync)
+                new("Historical audits", TimeSpan.FromSeconds(1), audits.TickAsync)
             ], async () =>
             {
                 if (verificationOnly) await broker.StartAsync().ConfigureAwait(false); // Persist disabled grant before any worker starts.
@@ -118,16 +118,17 @@ internal static class Program
                 if (request.Operation == EngineOperation.PollTrackedPaper) return await auxiliary.PollTrackedAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.PollShadowPaper) return await auxiliary.PollShadowAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.IntegrityStatus) return await new EngineIntegrityRepository().ReadStatusAsync().ConfigureAwait(false);
-                if (request.Operation == EngineOperation.VerifyRecovery)
+                if (request.Operation is EngineOperation.VerifyRecovery or EngineOperation.VerifyRealRecovery or EngineOperation.VerifyPaperRecovery)
                 {
                     await continuity.VerifyAsync().ConfigureAwait(false);
-                    return await audits.StartRecoveryAsync().ConfigureAwait(false);
+                    return await audits.StartRecoveryAsync(request.Operation switch { EngineOperation.VerifyRealRecovery => EngineRecoveryScope.Real,
+                        EngineOperation.VerifyPaperRecovery => EngineRecoveryScope.Paper, _ => EngineRecoveryScope.All }).ConfigureAwait(false);
                 }
                 if (request.Operation == EngineOperation.ClearIntegrityHolds)
                 {
                     var clear = request.Payload.Deserialize<EngineClearIntegrityHolds>() ?? throw new ArgumentException("Missing recovery command.");
                     await continuity.VerifyAsync().ConfigureAwait(false);
-                    await audits.ClearAsync(clear.RecoveryRunId, clear.Incidents, clear.Reason).ConfigureAwait(false);
+                    await audits.ClearAsync(clear.RecoveryRunId, clear.Incidents, clear.Reason, clear.Scope).ConfigureAwait(false);
                     return true;
                 }
                 if (request.Operation == EngineOperation.LiveCommand)

@@ -34,13 +34,21 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.EngineIntegrityIncident',N'U') IS NOT NULL
     internal static async Task<ImmutableArray<EngineIntegrityIncident>> ReadOpenAsync(SqlConnection c, SqlTransaction? t, CancellationToken ct)
     {
         var rows = await c.QueryAsync<IncidentRow>(new CommandDefinition("""
-SELECT i.IncidentId,i.Scope,i.OwnerId,i.EvidenceKey,i.FailureCode,i.DiscoveredUtc,i.ProtectionUntrusted
-FROM dbo.EngineIntegrityIncident i WHERE NOT EXISTS
+SELECT i.IncidentId,i.Scope,i.OwnerId,i.EvidenceKey,i.FailureCode,i.DiscoveredUtc,i.ProtectionUntrusted,
+ origin.DiscoveredUtc OriginDiscoveredUtc,origin.EvidenceKey OriginEvidenceKey
+FROM dbo.EngineIntegrityIncident i
+LEFT JOIN dbo.EngineIntegrityIncident origin ON i.Scope=N'Paper' AND i.FailureCode=N'PaperRecoveryRequired'
+ AND i.EvidenceKey=N'ScopedFrom/'+CONVERT(nvarchar(36),origin.IncidentId)
+ AND EXISTS(SELECT 1 FROM dbo.EngineIntegrityResolution resolved JOIN dbo.EngineAuditRun proof ON proof.RunId=resolved.RecoveryRunId
+  WHERE resolved.IncidentId=origin.IncidentId AND proof.Kind=N'Recovery' AND proof.Status=N'Complete' AND JSON_VALUE(proof.PlanJson,'$.Scope')=N'1')
+WHERE NOT EXISTS
  (SELECT 1 FROM dbo.EngineIntegrityResolution r WHERE r.IncidentId=i.IncidentId)
 ORDER BY i.DiscoveredUtc,i.IncidentId;
 """, transaction: t, cancellationToken: ct));
         return rows.Select(r => new EngineIntegrityIncident(r.IncidentId, Enum.Parse<EngineIntegrityScope>(r.Scope), r.OwnerId,
-            r.EvidenceKey, r.FailureCode, DateTime.SpecifyKind(r.DiscoveredUtc, DateTimeKind.Utc), r.ProtectionUntrusted)).ToImmutableArray();
+            r.EvidenceKey, r.FailureCode, DateTime.SpecifyKind(r.DiscoveredUtc, DateTimeKind.Utc), r.ProtectionUntrusted)
+            { OriginDiscoveredUtc = r.OriginDiscoveredUtc is DateTime origin ? DateTime.SpecifyKind(origin, DateTimeKind.Utc) : null,
+                OriginEvidenceKey = r.OriginEvidenceKey }).ToImmutableArray();
     }
     public async Task<EngineIntegrityAccess> ReadAccessAsync(EngineIntegrityScope scope, Guid? owner, CancellationToken ct = default)
     {
@@ -104,7 +112,7 @@ IF NOT EXISTS(SELECT 1 FROM dbo.EngineIntegrityIncident i WITH(UPDLOCK,HOLDLOCK)
         var incidents = await ReadOpenAsync(c, null, ct);
         var rows = await c.QueryAsync<RunRow>(new CommandDefinition("""
 SELECT a.* FROM dbo.EngineAuditRun a JOIN
- (SELECT RunId,ROW_NUMBER() OVER(PARTITION BY Kind,Status ORDER BY BoundaryUtc DESC,UpdatedUtc DESC) n
+ (SELECT RunId,ROW_NUMBER() OVER(PARTITION BY Kind,Status,ISNULL(JSON_VALUE(PlanJson,'$.Scope'),'0') ORDER BY BoundaryUtc DESC,UpdatedUtc DESC) n
  FROM dbo.EngineAuditRun) r ON r.RunId=a.RunId WHERE r.n=1;
 """, cancellationToken: ct));
         return new(incidents, rows.Select(Decode).ToImmutableArray());
@@ -115,21 +123,27 @@ SELECT a.* FROM dbo.EngineAuditRun a JOIN
         return await InstalledAsync(c, null, ct) && await RequiredGuardsAsync(c, null, ct);
     }
 
-    public async Task<EngineAuditRun> StartAsync(EngineAuditKind kind, CancellationToken ct = default)
+    public async Task<EngineAuditRun> StartAsync(EngineAuditKind kind, CancellationToken ct = default,
+        EngineRecoveryScope scope = EngineRecoveryScope.All)
     {
         await using var c = await OpenAsync(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
-        // One owner per audit kind, including across engine restart. Never manufacture a second cursor.
+        if (!Enum.IsDefined(scope) || scope != EngineRecoveryScope.All && kind != EngineAuditKind.Recovery)
+            throw new ArgumentException("Only recovery may select a domain.");
+        if (!await RequiredGuardsAsync(c, t, ct)) throw new InvalidOperationException("Immutable guards are unavailable.");
+        // One owner per audit kind/domain, including across restart. Original plans remain immutable.
         var existing = await c.QuerySingleOrDefaultAsync<RunRow>(new CommandDefinition(
-            "SELECT * FROM dbo.EngineAuditRun WITH(UPDLOCK,HOLDLOCK) WHERE Kind=@Kind AND Status=N'Running';",
-            new { Kind = kind.ToString() }, t, cancellationToken: ct));
+            "SELECT * FROM dbo.EngineAuditRun WITH(UPDLOCK,HOLDLOCK) WHERE Kind=@Kind AND Status=N'Running' AND ISNULL(TRY_CONVERT(int,JSON_VALUE(PlanJson,'$.Scope')),0)=@Scope;",
+            new { Kind = kind.ToString(), Scope = (int)scope }, t, cancellationToken: ct));
         if (existing is not null) { t.Commit(); return Decode(existing); }
         var prior = kind == EngineAuditKind.NewHistory ? await c.QueryFirstOrDefaultAsync<RunRow>(new CommandDefinition(
             "SELECT TOP(1) * FROM dbo.EngineAuditRun WHERE Kind=N'NewHistory' AND Status=N'Complete' ORDER BY BoundaryUtc DESC;", transaction: t, cancellationToken: ct)) : null;
-        var targets = await CaptureTargetsAsync(c, t, kind, prior is null ? null : Decode(prior).Plan, ct);
+        var targets = await CaptureTargetsAsync(c, t, kind, prior is null ? null : Decode(prior).Plan, ct, scope);
         DateTime now = await c.QuerySingleAsync<DateTime>(new CommandDefinition("SELECT SYSUTCDATETIME();", transaction: t, cancellationToken: ct));
         now = DateTime.SpecifyKind(now, DateTimeKind.Utc);
-        var plan = new EngineAuditPlan(kind, now, targets);
+        var plan = new EngineAuditPlan(kind, now, targets) { Scope = scope,
+            Database = await EngineContinuityRepository.IdentityAsync(c, t, ct) };
+        plan.Validate();
         var run = new EngineAuditRun(Guid.NewGuid(), plan, EngineAuditProgress.Start(plan), 0, targets.IsEmpty ? "Complete" : "Running", now);
         var p = Encode(run);
         await c.ExecuteAsync(new CommandDefinition("""
@@ -139,20 +153,21 @@ VALUES(@RunId,@Kind,@BoundaryUtc,@PlanJson,@PlanHash,@ProgressJson,@ProgressHash
         if (kind == EngineAuditKind.Recovery)
             await c.ExecuteAsync(new CommandDefinition("""
 INSERT dbo.EngineIntegrityIncident(IncidentId,Scope,EvidenceKey,FailureCode,ProtectionUntrusted)
-VALUES(@Id,N'Global',@Key,N'RecoveryVerificationPending',1);
-""", new { Id = Guid.NewGuid(), Key = "Recovery/" + run.RunId.ToString("D") }, t, cancellationToken: ct));
+VALUES(@Id,@Scope,@Key,N'RecoveryVerificationPending',1);
+""", new { Id = Guid.NewGuid(), Scope = scope switch { EngineRecoveryScope.Real => "Broker", EngineRecoveryScope.Paper => "Paper", _ => "Global" },
+                Key = "Recovery/" + run.RunId.ToString("D") }, t, cancellationToken: ct));
         t.Commit(); return run;
     }
 
     internal static async Task<ImmutableArray<EngineAuditTarget>> CaptureTargetsAsync(SqlConnection c, SqlTransaction t,
-        EngineAuditKind kind, EngineAuditPlan? previous, CancellationToken ct)
+        EngineAuditKind kind, EngineAuditPlan? previous, CancellationToken ct, EngineRecoveryScope scope = EngineRecoveryScope.All)
     {
         var heads = (await c.QueryAsync<Head>(new CommandDefinition("""
-SELECT N'PaperRevisions' Family,PortfolioId OwnerId,MAX(Revision) ThroughRevision FROM dbo.DelphiLivePortfolioRevision GROUP BY PortfolioId
-UNION ALL SELECT N'BrokerRevisions',BindingId,MAX(Revision) FROM dbo.BrokerManagedSessionRevision GROUP BY BindingId
+SELECT N'PaperRevisions' Family,PortfolioId OwnerId,MAX(Revision) ThroughRevision FROM dbo.DelphiLivePortfolioRevision WHERE @Scope<>1 GROUP BY PortfolioId
+UNION ALL SELECT N'BrokerRevisions',BindingId,MAX(Revision) FROM dbo.BrokerManagedSessionRevision WHERE @Scope<>2 GROUP BY BindingId
 UNION ALL SELECT N'SharedInputs',NULL,ISNULL(MAX(PublicationSequence),0) FROM dbo.EngineInputPublication
 UNION ALL SELECT N'SharedContent',NULL,ISNULL(MAX(EvidenceSequence),0) FROM dbo.EngineEvidenceContent;
-""", transaction: t, cancellationToken: ct))).ToArray();
+""", new { Scope = (int)scope }, t, cancellationToken: ct))).ToArray();
         if (previous is not null && previous.Targets.Any(p => !heads.Any(h => h.Family == p.Family.ToString() && h.OwnerId == p.OwnerId)))
             throw new InvalidDataException("A previously audited history owner is missing.");
         var targets = heads.Select(h =>
@@ -164,7 +179,7 @@ UNION ALL SELECT N'SharedContent',NULL,ISNULL(MAX(EvidenceSequence),0) FROM dbo.
             if (old is not null && h.ThroughRevision < old.ThroughRevision) throw new InvalidDataException("Historical audit heads moved backwards.");
             return new EngineAuditTarget(family, h.OwnerId, first, h.ThroughRevision);
         }).ToImmutableArray();
-        if (kind != EngineAuditKind.NewHistory)
+        if (kind != EngineAuditKind.NewHistory && scope != EngineRecoveryScope.Real)
         {
             // Legacy evaluation/content tables are frozen by the reviewed cutover; count is a coverage bound,
             // not a new history cursor. All rows are checked in each older-archive/recovery sweep.
@@ -172,7 +187,7 @@ UNION ALL SELECT N'SharedContent',NULL,ISNULL(MAX(EvidenceSequence),0) FROM dbo.
             targets = targets.Add(new(EngineAuditFamily.LegacyInputs, null, 0, legacy));
         }
         if (targets.Length > 4096) throw new InvalidOperationException("The audit owner count exceeds the reviewed bound.");
-        return targets.OrderBy(x => x.Family).ThenBy(x => x.OwnerId).ToImmutableArray();
+        return targets.Where(t => EngineAuditPlan.Includes(scope, t.Family)).OrderBy(x => x.Family).ThenBy(x => x.OwnerId).ToImmutableArray();
     }
 
     public async Task SaveProgressAsync(EngineAuditRun original, EngineAuditProgress progress, bool failed = false, CancellationToken ct = default)
@@ -186,7 +201,8 @@ WHERE RunId=@RunId AND Revision=@Revision-1 AND PlanHash=@PlanHash AND Status=N'
 """, Encode(next), cancellationToken: ct)) != 1) throw new InvalidOperationException("Audit progress advanced elsewhere. Reload its saved receipt.");
     }
 
-    public async Task ClearVerifiedAsync(Guid recoveryRunId, ImmutableArray<Guid> incidents, string reason, CancellationToken ct = default)
+    public async Task ClearVerifiedAsync(Guid recoveryRunId, ImmutableArray<Guid> incidents, string reason, CancellationToken ct = default,
+        EngineRecoveryScope scope = EngineRecoveryScope.All, ITsxSessionCalendar? calendar = null)
     {
         if (incidents.IsDefaultOrEmpty || incidents.Length != incidents.Distinct().Count() ||
             string.IsNullOrWhiteSpace(reason) || reason.Trim().Length > 500)
@@ -197,15 +213,38 @@ WHERE RunId=@RunId AND Revision=@Revision-1 AND PlanHash=@PlanHash AND Status=N'
             new { Id = recoveryRunId }, t, cancellationToken: ct));
         var run = Decode(row);
         var open = await ReadOpenAsync(c, t, ct);
-        var heads = await CaptureTargetsAsync(c, t, EngineAuditKind.Recovery, null, ct);
-        EngineRecoveryPolicy.RequireClear(run, open, incidents, heads);
+        var heads = await CaptureTargetsAsync(c, t, EngineAuditKind.Recovery, null, ct, scope);
+        EngineRecoveryPolicy.RequireClear(run, open, incidents, heads, scope);
         if (!await RequiredGuardsAsync(c, t, ct)) throw new InvalidOperationException("Immutable history guards are missing or disabled.");
+        if (run.Plan.Database is not null && await EngineContinuityRepository.IdentityAsync(c, t, ct) != run.Plan.Database)
+            throw new InvalidDataException("Database recovery identity changed after verification.");
+        if (scope == EngineRecoveryScope.Real)
+        {
+            if (calendar is null) throw new InvalidOperationException("Real recovery requires the reviewed session calendar.");
+            // A historical receipt-format finding is releasable only after every saved receipt verifies.
+            foreach (var saved in await c.QueryAsync<RunRow>(new CommandDefinition("SELECT * FROM dbo.EngineAuditRun;", transaction: t, cancellationToken: ct)))
+                _ = Decode(saved);
+            foreach (var target in heads.Where(h => h.Family == EngineAuditFamily.BrokerRevisions))
+            {
+                var broker = await BrokerManagedSessionRepository.VerifyRevisionAsync(c, target.OwnerId!.Value, target.ThroughRevision,
+                    calendar, ct, t);
+                await EngineRealObservationStore.RequireCurrentAsync(c, t, broker, ct);
+            }
+        }
         string proof = DelphiLiveSnapshotCodec.Hash(JsonSerializer.Serialize(heads));
         foreach (var id in incidents)
+        {
+            var original = open.Single(i => i.IncidentId == id);
+            if (scope == EngineRecoveryScope.Real && EngineRecoveryPolicy.RetainedPaperHold(original))
+                await c.ExecuteAsync(new CommandDefinition("""
+INSERT dbo.EngineIntegrityIncident(IncidentId,Scope,EvidenceKey,FailureCode,ProtectionUntrusted)
+VALUES(@Id,N'Paper',@Key,N'PaperRecoveryRequired',@Protection);
+""", new { Id = Guid.NewGuid(), Key = "ScopedFrom/" + original.IncidentId.ToString("D"), Protection = original.ProtectionUntrusted }, t, cancellationToken: ct));
             await c.ExecuteAsync(new CommandDefinition("""
 INSERT dbo.EngineIntegrityResolution(IncidentId,RecoveryRunId,VerifiedHeadsHash,OperatorName,Reason)
 VALUES(@Id,@Run,@Hash,@Operator,@Reason);
 """, new { Id = id, Run = recoveryRunId, Hash = proof, Operator = Environment.UserName, Reason = reason.Trim() }, t, cancellationToken: ct));
+        }
         t.Commit();
     }
 
@@ -259,7 +298,7 @@ SELECT CAST(CASE WHEN NOT EXISTS(SELECT 1 FROM (VALUES
         return parameters;
     }
     private sealed record Head(string Family, Guid? OwnerId, long ThroughRevision);
-    private sealed record IncidentRow(Guid IncidentId, string Scope, Guid? OwnerId, string EvidenceKey, string FailureCode, DateTime DiscoveredUtc, bool ProtectionUntrusted);
+    private sealed record IncidentRow(Guid IncidentId, string Scope, Guid? OwnerId, string EvidenceKey, string FailureCode, DateTime DiscoveredUtc, bool ProtectionUntrusted, DateTime? OriginDiscoveredUtc, string? OriginEvidenceKey);
     internal sealed record RunRow(Guid RunId, string Kind, DateTime BoundaryUtc, string PlanJson, string PlanHash,
         string ProgressJson, string ProgressHash, long Revision, string Status, DateTime UpdatedUtc);
 }

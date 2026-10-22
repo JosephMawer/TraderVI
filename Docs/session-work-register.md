@@ -18,6 +18,11 @@ reconstruction and global recovery blocking shared collection and paper workers.
 available; normal real trading is not ready. Efficient archive verification and a separately proven
 real recovery boundary are proposed, with no hold/authority change. The owning review records the
 workload breakdown and conditional 11–18-hour paper-only extrapolation; no complete ETA is established.
+The operator subsequently authorizes the sequential-reader and separate-real-recovery fixes, keeping
+real trading disabled until review. ADR-0104/source implement these changes and remove held paper
+subscription/settings dependencies. Full Core3,028pass/nine skips;49 SQL batches parse. Native cutover,
+scoped recovery and measured throughput are the next acceptance steps; original full progress remains
+preserved. No new schema migration or historical rewrite is required.
 
 **Reconciled October 16, 2026.** Scope: September activity through this review, all three pinned
 TraderVI chats, and the September continuation of an August chat. This register preserves unfinished

@@ -87,6 +87,11 @@ LEFT JOIN dbo.EngineCurrentState s ON s.Kind=N'RealObservation' AND s.OwnerId=b.
     {
         await using var c = new SqlConnection(ConnectionString); await c.OpenAsync(ct);
         await using var t = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        await RequireCurrentAsync(c, t, session, ct);
+        await t.CommitAsync(ct);
+    }
+    internal static async Task RequireCurrentAsync(SqlConnection c, SqlTransaction t, BrokerManagedSession session, CancellationToken ct)
+    {
         var row = await c.QuerySingleOrDefaultAsync<ExecutionRow>(new CommandDefinition("""
 SELECT b.Revision,b.RevisionId,b.ContentHash,s.Revision StateRevision,s.SourceHash,s.StateHash,s.StateJson
 FROM (SELECT TOP(1) Revision,RevisionId,ContentHash FROM dbo.BrokerManagedSessionRevision
@@ -100,7 +105,6 @@ LEFT JOIN dbo.EngineCurrentState s ON s.Kind=N'RealObservation' AND s.OwnerId=@B
             DelphiLiveSnapshotCodec.Hash(row.StateJson) != row.StateHash)
             throw new InvalidDataException("The real collection subscription is missing or has changed. Verify recovery before execution.");
         DelphiLiveLedgerJson.Deserialize<EngineRealObservation>(row.StateJson).RequireMatches(session);
-        await t.CommitAsync(ct);
     }
     private sealed record ExecutionRow(long Revision, Guid RevisionId, string ContentHash,
         long? StateRevision, string? SourceHash, string? StateHash, string? StateJson);

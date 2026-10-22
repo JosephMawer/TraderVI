@@ -2,6 +2,16 @@
 
 ## Independent engine — October 22 installed verification
 
+**October22 recovery correction in source:** the operator authorizes sequential archive verification
+and independent real-account recovery, prioritizing availability while retaining disabled real trading
+until review. [ADR-0104](adr/0104-scoped-recovery-and-sequential-history-audits.md) adds fresh bounded
+per-pass content reuse, carried adjacent state, paged inputs, faster active batches and explicit
+Real/Paper/All recovery. Known global recovery findings can retain linked paper restrictions;
+unknown/shared failures remain global. Held paper subscriptions/settings no longer gate real collection.
+Full Core3,028pass/nine skips;49 SQL batches parse. Native installation/throughput/scope qualification
+are pending; the installed state below remains the last operational evidence. No additional migration,
+archive conversion/deletion, hold clearance or financial activation has occurred in this correction.
+
 The revised engine, direct shared inputs, independent paper/research consumers, compact paper state,
 shared storage, audit/hold/recovery controls and current-state dashboard readers are implemented in
 source. The temporary unconditional execution block is replaced by verified storage/continuity/current

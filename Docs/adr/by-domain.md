@@ -5,6 +5,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 ## architecture
 
 - [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Independent real execution, dashboard-independent lifecycle and accepted audit policy
+- [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) — Independent real recovery, preserved paper holds and one-pass archive reads
 
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — One identical evaluation-save replay without order or permission retries
 
@@ -117,6 +118,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 ## data-pipeline
 
 - [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Shared inputs and nightly/weekly audits; checkpoint and persistence mechanisms remain draft
+- [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) — Fresh sequential archive passes and independently qualified real recovery
 
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — Fresh-connection save recovery with unchanged evidence/lease guards
 

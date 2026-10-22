@@ -17,10 +17,13 @@ public enum EngineOperation
     PendingOrders, Securities, BuyContext, SellContext, BuyOrder, SellOrder, SellInventory, OrderHistory, ActivityCheckpoint,
     Orders, PrepareBuy, SubmitBuy, CheckBuy, SellAll, CheckSell, Reconcile,
     ExecutionStatus, EnableExecution, DisableExecution, LiveCommand, PollTrackedPaper, PollShadowPaper,
-    IntegrityStatus, VerifyRecovery, ClearIntegrityHolds, ExecutionDiagnostics
+    IntegrityStatus, VerifyRecovery, ClearIntegrityHolds, ExecutionDiagnostics, VerifyRealRecovery, VerifyPaperRecovery
 }
 
-public sealed record EngineClearIntegrityHolds(Guid RecoveryRunId, System.Collections.Immutable.ImmutableArray<Guid> Incidents, string Reason);
+public sealed record EngineClearIntegrityHolds(Guid RecoveryRunId, System.Collections.Immutable.ImmutableArray<Guid> Incidents, string Reason)
+{
+    public EngineRecoveryScope Scope { get; init; }
+}
 
 public sealed record EngineRequest(int Version, Guid RequestId, EngineOperation Operation, JsonElement Payload);
 public sealed record EngineReply(int Version, Guid RequestId, bool Succeeded, JsonElement Payload);

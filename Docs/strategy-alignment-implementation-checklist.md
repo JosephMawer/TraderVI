@@ -26,6 +26,11 @@ The overnight target was missed. Completed source work is separate from installe
   AI, champion and broker diagnostics. Reuse only exact verified current broker revisions.
 - [x] Implement fixed-boundary audits, durable scoped holds, explicit recovery/clear, protected local/SQL
   continuity witnesses and fresh reconstruction of current checkpoints/projections/replay identities.
+- [x] Implement ADR-0104 sequential per-pass archive reads/decodes, paged inputs and faster active
+  batches; separate Real/Paper recovery and preserve linked paper restrictions. Remove held paper
+  subscriptions/settings from real collection dependencies. Full Core3,028pass/nine skips;49 SQL parses.
+- [ ] Install and qualify scoped recovery, original cursor resume, bounded memory/throughput and
+  native real-only hold resolution; retain disabled trading until operator results review.
 - [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
   scoped access and exact current subscription checks; retain existing account/build/dated authority.
 - [x] Validate offline:3,003Core pass/nine native skips with concurrency disabled; engine/WPF/SSDT
@@ -49,9 +54,8 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Complete initial recovery coverage, review and explicitly resolve its holds, and finish remaining
   native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
-- [ ] Address the measured repeated adjacent-state audit work and prove the recovery dependency
-  boundary. The October22 review identifies global collection/paper blocking; dashboard availability
-  is not trading readiness. Efficient verification and scoped recovery are proposed, not waived checks.
+- [ ] Measure the installed ADR-0104 improvement and prove the native recovery dependency boundary.
+  Source efficiency/scope checks pass; dashboard availability alone is not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

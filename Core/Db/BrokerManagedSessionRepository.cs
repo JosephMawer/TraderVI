@@ -166,18 +166,20 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             }
     }
     internal static async Task<BrokerManagedSession> VerifyRevisionAsync(SqlConnection connection, Guid binding, long revision,
-        Core.Trader.DelphiLive.ITsxSessionCalendar calendar, CancellationToken ct)
+        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, CancellationToken ct, SqlTransaction? transaction = null)
     {
-        async Task<BrokerManagedSession> ReadRevision(long number)
-        {
-            var row = await connection.QuerySingleAsync<Row>(new CommandDefinition(
-                "SELECT * FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding AND Revision=@Revision;",
-                new { Binding = binding, Revision = number }, cancellationToken: ct));
-            return Decode(row, await EngineArchiveStorage.ReadContentsAsync(connection, null, row.SnapshotJson, ct));
-        }
-        var next = await ReadRevision(revision);
-        ValidateNext(revision == 0 ? null : await ReadRevision(revision - 1), next, calendar);
+        var next = await ReadRevisionAsync(connection, binding, revision, ct, transaction);
+        ValidateNext(revision == 0 ? null : await ReadRevisionAsync(connection, binding, revision - 1, ct, transaction), next, calendar);
         return next;
+    }
+
+    internal static async Task<BrokerManagedSession> ReadRevisionAsync(SqlConnection connection, Guid binding, long revision,
+        CancellationToken ct, SqlTransaction? transaction = null)
+    {
+        var row = await connection.QuerySingleAsync<Row>(new CommandDefinition(
+            "SELECT * FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding AND Revision=@Revision;",
+            new { Binding = binding, Revision = revision }, transaction, cancellationToken: ct));
+        return Decode(row, await EngineArchiveStorage.ReadContentsAsync(connection, transaction, row.SnapshotJson, ct));
     }
 
     private static BrokerManagedSession Decode(Row row, IReadOnlyDictionary<string, string> contents)

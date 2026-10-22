@@ -285,7 +285,7 @@ public static class DelphiLiveLedgerIntegrity
             throw new InvalidOperationException($"Persisted {name} are append-only.");
     }
 
-    private static bool SameHistoryItem<T>(T left, T right) => (left, right) switch
+    private static bool SameHistoryItem<T>(T left, T right) => ReferenceEquals(left, right) || (left, right) switch
     {
         (DelphiLiveLedgerQuote a, DelphiLiveLedgerQuote b) =>
             string.Equals(a.DossierJson, b.DossierJson, StringComparison.Ordinal) &&

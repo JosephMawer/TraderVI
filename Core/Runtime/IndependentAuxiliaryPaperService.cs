@@ -97,7 +97,7 @@ public sealed class IndependentAuxiliaryPaperService
     private bool IsSession() => calendar.IsRegularSession(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
     private static async Task RequireIntegrityAsync()
     {
-        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Global, null).ConfigureAwait(false)).ProtectionAllowed)
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null).ConfigureAwait(false)).ProtectionAllowed)
             throw new InvalidOperationException("Paper work is paused for integrity recovery.");
     }
     private bool Due(DateTime? next) => !closing && IsSession() && PaperTradingMonitor.IsAutomaticPollTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) &&
