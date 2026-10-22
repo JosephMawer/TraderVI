@@ -43,6 +43,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ### Live evaluation save timeout — October 21, 2026
 
+- **Resumed evening scope:** operator requests the remaining SQL fix now and explicitly selects
+  **Fix SQL only for now**. [ADR-0102](../adr/0102-bounded-immutable-live-evaluation-save-recovery.md)
+  implements one identical save replay with original guards/timeouts and bounded safe stage logs.
+  71focused/2,919Core pass/nine native SQL skips, isolated Release and SQL parse/guard comparison pass.
+  Normal closure/installation and native recovery/cause/capacity acceptance remain pending. Metadata
+  confirms expected enabled indexes but grants no wait/plan evidence. Paper-workload switch is
+  deferred; neither global shutdown of the shared source nor barrier removal is implemented.
+
 - **Observed:** SQL timeout -2 at 09:37:46 in DelphiLiveEvaluationRepository.PersistAsync, a 30.10 s
   stage, no initial durable five-minute evaluations and a stale Normal source. Real evaluations gap
   from 09:32:50 to 09:45:45. Shared evaluations subsequently persist; actions add 115.53 s before
@@ -57,16 +65,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
   stage lasts138.85s; the original cause of arriving late remains unresolved. Investigate this
   separately from SQL-2; the partial evaluation-save retry does not establish a deadline correction.
 - **Deferred October 21:** operator requests a focused correction, then defers it to tonight to
-  prioritize the running app/trades. One-time 21:00 Toronto reminder is Active. Partial bounded
+  prioritize the running app/trades. One-time21:00Toronto reminder was delivered/deleted21:14. Partial bounded
   immutable-save retry/diagnostics passes an initial 29-test focused run; subsequent explicit
-  updated-build review work is incomplete/uncompiled/untested. All source remains uncommitted and
-  uninstalled, now byte-for-byte parked outside compiled source under
+  updated-build review work is incomplete/uncompiled/untested. That original draft remains uncommitted
+  and uninstalled, byte-for-byte parked outside compiled source under
   `artifacts/deferred-sql-20261021/saved-source/` for the independent source-switch build. Expected indexes are enabled; available helper permissions do not expose the historical
   wait/plan cause. [Resume notes/current evidence](../project-status.md#october-21-post-open-execution-watch).
-- **Next:** resume the focused reliability investigation offline, review/test the entire pending
-  diff and resolve build identity/session expiry before any installation. Today's dated approval
-  cannot be extended or reused for evening/next-session execution. Continue today's read-only watch
-  meanwhile; no Release replacement, native SQL rehearsal, restart or financial operation is performed.
+- **Next:** install the now-validated SQL-only correction after normal stop/closure, then observe
+  native recovery/stage delivery and capacity under tomorrow's separately reviewed approval/host.
+  Historical SQL wait/plan remains unresolved. Today's dated approval stays expired and the
+  through-close watch is complete/deleted; no native write rehearsal or financial action follows
+  from this implementation request.
 
 ### TFSA review waiting for paper work — October 20, 2026
 

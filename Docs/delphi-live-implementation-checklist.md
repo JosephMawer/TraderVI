@@ -6,6 +6,13 @@ it does not itself grant operational authorization.
 
 ## Reviewable phases
 
+October21 evening SQL-only correction is implemented under
+[ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md):71focused/2,919full Core pass/
+nine native SQL skips with test concurrency disabled, isolated Release and SQL guard/parse checks pass.
+Normal closure/installation and native stages/recovery/capacity remain pending. Existing history
+cost/admission waits remain; the operator defers a paper-workload switch.
+[Current SQL evidence](reviews/delphi-live-sql-reliability-20261021.md).
+
 October 21 capacity follow-up is resumed now by operator request: bounded exact fresh-payload
 snapshot reuse passes 2,821 offline Core checks/nine native skips/Debug WPF build. Standard Release
 is installed14:02 after normal closure/zero-owner verification. Operator build approval/enable and

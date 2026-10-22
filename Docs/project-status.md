@@ -2,6 +2,16 @@
 
 ## October 21 post-open execution watch
 
+**Latest evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
+defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with
+fresh-connection guard checks and bounded private stage diagnostics.71focused/2,919Core pass/nine
+native SQL skips with collection concurrency disabled; isolated WPF Release and SQL parse/guard
+comparison pass. Installation awaits normal operator stop/closure; app35388 is running the earlier
+97ad0a11 Release. Historical SQL wait/plan and native recovery/capacity remain unproved. Expected
+indexes are enabled; helper cannot inspect waits/plans. Heavy history work and the existing desktop
+admission barrier remain, with no paper/risk/approval/cutoff changes.
+[SQL findings, correction and limits](reviews/delphi-live-sql-reliability-20261021.md).
+
 **Final watch complete16:06:** latest real15:59:21/revision259/23updated-build evaluations; zero
 automatic orders/fills/positions or post-cutoff buy intents. Saved purchase permission expired exactly
 16:00Toronto, entry cutoff15:45 unchanged. SessionIncomplete/CoverageBlocked retains today's gaps;

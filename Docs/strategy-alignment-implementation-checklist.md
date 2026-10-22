@@ -10,6 +10,15 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Implement/validate the resumed SQL-only correction under
+  [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md): one unchanged evaluation-save
+  retry, all original guards/timeouts, bounded private stages.71focused/2,919Core pass/nine native
+  SQL skips with test concurrency disabled; isolated WPF Release/SQL parse/guard comparison pass.
+- [ ] Install SQL correction after normal operator stop/closure. Tomorrow's review/approval and
+  separate host enable remain operator actions; installed97ad0a11 currently remains unchanged.
+- [ ] Observe native SQL stages/recovery and regular-session continuity/capacity. Historical wait/
+  plan cause remains unknown. Paper-workload switch is explicitly deferred; no barrier bypass.
+
 - [x] Final October21 bounded read/report16:06 and deletion of today's heartbeat; zeroorders/fills/
   positions/post-cutoff intents, exact16:00expiry. SessionIncomplete/Blockedcoverage retained.
 - [x] Implement remaining write/report optimization and private confirmed-entry/quote/selection/

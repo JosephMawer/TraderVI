@@ -4,6 +4,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -39,24 +40,45 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
         int continuityEpoch, DelphiLiveLease lease, CancellationToken cancellationToken = default)
     {
         ValidateEnvelope(input, result, continuityEpoch, lease);
-        await using var connection = new SqlConnection(ConnectionString);
-        var storedPolicy = await DelphiLiveSessionRepository.ReadPolicyAsync(connection,
-            input.Policy.PolicyVersionId, null, cancellationToken);
-        using var actualPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(input.Policy));
-        using var expectedPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(storedPolicy));
-        if (!JsonElement.DeepEquals(actualPolicy.RootElement, expectedPolicy.RootElement))
-            throw new InvalidOperationException("Evaluation settings differ from the immutable stored policy identity.");
-        await SqlObservedTimeBarrier.WaitAsync(connection, input.EvaluatedUtc, cancellationToken);
-        await connection.ExecuteAsync(new CommandDefinition(PersistSql, PaperSourceSqlParameters.Create(new
+        // A timeout may occur after commit. Replay these exact bytes/IDs/times, never a new evaluation.
+        string inputJson = DelphiLiveLedgerJson.Serialize(input), resultJson = DelphiLiveLedgerJson.Serialize(result);
+        var stage = Core.Runtime.DelphiLiveEvaluationSaveStage.Opening;
+        long started = Stopwatch.GetTimestamp(), stageStarted = started;
+        void Stage(Core.Runtime.DelphiLiveEvaluationSaveStage value)
+        { stage = value; stageStarted = Stopwatch.GetTimestamp(); }
+        await DelphiLiveEvaluationWriteRecovery.RunAsync(async (_, token) =>
         {
-            Id = input.EvaluationId, Session = input.SessionId, Policy = input.Policy.PolicyVersionId,
-            Symbol = input.Stock.Symbol, End = input.BarEndUtc, Epoch = continuityEpoch,
-            Lease = lease.LeaseId, Token = lease.FencingToken, Owner = lease.OwnerId,
-            Valid = result.ObservationIsValid, Confirmed = result.ConfirmedLiveEligible,
-            SettingsAuthorized = await EngineSettingsRepository.IsLivePolicyAssignedAsync(connection, input.SessionId, input.Policy.PolicyVersionId),
-            Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc,
-            Input = DelphiLiveLedgerJson.Serialize(input), Result = DelphiLiveLedgerJson.Serialize(result)
-        }, ("Evaluated", input.EvaluatedUtc), ("End", input.BarEndUtc)), cancellationToken: cancellationToken));
+            started = Stopwatch.GetTimestamp(); Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.Opening);
+            // Disposing this failed connection completes before RunAsync can obtain a new one.
+            await using var connection = new SqlConnection(ConnectionString);
+            connection.InfoMessage += (_, message) =>
+            {
+                foreach (SqlError info in message.Errors)
+                    if (Core.Runtime.DelphiLiveFailureDiagnostics.ReadEvaluationStage(info.Message) is { } value) Stage(value);
+            };
+            await connection.OpenAsync(token);
+            Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.PolicyRead);
+            var storedPolicy = await DelphiLiveSessionRepository.ReadPolicyAsync(connection, input.Policy.PolicyVersionId, null, token);
+            using var actualPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(input.Policy));
+            using var expectedPolicy = JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(storedPolicy));
+            if (!JsonElement.DeepEquals(actualPolicy.RootElement, expectedPolicy.RootElement))
+                throw new InvalidOperationException("Evaluation settings differ from the immutable stored policy identity.");
+            Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.ObservedClock);
+            await SqlObservedTimeBarrier.WaitAsync(connection, input.EvaluatedUtc, token);
+            Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.PolicyAssignment);
+            bool assigned = await EngineSettingsRepository.IsLivePolicyAssignedAsync(connection, input.SessionId, input.Policy.PolicyVersionId);
+            token.ThrowIfCancellationRequested();
+            Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.BatchStart);
+            await connection.ExecuteAsync(new CommandDefinition(PersistSql, PaperSourceSqlParameters.Create(new
+            {
+                Id = input.EvaluationId, Session = input.SessionId, Policy = input.Policy.PolicyVersionId,
+                Symbol = input.Stock.Symbol, End = input.BarEndUtc, Epoch = continuityEpoch,
+                Lease = lease.LeaseId, Token = lease.FencingToken, Owner = lease.OwnerId,
+                Valid = result.ObservationIsValid, Confirmed = result.ConfirmedLiveEligible, SettingsAuthorized = assigned,
+                Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc, Input = inputJson, Result = resultJson
+            }, ("Evaluated", input.EvaluatedUtc), ("End", input.BarEndUtc)), cancellationToken: token));
+        }, (attempt, error, retry) => Core.Runtime.DelphiLiveFailureDiagnostics.RecordEvaluationSaveAsync(
+            attempt, stage, Stopwatch.GetElapsedTime(stageStarted), Stopwatch.GetElapsedTime(started), error, retry), cancellationToken);
     }
 
     internal static void ValidateEnvelope(DelphiLiveEvaluationInput input, DelphiLiveEvaluationResult result,
@@ -84,19 +106,24 @@ SET XACT_ABORT ON;
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 BEGIN TRANSACTION;
 DECLARE @LockResult INT;
+RAISERROR(N'EvaluationSave:ApplicationLock',10,1) WITH NOWAIT;
 EXEC @LockResult=sys.sp_getapplock @Resource=N'DelphiLiveCollectionV1',@LockMode=N'Exclusive',
  @LockOwner=N'Transaction',@LockTimeout=10000;
 IF @LockResult<0 THROW 51241,'Delphi Live evaluation store lock unavailable.',1;
+RAISERROR(N'EvaluationSave:Lease',10,1) WITH NOWAIT;
 IF NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveHostLease WITH(UPDLOCK,HOLDLOCK)
  WHERE LeaseId=@Lease AND OwnerId=@Owner AND FencingToken=@Token AND IsHeld=1 AND ExpiresUtc>SYSUTCDATETIME())
  THROW 51242,'Delphi Live evaluation writer lost its host lease.',1;
+RAISERROR(N'EvaluationSave:Policy',10,1) WITH NOWAIT;
 IF @SettingsAuthorized=0 AND NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveSessionPolicy WHERE SessionId=@Session AND DelphiLivePolicyVersionId=@Policy)
  THROW 51243,'Evaluation policy is not frozen for this session.',1;
+RAISERROR(N'EvaluationSave:Epoch',10,1) WITH NOWAIT;
 IF NOT EXISTS(SELECT 1 FROM dbo.DelphiLiveContinuityEpoch WHERE SessionId=@Session AND EpochNumber=@Epoch
  AND LeaseId=@Lease AND LeaseFencingToken=@Token AND EndedUtc IS NULL)
  THROW 51245,'Evaluation does not belong to this active continuity epoch.',1;
 IF @Evaluated>SYSUTCDATETIME() OR @Evaluated<=@End
  THROW 51246,'Evaluation time must be causal and already observed.',1;
+RAISERROR(N'EvaluationSave:Evidence',10,1) WITH NOWAIT;
 IF @Valid=1 AND NOT EXISTS
  (
   SELECT 1 FROM dbo.IntradayCollectionSlot s JOIN dbo.IntradayCollectionSlot x ON x.CycleId=s.CycleId AND x.Symbol=N'XIU'
@@ -104,6 +131,7 @@ IF @Valid=1 AND NOT EXISTS
    AND s.OperationallyUsable=1 AND x.OperationallyUsable=1 AND s.SettledUtc<=@Evaluated AND x.SettledUtc<=@Evaluated
    AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict c WHERE c.CollectionSlotId IN(s.CollectionSlotId,x.CollectionSlotId))
  ) THROW 51247,'Valid evaluation requires its exact durable on-time symbol and XIU observations.',1;
+RAISERROR(N'EvaluationSave:Checkpoint',10,1) WITH NOWAIT;
 IF EXISTS(SELECT 1 FROM dbo.DelphiLiveEvaluation WITH(UPDLOCK,HOLDLOCK)
  WHERE SessionId=@Session AND PolicyVersionId=@Policy AND Symbol=@Symbol AND BarEndUtc=@End)
 BEGIN
@@ -111,10 +139,14 @@ BEGIN
   THROW 51244,'An immutable checkpoint evaluation already exists.',1;
 END
 ELSE
+BEGIN
+ RAISERROR(N'EvaluationSave:Insert',10,1) WITH NOWAIT;
  INSERT dbo.DelphiLiveEvaluation
  (EvaluationId,SessionId,PolicyVersionId,Symbol,BarEndUtc,ContinuityEpoch,LeaseFencingToken,
  ObservedOnTime,ConfirmedLiveEligible,InputJson,ResultJson)
  VALUES(@Id,@Session,@Policy,@Symbol,@End,@Epoch,@Token,@Valid,@Confirmed,@Input,@Result);
+END
+RAISERROR(N'EvaluationSave:Commit',10,1) WITH NOWAIT;
 COMMIT TRANSACTION;
 """;
 }

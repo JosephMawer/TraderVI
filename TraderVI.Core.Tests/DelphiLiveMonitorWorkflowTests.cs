@@ -2,10 +2,12 @@
 
 using Core.Trader.DelphiLive;
 using Core.Trader;
+using Core.Db;
 using Core.TMX.Models.Domain;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +20,49 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DateOnly Date = new(2026, 9, 8);
     private static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
+
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task BoundedEvaluationReplayRetainsTheActiveEpochAndOriginalObservation(bool acknowledgementLost)
+    {
+        var h = new Harness(); await h.Workflow.TickAsync();
+        for (int i = 1; i <= 3; i++) { h.Clock.Now = Open.AddMinutes(5*i+2); await h.Workflow.TickAsync(); }
+        int attempts = 0; int before = h.Evaluations.All.Count;
+        h.Evaluations.PersistOverride = (input,result,epoch,lease,token) => DelphiLiveEvaluationWriteRecovery.RunAsync((number,ct) =>
+        {
+            attempts++;
+            if (number == 1 && !acknowledgementLost) throw new IOException("synthetic timeout before save");
+            var saved = h.Evaluations.All.SingleOrDefault(e => e.Input.EvaluationId == input.EvaluationId);
+            if (saved is null) h.Evaluations.All.Add(new(input,result,epoch));
+            else
+            {
+                Assert.Equal(DelphiLiveLedgerJson.Serialize(input),DelphiLiveLedgerJson.Serialize(saved.Input));
+                Assert.Equal(DelphiLiveLedgerJson.Serialize(result),DelphiLiveLedgerJson.Serialize(saved.Result));
+            }
+            if (number == 1) throw new IOException("synthetic lost acknowledgement");
+            return Task.CompletedTask;
+        }, _ => [-2], (_,_,_) => Task.CompletedTask, (delay,_) => { h.Clock.Now += delay; return Task.CompletedTask; },token);
+        h.Clock.Now = Open.AddMinutes(22);
+        var snapshot = await h.Workflow.TickAsync();
+        Assert.Equal(2,attempts); Assert.Equal(before+1,h.Evaluations.All.Count);
+        Assert.Equal(Open.AddMinutes(22),h.Evaluations.All.Last().Input.EvaluatedUtc);
+        Assert.Equal(1,h.Collection.RecoveryCount); Assert.Equal(0,h.Collection.FinishCount); Assert.Equal(0,h.Collection.ReleaseCount);
+        Assert.Equal(1,snapshot.Evaluations.Single().ContinuityEpoch);
+        Assert.DoesNotContain(snapshot.Warnings,w => w.Contains("interrupted",StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task NonTransientEvaluationFailureStillStopsTheHostAndRecoversItsContinuity()
+    {
+        var h = new Harness(); await h.Workflow.TickAsync(); int attempts = 0;
+        h.Evaluations.PersistOverride = (_,_,_,_,token) => DelphiLiveEvaluationWriteRecovery.RunAsync((_,_) =>
+            { attempts++; throw new IOException("synthetic failed evidence guard"); }, _ => [52232],
+            (_,_,_) => Task.CompletedTask, (_,_) => throw new Exception("unexpected replay"),token);
+        h.Clock.Now = Open.AddMinutes(7);
+        await Assert.ThrowsAsync<IOException>(() => h.Workflow.TickAsync());
+        Assert.Equal(1,attempts); Assert.Equal(1,h.Collection.FinishCount); Assert.Equal(1,h.Collection.ReleaseCount);
+        Assert.Empty(h.Evaluations.All);
+    }
 
     [Fact]
     public async Task CollectionWarningClearsAfterFreshSuccessButHistoricalCoverageGapRemains()
@@ -562,12 +607,14 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private sealed class EvaluationStore : IDelphiLiveEvaluationStore
     {
         public readonly List<DelphiLiveStoredEvaluation> All = new();
+        public Func<DelphiLiveEvaluationInput,DelphiLiveEvaluationResult,int,DelphiLiveLease,CancellationToken,Task>? PersistOverride;
         public IReadOnlyList<DelphiLiveStoredEvaluation> Latest => All.GroupBy(e => (e.Input.Policy.PolicyVersionId, e.Input.Stock.Symbol)).Select(g => g.Last()).ToArray();
         public Task<DelphiLiveStoredEvaluation?> GetLatestAsync(Guid sessionId, Guid policyId, string symbol, CancellationToken cancellationToken = default) =>
             Task.FromResult(Latest.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policyId && e.Input.Stock.Symbol == symbol));
         public Task<IReadOnlyList<DelphiLiveStoredEvaluation>> GetLatestSnapshotAsync(Guid sessionId, CancellationToken cancellationToken = default) => Task.FromResult(Latest);
         public Task PersistAsync(DelphiLiveEvaluationInput input, DelphiLiveEvaluationResult result, int continuityEpoch, DelphiLiveLease lease, CancellationToken cancellationToken = default)
-        { All.Add(new(input, result, continuityEpoch)); return Task.CompletedTask; }
+        { if (PersistOverride is not null) return PersistOverride(input,result,continuityEpoch,lease,cancellationToken);
+            All.Add(new(input, result, continuityEpoch)); return Task.CompletedTask; }
     }
     private sealed class CollectionStore(TestClock clock) : IDelphiLiveCollectionRuntimeStore
     {

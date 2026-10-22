@@ -1,5 +1,11 @@
 # Review Flashcards
 
+### SQL save recovery — ADR-0102
+
+- **Q:** Can a successful retry use a new observation time or order ID? **A:** No. Only the exact immutable evaluation save can replay once; orders never use this helper.
+- **Q:** Does SQL error52232 qualify as transient storage failure? **A:** No. It is a collection-deadline guard; existing stop/recovery behavior remains.
+- **Q:** Does SQL recovery remove the long paper-work wait? **A:** No. Heavy history/action work and the import coordination barrier remain separate; stopping the shared source would block fresh real inputs.
+
 ### October 22 review preparation — ADR-0101
 
 - **Q:** Does carrying the old reference prove tomorrow's opening account value? **A:** No. Original provenance and holds remain; expiry observation does not advance financial close/open history.

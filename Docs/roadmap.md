@@ -8,7 +8,14 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**Current request after today's close:** finish remaining Live processing optimization and exact
+**Current request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
+evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips
+with test concurrency disabled; isolated WPF Release/SQL parsing and unchanged-guard comparison pass.
+Normal closure/installation and native acceptance remain. Original SQL wait/plan and heavy paper
+history cost are unresolved; the operator defers a workload switch. Preserve all risk/dated approval
+controls. [Owning work](reviews/delphi-live-sql-reliability-20261021.md).
+
+**Earlier lag/diagnostics preparation:** finish remaining Live processing optimization and exact
 confirmed-signal/order diagnostics without weakening any control. ADR-0099 write optimization and
 ADR-0100 durable decision/quote/preflight evidence are implemented;2,852Core checks pass/nine skips
 with test concurrency disabled, isolated WPF Release passes. Standard Release from97ad0a11 is

@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0102](0102-bounded-immutable-live-evaluation-save-recovery.md) | Bounded immutable Live evaluation-save recovery | Accepted SQL-only fix; native cause/capacity unverified | architecture, data-pipeline, risk-management |
 | [0101](0101-october22-portfolio-rules-only-review.md) | October 22 Portfolio rules only review | Accepted preparation only; operator approval/enable separate | architecture, risk-management, user-interface |
 | [0100](0100-live-entry-and-order-decision-traces.md) | Live entry and order decision traces | Accepted October 21; source/offline validation | architecture, decision-engine, risk-management |
 | [0099](0099-exact-report-sharing-in-live-writes.md) | Exact report sharing in Live snapshot writes | Accepted October 21; offline validation in progress | architecture, data-pipeline |

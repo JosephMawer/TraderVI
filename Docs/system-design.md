@@ -7,6 +7,11 @@ snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.m
 
 ## Dated Portfolio rules only review (ADR-0101)
 
+Evaluation persistence separately supports [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md):
+one exact immutable replay for narrowly allowed SQL failures, fresh connection/guards and bounded
+private stage diagnostics. Terminal failures retain existing monitor recovery. This is not an
+order retry, scheduling/paper-workload change, evidence refresh or permission extension.
+
 The bounded real-account October 22 follow-on is separately defined by
 [ADR-0101](adr/0101-october22-portfolio-rules-only-review.md): append-only dated risk/permission on
 the existing Portfolio rules only assignment, old approvals/source/build history retained, explicit

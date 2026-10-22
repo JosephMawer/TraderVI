@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — One identical evaluation-save replay without order or permission retries
+
 - [ADR-0101](0101-october22-portfolio-rules-only-review.md) — One dated follow-on review preserving prior financial authority
 
 - [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Private durable reasons from confirmation through order selection/submission
@@ -111,6 +113,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — Fresh-connection save recovery with unchanged evidence/lease guards
 
 - [ADR-0099](0099-exact-report-sharing-in-live-writes.md) — Exact report sharing without expanded write buffers
 
@@ -255,6 +259,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — No deadline, observation-time, continuity or trading-authority bypass
 
 - [ADR-0101](0101-october22-portfolio-rules-only-review.md) — Original references, holds and unused allowance; exact October 22 expiry
 

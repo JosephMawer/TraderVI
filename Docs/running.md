@@ -226,6 +226,24 @@ no earlier paper position or confirmation transfers. A fresh signal may take tim
 Today’s cutoff does not renew. The independent SQL reliability work remains deferred and can still
 interrupt fresh-source progress. Do not install that draft as part of this source switch.
 
+## Live evaluation-save recovery (ADR-0102)
+
+The SQL-only correction in [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md)
+permits one identical evaluation-save replay after qualifying transient SQL errors, with all original
+lease/policy/epoch/causal/evidence/checkpoint checks. It does not retry orders, increase timeouts,
+refresh timestamps, suppress collection-deadline errors or change risk/dated permission.
+Safe fixed last-observed stages and elapsed times go to
+`%LOCALAPPDATA%\TraderVI\Diagnostics\delphi-live-evaluation-saves.jsonl`; ordinary failures remain in
+`delphi-live-failures.jsonl`. Both rotate at512KiB plus one previous file through a bounded worker;
+missing diagnostics are unavailable evidence, not proof of success. Inspect through normal file
+reads; no SQL permission widening is needed. Historical waits/plans remain unknown.
+
+This is independent of paper CPU/history cost. Entry pauses still run monitoring; stopping the
+shared Live producer stops fresh inputs/source progress required by real execution. The operator
+chooses SQL only for now; no paper-off switch or admission bypass is installed. Follow normal
+closure before Release replacement, then the existing October22 personal review/approval and
+separate enable. No historical/expired grant, old draft or successful retry renews buying permission.
+
 ## Broker risk and managed-session storage (ADRs 0081, 0083, 0086)
 
 The original risk baseline is saved and its native readback was observed during the October 19–20
