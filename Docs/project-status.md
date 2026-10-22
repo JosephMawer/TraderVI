@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 source checkpoint
+## Independent engine — October 22 authorized native preparation
 
 The revised engine, direct shared inputs, independent paper/research consumers, compact paper state,
 shared storage, audit/hold/recovery controls and current-state dashboard readers are implemented in
@@ -12,10 +12,16 @@ WPF and SSDT builds pass; nineteen final changed SQL batches parse. Existing com
 remain; dependency-security audit was not requalified. [Evidence, retained checkpoints and concrete
 cutover sequence](reviews/independent-engine-implementation-20261022.md).
 
-**Not installed or operationally accepted.** The overnight target was missed. Last recorded installed
-build remains October21 `c4d094fd`; no SQL mutation, external service, native launch or cleanup ran.
-Next: separately authorized native qualification of ownership/reconnect, SQL concurrency, restore/holds,
-latency and audit coverage. Broker changed appends still serialize full logical state under the 8MiB
+**Native preparation authorized; not operationally accepted.** On October22 the operator explicitly
+authorizes the backup, migrations047–051, checkpoint preparation and native verification, with real
+trading disabled until results review. Zero owners/active leases were verified; the idle nightly task
+is temporarily disabled with its original state saved. A fresh checksum-verified full backup and
+SHA256-matched second copy completed11:32Toronto; Windows confirmed OneDrive synchronization11:41.
+Migrations and native launch remain pending. Verification-only broker controls pass21
+focused tests; matching engine/WPF build passes with two existing compiler warnings. Last installed
+normal build remains October21 `c4d094fd`. The overnight target was missed. Next: complete protected
+native qualification of ownership/reconnect, SQL concurrency, restore/holds, latency and audit coverage.
+Broker changed appends still serialize full logical state under the 8MiB
 cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.
 Retention and any historical conversion/deletion remain undecided.
 

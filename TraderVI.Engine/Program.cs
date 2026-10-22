@@ -18,7 +18,13 @@ internal static class Program
     // Construction/building never launches this host. Starting it is an explicit operator action.
     public static async Task<int> Main(string[] args)
     {
-        if (args.Length != 1 || args[0] is not ("--run" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations")) return 64;
+        if (args.Length is 3 or 4 && args[0] == "--control")
+        {
+            try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }
+            catch { return 1; }
+        }
+        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations")) return 64;
+        bool verificationOnly = args[0] == "--verify";
         try
         {
             using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
@@ -56,7 +62,7 @@ internal static class Program
                 {
                     await continuity.VerifyAsync(ct).ConfigureAwait(false);
                     return (await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Broker, binding, ct).ConfigureAwait(false)).ProtectionAllowed;
-                });
+                }, verificationOnly: verificationOnly);
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
             var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
@@ -82,8 +88,10 @@ internal static class Program
                 new("Historical audits", TimeSpan.FromSeconds(30), audits.TickAsync)
             ], async () =>
             {
+                if (verificationOnly) await broker.StartAsync().ConfigureAwait(false); // Persist disabled grant before any worker starts.
                 await continuity.StartAsync().ConfigureAwait(false);
-                await broker.StartAsync().ConfigureAwait(false); await auxiliary.StartAsync().ConfigureAwait(false);
+                if (!verificationOnly) await broker.StartAsync().ConfigureAwait(false);
+                await auxiliary.StartAsync().ConfigureAwait(false);
             }, async () =>
             {
                 try
@@ -100,7 +108,7 @@ internal static class Program
             using var stopAccepting = new CancellationTokenSource();
             var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
             {
-                if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices };
+                if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices, VerificationOnly = verificationOnly };
                 if (request.Operation == EngineOperation.Stop)
                 {
                     stopping = true; broker.BeginStop(); paper.BeginStop(); auxiliary.BeginStop(); audits.BeginStop();

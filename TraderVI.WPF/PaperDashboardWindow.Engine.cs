@@ -22,6 +22,7 @@ public partial class PaperDashboardWindow
             var status = await engineControl.CallAsync<IndependentEngineStatus>(EngineOperation.Status, ct: shutdown.Token);
             var blocked = status.Work.Where(w => w.State == "Blocked").Select(w => w.Name).ToArray();
             EngineStatusText.Text = $"Engine: {status.State}. Closing this dashboard leaves it running." +
+                (status.VerificationOnly ? " Verification mode: real trading is disabled." : "") +
                 (blocked.Length == 0 ? "" : $" Needs attention: {string.Join(", ", blocked)}.") +
                 (status.Notices.IsDefaultOrEmpty ? "" : $" {status.Notices[^1].Message}");
             StartEngineButton.IsEnabled = status.State is "Stopped" or "StopFailed";

@@ -37,8 +37,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Measure realistic latency, growth, archive/recovery throughput and weekly coverage. Changed broker
   appends still serialize full logical history under8MiB; historical revision audits still reconstruct
   full history. Extend these paths if measured capacity fails the accepted objectives.
-- [ ] Review and authorize concrete backup/migrations/qualification/install operations, then complete
-  native cutover acceptance. No operational action or new trading permission follows from source tests.
+- [x] Obtain explicit authority for backup, migrations047–051, checkpoint preparation and native
+  verification; keep real trading disabled pending operator review of results.
+- [ ] Complete backup synchronization, migrations, checkpoint preparation and native cutover acceptance.
+  Restore the nightly task's original enabled state when maintenance safely completes. No new trading
+  permission follows from this operational authorization or source tests.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

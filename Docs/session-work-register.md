@@ -4,8 +4,10 @@
 compact paper state/shared storage, audits/holds/continuity and dependent readers are in source.
 Conditional readiness replaces the temporary hard block while retaining original execution authority.
 Full Core3,003pass/nine native skips; engine/WPF/SSDT and SQL parsing pass. The overnight target was
-missed; installed build remainsc4d094fd. Next: authorized native ownership, SQL/recovery and capacity
-qualification, then reviewed cutover. Broker changed-appends/full historical audits retain documented
+missed; installed normal build remainsc4d094fd. Operator explicitly authorizes backup, migrations047–051,
+checkpoint preparation and native verification, with real trading disabled until results review.
+Backup/copy and synchronization confirmation complete; native cutover remains pending. Nightly is
+temporarily disabled with saved original state. Broker changed-appends/full historical audits retain documented
 cost; no cleanup or installed disk saving. [Owning implementation/cutover record](reviews/independent-engine-implementation-20261022.md).
 
 **Reconciled October 16, 2026.** Scope: September activity through this review, all three pinned
@@ -30,8 +32,9 @@ cross-session index, not a second authority or permission to run anything.
 above and the strategy checklist; do not repeat source work or infer installation from its tests.
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)
 through the explicit implementation request, independent engine, history/storage, recovery, readers
-and conditional readiness source checkpoints. S44's original pinned architecture/complete available
-turn was reviewed. Native acceptance and retention remain open; no operational authority is inferred.
+and conditional readiness source checkpoints, followed by explicit backup/migrations047–051/checkpoint/
+native-verification authority with real trading disabled. S44's original pinned architecture/complete
+available turn was reviewed. Native acceptance and retention remain open.
 
 **Earlier SQL-only correction (R04/R08):** operator resumes SQL reliability now and selects Fix SQL
 only for now, deferring a paper-workload switch. ADR-0102 implements one identical evaluation-save

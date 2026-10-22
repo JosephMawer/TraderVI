@@ -27,15 +27,17 @@ public sealed class EngineBrokerService
     private readonly ManualMarketSellWorkflow sells;
     private readonly BrokerReconciliationWorkflow reconciliation;
     private readonly BrokerExecutionHost host;
+    private readonly bool verificationOnly;
     private readonly Dictionary<Guid, PreparedManualBuy> reviews = [];
     private volatile bool closing;
 
     public EngineBrokerService(IWealthsimpleConnection connection, IBrokerOrderJournal journal,
         IWealthsimpleSessionProtector protector, IBrokerExecutionHostGrantStore grants,
         ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs,
-        Func<Guid, CancellationToken, Task<bool>>? mayReuseBrokerState = null)
+        Func<Guid, CancellationToken, Task<bool>>? mayReuseBrokerState = null, bool verificationOnly = false)
     {
         this.connection = connection; this.journal = journal; this.protector = protector;
+        this.verificationOnly = verificationOnly;
         buys = new(connection, journal, new ManualBuySafetyRepository(requireIndependentIntegrity: true), orderGate: orderGate);
         sells = new(connection, journal, orderGate: orderGate);
         reconciliation = new(connection, journal, journal, orderGate);
@@ -58,9 +60,9 @@ public sealed class EngineBrokerService
             }, calendar, BrokerManagedSessionComposition.ImplementationIdentity);
     }
 
-    public Task StartAsync() => connection.StartAsync();
-    public Task PollAuthenticationAsync() => AdmittedAsync(() => connection.CheckAsync());
-    public Task PollExecutionAsync() => AdmittedAsync(() => host.PollAsync(connection.IsConnected));
+    public Task StartAsync() => verificationOnly ? host.DisableAsync() : connection.StartAsync();
+    public Task PollAuthenticationAsync() => verificationOnly ? Task.CompletedTask : AdmittedAsync(() => connection.CheckAsync());
+    public Task PollExecutionAsync() => verificationOnly ? Task.CompletedTask : AdmittedAsync(() => host.PollAsync(connection.IsConnected));
     public void BeginStop() => closing = true;
     private async Task AdmittedAsync(Func<Task> action)
     {
@@ -82,9 +84,11 @@ public sealed class EngineBrokerService
     }
     public async Task<object> DispatchAsync(EngineRequest request)
     {
+        if (verificationOnly) EngineVerification.RequireLocalBrokerRead(request.Operation);
         // Status stays readable during a slow admitted order. It does not confer financial authority.
         if (request.Operation == EngineOperation.Connection) return EngineConnectionStatus.Read(connection);
-        if (request.Operation == EngineOperation.ExecutionStatus) return host.Status;
+        if (request.Operation == EngineOperation.ExecutionStatus) return verificationOnly
+            ? new BrokerExecutionHostStatus("Off", "Native verification: real trading and broker access are disabled.", DateTimeOffset.UtcNow) : host.Status;
         if (request.Operation == EngineOperation.ExecutionDiagnostics)
         {
             if (closing) throw new InvalidOperationException("Engine shutdown is in progress.");

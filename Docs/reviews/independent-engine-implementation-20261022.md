@@ -1,8 +1,34 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: implemented in source and validated offline; **not installed or operationally accepted**.
+Status: implemented in source and validated offline; **authorized native preparation in progress**.
 The requested overnight delivery target was missed. The last recorded installed application remains
 October 21 build `c4d094fd`; no later operational verification is implied by this document.
+
+## Authorized native preparation — October 22
+
+The operator explicitly authorizes the backup, migrations047–051, checkpoint preparation and native
+verification, with real trading disabled until the results are reviewed. No execution grant renewal,
+financial approval, order transmission, cleanup or historical deletion is authorized.
+
+Preflight11:27Toronto verifies zero operational processes/active collection leases and none of the
+nine new engine tables installed. Original paper roots/revisions and financial archive counts are
+preserved in hash-verified private read-only receipts. The idle nightly task was temporarily disabled;
+its exact prior definition/enabled state is retained for restoration after maintenance.
+
+The fresh compressed full backup completed SQL checksum verification; its second copy matches SHA256
+(3,579,413,532 compressed bytes). Windows Cloud Files reports the exact copy in sync11:41Toronto
+(state9); the synchronization blocker is cleared. Evidence is under ignored
+`artifacts/independent-engine/native/`; no private data is committed.
+The bounded maintenance script applies each exact committed migration separately, requires the fresh
+verified/synchronized backup and refuses to overwrite successful receipts. Native `--verify` startup
+disables the saved real-execution grant and rejects broker access/order/enable commands. `--control`
+supports only status, stop and explicit history recovery controls, reserving a private receipt before
+dispatch to avoid replay. Final21focused tests and matching engine/WPF build pass (two existing WPF
+compiler warnings); native behavior is not yet proven. No schema migration or engine launch has run.
+The first047 invocation was rejected by SQLCMD's native argument parser before SQL execution.
+A hash-verified12:29Toronto read confirms all new objects absent and original roots/counts unchanged.
+The wrapper now supplies the backup path through a scoped process environment variable; approved
+migration scripts are unchanged. The failure is not treated as a partially applied migration.
 
 ## What changed
 
@@ -116,10 +142,11 @@ by this implementation effort. Earlier aggregate investigation reads are separat
    installed storage savings have not been measured. Build/backup/evidence retention needs a separate
    concrete decision; no deletion policy is inferred from this redesign.
 
-## Concrete native preparation and cutover sequence — not executed
+## Concrete native preparation and cutover sequence
 
-These are database-writing/application operations requiring separate authorization under `AGENTS.md`
-and `TraderDB/AGENTS.md`. Passing offline checks does not authorize running this sequence.
+The operator has now authorized this database-writing/application sequence under `AGENTS.md` and
+`TraderDB/AGENTS.md`, with real trading disabled pending results review. Track actual execution above;
+passing offline checks alone does not establish native acceptance.
 
 1. Review the exact source commit, matching engine/dashboard outputs and manual migrations below.
    Identify all writer processes/schedules and the protected account/order journals. Confirm capacity

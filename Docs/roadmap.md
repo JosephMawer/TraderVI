@@ -10,9 +10,10 @@ and source review points; use its owning-record links when resuming work.
 
 **Current request — complete the revised architecture:** ADR-0103 independence, audit policy and
 engine lifetime are implemented in source through current-state/storage/readers and conditional
-readiness. The overnight target was missed. Complete native single-owner/close/reconnect, SQL
-concurrency/recovery, latency and weekly audit-capacity acceptance before a separately authorized
-cutover. Preserve exact permission, freshness and original financial history. Measure residual full
+readiness. The overnight target was missed. The operator now authorizes backup, migrations047–051,
+checkpoint preparation and native verification while keeping real trading disabled until review.
+Complete native single-owner/close/reconnect, SQL concurrency/recovery, latency and weekly
+audit-capacity acceptance. Preserve exact permission, freshness and original financial history. Measure residual full
 broker-append and historical-audit cost; extend those paths if acceptance fails. No replacement is
 installed and no disk reclamation is claimed. Build/evidence retention is separate before cleanup.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
