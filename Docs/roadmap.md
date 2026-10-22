@@ -1,8 +1,5 @@
 # TraderVI Roadmap
 
-Current broker reuse, explicit diagnostics and Live-tab compact refresh are in source; finish
-whole-path cutover acceptance. Changed broker appends still serialize full logical history.
-
 This is the authoritative priority list. [Project status](project-status.md) owns dated evidence;
 the [strategy alignment checklist](strategy-alignment-implementation-checklist.md) owns execution
 dependencies. [Design rules](design-rules.md) and applicable accepted ADRs own behavior.
@@ -11,43 +8,15 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**Current request — implement revised architecture tonight:** real trading independence
-from paper research is accepted under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
-Immediate/historical verification separation and nightly/weekly audit/failure policy are also accepted.
-Dashboard-close continuation and a separate stop are accepted; staged delivery is accepted conditional
-on completion tonight, with feasibility unverified. The [draft](concepts/independent-real-processing-design.md)
-proposes independent host/broker lifetime plus direct shared inputs as the first useful increment.
-Complete engineering contracts/acceptance before the switch. Build retention is separate before cleanup.
-Shared broker services, independent schedules and the engine/client control path are now in source.
-Shared-input storage, independent collection and real-input selection are in source; migrations 047/048
-remain prepared and unapplied. Independent paper/research consumers and immutable handoff receipts
-are in source (prepared migration049). Delphi Live display/control and remaining Shadow/tracked/AI
-worker ownership are implemented. Finish checkpointed history and integrity audit/hold integration.
-Audit receipts, durable holds and explicit recovery controls are now in source; qualify their scope,
-native behavior and weekly throughput alongside the remaining current-state/readers work.
-AI and champion diagnostic history now read both input formats; finish broker diagnostics and
-operational current-state processing without reloading lifetime history.
-The incremental paper archive/window is wired to atomic SQL writes, record-identity protection and
-explicit full-history qualification (migration051 prepared). Finish remaining broker/display/recovery
-work and native qualification; preserve old archive revisions and original financial history.
-Candidate-state sharing removes repeated unchanged signal state from archive roots and checkpoints.
-Dashboard refresh uses current checkpoints; explicit background history is paged. Complete remaining
-broker/recovery and collection-dependency review before native qualification.
-Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
-native concurrency qualification before claiming the wait is resolved.
-Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish
-the qualified diagnostic reader and current-state/history/audit integration before installation.
-Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
-removing the new host's readiness block. No replacement is installed.
-Preserve the tested invalidation of cached real confirmations when earlier shared evidence conflicts.
-The overnight target was missed; continue source completion and report acceptance gaps explicitly.
-Real input subscriptions now come from broker state and survive absent/reassigned paper accounts;
-paper source adoption is separate from publication. Finish restart/restore trust and broker current-state
-work, then full offline acceptance and a concrete separately authorized cutover.
-Continuity witnesses and recovery reconstruction are implemented offline. Finish audit throughput,
-broker current-state/diagnostic integration and native restart/restore qualification.
-Bounded audit batching is source-tested; measure large-revision cost and weekly coverage before
-operational acceptance. The time budget limits new admissions, not an already-running revision.
+**Current request — complete the revised architecture:** ADR-0103 independence, audit policy and
+engine lifetime are implemented in source through current-state/storage/readers and conditional
+readiness. The overnight target was missed. Complete native single-owner/close/reconnect, SQL
+concurrency/recovery, latency and weekly audit-capacity acceptance before a separately authorized
+cutover. Preserve exact permission, freshness and original financial history. Measure residual full
+broker-append and historical-audit cost; extend those paths if acceptance fails. No replacement is
+installed and no disk reclamation is claimed. Build/evidence retention is separate before cleanup.
+[Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
+[accepted architecture](adr/0103-real-execution-independent-of-paper-research.md).
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

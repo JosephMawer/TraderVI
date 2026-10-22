@@ -1,125 +1,25 @@
 # TraderVI Project Status
 
-**October22 Live display checkpoint:** the engine-connected Live tab now reads compact working
-checkpoints, labels retained fills/quotes accurately and directs complete older records to explicit
-portfolio History. The legacy administrative service keeps full reads. WPF builds with260 existing
-compiler warnings; native display/SQL qualification and installation remain outstanding.
+## Independent engine — October 22 source checkpoint
 
-**October22 reader checkpoint:** engine broker leases reuse only an exact verified current revision,
-after fresh continuity/guard/hold checks; explicit diagnostics bypass that cache and support inline
-and shared storage. The dashboard has a Last saved decision command. Changed broker appends still
-serialize lifetime logical state under the existing 8MiB limit. No history was deleted or converted.
-386 focused tests and incremental WPF build pass (two existing warnings); native diagnostics remain
-unqualified. Full Core before this reader increment: 3,000 passed, nine native skips with explicit
-xUnit concurrency disabled; the first parallel run hit two existing AI timing tests. SSDT build passes.
+The revised engine, direct shared inputs, independent paper/research consumers, compact paper state,
+shared storage, audit/hold/recovery controls and current-state dashboard readers are implemented in
+source. The temporary unconditional execution block is replaced by verified storage/continuity/current
+subscription prerequisites; original exact-build/account/dated approval and explicit enable remain.
+
+Full Core: **3,003 passed, nine native skips** with explicit xUnit concurrency disabled. Engine,
+WPF and SSDT builds pass; nineteen final changed SQL batches parse. Existing compiler warnings
+remain; dependency-security audit was not requalified. [Evidence, retained checkpoints and concrete
+cutover sequence](reviews/independent-engine-implementation-20261022.md).
+
+**Not installed or operationally accepted.** The overnight target was missed. Last recorded installed
+build remains October21 `c4d094fd`; no SQL mutation, external service, native launch or cleanup ran.
+Next: separately authorized native qualification of ownership/reconnect, SQL concurrency, restore/holds,
+latency and audit coverage. Broker changed appends still serialize full logical state under the 8MiB
+cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.
+Retention and any historical conversion/deletion remain undecided.
 
 ## October 21 post-open execution watch
-
-**October22 architecture delivery target missed:** implementation continues; no replacement installation
-or operational change. Real collection subscriptions now derive from hash-bound broker revision heads,
-including approved policy/admission definitions and current/pending holdings. Collection supports no
-paper champion, preserves a real policy when paper is reassigned, and isolates invalid paper membership
-under a paper hold. Shared source publication no longer updates Shadow accounts; the paper lane adopts
-it at its actual processing boundary.423 related tests pass/one native skip;16 runtime SQL batches parse.
-Isolated engine/WPF builds pass (258/260 existing compiler warnings); dependency audit not requalified.
-Explicit --prepare-real-observations is prepared only. Restart/restore trust, broker current-state
-processing, native concurrency/capacity and final acceptance remain; real-host readiness stays blocked.
-Restart/restore witnesses are now in source: protected local/SQL pairing, dirty startup, drained clean
-shutdown, periodic/admission checks and durable holds on mismatch. Recovery also reconstructs current
-paper checkpoints/archive paths/replay IDs and collection projections.431 related tests pass/one native
-skip; engine builds with258 existing compiler warnings. Actual restart/restore/concurrency remains
-unqualified. Current recovery still scans the full archive; throughput needs further work.
-Audits now verify up to256 steps per wake with a five-second admission budget, saving one verified
-cursor per batch instead of one row per30 seconds.21 audit/integrity/continuity checks pass; failure
-preserves the last good cursor. An admitted large revision may exceed the budget. Explicit recovery can
-run during trading hours under its existing hold; ordinary audits remain off-hours. Capacity unmeasured.
-
-October22 paper current-state integration now reads qualified compact checkpoints and atomically saves
-changed archive records, current/observation state and immutable replay IDs. Full-history administrative
-writers refresh the checkpoint; initial qualification is explicit. Original capital/cash/profit and latest-exit
-context remain. 83 related checks pass, including full-archive validation of working-state buy/protection/
-overnight/retry flows and stable ordinals after pruning. A 100,000-leaf mutable update reads at most 36 nodes; appending to a 10,000-mark
-archive needs one new record and no tree reads, with exact reconstruction across day rollover.
-SSDT, engine and isolated WPF builds pass (WPF two existing warnings); 32 SQL batches parse. Migration051
-and --prepare-working-state are prepared only. Native concurrency/qualification remain; no installation.
-Unchanged candidate state now uses one shared content record across archive revisions. 84 related
-checks pass, including exact 200-symbol reconstruction and damaged-reference rejection; the synthetic
-root is under one fifth of its previous size. Installed storage savings remain unmeasured.
-Dashboard refresh now uses qualified current checkpoints; explicit full history loads on a worker
-and displays 100-row pages. Lifetime estimated-fill totals and latest exit reasons survive pruning.
-Current checkpoints also reference shared candidate content. 86 related tests and incremental WPF
-build pass (two existing compiler warnings); no native UI or SQL qualification. Initial qualification
-now covers all saved accounts, including ended accounts needed by the dashboard.
-
-**Architecture implementation underway:** operator explicitly requests the independent engine followed
-by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`
-adds a separate Windows engine, current-user-only asynchronous control channel, engine-owned
-broker/order workflows, reconnecting dashboard and explicit engine start/stop. 826 related
-checks pass/one native skip; isolated engine/WPF build passes with 260 existing compiler warnings.
-Storage checkpoint `9b39b470` supplies immutable, deduplicated shared-input storage: exact bar, policy,
-baseline and daily-setup references preserve original evidence. 40 input/evaluation checks pass;
-SSDT database project builds. Additive migration 047 is prepared, not applied.
-The next increment wires independent market collection and real-input consumption, with a small
-revision-checked paper membership projection (migration 048) and an explicit offline qualification
-command. 430 related checks pass/one native skip, including collection with all paper-history access
-rejected and a 10,000-closed-position projection fixture. Paper consumers, short write transactions,
-historical audit/holds and cutover qualification remain; source wiring is not operational evidence.
-New-host execution is deliberately blocked pending direct inputs and state-storage qualification.
-Current source also prepares/validates paper appends outside the host/portfolio write locks, fences
-the exact unchanged source root, and writes/verifies only changed items inside the transaction.
-47 history/ledger/action/projection checks pass, including one appended item after 10,000 old marks.
-Full pre-transaction history reads remain; native SQL concurrency/latency is not yet qualified.
-October22 source adds durable shared-cycle/consumer receipts and separate engine schedules for
-paper protection, paper inputs and research. Exact context/identities and original timestamps are
-retained; delayed paper buys are rechecked before fills. Unprepared experiment changes remain pending
-without delaying collection. 82 focused consumer/action/research/scheduler tests pass; isolated WPF
-incremental build passes with two existing warnings, SSDT build and six SQL parse checks pass.
-Migration049 is prepared only. Delphi Live dashboard ticks now read snapshots and its operator
-commands go to the engine; dashboard closure sends no Live stop. Engine stop drains admitted Live
-commands before releasing collection ownership. 43 focused command/transport/scheduler/monitor
-checks pass and WPF builds (260 existing compiler warnings, zero errors). Shadow, tracked-position
-monitoring and the existing opt-in AI reviewer now also use engine lifetime; manual paper polls route
-through the same owners. Existing saved settings/schedules remain. Off-hours research recovery handles
-one changed session per wake using durable review receipts; missing freezes cannot count as complete.
-33 focused research/AI-host/transport/scheduler tests pass; incremental WPF build passes with two
-existing warnings. Checkpointed reads and audits/holds remain; native close/reconnect is not qualified.
-Broker revisions now support shared immutable nested records with lossless typed recovery and bounded
-expansion. 407 relevant checks pass/one native skip; engine build passes with zero warnings/errors.
-A repeated-record fixture uses under one twentieth of expanded storage; this is synthetic, not a
-measurement of installed savings. Current eight-MiB logical-state limit remains. Direct-JSON diagnostics
-now disclose shared storage; their qualified reader/cutover remains. No historical rows were converted.
-Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
-The real reader now treats an earlier same-session stock/benchmark conflict as affecting its later
-inputs, and invalidates an already-consumed cached confirmation before the progress check. A regression
-proves that repeated reads cannot revive that confirmation. 399 focused recommendation/broker tests pass.
-October22 source now includes resumable fixed-boundary Live/broker/shared-input audit receipts,
-immutable scoped incidents, buy/protection guards and explicit verified recovery/clear controls in a
-History checks window.379 focused integrity/broker/manual-buy tests pass; WPF builds with260 existing
-warnings, SSDT builds, and16 runtime/migration SQL batches parse. Migration050 is prepared only and
-retires the old Live input writer at cutover. Current-history read optimization, dependent readers,
-native recovery/coverage/capacity and readiness remain unfinished; new-host execution stays blocked.
-AI saved-context and champion diagnostic readers now include legacy and shared input history. AI
-reads verify complete referenced inputs; lean diagnostics verify their referenced ruler without
-expanding bar histories. Duplicate checkpoint identities fail, and the new publisher rejects legacy
-identity collisions.79 focused reader/input/evaluation tests and combined diagnostic SQL parsing pass.
-Dependency-security audit was disabled, not requalified. No database or external action.
-
-**Accepted design — dashboard-independent operation:** closing the dashboard leaves
-the engine running, with a separate stop control, under
-[ADR-0103](adr/0103-real-execution-independent-of-paper-research.md). The operator accepts staged delivery
-conditional on completion tonight; target feasibility is unverified. The
-[draft](concepts/independent-real-processing-design.md#proposed-first-implementation-increment-independent-operational-host)
-defines the proposed first increment: extract UI-owned execution/broker lifetime into a separate host
-and give real management direct shared inputs. Current input reads still depend on paper evaluation
-records; moving the host alone would not remove that dependency. Accepted independence, audit policy
-and verification separation remain. Source progress is recorded above; no installation or native acceptance.
-
-**Earlier architecture and storage investigation:** current source confirms
-background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot
-remove real-host waits. Hash-verified read-only SQL and filesystem inspection distinguish repeated
-history processing from evaluation storage and accumulated build outputs. The pinned architecture's
-logical boundaries still apply; its execution-status labels are historical. Accepted redesign decisions
-are recorded above; cleanup remains undecided. [Findings](reviews/paper-workload-architecture-20261021.md).
 
 **Earlier evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
 defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with

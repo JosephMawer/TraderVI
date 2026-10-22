@@ -10,99 +10,37 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
-- [x] Implement exact-revision broker current-state reuse with continuity/guard/hold admission and
-  invalidation; provide explicit fresh dual-format diagnostics and a dashboard command.
-- [ ] Qualify broker reuse/diagnostics natively; broker changed-appends still serialize full logical
-  history under the existing 8MiB cap. Complete cutover acceptance.
-- [x] Use compact checkpoints in the separate Live tab as well as portfolio overview; clearly identify
-  retained operating records and direct full history to the explicit History view. WPF build passes.
+ADR-0103 source work and validation are consolidated in the [implementation/cutover review](reviews/independent-engine-implementation-20261022.md).
+The overnight target was missed. Completed source work is separate from installed acceptance.
 
-- [x] Batch audit work under step/time admission limits and persist only verified prefixes; permit
-  explicitly requested recovery under its hold during the day.21 related checks pass. Large revision
-  duration and weekly installed throughput remain unmeasured.
-- [x] Implement/test paired protected local/SQL continuity witnesses, interrupted/restored-state holds,
-  drained clean shutdown and recovery reconstruction of checkpoints/paths/replay IDs/projections.
-  431 related checks pass/one native skip; engine build passes. No native recovery qualification.
-- [ ] Qualify database identity visibility, restore/interruption/concurrency behavior and recovery audit
-  capacity. Full-archive recovery remains potentially expensive and is not operationally accepted.
-- [x] Derive real collection subscriptions from broker revisions; include approved definitions/holdings
-  with absent/reassigned paper accounts, preserve real-only held-symbol evidence, and separate Shadow
-  source adoption from market publication.423 related checks pass/one native skip;16 SQL batches parse.
-  Offline qualification command prepared; installed concurrency/initial qualification remain untested.
-- [ ] Complete missed overnight delivery: restart/restore trust, broker current-state processing, final
-  offline suite and native acceptance/cutover. The installed host is unchanged and new real host blocked.
-- [x] Implement/test incremental paper archive roots and compact working-state kernel; 73 related
-  checks pass, including exact full-history reconstruction and long-history bounded updates.
-- [x] Wire qualified working checkpoints, stable record/fill/evaluation-ID checks and version-3 roots
-  into atomic paper appends; prepare migration051 and explicit qualification. 83 related checks pass,
-  including full-archive validation of compact-state buy/protection/overnight/retry flows. SSDT/WPF build.
-- [ ] Qualify paper SQL concurrency, current-state/replay protection and real independence on the
-  authorized native environment; complete broker/display/recovery integration before cutover.
-- [x] Share unchanged candidate state across version-3 roots; 84 related tests pass with exact
-  restoration and corrupted-reference rejection. No old revisions were converted.
-- [x] Use compact checkpoints for dashboard refresh; load requested history on a worker with 100-row
-  display pages. Share checkpoint candidate content and preserve lifetime estimated-fill totals/latest
-  exit reasons. 86 related tests and incremental WPF build pass; native UI/SQL remain unqualified.
-
-- [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
-  code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).
-- [x] Accept real trading independence from paper research under
-  [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md); prepare the requested
-  [architecture draft](concepts/independent-real-processing-design.md) before implementation.
-- [x] Accept immediate current-state/new-event/input verification separately from full historical audits
-  under ADR-0103. This is a design decision, not an installed integrity change.
-- [x] Adopt nightly new-history audits, weekly archive coverage target and scoped failure/recovery
-  responses under ADR-0103. Source audit work is tracked below; no audit job is installed.
-- [x] Accept continued engine operation after dashboard closure and a separate stop control.
-- [x] Accept staged delivery with the requested tonight target; feasibility is unverified, not a completion promise.
-- [x] Begin explicitly requested implementation: broker connection/account interface extracted into Core;
-  independent schedules/ownership/draining stop tested.237 focused checks and isolated WPF build pass.
-- [x] Implement engine executable, bounded current-user pipe, broker/order ownership and dashboard
-  client/start/stop controls.826 related checks pass/one native skip; engine/WPF build passes.
-  Native launch/reconnect and shared-input execution are not yet qualified; execution is blocked.
-- [x] Implement shared-input storage foundation: immutable exact-content references and isolated input
-  publication table; 40 input/evaluation checks and SSDT build pass. Migration 047 is prepared only;
-  producer/consumer integration and native qualification remain.
-- [x] Wire shared collection/real-input reader and bounded observation membership; 430 related checks
-  pass/one native skip. Migration 048 and explicit offline observation qualification are prepared only.
-  Native transaction qualification remains.
-- [x] Move ordinary paper append preparation/full verification before the lease transaction; fence
-  the original root and write/read-verify changed items only. 47 relevant checks pass. Repeated
-  pre-transaction history reads and native concurrency/latency qualification remain.
-- [x] Implement durable shared checkpoints and separate paper/protection/research schedules in the
-  engine. 82 focused checks pass, including original identities, late-buy rejection before admission
-  and after a quote, close/stop lease lifetime and no collection by consumers. Isolated WPF and SSDT
-  builds/SQL parsing pass. Migration049 is prepared only; native consumer cutover remains.
-- [x] Implement shared broker revision records and legacy/shared readers, preserving authority,
-  original order IDs and complete logical recovery. 407 related checks pass/one native skip; engine
-  build passes. Synthetic repeated records occupy under one twentieth of expanded size. Installed
-  savings, qualified direct-JSON diagnostics and native recovery remain unproved; no conversion run.
-- [x] Route Delphi Live dashboard commands to the engine and make its dashboard ticks read-only;
-  dashboard closure no longer stops Live. Drain admitted commands on explicit engine stop. 43 focused
-  checks/WPF build pass. Native close/reconnect remains.
-- [x] Move Shadow/tracked/opt-in AI worker lifetime to the engine and manual polls through its owner;
-  retain existing settings/schedules. Bound changed-session research recovery to one session per wake
-  with durable receipts and explicit missing-freeze failure. 33 focused checks and incremental WPF
-  build pass. Native lifecycle/resource acceptance remains.
-- [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
-  from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
-  and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
-  Direct-input/storage integration and native acceptance remain unfinished; installed app is unchanged.
-- [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
-- [x] Implement fixed-boundary off-hours Live/broker/shared-input audits, durable scoped findings,
-  order preflight holds and explicit verified recovery/clear controls.379 focused tests, WPF/SSDT
-  builds and16 SQL parse checks pass. Migration050 is prepared only; it retires the legacy Live writer.
-- [ ] Qualify audit coverage, weekly capacity, interrupted/native recovery and hold/preflight concurrency;
-  finish current-state and dependent-reader integration before removing the real-host readiness block.
-- [x] Adapt AI saved-context/champion diagnostics to legacy plus shared inputs, retain checksum
-  validation and reject duplicate original checkpoints.79 related checks and generated SQL parse pass.
-- [x] Invalidate cached real confirmation on a newly discovered consumed-input conflict; include earlier
-  same-session stock/benchmark conflicts in dependency checks. 399 related offline tests pass.
-- [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
-  resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.
-  Implementation and operational authority remain separate from these design decisions.
-- [ ] After an agreed design, define concurrency/integrity/restart and long-history capacity acceptance;
-  current source inspection and old timings do not qualify latest-build native responsiveness/capacity.
+- [x] Accept independence, immediate versus historical verification, nightly/weekly scoped audit policy,
+  dashboard-close continuation and explicit separate stop. Investigate original workload/storage.
+- [x] Extract the independent engine and asynchronous client; one broker/order owner, separate schedules,
+  draining stop and current-status reconnect. Move existing paper/Shadow/tracked/opt-in AI lifetime.
+- [x] Publish immutable shared inputs and derive real subscriptions from verified real account state;
+  retain exact approved definitions and freshness without paper progress or champion dependence.
+- [x] Separate paper/research consumers and receipts; preserve original timestamps and reject late buys.
+- [x] Implement incremental paper archive roots, qualified working checkpoints, replay identities and
+  atomic changed-record saves; share input/report/candidate content. Prepare migrations047–051.
+- [x] Use compact dashboard/Live refresh and explicit background/paged full history; support dual-format
+  AI, champion and broker diagnostics. Reuse only exact verified current broker revisions.
+- [x] Implement fixed-boundary audits, durable scoped holds, explicit recovery/clear, protected local/SQL
+  continuity witnesses and fresh reconstruction of current checkpoints/projections/replay identities.
+- [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
+  scoped access and exact current subscription checks; retain existing account/build/dated authority.
+- [x] Validate offline:3,003Core pass/nine native skips with concurrency disabled; engine/WPF/SSDT
+  build and changed SQL parsing pass. No installed acceptance or dependency-security requalification.
+- [ ] Qualify native single ownership, close/reconnect, admitted-command draining and stalled-paper
+  independence. Test direct-input freshness and same-session evidence conflicts in the installed path.
+- [ ] Qualify SQL concurrency, current-state/replay/immutable guards, witness metadata permissions,
+  abnormal interruption/restore, durable holds and explicit verified recovery under concurrent access.
+- [ ] Measure realistic latency, growth, archive/recovery throughput and weekly coverage. Changed broker
+  appends still serialize full logical history under8MiB; historical revision audits still reconstruct
+  full history. Extend these paths if measured capacity fails the accepted objectives.
+- [ ] Review and authorize concrete backup/migrations/qualification/install operations, then complete
+  native cutover acceptance. No operational action or new trading permission follows from source tests.
+- [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
+  deleted or revalued; existing disk space has not been reclaimed.
 
 - [x] Implement/validate the resumed SQL-only correction under
   [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md): one unchanged evaluation-save
@@ -113,7 +51,7 @@ The September 22 documentation cleanup preserves the
   hashes recorded; zero build errors. Existing compiler warnings/dependency advisories remain.
 - [ ] Operator performs tomorrow's exact current-build review/approval and separate host enable.
 - [ ] Observe native SQL stages/recovery and regular-session continuity/capacity. Historical wait/
-  plan cause remains unknown. Paper-workload switch is explicitly deferred; no barrier bypass.
+  plan cause remains unknown. The earlier workload deferral is superseded by ADR-0103 source work; native acceptance remains.
 
 - [x] Final October21 bounded read/report16:06 and deletion of today's heartbeat; zeroorders/fills/
   positions/post-cutoff intents, exact16:00expiry. SessionIncomplete/Blockedcoverage retained.

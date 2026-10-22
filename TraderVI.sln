@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0102-bounded-immutable-live-evaluation-save-recovery.md = Docs\adr\0102-bounded-immutable-live-evaluation-save-recovery.md
 		Docs\reviews\delphi-live-sql-reliability-20261021.md = Docs\reviews\delphi-live-sql-reliability-20261021.md
 		Docs\reviews\paper-workload-architecture-20261021.md = Docs\reviews\paper-workload-architecture-20261021.md
+		Docs\reviews\independent-engine-implementation-20261022.md = Docs\reviews\independent-engine-implementation-20261022.md
 		Docs\adr\0103-real-execution-independent-of-paper-research.md = Docs\adr\0103-real-execution-independent-of-paper-research.md
 		Docs\concepts\independent-real-processing-design.md = Docs\concepts\independent-real-processing-design.md
 		Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql = Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql

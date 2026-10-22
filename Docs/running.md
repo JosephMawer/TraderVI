@@ -2,7 +2,10 @@
 
 ## Independent engine preparation — source only, October 22
 
-The ADR-0103 host is not installed or operationally qualified. Its real-execution readiness block remains.
+The ADR-0103 host is not installed or operationally qualified. Source readiness now requires verified
+independent storage/guards, continuity, applicable holds and an exact current broker subscription;
+original exact-build/account/dated permission and separate enable remain mandatory. Follow the
+[concrete qualification/cutover review](reviews/independent-engine-implementation-20261022.md).
 Prepared migrations047–051 require separate review/authorization, stopped writers and a fresh verified
 checksum full backup. Migration050 retires the legacy evaluation writer;051 permits version-3 roots.
 After the first new append, old binaries cannot read those roots, so rollback requires a compatible reader.

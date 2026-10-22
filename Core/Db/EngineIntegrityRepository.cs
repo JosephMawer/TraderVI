@@ -214,6 +214,7 @@ VALUES(@Id,@Run,@Hash,@Operator,@Reason);
 SELECT CAST(CASE WHEN NOT EXISTS(SELECT 1 FROM (VALUES
  (N'EngineIntegrityIncident_Immutable'),(N'EngineIntegrityResolution_Immutable'),(N'EngineAuditRun_Progress'),
  (N'TR_EngineEvidenceContent_Immutable'),(N'TR_EngineInputPublication_Immutable'),
+ (N'TR_EngineMarketCycle_Immutable'),(N'TR_EngineConsumerReceipt_Immutable'),
  (N'TR_DelphiLiveSnapshotContent_Immutable'),(N'TR_DelphiLiveSnapshotItem_Immutable'),
  (N'TR_EnginePaperRecordIdentity_Immutable'),
  (N'TR_DelphiLivePortfolioRevision_CompactUpdate'),(N'TR_DelphiLivePortfolioRevision_CompactStorage'),(N'BrokerManagedSessionRevision_Immutable'),

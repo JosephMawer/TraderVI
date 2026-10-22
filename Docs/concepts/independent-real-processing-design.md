@@ -3,7 +3,9 @@
 **October 21, 2026.** Accepted under ADR-0103: real trading independence, immediate/historical
 verification separation, the nightly/weekly audit policy, and continued engine operation after dashboard
 closure with an explicit stop control. Staged delivery is accepted with a requested tonight target;
-feasibility is unverified. Exact cutover, retention and implementation mechanics remain proposals.
+the target was subsequently missed. Source contracts are implemented and tested; native cutover,
+resource/capacity acceptance and retention remain open. See the [current implementation and cutover
+review](../reviews/independent-engine-implementation-20261022.md) for superseding source status.
 The operator has now explicitly requested implementation. This remains the architecture/acceptance
 record; each concrete runtime/storage contract must be completed and tested before its use.
 
@@ -233,7 +235,7 @@ order owner shared by manual and automatic actions. Wire that service into a sep
 the dashboard becomes a client that can disconnect/reconnect without cancelling the engine. Initially
 prove it with synthetic feeds and broker substitutes, not a second live order-capable process.
 
-Host extraction alone does not remove paper dependence. Current `PollExecutionHostAsync` waits on
+Host extraction alone does not remove paper dependence. The original `PollExecutionHostAsync` waits on
 `BrokerSetupCycleBarrier`, while `TradingRecommendationRepository.BuildInput` reconstructs Live inputs
 from `DelphiLiveEvaluation.InputJson`. The source review also checks paper progress. Therefore the
 first useful operating increment must extract shared collection/input publication from paper evaluation,

@@ -82,6 +82,28 @@ LEFT JOIN dbo.EngineCurrentState s ON s.Kind=N'RealObservation' AND s.OwnerId=b.
         }
         _ = await ReadAsync(ct); return ids.Length;
     }
+
+    public async Task RequireCurrentAsync(BrokerManagedSession session, CancellationToken ct = default)
+    {
+        await using var c = new SqlConnection(ConnectionString); await c.OpenAsync(ct);
+        await using var t = (SqlTransaction)await c.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        var row = await c.QuerySingleOrDefaultAsync<ExecutionRow>(new CommandDefinition("""
+SELECT b.Revision,b.RevisionId,b.ContentHash,s.Revision StateRevision,s.SourceHash,s.StateHash,s.StateJson
+FROM (SELECT TOP(1) Revision,RevisionId,ContentHash FROM dbo.BrokerManagedSessionRevision
+ WHERE BindingId=@Binding ORDER BY Revision DESC) b
+LEFT JOIN dbo.EngineCurrentState s ON s.Kind=N'RealObservation' AND s.OwnerId=@Binding;
+""", new { Binding = session.BindingId }, t, cancellationToken: ct));
+        // Another legitimate operator revision invalidates this cycle without inventing an integrity incident.
+        if (row is null || row.Revision != session.Revision || row.RevisionId != session.RevisionId)
+            throw new InvalidOperationException("The current account revision changed. Read it again before execution.");
+        if (row.StateJson is null || row.StateRevision != row.Revision || row.SourceHash != row.ContentHash ||
+            DelphiLiveSnapshotCodec.Hash(row.StateJson) != row.StateHash)
+            throw new InvalidDataException("The real collection subscription is missing or has changed. Verify recovery before execution.");
+        DelphiLiveLedgerJson.Deserialize<EngineRealObservation>(row.StateJson).RequireMatches(session);
+        await t.CommitAsync(ct);
+    }
+    private sealed record ExecutionRow(long Revision, Guid RevisionId, string ContentHash,
+        long? StateRevision, string? SourceHash, string? StateHash, string? StateJson);
     private sealed record Row(Guid BindingId, Guid SessionId, long Revision, string ContentHash,
         long? StateRevision, string? SourceHash, string? StateHash, string? StateJson);
 }

@@ -7,16 +7,20 @@ snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.m
 
 ## Accepted direction: independent real processing (ADR-0103)
 
-Real trading must be independent of optional paper research. The
-[architecture draft](concepts/independent-real-processing-design.md) proposes shared immutable inputs,
-independent account managers, compact current state plus events, and research over retained history.
-Immediate current-state/new-event/input verification separate from full historical audits is also
-accepted, together with nightly/weekly audit cadence and scoped failure/recovery policy. Closing the
-dashboard leaves the engine running with a separate stop control. Staged delivery is accepted with a
-requested tonight target, feasibility unverified. The draft describes the first independent-host/direct-input
-increment and remaining checkpoint/freshness/resource engineering contracts.
-No replacement is implemented; current broad admission/full-history verification still operate.
-Retention choices remain separate before cleanup.
+The accepted [architecture](concepts/independent-real-processing-design.md) makes real trading
+independent of paper research, separates immediate checks from nightly/weekly historical audits,
+and keeps the engine running after dashboard closure with an explicit separate stop.
+The replacement is now implemented and tested in source: a separate Windows engine owns broker and
+worker lifetime; the dashboard uses asynchronous local messages. Shared inputs feed separate real,
+paper and research schedules. Paper cycles use compact working state and append changed records to
+an immutable archive; dashboards request full history explicitly. Paired continuity witnesses,
+scoped holds and resumable audits preserve verification outside the ordinary trading cycle.
+Real readiness is conditional on verified storage/current state and the original exact-build/account/
+dated approval, with explicit enable. The installed application remains unchanged; the overnight
+delivery target was missed. Native ownership, concurrency/recovery and capacity acceptance remain.
+Broker changed appends and historical revision audits retain full logical-history processing.
+[Current architecture, limits and cutover sequence](reviews/independent-engine-implementation-20261022.md).
+Retention choices remain separate before cleanup; no installed space was reclaimed.
 [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md) records the accepted design decisions.
 
 ## Dated Portfolio rules only review (ADR-0101)

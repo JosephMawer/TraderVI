@@ -14,6 +14,19 @@ namespace TraderVI.Core.Tests;
 public sealed class EngineRealObservationTests
 {
     [Fact]
+    public async Task ExecutionSubscriptionMustMatchTheEntireVerifiedCurrentState()
+    {
+        var f = new BrokerManagedSessionTests.Fixture(); BrokerManagedSessionTests.UseNormalLive(f);
+        await f.Workflow().ApproveAsync(f.Approval(retain: true));
+        var state = f.Store.State!; var observation = EngineRealObservation.From(state);
+        observation.RequireMatches(state);
+        foreach (var changed in new[] { observation with { BindingId = Guid.NewGuid() },
+            observation with { SessionId = Guid.NewGuid() }, observation with { Revision = observation.Revision + 1 },
+            observation with { Holdings = [] }, observation with { Holdings = observation.Holdings.Add(new("DIFFERENT", "BrokerPending", Guid.NewGuid(), false)) } })
+            Assert.Throws<System.IO.InvalidDataException>(() => changed.RequireMatches(state));
+        Assert.Throws<System.IO.InvalidDataException>(() => observation.RequireMatches(state with { Revision = state.Revision + 1 }));
+    }
+    [Fact]
     public async Task ApprovedRealDefinitionAndHeldSymbolsSurviveAbsentOrReassignedPaper()
     {
         var f = new BrokerManagedSessionTests.Fixture(); BrokerManagedSessionTests.UseNormalLive(f);

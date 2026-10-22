@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.IO;
 
 namespace Core.Runtime;
 
@@ -13,6 +14,11 @@ namespace Core.Runtime;
 public sealed record EngineRealObservation(Guid BindingId, Guid SessionId, long Revision,
     BrokerManagedStrategy Strategy, ImmutableArray<DelphiLiveObservedHolding> Holdings)
 {
+    public void RequireMatches(BrokerManagedSession session)
+    {
+        if (DelphiLiveLedgerJson.Serialize(this) != DelphiLiveLedgerJson.Serialize(From(session)))
+            throw new InvalidDataException("Real collection subscription differs from the verified current account state.");
+    }
     public static EngineRealObservation From(BrokerManagedSession state)
     {
         state.Strategy.Validate();

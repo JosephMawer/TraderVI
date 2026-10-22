@@ -20,10 +20,10 @@ Things we punted on and need to revisit. Cleared as decisions are made
   holds and explicitly verified recovery. Research-only continuation requires verified independence;
   protection continues only when its prerequisites remain trustworthy. No scheduled jobs are installed.
 - **Lifecycle accepted:** closing the dashboard leaves the engine running, with a separate stop control.
-  Staged delivery is accepted conditional on completion tonight; feasibility is unverified. The latest
-  question asks for the first implementation step. The [draft](../concepts/independent-real-processing-design.md#proposed-first-implementation-increment-independent-operational-host)
-  proposes extracting UI-owned execution/broker lifetime and direct shared inputs; moving the loop alone
-  leaves paper-input dependence. Retention is separate before cleanup; exact cutover remains to review.
+  The operator then requested implementation through history/storage. Source implementation and offline
+  tests are recorded in the [cutover review](independent-engine-implementation-20261022.md). The overnight
+  target was missed. Native ownership/concurrency/recovery, resource and audit-capacity acceptance and
+  exact installation remain open. Retention is separate before cleanup; no installed saving is claimed.
 - Checkpoint trust, exact references, locking, direct freshness/progress, resource/acceptance budgets and
   incident persistence/release mechanics are engineering work under accepted rules. Bring back substantive
   behavior/authority trade-offs, not routine algorithm choices. Special-backup retention remains separate.

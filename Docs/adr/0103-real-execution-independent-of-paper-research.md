@@ -21,8 +21,9 @@ and exact decision inputs immediately, with complete historical checking perform
 acknowledges later detection of corruption in unrelated older records, without permitting known bad
 evidence to authorize trading. [The design draft](../concepts/independent-real-processing-design.md)
 proposes the mechanics. The operator subsequently adopts the audit policy below. Checkpoint trust,
-storage mechanics, exact cutover and retention still need a complete design; this is not
-yet an implementation-ready replacement integrity contract.
+storage mechanics, exact cutover and retention were initially unresolved. The concrete source
+contracts below now govern implementation; native acceptance and retention remain open in the
+[implementation/cutover review](../reviews/independent-engine-implementation-20261022.md).
 
 ## Accepted historical audit policy
 
@@ -64,6 +65,23 @@ direct inputs and incremental storage follow. This authority covers source chang
 not an installed native switch, database migration or financial activation.
 
 ## Boundaries and consequences
+
+### Conditional execution readiness — source contract, October 22
+
+The temporary unconditional real-host block is replaced by explicit prerequisites: required independent
+tables and immutable guards, paired continuity verification, applicable scoped holds, and an exact
+current broker revision whose collection subscription matches its verified strategy/holdings/orders.
+An ordinary competing revision requires a fresh cycle; a corrupt subscription raises a durable broker
+hold. The existing host still requires the operator's exact account, dated permission, strategy and
+running-build approval, followed by explicit enable. Direct shared-input reads preserve original
+definitions, conflicts, session boundaries and seven-minute freshness. Order admission rechecks holds
+and original account/order/risk evidence. Paper progress and routine archive-audit completion are not
+normal-cycle prerequisites. These source checks do not establish native acceptance or authorize installation.
+
+Broker current-state reuse is process-local and limited to an exact immutable head after continuity,
+guard and hold verification. Changed or disqualified heads invalidate it. Diagnostics and recovery
+read fresh storage. The broker still serializes full logical state on changed appends under its 8MiB
+cap; this is a retained limitation, not a completed incremental broker-order archive.
 
 ### Prepared append contract
 
