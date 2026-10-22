@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### October 22 review preparation — ADR-0101
+
+- **Q:** Does carrying the old reference prove tomorrow's opening account value? **A:** No. Original provenance and holds remain; expiry observation does not advance financial close/open history.
+- **Q:** Does October 22 approval enable the host or renew on October 23? **A:** Neither. Separate host enable binds the new dated approval/build; buying expires October 22 at 4 PM.
+
 ### Confirmed signals and orders — October 21
 
 - **Q:** Does ConfirmedLiveEligible prove an order or fill? **A:** No. Fresh quotes, sizing, selection, broker preflight and dated permission still apply. An acknowledgement is not a fill. (ADR-0100)

@@ -5,6 +5,14 @@ This document describes the current state of the TraderVI trading system — wha
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
+## Dated Portfolio rules only review (ADR-0101)
+
+The bounded real-account October 22 follow-on is separately defined by
+[ADR-0101](adr/0101-october22-portfolio-rules-only-review.md): append-only dated risk/permission on
+the existing Portfolio rules only assignment, old approvals/source/build history retained, explicit
+new running-build approval and separate host grant. Expiry observation does not qualify a closing
+valuation. Neither the prepared code nor an old grant creates tomorrow's buying permission.
+
 ## AI Momentum learning and proposal boundary (ADR-0087)
 
 Accepted target composition: portfolios own cash/holdings/history; engines supply versioned

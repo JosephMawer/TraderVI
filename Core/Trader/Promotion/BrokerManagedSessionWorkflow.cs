@@ -70,9 +70,9 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
     {
         await using var lease = await store.AcquireAsync(bindingId, ct);
         var state = lease.Current ?? throw new InvalidOperationException("Explicit reviewed execution approval is required.");
-        if (state.EffectiveReview.NoTransferScope?.Continuation is { PreOpenApproved: true } armed)
+        if (state.EffectiveReview.NoTransferScope is { PreOpenApproved: true } armed)
         {
-            var open = Core.Trader.DelphiLive.ReviewedTsxSessionCalendar.At(BrokerOctober21Continuation.ExecutionDate, new TimeOnly(9, 30));
+            var open = Core.Trader.DelphiLive.ReviewedTsxSessionCalendar.At(armed.Session, new TimeOnly(9, 30));
             if (clock.GetUtcNow() < open) return state; // No broker read, save, protection action or order before the open.
         }
         bool paused = state.Phase == BrokerManagedPhase.Paused;
@@ -99,7 +99,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             throw new InvalidOperationException("The account or initial risk baseline changed. No execution is allowed.");
         var now = clock.GetUtcNow();
         var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
-        if (state.EffectiveReview.NoTransferScope?.Continuation?.PreOpenApproved == true && state.Orders.IsEmpty)
+        if (state.EffectiveReview.NoTransferScope?.PreOpenApproved == true && state.Orders.IsEmpty)
         {
             try
             {

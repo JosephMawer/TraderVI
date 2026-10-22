@@ -117,5 +117,8 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
 
 public sealed record BrokerManagedContinuation(BrokerExecutionApproval Approval, BrokerRiskContinuationRequest RiskRequest)
 {
+    // Added for the separately dated October 22 review; absent historical records keep their hashes.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTimeOffset? ApprovedAt { get; init; }
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
 }

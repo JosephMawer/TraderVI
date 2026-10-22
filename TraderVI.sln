@@ -28,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0098-verified-snapshot-read-reuse-and-build-review.md = Docs\adr\0098-verified-snapshot-read-reuse-and-build-review.md
 		Docs\adr\0099-exact-report-sharing-in-live-writes.md = Docs\adr\0099-exact-report-sharing-in-live-writes.md
 		Docs\adr\0100-live-entry-and-order-decision-traces.md = Docs\adr\0100-live-entry-and-order-decision-traces.md
+		Docs\adr\0101-october22-portfolio-rules-only-review.md = Docs\adr\0101-october22-portfolio-rules-only-review.md
 		Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql = Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql
 		Docs\reviews\delphi-live-lag-and-decisions-20261021.md = Docs\reviews\delphi-live-lag-and-decisions-20261021.md
 		Docs\reviews\delphi-live-snapshot-slowdown-20261021.md = Docs\reviews\delphi-live-snapshot-slowdown-20261021.md

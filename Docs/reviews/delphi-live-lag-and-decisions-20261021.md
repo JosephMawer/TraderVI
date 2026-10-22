@@ -25,7 +25,7 @@ cancelled. The separately approved normal restore succeeds outside the sandbox. 
 version change is intended. Existing compiler warnings remain distinct from security advisories.
 
 Storage increment is committed as8a81ed39. [ADR-0100](../adr/0100-live-entry-and-order-decision-traces.md)
-now adds optional private LatestDecision records: first existing failed entry predicate, quote
+is committed as1eb7285a and adds optional private LatestDecision records: first existing failed entry predicate, quote
 request/skip/return/failure, final selection and deferral, exact safe broker preflight check, original
 intent/reservation/expiry/submission outcome. Prepared/pending traces survive an interrupted quote
 phase; failure metadata contains fixed checks, type/SQL number and known local validation text only.
@@ -57,6 +57,30 @@ Native post-install processing latency and diagnostic publication remain unverif
 does not renew tomorrow's permission. The operator subsequently explicitly authorizes preparing
 tomorrow's review only: implement the bounded October22 path as a separate increment, preserving
 the existing Portfolio rules only assignment/history/risk and16:00expiry, without approval or enable.
+
+## October 22 review-only preparation
+
+[ADR-0101](../adr/0101-october22-portfolio-rules-only-review.md) implements the accepted follow-on
+review on the same assignment. Review/approval is available only on October 22 before 16:00,
+including pre-open with matching October 22 daily evidence. It preserves the exact current source
+and policy/model/daily definition, original financial references/provenance, memory/history,
+operator modes and remaining cumulative allowance. The installed build is explicitly reviewed.
+Approval appends linked risk/permission records with original-request recovery and leaves the host
+off. No tonight/October 23 renewal, new opening valuation, approval or native action is performed.
+At the open fresh matching account/source/storage/risk inputs remain required; original 15:45
+entry cutoff and 16:00 broker reservation/transmission expiry remain. No earlier paper confirmations
+transfer; new evaluation inputs follow the actual approval boundary while financial memory is retained.
+
+33 new synthetic cases plus existing related coverage pass (386 total), including pre-open/no-action,
+exact expiry before/after native journal save, restart/lost acknowledgement recovery, changed risk/
+account/source/build rejection and preserved modes. The first fixture calendar stopped at October
+21; its new offline calendar now covers October 22/23. An initial fixture used a nonexistent policy
+field and three invalid-source tests expected the wrong exception subtype; corrected the fixtures,
+preserving existing production guards. The altered-scope test now changes the actual financial
+anchor rather than a legitimate lower prior purchase ceiling. Isolated WPF Release builds pass with
+zero errors and 260 existing warning emissions. Final 2,885 Core pass/nine native SQL skips (2,894 total) with test concurrency disabled, in artifacts/october22-full-tests-serial-final.log; standard
+installation and tomorrow's operator review/approval/enable remain pending. No schema deployment,
+SQL mutation, broker order, app launch or market collection was run for this preparation.
 
 ## Final October 21 watch
 

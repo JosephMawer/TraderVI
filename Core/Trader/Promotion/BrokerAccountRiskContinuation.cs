@@ -21,10 +21,12 @@ public sealed record BrokerAccountRiskState(Guid BaselineId, Guid BindingId, str
     public BrokerTrialCarryForward? TrialCarry { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOctober21Continuation? Continuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOctober22Continuation? October22 { get; init; }
     public override string ToString() => "Continuing account risk state (financial data omitted)";
 }
 
-public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows, TrialCarryForward, SupervisedContinuation }
+public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows, TrialCarryForward, SupervisedContinuation, October22Continuation }
 
 /// <summary>
 /// A successful cash-flow reconciliation of this interval is required. This contract supports ONLY
@@ -54,6 +56,8 @@ public sealed record BrokerRiskContinuationRequest(Guid RequestId, Guid Baseline
     public BrokerTrialCarryForward? TrialCarry { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOctober21Continuation? Continuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOctober22Continuation? October22 { get; init; }
     [JsonIgnore]
     public string RequestHash => EngineStrategySettings.Hash(JsonSerializer.Serialize(this));
     public override string ToString() => "Account risk continuation request (no order authority)";
@@ -116,6 +120,15 @@ public static class BrokerAccountRiskContinuation
                 throw new InvalidOperationException("The explicitly reviewed continuation is limited to October 21 regular trading.");
             return continuation.Apply(state, calendar);
         }
+        if (request.Kind == BrokerRiskContinuationKind.October22Continuation)
+        {
+            var continuation = request.October22!;
+            if (request.RequestId != BrokerOctober22Continuation.RequestId(state.BaselineId) ||
+                continuation.ConfirmedAt > now || DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) != BrokerOctober22Continuation.ExecutionDate ||
+                now >= continuation.PurchaseExpiresAt)
+                throw new InvalidOperationException("The explicit follow-on permission is limited to October 22 before 4 PM.");
+            return continuation.Apply(state, calendar);
+        }
         if (state.TrialCarry is not null)
             throw new InvalidOperationException("A trial-only carry cannot qualify ordinary historical boundaries, transfers or another session. Preserve its history for reviewed recovery.");
         if (request.Kind == BrokerRiskContinuationKind.CashFlows)
@@ -168,6 +181,7 @@ public static class BrokerAccountRiskContinuation
             request.PreviousRevisionId == Guid.Empty || request.PreviousRevisionId == request.RequestId ||
             (request.Kind == BrokerRiskContinuationKind.TrialCarryForward) != (request.TrialCarry is not null) ||
             (request.Kind == BrokerRiskContinuationKind.SupervisedContinuation) != (request.Continuation is not null) ||
+            (request.Kind == BrokerRiskContinuationKind.October22Continuation) != (request.October22 is not null) ||
             !Enum.IsDefined(request.Kind) ||
             (request.Kind switch
             {
@@ -177,7 +191,7 @@ public static class BrokerAccountRiskContinuation
                     request.Boundary is not null || request.NoFlows is not null,
                 BrokerRiskContinuationKind.TrialCarryForward => request.Holds is not null || request.CashFlows is not null ||
                     request.Boundary is not null || request.NoFlows is not null,
-                BrokerRiskContinuationKind.SupervisedContinuation => request.Holds is not null || request.CashFlows is not null ||
+                BrokerRiskContinuationKind.SupervisedContinuation or BrokerRiskContinuationKind.October22Continuation => request.Holds is not null || request.CashFlows is not null ||
                     request.Boundary is not null || request.NoFlows is not null,
                 _ => request.Holds is not null || request.CashFlows is not null || request.Boundary is null || request.NoFlows is null
             }))

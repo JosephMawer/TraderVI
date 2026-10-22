@@ -101,10 +101,12 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
     }
     private void RequirePurchaseWindow(BrokerAccountRiskState risk)
     {
-        if (risk.Continuation is not { } continued) return;
+        if (risk.Continuation is null && risk.October22 is null) return;
         var now = clock.GetUtcNow();
-        if (BrokerOctober21Continuation.ExecutionDate != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
-            continued.PurchaseExpiresAt == default || now >= continued.PurchaseExpiresAt)
+        var date = risk.October22 is null ? BrokerOctober21Continuation.ExecutionDate : BrokerOctober22Continuation.ExecutionDate;
+        var expiry = risk.October22?.PurchaseExpiresAt ?? risk.Continuation!.PurchaseExpiresAt;
+        if (date != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
+            expiry == default || now >= expiry)
             throw BrokerOrderFailureEvidence.Tag("The dated trial purchase permission expired before broker transmission.", BrokerOrderCheck.PurchasePermissionExpired);
     }
     private static void RequireSameAccount(BrokerAccountProjection projected, WealthsimpleTfsaSnapshot snapshot, string actualSecurity, string expectedSecurity)

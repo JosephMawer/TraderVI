@@ -63,13 +63,14 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
                 scope.Validate(calendar);
                 var now = clock.GetUtcNow();
                 if (scope.Session != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) ||
-                    now < calendar.GetSessionBounds(scope.Session).OpenUtc && scope.Continuation?.PreOpenApproved != true || scope.PurchaseExpiresAt <= now ||
-                    scope.Continuation?.Fingerprint != saved.Account.Risk.Continuation?.Fingerprint)
-                    throw new InvalidOperationException("Enable only the current October 21 permission after its risk/approval records agree and before its reviewed close.");
+                    now < calendar.GetSessionBounds(scope.Session).OpenUtc && !scope.PreOpenApproved || scope.PurchaseExpiresAt <= now ||
+                    scope.Continuation?.Fingerprint != saved.Account.Risk.Continuation?.Fingerprint ||
+                    scope.October22?.Fingerprint != saved.Account.Risk.October22?.Fingerprint)
+                    throw new InvalidOperationException("Enable only the current dated permission after its risk/approval records agree and before its reviewed close.");
             }
             var grant = new BrokerExecutionHostGrant(bindingId, sessionId, reviewedStrategyFingerprint,
                 implementationIdentity, clock.GetUtcNow(), reviewer, true)
-                { ContinuationId = saved.Continuation?.Approval.Review.RequestId };
+                { ContinuationId = saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId };
             grant.Validate(); RequireMatchingAssignment(grant, saved);
             ct.ThrowIfCancellationRequested();
             grants.Write(grants.Read(), grant);
@@ -150,7 +151,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
     {
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
-            grant.ContinuationId != saved.Continuation?.Approval.Review.RequestId ||
+            grant.ContinuationId != (saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId) ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
             saved.ImplementationReview is not null && grant.ReviewedAt < saved.ImplementationReview.ApprovedAt ||
             saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||

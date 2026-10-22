@@ -13,13 +13,15 @@ namespace TraderVI.WPF.Services;
 public sealed partial class ManualBuyCoordinator
 {
     private sealed record ContinuationPreparation(BrokerFirstExecutionReview Review, BrokerStrategyReview Exact, BrokerAccountProjection Account,
-        BrokerContinuationWorkflow Workflow);
+        BrokerContinuationWorkflow? Workflow, BrokerOctober22Workflow? October22Workflow = null);
 
     private async Task<ContinuationPreparation> PrepareContinuationAsync(WealthsimpleTfsaAccount account,
         CancellationToken ct, Action check, Action<string> stage)
     {
         check(); _ = GetExecutionHost();
         var now = DateTimeOffset.UtcNow;
+        if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) == BrokerOctober22Continuation.ExecutionDate)
+            return await PrepareOctober22Async(account, ct, check, stage);
         var bounds = executionCalendar!.GetSessionBounds(BrokerOctober21Continuation.ExecutionDate);
         if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) != BrokerOctober21Continuation.ExecutionDate || now >= bounds.CloseUtc)
             throw new InvalidOperationException("October 21 continuation can be reviewed on October 21 before its close, including pre-open. Buying has no later-day renewal.");

@@ -12,8 +12,12 @@ entry/quote/selection/preflight/intent traces and fixed stage timings are implem
 pass/nine native SQL skips with test concurrency disabled; default-parallel full runs expose an
 unrelated AI cleanup-wait timing failure, which passes in isolation and serialized suites. Isolated
 WPF Release build passes; aggregate diagnostic SQL parses. Standard installation awaits normal closure;
-native timing/publication remain pending. Operator now explicitly authorizes preparing the October22
-review path only as the next increment; no new approval or authority is activated.
+native timing/publication remain pending. Operator explicitly authorizes preparing the October 22
+review only. ADR-0101 adds that bounded path for the existing Portfolio rules only assignment:
+same source/risk/history/modes/unused allowance, fresh account/build/storage/daily evidence, separate
+approval/enable and exact October 22 16:00 expiry. 386 related checks and isolated Release build pass;
+final 2,885 Core checks pass/nine native SQL skips (2,894 total), with test concurrency disabled.
+No tomorrow approval or financial/host authority is activated.
 [Owning evidence and remaining work](reviews/delphi-live-lag-and-decisions-20261021.md).
 
 **Slowdown correction resumed on operator request, October 21 afternoon:** targeted exact-payload

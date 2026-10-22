@@ -115,6 +115,27 @@ running build, and a changed build cannot inherit an old host enable. The review
 under explicit approval in the Windows user environment and verified outside the sandbox; open a
 new Command Prompt after that setting change. No financial setting/reference was reset.
 
+### October 22-only Portfolio rules only review
+
+[ADR-0101](adr/0101-october22-portfolio-rules-only-review.md) prepares the existing assignment for one
+separate October 22 review. After installing validated source with TraderVI normally closed, open
+the standard Release output with the command above and sign in normally. On October 22 before
+4 PM, including pre-open, open **Trading → Execution setup**, stop the old execution host normally,
+confirm no outside account changes and choose **Review October 22**. Review the exact existing
+Portfolio rules only source, current build/account, original references/holds, unused purchase
+allowance and exact October 22 4 PM expiry. Choose **Approve October 22 continuation** within two
+minutes, then separately **Enable reviewed host**. No approval is permitted tonight or on another
+date; code installation creates no trading authority. No repeat setup, sales or verification trades.
+
+Before open, October 22's matching Valid OfficialPaper daily input is required. Keep the app running
+and signed in after arming; there is no automatic app startup. No execution occurs before 9:30.
+Fresh matching inputs/account/risk/storage checks at the open may delay or block buys. Intraday
+confirmation and the existing 3:45 PM entry cutoff remain. New purchases cannot pass reservation/
+transmission checks at or after 4 PM. Previous financial history and coverage gaps remain recorded.
+Changed account/source/risk facts or incomplete risk/permission saves require recovery of the
+original request, never another baseline, grant rewrite or an inferred approval. October 23 is not
+authorized. Native latency and decision-trace publication still need observation after approval.
+
 ### October 21-only Normal continuation
 
 The [accepted continuation contract](reviews/delphi-live-continuation-contract-20261021.md) reuses

@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0101](0101-october22-portfolio-rules-only-review.md) — One dated follow-on review preserving prior financial authority
+
 - [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Private durable reasons from confirmation through order selection/submission
 
 - [ADR-0099](0099-exact-report-sharing-in-live-writes.md) — Direct typed packing with unchanged complete fingerprints
@@ -254,6 +256,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0101](0101-october22-portfolio-rules-only-review.md) — Original references, holds and unused allowance; exact October 22 expiry
+
 - [ADR-0100](0100-live-entry-and-order-decision-traces.md) — Preserve existing preflight checks, intent recovery and dated permission
 
 - [ADR-0098](0098-verified-snapshot-read-reuse-and-build-review.md) — Preserve dated financial/signal history through explicit build review
@@ -402,6 +406,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0101](0101-october22-portfolio-rules-only-review.md) — Operator review/approval and separate pre-open arming
 
 - [ADR-0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) — Explicit source review/approval followed by separate host enable
 - [ADR-0094](0094-real-tfsa-execution-status-presentation.md) — Visible activity/freshness and buying expiry, with ordered setup

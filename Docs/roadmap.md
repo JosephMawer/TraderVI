@@ -14,7 +14,11 @@ ADR-0100 durable decision/quote/preflight evidence are implemented;2,852Core che
 with test concurrency disabled, isolated WPF Release passes. Normal closure/installation and native
 timing remain. Today's final16:06
 read and heartbeat deletion are complete; no orders/fills/post-cutoff intents, permission expired16:00.
-Preparing for tomorrow does not renew the dated scope. [Owning work](reviews/delphi-live-lag-and-decisions-20261021.md).
+The explicitly requested October 22 review-only path is implemented under ADR-0101; 386 related
+checks and isolated Release build pass; final 2,885 Core pass/nine native SQL skips (2,894 total),
+with test concurrency disabled. Normal closure and
+installation remain, then operator review/approval and separate enable on October 22. Preparing for
+tomorrow does not renew the dated scope. [Owning work](reviews/delphi-live-lag-and-decisions-20261021.md).
 
 **Earlier October21 milestones:** the [first snapshot correction](reviews/delphi-live-snapshot-slowdown-20261021.md)
 was installed14:02, operator-approved/enabled and verified with initial20minute recovery14:31.

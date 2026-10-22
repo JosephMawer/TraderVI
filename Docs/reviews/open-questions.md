@@ -14,9 +14,13 @@ Things we punted on and need to revisit. Cleared as decisions are made
   authority follows from performance fixes, source approval, app startup or a protected-file edit.
 - Operator explicitly answers **Prepare tomorrow's review only**: prepare an October22-only review/
   approval path for the existing Portfolio rules only assignment, retaining original financial
-  history/risk and16:00expiry. This is the next implementation increment; no approval, grant or
-  financial mutation is authorized by that answer. Exact review and separate enable remain operator
-  actions; validated lag/diagnostics code is checkpointed independently first.
+  history/risk and16:00expiry. This preparation decision is implemented under
+  [ADR-0101](../adr/0101-october22-portfolio-rules-only-review.md). No approval, grant or financial
+  mutation is authorized by that answer. Review is available on October 22 only, including pre-open
+  with current daily evidence. Exact approval and separate enable remain operator actions.
+- Remaining acceptance: standard Release installation after normal closure, actual October 22
+  review and native timing/decision publication. No further design decision is inferred or required
+  merely to carry out the accepted review-only scope.
 
 ### Delphi Live ungated TFSA source request — October 21, 2026
 

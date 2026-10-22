@@ -66,7 +66,13 @@ daily admission gates. Fresh post-approval intraday confirmation and all data/si
 controls remain. Source approval leaves the host off; the operator enables the exact new source/build
 separately. No paper history is relabelled and no generic ungated or later-day execution is qualified.
 Purchases expire at the October 21 reviewed
-close; no October 22 or recurring buying authority follows. Original order IDs are verification
+close; no October 22 or recurring buying authority follows automatically.
+[ADR-0101](adr/0101-october22-portfolio-rules-only-review.md) prepares a separately approved October 22-only
+follow-on for the existing cash-only Portfolio rules only assignment. Preserve original reference
+values/provenance, financial memory/holds, modes, source and unused allowance; require fresh current
+account/storage/source/build and (pre-open) matching October 22 daily evidence. Prior expiry is not
+a financial closing valuation. Approval and host enable remain separate; no pre-open execution or
+October 23 authority. Original order IDs are verification
 records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).
 Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain

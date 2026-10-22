@@ -55,14 +55,16 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
             ct.ThrowIfCancellationRequested(); t.Commit(); return saved;
         }
         var previous = await State(c, t, request.BaselineId);
-        if (request.Continuation is { } continued)
+        if (request.Continuation is not null || request.October22 is not null)
         {
             var snapshot = await c.QuerySingleOrDefaultAsync<string>("""
 SELECT TOP(1) SnapshotJson FROM dbo.BrokerManagedSessionRevision WITH(UPDLOCK,HOLDLOCK)
 WHERE BindingId=@BindingId ORDER BY Revision DESC;
 """, new { previous.BindingId }, t);
             if (snapshot is null) throw new InvalidOperationException("Recover the saved October 20 close revision before continuation.");
-            continued.RequirePrior(Read<BrokerManagedSession>(snapshot), calendar);
+            var prior = Read<BrokerManagedSession>(snapshot);
+            request.Continuation?.RequirePrior(prior, calendar);
+            request.October22?.RequirePrior(prior, calendar);
         }
         if (request.TrialCarry is { } carry)
         {

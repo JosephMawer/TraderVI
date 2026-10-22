@@ -16,10 +16,14 @@ The September 22 documentation cleanup preserves the
   preflight/intent diagnostics under ADRs0099/0100. Final2,852Core pass/nine native skips with test
   concurrency disabled; isolated WPF Release build and diagnostic SQL parse pass. Full-parallel AI
   cleanup timing failure remains a validation limitation. [Evidence](reviews/delphi-live-lag-and-decisions-20261021.md).
-- [ ] Install after normal closure, then verify native timing/decision publication under fresh exact
-  build/source review and separately enabled dated authority. October22 review preparation is now
-  explicitly authorized as a separate increment; actual review/approval/enable remain pending;
-  no new execution date or permission is inferred from code preparation.
+- [x] Implement the expressly requested October 22-only review path under
+  [ADR-0101](adr/0101-october22-portfolio-rules-only-review.md), preserving the existing Portfolio rules
+  only source, original risk/history/modes and unused allowance. 386 related checks and isolated
+  Release build pass; final 2,885 Core pass/nine native SQL skips (2,894 total), with test
+  concurrency disabled.
+- [ ] Install after normal closure. Operator performs October 22 review/approval and separate host
+  enable on its date, including pre-open if current daily/account/source/storage checks pass.
+  Verify native timing/decision publication afterward. No permission follows from preparation.
 
 - [x] Implement and validate operator-requested immediate snapshot slowdown correction and same-source build
   review under [ADR-0098](adr/0098-verified-snapshot-read-reuse-and-build-review.md). Preserve

@@ -22,8 +22,9 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
     public async Task<bool> HasPreOpenDailySourceAsync(BrokerManagedStrategy strategy, ITsxSessionCalendar calendar,
         DateTimeOffset now, CancellationToken token = default)
     {
-        if (!BrokerOctober21Continuation.IsPreOpenReview(calendar, now)) return false;
-        var date = BrokerOctober21Continuation.ExecutionDate;
+        var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        if (!BrokerOctober21Continuation.IsPreOpenReview(calendar, now) &&
+            !BrokerOctober22Continuation.IsPreOpenReview(calendar, now)) return false;
         await using var c = await Open(token);
         var row = await c.QuerySingleOrDefaultAsync<PreOpenDailyRow>(new CommandDefinition("""
 SELECT TOP(1) AuditState,MarketDataAsOf,StrategyVersionId,CreatedUtc,StrategyConfigJson,ModelSnapshotJson
