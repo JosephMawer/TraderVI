@@ -1,10 +1,12 @@
 #nullable enable
 using Core.Trader.Promotion;
+using Core.Runtime;
 using Core.WSTrade.Accounts;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,8 +24,10 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
 {
     private readonly Func<CancellationToken, Task<SqlConnection>> open;
     private readonly Core.Trader.DelphiLive.ITsxSessionCalendar? calendar;
+    private readonly bool sharedStorage;
     public BrokerManagedSessionRepository() : this(Open) { }
-    public BrokerManagedSessionRepository(Core.Trader.DelphiLive.ITsxSessionCalendar calendar) : this(Open) => this.calendar = calendar;
+    public BrokerManagedSessionRepository(Core.Trader.DelphiLive.ITsxSessionCalendar calendar, bool sharedStorage = false) : this(Open)
+    { this.calendar = calendar; this.sharedStorage = sharedStorage; }
     // Instance-scoped seam for isolated SQL rehearsals; never changes the application's connection.
     internal BrokerManagedSessionRepository(Func<CancellationToken, Task<SqlConnection>> open) =>
         this.open = open ?? throw new ArgumentNullException(nameof(open));
@@ -62,7 +66,9 @@ IF @r<0 THROW 54001,'Another host owns this broker strategy session.',1;
 SELECT TOP(1) BindingId,Revision,RevisionId,PreviousRevisionId,SessionId,BaselineId,SavedAt,ContentHash,SnapshotJson
 FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC;
 """, new { Id = bindingId }, cancellationToken: ct));
-            return new Lease(c, bindingId, row is null ? null : Decode(row), calendar);
+            var contents = row is null ? new Dictionary<string, string>() : await EngineArchiveStorage.ReadContentsAsync(c, null, row.SnapshotJson, ct);
+            return new Lease(c, bindingId, row is null ? null : Decode(row, contents), calendar,
+                sharedStorage || row is not null && EngineArchiveCodec.IsPacked(row.SnapshotJson), contents);
         }
         catch { await ReleaseAndClose(c, bindingId); throw; }
     }
@@ -132,18 +138,19 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
                     throw new InvalidOperationException("Established protection ownership, floors and exit obligations cannot be reset.");
             }
     }
-    private static BrokerManagedSession Decode(Row row)
+    private static BrokerManagedSession Decode(Row row, IReadOnlyDictionary<string, string> contents)
     {
         if (Core.Runtime.EngineStrategySettings.Hash(row.SnapshotJson) != row.ContentHash) throw new InvalidDataException("Broker session content checksum failed.");
-        var state = Read<BrokerManagedSession>(row.SnapshotJson);
+        var state = Read<BrokerManagedSession>(EngineArchiveCodec.Restore(row.SnapshotJson, contents));
         if (state.BindingId != row.BindingId || state.RevisionId != row.RevisionId || state.PreviousRevisionId != row.PreviousRevisionId ||
             state.SessionId != row.SessionId || state.Revision != row.Revision || state.Approval.Review.BaselineId != row.BaselineId || state.SavedAt != row.SavedAt)
             throw new InvalidDataException("Broker session identity differs from its durable row.");
         state.Strategy.Validate(); return state;
     }
     private sealed class Lease(SqlConnection connection, Guid binding, BrokerManagedSession? initial,
-        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar) : IBrokerManagedSessionLease
+        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, bool sharedStorage, IReadOnlyDictionary<string, string> initialContents) : IBrokerManagedSessionLease
     {
+        private IReadOnlyDictionary<string, string> known = initialContents;
         public BrokerManagedSession? Current { get; private set; } = initial;
         public async Task AppendAsync(BrokerManagedSession next, CancellationToken ct)
         {
@@ -151,8 +158,16 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             ValidateNext(Current, next, calendar);
             string json = Json(next);
             if (Encoding.UTF8.GetByteCount(json) > 8 * 1024 * 1024) throw new InvalidOperationException("Broker session exceeds the supported size; preserve state and stop execution.");
+            var packed = sharedStorage ? EngineArchiveCodec.Pack(json) : null;
+            if (packed is not null) json = packed.Manifest;
             string hash = Core.Runtime.EngineStrategySettings.Hash(json);
             using var t = connection.BeginTransaction(IsolationLevel.Serializable);
+            if (packed is not null)
+            {
+                var added = packed.Contents.Where(p => !known.TryGetValue(p.Key, out var value) || value != p.Value).ToDictionary(p => p.Key, p => p.Value);
+                await connection.ExecuteAsync(new CommandDefinition(EngineEvidenceStorage.InsertSql,
+                    new { Contents = EngineEvidenceStorage.Serialize(added) }, t, cancellationToken: ct));
+            }
             await connection.ExecuteAsync(new CommandDefinition("""
 IF ISNULL((SELECT MAX(Revision) FROM dbo.BrokerManagedSessionRevision WITH(UPDLOCK,HOLDLOCK) WHERE BindingId=@Binding),-1)<>@Revision-1
  THROW 54002,'Broker session advanced. Recover the saved state.',1;
@@ -161,6 +176,7 @@ VALUES(@Binding,@Revision,@RevisionId,@PreviousRevisionId,@SessionId,@BaselineId
 """, new { Binding = binding, next.Revision, next.RevisionId, next.PreviousRevisionId, next.SessionId,
                 next.Approval.Review.BaselineId, next.SavedAt, Hash = hash, Json = json }, t, cancellationToken: ct));
             t.Commit(); Current = next;
+            if (packed is not null) known = packed.Contents;
         }
         public async ValueTask DisposeAsync() => await ReleaseAndClose(connection, binding);
     }

@@ -21,7 +21,8 @@ cross-session index, not a second authority or permission to run anything.
 **October22 implementation checkpoint:** shared-cycle/consumer receipts and independent paper,
 protection and research schedules are now in source; 82 focused checks and WPF/SSDT builds pass.
 Migration049 is prepared only. Continue dashboard cutover, checkpointed history, durable audit holds
-and native qualification. The new real host remains deliberately blocked; installed app is unchanged.
+and native qualification. Shared broker revision fragments/readers now pass407 related checks/one
+native skip and an engine build. The new real host remains deliberately blocked; installed app is unchanged.
 
 **Latest architecture discussion (R04/R07/R08/R09):** dashboard closure leaves the engine running,
 with a separate stop control. The operator accepts staged delivery conditional on completion tonight;

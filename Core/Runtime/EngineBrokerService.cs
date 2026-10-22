@@ -38,7 +38,7 @@ public sealed class EngineBrokerService
         buys = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
         sells = new(connection, journal, orderGate: orderGate);
         reconciliation = new(connection, journal, journal, orderGate);
-        host = new(grants, new BrokerManagedSessionControls(new BrokerManagedSessionRepository(calendar)),
+        host = new(grants, new BrokerManagedSessionControls(new BrokerManagedSessionRepository(calendar, sharedStorage: true)),
             async (saved, ct) =>
             {
                 await verifyInputs(saved, ct).ConfigureAwait(false);

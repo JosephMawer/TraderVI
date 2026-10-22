@@ -26,6 +26,11 @@ retained; delayed paper buys are rechecked before fills. Unprepared experiment c
 without delaying collection. 82 focused consumer/action/research/scheduler tests pass; isolated WPF
 incremental build passes with two existing warnings, SSDT build and six SQL parse checks pass.
 Migration049 is prepared only. Desktop paper cutover, checkpointed reads and audits/holds remain.
+Broker revisions now support shared immutable nested records with lossless typed recovery and bounded
+expansion. 407 relevant checks pass/one native skip; engine build passes with zero warnings/errors.
+A repeated-record fixture uses under one twentieth of expanded storage; this is synthetic, not a
+measurement of installed savings. Current eight-MiB logical-state limit remains. Direct-JSON diagnostics
+now disclose shared storage; their qualified reader/cutover remains. No historical rows were converted.
 Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
 Dependency-security audit was disabled, not requalified. No database or external action.
 

@@ -62,7 +62,7 @@ SELECT TOP(1) SnapshotJson FROM dbo.BrokerManagedSessionRevision WITH(UPDLOCK,HO
 WHERE BindingId=@BindingId ORDER BY Revision DESC;
 """, new { previous.BindingId }, t);
             if (snapshot is null) throw new InvalidOperationException("Recover the saved October 20 close revision before continuation.");
-            var prior = Read<BrokerManagedSession>(snapshot);
+            var prior = Read<BrokerManagedSession>(await EngineArchiveStorage.RestoreAsync(c, t, snapshot, ct));
             request.Continuation?.RequirePrior(prior, calendar);
             request.October22?.RequirePrior(prior, calendar);
         }

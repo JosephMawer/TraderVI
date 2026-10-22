@@ -21,6 +21,8 @@ remain prepared and unapplied. Independent paper/research consumers and immutabl
 are in source (prepared migration049). Finish dashboard cutover and integrity audit/hold integration.
 Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
 checkpointed history reads and native concurrency qualification before claiming the wait is resolved.
+Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish
+the qualified diagnostic reader and current-state/history/audit integration before installation.
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
 removing the new host's readiness block. No replacement is installed.
 

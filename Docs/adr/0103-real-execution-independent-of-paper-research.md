@@ -94,6 +94,23 @@ cannot relabel an already frozen session. This is conservative deferral of an un
 permission to extend a trading signal or bypass a promotion check. Native contention, reconnect,
 consumer crash recovery and capacity still require qualification before cutover.
 
+### Shared broker revision records
+
+Independent-host broker revisions now support a versioned content-addressed manifest in the existing
+immutable revision table. Original nested financial/approval/order values are recovered from exact
+content hashes, with a canonical complete-state fingerprint and unchanged row identity checks.
+Repeated nested records are stored once; an append transmits only fragments absent from the verified
+current revision. Fragments and the manifest commit atomically. Legacy inline revisions remain readable;
+ordinary appends never rewrite historical rows, original order identifiers or authorizations. The
+existing eight-MiB expanded-state ceiling remains; depth/reference/expansion limits reject damaged
+graphs. This reduces repeated storage, not the size of the logical financial history.
+
+The source reader and continuation path understand both formats. SQL diagnostics that inspect nested
+JSON directly must disclose the shared format rather than treating missing inline fields as absent
+orders/decisions; qualify the diagnostic reader before cutover. No existing data conversion or deletion
+is performed by this increment. Existing default writers remain inline until opting into shared storage
+or continuing an already shared revision.
+
 ### Retained boundaries
 
 - Retain real-account ownership, original order recovery, held-position protection, financial history,

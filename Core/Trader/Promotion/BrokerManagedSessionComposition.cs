@@ -60,6 +60,6 @@ public static class BrokerManagedSessionComposition
             new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time, independentInputs);
         var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
             selectedAccount, sharedOrderGate, time);
-        return new(new BrokerManagedSessionWorkflow(new BrokerManagedSessionRepository(calendar), source, transport, time), source);
+        return new(new BrokerManagedSessionWorkflow(new BrokerManagedSessionRepository(calendar, sharedStorage: independentInputs), source, transport, time), source);
     }
 }
