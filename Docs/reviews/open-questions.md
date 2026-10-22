@@ -5,6 +5,18 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Paper workload architecture and storage — October 21, 2026
+
+- User requests investigation and plain discussion, using the pinned architecture as reference.
+  [Findings and proposed boundaries](paper-workload-architecture-20261021.md) distinguish background
+  execution from admission waits, full-history processing from compact storage, and database evidence
+  growth from retained development libraries.
+- Recommended first decision: real processing should not wait for optional paper/research completion,
+  while shared verified market inputs and all held-position protections remain timely. This is open,
+  not accepted; lock/lease/integrity/restart contracts must be designed before changing coordination.
+- Incremental state, shared immutable evaluation inputs, build retention and special-backup retention
+  are separate open proposals. No paper-off switch, deletion, migration or implementation is authorized.
+
 ### Delphi Live tomorrow readiness — October 21, 2026
 
 - User requests remaining lag fixed and exact confirmed-signal/order reasons recorded so the app

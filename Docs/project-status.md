@@ -2,7 +2,14 @@
 
 ## October 21 post-open execution watch
 
-**Latest evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
+**Latest request — architecture and storage investigation for discussion:** current source confirms
+background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot
+remove real-host waits. Hash-verified read-only SQL and filesystem inspection distinguish repeated
+history processing from evaluation storage and accumulated build outputs. The pinned architecture's
+logical boundaries still apply; its execution-status labels are historical. No redesign, cleanup or
+paper-off switch is accepted. [Findings, measurements and proposed direction](reviews/paper-workload-architecture-20261021.md).
+
+**Earlier evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly
 defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with
 fresh-connection guard checks and bounded private stage diagnostics.71focused/2,919Core pass/nine
 native SQL skips with collection concurrency disabled; isolated WPF Release and SQL parse/guard

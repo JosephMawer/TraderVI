@@ -8,7 +8,13 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**Current request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
+**Current request — explain paper-workload architecture and disk growth before choosing a fix:**
+review the pinned architecture, distinguish UI responsiveness from execution admission, and discuss
+independent real processing, incremental account state, shared evidence and build retention. These
+are proposals, not accepted implementation or cleanup scope. Preserve risk/history and the separate
+paper-switch deferral. [Investigation](reviews/paper-workload-architecture-20261021.md).
+
+**Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips
 with test concurrency disabled; isolated WPF Release/SQL parsing and unchanged-guard comparison pass.
 Standard Release fromc4d094fd is installed21:31Toronto after normal closure/zero-owner verification;

@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Paper workload architecture — October 21 investigation
+
+- **Q:** Does an asynchronous paper cycle allow real execution to proceed? **A:** Only if its dependencies permit it. Today's host still waits for admitted paper work and the shared settings fence.
+- **Q:** Does compact disk storage imply cheap current-state processing? **A:** No. Full-history reads, validation and hashing can remain expensive even when unchanged content is stored once. See [the investigation](paper-workload-architecture-20261021.md).
+
 ### SQL save recovery — ADR-0102
 
 - **Q:** Can a successful retry use a new observation time or order ID? **A:** No. Only the exact immutable evaluation save can replay once; orders never use this helper.

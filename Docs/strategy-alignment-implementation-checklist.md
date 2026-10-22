@@ -10,6 +10,13 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
+  code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).
+- [ ] Discuss and agree the boundary between timely real execution and optional paper/research work,
+  incremental history processing, evidence sharing and build retention. No redesign/cleanup is accepted.
+- [ ] After an agreed design, define concurrency/integrity/restart and long-history capacity acceptance;
+  current source inspection and old timings do not qualify latest-build native responsiveness/capacity.
+
 - [x] Implement/validate the resumed SQL-only correction under
   [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md): one unchanged evaluation-save
   retry, all original guards/timeouts, bounded private stages.71focused/2,919Core pass/nine native
