@@ -279,6 +279,10 @@ and order/host-enable admission verify the pair. Runtime loss requires stop/rest
 successful restart never clears a hold. Recovery independently reconstructs paper checkpoints, their
 archive paths/replay IDs and paper/real observation projections before explicit hold resolution.
 This implementation remains source-only; restore/concurrency acceptance and audit capacity are unproved.
+Audit wakes admit at most256 verification steps within five seconds, then persist the last verified
+cursor. A failing record never advances coverage; interruption can repeat only the unsaved batch.
+An already admitted large revision may exceed that budget. Routine audits stop admitting work near
+the trading window; explicit recovery may proceed under its existing hold during the day.
 
 Real collection subscriptions are a separate current projection of the exact broker revision: approved
 strategy/admission definitions plus held and pending-order symbols. They neither grant execution nor

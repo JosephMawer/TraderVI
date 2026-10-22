@@ -16,6 +16,10 @@ shutdown, periodic/admission checks and durable holds on mismatch. Recovery also
 paper checkpoints/archive paths/replay IDs and collection projections.431 related tests pass/one native
 skip; engine builds with258 existing compiler warnings. Actual restart/restore/concurrency remains
 unqualified. Current recovery still scans the full archive; throughput needs further work.
+Audits now verify up to256 steps per wake with a five-second admission budget, saving one verified
+cursor per batch instead of one row per30 seconds.21 audit/integrity/continuity checks pass; failure
+preserves the last good cursor. An admitted large revision may exceed the budget. Explicit recovery can
+run during trading hours under its existing hold; ordinary audits remain off-hours. Capacity unmeasured.
 
 October22 paper current-state integration now reads qualified compact checkpoints and atomically saves
 changed archive records, current/observation state and immutable replay IDs. Full-history administrative

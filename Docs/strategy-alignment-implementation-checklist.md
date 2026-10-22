@@ -10,6 +10,9 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Batch audit work under step/time admission limits and persist only verified prefixes; permit
+  explicitly requested recovery under its hold during the day.21 related checks pass. Large revision
+  duration and weekly installed throughput remain unmeasured.
 - [x] Implement/test paired protected local/SQL continuity witnesses, interrupted/restored-state holds,
   drained clean shutdown and recovery reconstruction of checkpoints/paths/replay IDs/projections.
   431 related checks pass/one native skip; engine build passes. No native recovery qualification.

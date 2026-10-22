@@ -43,6 +43,8 @@ paper source adoption is separate from publication. Finish restart/restore trust
 work, then full offline acceptance and a concrete separately authorized cutover.
 Continuity witnesses and recovery reconstruction are implemented offline. Finish audit throughput,
 broker current-state/diagnostic integration and native restart/restore qualification.
+Bounded audit batching is source-tested; measure large-revision cost and weekly coverage before
+operational acceptance. The time budget limits new admissions, not an already-running revision.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

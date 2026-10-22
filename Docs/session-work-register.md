@@ -1,5 +1,9 @@
 # TraderVI session-work register
 
+**October22 audit throughput checkpoint:** replace one-record wakes with up to256 steps/five seconds
+of admissions and one verified-prefix receipt;21 related tests pass. Explicit held recovery can run
+during the day. Large revisions can exceed the admission budget; native capacity remains unqualified.
+
 **October22 recovery checkpoint:** paired protected local/SQL witnesses and reconstructed current-state
 recovery are in source;431 related tests/one native skip and engine build pass. Native restoration,
 metadata permissions, concurrency and audit throughput remain unqualified. Continue these and broker
