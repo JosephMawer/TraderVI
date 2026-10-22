@@ -38,11 +38,14 @@ The September 22 documentation cleanup preserves the
 - [x] Implement durable shared checkpoints and separate paper/protection/research schedules in the
   engine. 82 focused checks pass, including original identities, late-buy rejection before admission
   and after a quote, close/stop lease lifetime and no collection by consumers. Isolated WPF and SSDT
-  builds/SQL parsing pass. Migration049 is prepared only; desktop consumer cutover remains.
+  builds/SQL parsing pass. Migration049 is prepared only; native consumer cutover remains.
 - [x] Implement shared broker revision records and legacy/shared readers, preserving authority,
   original order IDs and complete logical recovery. 407 related checks pass/one native skip; engine
   build passes. Synthetic repeated records occupy under one twentieth of expanded size. Installed
   savings, qualified direct-JSON diagnostics and native recovery remain unproved; no conversion run.
+- [x] Route Delphi Live dashboard commands to the engine and make its dashboard ticks read-only;
+  dashboard closure no longer stops Live. Drain admitted commands on explicit engine stop. 43 focused
+  checks/WPF build pass. Remaining Shadow/tracked/AI desktop workers and native close/reconnect remain.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.

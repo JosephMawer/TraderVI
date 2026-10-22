@@ -25,6 +25,17 @@ public sealed class IndependentResearchService
     private readonly SemaphoreSlim gate = new(1, 1);
     private DateOnly? settledThrough;
     private readonly IDelphiLiveNotifier notifier;
+    public async Task DrainAsync()
+    {
+        await gate.WaitAsync().ConfigureAwait(false);
+        gate.Release();
+    }
+    public async Task ExecuteOperatorAsync(Func<Task> command)
+    {
+        await gate.WaitAsync().ConfigureAwait(false);
+        try { await command().ConfigureAwait(false); settledThrough = null; }
+        finally { gate.Release(); }
+    }
 
     public IndependentResearchService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
         IDelphiLiveNotifier notifier)

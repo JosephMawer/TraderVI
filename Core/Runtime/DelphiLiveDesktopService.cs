@@ -34,6 +34,10 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     private readonly CodeProvenance code;
     private readonly string codeIdentity;
     private readonly List<string> notifications = [];
+    private readonly IEngineRpc? engineClient;
+    public bool IsEngineClient => engineClient is not null;
+    public Func<Func<DelphiLiveLease, CancellationToken, Task>, CancellationToken, Task>? OperatorExecutor { get; set; }
+    public bool DeferResearchRecovery { get; set; }
     private DateOnly notificationDate;
     // Research can finish while a background Live tick reads presentation state.
     // Publish its report and range together so the UI never receives mismatched metadata.
@@ -44,8 +48,10 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     public bool CalendarAvailable => calendar is not null;
     public string? CalendarWarning { get; }
 
-    public DelphiLiveDesktopService()
+    public DelphiLiveDesktopService(IEngineRpc? engineClient = null)
     {
+        this.engineClient = engineClient;
+        evaluations = new(independentInputs: engineClient is not null);
         experimentWorkflow = new(experiments);
         code = CalibrationProvenance.ResolveCode();
         using (var assembly = File.OpenRead(typeof(DelphiLiveDesktopService).Assembly.Location))
@@ -154,7 +160,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
     }
 
     public Task<DelphiLiveRuntimeSnapshot> TickAsync(CancellationToken cancellationToken = default) =>
-        Task.Run(async () =>
+        engineClient is not null ? SnapshotAsync(cancellationToken) : Task.Run(async () =>
         {
             try { return await TickCoreAsync(cancellationToken); }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
@@ -188,10 +194,17 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         return await WithExperimentAsync(result with { Warnings = result.Warnings.Concat(notifications).Distinct().ToArray() }, cancellationToken);
     }
 
-    public Task StopAsync(CancellationToken cancellationToken = default) => workflow?.StopAsync(cancellationToken) ?? Task.CompletedTask;
+    public Task StopAsync(CancellationToken cancellationToken = default) => engineClient is not null
+        ? Task.CompletedTask : workflow?.StopAsync(cancellationToken) ?? Task.CompletedTask;
 
     public async Task ActivateAsync(decimal capital, string currency, string reason, CancellationToken cancellationToken = default)
     {
+        if (engineClient is not null)
+        {
+            await engineClient.CallAsync<bool>(EngineOperation.LiveCommand,
+                new EngineLiveCommand(EngineLiveCommandKind.Activate, reason, capital, currency), cancellationToken);
+            return;
+        }
         if (calendar is null || sessions is null) throw new InvalidOperationException(CalendarWarning);
         if (!await HasSchemaAsync(cancellationToken)) throw new InvalidOperationException("The reviewed Delphi Live migrations are required before activation.");
         if (capital <= 0m || string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Positive explicit simulation capital and an activation reason are required.");
@@ -242,7 +255,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
             foreach (var contender in policies.Values.Where(p => p.PolicyVersionId != champion.PolicyVersionId))
                 await experiments.RegisterPolicyAsync(contender, "ADR-0053", lease, token);
             await experimentWorkflow.ScheduleDiscoveryAsync(command, policies, lease, token);
-        }, cancellationToken);
+        }, cancellationToken, new(EngineLiveCommandKind.Discovery, reason, capital, currency, Family: family, Values: selectedValues.ToArray()));
 
     public Task ScheduleUntouchedAsync(Guid challengerId, string reason, CancellationToken cancellationToken = default) =>
         ExecuteOperatorAsync(async (lease, token) =>
@@ -250,7 +263,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
             var current = await RequiredExperimentAsync(token);
             var definition = current.Definition ?? throw new InvalidOperationException("No discovery experiment exists.");
             await experimentWorkflow.ScheduleUntouchedAsync(BoundaryCommand("StartUntouched", definition, challengerId, reason), lease, token);
-        }, cancellationToken);
+        }, cancellationToken, new(EngineLiveCommandKind.Untouched, reason, Id: challengerId));
 
     public Task ApprovePromotionAsync(string reason, CancellationToken cancellationToken = default) =>
         ExecuteOperatorAsync(async (lease, token) =>
@@ -260,11 +273,12 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
             var policy = await sessions!.GetPolicyAsync(current.ChampionPolicyVersionId, token);
             await experimentWorkflow.ApprovePromotionAsync(
                 BoundaryCommand("Promote", definition, current.SelectedChallenger, reason), policy, lease, token);
-        }, cancellationToken);
+        }, cancellationToken, new(EngineLiveCommandKind.Promotion, reason));
 
     public Task RecordMeasurementDefectAsync(string reason, CancellationToken cancellationToken = default) =>
         ExecuteOperatorAsync(async (lease, token) =>
-            await experimentWorkflow.RecordMeasurementDefectAsync(reason, DateTime.UtcNow, lease, token), cancellationToken);
+            await experimentWorkflow.RecordMeasurementDefectAsync(reason, DateTime.UtcNow, lease, token), cancellationToken,
+            new(EngineLiveCommandKind.MeasurementDefect, reason));
 
     public Task ResumeCapitalReviewAsync(Guid portfolioId, string reason, CancellationToken cancellationToken = default) =>
         ExecuteOperatorAsync(async (lease, token) =>
@@ -275,7 +289,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
             if (latest?.Complete != true || latest.Nav is not decimal nav)
                 throw new InvalidOperationException("Capital review requires the latest checkpoint to have a complete, exact NAV.");
             await actions!.ResumeCapitalReviewAsync(portfolioId, nav, Environment.UserName, reason, lease, token);
-        }, cancellationToken);
+        }, cancellationToken, new(EngineLiveCommandKind.CapitalReview, reason, Id: portfolioId));
 
     public Task RecordCorporateActionAsync(string symbol, DateOnly affectedFrom, DateOnly affectedThrough,
         string reason, CancellationToken cancellationToken = default) =>
@@ -283,9 +297,9 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         {
             await experiments.RecordCorporateActionAsync(new(Guid.NewGuid(), symbol.Trim().ToUpperInvariant(),
                 affectedFrom, affectedThrough, DateTime.UtcNow, Environment.UserName, reason), lease, token);
-            await research!.RecoverAndMatureAsync(Today(), lease, token);
+            if (!DeferResearchRecovery) await research!.RecoverAndMatureAsync(Today(), lease, token);
             cachedResearch = null;
-        }, cancellationToken);
+        }, cancellationToken, new(EngineLiveCommandKind.CorporateAction, reason, Symbol: symbol, From: affectedFrom, Through: affectedThrough));
 
     public async Task<DelphiLiveResearchPresentation> LoadResearchAsync(DateOnly from, DateOnly through,
         CancellationToken cancellationToken = default)
@@ -302,12 +316,16 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         return result;
     }
 
-    private async Task ExecuteOperatorAsync(Func<DelphiLiveLease, CancellationToken, Task> command, CancellationToken token)
+    private async Task ExecuteOperatorAsync(Func<DelphiLiveLease, CancellationToken, Task> command, CancellationToken token,
+        EngineLiveCommand remote)
     {
+        if (engineClient is not null)
+        { await engineClient.CallAsync<bool>(EngineOperation.LiveCommand, remote, token); return; }
         await using var settingsLease = await EngineSettingsLease.AcquireAsync(token);
         if (workflow is null || calendar is null || sessions is null) throw new InvalidOperationException(CalendarWarning);
         if (!await HasSchemaAsync(token)) throw new InvalidOperationException("The reviewed Delphi Live migrations are required before operator commands.");
-        await workflow.ExecuteOperatorCommandAsync(command, token);
+        if (OperatorExecutor is not null) await OperatorExecutor(command, token);
+        else await workflow.ExecuteOperatorCommandAsync(command, token);
     }
 
     private async Task<DelphiLiveExperimentState> RequiredExperimentAsync(CancellationToken token)

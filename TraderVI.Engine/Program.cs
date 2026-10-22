@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 using TraderVI.WPF.Services;
 
 namespace TraderVI.Engine;
@@ -39,6 +40,8 @@ internal static class Program
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
             var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
+            var liveCommands = new DelphiLiveDesktopService { OperatorExecutor = paper.ExecuteOperatorAsync, DeferResearchRecovery = true };
+            bool stopping = false;
             market.ApplySessionBoundaryAsync = research.ApplyBoundaryAsync;
             var engine = new IndependentEngine([
                 new("Connection", TimeSpan.FromSeconds(10), broker.PollAuthenticationAsync),
@@ -51,7 +54,12 @@ internal static class Program
                 new("Research history", TimeSpan.FromMinutes(15), research.MaintainAsync)
             ], broker.StartAsync, async () =>
             {
-                try { await market.StopAsync().ConfigureAwait(false); }
+                try
+                {
+                    await research.DrainAsync().ConfigureAwait(false);
+                    await paper.DrainAsync().ConfigureAwait(false);
+                    await market.StopAsync().ConfigureAwait(false);
+                }
                 finally { await broker.CloseAsync().ConfigureAwait(false); }
             });
             using var stopAccepting = new CancellationTokenSource();
@@ -60,9 +68,30 @@ internal static class Program
                 if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices };
                 if (request.Operation == EngineOperation.Stop)
                 {
-                    broker.BeginStop();
+                    stopping = true; broker.BeginStop(); paper.BeginStop();
                     await engine.StopAsync().ConfigureAwait(false);
                     return engine.ReadStatus();
+                }
+                if (request.Operation == EngineOperation.LiveCommand)
+                {
+                    if (stopping) throw new InvalidOperationException("Engine is stopping.");
+                    var command = request.Payload.Deserialize<EngineLiveCommand>() ?? throw new InvalidOperationException("Missing paper command.");
+                    await research.ExecuteOperatorAsync(async () =>
+                    {
+                        if (stopping) throw new InvalidOperationException("Engine is stopping.");
+                        switch (command.Kind)
+                        {
+                            case EngineLiveCommandKind.Activate: await liveCommands.ActivateAsync(command.Capital, command.Currency, command.Reason); break;
+                            case EngineLiveCommandKind.Discovery: await liveCommands.ScheduleDiscoveryAsync(command.Family, command.Values ?? [], command.Capital, command.Currency, command.Reason); break;
+                            case EngineLiveCommandKind.Untouched: await liveCommands.ScheduleUntouchedAsync(command.Id ?? throw new ArgumentException(), command.Reason); break;
+                            case EngineLiveCommandKind.Promotion: await liveCommands.ApprovePromotionAsync(command.Reason); break;
+                            case EngineLiveCommandKind.MeasurementDefect: await liveCommands.RecordMeasurementDefectAsync(command.Reason); break;
+                            case EngineLiveCommandKind.CapitalReview: await liveCommands.ResumeCapitalReviewAsync(command.Id ?? throw new ArgumentException(), command.Reason); break;
+                            case EngineLiveCommandKind.CorporateAction: await liveCommands.RecordCorporateActionAsync(command.Symbol ?? throw new ArgumentException(), command.From ?? throw new ArgumentException(), command.Through ?? throw new ArgumentException(), command.Reason); break;
+                            default: throw new ArgumentException("Unknown paper command.");
+                        }
+                    }).ConfigureAwait(false);
+                    return true;
                 }
                 return await broker.DispatchAsync(request).ConfigureAwait(false);
             });
@@ -82,7 +111,7 @@ internal static class Program
             }
             finally
             {
-                broker.BeginStop();
+                stopping = true; broker.BeginStop(); paper.BeginStop();
                 await engine.StopAsync().ConfigureAwait(false);
                 stopAccepting.Cancel();
                 await serving.ConfigureAwait(false);

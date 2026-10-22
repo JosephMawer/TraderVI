@@ -25,7 +25,11 @@ paper protection, paper inputs and research. Exact context/identities and origin
 retained; delayed paper buys are rechecked before fills. Unprepared experiment changes remain pending
 without delaying collection. 82 focused consumer/action/research/scheduler tests pass; isolated WPF
 incremental build passes with two existing warnings, SSDT build and six SQL parse checks pass.
-Migration049 is prepared only. Desktop paper cutover, checkpointed reads and audits/holds remain.
+Migration049 is prepared only. Delphi Live dashboard ticks now read snapshots and its operator
+commands go to the engine; dashboard closure sends no Live stop. Engine stop drains admitted Live
+commands before releasing collection ownership. 43 focused command/transport/scheduler/monitor
+checks pass and WPF builds (260 existing compiler warnings, zero errors). Other desktop-owned
+paper workers, checkpointed reads and audits/holds remain; native close/reconnect is not qualified.
 Broker revisions now support shared immutable nested records with lossless typed recovery and bounded
 expansion. 407 relevant checks pass/one native skip; engine build passes with zero warnings/errors.
 A repeated-record fixture uses under one twentieth of expanded storage; this is synthetic, not a

@@ -13,7 +13,7 @@ namespace TraderVI.WPF.Views;
 
 public partial class DelphiLiveView : UserControl
 {
-    private readonly DelphiLiveViewModel viewModel = new(new DelphiLiveDesktopService());
+    private readonly DelphiLiveViewModel viewModel = new(new DelphiLiveDesktopService(new EngineRpcClient(EnginePaths.PipeName)));
     public DelphiLiveView() { InitializeComponent(); DataContext = viewModel; }
     public Task RefreshAsync(CancellationToken cancellationToken = default) => viewModel.RefreshAsync(cancellationToken);
     public Task TickAsync(CancellationToken cancellationToken = default) => viewModel.TickAsync(cancellationToken);

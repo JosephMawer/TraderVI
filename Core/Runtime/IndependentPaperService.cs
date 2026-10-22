@@ -18,6 +18,23 @@ public sealed class IndependentPaperService
     private readonly DelphiLiveActionWorkflow actions;
     private readonly Func<DelphiLiveLease?> currentLease;
     private readonly SemaphoreSlim gate = new(1, 1);
+    private volatile bool closing;
+    public void BeginStop() => closing = true;
+    public async Task DrainAsync()
+    {
+        await gate.WaitAsync().ConfigureAwait(false);
+        gate.Release();
+    }
+    public async Task ExecuteOperatorAsync(Func<DelphiLiveLease, CancellationToken, Task> command, CancellationToken ct)
+    {
+        await gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            if (closing) throw new InvalidOperationException("Engine is stopping; paper commands are no longer admitted.");
+            await command(currentLease() ?? throw new InvalidOperationException("The engine does not own the collection lease."), ct).ConfigureAwait(false);
+        }
+        finally { gate.Release(); }
+    }
 
     public IndependentPaperService(ReviewedTsxSessionCalendar calendar, Func<DelphiLiveLease?> currentLease,
         IDelphiLiveNotifier notifier)
@@ -74,8 +91,9 @@ public sealed class IndependentPaperService
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
         {
+            await using var settings = await EngineSettingsLease.AcquireAsync().ConfigureAwait(false);
             var lease = currentLease();
-            if (lease is not null) await action(lease).ConfigureAwait(false);
+            if (!closing && lease is not null) await action(lease).ConfigureAwait(false);
         }
         finally { gate.Release(); }
     }

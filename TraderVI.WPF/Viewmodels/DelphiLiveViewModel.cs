@@ -128,7 +128,7 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
             DelphiLiveRuntimeSnapshot snapshot;
             // The idle boundary is after the engine/settings lease is released. Display work
             // has no financial side effects and must not keep broker setup waiting.
-            if (tick)
+            if (tick && !service.IsEngineClient)
             {
                 using var cycle = CycleBarrier?.TryBeginCycle();
                 if (CycleBarrier is not null && cycle is null) return;
