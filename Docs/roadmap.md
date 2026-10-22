@@ -20,6 +20,8 @@ Shared-input storage, independent collection and real-input selection are in sou
 remain prepared and unapplied. Independent paper/research consumers and immutable handoff receipts
 are in source (prepared migration049). Delphi Live display/control and remaining Shadow/tracked/AI
 worker ownership are implemented. Finish checkpointed history and integrity audit/hold integration.
+Audit receipts, durable holds and explicit recovery controls are now in source; qualify their scope,
+native behavior and weekly throughput alongside the remaining current-state/readers work.
 Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
 checkpointed history reads and native concurrency qualification before claiming the wait is resolved.
 Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish

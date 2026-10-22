@@ -35,6 +35,8 @@ public sealed class IndependentMarketService : IDelphiLiveNotifier
     { set => workflow.ApplySessionBoundaryAsync = value; }
     public async Task TickAsync()
     {
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Global, null).ConfigureAwait(false)).ProtectionAllowed)
+            throw new InvalidOperationException("Shared input work is paused for integrity recovery.");
         await using var settings = await EngineSettingsLease.AcquireAsync();
         await workflow.TickAsync().ConfigureAwait(false);
     }

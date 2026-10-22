@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Trader.Promotion;
+using Core.Runtime;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
@@ -22,6 +23,11 @@ SELECT CASE WHEN OBJECT_ID(N'dbo.EngineInputPublication', N'U') IS NOT NULL
  AND OBJECT_ID(N'dbo.EngineIntegrityIncident', N'U') IS NOT NULL THEN 1 ELSE 0 END;
 """, cancellationToken: ct));
         if (installed != 1) throw new InvalidOperationException("The independent input/state migration is not installed.");
+        if (!await EngineIntegrityRepository.RequiredGuardsAsync(c, null, ct))
+            throw new InvalidOperationException("Independent immutable-history guards are unavailable.");
+        var access = EngineIntegrityAccess.Evaluate(await EngineIntegrityRepository.ReadOpenAsync(c, null, ct), EngineIntegrityScope.Broker, session.BindingId);
+        if (!access.ProtectionAllowed)
+            throw new InvalidOperationException("An integrity hold makes affected automatic protection unavailable. Verify recovery before resuming.");
         // The completed shared-input reader owns exact definition, age, continuity and incident validation.
         throw new InvalidOperationException("Independent input/state qualification must complete before real execution.");
     }

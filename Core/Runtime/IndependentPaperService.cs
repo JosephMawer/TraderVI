@@ -31,6 +31,8 @@ public sealed class IndependentPaperService
         try
         {
             if (closing) throw new InvalidOperationException("Engine is stopping; paper commands are no longer admitted.");
+            if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null, ct).ConfigureAwait(false)).NewExposureAllowed)
+                throw new InvalidOperationException("Paper commands are paused for integrity recovery.");
             await command(currentLease() ?? throw new InvalidOperationException("The engine does not own the collection lease."), ct).ConfigureAwait(false);
         }
         finally { gate.Release(); }
@@ -91,6 +93,8 @@ public sealed class IndependentPaperService
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
         {
+            var integrity = await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null).ConfigureAwait(false);
+            if (!integrity.ProtectionAllowed) throw new InvalidOperationException("Paper execution is unavailable under the integrity hold.");
             await using var settings = await EngineSettingsLease.AcquireAsync().ConfigureAwait(false);
             var lease = currentLease();
             if (!closing && lease is not null) await action(lease).ConfigureAwait(false);

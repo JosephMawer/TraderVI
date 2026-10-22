@@ -140,6 +140,14 @@
     <Build Include="dbo/Tables/EngineEvidenceContent.sql" />
     <Build Include="dbo/Tables/EngineInputPublication.sql" />
     <Build Include="dbo/Tables/EngineCurrentState.sql" />
+    <Build Include="dbo/Tables/EngineIntegrityIncident.sql" />
+    <Build Include="dbo/Tables/EngineIntegrityResolution.sql" />
+    <Build Include="dbo/Tables/EngineAuditRun.sql" />
+    <Build Include="dbo/Triggers/EngineIntegrityIncident_Immutable.sql" />
+    <Build Include="dbo/Triggers/EngineIntegrityResolution_Immutable.sql" />
+    <Build Include="dbo/Triggers/EngineAuditRun_Progress.sql" />
+    <Build Include="dbo/Triggers/DelphiLiveEvaluation_RetiredWriter.sql" />
+    <Build Include="dbo/Triggers/DelphiLiveEvaluation_ArchiveImmutable.sql" />
     <Build Include="dbo/Tables/EngineMarketCycle.sql" />
     <Build Include="dbo/Tables/EngineConsumerReceipt.sql" />
     <Build Include="dbo/Triggers/EngineMarketCycle_Immutable.sql" />
@@ -258,5 +266,9 @@
   <ItemGroup>
     <Build Include="Security/TraderVIReadOnlyChecks.sql" />
     <None Include="Migrations/20261018_046_AddReadOnlyDiagnosticUser.sql" />
+    <None Include="Migrations/20261022_047_AddIndependentEngineInputs.sql" />
+    <None Include="Migrations/20261022_048_AddEngineCurrentObservationState.sql" />
+    <None Include="Migrations/20261022_049_AddEngineConsumerHandoff.sql" />
+    <None Include="Migrations/20261022_050_AddIndependentIntegrityAudits.sql" />
   </ItemGroup>
 </Project>

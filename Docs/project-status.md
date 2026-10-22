@@ -43,6 +43,12 @@ Direct-input/history/storage/audit integration remains unfinished; installed app
 The real reader now treats an earlier same-session stock/benchmark conflict as affecting its later
 inputs, and invalidates an already-consumed cached confirmation before the progress check. A regression
 proves that repeated reads cannot revive that confirmation. 399 focused recommendation/broker tests pass.
+October22 source now includes resumable fixed-boundary Live/broker/shared-input audit receipts,
+immutable scoped incidents, buy/protection guards and explicit verified recovery/clear controls in a
+History checks window.379 focused integrity/broker/manual-buy tests pass; WPF builds with260 existing
+warnings, SSDT builds, and16 runtime/migration SQL batches parse. Migration050 is prepared only and
+retires the old Live input writer at cutover. Current-history read optimization, dependent readers,
+native recovery/coverage/capacity and readiness remain unfinished; new-host execution stays blocked.
 Dependency-security audit was disabled, not requalified. No database or external action.
 
 **Accepted design — dashboard-independent operation:** closing the dashboard leaves

@@ -111,6 +111,35 @@ orders/decisions; qualify the diagnostic reader before cutover. No existing data
 is performed by this increment. Existing default writers remain inline until opting into shared storage
 or continuing an already shared revision.
 
+### Prepared historical verification and incident controls
+
+Source now contains a separate off-hours audit lane. A saved plan fixes each paper/broker revision
+boundary and each shared-input/content sequence boundary; one original record is verified per wake.
+The first nightly run includes the backlog; subsequent runs resume after the last completed nightly
+boundary. Weekly older-archive runs also inspect the frozen legacy Live inputs. These are specifically
+Live paper, managed-broker and shared-input archives, not a claim to audit every TraderDB table.
+Paper financial transitions, authorized settings/promotions, the original September engineering-trial
+exception, broker append authority and exact referenced content are checked. Historical strategy
+decisions are not silently recomputed with today's implementation. Complete linked content is reopened
+by audits even when an operational cache is later introduced.
+
+Interrupted/failed progress stays incomplete. Verification defects create immutable findings;
+broker defects have a binding scope, while shared/paper defects remain conservatively global until
+isolation can be proven. They block new exposure and, where prerequisite state is untrusted, automatic
+protection. Manual purchase preflight and automatic sell preflight retain serializable hold reads
+through transmission; an already admitted transmission precedes a concurrently discovered hold.
+An explicit recovery run itself adds a global hold. Clearing selected original incidents requires a
+completed recovery run, unchanged history heads, enabled immutable guards and an operator reason.
+It appends a resolution; it never erases the finding or renews trading permission. Newer incidents
+cannot be cleared with an older proof. The dashboard exposes coverage and these explicit controls.
+
+Prepared migration050 adds these records and retires legacy Live evaluation inserts while freezing
+that older archive against update/delete. It is a cutover-only migration requiring old writers stopped
+and a fresh verified checksum backup; it has not been applied. Existing old-version rollback would
+need a separately reviewed writer transition. Weekly capacity, native SQL/repair/restart behavior,
+complete dependent readers and current-state checkpoint integration remain unqualified; the real
+host's readiness block remains. This checkpoint does not relax installed ADR-0082/0098 verification.
+
 ### Retained boundaries
 
 - Retain real-account ownership, original order recovery, held-position protection, financial history,

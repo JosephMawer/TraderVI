@@ -13,7 +13,7 @@ using static Core.Db.TradingRecommendationStorage;
 namespace Core.Db;
 
 /// <summary>SELECT-only manual TFSA guard. Uses existing pause and account-financial protection.</summary>
-public sealed class ManualBuySafetyRepository : IManualBuySafetySource
+public sealed class ManualBuySafetyRepository(bool requireIndependentIntegrity = false) : IManualBuySafetySource
 {
     public async Task<IManualBuySafetyLease> AcquireAsync(CancellationToken ct)
     {
@@ -32,6 +32,7 @@ public sealed class ManualBuySafetyRepository : IManualBuySafetySource
             if (memory.CapitalReviewRequired) reason = "The TFSA has an active capital-review hold.";
             var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
             if (memory.TradingDate == today && memory.DailyLossHold) reason = "The TFSA has an active daily-loss hold.";
+            reason = await EngineIntegrityRepository.ManualBuyBlockAsync(connection, transaction, requireIndependentIntegrity, ct) ?? reason;
             return new Lease(connection, transaction, reason);
         }
         catch

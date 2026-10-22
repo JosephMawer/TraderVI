@@ -33,7 +33,7 @@ public sealed class IndependentResearchService
     public async Task ExecuteOperatorAsync(Func<Task> command)
     {
         await gate.WaitAsync().ConfigureAwait(false);
-        try { await command().ConfigureAwait(false); settledThrough = null; }
+        try { await RequireIntegrityAsync().ConfigureAwait(false); await command().ConfigureAwait(false); settledThrough = null; }
         finally { gate.Release(); }
     }
 
@@ -55,6 +55,7 @@ public sealed class IndependentResearchService
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
         {
+            await RequireIntegrityAsync().ConfigureAwait(false);
             var lease = currentLease(); if (lease is null) return;
             var frame = await cycles.ReadNextAsync("Research", newest: false).ConfigureAwait(false);
             if (frame is null) return;
@@ -71,6 +72,7 @@ public sealed class IndependentResearchService
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
         {
+            await RequireIntegrityAsync().ConfigureAwait(false);
             var lease = currentLease(); if (lease is null) return;
             DateTime now = DateTime.UtcNow;
             var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(now, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")));
@@ -106,5 +108,10 @@ public sealed class IndependentResearchService
                 await protocol.ApplySessionBoundaryAsync(date, open, DateTime.UtcNow, lease, ct).ConfigureAwait(false);
         }
         finally { gate.Release(); }
+    }
+    private static async Task RequireIntegrityAsync()
+    {
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Research, null).ConfigureAwait(false)).NewExposureAllowed)
+            throw new InvalidOperationException("Dependent research is invalidated or paused for integrity recovery.");
     }
 }

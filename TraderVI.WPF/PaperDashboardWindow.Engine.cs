@@ -13,6 +13,7 @@ public partial class PaperDashboardWindow
 {
     private readonly EngineRpcClient engineControl = new(EnginePaths.PipeName);
     private bool engineCommand;
+    private void HistoryChecks_Click(object sender, RoutedEventArgs e) => new Views.EngineIntegrityWindow { Owner = this }.Show();
     private async Task RefreshEngineStatusAsync()
     {
         if (engineCommand || shutdown.IsCancellationRequested) return;

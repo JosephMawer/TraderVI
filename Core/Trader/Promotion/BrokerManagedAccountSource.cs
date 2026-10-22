@@ -63,6 +63,12 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
         foreach (var request in evidence.Continuations)
             state = (await continuation.ApplyAsync(request, ct)).State;
         var projection = BrokerAccountProjector.Project(baselineState.Import.Binding!, saved, state, evidence.Coverage, clock.GetUtcNow());
+        if (independentInputs)
+        {
+            var integrity = await new EngineIntegrityRepository().ReadAccessAsync(Core.Runtime.EngineIntegrityScope.Broker, state.BindingId, ct);
+            if (!integrity.ProtectionAllowed) throw new InvalidOperationException("Automatic protection is unavailable under the unresolved integrity hold.");
+            if (!integrity.NewExposureAllowed) projection = projection with { NewRiskBlocks = projection.NewRiskBlocks.Add("Unresolved integrity incident blocks new exposure.") };
+        }
         return projection with { NewRiskBlocks = projection.NewRiskBlocks.AddRange(evidence.Blocks).Distinct().ToImmutableArray() };
     }
     public async Task<ImmutableArray<BrokerProtectionMark>> ReadProtectionMarksAsync(BrokerAccountProjection account, CancellationToken ct)

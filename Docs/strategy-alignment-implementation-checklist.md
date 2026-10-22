@@ -18,7 +18,7 @@ The September 22 documentation cleanup preserves the
 - [x] Accept immediate current-state/new-event/input verification separately from full historical audits
   under ADR-0103. This is a design decision, not an installed integrity change.
 - [x] Adopt nightly new-history audits, weekly archive coverage target and scoped failure/recovery
-  responses under ADR-0103. No audit job is implemented or installed.
+  responses under ADR-0103. Source audit work is tracked below; no audit job is installed.
 - [x] Accept continued engine operation after dashboard closure and a separate stop control.
 - [x] Accept staged delivery with the requested tonight target; feasibility is unverified, not a completion promise.
 - [x] Begin explicitly requested implementation: broker connection/account interface extracted into Core;
@@ -55,6 +55,11 @@ The September 22 documentation cleanup preserves the
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
   Direct-input/storage integration and native acceptance remain unfinished; installed app is unchanged.
 - [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
+- [x] Implement fixed-boundary off-hours Live/broker/shared-input audits, durable scoped findings,
+  order preflight holds and explicit verified recovery/clear controls.379 focused tests, WPF/SSDT
+  builds and16 SQL parse checks pass. Migration050 is prepared only; it retires the legacy Live writer.
+- [ ] Qualify audit coverage, weekly capacity, interrupted/native recovery and hold/preflight concurrency;
+  finish current-state and dependent-reader integration before removing the real-host readiness block.
 - [x] Invalidate cached real confirmation on a newly discovered consumed-input conflict; include earlier
   same-session stock/benchmark conflicts in dependency checks. 399 related offline tests pass.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,

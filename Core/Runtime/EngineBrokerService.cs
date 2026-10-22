@@ -35,7 +35,7 @@ public sealed class EngineBrokerService
         ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs)
     {
         this.connection = connection; this.journal = journal; this.protector = protector;
-        buys = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
+        buys = new(connection, journal, new ManualBuySafetyRepository(requireIndependentIntegrity: true), orderGate: orderGate);
         sells = new(connection, journal, orderGate: orderGate);
         reconciliation = new(connection, journal, journal, orderGate);
         host = new(grants, new BrokerManagedSessionControls(new BrokerManagedSessionRepository(calendar, sharedStorage: true)),

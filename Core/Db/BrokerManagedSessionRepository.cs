@@ -138,6 +138,20 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
                     throw new InvalidOperationException("Established protection ownership, floors and exit obligations cannot be reset.");
             }
     }
+    internal static async Task VerifyRevisionAsync(SqlConnection connection, Guid binding, long revision,
+        Core.Trader.DelphiLive.ITsxSessionCalendar calendar, CancellationToken ct)
+    {
+        async Task<BrokerManagedSession> ReadRevision(long number)
+        {
+            var row = await connection.QuerySingleAsync<Row>(new CommandDefinition(
+                "SELECT * FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding AND Revision=@Revision;",
+                new { Binding = binding, Revision = number }, cancellationToken: ct));
+            return Decode(row, await EngineArchiveStorage.ReadContentsAsync(connection, null, row.SnapshotJson, ct));
+        }
+        var next = await ReadRevision(revision);
+        ValidateNext(revision == 0 ? null : await ReadRevision(revision - 1), next, calendar);
+    }
+
     private static BrokerManagedSession Decode(Row row, IReadOnlyDictionary<string, string> contents)
     {
         if (Core.Runtime.EngineStrategySettings.Hash(row.SnapshotJson) != row.ContentHash) throw new InvalidDataException("Broker session content checksum failed.");

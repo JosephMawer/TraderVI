@@ -138,6 +138,7 @@
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
             <Button x:Name="StartEngineButton" Content="Start engine" Click="StartEngine_Click" Margin="6,0"/>
             <Button x:Name="StopEngineButton" Content="Stop engine" Click="StopEngine_Click" Margin="6,0"/>
+            <Button Content="History checks" Click="HistoryChecks_Click" Margin="6,0"/>
           </StackPanel>
           <TextBlock x:Name="EngineStatusText" Text="Checking engine… Closing the dashboard leaves it running."
                      VerticalAlignment="Center" Foreground="#F4F7FB" TextWrapping="Wrap"/>

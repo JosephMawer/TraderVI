@@ -2,6 +2,8 @@
 
 ### Independent real processing — ADR-0103 and design draft
 
+- **Q:** Does a completed nightly batch clear an integrity incident? **A:** No. Clearing needs explicit recovery verification, unchanged history heads, intact guards and an operator action; the original finding remains.
+- **Q:** Why fix an audit's boundary before reading records? **A:** New activity cannot move its finish line. Its receipt can say exactly what was checked, while later records belong to subsequent work.
 - **Q:** What is accepted so far? **A:** Real/paper independence, verification separation, nightly/weekly audit policy, and dashboard-close continuation with a separate engine stop. Staged delivery is accepted with a requested tonight target, whose feasibility is unverified; exact cutover/mechanics remain draft.
 - **Q:** Does a separate executable alone remove paper dependence? **A:** No. Real inputs currently come from saved paper evaluation records, and broad coordination remains. The independent host also needs direct shared inputs, one order owner and tested short writes.
 - **Q:** What does a checkpoint save? **A:** Verified current account state at a known event sequence, so recovery can process later events. It does not automatically authorize weaker historical integrity checks.

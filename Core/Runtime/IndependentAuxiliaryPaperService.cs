@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Oracle;
+using Core.Db;
 using Core.Trader;
 using Core.Trader.DelphiLive;
 using System;
@@ -41,6 +42,7 @@ public sealed class IndependentAuxiliaryPaperService
         try
         {
             if (!Due(nextTracked)) return;
+            await RequireIntegrityAsync().ConfigureAwait(false);
             await tracked.PollOnceAsync(ReadAutomaticGhostExits()).ConfigureAwait(false);
             nextTracked = PaperTradingMonitor.NextScheduledPollLocal(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
         }
@@ -52,6 +54,7 @@ public sealed class IndependentAuxiliaryPaperService
         try
         {
             if (!Due(nextShadow)) return;
+            await RequireIntegrityAsync().ConfigureAwait(false);
             await shadow.PollOnceAsync().ConfigureAwait(false);
             nextShadow = PaperTradingMonitor.NextScheduledPollLocal(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
         }
@@ -59,7 +62,11 @@ public sealed class IndependentAuxiliaryPaperService
     }
     public async Task ShadowProtectionAsync()
     {
-        if (!closing && IsSession()) await shadow.PollProgressiveProtectionAsync().ConfigureAwait(false);
+        if (!closing && IsSession())
+        {
+            await RequireIntegrityAsync().ConfigureAwait(false);
+            await shadow.PollProgressiveProtectionAsync().ConfigureAwait(false);
+        }
     }
     public async Task<PaperMonitorCycleResult> PollTrackedAsync()
     {
@@ -67,6 +74,7 @@ public sealed class IndependentAuxiliaryPaperService
         try
         {
             RequirePollWindow();
+            await RequireIntegrityAsync().ConfigureAwait(false);
             var result = await tracked.PollOnceAsync(ReadAutomaticGhostExits()).ConfigureAwait(false);
             nextTracked = PaperTradingMonitor.NextScheduledPollLocal(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
             return result;
@@ -79,6 +87,7 @@ public sealed class IndependentAuxiliaryPaperService
         try
         {
             RequirePollWindow();
+            await RequireIntegrityAsync().ConfigureAwait(false);
             var result = await shadow.PollOnceAsync().ConfigureAwait(false);
             nextShadow = PaperTradingMonitor.NextScheduledPollLocal(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
             return result;
@@ -86,6 +95,11 @@ public sealed class IndependentAuxiliaryPaperService
         finally { shadowGate.Release(); }
     }
     private bool IsSession() => calendar.IsRegularSession(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
+    private static async Task RequireIntegrityAsync()
+    {
+        if (!(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Global, null).ConfigureAwait(false)).ProtectionAllowed)
+            throw new InvalidOperationException("Paper work is paused for integrity recovery.");
+    }
     private bool Due(DateTime? next) => !closing && IsSession() && PaperTradingMonitor.IsAutomaticPollTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)) &&
         (next is null || PaperTradingMonitor.ToToronto(DateTime.UtcNow) >= next);
     private void RequirePollWindow()

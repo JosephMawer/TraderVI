@@ -43,7 +43,7 @@ public static class BrokerManagedSessionComposition
         ArgumentNullException.ThrowIfNull(sharedOrderGate);
         ArgumentNullException.ThrowIfNull(riskEvidence);
         var risk = new BrokerAccountRiskContinuationRepository(calendar);
-        var safety = new ManualBuySafetyRepository();
+        var safety = new ManualBuySafetyRepository(requireIndependentIntegrity: independentInputs);
         IManualBuyWorkflow buys = workflows?.Buys ?? new ManualMarketBuyWorkflow(buyBroker, orders, safety, time, sharedOrderGate);
         IManualSellWorkflow sells = workflows?.Sells ?? new ManualMarketSellWorkflow(sellBroker, orders, time, sharedOrderGate);
         IBrokerReconciliationWorkflow reconcile = workflows?.Reconciliation ?? new BrokerReconciliationWorkflow(accountReads, orders, observations, sharedOrderGate, time);
@@ -59,7 +59,7 @@ public static class BrokerManagedSessionComposition
             new BrokerAccountRiskBaselineRepository(), previewRisk ?? risk, calendar, riskEvidence,
             new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time, independentInputs);
         var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
-            selectedAccount, sharedOrderGate, time);
+            selectedAccount, sharedOrderGate, time, independentIntegrity: independentInputs);
         return new(new BrokerManagedSessionWorkflow(new BrokerManagedSessionRepository(calendar, sharedStorage: independentInputs), source, transport, time), source);
     }
 }

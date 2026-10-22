@@ -28,6 +28,10 @@ research recovery is bounded/resumable (33 focused checks/incremental WPF build 
 host remains deliberately blocked; installed app is unchanged.
 Cached real confirmations now invalidate on consumed-input conflicts, including earlier same-session
 dependencies; 399 recommendation/broker checks pass. Continue audit/hold and checkpoint integration.
+Fixed-boundary Live/broker/shared-input audits, durable holds and explicit recovery controls now pass379
+focused checks, WPF/SSDT builds and16 SQL parse checks. Migration050 is prepared only; old input-writer
+retirement must be part of a reviewed cutover. Continue current-state/checkpoint reads, dependent
+diagnostic/research readers and native qualification. Installed app and the readiness block are unchanged.
 
 **Latest architecture discussion (R04/R07/R08/R09):** dashboard closure leaves the engine running,
 with a separate stop control. The operator accepts staged delivery conditional on completion tonight;

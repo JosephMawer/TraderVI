@@ -12,7 +12,7 @@ namespace Core.WSTrade.Orders;
 /// <summary>Strategy intent uses the existing manual preflight, encrypted journal and one-attempt broker client.</summary>
 public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSellBroker sells,
     IManualSellJournal journal, IManualBuySafetySource safety, IBrokerAccountRiskContinuationStore riskStore, WealthsimpleTfsaAccount account,
-    SemaphoreSlim orderGate, TimeProvider? time = null) : IBrokerManagedOrderTransport
+    SemaphoreSlim orderGate, TimeProvider? time = null, bool independentIntegrity = false) : IBrokerManagedOrderTransport
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     public async Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection projected, CancellationToken ct)
@@ -69,6 +69,12 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
             }
             else
             {
+                if (independentIntegrity)
+                {
+                    safetyLease = await new Core.Db.EngineIntegrityRepository().AcquireProtectionLeaseAsync(projected.Risk.BindingId, ct);
+                    if (safetyLease.BlockReason is not null)
+                        throw BrokerOrderFailureEvidence.Tag(safetyLease.BlockReason, BrokerOrderCheck.SharedSafetyBlocked);
+                }
                 var read = await sells.ReadManualSellContextAsync(account, order.Symbol, ct);
                 var context = read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
                 if (context is null) throw BrokerOrderFailureEvidence.Tag("Fresh broker sell checks are unavailable.", BrokerOrderCheck.BrokerSellContextUnavailable, "Broker sell read: " + read.Status);
@@ -79,7 +85,7 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                 RequireSameAccount(projected, context.Snapshot, context.Security.Id, order.SecurityId);
                 var intent = new ManualSellIntent(order.RequestId, context.Security.SourceIdentity!, account.Id, order.SecurityId,
                     account.DisplayName, order.Symbol, context.Security.Exchange, order.Quantity, selection.SnapshotAt, context.Quote, clock.GetUtcNow());
-                return new Preflight(orderGate, null, async token =>
+                return new Preflight(orderGate, safetyLease, async token =>
                 {
                     CheckRevision(revision);
                     var recheck = ManualSellChecks.Validate(selection, context, clock.GetUtcNow());
