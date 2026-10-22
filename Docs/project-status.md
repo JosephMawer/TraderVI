@@ -6,8 +6,11 @@
 defers a paper-workload switch. ADR-0102 implements one exact immutable evaluation-save retry with
 fresh-connection guard checks and bounded private stage diagnostics.71focused/2,919Core pass/nine
 native SQL skips with collection concurrency disabled; isolated WPF Release and SQL parse/guard
-comparison pass. Installation awaits normal operator stop/closure; app35388 is running the earlier
-97ad0a11 Release. Historical SQL wait/plan and native recovery/capacity remain unproved. Expected
+comparison pass. Operator normal stop/closure is confirmed; standard Release fromc4d094fd installs
+21:31Toronto with zero errors, zero owners before/after, matching Core commit/copies and125output/
+eight source-output hashes. Existing260compiler warnings plus two dependency advisories remain.
+No app launch, SQL mutation, approval/enable or order. Historical wait/plan and native recovery/
+capacity remain unproved. Expected
 indexes are enabled; helper cannot inspect waits/plans. Heavy history work and the existing desktop
 admission barrier remain, with no paper/risk/approval/cutoff changes.
 [SQL findings, correction and limits](reviews/delphi-live-sql-reliability-20261021.md).

@@ -3,7 +3,8 @@
 The operator resumes the deferred SQL investigation now, preserving financial risk and tomorrow's
 separate review/approval. The operator explicitly selects **Fix SQL only for now** when asked about
 an optional paper-workload switch. This supersedes the evening implementation deferral, not any
-trading permission. Current installed source remains97ad0a11 until a separately coordinated switch.
+trading permission. Standard Release SQL correction fromc4d094fd is installed21:31Toronto after
+normal operator stop/closure; tomorrow's personal approval/enable and native acceptance remain pending.
 
 ## Findings
 
@@ -64,5 +65,29 @@ remain separate; no fresh audit or dependency upgrade. Full solution/SSDT was no
 
 Artifacts: `artifacts/sql-reliability-20261021/{focused-tests-final.log,full-tests-serial-final.log,
 wpf-release.log,EvaluationPersist.sql}`. Native SQL-stage delivery, historical root cause and
-market-session capacity remain unverified. Installed app is not restarted by testing; normal stop/
-closure, reviewed installation and tomorrow's personal review/approval/enable remain separate.
+market-session capacity remain unverified. Testing does not restart the app or approve execution.
+
+## Standard Release installation — October 21, 21:31 Toronto
+
+Operator confirms app closed and authorizes installation. Independent inspection finds zero
+TraderVI.WPF owners immediately before replacing normal outputs and again afterward. Standard
+`dotnet build TraderVI.WPF/TraderVI.WPF.csproj --configuration Release --no-restore -p:NuGetAudit=false
+--verbosity minimal` succeeds in13.82seconds with zero errors. Source commit is
+c4d094fd81b25865cac53d1946142cc78eea501f; installed Core product version identifies that commit and
+Core project/desktop SHA256 copies match.125output hashes and eight source/output hashes are saved.
+Build reports262warnings:260existing compiler emissions (CS8632/CS0162/CS0168) and two existing
+dependency advisories (NU1902/NU1903). No dependency upgrade or fresh security audit is claimed.
+
+Evidence under `artifacts/sql-reliability-20261021/`: `standard-release-install.log`,
+`pre-install-output-hashes.json`, `installed-output-hashes.json`, `source-output-hashes.json`,
+`installation-receipt.json`. Receipt time21:31:36Toronto. No schema deployment, native write
+rehearsal, app launch/restart, market collection, trading approval/enable or order was performed.
+The previous2,919offline passes/nine native SQL skips retain their scope; full solution/SSDT remains
+unbuilt. All existing risk/source/freshness/financial/expiry rules and the October22 review-only
+path remain unchanged. The unrelated Obsidian workspace modification is preserved.
+
+Next operator action: open the normal installed output with
+`dotnet run --project TraderVI.WPF -c Release --no-build` and sign in. On October22 review/approve
+the exact current build/source through Review October22, Approve October22 continuation, then
+separately Enable reviewed host. Arming still requires current matching daily/account/source/storage
+facts and fresh ordinary checks at/after09:30. No promise of signal confirmation or an order follows.

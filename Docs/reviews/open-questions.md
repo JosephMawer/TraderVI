@@ -47,7 +47,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   **Fix SQL only for now**. [ADR-0102](../adr/0102-bounded-immutable-live-evaluation-save-recovery.md)
   implements one identical save replay with original guards/timeouts and bounded safe stage logs.
   71focused/2,919Core pass/nine native SQL skips, isolated Release and SQL parse/guard comparison pass.
-  Normal closure/installation and native recovery/cause/capacity acceptance remain pending. Metadata
+  Standard Release fromc4d094fd installs21:31Toronto after normal closure/zero-owner checks; native
+  recovery/cause/capacity acceptance remains pending. Metadata
   confirms expected enabled indexes but grants no wait/plan evidence. Paper-workload switch is
   deferred; neither global shutdown of the shared source nor barrier removal is implemented.
 
@@ -71,8 +72,8 @@ Things we punted on and need to revisit. Cleared as decisions are made
   and uninstalled, byte-for-byte parked outside compiled source under
   `artifacts/deferred-sql-20261021/saved-source/` for the independent source-switch build. Expected indexes are enabled; available helper permissions do not expose the historical
   wait/plan cause. [Resume notes/current evidence](../project-status.md#october-21-post-open-execution-watch).
-- **Next:** install the now-validated SQL-only correction after normal stop/closure, then observe
-  native recovery/stage delivery and capacity under tomorrow's separately reviewed approval/host.
+- **Next:** observe native recovery/stage delivery and capacity under tomorrow's separately
+  reviewed current-build approval/host after the21:31SQL correction installation.
   Historical SQL wait/plan remains unresolved. Today's dated approval stays expired and the
   through-close watch is complete/deleted; no native write rehearsal or financial action follows
   from this implementation request.

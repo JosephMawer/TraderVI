@@ -14,8 +14,10 @@ The September 22 documentation cleanup preserves the
   [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md): one unchanged evaluation-save
   retry, all original guards/timeouts, bounded private stages.71focused/2,919Core pass/nine native
   SQL skips with test concurrency disabled; isolated WPF Release/SQL parse/guard comparison pass.
-- [ ] Install SQL correction after normal operator stop/closure. Tomorrow's review/approval and
-  separate host enable remain operator actions; installed97ad0a11 currently remains unchanged.
+- [x] Install SQL correction standard Release fromc4d094fd,21:31Toronto after operator normal
+  stop/closure. Zero owners before/after; Core source/copies match;125output/eight source-output
+  hashes recorded; zero build errors. Existing compiler warnings/dependency advisories remain.
+- [ ] Operator performs tomorrow's exact current-build review/approval and separate host enable.
 - [ ] Observe native SQL stages/recovery and regular-session continuity/capacity. Historical wait/
   plan cause remains unknown. Paper-workload switch is explicitly deferred; no barrier bypass.
 

@@ -9,7 +9,9 @@ it does not itself grant operational authorization.
 October21 evening SQL-only correction is implemented under
 [ADR-0102](adr/0102-bounded-immutable-live-evaluation-save-recovery.md):71focused/2,919full Core pass/
 nine native SQL skips with test concurrency disabled, isolated Release and SQL guard/parse checks pass.
-Normal closure/installation and native stages/recovery/capacity remain pending. Existing history
+Standard Release fromc4d094fd installs21:31Toronto after normal closure/zero-owner checks, matching
+Core commit/copies and125output/eight source-output hashes; zero errors. Native stages/recovery/
+capacity remain pending. Existing history
 cost/admission waits remain; the operator defers a paper-workload switch.
 [Current SQL evidence](reviews/delphi-live-sql-reliability-20261021.md).
 

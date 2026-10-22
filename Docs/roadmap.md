@@ -11,7 +11,8 @@ and source review points; use its owning-record links when resuming work.
 **Current request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips
 with test concurrency disabled; isolated WPF Release/SQL parsing and unchanged-guard comparison pass.
-Normal closure/installation and native acceptance remain. Original SQL wait/plan and heavy paper
+Standard Release fromc4d094fd is installed21:31Toronto after normal closure/zero-owner verification;
+native acceptance remains. Original SQL wait/plan and heavy paper
 history cost are unresolved; the operator defers a workload switch. Preserve all risk/dated approval
 controls. [Owning work](reviews/delphi-live-sql-reliability-20261021.md).
 
