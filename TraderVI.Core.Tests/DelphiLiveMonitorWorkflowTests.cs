@@ -22,6 +22,19 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
     [Fact]
+    public async Task RealOnlyHeldSymbolKeepsInputsWhenPaperIsAbsentAndComparisonPublicationIsPending()
+    {
+        var h = new Harness(independent: true);
+        h.Ledger.State = null; h.Ledger.RejectAccess = true;
+        h.Sessions.RealOnly();
+        await h.Workflow.TickAsync(); h.Clock.Now = Open.AddMinutes(7); await h.Workflow.TickAsync();
+        var input = Assert.Single(h.Evaluations.All).Input;
+        Assert.Equal("AAA", input.Stock.Symbol);
+        Assert.Null(input.DailySetup); Assert.True(input.IsSessionCarryCandidate);
+        Assert.False(input.IsHeld); // Shared market evidence never takes paper/real execution ownership.
+    }
+
+    [Fact]
     public async Task SharedCheckpointHasExactPublishedInputsAndLateConsumerNeverReadsPaperHistory()
     {
         var h = new Harness(independent: true);
@@ -617,6 +630,14 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public int FreezeCount;
         public Action? BeforeFreeze;
         public Guid AdoptedRunId;
+        public void RealOnly()
+        {
+            var assignment = new DelphiLivePolicyAssignment(Guid.NewGuid(), Policy.PolicyVersionId, DelphiLivePolicyRole.GateComparison, Date);
+            var account = new PaperComparisonAccount(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "DelphiLive", PaperGateProfile.NormalV1,
+                Open.AddDays(-1), context.Session.DailyStrategyVersionId!.Value, Policy.PolicyVersionId, null, null);
+            context = context with { Assignments = [assignment], ComparisonAccounts = new Dictionary<Guid, PaperComparisonAccount> { [Policy.PolicyVersionId] = account },
+                RealObservedSymbols = new Dictionary<Guid, string[]> { [Policy.PolicyVersionId] = ["AAA"] } };
+        }
         public void AddComparisonPair(LedgerStore ledger, DateTime? sourceEffective = null)
         {
             Guid batch = Guid.NewGuid(), pair = Guid.NewGuid();

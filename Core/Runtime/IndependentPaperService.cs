@@ -15,6 +15,7 @@ public sealed class IndependentPaperService
     private readonly DelphiLiveLedgerRepository ledger = new(workingState: true);
     private readonly EngineMarketCycleRepository cycles = new();
     private readonly DelphiLiveMonitorWorkflow workflow;
+    private readonly DelphiLiveSessionRepository sessions;
     private readonly DelphiLiveActionWorkflow actions;
     private readonly Func<DelphiLiveLease?> currentLease;
     private readonly SemaphoreSlim gate = new(1, 1);
@@ -44,7 +45,7 @@ public sealed class IndependentPaperService
         this.currentLease = currentLease;
         var code = CalibrationProvenance.ResolveCode();
         var holdings = new DelphiLiveHoldingSource(ledger, new EnginePaperObservationStore());
-        var sessions = new DelphiLiveSessionRepository(calendar, holdings, code);
+        sessions = new DelphiLiveSessionRepository(calendar, holdings, code);
         var clock = new SystemDelphiLiveClock();
         var source = new TmxDelphiLiveMarketDataSource();
         actions = new(ledger, source, clock);
@@ -66,6 +67,7 @@ public sealed class IndependentPaperService
         await ApplyControlsAsync(lease).ConfigureAwait(false);
         var frame = await cycles.ReadNextAsync("Paper", newest: true).ConfigureAwait(false);
         if (frame is null) return;
+        await sessions.ApplySharedComparisonSourcesToPaperAsync(frame.Context.Session.TradingDate).ConfigureAwait(false);
         string outcome = await cycles.HasConflictAsync(frame).ConfigureAwait(false) ? "EvidenceConflict" :
             await workflow.ConsumeSharedCheckpointAsync(frame, lease).ConfigureAwait(false);
         await cycles.CompleteAsync("Paper", frame.CycleId, outcome).ConfigureAwait(false);

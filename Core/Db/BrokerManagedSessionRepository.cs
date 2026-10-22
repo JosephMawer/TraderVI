@@ -189,6 +189,7 @@ INSERT dbo.BrokerManagedSessionRevision(BindingId,Revision,RevisionId,PreviousRe
 VALUES(@Binding,@Revision,@RevisionId,@PreviousRevisionId,@SessionId,@BaselineId,@SavedAt,@Hash,@Json);
 """, new { Binding = binding, next.Revision, next.RevisionId, next.PreviousRevisionId, next.SessionId,
                 next.Approval.Review.BaselineId, next.SavedAt, Hash = hash, Json = json }, t, cancellationToken: ct));
+            await EngineRealObservationStore.SaveIfInstalledAsync(connection, t, next, hash, ct);
             t.Commit(); Current = next;
             if (packed is not null) known = packed.Contents;
         }

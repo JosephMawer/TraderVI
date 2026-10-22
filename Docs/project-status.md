@@ -2,6 +2,16 @@
 
 ## October 21 post-open execution watch
 
+**October22 architecture delivery target missed:** implementation continues; no replacement installation
+or operational change. Real collection subscriptions now derive from hash-bound broker revision heads,
+including approved policy/admission definitions and current/pending holdings. Collection supports no
+paper champion, preserves a real policy when paper is reassigned, and isolates invalid paper membership
+under a paper hold. Shared source publication no longer updates Shadow accounts; the paper lane adopts
+it at its actual processing boundary.423 related tests pass/one native skip;16 runtime SQL batches parse.
+Isolated engine/WPF builds pass (258/260 existing compiler warnings); dependency audit not requalified.
+Explicit --prepare-real-observations is prepared only. Restart/restore trust, broker current-state
+processing, native concurrency/capacity and final acceptance remain; real-host readiness stays blocked.
+
 October22 paper current-state integration now reads qualified compact checkpoints and atomically saves
 changed archive records, current/observation state and immutable replay IDs. Full-history administrative
 writers refresh the checkpoint; initial qualification is explicit. Original capital/cash/profit and latest-exit

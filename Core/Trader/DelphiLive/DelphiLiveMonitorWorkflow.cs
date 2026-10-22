@@ -283,11 +283,13 @@ public sealed class DelphiLiveMonitorWorkflow
                     {
                         // A newly adopted comparison publication cannot annotate an earlier checkpoint.
                         // Held symbols still get protection using their original entry provenance.
-                        if (!rolePortfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol)) continue;
+                        if (!rolePortfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol) &&
+                            !(context.RealObservedSymbols.TryGetValue(policy.PolicyVersionId, out var realSymbols) && realSymbols.Contains(symbol))) continue;
                         candidate = null;
                     }
-                    bool carry = candidate is null && rolePortfolios.SelectMany(p => p.Positions).Any(p => p.Symbol == symbol &&
-                        (p.ClosedUtc is null || LocalDate(p.ClosedUtc.Value) == date));
+                    bool carry = candidate is null && (rolePortfolios.SelectMany(p => p.Positions).Any(p => p.Symbol == symbol &&
+                        (p.ClosedUtc is null || LocalDate(p.ClosedUtc.Value) == date)) ||
+                        context.RealObservedSymbols.TryGetValue(policy.PolicyVersionId, out var realCarry) && realCarry.Contains(symbol));
                     var state = prior?.Result.NextState ?? DelphiLiveEvaluationState.Initial(candidate is not null);
                     if (prior is not null && prior.ContinuityEpoch != recovery.EpochNumber)
                         state = state with
@@ -607,13 +609,17 @@ public sealed class DelphiLiveMonitorWorkflow
         IReadOnlyList<DelphiLiveStoredEvaluation> previous, IReadOnlyList<DelphiLiveObservedHolding> held,
         IReadOnlyList<DelphiLiveObservationPortfolio> portfolios, DateTime end)
     {
-        Guid champion = context.Assignments.Single(a => a.Role == DelphiLivePolicyRole.OperationalChampion).PolicyVersionId;
-        var ordered = previous.Where(p => p.Input.Policy.PolicyVersionId == champion)
-            .OrderBy(p => p.Result.RankCandidate, RankComparer).Select((value, index) => (value, index)).ToDictionary(p => p.value.Input.Stock.Symbol);
+        var priorityPolicies = context.RealObservedSymbols.Keys.Concat(context.Assignments
+            .Where(a => a.Role == DelphiLivePolicyRole.OperationalChampion).Select(a => a.PolicyVersionId)).ToHashSet();
+        var ordered = previous.Where(p => priorityPolicies.Contains(p.Input.Policy.PolicyVersionId))
+            .OrderByDescending(p => context.RealObservedSymbols.Count > 0 && p.Result.Lifecycle.PresentationActivity == DelphiLivePresentationActivity.Active)
+            .ThenBy(p => p.Result.RankCandidate, RankComparer).DistinctBy(p => p.Input.Stock.Symbol)
+            .Select((value, index) => (value, index)).ToDictionary(p => p.value.Input.Stock.Symbol);
         return context.Session.Symbols.Where(symbol => !context.ObservationMembership.TryGetValue(symbol, out var membership) ||
             (membership.RequiredFromBarEndUtc <= end && membership.RequiredThroughBarEndUtc >= end)).Select(symbol =>
         {
-            bool holding = held.Any(h => h.Symbol == symbol) || portfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol);
+            bool holding = held.Any(h => h.Symbol == symbol) || portfolios.SelectMany(p => p.OpenPositions).Any(p => p.Symbol == symbol) ||
+                context.RealObservedSymbols.Values.Any(symbols => symbols.Contains(symbol));
         bool current = context.Candidates.TryGetValue(symbol, out var daily);
         if (!current)
         {

@@ -272,6 +272,14 @@ has already been observed. Report any remaining scope and failed acceptance hone
 
 ### Current-state implementation contract in progress
 
+Real collection subscriptions are a separate current projection of the exact broker revision: approved
+strategy/admission definitions plus held and pending-order symbols. They neither grant execution nor
+replace fresh broker reconciliation. Initial qualification reads complete broker state once; later
+broker appends update the projection atomically. Market collection includes these definitions even
+when there is no paper champion or paper changes strategy. Invalid paper membership creates a paper
+hold; it cannot supply real holdings. Shared comparison publication and actual paper-account adoption
+have separate schedules/timestamps; delayed paper adoption takes the next actual processing boundary.
+
 The source implementation replaces lifetime materialization on the operational paper path with a
 bounded working view: open/current-session positions plus each symbol's latest closed position,
 current-session or pending actions, latest causal quotes needed by pending actions, current-session

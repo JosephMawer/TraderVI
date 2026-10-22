@@ -21,12 +21,13 @@ public sealed class IndependentMarketService : IDelphiLiveNotifier
     {
         var code = CalibrationProvenance.ResolveCode();
         var observations = new EnginePaperObservationStore();
+        var realObservations = new EngineRealObservationStore();
         var ledger = new DelphiLiveLedgerRepository();
-        var holdings = new DelphiLiveHoldingSource(ledger, observations);
-        var sessions = new DelphiLiveSessionRepository(calendar, holdings, code);
+        var holdings = new DelphiLiveHoldingSource(ledger, observations, realObservations);
+        var sessions = new DelphiLiveSessionRepository(calendar, holdings, code, realObservations);
         workflow = new(new SystemDelphiLiveClock(), calendar, sessions, new DelphiLiveEvaluationRepository(independentInputs: true),
             new DelphiLiveCollectionRepository(code), ledger, holdings, new TmxDelphiLiveMarketDataSource(), this,
-            hostTickCadence: TimeSpan.FromSeconds(30), observationPortfolios: observations.ReadAsync);
+            hostTickCadence: TimeSpan.FromSeconds(30), observationPortfolios: observations.ReadForCollectionAsync);
         workflow.PublishSharedCheckpointAsync = new EngineMarketCycleRepository().PublishAsync;
     }
     public DelphiLiveLease? CurrentLease => workflow.CurrentSharedLease;

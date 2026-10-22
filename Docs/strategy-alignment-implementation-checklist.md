@@ -10,6 +10,12 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Derive real collection subscriptions from broker revisions; include approved definitions/holdings
+  with absent/reassigned paper accounts, preserve real-only held-symbol evidence, and separate Shadow
+  source adoption from market publication.423 related checks pass/one native skip;16 SQL batches parse.
+  Offline qualification command prepared; installed concurrency/initial qualification remain untested.
+- [ ] Complete missed overnight delivery: restart/restore trust, broker current-state processing, final
+  offline suite and native acceptance/cutover. The installed host is unchanged and new real host blocked.
 - [x] Implement/test incremental paper archive roots and compact working-state kernel; 73 related
   checks pass, including exact full-history reconstruction and long-history bounded updates.
 - [x] Wire qualified working checkpoints, stable record/fill/evaluation-ID checks and version-3 roots

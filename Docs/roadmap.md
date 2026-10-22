@@ -37,6 +37,10 @@ the qualified diagnostic reader and current-state/history/audit integration befo
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
 removing the new host's readiness block. No replacement is installed.
 Preserve the tested invalidation of cached real confirmations when earlier shared evidence conflicts.
+The overnight target was missed; continue source completion and report acceptance gaps explicitly.
+Real input subscriptions now come from broker state and survive absent/reassigned paper accounts;
+paper source adoption is separate from publication. Finish restart/restore trust and broker current-state
+work, then full offline acceptance and a concrete separately authorized cutover.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

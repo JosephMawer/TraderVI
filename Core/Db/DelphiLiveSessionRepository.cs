@@ -1,5 +1,6 @@
 #nullable enable
 using Core.Calibration;
+using Core.Trader;
 using Core.Trader.DelphiLive;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -22,13 +23,15 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
     private readonly ReviewedTsxSessionCalendar calendar;
     private readonly IDelphiLiveHoldingSource holdings;
     private readonly CodeProvenance code;
+    private readonly EngineRealObservationStore? realObservations;
 
     public DelphiLiveSessionRepository(ReviewedTsxSessionCalendar calendar,
-        IDelphiLiveHoldingSource holdings, CodeProvenance code)
+        IDelphiLiveHoldingSource holdings, CodeProvenance code, EngineRealObservationStore? realObservations = null)
     {
         this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
         this.holdings = holdings ?? throw new ArgumentNullException(nameof(holdings));
         this.code = code ?? throw new ArgumentNullException(nameof(code));
+        this.realObservations = realObservations;
         if (string.IsNullOrWhiteSpace(code.Commit) || code.Commit.Length is < 7 or > 128 ||
             code.WorkingTreeState is not ("Clean" or "Dirty" or "Unknown"))
             throw new ArgumentException("Session freezing requires explicit code provenance.", nameof(code));
@@ -52,7 +55,9 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
     public async Task<IReadOnlyList<DelphiLivePolicyAssignment>> GetAssignmentsForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default)
     {
         await using var connection = new SqlConnection(ConnectionString);
-        return await ReadAssignmentsAsync(connection, tradingDate, null, cancellationToken);
+        var paper = await ReadAssignmentsAsync(connection, tradingDate, null, cancellationToken);
+        return realObservations is null ? paper : Core.Runtime.EngineRealObservation.IncludeAssignments(
+            paper, await realObservations.ReadAsync(cancellationToken), tradingDate);
     }
 
     public async Task<DelphiLivePolicyDefinition> GetPolicyAsync(Guid policyId, CancellationToken cancellationToken = default)
@@ -78,8 +83,10 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
         DelphiLiveFrozenSession? existing = await ReadFrozenAsync(connection, request.TradingDate, transaction, cancellationToken);
         if (existing is not null) { await transaction.CommitAsync(cancellationToken); return existing; }
         var assignments = await ReadAssignmentsAsync(connection, request.TradingDate, transaction, cancellationToken);
-        if (assignments.Count(a => a.Role == DelphiLivePolicyRole.OperationalChampion) != 1 || assignments.Count > 3 ||
-            !assignments.Select(a => a.AssignmentId).Order().SequenceEqual(request.Assignments.Select(a => a.AssignmentId).Order()))
+        if ((assignments.Count > 0 || realObservations is null) && assignments.Count(a => a.Role == DelphiLivePolicyRole.OperationalChampion) != 1 || assignments.Count > 3 ||
+            (realObservations is null
+                ? !assignments.Select(a => a.AssignmentId).Order().SequenceEqual(request.Assignments.Select(a => a.AssignmentId).Order())
+                : assignments.Any(a => !request.Assignments.Any(r => r.AssignmentId == a.AssignmentId && r.PolicyVersionId == a.PolicyVersionId))))
             throw new InvalidOperationException("Frozen policy assignments require one champion and at most two explicitly assigned Shadow policies.");
         foreach (var assignment in assignments) await ReadPolicyAsync(connection, assignment.PolicyVersionId, transaction, cancellationToken);
         Guid sessionId = Guid.NewGuid();
@@ -226,7 +233,16 @@ public sealed partial class DelphiLiveSessionRepository : SQLBase,
             Baselines = frozen.Baselines.Concat(revision.Baselines).GroupBy(p => p.Key, StringComparer.Ordinal)
                 .ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
         };
-        return await WithComparisonsAsync(connection, operational, date, cancellationToken);
+        operational = await WithComparisonsAsync(connection, operational, date, cancellationToken);
+        if (realObservations is null) return operational;
+        var real = await realObservations.ReadAsync(cancellationToken);
+        var realSources = new Dictionary<Guid, PaperComparisonSource>();
+        foreach (var batch in real.Where(r => r.Strategy.Comparison is not null).Select(r => r.Strategy.Comparison!.BatchId).Distinct())
+        {
+            var source = await PaperComparisonRepository.ReadSourceAsync(connection, null, batch, Date(date), cancellationToken);
+            if (source is not null) realSources.Add(batch, source);
+        }
+        return Core.Runtime.EngineRealObservation.IncludeDefinitions(operational, real, realSources);
     }
 
     private static async Task<DelphiLiveFrozenSession?> ReadFrozenAsync(SqlConnection connection, DateOnly date, SqlTransaction? transaction, CancellationToken ct)

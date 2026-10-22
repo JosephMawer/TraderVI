@@ -17,6 +17,7 @@ public sealed record DelphiLiveSessionContext(
     public DelphiLiveDailySourceRevision? SourceRevision { get; init; }
     public IReadOnlyDictionary<Guid, PaperComparisonAccount> ComparisonAccounts { get; init; } = new Dictionary<Guid, PaperComparisonAccount>();
     public IReadOnlyDictionary<Guid, PaperComparisonSource> ComparisonSources { get; init; } = new Dictionary<Guid, PaperComparisonSource>();
+    public IReadOnlyDictionary<Guid, string[]> RealObservedSymbols { get; init; } = new Dictionary<Guid, string[]>();
 
     public DelphiLiveSessionContext ForPolicy(Guid policy)
     {

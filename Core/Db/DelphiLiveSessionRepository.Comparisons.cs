@@ -18,6 +18,34 @@ namespace Core.Db;
 
 public sealed partial class DelphiLiveSessionRepository
 {
+    public async Task ApplySharedComparisonSourcesToPaperAsync(DateOnly date, CancellationToken ct = default)
+    {
+        DateTime now = DateTime.UtcNow;
+        if (date != DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now)) || !calendar.IsRegularSession(date)) return;
+        var bounds = calendar.GetSessionBounds(date);
+        if (now < bounds.OpenUtc || now >= bounds.CloseUtc) return;
+        await using var c = new SqlConnection(ConnectionString); await c.OpenAsync(ct);
+        if (!await PaperComparisonRepository.InstalledAsync(c)) return;
+        var accounts = await PaperComparisonRepository.ReadAccountsAsync(c, null, ct);
+        if (accounts.GroupBy(a => a.BatchId).Any(g => g.Count() != 10))
+            throw new InvalidOperationException("Comparison batch is incomplete; paper adoption is unavailable.");
+        foreach (var batch in accounts.Select(a => a.BatchId).Distinct())
+        {
+            using var t = c.BeginTransaction(IsolationLevel.Serializable);
+            var source = await PaperComparisonRepository.ReadSourceAsync(c, t, batch, Date(date), ct);
+            if (source is not null)
+            {
+                DateTime effective = PaperDailySourcePolicy.EffectiveBoundary(now);
+                await c.ExecuteAsync(new CommandDefinition(AdoptShadowComparisonSql, PaperSourceSqlParameters.Create(new
+                {
+                    Batch = batch, Run = source.RunId, Date = Date(date), Now = now,
+                    Effective = effective, Published = source.PublishedUtc, Revision = source.RevisionId
+                }, ("Now", now), ("Effective", effective), ("Published", source.PublishedUtc)), t, cancellationToken: ct));
+            }
+            t.Commit();
+        }
+    }
+
     public async Task RefreshDailySourceAsync(DateOnly date, DelphiLiveLease lease, CancellationToken cancellationToken = default)
     {
         await RefreshOfficialDailySourceAsync(date, lease, cancellationToken);
@@ -42,14 +70,28 @@ SELECT SessionId,SessionOpenUtc,SessionCloseUtc,ExpectedPriorCanonicalSessionDat
         DateTime now = Utc(await c.ExecuteScalarAsync<DateTime>(new CommandDefinition("SELECT SYSUTCDATETIME();", transaction: t, cancellationToken: ct)));
         DateTime open = Utc((DateTime)session.SessionOpenUtc), close = Utc((DateTime)session.SessionCloseUtc);
         if (now < open || now >= close) { await t.CommitAsync(ct); return; }
-        var accounts = await PaperComparisonRepository.ReadAccountsAsync(c, t, ct);
+        var accounts = (await PaperComparisonRepository.ReadAccountsAsync(c, t, ct)).ToList();
+        var realBatches = new HashSet<Guid>();
+        if (realObservations is not null)
+            foreach (var real in await realObservations.ReadAsync(ct))
+                if (real.Strategy.Comparison is { } approved)
+                {
+                    realBatches.Add(approved.BatchId);
+                    if (accounts.All(a => a.AccountId != approved.AccountId)) accounts.Add(approved);
+                }
         var run = await c.QuerySingleOrDefaultAsync(new CommandDefinition(CalibrationEvidenceRepository.LatestOperationalRunSql,
             PaperSourceSqlParameters.Create(new { Date = Date(date), Prior = (DateTime)session.ExpectedPriorCanonicalSessionDate, Now = now }, ("Now", now)), t, cancellationToken: ct));
         if (run is null) { await t.CommitAsync(ct); return; }
         Guid runId = run.RunId, daily = run.StrategyVersionId, sessionId = session.SessionId;
         foreach (var batch in accounts.GroupBy(a => a.BatchId))
         {
-            if (batch.Count() != 10) throw new InvalidOperationException("Comparison batch is incomplete.");
+            if (realObservations is null && batch.Count() != 10) throw new InvalidOperationException("Comparison batch is incomplete.");
+            if (batch.Count() != 10)
+            {
+                await new EngineIntegrityRepository().RaiseAsync(EngineIntegrityScope.Paper, null,
+                    "ComparisonBatch/" + batch.Key.ToString("D"), "PaperComparisonIncomplete", true, ct);
+                if (!realBatches.Contains(batch.Key)) continue;
+            }
             var first = batch.First();
             if (first.DailyStrategyVersionId != daily || first.EffectiveUtc > close || now < first.EffectiveUtc) continue;
             var prior = await PaperComparisonRepository.ReadSourceAsync(c, t, batch.Key, Date(date), ct);
@@ -102,7 +144,7 @@ FROM OPENJSON(@Symbols) WITH(Symbol NVARCHAR(20) '$') s WHERE NOT EXISTS
                 Published = source.PublishedUtc, Now = now, Effective = effective, Json = json, Hash = SHA256.HashData(Encoding.UTF8.GetBytes(json)),
                 Close = close, Symbols = DelphiLiveLedgerJson.Serialize(candidates.Select(x => x.Symbol)) }, ("Published", source.PublishedUtc),
                 ("Now", now), ("Effective", effective), ("Close", close)), t, cancellationToken: ct));
-            await c.ExecuteAsync(new CommandDefinition(AdoptShadowComparisonSql, PaperSourceSqlParameters.Create(new
+            if (realObservations is null) await c.ExecuteAsync(new CommandDefinition(AdoptShadowComparisonSql, PaperSourceSqlParameters.Create(new
             {
                 Batch = batch.Key, Run = runId, Date = Date(date), Now = now, Effective = effective, Published = source.PublishedUtc, Revision = source.RevisionId
             }, ("Now", now), ("Effective", effective), ("Published", source.PublishedUtc)), t, cancellationToken: ct));

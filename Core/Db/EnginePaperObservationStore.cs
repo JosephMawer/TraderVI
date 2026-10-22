@@ -14,6 +14,17 @@ namespace Core.Db;
 /// <summary>Small current membership checked against the exact current portfolio revision, never an archive scan.</summary>
 public sealed class EnginePaperObservationStore : SQLBase
 {
+    public async Task<IReadOnlyList<DelphiLiveObservationPortfolio>> ReadForCollectionAsync(DateOnly date, CancellationToken ct = default)
+    {
+        try { return await ReadAsync(date, ct); }
+        catch (Exception error) when (error is InvalidDataException or System.Text.Json.JsonException)
+        {
+            // This reader's validation covers only paper membership, never the shared or real input store.
+            await new EngineIntegrityRepository().RaiseAsync(Core.Runtime.EngineIntegrityScope.Paper, null,
+                "PaperObservation", "PaperObservationInvalid", true, ct);
+            return Array.Empty<DelphiLiveObservationPortfolio>();
+        }
+    }
     internal static async Task SaveIfInstalledAsync(SqlConnection c, SqlTransaction t,
         DelphiLiveSnapshotPackage package, CancellationToken ct, DelphiLiveObservationPortfolio? prepared = null)
     {

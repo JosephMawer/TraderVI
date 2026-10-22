@@ -14,6 +14,9 @@ the latter locks collection/storage maintenance, fully verifies all saved portfo
 archive paths and immutable replay IDs, and saves hash-bound working checkpoints. It does not rewrite
 old snapshots, alter capital, clear integrity holds or authorize trading. Do not run either command until
 the reviewed migration/cutover operation is authorized. Builds and unit tests do not launch the host.
+`--prepare-real-observations` separately derives collection subscriptions from fully decoded broker
+revision heads under each binding's exclusive lease. It saves only the current projection, not a new
+approval or order. Run only as part of authorized stopped-engine maintenance; no command has run.
 
 ## Read-only local database diagnostics
 

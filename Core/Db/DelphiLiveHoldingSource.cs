@@ -15,11 +15,15 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
 {
     private readonly IDelphiLiveLedgerStore ledger;
     private readonly EnginePaperObservationStore? observations;
-    public DelphiLiveHoldingSource(IDelphiLiveLedgerStore ledger, EnginePaperObservationStore? observations = null)
-    { this.ledger = ledger; this.observations = observations; }
+    private readonly EngineRealObservationStore? realObservations;
+    public DelphiLiveHoldingSource(IDelphiLiveLedgerStore ledger, EnginePaperObservationStore? observations = null,
+        EngineRealObservationStore? realObservations = null)
+    { this.ledger = ledger; this.observations = observations; this.realObservations = realObservations; }
     public async Task<IReadOnlyList<DelphiLiveObservedHolding>> GetObservedHoldingsAsync(CancellationToken cancellationToken = default)
     {
         var result = new List<DelphiLiveObservedHolding>();
+        if (realObservations is not null)
+            result.AddRange((await realObservations.ReadAsync(cancellationToken)).SelectMany(r => r.Holdings));
         foreach (var position in await new ActivePositionRepository().GetActivePositions())
             if (TrackedPositionScope.Includes(position))
                 result.Add(new(position.Symbol, position.ExecutionMode.ToString(), position.PositionId, false));
@@ -30,7 +34,8 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
         DateOnly date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ReviewedTsxSessionCalendar.Toronto));
         var portfolios = observations is null
             ? (await ledger.GetPortfoliosForSessionAsync(date, cancellationToken)).Select(p => DelphiLiveObservationPortfolio.From(p)).ToArray()
-            : await observations.ReadAsync(date, cancellationToken);
+            : realObservations is null ? await observations.ReadAsync(date, cancellationToken)
+                : await observations.ReadForCollectionAsync(date, cancellationToken);
         foreach (var portfolio in portfolios)
             foreach (var position in portfolio.OpenPositions)
                 result.Add(new(position.Symbol, "DelphiLiveShadow", position.PositionId, true));

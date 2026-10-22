@@ -1,5 +1,11 @@
 # TraderVI session-work register
 
+**October22 follow-through:** the overnight delivery target was missed. Real subscription projection
+and approved-definition overlay now remove the paper-champion requirement; paper membership failures
+are scoped to paper and Shadow source adoption runs on the paper lane.423 related tests/one native
+skip and16 SQL parse checks pass. Continue restart/restore, broker current state and whole-path
+acceptance. Source only; no installation or new execution authority.
+
 **October22 current-state integration:** compact paper windows and incremental archive roots are wired
 to atomic SQL/checkpoint/replay-identity updates (83 related checks, SSDT/engine/WPF build, 32 SQL parses).
 Original history reconstructs across day rollover; append-only fills/quotes/marks add no tree records.
