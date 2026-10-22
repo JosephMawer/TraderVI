@@ -15,14 +15,16 @@ checkpoint preparation and native verification while keeping real trading disabl
 Complete native single-owner/close/reconnect, SQL concurrency/recovery, latency and weekly
 audit-capacity acceptance. Preserve exact permission, freshness and original financial history. Measure residual full
 broker-append and historical-audit cost; extend those paths if acceptance fails. Migrations/checkpoints
-are installed; standard Release fc5f6e45 runs in broker-disabled verification mode and resumed its
-saved recovery cursor. Nightly scheduling is restored. Finish the initial recovery audit, review its
-results/holds, and qualify remaining concurrency, latency and archive capacity. No disk
+are installed; corrected standard Release0082a88a runs in broker-disabled verification mode.
+Real recovery is complete independently of the running Paper audit. Nightly scheduling is restored.
+Review the real result/holds without waiting for paper; complete paper coverage and qualify remaining
+concurrency, latency and archive capacity. No disk
 reclamation is claimed. The October22 cost review confirms repeated full-state audit reconstruction
 and a global recovery dependency that also pauses collection/paper work. The operator authorizes the
 fix: ADR-0104 sequential reads/decodes and separate real recovery are installed. Native verification
-exposed legacy timestamp/hash representation failures; install the tested exact-representation correction.
-Prioritize installed qualification and independent real recovery completion; preserve paper restrictions
+exposed legacy timestamp/hash representation failures; the exact-representation correction is installed
+and real recovery passes. Prioritize reviewed real-only hold resolution and current broker/source/dated
+authorization checks before live operation; preserve paper restrictions
 and keep real trading disabled until results review. No hold bypass is accepted. Build/evidence
 retention is separate before cleanup.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);

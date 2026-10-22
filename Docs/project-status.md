@@ -2,19 +2,22 @@
 
 ## Independent engine — October 22 installed verification
 
-**Current installed state:** standard Release fc5f6e45 runs in broker-disabled verification mode
-(native process/mode proof14:52Toronto). ADR-0104 sequential paper content reuse and independent
-Real/Paper recovery are installed. The original full recovery resumed but failed at paper revision6,044;
-separate Real recovery failed at broker revision50. Eight unresolved incidents remain; every prepared
-checkpoint hash verifies. No hold has been cleared and no execution enabled.
+**Real recovery complete; paper proceeds independently.** Standard Release0082a88a is installed;
+PID57400and native status prove verification-only mode. Real recovery verifies all260broker revisions
+and its exact current subscription in39.78seconds, completing15:32:46Toronto. At15:38, separate Paper
+recovery has8,657/205,058planned units verified, including the first portfolio's complete history and
+working checkpoint. All receipt/checkpoint hashes pass; ten incidents remain (including the two new
+request holds), with no new failure after this correction. No holds are cleared or trading enabled.
 
-**Correction ready for native retry:** exact saved boundaries identify legacy SQL timestamp rounding
+**Installed correction:** exact saved boundaries identify legacy SQL timestamp rounding
 and process-dependent dictionary serialization. Audit-only representation reconstruction preserves all
 values and requires each original hash plus unchanged financial/authority rules.395focused tests and
 all three original broker approval transitions plus the paper settings transition pass offline; isolated
 WPF Release succeeds with260existing compiler warnings/zero errors. Full Core3,032pass/nine native
-skips with concurrency disabled. Corrected native qualification remains pending; failed receipts stay
-immutable and a retry creates a new explicit pass.
+skips with concurrency disabled. Original failed receipts remain immutable; corrected scoped passes
+are separate. Dashboard15432is open, with its window/process observed; accessibility text is unavailable.
+Engine Status returns in198–347ms during the paper audit. This is control responsiveness, not complete
+UI, market latency or trading qualification.
 [Owning evidence and limits](reviews/independent-engine-implementation-20261022.md).
 
 Backup/copy/synchronization, individually reviewed migrations047–051 and prepared paper/real checkpoints
@@ -23,10 +26,10 @@ dashboard-close survival, graceful stop and saved-cursor resume pass; nightly's 
 was restored13:21Toronto without launching it. Earlier full Core3,028pass/nine native skips and49SQL
 batches parse. No complete-solution or dependency-security requalification follows from this correction.
 
-Real trading stays disabled until operator results review. Complete recovery/explicit hold resolution,
+Real trading stays disabled until operator results review. Complete paper recovery/explicit hold resolution,
 sustained input latency, concurrency, interruption/restore and weekly capacity remain open. The overnight
 target was missed. The old reader's11–18-hour paper-only extrapolation does not estimate the corrected
-reader. Current throughput and disk savings remain unmeasured; no historical conversion/deletion or
+reader. Full-run throughput and disk savings remain unmeasured; no historical conversion/deletion or
 cleanup occurred. Dashboard viewing is available; verification mode is not normal trading availability.
 
 ## October 21 post-open execution watch

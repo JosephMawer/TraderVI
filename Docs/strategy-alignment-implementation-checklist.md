@@ -33,8 +33,10 @@ The overnight target was missed. Completed source work is separate from installe
   Native checks expose legacy timestamp/hash representation defects; preserve failed receipts/holds.
 - [x] Implement/test audit-only exact historical representation recovery;395focused tests and all
   three saved broker approval boundaries plus paper settings transition pass offline.
-- [ ] Install the representation correction and qualify scoped recovery, bounded memory/throughput and
-  native real-only hold resolution; retain disabled trading until operator results review.
+- [x] Install representation correction0082a88a and complete native Real recovery260/260independently
+  of paper; all current receipt/checkpoint hashes pass. Full Core3,032pass/nine native skips.
+- [ ] Qualify bounded sustained memory/throughput and native real-only hold resolution; retain disabled
+  trading until operator results review. Current broker/source/dated authority checks remain required.
 - [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
   scoped access and exact current subscription checks; retain existing account/build/dated authority.
 - [x] Validate offline:3,003Core pass/nine native skips with concurrency disabled; engine/WPF/SSDT
@@ -55,12 +57,13 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Correct shared-runtime packaging, install matching standard Release a94c474a and verify native
   startup in broker-disabled mode plus persisted audit resume. Restore the original nightly enabled
   state without launching it. Record private runtime hashes and process/mode evidence.
-- [ ] Complete initial recovery coverage, review and explicitly resolve its holds, and finish remaining
+- [ ] Complete remaining Paper recovery coverage, review and explicitly resolve relevant holds, and finish remaining
   native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
-- [ ] Measure the installed ADR-0104 improvement and prove the native recovery dependency boundary.
-  Source efficiency/scope checks pass; legacy representation correction awaits native retry.
-  Dashboard availability alone is not trading readiness.
+- [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
+  in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
+- [ ] Complete realistic whole-run/weekly capacity and live collection independence acceptance.
+  Partial paper progress and dashboard availability are not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

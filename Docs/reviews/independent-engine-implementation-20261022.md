@@ -1,6 +1,6 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release fc5f6e45 installed in verification mode; two recovery runs failed on legacy representations; correction tested, native retry pending**.
+Status: **standard Release0082a88a installed in verification mode; Real recovery complete260/260, separate Paper recovery running; trading disabled**.
 The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
 recovery coverage, remaining native acceptance and operator review have not been completed.
 
@@ -63,6 +63,39 @@ Evidence: ignored `artifacts/independent-engine/native/historical-*` and
 `offline-audit-diagnosis.json`; private read-helper receipt hashes are checked before use.
 Failed receipts remain immutable; corrected explicit recovery must create a new pass, so the already
 checked portion will be checked again once. This is not a silent reset or incomplete-coverage pass.
+
+### Corrected native recovery — October22,15:38Toronto
+
+Correction0082a88a installed after normal stop/zero-owner proof. The normal Release build succeeds
+with260existing compiler warnings/zero errors; Core source identity and runtime hashes are recorded.
+PID57400 starts15:30in`--verify`; native mode/path/instance proof and three later Status samples agree.
+Real run`4407bcbb-bb73-4d2b-b970-110c1f6b6f5e` completes260/260at15:32:46.810Toronto,39.78seconds
+after its fixed boundary. This covers original broker revisions0–259, exact current real subscription,
+database identity/guards and the plan's shared families (both empty at this boundary). It does not
+qualify fresh market data, current broker authentication/reconciliation or dated execution permission.
+
+Separate Paper run`2581cceb-d128-4170-a97e-3b42625f440d` has205,058planned units:37,790paper revisions
+and167,268legacy input records. At15:38:44it has8,657verified units, including all6,937revisions and the
+working checkpoint of its first portfolio, then1,720revisions of the second. The earlier6,044failure
+boundary passes. The15:33/15:36/15:38hash-verified reads show4,115/6,139/8,657units. Later records differ
+in size; these samples establish progress, not a whole-run ETA or weekly capacity.
+
+All saved audit receipt hashes and eight prepared checkpoint hashes pass. Ten unresolved incidents
+are retained: the prior eight plus the two explicit new recovery-request holds; no new failure after
+the correction. No hold resolution, grant renewal, financial approval, broker access or order occurs.
+Real proof remains complete while paper proceeds. The original failed receipts/cursors remain intact.
+
+Dashboard15432is opened against the existing engine; Computer Use returns its TraderVI window and
+the process responds. Accessibility text is unavailable, so tab/reconnect usability is not claimed.
+Three installed Status controls during paper work return in347/216/198ms including process startup.
+The engine working-set samples are about583–585MiB; this is process memory, not the384MiBcontent-cache
+allowance or a sustained capacity bound. Private evidence: `historical-{installed-manifest,output-hashes,
+engine-launch,mode-proof,dashboard-launch,control-latency}.json` and fixed-helper receipts.
+
+Real trading remains disabled pending Joseph's review. Verified real-only hold resolution and fresh
+broker/source/dated authorization checks are still required before live operation; no need to wait for
+paper coverage merely to review this real result. Read-only supervision now follows the remaining
+Paper run, retains the already reported Real completion, and reports new failures/progress/completion.
 
 ## Authorized native preparation — October 22
 
