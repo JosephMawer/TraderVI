@@ -7,7 +7,8 @@ Full Core3,003pass/nine native skips; engine/WPF/SSDT and SQL parsing pass. The 
 missed; installed normal build remainsc4d094fd. Operator explicitly authorizes backup, migrations047–051,
 checkpoint preparation and native verification, with real trading disabled until results review.
 Backup/copy/sync, migrations and initial checkpoint preparation complete; native cutover remains
-unaccepted after audit timestamp and dashboard command-error defects. Fixes are underway. Nightly is
+unaccepted; corrected recovery advances after audit/dashboard fixes. Standard Release packaging is
+corrected and awaits native resume. Full Core3,016pass/nine skips. Nightly is
 temporarily disabled with saved original state. Broker changed-appends/full historical audits retain documented
 cost; no cleanup or installed disk saving. [Owning implementation/cutover record](reviews/independent-engine-implementation-20261022.md).
 

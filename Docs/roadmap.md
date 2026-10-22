@@ -15,8 +15,8 @@ checkpoint preparation and native verification while keeping real trading disabl
 Complete native single-owner/close/reconnect, SQL concurrency/recovery, latency and weekly
 audit-capacity acceptance. Preserve exact permission, freshness and original financial history. Measure residual full
 broker-append and historical-audit cost; extend those paths if acceptance fails. Migrations/checkpoints
-are installed; native audit timestamp and dashboard error handling defects need corrected qualification.
-The normal application output remains old; isolated verification keeps real trading disabled. No disk
+are installed; corrected recovery is advancing after native audit/dashboard fixes. Qualify the standard
+Release engine after its shared-runtime packaging correction and restore nightly scheduling. No disk
 reclamation is claimed. Build/evidence retention is separate before cleanup.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
 [accepted architecture](adr/0103-real-execution-independent-of-paper-research.md).

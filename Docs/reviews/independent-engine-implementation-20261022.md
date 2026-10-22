@@ -65,6 +65,22 @@ accessibility was unavailable despite one activation retry, so its full visual/i
 is not claimed. Engine stop/drain again reports Stopped13:08:38. Native evidence remains private under
 the same directory; the next step is corrected recovery verification and throughput measurement.
 
+The corrected recovery starts17:10UTC and verifies1,354original revisions by17:14. Its new timestamp
+projection matches the exact plan (zero difference); both receipt hashes verify. All original paper
+roots/revisions and paper/broker/legacy-input counts still match preflight. Three PaperWorking rows
+contain92,220bytes of JSON; three paper projections and one real projection also verify. This is current
+checkpoint payload size, not total database storage or measured savings.21,959immutable record identities
+are prepared. Full Core **3,016pass/nine skips**, concurrency disabled; standard Release build passes
+with260existing compiler warnings. Dependency-security audit remains unqualified.
+
+The switch from isolated verification output to standard Release exposed missing engine dependencies:
+the dashboard relies on the installed Windows desktop shared runtime, but the headless engine had
+declared only the base runtime. Normal verification startup therefore failed after the old owner
+stopped cleanly13:15:47. No order or financial record was changed. The engine now explicitly declares
+the same installed shared runtime, avoiding another copied library set. Restore/build succeeds with
+zero incremental warnings/errors; the engine runtime configuration now lists both required shared
+frameworks. Installed native resume and nightly restoration remain pending the corrected launch.
+
 ## What changed
 
 The dashboard connects to a separate Windows engine through asynchronous, current-user-only local

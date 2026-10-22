@@ -20,10 +20,12 @@ SHA256-matched second copy completed11:32Toronto; Windows confirmed OneDrive syn
 Migrations047–051 are installed; nine tables/fifteen guards and original roots/history counts verify.
 Paper/real checkpoints prepared successfully; verification engine runs with real trading disabled.
 Native tests rejected a second owner and exposed an audit timestamp-binding defect plus an unhandled
-dashboard connection-command failure. Holds remain; fixes and repeated native acceptance are underway.
-Verification controls pass21focused tests; full matching engine/WPF build has260 existing compiler
-warnings/zero errors. Last installed normal build remains October21 `c4d094fd`; only isolated native
-outputs have run. The overnight target was missed. Next: complete protected
+dashboard connection-command failure; corrected verification advances through1,354original revisions.
+Original financial roots/counts and checkpoint hashes still verify. Full Core3,016pass/nine skips;
+standard Release builds with260existing compiler warnings/zero errors. Its native launch exposed a
+missing shared-runtime declaration, now corrected and built; installed resume remains pending.
+The old verification owner drained cleanly; nightly is still temporarily disabled. The overnight
+target was missed. Next: complete protected
 native qualification of ownership/reconnect, SQL concurrency, restore/holds, latency and audit coverage.
 Broker changed appends still serialize full logical state under the 8MiB
 cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.

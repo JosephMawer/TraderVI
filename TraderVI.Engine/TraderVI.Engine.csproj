@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <!-- The colocated dashboard omits assemblies supplied by this installed shared runtime.
+         The headless engine must declare the same runtime to resolve its SQL/DPAPI dependencies. -->
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
     <ProjectReference Include="..\Core\Core.csproj" />
     <Compile Include="..\TraderVI.WPF\Services\WindowsWealthsimpleSessionStore.cs" Link="Windows\WindowsWealthsimpleSessionStore.cs" />
     <Compile Include="..\TraderVI.WPF\Services\WindowsManualBuyProtector.cs" Link="Windows\WindowsManualBuyProtector.cs" />
