@@ -137,9 +137,13 @@ SELECT COUNT(*) FROM dbo.DelphiLiveLedgerEvent WHERE PortfolioId=@Owner AND Revi
         }
         else DelphiLiveLedgerIntegrity.ValidateTransition(previous.State, next.State);
     }
-    private static void RequireSame(DelphiLivePortfolioSnapshot expected, DelphiLivePortfolioSnapshot actual)
+    internal static void RequireSame(DelphiLivePortfolioSnapshot expected, DelphiLivePortfolioSnapshot actual)
     {
-        if (DelphiLiveSnapshotCodec.Pack(expected).FullHash != DelphiLiveSnapshotCodec.Pack(actual).FullHash)
+        // Stored archive bytes have already passed their original hash check. Compare the authorized
+        // typed state by value: SQL authorization JSON may preserve decimal scale (1000.000000)
+        // while the original snapshot used 1000. Neither representation changes the financial value.
+        if (!JsonElement.DeepEquals(JsonSerializer.SerializeToElement(expected, DelphiLiveLedgerJson.Options),
+            JsonSerializer.SerializeToElement(actual, DelphiLiveLedgerJson.Options)))
             throw new InvalidDataException("Historical portfolio differs from its authorized transition.");
     }
     private sealed record PaperRow(Guid PortfolioId, long Revision, string SnapshotJson, Guid? SettingsAssignmentId);

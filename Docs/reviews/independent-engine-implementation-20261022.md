@@ -51,6 +51,20 @@ a command identity; corrected provider-binding test passes. WPF build passes wit
 warnings. Native stop/drain returned Stopped12:55:48 before rebuild. Repeat native qualification is
 pending; real execution remains disabled, and nightly remains temporarily disabled for maintenance.
 
+Corrected engine3280d802 starts13:01:33. Native integrity status now reads the original audit receipt;
+the initial audit correctly retains Failed/zero verified units when its first paper-state comparison
+rejects decimal formatting. Hash-verified original revision/authorization inspection confirms scale0
+versus scale6 for equal initial capital. Typed-state comparison now uses exact JSON numeric equality
+after the original archive hash verification.19focused checks pass, including rejection of one-millionth
+value changes even above double-precision range, and one-tick timestamp changes. No historical byte,
+capital, receipt or incident is changed. A new explicit recovery run remains required.
+
+Native dashboard controls expose Running/VerificationOnly/Automatic trading off. Normal dashboard
+closure leaves the same engine instance alive; reopening preserves that instance. Reopened-window
+accessibility was unavailable despite one activation retry, so its full visual/interactive acceptance
+is not claimed. Engine stop/drain again reports Stopped13:08:38. Native evidence remains private under
+the same directory; the next step is corrected recovery verification and throughput measurement.
+
 ## What changed
 
 The dashboard connects to a separate Windows engine through asynchronous, current-user-only local

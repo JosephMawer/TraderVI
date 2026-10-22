@@ -16,6 +16,20 @@ public sealed class EngineIntegrityTests
         [new(EngineAuditFamily.SharedInputs, null, 1, 2)]);
     private static EngineIntegrityIncident Incident() => new(Guid.NewGuid(), EngineIntegrityScope.Global, null, "SharedInputs/1", "ChecksumFailed", Now.AddHours(-1), true);
     [Fact]
+    public void AuthorizedInitialStateComparesExactValuesWithoutRewritingOriginalDecimalScale()
+    {
+        var request = new DelphiLiveGenerationRequest(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            "OperationalChampion", null, 1000m, "CAD", new DateOnly(2026, 10, 22), Now.AddHours(10), Now, "test", "authorized");
+        var original = DelphiLiveLedgerIntegrity.Create(request);
+        var authorized = DelphiLiveLedgerIntegrity.Create(request with { StartingCapital = 1000.000000m });
+        Assert.NotEqual(DelphiLiveSnapshotCodec.Pack(original).FullHash, DelphiLiveSnapshotCodec.Pack(authorized).FullHash);
+        EngineHistoryVerifier.RequireSame(authorized, original);
+        Assert.Throws<System.IO.InvalidDataException>(() => EngineHistoryVerifier.RequireSame(authorized, original with { Cash = original.Cash + 0.000001m }));
+        Assert.Throws<System.IO.InvalidDataException>(() => EngineHistoryVerifier.RequireSame(authorized, original with { UpdatedUtc = original.UpdatedUtc.AddTicks(1) }));
+        const decimal large = 10000000000000000.000001m;
+        Assert.Throws<System.IO.InvalidDataException>(() => EngineHistoryVerifier.RequireSame(original with { Cash = large }, original with { Cash = large + 0.000001m }));
+    }
+    [Fact]
     public void LegacySqlDatetimeProjectionPreservesExactHashedPlanAndRejectsOtherDrift()
     {
         var exact = DateTime.Parse("2026-10-22T16:42:47.6362441Z", null, System.Globalization.DateTimeStyles.RoundtripKind);
