@@ -21,10 +21,12 @@ The September 22 documentation cleanup preserves the
   responses under ADR-0103. No audit job is implemented or installed.
 - [x] Accept continued engine operation after dashboard closure and a separate stop control.
 - [x] Accept staged delivery with the requested tonight target; feasibility is unverified, not a completion promise.
+- [x] Begin explicitly requested implementation: broker connection/account interface extracted into Core;
+  independent schedules/ownership/draining stop tested.237 focused checks and isolated WPF build pass.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
-  Latest user asks what this first step would be; runtime work has not started.
+  Host/client and direct-input integration remain unfinished; the installed application is unchanged.
 - [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
   resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.

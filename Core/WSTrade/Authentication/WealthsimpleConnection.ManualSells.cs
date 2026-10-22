@@ -4,7 +4,7 @@ using Core.WSTrade.Orders;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TraderVI.WPF.Viewmodels;
+namespace Core.WSTrade.Authentication;
 
 public sealed partial class WealthsimpleConnection : IManualSellBroker
 {

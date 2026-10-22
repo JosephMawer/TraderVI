@@ -24,8 +24,11 @@ feasibility is unverified. Independence, verification separation and audit polic
 ADR-0103. The [draft](concepts/independent-real-processing-design.md) proposes the first increment:
 extract UI-owned broker/execution lifetime and direct shared inputs, then verify client-close/stalled-paper
 independence and one order owner. History/storage increments follow; retention is separate before cleanup.
-Latest request asks what the first implementation step would be; no replacement or operational action
-has started. Original measurements remain in the [investigation](reviews/paper-workload-architecture-20261021.md).
+Latest request explicitly authorizes implementation through history/storage tonight. First source
+checkpoint extracts broker-session code into Core and tests process-owned schedules/ownership/draining
+stop:237 focused checks and isolated WPF build pass. Host/client, direct-input and storage integration
+remain. No replacement installation or operational action. Original measurements remain in the
+[investigation](reviews/paper-workload-architecture-20261021.md).
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)
 through accepted dashboard-close behavior, conditional tonight rollout and the first-implementation-step question; S44's complete available
 turn/original visual was reviewed previously. Current operational acceptance remains separate.

@@ -1,3 +1,4 @@
+using Core.WSTrade.Authentication;
 using Core.WSTrade.Accounts;
 using System;
 using System.Net;

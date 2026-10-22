@@ -1,6 +1,6 @@
 # ADR-0103: Real execution independent of paper research
 
-**Date:** October 21, 2026. **Status:** Independence, verification separation, audit policy and dashboard-independent lifecycle accepted; staged delivery accepted with a requested tonight target, feasibility unverified. First implementation increment is proposed, not started.
+**Date:** October 21, 2026. **Status:** Accepted architecture; implementation explicitly requested, including the independent engine followed by history/storage changes tonight. Implementation underway; no native cutover or migration performed.
 **Domains:** architecture, data-pipeline.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 
@@ -58,9 +58,10 @@ checkpoints within the same effort; do not invent a multi-day trial requirement.
 conversion, migration and native acceptance have not been estimated or qualified. A deadline cannot
 turn failed checks into a successful cutover or claim market-hours evidence obtained overnight.
 
-The requested next answer is the concrete first implementation step. The draft defines a standalone
-operational-host increment, beginning with extraction of UI-owned broker/execution services and a direct
-shared-input boundary. This proposal does not install or start a replacement host.
+The operator subsequently requests implementation of the revised architecture tonight. The first
+increment extracts UI-owned broker services and process-owned scheduling; independent host/client,
+direct inputs and incremental storage follow. This authority covers source changes and offline tests,
+not an installed native switch, database migration or financial activation.
 
 ## Boundaries and consequences
 
@@ -80,7 +81,7 @@ shared-input boundary. This proposal does not install or start a replacement hos
   A current-state checkpoint alone does not establish trust or permit ignoring a known integrity failure.
 
 ADRs 0083/0085 remain compatible with this direction. No existing storage or runtime contract is
-superseded in the running system by this design ADR. There is no approval to implement, migrate/delete data, prune
+superseded in the running system by this design ADR. There is no approval to migrate/delete data, prune
 artifacts, install a scheduler, start a host, renew trading permission or place an order.
 
 ## Review questions

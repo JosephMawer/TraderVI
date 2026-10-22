@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TraderVI.WPF.Viewmodels;
+namespace Core.WSTrade.Authentication;
 
 public interface IWealthsimpleSessionStore : IDisposable
 {

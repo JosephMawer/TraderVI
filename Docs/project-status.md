@@ -2,7 +2,14 @@
 
 ## October 21 post-open execution watch
 
-**Latest design decisions — dashboard-independent operation accepted:** closing the dashboard leaves
+**Architecture implementation underway:** operator explicitly requests the independent engine followed
+by history/storage work tonight. First source increment moves broker-session ownership code and its
+account interface into Core and adds independent process-owned schedules, exclusive ownership and
+draining stop.237 focused scheduler/auth/account tests and isolated WPF build pass. Runtime/client and
+direct-input integration remain unfinished; existing installed app is unchanged. Existing compiler
+warnings remain; dependency-security audit was disabled, not requalified. No database/external action.
+
+**Accepted design — dashboard-independent operation:** closing the dashboard leaves
 the engine running, with a separate stop control, under
 [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md). The operator accepts staged delivery
 conditional on completion tonight; target feasibility is unverified. The
@@ -10,7 +17,7 @@ conditional on completion tonight; target feasibility is unverified. The
 defines the proposed first increment: extract UI-owned execution/broker lifetime into a separate host
 and give real management direct shared inputs. Current input reads still depend on paper evaluation
 records; moving the host alone would not remove that dependency. Accepted independence, audit policy
-and verification separation remain. Documentation/source review only; no implementation or installation.
+and verification separation remain. Source progress is recorded above; no installation or native acceptance.
 
 **Earlier architecture and storage investigation:** current source confirms
 background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot

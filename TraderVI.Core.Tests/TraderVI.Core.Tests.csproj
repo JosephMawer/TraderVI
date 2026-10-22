@@ -44,10 +44,6 @@
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveWatchlistScope.cs" Link="Presentation\DelphiLiveWatchlistScope.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioDisplayRefresh.cs" Link="Presentation\PortfolioDisplayRefresh.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\DelphiLiveQuoteRow.cs" Link="Presentation\DelphiLiveQuoteRow.cs" />
-    <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleConnection.cs" Link="Presentation\WealthsimpleConnection.cs" />
-    <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleConnection.ManualBuys.cs" Link="Presentation\WealthsimpleConnection.ManualBuys.cs" />
-    <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleConnection.ManualSells.cs" Link="Presentation\WealthsimpleConnection.ManualSells.cs" />
-    <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleConnection.Reconciliation.cs" Link="Presentation\WealthsimpleConnection.Reconciliation.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\ManualSellViewModel.cs" Link="Presentation\ManualSellViewModel.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleAccountViewModel.cs" Link="Presentation\WealthsimpleAccountViewModel.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\WealthsimpleAccountViewModel.TradingWorkspace.cs" Link="Presentation\WealthsimpleAccountViewModel.TradingWorkspace.cs" />

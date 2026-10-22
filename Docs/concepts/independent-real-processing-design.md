@@ -4,7 +4,8 @@
 verification separation, the nightly/weekly audit policy, and continued engine operation after dashboard
 closure with an explicit stop control. Staged delivery is accepted with a requested tonight target;
 feasibility is unverified. Exact cutover, retention and implementation mechanics remain proposals.
-This is a design outline, not yet an implementation-ready specification.
+The operator has now explicitly requested implementation. This remains the architecture/acceptance
+record; each concrete runtime/storage contract must be completed and tested before its use.
 
 The immediate problem is delayed real decisions and an apparently blocked UI. The parent problem
 is live work sharing history-heavy processing and broad locks. The root goal is dependable real
@@ -192,8 +193,14 @@ signal/risk rules and audit responses; ask only if a technical finding creates a
 
 No additional decision is needed to preserve the current strategy, original history, freshness limits,
 buying permission/expiry or independent protection. These are existing requirements, not new options.
-The latest request accepts lifecycle/delivery direction and asks for the first implementation step.
-Present that concrete increment; no runtime implementation or operational switch has started.
+The latest request authorizes implementation, starting with the independent engine and continuing
+through history/storage tonight. No operational switch or database migration has been performed.
+
+Implementation checkpoint: broker-session code/account interface now live in Core; `IndependentEngine`
+owns separate non-overlapping schedules and drains admitted work before close. An OS-held exclusive
+lease prevents duplicate engine owners.237 focused tests and an isolated desktop build pass. This is
+a tested foundation, not a connected/installed independent trading host. Reuse the one
+`artifacts/independent-engine` build tree throughout this work instead of accumulating output copies.
 
 ## Proposed first implementation increment: independent operational host
 

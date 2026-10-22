@@ -1,3 +1,4 @@
+using Core.WSTrade.Authentication;
 #nullable enable
 using Core.Db;
 using Core.Trader;
