@@ -42,7 +42,8 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         catch { t?.Dispose(); await c.DisposeAsync(); throw; }
     }
 
-    public async Task<TradingRecommendationInput> ReadBrokerInputAsync(BrokerManagedSession session, CancellationToken token = default)
+    public async Task<TradingRecommendationInput> ReadBrokerInputAsync(BrokerManagedSession session, CancellationToken token = default,
+        bool independentInputs = false)
     {
         session.Strategy.Validate();
         if (session.ActivatedAt is null) throw new InvalidOperationException("Protection must transfer before strategy evaluation.");
@@ -54,14 +55,14 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         var account = session.Account.Account;
         var input = await BuildInput(c, t, "TFSA", assignment, account,
             new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory,
-            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc);
+            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc, independentInputs);
         token.ThrowIfCancellationRequested(); t.Commit(); return input;
     }
 
     private static async Task<TradingRecommendationInput> BuildInput(SqlConnection c, SqlTransaction t, string account,
         TradingStrategyAssignment assignment, ReportedTradingAccount? report, FinancialState financial,
         TradingRecommendationBatch? previous, TradingRecommendationMemory? brokerMemory, PaperGateProfile gateProfile,
-        PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null)
+        PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null, bool independentInputs = false)
     {
             var now = DateTime.UtcNow; var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now));
             var warnings = ImmutableArray.CreateBuilder<string>();
@@ -121,22 +122,37 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             var liveInputs = ImmutableArray<TradingLiveObservation>.Empty;
             if (bounds is not null && assignment.Strategy.Family == TradingStrategyFamily.DelphiLive)
             {
-                var saved = await c.QueryAsync<LiveRow>("""
+                const string liveSql = """
                     SELECT e.InputJson,e.ContinuityEpoch,
                         CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
                             WHERE sl.SessionId=e.SessionId AND sl.ExpectedBarEndUtc=e.BarEndUtc AND sl.Symbol IN(e.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
                         FROM dbo.DelphiLiveEvaluation e JOIN dbo.DelphiLiveSession s ON s.SessionId=e.SessionId
                         WHERE s.TradingDate>=@FromDate AND s.TradingDate<=@Date AND e.PolicyVersionId=@Policy
                         AND e.RecordedUtc<=@Now AND e.BarEndUtc>@Boundary
+                        -- IndependentProgress
                         ORDER BY e.BarEndUtc,e.Symbol
-                    """, new { Date = date.ToDateTime(TimeOnly.MinValue),
+                    """;
+                var saved = (await c.QueryAsync<LiveRow>(independentInputs
+                    ? liveSql.Replace("dbo.DelphiLiveEvaluation", "dbo.EngineInputPublication", StringComparison.Ordinal)
+                        .Replace("-- IndependentProgress", """
+AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
+ (SELECT MAX(p.BarUtc) FROM OPENJSON(@Progress) WITH(Symbol nvarchar(20),SessionId uniqueidentifier,BarUtc datetime2) p
+  WHERE p.Symbol=e.Symbol AND p.SessionId=e.SessionId),@Boundary)
+""", StringComparison.Ordinal) : liveSql,
+                    new { Date = date.ToDateTime(TimeOnly.MinValue),
                         FromDate = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(protectionReplayFromUtc ?? assignment.EffectiveUtc)).ToDateTime(TimeOnly.MinValue),
                         Policy = assignment.Strategy.PolicyVersionId, Now = now,
-                        Boundary = protectionReplayFromUtc ?? assignment.EffectiveUtc }, t);
+                        Boundary = protectionReplayFromUtc ?? assignment.EffectiveUtc,
+                        Progress = System.Text.Json.JsonSerializer.Serialize(memory.Symbols.Select(p => new
+                        { Symbol = p.Key, SessionId = p.Value.LiveSessionId, BarUtc = p.Value.LastLiveBarUtc })) }, t)).ToArray();
+                var contents = independentInputs ? await EngineEvidenceStorage.ReadAsync(c, t, saved.Select(e => e.InputJson)) : null;
                 liveInputs = saved.Select(e => BrokerLiveObservationPolicy.Bind(
-                    DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>(e.InputJson), e.ContinuityEpoch,
+                    contents is null ? DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>(e.InputJson)
+                        : DelphiLiveInputCodec.Read(e.InputJson, contents), e.ContinuityEpoch,
                     assignment.Strategy, comparison, e.HasConflict)).ToImmutableArray();
-                if (liveInputs.IsEmpty) warnings.Add("Delphi Live needs current durable collection/evaluation inputs. Keep its existing paper monitor available; promotion does not activate it.");
+                if (liveInputs.IsEmpty) warnings.Add(independentInputs
+                    ? "Delphi Live needs verified shared market inputs from the independent engine. Paper progress cannot supply them."
+                    : "Delphi Live needs current durable collection/evaluation inputs. Keep its existing paper monitor available; promotion does not activate it.");
             }
             string[] symbols = financial.Holdings.Select(h => h.Symbol).Concat(candidates.Select(p => p.Symbol)).Concat(liveInputs.Select(e => e.Input.Stock.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
             var bars = ImmutableDictionary.CreateBuilder<string, ImmutableArray<TradingPriceBar>>(StringComparer.OrdinalIgnoreCase);

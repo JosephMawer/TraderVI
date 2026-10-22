@@ -7,10 +7,14 @@ by history/storage work tonight. Core scheduling/session extraction is committed
 adds a separate Windows engine, current-user-only asynchronous control channel, engine-owned
 broker/order workflows, reconnecting dashboard and explicit engine start/stop. 826 related
 checks pass/one native skip; isolated engine/WPF build passes with 260 existing compiler warnings.
-The next source increment supplies immutable, deduplicated shared-input storage: exact bar, policy,
+Storage checkpoint `9b39b470` supplies immutable, deduplicated shared-input storage: exact bar, policy,
 baseline and daily-setup references preserve original evidence. 40 input/evaluation checks pass;
-SSDT database project builds. Additive migration 047 is prepared, not applied. Legacy storage stays
-selected until independent collection is wired; this alone does not remove current disk growth.
+SSDT database project builds. Additive migration 047 is prepared, not applied.
+The next increment wires independent market collection and real-input consumption, with a small
+revision-checked paper membership projection (migration 048) and an explicit offline qualification
+command. 430 related checks pass/one native skip, including collection with all paper-history access
+rejected and a 10,000-closed-position projection fixture. Paper consumers, short write transactions,
+historical audit/holds and cutover qualification remain; source wiring is not operational evidence.
 New-host execution is deliberately blocked pending direct inputs and state-storage qualification.
 Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
 Dependency-security audit was disabled, not requalified. No database or external action.

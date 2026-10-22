@@ -211,8 +211,19 @@ and daily-setup fragments once. `EngineInputPublication` stores checkpoint manif
 those exact fragments. Reads verify fragment checksums and the complete restored input fingerprint;
 no reference resolves to a later or corrected value. Original event/receipt/evaluation times remain.
 Additive migration 047 leaves existing history untouched and requires a reviewed backup/installation.
-The legacy collector still selects its existing table until independent producer/consumer integration;
-this checkpoint is not a disk-growth or runtime-independence acceptance result.
+The independent market lane now writes this store; real engine reads select it explicitly, with no
+fallback to paper evaluations. Current-session signal reads resume at each symbol's saved checkpoint;
+protection retains its separate original replay boundaries. The old desktop collector retains its old
+store until cutover. This source checkpoint is not a native disk-growth or independence acceptance.
+
+The collector reads a compact observation-only projection, with no cash or order authority. It contains
+open/current-session positions and pending protective exits, and is checked against the current
+portfolio revision/root checksum. Updated snapshots publish this view atomically. Existing histories
+need the explicit offline `TraderVI.Engine.exe --prepare-observations` operation after migration 048;
+this verifies their original compact snapshots once under maintenance/collection fences. It has not
+been run. Missing/stale/damaged projections stop collection rather than silently omitting holdings.
+Paper consumers and short write transactions remain: current full-ledger transactions hold the shared
+lease row while doing history work, which must be corrected before concurrent paper work is enabled.
 
 ## Proposed first implementation increment: independent operational host
 

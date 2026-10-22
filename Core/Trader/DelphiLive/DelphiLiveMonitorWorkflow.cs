@@ -23,6 +23,7 @@ public sealed class DelphiLiveMonitorWorkflow
     private readonly DelphiLiveCollectionWorkflow collector;
     private readonly DelphiLiveActionWorkflow actions;
     private readonly TimeSpan? hostTickCadence;
+    private readonly Func<DateOnly, CancellationToken, Task<IReadOnlyList<DelphiLiveObservationPortfolio>>>? observationPortfolios;
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly string owner = $"{Environment.MachineName}/{Environment.ProcessId}/{Guid.NewGuid():N}";
     private DelphiLiveLease? lease;
@@ -60,7 +61,8 @@ public sealed class DelphiLiveMonitorWorkflow
         IDelphiLiveSessionContextStore sessions, IDelphiLiveEvaluationStore evaluations,
         IDelphiLiveCollectionRuntimeStore collection, IDelphiLiveLedgerStore ledger,
         IDelphiLiveHoldingSource holdings, IDelphiLiveMarketDataSource source, IDelphiLiveNotifier notifier,
-        TimeSpan? hostTickCadence = null)
+        TimeSpan? hostTickCadence = null,
+        Func<DateOnly, CancellationToken, Task<IReadOnlyList<DelphiLiveObservationPortfolio>>>? observationPortfolios = null)
     {
         this.clock = clock; this.calendar = calendar; this.sessions = sessions;
         this.evaluations = evaluations; this.collection = collection; this.ledger = ledger;
@@ -70,6 +72,7 @@ public sealed class DelphiLiveMonitorWorkflow
         // This describes the host's wake schedule, not a trading threshold.
         // An unknown cadence cannot attest to liveness across market open.
         this.hostTickCadence = hostTickCadence;
+        this.observationPortfolios = observationPortfolios;
         collector = new(clock, source, collection, collection);
         actions = new(ledger, source, clock);
     }
@@ -84,8 +87,9 @@ public sealed class DelphiLiveMonitorWorkflow
             AddWarning($"Daily source {source.RunId:D} published {source.PublishedUtc:u}; adopted {source.AdoptedUtc:u}. Fresh confirmation begins {source.EffectiveUtc:u}; opening research freeze is retained.");
         var values = frozen is null ? Array.Empty<DelphiLiveStoredEvaluation>() :
             await evaluations.GetLatestSnapshotAsync(frozen.SessionId, ct);
-        var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
-        return new(portfolios.Count == 0 ? "Inactive" : frozen is null ? "Awaiting session" : frozen.Status,
+        var portfolios = observationPortfolios is null ? await ledger.GetPortfoliosForSessionAsync(date, ct) : [];
+        return new(observationPortfolios is not null ? frozen?.Status ?? "Awaiting session" :
+            portfolios.Count == 0 ? "Inactive" : frozen is null ? "Awaiting session" : frozen.Status,
             date, frozen?.SessionId, values.Count == 0 ? null : values.Max(v => v.Input.BarEndUtc),
             values, portfolios, warnings.Concat(collectionWarnings).Distinct().ToArray());
     }
@@ -154,7 +158,7 @@ public sealed class DelphiLiveMonitorWorkflow
                 sessionProtectionStarted = false;
                 if (recovery.HostGapObserved) AddWarning("Host coverage gap: this session cannot support clean shakedown or promotion.");
             }
-            var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
+            var portfolios = observationPortfolios is null ? await ledger.GetPortfoliosForSessionAsync(date, ct) : [];
             await sessions.RefreshDailySourceAsync(date, lease, ct);
             var refreshedContext = await sessions.ReadOperationalContextAsync(date, ct) ?? throw new InvalidOperationException("Session context is unavailable.");
             if (!context.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId)).SequenceEqual(
@@ -216,9 +220,19 @@ public sealed class DelphiLiveMonitorWorkflow
             var tracked = await holdings.GetObservedHoldingsAsync(ct);
             var corporateSymbols = GetCorporateActionSymbolsAsync is null ? Array.Empty<string>() :
                 await GetCorporateActionSymbolsAsync(date, ct);
-            portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
-            context = await sessions.SynchronizeObservationSetAsync(context.Session.SessionId, end, lease, portfolios, ct);
-            var targets = PlanTargets(context, previous, tracked, portfolios, end);
+            IReadOnlyList<DelphiLiveObservationPortfolio> observed;
+            if (observationPortfolios is null)
+            {
+                portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
+                context = await sessions.SynchronizeObservationSetAsync(context.Session.SessionId, end, lease, portfolios, ct);
+                observed = portfolios.Select(p => DelphiLiveObservationPortfolio.From(p, false)).ToArray();
+            }
+            else
+            {
+                observed = await observationPortfolios(date, ct);
+                context = await sessions.SynchronizeCurrentObservationsAsync(context.Session.SessionId, end, lease, observed, ct);
+            }
+            var targets = PlanTargets(context, previous, tracked, observed, end);
             var cycle = new DelphiLiveCollectionCycle(cycleId, context.Session.SessionId, end.AddMinutes(-5), end,
                 end.AddMinutes(2), end.AddMinutes(7), lease.FencingToken, recovery!.EpochNumber);
             DelphiLiveCollectionRunResult collected;
@@ -234,7 +248,7 @@ public sealed class DelphiLiveMonitorWorkflow
                 var policy = context.Policies[assignment.PolicyVersionId];
                 var policyContext = context.ForPolicy(policy.PolicyVersionId);
                 DateTime policyStart = ContinuityStartFor(policy.PolicyVersionId);
-                var rolePortfolios = portfolios.Where(p => p.PolicyVersionId == policy.PolicyVersionId).ToArray();
+                var rolePortfolios = observed.Where(p => p.PolicyVersionId == policy.PolicyVersionId).ToArray();
                 foreach (string symbol in targets.Where(t => t.Symbol != "XIU").Select(t => t.Symbol))
                 {
                     var prior = previous.SingleOrDefault(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId && e.Input.Stock.Symbol == symbol && e.Input.EvaluatedUtc >= policyStart &&
@@ -288,6 +302,13 @@ public sealed class DelphiLiveMonitorWorkflow
                 }
             }
             evaluationTiming.Dispose();
+            if (observationPortfolios is not null)
+            {
+                // Shared evidence has its own schedule and no paper action/history/research dependency.
+                nextEnd = end < bounds.CloseUtc ? end.AddMinutes(5) : null;
+                if (nextEnd is null) await FinalizeCurrentSessionAsync(ct);
+                return await SnapshotAsync(ct);
+            }
             using var actionsTiming = PaperCycleTimings.Start(PaperCycleStage.LiveActions);
             if (context.SourceRevision is null && context.ComparisonAccounts.Count == 0 && PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
             DelphiLivePortfolioSnapshot? operationalAfterActions = null;
@@ -486,7 +507,7 @@ public sealed class DelphiLiveMonitorWorkflow
 
     private static IReadOnlyList<DelphiLiveObservationTarget> PlanTargets(DelphiLiveSessionContext context,
         IReadOnlyList<DelphiLiveStoredEvaluation> previous, IReadOnlyList<DelphiLiveObservedHolding> held,
-        IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, DateTime end)
+        IReadOnlyList<DelphiLiveObservationPortfolio> portfolios, DateTime end)
     {
         Guid champion = context.Assignments.Single(a => a.Role == DelphiLivePolicyRole.OperationalChampion).PolicyVersionId;
         var ordered = previous.Where(p => p.Input.Policy.PolicyVersionId == champion)

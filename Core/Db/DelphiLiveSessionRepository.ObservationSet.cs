@@ -15,9 +15,15 @@ namespace Core.Db;
 
 public sealed partial class DelphiLiveSessionRepository
 {
-    public async Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(
+    public Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(
         Guid sessionId, DateTime nextBarEndUtc, DelphiLiveLease lease,
-        IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, CancellationToken cancellationToken = default)
+        IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, CancellationToken cancellationToken = default) =>
+        SynchronizeCurrentObservationsAsync(sessionId, nextBarEndUtc, lease,
+            portfolios.Select(p => DelphiLiveObservationPortfolio.From(p, false)).ToArray(), cancellationToken);
+
+    public async Task<DelphiLiveSessionContext> SynchronizeCurrentObservationsAsync(
+        Guid sessionId, DateTime nextBarEndUtc, DelphiLiveLease lease,
+        IReadOnlyList<DelphiLiveObservationPortfolio> portfolios, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(lease);
         ArgumentNullException.ThrowIfNull(portfolios);
@@ -36,7 +42,7 @@ public sealed partial class DelphiLiveSessionRepository
         DateTime openUtc = Utc((DateTime)session.SessionOpenUtc), closeUtc = Utc((DateTime)session.SessionCloseUtc);
         if (nextBarEndUtc <= openUtc || nextBarEndUtc > closeUtc)
             throw new ArgumentException("Observation checkpoint is outside the frozen regular session.");
-        var sources = PlanObservationSources(observed, portfolios, openUtc, closeUtc);
+        var sources = PlanCurrentObservationSources(observed, portfolios, openUtc, closeUtc);
         DateTime now = Utc(await connection.QuerySingleAsync<DateTime>(new CommandDefinition(
             "SELECT SYSUTCDATETIME();", transaction: transaction, cancellationToken: cancellationToken)));
         var addedSymbols = (await connection.QueryAsync<string>(new CommandDefinition(SynchronizeSql, new
@@ -69,6 +75,11 @@ public sealed partial class DelphiLiveSessionRepository
 
     internal static IReadOnlyList<DelphiLiveObservationSourcePlan> PlanObservationSources(
         IReadOnlyList<DelphiLiveObservedHolding> observed, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios,
+        DateTime sessionOpenUtc, DateTime sessionCloseUtc) => PlanCurrentObservationSources(observed,
+            portfolios.Select(p => DelphiLiveObservationPortfolio.From(p, false)).ToArray(), sessionOpenUtc, sessionCloseUtc);
+
+    internal static IReadOnlyList<DelphiLiveObservationSourcePlan> PlanCurrentObservationSources(
+        IReadOnlyList<DelphiLiveObservedHolding> observed, IReadOnlyList<DelphiLiveObservationPortfolio> portfolios,
         DateTime sessionOpenUtc, DateTime sessionCloseUtc)
     {
         var normalized = NormalizeObservedHoldings(observed);
@@ -79,8 +90,7 @@ public sealed partial class DelphiLiveSessionRepository
         {
             var holdingsForSymbol = normalized.Where(h => h.Symbol == symbol).ToArray();
             var positions = portfolios.SelectMany(p => p.Positions).Where(p => p.Symbol == symbol).ToArray();
-            var pendingSells = portfolios.SelectMany(p => p.PendingActions)
-                .Where(a => a.Intent.Symbol == symbol && a.Intent.Side == DelphiLiveActionSide.Sell).ToArray();
+            var pendingSells = portfolios.SelectMany(p => p.PendingSells).Where(a => a.Symbol == symbol).ToArray();
             bool live = positions.Any(p => p.ClosedUtc is null);
             bool carry = positions.Any(p => p.ClosedUtc >= sessionOpenUtc && p.ClosedUtc <= sessionCloseUtc);
             return new DelphiLiveObservationSourcePlan(symbol,
@@ -90,7 +100,7 @@ public sealed partial class DelphiLiveSessionRepository
                 {
                     observedOwners = holdingsForSymbol.Select(h => new { h.Owner, h.OwnerRecordId, h.DelphiLiveMayAct }),
                     positionIds = positions.Select(p => p.PositionId),
-                    pendingExitIds = pendingSells.Select(a => a.Intent.ActionId),
+                    pendingExitIds = pendingSells.Select(a => a.ActionId),
                     soldThisSession = carry
                 }));
         }).ToArray();

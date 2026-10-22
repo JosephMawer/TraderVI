@@ -29,15 +29,15 @@ public static class BrokerManagedSessionComposition
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
         WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
-        TimeProvider? time = null) => CreateComponents(accountReads, buyBroker, sellBroker, orders, observations,
-            sharedOrderGate, selectedAccount, calendar, riskEvidence, time).Workflow;
+        TimeProvider? time = null, bool independentInputs = false) => CreateComponents(accountReads, buyBroker, sellBroker, orders, observations,
+            sharedOrderGate, selectedAccount, calendar, riskEvidence, time, independentInputs: independentInputs).Workflow;
 
     public static BrokerManagedSessionComponents CreateComponents(IBrokerReconciliationSource accountReads,
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
         WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
         TimeProvider? time = null, IBrokerAccountRiskContinuationStore? previewRisk = null,
-        BrokerWorkflowOverrides? workflows = null)
+        BrokerWorkflowOverrides? workflows = null, bool independentInputs = false)
     {
         // Callers must supply their existing clients, journal and gate, not create another submission owner.
         ArgumentNullException.ThrowIfNull(sharedOrderGate);
@@ -57,7 +57,7 @@ public static class BrokerManagedSessionComposition
         }
         var source = new BrokerManagedAccountSource(reconcile, () => accountReads.SessionRevision, selectedAccount,
             new BrokerAccountRiskBaselineRepository(), previewRisk ?? risk, calendar, riskEvidence,
-            new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time);
+            new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time, independentInputs);
         var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
             selectedAccount, sharedOrderGate, time);
         return new(new BrokerManagedSessionWorkflow(new BrokerManagedSessionRepository(calendar), source, transport, time), source);

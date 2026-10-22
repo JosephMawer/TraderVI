@@ -16,7 +16,8 @@ on completion tonight, with feasibility unverified. The [draft](concepts/indepen
 proposes independent host/broker lifetime plus direct shared inputs as the first useful increment.
 Complete engineering contracts/acceptance before the switch. Build retention is separate before cleanup.
 Shared broker services, independent schedules and the engine/client control path are now in source.
-Shared-input storage foundation is implemented; migration 047 remains prepared and unapplied.
+Shared-input storage, independent collection and real-input selection are in source; migrations 047/048
+remain prepared and unapplied. Finish paper consumers, short writes and integrity audit/hold integration.
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
 removing the new host's readiness block. No replacement is installed.
 

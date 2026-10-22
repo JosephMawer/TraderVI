@@ -21,6 +21,35 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
+    [Fact]
+    public async Task IndependentMarketProducesFreshInputsWithoutReadingOrWritingPaperHistory()
+    {
+        var h = new Harness(independent: true);
+        h.Ledger.RejectAccess = true;
+        h.Workflow.PersistResearchCheckpointAsync = (_, _, _, _, _) => throw new Exception("Research must run separately.");
+        await h.Workflow.TickAsync();
+        for (int i = 1; i <= 5; i++) { h.Clock.Now = Open.AddMinutes(i * 5 + 2); await h.Workflow.TickAsync(); }
+        Assert.Equal(5, h.Evaluations.All.Count);
+        Assert.Equal(Open.AddMinutes(27), h.Evaluations.All.Last().Input.EvaluatedUtc);
+        Assert.Equal(Open.AddMinutes(25), h.Evaluations.All.Last().Input.BarEndUtc);
+        Assert.True(h.Evaluations.All.Last().Result.FamiliesMature);
+        Assert.Empty(h.Source.QuoteRequests); // Shared evidence never runs paper execution/protection.
+        Assert.Equal(0, h.Ledger.State!.Revision);
+    }
+
+    [Fact]
+    public async Task IndependentMarketRetainsMissedWakeContinuityReset()
+    {
+        var h = new Harness(independent: true); h.Ledger.RejectAccess = true;
+        await h.Workflow.TickAsync(); h.Clock.Now = Open.AddMinutes(7); await h.Workflow.TickAsync();
+        h.Clock.Now = Open.AddMinutes(22); var missed = await h.Workflow.TickAsync();
+        Assert.Single(h.Evaluations.All);
+        Assert.Contains(missed.Warnings, w => w.Contains("missed"));
+        await h.Workflow.TickAsync();
+        Assert.Equal(Open.AddMinutes(20), h.Evaluations.All.Last().Input.Stock.OperationalContinuityStartUtc);
+        Assert.False(h.Evaluations.All.Last().Result.FamiliesMature);
+    }
+
     [Theory]
     [InlineData(false)][InlineData(true)]
     public async Task BoundedEvaluationReplayRetainsTheActiveEpochAndOriginalObservation(bool acknowledgementLost)
@@ -520,7 +549,7 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public readonly MarketSource Source;
         public readonly Notifier Notifications = new();
         public readonly DelphiLiveMonitorWorkflow Workflow;
-        public Harness(bool enabled = true, decimal startingCapital = 1000m, double? tickCadenceSeconds = 30)
+        public Harness(bool enabled = true, decimal startingCapital = 1000m, double? tickCadenceSeconds = 30, bool independent = false)
         {
             Sessions = new SessionStore(enabled);
             Collection = new CollectionStore(Clock);
@@ -531,7 +560,9 @@ public sealed class DelphiLiveMonitorWorkflowTests
             var calendar = new ReviewedTsxSessionCalendar(new("test-reviewed", "official-calendar-fixture", Date.AddDays(-4), Date.AddDays(2),
                 new[] { Date.AddDays(-4), Date, Date.AddDays(1), Date.AddDays(2) }));
             Workflow = new(Clock, calendar, Sessions, Evaluations, Collection, Ledger, new HoldingSource(), Source, Notifications,
-                hostTickCadence: tickCadenceSeconds.HasValue ? TimeSpan.FromSeconds(tickCadenceSeconds.Value) : null);
+                hostTickCadence: tickCadenceSeconds.HasValue ? TimeSpan.FromSeconds(tickCadenceSeconds.Value) : null,
+                observationPortfolios: independent ? (_, _) => Task.FromResult<IReadOnlyList<DelphiLiveObservationPortfolio>>(
+                    Ledger.State is null ? [] : [DelphiLiveObservationPortfolio.From(Ledger.State)]) : null);
         }
     }
     private sealed class TestClock : IDelphiLiveClock { public DateTime Now; public DateTime UtcNow => Now; }
@@ -603,6 +634,8 @@ public sealed class DelphiLiveMonitorWorkflowTests
         public Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(Guid sessionId, DateTime nextBarEndUtc,
             DelphiLiveLease lease, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, CancellationToken cancellationToken = default) => Task.FromResult(context);
         public Task<DelphiLivePolicyDefinition> GetPolicyAsync(Guid policyId, CancellationToken cancellationToken = default) => Task.FromResult(Policy);
+        public Task<DelphiLiveSessionContext> SynchronizeCurrentObservationsAsync(Guid sessionId, DateTime nextBarEndUtc,
+            DelphiLiveLease lease, IReadOnlyList<DelphiLiveObservationPortfolio> portfolios, CancellationToken cancellationToken = default) => Task.FromResult(context);
     }
     private sealed class EvaluationStore : IDelphiLiveEvaluationStore
     {
@@ -653,16 +686,20 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private sealed class LedgerStore(DelphiLivePortfolioSnapshot? initial) : IDelphiLiveLedgerStore
     {
         public DelphiLivePortfolioSnapshot? State = initial;
+        public bool RejectAccess;
         public readonly List<DelphiLivePortfolioSnapshot> Other = new();
         public void AddControl() => Other.Add(DelphiLiveLedgerIntegrity.Create(new(Guid.NewGuid(), Guid.NewGuid(), Policy.PolicyVersionId,
             "ChampionControl", Guid.NewGuid(), State!.StartingCapital, "CAD", Date, Open, Open.AddDays(-1), "operator", "Aligned control fixture")));
         public Task<DelphiLivePortfolioSnapshot?> LoadPortfolioAsync(Guid portfolioId, CancellationToken cancellationToken = default) =>
+            RejectAccess ? throw new Exception("Paper history access is blocked in this test.") :
             Task.FromResult(State?.PortfolioId == portfolioId ? State : Other.SingleOrDefault(p => p.PortfolioId == portfolioId));
         public Task<IReadOnlyList<DelphiLivePortfolioSnapshot>> GetPortfoliosForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default) =>
+            RejectAccess ? throw new Exception("Paper history access is blocked in this test.") :
             Task.FromResult<IReadOnlyList<DelphiLivePortfolioSnapshot>>(State is null ? Other.ToArray() : new[] { State }.Concat(Other).ToArray());
         public Task<DelphiLivePortfolioSnapshot> CreateGenerationAsync(DelphiLiveGenerationRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<DelphiLivePortfolioSnapshot> CommitAsync(long expectedRevision, DelphiLivePortfolioSnapshot next, IReadOnlyList<DelphiLiveLedgerEvent> events, DelphiLiveLease lease, CancellationToken cancellationToken = default)
         {
+            if (RejectAccess) throw new Exception("Paper history mutation is blocked in this test.");
             var prior = State?.PortfolioId == next.PortfolioId ? State : Other.Single(p => p.PortfolioId == next.PortfolioId);
             prior!.Revision.ShouldBe(expectedRevision);
             DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);

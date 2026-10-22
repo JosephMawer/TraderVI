@@ -139,6 +139,8 @@
     <Build Include="dbo/Tables/DelphiLiveEvaluation.sql" />
     <Build Include="dbo/Tables/EngineEvidenceContent.sql" />
     <Build Include="dbo/Tables/EngineInputPublication.sql" />
+    <Build Include="dbo/Tables/EngineCurrentState.sql" />
+    <None Include="Migrations/20261022_048_AddEngineCurrentObservationState.sql" />
     <Build Include="dbo/Triggers/TR_EngineEvidenceContent_Immutable.sql" />
     <Build Include="dbo/Triggers/TR_EngineInputPublication_Immutable.sql" />
     <None Include="Migrations/20261022_047_AddIndependentEngineInputs.sql" />

@@ -29,6 +29,9 @@ The September 22 documentation cleanup preserves the
 - [x] Implement shared-input storage foundation: immutable exact-content references and isolated input
   publication table; 40 input/evaluation checks and SSDT build pass. Migration 047 is prepared only;
   producer/consumer integration and native qualification remain.
+- [x] Wire shared collection/real-input reader and bounded observation membership; 430 related checks
+  pass/one native skip. Migration 048 and explicit offline observation qualification are prepared only.
+  Paper processing/protection still needs its independent consumer and short transactions.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.

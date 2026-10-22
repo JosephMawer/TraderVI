@@ -5,6 +5,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +14,9 @@ namespace Core.Db;
 public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
 {
     private readonly IDelphiLiveLedgerStore ledger;
-    public DelphiLiveHoldingSource(IDelphiLiveLedgerStore ledger) => this.ledger = ledger;
+    private readonly EnginePaperObservationStore? observations;
+    public DelphiLiveHoldingSource(IDelphiLiveLedgerStore ledger, EnginePaperObservationStore? observations = null)
+    { this.ledger = ledger; this.observations = observations; }
     public async Task<IReadOnlyList<DelphiLiveObservedHolding>> GetObservedHoldingsAsync(CancellationToken cancellationToken = default)
     {
         var result = new List<DelphiLiveObservedHolding>();
@@ -25,7 +28,10 @@ public sealed class DelphiLiveHoldingSource : SQLBase, IDelphiLiveHoldingSource
             "SELECT PositionId,Symbol FROM dbo.ShadowPosition WHERE Status=N'Open';", cancellationToken: cancellationToken));
         foreach (var row in shadow) result.Add(new((string)row.Symbol, "SystemShadow", (Guid)row.PositionId, false));
         DateOnly date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ReviewedTsxSessionCalendar.Toronto));
-        foreach (var portfolio in await ledger.GetPortfoliosForSessionAsync(date, cancellationToken))
+        var portfolios = observations is null
+            ? (await ledger.GetPortfoliosForSessionAsync(date, cancellationToken)).Select(p => DelphiLiveObservationPortfolio.From(p)).ToArray()
+            : await observations.ReadAsync(date, cancellationToken);
+        foreach (var portfolio in portfolios)
             foreach (var position in portfolio.OpenPositions)
                 result.Add(new(position.Symbol, "DelphiLiveShadow", position.PositionId, true));
         if (await connection.ExecuteScalarAsync<int>(new CommandDefinition(

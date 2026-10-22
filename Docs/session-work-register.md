@@ -28,7 +28,9 @@ Latest request explicitly authorizes implementation through history/storage toni
 checkpoint extracts broker-session code into Core and tests process-owned schedules/ownership/draining
 stop, followed by the engine/client control path: 826 related checks/one native skip and isolated engine/WPF build pass.
 Shared-input storage now has immutable exact-content references, 40 passing input/evaluation checks and
-an SSDT build. Migration 047 is prepared, not applied; producer/consumer wiring is still pending. Direct-input and storage integration
+an SSDT build. Independent market collection/real input selection and compact observation membership
+are now wired in source, with 430 related checks/one native skip. Migrations 047/048 and offline
+qualification are prepared, not applied. Paper consumers, short writes, audits/holds and cutover
 remain. No replacement installation or operational action. Original measurements remain in the
 [investigation](reviews/paper-workload-architecture-20261021.md).
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)

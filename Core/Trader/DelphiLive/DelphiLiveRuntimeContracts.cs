@@ -67,6 +67,9 @@ public interface IDelphiLiveSessionContextStore : IDelphiLiveSessionStore, IDelp
     Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(Guid sessionId, DateTime nextBarEndUtc,
         DelphiLiveLease lease, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios,
         CancellationToken cancellationToken = default);
+    Task<DelphiLiveSessionContext> SynchronizeCurrentObservationsAsync(Guid sessionId, DateTime nextBarEndUtc,
+        DelphiLiveLease lease, IReadOnlyList<DelphiLiveObservationPortfolio> portfolios,
+        CancellationToken cancellationToken = default) => throw new NotSupportedException("Current observation projections are required.");
 }
 
 public interface IDelphiLiveEvaluationStore

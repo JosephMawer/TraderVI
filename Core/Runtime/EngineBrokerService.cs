@@ -51,7 +51,7 @@ public sealed class EngineBrokerService
                 IBrokerRiskEvidenceSource risk = saved.EffectiveReview.NoTransferScope is { } scope
                     ? new BrokerNoTransferRiskEvidenceSource(scope, calendar) : new UnqualifiedBrokerRiskEvidenceSource();
                 var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal,
-                    journal, orderGate, account, calendar, risk);
+                    journal, orderGate, account, calendar, risk, independentInputs: true);
                 return await workflow.TickAsync(saved.BindingId, ct).ConfigureAwait(false);
             }, calendar, BrokerManagedSessionComposition.ImplementationIdentity);
     }

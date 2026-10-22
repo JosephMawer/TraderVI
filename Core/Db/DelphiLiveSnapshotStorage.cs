@@ -93,6 +93,7 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
             var verified = await ReadPartsAsync(connection, transaction, package.SnapshotJson, token);
             using (PaperCycleTimings.Start(PaperCycleStage.SnapshotVerify))
                 DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
+            await EnginePaperObservationStore.SaveIfInstalledAsync(connection, transaction, package, token);
             saved = true;
             return package.SnapshotJson;
         }

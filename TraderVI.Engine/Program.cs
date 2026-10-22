@@ -17,10 +17,15 @@ internal static class Program
     // Construction/building never launches this host. Starting it is an explicit operator action.
     public static async Task<int> Main(string[] args)
     {
-        if (args.Length != 1 || args[0] != "--run") return 64;
+        if (args.Length != 1 || args[0] is not ("--run" or "--prepare-observations")) return 64;
         try
         {
             using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
+            if (args[0] == "--prepare-observations")
+            {
+                await new EnginePaperObservationStore().QualifyExistingAsync().ConfigureAwait(false);
+                return 0;
+            }
             var calendarPath = Environment.GetEnvironmentVariable(DelphiLiveDesktopService.CalendarPathEnvironmentVariable);
             if (string.IsNullOrWhiteSpace(calendarPath)) return 65;
             var calendar = ReviewedTsxSessionCalendar.Load(calendarPath);
@@ -31,10 +36,16 @@ internal static class Program
             var grants = new BrokerExecutionHostGrantFileStore(Path.Combine(orderPath, "execution-host.dat"), new WindowsManualBuyProtector());
             var broker = new EngineBrokerService(connection, journal, sessionStore, grants, calendar,
                 IndependentExecutionReadiness.VerifyAsync);
+            var market = new IndependentMarketService(calendar);
             var engine = new IndependentEngine([
                 new("Connection", TimeSpan.FromSeconds(10), broker.PollAuthenticationAsync),
+                new("Market inputs", TimeSpan.FromSeconds(30), market.TickAsync),
                 new("Real trading", TimeSpan.FromSeconds(1), broker.PollExecutionAsync)
-            ], broker.StartAsync, broker.CloseAsync);
+            ], broker.StartAsync, async () =>
+            {
+                try { await market.StopAsync().ConfigureAwait(false); }
+                finally { await broker.CloseAsync().ConfigureAwait(false); }
+            });
             using var stopAccepting = new CancellationTokenSource();
             var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
             {

@@ -36,7 +36,8 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
     IBrokerAccountRiskContinuationStore continuationStore, ITsxSessionCalendar calendar,
     IBrokerRiskEvidenceSource riskEvidence, BrokerImportWorkflow imports,
     IManualBuyWorkflow buys, IManualSellWorkflow sells, IManualSellBroker broker,
-    Func<string, CancellationToken, Task<string>> resolveSecurity, TimeProvider? time = null) : IBrokerManagedAccountSource
+    Func<string, CancellationToken, Task<string>> resolveSecurity, TimeProvider? time = null,
+    bool independentInputs = false) : IBrokerManagedAccountSource
 {
     public string ImplementationIdentity => TradingRecommendationStorage.ImplementationIdentity;
     private readonly TimeProvider clock = time ?? TimeProvider.System;
@@ -78,7 +79,7 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
     }
     public async Task<TradingRecommendationInput> ReadStrategyInputAsync(BrokerManagedSession session, CancellationToken ct)
     {
-        var input = await new TradingRecommendationRepository().ReadBrokerInputAsync(session, ct);
+        var input = await new TradingRecommendationRepository().ReadBrokerInputAsync(session, ct, independentInputs);
         if (session.Strategy.Strategy.Family == TradingStrategyFamily.DailyShadow &&
             (session.Strategy.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
              input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null)))
