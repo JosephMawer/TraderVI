@@ -68,6 +68,9 @@ public sealed record DelphiLivePortfolioSnapshot(
 {
     public Guid? DailySourceRevisionId { get; init; }
     public PaperComparisonAccount? ComparisonAccount { get; init; }
+    // Operational-only window metadata is persisted in its own authenticated checkpoint, never in archive snapshots.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public DelphiLiveWorkingTotals? WorkingTotals { get; init; }
     public ImmutableDictionary<string, DelphiLivePortfolioCandidateState> CandidateStates { get; init; } =
         ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty;
     [System.Text.Json.Serialization.JsonIgnore]
@@ -182,6 +185,8 @@ public static class DelphiLiveLedgerIntegrity
 
     public static void ValidateTransition(DelphiLivePortfolioSnapshot prior, DelphiLivePortfolioSnapshot next)
     {
+        if (prior.WorkingTotals != next.WorkingTotals)
+            throw new InvalidOperationException("An action cannot rewrite archived financial totals.");
         if (next.ComparisonAccount != prior.ComparisonAccount || next.PortfolioId != prior.PortfolioId || next.GenerationId != prior.GenerationId ||
             next.PolicyVersionId != prior.PolicyVersionId || next.StartingCapital != prior.StartingCapital ||
             next.Currency != prior.Currency || next.Role != prior.Role || next.ExperimentId != prior.ExperimentId ||
@@ -191,7 +196,7 @@ public static class DelphiLiveLedgerIntegrity
         PreservePrefix(prior.Fills, next.Fills, "fills");
         PreservePrefix(prior.Quotes, next.Quotes, "quotes");
         PreservePrefix(prior.Marks, next.Marks, "marks");
-        if (next.Cash < 0m || next.Cash != next.StartingCapital + next.Fills.Sum(f =>
+        if (next.Cash < 0m || next.Cash != next.StartingCapital + (next.WorkingTotals?.ArchivedCashNet ?? 0m) + next.Fills.Sum(f =>
                 (f.Side == DelphiLiveActionSide.Sell ? 1m : -1m) * f.Price * f.Quantity))
             throw new InvalidOperationException("Cash must reconcile exactly to persisted whole-share fills; capital changes are unsupported.");
         if (next.OpenPositions.GroupBy(p => p.Symbol, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1) ||

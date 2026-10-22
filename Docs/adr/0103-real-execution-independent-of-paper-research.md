@@ -163,6 +163,12 @@ artifacts, install a scheduler, start a host, renew trading permission or place 
 
 ## Review questions
 
+Source-only current-state detail: the [implementation contract](../concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress)
+uses version-3 collection roots and stable archive ordinals, with a separate authenticated working
+checkpoint. It retains latest-exit/original-entry context and archived cash/profit totals without changing
+starting capital. The pure kernel is tested; SQL integration and native qualification remain required.
+Legacy snapshots stay readable and immutable. No installed verification contract changes yet.
+
 1. Which may be shared: market facts and strategy code, or portfolio balances and confirmation state?
 2. Why is moving paper research into another process insufficient while broad SQL locks remain?
 3. Which storage and verification choices are still proposals rather than accepted decisions?

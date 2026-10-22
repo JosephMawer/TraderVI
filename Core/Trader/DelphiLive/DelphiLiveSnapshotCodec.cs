@@ -40,6 +40,40 @@ public static class DelphiLiveSnapshotCodec
     }
     public static bool IsCompact(string json) => JsonNode.Parse(json)?.AsObject().ContainsKey(Marker) == true;
 
+    public static bool IsIncremental(string json) => JsonNode.Parse(json)?[Marker]?["version"]?.GetValue<int>() == 3;
+
+    /// <summary>The header contains original account fields; collection roots commit to the complete archive.</summary>
+    public static string CreateIncrementalRoot(string compactHeader, IReadOnlyDictionary<string, int> counts,
+        IReadOnlyDictionary<string, string> roots)
+    {
+        var root = JsonNode.Parse(compactHeader)!.AsObject();
+        root.Remove(Marker);
+        var countNode = new JsonObject(); var rootNode = new JsonObject();
+        foreach (string name in Collections)
+        {
+            DelphiLiveArchiveTree.RequireRoot(counts[name], roots[name]);
+            root[name] = new JsonArray(); countNode[name] = counts[name]; rootNode[name] = roots[name];
+        }
+        root[Marker] = new JsonObject { ["version"] = 3, ["counts"] = countNode, ["roots"] = rootNode };
+        root[Marker]!["fullHash"] = Fingerprint(root.ToJsonString());
+        return root.ToJsonString(DelphiLiveLedgerJson.Options);
+    }
+
+    public static IReadOnlyDictionary<string, string> ReadRoots(string json)
+    {
+        var root = JsonNode.Parse(json)!.AsObject();
+        var metadata = root[Marker]!.AsObject();
+        if (metadata["version"]?.GetValue<int>() != 3 || metadata.Count != 4 ||
+            metadata["roots"] is not JsonObject roots || roots.Count != Collections.Length)
+            throw new InvalidOperationException("Unsupported incremental snapshot manifest.");
+        string expected = metadata["fullHash"]!.GetValue<string>();
+        metadata.Remove("fullHash");
+        if (Fingerprint(root.ToJsonString()) != expected) throw new InvalidOperationException("Incremental snapshot header is damaged.");
+        var counts = ReadCounts(json);
+        foreach (string name in Collections) DelphiLiveArchiveTree.RequireRoot(counts[name], roots[name]!.GetValue<string>());
+        return Collections.ToDictionary(name => name, name => roots[name]!.GetValue<string>());
+    }
+
     public static DelphiLiveSnapshotPackage Pack(DelphiLivePortfolioSnapshot snapshot)
     {
         // Reports may be repeated thousands of times. Build a tree of small records sharing
@@ -170,8 +204,10 @@ public static class DelphiLiveSnapshotCodec
             return root;
         }
         var metadata = root[Marker]!.AsObject();
-        if (metadata["version"]?.GetValue<int>() != 2 || metadata.Count != 3)
+        int version = metadata["version"]?.GetValue<int>() ?? 0;
+        if ((version != 2 || metadata.Count != 3) && (version != 3 || metadata.Count != 4))
             throw new InvalidOperationException("Unsupported Delphi Live snapshot storage version.");
+        var treeRoots = version == 3 ? ReadRoots(json) : null;
         var counts = metadata["counts"]!.AsObject();
         if (counts.Count != Collections.Length || counts.Any(x => !Collections.Contains(x.Key)))
             throw new InvalidOperationException("Snapshot collection manifest is invalid.");
@@ -186,6 +222,8 @@ public static class DelphiLiveSnapshotCodec
             var selected = items.Where(x => x.Collection == name).OrderBy(x => x.Ordinal).ToArray();
             if (selected.Length != count || selected.Where((x, i) => x.Ordinal != i).Any())
                 throw new InvalidOperationException("Snapshot items are missing, duplicated or out of order.");
+            if (treeRoots is not null && DelphiLiveArchiveTree.Build(selected.Select(x => x.ContentHash).ToArray()).Root != treeRoots[name])
+                throw new InvalidOperationException("Reconstructed archive collection differs from its committed root.");
             var array = new JsonArray();
             foreach (var reference in selected)
             {
@@ -213,7 +251,7 @@ public static class DelphiLiveSnapshotCodec
         string expectedHash = metadata["fullHash"]!.GetValue<string>();
         root.Remove(Marker);
         var strings = new CanonicalStrings();
-        if (!string.Equals(Fingerprint(writer => WriteCanonical(writer, root, strings)), expectedHash, StringComparison.Ordinal))
+        if (version == 2 && !string.Equals(Fingerprint(writer => WriteCanonical(writer, root, strings)), expectedHash, StringComparison.Ordinal))
             throw new InvalidOperationException("Reconstructed portfolio snapshot fingerprint does not match.");
         return root;
     }
@@ -222,8 +260,12 @@ public static class DelphiLiveSnapshotCodec
     {
         var root = JsonNode.Parse(json)!.AsObject();
         var metadata = root[Marker]!.AsObject();
-        if (metadata["version"]?.GetValue<int>() != 2) throw new InvalidOperationException("Unsupported snapshot storage version.");
-        return Collections.ToDictionary(x => x, x => metadata["counts"]![x]!.GetValue<int>());
+        if (metadata["version"]?.GetValue<int>() is not (2 or 3)) throw new InvalidOperationException("Unsupported snapshot storage version.");
+        if (metadata["counts"] is not JsonObject counts || counts.Count != Collections.Length || counts.Any(x => !Collections.Contains(x.Key)))
+            throw new InvalidOperationException("Invalid snapshot collection counts.");
+        var result = Collections.ToDictionary(x => x, x => counts[x]!.GetValue<int>());
+        if (result.Values.Any(x => x < 0 || x > DelphiLiveArchiveTree.MaximumCount)) throw new InvalidOperationException("Snapshot collection count exceeds its limit.");
+        return result;
     }
 
     private static string Add(Dictionary<string, string> contents, string json)

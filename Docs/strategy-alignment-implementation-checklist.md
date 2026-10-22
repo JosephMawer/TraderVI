@@ -10,6 +10,11 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Implement/test incremental paper archive roots and compact working-state kernel; 73 related
+  checks pass, including exact full-history reconstruction and long-history bounded updates.
+- [ ] Wire qualified working checkpoints, stable record-ID checks and version-3 roots into atomic
+  SQL appends; prepare/review migration and test operational/full-history decision equivalence.
+
 - [x] Investigate paper execution waits and storage against the pinned architecture; inspect current
   code and obtain hash-verified aggregate storage evidence October 21. [Findings](reviews/paper-workload-architecture-20261021.md).
 - [x] Accept real trading independence from paper research under

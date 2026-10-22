@@ -1,5 +1,11 @@
 # TraderVI session-work register
 
+**October22 current-state kernel:** incremental archive roots and compact paper windows are now
+implemented/tested (73 related checks). Original full history reconstructs across day rollover;
+100,000-leaf updates use bounded paths. Continue atomic SQL/checkpoint/identity integration and
+qualification. Source coverage includes the active overnight implementation request; no installation
+or native qualification is claimed. See [design contract](concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress).
+
 **Reconciled October 16, 2026.** Scope: September activity through this review, all three pinned
 TraderVI chats, and the September continuation of an August chat. This register preserves unfinished
 implementation and ideas so work can resume from disk without reopening a long conversation.

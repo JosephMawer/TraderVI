@@ -2,6 +2,8 @@
 
 ### Independent real processing — ADR-0103 and design draft
 
+- **Q:** How can a small paper window preserve lifetime profit? **A:** Original capital stays unchanged; verified archived cash/profit totals accompany retained current records, while every original record remains in the reconstructible archive.
+
 - **Q:** Does a completed nightly batch clear an integrity incident? **A:** No. Clearing needs explicit recovery verification, unchanged history heads, intact guards and an operator action; the original finding remains.
 - **Q:** Why fix an audit's boundary before reading records? **A:** New activity cannot move its finish line. Its receipt can say exactly what was checked, while later records belong to subsequent work.
 - **Q:** What is accepted so far? **A:** Real/paper independence, verification separation, nightly/weekly audit policy, and dashboard-close continuation with a separate engine stop. Staged delivery is accepted with a requested tonight target, whose feasibility is unverified; exact cutover/mechanics remain draft.

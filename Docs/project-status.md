@@ -2,6 +2,12 @@
 
 ## October 21 post-open execution watch
 
+October22 history kernel now includes authenticated incremental collection roots and compact paper
+working checkpoints, preserving original capital, cash, realized profit and latest-exit context.
+73 related offline tests pass; a 100,000-leaf update reads at most 36 paths and a 10,000-mark archive
+reconstructs exactly after bounded appends/day rollover. This kernel is not yet wired to SQL writers;
+qualification/migration/current-state integration remains. No installed behavior changed.
+
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
 by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`
 adds a separate Windows engine, current-user-only asynchronous control channel, engine-owned

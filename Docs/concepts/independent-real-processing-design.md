@@ -270,6 +270,35 @@ has already been observed. Report any remaining scope and failed acceptance hone
 
 ## Storage retention and delivery
 
+### Current-state implementation contract in progress
+
+The next source increment replaces lifetime materialization on the operational paper path with a
+bounded working view: open/current-session positions plus each symbol's latest closed position,
+current-session or pending actions, latest causal quotes needed by pending actions, current-session
+fills/marks and the retained positions' exit fills, current candidate state and rolling cash/realized-profit
+totals. Keeping each latest closed position preserves post-exit confirmation and original-entry context.
+Original starting capital remains explicit. The full archive
+stays separately reconstructible; reports cannot mistake a working view for complete history.
+Current-day entry limits and post-exit confirmation must produce the same decisions as full history.
+
+Immutable archive item ordinals remain stable. A version-3 root will commit to scalar account fields,
+collection counts and a binary hash tree for each collection. Updating one item changes only its tree
+path, avoiding hashing all earlier dossiers on every append. Exact item/report content stays shared.
+Legacy version-2 roots remain readable; old revisions are not rewritten. Full readers/audits recompute
+the collection roots from all original referenced items, while operational appends verify only their
+current checkpoint, changed items and tree paths. A compact checkpoint is tied to the exact archive
+root and atomically updated with its append. Immutable record IDs protect against replay after a
+completed action leaves the working view.
+
+The initial checkpoint/tree/index must be qualified from the fully verified current legacy snapshot
+under stopped-writer maintenance fences. Missing or mismatched state fails closed. No working-state
+cache can bypass a durable incident or disabled immutable guard. Restart verifies the current
+checkpoint and its exact references; restore/abnormal recovery needs affected-state qualification.
+The pure tree, version-3 reader, window selection and incremental checkpoint transition are now in
+source. Seventy-three related offline tests pass, including 100,000-leaf updates and exact restoration
+across 10,000 historical marks/day rollover. Database/source integration and a separately reviewed
+migration/qualification operation remain. This is implementation work in progress, not installed behavior.
+
 Historical evidence stays available. Separately, propose retention for reproducible build binaries and
 platform-specific packaging; preserve source manifests, models, active outputs and recovery evidence.
 Special backup retention is another choice. Counts/ages and deletion authority are not yet agreed.

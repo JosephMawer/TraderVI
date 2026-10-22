@@ -43,7 +43,7 @@ public sealed record DelphiLiveAccountValuation(decimal? NetAssetValue, decimal 
     {
         var open = portfolio.OpenPositions.ToArray();
         var latest = portfolio.Marks.LastOrDefault();
-        decimal realized = portfolio.Positions.Where(p => p.ClosedUtc.HasValue).Sum(p =>
+        decimal realized = (portfolio.WorkingTotals?.ArchivedRealizedProfitLoss ?? 0m) + portfolio.Positions.Where(p => p.ClosedUtc.HasValue).Sum(p =>
         {
             var sale = portfolio.Fills.Single(f => f.ActionId == p.ExitActionId && f.Side == DelphiLiveActionSide.Sell);
             return sale.Quantity * (sale.Price - p.AveragePurchasePrice);
