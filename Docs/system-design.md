@@ -16,9 +16,11 @@ paper and research schedules. Paper cycles use compact working state and append 
 an immutable archive; dashboards request full history explicitly. Paired continuity witnesses,
 scoped holds and resumable audits preserve verification outside the ordinary trading cycle.
 Real readiness is conditional on verified storage/current state and the original exact-build/account/
-dated approval, with explicit enable. The installed application remains unchanged; the overnight
-delivery target was missed. Native ownership, concurrency/recovery and capacity acceptance remain.
-Broker changed appends and historical revision audits retain full logical-history processing.
+dated approval, with explicit enable. Standard Release a94c474a is installed in verification mode;
+the overnight delivery target was missed. Native ownership/close/stop/resume checks pass; complete
+recovery, concurrency and capacity acceptance remain. Broker changed appends and historical revision
+audits retain full logical-history processing. The initial global recovery hold also pauses shared
+collection and paper workers; a running dashboard/engine does not establish normal trading readiness.
 [Current architecture, limits and cutover sequence](reviews/independent-engine-implementation-20261022.md).
 Retention choices remain separate before cleanup; no installed space was reclaimed.
 [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md) records the accepted design decisions.

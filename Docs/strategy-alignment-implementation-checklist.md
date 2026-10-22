@@ -49,6 +49,9 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Complete initial recovery coverage, review and explicitly resolve its holds, and finish remaining
   native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
+- [ ] Address the measured repeated adjacent-state audit work and prove the recovery dependency
+  boundary. The October22 review identifies global collection/paper blocking; dashboard availability
+  is not trading readiness. Efficient verification and scoped recovery are proposed, not waived checks.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

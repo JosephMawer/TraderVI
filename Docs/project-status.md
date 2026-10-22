@@ -25,7 +25,7 @@ included. Native second-owner rejection, dashboard-close survival, graceful stop
 resume pass. Original financial roots/counts and checkpoint hashes still verify. The nightly task's
 original enabled state was restored13:21 without launching it.
 
-**Initial recovery is incomplete:** 3,409 verified units of a 205,318 planned upper bound at 13:34 Toronto;
+**Initial recovery is incomplete:** 4,597 verified units of a 205,318 planned upper bound at 13:57 Toronto;
 all five unresolved holds remain, with no new incidents or bad checkpoint hashes. A 15-minute read-only progress monitor reports significant progress,
 new failures or completion. Real trading remains disabled until operator results review. The overnight
 target was missed; no completion ETA or full native acceptance is claimed. Remaining acceptance covers
@@ -33,7 +33,11 @@ complete recovery/explicit hold resolution, sustained input latency, SQL concurr
 restore and weekly audit capacity. Reopened-window accessibility was unavailable, limiting UI acceptance.
 Broker changed appends still serialize full logical state under the 8MiB
 cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.
-Retention and any historical conversion/deletion remain undecided.
+Retention and any historical conversion/deletion remain undecided. The cost review confirms repeated
+full adjacent-state reconstruction. Recent constant-rate extrapolation is 11–18 hours for remaining
+paper versions alone, not a completion ETA. The global recovery hold also pauses shared collection
+and paper workers; the dashboard can view state, but Running is not normal trading availability.
+[Audit cost and actual availability](reviews/independent-engine-implementation-20261022.md#audit-cost-and-actual-app-availability--october-22-1358-toronto).
 
 ## October 21 post-open execution watch
 

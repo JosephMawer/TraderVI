@@ -98,6 +98,42 @@ restart the host or enable trading. Keep this computer and the app running for l
 The monitor ends after reporting completion; remaining qualification is still owned by the checklist.
 No order, grant renewal, historical conversion/deletion, database restore or cleanup was performed.
 
+## Audit cost and actual app availability — October 22, 13:58 Toronto
+
+The operator asks why the audit still repeats history, what that history contains, how long it will
+take and whether the app can run before the market closes. Read-only inspection confirms a remaining
+implementation problem: `EngineHistoryVerifier.VerifyPaperAsync` reopens the entire current and prior
+saved portfolio version for each transition. `DelphiLiveSnapshotStorage.ReadPartsAsync` fetches the
+accumulated collections and referenced reports for each compact version before reconstruction. Thus
+overlapping fills, quotes, marks and other records are repeatedly read/processed as revisions advance.
+The broker audit also opens adjacent complete logical states. Stored-content sharing and an independent
+process have not made this audit incremental. It is not rerunning today's stock strategy or training models.
+
+The hash-verified 13:57:42 read shows 4,597 verified units, still in the first paper target (revisions
+0–6,936). The fixed plan contains 37,790 paper versions across three targets, 260 broker versions,
+167,268 legacy input/result records, and zero new shared-input/content records at its boundary. Total
+planned units are 205,318; records have very different costs, so count percentage is not elapsed-work
+percentage. Recent paper rates were 50.3/minute over 23.64 minutes and 31.9/minute over 2.54 minutes.
+At those unchanged rates, the remaining 33,193 paper versions alone would take about 11–18 hours.
+This is a conditional extrapolation, not a full completion ETA: later states may cost more, other
+families are unmeasured, and the audit uses five-second batches separated by thirty-second waits.
+The five existing incidents and zero bad checkpoint hashes are unchanged. Private receipt:
+`artifacts/read-only-db/result-20261022T175741806Z-70dd390ec25941d2bc0246ae6b7c957a.json`.
+
+The installed engine remains PID80744 with `--verify` at 13:57:27. The dashboard may reconnect for
+viewing, but broker access/orders are disabled. More broadly, the global recovery hold also blocks
+shared market-input collection, Live paper and tracked/Shadow paper workers. An engine process marked
+Running does not establish that trading or collection is operational. The current recovery boundary
+still couples unrelated paper/archive completion to real availability; the accepted independence goal
+is not fully qualified. No real-trading readiness today is established, and no hold or permission changed.
+
+Recommended follow-up, not a newly accepted relaxation: verify archive records once per audit pass,
+carry verified state forward and check changes between versions, preserving exact identities, original
+financial values and corruption detection. Establish a separately verified real-account/current-input
+recovery boundary before allowing unrelated paper archives to finish independently. Isolation must be
+proved before changing the present conservative holds; merely increasing the audit duty cycle would
+not remove repeated work. The user requested explanation/discussion; this check changes no engine code.
+
 ## What changed
 
 The dashboard connects to a separate Windows engine through asynchronous, current-user-only local

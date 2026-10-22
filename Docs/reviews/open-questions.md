@@ -18,12 +18,19 @@ Things we punted on and need to revisit. Cleared as decisions are made
   historical integrity audits, acknowledging later detection of unrelated historical corruption.
 - **Audit policy adopted:** nightly new-history checks, weekly archive coverage target, scoped integrity
   holds and explicitly verified recovery. Research-only continuation requires verified independence;
-  protection continues only when its prerequisites remain trustworthy. No scheduled jobs are installed.
+  protection continues only when its prerequisites remain trustworthy. The engine audit schedules are
+  installed for verification; native capacity and complete acceptance remain pending.
 - **Lifecycle accepted:** closing the dashboard leaves the engine running, with a separate stop control.
   The operator then requested implementation through history/storage. Source implementation and offline
   tests are recorded in the [cutover review](independent-engine-implementation-20261022.md). The overnight
-  target was missed. Native ownership/concurrency/recovery, resource and audit-capacity acceptance and
-  exact installation remain open. Retention is separate before cleanup; no installed saving is claimed.
+  target was missed. Standard Release a94c474a is installed in verification mode; ownership/close/stop/
+  resume checks pass. Full recovery, concurrency, resource and audit-capacity acceptance remain open.
+  Retention is separate before cleanup; no installed saving is claimed.
+- **October22 cost/availability finding:** each paper revision still reconstructs overlapping complete
+  states. The broad recovery hold also pauses collection/paper workers, leaving the dashboard usable
+  for viewing but real trading unavailable. Proposed follow-up: a single-pass archive verifier and a
+  separately proven real-account/current-input recovery boundary, so unrelated archives can finish
+  independently. This is not approval to bypass existing holds. [Measured scope and limits](independent-engine-implementation-20261022.md#audit-cost-and-actual-app-availability--october-22-1358-toronto).
 - Checkpoint trust, exact references, locking, direct freshness/progress, resource/acceptance budgets and
   incident persistence/release mechanics are engineering work under accepted rules. Bring back substantive
   behavior/authority trade-offs, not routine algorithm choices. Special-backup retention remains separate.
