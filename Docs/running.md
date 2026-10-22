@@ -1,14 +1,14 @@
 # Running TraderVI
 
-## Independent engine — installed verification, October 22
+## Independent engine — normal mode with trading disabled, October 22
 
-The ADR-0103/0104 host is installed as standard Release0082a88a and running with`--verify`; Real recovery
-is complete while Paper continues independently. Complete native acceptance and the real-only
-operational transition remain pending the checklist checks. Real trading stays
-disabled until operator review. Readiness requires verified
-independent storage/guards, continuity, applicable holds and an exact current broker subscription;
-original exact-build/account/dated permission and separate enable remain mandatory. Follow the
-[concrete qualification/cutover review](reviews/independent-engine-implementation-20261022.md).
+The ADR-0103/0104 host and ADR-0105 selected-session flow are installed in standard Release.
+Normal mode reconnects the broker; native execution status is Off. Real recovery and authorized
+real-only hold clearance pass independently of Paper. Dashboard account transport correction and
+remaining acceptance are tracked in the [cutover review](reviews/independent-engine-implementation-20261022.md).
+Keep real trading disabled until operator results review. Readiness requires verified storage/guards,
+continuity, applicable holds and exact real subscription; current account/direct-source checks,
+exact-build/dated permission and separate enable remain mandatory.
 Migrations047–051 and initial paper/real checkpoint preparation were explicitly authorized and completed
 with stopped writers and a fresh verified/synchronized full backup. Do not replay them. Migration050
 retires the legacy evaluation writer;051 permits version-3 roots.

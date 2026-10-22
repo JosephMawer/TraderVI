@@ -1,8 +1,35 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release0082a88a installed in verification mode; Real recovery complete260/260, separate Paper recovery running; trading disabled**.
-The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
-paper recovery coverage, remaining native acceptance and operator authorization have not been completed.
+Status: **standard Release444026c7 runs in normal mode with trading Off; Real recovery and real-only
+hold clearance pass; Paper continues independently. Native dashboard refresh needs an RPC correction.**
+The overnight target was missed. Full paper coverage and remaining native acceptance are incomplete.
+
+## Normal-mode installation and dashboard transport correction
+
+The reviewed next-session increment is committed as444026c7. After Joseph closed the dashboard,
+old engine57400 stopped gracefully at16:51:45Toronto; zero owners were verified before the normal
+Release build. Installed/source/output hashes and source commit identity match. New engine58696
+started16:54:14 with `--run`; native Status/ExecutionStatus/Connection prove Running, non-verification,
+Off and Connected. Dashboard49056 opens16:57:48 and responds. Paper resumes its original run/plan,
+reaching21,714 at16:56:14. Receipts: ignored `selected-session-*` files in the native evidence directory.
+Earlier empty sandbox control outputs are failed attempts, not mode evidence; the unique `*-verified`
+receipts obtained via the installed control tool are the successful observations.
+
+The16:57:19 fixed broker-read receipt verifies cash-only history/holdings and no pending orders;
+46reads, zero orders/token refreshes and unchanged credentials. It does not check the protected local
+journal or qualify cash-flow timing. Dashboard refresh itself fails: private account constructors/IDs
+cannot round-trip through default RPC JSON, and reconstructed account objects cannot satisfy native
+selection/reference checks. Execution setup remains disabled pending correction.
+
+The corrective source uses RPC-only wire contracts, opaque engine-issued account handles and a
+current-session catalogue. The server resolves handles back to its actual authenticated account;
+arbitrary/copied IDs and stale-login handles fail. Replies preserve the exact selected dashboard account
+through nested reconciliation/review data. Security IDs, holdings/pending identity and broker daily
+performance round-trip, while native order-submission provenance is never exported. Saved financial
+JSON/hashes are unchanged. Protocol2 requires matching engine/dashboard versions. Fourteen focused
+checks use real named-pipe messages and the actual broker dispatch; isolated WPF Release passes with
+260existing compiler warnings. All3,074Core tests pass/nine native SQL skips with collection concurrency
+disabled. Controlled installation/dashboard acceptance remain. No new dependency-security/full-solution qualification.
 
 ## Authorized next-session flow and normal-mode cutover — October 22
 
@@ -15,8 +42,7 @@ exact build/storage and daily/direct-source evidence remain required. No permiss
 
 Full Core 3,070 pass/nine native SQL skips with test concurrency disabled; final broker-focused
 847 pass/two native skips; isolated WPF Release
-succeeds with 260 existing compiler warnings/zero errors. Native install/normal-mode checks and
-current broker reconciliation remain in progress. Dependency-security and full solution are not requalified. The 16:30:37 Toronto fixed-helper receipt rechecks unchanged relevant heads
+succeeds with 260 existing compiler warnings/zero errors. The subsequent normal-mode milestone is recorded above; dashboard reconciliation still needs the RPC correction. Dependency-security and full solution are not requalified. The 16:30:37 Toronto fixed-helper receipt rechecks unchanged relevant heads
 (broker259/shared0/content0), exact real projection and the same eight covered candidates. This is
 read-only evidence, not actual clearance. Receipts/build logs remain in the ignored native directory.
 The authorized installed guarded clear command succeeds (`real-only-clearance-receipt.json=true`).

@@ -1,53 +1,39 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 installed verification
+## Independent engine — October 22 normal mode, trading off
 
-**Current authorized increment:** Joseph requests the next-session approval fix, verified real-only
-hold clearance and normal-mode cutover, with trading disabled until review. ADR-0105 source adds a
-selected-session cash-only continuation, fixed history links and real-definition readiness without
-paper-history reads. Full Core3,070pass/nine native skips; final broker-focused847pass/two native skips and isolated
-WPF Release pass (260 existing compiler warnings). Guarded real-only clearance is confirmed16:47:
-zero Broker/Global holds, seven Paper restrictions retained; Paper21080progressing. Installation and
-normal-mode checks are in progress. This is preparation, not financial approval or enable.
+**Current authorized work:** next-session approval, verified real-only hold clearance and normal-mode
+operation, keeping trading disabled until Joseph reviews the checks. ADR-0105 is installed from
+444026c7 in standard Release. Engine PID58696 started with `--run` at16:54Toronto; installed Status
+proves Running/non-verification and ExecutionStatus proves Off. The saved login reconnects normally.
 
-**Real recovery complete; paper proceeds independently.** Standard Release0082a88a is installed;
-PID57400and native status prove verification-only mode. Real recovery verifies all260broker revisions
-and its exact current subscription in39.78seconds, completing15:32:46Toronto. At15:57, separate Paper
-recovery has14,376/205,058planned units verified, including the first portfolio's complete history and
-working checkpoint. All receipt/checkpoint hashes pass; ten incidents remain (including the two new
-request holds), with no new failure after this correction. The later authorized clearance is recorded above; trading remains disabled.
+**Real recovery and clearance pass independently of paper.** Real recovery completes260/260 at
+15:32:46Toronto; the16:47 hash-verified receipt confirms zero unresolved Broker/Global holds and
+seven retained Paper restrictions. Paper resumes its original plan/cursor after the controlled stop,
+reaching21,714/205,058 planned upper-bound units at16:56. Original failed receipts remain immutable;
+all receipt/checkpoint hashes pass. No financial approval, permission renewal or order occurred.
 
-**Real-only readiness review15:59:** relevant real/shared heads still match the completed proof.
-Three broker holds are resolution candidates; five global findings can retain linked paper restrictions;
-two existing paper holds remain. The prepared clearance was later executed and verified at16:47 as recorded above. The broker helper could not
-verify the saved login; current reconciliation remains unproved. Saved permission expired October21,
-and its approved build differs from the installed build. The installed path supports October22
-only; ADR-0105 source prepares the later-session flow, followed by explicit dated/build approval.
-Controlled normal-mode cutover, real-only clearance and fresh direct-input/concurrency checks remain
-before separate enable. Paper completion is not their prerequisite.
+**Dashboard acceptance exposed another defect:** account objects were not serializable across the
+new process boundary. The broker itself is connected: the16:57 fixed broker-read helper succeeds,
+with matching cash-only holdings/history, no pending orders and zero order/token-refresh operations.
+It does not check the protected local journal or qualify cash-flow timing. The dashboard is open but
+account refresh/setup is blocked until the RPC correction is installed and verified. RPC-only account
+handles now preserve selected-account identity and reject copied IDs/old-login selections; holdings,
+pending identities and daily performance have explicit wire contracts. Saved-history JSON is unchanged.
+Fourteen focused transport/client tests, all3,074Core/nine native skips and isolated WPF Release pass.
+The first ADR-0105 increment passed3,070Core/nine native skips and847broker checks/two native skips.
 
-**Installed correction:** exact saved boundaries identify legacy SQL timestamp rounding
-and process-dependent dictionary serialization. Audit-only representation reconstruction preserves all
-values and requires each original hash plus unchanged financial/authority rules.395focused tests and
-all three original broker approval transitions plus the paper settings transition pass offline; isolated
-WPF Release succeeds with260existing compiler warnings/zero errors. Full Core3,032pass/nine native
-skips with concurrency disabled. Original failed receipts remain immutable; corrected scoped passes
-are separate. Dashboard15432is open, with its window/process observed; accessibility text is unavailable.
-Engine Status returns in198–347ms during the paper audit. This is control responsiveness, not complete
-UI, market latency or trading qualification.
-[Owning evidence and limits](reviews/independent-engine-implementation-20261022.md).
+Next: finish transport validation, controlled replacement with execution off, then verify dashboard
+reconciliation/setup. Tomorrow still requires current daily/direct-source checks, operator review of
+the exact dated/build permission and separate enable. Paper completion is not a prerequisite.
+[Owning evidence and qualification limits](reviews/independent-engine-implementation-20261022.md).
 
-Backup/copy/synchronization, individually reviewed migrations047–051 and prepared paper/real checkpoints
-are complete. Original counts/roots and required guards were verified. Native single-owner rejection,
-dashboard-close survival, graceful stop and saved-cursor resume pass; nightly's original enabled state
-was restored13:21Toronto without launching it. Earlier full Core3,028pass/nine native skips and49SQL
-batches parse. No complete-solution or dependency-security requalification follows from this correction.
-
-Real trading stays disabled pending operator authorization and remaining real-path checks. Paper recovery,
-sustained input latency, concurrency, interruption/restore and weekly capacity remain open. The overnight
-target was missed. The old reader's11–18-hour paper-only extrapolation does not estimate the corrected
-reader. Full-run throughput and disk savings remain unmeasured; no historical conversion/deletion or
-cleanup occurred. Dashboard viewing is available; verification mode is not normal trading availability.
+Backup/copy/synchronization, migrations047–051 and prepared checkpoints are complete. Native single
+ownership, dashboard-close survival, graceful stop and saved-cursor resume pass. Nightly's original
+schedule is restored. Remaining paper coverage, sustained market-hours latency, concurrency, abnormal
+interruption/restore and weekly capacity stay open. The overnight target was missed; no historical
+conversion/deletion, cleanup or measured disk saving is claimed. Builds retain260existing compiler
+warnings; dependency security and the complete SSDT solution were not requalified in this increment.
 
 ## October 21 post-open execution watch
 

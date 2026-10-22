@@ -29,6 +29,7 @@ public sealed class EngineBrokerService
     private readonly BrokerExecutionHost host;
     private readonly bool verificationOnly;
     private readonly Dictionary<Guid, PreparedManualBuy> reviews = [];
+    private readonly EngineAccountCatalogue accountCatalogue = new();
     private volatile bool closing;
 
     public EngineBrokerService(IWealthsimpleConnection connection, IBrokerOrderJournal journal,
@@ -98,7 +99,9 @@ public sealed class EngineBrokerService
         try
         {
             if (closing) throw new InvalidOperationException("Engine shutdown is in progress.");
-            T Read<T>() => request.Payload.Deserialize<T>() ?? throw new InvalidOperationException("Missing command input.");
+            var json = EngineRpcJson.Options(resolve: reference => accountCatalogue.Resolve(reference,
+                connection.SessionRevision, connection.IsConnected));
+            T Read<T>() => request.Payload.Deserialize<T>(json) ?? throw new InvalidOperationException("Missing command input.");
             switch (request.Operation)
             {
                 case EngineOperation.SignIn:
@@ -114,7 +117,14 @@ public sealed class EngineBrokerService
                 case EngineOperation.CheckConnection: await connection.CheckAsync(true); return true;
                 case EngineOperation.RememberSession: await connection.SetRememberAsync(Read<bool>()); return true;
                 case EngineOperation.Disconnect: await connection.DisconnectAsync(); reviews.Clear(); return true;
-                case EngineOperation.Accounts: return await connection.ReadTfsaAccountsAsync();
+                case EngineOperation.Accounts:
+                    long accountRevision = connection.SessionRevision;
+                    var catalogue = await connection.ReadTfsaAccountsAsync();
+                    if (catalogue.Status == WealthsimpleReadStatus.Success && catalogue.Data is not null &&
+                        connection.IsConnected && connection.SessionRevision == accountRevision)
+                        accountCatalogue.Publish(catalogue.Data, accountRevision);
+                    else accountCatalogue.Publish([], connection.SessionRevision);
+                    return catalogue;
                 case EngineOperation.AccountSnapshot: return await connection.ReadTfsaSnapshotAsync(Read<WealthsimpleTfsaAccount>());
                 case EngineOperation.PendingOrders: return await connection.ReadTfsaPendingOrdersAsync(Read<WealthsimpleTfsaAccount>());
                 case EngineOperation.DailyPerformance: return await connection.ReadTfsaDailyPerformanceAsync(Read<WealthsimpleTfsaAccount>(), default);

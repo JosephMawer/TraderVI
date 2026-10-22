@@ -43,13 +43,14 @@ public sealed class EngineRpcClient(string pipeName) : IEngineRpc
         using var connecting = CancellationTokenSource.CreateLinkedTokenSource(ct);
         connecting.CancelAfter(TimeSpan.FromSeconds(5));
         await pipe.ConnectAsync(connecting.Token).ConfigureAwait(false);
-        var request = new EngineRequest(1, Guid.NewGuid(), operation, JsonSerializer.SerializeToElement(payload));
+        var request = new EngineRequest(2, Guid.NewGuid(), operation, JsonSerializer.SerializeToElement(payload, EngineRpcJson.Options()));
         await EngineRpcFrames.WriteAsync(pipe, request, ct).ConfigureAwait(false);
         var reply = await EngineRpcFrames.ReadAsync<EngineReply>(pipe, ct).ConfigureAwait(false);
-        if (reply.Version != 1 || reply.RequestId != request.RequestId)
+        if (reply.Version != 2 || reply.RequestId != request.RequestId)
             throw new InvalidDataException("The engine reply does not match this command.");
         if (!reply.Succeeded) throw new InvalidOperationException("The engine could not complete this request. Check its current status before retrying.");
-        return reply.Payload.Deserialize<T>() ?? throw new InvalidDataException("The engine returned no result.");
+        return reply.Payload.Deserialize<T>(EngineRpcJson.Options(EngineRpcJson.SelectedAccount(payload)))
+            ?? throw new InvalidDataException("The engine returned no result.");
     }
 }
 
@@ -92,16 +93,16 @@ public sealed class EngineRpcServer(string pipeName, Func<EngineRequest, Task<ob
             {
                 using var receive = new CancellationTokenSource(TimeSpan.FromSeconds(10));
                 var request = await EngineRpcFrames.ReadAsync<EngineRequest>(pipe, receive.Token).ConfigureAwait(false);
-                if (request.Version != 1 || request.RequestId == Guid.Empty || !Enum.IsDefined(request.Operation))
+                if (request.Version != 2 || request.RequestId == Guid.Empty || !Enum.IsDefined(request.Operation))
                     throw new InvalidDataException("Unsupported engine request.");
                 EngineReply reply;
                 try
                 {
                     // A disappearing dashboard does not cancel an admitted financial operation.
                     var result = await dispatch(request).ConfigureAwait(false);
-                    reply = new(1, request.RequestId, true, JsonSerializer.SerializeToElement(result, result.GetType()));
+                    reply = new(2, request.RequestId, true, JsonSerializer.SerializeToElement(result, result.GetType(), EngineRpcJson.Options()));
                 }
-                catch { reply = new(1, request.RequestId, false, JsonSerializer.SerializeToElement(false)); }
+                catch { reply = new(2, request.RequestId, false, JsonSerializer.SerializeToElement(false)); }
                 using var sending = new CancellationTokenSource(TimeSpan.FromSeconds(10));
                 await EngineRpcFrames.WriteAsync(pipe, reply, sending.Token).ConfigureAwait(false);
             }

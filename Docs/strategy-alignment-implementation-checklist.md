@@ -35,7 +35,7 @@ The overnight target was missed. Completed source work is separate from installe
   three saved broker approval boundaries plus paper settings transition pass offline.
 - [x] Install representation correction0082a88a and complete native Real recovery260/260independently
   of paper; all current receipt/checkpoint hashes pass. Full Core3,032pass/nine native skips.
-- [ ] Qualify bounded sustained memory/throughput and native real-only hold resolution; retain disabled
+- [ ] Qualify bounded sustained memory/throughput; retain disabled
   trading until operator results review. Current broker/source/dated authority checks remain required.
 - [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
   scoped access and exact current subscription checks; retain existing account/build/dated authority.
@@ -63,12 +63,16 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
 - [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the
-  eight-incident real-only proposal. Broker-read check cannot verify saved login; no current account proof.
+  eight-incident real-only proposal. The earlier unavailable broker-login check is superseded below.
 - [x] Obtain authority for controlled normal-mode cutover and verified real-only clearance with execution off.
 - [x] Execute guarded real-only clearance; fixed-helper16:47read verifies zero Broker/Global holds,
   seven retained Paper restrictions and unchanged advancing Paper plan.
-- [ ] Install/verify ADR-0105 and normal-mode cutover with execution off; preserve paper cursor. Reconnect normally and verify current account/order state,
-  local order recovery, fresh direct inputs and concurrent paper-work independence before enable.
+- [x] Install ADR-0105 from444026c7 and verify normal-mode Running, execution Off and broker Connected;
+  preserve the original paper cursor across graceful stop/restart.
+- [x] Verify fixed-helper current cash-only broker history/holdings and no pending orders (16:57Toronto).
+  This read does not check the local journal or qualify cash-flow timing.
+- [ ] Install/verify the account RPC correction exposed by dashboard refresh. Verify dashboard/local
+  journal reconciliation and setup, then current direct inputs/concurrent paper independence before enable.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive

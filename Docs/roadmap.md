@@ -8,32 +8,19 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**Current request — complete the revised architecture:** ADR-0103 independence, audit policy and
-engine lifetime are implemented in source through current-state/storage/readers and conditional
-readiness. The overnight target was missed. The operator now authorizes backup, migrations047–051,
-checkpoint preparation and native verification while keeping real trading disabled until review.
-Complete native single-owner/close/reconnect, SQL concurrency/recovery, latency and weekly
-audit-capacity acceptance. Preserve exact permission, freshness and original financial history. Measure residual full
-broker-append and historical-audit cost; extend those paths if acceptance fails. Migrations/checkpoints
-are installed; corrected standard Release0082a88a runs in broker-disabled verification mode.
-Real recovery is complete independently of the running Paper audit. Nightly scheduling is restored.
-Review the real result/holds without waiting for paper; complete paper coverage and qualify remaining
-concurrency, latency and archive capacity. No disk
-reclamation is claimed. The October22 cost review confirms repeated full-state audit reconstruction
-and a global recovery dependency that also pauses collection/paper work. The operator authorizes the
-fix: ADR-0104 sequential reads/decodes and separate real recovery are installed. Native verification
-exposed legacy timestamp/hash representation failures; the exact-representation correction is installed
-and real recovery passes. Prioritize reviewed real-only hold resolution and current broker/source/dated
-authorization checks before live operation; preserve paper restrictions
-and keep real trading disabled until results review. No hold bypass is accepted. Build/evidence
-retention is separate before cleanup.
-The October22 results review confirms unchanged real proof boundaries but unavailable broker login
-verification, expired October21 permission and an October22-only continuation implementation. Prioritize
-the next-session continuation dependency, controlled normal-mode/real-only clearance with execution off,
-fresh broker reconciliation and direct-input acceptance before exact-build/dated approval and separate
-enable. Joseph now explicitly authorizes the next-session fix, controlled normal-mode cutover and verified
-real-only clearance with execution off. ADR-0105 source validation and guarded real-only clearance now pass; complete installation/normal-mode checks;
-current broker/source acceptance and separate financial approval/enable still remain.
+**Current request — complete the revised architecture:** ADRs0103/0104 independence, shared/current
+storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
+clearance pass; Paper continues with seven restrictions. ADR-0105 selected-session review is installed
+in normal mode with automatic trading off. The saved login and fixed broker-read checks pass.
+Finish the account RPC correction exposed by native dashboard refresh, verify reconciliation/setup,
+and prepare tomorrow's current daily/direct-source checks before exact-build/dated approval and separate
+enable. Keep real trading disabled until Joseph reviews the results; do not wait for paper completion.
+
+Complete remaining paper coverage and native concurrency, market-hours latency, interruption/restore
+and weekly capacity acceptance. Preserve exact permission, freshness and financial history. Measure
+residual full broker-append/historical-hash cost and storage growth; extend paths if capacity fails.
+Backup/migrations047–051/checkpoints are complete; nightly scheduling is restored. The overnight target
+was missed. Retention decisions remain separate; no disk reclamation is claimed.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
 [accepted architecture](adr/0103-real-execution-independent-of-paper-research.md).
 

@@ -1,34 +1,24 @@
 # TraderVI session-work register
 
-**October22 architecture implementation and recovery:** ADRs0103/0104 engine/client, independent real
-inputs/recovery, separate consumers, compact/shared storage and fresh sequential audit readers are
-implemented. Backup/copy/sync, migrations047–051 and checkpoints are installed with original evidence
-preserved. The overnight target was missed. Standard Release0082a88a is installed in verification-only
-mode; real trading remains disabled until Joseph reviews the results. Native Real recovery completes
-260/260in39.78seconds at15:32:46Toronto while separate Paper recovery continues (14,376/205,058at15:57).
-The paper failure boundary and first portfolio/working checkpoint pass. Ten holds remain; all original
-receipt/checkpoint hashes verify and no new failure follows the correction. Current broker/source/dated
-permission and explicit verified real-only hold resolution remain before live operation.
+**October22 architecture implementation and recovery:** ADRs0103/0104, backup/migrations047–051 and
+checkpoints are installed. Real recovery completes260/260 independently of paper. Authorized guarded
+clearance is confirmed16:47Toronto: zero Broker/Global holds, seven Paper restrictions retained.
+ADR-0105 next-session approval is installed from444026c7; normal `--run` PID58696 starts16:54 with
+execution Off and saved broker login connected. Paper resumes its original plan/cursor (21,714 at16:56).
+The16:57 fixed broker helper verifies cash-only history/holdings and no pending orders, but not the local
+journal or cash-flow timing. Native dashboard refresh exposes an RPC account-serialization defect;
+correction passes14focused/3,074Core checks (nine native skips) and isolated Release; installation/
+dashboard acceptance remain. No financial
+approval/renewal/order. Tomorrow's dated/current-build review and direct-source checks remain before
+separate enable; Paper completion is not their prerequisite.
 
-The subsequent real-results review confirms unchanged real/shared heads and prepares three broker
-resolutions plus five global-to-paper restrictions, without submitting them. Broker-read verification
-requires normal reconnect or resolution of unavailable verification. Saved permission expired October21;
-the installed continuation supports October22 only; ADR-0105 source now prepares a reusable dated
-review without paper-history reads.
-Controlled normal-mode cutover/clearance, fresh broker/source acceptance and exact-build/dated approval
-remain before separate enable. Joseph subsequently authorizes the next-session fix, exact real-only clearance and normal-mode
-cutover with trading disabled. ADR-0105 validates (Core3,070pass/nine skips; broker847pass/two skips; WPF Release passes).
-Native guarded clearance16:47leaves zero Broker/Global and seven Paper holds; Paper21080progressing.
-Installation/normal-mode checks remain; no financial approval.
+The overnight target was missed. Prior failed receipts remain immutable and all original/checkpoint
+hashes verify. Remaining weekly/full-run capacity, market-hours latency, concurrency, interruption/
+restore and retention stay open; no disk savings or cleanup. The read-only15-minute monitor follows
+the remaining Paper run and latest main-session cutovers, suppressing known failures/Real completion.
+Nightly's original enabled state is restored. Keep trading disabled until Joseph reviews the checks.
 
-The correction preserves exact legacy hashes despite SQL timestamp projection and process-dependent
-immutable dictionary ordering. Original failed receipts remain; new scoped recovery passes are explicit.
-Full Core3,032pass/nine native skips,395focused checks and isolated/normal Release builds pass; existing
-compiler warnings remain. Dashboard is open; engine controls respond in198–347ms during paper work,
-but native tab/reconnect accessibility is unavailable. Whole-run/weekly capacity, remaining concurrency/
-restore/UI acceptance and retention stay open; no cleanup or disk saving is claimed. The read-only
-15-minute monitor follows the remaining Paper run and suppresses already reported failures/Real
-completion. Nightly's original enabled state remains restored.
+
 [Owning implementation/cutover record](reviews/independent-engine-implementation-20261022.md).
 
 **Reconciled October 16, 2026.** Scope: September activity through this review, all three pinned
