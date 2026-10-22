@@ -62,6 +62,16 @@ public sealed class EngineIntegrityTests
         Assert.Equal(boundary, command.Parameters["BoundaryUtc"].Value);
         Assert.Equal(System.Data.SqlDbType.DateTime2, command.Parameters["UpdatedUtc"].SqlDbType);
     }
+
+    [Fact]
+    public void LegacySettingsAssignmentAcceptsOnlyItsExactSqlDatetimeProjection()
+    {
+        var original = DateTime.Parse("2026-10-18T04:14:40.8554256Z", null, System.Globalization.DateTimeStyles.RoundtripKind);
+        var stored = DateTime.Parse("2026-10-18T04:14:40.8566667", null, System.Globalization.DateTimeStyles.RoundtripKind);
+        Assert.True(EngineIntegrityRepository.MatchesStoredBoundary(original, stored));
+        Assert.False(EngineIntegrityRepository.MatchesStoredBoundary(original, stored.AddTicks(1)));
+        Assert.False(EngineIntegrityRepository.MatchesStoredBoundary(original, stored.AddMilliseconds(1)));
+    }
     [Fact]
     public void ResumedCursorCannotTurnPartialCoverageIntoCompleteOrCrossItsFixedBoundary()
     {

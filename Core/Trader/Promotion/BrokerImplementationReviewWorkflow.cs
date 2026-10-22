@@ -109,12 +109,14 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
             throw new InvalidOperationException("Build review cannot change risk history, references or holds.");
     }
     public static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar)
+        => ValidateAppend(prior, next, calendar, null);
+    internal static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar, BrokerHistoricalStateHash? historical)
     {
         RequireSession(prior,calendar,next.SavedAt);
         var review=next.ImplementationReview ?? throw new InvalidOperationException("A build review is required.");
         if (review.ReviewId != BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:ImplementationReview:{review.ImplementationIdentity}") ||
             next.Event != "ImplementationReviewed" || next.RevisionId != review.ReviewId ||
-            review.PreviousRevisionId != prior.RevisionId || review.PreviousSessionHash != BrokerAccountImport.Hash(prior) ||
+            review.PreviousRevisionId != prior.RevisionId || !BrokerHistoricalStateHash.Matches(prior, review.PreviousSessionHash, historical) ||
             review.PreviousImplementation != prior.Strategy.Strategy.ImplementationIdentity ||
             string.IsNullOrWhiteSpace(review.ImplementationIdentity) || review.ImplementationIdentity == review.PreviousImplementation ||
             string.IsNullOrWhiteSpace(review.ReviewedBy) || review.ReviewedBy.Length > 128 ||

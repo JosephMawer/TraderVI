@@ -50,10 +50,12 @@ public sealed record BrokerOctober21Continuation(Guid SessionId, Guid PreviousRe
     }
 
     public void RequirePrior(BrokerManagedSession prior, ITsxSessionCalendar calendar)
+        => RequirePrior(prior, calendar, null);
+    internal void RequirePrior(BrokerManagedSession prior, ITsxSessionCalendar calendar, BrokerHistoricalStateHash? historical)
     {
         Validate(calendar);
         if (prior.SessionId != SessionId || prior.RevisionId != PreviousRevisionId ||
-            BrokerAccountImport.Hash(prior) != PreviousSessionHash || prior.SavedAt != CloseObservedAt ||
+            !BrokerHistoricalStateHash.Matches(prior, PreviousSessionHash, historical) || prior.SavedAt != CloseObservedAt ||
             prior.Event != "StrategyEvaluated" || prior.SavedAt < PreviousScope.PurchaseExpiresAt ||
             BrokerAccountImport.Hash(prior.EffectiveReview.NoTransferScope) != BrokerAccountImport.Hash(PreviousScope) ||
             BrokerAccountImport.Hash(prior.Account.Risk) != BrokerAccountImport.Hash(PreviousRisk) ||

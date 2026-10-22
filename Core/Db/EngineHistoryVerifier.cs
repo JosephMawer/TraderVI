@@ -22,7 +22,7 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
     private EnginePaperAuditReader? paperReader;
     private Guid paperOwner;
     private DelphiLivePortfolioSnapshot? previousPaper;
-    private BrokerManagedSession? previousBroker;
+    private BrokerManagedSessionRepository.ArchiveRevision? previousBroker;
     private readonly Queue<InputRow> legacyInputs = new();
     private string? legacyCursor;
 
@@ -61,10 +61,12 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
                 return p.Verified(run.Plan, p.NextRevision + 1, null);
             case EngineAuditFamily.BrokerRevisions:
                 if (p.NextRevision == 0) previousBroker = null;
-                else if (previousBroker?.BindingId != target.OwnerId || previousBroker?.Revision != p.NextRevision - 1)
-                    previousBroker = await BrokerManagedSessionRepository.ReadRevisionAsync(c, target.OwnerId!.Value, p.NextRevision - 1, ct);
-                var broker = await BrokerManagedSessionRepository.ReadRevisionAsync(c, target.OwnerId!.Value, p.NextRevision, ct);
-                BrokerManagedSessionRepository.ValidateNext(previousBroker, broker, calendar);
+                else if (previousBroker?.State.BindingId != target.OwnerId || previousBroker?.State.Revision != p.NextRevision - 1)
+                    previousBroker = await BrokerManagedSessionRepository.ReadArchiveRevisionAsync(c, target.OwnerId!.Value, p.NextRevision - 1, ct);
+                var archive = await BrokerManagedSessionRepository.ReadArchiveRevisionAsync(c, target.OwnerId!.Value, p.NextRevision, ct);
+                var broker = archive.State;
+                BrokerManagedSessionRepository.ValidateNext(previousBroker?.State, broker, calendar,
+                    await BrokerManagedSessionRepository.HistoricalEvidenceAsync(c, previousBroker, archive, target.ThroughRevision, ct));
                 if (run.Plan.Kind == EngineAuditKind.Recovery && p.NextRevision == target.ThroughRevision)
                 {
                     var observation = (await new EngineRealObservationStore().ReadAsync(ct)).Single(r => r.BindingId == broker.BindingId);
@@ -72,7 +74,7 @@ public sealed class EngineHistoryVerifier(ITsxSessionCalendar calendar)
                         DelphiLiveSnapshotCodec.Fingerprint(DelphiLiveLedgerJson.Serialize(EngineRealObservation.From(broker))))
                         throw new InvalidDataException("Real observation subscription differs from reconstructed broker history.");
                 }
-                previousBroker = broker;
+                previousBroker = archive;
                 return p.Verified(run.Plan, p.NextRevision + 1, null);
             case EngineAuditFamily.SharedContent:
                 var content = await c.QueryFirstOrDefaultAsync<ContentRow>(new CommandDefinition("""
@@ -156,7 +158,8 @@ JOIN dbo.EngineStrategyVersion v ON v.VersionId=a.VersionId
 WHERE a.AssignmentId=@Assignment AND v.Family=N'DelphiLive'
  AND v.SettingsHash=CONVERT(char(64),HASHBYTES('SHA2_256',v.SettingsJson),2);
 """, new { Assignment = assignment }, cancellationToken: ct));
-            if (settings.TargetId != owner || settings.VersionId != next.State.PolicyVersionId || settings.AssignedUtc != next.State.UpdatedUtc)
+            if (settings.TargetId != owner || settings.VersionId != next.State.PolicyVersionId ||
+                !EngineIntegrityRepository.MatchesStoredBoundary(next.State.UpdatedUtc, settings.AssignedUtc))
                 throw new InvalidDataException("Historical settings assignment identity failed.");
             var policy = (DelphiLivePolicyDefinition)EngineStrategySettings.Read(EngineStrategySettings.Live, settings.SettingsJson);
             RequireSame(EngineStrategyReassignment.Rebase(previous, policy, next.State.UpdatedUtc), next.State);

@@ -29,7 +29,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Implement ADR-0104 sequential per-pass archive reads/decodes, paged inputs and faster active
   batches; separate Real/Paper recovery and preserve linked paper restrictions. Remove held paper
   subscriptions/settings from real collection dependencies. Full Core3,028pass/nine skips;49 SQL parses.
-- [ ] Install and qualify scoped recovery, original cursor resume, bounded memory/throughput and
+- [x] Install scoped recovery fc5f6e45 in verification mode and observe original cursor resume.
+  Native checks expose legacy timestamp/hash representation defects; preserve failed receipts/holds.
+- [x] Implement/test audit-only exact historical representation recovery;395focused tests and all
+  three saved broker approval boundaries plus paper settings transition pass offline.
+- [ ] Install the representation correction and qualify scoped recovery, bounded memory/throughput and
   native real-only hold resolution; retain disabled trading until operator results review.
 - [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
   scoped access and exact current subscription checks; retain existing account/build/dated authority.
@@ -55,7 +59,8 @@ The overnight target was missed. Completed source work is separate from installe
   native concurrency/latency/restore/UI acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
 - [ ] Measure the installed ADR-0104 improvement and prove the native recovery dependency boundary.
-  Source efficiency/scope checks pass; dashboard availability alone is not trading readiness.
+  Source efficiency/scope checks pass; legacy representation correction awaits native retry.
+  Dashboard availability alone is not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
 

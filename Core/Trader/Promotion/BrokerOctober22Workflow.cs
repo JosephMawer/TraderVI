@@ -80,11 +80,13 @@ public sealed class BrokerOctober22Workflow(IBrokerManagedSessionStore sessions,
     }
 
     public static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar)
+        => ValidateAppend(prior, next, calendar, null);
+    internal static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar, BrokerHistoricalStateHash? historical)
     {
         if (prior.October22 is not null || next.October22 is not { } value || next.Event != "October22ContinuationApproved")
             throw new InvalidOperationException("Only one explicitly approved October 22 continuation may be appended.");
         var continuation = value.RiskRequest.October22 ?? throw new InvalidOperationException("Missing continuation risk association.");
-        continuation.RequirePrior(prior, calendar);
+        continuation.RequirePrior(prior, calendar, historical);
         var scope = value.Approval.Review.NoTransferScope;
         scope?.Validate(calendar);
         BrokerOctober22Continuation.RequireSameDefinition(prior.Strategy, next.Strategy);

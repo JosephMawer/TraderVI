@@ -15,12 +15,13 @@ checkpoint preparation and native verification while keeping real trading disabl
 Complete native single-owner/close/reconnect, SQL concurrency/recovery, latency and weekly
 audit-capacity acceptance. Preserve exact permission, freshness and original financial history. Measure residual full
 broker-append and historical-audit cost; extend those paths if acceptance fails. Migrations/checkpoints
-are installed; standard Release a94c474a runs in broker-disabled verification mode and resumes its
+are installed; standard Release fc5f6e45 runs in broker-disabled verification mode and resumed its
 saved recovery cursor. Nightly scheduling is restored. Finish the initial recovery audit, review its
 results/holds, and qualify remaining concurrency, latency and archive capacity. No disk
 reclamation is claimed. The October22 cost review confirms repeated full-state audit reconstruction
 and a global recovery dependency that also pauses collection/paper work. The operator authorizes the
-fix: ADR-0104 sequential reads/decodes and separate real recovery are implemented and tested in source.
+fix: ADR-0104 sequential reads/decodes and separate real recovery are installed. Native verification
+exposed legacy timestamp/hash representation failures; install the tested exact-representation correction.
 Prioritize installed qualification and independent real recovery completion; preserve paper restrictions
 and keep real trading disabled until results review. No hold bypass is accepted. Build/evidence
 retention is separate before cleanup.

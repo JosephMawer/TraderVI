@@ -54,6 +54,16 @@ held paper paths. Real definition/source checks and freshness remain required. C
 an explicit operator control and does not renew permission, enable execution or place an order.
 The installed verification mode remains the qualification boundary until results review.
 
+Legacy compatibility discovered during native qualification: original broker approval hashes depend
+on process-local dictionary ordering. Audit-only evidence may reconstruct Memory JSON representation
+from immutable records, preserving every value and requiring the exact original SHA256. For a source
+switch that cleared nested signal dictionaries, at most32later broker records within the fixed boundary
+may supply property ordering; each row's checksum is verified and its transition must still pass later.
+This bounded exception rereads a short broker interval, never paper history or external data. Current
+approval/write validation has no historical override. Missing proof remains a failure. Paper settings
+timestamps accept only the established exact legacy SQL datetime projection, not a time tolerance.
+Failed audit receipts remain immutable; a corrected retry is a new explicit pass, not resumed success.
+
 ## Alternatives and consequences
 
 Keeping a single global recovery proof retains the observed multi-hour coupling. Dropping fingerprints

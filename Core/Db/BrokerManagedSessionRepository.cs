@@ -100,7 +100,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
         catch { await ReleaseAndClose(c, bindingId); throw; }
     }
     internal static void ValidateNext(BrokerManagedSession? prior, BrokerManagedSession next,
-        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar = null)
+        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar = null, BrokerHistoricalStateHash? historical = null)
     {
         next.Strategy.Validate();
         if (next.BindingId == Guid.Empty || next.SessionId == Guid.Empty || next.RevisionId == Guid.Empty || next.SavedAt == default ||
@@ -137,16 +137,16 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             throw new InvalidOperationException("Broker session history, authority and holds must be preserved.");
         if (prior.Continuation?.Fingerprint != next.Continuation?.Fingerprint)
             BrokerContinuationWorkflow.ValidateAppend(prior, next, calendar ??
-                throw new InvalidOperationException("A reviewed calendar is required for a new continuation."));
+                throw new InvalidOperationException("A reviewed calendar is required for a new continuation."), historical);
         if (prior.October22?.Fingerprint != next.October22?.Fingerprint)
             BrokerOctober22Workflow.ValidateAppend(prior, next, calendar ??
-                throw new InvalidOperationException("A reviewed calendar is required for October 22 permission."));
+                throw new InvalidOperationException("A reviewed calendar is required for October 22 permission."), historical);
         if (BrokerAccountImport.Hash(prior.SourceSwitch) != BrokerAccountImport.Hash(next.SourceSwitch))
             BrokerLiveSourceSwitchWorkflow.ValidateAppend(prior, next, calendar ??
-                throw new InvalidOperationException("A reviewed calendar is required for a source switch."));
+                throw new InvalidOperationException("A reviewed calendar is required for a source switch."), historical);
         if (BrokerAccountImport.Hash(prior.ImplementationReview) != BrokerAccountImport.Hash(next.ImplementationReview))
             BrokerImplementationReviewWorkflow.ValidateAppend(prior, next, calendar ??
-                throw new InvalidOperationException("A reviewed calendar is required for an implementation review."));
+                throw new InvalidOperationException("A reviewed calendar is required for an implementation review."), historical);
         for (int i = 0; i < prior.Orders.Length; i++)
         {
             var old = prior.Orders[i]; var fresh = next.Orders[i];
@@ -168,18 +168,47 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
     internal static async Task<BrokerManagedSession> VerifyRevisionAsync(SqlConnection connection, Guid binding, long revision,
         Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, CancellationToken ct, SqlTransaction? transaction = null)
     {
-        var next = await ReadRevisionAsync(connection, binding, revision, ct, transaction);
-        ValidateNext(revision == 0 ? null : await ReadRevisionAsync(connection, binding, revision - 1, ct, transaction), next, calendar);
-        return next;
+        var next = await ReadArchiveRevisionAsync(connection, binding, revision, ct, transaction);
+        var previous = revision == 0 ? null : await ReadArchiveRevisionAsync(connection, binding, revision - 1, ct, transaction);
+        ValidateNext(previous?.State, next.State, calendar,
+            await HistoricalEvidenceAsync(connection, previous, next, revision, ct, transaction));
+        return next.State;
+    }
+
+    internal static async Task<BrokerHistoricalStateHash?> HistoricalEvidenceAsync(SqlConnection connection,
+        ArchiveRevision? previous, ArchiveRevision next, long through, CancellationToken ct, SqlTransaction? transaction = null)
+    {
+        if (previous is null || !BrokerHistoricalStateHash.Required(previous.State, next.State)) return null;
+        var evidence = BrokerHistoricalStateHash.Create(previous.State, previous.Json, next.State, next.Json);
+        if (previous.State.SourceSwitch is null && next.State.SourceSwitch is { } change &&
+            !BrokerHistoricalStateHash.Matches(previous.State, change.PreviousSessionHash, evidence))
+        {
+            // Compatibility only: at most 32 original broker records inside the fixed audit boundary.
+            // The normal sequential audit still verifies each witness transition before completing.
+            for (long revision = next.State.Revision + 1; revision <= through && revision - next.State.Revision <= 32; revision++)
+            {
+                ct.ThrowIfCancellationRequested();
+                var witness = await ReadArchiveRevisionAsync(connection, next.State.BindingId, revision, ct, transaction);
+                evidence.AddOrderWitness(witness.Json);
+                if (BrokerHistoricalStateHash.Matches(previous.State, change.PreviousSessionHash, evidence)) break;
+            }
+        }
+        return evidence;
     }
 
     internal static async Task<BrokerManagedSession> ReadRevisionAsync(SqlConnection connection, Guid binding, long revision,
+        CancellationToken ct, SqlTransaction? transaction = null)
+        => (await ReadArchiveRevisionAsync(connection, binding, revision, ct, transaction)).State;
+    internal sealed record ArchiveRevision(BrokerManagedSession State, string Json);
+    internal static async Task<ArchiveRevision> ReadArchiveRevisionAsync(SqlConnection connection, Guid binding, long revision,
         CancellationToken ct, SqlTransaction? transaction = null)
     {
         var row = await connection.QuerySingleAsync<Row>(new CommandDefinition(
             "SELECT * FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding AND Revision=@Revision;",
             new { Binding = binding, Revision = revision }, transaction, cancellationToken: ct));
-        return Decode(row, await EngineArchiveStorage.ReadContentsAsync(connection, transaction, row.SnapshotJson, ct));
+        var contents = await EngineArchiveStorage.ReadContentsAsync(connection, transaction, row.SnapshotJson, ct);
+        var state = Decode(row, contents);
+        return new(state, EngineArchiveCodec.Restore(row.SnapshotJson, contents));
     }
 
     private static BrokerManagedSession Decode(Row row, IReadOnlyDictionary<string, string> contents)

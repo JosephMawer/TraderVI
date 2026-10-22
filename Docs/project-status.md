@@ -2,52 +2,32 @@
 
 ## Independent engine — October 22 installed verification
 
-**October22 recovery correction in source:** the operator authorizes sequential archive verification
-and independent real-account recovery, prioritizing availability while retaining disabled real trading
-until review. [ADR-0104](adr/0104-scoped-recovery-and-sequential-history-audits.md) adds fresh bounded
-per-pass content reuse, carried adjacent state, paged inputs, faster active batches and explicit
-Real/Paper/All recovery. Known global recovery findings can retain linked paper restrictions;
-unknown/shared failures remain global. Held paper subscriptions/settings no longer gate real collection.
-Full Core3,028pass/nine skips;49 SQL batches parse. Native installation/throughput/scope qualification
-are pending; the installed state below remains the last operational evidence. No additional migration,
-archive conversion/deletion, hold clearance or financial activation has occurred in this correction.
+**Current installed state:** standard Release fc5f6e45 runs in broker-disabled verification mode
+(native process/mode proof14:52Toronto). ADR-0104 sequential paper content reuse and independent
+Real/Paper recovery are installed. The original full recovery resumed but failed at paper revision6,044;
+separate Real recovery failed at broker revision50. Eight unresolved incidents remain; every prepared
+checkpoint hash verifies. No hold has been cleared and no execution enabled.
 
-The revised engine, direct shared inputs, independent paper/research consumers, compact paper state,
-shared storage, audit/hold/recovery controls and current-state dashboard readers are implemented in
-source. The temporary unconditional execution block is replaced by verified storage/continuity/current
-subscription prerequisites; original exact-build/account/dated approval and explicit enable remain.
+**Correction ready for native retry:** exact saved boundaries identify legacy SQL timestamp rounding
+and process-dependent dictionary serialization. Audit-only representation reconstruction preserves all
+values and requires each original hash plus unchanged financial/authority rules.395focused tests and
+all three original broker approval transitions plus the paper settings transition pass offline; isolated
+WPF Release succeeds with260existing compiler warnings/zero errors. Full Core3,032pass/nine native
+skips with concurrency disabled. Corrected native qualification remains pending; failed receipts stay
+immutable and a retry creates a new explicit pass.
+[Owning evidence and limits](reviews/independent-engine-implementation-20261022.md).
 
-Full Core: **3,016 passed, nine native skips** with explicit xUnit concurrency disabled. Engine,
-WPF and SSDT builds pass; changed SQL parsing and native schema/guard checks pass. Existing compiler warnings
-remain; dependency-security audit was not requalified. [Evidence, retained checkpoints and concrete
-cutover sequence](reviews/independent-engine-implementation-20261022.md).
+Backup/copy/synchronization, individually reviewed migrations047–051 and prepared paper/real checkpoints
+are complete. Original counts/roots and required guards were verified. Native single-owner rejection,
+dashboard-close survival, graceful stop and saved-cursor resume pass; nightly's original enabled state
+was restored13:21Toronto without launching it. Earlier full Core3,028pass/nine native skips and49SQL
+batches parse. No complete-solution or dependency-security requalification follows from this correction.
 
-**Native preparation authorized; not operationally accepted.** On October22 the operator explicitly
-authorizes the backup, migrations047–051, checkpoint preparation and native verification, with real
-trading disabled until results review. Zero owners/active leases were verified; the idle nightly task
-was temporarily disabled with its original state saved. A fresh checksum-verified full backup and
-SHA256-matched second copy completed11:32Toronto; Windows confirmed OneDrive synchronization11:41.
-Migrations047–051 are installed; nine tables/fifteen guards and original roots/history counts verify.
-Paper/real checkpoints prepared successfully. Standard Release **a94c474a** is installed and running
-in broker-disabled verification mode; native process/mode proof is current13:27Toronto. Corrected
-audit timestamp/value comparisons, dashboard command failures and shared-runtime packaging are
-included. Native second-owner rejection, dashboard-close survival, graceful stop and persisted audit
-resume pass. Original financial roots/counts and checkpoint hashes still verify. The nightly task's
-original enabled state was restored13:21 without launching it.
-
-**Initial recovery is incomplete:** 4,597 verified units of a 205,318 planned upper bound at 13:57 Toronto;
-all five unresolved holds remain, with no new incidents or bad checkpoint hashes. A 15-minute read-only progress monitor reports significant progress,
-new failures or completion. Real trading remains disabled until operator results review. The overnight
-target was missed; no completion ETA or full native acceptance is claimed. Remaining acceptance covers
-complete recovery/explicit hold resolution, sustained input latency, SQL concurrency, interruption/
-restore and weekly audit capacity. Reopened-window accessibility was unavailable, limiting UI acceptance.
-Broker changed appends still serialize full logical state under the 8MiB
-cap; full historical revision audits remain expensive. Disk savings and weekly capacity are unmeasured.
-Retention and any historical conversion/deletion remain undecided. The cost review confirms repeated
-full adjacent-state reconstruction. Recent constant-rate extrapolation is 11–18 hours for remaining
-paper versions alone, not a completion ETA. The global recovery hold also pauses shared collection
-and paper workers; the dashboard can view state, but Running is not normal trading availability.
-[Audit cost and actual availability](reviews/independent-engine-implementation-20261022.md#audit-cost-and-actual-app-availability--october-22-1358-toronto).
+Real trading stays disabled until operator results review. Complete recovery/explicit hold resolution,
+sustained input latency, concurrency, interruption/restore and weekly capacity remain open. The overnight
+target was missed. The old reader's11–18-hour paper-only extrapolation does not estimate the corrected
+reader. Current throughput and disk savings remain unmeasured; no historical conversion/deletion or
+cleanup occurred. Dashboard viewing is available; verification mode is not normal trading availability.
 
 ## October 21 post-open execution watch
 

@@ -124,6 +124,8 @@ public sealed class BrokerLiveSourceSwitchWorkflow(IBrokerManagedSessionStore se
             StringComparer.OrdinalIgnoreCase) };
 
     public static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar)
+        => ValidateAppend(prior, next, calendar, null);
+    internal static void ValidateAppend(BrokerManagedSession prior, BrokerManagedSession next, ITsxSessionCalendar calendar, BrokerHistoricalStateHash? historical)
     {
         RequireSession(prior, calendar, next.SavedAt);
         var review = next.SourceSwitch ?? throw new InvalidOperationException("The exact source-switch review is required.");
@@ -131,7 +133,7 @@ public sealed class BrokerLiveSourceSwitchWorkflow(IBrokerManagedSessionStore se
         RequireAccount(prior, next.Account, next.SavedAt);
         if (review.RequestId != BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:PortfolioRulesOnly:{review.SourceReview.Strategy.Fingerprint}") ||
             next.Event != "PortfolioRulesOnlyApproved" || next.RevisionId != review.RequestId ||
-            review.PreviousRevisionId != prior.RevisionId || review.PreviousSessionHash != BrokerAccountImport.Hash(prior) ||
+            review.PreviousRevisionId != prior.RevisionId || !BrokerHistoricalStateHash.Matches(prior, review.PreviousSessionHash, historical) ||
             review.ApprovedAt != next.SavedAt || string.IsNullOrWhiteSpace(review.Reviewer) || review.Reviewer.Length > 128 ||
             !review.SourceReview.Blocks.IsEmpty || review.SourceReview.Evidence.PaperAccountId != next.Strategy.PaperAccountId ||
             BrokerAccountImport.Hash(next.Memory) != BrokerAccountImport.Hash(FreshSignals(prior.Memory, next.SavedAt)) ||

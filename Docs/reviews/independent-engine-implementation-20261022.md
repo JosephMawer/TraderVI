@@ -1,6 +1,6 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release a94c474a installed; initial native recovery audit running, real trading disabled**.
+Status: **standard Release fc5f6e45 installed in verification mode; two recovery runs failed on legacy representations; correction tested, native retry pending**.
 The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
 recovery coverage, remaining native acceptance and operator review have not been completed.
 
@@ -25,9 +25,44 @@ Full Core3,028passed/nine native skips with concurrency disabled;49 SQL batches 
 Dapper list placeholders for syntax checking. Focused tests cover original fingerprint equivalence,
 one decode per unique item, reused immutable records, missing/corrupt/reordered content, v3 roots,
 scope isolation, unknown/newer findings and retained discovery boundaries. Native install and measured
-throughput remain pending. The14:28 hash-verified read finds29,699paper item versions across three owners
+throughput were pending at that source checkpoint. The14:28 hash-verified read finds29,699paper item versions across three owners
 (largest22,436) and40,708,962bytes of shared snapshot content, within the reader's configured bounds.
 This is audit working-set evidence, not disk reclamation or a financial performance result.
+
+### Installed scoped audit and original representation correction
+
+Standard Release fc5f6e45 installed14:51Toronto after graceful stop and zero-owner verification;
+the matching engine/dashboard build has260existing compiler warnings/zero errors. PID99168 and
+native Status prove Running/VerificationOnly. Original full recovery resumes its same plan/cursor,
+then fails at paper revision6,044; separately requested Real recovery fails at broker revision50.
+The14:52 hash-verified observation retains6,044/50verified units and eight unresolved incidents,
+with every prepared checkpoint hash valid. No hold is cleared or execution enabled.
+
+Private fixed-helper receipts diagnose exact representation defects, not permission to bypass checks:
+the paper settings-assignment time is the legacy SQL datetime1/300-second projection of its exact
+snapshot timestamp. Original hashes and authorized state transition pass. Broker approvals at50,
+144 and190 hash the prior typed state using process-dependent immutable dictionary ordering. The
+audit now preserves raw immutable JSON and reconstructs original Memory representation, requiring
+the exact originally stored SHA256 plus unchanged values/identity and every existing transition rule.
+Current approval/write validation keeps its original contract; historical evidence is audit-only.
+
+The source switch at144 clears nested signal dictionaries. A bounded lookahead of at most32broker
+records inside the fixed audit boundary can supply property names/order only. The saved157witness
+reproduces the exact143prior hash; its values are never copied. Each witness row's own stored checksum
+is validated, and normal sequential verification still checks its transition before completion.
+This exceptional legacy compatibility path rereads a small bounded broker interval; the main paper
+reader still fetches/hashes/decodes distinct content once per pass. No disk cache or history rewrite.
+Unrecoverable representations remain failures; no hash is substituted or waived.
+
+All three original broker approval boundaries and the paper settings boundary pass the offline
+reproduction.395focused tests pass, including unknown/changed state, identity, original-hash,
+current-approval separation, witness value preservation and exact timestamp projection. Isolated
+WPF Release succeeds/260existing warnings/zero errors. Full Core3,032passed/nine native skips with
+concurrency disabled; native retry remains pending.
+Evidence: ignored `artifacts/independent-engine/native/historical-*` and
+`offline-audit-diagnosis.json`; private read-helper receipt hashes are checked before use.
+Failed receipts remain immutable; corrected explicit recovery must create a new pass, so the already
+checked portion will be checked again once. This is not a silent reset or incomplete-coverage pass.
 
 ## Authorized native preparation — October 22
 
