@@ -26,6 +26,9 @@ The September 22 documentation cleanup preserves the
 - [x] Implement engine executable, bounded current-user pipe, broker/order ownership and dashboard
   client/start/stop controls.826 related checks pass/one native skip; engine/WPF build passes.
   Native launch/reconnect and shared-input execution are not yet qualified; execution is blocked.
+- [x] Implement shared-input storage foundation: immutable exact-content references and isolated input
+  publication table; 40 input/evaluation checks and SSDT build pass. Migration 047 is prepared only;
+  producer/consumer integration and native qualification remain.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.

@@ -3,10 +3,14 @@
 ## October 21 post-open execution watch
 
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
-by history/storage work tonight. Core scheduling/session extraction is committed58f32587. The next
-source increment adds a separate Windows engine, current-user-only asynchronous control channel,
-engine-owned broker/order workflows, reconnecting dashboard and explicit engine start/stop.826 related
-checks pass/one native skip; isolated engine/WPF build passes with260 existing compiler warnings.
+by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`
+adds a separate Windows engine, current-user-only asynchronous control channel, engine-owned
+broker/order workflows, reconnecting dashboard and explicit engine start/stop. 826 related
+checks pass/one native skip; isolated engine/WPF build passes with 260 existing compiler warnings.
+The next source increment supplies immutable, deduplicated shared-input storage: exact bar, policy,
+baseline and daily-setup references preserve original evidence. 40 input/evaluation checks pass;
+SSDT database project builds. Additive migration 047 is prepared, not applied. Legacy storage stays
+selected until independent collection is wired; this alone does not remove current disk growth.
 New-host execution is deliberately blocked pending direct inputs and state-storage qualification.
 Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
 Dependency-security audit was disabled, not requalified. No database or external action.

@@ -26,7 +26,9 @@ extract UI-owned broker/execution lifetime and direct shared inputs, then verify
 independence and one order owner. History/storage increments follow; retention is separate before cleanup.
 Latest request explicitly authorizes implementation through history/storage tonight. First source
 checkpoint extracts broker-session code into Core and tests process-owned schedules/ownership/draining
-stop, followed by the engine/client control path:826 related checks/one native skip and isolated engine/WPF build pass. Direct-input and storage integration
+stop, followed by the engine/client control path: 826 related checks/one native skip and isolated engine/WPF build pass.
+Shared-input storage now has immutable exact-content references, 40 passing input/evaluation checks and
+an SSDT build. Migration 047 is prepared, not applied; producer/consumer wiring is still pending. Direct-input and storage integration
 remain. No replacement installation or operational action. Original measurements remain in the
 [investigation](reviews/paper-workload-architecture-20261021.md).
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)

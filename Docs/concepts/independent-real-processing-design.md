@@ -201,10 +201,18 @@ owns separate non-overlapping schedules and drains admitted work before close. A
 lease prevents duplicate engine owners. The separate Windows executable and dashboard client now
 share a bounded current-user-only pipe; the engine owns authentication, order workflows/journal and
 one admission path. Dashboard detach is not engine stop; admitted commands drain even if the client
-disappears.826 related checks pass/one native skip and isolated engine/WPF builds pass. Shared-input,
+disappears. 826 related checks pass/one native skip and isolated engine/WPF builds pass. Shared-input,
 incremental storage and audit integration remain; the new host deliberately refuses real execution
 until their readiness contract is complete. No native host is installed or launched. Reuse the one
 `artifacts/independent-engine` build tree throughout this work instead of accumulating output copies.
+
+Shared-input storage foundation: immutable `EngineEvidenceContent` stores exact bar, policy, ruler
+and daily-setup fragments once. `EngineInputPublication` stores checkpoint manifests referencing
+those exact fragments. Reads verify fragment checksums and the complete restored input fingerprint;
+no reference resolves to a later or corrected value. Original event/receipt/evaluation times remain.
+Additive migration 047 leaves existing history untouched and requires a reviewed backup/installation.
+The legacy collector still selects its existing table until independent producer/consumer integration;
+this checkpoint is not a disk-growth or runtime-independence acceptance result.
 
 ## Proposed first implementation increment: independent operational host
 

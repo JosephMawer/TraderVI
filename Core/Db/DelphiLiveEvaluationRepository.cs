@@ -14,26 +14,35 @@ namespace Core.Db;
 
 public sealed class DelphiLiveEvaluationRepository : SQLBase, IDelphiLiveEvaluationStore
 {
+    private readonly bool independentInputs;
+    public DelphiLiveEvaluationRepository(bool independentInputs = false) => this.independentInputs = independentInputs;
+    private string StorageSql(string sql) => independentInputs
+        ? sql.Replace("dbo.DelphiLiveEvaluation", "dbo.EngineInputPublication", StringComparison.Ordinal) : sql;
     public async Task<DelphiLiveStoredEvaluation?> GetLatestAsync(Guid sessionId, Guid policyId, string symbol, CancellationToken cancellationToken = default)
     {
         await using var connection = new SqlConnection(ConnectionString);
-        var row = await connection.QuerySingleOrDefaultAsync(new CommandDefinition("""
+        var row = await connection.QuerySingleOrDefaultAsync(new CommandDefinition(StorageSql("""
 SELECT TOP(1) InputJson,ResultJson,ContinuityEpoch FROM dbo.DelphiLiveEvaluation
 WHERE SessionId=@Session AND PolicyVersionId=@Policy AND Symbol=@Symbol ORDER BY BarEndUtc DESC;
-""", new { Session = sessionId, Policy = policyId, Symbol = symbol }, cancellationToken: cancellationToken));
-        return row is null ? null : Read(row);
+"""), new { Session = sessionId, Policy = policyId, Symbol = symbol }, cancellationToken: cancellationToken));
+        if (row is null) return null;
+        if (!independentInputs) return Read(row);
+        var contents = await EngineEvidenceStorage.ReadAsync(connection, null, new[] { (string)row.InputJson }, cancellationToken);
+        return Read(row, contents);
     }
 
     public async Task<IReadOnlyList<DelphiLiveStoredEvaluation>> GetLatestSnapshotAsync(Guid sessionId, CancellationToken cancellationToken = default)
     {
         await using var connection = new SqlConnection(ConnectionString);
-        var rows = await connection.QueryAsync(new CommandDefinition("""
+        var rows = (await connection.QueryAsync(new CommandDefinition(StorageSql("""
 WITH ranked AS (SELECT InputJson,ResultJson,ContinuityEpoch,
  ROW_NUMBER() OVER(PARTITION BY PolicyVersionId,Symbol ORDER BY BarEndUtc DESC) AS Sequence
  FROM dbo.DelphiLiveEvaluation WHERE SessionId=@Session)
 SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
-""", new { Session = sessionId }, cancellationToken: cancellationToken));
-        return rows.Select(row => Read(row)).Cast<DelphiLiveStoredEvaluation>().ToArray();
+"""), new { Session = sessionId }, cancellationToken: cancellationToken))).ToArray();
+        if (!independentInputs) return rows.Select(row => Read(row)).Cast<DelphiLiveStoredEvaluation>().ToArray();
+        var contents = await EngineEvidenceStorage.ReadAsync(connection, null, rows.Select(row => (string)row.InputJson), cancellationToken);
+        return rows.Select(row => Read(row, contents)).Cast<DelphiLiveStoredEvaluation>().ToArray();
     }
 
     public async Task PersistAsync(DelphiLiveEvaluationInput input, DelphiLiveEvaluationResult result,
@@ -41,7 +50,9 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
     {
         ValidateEnvelope(input, result, continuityEpoch, lease);
         // A timeout may occur after commit. Replay these exact bytes/IDs/times, never a new evaluation.
-        string inputJson = DelphiLiveLedgerJson.Serialize(input), resultJson = DelphiLiveLedgerJson.Serialize(result);
+        var package = independentInputs ? DelphiLiveInputCodec.Pack(input) : null;
+        string inputJson = package?.InputJson ?? DelphiLiveLedgerJson.Serialize(input), resultJson = DelphiLiveLedgerJson.Serialize(result);
+        string sql = StorageSql(PersistSql).Replace("-- SharedEvidence", independentInputs ? EngineEvidenceStorage.InsertSql : "", StringComparison.Ordinal);
         var stage = Core.Runtime.DelphiLiveEvaluationSaveStage.Opening;
         long started = Stopwatch.GetTimestamp(), stageStarted = started;
         void Stage(Core.Runtime.DelphiLiveEvaluationSaveStage value)
@@ -69,13 +80,14 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
             bool assigned = await EngineSettingsRepository.IsLivePolicyAssignedAsync(connection, input.SessionId, input.Policy.PolicyVersionId);
             token.ThrowIfCancellationRequested();
             Stage(Core.Runtime.DelphiLiveEvaluationSaveStage.BatchStart);
-            await connection.ExecuteAsync(new CommandDefinition(PersistSql, PaperSourceSqlParameters.Create(new
+            await connection.ExecuteAsync(new CommandDefinition(sql, PaperSourceSqlParameters.Create(new
             {
                 Id = input.EvaluationId, Session = input.SessionId, Policy = input.Policy.PolicyVersionId,
                 Symbol = input.Stock.Symbol, End = input.BarEndUtc, Epoch = continuityEpoch,
                 Lease = lease.LeaseId, Token = lease.FencingToken, Owner = lease.OwnerId,
                 Valid = result.ObservationIsValid, Confirmed = result.ConfirmedLiveEligible, SettingsAuthorized = assigned,
-                Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc, Input = inputJson, Result = resultJson
+                Evidence = result.CurrentStockObservationId, Evaluated = input.EvaluatedUtc, Input = inputJson, Result = resultJson,
+                Contents = package is null ? "[]" : EngineEvidenceStorage.Serialize(package.Contents)
             }, ("Evaluated", input.EvaluatedUtc), ("End", input.BarEndUtc)), cancellationToken: token));
         }, (attempt, error, retry) => Core.Runtime.DelphiLiveFailureDiagnostics.RecordEvaluationSaveAsync(
             attempt, stage, Stopwatch.GetElapsedTime(stageStarted), Stopwatch.GetElapsedTime(started), error, retry), cancellationToken);
@@ -99,6 +111,10 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
 
     private static DelphiLiveStoredEvaluation Read(dynamic row) => new(
         DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>((string)row.InputJson),
+        DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationResult>((string)row.ResultJson), (int)row.ContinuityEpoch);
+
+    private static DelphiLiveStoredEvaluation Read(dynamic row, IReadOnlyDictionary<string, string> contents) => new(
+        DelphiLiveInputCodec.Read((string)row.InputJson, contents),
         DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationResult>((string)row.ResultJson), (int)row.ContinuityEpoch);
 
     internal const string PersistSql = """
@@ -132,6 +148,7 @@ IF @Valid=1 AND NOT EXISTS
    AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict c WHERE c.CollectionSlotId IN(s.CollectionSlotId,x.CollectionSlotId))
  ) THROW 51247,'Valid evaluation requires its exact durable on-time symbol and XIU observations.',1;
 RAISERROR(N'EvaluationSave:Checkpoint',10,1) WITH NOWAIT;
+-- SharedEvidence
 IF EXISTS(SELECT 1 FROM dbo.DelphiLiveEvaluation WITH(UPDLOCK,HOLDLOCK)
  WHERE SessionId=@Session AND PolicyVersionId=@Policy AND Symbol=@Symbol AND BarEndUtc=@End)
 BEGIN
