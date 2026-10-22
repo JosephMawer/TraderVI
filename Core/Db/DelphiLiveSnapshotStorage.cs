@@ -19,6 +19,34 @@ public static class DelphiLiveSnapshotStorage
     public const string Migration = "20260917_037_AddCompactDelphiLiveSnapshots.sql";
     private static readonly DelphiLiveSnapshotReadCache verifiedReads = new();
 
+    internal sealed record VerifiedSnapshot(string Root, DelphiLivePortfolioSnapshot Snapshot,
+        IReadOnlyList<DelphiLiveSnapshotItem> Items, IReadOnlyDictionary<string, string> Contents);
+    internal sealed record PreparedSnapshot(DelphiLiveSnapshotPackage Package, DelphiLiveSnapshotDelta Delta,
+        DelphiLiveObservationPortfolio Observation);
+
+    internal static Task<VerifiedSnapshot> ReadVerifiedAsync(SqlConnection connection, string root, CancellationToken token) =>
+        Task.Run(async () =>
+    {
+        if (!DelphiLiveSnapshotCodec.IsCompact(root))
+            throw new InvalidOperationException("Complete reviewed compact-history conversion before writing this portfolio.");
+        var parts = await ReadPartsAsync(connection, null, root, token);
+        var snapshot = verifiedReads.Read(root, parts.Items, parts.Contents);
+        return new VerifiedSnapshot(root, snapshot, parts.Items, parts.Contents);
+    }, token);
+
+    internal static Task<PreparedSnapshot> PrepareAsync(VerifiedSnapshot prior, DelphiLivePortfolioSnapshot next, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            DelphiLiveLedgerIntegrity.ValidateTransition(prior.Snapshot, next);
+            var package = Pack(() => DelphiLiveSnapshotCodec.Pack(next));
+            return new PreparedSnapshot(package, DelphiLiveSnapshotDelta.Create(prior.Items, prior.Contents, package),
+                DelphiLiveObservationPortfolio.From(next));
+        }, token);
+
+    internal static Task<string> SavePreparedAsync(SqlConnection connection, SqlTransaction transaction,
+        PreparedSnapshot prepared, CancellationToken token) =>
+        SavePackageAsync(connection, transaction, prepared.Package, token, prepared);
+
     public static Task<string> SaveAsync(SqlConnection connection, SqlTransaction transaction,
         DelphiLivePortfolioSnapshot snapshot, CancellationToken token = default) =>
         Task.Run(() => SavePackageAsync(connection, transaction, Pack(() => DelphiLiveSnapshotCodec.Pack(snapshot)), token), token);
@@ -34,7 +62,7 @@ public static class DelphiLiveSnapshotStorage
     }
 
     private static async Task<string> SavePackageAsync(SqlConnection connection, SqlTransaction transaction,
-        DelphiLiveSnapshotPackage package, CancellationToken token)
+        DelphiLiveSnapshotPackage package, CancellationToken token, PreparedSnapshot? prepared = null)
     {
         var identity = JsonNode.Parse(package.SnapshotJson)!;
         await using var setup = new SqlCommand("""
@@ -63,9 +91,9 @@ CREATE TABLE #LiveItems(CollectionName nvarchar(32) COLLATE DATABASE_DEFAULT NOT
         try
         {
             using var contents = new DataTable(); contents.Columns.Add("ContentHash", typeof(string)); contents.Columns.Add("ContentJson", typeof(string));
-            foreach (var content in package.Contents) contents.Rows.Add(content.Key, content.Value);
+            foreach (var content in prepared?.Delta.Contents ?? package.Contents) contents.Rows.Add(content.Key, content.Value);
             using var items = new DataTable(); items.Columns.Add("CollectionName", typeof(string)); items.Columns.Add("Ordinal", typeof(int)); items.Columns.Add("ContentHash", typeof(string));
-            foreach (var item in package.Items) items.Rows.Add(item.Collection, item.Ordinal, item.ContentHash);
+            foreach (var item in prepared is null ? package.Items : prepared.Delta.Items) items.Rows.Add(item.Collection, item.Ordinal, item.ContentHash);
             await Bulk(connection, transaction, "#LiveContents", contents, token);
             await Bulk(connection, transaction, "#LiveItems", items, token);
             await using var write = new SqlCommand("""
@@ -89,11 +117,30 @@ INSERT dbo.DelphiLiveSnapshotItem(PortfolioId,CollectionName,Ordinal,Revision,Co
             write.Parameters.AddWithValue("@Portfolio", identity["portfolioId"]!.GetValue<Guid>());
             write.Parameters.AddWithValue("@Revision", identity["revision"]!.GetValue<long>());
             await write.ExecuteNonQueryAsync(token);
-            // This also catches a missing part or an incorrect historical revision selection before commit.
-            var verified = await ReadPartsAsync(connection, transaction, package.SnapshotJson, token);
-            using (PaperCycleTimings.Start(PaperCycleStage.SnapshotVerify))
-                DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
-            await EnginePaperObservationStore.SaveIfInstalledAsync(connection, transaction, package, token);
+            if (prepared is null)
+            {
+                var verified = await ReadPartsAsync(connection, transaction, package.SnapshotJson, token);
+                using (PaperCycleTimings.Start(PaperCycleStage.SnapshotVerify))
+                    DelphiLiveSnapshotCodec.Validate(package.SnapshotJson, verified.Items, verified.Contents);
+            }
+            else
+            {
+                // The caller fences the exact fully verified source root. Check only this append under the lease.
+                await using var verify = new SqlCommand("""
+IF EXISTS(SELECT 1 FROM #LiveContents n LEFT JOIN dbo.DelphiLiveSnapshotContent c ON c.ContentHash=n.ContentHash
+ WHERE c.ContentHash IS NULL OR CONVERT(varbinary(max),c.ContentJson)<>CONVERT(varbinary(max),n.ContentJson))
+ THROW 53715,'New snapshot content failed immediate read-back verification.',1;
+IF EXISTS(SELECT 1 FROM #LiveItems n OUTER APPLY
+ (SELECT TOP(1) i.ContentHash FROM dbo.DelphiLiveSnapshotItem i WHERE i.PortfolioId=@Portfolio
+  AND i.CollectionName=n.CollectionName AND i.Ordinal=n.Ordinal AND i.Revision<=@Revision ORDER BY i.Revision DESC) saved
+ WHERE saved.ContentHash IS NULL OR saved.ContentHash<>n.ContentHash)
+ THROW 53716,'New snapshot item failed immediate read-back verification.',1;
+""", connection, transaction);
+                verify.Parameters.AddWithValue("@Portfolio", identity["portfolioId"]!.GetValue<Guid>());
+                verify.Parameters.AddWithValue("@Revision", identity["revision"]!.GetValue<long>());
+                await verify.ExecuteNonQueryAsync(token);
+            }
+            await EnginePaperObservationStore.SaveIfInstalledAsync(connection, transaction, package, token, prepared?.Observation);
             saved = true;
             return package.SnapshotJson;
         }

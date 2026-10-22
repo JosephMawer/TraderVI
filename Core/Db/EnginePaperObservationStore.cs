@@ -15,12 +15,12 @@ namespace Core.Db;
 public sealed class EnginePaperObservationStore : SQLBase
 {
     internal static async Task SaveIfInstalledAsync(SqlConnection c, SqlTransaction t,
-        DelphiLiveSnapshotPackage package, CancellationToken ct)
+        DelphiLiveSnapshotPackage package, CancellationToken ct, DelphiLiveObservationPortfolio? prepared = null)
     {
         // Compatibility only: the old host continues to work before the reviewed migration.
         if (!await c.ExecuteScalarAsync<bool>(new CommandDefinition(
             "SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.EngineCurrentState',N'U') IS NULL THEN 0 ELSE 1 END AS bit);", transaction: t, cancellationToken: ct))) return;
-        await SaveAsync(c, t, DelphiLiveObservationPortfolio.FromPackage(package), package.SnapshotJson, ct);
+        await SaveAsync(c, t, prepared ?? DelphiLiveObservationPortfolio.FromPackage(package), package.SnapshotJson, ct);
     }
 
     private static async Task SaveAsync(SqlConnection c, SqlTransaction t,

@@ -31,7 +31,10 @@ Shared-input storage now has immutable exact-content references, 40 passing inpu
 an SSDT build. Independent market collection/real input selection and compact observation membership
 are now wired in source, with 430 related checks/one native skip. Migrations 047/048 and offline
 qualification are prepared, not applied. Paper consumers, short writes, audits/holds and cutover
-remain. No replacement installation or operational action. Original measurements remain in the
+remain.
+Ordinary paper appends now prepare outside lease/write locks and verify changed records inside;
+47 related checks pass, with pre-transaction full reads and native concurrency still unqualified.
+No replacement installation or operational action. Original measurements remain in the
 [investigation](reviews/paper-workload-architecture-20261021.md).
 Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1614f-7a99-77b2-9b4e-df5c6f1a0b86)
 through the explicit implementation request and first engine/client source checkpoints; S44's complete available

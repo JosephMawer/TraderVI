@@ -16,6 +16,10 @@ command. 430 related checks pass/one native skip, including collection with all 
 rejected and a 10,000-closed-position projection fixture. Paper consumers, short write transactions,
 historical audit/holds and cutover qualification remain; source wiring is not operational evidence.
 New-host execution is deliberately blocked pending direct inputs and state-storage qualification.
+Current source also prepares/validates paper appends outside the host/portfolio write locks, fences
+the exact unchanged source root, and writes/verifies only changed items inside the transaction.
+47 history/ledger/action/projection checks pass, including one appended item after 10,000 old marks.
+Full pre-transaction history reads remain; native SQL concurrency/latency is not yet qualified.
 Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
 Dependency-security audit was disabled, not requalified. No database or external action.
 

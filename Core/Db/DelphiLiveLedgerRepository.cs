@@ -139,20 +139,31 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
             throw new ArgumentException("Every portfolio revision requires auditable events and a durable host lease.");
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        await RequireLease(connection, transaction, lease, cancellationToken);
-        var prior = await Read(connection, transaction, next.PortfolioId, true, cancellationToken)
-            ?? throw new InvalidOperationException("Portfolio does not exist.");
+        string originalRoot;
+        await using (var read = new SqlCommand("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WHERE PortfolioId=@Id;", connection))
+        {
+            read.Parameters.Add(P("@Id", SqlDbType.UniqueIdentifier, next.PortfolioId));
+            originalRoot = await read.ExecuteScalarAsync(cancellationToken) as string ?? throw new InvalidOperationException("Portfolio does not exist.");
+        }
+        // Immutable history is verified and the next package prepared before acquiring financial/host locks.
+        var verified = await DelphiLiveSnapshotStorage.ReadVerifiedAsync(connection, originalRoot, cancellationToken);
+        var prior = verified.Snapshot;
         if (prior.Revision == next.Revision &&
             DelphiLiveLedgerJson.Serialize(prior) == DelphiLiveLedgerJson.Serialize(next))
         {
-            await transaction.CommitAsync(cancellationToken);
+            await using var retry = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            await RequireLease(connection, retry, lease, cancellationToken);
+            await FenceSourceAsync(connection, retry, next.PortfolioId, originalRoot, cancellationToken);
+            await retry.CommitAsync(cancellationToken);
             return prior; // Exact retry following an ambiguous commit.
         }
         if (prior.Revision != expectedRevision)
             throw new InvalidOperationException("Portfolio revision changed; reload before taking an action.");
-        DelphiLiveLedgerIntegrity.ValidateTransition(prior, next);
-        string json = await DelphiLiveSnapshotStorage.SaveAsync(connection, transaction, next, cancellationToken);
+        var prepared = await DelphiLiveSnapshotStorage.PrepareAsync(verified, next, cancellationToken);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        await RequireLease(connection, transaction, lease, cancellationToken);
+        await FenceSourceAsync(connection, transaction, next.PortfolioId, originalRoot, cancellationToken);
+        string json = await DelphiLiveSnapshotStorage.SavePreparedAsync(connection, transaction, prepared, cancellationToken);
         await using (var command = new SqlCommand("""
 UPDATE [dbo].[DelphiLivePortfolioLedger]
 SET [Revision] = @Revision, [SnapshotJson] = @Json, [UpdatedUtc] = @Updated
@@ -186,6 +197,15 @@ VALUES (@Event, @Portfolio, @Revision, @Kind, @Time, @Json);
         await RequireLease(connection, transaction, lease, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return next;
+    }
+
+    private static async Task FenceSourceAsync(SqlConnection connection, SqlTransaction transaction, Guid portfolio,
+        string originalRoot, CancellationToken ct)
+    {
+        await using var fence = new SqlCommand("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WITH(UPDLOCK,HOLDLOCK) WHERE PortfolioId=@Id;", connection, transaction);
+        fence.Parameters.Add(P("@Id", SqlDbType.UniqueIdentifier, portfolio));
+        if (await fence.ExecuteScalarAsync(ct) is not string currentRoot || currentRoot != originalRoot)
+            throw new InvalidOperationException("Portfolio advanced while preparing its append; reload before taking an action.");
     }
 
     private static async Task RequireLease(SqlConnection connection, SqlTransaction transaction, DelphiLiveLease lease, CancellationToken cancellationToken)

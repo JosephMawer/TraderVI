@@ -65,6 +65,19 @@ not an installed native switch, database migration or financial activation.
 
 ## Boundaries and consequences
 
+### Prepared append contract
+
+The first transaction change preserves full historical verification, but moves it before the write
+transaction. The next snapshot is prepared from that verified immutable revision. Under the live
+lease, the writer locks and compares the exact original current-root bytes, rejects concurrent
+advancement, and writes/read-verifies only new content and changed item versions. It then publishes
+the new root, observation projection and events atomically and rechecks the lease before commit.
+An ambiguous committed retry still returns only an exactly matching verified snapshot. This removes
+large history preparation from the shared lease lock; it does not yet remove repeated pre-transaction
+history reads or qualify native latency. Existing version-2 archive representation is preserved.
+
+### Retained boundaries
+
 - Retain real-account ownership, original order recovery, held-position protection, financial history,
   source freshness, maturity/confirmation, risk controls and explicit dated approval/host enable.
 - Shared collection must remain available without a running paper research cycle. It cannot be

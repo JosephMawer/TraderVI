@@ -17,7 +17,9 @@ proposes independent host/broker lifetime plus direct shared inputs as the first
 Complete engineering contracts/acceptance before the switch. Build retention is separate before cleanup.
 Shared broker services, independent schedules and the engine/client control path are now in source.
 Shared-input storage, independent collection and real-input selection are in source; migrations 047/048
-remain prepared and unapplied. Finish paper consumers, short writes and integrity audit/hold integration.
+remain prepared and unapplied. Finish paper consumers and integrity audit/hold integration.
+Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
+checkpointed history reads and native concurrency qualification before claiming the wait is resolved.
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
 removing the new host's readiness block. No replacement is installed.
 
