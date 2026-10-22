@@ -3,6 +3,7 @@ using Core.Runtime;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -18,7 +19,10 @@ public partial class PaperDashboardWindow
         try
         {
             var status = await engineControl.CallAsync<IndependentEngineStatus>(EngineOperation.Status, ct: shutdown.Token);
-            EngineStatusText.Text = $"Engine: {status.State}. Closing this dashboard leaves it running.";
+            var blocked = status.Work.Where(w => w.State == "Blocked").Select(w => w.Name).ToArray();
+            EngineStatusText.Text = $"Engine: {status.State}. Closing this dashboard leaves it running." +
+                (blocked.Length == 0 ? "" : $" Needs attention: {string.Join(", ", blocked)}.") +
+                (status.Notices.IsDefaultOrEmpty ? "" : $" {status.Notices[^1].Message}");
             StartEngineButton.IsEnabled = status.State is "Stopped" or "StopFailed";
             StopEngineButton.IsEnabled = status.State is not ("Stopped" or "Stopping");
         }

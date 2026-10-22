@@ -396,6 +396,9 @@ public sealed class DelphiLiveActionWorkflow
         DelphiLivePortfolioCycleInput input, DelphiLivePolicyDefinition policy, Guid? pendingActionId = null)
     {
         if (NewBuysPaused) return "OperatorPaused";
+        if (input.RequireFreshSharedInput && (clock.UtcNow < input.CheckpointBarEndUtc + policy.CollectionOffset ||
+            clock.UtcNow >= input.CheckpointBarEndUtc + policy.BarInterval + policy.CollectionOffset))
+            return "BuyCancelledStaleSharedInput";
         if (candidate is null || !candidate.ConfirmedEntryEligible || !candidate.Safety.Momentum.IsEntryEligibleStrong ||
             !candidate.ConfirmationStartedBarEndUtc.HasValue)
             return "BuyCancelledSignal";

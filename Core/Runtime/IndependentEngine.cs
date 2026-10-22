@@ -12,7 +12,11 @@ public sealed record EngineWork(string Name, TimeSpan Interval, Func<Task> Execu
 public sealed record EngineWorkStatus(string Name, string State, DateTimeOffset? LastStarted,
     DateTimeOffset? LastCompleted, int ConsecutiveFailures);
 public sealed record IndependentEngineStatus(Guid InstanceId, string State, DateTimeOffset CheckedAt,
-    ImmutableArray<EngineWorkStatus> Work);
+    ImmutableArray<EngineWorkStatus> Work)
+{
+    public ImmutableArray<EngineNotice> Notices { get; init; } = [];
+}
+public sealed record EngineNotice(DateTimeOffset ObservedAt, string Severity, string Code, string Message);
 
 /// <summary>
 /// Process-owned schedules. A dashboard connection is never a lifetime token. Each lane has at most

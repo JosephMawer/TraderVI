@@ -140,6 +140,11 @@
     <Build Include="dbo/Tables/EngineEvidenceContent.sql" />
     <Build Include="dbo/Tables/EngineInputPublication.sql" />
     <Build Include="dbo/Tables/EngineCurrentState.sql" />
+    <Build Include="dbo/Tables/EngineMarketCycle.sql" />
+    <Build Include="dbo/Tables/EngineConsumerReceipt.sql" />
+    <Build Include="dbo/Triggers/EngineMarketCycle_Immutable.sql" />
+    <Build Include="dbo/Triggers/EngineConsumerReceipt_Immutable.sql" />
+    <None Include="Migrations/20261022_049_AddEngineConsumerHandoff.sql" />
     <None Include="Migrations/20261022_048_AddEngineCurrentObservationState.sql" />
     <Build Include="dbo/Triggers/TR_EngineEvidenceContent_Immutable.sql" />
     <Build Include="dbo/Triggers/TR_EngineInputPublication_Immutable.sql" />

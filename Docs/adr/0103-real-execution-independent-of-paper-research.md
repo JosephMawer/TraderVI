@@ -76,6 +76,24 @@ An ambiguous committed retry still returns only an exactly matching verified sna
 large history preparation from the shared lease lock; it does not yet remove repeated pre-transaction
 history reads or qualify native latency. Existing version-2 archive representation is preserved.
 
+### Durable consumer handoff
+
+The producer publishes one immutable checkpoint only after its exact collection cycle and all referenced
+inputs are saved. Context is content-addressed; consumer receipts record original cycle identities.
+Paper consumes the newest pending checkpoint; late checkpoints cannot create retrospective buys.
+Admission and the final paper-fill boundary both recheck the original seven-minute signal limit.
+Research consumes checkpoints in original sequence using their frozen context. Failure or backlog
+in either consumer cannot await the producer or real-host schedule. Paper protection is separately
+scheduled and serialized only with paper financial actions; historical research has a separate gate.
+The producer retains its lease outside market hours until engine stop so admitted consumers can finish.
+
+Research recovery runs off-hours. An experiment boundary applies before the session freeze only when
+old cohorts have been settled for that date. If recovery is unfinished or busy, current assignments
+remain authoritative and the change stays pending for a prepared session; a later research completion
+cannot relabel an already frozen session. This is conservative deferral of an unready change, not
+permission to extend a trading signal or bypass a promotion check. Native contention, reconnect,
+consumer crash recovery and capacity still require qualification before cutover.
+
 ### Retained boundaries
 
 - Retain real-account ownership, original order recovery, held-position protection, financial history,

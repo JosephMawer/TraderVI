@@ -31,10 +31,14 @@ The September 22 documentation cleanup preserves the
   producer/consumer integration and native qualification remain.
 - [x] Wire shared collection/real-input reader and bounded observation membership; 430 related checks
   pass/one native skip. Migration 048 and explicit offline observation qualification are prepared only.
-  Paper processing/protection still needs its independent consumer and native transaction qualification.
+  Native transaction qualification remains.
 - [x] Move ordinary paper append preparation/full verification before the lease transaction; fence
   the original root and write/read-verify changed items only. 47 relevant checks pass. Repeated
   pre-transaction history reads and native concurrency/latency qualification remain.
+- [x] Implement durable shared checkpoints and separate paper/protection/research schedules in the
+  engine. 82 focused checks pass, including original identities, late-buy rejection before admission
+  and after a quote, close/stop lease lifetime and no collection by consumers. Isolated WPF and SSDT
+  builds/SQL parsing pass. Migration049 is prepared only; desktop consumer cutover remains.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.

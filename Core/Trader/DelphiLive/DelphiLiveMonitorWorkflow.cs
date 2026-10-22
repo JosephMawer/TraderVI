@@ -56,6 +56,28 @@ public sealed class DelphiLiveMonitorWorkflow
     private bool operatorEntriesPaused;
     public bool NewBuysPaused { get => operatorEntriesPaused; set { operatorEntriesPaused=value; actions.NewBuysPaused=value; } }
     public Func<Guid?, CancellationToken, Task<bool>>? IsDailyStrategyCurrentAsync { get; set; }
+    public Func<DelphiLiveSharedCheckpoint, DelphiLiveLease, CancellationToken, Task>? PublishSharedCheckpointAsync { get; set; }
+    public DelphiLiveLease? CurrentSharedLease => observationPortfolios is null ? null : Volatile.Read(ref lease);
+
+    public async Task MaintainSharedLeaseAsync(CancellationToken ct = default)
+    {
+        if (observationPortfolios is null) throw new InvalidOperationException("Only the independent producer owns the shared lease.");
+        await gate.WaitAsync(ct);
+        try
+        {
+            DateTime now = clock.UtcNow;
+            if (lease is null)
+                lease = await collection.TryAcquireAsync(owner, now, now.AddMinutes(15), ct)
+                    ?? throw new InvalidOperationException("Another host owns collection.");
+            else if (!await collection.TryRenewAsync(lease, now, now.AddMinutes(15), ct))
+            {
+                lease = null; context = null; recovery = null; nextEnd = null; finalizedSessionDate = null;
+                sessionProtectionStarted = false; preOpenHeartbeat = null;
+                throw new InvalidOperationException("Shared lease was lost; persisted work requires recovery.");
+            }
+        }
+        finally { gate.Release(); }
+    }
 
     public DelphiLiveMonitorWorkflow(IDelphiLiveClock clock, ITsxSessionCalendar calendar,
         IDelphiLiveSessionContextStore sessions, IDelphiLiveEvaluationStore evaluations,
@@ -304,109 +326,15 @@ public sealed class DelphiLiveMonitorWorkflow
             evaluationTiming.Dispose();
             if (observationPortfolios is not null)
             {
+                if (PublishSharedCheckpointAsync is not null)
+                    await PublishSharedCheckpointAsync(new(cycleId, context, end, recovery.EpochNumber, saved.ToImmutableArray()), lease, ct);
                 // Shared evidence has its own schedule and no paper action/history/research dependency.
                 nextEnd = end < bounds.CloseUtc ? end.AddMinutes(5) : null;
                 if (nextEnd is null) await FinalizeCurrentSessionAsync(ct);
                 return await SnapshotAsync(ct);
             }
-            using var actionsTiming = PaperCycleTimings.Start(PaperCycleStage.LiveActions);
-            if (context.SourceRevision is null && context.ComparisonAccounts.Count == 0 && PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
-            DelphiLivePortfolioSnapshot? operationalAfterActions = null;
-            foreach (var portfolio in portfolios)
-            {
-                var currentPortfolio = await ledger.LoadPortfolioAsync(portfolio.PortfolioId, ct) ?? throw new InvalidOperationException("Portfolio disappeared.");
-                var policy = context.Policies[portfolio.PolicyVersionId];
-                var policyContext = context.ForPolicy(policy.PolicyVersionId);
-                actions.NewBuysPaused = operatorEntriesPaused || !dailyCompatible ||
-                    (portfolio.ComparisonAccount is not null && (policyContext.SourceRevision is null ||
-                        policyContext.Session.CalibrationRunId != context.Session.CalibrationRunId || clock.UtcNow < portfolio.ComparisonAccount.EffectiveUtc));
-                var ordered = saved.Where(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId)
-                    .OrderBy(e => e.Result.RankCandidate, RankComparer).ToArray();
-                var candidates = new List<DelphiLiveActionCandidate>();
-                var candidateStates = currentPortfolio.CandidateStates;
-                var portfolioDossiers = new List<DelphiLiveDecisionDossier>();
-                for (int index = 0; index < ordered.Length; index++)
-                {
-                    var value = ordered[index];
-                    var originalPosition = currentPortfolio.Positions.Where(p => p.Symbol == value.Input.Stock.Symbol).OrderByDescending(p => p.OpenedUtc).FirstOrDefault();
-                    if (!IsWithinOwnEntryScope(currentPortfolio, value.Input.Stock.Symbol, date, value.Input.DailySetup is not null)) continue;
-                    var owned = currentPortfolio.OpenPositions.SingleOrDefault(p => p.Symbol == value.Input.Stock.Symbol);
-                    candidateStates.TryGetValue(value.Input.Stock.Symbol, out var candidateState);
-                    var priorLifecycle = candidateState?.Lifecycle ?? DelphiLiveLifecycleSnapshot.NewSession(value.Input.DailySetup is not null);
-                    if (candidateState is not null && candidateState.ContinuityEpoch != recovery.EpochNumber)
-                        priorLifecycle = DelphiLiveLifecyclePolicy.AfterProcessContinuityGap(priorLifecycle, value.Input.DailySetup is not null);
-                    bool pendingBuy = currentPortfolio.PendingActions.Any(a => a.Intent.Symbol == value.Input.Stock.Symbol && a.Intent.Side == DelphiLiveActionSide.Buy);
-                    bool pendingSell = currentPortfolio.PendingActions.Any(a => a.Intent.Symbol == value.Input.Stock.Symbol && a.Intent.Side == DelphiLiveActionSide.Sell);
-                    var safetyInput = value.Result.SafetyInput with
-                    {
-                        IsHeld = owned is not null, AveragePurchasePrice = owned?.AveragePurchasePrice,
-                        ProfitProtection = owned?.Protection,
-                        PreviousValidMomentumWasStrongWeakening = priorLifecycle.LastScheduledBarEndUtc == end - policy.BarInterval &&
-                            priorLifecycle.ConsecutiveStrongWeakeningObservations > 0
-                    };
-                    var safety = DelphiLiveSafetyPolicy.Evaluate(safetyInput, policy);
-                    var lifecycle = DelphiLiveLifecyclePolicy.Advance(priorLifecycle, new(end, value.Result.FamiliesMature,
-                        value.Result.ObservationIsValid, value.Result.NextState.Confidence, value.Result.NextState.Momentum,
-                        safety.EntrySafetyVetoActive, owned is not null, pendingBuy, pendingSell, value.Input.DailySetup is not null));
-                    if (candidateState?.EvaluationId == value.Input.EvaluationId)
-                        lifecycle = lifecycle with { Snapshot = candidateState.Lifecycle,
-                            MayCreateBuyDecision = candidateState.Lifecycle.State == DelphiLiveRecommendationState.EntryEligible && !pendingBuy && !pendingSell && owned is null };
-                    var ownState = new DelphiLivePortfolioCandidateState(lifecycle.Snapshot, recovery.EpochNumber, value.Input.EvaluationId, clock.UtcNow);
-                    candidateStates = candidateStates.SetItem(value.Input.Stock.Symbol, ownState);
-                    if (value.Result.CurrentStockObservationId is not Guid evidenceId) continue;
-                    var ownInput = value.Input with
-                    {
-                        PreviousState = value.Input.PreviousState with { Lifecycle = priorLifecycle },
-                        IsHeld = owned is not null, HasPendingBuy = pendingBuy, HasPendingSell = pendingSell,
-                        AveragePurchasePrice = owned?.AveragePurchasePrice, ProfitProtection = owned?.Protection
-                    };
-                    DateTime? confirmationStart = lifecycle.Snapshot.ConsecutiveStrongObservations > 0
-                        ? end - TimeSpan.FromTicks(policy.BarInterval.Ticks * (lifecycle.Snapshot.ConsecutiveStrongObservations - 1)) : null;
-                    var ownResult = value.Result with
-                    {
-                        NextState = value.Result.NextState with { Lifecycle = lifecycle.Snapshot }, Lifecycle = lifecycle,
-                        ConfirmationStartedBarEndUtc = confirmationStart, SafetyInput = safetyInput, Safety = safety
-                    };
-                    var attribution = value.Input.DailySetup is not null && policyContext.Candidates.TryGetValue(value.Input.Stock.Symbol, out var daily) ? Lenses(daily) : [];
-                    var dossier = DelphiLiveEvaluationEngine.CreateDossier(ownInput, ownResult, Guid.NewGuid(), clock.UtcNow,
-                        "Observe", "Evaluated", attribution, OriginalThesis(originalPosition));
-                    portfolioDossiers.Add(dossier);
-                    bool eligible = policyContext.Session.CalibrationRunId is not null && value.Result.ObservationIsValid &&
-                        value.Result.FamiliesMature && value.Result.NextState.Confidence.AllowsNewRisk &&
-                        value.Result.NextState.Momentum.IsEntryEligibleStrong && !safety.EntrySafetyVetoActive &&
-                        lifecycle.MayCreateBuyDecision;
-                    candidates.Add(new(value.Input.Stock.Symbol, value.Result.EvaluationId, evidenceId, index + 1,
-                        eligible, confirmationStart, value.Result.NextState.Confidence,
-                        safetyInput, DelphiLiveDecisionDossierBuilder.Serialize(dossier, policy)));
-                }
-                currentPortfolio = await ledger.CommitAsync(currentPortfolio.Revision,
-                    currentPortfolio with { Revision = currentPortfolio.Revision + 1, UpdatedUtc = clock.UtcNow, CandidateStates = candidateStates },
-                    new[] { new DelphiLiveLedgerEvent(Guid.NewGuid(), "PortfolioCandidateStatesEvaluated", clock.UtcNow,
-                        DelphiLiveLedgerJson.Serialize(new { cycleId, candidates = candidateStates, dossiers = portfolioDossiers })) }, lease, ct);
-                var marks = Marks(currentPortfolio.OpenPositions, bars, end, false);
-                var openingPositions = currentPortfolio.CurrentSession == date ? currentPortfolio.SessionOpeningPositions : currentPortfolio.OpenPositions;
-                var opening = Marks(openingPositions, bars, bounds.OpenUtc.AddMinutes(5), true);
-                var completedPortfolio = await actions.RunCycleAsync(new(currentPortfolio.PortfolioId, cycleId, date, bounds.OpenUtc, bounds.CloseUtc,
-                    end, ReviewedTsxSessionCalendar.At(date, policy.EntryCutoff), marks, opening, candidates,
-                    CorporateActionUnsupported: currentPortfolio.SessionOpeningPositions.Concat(currentPortfolio.OpenPositions)
-                        .Any(p => corporateSymbols.Contains(p.Symbol, StringComparer.OrdinalIgnoreCase)))
-                    { SessionId = context.Session.SessionId }, policy, lease, ct);
-                if (portfolio.Role == "OperationalChampion") operationalAfterActions = completedPortfolio;
-            }
-            Guid champion = context.Assignments.Single(a => a.Role == DelphiLivePolicyRole.OperationalChampion).PolicyVersionId;
-            foreach (var value in saved.Where(e => e.Input.Policy.PolicyVersionId == champion))
-            {
-                if (value.Result.NextState.Confidence.State == DelphiLiveDataConfidenceState.MonitoringLost &&
-                    (portfolios.Any(p => p.Role == "OperationalChampion" && p.OpenPositions.Any(position => position.Symbol == value.Input.Stock.Symbol)) ||
-                     tracked.Any(h => h.Symbol == value.Input.Stock.Symbol)))
-                    await notifier.NotifyAsync(new("Urgent", "MonitoringLost", "Holding monitoring lost; quote protection remains active.", Symbol: value.Input.Stock.Symbol), ct);
-                else if (operationalAfterActions?.CandidateStates.GetValueOrDefault(value.Input.Stock.Symbol)?.Lifecycle.State is
-                        DelphiLiveRecommendationState.EntryEligible or DelphiLiveRecommendationState.BuyPending &&
-                    portfolios.SingleOrDefault(p => p.Role == "OperationalChampion")?.CandidateStates.GetValueOrDefault(value.Input.Stock.Symbol)?.Lifecycle.State is not
-                        (DelphiLiveRecommendationState.EntryEligible or DelphiLiveRecommendationState.BuyPending) &&
-                    value.Result.NextState.Confidence.AllowsNewRisk)
-                    await notifier.NotifyAsync(new("Information", "EntryEligible", "Fresh strong confirmation completed.", Symbol: value.Input.Stock.Symbol), ct);
-            }
+            await ApplyPaperCheckpointAsync(context, lease, recovery!.EpochNumber, date, bounds, end, cycleId,
+                bars, saved, portfolios, tracked, dailyCompatible, corporateSymbols, ct);
             nextEnd = end < bounds.CloseUtc ? end.AddMinutes(5) : null;
             if (nextEnd is null)
             {
@@ -432,6 +360,175 @@ public sealed class DelphiLiveMonitorWorkflow
         finally { gate.Release(); }
     }
 
+    public async Task<string> ConsumeSharedCheckpointAsync(DelphiLiveSharedCheckpoint frame, DelphiLiveLease sharedLease, CancellationToken ct = default)
+    {
+        frame.Validate();
+        await gate.WaitAsync(ct);
+        try
+        {
+            DateTime now = clock.UtcNow;
+            var frozen = frame.Context;
+            var date = frozen.Session.TradingDate;
+            if (LocalDate(now) != date || now >= frame.BarEndUtc.AddMinutes(7)) return "NotActionableLate";
+            if (now < frame.BarEndUtc.AddMinutes(2)) throw new InvalidOperationException("Shared checkpoint is not yet due.");
+            var current = await sessions.ReadOperationalContextAsync(date, ct);
+            if (current is null || current.Session.SessionId != frozen.Session.SessionId ||
+                current.SourceRevision?.RevisionId != frozen.SourceRevision?.RevisionId ||
+                !current.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId)).ToHashSet()
+                    .SetEquals(frozen.Assignments.Select(a => (a.AssignmentId, a.PolicyVersionId))) ||
+                !current.ComparisonSources.Select(s => (s.Key, s.Value.RevisionId)).ToHashSet()
+                    .SetEquals(frozen.ComparisonSources.Select(s => (s.Key, s.Value.RevisionId)))) return "DefinitionChanged";
+            var portfolios = await ledger.GetPortfoliosForSessionAsync(date, ct);
+            if (portfolios.Any(p => !frozen.Policies.ContainsKey(p.PolicyVersionId))) return "DefinitionChanged";
+            bool compatible = IsDailyStrategyCurrentAsync is null || await IsDailyStrategyCurrentAsync(frozen.Session.DailyStrategyVersionId, ct);
+            foreach (var portfolio in portfolios)
+            {
+                if (frozen.ForPolicy(portfolio.PolicyVersionId).SourceRevision is { } source)
+                    await actions.SynchronizeDailySourceAsync(portfolio.PortfolioId, source, sharedLease, ct);
+                bool warming = portfolio.OpenPositions.Any(p => !frame.Evaluations.Any(e =>
+                    e.Input.Policy.PolicyVersionId == portfolio.PolicyVersionId && e.Input.Stock.Symbol == p.Symbol && e.Result.FamiliesMature));
+                await actions.ProtectHoldingsAsync(new(portfolio.PortfolioId, frame.CycleId, date,
+                    frozen.Bounds.OpenUtc, frozen.Bounds.CloseUtc, warming) { SessionId = frozen.Session.SessionId },
+                    frozen.Policies[portfolio.PolicyVersionId], sharedLease, ct);
+            }
+            var tracked = await holdings.GetObservedHoldingsAsync(ct);
+            var corporate = GetCorporateActionSymbolsAsync is null ? Array.Empty<string>() : await GetCorporateActionSymbolsAsync(date, ct);
+            await ApplyPaperCheckpointAsync(frozen, sharedLease, frame.ContinuityEpoch, date, frozen.Bounds,
+                frame.BarEndUtc, frame.CycleId, frame.Bars(), frame.Evaluations, portfolios, tracked, compatible, corporate, ct,
+                requireFreshSharedInput: true);
+            return "Applied";
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task ProtectCurrentPaperAsync(DelphiLiveLease sharedLease, CancellationToken ct = default)
+    {
+        await gate.WaitAsync(ct);
+        try
+        {
+            var now = clock.UtcNow; var date = LocalDate(now);
+            if (!calendar.IsRegularSession(date)) return;
+            var bounds = calendar.GetSessionBounds(date);
+            if (now < bounds.OpenUtc || now >= bounds.CloseUtc) return;
+            var current = await sessions.ReadOperationalContextAsync(date, ct);
+            if (current is null) return;
+            foreach (var portfolio in await ledger.GetPortfoliosForSessionAsync(date, ct))
+            {
+                var policy = current.Policies[portfolio.PolicyVersionId];
+                await actions.ProtectHoldingsAsync(new(portfolio.PortfolioId, Guid.NewGuid(), date,
+                    bounds.OpenUtc, bounds.CloseUtc, true) { SessionId = current.Session.SessionId }, policy, sharedLease, ct);
+            }
+        }
+        finally { gate.Release(); }
+    }
+
+    private async Task ApplyPaperCheckpointAsync(DelphiLiveSessionContext context, DelphiLiveLease lease,
+        int continuityEpoch, DateOnly date, DelphiLiveSessionBounds bounds, DateTime end, Guid cycleId,
+        IReadOnlyList<DelphiLiveFiveMinuteBar> bars, IReadOnlyList<DelphiLiveStoredEvaluation> saved,
+        IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, IReadOnlyList<DelphiLiveObservedHolding> tracked,
+        bool dailyCompatible, IReadOnlyList<string> corporateSymbols, CancellationToken ct, bool requireFreshSharedInput = false)
+    {
+        using var actionsTiming = PaperCycleTimings.Start(PaperCycleStage.LiveActions);
+        if (context.SourceRevision is null && context.ComparisonAccounts.Count == 0 && PersistResearchCheckpointAsync is not null) await PersistResearchCheckpointAsync(context, end, saved, lease, ct);
+        DelphiLivePortfolioSnapshot? operationalAfterActions = null;
+        foreach (var portfolio in portfolios)
+        {
+            var currentPortfolio = await ledger.LoadPortfolioAsync(portfolio.PortfolioId, ct) ?? throw new InvalidOperationException("Portfolio disappeared.");
+            if (currentPortfolio.LastCompletedCycleId == cycleId) continue;
+            var policy = context.Policies[portfolio.PolicyVersionId];
+            var policyContext = context.ForPolicy(policy.PolicyVersionId);
+            actions.NewBuysPaused = operatorEntriesPaused || !dailyCompatible ||
+                (portfolio.ComparisonAccount is not null && (policyContext.SourceRevision is null ||
+                    policyContext.Session.CalibrationRunId != context.Session.CalibrationRunId || clock.UtcNow < portfolio.ComparisonAccount.EffectiveUtc));
+            var ordered = saved.Where(e => e.Input.Policy.PolicyVersionId == policy.PolicyVersionId)
+                .OrderBy(e => e.Result.RankCandidate, RankComparer).ToArray();
+            var candidates = new List<DelphiLiveActionCandidate>();
+            var candidateStates = currentPortfolio.CandidateStates;
+            var portfolioDossiers = new List<DelphiLiveDecisionDossier>();
+            for (int index = 0; index < ordered.Length; index++)
+            {
+                var value = ordered[index];
+                var originalPosition = currentPortfolio.Positions.Where(p => p.Symbol == value.Input.Stock.Symbol).OrderByDescending(p => p.OpenedUtc).FirstOrDefault();
+                if (!IsWithinOwnEntryScope(currentPortfolio, value.Input.Stock.Symbol, date, value.Input.DailySetup is not null)) continue;
+                var owned = currentPortfolio.OpenPositions.SingleOrDefault(p => p.Symbol == value.Input.Stock.Symbol);
+                candidateStates.TryGetValue(value.Input.Stock.Symbol, out var candidateState);
+                var priorLifecycle = candidateState?.Lifecycle ?? DelphiLiveLifecycleSnapshot.NewSession(value.Input.DailySetup is not null);
+                if (candidateState is not null && candidateState.ContinuityEpoch != continuityEpoch)
+                    priorLifecycle = DelphiLiveLifecyclePolicy.AfterProcessContinuityGap(priorLifecycle, value.Input.DailySetup is not null);
+                bool pendingBuy = currentPortfolio.PendingActions.Any(a => a.Intent.Symbol == value.Input.Stock.Symbol && a.Intent.Side == DelphiLiveActionSide.Buy);
+                bool pendingSell = currentPortfolio.PendingActions.Any(a => a.Intent.Symbol == value.Input.Stock.Symbol && a.Intent.Side == DelphiLiveActionSide.Sell);
+                var safetyInput = value.Result.SafetyInput with
+                {
+                    IsHeld = owned is not null, AveragePurchasePrice = owned?.AveragePurchasePrice,
+                    ProfitProtection = owned?.Protection,
+                    PreviousValidMomentumWasStrongWeakening = priorLifecycle.LastScheduledBarEndUtc == end - policy.BarInterval &&
+                        priorLifecycle.ConsecutiveStrongWeakeningObservations > 0
+                };
+                var safety = DelphiLiveSafetyPolicy.Evaluate(safetyInput, policy);
+                var lifecycle = DelphiLiveLifecyclePolicy.Advance(priorLifecycle, new(end, value.Result.FamiliesMature,
+                    value.Result.ObservationIsValid, value.Result.NextState.Confidence, value.Result.NextState.Momentum,
+                    safety.EntrySafetyVetoActive, owned is not null, pendingBuy, pendingSell, value.Input.DailySetup is not null));
+                if (candidateState?.EvaluationId == value.Input.EvaluationId)
+                    lifecycle = lifecycle with { Snapshot = candidateState.Lifecycle,
+                        MayCreateBuyDecision = candidateState.Lifecycle.State == DelphiLiveRecommendationState.EntryEligible && !pendingBuy && !pendingSell && owned is null };
+                var ownState = new DelphiLivePortfolioCandidateState(lifecycle.Snapshot, continuityEpoch, value.Input.EvaluationId, clock.UtcNow);
+                candidateStates = candidateStates.SetItem(value.Input.Stock.Symbol, ownState);
+                if (value.Result.CurrentStockObservationId is not Guid evidenceId) continue;
+                var ownInput = value.Input with
+                {
+                    PreviousState = value.Input.PreviousState with { Lifecycle = priorLifecycle },
+                    IsHeld = owned is not null, HasPendingBuy = pendingBuy, HasPendingSell = pendingSell,
+                    AveragePurchasePrice = owned?.AveragePurchasePrice, ProfitProtection = owned?.Protection
+                };
+                DateTime? confirmationStart = lifecycle.Snapshot.ConsecutiveStrongObservations > 0
+                    ? end - TimeSpan.FromTicks(policy.BarInterval.Ticks * (lifecycle.Snapshot.ConsecutiveStrongObservations - 1)) : null;
+                var ownResult = value.Result with
+                {
+                    NextState = value.Result.NextState with { Lifecycle = lifecycle.Snapshot }, Lifecycle = lifecycle,
+                    ConfirmationStartedBarEndUtc = confirmationStart, SafetyInput = safetyInput, Safety = safety
+                };
+                var attribution = value.Input.DailySetup is not null && policyContext.Candidates.TryGetValue(value.Input.Stock.Symbol, out var daily) ? Lenses(daily) : [];
+                var dossier = DelphiLiveEvaluationEngine.CreateDossier(ownInput, ownResult, Guid.NewGuid(), clock.UtcNow,
+                    "Observe", "Evaluated", attribution, OriginalThesis(originalPosition));
+                portfolioDossiers.Add(dossier);
+                bool eligible = policyContext.Session.CalibrationRunId is not null && value.Result.ObservationIsValid &&
+                    value.Result.FamiliesMature && value.Result.NextState.Confidence.AllowsNewRisk &&
+                    value.Result.NextState.Momentum.IsEntryEligibleStrong && !safety.EntrySafetyVetoActive &&
+                    lifecycle.MayCreateBuyDecision;
+                candidates.Add(new(value.Input.Stock.Symbol, value.Result.EvaluationId, evidenceId, index + 1,
+                    eligible, confirmationStart, value.Result.NextState.Confidence,
+                    safetyInput, DelphiLiveDecisionDossierBuilder.Serialize(dossier, policy)));
+            }
+            currentPortfolio = await ledger.CommitAsync(currentPortfolio.Revision,
+                currentPortfolio with { Revision = currentPortfolio.Revision + 1, UpdatedUtc = clock.UtcNow, CandidateStates = candidateStates },
+                new[] { new DelphiLiveLedgerEvent(Guid.NewGuid(), "PortfolioCandidateStatesEvaluated", clock.UtcNow,
+                    DelphiLiveLedgerJson.Serialize(new { cycleId, candidates = candidateStates, dossiers = portfolioDossiers })) }, lease, ct);
+            var marks = Marks(currentPortfolio.OpenPositions, bars, end, false);
+            var openingPositions = currentPortfolio.CurrentSession == date ? currentPortfolio.SessionOpeningPositions : currentPortfolio.OpenPositions;
+            var opening = Marks(openingPositions, bars, bounds.OpenUtc.AddMinutes(5), true);
+            var completedPortfolio = await actions.RunCycleAsync(new(currentPortfolio.PortfolioId, cycleId, date, bounds.OpenUtc, bounds.CloseUtc,
+                end, ReviewedTsxSessionCalendar.At(date, policy.EntryCutoff), marks, opening, candidates,
+                CorporateActionUnsupported: currentPortfolio.SessionOpeningPositions.Concat(currentPortfolio.OpenPositions)
+                    .Any(p => corporateSymbols.Contains(p.Symbol, StringComparer.OrdinalIgnoreCase)))
+                { SessionId = context.Session.SessionId, RequireFreshSharedInput = requireFreshSharedInput }, policy, lease, ct);
+            if (portfolio.Role == "OperationalChampion") operationalAfterActions = completedPortfolio;
+        }
+        Guid champion = context.Assignments.Single(a => a.Role == DelphiLivePolicyRole.OperationalChampion).PolicyVersionId;
+        foreach (var value in saved.Where(e => e.Input.Policy.PolicyVersionId == champion))
+        {
+            if (value.Result.NextState.Confidence.State == DelphiLiveDataConfidenceState.MonitoringLost &&
+                (portfolios.Any(p => p.Role == "OperationalChampion" && p.OpenPositions.Any(position => position.Symbol == value.Input.Stock.Symbol)) ||
+                 tracked.Any(h => h.Symbol == value.Input.Stock.Symbol)))
+                await notifier.NotifyAsync(new("Urgent", "MonitoringLost", "Holding monitoring lost; quote protection remains active.", Symbol: value.Input.Stock.Symbol), ct);
+            else if (operationalAfterActions?.CandidateStates.GetValueOrDefault(value.Input.Stock.Symbol)?.Lifecycle.State is
+                    DelphiLiveRecommendationState.EntryEligible or DelphiLiveRecommendationState.BuyPending &&
+                portfolios.SingleOrDefault(p => p.Role == "OperationalChampion")?.CandidateStates.GetValueOrDefault(value.Input.Stock.Symbol)?.Lifecycle.State is not
+                    (DelphiLiveRecommendationState.EntryEligible or DelphiLiveRecommendationState.BuyPending) &&
+                value.Result.NextState.Confidence.AllowsNewRisk)
+                await notifier.NotifyAsync(new("Information", "EntryEligible", "Fresh strong confirmation completed.", Symbol: value.Input.Stock.Symbol), ct);
+        }
+    }
+
     private async Task FinalizeCurrentSessionAsync(CancellationToken ct)
     {
         if (context is null || lease is null) throw new InvalidOperationException("An owned session is required for finalization.");
@@ -440,11 +537,12 @@ public sealed class DelphiLiveMonitorWorkflow
             throw new InvalidOperationException("Delphi Live host lease was lost; session finalization requires recovery.");
         await collection.FinishSessionAsync(context.Session.SessionId, lease, false, ct);
         if (PersistSessionResearchAsync is not null) await PersistSessionResearchAsync(context, lease, ct);
-        await collection.ReleaseAsync(lease, clock.UtcNow, ct);
+        if (observationPortfolios is null) await collection.ReleaseAsync(lease, clock.UtcNow, ct);
         // Mark locally complete only after every durable closing action succeeds. Later wakes read
         // saved status, rather than refinalizing with a lease that can expire after the close.
         finalizedSessionDate = context.Session.TradingDate;
-        lease = null; context = null; recovery = null; nextEnd = null; sessionProtectionStarted = false; preOpenHeartbeat = null;
+        if (observationPortfolios is null) lease = null;
+        context = null; recovery = null; nextEnd = null; sessionProtectionStarted = false; preOpenHeartbeat = null;
     }
 
     public async Task StopAsync(CancellationToken ct = default)

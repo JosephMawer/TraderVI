@@ -37,10 +37,18 @@ internal static class Program
             var broker = new EngineBrokerService(connection, journal, sessionStore, grants, calendar,
                 IndependentExecutionReadiness.VerifyAsync);
             var market = new IndependentMarketService(calendar);
+            var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
+            var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
+            market.ApplySessionBoundaryAsync = research.ApplyBoundaryAsync;
             var engine = new IndependentEngine([
                 new("Connection", TimeSpan.FromSeconds(10), broker.PollAuthenticationAsync),
+                new("Collection ownership", TimeSpan.FromSeconds(30), market.MaintainLeaseAsync),
                 new("Market inputs", TimeSpan.FromSeconds(30), market.TickAsync),
-                new("Real trading", TimeSpan.FromSeconds(1), broker.PollExecutionAsync)
+                new("Real trading", TimeSpan.FromSeconds(1), broker.PollExecutionAsync),
+                new("Paper protection", TimeSpan.FromSeconds(10), paper.ProtectAsync),
+                new("Paper inputs", TimeSpan.FromSeconds(10), paper.ConsumeAsync),
+                new("Research inputs", TimeSpan.FromSeconds(30), research.ConsumeAsync),
+                new("Research history", TimeSpan.FromMinutes(15), research.MaintainAsync)
             ], broker.StartAsync, async () =>
             {
                 try { await market.StopAsync().ConfigureAwait(false); }
@@ -49,7 +57,7 @@ internal static class Program
             using var stopAccepting = new CancellationTokenSource();
             var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
             {
-                if (request.Operation == EngineOperation.Status) return engine.ReadStatus();
+                if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices };
                 if (request.Operation == EngineOperation.Stop)
                 {
                     broker.BeginStop();

@@ -18,6 +18,38 @@ public sealed class DelphiLiveActionWorkflowTests
     private static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DeferredSharedInputCannotBuyAfterItExpiresEvenWhileWaitingForAQuote(bool expiresDuringQuote)
+    {
+        var h = new Harness();
+        var input = h.Input("AAA") with { RequireFreshSharedInput = true };
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        if (expiresDuringQuote)
+        {
+            h.Clock.Now = Open.AddMinutes(27).AddSeconds(-2);
+            h.Source.BeforeRequest = _ => h.Clock.Now = Open.AddMinutes(27);
+        }
+        else h.Clock.Now = Open.AddMinutes(27);
+        var result = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
+        Assert.Empty(result.Fills);
+        Assert.Empty(result.OpenPositions);
+        if (expiresDuringQuote) Assert.Contains(result.Actions, a => a.TerminalReason == "BuyCancelledStaleSharedInput");
+        else Assert.Empty(h.Source.Requests);
+    }
+
+    [Fact]
+    public async Task FreshDeferredSharedInputCanBuyAndAnAmbiguousConsumerRetryDoesNotBuyTwice()
+    {
+        var h = new Harness(); var input = h.Input("AAA") with { RequireFreshSharedInput = true };
+        h.Source.Enqueue(10m, 9.99m, 10m);
+        var first = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
+        var second = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
+        Assert.Single(first.Fills); Assert.Single(second.Fills); Assert.Single(h.Source.Requests);
+        Assert.Equal(first.Revision, second.Revision);
+    }
+
     [Fact]
     public async Task ProgressiveBidTouchExitsBetweenClosesAndUsesSeparateFillQuote()
     {

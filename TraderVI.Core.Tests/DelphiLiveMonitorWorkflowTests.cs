@@ -22,6 +22,49 @@ public sealed class DelphiLiveMonitorWorkflowTests
     private static readonly DelphiLivePolicyDefinition Policy = DelphiLivePolicyDefinition.Version1;
 
     [Fact]
+    public async Task SharedCheckpointHasExactPublishedInputsAndLateConsumerNeverReadsPaperHistory()
+    {
+        var h = new Harness(independent: true);
+        DelphiLiveSharedCheckpoint? frame = null;
+        h.Workflow.PublishSharedCheckpointAsync = (value, _, _) => { frame = value; return Task.CompletedTask; };
+        await h.Workflow.TickAsync(); h.Clock.Now = Open.AddMinutes(7); await h.Workflow.TickAsync();
+        Assert.NotNull(frame); frame!.Validate(); Assert.Equal(Open.AddMinutes(5), frame.BarEndUtc);
+        Assert.Equal(h.Evaluations.All.Single().Input.EvaluationId, frame.Evaluations.Single().Input.EvaluationId);
+        Assert.Equal(2, frame.Bars().Count);
+        h.Ledger.RejectAccess = true; h.Clock.Now = Open.AddMinutes(12);
+        Assert.Equal("NotActionableLate", await h.Workflow.ConsumeSharedCheckpointAsync(frame, h.Workflow.CurrentSharedLease!));
+    }
+
+    [Fact]
+    public async Task SharedConsumerUsesPublishedEvidenceWithoutRecollectingAndRejectsChangedIdentity()
+    {
+        var h = new Harness(independent: true);
+        DelphiLiveSharedCheckpoint? frame = null;
+        h.Workflow.PublishSharedCheckpointAsync = (value, _, _) => { frame = value; return Task.CompletedTask; };
+        await h.Workflow.TickAsync(); h.Clock.Now = Open.AddMinutes(7); await h.Workflow.TickAsync();
+        var lease = h.Workflow.CurrentSharedLease!;
+        int calls = h.Source.BarRequests.Count;
+        Assert.Equal("Applied", await h.Workflow.ConsumeSharedCheckpointAsync(frame!, lease));
+        Assert.Equal(calls, h.Source.BarRequests.Count);
+        Assert.Equal(frame!.CycleId, h.Ledger.State!.LastCompletedCycleId);
+        Assert.Throws<InvalidOperationException>(() => (frame with { CycleId = Guid.Empty }).Validate());
+        Assert.Throws<InvalidOperationException>(() => (frame with { ContinuityEpoch = frame.ContinuityEpoch + 1 }).Validate());
+        Assert.Throws<InvalidOperationException>(() => (frame with { Evaluations = frame.Evaluations.Add(frame.Evaluations[0]) }).Validate());
+    }
+
+    [Fact]
+    public async Task IndependentLeaseSurvivesSessionCloseAndIsReleasedOnlyWhenEngineStops()
+    {
+        var h = new Harness(independent: true);
+        h.Clock.Now = Open.AddDays(-1); await h.Workflow.MaintainSharedLeaseAsync();
+        Assert.NotNull(h.Workflow.CurrentSharedLease);
+        h.Clock.Now = Open; await h.Workflow.TickAsync();
+        h.Clock.Now = Open.AddHours(6.5).AddMinutes(7); await h.Workflow.TickAsync();
+        Assert.NotNull(h.Workflow.CurrentSharedLease); Assert.Equal(0, h.Collection.ReleaseCount);
+        await h.Workflow.StopAsync(); Assert.Null(h.Workflow.CurrentSharedLease); Assert.Equal(1, h.Collection.ReleaseCount);
+    }
+
+    [Fact]
     public async Task IndependentMarketProducesFreshInputsWithoutReadingOrWritingPaperHistory()
     {
         var h = new Harness(independent: true);

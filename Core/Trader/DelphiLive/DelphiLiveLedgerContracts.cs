@@ -111,6 +111,8 @@ public sealed record DelphiLivePortfolioCycleInput(
     bool IsRestart = false, bool CorporateActionUnsupported = false)
 {
     public Guid? SessionId { get; init; }
+    // Deferred shared-input consumers must recheck age at every admission/fill boundary.
+    public bool RequireFreshSharedInput { get; init; }
 }
 
 public sealed record DelphiLiveProtectionCycleInput(
