@@ -27,10 +27,10 @@ public partial class TradingRecommendationsView : UserControl
     private TradingAccountReportRequest? reportRequest;
     private TradingReportedBuyRequest? buyRequest;
     private WealthsimpleAccountViewModel? broker;
-    private WealthsimpleConnection? brokerConnection;
+    private IWealthsimpleConnection? brokerConnection;
     private bool loadingStrategyChoices;
     private Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcileAccount;
-    public void InitializeWealthsimple(WealthsimpleConnection connection,
+    public void InitializeWealthsimple(IWealthsimpleConnection connection,
         Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountReconciliation>>? reconcile = null,
         Func<Core.WSTrade.Accounts.WealthsimpleTfsaAccount, long, CancellationToken, Task<Core.WSTrade.Accounts.BrokerAccountSynchronization>>? synchronize = null,
         Func<bool>? canSynchronize = null)

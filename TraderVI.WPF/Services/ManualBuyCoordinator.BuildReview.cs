@@ -26,7 +26,7 @@ public sealed partial class ManualBuyCoordinator
         var normal=await ReadUngatedLiveAsync(ct,stage); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         var scope=saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover today's original permission.");
-        var components=BrokerManagedSessionComposition.CreateComponents(connection,connection,connection,journal,journal,
+        var components=CreateManagedComponents(connection,connection,connection,journal,journal,
             orderGate,account,executionCalendar!,new BrokerNoTransferRiskEvidenceSource(scope,executionCalendar!));
         stage("rechecking the actual cash-only account and preserved risk history");
         var projected=await components.AccountSource.SynchronizeAsync(saved.Orders,ct); check();

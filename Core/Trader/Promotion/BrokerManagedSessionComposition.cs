@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 namespace Core.Trader.Promotion;
 
 public sealed record BrokerManagedSessionComponents(BrokerManagedSessionWorkflow Workflow, IBrokerManagedAccountSource AccountSource);
+public sealed record BrokerWorkflowOverrides(IManualBuyWorkflow Buys, IManualSellWorkflow Sells,
+    IBrokerReconciliationWorkflow Reconciliation);
 
 /// <summary>Composition only. Creates no timer, performs no reads/writes and grants no execution authority.</summary>
 public static class BrokerManagedSessionComposition
@@ -34,16 +36,17 @@ public static class BrokerManagedSessionComposition
         IManualBuyBroker buyBroker, IManualSellBroker sellBroker, IManualSellJournal orders,
         IBrokerReconciliationJournal observations, SemaphoreSlim sharedOrderGate,
         WealthsimpleTfsaAccount selectedAccount, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource riskEvidence,
-        TimeProvider? time = null, IBrokerAccountRiskContinuationStore? previewRisk = null)
+        TimeProvider? time = null, IBrokerAccountRiskContinuationStore? previewRisk = null,
+        BrokerWorkflowOverrides? workflows = null)
     {
         // Callers must supply their existing clients, journal and gate, not create another submission owner.
         ArgumentNullException.ThrowIfNull(sharedOrderGate);
         ArgumentNullException.ThrowIfNull(riskEvidence);
         var risk = new BrokerAccountRiskContinuationRepository(calendar);
         var safety = new ManualBuySafetyRepository();
-        var buys = new ManualMarketBuyWorkflow(buyBroker, orders, safety, time, sharedOrderGate);
-        var sells = new ManualMarketSellWorkflow(sellBroker, orders, time, sharedOrderGate);
-        var reconcile = new BrokerReconciliationWorkflow(accountReads, orders, observations, sharedOrderGate, time);
+        IManualBuyWorkflow buys = workflows?.Buys ?? new ManualMarketBuyWorkflow(buyBroker, orders, safety, time, sharedOrderGate);
+        IManualSellWorkflow sells = workflows?.Sells ?? new ManualMarketSellWorkflow(sellBroker, orders, time, sharedOrderGate);
+        IBrokerReconciliationWorkflow reconcile = workflows?.Reconciliation ?? new BrokerReconciliationWorkflow(accountReads, orders, observations, sharedOrderGate, time);
         async Task<string> Resolve(string symbol, CancellationToken ct)
         {
             var read = await buyBroker.ReadManualBuyContextAsync(selectedAccount, symbol, ct);

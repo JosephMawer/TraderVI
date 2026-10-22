@@ -68,6 +68,12 @@ public sealed partial class ManualBuyCoordinator
     }
     private async Task StopExecutionCoreAsync(CancellationToken ct)
     {
+        if (connection is EngineBrokerClient remote)
+        {
+            await remote.Rpc.CallAsync<bool>(EngineOperation.DisableExecution, ct: ct);
+            PresentExecution(await remote.Rpc.CallAsync<BrokerExecutionHostStatus>(EngineOperation.ExecutionStatus, ct: ct));
+            return;
+        }
         if (executionHost is not null) await executionHost.DisableAsync(ct);
         else
         {
@@ -85,6 +91,11 @@ public sealed partial class ManualBuyCoordinator
         executionPolling = true; CommandManager.InvalidateRequerySuggested();
         try
         {
+            if (connection is EngineBrokerClient remote)
+            {
+                PresentExecution(await remote.Rpc.CallAsync<BrokerExecutionHostStatus>(EngineOperation.ExecutionStatus, ct: ct));
+                return;
+            }
             // Default-off startup reads no SQL, broker or journal and creates no permission file.
             if (HostGrants().Read()?.Enabled != true)
             { PresentExecution(new("Off", "Automatic trading off. No execution-host permission is enabled.", DateTimeOffset.UtcNow)); return; }
@@ -195,6 +206,7 @@ public sealed partial class ManualBuyCoordinator
                     finally { waitingForPaper = false; }
                     Check();
                 }
+                if (journal is EngineOrderReadModel orders) await orders.RefreshAsync(lifetime.Token);
                 await action();
             }
             catch (OperationCanceledException) { }
@@ -366,7 +378,7 @@ public sealed partial class ManualBuyCoordinator
             }
             IBrokerRiskEvidenceSource risk = evidence?.NoTransferScope is { } scope
                 ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!) : new UnqualifiedBrokerRiskEvidenceSource();
-            var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal,
+            var components = CreateManagedComponents(connection, connection, connection, journal,
                 journal, orderGate, account, executionCalendar!, risk);
             Stage("reconciling the current account for execution review");
             var projected = await components.AccountSource.SynchronizeAsync([], lifetime.Token); Check();
@@ -624,9 +636,16 @@ public sealed partial class ManualBuyCoordinator
         {
             Stage("enabling the exact operator-reviewed host assignment");
             Check(); var selected = reviewed ?? throw new InvalidOperationException("Refresh the current approved assignment first.");
-            await GetExecutionHost().EnableAsync(selected.BindingId, selected.SessionId, selected.Strategy.Fingerprint,
-                Environment.UserName, lifetime.Token); Check(); summary.Text = ExecutionStatus.Message;
-        }, waitForPaperCycles: false); // Enable saves the grant; PollExecutionHostAsync drains paper work before execution.
+            if (connection is EngineBrokerClient remote)
+            {
+                await remote.Rpc.CallAsync<bool>(EngineOperation.EnableExecution,
+                    new EngineEnableExecution(selected.BindingId, selected.SessionId, selected.Strategy.Fingerprint, Environment.UserName), lifetime.Token);
+                PresentExecution(await remote.Rpc.CallAsync<BrokerExecutionHostStatus>(EngineOperation.ExecutionStatus, ct: lifetime.Token));
+            }
+            else await GetExecutionHost().EnableAsync(selected.BindingId, selected.SessionId, selected.Strategy.Fingerprint,
+                Environment.UserName, lifetime.Token);
+            Check(); summary.Text = ExecutionStatus.Message;
+        }, waitForPaperCycles: false); // The independent engine owns subsequent execution and its input checks.
         stop.Click += async (_, _) => await Run(async () =>
         {
             Stage("stopping the execution host");

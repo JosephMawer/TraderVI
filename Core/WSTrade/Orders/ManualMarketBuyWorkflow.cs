@@ -10,12 +10,14 @@ namespace Core.WSTrade.Orders;
 
 /// <summary>One operator-reviewed manual order at a time. No timer/startup path can submit.</summary>
 public sealed class ManualMarketBuyWorkflow(IManualBuyBroker broker, IManualBuyJournal journal,
-    IManualBuySafetySource safety, TimeProvider? time = null, SemaphoreSlim? orderGate = null)
+    IManualBuySafetySource safety, TimeProvider? time = null, SemaphoreSlim? orderGate = null) : IManualBuyWorkflow
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     private readonly SemaphoreSlim gate = orderGate ?? new(1, 1);
     private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, byte> usedReviews = new();
     public IReadOnlyList<ManualBuyRecord> ReadOrders() => journal.ReadAll();
+    public Task<IReadOnlyList<ManualBuyRecord>> ReadOrdersAsync(CancellationToken ct = default)
+    { ct.ThrowIfCancellationRequested(); return Task.FromResult(ReadOrders()); }
     public Task<WealthsimpleReadResult<IReadOnlyList<WealthsimpleTfsaAccount>>> ReadAccountsAsync(CancellationToken ct) => broker.ReadTfsaAccountsAsync(ct);
     public bool IsConnected => broker.IsConnected;
     public long SessionRevision => broker.SessionRevision;

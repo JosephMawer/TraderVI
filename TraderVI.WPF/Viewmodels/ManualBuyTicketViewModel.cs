@@ -13,14 +13,14 @@ namespace TraderVI.WPF.Viewmodels;
 
 public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposable
 {
-    private readonly ManualMarketBuyWorkflow workflow;
+    private readonly IManualBuyWorkflow workflow;
     private readonly CancellationTokenSource lifetime = new();
     private PreparedManualBuy? review;
     private WealthsimpleTfsaAccount? account;
     private ManualBuyOrderRow? selectedOrder;
     private string quantity = "";
     private bool disposed;
-    public ManualBuyTicketViewModel(ManualMarketBuyWorkflow workflow, ManualBuyOrigin? origin)
+    public ManualBuyTicketViewModel(IManualBuyWorkflow workflow, ManualBuyOrigin? origin)
     { this.workflow = workflow; Origin = origin; }
     public event PropertyChangedEventHandler? PropertyChanged;
     public ManualBuyOrigin? Origin { get; }
@@ -89,7 +89,7 @@ public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposab
     }
     public async Task InitializeAsync() => await Run(async () =>
     {
-        LoadOrders();
+        await LoadOrdersAsync();
         if (Origin == null) { selectedOrder = Orders.FirstOrDefault(); Status = "Saved on this Windows account. Select an order and Check status for a fresh broker result."; return; }
         var unresolved = Orders.FirstOrDefault(o => !o.Record.IsResolved);
         if (unresolved != null) { selectedOrder = unresolved; Status = "An earlier manual order needs a status check before another buy."; return; }
@@ -130,7 +130,7 @@ public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposab
                 Status = result.Message; review = result.UpdatedReview;
                 if (result.Order != null)
                 {
-                    LoadOrders(result.Order.Intent.RequestId);
+                    await LoadOrdersAsync(result.Order.Intent.RequestId);
                     if (result.Order.Submission == WealthsimpleSubmissionStatus.Acknowledged)
                         await CheckOrderCoreAsync();
                 }
@@ -144,7 +144,7 @@ public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposab
         if (selectedOrder == null) return;
         var id = selectedOrder.Record.Intent.RequestId;
         var result = await workflow.CheckOrderAsync(id, lifetime.Token);
-        Status = result.Message; LoadOrders(id);
+        Status = result.Message; await LoadOrdersAsync(id);
     }
     public void StartNew()
     {
@@ -152,10 +152,10 @@ public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposab
         selectedOrder = null; quantity = ""; review = null;
         Status = "Enter the new order's quantity and refresh its checks."; Notify();
     }
-    private void LoadOrders(Guid? selectedId = null)
+    private async Task LoadOrdersAsync(Guid? selectedId = null)
     {
         selectedId ??= selectedOrder?.Record.Intent.RequestId;
-        Orders = workflow.ReadOrders().Select(x => new ManualBuyOrderRow(x)).ToArray();
+        Orders = (await workflow.ReadOrdersAsync(lifetime.Token)).Select(x => new ManualBuyOrderRow(x)).ToArray();
         selectedOrder = Orders.FirstOrDefault(o => o.Record.Intent.RequestId == selectedId);
     }
     private async Task Run(Func<Task> action)
@@ -167,7 +167,7 @@ public sealed class ManualBuyTicketViewModel : INotifyPropertyChanged, IDisposab
         catch
         {
             Status = "Account checks or protected order storage are unavailable. No new submission is allowed; review saved orders before trying again."; review = null;
-            try { LoadOrders(); selectedOrder ??= Orders.FirstOrDefault(o => !o.Record.IsResolved); } catch { }
+            try { await LoadOrdersAsync(); selectedOrder ??= Orders.FirstOrDefault(o => !o.Record.IsResolved); } catch { }
         }
         finally { IsBusy = false; if (!disposed) Notify(); }
     }

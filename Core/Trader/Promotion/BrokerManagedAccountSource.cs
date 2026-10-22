@@ -31,11 +31,11 @@ public sealed class UnqualifiedBrokerRiskEvidenceSource : IBrokerRiskEvidenceSou
 }
 
 /// <summary>Shared synchronization/continuation caller. It neither invents source qualification nor starts a scheduler.</summary>
-public sealed class BrokerManagedAccountSource(BrokerReconciliationWorkflow reconciliation,
+public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow reconciliation,
     Func<long> sessionRevision, WealthsimpleTfsaAccount brokerAccount, IBrokerRiskBaselineStore baselines,
     IBrokerAccountRiskContinuationStore continuationStore, ITsxSessionCalendar calendar,
     IBrokerRiskEvidenceSource riskEvidence, BrokerImportWorkflow imports,
-    ManualMarketBuyWorkflow buys, ManualMarketSellWorkflow sells, IManualSellBroker broker,
+    IManualBuyWorkflow buys, IManualSellWorkflow sells, IManualSellBroker broker,
     Func<string, CancellationToken, Task<string>> resolveSecurity, TimeProvider? time = null) : IBrokerManagedAccountSource
 {
     public string ImplementationIdentity => TradingRecommendationStorage.ImplementationIdentity;

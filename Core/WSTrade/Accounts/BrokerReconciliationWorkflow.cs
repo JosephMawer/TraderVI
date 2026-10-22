@@ -31,8 +31,14 @@ public sealed record BrokerAccountRead(BrokerAccountReconciliation Reconciliatio
 }
 
 /// <summary>Explicit read/reconcile action. Shares the manual-order gate; contains no order-submission or SQL dependency.</summary>
+public interface IBrokerReconciliationWorkflow
+{
+    Task<BrokerAccountReconciliation> RefreshAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default);
+    Task<BrokerAccountRead> ReadAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default);
+}
+
 public sealed class BrokerReconciliationWorkflow(IBrokerReconciliationSource source, IManualBuyJournal orders,
-    IBrokerReconciliationJournal journal, SemaphoreSlim orderGate, TimeProvider? time = null)
+    IBrokerReconciliationJournal journal, SemaphoreSlim orderGate, TimeProvider? time = null) : IBrokerReconciliationWorkflow
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     public async Task<BrokerAccountReconciliation> RefreshAsync(WealthsimpleTfsaAccount account, long revision, CancellationToken ct = default) =>

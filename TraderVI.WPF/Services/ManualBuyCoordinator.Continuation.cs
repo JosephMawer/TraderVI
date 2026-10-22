@@ -56,7 +56,7 @@ public sealed partial class ManualBuyCoordinator
         if (!BrokerOctober21Continuation.SourceReady(continuation, normal.Updated, executionCalendar, DateTimeOffset.UtcNow, preOpenSource))
             throw new InvalidOperationException("Refresh the current October 21 Normal source before continuation review.");
         var prospective = new BrokerContinuationPreviewRiskStore(risks, continuation, executionCalendar);
-        var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal, journal,
+        var components = CreateManagedComponents(connection, connection, connection, journal, journal,
             orderGate, account, executionCalendar, new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar, preOpenReviewOnly: true),
             previewRisk: prospective);
         stage("reconciling the current cash-only account against the prospective continuation");

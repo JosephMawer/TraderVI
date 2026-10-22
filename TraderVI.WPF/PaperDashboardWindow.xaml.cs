@@ -29,7 +29,8 @@ public partial class PaperDashboardWindow : Window
     private readonly CancellationTokenSource shutdown = new();
     private readonly PortfolioDisplayRefreshSchedule displayRefresh = new();
     private bool timerTickRunning;
-    private readonly WealthsimpleConnection wealthsimple = new(new WindowsWealthsimpleSessionStore());
+    private readonly IWealthsimpleConnection wealthsimple = new EngineBrokerClient(
+        new EngineRpcClient(EnginePaths.PipeName), new WindowsWealthsimpleSessionStore());
     private readonly ManualBuyCoordinator manualBuys;
     private readonly DispatcherTimer authTimer = new() { Interval = TimeSpan.FromSeconds(10) };
     private readonly DispatcherTimer brokerTimer = new() { Interval = TimeSpan.FromSeconds(30) };
@@ -158,7 +159,7 @@ public partial class PaperDashboardWindow : Window
         Closed += (_, _) => brokerTimer.Stop();
         authTimer.Tick += async (_, _) =>
         {
-            try { await wealthsimple.CheckAsync(ct: shutdown.Token); }
+            try { await wealthsimple.CheckAsync(ct: shutdown.Token); await RefreshEngineStatusAsync(); }
             catch (OperationCanceledException) { }
         };
         DelphiTabView.PaperPositionOpened += DelphiTabView_PaperPositionOpened;

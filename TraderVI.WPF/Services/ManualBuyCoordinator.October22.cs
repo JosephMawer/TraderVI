@@ -50,7 +50,7 @@ public sealed partial class ManualBuyCoordinator
         var preOpenDaily = await new TradingPromotionRepository().HasPreOpenDailySourceAsync(source.Review.Strategy,
             executionCalendar!, DateTimeOffset.UtcNow, ct); check();
         var scope = continuation.Scope(executionCalendar!);
-        var components = BrokerManagedSessionComposition.CreateComponents(connection, connection, connection, journal, journal,
+        var components = CreateManagedComponents(connection, connection, connection, journal, journal,
             orderGate, account, executionCalendar!, new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!, preOpenReviewOnly: true),
             previewRisk: new BrokerOctober22PreviewRiskStore(risks, continuation, executionCalendar!));
         stage("reconciling the current cash-only account without resetting financial references");

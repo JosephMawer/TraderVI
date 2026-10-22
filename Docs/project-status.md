@@ -3,11 +3,13 @@
 ## October 21 post-open execution watch
 
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
-by history/storage work tonight. First source increment moves broker-session ownership code and its
-account interface into Core and adds independent process-owned schedules, exclusive ownership and
-draining stop.237 focused scheduler/auth/account tests and isolated WPF build pass. Runtime/client and
-direct-input integration remain unfinished; existing installed app is unchanged. Existing compiler
-warnings remain; dependency-security audit was disabled, not requalified. No database/external action.
+by history/storage work tonight. Core scheduling/session extraction is committed58f32587. The next
+source increment adds a separate Windows engine, current-user-only asynchronous control channel,
+engine-owned broker/order workflows, reconnecting dashboard and explicit engine start/stop.826 related
+checks pass/one native skip; isolated engine/WPF build passes with260 existing compiler warnings.
+New-host execution is deliberately blocked pending direct inputs and state-storage qualification.
+Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
+Dependency-security audit was disabled, not requalified. No database or external action.
 
 **Accepted design — dashboard-independent operation:** closing the dashboard leaves
 the engine running, with a separate stop control, under

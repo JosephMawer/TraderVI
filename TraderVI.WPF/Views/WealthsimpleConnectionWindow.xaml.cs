@@ -10,10 +10,10 @@ namespace TraderVI.WPF.Views;
 
 public partial class WealthsimpleConnectionWindow : Window
 {
-    private readonly WealthsimpleConnection connection;
+    private readonly IWealthsimpleConnection connection;
     private readonly CancellationTokenSource closed = new();
     private bool signingIn;
-    public WealthsimpleConnectionWindow(WealthsimpleConnection connection)
+    public WealthsimpleConnectionWindow(IWealthsimpleConnection connection)
     {
         InitializeComponent(); this.connection = connection; DataContext = connection;
         connection.PropertyChanged += ConnectionChanged;

@@ -15,7 +15,7 @@ public sealed class ManualBuyWindow : Window
     private readonly ManualBuyTicketViewModel model;
     private bool closed;
     public bool IsSubmitting => model.IsSubmitting;
-    public ManualBuyWindow(ManualMarketBuyWorkflow workflow, ManualBuyOrigin? origin, WealthsimpleConnection? connection = null)
+    public ManualBuyWindow(IManualBuyWorkflow workflow, ManualBuyOrigin? origin, IWealthsimpleConnection? connection = null)
     {
         model = new(workflow, origin);
         var panel = new ManualBuyTicketPanel { DataContext = model };

@@ -16,7 +16,7 @@ public interface IManualBuyProtector
 }
 
 /// <summary>Exclusive, protected, atomic order storage. Never contains authentication secrets.</summary>
-public sealed class ManualBuyFileJournal : IManualSellJournal, IBrokerReconciliationJournal
+public sealed class ManualBuyFileJournal : IBrokerOrderJournal
 {
     private readonly string directory;
     private readonly IManualBuyProtector protector;

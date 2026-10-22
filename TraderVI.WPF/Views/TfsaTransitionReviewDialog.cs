@@ -19,7 +19,7 @@ namespace TraderVI.WPF.Views;
 /// <summary>A read-only transition review. No assignment, local fill or broker order is written.</summary>
 public sealed class TfsaTransitionReviewDialog : Window
 {
-    public TfsaTransitionReviewDialog(Window owner, WealthsimpleConnection connection, WealthsimpleAccountViewModel account,
+    public TfsaTransitionReviewDialog(Window owner, IWealthsimpleConnection connection, WealthsimpleAccountViewModel account,
         IReadOnlyList<TfsaLiveStrategyCandidate> candidates,
         Func<WealthsimpleTfsaAccount, long, CancellationToken, Task<BrokerAccountReconciliation>>? reconcile = null,
         Guid? selectedPortfolioId = null)

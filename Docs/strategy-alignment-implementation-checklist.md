@@ -23,10 +23,13 @@ The September 22 documentation cleanup preserves the
 - [x] Accept staged delivery with the requested tonight target; feasibility is unverified, not a completion promise.
 - [x] Begin explicitly requested implementation: broker connection/account interface extracted into Core;
   independent schedules/ownership/draining stop tested.237 focused checks and isolated WPF build pass.
+- [x] Implement engine executable, bounded current-user pipe, broker/order ownership and dashboard
+  client/start/stop controls.826 related checks pass/one native skip; engine/WPF build passes.
+  Native launch/reconnect and shared-input execution are not yet qualified; execution is blocked.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
-  Host/client and direct-input integration remain unfinished; the installed application is unchanged.
+  Direct-input/storage integration and native acceptance remain unfinished; installed app is unchanged.
 - [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
   resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.

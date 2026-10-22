@@ -17,10 +17,10 @@ public interface IWealthsimpleSessionStore : IDisposable
     void Clear();
 }
 
-/// <summary>Owns the desktop session independently of SQL, strategies and order execution.
-/// Call from the UI context. All asynchronous state changes are serialized.</summary>
+/// <summary>Owns the broker session independently of UI, SQL, strategies and order execution.
+/// The owning host supplies its lifetime. All asynchronous state changes are serialized.</summary>
 public sealed partial class WealthsimpleConnection(IWealthsimpleSessionStore store, TimeProvider? time = null,
-    Func<WealthsimpleAuthClient>? createClient = null) : INotifyPropertyChanged, IWealthsimpleAccountSource
+    Func<WealthsimpleAuthClient>? createClient = null) : INotifyPropertyChanged, IWealthsimpleConnection
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     private readonly Func<WealthsimpleAuthClient> createClient = createClient ?? WealthsimpleAuthClient.CreateForDesktop;

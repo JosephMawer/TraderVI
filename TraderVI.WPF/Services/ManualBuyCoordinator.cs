@@ -1,6 +1,9 @@
 using Core.WSTrade.Authentication;
 #nullable enable
 using Core.Db;
+using Core.Runtime;
+using Core.Trader.DelphiLive;
+using Core.Trader.Promotion;
 using Core.WSTrade.Orders;
 using Core.WSTrade.Accounts;
 using System;
@@ -17,25 +20,37 @@ namespace TraderVI.WPF.Services;
 
 public sealed partial class ManualBuyCoordinator : IDisposable
 {
-    private readonly ManualBuyFileJournal journal;
-    private readonly ManualMarketBuyWorkflow workflow;
-    private readonly WealthsimpleConnection connection;
-    private readonly BrokerReconciliationWorkflow reconciliation;
+    private readonly IBrokerOrderJournal journal;
+    private readonly IManualBuyWorkflow workflow;
+    private readonly IWealthsimpleConnection connection;
+    private readonly IBrokerReconciliationWorkflow reconciliation;
+    private readonly BrokerWorkflowOverrides? remoteWorkflows;
     private readonly SemaphoreSlim orderGate = new(1, 1);
     private readonly BrokerSetupCycleBarrier setupCycles;
     private bool reconciling;
     private ManualBuyWindow? window;
     private ManualSellWindow? sellWindow;
     public ManualSellViewModel Sells { get; }
-    public ManualBuyCoordinator(WealthsimpleConnection connection, BrokerSetupCycleBarrier? setupCycles = null)
+    public ManualBuyCoordinator(IWealthsimpleConnection connection, BrokerSetupCycleBarrier? setupCycles = null)
     {
         this.connection = connection;
         this.setupCycles = setupCycles ?? new();
-        journal = new ManualBuyFileJournal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "TraderVI", "Wealthsimple", "ManualOrders"), new WindowsManualBuyProtector());
-        workflow = new(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
-        Sells = new(new ManualMarketSellWorkflow(connection, journal, orderGate: orderGate));
-        reconciliation = new(connection, journal, journal, orderGate);
+        if (connection is EngineBrokerClient remote)
+        {
+            var readModel = new EngineOrderReadModel(remote.Rpc); journal = readModel;
+            workflow = new EngineBuyWorkflow(remote, readModel);
+            var sells = new EngineSellWorkflow(remote, readModel);
+            Sells = new(sells); reconciliation = new EngineReconciliationWorkflow(remote.Rpc, readModel);
+            remoteWorkflows = new(workflow, sells, reconciliation);
+        }
+        else
+        {
+            journal = new ManualBuyFileJournal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TraderVI", "Wealthsimple", "ManualOrders"), new WindowsManualBuyProtector());
+            workflow = new ManualMarketBuyWorkflow(connection, journal, new ManualBuySafetyRepository(), orderGate: orderGate);
+            Sells = new(new ManualMarketSellWorkflow(connection, journal, orderGate: orderGate));
+            reconciliation = new BrokerReconciliationWorkflow(connection, journal, journal, orderGate);
+        }
         Sells.PropertyChanged += (_, _) => CommandManager.InvalidateRequerySuggested();
     }
     private bool IsManualBusy => window?.IsSubmitting == true || Sells.IsBusy || reconciling;
@@ -111,4 +126,11 @@ public sealed partial class ManualBuyCoordinator : IDisposable
             Content = new LimitSellTicketPanel { DataContext = new LimitSellTicketViewModel(selection) } }.ShowDialog();
     }
     public void Dispose() { executionDisposed = true; Sells.Dispose(); journal.Dispose(); }
+
+    private BrokerManagedSessionComponents CreateManagedComponents(IBrokerReconciliationSource reads,
+        IManualBuyBroker buys, IManualSellBroker sells, IManualSellJournal orders, IBrokerReconciliationJournal observations,
+        SemaphoreSlim gate, WealthsimpleTfsaAccount account, ITsxSessionCalendar calendar, IBrokerRiskEvidenceSource risk,
+        TimeProvider? time = null, IBrokerAccountRiskContinuationStore? previewRisk = null) =>
+        BrokerManagedSessionComposition.CreateComponents(reads, buys, sells, orders, observations, gate, account,
+            calendar, risk, time, previewRisk, remoteWorkflows);
 }

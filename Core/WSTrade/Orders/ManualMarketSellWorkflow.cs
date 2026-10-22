@@ -10,13 +10,15 @@ namespace Core.WSTrade.Orders;
 
 /// <summary>Only an explicit row action submits. Recovery and refresh only read broker state.</summary>
 public sealed class ManualMarketSellWorkflow(IManualSellBroker broker, IManualSellJournal journal,
-    TimeProvider? time = null, SemaphoreSlim? orderGate = null)
+    TimeProvider? time = null, SemaphoreSlim? orderGate = null) : IManualSellWorkflow
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
     private readonly SemaphoreSlim gate = orderGate ?? new(1, 1);
     private readonly HashSet<Guid> usedSelections = [];
     public bool IsConnected => broker.IsConnected;
     public IReadOnlyList<ManualSellRecord> ReadOrders() => journal.ReadSells();
+    public Task<IReadOnlyList<ManualSellRecord>> ReadOrdersAsync(CancellationToken ct = default)
+    { ct.ThrowIfCancellationRequested(); return Task.FromResult(ReadOrders()); }
 
     public Task<ManualSellResult> SellAllAsync(ManualSellSelection selection, CancellationToken ct = default) =>
         SubmitAsync(selection, Guid.NewGuid(), ct);

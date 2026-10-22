@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace TraderVI.WPF.Viewmodels;
 
-public sealed class ManualSellViewModel(ManualMarketSellWorkflow workflow) : INotifyPropertyChanged, IDisposable
+public sealed class ManualSellViewModel(IManualSellWorkflow workflow) : INotifyPropertyChanged, IDisposable
 {
     private readonly CancellationTokenSource lifetime = new();
     private bool disposed;
@@ -36,13 +36,13 @@ public sealed class ManualSellViewModel(ManualMarketSellWorkflow workflow) : INo
           $"Fees: {state.Fees?.ToString() ?? "unavailable"} · Withholding: {state.TaxWithholding?.ToString() ?? "unavailable"}\n" +
           $"Observed {TradingAccountOverview.Local(state.RetrievedAt.UtcDateTime)}";
 
-    public Task LoadAsync() => Run(() => { LoadOrders(); return Task.CompletedTask; });
+    public Task LoadAsync() => Run(() => LoadOrdersAsync());
     // Called by the explicit grid command, never by Loaded, a timer, refresh or recovery.
     public Task SellAllAsync(ManualSellSelection selection) => Run(async () =>
     {
         Status = $"Checking {selection.Symbol} before selling all {selection.Quantity:0.########} shares…"; Notify();
         var result = await workflow.SellAllAsync(selection, lifetime.Token);
-        Status = result.Message; LoadOrders(result.Order?.Intent.RequestId);
+        Status = result.Message; await LoadOrdersAsync(result.Order?.Intent.RequestId);
         if (result.Order?.Submission == WealthsimpleSubmissionStatus.Acknowledged) await CheckCoreAsync();
     });
     public Task CheckAsync() => Run(CheckCoreAsync);
@@ -51,12 +51,12 @@ public sealed class ManualSellViewModel(ManualMarketSellWorkflow workflow) : INo
         if (selected == null) return;
         var id = selected.Record.Intent.RequestId;
         var result = await workflow.CheckOrderAsync(id, lifetime.Token);
-        Status = result.Message; LoadOrders(id);
+        Status = result.Message; await LoadOrdersAsync(id);
     }
-    private void LoadOrders(Guid? id = null)
+    private async Task LoadOrdersAsync(Guid? id = null)
     {
         id ??= selected?.Record.Intent.RequestId;
-        Orders = workflow.ReadOrders().Select(o => new ManualSellOrderRow(o)).ToArray();
+        Orders = (await workflow.ReadOrdersAsync(lifetime.Token)).Select(o => new ManualSellOrderRow(o)).ToArray();
         selected = Orders.FirstOrDefault(o => o.Record.Intent.RequestId == id) ?? Orders.FirstOrDefault();
     }
     private async Task Run(Func<Task> action)
@@ -68,7 +68,7 @@ public sealed class ManualSellViewModel(ManualMarketSellWorkflow workflow) : INo
         catch
         {
             Status = "Account checks or protected order storage are unavailable. Check saved sells before trying another order.";
-            try { LoadOrders(); } catch { }
+            try { await LoadOrdersAsync(); } catch { }
         }
         finally { IsBusy = false; Notify(); }
     }

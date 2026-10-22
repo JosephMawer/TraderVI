@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <Compile Include="..\TraderVI.WPF\Services\WindowsWealthsimpleSessionStore.cs" Link="Windows\WindowsWealthsimpleSessionStore.cs" />
+    <Compile Include="..\TraderVI.WPF\Services\WindowsManualBuyProtector.cs" Link="Windows\WindowsManualBuyProtector.cs" />
+  </ItemGroup>
+</Project>

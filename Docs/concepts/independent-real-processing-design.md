@@ -198,8 +198,12 @@ through history/storage tonight. No operational switch or database migration has
 
 Implementation checkpoint: broker-session code/account interface now live in Core; `IndependentEngine`
 owns separate non-overlapping schedules and drains admitted work before close. An OS-held exclusive
-lease prevents duplicate engine owners.237 focused tests and an isolated desktop build pass. This is
-a tested foundation, not a connected/installed independent trading host. Reuse the one
+lease prevents duplicate engine owners. The separate Windows executable and dashboard client now
+share a bounded current-user-only pipe; the engine owns authentication, order workflows/journal and
+one admission path. Dashboard detach is not engine stop; admitted commands drain even if the client
+disappears.826 related checks pass/one native skip and isolated engine/WPF builds pass. Shared-input,
+incremental storage and audit integration remain; the new host deliberately refuses real execution
+until their readiness contract is complete. No native host is installed or launched. Reuse the one
 `artifacts/independent-engine` build tree throughout this work instead of accumulating output copies.
 
 ## Proposed first implementation increment: independent operational host

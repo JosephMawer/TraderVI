@@ -13,6 +13,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\TraderVI.Engine\TraderVI.Engine.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <Target Name="CopyIndependentEngineHost" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="..\TraderVI.Engine\TraderVI.Engine.csproj" Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration);ArtifactsPath=$(ArtifactsPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="_EngineTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <_EngineFiles Include="@(_EngineTarget)" />
+      <_EngineFiles Include="@(_EngineTarget->'%(RootDir)%(Directory)%(Filename).exe')" />
+      <_EngineFiles Include="@(_EngineTarget->'%(RootDir)%(Directory)%(Filename).deps.json')" />
+      <_EngineFiles Include="@(_EngineTarget->'%(RootDir)%(Directory)%(Filename).runtimeconfig.json')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_EngineFiles)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

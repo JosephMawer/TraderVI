@@ -15,8 +15,9 @@ Dashboard-close continuation and a separate stop are accepted; staged delivery i
 on completion tonight, with feasibility unverified. The [draft](concepts/independent-real-processing-design.md)
 proposes independent host/broker lifetime plus direct shared inputs as the first useful increment.
 Complete engineering contracts/acceptance before the switch. Build retention is separate before cleanup.
-Shared broker-service extraction and independent scheduler tests are complete in source. Continue the
-host/client, direct-input, bounded-history/shared-storage and audit increments. No replacement is installed.
+Shared broker services, independent schedules and the engine/client control path are now in source.
+Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
+removing the new host's readiness block. No replacement is installed.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips
