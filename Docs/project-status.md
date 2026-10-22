@@ -11,8 +11,12 @@ risk. ADR-0099 direct typed packing/exact report comparisons are committed8a81ed
 entry/quote/selection/preflight/intent traces and fixed stage timings are implemented. Final2,852Core
 pass/nine native SQL skips with test concurrency disabled; default-parallel full runs expose an
 unrelated AI cleanup-wait timing failure, which passes in isolation and serialized suites. Isolated
-WPF Release build passes; aggregate diagnostic SQL parses. Standard installation awaits normal closure;
-native timing/publication remain pending. Operator explicitly authorizes preparing the October 22
+WPF Release build passes; aggregate diagnostic SQL parses. Standard Release from97ad0a11 is installed
+October21 at21:10Toronto after operator normal stop/closure and verified zero owners before/after.
+Core version/copies match the committed source;125output hashes and34source/output hashes recorded.
+Build: zero errors;260compiler warnings plus two existing dependency advisories. No app launch,
+approval, enable, SQL mutation or external call. Native timing/publication remain pending.
+Operator explicitly authorizes preparing the October 22
 review only. ADR-0101 adds that bounded path for the existing Portfolio rules only assignment:
 same source/risk/history/modes/unused allowance, fresh account/build/storage/daily evidence, separate
 approval/enable and exact October 22 16:00 expiry. 386 related checks and isolated Release build pass;

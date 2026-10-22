@@ -21,8 +21,11 @@ The September 22 documentation cleanup preserves the
   only source, original risk/history/modes and unused allowance. 386 related checks and isolated
   Release build pass; final 2,885 Core pass/nine native SQL skips (2,894 total), with test
   concurrency disabled.
-- [ ] Install after normal closure. Operator performs October 22 review/approval and separate host
-  enable on its date, including pre-open if current daily/account/source/storage checks pass.
+- [x] Install standard Release from97ad0a11 after operator normal stop/closure, October21 at21:10Toronto.
+  Zero owners before/after; Core commit/copies match;125output and34source/output hashes saved;
+  zero build errors. Existing compiler warnings and dependency advisories remain separate.
+- [ ] Operator performs October 22 review/approval and separate host enable on its date,
+  including pre-open if current daily/account/source/storage checks pass.
   Verify native timing/decision publication afterward. No permission follows from preparation.
 
 - [x] Implement and validate operator-requested immediate snapshot slowdown correction and same-source build

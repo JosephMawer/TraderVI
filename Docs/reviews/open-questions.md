@@ -10,7 +10,7 @@ Things we punted on and need to revisit. Cleared as decisions are made
 - User requests remaining lag fixed and exact confirmed-signal/order reasons recorded so the app
   is ready for tomorrow, preserving risk. ADRs0099/0100 cover the focused code changes and evidence.
 - Native timing after installation remains unproved; today's exact16:00permission is expired.
-  Current source/build review flows are explicitly October21-only (ADRs0097/0098). No October22
+  Earlier source/build review flows are explicitly October21-only (ADRs0097/0098). No October22
   authority follows from performance fixes, source approval, app startup or a protected-file edit.
 - Operator explicitly answers **Prepare tomorrow's review only**: prepare an October22-only review/
   approval path for the existing Portfolio rules only assignment, retaining original financial
@@ -18,8 +18,9 @@ Things we punted on and need to revisit. Cleared as decisions are made
   [ADR-0101](../adr/0101-october22-portfolio-rules-only-review.md). No approval, grant or financial
   mutation is authorized by that answer. Review is available on October 22 only, including pre-open
   with current daily evidence. Exact approval and separate enable remain operator actions.
-- Remaining acceptance: standard Release installation after normal closure, actual October 22
-  review and native timing/decision publication. No further design decision is inferred or required
+- Standard Release from97ad0a11 is installed October21 at21:10Toronto after normal closure/zero-owner
+  verification. Remaining acceptance: actual October 22 review and native timing/decision publication.
+  No further design decision is inferred or required
   merely to carry out the accepted review-only scope.
 
 ### Delphi Live ungated TFSA source request — October 21, 2026

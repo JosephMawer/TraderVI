@@ -51,7 +51,7 @@ financial risk, progressive protection, expiry and native-intent guard tests rem
 Final isolated WPF Release build succeeds/zero errors/260existing warning emissions:
 `artifacts/lag-and-decisions-20261021-wpf-release-final.log`. Compiler warnings are CS8632/CS0162/CS0168;
 known Pkcs9.0.4 dependency advisories remain separate, with no fresh security audit/upgrade claimed.
-Full solution/SSDT was not built. Standard Release replacement is pending normal operator stop/closure;
+Full solution/SSDT was not built. Standard Release installation is completed below after normal closure;
 no changed loaded files, app launch/restart, live mutation, market call, approval, enable or broker order.
 Native post-install processing latency and diagnostic publication remain unverified. Code preparation
 does not renew tomorrow's permission. The operator subsequently explicitly authorizes preparing
@@ -78,9 +78,36 @@ account/source/build rejection and preserved modes. The first fixture calendar s
 field and three invalid-source tests expected the wrong exception subtype; corrected the fixtures,
 preserving existing production guards. The altered-scope test now changes the actual financial
 anchor rather than a legitimate lower prior purchase ceiling. Isolated WPF Release builds pass with
-zero errors and 260 existing warning emissions. Final 2,885 Core pass/nine native SQL skips (2,894 total) with test concurrency disabled, in artifacts/october22-full-tests-serial-final.log; standard
-installation and tomorrow's operator review/approval/enable remain pending. No schema deployment,
+zero errors and 260 existing warning emissions. Final 2,885 Core pass/nine native SQL skips (2,894 total)
+with test concurrency disabled, in `artifacts/october22-full-tests-serial-final.log`. Standard installation
+is complete below; tomorrow's operator review/approval/enable remain pending. No schema deployment,
 SQL mutation, broker order, app launch or market collection was run for this preparation.
+
+## Standard Release installation — October 21, 21:10 Toronto
+
+The operator explicitly confirms host stopped/app closed and authorizes installation. Independent
+process inspection finds zero TraderVI.WPF owners immediately before the normal Release build and
+again afterward. `dotnet build TraderVI.WPF/TraderVI.WPF.csproj --configuration Release --no-restore
+-p:NuGetAudit=false --verbosity minimal` succeeds in23.28seconds with zero errors. The normal
+output is `TraderVI.WPF/bin/Release/net10.0-windows`; no separate launcher/copy is substituted.
+Installed Core product version identifies source97ad0a117ecb44768c7c11bbc8a0ccf7a1799f91, and the
+Core project/desktop copies have identical SHA256 hashes. Recorded125output hashes and34combined
+source/output hashes. Build reports262warnings:260existing compiler emissions (CS8632/CS0162/CS0168)
+and two existing Pkcs dependency advisories (NU1902/NU1903). No dependency upgrade or new audit claimed.
+
+Evidence under `artifacts/lag-and-decisions-20261021/`: `standard-release-install.log`,
+`pre-install-output-hashes.json`, `installed-output-hashes.json`, `source-output-hashes.json`,
+`installation-receipt.json`. Receipt time is21:10:25Toronto. This installation does not launch the app,
+approve/enable tomorrow's host, change protected files or financial records, deploy SQL, collect
+market data or submit an order. No new runtime verification is claimed; previous2,885offline checks
+retain their scope and full solution/SSDT remains unbuilt. The unrelated Obsidian workspace edit is
+preserved and excluded from commits.
+
+Operator next: open the installed standard output with `dotnet run --project TraderVI.WPF -c Release
+--no-build`, sign in normally, then on October22 choose Review October22, Approve October22 continuation
+and separately Enable reviewed host. Pre-open arming requires current matching daily/account/source/
+storage readiness; keep the app running/signed in. Fresh ordinary checks still apply at the open.
+Native processing latency and durable decision publication remain acceptance work after operation.
 
 ## Final October 21 watch
 
