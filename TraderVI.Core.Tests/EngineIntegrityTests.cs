@@ -16,6 +16,39 @@ public sealed class EngineIntegrityTests
         [new(EngineAuditFamily.SharedInputs, null, 1, 2)]);
     private static EngineIntegrityIncident Incident() => new(Guid.NewGuid(), EngineIntegrityScope.Global, null, "SharedInputs/1", "ChecksumFailed", Now.AddHours(-1), true);
     [Fact]
+    public void LegacySqlDatetimeProjectionPreservesExactHashedPlanAndRejectsOtherDrift()
+    {
+        var exact = DateTime.Parse("2026-10-22T16:42:47.6362441Z", null, System.Globalization.DateTimeStyles.RoundtripKind);
+        var stored = DateTime.Parse("2026-10-22T16:42:47.6366667", null, System.Globalization.DateTimeStyles.RoundtripKind);
+        var plan = Plan() with { BoundaryUtc = exact };
+        var progress = EngineAuditProgress.Start(plan);
+        string json = JsonSerializer.Serialize(plan), cursor = JsonSerializer.Serialize(progress);
+        var row = new EngineIntegrityRepository.RunRow(Guid.NewGuid(), "Recovery", stored, json,
+            DelphiLiveSnapshotCodec.Hash(json), cursor, DelphiLiveSnapshotCodec.Hash(cursor), 0, "Running", stored);
+        Assert.Equal(exact, EngineIntegrityRepository.Decode(row).Plan.BoundaryUtc);
+        Assert.Throws<System.IO.InvalidDataException>(() => EngineIntegrityRepository.Decode(row with { BoundaryUtc = stored.AddTicks(1) }));
+        Assert.Throws<System.IO.InvalidDataException>(() => EngineIntegrityRepository.Decode(row with { PlanJson = json + " " }));
+        Assert.True(EngineIntegrityRepository.MatchesStoredBoundary(exact, exact));
+    }
+
+    [Fact]
+    public void NewAuditParametersKeepSubmillisecondBoundaryPrecision()
+    {
+        var boundary = Now.AddTicks(1234567);
+        var plan = Plan() with { BoundaryUtc = boundary };
+        var parameters = EngineIntegrityRepository.Encode(new(Guid.NewGuid(), plan, EngineAuditProgress.Start(plan), 0, "Running", boundary));
+        using var command = new Microsoft.Data.SqlClient.SqlCommand();
+        // Exercise the actual provider binding without opening a SQL connection. Dapper's identity
+        // constructor is internal in the pinned version, so create its ordinary command identity here.
+        var identity = (Dapper.SqlMapper.Identity)Activator.CreateInstance(typeof(Dapper.SqlMapper.Identity),
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null,
+            new object?[] { "SELECT @BoundaryUtc,@UpdatedUtc", System.Data.CommandType.Text, "", typeof(object), typeof(Dapper.DynamicParameters), 0, 0 }, null)!;
+        ((Dapper.SqlMapper.IDynamicParameters)parameters).AddParameters(command, identity);
+        Assert.Equal(System.Data.SqlDbType.DateTime2, command.Parameters["BoundaryUtc"].SqlDbType);
+        Assert.Equal(boundary, command.Parameters["BoundaryUtc"].Value);
+        Assert.Equal(System.Data.SqlDbType.DateTime2, command.Parameters["UpdatedUtc"].SqlDbType);
+    }
+    [Fact]
     public void ResumedCursorCannotTurnPartialCoverageIntoCompleteOrCrossItsFixedBoundary()
     {
         var plan = Plan(); var p = EngineAuditProgress.Start(plan);

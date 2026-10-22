@@ -24,11 +24,32 @@ verified/synchronized backup and refuses to overwrite successful receipts. Nativ
 disables the saved real-execution grant and rejects broker access/order/enable commands. `--control`
 supports only status, stop and explicit history recovery controls, reserving a private receipt before
 dispatch to avoid replay. Final21focused tests and matching engine/WPF build pass (two existing WPF
-compiler warnings); native behavior is not yet proven. No schema migration or engine launch has run.
+compiler warnings). Subsequent native work and blockers follow; offline tests alone were insufficient.
 The first047 invocation was rejected by SQLCMD's native argument parser before SQL execution.
 A hash-verified12:29Toronto read confirms all new objects absent and original roots/counts unchanged.
 The wrapper now supplies the backup path through a scoped process environment variable; approved
 migration scripts are unchanged. The failure is not treated as a partially applied migration.
+
+Migrations047–051 then applied successfully. The hash-verified12:35Toronto post-read confirms all nine
+tables/fifteen required guards and unchanged paper current roots/revisions plus paper/broker/legacy-input
+counts. Matching engine/dashboard outputs fromc34e1a22 built with260 existing compiler warnings and
+zero errors; five shared runtime hashes match. Paper working-state qualification completed12:36:59
+in4.55seconds; real-observation qualification completed12:37:00 in1.16seconds, both exit0.
+
+Verification engine PID72336 started12:37:54; native status confirms Running/VerificationOnly and a
+first-install recovery hold. Duplicate engine startup returned1 while the original survived. Explicit
+recovery was admitted12:42; dashboard PID40788 launched. Native testing then found two defects:
+the SQL datetime binding rounded the audit's projected boundary by0.4226ms relative to its exact JSON
+plan, causing receipt rejection; an unhandled rejected Remember command crashed the connection window/
+dashboard. The independent engine survived and retained all holds. The source correction binds new
+audit timestamps asdatetime2 and reads only the exact known legacy1/300-second projection while
+retaining/verifying the original JSON/hash boundary. No audit/history row is rewritten. Connection
+window commands now present failures rather than terminating the dashboard.28focused integrity/
+continuity/audit/verification tests pass, including the observed timestamp and actual SQL parameter
+binding without a database connection. Two initial test-harness attempts failed because Dapper needs
+a command identity; corrected provider-binding test passes. WPF build passes with two existing
+warnings. Native stop/drain returned Stopped12:55:48 before rebuild. Repeat native qualification is
+pending; real execution remains disabled, and nightly remains temporarily disabled for maintenance.
 
 ## What changed
 

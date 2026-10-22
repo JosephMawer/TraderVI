@@ -21,7 +21,8 @@ public partial class WealthsimpleConnectionWindow : Window
         {
             closed.Cancel(); Password.Clear(); Email.Clear(); Otp.Clear();
             connection.PropertyChanged -= ConnectionChanged;
-            await connection.CancelSignInAsync();
+            try { await connection.CancelSignInAsync(); }
+            catch { /* Closing a client must remain possible if its engine rejects or loses the command. */ }
         };
         Height = Math.Min(Height, SystemParameters.WorkArea.Height);
         Loaded += (_, _) => Email.Focus();
@@ -54,6 +55,7 @@ public partial class WealthsimpleConnectionWindow : Window
             if (connection.IsConnected) Email.Clear();
         }
         catch (OperationCanceledException) { }
+        catch { ShowCommandFailure(); }
         finally { Password.Clear(); }
     }
     private async void SubmitOtp_Click(object sender, RoutedEventArgs e)
@@ -68,6 +70,7 @@ public partial class WealthsimpleConnectionWindow : Window
             else if (connection.AwaitingOtp) Otp.Focus();
         }
         catch (OperationCanceledException) { }
+        catch { ShowCommandFailure(); }
     }
     private async void Browser_Click(object sender, RoutedEventArgs e)
     {
@@ -84,12 +87,14 @@ public partial class WealthsimpleConnectionWindow : Window
         finally { signingIn = false; UpdateControls(); }
     }
     private async void Check_Click(object sender, RoutedEventArgs e)
-    { try { await connection.CheckAsync(true, closed.Token); } catch (OperationCanceledException) { } }
+    { try { await connection.CheckAsync(true, closed.Token); } catch (OperationCanceledException) { } catch { ShowCommandFailure(); } }
     private async void Disconnect_Click(object sender, RoutedEventArgs e)
     {
         Password.Clear(); Otp.Clear();
-        try { await connection.DisconnectAsync(closed.Token); } catch (OperationCanceledException) { }
+        try { await connection.DisconnectAsync(closed.Token); } catch (OperationCanceledException) { } catch { ShowCommandFailure(); }
     }
     private async void Remember_Click(object sender, RoutedEventArgs e)
-    { try { await connection.SetRememberAsync(Remember.IsChecked == true, closed.Token); } catch (OperationCanceledException) { } }
+    { try { await connection.SetRememberAsync(Remember.IsChecked == true, closed.Token); } catch (OperationCanceledException) { } catch { ShowCommandFailure(); } }
+    private void ShowCommandFailure() => LocalMessage.Text =
+        "The engine could not complete this command. Check engine status; broker access is disabled during verification.";
 }

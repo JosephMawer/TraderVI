@@ -229,16 +229,34 @@ SELECT CAST(CASE WHEN NOT EXISTS(SELECT 1 FROM (VALUES
             throw new InvalidDataException("Historical audit receipt checksum failed.");
         var plan = JsonSerializer.Deserialize<EngineAuditPlan>(row.PlanJson) ?? throw new InvalidDataException("Missing audit plan.");
         var progress = JsonSerializer.Deserialize<EngineAuditProgress>(row.ProgressJson) ?? throw new InvalidDataException("Missing audit progress.");
-        if (plan.Kind.ToString() != row.Kind || plan.BoundaryUtc != row.BoundaryUtc || row.Status == "Complete" != progress.Complete)
+        if (plan.Kind.ToString() != row.Kind || !MatchesStoredBoundary(plan.BoundaryUtc, row.BoundaryUtc) || row.Status == "Complete" != progress.Complete)
             throw new InvalidDataException("Historical audit receipt identity failed.");
         progress.Validate(plan);
         return new(row.RunId, plan, progress, row.Revision, row.Status, DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc));
     }
-    private static object Encode(EngineAuditRun run)
+    // The initial native writer bound DateTime as SQL datetime, rounding its datetime2 projection.
+    // Retain the exact hash-verified JSON boundary. Accept only that writer's exact 1/300-second
+    // conversion, never a tolerance window or an altered plan. No stored receipt is rewritten.
+    internal static bool MatchesStoredBoundary(DateTime exact, DateTime stored)
+    {
+        if (exact == stored) return true;
+        if (exact < System.Data.SqlTypes.SqlDateTime.MinValue.Value || exact > System.Data.SqlTypes.SqlDateTime.MaxValue.Value) return false;
+        var legacy = new System.Data.SqlTypes.SqlDateTime(exact);
+        long ticks = (long)decimal.Round((decimal)legacy.TimeTicks * TimeSpan.TicksPerSecond / 300m,
+            0, MidpointRounding.AwayFromZero);
+        return new DateTime(1900, 1, 1).AddDays(legacy.DayTicks).AddTicks(ticks) == stored;
+    }
+    internal static DynamicParameters Encode(EngineAuditRun run)
     {
         string plan = JsonSerializer.Serialize(run.Plan), progress = JsonSerializer.Serialize(run.Progress);
-        return new { run.RunId, Kind = run.Plan.Kind.ToString(), run.Plan.BoundaryUtc, PlanJson = plan, PlanHash = DelphiLiveSnapshotCodec.Hash(plan),
-            ProgressJson = progress, ProgressHash = DelphiLiveSnapshotCodec.Hash(progress), run.Revision, run.Status, run.UpdatedUtc };
+        var parameters = new DynamicParameters();
+        parameters.Add("RunId", run.RunId); parameters.Add("Kind", run.Plan.Kind.ToString());
+        parameters.Add("PlanJson", plan); parameters.Add("PlanHash", DelphiLiveSnapshotCodec.Hash(plan));
+        parameters.Add("ProgressJson", progress); parameters.Add("ProgressHash", DelphiLiveSnapshotCodec.Hash(progress));
+        parameters.Add("Revision", run.Revision); parameters.Add("Status", run.Status);
+        parameters.Add("BoundaryUtc", run.Plan.BoundaryUtc, DbType.DateTime2);
+        parameters.Add("UpdatedUtc", run.UpdatedUtc, DbType.DateTime2);
+        return parameters;
     }
     private sealed record Head(string Family, Guid? OwnerId, long ThroughRevision);
     private sealed record IncidentRow(Guid IncidentId, string Scope, Guid? OwnerId, string EvidenceKey, string FailureCode, DateTime DiscoveredUtc, bool ProtectionUntrusted);

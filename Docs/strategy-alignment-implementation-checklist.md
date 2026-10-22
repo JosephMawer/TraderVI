@@ -39,8 +39,10 @@ The overnight target was missed. Completed source work is separate from installe
   full history. Extend these paths if measured capacity fails the accepted objectives.
 - [x] Obtain explicit authority for backup, migrations047–051, checkpoint preparation and native
   verification; keep real trading disabled pending operator review of results.
-- [ ] Complete backup synchronization, migrations, checkpoint preparation and native cutover acceptance.
-  Restore the nightly task's original enabled state when maintenance safely completes. No new trading
+- [x] Complete checksum backup, hash-matched copy/synchronization, migrations047–051 and initial
+  paper/real checkpoint preparation; verify original roots/counts and required schema/guards.
+- [ ] Correct native audit timestamp binding and dashboard command-error handling; repeat native
+  cutover acceptance. Restore the nightly task's original enabled state when maintenance safely completes. No new trading
   permission follows from this operational authorization or source tests.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,
   deleted or revalued; existing disk space has not been reclaimed.
