@@ -204,7 +204,9 @@ evening fix deferral, trading controls and cutoff are unchanged.
 
 **October 21 timeout fix deferred to evening (R04):** user first requests a reliability correction
 without changing gates/risk/16:00, then explicitly defers it to tonight and asks to focus on live
-app/trades. One-time same-chat 21:00 Toronto reminder `delphi-live-sql-fix-reminder` is Active.
+app/trades. One-time same-chat 21:00 Toronto reminder `delphi-live-sql-fix-reminder` was delivered
+21:14October21 and deleted afterward. Residual SQL cause/acceptance remains open; the newer
+97ad0a11 lag/decision Release installation is recorded above and does not qualify the parked retry draft.
 Partial retry/diagnostic code and incomplete updated-build review source remain uncommitted and
 uninstalled; only the earlier retry-only 29-test increment passed, not the later uncompiled changes.
 Read `artifacts/live-evaluation-timeout-20261021/Resume.md` before resuming. Review build-identity/

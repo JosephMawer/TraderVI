@@ -278,8 +278,10 @@ gap remain. Hash-verified `ConfirmationFollowup.sql` receipt:
 verified fresh Normal source, one renewing lease, responding PID 37148 and matching Release hashes.
 
 **Reliability work deferred by operator:** after requesting a SQL timeout correction, the operator
-asks to leave implementation until tonight and focus on the running app/trades. A one-time same-chat
-21:00 Toronto reminder `delphi-live-sql-fix-reminder` is created/verified Active. Partial local source
+asks to leave implementation until tonight and focus on the running app/trades. The one-time same-chat
+21:00 Toronto reminder `delphi-live-sql-fix-reminder` was delivered21:14October21 and deleted afterward.
+Residual SQL cause/acceptance remains open; newer lag/decision changes are installed as recorded above.
+Partial local source
 work is preserved **uninstalled and not ready for use** in the ignored byte-for-byte checkpoint
 `artifacts/deferred-sql-20261021/saved-source/`, excluded from compiled source: bounded immutable evaluation-save
 retry/diagnostics plus an incomplete explicit updated-build review path. The initial retry-only
