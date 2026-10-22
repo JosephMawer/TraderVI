@@ -30,7 +30,9 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
     public BrokerOctober21Continuation? Continuation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOctober22Continuation? October22 { get; init; }
-    [JsonIgnore] public bool PreOpenApproved => October22?.PreOpenApproved ?? Continuation?.PreOpenApproved ?? false;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerSessionContinuation? SessionContinuation { get; init; }
+    [JsonIgnore] public bool PreOpenApproved => SessionContinuation?.PreOpenApproved ?? October22?.PreOpenApproved ?? Continuation?.PreOpenApproved ?? false;
     public bool OpeningSalesVerified => !OpeningSales.IsDefault && OpeningSales.Length == 2 &&
         OpeningSales.All(s => IsVerifiedOpeningSale(s, CashOnlyAnchor)) &&
         OpeningSales.Select(s => s.Intent.RequestId).Distinct().Count() == 2 &&
@@ -60,7 +62,13 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
             throw new InvalidOperationException("The scoped cash-only anchor must belong to its reviewed regular session.");
         if (LimitedFirstSessionTrial && PurchaseExpiresAt != bounds.CloseUtc)
             throw new InvalidOperationException("Limited-trial purchase permission must end at the reviewed regular close.");
-        if (October22 is { } nextDay)
+        if (SessionContinuation is { } selected)
+        {
+            selected.Validate(calendar);
+            if (BrokerAccountImport.Hash(this) != BrokerAccountImport.Hash(selected.Scope(calendar)))
+                throw new InvalidOperationException("Selected-session scope must retain its exact original anchor and permission link.");
+        }
+        else if (October22 is { } nextDay)
         {
             nextDay.Validate(calendar);
             var expected = nextDay.PreviousScope with { ScopeId = BrokerOctober22Continuation.RequestId(BaselineId),
@@ -85,10 +93,13 @@ public sealed record BrokerNoTransferSessionScope(Guid ScopeId, Guid BindingId, 
         if (ScopeId == Guid.Empty || BindingId == Guid.Empty || BaselineId == Guid.Empty ||
             ApprovedAt < CashOnlyAnchor.CheckedAt || string.IsNullOrWhiteSpace(ApprovedBy) ||
             FullFillOnlyNativeTrial && !LimitedFirstSessionTrial ||
-            October22 is not null && (Session != BrokerOctober22Continuation.ExecutionDate ||
+            SessionContinuation is not null && (Session != SessionContinuation.Session ||
+                ScopeId != BrokerSessionContinuation.RequestId(BaselineId, Session) || Continuation is null ||
+                TrialCarry is null || !LimitedFirstSessionTrial || !FullFillOnlyNativeTrial) ||
+            SessionContinuation is null && October22 is not null && (Session != BrokerOctober22Continuation.ExecutionDate ||
                 ScopeId != BrokerOctober22Continuation.RequestId(BaselineId) || Continuation is null ||
                 TrialCarry is null || !LimitedFirstSessionTrial || !FullFillOnlyNativeTrial) ||
-            October22 is null && Continuation is not null && (TrialCarry is null || !LimitedFirstSessionTrial || !FullFillOnlyNativeTrial ||
+            SessionContinuation is null && October22 is null && Continuation is not null && (TrialCarry is null || !LimitedFirstSessionTrial || !FullFillOnlyNativeTrial ||
                 Session != BrokerOctober21Continuation.ExecutionDate || ScopeId != BrokerOctober21Continuation.RequestId(BaselineId)) ||
             TrialCarry is not null && (!LimitedFirstSessionTrial || !FullFillOnlyNativeTrial ||
                 Continuation is null && TrialCarry.Session != Session || TrialCarry.Baseline.BaselineId != BaselineId ||
@@ -132,6 +143,8 @@ public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionSc
             return Task.FromResult(Block("Continuation risk and permission do not agree. Recover the original request; new buys stay stopped."));
         if (scope.October22?.Fingerprint != state.October22?.Fingerprint)
             return Task.FromResult(Block("October 22 risk and permission do not agree. Recover the original request; new buys stay stopped."));
+        if (scope.SessionContinuation?.Fingerprint != state.SessionContinuation?.Fingerprint)
+            return Task.FromResult(Block("Selected-session risk and permission do not agree. Recover the original request; new buys stay stopped."));
         if (scope.ApprovedAt > now || state.BaselineId != scope.BaselineId || state.BindingId != scope.BindingId ||
             import.BindingId != scope.BindingId || state.TradingDate != scope.Session ||
             now < bounds.OpenUtc && !(preOpenReviewOnly && scope.PreOpenApproved &&
@@ -165,7 +178,7 @@ public sealed class BrokerNoTransferRiskEvidenceSource(BrokerNoTransferSessionSc
             Scope = scope, Current = BrokerAccountImport.FinancialFingerprint(current), ExpectedCash = expected,
             OwnedOrders = ownedOrders.Select(o => new { o.ExternalId, o.Side, o.SecurityId, o.Quantity }) });
         return Task.FromResult(new BrokerRiskEvidence([], new(scope.BindingId, state.Through, current.SnapshotAt,
-            now, scope.October22 is not null ? BrokerOctober22Continuation.Contract : scope.Continuation is not null ? BrokerOctober21Continuation.Contract :
+            now, scope.SessionContinuation is not null ? BrokerSessionContinuation.Contract : scope.October22 is not null ? BrokerOctober22Continuation.Contract : scope.Continuation is not null ? BrokerOctober21Continuation.Contract :
                 scope.TrialCarry is null ? BrokerNoTransferSessionScope.Contract : BrokerTrialCarryForward.Contract, hash), []));
     }
 }

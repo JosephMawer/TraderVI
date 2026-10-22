@@ -13,13 +13,16 @@ namespace TraderVI.WPF.Services;
 public sealed partial class ManualBuyCoordinator
 {
     private sealed record ContinuationPreparation(BrokerFirstExecutionReview Review, BrokerStrategyReview Exact, BrokerAccountProjection Account,
-        BrokerContinuationWorkflow? Workflow, BrokerOctober22Workflow? October22Workflow = null);
+        BrokerContinuationWorkflow? Workflow, BrokerOctober22Workflow? October22Workflow = null,
+        BrokerSessionContinuationWorkflow? SessionWorkflow = null, BrokerManagedSession? ReviewedSession = null);
 
     private async Task<ContinuationPreparation> PrepareContinuationAsync(WealthsimpleTfsaAccount account,
         CancellationToken ct, Action check, Action<string> stage)
     {
         check(); _ = GetExecutionHost();
         var now = DateTimeOffset.UtcNow;
+        if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) > BrokerOctober22Continuation.ExecutionDate)
+            return await PrepareSelectedSessionAsync(account, ct, check, stage);
         if (DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime)) == BrokerOctober22Continuation.ExecutionDate)
             return await PrepareOctober22Async(account, ct, check, stage);
         var bounds = executionCalendar!.GetSessionBounds(BrokerOctober21Continuation.ExecutionDate);

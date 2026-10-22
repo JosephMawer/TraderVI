@@ -1796,3 +1796,9 @@ Tags: architecture, data-pipeline. Source: ADR-0078.
 - **Q:** Does reading each historical record once eliminate every repeated byte operation? **A:** No. Old snapshots have a whole-state checksum that must still hash the original bytes. The reader avoids repeated fetching and decoding without weakening that check. ([ADR-0104](../adr/0104-scoped-recovery-and-sequential-history-audits.md))
 - **Q:** Does completing a real recovery audit enable trading? **A:** No. Hold resolution is explicit, and original account/build/dated permission plus explicit enable remain separate. ([ADR-0104](../adr/0104-scoped-recovery-and-sequential-history-audits.md))
 - **Q:** Can unchanged historical values produce a different JSON hash after restart? **A:** Yes: dictionary property order can change. Recovery must reproduce an original representation and its exact saved hash while preserving every value; accepting merely similar values or replacing the old hash would weaken the evidence. ([ADR-0104](../adr/0104-scoped-recovery-and-sequential-history-audits.md))
+
+## October 22 — selected-session readiness (ADR-0105)
+
+- **Does normal engine mode authorize trading?** No. It restores normal services; explicit current-session approval and a separately enabled exact-build grant are still required.
+- **Does reviewing after missed days repair their financial history?** No. Original reference values and coverage boundaries remain; the no-outside-change check spans the entire gap.
+- **Why link the prior permission instead of embedding it?** Append-only history already retains it. One fixed anchor plus hashes/IDs keeps current permission data bounded.

@@ -2,19 +2,27 @@
 
 ## Independent engine — October 22 installed verification
 
+**Current authorized increment:** Joseph requests the next-session approval fix, verified real-only
+hold clearance and normal-mode cutover, with trading disabled until review. ADR-0105 source adds a
+selected-session cash-only continuation, fixed history links and real-definition readiness without
+paper-history reads. Full Core3,070pass/nine native skips; final broker-focused847pass/two native skips and isolated
+WPF Release pass (260 existing compiler warnings). Guarded real-only clearance is confirmed16:47:
+zero Broker/Global holds, seven Paper restrictions retained; Paper21080progressing. Installation and
+normal-mode checks are in progress. This is preparation, not financial approval or enable.
+
 **Real recovery complete; paper proceeds independently.** Standard Release0082a88a is installed;
 PID57400and native status prove verification-only mode. Real recovery verifies all260broker revisions
 and its exact current subscription in39.78seconds, completing15:32:46Toronto. At15:57, separate Paper
 recovery has14,376/205,058planned units verified, including the first portfolio's complete history and
 working checkpoint. All receipt/checkpoint hashes pass; ten incidents remain (including the two new
-request holds), with no new failure after this correction. No holds are cleared or trading enabled.
+request holds), with no new failure after this correction. The later authorized clearance is recorded above; trading remains disabled.
 
 **Real-only readiness review15:59:** relevant real/shared heads still match the completed proof.
 Three broker holds are resolution candidates; five global findings can retain linked paper restrictions;
-two existing paper holds remain. Clearance is prepared, not executed. The broker helper could not
+two existing paper holds remain. The prepared clearance was later executed and verified at16:47 as recorded above. The broker helper could not
 verify the saved login; current reconciliation remains unproved. Saved permission expired October21,
-and its approved build differs from the installed build. The continuation path supports October22
-only: next-session renewal needs implementation/review, followed by explicit dated/build approval.
+and its approved build differs from the installed build. The installed path supports October22
+only; ADR-0105 source prepares the later-session flow, followed by explicit dated/build approval.
 Controlled normal-mode cutover, real-only clearance and fresh direct-input/concurrency checks remain
 before separate enable. Paper completion is not their prerequisite.
 

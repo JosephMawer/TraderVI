@@ -13,9 +13,13 @@ permission and explicit verified real-only hold resolution remain before live op
 The subsequent real-results review confirms unchanged real/shared heads and prepares three broker
 resolutions plus five global-to-paper restrictions, without submitting them. Broker-read verification
 requires normal reconnect or resolution of unavailable verification. Saved permission expired October21;
-the installed continuation supports October22 only, leaving next-session implementation/review open.
+the installed continuation supports October22 only; ADR-0105 source now prepares a reusable dated
+review without paper-history reads.
 Controlled normal-mode cutover/clearance, fresh broker/source acceptance and exact-build/dated approval
-remain before separate enable. Reviewing results is not authorization for these operational mutations.
+remain before separate enable. Joseph subsequently authorizes the next-session fix, exact real-only clearance and normal-mode
+cutover with trading disabled. ADR-0105 validates (Core3,070pass/nine skips; broker847pass/two skips; WPF Release passes).
+Native guarded clearance16:47leaves zero Broker/Global and seven Paper holds; Paper21080progressing.
+Installation/normal-mode checks remain; no financial approval.
 
 The correction preserves exact legacy hashes despite SQL timestamp projection and process-dependent
 immutable dictionary ordering. Original failed receipts remain; new scoped recovery passes are explicit.
@@ -51,7 +55,9 @@ Source review point: [Diagnose paper-cycle execution waits](codex://threads/01a1
 through the explicit implementation request, independent engine, history/storage, recovery, readers
 and conditional readiness source checkpoints, followed by explicit backup/migrations047–051/checkpoint/
 native-verification authority with real trading disabled, then the real-results/remaining-readiness review.
-The next-session continuation gap is identified but its implementation approach is not decided.
+Latest source review includes Joseph’s explicit next-session fix/clearance/normal-mode request.
+ADR-0105 implements selected-session permission with fixed anchors and preserved missed-day gaps;
+source validation and guarded real-only clearance pass; installation/normal-mode checks remain.
 S44's original pinned architecture/complete
 available turn was reviewed. Native acceptance and retention remain open.
 

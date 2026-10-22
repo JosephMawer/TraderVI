@@ -34,15 +34,21 @@ qualification now also prepares observation projections for ended accounts inclu
 order and enable commands for that process. It otherwise exercises the actual engine/audit schedules.
 The engine and dashboard share the installed Windows desktop runtime; matching engine files must be
 present beside WPF. Dashboard closure does not stop the engine; use its separate Stop engine control.
-`--control Status|IntegrityStatus|Stop|VerifyRecovery|VerifyRealRecovery|VerifyPaperRecovery <new-private-output.json>` supports bounded local
+`--control Status|Connection|ExecutionStatus|IntegrityStatus|Stop|VerifyRecovery|VerifyRealRecovery|VerifyPaperRecovery <new-private-output.json>` supports bounded local
 maintenance. `ClearIntegrityHolds` additionally requires an explicit input JSON file identifying the
 completed recovery run, selected incidents and reason. Existing output files prevent command replay;
 inspect an uncertain/empty receipt before any retry. Commands confer no trading authority.
 Real-only clearance rechecks the exact proof and preserves linked paper restrictions. It can resume
 market collection even in verification mode. Normal-mode startup permits broker connection and is a
 separate operational transition; verify execution remains off until current account/source checks,
-dated/current-build approval and explicit enable. The installed continuation path supports October22
-only; do not infer next-session authority from a completed recovery or edit protected permission files.
+dated/current-build approval and explicit enable. ADR-0105 prepares a reusable selected-session continuation (installation recorded in project status).
+On the target regular session date, including pre-open, open Execution setup with trading off, confirm
+no outside changes since the original cash-only baseline across all missed sessions, and choose Review
+for the displayed date. Current account/storage/exact definition/build and daily/direct-source checks
+must pass. Review the results, explicitly approve within two minutes, then separately enable only if
+authorized. Preparing the software tonight grants no tomorrow permission. Paper recovery is independent;
+review does not reopen its lifetime history. Do not edit protected permission files or treat a historical
+recovery pass as financial approval. Changed holdings/orders/transfers or strategy require separate recovery.
 
 ## Read-only local database diagnostics
 

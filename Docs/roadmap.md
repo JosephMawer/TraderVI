@@ -31,7 +31,9 @@ The October22 results review confirms unchanged real proof boundaries but unavai
 verification, expired October21 permission and an October22-only continuation implementation. Prioritize
 the next-session continuation dependency, controlled normal-mode/real-only clearance with execution off,
 fresh broker reconciliation and direct-input acceptance before exact-build/dated approval and separate
-enable. The review and prepared hold proposal do not authorize these operational transitions.
+enable. Joseph now explicitly authorizes the next-session fix, controlled normal-mode cutover and verified
+real-only clearance with execution off. ADR-0105 source validation and guarded real-only clearance now pass; complete installation/normal-mode checks;
+current broker/source acceptance and separate financial approval/enable still remain.
 [Current implementation and cutover review](reviews/independent-engine-implementation-20261022.md);
 [accepted architecture](adr/0103-real-execution-independent-of-paper-research.md).
 

@@ -4,6 +4,7 @@ using Core.Runtime;
 using Core.Trader;
 using Core.Trader.DelphiLive;
 using Core.Trader.Promotion;
+using Core.WSTrade.Accounts;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
@@ -23,8 +24,7 @@ public sealed class TradingPromotionRepository : ITradingPromotionStore
         DateTimeOffset now, CancellationToken token = default)
     {
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
-        if (!BrokerOctober21Continuation.IsPreOpenReview(calendar, now) &&
-            !BrokerOctober22Continuation.IsPreOpenReview(calendar, now)) return false;
+        if (!BrokerSessionContinuation.IsPreOpenReview(calendar, now)) return false;
         await using var c = await Open(token);
         var row = await c.QuerySingleOrDefaultAsync<PreOpenDailyRow>(new CommandDefinition("""
 SELECT TOP(1) AuditState,MarketDataAsOf,StrategyVersionId,CreatedUtc,StrategyConfigJson,ModelSnapshotJson
@@ -40,6 +40,50 @@ ORDER BY CreatedUtc DESC,RunId;
     }
     private sealed record PreOpenDailyRow(string AuditState, DateTime MarketDataAsOf, Guid? StrategyVersionId,
         DateTime CreatedUtc, string StrategyConfigJson, string ModelSnapshotJson);
+
+    // Renewal reviews the real account's frozen definition, never reopens a paper portfolio's lifetime history.
+    public async Task<(BrokerStrategyReview Review, DateTimeOffset Updated)> ReviewExistingBrokerAsync(
+        BrokerManagedSession saved, ITsxSessionCalendar calendar, DateTimeOffset now, CancellationToken token = default)
+    {
+        saved.Strategy.Validate();
+        await using var c = await Open(token); using var t = c.BeginTransaction(IsolationLevel.Serializable);
+        await Fence(c, t, "TFSA", false);
+        if (!await EngineIntegrityRepository.RequiredGuardsAsync(c, t, token))
+            throw new InvalidOperationException("Independent immutable history guards must be verified before review.");
+        await EngineRealObservationStore.RequireCurrentAsync(c, t, saved, token);
+        var policy = await DelphiLiveSessionRepository.ReadPolicyAsync(c, saved.Strategy.Strategy.PolicyVersionId, t, token);
+        if (BrokerAccountImport.Hash(policy) != BrokerAccountImport.Hash(saved.Strategy.Strategy.ReadLivePolicy()))
+            throw new InvalidOperationException("The real assignment's saved policy differs from its immutable source.");
+        var daily = await c.QuerySingleOrDefaultAsync<StrategyVersionInfo>(
+            "SELECT * FROM dbo.StrategyVersion WHERE IsActive=1", transaction: t)
+            ?? throw new InvalidOperationException("The current daily assignment is unavailable.");
+        var binding = await c.QuerySingleOrDefaultAsync<Binding>(
+            "SELECT ModelSetJson,ModelSetSha256 FROM dbo.StrategyModelBinding WHERE StrategyVersionId=@Id",
+            new { Id = daily.VersionId }, t) ?? throw new InvalidOperationException("The exact daily model binding is unavailable.");
+        var models = StoredProfitModelSet.Read(binding.ModelSetJson, binding.ModelSetSha256); models.Validate(daily.VersionId, daily.DecisionRef);
+        if (daily.VersionId != saved.Strategy.Strategy.Daily.StrategyVersionId ||
+            binding.ModelSetSha256 != saved.Strategy.Strategy.Daily.ModelSetSha256 ||
+            models.InputContract != saved.Strategy.Strategy.Daily.InputContract ||
+            !saved.Strategy.Strategy.Daily.Matches(daily.ToConfig(), models.Models.Select(m =>
+                new TradingModelIdentity(m.Registry.ModelId, m.Registry.TaskType, m.ArtifactSha256)).ToImmutableArray()))
+            throw new InvalidOperationException("Current daily settings/models differ from the real assignment; a renewal cannot change them.");
+        var strategy = saved.Strategy with { Strategy = saved.Strategy.Strategy with { ImplementationIdentity = ImplementationIdentity } };
+        strategy.Validate(); BrokerSessionContinuation.RequireSameDefinition(saved.Strategy, strategy);
+        var evidence = saved.SourceSwitch?.SourceReview.Evidence
+            ?? throw new InvalidOperationException("Recover the originally reviewed Portfolio rules only evidence.");
+        evidence = evidence with { Limitations = evidence.Limitations.Add("Historical source evidence is preserved; this session renewal does not refresh paper performance or wait for paper research.") };
+        var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+        var bounds = calendar.GetSessionBounds(date);
+        DateTime? updated = BrokerSessionContinuation.IsPreOpenReview(calendar, now) ? now.UtcDateTime :
+            await c.QuerySingleAsync<DateTime?>(new CommandDefinition("""
+SELECT MAX(p.RecordedUtc) FROM dbo.DelphiLiveSession s
+JOIN dbo.EngineInputPublication p ON p.SessionId=s.SessionId AND p.PolicyVersionId=@Policy
+WHERE s.TradingDate=@Date AND p.BarEndUtc>=@Open AND p.BarEndUtc<@Close AND p.RecordedUtc<=@Now;
+""", new { Policy = policy.PolicyVersionId, Date = date.ToDateTime(TimeOnly.MinValue), Open = bounds.OpenUtc, Close = bounds.CloseUtc, Now = now.UtcDateTime }, t, cancellationToken: token));
+        t.Commit();
+        return (new(strategy, evidence, now.UtcDateTime, []),
+            new DateTimeOffset(DateTime.SpecifyKind(updated ?? DateTime.MinValue, DateTimeKind.Utc)));
+    }
 
     // Read-only strategy definition for broker setup. This never uses the recommendation-only approval exception.
     public async Task<BrokerStrategyReview> ReviewBrokerAsync(Guid paperAccountId, TradingStrategyFamily family,

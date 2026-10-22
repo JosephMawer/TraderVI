@@ -41,6 +41,7 @@ architecture documentation.
 | # | Title | Status | Domains |
 |---|---|---|---|
 | [0103](0103-real-execution-independent-of-paper-research.md) | Real execution independent of paper research | Independence, verification/audits and dashboard-close lifecycle accepted; staged delivery targets tonight, feasibility unverified | architecture, data-pipeline |
+| [0105](0105-reviewed-selected-session-continuation.md) | Reviewed selected-session continuation | Accepted; validation and cutover in progress; trading stays disabled | architecture, risk-management, user-interface |
 | [0104](0104-scoped-recovery-and-sequential-history-audits.md) | Scoped recovery and sequential history audits | Accepted; source implemented, native qualification pending; real trading remains disabled | architecture, data-pipeline |
 | [0102](0102-bounded-immutable-live-evaluation-save-recovery.md) | Bounded immutable Live evaluation-save recovery | Accepted SQL-only fix; native cause/capacity unverified | architecture, data-pipeline, risk-management |
 | [0101](0101-october22-portfolio-rules-only-review.md) | October 22 Portfolio rules only review | Accepted preparation only; operator approval/enable separate | architecture, risk-management, user-interface |

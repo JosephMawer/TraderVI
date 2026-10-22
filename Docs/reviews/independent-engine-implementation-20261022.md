@@ -4,6 +4,29 @@ Status: **standard Release0082a88a installed in verification mode; Real recovery
 The requested overnight target was missed. Installation/lifecycle evidence is recorded below; complete
 paper recovery coverage, remaining native acceptance and operator authorization have not been completed.
 
+## Authorized next-session flow and normal-mode cutover — October 22
+
+Joseph explicitly requests fixing next-session approval, clearing only verified real-account holds
+and normal mode, retaining disabled trading until checks are reviewed. [ADR-0105](../adr/0105-reviewed-selected-session-continuation.md)
+adds a dated cash-only review with fixed anchor/previous-permission links and canonical prior-state
+identity. It preserves financial history, gaps, modes and unused allowance. Real readiness reviews the
+saved definition/current subscription directly; no paper lifetime history is read. Current account,
+exact build/storage and daily/direct-source evidence remain required. No permission is approved now.
+
+Full Core 3,070 pass/nine native SQL skips with test concurrency disabled; final broker-focused
+847 pass/two native skips; isolated WPF Release
+succeeds with 260 existing compiler warnings/zero errors. Native install/normal-mode checks and
+current broker reconciliation remain in progress. Dependency-security and full solution are not requalified. The 16:30:37 Toronto fixed-helper receipt rechecks unchanged relevant heads
+(broker259/shared0/content0), exact real projection and the same eight covered candidates. This is
+read-only evidence, not actual clearance. Receipts/build logs remain in the ignored native directory.
+The authorized installed guarded clear command succeeds (`real-only-clearance-receipt.json=true`).
+The 16:47:02 Toronto hash-verified read confirms zero unresolved Broker/Global incidents and seven
+Paper restrictions: two prior paper holds plus five linked retained restrictions. Real260 remains
+Complete; Paper21080/205058 advances on its original plan/cursor; all receipt/checkpoint hashes pass.
+No financial permission or grant is renewed. Expected main-session dashboard/engine stop and normal-
+mode restart follow the validated source commit; the monitor must follow the new launch evidence.
+No new schema migration or backup, training, historical conversion, cleanup or test order is required.
+
 ## Sequential audit and scoped recovery correction — October 22
 
 The operator explicitly authorizes fixing repeated history work and separating real recovery from

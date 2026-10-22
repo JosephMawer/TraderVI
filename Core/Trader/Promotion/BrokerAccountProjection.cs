@@ -39,7 +39,7 @@ public static class BrokerAccountProjector
         var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
         var blocks = ImmutableArray.CreateBuilder<string>();
         if (risk.TrialCarry is not null && cashCoverage?.Contract !=
-            (risk.October22 is not null ? BrokerOctober22Continuation.Contract : risk.Continuation is null ? BrokerTrialCarryForward.Contract : BrokerOctober21Continuation.Contract))
+            (risk.SessionContinuation is not null ? BrokerSessionContinuation.Contract : risk.October22 is not null ? BrokerOctober22Continuation.Contract : risk.Continuation is null ? BrokerTrialCarryForward.Contract : BrokerOctober21Continuation.Contract))
             blocks.Add("Trial-carried references require their exact next-session trial scope; they cannot qualify production or older scopes.");
         if (risk.TradingDate != date || risk.Through > observed.SnapshotAt)
             blocks.Add("Continue the saved account risk session before new buys.");

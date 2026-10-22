@@ -53,6 +53,25 @@ public sealed class BrokerManagedTransportTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => prepared.SubmitOnceAsync(default));
         Assert.Equal(0,f.Buys.Submissions); Assert.Equal(crossesDuringSave ? 1 : 0,f.Journal.ReadAll().Count);
     }
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task SelectedSessionNativeBuyBoundaryRejectsExactCutoffBeforeAndAfterJournalSave(bool crossesDuringSave)
+    {
+        var continuation = await BrokerManagedSessionTests.SyntheticSelectedSessionContinuation();
+        var f = new Fixture(continuation.PurchaseExpiresAt.AddSeconds(-1));
+        var projection = f.Projection with { Risk = f.Projection.Risk with
+            { Continuation = continuation.OriginScope.Continuation, SessionContinuation = continuation } };
+        f.Risk.State = projection.Risk;
+        var account = f.Buys.Context.Account;
+        var sells = new ManualMarketSellWorkflowTests.Broker(new(account, f.Buys.Context.Security,
+            f.Buys.Context.Snapshot, f.Buys.Context.PendingOrders, f.Buys.Context.Quote));
+        var journal = new CallbackJournal(f.Journal, () => { if (crossesDuringSave) f.Clock.Now = continuation.PurchaseExpiresAt; });
+        var transport = new BrokerManagedOrderTransport(f.Buys,sells,journal,f.Safety,f.Risk,account,f.Gate,f.Clock);
+        await using var prepared = await transport.PrepareAsync(f.Order,projection,default);
+        if (!crossesDuringSave) f.Clock.Now = continuation.PurchaseExpiresAt;
+        await Assert.ThrowsAsync<InvalidOperationException>(() => prepared.SubmitOnceAsync(default));
+        Assert.Equal(0,f.Buys.Submissions); Assert.Equal(crossesDuringSave ? 1 : 0,f.Journal.ReadAll().Count);
+    }
     private sealed class CallbackJournal(IManualSellJournal inner, Action afterSave) : IManualSellJournal
     {
         public IReadOnlyList<ManualBuyRecord> ReadAll() => inner.ReadAll();

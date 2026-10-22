@@ -57,12 +57,14 @@ public sealed record BrokerActivationReview(Guid RequestId, Guid BindingId, Brok
             throw new InvalidOperationException("The saved continuation risk association must match the reviewed dated permission.");
         if (account.Risk.October22?.Fingerprint != NoTransferScope?.October22?.Fingerprint)
             throw new InvalidOperationException("October 22 risk and reviewed permission must agree.");
+        if (account.Risk.SessionContinuation?.Fingerprint != NoTransferScope?.SessionContinuation?.Fingerprint)
+            throw new InvalidOperationException("Selected-session risk and reviewed permission must agree.");
         if (NoTransferScope is { } scope && (scope.BindingId != BindingId || scope.BaselineId != BaselineId ||
             scope.Session != Session || scope.ApprovedAt > now || Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||
             PurchaseCeiling > scope.CashOnlyAnchor.Cash || PurchaseCeiling > scope.CashOnlyAnchor.BuyingPower ||
             scope.CashOnlyAnchor.AccountId != account.Import.Plan.Observation.AccountId ||
             scope.CashOnlyAnchor.IdentityId != account.Import.Plan.Observation.IdentityId || !scope.OpeningSalesVerified ||
-            scope.LimitedFirstSessionTrial && (Strategy.GateProfile != (scope.October22 is null ? PaperGateProfile.NormalV1 : PaperGateProfile.PortfolioRulesOnlyV1) || Strategy.Comparison is null ||
+            scope.LimitedFirstSessionTrial && (Strategy.GateProfile != (scope.October22 is null && scope.SessionContinuation is null ? PaperGateProfile.NormalV1 : PaperGateProfile.PortfolioRulesOnlyV1) || Strategy.Comparison is null ||
                 scope.PurchaseExpiresAt <= now) ||
             !RequiredExits.IsEmpty || !RetainedPositions.IsEmpty || !account.Positions.IsEmpty))
             throw new InvalidOperationException("The supervised no-transfer launch must match the actual cash-only account after required exits and its available-capital ceiling.");
@@ -117,6 +119,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerManagedContinuation? October22 { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerManagedContinuation? SessionContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerLiveSourceSwitch? SourceSwitch { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerImplementationReview? ImplementationReview { get; init; }
@@ -126,6 +130,7 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     {
         get
         {
+            if (SessionContinuation is not null) return SessionContinuation.Approval.Review;
             var review = Continuation?.Approval.Review ?? Approval.Review;
             if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
             if (October22 is not null) return October22.Approval.Review;
@@ -133,7 +138,7 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
                 { Strategy = review.Strategy.Strategy with { ImplementationIdentity = ImplementationReview.ImplementationIdentity } } };
         }
     }
-    [JsonIgnore] public DateTime? StrategyEffectiveUtc => October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
+    [JsonIgnore] public DateTime? StrategyEffectiveUtc => SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.

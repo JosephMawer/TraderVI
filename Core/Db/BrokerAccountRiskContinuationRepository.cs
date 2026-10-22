@@ -55,7 +55,7 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
             ct.ThrowIfCancellationRequested(); t.Commit(); return saved;
         }
         var previous = await State(c, t, request.BaselineId);
-        if (request.Continuation is not null || request.October22 is not null)
+        if (request.Continuation is not null || request.October22 is not null || request.SessionContinuation is not null)
         {
             var snapshot = await c.QuerySingleOrDefaultAsync<string>("""
 SELECT TOP(1) SnapshotJson FROM dbo.BrokerManagedSessionRevision WITH(UPDLOCK,HOLDLOCK)
@@ -65,6 +65,7 @@ WHERE BindingId=@BindingId ORDER BY Revision DESC;
             var prior = Read<BrokerManagedSession>(await EngineArchiveStorage.RestoreAsync(c, t, snapshot, ct));
             request.Continuation?.RequirePrior(prior, calendar);
             request.October22?.RequirePrior(prior, calendar);
+            request.SessionContinuation?.RequirePrior(prior, calendar);
         }
         if (request.TrialCarry is { } carry)
         {

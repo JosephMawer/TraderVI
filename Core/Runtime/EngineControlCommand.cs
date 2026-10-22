@@ -15,7 +15,7 @@ public static class EngineControlCommand
     internal static async Task RunAsync(string operation, string output, string? input, IEngineRpc client)
     {
         if (!Enum.TryParse<EngineOperation>(operation, out var selected) || selected is not
-            (EngineOperation.Status or EngineOperation.Stop or EngineOperation.IntegrityStatus or
+            (EngineOperation.Status or EngineOperation.Connection or EngineOperation.ExecutionStatus or EngineOperation.Stop or EngineOperation.IntegrityStatus or
              EngineOperation.VerifyRecovery or EngineOperation.VerifyRealRecovery or EngineOperation.VerifyPaperRecovery or EngineOperation.ClearIntegrityHolds))
             throw new ArgumentException("Unsupported maintenance control.");
         if ((selected == EngineOperation.ClearIntegrityHolds) != (input is not null))

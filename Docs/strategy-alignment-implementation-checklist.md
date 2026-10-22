@@ -64,12 +64,15 @@ The overnight target was missed. Completed source work is separate from installe
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
 - [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the
   eight-incident real-only proposal. Broker-read check cannot verify saved login; no current account proof.
-- [ ] Obtain authority for controlled normal-mode cutover and verified real-only clearance with execution
-  off; preserve paper restrictions and cursor. Reconnect normally and verify current account/order state,
+- [x] Obtain authority for controlled normal-mode cutover and verified real-only clearance with execution off.
+- [x] Execute guarded real-only clearance; fixed-helper16:47read verifies zero Broker/Global holds,
+  seven retained Paper restrictions and unchanged advancing Paper plan.
+- [ ] Install/verify ADR-0105 and normal-mode cutover with execution off; preserve paper cursor. Reconnect normally and verify current account/order state,
   local order recovery, fresh direct inputs and concurrent paper-work independence before enable.
-- [ ] Implement/review valid next-session continuation: installed path supports October22 only, while
-  saved permission remains expired October21. Preserve original risk history and explicit dated/current-
-  build approval. The implementation approach is unresolved; no automatic renewal is accepted.
+- [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
+  two skips; isolated WPF Release passes. Source preserves original
+  risk history and explicit dated/current-build approval, without paper-history reads or recursive
+  renewal copies. Saved permission remains expired October21; no automatic renewal is accepted.
 - [ ] Complete realistic whole-run/weekly capacity and live collection independence acceptance.
   Partial paper progress and dashboard availability are not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,

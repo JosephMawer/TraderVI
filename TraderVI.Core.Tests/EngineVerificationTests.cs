@@ -38,14 +38,15 @@ public sealed class EngineVerificationTests
         Assert.False(File.Exists(path));
     }
 
-    [Fact]
-    public async Task ReceiptIsReservedBeforeDispatchAndCannotReplayACommand()
+    [Theory]
+    [InlineData("Status")][InlineData("Connection")][InlineData("ExecutionStatus")]
+    public async Task ReceiptIsReservedBeforeDispatchAndCannotReplayACommand(string operation)
     {
         string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".json");
-        var client = new LocalClient();
+        var client = new LocalClient { Expected = Enum.Parse<EngineOperation>(operation) };
         try
         {
-            await EngineControlCommand.RunAsync("Status", path, null, client);
+            await EngineControlCommand.RunAsync(operation, path, null, client);
             Assert.Equal(1, client.Calls);
             Assert.True(JsonDocument.Parse(await File.ReadAllTextAsync(path)).RootElement.GetBoolean());
             await Assert.ThrowsAsync<IOException>(() => EngineControlCommand.RunAsync("Stop", path, null, client));
@@ -57,9 +58,10 @@ public sealed class EngineVerificationTests
     private sealed class LocalClient : IEngineRpc
     {
         public int Calls;
+        public EngineOperation Expected;
         public Task<T> CallAsync<T>(EngineOperation operation, object payload = null, CancellationToken ct = default)
         {
-            Assert.Equal(EngineOperation.Status, operation); Assert.Null(payload); Calls++;
+            Assert.Equal(Expected, operation); Assert.Null(payload); Calls++;
             return Task.FromResult((T)(object)JsonSerializer.SerializeToElement(true));
         }
     }

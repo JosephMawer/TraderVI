@@ -74,6 +74,12 @@ account/storage/source/build and (pre-open) matching October 22 daily evidence. 
 a financial closing valuation. Approval and host enable remain separate; no pre-open execution or
 October 23 authority. Original order IDs are verification
 records, not a stock-selection whitelist. See the [accepted contract](reviews/delphi-live-continuation-contract-20261021.md).
+[ADR-0105](adr/0105-reviewed-selected-session-continuation.md) now permits an explicit review for
+one later regular session of that unchanged cash-only assignment. No automatic renewal: review on
+the date, with current account/definition/build/storage and daily/direct-input checks, preserved
+references/history/modes/unused allowance, then separate approval and enable. Missed sessions remain
+gaps. Fixed anchors and previous-permission links avoid recursive history copies. Paper research is
+not a prerequisite. This supersedes the later-date restriction of ADR-0101 only for the new contract.
 Core Live handover uses real costs/identities and independent market observations,
 not paper lifecycle or funds. Persist raised protection before requesting its trigger bid; retain
 valid historical signal exits through restart and never infer a bid touch from a bar low. Opening

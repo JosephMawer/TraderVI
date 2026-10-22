@@ -113,7 +113,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             throw new InvalidOperationException("The durable broker session is inconsistent.");
         if (prior is null)
         {
-            if (next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
+            if (next.SessionContinuation is not null || next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
                 next.Revision != 0 || next.PreviousRevisionId is not null || !next.Orders.IsEmpty || next.ActivatedAt is not null ||
                 next.Phase != BrokerManagedPhase.Transition)
                 throw new InvalidOperationException("A new account session starts only from reviewed transition authority.");
@@ -135,6 +135,9 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             prior.Memory.CapitalReviewRequired && !next.Memory.CapitalReviewRequired ||
             prior.Memory.TradingDate == next.Memory.TradingDate && prior.Memory.DailyLossHold && !next.Memory.DailyLossHold)
             throw new InvalidOperationException("Broker session history, authority and holds must be preserved.");
+        if (prior.SessionContinuation?.Fingerprint != next.SessionContinuation?.Fingerprint)
+            BrokerSessionContinuationWorkflow.ValidateAppend(prior, next, calendar ??
+                throw new InvalidOperationException("A reviewed calendar is required for selected-session permission."));
         if (prior.Continuation?.Fingerprint != next.Continuation?.Fingerprint)
             BrokerContinuationWorkflow.ValidateAppend(prior, next, calendar ??
                 throw new InvalidOperationException("A reviewed calendar is required for a new continuation."), historical);

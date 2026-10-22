@@ -116,7 +116,9 @@ public sealed partial class ManualBuyCoordinator
         {
             using var timing = PaperCycleTimings.Start(PaperCycleStage.BrokerSourceRead);
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(ct);
-            var normal = saved.October22 is not null ? await ReadOctober22SourceAsync(saved.Strategy.PaperAccountId, ct)
+            var normal = saved.SessionContinuation is not null
+                ? await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved, executionCalendar!, DateTimeOffset.UtcNow, ct)
+                : saved.October22 is not null ? await ReadOctober22SourceAsync(saved.Strategy.PaperAccountId, ct)
                 : saved.SourceSwitch is null ? await ReadNativeNormalAsync(ct)
                 : await ReadUngatedLiveAsync(ct, _ => { });
             if (!storage.ImmutableStorageVerified || !storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled ||
@@ -273,13 +275,23 @@ public sealed partial class ManualBuyCoordinator
             _ = BrokerManagedSessionComposition.MatchAccount(saved, new[] { account });
             if (saved.Approval.Review.NoTransferScope?.TrialCarry is not null)
             {
+                _ = GetExecutionHost();
                 nextSession.Visibility = approveContinuation.Visibility = Visibility.Visible;
                 first.Visibility = approve.Visibility = previewCarry.Visibility = saveCarry.Visibility = checkpoint.Visibility = Visibility.Collapsed;
                 var today = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow));
                 bool october22 = today == BrokerOctober22Continuation.ExecutionDate;
-                nextSession.Content = october22 ? "Review October 22" : "Review next session";
-                approveContinuation.Content = october22 ? "Approve October 22 continuation" : "Approve October 21 continuation";
-                ((TextBlock)noOutside.Content).Text = $"I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline, and will keep that scope through the reviewed October {(october22 ? "22" : "21")} close.";
+                var target = today;
+                if (!executionCalendar!.IsRegularSession(today) || DateTimeOffset.UtcNow >= executionCalendar.GetSessionBounds(today).CloseUtc)
+                    target = executionCalendar.GetNextSession(today);
+                nextSession.Content = $"Review {target:yyyy-MM-dd}";
+                approveContinuation.Content = $"Approve {target:yyyy-MM-dd} continuation";
+                ((TextBlock)noOutside.Content).Text = $"I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline, including missed sessions, and will keep that scope through the reviewed {target:yyyy-MM-dd} close.";
+                if (target > BrokerOctober22Continuation.ExecutionDate && saved.EffectiveReview.Session < target)
+                {
+                    summary.Text = lines + $"Buying permission for {target:yyyy-MM-dd} needs a fresh review on that date, including pre-open. Trading remains disabled until review, explicit approval and separate enable.\n\n" +
+                        "The existing Portfolio rules only strategy, original risk references, financial history and unused allowance are preserved. Missed sessions remain gaps. Fresh account, exact definition/build, immutable storage and current daily or direct market inputs must pass; paper recovery is independent.";
+                    return;
+                }
                 if (october22 && saved.October22 is null)
                 {
                     summary.Text = lines + "October 21 permission is expired. The prepared October 22 path retains the existing Portfolio rules only assignment, original risk references, financial history, modes and unused cumulative allowance.\n\nStop execution host, confirm no outside changes and choose Review October 22. Fresh account, exact source/build, immutable storage and (before open) October 22 daily evidence must pass. Approve October 22 continuation, then separately Enable reviewed host. No order is sent by review/approval; no permission after October 22 at 4 PM.";
@@ -498,7 +510,7 @@ public sealed partial class ManualBuyCoordinator
             continuationReview = await PrepareContinuationAsync(account, lifetime.Token, Check, Stage);
             var prepared = continuationReview.Review;
             var facts = continuationReview.Account;
-            var dateLabel = prepared.Activation?.Session == BrokerOctober22Continuation.ExecutionDate || continuationReview.October22Workflow is not null ? "October 22" : "October 21";
+            var dateLabel = (prepared.Activation?.Session ?? DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow))).ToString("yyyy-MM-dd");
             summary.Text = $"{dateLabel} continuation review\nExact source: {prepared.Strategy.Strategy.Name}\nProfile: {prepared.Strategy.GateProfile}\n" +
                 $"Policy: {prepared.Strategy.Strategy.PolicyVersionId:D}\nDaily definition: {prepared.Strategy.Strategy.Daily.StrategyVersionId:D}\n" +
                 $"Current build review: {BrokerAccountImport.Hash(BrokerManagedSessionComposition.ImplementationIdentity)[..16]}\n" +
@@ -508,12 +520,12 @@ public sealed partial class ManualBuyCoordinator
                 $"Daily hold: {facts.Risk.DailyLossHold} · capital review hold: {facts.Risk.CapitalReviewRequired}\n" +
                 "Original trades, sale selection, memory, prior approval and all history remain preserved. Completed verification is retained in development records; approval checks current readiness.\n" +
                 (prepared.Activation?.NoTransferScope?.PreOpenApproved == true
-                    ? "Pre-open approval: enable the reviewed host now to arm it for 9:30 AM Toronto. Keep this app running and signed in. No pre-open orders; fresh account, exact source and risk checks at the open can delay or block execution.\n" : "") +
-                (continuationReview.October22Workflow is not null ? "Portfolio rules only bypasses the existing daily admission gates. Intraday confirmation, freshness, sizing/cash/account limits, stops, holds, reconciliation, full-fill-only restrictions and original risk reference dates remain. The existing 3:45 PM entry cutoff also remains. October 21 expiry and historical coverage gaps remain recorded.\n" : "") +
+                    ? "Pre-open approval: enable the reviewed host now to arm it for 9:30 AM Toronto. Keep the independent engine running and signed in. No pre-open orders; fresh account, exact source and risk checks at the open can delay or block execution.\n" : "") +
+                (continuationReview.October22Workflow is not null || continuationReview.SessionWorkflow is not null ? "Portfolio rules only bypasses the existing daily admission gates. Intraday confirmation, freshness, sizing/cash/account limits, stops, holds, reconciliation, full-fill-only restrictions and original risk reference dates remain. The existing 3:45 PM entry cutoff also remains. October 21 expiry and historical coverage gaps remain recorded.\n" : "") +
                 $"New purchases end {prepared.Activation?.NoTransferScope?.PurchaseExpiresAt?.ToLocalTime():g}. No later-day buying permission.\n\n" +
                 string.Join("\n", prepared.Checks.Select(c => c.Label + (c.Verified ? ": current check passed." : ": blocked — " + c.Detail))) +
                 "\n\n" + BrokerNativeTrialQualification.Limits + "\n\n" +
-                (prepared.CanApprove ? $"Review these facts, then Approve {dateLabel} continuation within two minutes. New paper cycles are deferred during review. Approval submits no order and leaves the host off."
+                (prepared.CanApprove ? $"Review these facts, then Approve {dateLabel} continuation within two minutes. Approval submits no order and leaves the host off."
                     : "Approval blocked:\n" + string.Join("\n", prepared.Blocks)) +
                 "\n\nPaper performance limitations:\n" + string.Join("\n", continuationReview.Exact.Evidence.Limitations);
             if (prepared.Activation is { } activation)
@@ -530,33 +542,38 @@ public sealed partial class ManualBuyCoordinator
                 var remaining = activation.PreparedAt.AddMinutes(2) - DateTimeOffset.UtcNow;
                 reviewExpiry.CancelAfter(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero);
             }
-        });
+        }, waitForPaperCycles: false);
         approveContinuation.Click += async (_, _) => await Run(async () =>
         {
             Check(); var prepared = continuationReview ?? throw new InvalidOperationException("Review next session before approval.");
             if (noOutside.IsChecked != true) throw new InvalidOperationException("The no-outside-change confirmation is required.");
-            Stage("rechecking current immutable storage and Normal source");
+            Stage("rechecking current immutable storage and exact strategy source");
             var storage = await BrokerManagedSessionRepository.ReadStorageAsync(lifetime.Token); Check();
             if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || !storage.ImmutableStorageVerified)
                 throw new InvalidOperationException("Current immutable storage checks failed. Keep execution off and recover storage before approval.");
-            var normal = prepared.October22Workflow is not null ? await ReadOctober22SourceAsync(prepared.Exact.Strategy.PaperAccountId, lifetime.Token)
+            var normal = prepared.SessionWorkflow is not null
+                ? await new TradingPromotionRepository().ReviewExistingBrokerAsync(prepared.ReviewedSession!, executionCalendar!, DateTimeOffset.UtcNow, lifetime.Token)
+                : prepared.October22Workflow is not null ? await ReadOctober22SourceAsync(prepared.Exact.Strategy.PaperAccountId, lifetime.Token)
                 : await ReadNativeNormalAsync(lifetime.Token, Stage); Check();
             var scope = prepared.Review.Activation!.NoTransferScope!;
             var preOpenSource = await new TradingPromotionRepository().HasPreOpenDailySourceAsync(normal.Review.Strategy,
                 executionCalendar!, DateTimeOffset.UtcNow, lifetime.Token); Check();
             if (normal.Review.Strategy.Fingerprint != prepared.Exact.Strategy.Fingerprint || !normal.Review.Blocks.IsEmpty ||
-                !(scope.October22 is { } oct22
+                !(scope.SessionContinuation is { } selectedSession
+                    ? BrokerSessionContinuation.SourceReady(selectedSession, normal.Updated, executionCalendar!, DateTimeOffset.UtcNow, preOpenSource)
+                    : scope.October22 is { } oct22
                     ? BrokerOctober22Continuation.SourceReady(oct22, normal.Updated, executionCalendar!, DateTimeOffset.UtcNow, preOpenSource)
                     : BrokerOctober21Continuation.SourceReady(scope.Continuation!, normal.Updated, executionCalendar!, DateTimeOffset.UtcNow, preOpenSource)))
                 throw new InvalidOperationException("The exact source changed or expired. Review the dated continuation again.");
             Stage("saving or recovering the explicitly approved dated continuation");
             var approval = new BrokerExecutionApproval(prepared.Review.Activation!, Environment.UserName,
                 $"Explicit {scope.Session:yyyy-MM-dd}-only supervised continuation; original trades/references preserved; no outside changes; no recurring authority.");
-            if (prepared.October22Workflow is { } workflow22) await workflow22.ApproveAsync(approval, lifetime.Token);
+            if (prepared.SessionWorkflow is { } sessionWorkflow) await sessionWorkflow.ApproveAsync(approval, lifetime.Token);
+            else if (prepared.October22Workflow is { } workflow22) await workflow22.ApproveAsync(approval, lifetime.Token);
             else await prepared.Workflow!.ApproveAsync(approval, lifetime.Token);
             Check(); await Refresh(); summary.Text += "\n\nDated continuation saved/read back. No order was sent. Enable reviewed host separately.";
             BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
-        });
+        }, waitForPaperCycles: false);
         previewCarry.Click += async (_, _) => await Run(async () =>
         {
             Check(); carryReview = null; reviewed = null; firstReview = null; firstWorkflow = null;

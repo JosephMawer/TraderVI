@@ -4,6 +4,8 @@
 **Domains:** architecture, risk-management, user-interface.
 **Related:** ADR-0081, ADR-0086, ADR-0092, ADR-0095–0100.
 
+**Supersession:** [ADR-0105](0105-reviewed-selected-session-continuation.md) adds later explicitly reviewed sessions; this October 22 contract and its historical evidence remain unchanged.
+
 The immediate problem is tomorrow's eligibility after today's dated permission expires. The parent
 problem is deliberate approval of the exact source and installed implementation while preserving
 financial history. The root goal is reliable real-account execution with unchanged risk controls.
