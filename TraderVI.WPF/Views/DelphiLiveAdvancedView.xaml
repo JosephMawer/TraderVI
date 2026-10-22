@@ -134,7 +134,7 @@
                             <DataGridTextColumn Header="Attempts" Binding="{Binding Attempts}" Width="75"/>
                             <DataGridTextColumn Header="Decision time" Binding="{Binding DecisionTime}" Width="*"/>
                         </DataGrid.Columns></DataGrid></TabItem>
-                        <TabItem Header="Persisted fills"><DataGrid ItemsSource="{Binding Fills}"><DataGrid.Columns>
+                        <TabItem Header="{Binding FillHistoryLabel}"><DataGrid ItemsSource="{Binding Fills}"><DataGrid.Columns>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="85"/>
                             <DataGridTextColumn Header="Side" Binding="{Binding Side}" Width="65"/>
                             <DataGridTextColumn Header="Shares" Binding="{Binding Quantity}" Width="75"/>
@@ -143,7 +143,7 @@
                             <DataGridTextColumn Header="Quote field" Binding="{Binding Field}" Width="100"/>
                             <DataGridTextColumn Header="Observed time" Binding="{Binding Time}" Width="*"/>
                         </DataGrid.Columns></DataGrid></TabItem>
-                        <TabItem Header="Latest 250 quote attempts"><DataGrid ItemsSource="{Binding Quotes}" SelectedItem="{Binding SelectedQuote}"><DataGrid.Columns>
+                        <TabItem Header="{Binding QuoteHistoryLabel}"><DataGrid ItemsSource="{Binding Quotes}" SelectedItem="{Binding SelectedQuote}"><DataGrid.Columns>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80"/>
                             <DataGridTextColumn Header="Purpose" Binding="{Binding Purpose}" Width="145"/>
                             <DataGridTextColumn Header="Bid" Binding="{Binding Bid, StringFormat=N4}" Width="90"/>

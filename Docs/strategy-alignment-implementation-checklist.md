@@ -13,7 +13,9 @@ The September 22 documentation cleanup preserves the
 - [x] Implement exact-revision broker current-state reuse with continuity/guard/hold admission and
   invalidation; provide explicit fresh dual-format diagnostics and a dashboard command.
 - [ ] Qualify broker reuse/diagnostics natively; broker changed-appends still serialize full logical
-  history under the existing 8MiB cap. Complete Live-tab compact refresh and cutover acceptance.
+  history under the existing 8MiB cap. Complete cutover acceptance.
+- [x] Use compact checkpoints in the separate Live tab as well as portfolio overview; clearly identify
+  retained operating records and direct full history to the explicit History view. WPF build passes.
 
 - [x] Batch audit work under step/time admission limits and persist only verified prefixes; permit
   explicitly requested recovery under its hold during the day.21 related checks pass. Large revision

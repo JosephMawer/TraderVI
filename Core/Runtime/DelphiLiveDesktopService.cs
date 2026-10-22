@@ -22,7 +22,7 @@ namespace Core.Runtime;
 public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
 {
     public const string CalendarPathEnvironmentVariable = "TRADERVI_TSX_CALENDAR_PATH";
-    private readonly DelphiLiveLedgerRepository ledger = new();
+    private readonly DelphiLiveLedgerRepository ledger;
     private readonly DelphiLiveEvaluationRepository evaluations = new();
     private readonly DelphiLiveExperimentRepository experiments = new();
     private readonly DelphiLiveExperimentWorkflow experimentWorkflow;
@@ -51,6 +51,7 @@ public sealed class DelphiLiveDesktopService : SQLBase, IDelphiLiveNotifier
     public DelphiLiveDesktopService(IEngineRpc? engineClient = null)
     {
         this.engineClient = engineClient;
+        ledger = new(workingState: engineClient is not null);
         evaluations = new(independentInputs: engineClient is not null);
         experimentWorkflow = new(experiments);
         code = CalibrationProvenance.ResolveCode();
@@ -137,6 +138,8 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePolicyVersion',N'U') IS NOT NULL
         DateOnly date = Today();
         ResetNotificationsFor(date);
         var warnings = new List<string>(notifications);
+        if (engineClient is not null)
+            warnings.Add("Live details show current holdings and retained operating records. Open the portfolio History view for complete older records.");
         if (CalendarWarning is not null) warnings.Add(CalendarWarning);
         if (!await HasSchemaAsync(cancellationToken))
             return new("Schema not installed · inactive", date, null, null, [], [], warnings);

@@ -1,5 +1,10 @@
 # TraderVI Project Status
 
+**October22 Live display checkpoint:** the engine-connected Live tab now reads compact working
+checkpoints, labels retained fills/quotes accurately and directs complete older records to explicit
+portfolio History. The legacy administrative service keeps full reads. WPF builds with260 existing
+compiler warnings; native display/SQL qualification and installation remain outstanding.
+
 **October22 reader checkpoint:** engine broker leases reuse only an exact verified current revision,
 after fresh continuity/guard/hold checks; explicit diagnostics bypass that cache and support inline
 and shared storage. The dashboard has a Last saved decision command. Changed broker appends still

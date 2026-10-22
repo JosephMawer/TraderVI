@@ -56,6 +56,8 @@ public sealed partial class DelphiLiveViewModel : INotifyPropertyChanged
     public ObservableCollection<DelphiLiveQuoteRow> Quotes { get; } = [];
 
     public string Status { get => status; private set => Set(ref status, value); }
+    public string FillHistoryLabel => service.IsEngineClient ? "Current and retained fills" : "Persisted fills";
+    public string QuoteHistoryLabel => service.IsEngineClient ? "Current quote evidence" : "Latest 250 quote attempts";
     public string Coverage { get => coverage; private set => Set(ref coverage, value); }
     public string Warning { get => warning; private set => Set(ref warning, value); }
     public string PolicyText { get => policyText; private set => Set(ref policyText, value); }

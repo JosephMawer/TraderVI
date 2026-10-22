@@ -1,6 +1,6 @@
 # TraderVI Roadmap
 
-Current broker reuse and explicit diagnostics are in source; finish Live-tab compact refresh and
+Current broker reuse, explicit diagnostics and Live-tab compact refresh are in source; finish
 whole-path cutover acceptance. Changed broker appends still serialize full logical history.
 
 This is the authoritative priority list. [Project status](project-status.md) owns dated evidence;

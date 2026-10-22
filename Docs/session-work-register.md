@@ -1,5 +1,9 @@
 # TraderVI session-work register
 
+**October22 Live display checkpoint:** engine-connected Live refresh uses current checkpoints; retained
+records are identified and full history remains explicit. WPF build passes. Continue source readiness
+and whole-path acceptance; installed behavior is unchanged.
+
 **October22 reader checkpoint:** broker exact-current-revision reuse and explicit fresh dual-format
 diagnostics are implemented in source. Continue Live-tab compact refresh, remaining broker append
 cost and whole-path qualification. No installed behavior or execution authority changed.
