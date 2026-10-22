@@ -83,8 +83,8 @@ public sealed class IndependentResearchService
                 if (champion is null) return;
                 await protocol.InitializeAsync(champion.PortfolioId, champion.PolicyVersionId, now, lease);
             }
-            await research.RecoverAndMatureAsync(date, lease).ConfigureAwait(false);
-            settledThrough = date;
+            bool complete = await research.RecoverAndMatureBatchAsync(date, lease, maximumSessions: 1).ConfigureAwait(false);
+            settledThrough = complete ? date : null;
         }
         finally { gate.Release(); }
     }

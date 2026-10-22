@@ -28,8 +28,12 @@ incremental build passes with two existing warnings, SSDT build and six SQL pars
 Migration049 is prepared only. Delphi Live dashboard ticks now read snapshots and its operator
 commands go to the engine; dashboard closure sends no Live stop. Engine stop drains admitted Live
 commands before releasing collection ownership. 43 focused command/transport/scheduler/monitor
-checks pass and WPF builds (260 existing compiler warnings, zero errors). Other desktop-owned
-paper workers, checkpointed reads and audits/holds remain; native close/reconnect is not qualified.
+checks pass and WPF builds (260 existing compiler warnings, zero errors). Shadow, tracked-position
+monitoring and the existing opt-in AI reviewer now also use engine lifetime; manual paper polls route
+through the same owners. Existing saved settings/schedules remain. Off-hours research recovery handles
+one changed session per wake using durable review receipts; missing freezes cannot count as complete.
+33 focused research/AI-host/transport/scheduler tests pass; incremental WPF build passes with two
+existing warnings. Checkpointed reads and audits/holds remain; native close/reconnect is not qualified.
 Broker revisions now support shared immutable nested records with lossless typed recovery and bounded
 expansion. 407 relevant checks pass/one native skip; engine build passes with zero warnings/errors.
 A repeated-record fixture uses under one twentieth of expanded storage; this is synthetic, not a

@@ -21,7 +21,6 @@ namespace TraderVI.WPF;
 public partial class PaperDashboardWindow : Window
 {
     private static readonly TimeSpan DashboardRefreshInterval = TimeSpan.FromSeconds(30);
-    private readonly PaperTradingMonitor monitor = new();
     private readonly PaperDashboardViewModel viewModel = new();
     private readonly DispatcherTimer timer;
     private readonly SemaphoreSlim cycleGate = new(1, 1);
@@ -36,8 +35,6 @@ public partial class PaperDashboardWindow : Window
     private readonly DispatcherTimer brokerTimer = new() { Interval = TimeSpan.FromSeconds(30) };
     private WealthsimpleConnectionWindow? connectionWindow;
     private DateTime nextAutomaticPollLocal;
-    private Task aiReviewTask = Task.CompletedTask;
-    private bool aiReviewStarted;
     private readonly DispatcherTimer responsivenessTimer = new(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(1) };
     private long lastDispatcherPulse;
 
@@ -133,11 +130,6 @@ public partial class PaperDashboardWindow : Window
         }));
         Loaded += async (_, _) =>
         {
-            if (!aiReviewStarted)
-            {
-                aiReviewStarted = true;
-                aiReviewTask = Task.Run(() => RunAiReviewsAsync(shutdown.Token));
-            }
             try { await wealthsimple.StartAsync(shutdown.Token); }
             catch (OperationCanceledException) { }
             if (!shutdown.IsCancellationRequested) authTimer.Start();
@@ -233,12 +225,7 @@ public partial class PaperDashboardWindow : Window
             await PortfoliosTabView.RefreshAsync(shutdown.Token);
             return $"Reevaluated Shadow: {result.SignalsCreated} signals; {result.Warnings.Count} evidence warnings. See Portfolios.";
         }
-        using var admission = brokerSetupCycles.TryBeginCycle();
-        if (admission is null) return "Paper monitoring is deferred until broker setup finishes. Retry afterwards.";
-        bool exitsEnabled = viewModel.AutomaticGhostExitsEnabled;
-        var cycle = await PaperCycleWorker.RunAsync(PaperCycleStage.TrackedMonitor,
-            () => monitor.PollOnceAsync(exitsEnabled, shutdown.Token), shutdown.Token);
-        admission.Dispose();
+        var cycle = await engineControl.CallAsync<PaperMonitorCycleResult>(EngineOperation.PollTrackedPaper, ct: shutdown.Token);
         viewModel.ApplyCycle(cycle); await viewModel.RefreshAsync(shutdown.Token);
         return "Trading monitor reevaluated. See Trading for position results and evidence availability.";
     }
@@ -267,19 +254,11 @@ public partial class PaperDashboardWindow : Window
         try
         {
             viewModel.RefreshClock();
-            // Engine wakeups and safety commands continue independently of display refreshes,
-            // including pre-open liveness and after-close finalization. Do these before display I/O.
+            // These are dashboard reads. The separate engine owns all automatic paper schedules.
             await DelphiLiveTabView.TickAsync(shutdown.Token);
             await SettingsTabView.RefreshAccessAsync();
             await TradingRecommendationsTabView.TickAsync(shutdown.Token);
 
-            DateTime localNow = PaperTradingMonitor.ToToronto(DateTime.UtcNow);
-            if (PaperTradingMonitor.IsAutomaticPollTime(localNow) && localNow >= nextAutomaticPollLocal)
-            {
-                if (await RunMonitorCycleAsync("Scheduled", refreshDisplay: false))
-                    nextAutomaticPollLocal = PaperTradingMonitor.NextScheduledPollLocal(localNow.AddSeconds(1));
-            }
-            await PortfoliosTabView.CheckProfitProtectionAsync(shutdown.Token);
             if (displayRefresh.ShouldRefresh(PaperTradingMonitor.ToToronto(DateTime.UtcNow)))
                 await RefreshSafelyAsync();
         }
@@ -390,8 +369,6 @@ public partial class PaperDashboardWindow : Window
 
     private async Task<bool> RunMonitorCycleAsync(string source, bool refreshDisplay = true)
     {
-        using var scheduled = brokerSetupCycles.TryBeginCycle();
-        if (scheduled is null) return false;
         if (!await cycleGate.WaitAsync(0))
             return false;
 
@@ -408,9 +385,7 @@ public partial class PaperDashboardWindow : Window
             viewModel.MonitorStatus = $"{source} poll running…";
             try
             {
-                bool exitsEnabled = viewModel.AutomaticGhostExitsEnabled;
-                PaperMonitorCycleResult cycle = await PaperCycleWorker.RunAsync(PaperCycleStage.TrackedMonitor,
-                    () => monitor.PollOnceAsync(exitsEnabled, shutdown.Token), shutdown.Token);
+                PaperMonitorCycleResult cycle = await engineControl.CallAsync<PaperMonitorCycleResult>(EngineOperation.PollTrackedPaper, ct: shutdown.Token);
                 viewModel.ApplyCycle(cycle);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -430,9 +405,6 @@ public partial class PaperDashboardWindow : Window
             {
                 viewModel.AddEvent(DateTime.UtcNow, $"Shadow monitor: {ex.GetType().Name}: {ex.Message}", "Error");
             }
-            // Both financial stages have completed and disposed their settings leases.
-            // Let a pending setup proceed before optional display reads.
-            scheduled.Dispose();
             if (refreshDisplay) await RefreshSafelyAsync();
             return true;
         }
@@ -488,46 +460,11 @@ public partial class PaperDashboardWindow : Window
         manualBuys.Dispose();
     }
 
-    private async Task RunAiReviewsAsync(CancellationToken ct)
-    {
-        try
-        {
-            ct.ThrowIfCancellationRequested();
-            var settings = AiPaperReviewSettings.Load(AiPaperReviewSettings.LocalSettingsPath);
-            var testSession = AiReviewTestSession.Parse(
-                Environment.GetEnvironmentVariable(AiReviewTestSession.EnvironmentVariable), DateTimeOffset.UtcNow);
-            if (testSession is not null)
-                settings = testSession.EnableForThisLaunch(settings); // Never save activation.
-            if (settings?.Enabled != true) return;
-            using var runtime = new AiPaperReviewRuntime(settings);
-            await runtime.RunAsync(notice => ReportAiReview(notice.State), ct, testSession);
-        }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
-        catch { ReportAiReview("NeedsAttention"); } // Never display credential, packet or exception contents.
-    }
-
-    private void ReportAiReview(string state)
-    {
-        if (Dispatcher.HasShutdownStarted || shutdown.IsCancellationRequested) return;
-        string message = state switch
-        {
-            "Reviewed" => "AI portfolio review saved. No trades are executed by the reviewer.",
-            "TestComplete" => "AI review test finished after two attempts. Automatic reviews remain off.",
-            "TestExpired" => "AI review test stopped at its time limit. Automatic reviews remain off.",
-            "OutsideSession" => "AI reviews are waiting for the next market session.",
-            "NeedsAttention" => "AI reviews stopped: check configuration and saved history before restarting.",
-            _ => $"AI review status: {state}."
-        };
-        _ = Dispatcher.BeginInvoke(new Action(() => viewModel.AddEvent(DateTime.UtcNow, message,
-            state == "NeedsAttention" ? "Error" : "Info")));
-    }
-
     private bool brokerPolling;
     private bool closingMonitor;
     private bool monitorStopped;
     protected override async void OnClosing(CancelEventArgs e)
     {
-        if (manualBuys.IsSubmitting) { e.Cancel = true; return; }
         if (monitorStopped) { base.OnClosing(e); return; }
         if (closingMonitor) { e.Cancel = true; return; }
         if (DelphiTabView.IsRunning || SettingsTabView.IsBusy)
@@ -546,8 +483,7 @@ public partial class PaperDashboardWindow : Window
             "Unsaved strategy drafts", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel)!=MessageBoxResult.OK)
         { e.Cancel=true; return; }
         if (e.Cancel) { base.OnClosing(e); return; }
-        // WPF can terminate the process immediately after Closed. Keep the
-        // window alive until the durable lease has been released.
+        // Detach the dashboard. Admitted orders, paper work and research remain owned by the engine.
         e.Cancel = true;
         closingMonitor = true;
         timer.Stop();
@@ -557,10 +493,10 @@ public partial class PaperDashboardWindow : Window
         connectionWindow?.Close();
         TradingRecommendationsTabView.StopWealthsimple();
         await wealthsimple.StopAsync();
-        try { await Task.WhenAll(DelphiLiveTabView.StopAsync(), aiReviewTask); }
+        try { await DelphiLiveTabView.StopAsync(); }
         catch (Exception ex)
         {
-            viewModel.AddEvent(DateTime.UtcNow, $"Delphi Live shutdown: {ex.GetType().Name}; its lease must expire before another host can run.", "Error");
+            viewModel.AddEvent(DateTime.UtcNow, $"Dashboard detach: {ex.GetType().Name}; check engine status when reconnecting.", "Error");
         }
         finally { monitorStopped = true; _ = Dispatcher.BeginInvoke(new Action(Close)); }
     }

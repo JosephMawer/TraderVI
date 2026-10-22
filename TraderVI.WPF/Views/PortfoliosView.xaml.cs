@@ -13,7 +13,7 @@ namespace TraderVI.WPF.Views;
 public partial class PortfoliosView : UserControl
 {
     private readonly PortfoliosViewModel viewModel = new();
-    private readonly SystemShadowController controller = new();
+    private readonly Core.Runtime.EngineRpcClient engine = new(Core.Runtime.EnginePaths.PipeName);
     private BrokerSetupCycleBarrier? cycleBarrier;
     public void SetCycleBarrier(BrokerSetupCycleBarrier barrier) => cycleBarrier = barrier;
     private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text);
@@ -78,28 +78,19 @@ public partial class PortfoliosView : UserControl
     public Task RefreshAsync(CancellationToken cancellationToken = default) =>
         viewModel.RefreshAsync(cancellationToken);
 
-    public async Task<int> CheckProfitProtectionAsync(CancellationToken ct = default)
-    {
-        using var cycle = cycleBarrier?.TryBeginCycle();
-        if (cycleBarrier is not null && cycle is null) return 0;
-        return await PaperCycleWorker.RunAsync(Core.Runtime.PaperCycleStage.ShadowProtection,
-            () => controller.PollProgressiveProtectionAsync(ct), ct);
-    }
+    // Protection is process-owned; dashboard refreshes cannot schedule or stop it.
+    public Task<int> CheckProfitProtectionAsync(CancellationToken ct = default) => Task.FromResult(0);
 
     public async Task<SystemShadowPollResult> RunScheduledCycleAsync(
         CancellationToken cancellationToken = default)
     {
-        using var cycle = cycleBarrier?.TryBeginCycle();
-        if (cycleBarrier is not null && cycle is null)
-            throw new InvalidOperationException("Paper monitoring is deferred while broker setup completes. Retry afterwards.");
         return await RunAdmittedCycleAsync(cancellationToken);
     }
 
     // Dashboard already owns the admission for its ordered tracked + Shadow operation.
     internal async Task<SystemShadowPollResult> RunAdmittedCycleAsync(CancellationToken cancellationToken)
     {
-        SystemShadowPollResult result = await PaperCycleWorker.RunAsync(Core.Runtime.PaperCycleStage.ShadowMonitor,
-            () => controller.PollOnceAsync(cancellationToken), cancellationToken);
+        SystemShadowPollResult result = await engine.CallAsync<SystemShadowPollResult>(Core.Runtime.EngineOperation.PollShadowPaper, ct: cancellationToken);
         viewModel.ApplyPollResult(result);
         return result;
     }

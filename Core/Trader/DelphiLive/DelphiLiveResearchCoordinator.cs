@@ -169,14 +169,28 @@ public sealed class DelphiLiveResearchCoordinator(
     }
 
     public async Task RecoverAndMatureAsync(DateOnly asOfDate, DelphiLiveLease lease, CancellationToken cancellationToken = default)
+        => _ = await RecoverAndMatureBatchAsync(asOfDate, lease, int.MaxValue, cancellationToken);
+
+    // Durable session-review receipts are the cursor. Each engine wake handles bounded changed history;
+    // unchanged sessions never need their evidence/portfolio payloads reopened by this recovery path.
+    public async Task<bool> RecoverAndMatureBatchAsync(DateOnly asOfDate, DelphiLiveLease lease,
+        int maximumSessions, CancellationToken cancellationToken = default)
     {
-        foreach (DateOnly date in await evidenceSource.ReadChangedSessionDatesAsync(clock.UtcNow, cancellationToken))
+        if (maximumSessions < 1) throw new ArgumentOutOfRangeException(nameof(maximumSessions));
+        int processed = 0;
+        foreach (DateOnly date in (await evidenceSource.ReadChangedSessionDatesAsync(clock.UtcNow, cancellationToken)).Distinct().Order())
         {
             if (date > asOfDate) continue;
-            var context = await sessions.ReadContextAsync(date, cancellationToken);
-            if (context is not null && clock.UtcNow > context.Bounds.CloseUtc)
+            var context = await sessions.ReadContextAsync(date, cancellationToken)
+                ?? throw new InvalidOperationException("Changed research history has no frozen session context.");
+            if (clock.UtcNow > context.Bounds.CloseUtc)
+            {
+                if (processed >= maximumSessions) return false;
                 await SessionClosedAsync(context, lease, cancellationToken);
+                processed++;
+            }
         }
+        return true;
     }
 
     private async Task MatureSession(DelphiLiveSessionContext context, DelphiLiveResearchSessionEvidence evidence,

@@ -45,7 +45,11 @@ The September 22 documentation cleanup preserves the
   savings, qualified direct-JSON diagnostics and native recovery remain unproved; no conversion run.
 - [x] Route Delphi Live dashboard commands to the engine and make its dashboard ticks read-only;
   dashboard closure no longer stops Live. Drain admitted commands on explicit engine stop. 43 focused
-  checks/WPF build pass. Remaining Shadow/tracked/AI desktop workers and native close/reconnect remain.
+  checks/WPF build pass. Native close/reconnect remains.
+- [x] Move Shadow/tracked/opt-in AI worker lifetime to the engine and manual polls through its owner;
+  retain existing settings/schedules. Bound changed-session research recovery to one session per wake
+  with durable receipts and explicit missing-freeze failure. 33 focused checks and incremental WPF
+  build pass. Native lifecycle/resource acceptance remains.
 - [ ] Implement/validate the proposed first independent-host increment: extract broker/execution lifetime
   from WPF, share one order owner, consume shared inputs without paper evaluation/progress dependency,
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.

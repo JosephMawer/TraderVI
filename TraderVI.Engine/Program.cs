@@ -40,6 +40,7 @@ internal static class Program
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);
             var research = new IndependentResearchService(calendar, () => market.CurrentLease, market);
+            var auxiliary = new IndependentAuxiliaryPaperService(calendar, market);
             var liveCommands = new DelphiLiveDesktopService { OperatorExecutor = paper.ExecuteOperatorAsync, DeferResearchRecovery = true };
             bool stopping = false;
             market.ApplySessionBoundaryAsync = research.ApplyBoundaryAsync;
@@ -51,13 +52,18 @@ internal static class Program
                 new("Paper protection", TimeSpan.FromSeconds(10), paper.ProtectAsync),
                 new("Paper inputs", TimeSpan.FromSeconds(10), paper.ConsumeAsync),
                 new("Research inputs", TimeSpan.FromSeconds(30), research.ConsumeAsync),
-                new("Research history", TimeSpan.FromMinutes(15), research.MaintainAsync)
-            ], broker.StartAsync, async () =>
+                new("Research history", TimeSpan.FromSeconds(30), research.MaintainAsync),
+                new("Tracked paper", TimeSpan.FromSeconds(30), auxiliary.TrackedTickAsync),
+                new("Shadow paper", TimeSpan.FromSeconds(30), auxiliary.ShadowTickAsync),
+                new("Shadow protection", TimeSpan.FromSeconds(10), auxiliary.ShadowProtectionAsync),
+                new("AI research", TimeSpan.FromSeconds(30), auxiliary.CheckAiAsync)
+            ], async () => { await broker.StartAsync().ConfigureAwait(false); await auxiliary.StartAsync().ConfigureAwait(false); }, async () =>
             {
                 try
                 {
                     await research.DrainAsync().ConfigureAwait(false);
                     await paper.DrainAsync().ConfigureAwait(false);
+                    await auxiliary.CloseAsync().ConfigureAwait(false);
                     await market.StopAsync().ConfigureAwait(false);
                 }
                 finally { await broker.CloseAsync().ConfigureAwait(false); }
@@ -68,10 +74,12 @@ internal static class Program
                 if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices };
                 if (request.Operation == EngineOperation.Stop)
                 {
-                    stopping = true; broker.BeginStop(); paper.BeginStop();
+                    stopping = true; broker.BeginStop(); paper.BeginStop(); auxiliary.BeginStop();
                     await engine.StopAsync().ConfigureAwait(false);
                     return engine.ReadStatus();
                 }
+                if (request.Operation == EngineOperation.PollTrackedPaper) return await auxiliary.PollTrackedAsync().ConfigureAwait(false);
+                if (request.Operation == EngineOperation.PollShadowPaper) return await auxiliary.PollShadowAsync().ConfigureAwait(false);
                 if (request.Operation == EngineOperation.LiveCommand)
                 {
                     if (stopping) throw new InvalidOperationException("Engine is stopping.");
@@ -111,7 +119,7 @@ internal static class Program
             }
             finally
             {
-                stopping = true; broker.BeginStop(); paper.BeginStop();
+                stopping = true; broker.BeginStop(); paper.BeginStop(); auxiliary.BeginStop();
                 await engine.StopAsync().ConfigureAwait(false);
                 stopAccepting.Cancel();
                 await serving.ConfigureAwait(false);

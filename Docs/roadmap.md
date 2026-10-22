@@ -18,8 +18,8 @@ Complete engineering contracts/acceptance before the switch. Build retention is 
 Shared broker services, independent schedules and the engine/client control path are now in source.
 Shared-input storage, independent collection and real-input selection are in source; migrations 047/048
 remain prepared and unapplied. Independent paper/research consumers and immutable handoff receipts
-are in source (prepared migration049). Delphi Live display/control cutover is implemented; finish
-the remaining desktop-owned paper workers and integrity audit/hold integration.
+are in source (prepared migration049). Delphi Live display/control and remaining Shadow/tracked/AI
+worker ownership are implemented. Finish checkpointed history and integrity audit/hold integration.
 Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
 checkpointed history reads and native concurrency qualification before claiming the wait is resolved.
 Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish

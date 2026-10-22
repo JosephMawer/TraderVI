@@ -23,8 +23,9 @@ protection and research schedules are now in source; 82 focused checks and WPF/S
 Migration049 is prepared only. Continue dashboard cutover, checkpointed history, durable audit holds
 and native qualification. Shared broker revision fragments/readers now pass407 related checks/one
 native skip and an engine build. Delphi Live dashboard control now routes to the engine (43 focused
-checks and WPF build pass); Shadow/tracked/AI hosting still needs cutover. The new real host remains
-deliberately blocked; installed app is unchanged.
+checks and WPF build pass); Shadow/tracked/AI hosting now also uses engine lifetime. Changed-session
+research recovery is bounded/resumable (33 focused checks/incremental WPF build pass). The new real
+host remains deliberately blocked; installed app is unchanged.
 
 **Latest architecture discussion (R04/R07/R08/R09):** dashboard closure leaves the engine running,
 with a separate stop control. The operator accepts staged delivery conditional on completion tonight;

@@ -16,7 +16,7 @@ public enum EngineOperation
     CheckConnection, RememberSession, Disconnect, Accounts, AccountSnapshot, DailyPerformance,
     PendingOrders, Securities, BuyContext, SellContext, BuyOrder, SellOrder, SellInventory, OrderHistory, ActivityCheckpoint,
     Orders, PrepareBuy, SubmitBuy, CheckBuy, SellAll, CheckSell, Reconcile,
-    ExecutionStatus, EnableExecution, DisableExecution, LiveCommand
+    ExecutionStatus, EnableExecution, DisableExecution, LiveCommand, PollTrackedPaper, PollShadowPaper
 }
 
 public sealed record EngineRequest(int Version, Guid RequestId, EngineOperation Operation, JsonElement Payload);

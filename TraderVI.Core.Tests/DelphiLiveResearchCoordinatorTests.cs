@@ -51,6 +51,33 @@ public sealed class DelphiLiveResearchCoordinatorTests
         store.Slots.Count.ShouldBe(2);
     }
 
+    [Fact]
+    public async Task RecoveryResumesFromDurableReviewsOneChangedSessionAtATime()
+    {
+        var first = Context();
+        var second = first with { Session = first.Session with { SessionId = Guid.NewGuid(), TradingDate = Date.AddDays(1) },
+            Bounds = new(Date.AddDays(1), Open.AddDays(1), Open.AddDays(1).AddHours(6.5)) };
+        var sessions = new Sessions(first, second);
+        var source = new Source { ChangedDates = [Date.AddDays(1), Date] };
+        var store = new Research { Reviewed = id => source.ChangedDates.Remove(sessions.Contexts.Single(c => c.Session.SessionId == id).Session.TradingDate) };
+        var coordinator = new DelphiLiveResearchCoordinator(new Experiments(), store, source, sessions, null!, Calendar(),
+            new Clock(Open.AddDays(2)), () => "test");
+        (await coordinator.RecoverAndMatureBatchAsync(Date.AddDays(1), Lease, 1)).ShouldBeFalse();
+        source.ReadDates.ShouldBe([Date]);
+        (await coordinator.RecoverAndMatureBatchAsync(Date.AddDays(1), Lease, 1)).ShouldBeTrue();
+        source.ReadDates.ShouldBe([Date, Date.AddDays(1)]);
+        (await coordinator.RecoverAndMatureBatchAsync(Date.AddDays(1), Lease, 1)).ShouldBeTrue();
+        source.ReadDates.Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task RecoveryDoesNotReportMissingFreezeAsComplete()
+    {
+        var coordinator = new DelphiLiveResearchCoordinator(new Experiments(), new Research(), new Source(), new Sessions(),
+            null!, Calendar(), new Clock(Open.AddDays(2)), () => "test");
+        await Should.ThrowAsync<InvalidOperationException>(() => coordinator.RecoverAndMatureBatchAsync(Date, Lease, 1));
+    }
+
     private static DelphiLiveSessionContext Context() => new(new(SessionId, Date, null, null, "NoValidDelphiRun", Open, ["XIU"]),
         new(Date, Open, Open.AddHours(6.5)), [new(Guid.NewGuid(), DelphiLivePolicyDefinition.Version1.PolicyVersionId, DelphiLivePolicyRole.OperationalChampion, Date)],
         new Dictionary<Guid, DelphiLivePolicyDefinition> { [DelphiLivePolicyDefinition.Version1.PolicyVersionId] = DelphiLivePolicyDefinition.Version1 },
@@ -63,10 +90,21 @@ public sealed class DelphiLiveResearchCoordinatorTests
     {
         public DelphiLiveResearchSessionEvidence Evidence = DelphiLiveResearchCoordinatorTests.Evidence();
         public DateTime LastThrough; public Action? AfterRead;
+        public List<DateOnly> ChangedDates = [Date]; public List<DateOnly> ReadDates = [];
         public Task<DelphiLiveResearchSessionEvidence> ReadAsync(DelphiLiveSessionContext context, DateTime throughBarEndUtc, DateTime asOfUtc, CancellationToken cancellationToken = default)
-        { LastThrough = throughBarEndUtc; AfterRead?.Invoke(); return Task.FromResult(Evidence); }
+        { LastThrough = throughBarEndUtc; ReadDates.Add(context.Session.TradingDate); AfterRead?.Invoke(); return Task.FromResult(Evidence); }
         public Task<IReadOnlyList<DateOnly>> ReadFrozenDatesAsync(DateOnly through, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DateOnly>>([Date]);
-        public Task<IReadOnlyList<DateOnly>> ReadChangedSessionDatesAsync(DateTime asOfUtc, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DateOnly>>([Date]);
+        public Task<IReadOnlyList<DateOnly>> ReadChangedSessionDatesAsync(DateTime asOfUtc, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DateOnly>>(ChangedDates.ToArray());
+    }
+    private sealed class Sessions(params DelphiLiveSessionContext[] contexts) : IDelphiLiveSessionContextStore
+    {
+        public DelphiLiveSessionContext[] Contexts = contexts;
+        public Task<DelphiLiveSessionContext?> ReadContextAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.FromResult(Contexts.SingleOrDefault(c => c.Session.TradingDate == date));
+        public Task<DelphiLiveFrozenSession?> GetFrozenSessionAsync(DateOnly date, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<DelphiLiveFrozenSession> FreezeSessionAsync(DelphiLiveSessionFreezeRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<IReadOnlyList<DelphiLivePolicyAssignment>> GetAssignmentsForSessionAsync(DateOnly date, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<DelphiLivePolicyDefinition> GetPolicyAsync(Guid id, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<DelphiLiveSessionContext> SynchronizeObservationSetAsync(Guid id, DateTime endpoint, DelphiLiveLease lease, IReadOnlyList<DelphiLivePortfolioSnapshot> portfolios, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
     private sealed class Experiments : IDelphiLiveExperimentStore
     {
@@ -78,10 +116,11 @@ public sealed class DelphiLiveResearchCoordinatorTests
     {
         public List<DelphiLiveExpectedResearchSlot> Slots = []; public List<DelphiLiveResearchOutcomeRevision> Outcomes = [];
         public List<DelphiLiveRankingCheckpoint> Checkpoints = []; public List<DateTime> Reviews = [];
+        public Action<Guid>? Reviewed;
         public Task RecordExpectedSlotsAsync(IReadOnlyCollection<DelphiLiveExpectedResearchSlot> slots, DelphiLiveLease lease, CancellationToken cancellationToken = default) { Slots.AddRange(slots); return Task.CompletedTask; }
         public Task RecordRankingCheckpointAsync(DelphiLiveRankingCheckpoint checkpoint, DelphiLiveLease lease, CancellationToken cancellationToken = default) { Checkpoints.Add(checkpoint); return Task.CompletedTask; }
         public Task AppendOutcomeAsync(DelphiLiveResearchOutcomeRevision revision, DelphiLiveLease lease, CancellationToken cancellationToken = default) { Outcomes.Add(revision); return Task.CompletedTask; }
-        public Task RecordSessionReviewAsync(Guid sessionId, DateTime reviewedUtc, DelphiLiveLease lease, CancellationToken cancellationToken = default) { Reviews.Add(reviewedUtc); return Task.CompletedTask; }
+        public Task RecordSessionReviewAsync(Guid sessionId, DateTime reviewedUtc, DelphiLiveLease lease, CancellationToken cancellationToken = default) { Reviews.Add(reviewedUtc); Reviewed?.Invoke(sessionId); return Task.CompletedTask; }
         public Task<IReadOnlyList<DelphiLiveExpectedResearchSlot>> ReadExpectedSlotsAsync(DateOnly from, DateOnly through, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DelphiLiveExpectedResearchSlot>>(Slots);
         public Task<IReadOnlyList<DelphiLiveResearchOutcomeRevision>> ReadLatestOutcomesAsync(DateOnly from, DateOnly through, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DelphiLiveResearchOutcomeRevision>>(Outcomes.GroupBy(o => o.SlotId).Select(g => g.Last()).ToArray());
         public Task<IReadOnlyList<DelphiLiveRankingCheckpoint>> ReadRankingCheckpointsAsync(DateOnly from, DateOnly through, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DelphiLiveRankingCheckpoint>>(Checkpoints);
