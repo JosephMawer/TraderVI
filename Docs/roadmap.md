@@ -1,5 +1,8 @@
 # TraderVI Roadmap
 
+Current broker reuse and explicit diagnostics are in source; finish Live-tab compact refresh and
+whole-path cutover acceptance. Changed broker appends still serialize full logical history.
+
 This is the authoritative priority list. [Project status](project-status.md) owns dated evidence;
 the [strategy alignment checklist](strategy-alignment-implementation-checklist.md) owns execution
 dependencies. [Design rules](design-rules.md) and applicable accepted ADRs own behavior.

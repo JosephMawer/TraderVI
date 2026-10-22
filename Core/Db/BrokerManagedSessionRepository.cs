@@ -25,14 +25,32 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
     private readonly Func<CancellationToken, Task<SqlConnection>> open;
     private readonly Core.Trader.DelphiLive.ITsxSessionCalendar? calendar;
     private readonly bool sharedStorage;
+    private readonly BrokerCurrentStateCache? currentCache;
+    private readonly Func<Guid, CancellationToken, Task<bool>>? mayReuse;
     public BrokerManagedSessionRepository() : this(Open) { }
-    public BrokerManagedSessionRepository(Core.Trader.DelphiLive.ITsxSessionCalendar calendar, bool sharedStorage = false) : this(Open)
-    { this.calendar = calendar; this.sharedStorage = sharedStorage; }
+    public BrokerManagedSessionRepository(Core.Trader.DelphiLive.ITsxSessionCalendar calendar, bool sharedStorage = false,
+        Func<Guid, CancellationToken, Task<bool>>? mayReuse = null) : this(Open)
+    {
+        if (mayReuse is not null && !sharedStorage) throw new ArgumentException("Verified current-state reuse requires the independent shared-storage path.", nameof(sharedStorage));
+        this.calendar = calendar; this.sharedStorage = sharedStorage; this.mayReuse = mayReuse;
+        currentCache = mayReuse is null ? null : new();
+    }
     // Instance-scoped seam for isolated SQL rehearsals; never changes the application's connection.
     internal BrokerManagedSessionRepository(Func<CancellationToken, Task<SqlConnection>> open) =>
         this.open = open ?? throw new ArgumentNullException(nameof(open));
 
     public const string RequiredMigration = "20260923_040_AddBrokerManagedSession.sql";
+    public async Task<EngineBrokerDiagnostics> ReadDiagnosticsAsync(Guid binding, CancellationToken ct = default)
+    {
+        if (binding == Guid.Empty) throw new ArgumentException("Select the real account binding for diagnostics.");
+        await using var c = await open(ct);
+        var row = await c.QuerySingleOrDefaultAsync<Row>(new CommandDefinition("""
+SELECT TOP(1) BindingId,Revision,RevisionId,PreviousRevisionId,SessionId,BaselineId,SavedAt,ContentHash,SnapshotJson
+FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding ORDER BY Revision DESC;
+""", new { Binding = binding }, cancellationToken: ct)) ?? throw new InvalidOperationException("No saved real strategy revision is available.");
+        var contents = await EngineArchiveStorage.ReadContentsAsync(c, null, row.SnapshotJson, ct);
+        return EngineBrokerDiagnostics.From(Decode(row, contents), EngineArchiveCodec.IsPacked(row.SnapshotJson));
+    }
     public static async Task<BrokerManagedStorageReadiness> ReadStorageAsync(CancellationToken ct = default)
     {
         await using var c = await Open(ct);
@@ -63,12 +81,21 @@ EXEC @r=sys.sp_getapplock @Resource=@Key,@LockMode=N'Exclusive',@LockOwner=N'Ses
 IF @r<0 THROW 54001,'Another host owns this broker strategy session.',1;
 """, new { Key = "TraderVI.BrokerManaged:" + bindingId.ToString("D") }, cancellationToken: ct));
             var row = await c.QuerySingleOrDefaultAsync<Row>(new CommandDefinition("""
-SELECT TOP(1) BindingId,Revision,RevisionId,PreviousRevisionId,SessionId,BaselineId,SavedAt,ContentHash,SnapshotJson
+SELECT TOP(1) BindingId,Revision,RevisionId,PreviousRevisionId,SessionId,BaselineId,SavedAt,ContentHash,CAST(NULL AS nvarchar(max)) SnapshotJson
 FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC;
 """, new { Id = bindingId }, cancellationToken: ct));
+            bool qualified = mayReuse is not null && await mayReuse(bindingId, ct);
+            var cached = row is null ? null : currentCache?.Read(Key(row), qualified);
+            if (cached is not null)
+                return new Lease(c, bindingId, cached.State, calendar, sharedStorage, cached.Contents, currentCache);
+            if (row is not null) row = row with { SnapshotJson = await c.QuerySingleAsync<string>(new CommandDefinition(
+                "SELECT SnapshotJson FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding AND Revision=@Revision;",
+                new { Binding = bindingId, row.Revision }, cancellationToken: ct)) };
             var contents = row is null ? new Dictionary<string, string>() : await EngineArchiveStorage.ReadContentsAsync(c, null, row.SnapshotJson, ct);
-            return new Lease(c, bindingId, row is null ? null : Decode(row, contents), calendar,
-                sharedStorage || row is not null && EngineArchiveCodec.IsPacked(row.SnapshotJson), contents);
+            var state = row is null ? null : Decode(row, contents);
+            if (qualified && row is not null) currentCache!.Save(Key(row), state!, contents);
+            return new Lease(c, bindingId, state, calendar,
+                sharedStorage || row is not null && EngineArchiveCodec.IsPacked(row.SnapshotJson), contents, qualified ? currentCache : null);
         }
         catch { await ReleaseAndClose(c, bindingId); throw; }
     }
@@ -163,7 +190,8 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
         state.Strategy.Validate(); return state;
     }
     private sealed class Lease(SqlConnection connection, Guid binding, BrokerManagedSession? initial,
-        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, bool sharedStorage, IReadOnlyDictionary<string, string> initialContents) : IBrokerManagedSessionLease
+        Core.Trader.DelphiLive.ITsxSessionCalendar? calendar, bool sharedStorage, IReadOnlyDictionary<string, string> initialContents,
+        BrokerCurrentStateCache? currentCache) : IBrokerManagedSessionLease
     {
         private IReadOnlyDictionary<string, string> known = initialContents;
         public BrokerManagedSession? Current { get; private set; } = initial;
@@ -193,6 +221,8 @@ VALUES(@Binding,@Revision,@RevisionId,@PreviousRevisionId,@SessionId,@BaselineId
             await EngineRealObservationStore.SaveIfInstalledAsync(connection, t, next, hash, ct);
             t.Commit(); Current = next;
             if (packed is not null) known = packed.Contents;
+            currentCache?.Save(new(next.BindingId, next.Revision, next.RevisionId, next.PreviousRevisionId,
+                next.SessionId, next.Approval.Review.BaselineId, next.SavedAt, hash), next, known);
         }
         public async ValueTask DisposeAsync() => await ReleaseAndClose(connection, binding);
     }
@@ -211,6 +241,8 @@ VALUES(@Binding,@Revision,@RevisionId,@PreviousRevisionId,@SessionId,@BaselineId
         }
         finally { await connection.DisposeAsync(); }
     }
+    private static BrokerCurrentStateKey Key(Row row) => new(row.BindingId, row.Revision, row.RevisionId, row.PreviousRevisionId,
+        row.SessionId, row.BaselineId, row.SavedAt, row.ContentHash);
     private sealed record Row(Guid BindingId, long Revision, Guid RevisionId, Guid? PreviousRevisionId,
         Guid SessionId, Guid BaselineId, DateTimeOffset SavedAt, string ContentHash, string SnapshotJson);
 }

@@ -1,5 +1,13 @@
 # TraderVI Project Status
 
+**October22 reader checkpoint:** engine broker leases reuse only an exact verified current revision,
+after fresh continuity/guard/hold checks; explicit diagnostics bypass that cache and support inline
+and shared storage. The dashboard has a Last saved decision command. Changed broker appends still
+serialize lifetime logical state under the existing 8MiB limit. No history was deleted or converted.
+386 focused tests and incremental WPF build pass (two existing warnings); native diagnostics remain
+unqualified. Full Core before this reader increment: 3,000 passed, nine native skips with explicit
+xUnit concurrency disabled; the first parallel run hit two existing AI timing tests. SSDT build passes.
+
 ## October 21 post-open execution watch
 
 **October22 architecture delivery target missed:** implementation continues; no replacement installation

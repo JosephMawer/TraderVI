@@ -52,6 +52,10 @@ internal static class Program
                 {
                     await continuity.VerifyAsync(ct).ConfigureAwait(false);
                     await IndependentExecutionReadiness.VerifyAsync(saved, ct).ConfigureAwait(false);
+                }, async (binding, ct) =>
+                {
+                    await continuity.VerifyAsync(ct).ConfigureAwait(false);
+                    return (await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Broker, binding, ct).ConfigureAwait(false)).ProtectionAllowed;
                 });
             var market = new IndependentMarketService(calendar);
             var paper = new IndependentPaperService(calendar, () => market.CurrentLease, market);

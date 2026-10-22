@@ -1,5 +1,9 @@
 # TraderVI session-work register
 
+**October22 reader checkpoint:** broker exact-current-revision reuse and explicit fresh dual-format
+diagnostics are implemented in source. Continue Live-tab compact refresh, remaining broker append
+cost and whole-path qualification. No installed behavior or execution authority changed.
+
 **October22 audit throughput checkpoint:** replace one-record wakes with up to256 steps/five seconds
 of admissions and one verified-prefix receipt;21 related tests pass. Explicit held recovery can run
 during the day. Large revisions can exceed the admission budget; native capacity remains unqualified.

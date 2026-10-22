@@ -10,6 +10,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
 {
     public TextBlock Summary { get; } = new() { TextWrapping = TextWrapping.Wrap, FontSize = 14 };
     public Button Refresh { get; } = new() { Content = "Refresh readiness" };
+    public Button LastDecision { get; } = new() { Content = "Last saved decision" };
     public Button PrepareFirst { get; } = new() { Content = "Prepare first execution review" };
     public Button CaptureNativeCheckpoint { get; } = new() { Content = "Capture native recovery checkpoint" };
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
@@ -47,7 +48,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
             Margin = new Thickness(0, 0, 0, 12) };
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
-        foreach (var button in new[] { Refresh, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst,
+        foreach (var button in new[] { Refresh, LastDecision, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst,
             ReviewNextSession, ApproveContinuation, ReviewSourceSwitch, ApproveSourceSwitch, EnableHost, StopHost })
         {
             button.MinWidth = 215; button.MinHeight = 44; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);

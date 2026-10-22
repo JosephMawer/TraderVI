@@ -32,13 +32,15 @@ public sealed class EngineBrokerService
 
     public EngineBrokerService(IWealthsimpleConnection connection, IBrokerOrderJournal journal,
         IWealthsimpleSessionProtector protector, IBrokerExecutionHostGrantStore grants,
-        ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs)
+        ITsxSessionCalendar calendar, Func<BrokerManagedSession, CancellationToken, Task> verifyInputs,
+        Func<Guid, CancellationToken, Task<bool>>? mayReuseBrokerState = null)
     {
         this.connection = connection; this.journal = journal; this.protector = protector;
         buys = new(connection, journal, new ManualBuySafetyRepository(requireIndependentIntegrity: true), orderGate: orderGate);
         sells = new(connection, journal, orderGate: orderGate);
         reconciliation = new(connection, journal, journal, orderGate);
-        host = new(grants, new BrokerManagedSessionControls(new BrokerManagedSessionRepository(calendar, sharedStorage: true)),
+        var sessions = new BrokerManagedSessionRepository(calendar, sharedStorage: true, mayReuse: mayReuseBrokerState);
+        host = new(grants, new BrokerManagedSessionControls(sessions),
             async (saved, ct) =>
             {
                 await verifyInputs(saved, ct).ConfigureAwait(false);
@@ -51,7 +53,7 @@ public sealed class EngineBrokerService
                 IBrokerRiskEvidenceSource risk = saved.EffectiveReview.NoTransferScope is { } scope
                     ? new BrokerNoTransferRiskEvidenceSource(scope, calendar) : new UnqualifiedBrokerRiskEvidenceSource();
                 var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal,
-                    journal, orderGate, account, calendar, risk, independentInputs: true);
+                    journal, orderGate, account, calendar, risk, independentInputs: true, sessionStore: sessions);
                 return await workflow.TickAsync(saved.BindingId, ct).ConfigureAwait(false);
             }, calendar, BrokerManagedSessionComposition.ImplementationIdentity);
     }
@@ -83,6 +85,11 @@ public sealed class EngineBrokerService
         // Status stays readable during a slow admitted order. It does not confer financial authority.
         if (request.Operation == EngineOperation.Connection) return EngineConnectionStatus.Read(connection);
         if (request.Operation == EngineOperation.ExecutionStatus) return host.Status;
+        if (request.Operation == EngineOperation.ExecutionDiagnostics)
+        {
+            if (closing) throw new InvalidOperationException("Engine shutdown is in progress.");
+            return await new BrokerManagedSessionRepository().ReadDiagnosticsAsync(request.Payload.Deserialize<Guid>()).ConfigureAwait(false);
+        }
         await admission.WaitAsync().ConfigureAwait(false);
         try
         {

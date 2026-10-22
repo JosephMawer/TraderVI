@@ -10,6 +10,11 @@ The September 22 documentation cleanup preserves the
 
 ## Paper strategy to real TFSA — current checklist
 
+- [x] Implement exact-revision broker current-state reuse with continuity/guard/hold admission and
+  invalidation; provide explicit fresh dual-format diagnostics and a dashboard command.
+- [ ] Qualify broker reuse/diagnostics natively; broker changed-appends still serialize full logical
+  history under the existing 8MiB cap. Complete Live-tab compact refresh and cutover acceptance.
+
 - [x] Batch audit work under step/time admission limits and persist only verified prefixes; permit
   explicitly requested recovery under its hold during the day.21 related checks pass. Large revision
   duration and weekly installed throughput remain unmeasured.

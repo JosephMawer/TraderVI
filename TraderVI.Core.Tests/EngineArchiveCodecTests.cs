@@ -72,7 +72,8 @@ public sealed class EngineArchiveCodecTests
         var f = new BrokerManagedSessionTests.Fixture();
         await f.Workflow().ApproveAsync(f.Approval());
         await f.Workflow().TickAsync(f.Store.State!.BindingId);
-        var state = f.Store.State!;
+        var state = f.Store.State! with { LatestDecision = new(DateTime.UtcNow, DateTimeOffset.UtcNow,
+            [new("TEST", DateTime.UtcNow, "SignalTooOld")], [], ["Original permission expired"], "NoSelection", null, null) };
         Assert.NotEmpty(state.Orders);
         string json = JsonSerializer.Serialize(state);
         var packed = EngineArchiveCodec.Pack(json);
@@ -80,5 +81,9 @@ public sealed class EngineArchiveCodecTests
         Assert.Equal(json, JsonSerializer.Serialize(restored));
         Assert.Equal(state.Approval.Fingerprint, restored!.Approval.Fingerprint);
         Assert.Equal(state.Orders.Select(o => o.RequestId), restored.Orders.Select(o => o.RequestId));
+        Assert.NotNull(state.LatestDecision);
+        var inline = EngineBrokerDiagnostics.From(state, false);
+        var shared = EngineBrokerDiagnostics.From(restored, true);
+        Assert.Equal(JsonSerializer.Serialize(inline with { StorageFormat = "Shared" }), JsonSerializer.Serialize(shared));
     }
 }

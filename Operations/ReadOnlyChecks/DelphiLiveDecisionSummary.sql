@@ -1,4 +1,7 @@
 SET NOCOUNT ON;
+-- Shared revisions require the read-only EngineOperation.ExecutionDiagnostics RPC with the exact binding ID.
+-- BrokerManagedSessionRepository.ReadDiagnosticsAsync verifies the original manifest, all referenced bytes
+-- and the saved row identity. This legacy SQL helper does not decode shared archive references.
 DECLARE @Snapshot nvarchar(max);
 SELECT TOP(1) @Snapshot=SnapshotJson FROM dbo.BrokerManagedSessionRevision ORDER BY SavedAt DESC;
 SELECT SYSUTCDATETIME() AS CheckedUtc,

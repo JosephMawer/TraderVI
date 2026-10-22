@@ -148,7 +148,7 @@ public sealed partial class ManualBuyCoordinator
             Width = 800, Height = 800, MinWidth = 620, MinHeight = 650, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var panel = new BrokerExecutionSetupPanel(); dialog.Content = panel;
         var summary = panel.Summary; var refresh = panel.Refresh; var first = panel.PrepareFirst;
-        var checkpoint = panel.CaptureNativeCheckpoint;
+        var checkpoint = panel.CaptureNativeCheckpoint; var lastDecision = panel.LastDecision;
         var previewCarry = panel.PreviewCarry; var saveCarry = panel.SaveCarry; var noOutside = panel.NoOutsideChanges;
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         var nextSession = panel.ReviewNextSession; var approveContinuation = panel.ApproveContinuation;
@@ -186,7 +186,7 @@ public sealed partial class ManualBuyCoordinator
         async Task Run(Func<Task> action, bool waitForPaperCycles = true)
         {
             if (closed || busy || executionPolling || IsManualBusy) return;
-            busy = executionEditing = true; refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled =
+            busy = executionEditing = true; lastDecision.IsEnabled = refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled =
                 previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = nextSession.IsEnabled = approveContinuation.IsEnabled =
                 reviewSwitch.IsEnabled = approveSwitch.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
@@ -220,7 +220,7 @@ public sealed partial class ManualBuyCoordinator
             finally
             {
                 busy = executionEditing = false;
-                if (!closed) { refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = previewCarry.IsEnabled = noOutside.IsEnabled = true;
+                if (!closed) { lastDecision.IsEnabled = refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = stop.IsEnabled = previewCarry.IsEnabled = noOutside.IsEnabled = true;
                     saveCarry.IsEnabled = carryReview is not null && noOutside.IsChecked == true;
                     nextSession.IsEnabled = true;
                     reviewSwitch.IsEnabled = true;
@@ -417,6 +417,22 @@ public sealed partial class ManualBuyCoordinator
         }
         // Saved-state display needs no paper-cycle drain. Review/approval still take admission.
         refresh.Click += async (_, _) => await Run(Refresh, waitForPaperCycles: false);
+        lastDecision.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); Stage("reading the last saved decision");
+            var binding = (await new BrokerAccountImportRepository().ReadAsync(lifetime.Token)).Binding
+                ?? throw new InvalidOperationException("Link the account before reading its saved decision.");
+            var saved = connection is EngineBrokerClient remote
+                ? await remote.Rpc.CallAsync<EngineBrokerDiagnostics>(EngineOperation.ExecutionDiagnostics, binding.BindingId, lifetime.Token)
+                : await new BrokerManagedSessionRepository().ReadDiagnosticsAsync(binding.BindingId, lifetime.Token);
+            Check();
+            summary.Text = $"Saved revision {saved.Revision} · {saved.SavedAt:u}\n" +
+                (saved.Decision is { } decision
+                    ? $"Evaluated {decision.EvaluatedUtc:u}\n{decision.Summary}\n\n" +
+                      string.Join("\n", decision.Entries.Select(e => $"{e.Symbol}: {e.Outcome} · signal {e.SignalBarUtc:u}")) +
+                      "\n" + string.Join("\n", decision.NewRiskBlocks.Concat(decision.QuoteReadBlocks))
+                    : "This revision contains no saved decision trace.");
+        }, waitForPaperCycles: false);
         noOutside.Checked += (_, _) => { saveCarry.IsEnabled = !busy && carryReview is not null;
             approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true;
             approveSwitch.IsEnabled = !busy && (sourceSwitchReview is not null || buildReview is not null); };
