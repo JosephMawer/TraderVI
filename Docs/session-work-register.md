@@ -26,6 +26,8 @@ native skip and an engine build. Delphi Live dashboard control now routes to the
 checks and WPF build pass); Shadow/tracked/AI hosting now also uses engine lifetime. Changed-session
 research recovery is bounded/resumable (33 focused checks/incremental WPF build pass). The new real
 host remains deliberately blocked; installed app is unchanged.
+Cached real confirmations now invalidate on consumed-input conflicts, including earlier same-session
+dependencies; 399 recommendation/broker checks pass. Continue audit/hold and checkpoint integration.
 
 **Latest architecture discussion (R04/R07/R08/R09):** dashboard closure leaves the engine running,
 with a separate stop control. The operator accepts staged delivery conditional on completion tonight;

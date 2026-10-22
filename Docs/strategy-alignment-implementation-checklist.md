@@ -55,6 +55,8 @@ The September 22 documentation cleanup preserves the
   and test disconnect/reconnect, stop, stalled research, freshness, recovery and concurrent writes.
   Direct-input/storage integration and native acceptance remain unfinished; installed app is unchanged.
 - [ ] Decide build retention separately before cleanup; review concrete migration/cutover before installation.
+- [x] Invalidate cached real confirmation on a newly discovered consumed-input conflict; include earlier
+  same-session stock/benchmark conflicts in dependency checks. 399 related offline tests pass.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
   resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.
   Implementation and operational authority remain separate from these design decisions.

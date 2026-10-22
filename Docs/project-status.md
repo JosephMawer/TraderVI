@@ -40,6 +40,9 @@ A repeated-record fixture uses under one twentieth of expanded storage; this is 
 measurement of installed savings. Current eight-MiB logical-state limit remains. Direct-JSON diagnostics
 now disclose shared storage; their qualified reader/cutover remains. No historical rows were converted.
 Direct-input/history/storage/audit integration remains unfinished; installed app is unchanged.
+The real reader now treats an earlier same-session stock/benchmark conflict as affecting its later
+inputs, and invalidates an already-consumed cached confirmation before the progress check. A regression
+proves that repeated reads cannot revive that confirmation. 399 focused recommendation/broker tests pass.
 Dependency-security audit was disabled, not requalified. No database or external action.
 
 **Accepted design — dashboard-independent operation:** closing the dashboard leaves

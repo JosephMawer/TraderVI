@@ -125,7 +125,7 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
                 const string liveSql = """
                     SELECT e.InputJson,e.ContinuityEpoch,
                         CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
-                            WHERE sl.SessionId=e.SessionId AND sl.ExpectedBarEndUtc=e.BarEndUtc AND sl.Symbol IN(e.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
+                            WHERE sl.SessionId=e.SessionId AND sl.ExpectedBarEndUtc<=e.BarEndUtc AND sl.Symbol IN(e.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
                         FROM dbo.DelphiLiveEvaluation e JOIN dbo.DelphiLiveSession s ON s.SessionId=e.SessionId
                         WHERE s.TradingDate>=@FromDate AND s.TradingDate<=@Date AND e.PolicyVersionId=@Policy
                         AND e.RecordedUtc<=@Now AND e.BarEndUtc>@Boundary

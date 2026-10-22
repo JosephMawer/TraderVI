@@ -26,6 +26,7 @@ Shared broker revision fragments are implemented/tested; historical rows remain 
 the qualified diagnostic reader and current-state/history/audit integration before installation.
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before
 removing the new host's readiness block. No replacement is installed.
+Preserve the tested invalidation of cached real confirmations when earlier shared evidence conflicts.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact
 evaluation-save recovery and fixed private stages.71focused/2,919Core pass/nine native SQL skips

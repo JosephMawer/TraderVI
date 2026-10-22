@@ -244,6 +244,11 @@ public static class TradingRecommendationEngine
             foreach(var saved in group.OrderBy(e=>e.Input.BarEndUtc))
             {
                 var source=saved.Input;
+                // A newly discovered conflict can invalidate an already-consumed observation.
+                // Invalidate before the progress check, so a cached confirmation cannot survive it.
+                if (saved.EvidenceConflict && source.SessionId == memory.LiveSessionId &&
+                    source.BarEndUtc >= memory.LastLiveBarUtc && source.EvaluatedUtc <= input.EvaluatedUtc)
+                    memory = memory with { LiveEvaluation = null, LastLiveResult = null };
                 if(source.BarEndUtc <= input.Assignment.EffectiveUtc || holding is null && source.BarEndUtc < input.SessionOpenUtc ||
                     source.EvaluatedUtc>input.EvaluatedUtc || source.BarEndUtc<=memory.LastLiveBarUtc) continue;
                 var previous=memory.LiveSessionId==source.SessionId && memory.LiveEpoch==saved.ContinuityEpoch

@@ -183,6 +183,22 @@ public sealed class TradingRecommendationTests
         Assert.Empty(noQuote.Recommendations);
     }
     [Fact]
+    public void NewlyConflictedConsumedInputInvalidatesCachedConfirmationWithoutReplayingIt()
+    {
+        var input = LiveInput(); var first = TradingRecommendationEngine.Evaluate(input);
+        Assert.Contains(first.Recommendations, r => r.Action == "Buy");
+        var latest = input.LiveInputs.Last();
+        var result = TradingRecommendationEngine.Evaluate(input with { PreviousMemory = first.Memory,
+            LiveInputs = [latest with { EvidenceConflict = true, Input = latest.Input with { ExactPairPersistedOnTime = false } }] });
+        Assert.DoesNotContain(result.Recommendations, r => r.Action == "Buy");
+        Assert.Null(result.Memory.Symbols["ABC"].LastLiveResult);
+        Assert.Null(result.Memory.Symbols["ABC"].LiveEvaluation);
+        Assert.Equal(first.Memory.Symbols["ABC"].LastLiveBarUtc, result.Memory.Symbols["ABC"].LastLiveBarUtc);
+        var repeated = TradingRecommendationEngine.Evaluate(input with { PreviousMemory = result.Memory });
+        Assert.DoesNotContain(repeated.Recommendations, r => r.Action == "Buy");
+    }
+
+    [Fact]
     public void LiveProtectsActualCostFromBidEvenWithoutPaperCandidateOrAccountReport()
     {
         var i = LiveInput(); var holding = new ReportedTradingHolding(Guid.NewGuid(), "HELD", 4, 400m, i.TradingDate);

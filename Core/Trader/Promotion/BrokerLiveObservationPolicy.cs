@@ -32,6 +32,7 @@ public static class BrokerLiveObservationPolicy
         // Market lifecycle will record the miss; actual holdings/protection are supplied separately.
         return new(input with { ExactPairPersistedOnTime = input.ExactPairPersistedOnTime && !hasConflict,
             IsHeld = false, HasPendingBuy = false, HasPendingSell = false, AveragePurchasePrice = null,
-            ProfitProtection = null, PreviousState = DelphiLiveEvaluationState.Initial(input.DailySetup is not null) }, epoch);
+            ProfitProtection = null, PreviousState = DelphiLiveEvaluationState.Initial(input.DailySetup is not null) }, epoch)
+            { EvidenceConflict = hasConflict };
     }
 }

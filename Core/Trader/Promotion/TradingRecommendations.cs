@@ -14,7 +14,10 @@ public sealed record TradingQuote(string Symbol, DateTime RequestedUtc, DateTime
     decimal? Price, decimal? Bid, decimal? Ask, string SourceContract);
 public sealed record TradingCandidate(Guid CandidateId, Guid RunId, string Symbol, int Rank, decimal PreviousClose);
 /// <summary>Durable market/daily context only; paper evaluation results are not recommendation inputs.</summary>
-public sealed record TradingLiveObservation(DelphiLiveEvaluationInput Input, int ContinuityEpoch);
+public sealed record TradingLiveObservation(DelphiLiveEvaluationInput Input, int ContinuityEpoch)
+{
+    public bool EvidenceConflict { get; init; }
+}
 public sealed record TradingActualFill(Guid TradeId, Guid PositionId, string Symbol, string Side,
     DateTime FillUtc, DateOnly TradingDate, int Quantity, decimal Price, string? ExitReason,
     string? RecommendationKind, decimal? PositionTarget);
