@@ -2,10 +2,10 @@
 
 ### Independent real processing — ADR-0103 and design draft
 
-- **Q:** What is accepted so far? **A:** Real trading is independent of optional paper research, with immediate current-state/input checks separate from full historical audits. Cadence, failure handling, checkpoint trust and implementation remain draft.
+- **Q:** What is accepted so far? **A:** Real/paper independence, immediate/historical verification separation, nightly new-history audits, weekly archive coverage target and scoped failure/recovery policy. Lifecycle/cutover and implementation mechanics remain draft.
 - **Q:** What does a checkpoint save? **A:** Verified current account state at a known event sequence, so recovery can process later events. It does not automatically authorize weaker historical integrity checks.
 - **Q:** Can sharing a benchmark bar share account confirmation too? **A:** No. Market facts and rule code may be shared; each account owns its confirmation, money, protection and history.
-- **Q:** Would an audit failure always stop protection or always permit it? **A:** Neither. The draft stops new exposure for trading-relevant uncertainty and permits only protective actions whose required account/order/state/price evidence remains independently verified.
+- **Q:** Would an audit failure always stop protection or always permit it? **A:** Neither. The accepted policy stops new exposure for trading-relevant uncertainty and permits only protective actions whose required account/order/state/price evidence remains independently verified.
 
 ### Paper workload architecture — October 21 investigation
 

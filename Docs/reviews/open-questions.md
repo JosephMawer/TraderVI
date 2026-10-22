@@ -16,12 +16,16 @@ Things we punted on and need to revisit. Cleared as decisions are made
   [draft](../concepts/independent-real-processing-design.md).
 - **Accepted follow-up:** immediate current-state/new-event/exact-input checks are separate from full
   historical integrity audits, acknowledging later detection of unrelated historical corruption.
-- **Next decision:** draft recommends nightly audit of new history, weekly full-archive coverage and
-  scoped integrity holds for trading-relevant/uncertain failures. Research-only continuation requires
-  verified independence; protection continues only when its prerequisites remain trustworthy. Cadence,
-  failure/recovery behavior, overdue escalation and checkpoint trust still need agreement/detail.
-- Incremental state, shared immutable inputs, direct source-freshness proof, host lifecycle, resource
-  budgets, build retention and special-backup retention remain proposals. No implementation is authorized.
+- **Audit policy adopted:** nightly new-history checks, weekly archive coverage target, scoped integrity
+  holds and explicitly verified recovery. Research-only continuation requires verified independence;
+  protection continues only when its prerequisites remain trustworthy. No scheduled jobs are installed.
+- **Remaining operator choices:** proposed separate engine continues when the dashboard closes,
+  initially started manually; staged comparison and single-owner cutover. Build retention is separate
+  before cleanup. The [draft decision table](../concepts/independent-real-processing-design.md#remaining-decisions-before-implementation)
+  distinguishes these from engineering contracts. Ask about lifecycle next; no implementation is authorized.
+- Checkpoint trust, exact references, locking, direct freshness/progress, resource/acceptance budgets and
+  incident persistence/release mechanics are engineering work under accepted rules. Bring back substantive
+  behavior/authority trade-offs, not routine algorithm choices. Special-backup retention remains separate.
 
 ### Delphi Live tomorrow readiness — October 21, 2026
 

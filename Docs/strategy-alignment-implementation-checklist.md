@@ -17,9 +17,12 @@ The September 22 documentation cleanup preserves the
   [architecture draft](concepts/independent-real-processing-design.md) before implementation.
 - [x] Accept immediate current-state/new-event/input verification separately from full historical audits
   under ADR-0103. This is a design decision, not an installed integrity change.
-- [ ] Agree audit cadence and scoped failure/recovery response; draft recommends nightly new-history
-  checks plus weekly archive coverage. Finish checkpoint trust, freshness/host/resource/retention contracts.
-  Mechanisms remain draft; no implementation/cleanup authority follows from the design decisions.
+- [x] Adopt nightly new-history audits, weekly archive coverage target and scoped failure/recovery
+  responses under ADR-0103. No audit job is implemented or installed.
+- [ ] Resolve proposed engine lifecycle and staged delivery/cutover; decide retention separately before cleanup.
+- [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,
+  resource/recovery budgets and compatibility. Do not ask the operator to select routine algorithms.
+  Implementation and operational authority remain separate from these design decisions.
 - [ ] After an agreed design, define concurrency/integrity/restart and long-history capacity acceptance;
   current source inspection and old timings do not qualify latest-build native responsiveness/capacity.
 

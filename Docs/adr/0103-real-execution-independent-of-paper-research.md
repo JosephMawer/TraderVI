@@ -1,6 +1,6 @@
 # ADR-0103: Real execution independent of paper research
 
-**Date:** October 21, 2026. **Status:** Independence and immediate/historical verification separation accepted; detailed mechanisms remain draft, implementation has not been requested.
+**Date:** October 21, 2026. **Status:** Independence, verification separation and audit policy accepted; lifecycle/cutover and detailed mechanisms remain draft, implementation has not been requested.
 **Domains:** architecture, data-pipeline.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 
@@ -20,8 +20,29 @@ separation of immediate trading checks from full historical audits: verify curre
 and exact decision inputs immediately, with complete historical checking performed separately. This
 acknowledges later detection of corruption in unrelated older records, without permitting known bad
 evidence to authorize trading. [The design draft](../concepts/independent-real-processing-design.md)
-proposes the mechanics. Audit frequency, failure/recovery behavior, checkpoint trust, process layout,
-storage format and retention remain draft; this is not a complete replacement integrity contract.
+proposes the mechanics. The operator subsequently adopts the audit policy below. Checkpoint trust,
+process lifecycle, storage mechanics, cutover and retention still need a complete design; this is not
+yet an implementation-ready replacement integrity contract.
+
+## Accepted historical audit policy
+
+- Check new history after each trading session, including any unverified backlog. Target complete
+  older-archive coverage weekly in bounded, resumable batches outside market hours; qualify capacity.
+  Verify affected state after abnormal recovery, restore or migration before relying on it.
+- Report actual coverage, last success and overdue/incomplete work. Interrupted audits retain
+  incomplete status; they cannot count as a clean full pass or erase earlier failures.
+- Isolated research failures invalidate dependent results and notify the operator. Real trading can
+  continue only when its state and dependencies are verified unaffected.
+- Trading-relevant or uncertain failures stop new exposure for affected accounts. Continue protection
+  only with independently trustworthy required account, order, state, authorization and price evidence.
+  Otherwise prominently report that automatic protection is not assured and require reconciliation.
+- Preserve evidence and durable holds across restarts. Resolve the cause, verify recovery and explicitly
+  clear the hold before dependent trading resumes. No automatic financial reset, restore or liquidation.
+
+This accepts policy, not installation of audit jobs. Exact scheduling/resource budgets, trusted
+checkpoint construction and durable incident/release mechanics are engineering work under this policy.
+The [draft](../concepts/independent-real-processing-design.md) separates remaining operator choices
+from implementation details; do not require the operator to choose hashing, transaction or batching algorithms.
 
 ## Boundaries and consequences
 

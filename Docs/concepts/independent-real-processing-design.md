@@ -1,8 +1,8 @@
 # Independent real processing — architecture draft
 
-**October 21, 2026.** Accepted under ADR-0103: real trading is independent of optional paper research,
-and immediate trading checks are separate from complete historical audits. The mechanisms, audit
-schedule and failure responses below are proposed for review, not implementation authority.
+**October 21, 2026.** Accepted under ADR-0103: real trading independence, immediate/historical
+verification separation, and the nightly/weekly audit policy with scoped failure responses.
+Lifecycle, cutover, retention and implementation mechanics below remain proposals, not implementation authority.
 This is a design outline, not yet an implementation-ready specification.
 
 The immediate problem is delayed real decisions and an apparently blocked UI. The parent problem
@@ -112,16 +112,17 @@ state, required rolling windows and new changes rather than lifetime history.
 
 This changes when corruption in unrelated old history is detected compared with ADR-0082/0098's
 full-history reads. Hashes alone do not solve trust, rollback or coordinated state/history tampering.
-Checkpoint trust, immutable storage permissions, missing events, stale head detection, background audit
-frequency and response to a failed audit still need explicit review. The accepted separation does not
-authorize ignoring a known failure or implementing an incomplete trust/recovery contract.
+Checkpoint trust, immutable storage permissions, missing events and stale head detection still need
+engineering design and validation. Audit frequency and scoped failure/recovery policy are now accepted.
+The accepted separation does not authorize ignoring a known failure or implementing an incomplete
+trust/recovery contract.
 
-## Proposed historical audit schedule and failure handling
+## Accepted historical audit schedule and failure handling
 
-Recommendation: audit new history after every trading session, and sweep the complete older archive
+Accepted: audit new history after every trading session, and sweep the complete older archive
 once per week. Auditing is independent maintenance, not part of optional research. Pausing research
-must not disable either immediate trading checks or the audit scheduler. These frequencies and
-responses are proposals, not accepted settings or installed jobs.
+must not disable either immediate trading checks or the audit scheduler. The operator accepts this
+policy; no jobs are implemented or installed, and full-archive capacity has not been measured.
 
 | When | Scope | Scheduling behavior |
 |---|---|---|
@@ -142,7 +143,7 @@ Only successful coverage advances its saved audit marker. Small resumable batche
 avoid lifetime-sized transactions or market-hour resource competition. If a weekly pass cannot cover
 the archive within its budget, report overdue/incomplete coverage; never relabel a sample as a full pass.
 
-| Finding | Proposed response |
+| Finding | Accepted response |
 |---|---|
 | Proven isolated historical research problem | Flag affected evidence/results as invalid; exclude dependent research/recommendation outputs; notify the operator. Real trading may continue only when its current state and dependencies are verified unaffected. |
 | Problem affects, or might affect, real cash, holdings, orders, stops, risk references, checkpoint lineage or decision inputs | Save a durable integrity hold and stop new buys/increased exposure for every affected account/input dependency. Unknown scope is not presumed research-only. |
@@ -158,9 +159,39 @@ and current account/order state, then explicitly clear the hold. Restart or a la
 audit cannot clear it silently. No automatic deletion, financial reset, database restore, liquidation,
 order resubmission or renewed trading permission follows from an audit failure.
 
-Next discussion: nightly new-history validation plus a weekly full-archive sweep, with trading-relevant
-failures stopping new exposure while independently verified protection continues. Audit resource budgets,
-overdue escalation, exact incident persistence/release rules and trusted-checkpoint design remain to detail.
+Audit resource budgets, overdue notification timing, exact incident persistence/release rules and
+trusted-checkpoint design remain engineering details. Bring back any discovered change to user-visible
+failure behavior or authority, rather than reopening the accepted policy for routine implementation choices.
+
+## Remaining decisions before implementation
+
+The main principles and audit policy are settled. Two operator choices remain for the first delivery;
+retention is a separate decision before cleanup and need not block the architecture work.
+
+| Choice | Recommended initial behavior | Status |
+|---|---|---|
+| Engine lifecycle | Run the engine separately from the dashboard, with manual start for the first delivery. Closing the dashboard leaves an already-running engine operating within existing authority; display that clearly. Keep Stop new buys distinct from a deliberate full engine stop. After a computer restart, reopen/reconcile saved state; buying requires still-valid permission and fresh checks. Automatic Windows startup is a later installation step under ADR-0083. | Proposed; ask next about dashboard-close behavior |
+| Delivery and cutover | Deliver in stages. First extract shared inputs and real processing through compatible readers; introduce current-state/event/evidence storage behind verified adapters. Compare the replacement against identical saved inputs/state without order authority, then switch a single execution owner after validation. Preserve old history and a reviewed recovery route. | Proposed initial rollout; installing/migrating/switching later requires its own concrete review |
+| Build retention | Retain the deployed build plus two known-good rollback builds and explicitly pinned investigation copies. Preserve source/manifests, models and financial/research history. Special recovery backups remain separate from regular full-backup retention. | Proposed; decide before cleanup, not a prerequisite for core implementation |
+
+The lifecycle choice includes explicit stop/disconnect presentation and orderly shutdown; a closed UI
+must not mislead the operator about continued trading or protection. Permission expiry, stopped-buy mode,
+saved holds and original order recovery stay unchanged. Closing the UI, restarting Windows or enabling
+an eventual startup task cannot create or renew financial authority. Manual broker actions and the
+background manager must share the existing single order owner/coordination path.
+
+Engineering work that does not require the operator to choose an algorithm: checkpoint trust and event
+sequence integrity; exact evidence/version references; account-scoped transactions and lock ordering;
+resource limits; direct producer/consumer progress to replace paper-ledger freshness; numeric latency,
+restart and capacity budgets derived from existing deadlines; tests and migration/compatibility design.
+Write these contracts and test acceptance criteria before changing behavior. Preserve existing freshness,
+signal/risk rules and audit responses; ask only if a technical finding creates a new product trade-off.
+
+No additional decision is needed to preserve the current strategy, original history, freshness limits,
+buying permission/expiry or independent protection. These are existing requirements, not new options.
+The user has requested remaining-decision clarification, not implementation; after resolving choices,
+present the concrete first increment and obtain an implementation instruction rather than treating
+discussion as approval to code, install, migrate, run audits or trade.
 
 ## Storage retention and delivery
 

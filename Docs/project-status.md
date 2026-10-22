@@ -2,13 +2,13 @@
 
 ## October 21 post-open execution watch
 
-**Latest design decisions — independent real trading and separate historical audits:** operator accepts
-both independence from paper research and immediate current-state/new-event/input checks separated from
-full historical audits under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
-The [draft](concepts/independent-real-processing-design.md) now proposes nightly new-history checking,
-a weekly archive sweep and dependency-scoped failure/recovery behavior. Cadence and responses are not
-yet accepted; checkpoint trust, freshness replacement, host lifecycle and retention remain open.
-Documentation only: no code, installed jobs, operational change or new capacity verification.
+**Latest design decisions — audit policy adopted:** operator accepts nightly new-history audits,
+weekly complete-archive coverage as a capacity-qualified target, and scoped failure/recovery behavior
+alongside real/paper independence and verification separation under
+[ADR-0103](adr/0103-real-execution-independent-of-paper-research.md). The
+[draft](concepts/independent-real-processing-design.md) now distinguishes remaining lifecycle/cutover
+choices from engineering contracts; build retention is separate before cleanup. These choices remain
+proposed. Documentation only: no implementation, installed audit jobs, operational change or new capacity evidence.
 
 **Earlier architecture and storage investigation:** current source confirms
 background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot
