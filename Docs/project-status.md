@@ -2,12 +2,13 @@
 
 ## October 21 post-open execution watch
 
-**Latest design decision — real trading independent of paper research:** operator accepts the
-dependency direction in [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md), requesting
-a simple revised architecture before implementation. [Draft](concepts/independent-real-processing-design.md)
-proposes direct shared inputs, independent managers, current state plus events, and evidence references.
-Integrity/audit timing, freshness replacement, host lifecycle and retention remain open. No code,
-installation or operational behavior changes; no new capacity verification.
+**Latest design decisions — independent real trading and separate historical audits:** operator accepts
+both independence from paper research and immediate current-state/new-event/input checks separated from
+full historical audits under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
+The [draft](concepts/independent-real-processing-design.md) now proposes nightly new-history checking,
+a weekly archive sweep and dependency-scoped failure/recovery behavior. Cadence and responses are not
+yet accepted; checkpoint trust, freshness replacement, host lifecycle and retention remain open.
+Documentation only: no code, installed jobs, operational change or new capacity verification.
 
 **Earlier architecture and storage investigation:** current source confirms
 background paper execution plus whole-cycle settings/admission coupling; adding async alone cannot

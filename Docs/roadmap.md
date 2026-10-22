@@ -10,8 +10,9 @@ and source review points; use its owning-record links when resuming work.
 
 **Current request — review revised architecture before implementation:** real trading independence
 from paper research is accepted under [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md).
-Discuss the [draft](concepts/independent-real-processing-design.md): shared inputs, independent managers,
-current state plus new events and referenced evidence. Decide the integrity/audit boundary next;
+Immediate checks separate from historical audits are now also accepted. Discuss the
+[draft](concepts/independent-real-processing-design.md) audit cadence and response: nightly new history,
+weekly archive coverage and scoped integrity holds. Cadence/failure behavior, checkpoint trust and
 host/freshness/retention details remain open. No implementation or cleanup scope is accepted.
 
 **Earlier request — remaining SQL reliability only:** implement/validate ADR-0102's bounded exact

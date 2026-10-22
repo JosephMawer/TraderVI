@@ -1,7 +1,8 @@
 # Independent real processing — architecture draft
 
-**October 21, 2026.** Accepted: real trading is independent of optional paper research (ADR-0103).
-Everything below describing how to achieve it is proposed for review, not implementation authority.
+**October 21, 2026.** Accepted under ADR-0103: real trading is independent of optional paper research,
+and immediate trading checks are separate from complete historical audits. The mechanisms, audit
+schedule and failure responses below are proposed for review, not implementation authority.
 This is a design outline, not yet an implementation-ready specification.
 
 The immediate problem is delayed real decisions and an apparently blocked UI. The parent problem
@@ -102,9 +103,9 @@ The complete lock ordering and stale-command/recovery rules still require design
 replace a whole-cycle lock with unguarded actions using obsolete settings. Paper protection remains
 timely even if historical research pauses; real protection never waits for paper or AI.
 
-## Integrity trade-off to decide next
+## Accepted verification separation
 
-Recommended proposal: immediately verify the current state/checkpoint, the new event sequence and
+The operator accepts: immediately verify the current state/checkpoint, the new event sequence and
 the exact evidence used for the decision. Run full historical reconstruction/integrity audits separately
 and use them for migration/recovery qualification. This makes recurring work proportional to current
 state, required rolling windows and new changes rather than lifetime history.
@@ -112,8 +113,54 @@ state, required rolling windows and new changes rather than lifetime history.
 This changes when corruption in unrelated old history is detected compared with ADR-0082/0098's
 full-history reads. Hashes alone do not solve trust, rollback or coordinated state/history tampering.
 Checkpoint trust, immutable storage permissions, missing events, stale head detection, background audit
-frequency and response to a failed audit all need explicit review. No silent downgrade of integrity is
-accepted by the independence decision. This is the next bounded design choice for the user.
+frequency and response to a failed audit still need explicit review. The accepted separation does not
+authorize ignoring a known failure or implementing an incomplete trust/recovery contract.
+
+## Proposed historical audit schedule and failure handling
+
+Recommendation: audit new history after every trading session, and sweep the complete older archive
+once per week. Auditing is independent maintenance, not part of optional research. Pausing research
+must not disable either immediate trading checks or the audit scheduler. These frequencies and
+responses are proposals, not accepted settings or installed jobs.
+
+| When | Scope | Scheduling behavior |
+|---|---|---|
+| Every state update/decision | Current checkpoint/state, new event sequence, exact input references and active account/order/protection checks | Mandatory operational checks; no lifetime replay |
+| After each trading session | Everything since the last successfully audited sequence, including missed prior days; reconstruct from a trusted checkpoint and compare saved account state at the same revision | Bounded batches outside market hours; original event/receipt times retained |
+| Weekly | Every retained older history/evidence segment, hashes/references, continuity and reconstruction boundaries | Complete coverage target over small resumable overnight batches, with a fixed audit boundary; capacity must be measured before promising it |
+| After abnormal recovery, restore or migration | Affected checkpoint/event chain, source versions and recovery boundary; wider historical audit when that boundary cannot be trusted | Verify affected state before its use; normal fresh broker reconciliation still applies separately |
+
+The nightly audit checks the financial state derived from events as well as bytes and references; a
+hash match is not proof that accounting/protection transitions were correct. Audit against a committed,
+identified revision, never compare a reconstructed old account to a newer live state. Verify original
+decision evidence and rule versions without silently recomputing history under today's code/settings.
+Checkpoint trust and initial archive qualification remain required before incremental audits can rely
+on a previously audited boundary. No read-only audit makes operational broker calls or repairs records.
+
+Each audit records its actual covered sequence/segments, end boundary, outcome and completion time.
+Only successful coverage advances its saved audit marker. Small resumable batches and resource limits
+avoid lifetime-sized transactions or market-hour resource competition. If a weekly pass cannot cover
+the archive within its budget, report overdue/incomplete coverage; never relabel a sample as a full pass.
+
+| Finding | Proposed response |
+|---|---|
+| Proven isolated historical research problem | Flag affected evidence/results as invalid; exclude dependent research/recommendation outputs; notify the operator. Real trading may continue only when its current state and dependencies are verified unaffected. |
+| Problem affects, or might affect, real cash, holdings, orders, stops, risk references, checkpoint lineage or decision inputs | Save a durable integrity hold and stop new buys/increased exposure for every affected account/input dependency. Unknown scope is not presumed research-only. |
+| Protection remains independently trustworthy | Continue only protective operations whose required holdings, original order identity, authorization, state and fresh price evidence can all be verified. |
+| Those protective prerequisites cannot be trusted | Do not invent a position/stop or issue an unsafe order; prominently report that automatic protection is not assured and require operator/broker reconciliation. Existing broker orders retain their original identities and recovery path. |
+| Audit was interrupted, timed out or never ran | Mark incomplete/overdue and resume from successful coverage; distinguish this from proven corruption. A missed archive audit alone is not a blanket trading stop; failed/unknown required current-state checks and existing holds still block dependent actions. Escalation thresholds remain open. |
+
+Every integrity incident retains the affected records/versions, failed check and dependency scope.
+Notify on detection or meaningful status change, not every poll. A real integrity hold must be visible
+to the operational manager even when discovered by background maintenance. Recovery is explicit: diagnose
+the cause, propose a reviewed repair/reconstruction using original evidence, verify the affected chain
+and current account/order state, then explicitly clear the hold. Restart or a later successful routine
+audit cannot clear it silently. No automatic deletion, financial reset, database restore, liquidation,
+order resubmission or renewed trading permission follows from an audit failure.
+
+Next discussion: nightly new-history validation plus a weekly full-archive sweep, with trading-relevant
+failures stopping new exposure while independently verified protection continues. Audit resource budgets,
+overdue escalation, exact incident persistence/release rules and trusted-checkpoint design remain to detail.
 
 ## Storage retention and delivery
 

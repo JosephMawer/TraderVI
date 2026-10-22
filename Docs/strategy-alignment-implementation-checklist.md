@@ -15,9 +15,11 @@ The September 22 documentation cleanup preserves the
 - [x] Accept real trading independence from paper research under
   [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md); prepare the requested
   [architecture draft](concepts/independent-real-processing-design.md) before implementation.
-- [ ] Review the proposed current-state/event/evidence architecture; decide checkpoint trust and
-  immediate versus historical verification, then freshness/host lifecycle/resource/retention details.
-  Mechanisms remain draft; no implementation/cleanup authority follows from the direction decision.
+- [x] Accept immediate current-state/new-event/input verification separately from full historical audits
+  under ADR-0103. This is a design decision, not an installed integrity change.
+- [ ] Agree audit cadence and scoped failure/recovery response; draft recommends nightly new-history
+  checks plus weekly archive coverage. Finish checkpoint trust, freshness/host/resource/retention contracts.
+  Mechanisms remain draft; no implementation/cleanup authority follows from the design decisions.
 - [ ] After an agreed design, define concurrency/integrity/restart and long-history capacity acceptance;
   current source inspection and old timings do not qualify latest-build native responsiveness/capacity.
 

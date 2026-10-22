@@ -1,6 +1,6 @@
 # ADR-0103: Real execution independent of paper research
 
-**Date:** October 21, 2026. **Status:** Accepted architectural direction only; detailed design is a draft, implementation has not been requested.
+**Date:** October 21, 2026. **Status:** Independence and immediate/historical verification separation accepted; detailed mechanisms remain draft, implementation has not been requested.
 **Domains:** architecture, data-pipeline.
 **Related:** ADR-0053, ADR-0062, ADR-0082, ADR-0083, ADR-0085, ADR-0086, ADR-0098, ADR-0099.
 
@@ -15,10 +15,13 @@ to see the revised architecture before implementation. Real execution must not r
 of optional paper/research work. Shared market facts and strategy code may be reused; paper account
 progress, balances, fills and confirmation state cannot become real execution authority.
 
-This accepts the dependency direction, not a particular process layout, storage format, changed
-integrity contract or retention policy. [The design draft](../concepts/independent-real-processing-design.md)
-proposes separate operational and research scheduling, incremental account state and shared immutable
-evidence. Those mechanisms require review before implementation.
+The initial decision accepted the dependency direction. The operator subsequently accepts the proposed
+separation of immediate trading checks from full historical audits: verify current state, new events
+and exact decision inputs immediately, with complete historical checking performed separately. This
+acknowledges later detection of corruption in unrelated older records, without permitting known bad
+evidence to authorize trading. [The design draft](../concepts/independent-real-processing-design.md)
+proposes the mechanics. Audit frequency, failure/recovery behavior, checkpoint trust, process layout,
+storage format and retention remain draft; this is not a complete replacement integrity contract.
 
 ## Boundaries and consequences
 
@@ -33,12 +36,12 @@ evidence. Those mechanisms require review before implementation.
 - The proposed replacement for paper-ledger freshness must directly establish exact strategy/input
   identity and operational progress. It needs an explicit reviewed contract, not a bypass of stale-input
   guards. No freshness duration changes are accepted.
-- Current ADR-0082/0098 full-verification behavior remains authoritative until a replacement integrity
-  contract is agreed and validated. A current-state checkpoint does not by itself justify skipping
-  existing historical verification.
+- The accepted verification separation is a target change to ADR-0082/0098's timing. Their installed
+  full-verification behavior remains until a complete replacement contract is agreed and validated.
+  A current-state checkpoint alone does not establish trust or permit ignoring a known integrity failure.
 
 ADRs 0083/0085 remain compatible with this direction. No existing storage or runtime contract is
-superseded by this direction-only ADR. There is no approval to implement, migrate/delete data, prune
+superseded in the running system by this design ADR. There is no approval to implement, migrate/delete data, prune
 artifacts, install a scheduler, start a host, renew trading permission or place an order.
 
 ## Review questions
