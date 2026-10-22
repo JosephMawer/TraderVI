@@ -91,22 +91,27 @@ WHERE c.RunId=@Run AND l.IsPublished=1 AND l.Rank BETWEEN 1 AND 25 AND (@Ungated
             .ToDictionary(r => (string)r.Symbol, r => (Guid)r.CandidateId, StringComparer.Ordinal);
         string[] symbols = RequiredSymbols(snapshot, daily.Keys, date);
         var signals = ImmutableArray.CreateBuilder<AiLiveSignalHistory>();
+        bool sharedInstalled = await EngineInputHistory.InstalledAsync(c, t, ct);
         // Retain invalid/conflicted/latest rows: never fall back to an older usable checkpoint.
         var evaluations = symbols.Length == 0 ? [] : (await c.QueryAsync(Query("""
 WITH ranked AS(SELECT e.*,ROW_NUMBER() OVER(PARTITION BY e.Symbol ORDER BY e.BarEndUtc DESC) n
  FROM dbo.DelphiLiveEvaluation e WHERE e.SessionId=@Session AND e.PolicyVersionId=@Policy AND e.Symbol IN @Symbols)
 SELECT r.*,CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f
  JOIN dbo.IntradayCollectionSlot s ON s.CollectionSlotId=f.CollectionSlotId
- WHERE s.SessionId=r.SessionId AND s.ExpectedBarEndUtc=r.BarEndUtc AND s.Symbol IN(r.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
+ WHERE s.SessionId=r.SessionId AND s.ExpectedBarEndUtc<=r.BarEndUtc AND s.Symbol IN(r.Symbol,N'XIU')) THEN 1 ELSE 0 END AS bit) HasConflict
 FROM ranked r WHERE n<=@Count ORDER BY Symbol,BarEndUtc;
-""", new { Session = sessionId, Policy = policy.PolicyVersionId, Symbols = symbols,
+""".Replace("dbo.DelphiLiveEvaluation", sharedInstalled ? EngineInputHistory.Source : "dbo.DelphiLiveEvaluation", StringComparison.Ordinal),
+            new { Session = sessionId, Policy = policy.PolicyVersionId, Symbols = symbols,
             Count = System.Math.Max(policy.EntryConfirmationCount, policy.WeakeningConfirmationCount) + 1 }))).ToArray();
+        var contents = await EngineEvidenceStorage.ReadAsync(c, t, evaluations.Select(e => (string)e.InputJson), ct);
         foreach (string symbol in symbols)
         {
             var rows = evaluations.Where(e => (string)e.Symbol == symbol).ToArray();
+            if (rows.GroupBy(e => (DateTime)e.BarEndUtc).Any(g => g.Count() != 1))
+                throw new InvalidDataException("Live history contains conflicting checkpoint identities.");
             var checkpoints = rows.Select(e => ReadCheckpoint((Guid)e.EvaluationId, (Guid)e.SessionId, (Guid)e.PolicyVersionId,
                 (string)e.Symbol, Utc((DateTime)e.BarEndUtc), Utc((DateTime)e.RecordedUtc), (int)e.ContinuityEpoch,
-                (string)e.InputJson, (string)e.ResultJson)).Cast<DelphiLiveStoredEvaluation>().ToImmutableArray();
+                (string)e.InputJson, (string)e.ResultJson, contents)).Cast<DelphiLiveStoredEvaluation>().ToImmutableArray();
             signals.Add(new(symbol, daily.TryGetValue(symbol, out var id) ? id : null,
                 snapshot.CandidateStates.GetValueOrDefault(symbol), checkpoints, rows.Any(e => (bool)e.HasConflict)));
         }
@@ -120,9 +125,9 @@ FROM ranked r WHERE n<=@Count ORDER BY Symbol,BarEndUtc;
         return result;
     }
     internal static DelphiLiveStoredEvaluation ReadCheckpoint(Guid id, Guid session, Guid policy, string symbol,
-        DateTime end, DateTime recorded, int epoch, string inputJson, string resultJson)
+        DateTime end, DateTime recorded, int epoch, string inputJson, string resultJson, IReadOnlyDictionary<string, string>? contents = null)
     {
-        var input = DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationInput>(inputJson);
+        var input = DelphiLiveInputCodec.Read(inputJson, contents ?? ImmutableDictionary<string, string>.Empty);
         var result = DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationResult>(resultJson);
         if (input.EvaluationId != id || result.EvaluationId != id || input.SessionId != session ||
             input.Policy.PolicyVersionId != policy || input.Stock.Symbol != symbol || input.BarEndUtc != end || input.EvaluatedUtc > recorded)

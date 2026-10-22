@@ -174,6 +174,12 @@ public sealed class AiLiveDecisionContextTests
         Assert.Equal(input.EvaluationId, parsed.Input.EvaluationId);
         Assert.Throws<InvalidDataException>(() => AiLiveDecisionRepository.ReadCheckpoint(Guid.NewGuid(), input.SessionId,
             input.Policy.PolicyVersionId, "TEST", input.BarEndUtc, input.EvaluatedUtc, 1, json, result));
+        var shared = DelphiLiveInputCodec.Pack(input);
+        var restored = AiLiveDecisionRepository.ReadCheckpoint(input.EvaluationId, input.SessionId, input.Policy.PolicyVersionId,
+            "TEST", input.BarEndUtc, input.EvaluatedUtc, 1, shared.InputJson, result, shared.Contents);
+        Assert.Equal(json, DelphiLiveLedgerJson.Serialize(restored.Input));
+        Assert.Throws<InvalidDataException>(() => AiLiveDecisionRepository.ReadCheckpoint(input.EvaluationId, input.SessionId,
+            input.Policy.PolicyVersionId, "TEST", input.BarEndUtc, input.EvaluatedUtc, 1, shared.InputJson, result));
     }
 
     [Fact]

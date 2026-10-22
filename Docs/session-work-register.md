@@ -32,6 +32,9 @@ Fixed-boundary Live/broker/shared-input audits, durable holds and explicit recov
 focused checks, WPF/SSDT builds and16 SQL parse checks. Migration050 is prepared only; old input-writer
 retirement must be part of a reviewed cutover. Continue current-state/checkpoint reads, dependent
 diagnostic/research readers and native qualification. Installed app and the readiness block are unchanged.
+AI saved-context/champion history readers now cover both input formats with verified references and
+duplicate rejection;79 related checks/generated SQL parsing pass. Broker diagnostics/current-state
+history processing and native qualification remain.
 
 **Latest architecture discussion (R04/R07/R08/R09):** dashboard closure leaves the engine running,
 with a separate stop control. The operator accepts staged delivery conditional on completion tonight;

@@ -80,8 +80,10 @@ public sealed class DelphiLiveSessionPersistenceTests
             JsonDocument.Parse(DelphiLiveLedgerJson.Serialize(restored)).RootElement).ShouldBeTrue();
     }
 
-    [Fact]
-    public void LeanDiagnosticProjection_RoundTripsTheActualStoredJsonPathsAndSafetyInput()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void LeanDiagnosticProjection_RoundTripsTheActualStoredJsonPathsAndSafetyInput(bool shared)
     {
         var input = Input();
         var result = DelphiLiveEvaluationEngine.Evaluate(input);
@@ -105,8 +107,19 @@ public sealed class DelphiLiveSessionPersistenceTests
             values.Add(node.GetRawText());
         }
         values.Count.ShouldBe(19);
+        if (shared)
+        {
+            var package = DelphiLiveInputCodec.Pack(input);
+            using var manifest = JsonDocument.Parse(package.InputJson);
+            string hash = manifest.RootElement.GetProperty("volatilityRulers").GetProperty("contentHash").GetString()!;
+            string content = package.Contents[hash];
+            using var ruler = JsonDocument.Parse(content);
+            values[8] = ruler.RootElement.GetProperty("tenSession").GetRawText();
+            values.Add(hash); values.Add(content);
+        }
         foreach (object value in values) table.Columns.Add("Column" + table.Columns.Count, value.GetType());
         table.Rows.Add(values.ToArray());
+        if (shared) { values[^1] += " "; table.Rows.Add(values.ToArray()); }
         using var reader = table.CreateDataReader();
         reader.Read().ShouldBeTrue();
         var projected = DelphiLiveExperimentRepository.ReadDiagnosticProjection(reader);
@@ -118,6 +131,11 @@ public sealed class DelphiLiveSessionPersistenceTests
             .ShouldBeTrue();
         DelphiLiveExperimentRepository.ChampionDiagnosticSql.ShouldNotContain("$.stock.bars");
         DelphiLiveExperimentRepository.ChampionDiagnosticSql.ShouldContain("p.RoleSlot=0 AND p.PolicyRole=N'OperationalChampion'");
+        if (shared)
+        {
+            reader.Read().ShouldBeTrue();
+            Should.Throw<System.IO.InvalidDataException>(() => DelphiLiveExperimentRepository.ReadDiagnosticProjection(reader));
+        }
     }
 
     [Fact]

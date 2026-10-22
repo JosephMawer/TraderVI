@@ -49,6 +49,10 @@ History checks window.379 focused integrity/broker/manual-buy tests pass; WPF bu
 warnings, SSDT builds, and16 runtime/migration SQL batches parse. Migration050 is prepared only and
 retires the old Live input writer at cutover. Current-history read optimization, dependent readers,
 native recovery/coverage/capacity and readiness remain unfinished; new-host execution stays blocked.
+AI saved-context and champion diagnostic readers now include legacy and shared input history. AI
+reads verify complete referenced inputs; lean diagnostics verify their referenced ruler without
+expanding bar histories. Duplicate checkpoint identities fail, and the new publisher rejects legacy
+identity collisions.79 focused reader/input/evaluation tests and combined diagnostic SQL parsing pass.
 Dependency-security audit was disabled, not requalified. No database or external action.
 
 **Accepted design — dashboard-independent operation:** closing the dashboard leaves

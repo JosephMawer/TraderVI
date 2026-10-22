@@ -60,6 +60,8 @@ The September 22 documentation cleanup preserves the
   builds and16 SQL parse checks pass. Migration050 is prepared only; it retires the legacy Live writer.
 - [ ] Qualify audit coverage, weekly capacity, interrupted/native recovery and hold/preflight concurrency;
   finish current-state and dependent-reader integration before removing the real-host readiness block.
+- [x] Adapt AI saved-context/champion diagnostics to legacy plus shared inputs, retain checksum
+  validation and reject duplicate original checkpoints.79 related checks and generated SQL parse pass.
 - [x] Invalidate cached real confirmation on a newly discovered consumed-input conflict; include earlier
   same-session stock/benchmark conflicts in dependency checks. 399 related offline tests pass.
 - [ ] Complete engineering contracts for checkpoint trust, direct freshness/progress, account ownership,

@@ -3,6 +3,7 @@ using Core.Trader.DelphiLive;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,10 +16,17 @@ public sealed partial class DelphiLiveExperimentRepository : IDelphiLiveDiagnost
     {
         ValidateDiagnosticRange(from, through);
         await using var connection = await Open(cancellationToken);
-        await using var command = Command(connection, null, ChampionDiagnosticSql, P("@From", from), P("@Through", through));
+        bool shared = await EngineInputHistory.InstalledAsync(connection, null, cancellationToken);
+        await using var command = Command(connection, null, shared ? SharedChampionDiagnosticSql : ChampionDiagnosticSql, P("@From", from), P("@Through", through));
         await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancellationToken);
         var result = new List<DelphiLiveDiagnosticEvaluation>();
-        while (await reader.ReadAsync(cancellationToken)) result.Add(ReadDiagnosticProjection(reader));
+        var identities = new HashSet<(Guid, string, DateTime)>();
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var item = ReadDiagnosticProjection(reader);
+            if (!identities.Add((item.SessionId, item.Symbol, item.BarEndUtc))) throw new InvalidDataException("Diagnostic history contains duplicate checkpoints.");
+            result.Add(item);
+        }
         return result.AsReadOnly();
     }
 
@@ -54,7 +62,7 @@ public sealed partial class DelphiLiveExperimentRepository : IDelphiLiveDiagnost
         DateOnly date = DateOnly.FromDateTime(row.GetDateTime(3));
         DateTime end = DateTime.SpecifyKind(row.GetDateTime(4), DateTimeKind.Utc);
         bool valid = row.GetBoolean(5), mature = row.GetBoolean(6), confirmed = row.GetBoolean(7);
-        return new(evaluation, session, symbol, date, end,
+        var projection = new DelphiLiveDiagnosticEvaluation(evaluation, session, symbol, date, end,
             ReadDiagnosticJson<DelphiLiveTrueRangeRulerMeasurement>(row, 8), valid, mature, confirmed,
             ReadDiagnosticJson<DelphiLivePersistenceJudgment>(row, 9),
             ReadDiagnosticJson<DelphiLivePriceMovementJudgment>(row, 10),
@@ -66,6 +74,12 @@ public sealed partial class DelphiLiveExperimentRepository : IDelphiLiveDiagnost
             ReadDiagnosticJson<DelphiLiveMomentumJudgment>(row, 16),
             ReadDiagnosticJson<DelphiLiveSafetyEvaluation>(row, 17),
             ReadDiagnosticJson<DelphiLiveSafetyInput>(row, 18));
+        if (row.FieldCount > 19 && !row.IsDBNull(19))
+        {
+            string hash = row.GetString(19), content = row.GetString(20);
+            if (DelphiLiveSnapshotCodec.Hash(content) != hash) throw new InvalidDataException("Diagnostic ruler checksum failed.");
+        }
+        return projection;
     }
 
     private static T ReadDiagnosticJson<T>(IDataRecord row, int ordinal) =>
@@ -93,6 +107,11 @@ JOIN dbo.DelphiLiveSessionPolicy p ON p.SessionId=e.SessionId AND p.DelphiLivePo
 WHERE s.TradingDate BETWEEN @From AND @Through
 ORDER BY s.TradingDate,e.BarEndUtc,e.Symbol;
 """;
+
+    internal static string SharedChampionDiagnosticSql => ChampionDiagnosticSql
+        .Replace("JSON_QUERY(e.InputJson,'$.volatilityRulers.tenSession')", "COALESCE(JSON_QUERY(e.InputJson,'$.volatilityRulers.tenSession'),JSON_QUERY(ruler.ContentJson,'$.tenSession'))", StringComparison.Ordinal)
+        .Replace("AS SafetyInputJson", "AS SafetyInputJson,ruler.ContentHash AS RulerHash,ruler.ContentJson AS RulerContent", StringComparison.Ordinal)
+        .Replace("FROM dbo.DelphiLiveEvaluation e", "FROM " + EngineInputHistory.Source + " e LEFT JOIN dbo.EngineEvidenceContent ruler ON ruler.ContentHash=JSON_VALUE(e.InputJson,'$.volatilityRulers.contentHash') COLLATE Latin1_General_100_BIN2", StringComparison.Ordinal);
 
     internal const string PortfolioHistorySql = """
 SELECT revision.SnapshotJson,g.EndExclusiveTradingDate

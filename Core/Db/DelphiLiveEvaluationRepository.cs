@@ -52,7 +52,7 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
         // A timeout may occur after commit. Replay these exact bytes/IDs/times, never a new evaluation.
         var package = independentInputs ? DelphiLiveInputCodec.Pack(input) : null;
         string inputJson = package?.InputJson ?? DelphiLiveLedgerJson.Serialize(input), resultJson = DelphiLiveLedgerJson.Serialize(result);
-        string sql = StorageSql(PersistSql).Replace("-- SharedEvidence", independentInputs ? EngineEvidenceStorage.InsertSql : "", StringComparison.Ordinal);
+        string sql = StorageSql(PersistSql).Replace("-- SharedEvidence", independentInputs ? LegacyCollisionSql + EngineEvidenceStorage.InsertSql : "", StringComparison.Ordinal);
         var stage = Core.Runtime.DelphiLiveEvaluationSaveStage.Opening;
         long started = Stopwatch.GetTimestamp(), stageStarted = started;
         void Stage(Core.Runtime.DelphiLiveEvaluationSaveStage value)
@@ -117,6 +117,12 @@ SELECT InputJson,ResultJson,ContinuityEpoch FROM ranked WHERE Sequence=1;
         DelphiLiveInputCodec.Read((string)row.InputJson, contents),
         DelphiLiveLedgerJson.Deserialize<DelphiLiveEvaluationResult>((string)row.ResultJson), (int)row.ContinuityEpoch);
 
+    internal const string LegacyCollisionSql = """
+IF EXISTS(SELECT 1 FROM dbo.DelphiLiveEvaluation WITH(UPDLOCK,HOLDLOCK)
+ WHERE EvaluationId=@Id OR SessionId=@Session AND PolicyVersionId=@Policy AND Symbol=@Symbol AND BarEndUtc=@End)
+ THROW 54460,'A legacy checkpoint already owns this original identity. Do not republish it.',1;
+
+""";
     internal const string PersistSql = """
 SET XACT_ABORT ON;
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
