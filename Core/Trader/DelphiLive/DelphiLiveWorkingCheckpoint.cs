@@ -27,7 +27,7 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
         var roots = ImmutableDictionary.CreateBuilder<string, string>();
         foreach (string name in DelphiLiveSnapshotCodec.Collections)
         {
-            var tree = DelphiLiveArchiveTree.Build(package.Items.Where(i => i.Collection == name).OrderBy(i => i.Ordinal).Select(i => i.ContentHash).ToArray());
+            var tree = DelphiLiveArchiveTree.BuildCollection(name, package.Items.Where(i => i.Collection == name).OrderBy(i => i.Ordinal).Select(i => i.ContentHash).ToArray());
             roots[name] = tree.Root;
             foreach (var pair in tree.Nodes) nodes[pair.Key] = pair.Value;
         }
@@ -111,7 +111,17 @@ public sealed record DelphiLiveWorkingCheckpoint(int Version, string SnapshotRoo
                     if (previous is null) identities.Add(archiveItem);
                     edits.Add(new(ordinal, previous?.ContentHash, item.ContentHash));
                 }
-                tree = await DelphiLiveArchiveTree.ApplyAsync(Counts[name], Roots[name], edits, read, ct);
+                if (DelphiLiveArchiveTree.UsesAppendChain(name))
+                {
+                    int size = Counts[name]; string chain = Roots[name];
+                    foreach (var edit in edits)
+                    {
+                        if (edit.Expected is not null || edit.Ordinal != size) throw new InvalidDataException("Completed paper records are append-only.");
+                        chain = DelphiLiveArchiveTree.AppendChain(chain, size++, edit.ContentHash);
+                    }
+                    tree = new(size, chain, ImmutableDictionary<string, string>.Empty);
+                }
+                else tree = await DelphiLiveArchiveTree.ApplyAsync(Counts[name], Roots[name], edits, read, ct);
             }
             counts[name] = tree.Count; roots[name] = tree.Root;
             foreach (var pair in tree.Nodes) contents[pair.Key] = pair.Value;

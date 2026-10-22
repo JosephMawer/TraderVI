@@ -1,5 +1,20 @@
 # Running TraderVI
 
+## Independent engine preparation — source only, October 22
+
+The ADR-0103 host is not installed or operationally qualified. Its real-execution readiness block remains.
+Prepared migrations047–051 require separate review/authorization, stopped writers and a fresh verified
+checksum full backup. Migration050 retires the legacy evaluation writer;051 permits version-3 roots.
+After the first new append, old binaries cannot read those roots, so rollback requires a compatible reader.
+No DACPAC deployment or automatic cleanup is part of this work.
+
+The explicit `TraderVI.Engine --prepare-observations` and `--prepare-working-state` commands are
+database-writing maintenance operations, not routine tests. With engine/app ownership stopped,
+the latter locks collection/storage maintenance, fully verifies current active portfolios, creates shared
+archive paths and immutable replay IDs, and saves hash-bound working checkpoints. It does not rewrite
+old snapshots, alter capital, clear integrity holds or authorize trading. Do not run either command until
+the reviewed migration/cutover operation is authorized. Builds and unit tests do not launch the host.
+
 ## Read-only local database diagnostics
 
 Use the operator-authorized [fixed installed helper](../Operations/ReadOnlyChecks/README.md) for

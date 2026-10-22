@@ -15,7 +15,7 @@ namespace Core.Db;
 /// action, quote attempt, fill, floor and exact mark remains reconstructible in
 /// its original revision; no existing Shadow or tracked-position row is used.
 /// </summary>
-public sealed class DelphiLiveLedgerRepository : SQLBase, IDelphiLiveLedgerStore
+public sealed class DelphiLiveLedgerRepository(bool workingState = false) : SQLBase, IDelphiLiveLedgerStore
 {
     public const string MigrationFileName = DelphiLiveSnapshotStorage.Migration;
 
@@ -38,6 +38,7 @@ SELECT CAST(CASE WHEN OBJECT_ID(N'dbo.DelphiLivePortfolioGeneration', N'U') IS N
     {
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken);
+        if (workingState) return await ReadWorkingAsync(connection, portfolioId, cancellationToken);
         return await Read(connection, null, portfolioId, false, cancellationToken);
     }
 
@@ -60,7 +61,11 @@ ORDER BY l.[PortfolioId];
         while (await reader.ReadAsync(cancellationToken))
             saved.Add(reader.GetString(0));
         await reader.DisposeAsync();
-        foreach (var json in saved) rows.Add(await DelphiLiveSnapshotStorage.ReadAsync(connection, null, json, cancellationToken));
+        foreach (var json in saved)
+            rows.Add(workingState
+                ? await ReadWorkingAsync(connection, System.Text.Json.Nodes.JsonNode.Parse(json)!["portfolioId"]!.GetValue<Guid>(), cancellationToken)
+                    ?? throw new InvalidOperationException("A paper portfolio disappeared.")
+                : await DelphiLiveSnapshotStorage.ReadAsync(connection, null, json, cancellationToken));
         return rows.AsReadOnly();
     }
 
@@ -146,8 +151,9 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
             originalRoot = await read.ExecuteScalarAsync(cancellationToken) as string ?? throw new InvalidOperationException("Portfolio does not exist.");
         }
         // Immutable history is verified and the next package prepared before acquiring financial/host locks.
-        var verified = await DelphiLiveSnapshotStorage.ReadVerifiedAsync(connection, originalRoot, cancellationToken);
-        var prior = verified.Snapshot;
+        var current = workingState ? await EnginePaperWorkingStore.ReadAsync(connection, null, originalRoot, cancellationToken) : null;
+        var verified = workingState ? null : await DelphiLiveSnapshotStorage.ReadVerifiedAsync(connection, originalRoot, cancellationToken);
+        var prior = current?.Snapshot ?? verified!.Snapshot;
         if (prior.Revision == next.Revision &&
             DelphiLiveLedgerJson.Serialize(prior) == DelphiLiveLedgerJson.Serialize(next))
         {
@@ -159,11 +165,20 @@ VALUES (@Event, @Portfolio, 0, N'InitialCapitalActivationAuthorized', @Authorize
         }
         if (prior.Revision != expectedRevision)
             throw new InvalidOperationException("Portfolio revision changed; reload before taking an action.");
-        var prepared = await DelphiLiveSnapshotStorage.PrepareAsync(verified, next, cancellationToken);
+        var prepared = workingState ? null : await DelphiLiveSnapshotStorage.PrepareAsync(verified!, next, cancellationToken);
+        var working = workingState ? await EnginePaperWorkingStore.PrepareAsync(connection, current!, next, cancellationToken) : null;
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         await RequireLease(connection, transaction, lease, cancellationToken);
         await FenceSourceAsync(connection, transaction, next.PortfolioId, originalRoot, cancellationToken);
-        string json = await DelphiLiveSnapshotStorage.SavePreparedAsync(connection, transaction, prepared, cancellationToken);
+        string json;
+        if (working is not null)
+        {
+            await EnginePaperWorkingStore.FenceAsync(connection, transaction, current!, cancellationToken);
+            await EnginePaperWorkingStore.RequireWriteAccessAsync(connection, transaction, prior, next, cancellationToken);
+            await EnginePaperWorkingStore.SavePreparedAsync(connection, transaction, working, cancellationToken);
+            json = working.Archive.SnapshotJson;
+        }
+        else json = await DelphiLiveSnapshotStorage.SavePreparedAsync(connection, transaction, prepared!, cancellationToken);
         await using (var command = new SqlCommand("""
 UPDATE [dbo].[DelphiLivePortfolioLedger]
 SET [Revision] = @Revision, [SnapshotJson] = @Json, [UpdatedUtc] = @Updated
@@ -196,7 +211,19 @@ VALUES (@Event, @Portfolio, @Revision, @Kind, @Time, @Json);
         }
         await RequireLease(connection, transaction, lease, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        return next;
+        return working?.Snapshot ?? next;
+    }
+
+    private static async Task<DelphiLivePortfolioSnapshot?> ReadWorkingAsync(SqlConnection connection, Guid portfolio, CancellationToken ct)
+    {
+        // The small root/checkpoint read is coherent while immutable content remains independently hash checked.
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        await using var command = new SqlCommand("SELECT SnapshotJson FROM dbo.DelphiLivePortfolioLedger WITH(HOLDLOCK) WHERE PortfolioId=@Id;", connection, transaction);
+        command.Parameters.Add(P("@Id", SqlDbType.UniqueIdentifier, portfolio));
+        string? root = await command.ExecuteScalarAsync(ct) as string;
+        var result = root is null ? null : (await EnginePaperWorkingStore.ReadAsync(connection, transaction, root, ct)).Snapshot;
+        await transaction.CommitAsync(ct);
+        return result;
     }
 
     private static async Task FenceSourceAsync(SqlConnection connection, SqlTransaction transaction, Guid portfolio,

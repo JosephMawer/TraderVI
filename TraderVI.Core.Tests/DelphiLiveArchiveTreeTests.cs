@@ -64,7 +64,7 @@ public sealed class DelphiLiveArchiveTreeTests
         var package = DelphiLiveSnapshotCodec.Pack(state);
         var counts = DelphiLiveSnapshotCodec.ReadCounts(package.SnapshotJson);
         var roots = DelphiLiveSnapshotCodec.Collections.ToDictionary(name => name,
-            name => DelphiLiveArchiveTree.Build(package.Items.Where(i => i.Collection == name).Select(i => i.ContentHash).ToArray()).Root);
+            name => DelphiLiveArchiveTree.BuildCollection(name, package.Items.Where(i => i.Collection == name).Select(i => i.ContentHash).ToArray()).Root);
         string root = DelphiLiveSnapshotCodec.CreateIncrementalRoot(package.SnapshotJson, counts, roots);
         var restored = DelphiLiveSnapshotCodec.Unpack(root, package.Items, package.Contents);
         DelphiLiveLedgerJson.Serialize(restored).ShouldBe(DelphiLiveLedgerJson.Serialize(state));

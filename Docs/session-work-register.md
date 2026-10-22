@@ -1,9 +1,10 @@
 # TraderVI session-work register
 
-**October22 current-state kernel:** incremental archive roots and compact paper windows are now
-implemented/tested (73 related checks). Original full history reconstructs across day rollover;
-100,000-leaf updates use bounded paths. Continue atomic SQL/checkpoint/identity integration and
-qualification. Source coverage includes the active overnight implementation request; no installation
+**October22 current-state integration:** compact paper windows and incremental archive roots are wired
+to atomic SQL/checkpoint/replay-identity updates (83 related checks, SSDT/engine/WPF build, 32 SQL parses).
+Original history reconstructs across day rollover; append-only fills/quotes/marks add no tree records.
+Migration051 and explicit qualification are prepared. Continue broker/display/recovery integration and
+native qualification. Source coverage includes the active overnight implementation request; no installation
 or native qualification is claimed. See [design contract](concepts/independent-real-processing-design.md#current-state-implementation-contract-in-progress).
 
 **Reconciled October 16, 2026.** Scope: September activity through this review, all three pinned

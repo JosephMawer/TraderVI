@@ -24,10 +24,11 @@ Audit receipts, durable holds and explicit recovery controls are now in source; 
 native behavior and weekly throughput alongside the remaining current-state/readers work.
 AI and champion diagnostic history now read both input formats; finish broker diagnostics and
 operational current-state processing without reloading lifetime history.
-The incremental archive/window kernel is implemented and tested; connect it to atomic SQL writes,
-record-identity protection and explicit full-history qualification next.
+The incremental paper archive/window is wired to atomic SQL writes, record-identity protection and
+explicit full-history qualification (migration051 prepared). Finish remaining broker/display/recovery
+work and native qualification; preserve old archive revisions and original financial history.
 Ordinary paper writes now prepare outside the shared lease and persist changed items; finish
-checkpointed history reads and native concurrency qualification before claiming the wait is resolved.
+native concurrency qualification before claiming the wait is resolved.
 Shared broker revision fragments are implemented/tested; historical rows remain unchanged. Finish
 the qualified diagnostic reader and current-state/history/audit integration before installation.
 Continue direct inputs, bounded history/shared storage and audits; qualify the whole path before

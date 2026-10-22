@@ -20,6 +20,8 @@ public sealed class DelphiLiveWorkingStateTests
         state.Positions.Length.ShouldBe(1);
         state.Fills.Length.ShouldBe(1);
         state.StartingCapital.ShouldBe(full.StartingCapital);
+        DelphiLiveLedgerJson.Serialize(state).ShouldContain("workingTotals");
+        Should.Throw<InvalidOperationException>(() => DelphiLiveSnapshotCodec.PackJson(DelphiLiveLedgerJson.Serialize(state)));
         state.Cash.ShouldBe(full.Cash);
         state.Positions.Max(p => p.ClosedUtc).ShouldBe(full.Positions.Max(p => p.ClosedUtc));
         state.WorkingTotals!.ArchivedCashNet.ShouldBe(count - 11m);
@@ -59,7 +61,7 @@ public sealed class DelphiLiveWorkingStateTests
         state.Positions.Single().ExitActionId.ShouldBe(last.ExitActionId);
     }
 
-    private static DelphiLivePortfolioSnapshot History(int count)
+    internal static DelphiLivePortfolioSnapshot History(int count)
     {
         var now = new DateTime(2026, 10, 22, 14, 0, 0, DateTimeKind.Utc);
         var state = DelphiLiveLedgerIntegrity.Create(new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),

@@ -3,7 +3,7 @@ AFTER INSERT, UPDATE AS
 BEGIN
     SET NOCOUNT ON;
     IF EXISTS(SELECT 1 FROM inserted WHERE
-        ISNULL(JSON_VALUE(SnapshotJson,'$."$storage".version'),N'')<>N'2'
+        ISNULL(JSON_VALUE(SnapshotJson,'$."$storage".version'),N'') NOT IN(N'2',N'3')
         OR TRY_CONVERT(uniqueidentifier,JSON_VALUE(SnapshotJson,'$.portfolioId')) IS NULL
         OR TRY_CONVERT(uniqueidentifier,JSON_VALUE(SnapshotJson,'$.portfolioId'))<>PortfolioId
         OR TRY_CONVERT(bigint,JSON_VALUE(SnapshotJson,'$.revision')) IS NULL

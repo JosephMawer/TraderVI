@@ -22,7 +22,7 @@ public static class DelphiLiveSnapshotStorage
     internal sealed record VerifiedSnapshot(string Root, DelphiLivePortfolioSnapshot Snapshot,
         IReadOnlyList<DelphiLiveSnapshotItem> Items, IReadOnlyDictionary<string, string> Contents);
     internal sealed record PreparedSnapshot(DelphiLiveSnapshotPackage Package, DelphiLiveSnapshotDelta Delta,
-        DelphiLiveObservationPortfolio Observation);
+        DelphiLiveObservationPortfolio Observation, bool CurrentStateManaged = false);
 
     internal static Task<VerifiedSnapshot> ReadVerifiedAsync(SqlConnection connection, string root, CancellationToken token) =>
         Task.Run(async () =>
@@ -48,8 +48,11 @@ public static class DelphiLiveSnapshotStorage
         SavePackageAsync(connection, transaction, prepared.Package, token, prepared);
 
     public static Task<string> SaveAsync(SqlConnection connection, SqlTransaction transaction,
-        DelphiLivePortfolioSnapshot snapshot, CancellationToken token = default) =>
-        Task.Run(() => SavePackageAsync(connection, transaction, Pack(() => DelphiLiveSnapshotCodec.Pack(snapshot)), token), token);
+        DelphiLivePortfolioSnapshot snapshot, CancellationToken token = default)
+    {
+        if (snapshot.WorkingTotals is not null) throw new InvalidOperationException("Use the working-state append path for an operational window.");
+        return Task.Run(() => SavePackageAsync(connection, transaction, Pack(() => DelphiLiveSnapshotCodec.Pack(snapshot)), token), token);
+    }
 
     public static Task<string> SaveJsonAsync(SqlConnection connection, SqlTransaction transaction,
         string fullJson, CancellationToken token = default) =>
@@ -141,6 +144,8 @@ IF EXISTS(SELECT 1 FROM #LiveItems n OUTER APPLY
                 await verify.ExecuteNonQueryAsync(token);
             }
             await EnginePaperObservationStore.SaveIfInstalledAsync(connection, transaction, package, token, prepared?.Observation);
+            if (prepared?.CurrentStateManaged != true)
+                await EnginePaperWorkingStore.SaveFullIfInstalledAsync(connection, transaction, package, token);
             saved = true;
             return package.SnapshotJson;
         }

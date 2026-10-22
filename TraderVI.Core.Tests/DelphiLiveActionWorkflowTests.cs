@@ -39,10 +39,11 @@ public sealed class DelphiLiveActionWorkflowTests
         else Assert.Empty(h.Source.Requests);
     }
 
-    [Fact]
-    public async Task FreshDeferredSharedInputCanBuyAndAnAmbiguousConsumerRetryDoesNotBuyTwice()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task FreshDeferredSharedInputCanBuyAndAnAmbiguousConsumerRetryDoesNotBuyTwice(bool working)
     {
-        var h = new Harness(); var input = h.Input("AAA") with { RequireFreshSharedInput = true };
+        var h = new Harness(working); var input = h.Input("AAA") with { RequireFreshSharedInput = true };
         h.Source.Enqueue(10m, 9.99m, 10m);
         var first = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
         var second = await h.Workflow.RunCycleAsync(input, Policy, h.Lease);
@@ -129,10 +130,11 @@ public sealed class DelphiLiveActionWorkflowTests
         harness.Source.Requests.Count.ShouldBe(1);
     }
 
-    [Fact]
-    public async Task RaisedFloor_CommitsBeforeTriggerQuote_ThenDecisionBeforeFreshSellFill_ThenBuy()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task RaisedFloor_CommitsBeforeTriggerQuote_ThenDecisionBeforeFreshSellFill_ThenBuy(bool working)
     {
-        var harness = new Harness();
+        var harness = new Harness(working);
         harness.Source.Enqueue(10m, 9.99m, 10m);
         await harness.Workflow.RunCycleAsync(harness.Input("AAA"), Policy, harness.Lease);
         var held = harness.Store.State.OpenPositions.Single();
@@ -230,10 +232,11 @@ public sealed class DelphiLiveActionWorkflowTests
         }
     }
 
-    [Fact]
-    public async Task PendingSell_RetriesThreeInitiallyThenOncePerCycle_PreservesIdentityOvernightAndRestart()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task PendingSell_RetriesThreeInitiallyThenOncePerCycle_PreservesIdentityOvernightAndRestart(bool working)
     {
-        var harness = new Harness();
+        var harness = new Harness(working);
         harness.Source.Enqueue(10m, 9.99m, 10m);
         await harness.Workflow.RunCycleAsync(harness.Input("AAA"), Policy, harness.Lease);
         harness.Clock.Now = Open.AddMinutes(27);
@@ -262,7 +265,7 @@ public sealed class DelphiLiveActionWorkflowTests
             SessionCloseUtc = Open.AddDays(1).AddHours(6.5), IsRestart = true
         }, Policy, harness.Lease);
         state.OpenPositions.ShouldBeEmpty();
-        state.Actions.Single(a => a.Intent.Side == DelphiLiveActionSide.Sell).Intent.ActionId.ShouldBe(pending.Intent.ActionId);
+        harness.Store.FullState.Actions.Single(a => a.Intent.Side == DelphiLiveActionSide.Sell).Intent.ActionId.ShouldBe(pending.Intent.ActionId);
         state.Fills.Last().Price.ShouldBe(9.1m);
     }
 
@@ -498,11 +501,11 @@ public sealed class DelphiLiveActionWorkflowTests
         public readonly DelphiLiveActionWorkflow Workflow;
         public readonly DelphiLiveLease Lease = new(Guid.NewGuid(), "test", 1, Open.AddDays(-1), Open.AddDays(7));
         public DelphiLiveGenerationRequest Request { get; }
-        public Harness()
+        public Harness(bool working = false)
         {
             Request = new(Guid.NewGuid(), Guid.NewGuid(), Policy.PolicyVersionId, "OperationalChampion", null,
                 1000m, "CAD", Date, Open, Open.AddDays(-1), "operator", "Explicit simulation capital");
-            Store = new MemoryStore(DelphiLiveLedgerIntegrity.Create(Request));
+            Store = new MemoryStore(DelphiLiveLedgerIntegrity.Create(Request), working);
             Source = new QuoteSource(Clock);
             Workflow = new(Store, Source, Clock);
         }
@@ -538,22 +541,51 @@ public sealed class DelphiLiveActionWorkflowTests
         }
         public Task<DelphiLiveMarketDataReceipt> GetExactFiveMinuteBarAsync(DelphiLiveMarketDataRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
-    private sealed class MemoryStore(DelphiLivePortfolioSnapshot initial) : IDelphiLiveLedgerStore
+    private sealed class MemoryStore : IDelphiLiveLedgerStore
     {
-        public DelphiLivePortfolioSnapshot State = initial;
+        public DelphiLivePortfolioSnapshot State;
+        private DelphiLivePortfolioSnapshot history;
+        private DelphiLiveWorkingCheckpoint? checkpoint;
+        private readonly Dictionary<string, string> contents = new();
+        private readonly Dictionary<(string, int), DelphiLiveSnapshotItem> items = new();
+        public DelphiLivePortfolioSnapshot FullState => checkpoint is null ? State : history;
+        public MemoryStore(DelphiLivePortfolioSnapshot initial, bool working)
+        {
+            State = history = initial;
+            if (!working) return;
+            var package = DelphiLiveSnapshotCodec.Pack(initial);
+            var prepared = DelphiLiveWorkingCheckpoint.Qualify(initial, package);
+            checkpoint = prepared.Checkpoint; State = prepared.Snapshot;
+            foreach (var pair in package.Contents.Concat(prepared.NewContents)) contents[pair.Key] = pair.Value;
+            foreach (var item in package.Items) items[(item.Collection, item.Ordinal)] = item;
+        }
         public readonly List<DelphiLiveLedgerEvent> Events = new();
         public Task<DelphiLivePortfolioSnapshot?> LoadPortfolioAsync(Guid portfolioId, CancellationToken cancellationToken = default) => Task.FromResult<DelphiLivePortfolioSnapshot?>(Roundtrip(State));
         public Task<IReadOnlyList<DelphiLivePortfolioSnapshot>> GetPortfoliosForSessionAsync(DateOnly tradingDate, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<DelphiLivePortfolioSnapshot>>(new[] { Roundtrip(State) });
         public Task<DelphiLivePortfolioSnapshot> CreateGenerationAsync(DelphiLiveGenerationRequest request, CancellationToken cancellationToken = default) => throw new NotSupportedException();
-        public Task<DelphiLivePortfolioSnapshot> CommitAsync(long expectedRevision, DelphiLivePortfolioSnapshot next, IReadOnlyList<DelphiLiveLedgerEvent> events, DelphiLiveLease lease, CancellationToken cancellationToken = default)
+        public async Task<DelphiLivePortfolioSnapshot> CommitAsync(long expectedRevision, DelphiLivePortfolioSnapshot next, IReadOnlyList<DelphiLiveLedgerEvent> events, DelphiLiveLease lease, CancellationToken cancellationToken = default)
         {
             State.Revision.ShouldBe(expectedRevision);
             DelphiLiveLedgerIntegrity.ValidateTransition(Roundtrip(State), next);
-            State = Roundtrip(next);
+            if (checkpoint is null) State = Roundtrip(next);
+            else
+            {
+                var prepared = await checkpoint.AdvanceAsync(State, next, contents,
+                    (key, _) => Task.FromResult(contents.GetValueOrDefault(key)), cancellationToken);
+                foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
+                foreach (var item in prepared.ChangedItems) items[(item.Collection, item.Ordinal)] = item;
+                var counts = prepared.Checkpoint.Counts;
+                var full = DelphiLiveSnapshotCodec.Unpack(prepared.Archive.SnapshotJson,
+                    items.Values.Where(i => i.Ordinal < counts[i.Collection]).ToArray(), contents);
+                DelphiLiveLedgerIntegrity.ValidateTransition(history, full);
+                history = full;
+                checkpoint = prepared.Checkpoint;
+                State = checkpoint.Restore(prepared.Archive.SnapshotJson, contents);
+            }
             Events.AddRange(events);
-            return Task.FromResult(State);
+            return State;
         }
         private static DelphiLivePortfolioSnapshot Roundtrip(DelphiLivePortfolioSnapshot state) =>
-            DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(DelphiLiveLedgerJson.Serialize(state));
+            DelphiLiveLedgerJson.Deserialize<DelphiLivePortfolioSnapshot>(DelphiLiveLedgerJson.Serialize(state)) with { WorkingTotals = state.WorkingTotals };
     }
 }

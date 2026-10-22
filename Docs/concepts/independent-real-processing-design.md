@@ -272,7 +272,7 @@ has already been observed. Report any remaining scope and failed acceptance hone
 
 ### Current-state implementation contract in progress
 
-The next source increment replaces lifetime materialization on the operational paper path with a
+The source implementation replaces lifetime materialization on the operational paper path with a
 bounded working view: open/current-session positions plus each symbol's latest closed position,
 current-session or pending actions, latest causal quotes needed by pending actions, current-session
 fills/marks and the retained positions' exit fills, current candidate state and rolling cash/realized-profit
@@ -281,9 +281,10 @@ Original starting capital remains explicit. The full archive
 stays separately reconstructible; reports cannot mistake a working view for complete history.
 Current-day entry limits and post-exit confirmation must produce the same decisions as full history.
 
-Immutable archive item ordinals remain stable. A version-3 root will commit to scalar account fields,
-collection counts and a binary hash tree for each collection. Updating one item changes only its tree
-path, avoiding hashing all earlier dossiers on every append. Exact item/report content stays shared.
+Immutable archive item ordinals remain stable. A version-3 root commits to scalar account fields and
+collection counts/roots. Positions/actions use binary hash trees, so changing one item updates only its
+path. Append-only fills/quotes/marks use hash chains: each new root commits to the preceding root and
+new record, without extra stored tree nodes per append. Exact item/report content stays shared.
 Legacy version-2 roots remain readable; old revisions are not rewritten. Full readers/audits recompute
 the collection roots from all original referenced items, while operational appends verify only their
 current checkpoint, changed items and tree paths. A compact checkpoint is tied to the exact archive
@@ -294,10 +295,13 @@ The initial checkpoint/tree/index must be qualified from the fully verified curr
 under stopped-writer maintenance fences. Missing or mismatched state fails closed. No working-state
 cache can bypass a durable incident or disabled immutable guard. Restart verifies the current
 checkpoint and its exact references; restore/abnormal recovery needs affected-state qualification.
-The pure tree, version-3 reader, window selection and incremental checkpoint transition are now in
-source. Seventy-three related offline tests pass, including 100,000-leaf updates and exact restoration
-across 10,000 historical marks/day rollover. Database/source integration and a separately reviewed
-migration/qualification operation remain. This is implementation work in progress, not installed behavior.
+The independent paper consumer now uses these checkpoints. Original archive and checkpoint roots
+are fenced before a serializable append; changed records/content, replay IDs, observation/working state,
+root/revision and events commit together. Scoped integrity is checked again inside that transaction.
+Rare full-history administrative writers refresh the checkpoint too. 83 related tests pass, including
+full-archive validation of compact buy/protection/overnight/retry flows and exact restoration across
+10,000 historical marks/day rollover. Migration051 and --prepare-working-state are prepared; native
+SQL/concurrency and remaining broker/display/recovery work remain. No installed behavior changed.
 
 Historical evidence stays available. Separately, propose retention for reproducible build binaries and
 platform-specific packaging; preserve source manifests, models, active outputs and recovery evidence.

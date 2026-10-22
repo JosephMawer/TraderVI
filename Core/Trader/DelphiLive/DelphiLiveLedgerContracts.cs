@@ -68,8 +68,8 @@ public sealed record DelphiLivePortfolioSnapshot(
 {
     public Guid? DailySourceRevisionId { get; init; }
     public PaperComparisonAccount? ComparisonAccount { get; init; }
-    // Operational-only window metadata is persisted in its own authenticated checkpoint, never in archive snapshots.
-    [System.Text.Json.Serialization.JsonIgnore]
+    // A serialized working view must identify itself; archive/checkpoint codecs handle this metadata separately.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DelphiLiveWorkingTotals? WorkingTotals { get; init; }
     public ImmutableDictionary<string, DelphiLivePortfolioCandidateState> CandidateStates { get; init; } =
         ImmutableDictionary<string, DelphiLivePortfolioCandidateState>.Empty;

@@ -2,11 +2,14 @@
 
 ## October 21 post-open execution watch
 
-October22 history kernel now includes authenticated incremental collection roots and compact paper
-working checkpoints, preserving original capital, cash, realized profit and latest-exit context.
-73 related offline tests pass; a 100,000-leaf update reads at most 36 paths and a 10,000-mark archive
-reconstructs exactly after bounded appends/day rollover. This kernel is not yet wired to SQL writers;
-qualification/migration/current-state integration remains. No installed behavior changed.
+October22 paper current-state integration now reads qualified compact checkpoints and atomically saves
+changed archive records, current/observation state and immutable replay IDs. Full-history administrative
+writers refresh the checkpoint; initial qualification is explicit. Original capital/cash/profit and latest-exit
+context remain. 83 related checks pass, including full-archive validation of working-state buy/protection/
+overnight/retry flows and stable ordinals after pruning. A 100,000-leaf mutable update reads at most 36 nodes; appending to a 10,000-mark
+archive needs one new record and no tree reads, with exact reconstruction across day rollover.
+SSDT, engine and isolated WPF builds pass (WPF two existing warnings); 32 SQL batches parse. Migration051
+and --prepare-working-state are prepared only. Native concurrency/qualification remain; no installation.
 
 **Architecture implementation underway:** operator explicitly requests the independent engine followed
 by history/storage work tonight. Core scheduling/session extraction is committed `58f32587`; `d0eea62c`

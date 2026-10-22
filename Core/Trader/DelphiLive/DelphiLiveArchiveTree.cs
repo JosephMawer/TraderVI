@@ -18,6 +18,21 @@ public static class DelphiLiveArchiveTree
     public sealed record Change(int Ordinal, string? Expected, string ContentHash);
     public sealed record Result(int Count, string Root, IReadOnlyDictionary<string, string> Nodes);
 
+    // These records never change after append. A chain needs no extra stored nodes per quote/fill/mark.
+    public static bool UsesAppendChain(string collection) => collection is "fills" or "quotes" or "marks";
+    public static string AppendChain(string root, int count, string leaf)
+    {
+        RequireRoot(count, root); RequireCount(checked(count + 1)); RequireHash(leaf);
+        return DelphiLiveSnapshotCodec.Hash("TraderVI.ArchiveChain.1\n" + count.ToString(System.Globalization.CultureInfo.InvariantCulture) + "\n" + root + "\n" + leaf);
+    }
+    public static Result BuildCollection(string collection, IReadOnlyList<string> leaves)
+    {
+        if (!UsesAppendChain(collection)) return Build(leaves);
+        string root = Empty;
+        for (int i = 0; i < leaves.Count; i++) root = AppendChain(root, i, leaves[i]);
+        return new(leaves.Count, root, new Dictionary<string, string>());
+    }
+
     public static Result Build(IReadOnlyList<string> leaves)
     {
         RequireCount(leaves.Count);

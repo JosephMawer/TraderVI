@@ -18,10 +18,15 @@ internal static class Program
     // Construction/building never launches this host. Starting it is an explicit operator action.
     public static async Task<int> Main(string[] args)
     {
-        if (args.Length != 1 || args[0] is not ("--run" or "--prepare-observations")) return 64;
+        if (args.Length != 1 || args[0] is not ("--run" or "--prepare-observations" or "--prepare-working-state")) return 64;
         try
         {
             using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
+            if (args[0] == "--prepare-working-state")
+            {
+                await new EnginePaperWorkingStore().QualifyExistingAsync().ConfigureAwait(false);
+                return 0;
+            }
             if (args[0] == "--prepare-observations")
             {
                 await new EnginePaperObservationStore().QualifyExistingAsync().ConfigureAwait(false);

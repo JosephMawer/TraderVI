@@ -141,6 +141,8 @@
     <Build Include="dbo/Tables/EngineInputPublication.sql" />
     <Build Include="dbo/Tables/EngineCurrentState.sql" />
     <Build Include="dbo/Tables/EngineIntegrityIncident.sql" />
+    <Build Include="dbo/Tables/EnginePaperRecordIdentity.sql" />
+    <Build Include="dbo/Triggers/EnginePaperRecordIdentity_Immutable.sql" />
     <Build Include="dbo/Tables/EngineIntegrityResolution.sql" />
     <Build Include="dbo/Tables/EngineAuditRun.sql" />
     <Build Include="dbo/Triggers/EngineIntegrityIncident_Immutable.sql" />
@@ -270,5 +272,6 @@
     <None Include="Migrations/20261022_048_AddEngineCurrentObservationState.sql" />
     <None Include="Migrations/20261022_049_AddEngineConsumerHandoff.sql" />
     <None Include="Migrations/20261022_050_AddIndependentIntegrityAudits.sql" />
+    <None Include="Migrations/20261022_051_AddPaperWorkingState.sql" />
   </ItemGroup>
 </Project>

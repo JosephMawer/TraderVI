@@ -12,7 +12,7 @@ namespace Core.Runtime;
 /// <summary>Paper execution consumes durable shared inputs. Historical research has no place in this lane.</summary>
 public sealed class IndependentPaperService
 {
-    private readonly DelphiLiveLedgerRepository ledger = new();
+    private readonly DelphiLiveLedgerRepository ledger = new(workingState: true);
     private readonly EngineMarketCycleRepository cycles = new();
     private readonly DelphiLiveMonitorWorkflow workflow;
     private readonly DelphiLiveActionWorkflow actions;
@@ -74,7 +74,8 @@ public sealed class IndependentPaperService
     private async Task ApplyControlsAsync(DelphiLiveLease lease)
     {
         var controls = new TradingControlRepository();
-        bool paused = await controls.IsPausedAsync(EngineStrategySettings.Live).ConfigureAwait(false);
+        bool paused = await controls.IsPausedAsync(EngineStrategySettings.Live).ConfigureAwait(false) ||
+            !(await new EngineIntegrityRepository().ReadAccessAsync(EngineIntegrityScope.Paper, null).ConfigureAwait(false)).NewExposureAllowed;
         workflow.NewBuysPaused = paused;
         if (paused)
         {

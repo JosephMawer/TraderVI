@@ -15,6 +15,40 @@ namespace TraderVI.Core.Tests;
 public sealed class DelphiLiveWorkingCheckpointTests
 {
     [Fact]
+    public async Task UpdatingAnOpenPositionAfterPruningPreservesItsOriginalArchiveOrdinal()
+    {
+        var full = DelphiLiveWorkingStateTests.History(1_000);
+        Guid positionId = Guid.NewGuid(), actionId = Guid.NewGuid();
+        var position = new DelphiLiveLedgerPosition(positionId, "BBB", 1, 10m, full.UpdatedUtc, actionId, "{}",
+            DelphiLiveProfitProtectionState.Open(positionId, 10m));
+        var fill = new DelphiLiveLedgerFill(Guid.NewGuid(), actionId, positionId, Guid.NewGuid(), "BBB", DelphiLiveActionSide.Buy,
+            1, 10m, DelphiLiveQuoteField.Ask, DelphiLiveFillConfidence.SideSpecific, full.UpdatedUtc, full.CurrentSession!.Value);
+        full = full with { Positions = full.Positions.Add(position), Fills = full.Fills.Add(fill), Cash = full.Cash - 10m };
+        var package = DelphiLiveSnapshotCodec.Pack(full);
+        var qualified = DelphiLiveWorkingCheckpoint.Qualify(full, package);
+        var all = package.Contents.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var pair in qualified.NewContents) all[pair.Key] = pair.Value;
+        var currentContents = DelphiLiveSnapshotCodec.Pack(qualified.Snapshot).Contents;
+        var small = qualified.Checkpoint.Restore(package.SnapshotJson, currentContents);
+        small.Positions.Length.ShouldBe(2);
+        var changedPosition = position with { Protection = position.Protection with { HighestCompletedFiveMinuteClose = 11m } };
+        var next = small with { Revision = small.Revision + 1, Positions = small.Positions.SetItem(1, changedPosition) };
+        int reads = 0;
+        var prepared = await qualified.Checkpoint.AdvanceAsync(small, next, currentContents, (key, _) =>
+        { reads++; return Task.FromResult(all.GetValueOrDefault(key)); }, CancellationToken.None);
+        reads.ShouldBeLessThanOrEqualTo(10);
+        var changed = prepared.ChangedItems.Single();
+        changed.Collection.ShouldBe("positions"); changed.Ordinal.ShouldBe(1_000);
+        foreach (var pair in prepared.NewContents) all[pair.Key] = pair.Value;
+        var items = package.Items.Select(i => i.Collection == "positions" && i.Ordinal == 1_000 ? changed : i).ToArray();
+        var restored = DelphiLiveSnapshotCodec.Unpack(prepared.Archive.SnapshotJson, items, all);
+        DelphiLiveLedgerIntegrity.ValidateTransition(full, restored);
+        restored.Positions.Take(1_000).Select(p => p.PositionId).ShouldBe(full.Positions.Take(1_000).Select(p => p.PositionId));
+        restored.Positions[^1].Protection.HighestCompletedFiveMinuteClose.ShouldBe(11m);
+        restored.Cash.ShouldBe(full.Cash);
+    }
+
+    [Fact]
     public async Task LongArchiveAppendAndDayRolloverReconstructExactFullHistoryWithBoundedWork()
     {
         var now = new DateTime(2026, 10, 22, 14, 0, 0, DateTimeKind.Utc);
@@ -42,9 +76,9 @@ public sealed class DelphiLiveWorkingCheckpointTests
             int reads = 0;
             var prepared = await checkpoint.AdvanceAsync(small, next, contents, (key, _) =>
             { reads++; return Task.FromResult(contents.GetValueOrDefault(key)); }, CancellationToken.None);
-            reads.ShouldBeLessThanOrEqualTo(15);
+            reads.ShouldBe(0);
             prepared.ChangedItems.Length.ShouldBe(1);
-            prepared.NewContents.Count.ShouldBeLessThanOrEqualTo(16);
+            prepared.NewContents.Count.ShouldBe(1);
             foreach (var item in prepared.ChangedItems) archiveItems[(item.Collection, item.Ordinal)] = item;
             foreach (var pair in prepared.NewContents) contents[pair.Key] = pair.Value;
             archiveRoot = prepared.Archive.SnapshotJson;

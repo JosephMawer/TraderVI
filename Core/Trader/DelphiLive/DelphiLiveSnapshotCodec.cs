@@ -29,6 +29,13 @@ public static class DelphiLiveSnapshotCodec
         using var document = JsonDocument.Parse(json);
         return Fingerprint(writer => WriteCanonical(writer, document.RootElement));
     }
+    public static string CanonicalJson(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream)) WriteCanonical(writer, document.RootElement);
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
 
     private static string Fingerprint(Action<Utf8JsonWriter> write)
     {
@@ -80,7 +87,7 @@ public static class DelphiLiveSnapshotCodec
         // the original immutable strings instead of serializing/parsing the expanded history.
         var root = JsonSerializer.SerializeToNode(snapshot with
         {
-            SessionOpeningPositions = [], Positions = [], Actions = [], Fills = [], Quotes = [], Marks = []
+            SessionOpeningPositions = [], Positions = [], Actions = [], Fills = [], Quotes = [], Marks = [], WorkingTotals = null
         }, DelphiLiveLedgerJson.Options)!.AsObject();
         root["sessionOpeningPositions"] = Array(snapshot.SessionOpeningPositions, Position);
         root["positions"] = Array(snapshot.Positions, Position);
@@ -103,6 +110,7 @@ public static class DelphiLiveSnapshotCodec
     public static DelphiLiveSnapshotPackage PackJson(string full)
     {
         var root = JsonNode.Parse(full)!.AsObject();
+        if (root["workingTotals"] is not null) throw new InvalidOperationException("A working window cannot be saved as a complete archive snapshot.");
         if (root.ContainsKey(Marker)) throw new InvalidOperationException("Cannot compact an already compact snapshot.");
         return PackRoot(root, Fingerprint(full));
     }
@@ -222,7 +230,7 @@ public static class DelphiLiveSnapshotCodec
             var selected = items.Where(x => x.Collection == name).OrderBy(x => x.Ordinal).ToArray();
             if (selected.Length != count || selected.Where((x, i) => x.Ordinal != i).Any())
                 throw new InvalidOperationException("Snapshot items are missing, duplicated or out of order.");
-            if (treeRoots is not null && DelphiLiveArchiveTree.Build(selected.Select(x => x.ContentHash).ToArray()).Root != treeRoots[name])
+            if (treeRoots is not null && DelphiLiveArchiveTree.BuildCollection(name, selected.Select(x => x.ContentHash).ToArray()).Root != treeRoots[name])
                 throw new InvalidOperationException("Reconstructed archive collection differs from its committed root.");
             var array = new JsonArray();
             foreach (var reference in selected)
