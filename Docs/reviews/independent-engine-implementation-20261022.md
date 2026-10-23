@@ -2,7 +2,8 @@
 
 Status: **October 23 operator retry saves the risk event, then the permission archive fails with SQL547.
 Managed revision259 remains unchanged. Preserve risk sequence3 for original-request recovery.
-The archive correction is validated and awaits installation; a090757f remains installed and execution remains Off.**
+The archive correction d8364eff is installed at03:51 Toronto; current connection is active and execution
+remains Off. Joseph's fresh review and original-request approval recovery remain pending.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -30,7 +31,27 @@ The actual saved checkpoint now packs into847 valid object/array fragments, with
 scalars and exact full reconstruction. Four new boundary/large-text cases fail before the fix and pass
 after it. A separate test rejects the permission append after the risk save, then uses a fresh review
 to recover the original request: one risk append, one permission revision, host Off and zero orders.
-All57 focused and3,092 full Core tests pass (nine native SQL skips, serial collections); isolated WPF/engine Release succeeds with260 existing compiler warnings. NuGet audit is disabled and full SSDT solution health is not requalified. Installation and operator retry remain pending.
+All57 focused and3,092 full Core tests pass (nine native SQL skips, serial collections); isolated
+WPF/engine Release succeeds with260 existing compiler warnings, including the committed-source rebuild.
+NuGet audit is disabled and full SSDT solution health is not requalified.
+
+Joseph authorizes the prepared guarded installation of d8364eff. Normal dashboard closure/engine drain
+complete; all129 old runtime files are preserved and seven changed files install in standard Release.
+All128 candidate/122 retained hashes verify. Engine27724 starts03:51:08; dashboard22276 opens03:51:10.
+Running/non-verification/execution Off and unchanged protected grant bytes pass. The03:52:17 fixed-helper
+read proves original risk sequence3 and managed259 content hashes unchanged, one October23 risk event,
+matching daily/four models, unchanged complete Real/Paper recovery plans and valid hashes, zero
+Broker/Global holds and eight Paper restrictions. The04:05:07 controls confirm Connected/execution Off.
+The first sandboxed connection control leaves an empty reserved output and exits unsuccessfully;
+the explicitly permitted outside-sandbox read uses fresh output paths and succeeds. No replayed write.
+
+Private installation/backup receipts are under `artifacts/selected-session-archive-20261023/cutover`.
+Post-install receipt `result-20261023T075216926Z-f79077f45f6a471b9725f720746b880e.json` matches query
+`3D663866C0D7C4D21A66F8184A87A8BE2426B4AA4D8C840B3F059BBEEDA69C28`.
+No migration, constraint change, financial approval/enable/order, new hold clearance or nightly rerun.
+The08:30 follow-up is updated to preserve the partial-save boundary and recognize any later operator
+approval/enable. Next Joseph uses a fresh dated review and approval to recover the original risk request;
+successful native permission recovery and separate host enable remain unobserved.
 
 Private evidence is under `artifacts/selected-session-archive-20261023`. Fixed-helper receipts:
 `result-20261023T072432940Z-e008f04177ad4a139e02a7477d0cb5c9.json` matches query

@@ -97,8 +97,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Observe the next operator attempt: risk sequence3 saves, permission append fails SQL547; managed
   revision259 is unchanged. Preserve the original risk request for recovery. Reproduce the archive's
   standalone-string/SQL JSON constraint mismatch with saved evidence and a read-only SQL check.
-- [ ] Install the object/array-only archive correction (57 focused/3,092 full Core passes, nine native skips, Release pass), then observe Joseph's fresh
-  review and original-request approval recovery/readback. Keep the 08:30 follow-up/report before 09:15.
+- [x] Validate/install object/array-only archive correction d8364eff (57 focused/3,092 full Core passes,
+  nine native skips, Release pass). Guarded normal restart at03:51; hashes, Connected/execution Off,
+  exact original risk/managed head, daily/models and unchanged recovery/holds pass after installation.
+- [ ] Observe Joseph's fresh review and original-request approval recovery/readback.
+  Keep the updated08:30 follow-up/report before09:15.
 - [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
   only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/

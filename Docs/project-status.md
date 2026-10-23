@@ -1,46 +1,30 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 risk saved; permission archive correction
+## Independent engine — October 23 archive fix installed; operator recovery pending
 
-**Latest operator retry:** review succeeds; approval reports SQL547. The 03:24:33 Toronto fixed-helper
-read confirms risk sequence3 saved at03:19:17, but managed revision259 is unchanged. Preserve the original
-risk request for recovery. Offline replay of the saved checkpoint identifies standalone text fragments
-in the shared archive, incompatible with the existing SQL object/array JSON constraint; a native SELECT
-confirms that mismatch. The source fix retains long text inside its enclosing records and reconstructs
-the full saved checkpoint exactly. All57 focused tests pass, including recovery from a saved risk event
-with a fresh review and no duplicate. All3,092 Core tests pass (nine native SQL skips); isolated Release succeeds with260 existing compiler warnings. Installation remains pending;
-a090757f is still installed, execution Off, and no completed October23 permission is claimed.
-[Current diagnosis and evidence](reviews/independent-engine-implementation-20261022.md#permission-archive-rejection--risk-saved-permission-not-saved).
+**Current installed state:** d8364eff is installed in standard Release at 03:51 Toronto after an
+explicitly authorized normal dashboard closure/engine drain. All 128 candidate and 122 retained files
+verify; previous binaries are preserved. Engine27724/dashboard22276 run normally. At04:05 the broker
+connection is active and execution is Off; protected grant bytes are unchanged.
 
-**Source correction validated:** ADR-0106 stores duplicated selected-session risk evidence once and
-reconstructs the exact original request/state hashes within the unchanged 256 KiB ceiling. An offline
-check with the saved risk history reduces the prospective receipt from 389,240 to 139,668 bytes with no
-financial write. All 82 focused and 3,087 full Core tests pass (nine native skips); isolated WPF/engine
-Release succeeds with 260 existing compiler warnings. Two initial timing failures under concurrent build
-load pass separately and in the full serial rerun. Dependency security/SSDT were not requalified.
-Under explicit cutover authority, standard Release a090757f is installed at 02:51 Toronto after normal
-dashboard closure/engine drain. All 128 candidate files and 122 retained originals verify; old binaries
-are preserved. Engine 26564/dashboard 13308 run normally. At 03:10–11, connection, execution Off, native
-history synchronization and fresh broker checks pass; permission bytes and financial revision 259 remain
-unchanged. Real/Paper proofs and all eight Paper restrictions are retained, zero Broker/Global holds.
-October 23 daily/model checks still pass. Joseph's fresh installed review/approval and separate enable
-remain; the helper cannot click setup. No new risk event or order is saved by this task.
+Joseph's earlier approval saved risk sequence3 at03:19, then failed SQL547 before permission revision260.
+The archive fix keeps retained text inside JSON objects/arrays accepted by SQL; full saved-checkpoint
+reconstruction is exact. All57 focused and3,092 Core tests pass (nine native SQL skips), and Release
+succeeds with260 existing compiler warnings. NuGet audit/full SSDT solution health are not requalified.
+The03:52 hash-verified read confirms the original risk event and managed259 content hashes unchanged,
+one October23 risk event, matching target-date daily/four models, valid Real/Paper recovery and checkpoint
+hashes, zero Broker/Global holds and eight retained Paper restrictions. No migration or history rewrite.
+Next Joseph runs a fresh dated review, recovers the original risk request through his own approval,
+and enables the reviewed host separately. Successful permission recovery is not yet observed.
+[Diagnosis, validation and installed evidence](reviews/independent-engine-implementation-20261022.md#permission-archive-rejection--risk-saved-permission-not-saved).
 
-**Current overnight evidence:** the scheduled October 23 nightly succeeds through Hermes, Delphi and
-Athena at 00:40:12 Toronto. The hash-verified 00:41 database read confirms Valid October 23 daily evidence
-using October 22 and exact agreement with the saved configuration, four models and input contract.
-The 00:40 broker read confirms cash-only holdings, no pending orders and matching history. At 00:41,
-engine 28744 remains normal/Connected/execution Off. Zero Broker/Global holds and eight Paper restrictions
-remain. Original Paper recovery is saved Complete at October 22 23:43:48 with 205,058 verified units;
-all receipt/checkpoint hashes pass. Completion does not clear Paper restrictions or qualify capacity.
-
-Joseph reconfirms no outside changes, opens the installed review and attempts approval himself. The
-screen reports **Account risk event exceeds the supported size; no event was saved.** Diagnosis/fix of
-that observed failure prompted the now-installed correction; the later retry and partial save are recorded above.
-No financial approval or enable is claimed. The requested
-early nightly start was rejected at the tool permission prompt; the normal schedule supplied this run.
-The redundant overnight follow-up is removed; the one-date 08:30 check/report before 09:15 remains.
-[Owning overnight evidence and blocker](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
+The normal October23 nightly succeeds through Hermes/Delphi/Athena at00:40:12; Valid target-date daily
+evidence uses October22. The earlier risk-size fix ADR-0106/a090757f passes its native risk-save step.
+The03:11 broker read finds no holdings/pending orders and matching history; fresh review rechecks it.
+Original Paper recovery completes at October22 23:43:48 with205,058 verified units; completion does not
+clear its restrictions or qualify capacity. The08:30 readiness follow-up/report before09:15 now knows
+the installed archive fix and partial-save recovery boundary. No agent financial approval/enable/order.
+[Owning overnight evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;
 fresh Real recovery 260/260 and separately authorized two-incident clearance passed. Native account/
