@@ -18,7 +18,9 @@ through 12:10 at 12:12:12, 33 valid/on-time, all warming after the honest 12:10 
 Joseph's build approval saves revision898 at12:17:33, followed by his separate host enable. Native
 12:18 checks confirm Connected/Running and revision904 evaluating40 supplied/evaluated/fresh symbols
 through12:15, with no entry/risk/quote block or failure. Latest publication has34 valid/on-time pairs;
-all40 remain warming after the restart. Native preflight progression awaits the next qualified entry;
+The12:33 follow-up verifies real revision976 consuming the12:30 bar:29 symbols are now mature,
+11 remain warming/unavailable, and none has a first strong confirmation. No recommendation or failure.
+Native preflight progression awaits the next qualified entry;
 fresh evaluation alone does not prove SQL51501 recovery. No first trade is confirmed. NuGet audit/full
 SSDT solution and native SQL concurrency qualification are not requalified.
 [Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).

@@ -122,6 +122,9 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Observe native preflight progress on the next qualified entry. The new12:10 continuity boundary
   requires rolling observations to mature; preserve original gaps, all financial authority/expiry and
   the account lock through submission. Fresh evaluation alone does not verify SQL51501 recovery.
+- [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
+  11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
+  remain unexercised;12:37 was conditional on two consecutive strong observations, not a promised buy.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

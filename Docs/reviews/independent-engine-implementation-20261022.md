@@ -71,6 +71,19 @@ The correction is tested/installed and actual new-build evaluation is verified; 
 entry must exercise native preflight before claiming the SQL51501 blocker operationally resolved.
 The existing watch continues for that evidence and the first attributable broker-confirmed fill.
 
+At12:33, the12:30 publication is confirmed at12:32:32:40 inputs,34 valid/on-time,29 mature and11
+warming/unavailable. Real revision976 evaluates40 fresh symbols through12:30, NoRecommendation,
+empty entry/risk/quote blocks, no failure and inline empty orders; current hashes/holds remain valid.
+The bounded signal query confirms zero consecutive strong observations for every symbol:28 Watching
+and one WeakeningConfirmationStarted among the29 mature. None reaches three supportive families
+(17 have zero supportive votes,10 have one,one has two; the weakening symbol has zero).
+Thus warm-up progresses, but the corrected native preflight remains unexercised. The earlier12:37
+earliest confirmation was conditional on strong12:30/12:35 readings; the first condition does not occur.
+This answers the operator's question asked before12:37; the requested after12:37 checkpoint stays pending.
+Read-only receipts: result-20261023T163307349Z-ab7b6f53a27a43c6ac7d7b23efe48912.json (normal watch hash)
+and result-20261023T163328327Z-6bf209d45ec04e38892786cfe48af4de.json (signal query hash
+D5CD22848538F84CB0FC8C8E2BB64DD66C4A82ADAB8CC8FC9346CB35BC0E124E). Normal mailbox restored.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture
