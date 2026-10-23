@@ -2,16 +2,19 @@
 
 ## Independent engine — price diagnostic approved and running; native capture pending
 
-**October 23,14:37 checkpoint:** diagnostic43424435 is installed14:08:39 in standard
+**October 23,14:43 candidate check:** diagnostic43424435 is installed14:08:39 in standard
 Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
 128 candidate/122 retained hashes pass; previous binaries are backed up. Engine44052/dashboard46816
 are normal Running and Connected with execution Running after Joseph's own approval1379 at14:17:52
-and separate enable. The saved approval matches the exact installed Core hash. Revision1475 evaluates
-80 supplied observations across40 evaluated/fresh symbols through14:35 with NoRecommendation,
-no failure and empty entry/risk/quote blocks. Publication has40 inputs,34 valid/on-time,29 mature;
+and separate enable. The saved approval matches the exact installed Core hash. Revision1502 evaluates
+40 supplied/evaluated/fresh symbols through14:40 with NoRecommendation, no failure and empty entry/
+risk/quote blocks. Publication has40 inputs,33 valid/on-time,29 mature;
 11 remain warming/unavailable after honest14:10 continuity. The unique14:30 first-strong symbol
 loses confirmation at14:35 as supportive groups fall from three to one. No buy preflight is attempted
-and no new price pair is captured. Joseph's requested14:37 checkpoint is complete.
+and no new price pair is captured. Joseph's requested14:37 checkpoint is complete. At14:43 one other
+usable candidate has two supportive groups (persistence/volume), versus one for the original symbol.
+Its own-price move is below threshold and structure is only positive-leaning; no first-strong reading
+or confirmation has started. [Candidate comparison](reviews/independent-engine-implementation-20261022.md#october-23-requested-1437-confirmation-checkpoint).
 Original dated authority/risk3 and valid head/projection/checkpoints remain; zero Broker/Global holds
 and eight Paper restrictions. The first native price receipt/fill remains pending. The guard, limits
 and16:00 expiry remain. The watch is updated and active;14:37 broker has zero holdings/pending and

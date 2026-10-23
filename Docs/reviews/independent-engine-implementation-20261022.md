@@ -6,7 +6,8 @@ Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connecte
 approved Core hash and real1400 consumption of40 fresh symbols through14:15. The requested14:37
 follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol loses confirmation,
 no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
-stays active and the price guard is unchanged.**
+stays active and the price guard is unchanged.14:43 follow-up consumes14:40; one other usable
+candidate has two supportive groups, with no first-strong reading or confirmed buy.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -109,6 +110,20 @@ historical orders and matching holdings/history. Latest price failure remains ol
 with no new diagnostic fields. No new-build buy preflight, price comparison or fill is claimed.
 The requested milestone is reported once; the existing session first-fill/price/blocker watch continues
 through16:05, with no control change or extra source request. Normal SQL mailbox is restored.
+
+At Joseph's subsequent closest-candidate question, the14:43 read compares the14:40 publication and
+separately verifies actual consumption. Reviewed candidates1442.sql has SHA256
+24B654C984490987157C472B696823FD59864180E61CD51272F6F65F256925DE; receipt
+result-20261023T184317375Z-30e7c22ee75641c68d5698d910bb24e7.json matches. Real1502 evaluates40
+supplied/evaluated/fresh symbols through14:40 at14:43:00, NoRecommendation/no failure/empty orders.
+Publication has40 inputs,33 valid/on-time,29 mature and zero confirmations. All strong counters are0.
+One other usable candidate has two supportive families: persistence and volume. Its benchmark-relative
+movement condition passes but own-price movement remains below threshold; structure is PositiveLeaning,
+above the previous close but inside the prior20-minute range. It needs either movement or structure
+to supply a third supportive family while the existing two hold, then two consecutive strong valid
+observations and the normal buy checks. The original symbol retains volume alone. The11 unavailable/
+warming symbols cannot be treated as fresh near-buys. No policy or operational change is made; current
+price capture remains pending. This question-only read does not refresh the14:37 broker evidence.
 
 ## October 23 buy-preflight account-lock correction
 
