@@ -8,6 +8,34 @@ restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 market-input publication blocker
 
+### Authorized correction in progress
+
+Joseph explicitly requests fixing, testing and installing the correction, verifying fresh input
+consumption and continuing the first-fill/blocker watch. The adapter now projects the validated
+successor policy only into transient admission; the saved strategy, comparison, fingerprint and
+financial history remain unchanged. A regression first reproduces the exact admission exception.
+The corrected offline replay admits all40 captured candidates and reaches evaluation with the
+unchanged saved definitions. This is an empty-bar boundary test, not live signal qualification.
+
+Optional decision diagnostics count supplied observations, current-session evaluated symbols,
+fresh symbols and latest consumed bar. Incremental empty reads retain fresh evaluated memory;
+missing/stale memory no longer masquerades as no signal. Legacy absent fields retain JSON bytes.
+The engine retains failure time/type after idle success without exposing provider exception text.
+No gate, freshness threshold, order behavior or financial permission changes.
+
+All3,096 Core tests pass with nine native SQL skips using serialized test collections. Earlier
+parallel runs time out in unrelated AI scheduling tests; the focused host-loop repeat passes7/7.
+The initial correction-focused run has456 passes and one overly strict exception-type assertion;
+that test now changes a valid policy field and proves the successor contract rejects it. The final
+full run includes all corrected cases. Existing nullable compiler warnings remain; NuGet audit and
+the full SSDT solution are not requalified. Ignored evidence: real-input-successor-20261023.
+
+Installation also exposes an existing resumption defect: updated-build review is hard-coded to
+October21 and the effective-review getter ignores later build reviews after a dated continuation.
+This needs a tested current-session build-review correction before installation; Joseph's own
+updated-build approval and separate enable remain required. Existing runtime d8364eff is still
+running with the publication blocker while offline work proceeds.
+
 Joseph asks whether Delphi is receiving fresh data and evaluating it properly. Earlier09:39–09:56
 watch checks observe advancing account revisions, Connected/Running, empty order lists, valid current
 hashes and no Broker/Global hold. They do not establish source freshness. The account's compact

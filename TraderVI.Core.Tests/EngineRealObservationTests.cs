@@ -2,6 +2,7 @@
 using Core.Runtime;
 using Core.Trader;
 using Core.Trader.DelphiLive;
+using Core.Trader.Promotion;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,6 +14,42 @@ namespace TraderVI.Core.Tests;
 
 public sealed class EngineRealObservationTests
 {
+    [Fact]
+    public void ReviewedSuccessorAdmitsTheOriginalSourceWithoutChangingSavedIdentity()
+    {
+        var f = new BrokerManagedSessionTests.Fixture(); BrokerManagedSessionTests.UseNormalLive(f, progressive: false);
+        var original = f.Strategy;
+        var policy = original.Strategy.ReadLivePolicy() with { PolicyVersionId = Guid.NewGuid(), UseProgressiveProfitProtection = true };
+        var reviewed = original with { Strategy = original.Strategy with { PolicyVersionId = policy.PolicyVersionId, LivePolicy = policy },
+            LiveComparisonSuccessor = new(original.PaperAccountId, Guid.NewGuid(), original.Strategy.ReadLivePolicy()) };
+        reviewed.Validate();
+        var before = DelphiLiveLedgerJson.Serialize(reviewed); var fingerprint = reviewed.Fingerprint;
+        var account = original.Comparison!; var at = account.EffectiveUtc;
+        var source = new PaperComparisonSource(Guid.NewGuid(), account.BatchId, Guid.NewGuid(), Guid.NewGuid(),
+            account.DailyStrategyVersionId, at, at, at, [], new Dictionary<string, DelphiLiveFrozenBaseline>());
+        var date = DateOnly.FromDateTime(at);
+        var empty = new DelphiLiveSessionContext(new(source.SessionId, date, null, null, "Frozen", at, ["XIU"]),
+            new(date, at, at.AddHours(6.5)), [], new Dictionary<Guid, DelphiLivePolicyDefinition>(),
+            new Dictionary<string, DelphiLiveFrozenCandidate>(), new Dictionary<string, DelphiLiveFrozenBaseline>());
+        var real = new EngineRealObservation(Guid.NewGuid(), Guid.NewGuid(), 1, reviewed, []);
+        var sources = new Dictionary<Guid, PaperComparisonSource> { [account.BatchId] = source };
+        var context = EngineRealObservation.IncludeDefinitions(empty, [real], sources);
+        var admission = Assert.IsType<PaperGateAdmission>(context.AdmissionFor(policy.PolicyVersionId));
+        admission.Validate(source.RunId, source.DailyStrategyVersionId, policy.PolicyVersionId, at);
+        Assert.Equal(account.AccountId, admission.AccountId); Assert.Equal(account.Profile, admission.Profile);
+        Assert.Equal(account.BatchId, admission.BatchId); Assert.Equal(source.RevisionId, admission.SourceRevisionId);
+        Assert.Equal(before, DelphiLiveLedgerJson.Serialize(reviewed)); Assert.Equal(fingerprint, reviewed.Fingerprint);
+        Assert.Equal(original.Strategy.PolicyVersionId, reviewed.Comparison!.LivePolicyVersionId);
+        // An already projected Paper source may coexist, but another source/profile may not.
+        Assert.Equal(admission, EngineRealObservation.IncludeDefinitions(context, [real], sources).AdmissionFor(policy.PolicyVersionId));
+        var conflict = context with { ComparisonAccounts = new Dictionary<Guid, PaperComparisonAccount>
+            { [policy.PolicyVersionId] = account with { PairId = Guid.NewGuid(), LivePolicyVersionId = policy.PolicyVersionId } } };
+        Assert.Throws<InvalidOperationException>(() => EngineRealObservation.IncludeDefinitions(conflict, [real], sources));
+        Assert.Throws<ArgumentException>(() => EngineRealObservation.IncludeDefinitions(empty,
+            [real with { Strategy = reviewed with { LiveComparisonSuccessor = null } }], sources));
+        Assert.Throws<ArgumentException>(() => EngineRealObservation.IncludeDefinitions(empty,
+            [real with { Strategy = reviewed with { Strategy = reviewed.Strategy with { LivePolicy = policy with { EntryCutoff = new TimeOnly(15, 40) } } } }], sources));
+    }
     [Fact]
     public async Task ExecutionSubscriptionMustMatchTheEntireVerifiedCurrentState()
     {

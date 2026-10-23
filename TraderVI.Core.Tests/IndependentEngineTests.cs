@@ -79,6 +79,28 @@ public class IndependentEngineTests
     }
 
     [Fact]
+    public async Task IdleSuccessDoesNotEraseTheLastMarketFailureEvidence()
+    {
+        var recovered = Signal(); int calls = 0;
+        var engine = new IndependentEngine([new("Market", TimeSpan.FromMilliseconds(5), () =>
+        {
+            if (Interlocked.Increment(ref calls) == 1) throw new ArgumentException("private source payload");
+            recovered.TrySetResult(); return Task.CompletedTask;
+        })], () => Task.CompletedTask, () => Task.CompletedTask);
+        try
+        {
+            await engine.StartAsync(); await recovered.Task.WaitAsync(Deadline);
+            await engine.StopAsync().WaitAsync(Deadline);
+            var lane = Assert.Single(engine.ReadStatus().Work);
+            Assert.Equal("Waiting", lane.State); Assert.Equal(0, lane.ConsecutiveFailures);
+            Assert.NotNull(lane.LastFailed); Assert.Equal("ArgumentException", lane.LastFailureType);
+            Assert.True(lane.LastCompleted >= lane.LastFailed);
+            Assert.DoesNotContain("private source payload", System.Text.Json.JsonSerializer.Serialize(lane));
+        }
+        finally { await engine.StopAsync().WaitAsync(Deadline); }
+    }
+
+    [Fact]
     public async Task StopDuringStartupPreventsEveryLaneAndCleansUpOnce()
     {
         var started = Signal(); var release = Signal(); int calls = 0, closed = 0;

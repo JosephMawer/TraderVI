@@ -10,7 +10,11 @@ namespace Core.Runtime;
 
 public sealed record EngineWork(string Name, TimeSpan Interval, Func<Task> Execute);
 public sealed record EngineWorkStatus(string Name, string State, DateTimeOffset? LastStarted,
-    DateTimeOffset? LastCompleted, int ConsecutiveFailures);
+    DateTimeOffset? LastCompleted, int ConsecutiveFailures)
+{
+    public DateTimeOffset? LastFailed { get; init; }
+    public string? LastFailureType { get; init; }
+}
 public sealed record IndependentEngineStatus(Guid InstanceId, string State, DateTimeOffset CheckedAt,
     ImmutableArray<EngineWorkStatus> Work)
 {
@@ -98,11 +102,12 @@ public sealed class IndependentEngine
                 lock (sync) status[lane.Name] = status[lane.Name] with
                     { State = "Waiting", LastCompleted = time.GetUtcNow(), ConsecutiveFailures = 0 };
             }
-            catch
+            catch (Exception error)
             {
                 // No exception text, broker/account data or credentials are exposed to the control channel.
                 lock (sync) status[lane.Name] = status[lane.Name] with
-                    { State = "Blocked", ConsecutiveFailures = System.Math.Min(1000, status[lane.Name].ConsecutiveFailures + 1) };
+                    { State = "Blocked", ConsecutiveFailures = System.Math.Min(1000, status[lane.Name].ConsecutiveFailures + 1),
+                        LastFailed = time.GetUtcNow(), LastFailureType = error.GetType().Name };
             }
             try { await Task.Delay(lane.Interval, time, stopScheduling.Token).ConfigureAwait(false); }
             catch (OperationCanceledException) when (stopScheduling.IsCancellationRequested) { return; }

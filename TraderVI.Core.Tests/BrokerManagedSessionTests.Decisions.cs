@@ -13,6 +13,18 @@ namespace TraderVI.Core.Tests;
 public sealed partial class BrokerManagedSessionTests
 {
     [Fact]
+    public async Task MissingMarketInputsAreSavedAsWaitingForInputsRatherThanNoSignal()
+    {
+        var x = ContinuedFixture(); await x.Workflow().ApproveAsync(x.Approval());
+        x.F.TransformInput = input => input with { LiveInputs = [], SourceWarnings = ["PRIVATE source diagnostic"] };
+        var result = await x.F.Workflow().TickAsync(x.F.Binding.BindingId);
+        var trace = Assert.IsType<BrokerDecisionTrace>(result.LatestDecision);
+        Assert.Equal(0, trace.MarketInputs!.EvaluatedSymbols);
+        Assert.Contains("no current-session market input", trace.Summary);
+        Assert.DoesNotContain("PRIVATE", JsonSerializer.Serialize(trace));
+        Assert.Empty(result.Orders); Assert.Equal(0, x.F.Transport.Sent);
+    }
+    [Fact]
     public async Task MultipleBuyRecommendationsRecordSelectionDeferralWithoutSendingTwoOrders()
     {
         var x = ContinuedFixture(); await x.Workflow().ApproveAsync(x.Approval()); OfferContinuationSignal(x);

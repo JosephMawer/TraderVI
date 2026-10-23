@@ -7,7 +7,10 @@ has been published today. The 10:10 checkpoint has 35 usable instruments of 41; 
 shared cycle is the empty 09:35 checkpoint. Installed-code offline replay reproduces a policy-admission
 mismatch: the validated real strategy uses its reviewed progressive successor, while the independent
 collector passes the original comparison policy reference into admission. The account loop's
-"no confirmed entry signal" summary omits this missing-input condition. No repair is installed.
+"no confirmed entry signal" summary omits this missing-input condition. Joseph has now authorized
+correction, testing and installation. The adapter/diagnostic fix is implemented; exact saved-source
+offline replay reaches evaluation for all40 candidates. No repair is installed yet. Current-session
+updated-build review also needs correction before Joseph can approve the changed executable.
 Broker history remains unchanged, with no holdings or pending orders; current managed revision476,
 head/projection hashes and scoped holds pass. The watch now checks collection/publication freshness.
 [Diagnosis and remaining repair](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

@@ -13,6 +13,38 @@ namespace TraderVI.Core.Tests;
 
 public sealed class TradingDecisionDiagnosticsTests
 {
+    [Fact]
+    public void MarketDiagnosticsDistinguishMissingStaleAndFreshWithoutRequiringNewRowsEveryPoll()
+    {
+        var input = TradingRecommendationTests.LiveInput();
+        var result = TradingRecommendationEngine.Evaluate(input);
+        var fresh = TradingMarketInputTrace.Capture(input, result)!;
+        Assert.Equal(2, fresh.SuppliedObservations); Assert.Equal(1, fresh.EvaluatedSymbols);
+        Assert.Equal(1, fresh.FreshSymbols); Assert.Equal(input.LiveInputs[^1].Input.BarEndUtc, fresh.LatestBarUtc);
+        var next = input with { LiveInputs = [], PreviousMemory = result.Memory };
+        var retained = TradingMarketInputTrace.Capture(next, TradingRecommendationEngine.Evaluate(next))!;
+        Assert.Equal(0, retained.SuppliedObservations); Assert.Equal(1, retained.FreshSymbols);
+        var staleInput = next with { EvaluatedUtc = input.EvaluatedUtc.AddTicks(1) };
+        var stale = TradingMarketInputTrace.Capture(staleInput, TradingRecommendationEngine.Evaluate(staleInput))!;
+        Assert.Equal(1, stale.EvaluatedSymbols); Assert.Equal(0, stale.FreshSymbols);
+        var missingInput = input with { LiveInputs = [] };
+        var missing = TradingMarketInputTrace.Capture(missingInput, TradingRecommendationEngine.Evaluate(missingInput))!;
+        Assert.Equal(0, missing.EvaluatedSymbols); Assert.Null(missing.LatestBarUtc);
+        var trace = new BrokerDecisionTrace(input.EvaluatedUtc, input.EvaluatedUtc, [], [], [], "NoRecommendation", null, null);
+        Assert.Contains("no current-session market input", (trace with { MarketInputs = missing }).Summary);
+        Assert.Contains("stale", (trace with { MarketInputs = stale }).Summary);
+        Assert.StartsWith("Fresh shared market inputs evaluated", (trace with { MarketInputs = retained }).Summary);
+        Assert.Contains("uncertain", (trace with { MarketInputs = missing, SelectionOutcome = "SubmissionOutcomeUnknown" }).Summary);
+        var legacyJson = JsonSerializer.Serialize(trace);
+        Assert.DoesNotContain("MarketInputs", legacyJson);
+        Assert.Equal(legacyJson, JsonSerializer.Serialize(JsonSerializer.Deserialize<BrokerDecisionTrace>(legacyJson)));
+        foreach (var outside in new[] { input.SessionOpenUtc.AddDays(-1), input.EvaluatedUtc.AddMinutes(1) })
+        {
+            var memory = result.Memory with { Symbols = result.Memory.Symbols.SetItem("ABC", result.Memory.Symbols["ABC"] with { LastLiveBarUtc = outside }) };
+            Assert.Equal(0, TradingMarketInputTrace.Capture(input, result with { Memory = memory })!.EvaluatedSymbols);
+        }
+        Assert.Null(TradingMarketInputTrace.Capture(TradingRecommendationTests.Input(), result));
+    }
     [Theory]
     [InlineData("missing", "QuoteNotReturned")]
     [InlineData("failed", "QuoteUnavailable")]

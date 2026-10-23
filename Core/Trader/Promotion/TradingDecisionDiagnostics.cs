@@ -16,10 +16,29 @@ public sealed record TradingQuoteAttempt(string Symbol, DateTime? RequestedUtc, 
     string Outcome, string? ErrorType = null);
 public sealed record TradingQuoteReadResult(ImmutableArray<TradingQuote> Quotes,
     ImmutableArray<TradingQuoteAttempt> Attempts, ImmutableArray<string> NewRiskBlocks);
+// Counts describe consumed inputs, not permission, signal qualification or a broker fill.
+public sealed record TradingMarketInputTrace(int SuppliedObservations, int EvaluatedSymbols,
+    int FreshSymbols, DateTime? LatestBarUtc)
+{
+    public static TradingMarketInputTrace? Capture(TradingRecommendationInput input, TradingRecommendationResult result)
+    {
+        if (input.Assignment.Strategy.Family != TradingStrategyFamily.DelphiLive) return null;
+        var policy = input.Assignment.Strategy.ReadLivePolicy();
+        // Reads are incremental. A poll with no new rows may still have fresh evaluated memory.
+        var consumed = result.Memory.Symbols.Values.Where(s => s.LastLiveResult is not null &&
+            s.LastLiveBarUtc >= input.SessionOpenUtc && s.LastLiveBarUtc <= input.SessionCloseUtc &&
+            s.LastLiveBarUtc <= input.EvaluatedUtc).ToArray();
+        return new(input.LiveInputs.Length, consumed.Length,
+            consumed.Count(s => input.EvaluatedUtc - s.LastLiveBarUtc!.Value <= policy.BarInterval + policy.CollectionOffset),
+            consumed.Select(s => s.LastLiveBarUtc).DefaultIfEmpty().Max());
+    }
+}
 public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset RecordedAt,
     ImmutableArray<TradingEntryDecision> Entries, ImmutableArray<TradingQuoteAttempt> QuoteAttempts,
     ImmutableArray<string> NewRiskBlocks, string SelectionOutcome, string? SelectedSymbol, string? SelectedAction)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public TradingMarketInputTrace? MarketInputs { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? FailureType { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -41,7 +60,13 @@ public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset R
         _ => EntrySummary
     };
     [System.Text.Json.Serialization.JsonIgnore]
-    private string EntrySummary => Entries.IsEmpty ? "No confirmed entry signal at this evaluation."
+    private string EntrySummary => Entries.IsEmpty ? MarketInputs switch
+        {
+            { EvaluatedSymbols: 0 } => "Waiting for verified shared market inputs; no current-session market input has been evaluated.",
+            { FreshSymbols: 0 } => "Waiting for fresh shared market inputs; previously evaluated inputs are stale.",
+            { FreshSymbols: > 0 } => "Fresh shared market inputs evaluated; no confirmed entry signal at this evaluation.",
+            _ => "No confirmed entry signal at this evaluation."
+        }
         : string.Join("; ", Entries.GroupBy(e => e.Outcome).Select(g => $"{Label(g.Key)}: {g.Count()}")) + ".";
 
     private static string Label(string outcome) => outcome switch

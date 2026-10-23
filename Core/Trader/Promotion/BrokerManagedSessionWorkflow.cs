@@ -402,7 +402,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             ExecutionSelection = selected is null ? null : selected.Symbol == e.Symbol && selected.Action is "Buy" or "Add"
                 ? "Selected" : selected?.Action == "Sell" ? "DeferredForProtectiveExit" : "DeferredForEarlierRecommendation"
         }).ToImmutableArray(), quotes?.Attempts ?? [], result.EntryRiskBlocks ?? [], outcome, selected?.Symbol, selected?.Action)
-        { QuoteReadBlocks = quotes?.NewRiskBlocks ?? [] } : null;
+        { QuoteReadBlocks = quotes?.NewRiskBlocks ?? [], MarketInputs = TradingMarketInputTrace.Capture(input, result) } : null;
 
     private Task<BrokerManagedSession> SaveDecisionOutcome(IBrokerManagedSessionLease lease, BrokerManagedSession state,
         string outcome, CancellationToken ct) => state.LatestDecision is null ? Task.FromResult(state)

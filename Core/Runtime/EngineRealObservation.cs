@@ -51,7 +51,9 @@ public sealed record EngineRealObservation(Guid BindingId, Guid SessionId, long 
                 throw new InvalidOperationException("One market policy identity has conflicting definitions.");
             policies[policy.PolicyVersionId] = policy;
             if (item.Strategy.Comparison is not { } account) continue;
-            // Preserve the originally reviewed source identity, including its separately reviewed successor.
+            // Validate above authorizes only the exact reviewed successor. Project that policy for
+            // admission without rewriting the immutable original comparison or saved strategy.
+            account = account with { LivePolicyVersionId = policy.PolicyVersionId };
             if (comparisons.TryGetValue(policy.PolicyVersionId, out var prior) && prior != account &&
                 prior with { LivePolicyVersionId = account.LivePolicyVersionId } != account)
                 throw new InvalidOperationException("One market policy identity has conflicting admission sources.");
