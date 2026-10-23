@@ -113,9 +113,15 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Diagnose the11:45 confirmed entry's preflight failure: revision823 records SQL51501 from a
   separate risk-read transaction reacquiring the held account lock; no order intent/submission.
   Joseph authorizes correction, tests and normal restart installation.
-- [ ] Complete Release/install of the same-transaction risk read (524 focused/3,105 full Core pass; nine native SQL skips);
-  verify fresh source and current financial/history guards, then Joseph's build approval/enable and
-  native preflight progress. Preserve the lock through submission and all original authority/expiry.
+- [x] Validate/install same-transaction risk read ba3ece6a: 524 focused/3,105 full Core pass (nine native
+  SQL skips), Release pass/260 existing warnings. Normal restart at12:09:37; all128 candidate/122
+  retained hashes pass, prior binaries preserved.12:13–14 Connected/Off, fresh publication, broker
+  history, head/projection/checkpoint and scoped-hold checks pass.
+- [x] Verify Joseph's changed-build approval898 at12:17:33/separate enable and actual real consumption
+  on ba3ece6a: revision904 evaluates40 fresh symbols through12:15, no entry/risk/quote block or failure.
+- [ ] Observe native preflight progress on the next qualified entry. The new12:10 continuity boundary
+  requires rolling observations to mature; preserve original gaps, all financial authority/expiry and
+  the account lock through submission. Fresh evaluation alone does not verify SQL51501 recovery.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

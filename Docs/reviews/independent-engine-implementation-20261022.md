@@ -1,9 +1,10 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Fresh real evaluation reaches a confirmed entry on the11:45 bar, but revision823 records
-PreflightFailed/SQL51501 before reservation. Joseph authorizes a tested lock correction and normal
-restart installation.524 focused/3,105 full Core tests pass (nine native SQL skips); Release, installation and native verification
-remain. No first fill; the existing watch stays active.**
+Status: **Lock correction ba3ece6a is installed12:09:37 after524 focused/3,105 full Core passes
+(nine native SQL skips) and Release/260 existing warnings. Joseph's approval898 at12:17:33 and separate
+enable are verified. Native12:18 checks show Connected/Running and real consumption/evaluation through
+12:15, no current entry or failure. Rolling signals are warming after the restart. Native preflight
+progress awaits the next qualified entry; no first fill. The existing watch stays active.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -30,8 +31,45 @@ Joseph explicitly approves fixing, testing and installing this correction with a
 This is separate from the read-only heartbeat. Any changed-build financial review/approval and host
 enable remain his own actions.524 focused tests pass, including held-lock writer exclusion,
 single-attempt behavior, risk drift, blocked/failed/cancelled reads, unchanged cutoff and manual-buy
-tests. All3,105 full Core tests pass (nine native SQL skips) with test-collection concurrency disabled; Release and installation are pending. No native lock rehearsal or order
-submission was issued by the agent; native progression remains to be observed after operator enable.
+tests. All3,105 full Core tests pass (nine native SQL skips) with test-collection concurrency disabled.
+Release succeeds with260 existing compiler warnings/zero errors. NuGet access initially fails inside
+the sandbox; the approved dependency restore succeeds outside it. Audit is disabled; no new dependency
+security assessment or complete SSDT solution qualification is claimed. No native lock rehearsal or
+agent order submission was issued; native progression remains to be observed after operator enable.
+
+The guarded installation completes12:09:37 from committed ba3ece6a. Normal dashboard closure and
+engine drain finish before seven runtime files are replaced. All128 candidate/122 retained files
+match;129 prior files remain backed up. Normal EngineBrokerService.CloseAsync disables the host;
+the stopped grant bytes are retained unchanged through replacement/restart. Engine32308/dashboard22000
+start in standard Release, normal mode, execution Off. No old enabled grant is restored.
+
+At12:13:26 broker capture32b41b27-fa3d-4843-85ce-f822d79f7248 verifies zero holdings/pending orders,
+unchanged37-order history and matching holdings/history.12:13 controls show Connected/Off, no market
+worker failure; existing Paper failures stay separate.12:14:13 hash-checked SQL retains managed897
+from12:09:01, inline empty orders, one target-date risk event, valid head/projection/current-checkpoint
+hashes and unchanged eight Paper restrictions with no Broker/Global hold. The new engine collects
+the12:10 bar and publishes40 matching-policy inputs at12:12:11–12 (33 valid/on-time, seven missing/
+stale). All are WarmingUp after continuity starts12:10. Actual real consumption remains the pre-stop
+12:05 bar because execution is Off. Do not claim new-build account evaluation or lock recovery yet.
+Joseph is asked to use the next scheduled12:17 publication for his own review/approval/enable within
+the existing two-minute freshness window; original limits/16:00 expiry remain unchanged.
+
+Installation evidence: ignored account-fence-fix-20261023/cutover/completed.json, stopped-grant.json,
+cutover-manifest.json, release.log and full.log. Post-install query receipt
+result-20261023T161413850Z-0a1cc3631cdd454eb2667bbd2834cc48.json uses the same watch hash below.
+
+Joseph confirms all three UI steps succeed. The12:18:10 SQL receipt verifies ImplementationReviewed
+revision898 at12:17:33 and the exact referenced build-review content hash, linked to the original
+dated permission. Controls confirm Connected/Running. Real revision904 evaluates at12:17:53 with
+40 supplied/evaluated/fresh symbols through12:15, NoRecommendation, empty entry/risk/quote-block
+arrays and no failure. Publication12:17:16 contains40 matching-policy inputs,34 valid/on-time and
+six missing/stale; all are WarmingUp with continuity start12:10. No old missing endpoint is invented.
+128 installed candidate hashes still match. Head/projection/checkpoint hashes pass, inline orders
+remain empty, one target-date risk event, zero Broker/Global holds and eight Paper restrictions.
+Receipt result-20261023T161810309Z-ba7a7f0424a44e078d8ef5bb22d68c5f.json uses the same watch hash.
+The correction is tested/installed and actual new-build evaluation is verified; the next qualified
+entry must exercise native preflight before claiming the SQL51501 blocker operationally resolved.
+The existing watch continues for that evidence and the first attributable broker-confirmed fill.
 
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;

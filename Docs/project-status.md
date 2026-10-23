@@ -1,17 +1,26 @@
 # TraderVI Project Status
 
-## Independent engine — confirmed entry blocked by account-lock reentry; repair authorized
+## Independent engine — account-lock correction installed and enabled; fresh evaluation verified
 
-**Current evidence (October 23, 11:48–11:50 Toronto):** installed 5144535c publishes and consumes fresh
+**Evidence through October 23, 12:18 Toronto:** the preceding installed 5144535c publishes and consumes fresh
 inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
 SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
 separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
 tests and installation with a normal restart. The correction reads risk in the already-held safety
 transaction and retains that lock through submission, preserving ADR-0086's existing contract.
-524 focused and3,105 full Core tests pass (nine native SQL skips); Release, installation and native verification are pending. Any changed-build
-approval and separate host enable remain Joseph's actions. Head/projection/checkpoint hashes pass;
-one October 23 risk event, zero Broker/Global holds and eight Paper restrictions remain. The 11:49
-broker read confirms zero holdings/pending orders and unchanged history. No first trade is confirmed.
+524 focused and 3,105 full Core tests pass (nine native SQL skips); Release passes with 260 existing
+compiler warnings. Correction ba3ece6a installs at 12:09:37 through a normal stop/restart (engine 32308,
+dashboard 22000), with all 128 candidate/122 retained hashes verified and old binaries preserved.
+At 12:14, Connected/execution Off and valid head/projection/checkpoint hashes are verified; one
+October 23 risk event, zero Broker/Global holds and eight Paper restrictions remain. The 12:13 broker
+read confirms zero holdings/pending orders and unchanged history. The new engine publishes 40 inputs
+through 12:10 at 12:12:12, 33 valid/on-time, all warming after the honest 12:10 continuity boundary.
+Joseph's build approval saves revision898 at12:17:33, followed by his separate host enable. Native
+12:18 checks confirm Connected/Running and revision904 evaluating40 supplied/evaluated/fresh symbols
+through12:15, with no entry/risk/quote block or failure. Latest publication has34 valid/on-time pairs;
+all40 remain warming after the restart. Native preflight progression awaits the next qualified entry;
+fresh evaluation alone does not prove SQL51501 recovery. No first trade is confirmed. NuGet audit/full
+SSDT solution and native SQL concurrency qualification are not requalified.
 [Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.

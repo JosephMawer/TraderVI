@@ -26,8 +26,10 @@ full Core/Release validation and ADR-0107 current-session build review pass.1a79
 the real-source review follow-up5144535c installs11:10:57. Joseph's updated-build approval and separate
 enable succeed. Fresh real consumption produces a confirmed entry on the11:45 bar, but buy preflight
 fails SQL51501 by reacquiring its held account lock through a separate risk transaction. Joseph
-authorizes a tested correction and normal restart installation. Read risk within the existing safety
-transaction, then verify the installed correction after his own build approval and separate enable.
+authorizes a tested correction and normal restart installation. Correction ba3ece6a is installed at
+12:09:37. Joseph's build approval898 and separate enable pass; native12:18 checks verify fresh real
+consumption through12:15. Risk reads now use the existing safety transaction. Observe the next
+qualified entry's native preflight and first fill; rolling signals are warming after the restart.
 Continue the first-fill watch without weakening existing controls or erasing source gaps.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
