@@ -1,13 +1,19 @@
 # TraderVI Project Status
 
-## Independent engine — corrected risk read exercised; current buy blocked by ask-price guard
+## Independent engine — price diagnostic approved and running; native capture pending
 
-**October 23,14:04 diagnostic validation:** Joseph authorizes capture of the rejected reference/broker
-ask and available timestamps, tests and installation under unchanged controls.491 focused/3,112 full
-Core pass (nine native SQL skips); isolated Release passes/260 existing warnings. The optional private
-trace preserves unknown source time and existing financial history. Normal installation and Joseph's
-changed-build review/enable remain pending.14:04 broker still has zero holdings/pending and unchanged
-37-order history; no first fill. [Diagnostic work](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
+**October 23,14:22 verification:** diagnostic43424435 is installed14:08:39 in standard
+Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
+128 candidate/122 retained hashes pass; previous binaries are backed up. Engine44052/dashboard46816
+are normal Running and Connected with execution Running after Joseph's own approval1379 at14:17:52
+and separate enable. The saved approval matches the exact installed Core hash. Revision1400 evaluates
+40 supplied/evaluated/fresh symbols through14:15 with NoRecommendation, no failure and empty entry/
+risk/quote blocks. Publication has40 inputs,34 valid/on-time, all warming after honest14:10 continuity.
+Original dated authority/risk3 and valid head/projection/checkpoints remain; zero Broker/Global holds
+and eight Paper restrictions. The first native price receipt/fill remains pending. The guard, limits
+and16:00 expiry remain. The watch is updated and active;14:18 broker has zero holdings/pending and
+unchanged37-order history. No new-build rejection or passed complete buy preflight is claimed.
+[Diagnostic work](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
 
 **Evidence through October 23, 13:34 Toronto:** correction ba3ece6a is installed and Joseph's own
 build approval898/separate enable are preserved. A confirmed13:25 entry reaches native buy preflight

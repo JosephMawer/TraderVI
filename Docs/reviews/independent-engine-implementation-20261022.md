@@ -1,10 +1,11 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Joseph authorizes the rejected-buy price diagnostic, tests and installation. Source and
-491 focused/3,112 full Core tests pass (nine native SQL skips); isolated Release passes with260 existing
-warnings. Normal cutover and operator changed-build review/enable remain pending. The currently
-installed ba3ece6a has verified corrected native risk-read progression but no complete preflight/fill.
-The existing first-fill/material-blocker watch stays active; the price guard is unchanged.**
+Status: **Rejected-buy diagnostic43424435 is installed14:08:39 Toronto after491 focused/3,112 full Core
+passes (nine native SQL skips) and Release/260 existing warnings.128 candidate/122 retained hashes pass;
+Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connected/Running, exact
+approved Core hash and real1400 consumption of40 fresh symbols through14:15. All remain warming
+after14:10 continuity; first native price receipt/fill is still pending. The watch stays active and
+the price guard is unchanged.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -37,7 +38,48 @@ result-20261023T180410415Z-d2e96cbd424b4db3967cfbd08db9bb31.json matches the exi
 query31595C58F8C592A8E7B5675E5F4CE2BC060EB569EACBAF3D586695ECC2D8C2BE. Private evidence/builds
 stay under artifacts/buy-price-diagnostic-20261023. Installation, Joseph's own ADR-0107 build review/
 approval and separate enable, fresh new-build consumption and a native rejected-price receipt remain
-pending; passing offline tests does not establish any of those milestones or a fill.
+pending at that pre-cutover checkpoint; subsequent installation evidence follows.
+
+Normal cutover completes14:08:39 from committed43424435. The prior dashboard closes normally and
+engine drains/stops before replacement.129 original runtime files are backed up; all128 candidate and
+122 retained hashes pass after seven files are replaced. Engine44052/dashboard46816 use the standard
+Release path; normal Running/execution Off is verified and stopped execution-grant bytes remain
+unchanged through replacement/restart. Installed Core SHA256
+E9CF43F61E6BBABC60BA7BF521B194B4B61D7897AC77B7E233746556657CFB0B. No migration, hold clearance,
+financial renewal, model/nightly run, agent approval/enable or test order is performed.
+
+The14:12:48 controls are Connected/execution Off. At14:13:39 the fixed SQL receipt
+result-20261023T181339167Z-3dcfcfbef53d4ed880701362ab1430af.json verifies the preserved managed1378
+head/projection/checkpoints, original dated authority/build review898, one target-date risk event,
+zero Broker/Global holds and eight Paper restrictions. Collection publishes40 matching-policy inputs
+through14:10 at14:12:15,30 valid/on-time, all warming with explicit14:10 continuity after restart.
+Original source gaps remain; new-build real consumption is not claimed while Off. The current stored
+1378 evaluation predates the replacement. Old rejection1267 correctly has no newly captured prices.
+
+The reviewed combined private query artifacts/buy-price-diagnostic-20261023/watch-and-rejected-prices.sql
+has SHA256437665204B0A496485D4DAF7F736075A7491A2F228DF0017F1189C6B9C3D9622. Set22 restores and
+hash-checks both the price comparison and nested reference quote when present. Its first fixed-helper
+receipts pass; absence on old failures remains unavailable evidence. The normal mailbox is restored.
+The existing heartbeat is updated ACTIVE through16:05 with this build, expected review-pending Off
+state, exact query/hash and one-time new-price-evidence reporting; no duplicate or Paper-watch change.
+Joseph is asked to perform Review updated build, Approve reviewed build and Enable reviewed host just
+after14:17, respecting the existing two-minute publication review window. Limits/16:00 expiry remain.
+Joseph subsequently confirms all three actions succeeded.14:20:58 controls independently show
+Connected/Running. Fixed receipt result-20261023T182114641Z-244cb4fbc1dc457bb5f4b4e0376e8f75.json
+matches the normal diagnostic query hash and verifies real1397 consumption. The bounded follow-up
+verify-approved-build.sql, SHA256BE0A49EC04A2A2A17FAB25F14F8E4A46D71F63DD9AFF6D765E0A96E5D0DA65D7,
+adds only exact installed-Core equality and latest approval revision. Its14:22:23 receipt
+result-20261023T182223566Z-db8290ec18b648e3b61689f4aa587272.json confirms ImplementationReviewed1379
+at14:17:52, hash-verified review bound to the dated permission, and exact installed-Core match.
+Real1400 evaluates14:21:49 with40 supplied/evaluated/fresh symbols through14:15, NoRecommendation,
+empty entry/risk/quote blocks, no failure and inline empty orders. Publication14:17:22 supplies40
+inputs,34 valid/on-time, zero mature/confirmations; all40 are WarmingUp after14:10 continuity.
+Head/projection/checkpoint hashes pass, one target-date risk event, zero Broker/Global holds and
+eight Paper restrictions remain.14:18:07 fixed broker capturef3f38fe0-755b-4f83-96cb-a0400a30ad37
+has zero holdings/pending, unchanged37-order history and matching holdings/history. The latest
+rejection remains old1267 without price fields; no new-build price capture or full preflight pass
+is claimed. The normal mailbox is restored and watch state/prompt are updated to avoid obsolete
+approval-pending alerts. No further operational action or agent financial approval/enable occurs.
 
 ## October 23 buy-preflight account-lock correction
 

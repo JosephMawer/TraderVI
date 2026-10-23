@@ -129,8 +129,14 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Implement/test the subsequently authorized private rejected-buy price diagnostic:491 focused/
   3,112 full Core passes (nine native SQL skips), Release/260 existing warnings. Retain unchanged price
   guard, old trace compatibility and unknown source time. [Diagnostic](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
-- [ ] Install diagnostic through normal cutover; obtain Joseph's own changed-build approval/enable,
-  verify fresh evaluation and inspect the next actual rejected-buy receipt without forcing a signal.
+- [x] Install diagnostic43424435 through normal cutover14:08:39;128 candidate/122 retained hashes pass,
+  previous binaries retained.14:12 Connected/Off and14:13 fresh14:10 publication/unchanged hashes/holds
+  are verified. Original dated permission/history remain; restart continuity is explicit.
+- [x] Verify Joseph's own changed-build approval1379 at14:17:52/separate enable and exact installed
+  build match.14:22 read verifies real1400 consuming/evaluating40 fresh symbols through14:15,
+  NoRecommendation/no failure/empty orders; all symbols still warming after14:10 continuity.
+- [ ] Inspect the next actual rejected-buy price receipt without forcing a signal. First-fill watch
+  remains active; no new-build rejection or complete preflight/submission qualification is claimed.
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,
