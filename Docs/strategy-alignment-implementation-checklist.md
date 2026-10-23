@@ -57,9 +57,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Correct shared-runtime packaging, install matching standard Release a94c474a and verify native
   startup in broker-disabled mode plus persisted audit resume. Restore the original nightly enabled
   state without launching it. Record private runtime hashes and process/mode evidence.
-- [ ] Complete remaining Paper recovery coverage, review and explicitly resolve relevant holds, and finish remaining
-  native concurrency/latency/restore acceptance. Read-only progress supervision is active; incomplete
-  coverage is not a pass. Real trading remains disabled until operator review of results.
+- [x] Complete the original Paper recovery plan. The hash-verified October 23 00:02 read confirms saved
+  Complete at October 22 23:43:48 Toronto, 205,058 verified units and unchanged plan; all receipt/checkpoint
+  hashes pass. This proves the saved plan's coverage, not unrestricted paper operation or whole-run capacity.
+- [ ] Review and explicitly resolve the eight retained Paper restrictions, and finish remaining native
+  concurrency/latency/restore acceptance. Recovery completion does not clear holds or enable trading.
 - [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
   with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
 - [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
@@ -83,9 +85,12 @@ The overnight target was missed. Completed source work is separate from installe
   refresh, broker/local-journal history synchronization, zero pending orders and strategy restore pass.
 - [x] Observe installed setup after Joseph opens it: storage installed, Review2026-10-23, approval and
   enable disabled. Core3,074pass/nine native skips; both Release builds pass/260existing warnings.
-- [ ] On October 23 confirm target-date Valid OfficialPaper evidence uses October 22 and the exact saved
-  definition/models; refresh account/risk/allowance/no-outside-changes and installed dated/build review.
-  Desktop helper setup-click geometry is unavailable; operator opening may be needed. Report before 09:15.
+- [x] Verify October 23 scheduled nightly success, target-date Valid OfficialPaper evidence using October 22
+  and exact saved definition/four models/input contract; refresh broker/history/no-pending checks and
+  normal Connected/execution Off status. Joseph reconfirms no outside changes and opens setup himself.
+- [ ] Diagnose and fix the installed continuation approval's account-risk event size rejection; preserve
+  original records/limits and qualify corrected installation before a fresh
+  operator review/approval. Keep the 08:30 follow-up/report before 09:15.
 - [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
   only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/

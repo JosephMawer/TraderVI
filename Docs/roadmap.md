@@ -10,15 +10,15 @@ and source review points; use its owning-record links when resuming work.
 
 **Current request — complete the revised architecture:** ADRs0103/0104 independence, shared/current
 storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
-clearance pass, including the separately authorized post-Windows-restart proof/clearance. Paper resumes
-its original cursor with eight retained restrictions. ADR-0105 is installed in normal mode with execution Off;
-current broker/history, native synchronization and unchanged runtime checks pass in c86f375d.
-Next complete the October 23 pre-open current account/risk/daily/source/exact-build review after the
-scheduled nightly run. The new chat wakes 08:30 Toronto and targets reporting before 09:15; dated financial
-approval and separate enable remain Joseph's later actions, outside this readiness task's authority.
-Keep real trading disabled and do not wait for Paper completion. [Evening evidence/morning sequence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
+clearance pass, including the separately authorized post-Windows-restart proof/clearance. Paper completes
+its original recovery plan with eight restrictions retained. ADR-0105 is installed in normal mode with
+execution Off. October 23 nightly/daily/exact-model checks pass; Joseph's own continuation approval then
+fails at the account-risk event size guard. Diagnose and correct that save path, preserving historical
+records and limits, then verify the installed review before Joseph's own dated approval/separate enable.
+The S54 readiness chat retains its 08:30 Toronto follow-up/report before 09:15. Actual trades depend on
+qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
-Complete remaining paper coverage and native concurrency, market-hours latency, interruption/restore
+Review retained Paper restrictions and complete native concurrency, market-hours latency, interruption/restore
 and weekly capacity acceptance. Preserve exact permission, freshness and financial history. Measure
 residual full broker-append/historical-hash cost and storage growth; extend paths if capacity fails.
 Backup/migrations047–051/checkpoints are complete; nightly scheduling is restored. The overnight target

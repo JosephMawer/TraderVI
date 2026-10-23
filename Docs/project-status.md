@@ -1,22 +1,27 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 resumed; October 23 pre-open review pending
+## Independent engine — October 23 nightly passes; continuation save blocked
 
-**Current evidence through 23:32 Toronto:** Joseph authorizes restarting the unchanged installed build,
-fresh Real-only recovery, then the reviewed two-incident clearance. Engine 28744 runs normally with
-broker Connected and execution Off; dashboard 19808 restores account/history and strategy state.
-All 129 captured runtime files match. The new Real proof completes 260/260 at 23:21:31; the 23:31 read confirms
-zero Broker/Global holds, eight retained Paper restrictions, valid receipt/checkpoint hashes and the
-original Paper cursor advancing to 31,788. The extra Paper restriction preserves the Windows interruption.
-The original expired financial permission and execution-grant bytes remain unchanged. No approval/order.
+**Current overnight evidence:** the scheduled October 23 nightly succeeds through Hermes, Delphi and
+Athena at 00:40:12 Toronto. The hash-verified 00:41 database read confirms Valid October 23 daily evidence
+using October 22 and exact agreement with the saved configuration, four models and input contract.
+The 00:40 broker read confirms cash-only holdings, no pending orders and matching history. At 00:41,
+engine 28744 remains normal/Connected/execution Off. Zero Broker/Global holds and eight Paper restrictions
+remain. Original Paper recovery is saved Complete at October 22 23:43:48 with 205,058 verified units;
+all receipt/checkpoint hashes pass. Completion does not clear Paper restrictions or qualify capacity.
 
-Cash-only broker/history/pending-order and native local-journal synchronization checks pass. Current
-saved model binding/input contract and all four models/configuration match the latest Valid October 22
-daily run. October 23 evidence and its installed dated account/risk/source/build review remain pending.
-Nightly is enabled for 00:30 Toronto; a one-date 08:30 follow-up in the new chat targets a report before 09:15.
-Joseph attests no outside changes this evening; refresh that interval tomorrow. Desktop setup clicking
-is unavailable through the helper, so operator opening may be needed. Paper completion is independent.
-[Owning evening evidence and morning sequence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
+Joseph reconfirms no outside changes, opens the installed review and attempts approval himself. The
+screen reports **Account risk event exceeds the supported size; no event was saved.** Diagnosis/fix of
+that save path is now the immediate blocker. No financial approval or enable is claimed. The requested
+early nightly start was rejected at the tool permission prompt; the normal schedule supplied this run.
+The redundant overnight follow-up is removed; the one-date 08:30 check/report before 09:15 remains.
+[Owning overnight evidence and blocker](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
+
+The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;
+fresh Real recovery 260/260 and separately authorized two-incident clearance passed. Native account/
+local-journal synchronization and restored strategy were observed. Original expired permission and
+execution-grant bytes were unchanged before the attempted approval; the 00:45 read confirms no October 23
+risk event and unchanged managed revision 259.
 
 **Preparation passed before the restart.** ADR-0105 next-session review and its account
 transport correction are installed in standard Release from c86f375d (following 444026c7). Engine
@@ -49,7 +54,7 @@ be qualified by this after-hours preparation.
 
 Backup/copy/synchronization, migrations 047–051 and prepared checkpoints are complete. Native single
 ownership, dashboard-close survival, graceful stop and saved-cursor resume pass. Nightly's original
-schedule is restored. Remaining paper coverage, concurrency, abnormal interruption/restore and weekly
+schedule is restored. Paper hold review, concurrency, abnormal interruption/restore and weekly
 capacity stay open. The overnight target was missed; no historical deletion, cleanup or measured disk
 saving is claimed. Dependency security and the complete SSDT solution were not requalified here.
 

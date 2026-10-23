@@ -1,8 +1,58 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
 Status: **standard Release c86f375d resumed October 22 at 23:12 Toronto under explicit authority.
-Fresh Real recovery and separately authorized clearance pass; execution remains Off. October 23 review is pending.**
-The overnight target was missed. Full paper coverage and remaining native acceptance are incomplete.
+Fresh Real recovery and separately authorized clearance pass; execution remains Off. October 23 nightly
+evidence passes; Joseph's attempted continuation approval is blocked by the risk-event size limit.**
+The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
+restrictions and remaining native acceptance are separate unfinished work.
+
+## October 23 overnight readiness
+
+The fixed-helper 00:02:24 Toronto read confirms original Paper recovery
+`2581cceb-d128-4170-a97e-3b42625f440d` saved **Complete** at October 22 23:43:48.3447306 Toronto,
+revision 2186, with 205,058 verified units, TargetIndex 4 and NextRevision 0. Its original plan hash
+`9AC139920635ED19F17D5A3A39649F7F1EB58A74AED93FD2110DF5F64879F7CB` is unchanged. All recovery receipt
+and current-checkpoint hash checks pass. This confirms coverage of that fixed plan, not a claim about
+physical row counts, later writes or measured sustained capacity. Zero Broker/Global holds and all eight
+Paper restrictions remain; no clearance or financial approval follows automatically. The original Paper
+monitor remains responsible for its own completion report and cleanup.
+
+Joseph requests readiness overnight for the upcoming Friday October 23 session and asks whether the
+nightly can start early. The manual scheduled-task start is rejected at the tool permission prompt; no
+manual run is issued. The unchanged scheduled task starts normally at 00:30:01 Toronto, run
+`c5fcb858-8994-4cd9-9c13-4fa40f6155d8`. Its isolated source capture/locked restore/Release build succeeds
+at 00:32:43; Hermes succeeds at 00:39:22, Delphi at 00:39:47 and Athena at 00:40:12. Overall status is
+Succeeded. No schedule, strategy, model, gate or threshold is changed to force trades.
+
+The 00:41:01 hash-verified database read confirms exactly one October 23 OfficialPaper run, Valid and
+using October 22 data, created 00:39:46 from captured commit 2f922af3. Exact saved configuration, all four
+model identities/hashes, active daily version, binding checksum, input contract and retained policy match.
+The 00:40:34 fixed broker read succeeds: zero holdings/pending orders and matching broker history, with no
+credential changes or orders. The 00:41:27 controls confirm the same engine instance, normal Running,
+Connected and execution Off. Broker/Global holds remain zero; eight Paper restrictions remain.
+
+Joseph reconfirms no outside changes since his earlier attestation, opens Execution setup, reviews and
+attempts approval himself. His screenshot reports `Account risk event exceeds the supported size; no
+event was saved.` Approval and enable remain disabled. Source locates this rejection before INSERT in
+`BrokerAccountRiskContinuationRepository.AppendAsync`, after serialization exceeds the existing 256 KiB
+guard. The 00:45:31 fixed-helper read confirms no October 23 risk event, latest risk sequence 2 dated
+October 21, and unchanged managed revision 259. A focused preservation-compatible fix is pending.
+No agent financial approval, enable or order is performed. The 08:30 same-chat follow-up remains;
+the redundant 00:45 follow-up is deleted after nightly completion. Live source/latency and actual order/
+protection qualification remain distinct from this successful pre-open evidence.
+
+Private evidence: `oct23-midnight-*` under `artifacts/independent-engine/native`, and fixed-helper receipt
+`result-20261023T040223919Z-9f0afe8a2ee04c5b82ecd58f98b274f7.json`, checked against query SHA256
+`6614C8741939CA572EF8E82CEA7A7F7134250BDA071BAFC840D5F40BDFACC990`. Post-nightly receipt
+`result-20261023T044100982Z-ad25db30d78040c6be9ed9fa418983f1.json` matches the same reviewed hash;
+broker capture is `c7a708cf-05a7-4e6a-82a7-2758dd53425b` and controls are `oct23-post-nightly-*`.
+The no-partial-save receipt is `result-20261023T044531220Z-55f311473ec643e28c0703910ea542b4.json`,
+verified against query SHA256 `9A8F0B165E941305439F3900F0C86986AC46880B926EF3A8C2B8B451534535DA`.
+Its optional current-state risk-path size fields are unavailable; the authoritative continuation and
+managed-revision rows establish the unchanged saved outcome. An earlier diagnostic used the wrong
+managed-row timestamp column and was rejected without publishing results.
+The scheduled run's status/log
+live under `%LOCALAPPDATA%/TraderVI/Nightly`; no manual start-request receipt exists.
 
 ## October 23 preparation — October 22 evening recovery
 
