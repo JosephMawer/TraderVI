@@ -47,7 +47,7 @@ architecture documentation.
 | [0104](0104-scoped-recovery-and-sequential-history-audits.md) | Scoped recovery and sequential history audits | Accepted; source implemented, native qualification pending; real trading remains disabled | architecture, data-pipeline |
 | [0102](0102-bounded-immutable-live-evaluation-save-recovery.md) | Bounded immutable Live evaluation-save recovery | Accepted SQL-only fix; native cause/capacity unverified | architecture, data-pipeline, risk-management |
 | [0101](0101-october22-portfolio-rules-only-review.md) | October 22 Portfolio rules only review | Accepted preparation only; operator approval/enable separate | architecture, risk-management, user-interface |
-| [0100](0100-live-entry-and-order-decision-traces.md) | Live entry and order decision traces | Accepted October 21; source/offline validation | architecture, decision-engine, risk-management |
+| [0100](0100-live-entry-and-order-decision-traces.md) | Live entry and order decision traces | Accepted October 21; October 23 rejected-buy price comparison amendment | architecture, decision-engine, risk-management |
 | [0099](0099-exact-report-sharing-in-live-writes.md) | Exact report sharing in Live snapshot writes | Accepted October 21; offline validation in progress | architecture, data-pipeline |
 | [0098](0098-verified-snapshot-read-reuse-and-build-review.md) | Verified snapshot read reuse and dated build review | Accepted October 21; native acceptance pending | architecture, risk-management |
 | [0097](0097-reviewed-october21-portfolio-rules-only-source-switch.md) | Reviewed October 21 Portfolio rules only source switch | Accepted October 21; explicit operator approval/enable required | architecture, risk-management, decision-engine, user-interface |

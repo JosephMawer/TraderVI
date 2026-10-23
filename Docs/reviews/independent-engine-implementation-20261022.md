@@ -1,14 +1,43 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Lock correction ba3ece6a is installed12:09:37 after524 focused/3,105 full Core passes
-(nine native SQL skips) and Release/260 existing warnings. Joseph's approval898 at12:17:33 and separate
-enable are verified. The confirmed13:25 entry passes the corrected native risk read and fresh broker/
-account checks, then AskAboveDecisionReference blocks before reservation at1247/13:27:40 and1259/
-13:31:36.13:34 execution is in backoff;13:33 broker has no new orders/fills. The separately authorized
-three-request TMX comparison confirms raw source gaps and exact installed-adapter preservation.
-Full preflight/submission/protection remain unqualified. The existing watch stays active.**
+Status: **Joseph authorizes the rejected-buy price diagnostic, tests and installation. Source and
+491 focused/3,112 full Core tests pass (nine native SQL skips); isolated Release passes with260 existing
+warnings. Normal cutover and operator changed-build review/enable remain pending. The currently
+installed ba3ece6a has verified corrected native risk-read progression but no complete preflight/fill.
+The existing first-fill/material-blocker watch stays active; the price guard is unchanged.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 23 rejected-buy price diagnostic
+
+After the13:48 investigation established missing comparison amounts, Joseph explicitly asks to capture
+both prices and available timestamps on the next rejected buy, test/install, preserve the guard and
+continue watching. The [ADR-0100 amendment](../adr/0100-live-entry-and-order-decision-traces.md#october-23-amendment-rejected-buy-price-comparison)
+supersedes its price exclusion only for this private AskAboveDecisionReference trace. The transport
+adds exact reference/broker ask, broker quotedAsOf/receipt and comparison-observation time to the
+existing tagged rejection. The workflow enriches it from the same selected in-memory TMX quote with
+Ask/Price provenance and request/receipt times; unknown TMX source time stays null. No new broker/TMX
+read, decision rule, order identity, reservation, source, grant or financial permission is introduced.
+Ordinary summaries/exception messages omit prices; old traces omit the optional field and retain
+serialization compatibility. Failed diagnostic persistence cannot replace the original error or retry.
+
+Validation completes14:04 Toronto:491 focused tests and3,112 full Core tests pass; nine native SQL
+tests are skipped. Full Core runs with collection parallelism disabled, matching the established
+timing-test qualification. Seven new cases cover strict above/equal/below comparison, ask/last-price
+fallback, available timestamps, archive/restart preservation, absent legacy fields, unrelated rejection
+and failed evidence-save behavior. Initial archive assertions compared equivalent raw JSON escaping;
+the corrected tests compare deserialized/reserialized saved contracts. Isolated WPF/engine Release
+passes with260 existing compiler warnings and no errors. SDK10.0.401. Initial test restore was blocked
+by sandbox socket access; the approved rerun succeeds. NuGet audit is disabled for these runs and
+dependency-security qualification is not renewed. Full SSDT solution and native SQL tests are not run.
+
+Pre-cutover14:04 fixed broker capture2a356d35-cd5e-42c8-9211-91b784c5fb00 has zero holdings/pending,
+unchanged37-order history and matching holdings/history. Fixed SQL receipt
+result-20261023T180410415Z-d2e96cbd424b4db3967cfbd08db9bb31.json matches the existing combined watch
+query31595C58F8C592A8E7B5675E5F4CE2BC060EB569EACBAF3D586695ECC2D8C2BE. Private evidence/builds
+stay under artifacts/buy-price-diagnostic-20261023. Installation, Joseph's own ADR-0107 build review/
+approval and separate enable, fresh new-build consumption and a native rejected-price receipt remain
+pending; passing offline tests does not establish any of those milestones or a fill.
 
 ## October 23 buy-preflight account-lock correction
 

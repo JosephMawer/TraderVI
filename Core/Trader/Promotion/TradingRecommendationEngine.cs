@@ -366,7 +366,7 @@ public static class TradingRecommendationEngine
         return "QuoteNotUsable";
     }
 
-    private static TradingQuote? Quote(TradingRecommendationInput input,string symbol) => input.Quotes.LastOrDefault(q=>Same(q.Symbol,symbol)&&
+    internal static TradingQuote? Quote(TradingRecommendationInput input,string symbol) => input.Quotes.LastOrDefault(q=>Same(q.Symbol,symbol)&&
         q.SourceContract=="TmxQuoteFieldsV1" && q.RequestedUtc>=input.EvaluatedUtc && q.ReceivedUtc>=q.RequestedUtc &&
         q.ReceivedUtc<=input.EvaluatedUtc+(input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
             ? input.Assignment.Strategy.ReadLivePolicy().QuoteAttemptWindow : ProgressiveProfitProtection.MaximumReceiptAge) && q.ReceivedUtc<input.SessionCloseUtc);

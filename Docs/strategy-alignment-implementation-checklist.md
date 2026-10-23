@@ -125,8 +125,12 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Observe all remaining preflight checks passing and qualify actual submission/order/protection.
   Current ask-price rejection/backoff is preserved; native risk-read progression is not a full buy pass.
   The13:48 follow-up verifies recent TMX receipt (1.581s before latest failure save), not upstream
-  quote age. The price pair is not retained; exact gap is unavailable. Same-attempt diagnostics are
-  proposed only; no source/price-rule change is agreed. [Limits](reviews/independent-engine-implementation-20261022.md#october-23-reference-price-freshness-and-missing-comparison-amounts).
+  quote age. The old price pair is not retained; its exact gap remains unavailable.
+- [x] Implement/test the subsequently authorized private rejected-buy price diagnostic:491 focused/
+  3,112 full Core passes (nine native SQL skips), Release/260 existing warnings. Retain unchanged price
+  guard, old trace compatibility and unknown source time. [Diagnostic](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
+- [ ] Install diagnostic through normal cutover; obtain Joseph's own changed-build approval/enable,
+  verify fresh evaluation and inspect the next actual rejected-buy receipt without forcing a signal.
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,

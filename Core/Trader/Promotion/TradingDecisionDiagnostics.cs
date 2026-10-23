@@ -5,7 +5,8 @@ using System.Linq;
 
 namespace Core.Trader.Promotion;
 
-// Private, account-scoped SQL evidence. No credentials, provider text, balances or quote prices.
+// Private, account-scoped SQL evidence. No credentials, provider text or balances. The explicitly
+// approved rejected-buy comparison is the only diagnostic that retains quote prices (ADR-0100).
 // These observations never grant permission or participate in trading decisions.
 public sealed record TradingEntryDecision(string Symbol, DateTime? SignalBarUtc, string Outcome)
 {
@@ -47,6 +48,8 @@ public sealed record BrokerDecisionTrace(DateTime EvaluatedUtc, DateTimeOffset R
     public string? LocalCheckExplanation { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FailureSqlNumber { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerBuyPriceComparison? RejectedBuyPrices { get; init; }
     public ImmutableArray<string> QuoteReadBlocks { get; init; } = [];
     [System.Text.Json.Serialization.JsonIgnore]
     public string Summary => SelectionOutcome switch
@@ -95,16 +98,30 @@ public enum BrokerOrderCheck
     AccountIdentityChanged, InstrumentChanged, CurrencyChanged, CashChanged, BuyingPowerChanged, HoldingsChanged
 }
 
-internal sealed record BrokerOrderFailure(BrokerOrderCheck Check, string? LocalExplanation);
+// These facts explain a failed comparison; they never authorize or retry an order. BrokerQuotedAsOf
+// is broker-reported, not a verified exchange timestamp. TMX currently supplies no source quote time.
+public sealed record BrokerBuyPriceComparison(decimal ReferencePrice, decimal BrokerAsk,
+    DateTimeOffset BrokerQuotedAsOf, DateTimeOffset BrokerRetrievedAt, DateTimeOffset ComparedAt)
+{
+    public BrokerDecisionReferenceQuote? ReferenceQuote { get; init; }
+    public override string ToString() => "Rejected buy price comparison (private values omitted)";
+}
+public sealed record BrokerDecisionReferenceQuote(string SourceContract, string PriceField,
+    DateTime RequestedUtc, DateTime ReceivedUtc, DateTime? SourceQuotedUtc);
+
+internal sealed record BrokerOrderFailure(BrokerOrderCheck Check, string? LocalExplanation,
+    BrokerBuyPriceComparison? PriceComparison = null);
 internal static class BrokerOrderFailureEvidence
 {
     private const string Key = "TraderVI.FixedOrderCheck";
     // Preserve existing exception types/messages and financial behavior. Only known local checks
     // supply explanations; exception/provider messages are never copied to the durable trace.
-    public static InvalidOperationException Tag(string message, BrokerOrderCheck check, string? localExplanation = null)
+    public static InvalidOperationException Tag(string message, BrokerOrderCheck check, string? localExplanation = null,
+        BrokerBuyPriceComparison? priceComparison = null)
     {
         var error = new InvalidOperationException(message);
-        error.Data[Key] = new BrokerOrderFailure(check, localExplanation);
+        error.Data[Key] = new BrokerOrderFailure(check, localExplanation,
+            check == BrokerOrderCheck.AskAboveDecisionReference ? priceComparison : null);
         return error;
     }
     public static BrokerOrderFailure? Read(Exception error) => error.Data[Key] as BrokerOrderFailure;

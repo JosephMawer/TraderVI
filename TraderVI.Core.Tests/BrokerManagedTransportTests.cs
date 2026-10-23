@@ -177,6 +177,39 @@ public sealed class BrokerManagedTransportTests
         Assert.Equal(0, f.Buys.Submissions); Assert.Empty(f.Journal.ReadAll());
     }
 
+    [Theory]
+    [InlineData("9.99")][InlineData("10")][InlineData("10.0001")]
+    public async Task RejectedBuyCapturesExactPricePairWithoutChangingTheStrictGuard(string askText)
+    {
+        var f = new Fixture();
+        decimal ask = decimal.Parse(askText, System.Globalization.CultureInfo.InvariantCulture);
+        var quote = f.Buys.Context.Quote with { Ask = ask, QuotedAt = f.Clock.Now.AddSeconds(-8),
+            RetrievedAt = f.Clock.Now.AddSeconds(-2) };
+        f.Buys.Context = f.Buys.Context with { Quote = quote };
+        if (ask > f.Order.ReferencePrice)
+        {
+            var error = await Assert.ThrowsAsync<InvalidOperationException>(() => f.Transport.PrepareAsync(f.Order, f.Projection, default));
+            var known = BrokerOrderFailureEvidence.Read(error)!;
+            Assert.Equal(BrokerOrderCheck.AskAboveDecisionReference, known.Check);
+            var prices = Assert.IsType<BrokerBuyPriceComparison>(known.PriceComparison);
+            Assert.Equal(f.Order.ReferencePrice, prices.ReferencePrice);
+            Assert.Equal(ask, prices.BrokerAsk);
+            Assert.Equal(quote.QuotedAt, prices.BrokerQuotedAsOf);
+            Assert.Equal(quote.RetrievedAt, prices.BrokerRetrievedAt);
+            Assert.Equal(f.Clock.Now, prices.ComparedAt);
+            Assert.Null(prices.ReferenceQuote); // The transport cannot invent TMX provenance.
+            Assert.DoesNotContain(askText, error.Message);
+            Assert.DoesNotContain(askText, prices.ToString());
+        }
+        else
+        {
+            await using var prepared = await f.Transport.PrepareAsync(f.Order, f.Projection, default);
+            Assert.True(f.Safety.Held);
+        }
+        Assert.Empty(f.Journal.ReadAll()); Assert.Equal(0, f.Buys.Submissions);
+        Assert.Equal(1, f.Gate.CurrentCount); Assert.False(f.Safety.Held);
+    }
+
     [Fact]
     public async Task NativeTimeoutKeepsOriginalJournalIntentUnknown()
     {

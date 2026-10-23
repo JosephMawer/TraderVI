@@ -2,6 +2,13 @@
 
 ## Independent engine — corrected risk read exercised; current buy blocked by ask-price guard
 
+**October 23,14:04 diagnostic validation:** Joseph authorizes capture of the rejected reference/broker
+ask and available timestamps, tests and installation under unchanged controls.491 focused/3,112 full
+Core pass (nine native SQL skips); isolated Release passes/260 existing warnings. The optional private
+trace preserves unknown source time and existing financial history. Normal installation and Joseph's
+changed-build review/enable remain pending.14:04 broker still has zero holdings/pending and unchanged
+37-order history; no first fill. [Diagnostic work](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
+
 **Evidence through October 23, 13:34 Toronto:** correction ba3ece6a is installed and Joseph's own
 build approval898/separate enable are preserved. A confirmed13:25 entry reaches native buy preflight
 at13:27:40 (revision1247). The corrected same-transaction account-risk read, fresh broker validation

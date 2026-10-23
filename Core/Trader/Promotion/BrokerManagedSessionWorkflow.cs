@@ -334,11 +334,13 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             return await SaveDecisionOutcome(lease, state, recommendation.Quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
         return await Submit(lease, state, new(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
             recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", recommendation.Quantity,
-            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct, evaluatedDecision: true);
+            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct, evaluatedDecision: true,
+            referenceQuote: !sell && input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
+                ? TradingRecommendationEngine.Quote(input, recommendation.Symbol) : null);
     }
 
     private async Task<BrokerManagedSession> Submit(IBrokerManagedSessionLease lease, BrokerManagedSession state,
-        BrokerStrategyOrder order, CancellationToken ct, bool evaluatedDecision = false)
+        BrokerStrategyOrder order, CancellationToken ct, bool evaluatedDecision = false, TradingQuote? referenceQuote = null)
     {
         IBrokerManagedOrderPreflight prepared;
         try
@@ -348,7 +350,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         }
         catch (Exception error)
         {
-            if (evaluatedDecision) await RecordDecisionFailure(lease, state, "PreflightFailed", error);
+            if (evaluatedDecision) await RecordDecisionFailure(lease, state, "PreflightFailed", error, referenceQuote);
             throw;
         }
         await using var preflight = prepared;
@@ -408,23 +410,34 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         string outcome, CancellationToken ct) => state.LatestDecision is null ? Task.FromResult(state)
         : Save(lease, Outcome(state, true, outcome), "DecisionDeferred", ct);
 
-    private async Task RecordDecisionFailure(IBrokerManagedSessionLease lease, BrokerManagedSession state, string outcome, Exception error)
+    private async Task RecordDecisionFailure(IBrokerManagedSessionLease lease, BrokerManagedSession state, string outcome, Exception error,
+        TradingQuote? referenceQuote = null)
     {
         if (state.LatestDecision is not { } trace) return;
         try
         {
-            await Save(lease, DecisionFailure(state, outcome, error),
+            await Save(lease, DecisionFailure(state, outcome, error, referenceQuote),
                 "DecisionStageFailed", CancellationToken.None);
         }
         catch { /* Preserve the original failure and any already-saved intent; never retry a financial action for telemetry. */ }
     }
 
-    private static BrokerManagedSession DecisionFailure(BrokerManagedSession state, string outcome, Exception error)
+    private static BrokerManagedSession DecisionFailure(BrokerManagedSession state, string outcome, Exception error,
+        TradingQuote? referenceQuote = null)
     {
         if (state.LatestDecision is not { } trace) return state;
         var known = BrokerOrderFailureEvidence.Read(error);
+        var prices = outcome == "PreflightFailed" && known?.Check == BrokerOrderCheck.AskAboveDecisionReference
+            ? known.PriceComparison : null;
+        // Reuse the exact selected in-memory quote. Never substitute a new read or infer a missing
+        // source timestamp. A missing/mismatched reference remains explicitly unavailable.
+        if (prices is not null && referenceQuote is { SourceContract: "TmxQuoteFieldsV1" } quote &&
+            prices.ReferencePrice == (quote.Ask is > 0m ? quote.Ask : quote.Price))
+            prices = prices with { ReferenceQuote = new(quote.SourceContract, quote.Ask is > 0m ? "Ask" : "Price",
+                quote.RequestedUtc, quote.ReceivedUtc, null) };
         return state with { LatestDecision = trace with { SelectionOutcome = outcome, FailureType = error.GetType().Name,
             FailedOrderCheck = known?.Check, LocalCheckExplanation = known?.LocalExplanation,
+            RejectedBuyPrices = prices,
             FailureSqlNumber = error is Microsoft.Data.SqlClient.SqlException sql ? sql.Number : null } };
     }
 }

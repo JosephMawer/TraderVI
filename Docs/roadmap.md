@@ -32,9 +32,9 @@ consumption through12:15. Risk reads now use the existing safety transaction. A 
 passes that corrected native risk read and fresh broker/account checks, then the existing ask-price
 guard blocks before reservation (1247; same cause1259). Observe remaining preflight and the first fill
 under unchanged limits; no price guard change is authorized.
-Quote receipt timing is verified, but the actual ask/reference delta and upstream quote age are not
-retained. Any private same-attempt price comparison remains a proposed diagnostic, not an agreed
-source or trading-rule change. The requested12:37 checkpoint is complete: fresh12:35
+Joseph now authorizes the private rejected-buy price comparison and installation. Source/491 focused/
+3,112 full Core tests and isolated Release pass; normal cutover, operator changed-build review/enable
+and native capture remain. Preserve the price guard and unknown upstream timestamps. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only

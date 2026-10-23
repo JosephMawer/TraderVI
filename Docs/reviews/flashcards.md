@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Rejected-buy price evidence — ADR-0100 October 23 amendment
+
+- **Q:** Does a quote received one second ago prove its market price is current? **A:** No. Keep local request/receipt times separate from the source timestamp, and retain unknown source time explicitly.
+- **Q:** May saving a rejected buy's price pair retry or relax that buy? **A:** No. The diagnostic records the original failed comparison; even a failed evidence save preserves the rejection without a reservation or transmission.
+
 ### Dated build review — ADR-0107
 
 - **Q:** Does installing a correction renew trading permission? **A:** No. The operator's build approval binds the existing dated request; its expiry and financial history remain unchanged, and host enable stays separate.

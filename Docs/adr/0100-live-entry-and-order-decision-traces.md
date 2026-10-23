@@ -20,7 +20,8 @@ record does not change any condition, comparison, threshold, ordering or recomme
 
 Quote evidence distinguishes no request (readiness, stale signal or elapsed attempt window), a
 returned observation and an exception. Retain request/receipt times and exception type, never raw
-provider/SQL/exception messages, credentials or quote prices. Existing held-position quote priority
+provider/SQL/exception messages or credentials. Quote prices remain excluded except for the explicitly
+authorized rejected-buy comparison amendment below. Existing held-position quote priority
 and protection remain independent of entry readiness. Use the original 60-second observation phase,
 seven-minute signal age and existing quote contracts; do not refresh timestamps to create eligibility.
 
@@ -49,8 +50,33 @@ This records future observed outcomes. It cannot retrospectively recover October
 outcomes or establish native capacity. Installation, normal startup, exact build/source review,
 separate enable and any newly dated permission remain distinct operator-controlled steps.
 
+## October 23 amendment: rejected-buy price comparison
+
+Joseph explicitly requests capturing both prices and available timestamps on the next rejected buy,
+testing/installing the diagnostic and retaining the existing price guard. This supersedes only the
+quote-price exclusion for an AskAboveDecisionReference preflight rejection. The parent problem is
+distinguishing feed timing or ask/last-price differences from an unexplained execution blocker; the
+root goal remains reviewable trading under unchanged permission and risk controls.
+
+Attach the exact compared reference and broker ask to the existing private failure trace. Retain
+broker quotedAsOf, its local receipt and comparison-observation time. Enrich that trace with the
+same in-memory TMX quote selected by the recommendation engine: source contract, Ask/Price field,
+request and receipt times. Leave the unavailable TMX source timestamp explicitly null. Broker
+quotedAsOf is not a verified exchange-update timestamp. No new quote read, source substitution,
+threshold/tolerance, sizing, retry, reservation, approval or order action is added. No account amounts,
+credentials or raw provider messages are copied. Price values stay out of public timing logs, fixed
+exception messages and ordinary human summaries; inspect them through existing private evidence.
+
+The optional trace field is omitted when absent, preserving old serialized histories/fingerprints.
+Capture occurs only after the existing comparison rejects; financial order identities and journal
+records are unchanged. Failure to append diagnostics preserves the original rejection and cannot
+trigger a replacement attempt. Tests cover the exact equality boundary, price-field fallback,
+timestamps, shared-archive/restart round trips and failed diagnostic persistence. Installation requires
+normal drain/restart; ADR-0107 operator build review and separate host enable remain unchanged.
+
 ## Review questions
 
 1. Why does a confirmed signal still need a current quote, sizing and broker preflight?
 2. Why is a pending or missing trace not proof that every trading check passed?
 3. Why must an uncertain submission retain its original intent instead of retrying for diagnostics?
+4. Why does a quote received one second ago still need an explicit unknown source-time label?

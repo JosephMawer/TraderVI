@@ -56,7 +56,10 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                     projected.Risk.DailyLossHold || projected.Risk.CapitalReviewRequired || !projected.NewRiskBlocks.IsEmpty)
                     throw BrokerOrderFailureEvidence.Tag("The current ask or account risk no longer fits the strategy decision.",
                         context.Quote.Ask > order.ReferencePrice ? BrokerOrderCheck.AskAboveDecisionReference :
-                        order.Quantity * context.Quote.Ask > projected.Account.AvailableCash ? BrokerOrderCheck.AvailableCashExceeded : BrokerOrderCheck.AccountRiskBlocked);
+                        order.Quantity * context.Quote.Ask > projected.Account.AvailableCash ? BrokerOrderCheck.AvailableCashExceeded : BrokerOrderCheck.AccountRiskBlocked,
+                        priceComparison: context.Quote.Ask > order.ReferencePrice
+                            ? new(order.ReferencePrice, context.Quote.Ask, context.Quote.QuotedAt,
+                                context.Quote.RetrievedAt, clock.GetUtcNow()) : null);
                 var intent = new ManualBuyIntent(order.RequestId, context.Security.SourceIdentity!, account.Id, order.SecurityId,
                     account.DisplayName, order.Symbol, context.Security.Exchange, order.Quantity,
                     new(order.Symbol, "Reviewed real strategy · " + order.DecisionId.ToString("D"), "Buy")
