@@ -12,6 +12,75 @@ namespace TraderVI.Core.Tests;
 
 public sealed partial class BrokerManagedSessionTests
 {
+    [Theory]
+    [InlineData(-31)] [InlineData(360)] [InlineData(1440)]
+    public async Task DatedBuildReviewCannotApproveBeforeOpenAfterExpiryOrOnAnotherDate(int minutes)
+    {
+        var x = await SelectedSessionFixture(preOpen: false);
+        var prior = await x.Workflow().ApproveAsync(x.Approval());
+        x.F.RunningImplementation = "new-build"; x.F.Now = x.F.Now.AddMinutes(minutes);
+        var current = x.Current with { PreparedUtc = x.F.Now.UtcDateTime,
+            Strategy = prior.Strategy with { Strategy = prior.Strategy.Strategy with { ImplementationIdentity = x.F.ImplementationIdentity } } };
+        Assert.ThrowsAny<Exception>(() => BrokerImplementationReviewWorkflow.Prepare(prior, current, x.F.Now,
+            x.F.TransformAccount!(x.F.Project()), true, x.F.ImplementationIdentity, "fixture", SelectedSessionCalendar(), x.F.Now));
+        Assert.Equal(prior.RevisionId, x.F.Store.State!.RevisionId); Assert.Null(x.Grants.Value);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task BuildReviewBindsTheExistingDatedPermissionWithoutRenewingOrReplacingIt(bool selected)
+    {
+        Fixture f; HostGrants grants; BrokerManagedSession prior; BrokerStrategyReview current;
+        global::Core.Trader.DelphiLive.ITsxSessionCalendar calendar;
+        if (selected)
+        {
+            var x = await SelectedSessionFixture(preOpen: false);
+            prior = await x.Workflow().ApproveAsync(x.Approval());
+            f = x.F; grants = x.Grants; current = x.Current; calendar = SelectedSessionCalendar();
+        }
+        else
+        {
+            var x = await October22Fixture(preOpen: false);
+            prior = await x.Workflow().ApproveAsync(x.Approval());
+            f = x.F; grants = x.Grants; current = x.Current; calendar = October22Calendar();
+        }
+        var original = JsonSerializer.Serialize(prior);
+        f.RunningImplementation = "corrected-market-build";
+        current = current with { Strategy = prior.Strategy with { Strategy = prior.Strategy.Strategy with { ImplementationIdentity = f.ImplementationIdentity } } };
+        var proposal = BrokerImplementationReviewWorkflow.Prepare(prior, current, f.Now, f.TransformAccount!(f.Project()),
+            true, f.ImplementationIdentity, "fixture", calendar, f.Now);
+        Assert.Equal(prior.EffectiveReview.RequestId, proposal.Review.PermissionRequestId);
+        var workflow = new BrokerImplementationReviewWorkflow(f.Store, f, grants, calendar, new HostClock(f));
+        var saved = await workflow.ApproveAsync(proposal);
+        Assert.Equal(f.ImplementationIdentity, saved.Strategy.Strategy.ImplementationIdentity);
+        Assert.Equal(prior.EffectiveReview.RequestId, saved.EffectiveReview.RequestId);
+        Assert.Equal(prior.EffectiveReview.NoTransferScope!.PurchaseExpiresAt, saved.EffectiveReview.NoTransferScope!.PurchaseExpiresAt);
+        Assert.Equal(original, JsonSerializer.Serialize(prior));
+        Assert.Equal(BrokerAccountImport.Hash(prior.Account.Risk), BrokerAccountImport.Hash(saved.Account.Risk));
+        Assert.Equal(BrokerAccountImport.Hash(prior.SessionContinuation), BrokerAccountImport.Hash(saved.SessionContinuation));
+        Assert.Equal(BrokerAccountImport.Hash(prior.October22), BrokerAccountImport.Hash(saved.October22));
+        Assert.Equal(BrokerAccountImport.Hash(prior.Memory), BrokerAccountImport.Hash(saved.Memory));
+        Assert.Null(grants.Value); Assert.Equal(0, f.Transport.Sent);
+        foreach (Guid? wrong in new Guid?[] { null, Guid.NewGuid() })
+        {
+            var altered = saved with { ImplementationReview = saved.ImplementationReview! with { PermissionRequestId = wrong } };
+            Assert.Equal(prior.Strategy.Strategy.ImplementationIdentity, altered.Strategy.Strategy.ImplementationIdentity);
+            Assert.ThrowsAny<Exception>(() => BrokerManagedSessionRepository.ValidateNext(prior, altered, calendar));
+        }
+        f.Store.Restart();
+        Assert.Equal(saved.Strategy.Fingerprint, f.Store.State!.Strategy.Fingerprint);
+        var recovered = await workflow.ApproveAsync(proposal);
+        Assert.Equal(saved.RevisionId, recovered.RevisionId);
+        int polls = 0;
+        var host = new BrokerExecutionHost(grants, new BrokerManagedSessionControls(f.Store),
+            (s, ct) => { polls++; return Task.FromResult(s); }, calendar, f.ImplementationIdentity, new HostClock(f));
+        await host.PollAsync(true); Assert.Equal(0, polls);
+        await host.EnableAsync(saved.BindingId, saved.SessionId, saved.Strategy.Fingerprint, "fixture");
+        await host.PollAsync(true); Assert.Equal(1, polls);
+        f.Now = saved.EffectiveReview.NoTransferScope.PurchaseExpiresAt!.Value;
+        await host.PollAsync(true); Assert.Equal(1, polls);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => host.EnableAsync(saved.BindingId, saved.SessionId, saved.Strategy.Fingerprint, "fixture"));
+    }
     private sealed record BuildFacts(SourceSwitchFacts Source, BrokerManagedSession Prior, BrokerStrategyReview Current)
     {
         internal BrokerImplementationReviewWorkflow Workflow() => new(Source.Existing.F.Store, Source.Existing.F,

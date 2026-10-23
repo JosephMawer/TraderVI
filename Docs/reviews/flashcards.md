@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Dated build review — ADR-0107
+
+- **Q:** Does installing a correction renew trading permission? **A:** No. The operator's build approval binds the existing dated request; its expiry and financial history remain unchanged, and host enable stays separate.
+- **Q:** Can an empty incremental input read mean evaluation has stopped? **A:** Not by itself. Inspect the latest consumed bar and freshness in retained account memory, plus current shared publication.
+
 ### Selected-session risk storage — ADR-0106
 
 - **Q:** Does removing duplicate stored evidence remove history? **A:** No. The complete request remains, and the reader must reconstruct the identical full receipt and risk hash. Different or missing evidence fails.

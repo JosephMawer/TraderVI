@@ -9,8 +9,10 @@ mismatch: the validated real strategy uses its reviewed progressive successor, w
 collector passes the original comparison policy reference into admission. The account loop's
 "no confirmed entry signal" summary omits this missing-input condition. Joseph has now authorized
 correction, testing and installation. The adapter/diagnostic fix is implemented; exact saved-source
-offline replay reaches evaluation for all40 candidates. No repair is installed yet. Current-session
-updated-build review also needs correction before Joseph can approve the changed executable.
+offline replay reaches evaluation for all40 candidates. ADR-0107 current-session build review is
+also corrected:107 focused/3,101 full Core passes (nine native SQL skips), Release succeeds with260
+existing compiler warnings. No repair is installed yet; guarded installation and Joseph's own
+updated-build review/approval/enable precede live consumption verification.
 Broker history remains unchanged, with no holdings or pending orders; current managed revision476,
 head/projection hashes and scoped holds pass. The watch now checks collection/publication freshness.
 [Diagnosis and remaining repair](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

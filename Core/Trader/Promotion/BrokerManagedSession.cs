@@ -130,12 +130,18 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     {
         get
         {
-            if (SessionContinuation is not null) return SessionContinuation.Approval.Review;
             var review = Continuation?.Approval.Review ?? Approval.Review;
             if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
-            if (October22 is not null) return October22.Approval.Review;
-            return ImplementationReview is null ? review : review with { Strategy = review.Strategy with
-                { Strategy = review.Strategy.Strategy with { ImplementationIdentity = ImplementationReview.ImplementationIdentity } } };
+            if (October22 is not null) review = October22.Approval.Review;
+            if (SessionContinuation is not null) review = SessionContinuation.Approval.Review;
+            // Later dated permissions ignore legacy/earlier build approvals. A new build approval
+            // must bind this exact existing permission; it does not replace or renew that permission.
+            bool applies = ImplementationReview is not null &&
+                (SessionContinuation is null && October22 is null
+                    ? ImplementationReview.PermissionRequestId is null
+                    : ImplementationReview.PermissionRequestId == review.RequestId);
+            return !applies ? review : review with { Strategy = review.Strategy with
+                { Strategy = review.Strategy.Strategy with { ImplementationIdentity = ImplementationReview!.ImplementationIdentity } } };
         }
     }
     [JsonIgnore] public DateTime? StrategyEffectiveUtc => SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;

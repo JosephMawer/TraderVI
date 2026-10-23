@@ -32,9 +32,17 @@ the full SSDT solution are not requalified. Ignored evidence: real-input-success
 
 Installation also exposes an existing resumption defect: updated-build review is hard-coded to
 October21 and the effective-review getter ignores later build reviews after a dated continuation.
-This needs a tested current-session build-review correction before installation; Joseph's own
-updated-build approval and separate enable remain required. Existing runtime d8364eff is still
-running with the publication blocker while offline work proceeds.
+ADR-0107 corrects this by binding a build review to the exact existing dated permission request.
+Legacy hashes remain unchanged; earlier build reviews cannot override later permissions. All107
+focused build/continuation tests pass, followed by3,101 full Core passes/nine native SQL skips.
+Release WPF/engine builds pass with260 existing compiler warnings; no schema change or SSDT claim.
+Joseph's own updated-build approval and separate enable remain required. Existing runtime d8364eff
+is still running with the publication blocker while the authorized guarded installation is prepared.
+
+Pre-installation fixed reads:10:44 SQL verifies query hash, managed623 with empty orders and valid
+head/projection/checkpoints, one October23 risk event and the same eight Paper-only restrictions.
+No shared evaluations have appeared. At10:50 the broker helper confirms no holdings/pending orders,
+unchanged37-order history and matching holdings/history. No financial permission or order was changed.
 
 Joseph asks whether Delphi is receiving fresh data and evaluating it properly. Earlier09:39–09:56
 watch checks observe advancing account revisions, Connected/Running, empty order lists, valid current

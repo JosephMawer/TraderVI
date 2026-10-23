@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Exact build approval bound to existing dated financial permission
+
 - [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md) — Exact risk receipt reconstruction within the unchanged stored-event limit
 - [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Independent real execution, dashboard-independent lifecycle and accepted audit policy
 - [ADR-0105](0105-reviewed-selected-session-continuation.md) — Explicit dated real-account review with preserved references and bounded permission links
@@ -267,6 +269,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Preserve expiry/history and require separate operator approval and enable after repair
 
 - [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md) — Preserve original risk/history hashes while removing duplicated stored evidence
 - [ADR-0105](0105-reviewed-selected-session-continuation.md) — Dated cash-only review, preserved references and separate trading enable

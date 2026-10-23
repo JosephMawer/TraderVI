@@ -111,8 +111,9 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
-- [ ] Complete validation of the implemented successor-admission/missing-input diagnostic correction;
-  correct current-session updated-build review, install under Joseph's explicit authority, and observe
+- [x] Validate successor admission/missing-input diagnostics and ADR-0107 current-session build review:
+  exact saved-source replay,107 focused/3,101 full Core passes (nine native SQL skips), Release passes.
+- [ ] Install under Joseph's explicit authority, complete his updated-build review/enable, and observe
   fresh matching-policy publications consumed by real evaluation. Preserve all original gaps/holds.
 - [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
   Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove

@@ -45,6 +45,10 @@ and sustained native timing/continuity evidence remain required before claiming 
 
 ## Review questions
 
+The October21-only build-review restriction is superseded by
+[ADR-0107](0107-build-review-within-existing-dated-permission.md) for an existing explicitly approved
+dated continuation. Financial scope, expiry and separate operator approval/enable remain unchanged.
+
 1. Why must a cache hit compare fresh content strings as well as revision and hashes?
 2. Which financial and signal facts may an updated-build approval change?
 3. Why does a passing benchmark not prove collection deadlines or live buying readiness?

@@ -40,6 +40,7 @@ architecture documentation.
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0107](0107-build-review-within-existing-dated-permission.md) | Build review within existing dated permission | Implemented; validation and installation in progress | architecture, risk-management |
 | [0106](0106-exact-selected-session-risk-receipt-storage.md) | Exact selected-session risk receipt storage | Installed a090757f; operator approval retry pending | architecture, risk-management |
 | [0103](0103-real-execution-independent-of-paper-research.md) | Real execution independent of paper research | Independence, verification/audits and dashboard-close lifecycle accepted; staged delivery targets tonight, feasibility unverified | architecture, data-pipeline |
 | [0105](0105-reviewed-selected-session-continuation.md) | Reviewed selected-session continuation | Accepted; validation and cutover in progress; trading stays disabled | architecture, risk-management, user-interface |

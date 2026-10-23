@@ -11,6 +11,8 @@ namespace Core.Trader.Promotion;
 public sealed record BrokerImplementationReview(Guid ReviewId, Guid PreviousRevisionId, string PreviousSessionHash,
     string PreviousImplementation, string ImplementationIdentity, DateTimeOffset PreparedAt, DateTimeOffset ApprovedAt, string ReviewedBy)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? PermissionRequestId { get; init; }
     public override string ToString() => "Reviewed implementation update (financial data omitted)";
 }
 public sealed record BrokerImplementationReviewProposal(Guid BindingId, BrokerImplementationReview Review,
@@ -37,7 +39,8 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
         RequireAccount(prior, account, now);
         var id = BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:ImplementationReview:{implementation}");
         return new(prior.BindingId, new(id, prior.RevisionId, BrokerAccountImport.Hash(prior),
-            prior.Strategy.Strategy.ImplementationIdentity, implementation, now, default, reviewer), current.Strategy,
+            prior.Strategy.Strategy.ImplementationIdentity, implementation, now, default, reviewer)
+            { PermissionRequestId = DatedPermission(prior) }, current.Strategy,
             sourceUpdatedAt, new DateTimeOffset(current.PreparedUtc));
     }
 
@@ -90,17 +93,20 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     }
     private static void RequireSession(BrokerManagedSession prior, ITsxSessionCalendar calendar, DateTimeOffset now)
     {
-        var scope=prior.EffectiveReview.NoTransferScope;
-        scope?.Validate(calendar);
-        var bounds=calendar.GetSessionBounds(BrokerOctober21Continuation.ExecutionDate);
+        var scope=prior.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the existing dated permission.");
+        scope.Validate(calendar);
+        var bounds=calendar.GetSessionBounds(scope.Session);
         if (prior.Continuation is null || prior.SourceSwitch is null || prior.ActivatedAt is null ||
-            scope?.Session != BrokerOctober21Continuation.ExecutionDate || scope.FullFillOnlyNativeTrial != true ||
+            scope.Session != prior.EffectiveReview.Session ||
+            (DatedPermission(prior) is null && scope.Session != BrokerOctober21Continuation.ExecutionDate) || scope.FullFillOnlyNativeTrial != true ||
             prior.Strategy.GateProfile != PaperGateProfile.PortfolioRulesOnlyV1 ||
             now < bounds.OpenUtc || now >= bounds.CloseUtc || scope.PurchaseExpiresAt != bounds.CloseUtc ||
             prior.ReviewInvalidated || prior.TrialOrderReviewRequired || prior.Memory.DailyLossHold || prior.Memory.CapitalReviewRequired ||
             !prior.Orders.IsEmpty || !prior.Account.Positions.IsEmpty || !prior.Protection.IsEmpty)
             throw new InvalidOperationException("Build-only review requires today's unchanged cash-only continuation before 4 PM, without orders, positions or holds. Other states need separate recovery.");
     }
+    private static Guid? DatedPermission(BrokerManagedSession state) =>
+        state.SessionContinuation is not null || state.October22 is not null ? state.EffectiveReview.RequestId : null;
     private static void RequireAccount(BrokerManagedSession prior, BrokerAccountProjection account, DateTimeOffset now)
     {
         BrokerContinuationReviewPolicy.RequireCurrentAccount(account,now);
@@ -118,6 +124,7 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
             next.Event != "ImplementationReviewed" || next.RevisionId != review.ReviewId ||
             review.PreviousRevisionId != prior.RevisionId || !BrokerHistoricalStateHash.Matches(prior, review.PreviousSessionHash, historical) ||
             review.PreviousImplementation != prior.Strategy.Strategy.ImplementationIdentity ||
+            review.PermissionRequestId != DatedPermission(prior) ||
             string.IsNullOrWhiteSpace(review.ImplementationIdentity) || review.ImplementationIdentity == review.PreviousImplementation ||
             string.IsNullOrWhiteSpace(review.ReviewedBy) || review.ReviewedBy.Length > 128 ||
             review.PreparedAt > review.ApprovedAt || review.ApprovedAt != next.SavedAt || review.ApprovedAt-review.PreparedAt > TimeSpan.FromMinutes(2) ||
