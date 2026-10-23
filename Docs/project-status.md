@@ -2,7 +2,7 @@
 
 ## Independent engine — account-lock correction installed and enabled; fresh evaluation verified
 
-**Evidence through October 23, 13:03 Toronto:** the preceding installed 5144535c publishes and consumes fresh
+**Evidence through October 23, 13:14 Toronto:** the preceding installed 5144535c publishes and consumes fresh
 inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
 SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
 separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
@@ -29,6 +29,11 @@ price movement and structure lose full support. At13:00 it remains Watching with
 supportive. The13:03 read verifies actual consumption at revision1126,40 fresh symbols,no entry/failure/
 order and unchanged valid hashes/holds. Valid Normal data and no safety veto distinguish this ordinary
 signal weakening from an operational failure. Native preflight still awaits a qualified entry.
+The separate unavailable two-vote candidate lacks seven on-time exact stock bars ending12:40–13:10;
+its two votes are retained from12:35, not current support. Hash-verified receipts show successful but
+stale source responses and later off-grid records, with normal benchmark coverage. Real1171 consumes
+the13:10 publication without entry/failure/order. This candidate's source gap is unresolved; no adapter
+defect or repair is established. Further provider comparison needs separate authorization.
 [Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.

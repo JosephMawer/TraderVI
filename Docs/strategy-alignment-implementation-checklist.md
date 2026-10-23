@@ -130,6 +130,10 @@ The overnight target was missed. Completed source work is separate from installe
   The12:50 first strong reading breaks at12:55 as three families lose support;13:00 retains only volume
   support. Valid Normal evidence is consumed by real revision1126 at13:03,no entry/failure/order;
   native preflight remains pending. [Signal-gap evidence](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
+- [ ] Observe recovery of the unavailable candidate's exact stock-bar coverage. The13:14 saved-receipt
+  diagnosis verifies seven missing on-time endpoints through13:10 and two votes retained from12:35;
+  later source bars arrive stale and supplementary records cannot replace exact bars. No code defect
+  or repair is established. Additional provider comparisons need separate authorization; preserve gaps.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

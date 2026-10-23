@@ -154,6 +154,36 @@ query SHA256 9CA52A10A3F4B81247DC7EF2A4A50A114E5C59FC11850D00B3B737B27C6DF53B ma
 result-20261023T170901729Z-03578f061ee642e9b130b8a2fd700e7e.json; normal mailbox restored.
 No new operational blocker or native preflight progression is observed; existing watch remains active.
 
+Joseph's follow-up isolates that unavailable two-vote candidate at13:12–14. Its last valid/mature/
+Normal reading ends12:35; seven exact stock endpoints ending12:40–13:10 are missing from their
+on-time collections. Each request completes promptly before its deadline with StaleNoNewBar, rather
+than a transport error or missed schedule. Benchmark endpoints continue arriving normally. Three
+misses put the candidate in MonitoringLost; seven are now recorded. Fresh measured persistence,
+movement and volume report MissingExactEndpoint, while structure is unavailable. The evaluator
+deliberately retains prior clean momentum/family state on missing pairs: the two votes therefore
+describe12:35 memory, not two fresh supportive groups or current proximity to a buy.
+
+All eight normalized receipt hashes pass. Provider windows start09:30 and end at each actual fetch
+minute, confirming the existing ADR-0089 boundary handling. Latest aligned source starts remain12:30
+through the12:57 fetch, then advance only to12:40 in the13:02–13:12 fetches (bar ending12:45).
+Supplementary off-grid timestamps advance12:32 to12:44 to13:01, but cannot substitute for a complete
+requested five-minute bar. This proves stale/sparse normalized source coverage, not why TMX lacks
+timely exact bars, a trading halt, or a specific adapter defect. No new provider probe is run. A bounded
+provider comparison would need separate authorization; no policy relaxation, synthetic fill, history
+rewrite or operational repair is proposed. Recovery needs fresh exact pairs and complete rolling
+windows before new consecutive strong confirmation can qualify.
+
+Real1171 evaluates at13:12:20, consuming80 observations across40 evaluated/fresh symbols through13:10,
+NoRecommendation, no failure, empty entry/risk/quote blocks and inline empty orders. Head/projection/
+checkpoint hashes and scoped holds pass; native preflight remains unexercised. No broker read is
+repeated in this follow-up; the12:59:39 broker evidence retains its original date. The combined watch/
+candidate query hash37603E4FC92F998B83A0F3E3AAA091C77E88EB22F85C0A2CE3FF5AE3E3D5556A matches
+result-20261023T171246402Z-b805f7516d3e4a73821fd3514bc9d6a3.json. Metadata query hash
+C416B4A206FF747A1752BA9F81C3AF2C1EEB29AA0E09736051CF6903BDA204CB matches
+result-20261023T171402435Z-7cbe2d6dfb734da684656cd67424b4e9.json; the normal mailbox is restored.
+The candidate-specific coverage blocker is recorded for watch deduplication without claiming a
+whole-host failure, new financial authority or first fill.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture

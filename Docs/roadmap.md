@@ -36,6 +36,9 @@ The first post-restart strong reading at12:50 breaks confirmation at12:55; its13
 one supportive family. Await three-of-four support on two consecutive valid observations before
 evaluating native buy-check recovery.
 Continue the first-fill watch without weakening existing controls or erasing source gaps.
+Track the unavailable candidate's persistent stock-bar gap separately from momentum weakening:
+its retained two-vote state is not fresh support. Saved-source diagnosis is complete; any additional
+provider comparison requires separate authorization before deciding whether an adapter repair exists.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first
