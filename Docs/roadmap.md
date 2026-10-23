@@ -18,8 +18,12 @@ focused/full Core and Release checks and is installed through a guarded normal s
 The next operator attempt saves the October23 risk event but fails at the permission archive with SQL547.
 The tested archive correction d8364eff is installed under explicit authority. Joseph's fresh approval
 and separate enable now succeed: revision260 links to unchanged risk sequence3, and the host is armed
-for09:30. Current account/daily/model/hash and scoped-hold checks pass. Next observe regular-session
-account/risk/source readiness and execution behavior; pre-open arming does not promise a trade.
+for09:30. Pre-open account/daily/model/hash and scoped-hold checks pass. The later market-hours
+investigation finds fresh collection but no published signal inputs: the real-only source adapter
+retains the original comparison policy during admission despite a validated progressive successor.
+Next correct that adapter and missing-input diagnostics, validate preservation/regressions, then
+obtain appropriate installation authority and verify fresh publication/real consumption. No repair
+is installed; pre-open arming and the account's no-signal summary do not establish readiness.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first

@@ -106,7 +106,14 @@ The overnight target was missed. Completed source work is separate from installe
   Armed/Waiting for09:30, Connected,16:00 expiry. Broker history/holdings/pending checks pass; no
   Broker/Global holds. Complete/remove the one-date08:30 heartbeat; retain the separate Paper monitor.
 - [ ] Observe fresh regular-session account/risk/source checks and actual execution behavior.
-  Pre-open arming is not an order, populated-protection qualification or guaranteed trade.
+  Account polling works, but October23 shared signal publication is blocked. Pre-open arming and
+  an empty entry trace do not prove working signal evaluation or populated-protection qualification.
+- [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
+  original comparison admission mismatch offline with the installed assembly and saved definitions.
+  Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
+- [ ] Correct successor admission in the independent real-source adapter and surface missing-input
+  failures; validate exact identity/history preservation, obtain installation authority, and observe
+  fresh matching-policy publications consumed by real evaluation. Preserve all original gaps/holds.
 - [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
   Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove
   after today's final check. Monitoring grants no operational recovery or trading authority.

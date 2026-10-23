@@ -1,6 +1,16 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 operator-approved and armed
+## Independent engine — October 23 market-input publication blocked
+
+**Current blocker (10:13–10:14 Toronto):** fresh collection continues, but no shared signal evaluation
+has been published today. The 10:10 checkpoint has 35 usable instruments of 41; the only published
+shared cycle is the empty 09:35 checkpoint. Installed-code offline replay reproduces a policy-admission
+mismatch: the validated real strategy uses its reviewed progressive successor, while the independent
+collector passes the original comparison policy reference into admission. The account loop's
+"no confirmed entry signal" summary omits this missing-input condition. No repair is installed.
+Broker history remains unchanged, with no holdings or pending orders; current managed revision476,
+head/projection hashes and scoped holds pass. The watch now checks collection/publication freshness.
+[Diagnosis and remaining repair](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
 
 **Current installed state:** d8364eff is installed in standard Release at 03:51 Toronto after an
 explicitly authorized normal dashboard closure/engine drain. All 128 candidate and 122 retained files
@@ -19,7 +29,7 @@ The03:52 hash-verified read confirms the original risk event and managed259 cont
 one October23 risk event, matching target-date daily/four models, valid Real/Paper recovery and checkpoint
 hashes, zero Broker/Global holds and eight retained Paper restrictions. No migration or history rewrite.
 The later operator retry recovers the original risk event and saves permission without a duplicate.
-Opening account/risk/fresh-source checks and actual trading remain unobserved. No automatic renewal
+Post-open account polling is observed, but signal-input publication fails as diagnosed above. No automatic renewal
 follows today's16:00 expiry.
 [Morning verification and earlier diagnosis](reviews/independent-engine-implementation-20261022.md#morning-completion--operator-approved-and-armed).
 
@@ -30,8 +40,8 @@ Original Paper recovery completes at October22 23:43:48 with205,058 verified uni
 clear its restrictions or qualify capacity. The08:30 readiness follow-up is complete and its one-date
 heartbeat is removed; the original Paper monitor stays separate. No agent financial approval/enable/order.
 Joseph subsequently requests a new same-chat live watch: five-minute checks after09:30 through16:05
-for the first confirmed Delphi fill and meaningful blockers. It is scheduled, not yet an observation
-of market-hours execution; routine unchanged/no-signal waits stay quiet. See the owning review below.
+for the first confirmed Delphi fill and meaningful blockers. It remains active with the diagnosed
+publication failure reported and deduplicated; ordinary no-signal status alone cannot prove readiness.
 [Owning overnight evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;

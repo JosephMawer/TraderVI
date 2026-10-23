@@ -1,10 +1,71 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **October23 operator approval recovery and separate host enable succeed. Managed revision260
-saves at08:45:49 Toronto, linked to original risk sequence3. The08:46 controls report Connected and
-Waiting for09:30. Fresh opening inputs/checks and actual trading remain unobserved.**
+Status: **October23 approval/enable succeed, but market-hours signal publication is blocked.
+Fresh bars arrive; no shared evaluation reaches the real strategy. Installed-code offline replay
+reproduces the reviewed-successor admission mismatch. No repair is installed and no trade is observed.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 23 market-input publication blocker
+
+Joseph asks whether Delphi is receiving fresh data and evaluating it properly. Earlier09:39–09:56
+watch checks observe advancing account revisions, Connected/Running, empty order lists, valid current
+hashes and no Broker/Global hold. They do not establish source freshness. The account's compact
+decision trace omits source warnings, so its empty entries/"No confirmed entry signal" message misses
+the underlying publication failure. That monitoring conclusion was incomplete and is corrected here.
+
+The hash-verified10:03 read finds a frozen Valid daily session and41 subscribed instruments, but
+CoverageState Blocked/HostGapObserved. Collection completes on schedule after each five-minute bar.
+At10:02:10–10:02:13 the10:00 checkpoint has30 usable instruments, five NoCompletedBar and six
+StaleNoNewBar. At10:12:18–10:12:22 the10:10 checkpoint has35 usable and six stale instruments.
+These are original on-time receipts, not merely fresh polling timestamps. No evidence conflicts
+are recorded. Both shared and legacy evaluation counts are zero for this session. The only shared
+market cycle is09:35, published09:37:22 with zero inputs. Thus fresh collection is not reaching
+signal evaluation; this is not an ordinary absence of qualifying momentum.
+
+The10:07 read shows repeated continuity epochs ending after each collection, with HostStopped/
+StoppedEarly markers, then HostRestart recovery. These are workflow recovery markers, not evidence
+that the operating-system engine process restarted. Engine27724 remains the same owner. Private
+timings put the10:07 collection at3.43s and the following evaluation stage at0.19ms. The scheduler
+retains only current/consecutive failure status, which a later successful idle tick resets; the
+native exception itself is not retained in these diagnostics.
+
+Offline reproduction uses the installed Core assembly and the exact hash-verified saved comparison
+source and managed strategy. Strategy.Validate passes, including its explicit progressive-successor
+proof. Batch and daily identities match. The approved policy matches the read policy definition;
+the original Comparison.LivePolicyVersionId differs, as the preserved successor contract permits.
+EngineRealObservation.IncludeDefinitions validates the strategy but places that original comparison
+unchanged into the successor's policy context. AdmissionFor then calls PaperGateComparison.Admission,
+which rejects the unequal policy identity before evaluation persistence. Replaying that exact domain
+call fails with ArgumentException, "Comparison source and account assignments differ." This matches
+the observed boundary; it is an offline reproduction, not a captured native exception stack.
+The diagnostic executable performs only file reads/pure domain calls and builds with zero warnings
+or errors. Its deliberate rejection is the reproduced defect, not a passing runtime qualification.
+
+Required follow-up: adapt only the already-validated successor's collection admission while retaining
+the immutable original comparison/approval/history; add a regression covering an original comparison
+plus approved successor in real-only collection. Also expose missing shared inputs in real status and
+retain meaningful worker failure evidence across idle ticks. No production source change or install
+is performed by this read-only diagnosis. An installation must retain normal operational approval and
+current-build financial-authority checks. Do not clear historical gaps or infer repaired publication
+from a successful unit test. Observe new matching-policy inputs and actual real consumption afterward.
+
+At10:13:57 the strengthened watch query confirms managed476/StrategyEvaluated, selected permission,
+valid head/projection and all current checkpoint hashes, zero managed orders, zero Broker/Global holds
+and eight retained Paper restrictions. It still finds zero shared evaluations. At10:14:46 the fixed
+broker helper confirms zero holdings/pending orders and unchanged37-order history with matching
+holdings/history. No order, credential change, restart, grant change, SQL mutation or collector run
+is performed by this task. Current account checks do not compensate for absent strategy inputs.
+
+The existing first-fill/blocker heartbeat now checks market collection/publication rather than relying
+on the compact account summary. This blocker is reported once and deduplicated in its ignored state;
+recovery requires fresh matching-policy publication plus consumption. The original Paper monitor is
+unchanged. Private evidence is in artifacts/oct23-live-watch/freshness-1002; market query hash
+7E15330C2D65EB6266BFD303C33EB602902F8E8D3264768E9D0C171600414951 and failure-boundary hash
+F158C37FE095CACAF55BA7FC9DD80B148AA5B316B398728441E03CC10FABA89B. The combined recurring query
+status-and-market.sql passes the fixed helper with SHA256
+A7AB93DF3EA1AD3915379386A07F23CB7E2120E8DD2316C4180E54BA584D1DDE; receipt
+result-20261023T141356995Z-f899e16a6d23434193ea33313d53ae5b.json.
 
 ## October 23 overnight readiness
 
