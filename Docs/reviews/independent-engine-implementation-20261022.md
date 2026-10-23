@@ -97,6 +97,28 @@ has zero holdings/pending orders,unchanged37-order history and matching holdings
 result-20261023T163755258Z-4c22c0f7206e4db1b1a66008b7356909.json matches the normal watch hash.
 This completes Joseph's explicit12:37 report; the first-fill/material-blocker watch continues through16:05.
 
+Joseph asks which Watching symbols are closest and what is missing. The12:45 read verifies revision1039
+consuming/evaluating40 fresh symbols through12:40,NoRecommendation,no failure or order; hashes/holds
+remain unchanged. At12:35 the27 Watching symbols include three with two supportive families,six with
+one and18 with none. At12:40 that same cohort has25 Watching (two with two,eight with one,15 with zero)
+and two warming/unavailable. All have zero consecutive strong observations. The separate previously
+dismissed symbol remains lifecycle state7 despite reason Watching; reason text alone is not its state.
+Of the two closest Watching candidates,one has supportive persistence (score4) and volume but only
+positive-leaning structure (above previous close,inside the prior range). The other has supportive
+volume and structure but neutral persistence (score0). Both lack raw price-movement agreement;
+either needs a third fully supportive family,then two consecutive valid Normal five-minute strong
+observations before entry. PositiveLeaning does not count as a supportive vote. No safety veto is
+active for either. All25 Watching symbols lack supportive price movement; seven have a sub-threshold
+raw move,11 relative movement without sufficient raw agreement,three fall while outperforming and
+four are mixed/flat. This is rule proximity,not a probability or time-to-trade estimate.
+The scoped aggregate query watching-gaps-1240.sql has SHA256
+9C8C2AC2BD47BD331BC6F364BB26BF9204024D016048EF8AE4CBCF56B7C1BE3F; receipt
+result-20261023T164648218Z-c28032ea8c934b25bdae092eded0beb5.json matches. Normal watch receipt
+result-20261023T164525936Z-7576e826499c4d3bbac177f8ae937149.json matches its existing hash; mailbox restored.
+At12:49 controls remain Connected/Running with no Real/market worker failure; broker capture
+8a3e9962-7c61-4780-a595-8762703152da retains zero holdings/pending orders and unchanged37-order history.
+No policy change or operational repair is requested; corrected native preflight remains unexercised.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture

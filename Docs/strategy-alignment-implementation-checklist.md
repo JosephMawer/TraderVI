@@ -127,6 +127,8 @@ The overnight target was missed. Completed source work is separate from installe
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,
   with27 Watching,one dismissed for weakening,12 warming/unavailable and no entry/failure/order.
   12:37 was conditional on two consecutive strong observations, not a promised buy.
+  The12:40 gap diagnosis finds two Watching candidates with two supportive families,zero first strong
+  confirmations; native preflight remains pending. [Signal-gap evidence](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

@@ -2,7 +2,7 @@
 
 ## Independent engine — account-lock correction installed and enabled; fresh evaluation verified
 
-**Evidence through October 23, 12:38 Toronto:** the preceding installed 5144535c publishes and consumes fresh
+**Evidence through October 23, 12:49 Toronto:** the preceding installed 5144535c publishes and consumes fresh
 inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
 SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
 separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
@@ -24,6 +24,10 @@ Connected/Running; broker history is unchanged with zero holdings/pending orders
 Native preflight progression awaits the next qualified entry;
 fresh evaluation alone does not prove SQL51501 recovery. No first trade is confirmed. NuGet audit/full
 SSDT solution and native SQL concurrency qualification are not requalified.
+The12:45 signal-gap read confirms fresh12:40 consumption:25 remain Watching,two have two supportive
+families and none has a first strong confirmation. Both closest candidates lack sufficient price
+movement; one also lacks persistence,the other a second bullish structure reference. Two consecutive
+three-of-four strong observations are still needed.12:49 controls/broker remain healthy with no order.
 [Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.
