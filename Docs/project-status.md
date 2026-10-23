@@ -1,14 +1,22 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 installed, stopped after Windows restart
+## Independent engine — October 22 resumed; October 23 pre-open review pending
 
-**Current blocker at 19:22 Toronto:** Windows restarted around 18:56; neither TraderVI engine nor
-dashboard is running. Paper's retained cursor is 30,521 verified units, last updated 18:55:52; its saved
-Running label does not mean a worker is active. Installed files and all audit/checkpoint hashes still
-match. Real remains Complete 260/260, with zero Broker/Global holds and seven unchanged Paper restrictions.
-Resume the installed engine in the operator/main session with trading disabled, then verify current
-mode/continuity and the original paper cursor before tomorrow's checks. The monitor made no restart
-or permission change. [Restart evidence](reviews/independent-engine-implementation-20261022.md#windows-restart-interrupts-recovery--october-22-1922-toronto).
+**Current evidence through 23:32 Toronto:** Joseph authorizes restarting the unchanged installed build,
+fresh Real-only recovery, then the reviewed two-incident clearance. Engine 28744 runs normally with
+broker Connected and execution Off; dashboard 19808 restores account/history and strategy state.
+All 129 captured runtime files match. The new Real proof completes 260/260 at 23:21:31; the 23:31 read confirms
+zero Broker/Global holds, eight retained Paper restrictions, valid receipt/checkpoint hashes and the
+original Paper cursor advancing to 31,788. The extra Paper restriction preserves the Windows interruption.
+The original expired financial permission and execution-grant bytes remain unchanged. No approval/order.
+
+Cash-only broker/history/pending-order and native local-journal synchronization checks pass. Current
+saved model binding/input contract and all four models/configuration match the latest Valid October 22
+daily run. October 23 evidence and its installed dated account/risk/source/build review remain pending.
+Nightly is enabled for 00:30 Toronto; a one-date 08:30 follow-up in the new chat targets a report before 09:15.
+Joseph attests no outside changes this evening; refresh that interval tomorrow. Desktop setup clicking
+is unavailable through the helper, so operator opening may be needed. Paper completion is independent.
+[Owning evening evidence and morning sequence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
 
 **Preparation passed before the restart.** ADR-0105 next-session review and its account
 transport correction are installed in standard Release from c86f375d (following 444026c7). Engine

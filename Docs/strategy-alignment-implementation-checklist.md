@@ -60,10 +60,14 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Complete remaining Paper recovery coverage, review and explicitly resolve relevant holds, and finish remaining
   native concurrency/latency/restore acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
-- [ ] After the October 22 Windows restart, resume the installed engine in the operator/main session with
-  trading disabled; verify current ownership/mode/continuity and original-cursor progress. At 19:22 Toronto
-  no TraderVI process runs; Paper retains 30,521 verified units. Hashes/Real completion/hold counts remain
-  valid, but saved Running does not prove an active worker. [Evidence](reviews/independent-engine-implementation-20261022.md#windows-restart-interrupts-recovery--october-22-1922-toronto).
+- [x] After the October 22 Windows restart, obtain authority and resume the unchanged installed engine
+  with execution Off; verify single ownership, normal mode, connection and original Paper cursor progress.
+- [x] Verify fresh post-interruption Real recovery 260/260 and separately authorize/apply only its reviewed
+  Broker/Global clearance. The 23:31 read confirms zero Broker/Global and eight retained Paper restrictions,
+  valid hashes and Paper 31,788. No new financial permission. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
+- [x] Complete available evening checks: 129 runtime hashes, reviewed calendar, broker/history/no pending
+  orders, native local-journal synchronization, saved model binding/input contract and latest daily models/configuration.
+  Verify nightly scheduling and arrange the one-date 08:30 Toronto October 23 follow-up/report before 09:15.
 - [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
 - [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the
@@ -79,8 +83,11 @@ The overnight target was missed. Completed source work is separate from installe
   refresh, broker/local-journal history synchronization, zero pending orders and strategy restore pass.
 - [x] Observe installed setup after Joseph opens it: storage installed, Review2026-10-23, approval and
   enable disabled. Core3,074pass/nine native skips; both Release builds pass/260existing warnings.
-- [ ] On October23 perform current account, daily/direct-source and exact-build review; operator explicitly
-  approves the dated continuation, then separately enables only after results review. Paper remains independent.
+- [ ] On October 23 confirm target-date Valid OfficialPaper evidence uses October 22 and the exact saved
+  definition/models; refresh account/risk/allowance/no-outside-changes and installed dated/build review.
+  Desktop helper setup-click geometry is unavailable; operator opening may be needed. Report before 09:15.
+- [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
+  only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive

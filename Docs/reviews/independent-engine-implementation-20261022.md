@@ -1,8 +1,76 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release c86f375d is installed; the engine is stopped after a Windows restart.
-Real recovery/real-only clearance, dashboard synchronization and October 23 setup passed before restart.**
+Status: **standard Release c86f375d resumed October 22 at 23:12 Toronto under explicit authority.
+Fresh Real recovery and separately authorized clearance pass; execution remains Off. October 23 review is pending.**
 The overnight target was missed. Full paper coverage and remaining native acceptance are incomplete.
+
+## October 23 preparation — October 22 evening recovery
+
+The follow-on chat independently confirms both processes absent and all 129 captured runtime files
+unchanged. Joseph explicitly authorizes normal-mode restart with trading disabled and attests no outside
+changes since the original cash-only baseline. Engine 28744 starts 23:12:01 Toronto with `--run` from
+the installed standard Release; dashboard 19808 opens 23:17:41 and reconnects. Exactly one engine owner
+and one dashboard are observed. No rebuild, installation, migration, backup or manual nightly launch.
+
+Startup detects the interrupted continuity witness and creates Global `EngineRecoveryRequired`.
+The old real proof predates that incident and cannot release it. Joseph separately authorizes a fresh
+Real-only verification, then explicitly approves the concrete two-incident clearance after its results:
+run `658adedf-4605-4a2d-a83d-7b6e615ff594` completes 260/260 at 23:21:31.788 Toronto. Current broker 259,
+shared-input 0/content 0 boundaries remain identical to the proof, the real projection matches its head,
+and all required immutable guards and audit/checkpoint hashes pass. The guarded clearance succeeds;
+the 23:31:42 fixed-helper read confirms zero Broker/Global holds and **eight Paper restrictions**. These
+retain the previous seven plus a linked restriction for the new interruption. Original incidents,
+failed receipts and prior successful proof are preserved. Paper resumes its original plan/cursor:
+30,521 before restart,31,788 verified at 23:31:37; 205,058 remains only the planned upper bound.
+This observed interruption/recovery does not qualify arbitrary crash, restore or concurrent-write cases.
+
+The initial fixed broker read cannot verify the saved login. Normal engine startup subsequently reports
+Connected; the 23:15:24 installed v2 read succeeds with 46 requests, zero holdings/pending orders and matching
+broker history. It sends no order, refreshes no token and changes no saved credentials. Native dashboard
+readback shows successful account/local-journal history synchronization at 23:18:44 and restored strategy/
+buying mode. Normal engine controls at 23:31:24–25 confirm Running, non-verification, Connected and Off;
+the saved execution-grant ciphertext is unchanged from before restart. Broker revision259 and its
+October 21 16:00permission expiry remain unchanged. No financial approval or new host authority is saved.
+
+The reviewed calendar hash matches its review manifest: October 23 is a regular 09:30–16:00 Toronto
+session and requires October 22 as its immediately preceding session. The 23:32:49 read confirms one
+active daily version, matching saved model binding/checksum/input contract, retained policy, and exact
+agreement of all four model identities/hashes and daily configuration with the latest Valid OfficialPaper
+run. That run is for October 22 using October 21 data; **no October 23 run exists yet**. Early diagnostic
+queries used incorrect JSON property casing; their null/zero comparisons were diagnostic errors, not
+failed strategy checks. The corrected query/receipt below owns this comparison. The existing nightly
+task is enabled/Ready, last result 0, next run 00:30:30 Toronto October 23. October 22's run succeeded through
+Hermes/Delphi/Athena. Do not rerun it or infer tomorrow's preparation from yesterday's success.
+
+The desktop helper can read account state but cannot open Execution setup (`coordinate input geometry
+is unavailable` after one refreshed retry); a screenshot capture also times out. No review/approval/
+enable input was sent. October 23's installed dated review, exact current account/risk/allowance/build/
+daily checks and refreshed no-outside-changes confirmation remain pre-open work. The October 22
+attestation is recorded, not a claim about later changes or tomorrow's financial permission.
+
+The one-date heartbeat `tradervi-october-23-pre-open-readiness` is attached to
+[the current readiness chat](codex://threads/01a166b7-be01-7c91-b770-7299158e789a) for 08:30 Toronto,
+with a report target before 09:15 and removal after that report. The original 15-minute Paper monitor
+remains in its original chat. Its next observation should follow the current launch/proof above;
+do not replace its state file or duplicate its supervision. Keep the computer/app available for the wake.
+
+**Morning sequence:** inspect fresh process/control/hold evidence and the completed nightly run; verify
+October 23 Valid OfficialPaper evidence uses October 22 and the exact saved definition/models; refresh
+broker and native account/order/risk checks; use the installed dated Review only with Joseph's attestation.
+Report readiness or the precise blocker before 09:15. This chat may not approve a financial continuation,
+renew a grant, enable trading or send an order. Joseph's later financial approval would save only the
+selected session continuation with original references/history/unused allowance; enabling remains separate.
+Fresh direct inputs, seven-minute signal age, concurrent live latency and populated order/protection
+behavior cannot be established by evening/pre-open reads. Paper completion is not a prerequisite.
+
+Private evidence: `oct23-evening-*`, `oct23-fresh-recovery-proof.sql`, `oct23-real-clearance-*`,
+`oct23-cleared-*` and `oct23-daily-source-check.sql` under `artifacts/independent-engine/native`.
+The final recovery SQL receipt is `result-20261023T033142742Z-965658bac3ac4731931d8143a4ae96a1.json`
+with query SHA256 `716E63345CB62D89434710E2EA0D7C3817EF92C1805531EE6E1CF88679B65B2C`.
+The corrected daily comparison receipt is `result-20261023T033249468Z-0d1996d00cdf4f1c89372d729d6c341b.json`
+with SHA256 `FE8182D21079A339727CDD2FFD81CB2F729C764BACD978D4651CB00B5BEA7438`.
+Every interpreted SQL receipt was checked against its submitted query hash. This session changes no
+application source and reruns no builds/tests; prior compiler/dependency/full-solution limits remain.
 
 ## Windows restart interrupts recovery — October 22, 19:22 Toronto
 

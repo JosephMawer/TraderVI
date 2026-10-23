@@ -10,13 +10,13 @@ and source review points; use its owning-record links when resuming work.
 
 **Current request — complete the revised architecture:** ADRs0103/0104 independence, shared/current
 storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
-clearance pass; Paper is paused after a Windows restart, with seven restrictions. ADR-0105 selected-session
-review is installed in normal mode with automatic trading off. Prior saved-login and fixed broker-read checks pass.
-Account RPC correction and native dashboard synchronization/setup pass in c86f375d before the restart.
-First resume the installed engine in the operator/main session with trading disabled and verify current
-mode/continuity and the original paper cursor; neither TraderVI process was running at 19:22 Toronto.
-Then perform October 23 current account/daily/direct-source checks before exact-build/dated approval and separate
-enable. Keep real trading disabled until Joseph reviews the results; do not wait for paper completion.
+clearance pass, including the separately authorized post-Windows-restart proof/clearance. Paper resumes
+its original cursor with eight retained restrictions. ADR-0105 is installed in normal mode with execution Off;
+current broker/history, native synchronization and unchanged runtime checks pass in c86f375d.
+Next complete the October 23 pre-open current account/risk/daily/source/exact-build review after the
+scheduled nightly run. The new chat wakes 08:30 Toronto and targets reporting before 09:15; dated financial
+approval and separate enable remain Joseph's later actions, outside this readiness task's authority.
+Keep real trading disabled and do not wait for Paper completion. [Evening evidence/morning sequence](reviews/independent-engine-implementation-20261022.md#october-23-preparation--october-22-evening-recovery).
 
 Complete remaining paper coverage and native concurrency, market-hours latency, interruption/restore
 and weekly capacity acceptance. Preserve exact permission, freshness and financial history. Measure
