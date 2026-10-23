@@ -97,9 +97,7 @@ WHERE BindingId=@BindingId ORDER BY Revision DESC;
             BrokerAccountCashFlowContinuation.RequireUnseenEvents(request, savedKeys);
         }
         var receipt = new BrokerRiskContinuationReceipt(request, state, now);
-        string json = Json(receipt);
-        if (System.Text.Encoding.UTF8.GetByteCount(json) > 256 * 1024)
-            throw new InvalidOperationException("Account risk event exceeds the supported size; no event was saved.");
+        string json = BrokerRiskContinuationStorage.Serialize(receipt);
         ct.ThrowIfCancellationRequested();
         await c.ExecuteAsync("""
             INSERT dbo.BrokerAccountRiskContinuation(RequestId,BaselineId,PreviousRevisionId,TradingDate,SavedUtc,RequestHash,ContentHash,ReceiptJson)
@@ -154,7 +152,9 @@ WHERE BindingId=@BindingId ORDER BY Revision DESC;
     internal static BrokerRiskContinuationReceipt? Decode(Row? row)
     {
         if (row is null) return null;
-        var receipt = Read<BrokerRiskContinuationReceipt>(row.ReceiptJson);
+        if (EngineStrategySettings.Hash(row.ReceiptJson) != row.ContentHash)
+            throw new InvalidOperationException("Saved account risk event identity or content is inconsistent.");
+        var receipt = BrokerRiskContinuationStorage.Deserialize(row.ReceiptJson);
         BrokerAccountRiskContinuation.Validate(receipt.Request);
         var state = receipt.State;
         if (receipt.Request.RequestId != row.RequestId || receipt.Request.BaselineId != row.BaselineId ||

@@ -45,6 +45,9 @@ explicitly authorizes the controlled cutover and exact real-only clearance; pape
 saved paper cursor remain. Real trading stays disabled pending review of the checks. No test trade,
 model workflow, historical deletion or automatic financial approval is part of this work.
 
+The October 23 storage correction in [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md)
+removes duplicate persisted risk evidence while preserving this contract and its full domain hashes.
+
 ## Review questions
 
 1. Why can a skipped day remain an honest gap while the next permission preserves original risk references?

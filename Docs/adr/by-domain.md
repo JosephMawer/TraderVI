@@ -4,6 +4,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md) — Exact risk receipt reconstruction within the unchanged stored-event limit
 - [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Independent real execution, dashboard-independent lifecycle and accepted audit policy
 - [ADR-0105](0105-reviewed-selected-session-continuation.md) — Explicit dated real-account review with preserved references and bounded permission links
 - [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) — Independent real recovery, preserved paper holds and one-pass archive reads
@@ -267,6 +268,7 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## risk-management
 
+- [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md) — Preserve original risk/history hashes while removing duplicated stored evidence
 - [ADR-0105](0105-reviewed-selected-session-continuation.md) — Dated cash-only review, preserved references and separate trading enable
 
 - [ADR-0102](0102-bounded-immutable-live-evaluation-save-recovery.md) — No deadline, observation-time, continuity or trading-authority bypass

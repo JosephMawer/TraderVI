@@ -1,5 +1,10 @@
 # Review Flashcards
 
+### Selected-session risk storage — ADR-0106
+
+- **Q:** Does removing duplicate stored evidence remove history? **A:** No. The complete request remains, and the reader must reconstruct the identical full receipt and risk hash. Different or missing evidence fails.
+- **Q:** Does a smaller valid receipt approve trading? **A:** No. The operator must complete a fresh dated review and approval, then enable the reviewed host separately.
+
 ### Independent real processing — ADR-0103 and design draft
 
 - **Q:** Does restarting the engine prove recovery or renew trading permission? **A:** No. The local/SQL witnesses detect interrupted or changed state; affected history/current projections must be verified and holds explicitly cleared. Original approval and expiry still apply.

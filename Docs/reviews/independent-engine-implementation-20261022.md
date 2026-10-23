@@ -2,11 +2,44 @@
 
 Status: **standard Release c86f375d resumed October 22 at 23:12 Toronto under explicit authority.
 Fresh Real recovery and separately authorized clearance pass; execution remains Off. October 23 nightly
-evidence passes; Joseph's attempted continuation approval is blocked by the risk-event size limit.**
+evidence passes; Joseph's attempted continuation approval is blocked by the risk-event size limit.
+ADR-0106 source correction is validated; installation and operator retry are pending.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 overnight readiness
+
+### Risk receipt correction — source validated, installation pending
+
+[ADR-0106](../adr/0106-exact-selected-session-risk-receipt-storage.md) limits the correction to the new
+selected-session receipt's stored representation. The complete request remains once; duplicated state
+evidence is reconstructed from it and checked against the original full-state hash before save/read.
+The 256 KiB storage ceiling, request/domain hashes, older inline bytes and financial rules are unchanged.
+Repository decoding verifies the immutable row content hash and the existing identity/timestamp guards.
+No schema migration or historical rewrite is required.
+
+The fixed helper reads the latest original risk receipt privately; its query hash and original content
+hash are verified before an offline serialization-only check. Using that saved history and synthetic
+session/head metadata, the prospective selected-session receipt is 389,240 bytes inline and 139,668
+bytes stored. Full receipt JSON, request hash and risk hash reconstruct exactly. This is size/integrity
+evidence, not a saved financial continuation or native approval.
+
+Validation: 82 focused checks pass; all 3,087 Core tests pass with nine native SQL skips and collection
+concurrency disabled. The initial full run overlapped the Release build and had two existing AI timing
+timeouts; both pass in their separate 18-test group and the full rerun. Isolated WPF/engine Release succeeds
+with 260 existing compiler warnings. NuGet audit was disabled; dependency-security and complete SSDT
+solution health are not requalified. SDK 10.0.401 is installed. No code model/market/order workflow runs.
+
+Private evidence lives under `artifacts/selected-session-risk-storage-20261023` and the adjacent focused,
+full, timing-recheck, full-serial and Release logs. The original risk receipt read is
+`result-20261023T050050510Z-8a1c79ffc611488baf20ac154f9f3313.json`, query SHA256
+`27DB97D332E8E75902A4A9A9FEB5585BF8B6B415BD6B2B7EA0517BCD0B4066EC`; no private payload is committed.
+
+Next install the reviewed candidate after a normal engine drain/dashboard close, verify original
+permission bytes and recovery heads, and reconnect with execution Off. Joseph must perform a fresh
+dated review/approval and separate enable himself. A successful candidate build does not prove that save.
+
+### Overnight operational evidence
 
 The fixed-helper 00:02:24 Toronto read confirms original Paper recovery
 `2581cceb-d128-4170-a97e-3b42625f440d` saved **Complete** at October 22 23:43:48.3447306 Toronto,
