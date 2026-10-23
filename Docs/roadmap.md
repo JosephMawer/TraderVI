@@ -37,10 +37,10 @@ Joseph now authorizes the private rejected-buy price comparison and installation
 fresh publication verified. Joseph's own approval1379/separate enable and exact-build real consumption
 pass14:22 verification. The requested14:37 follow-up is complete: the tracked symbol loses strong
 confirmation on14:35, so no buy preflight/price capture occurs. Continue the first natural rejected-price
-capture or attributable-fill watch; preserve the guard and unknown source timestamps. The15:13
-follow-up finds the former two-group candidate has only volume support on15:10; it still needs three
-supportive groups and two consecutive strong observations. A different symbol has started its first
-strong confirmation, without a confirmed buy. The requested12:37 checkpoint is complete: fresh12:35
+capture or attributable-fill watch; preserve the guard and unknown source timestamps. The requested
+15:17 follow-up is complete: the new15:10 first-strong candidate loses persistence support on15:15,
+leaving two supportive groups and resetting confirmation; no buy checks or new price pair follow.
+Await a naturally confirmed entry. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only

@@ -6,9 +6,9 @@ Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connecte
 approved Core hash and real1400 consumption of40 fresh symbols through14:15. The requested14:37
 follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol loses confirmation,
 no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
-stays active and the price guard is unchanged.15:13 follow-up verifies real1646 consuming15:10:
-the former two-group candidate retains volume support alone; a different symbol starts strong
-confirmation, without a confirmed buy.26 symbols are mature,14 warming/unavailable.**
+stays active and the price guard is unchanged. The requested15:17 checkpoint verifies real1667 consuming
+15:15: the new15:10 first-strong candidate loses persistence support, leaving two supportive groups
+and resetting confirmation. No buy preflight or new price receipt/fill;26 mature,14 warming/unavailable.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -151,6 +151,30 @@ symbols; the later15:13 receipt proves fresh consumption of15:10, not a persiste
 No broker call is made for this question; the14:58 full-watch capture174f4a68-2afc-475f-89ca-4f1bfcfc0a5c
 remains the latest broker evidence, with zero holdings/pending and unchanged37 orders. No rules,
 runtime, authority or history are changed. The existing first-fill/price-evidence watch continues.
+
+## October 23 requested 15:17 confirmation checkpoint
+
+Joseph asks to follow the unique15:10 first-strong candidate through the15:17 publication and report
+confirmation, buy checks and any rejected-price comparison. The reviewed watch1517.sql changes only
+the prior checkpoint query's tracked bar dates to15:10/15:15; SHA256
+94A9E84620EB33C35E6BFFE645E7F1F6777D8E4C77D27E15F4548286B8AFEF10 matches receipt
+result-20261023T191817524Z-31ce266334854767b5e08902f5447b6f.json. Exactly one tracked symbol matches.
+Publication15:17:05 supplies40 inputs through15:15,36 valid/on-time,26 mature and zero confirmations.
+The tracked symbol falls from three supportive groups to two: PersistenceSupportive becomes
+PersistencePositiveLeaning, while movement and volume retain support and structure remains
+NegativeLeaning. StrongConfirmationStarted becomes StrongConfirmationBroken; consecutive strong
+observations reset from1 to0. Both observations are valid/mature/Normal with no safety veto.
+
+Real1667 evaluates at15:17:44, consuming40 supplied/evaluated/fresh symbols through15:15 with
+NoRecommendation, empty entry/risk/quote blocks, no failure and inline empty orders. The candidate
+does not reach buy preflight; old1267 remains the latest price rejection and has no new diagnostic
+fields. No price pair or passed complete preflight is claimed.15:18 controls are Connected/Running;
+market/Real/continuity workers have zero consecutive failures. Installed Core hash, saved head,
+projection, checkpoints and exact decision/build/market-trace hashes pass. Original dated permission,
+one target-date risk event, zero Broker/Global holds and eight Paper restrictions remain unchanged.
+Broker capture6b3bbca7-c18f-4b94-b88a-d817f6ece6d8 at15:17:47 has zero holdings/pending and unchanged
+37-order history with matching holdings/history. Requested milestone is complete and reported once;
+the first-fill/material-blocker/new-price watch continues through16:05. No operational change.
 
 ## October 23 buy-preflight account-lock correction
 
