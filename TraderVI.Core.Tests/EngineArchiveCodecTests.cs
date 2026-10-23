@@ -11,6 +11,27 @@ namespace TraderVI.Core.Tests;
 
 public sealed class EngineArchiveCodecTests
 {
+    [Theory]
+    [InlineData(254)]
+    [InlineData(255)]
+    [InlineData(1024)]
+    [InlineData(1_628_151)]
+    public void LongTextRemainsInsideSqlCompatibleObjectOrArrayFragments(int length)
+    {
+        // EngineEvidenceContent uses ISJSON(value)=1: standalone JSON scalars fail that constraint.
+        // Include a root scalar, nested evidence and an array of strings, all of which must round-trip.
+        string value = new('x', length);
+        string json = JsonSerializer.Serialize(new { Reason = value, Evidence = new { Text = value },
+            History = new[] { value, "quoted \"text\" and \u00e9" } });
+        var packed = EngineArchiveCodec.Pack(json);
+        Assert.All(packed.Contents.Values, fragment =>
+        {
+            using var document = JsonDocument.Parse(fragment);
+            Assert.True(document.RootElement.ValueKind is JsonValueKind.Object or JsonValueKind.Array);
+        });
+        Assert.Equal(json, EngineArchiveCodec.Restore(packed.Manifest, packed.Contents));
+    }
+
     [Fact]
     public void SharedNestedFinancialRecordsRestoreExactlyWithoutDuplicatingTheirPayloads()
     {

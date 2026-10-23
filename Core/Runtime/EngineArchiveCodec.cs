@@ -34,7 +34,9 @@ public static class EngineArchiveCodec
             }
             else if (node is JsonArray a)
                 for (int i = 0; i < a.Count; i++) a[i] = Compact(a[i]?.DeepClone(), depth + 1);
-            if (node is null || depth == 0) return node;
+            // SQL's shared-evidence ISJSON constraint accepts objects/arrays, not standalone scalars.
+            // Keep even large strings inside their owning record; never truncate or reinterpret them.
+            if (node is not (JsonObject or JsonArray) || depth == 0) return node;
             string value = node.ToJsonString();
             if (value.Length < 256) return node;
             string hash = DelphiLiveSnapshotCodec.Hash(value);

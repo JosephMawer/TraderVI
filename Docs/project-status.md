@@ -1,6 +1,16 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 save correction installed; operator retry pending
+## Independent engine — October 23 risk saved; permission archive correction
+
+**Latest operator retry:** review succeeds; approval reports SQL547. The 03:24:33 Toronto fixed-helper
+read confirms risk sequence3 saved at03:19:17, but managed revision259 is unchanged. Preserve the original
+risk request for recovery. Offline replay of the saved checkpoint identifies standalone text fragments
+in the shared archive, incompatible with the existing SQL object/array JSON constraint; a native SELECT
+confirms that mismatch. The source fix retains long text inside its enclosing records and reconstructs
+the full saved checkpoint exactly. All57 focused tests pass, including recovery from a saved risk event
+with a fresh review and no duplicate. All3,092 Core tests pass (nine native SQL skips); isolated Release succeeds with260 existing compiler warnings. Installation remains pending;
+a090757f is still installed, execution Off, and no completed October23 permission is claimed.
+[Current diagnosis and evidence](reviews/independent-engine-implementation-20261022.md#permission-archive-rejection--risk-saved-permission-not-saved).
 
 **Source correction validated:** ADR-0106 stores duplicated selected-session risk evidence once and
 reconstructs the exact original request/state hashes within the unchanged 256 KiB ceiling. An offline
@@ -26,7 +36,7 @@ all receipt/checkpoint hashes pass. Completion does not clear Paper restrictions
 
 Joseph reconfirms no outside changes, opens the installed review and attempts approval himself. The
 screen reports **Account risk event exceeds the supported size; no event was saved.** Diagnosis/fix of
-that observed failure prompted the now-installed correction; successful operator retry is unverified.
+that observed failure prompted the now-installed correction; the later retry and partial save are recorded above.
 No financial approval or enable is claimed. The requested
 early nightly start was rejected at the tool permission prompt; the normal schedule supplied this run.
 The redundant overnight follow-up is removed; the one-date 08:30 check/report before 09:15 remains.

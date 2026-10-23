@@ -1,12 +1,44 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release a090757f installed October 23 at 02:51 Toronto under explicit cutover authority.
-ADR-0106 corrects the failed approval's duplicate risk receipt; post-start checks pass with execution Off.
-Joseph's fresh installed review/approval and separate enable remain pending.**
+Status: **October 23 operator retry saves the risk event, then the permission archive fails with SQL547.
+Managed revision259 remains unchanged. Preserve risk sequence3 for original-request recovery.
+The archive correction is validated and awaits installation; a090757f remains installed and execution remains Off.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 overnight readiness
+
+### Permission archive rejection — risk saved, permission not saved
+
+Joseph's next installed review succeeds, but his approval reports SQL547 while saving/recovering the
+dated continuation. The hash-verified 03:24:33 Toronto read finds one October23 risk event, sequence3,
+saved at03:19:17 and 139,685 UTF-8 bytes. Managed revision259 is unchanged. Thus ADR-0106 passes its
+native risk-save step; the permission append remains incomplete. Preserve that event and the original
+request. No replacement risk event, automatic approval, host enable or order is authorized by recovery.
+
+Offline reconstruction of the unchanged saved managed checkpoint reproduces the archive defect:
+`EngineArchiveCodec.Pack` emits two standalone JSON string fragments (287 and1,628,153 characters).
+The latter contains retained source-review evidence. `EngineEvidenceContent` requires object/array JSON
+through its existing `ISJSON(ContentJson)=1` constraint. A 03:31:26 read-only SQL expression over that
+actual retained text confirms the old scalar shape returns0 and its enclosing object returns1.
+The installed constraint is enabled/trusted; its definition is not visible to the restricted reader,
+so the canonical table/migration supplies the expression. No constraint is disabled or rewritten.
+
+The correction packs only objects and arrays; long scalars stay within their enclosing records.
+All original text, fingerprints, legacy readers, size limits and transaction boundaries remain.
+The actual saved checkpoint now packs into847 valid object/array fragments, with zero standalone
+scalars and exact full reconstruction. Four new boundary/large-text cases fail before the fix and pass
+after it. A separate test rejects the permission append after the risk save, then uses a fresh review
+to recover the original request: one risk append, one permission revision, host Off and zero orders.
+All57 focused and3,092 full Core tests pass (nine native SQL skips, serial collections); isolated WPF/engine Release succeeds with260 existing compiler warnings. NuGet audit is disabled and full SSDT solution health is not requalified. Installation and operator retry remain pending.
+
+Private evidence is under `artifacts/selected-session-archive-20261023`. Fixed-helper receipts:
+`result-20261023T072432940Z-e008f04177ad4a139e02a7477d0cb5c9.json` matches query
+`9A8F0B165E941305439F3900F0C86986AC46880B926EF3A8C2B8B451534535DA`; private risk/checkpoint
+reads match `388E28DECE9B79ED1D244C349334035E68FF6B9EABE659AE15455E89C599F2FF` and
+`68924532B24AFE5A89B2B328FB55CC468DB47148E5EAB7C9F67BA978CAA60C61`. The native JSON expression
+receipt `result-20261023T073126451Z-e1dede3ea7784f07a1c1686f7da97fd4.json` matches
+`2F836CF9791E77F335FEB4FB076021B386BA9DC7BAAF41344BF62B2A9130C9E4`. Payloads stay private.
 
 ### Risk receipt correction — installed, operator retry pending
 

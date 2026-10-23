@@ -94,8 +94,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Install a090757f under explicit authority through normal dashboard closure/engine drain and restart;
   verify runtime hashes, Connected/execution Off, native history synchronization, fresh broker/daily
   checks and unchanged financial/recovery state. No financial approval/order is performed by this task.
-- [ ] Observe Joseph's fresh installed review/approval attempt and successful readback; desktop setup
-  clicking remains unavailable through the helper. Keep the 08:30 follow-up/report before 09:15.
+- [x] Observe the next operator attempt: risk sequence3 saves, permission append fails SQL547; managed
+  revision259 is unchanged. Preserve the original risk request for recovery. Reproduce the archive's
+  standalone-string/SQL JSON constraint mismatch with saved evidence and a read-only SQL check.
+- [ ] Install the object/array-only archive correction (57 focused/3,092 full Core passes, nine native skips, Release pass), then observe Joseph's fresh
+  review and original-request approval recovery/readback. Keep the 08:30 follow-up/report before 09:15.
 - [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
   only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/

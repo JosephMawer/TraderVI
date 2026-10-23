@@ -110,6 +110,39 @@ public sealed partial class BrokerManagedSessionTests
         Assert.Null(x.Grants.Value); Assert.Empty(saved.Orders); Assert.Equal(0, x.F.Transport.Sent);
     }
 
+    [Fact]
+    public async Task SelectedSessionRejectedPermissionSaveRecoversOriginalRiskWithFreshReview()
+    {
+        var x = await SelectedSessionFixture(); var firstApproval = x.Approval();
+        x.F.Store.BeforeAppend = next =>
+        {
+            if (next.Event == "SessionContinuationApproved")
+                throw new IOException("Synthetic archive rejection before permission commit");
+        };
+        await Assert.ThrowsAsync<IOException>(() => x.Workflow().ApproveAsync(firstApproval));
+        Assert.Equal(x.Prior.RevisionId, x.F.Store.State!.RevisionId);
+        Assert.Null(x.F.Store.State.SessionContinuation); Assert.Equal(1, x.Risks.Appends);
+        var originalRisk = JsonSerializer.Serialize(x.Risks.Receipt);
+        x.F.Store.Restart(); x.F.Store.BeforeAppend = null; x.F.Now = x.F.Now.AddMinutes(3);
+        x = x with { Continuation = x.Risks.Receipt!.Request.SessionContinuation! };
+        var freshApproval = x.Approval();
+        Assert.NotEqual(firstApproval.Fingerprint, freshApproval.Fingerprint);
+        var saved = await x.Workflow().ApproveAsync(freshApproval);
+        Assert.Equal(originalRisk, JsonSerializer.Serialize(x.Risks.Receipt));
+        Assert.Equal(1, x.Risks.Appends); Assert.Equal(x.Prior.Revision + 1, saved.Revision);
+        Assert.Equal(x.Risks.Receipt!.Request.RequestHash, saved.SessionContinuation!.RiskRequest.RequestHash);
+        Assert.Null(x.Grants.Value); Assert.Empty(saved.Orders); Assert.Equal(0, x.F.Transport.Sent);
+        var packed = global::Core.Runtime.EngineArchiveCodec.Pack(JsonSerializer.Serialize(saved));
+        Assert.All(packed.Contents.Values, fragment =>
+        {
+            using var document = JsonDocument.Parse(fragment);
+            Assert.True(document.RootElement.ValueKind is JsonValueKind.Object or JsonValueKind.Array);
+        });
+        Assert.Equal(JsonSerializer.Serialize(saved),
+            JsonSerializer.Serialize(JsonSerializer.Deserialize<BrokerManagedSession>(
+                global::Core.Runtime.EngineArchiveCodec.Restore(packed.Manifest, packed.Contents))));
+    }
+
     [Theory]
     [InlineData("old grant")][InlineData("stale review")][InlineData("changed revision")][InlineData("risk changed")]
     [InlineData("new build")][InlineData("larger allowance")][InlineData("cutoff")][InlineData("other date")]
