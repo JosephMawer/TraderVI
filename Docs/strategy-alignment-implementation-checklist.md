@@ -137,7 +137,8 @@ The overnight target was missed. Completed source work is separate from installe
   NoRecommendation/no failure/empty orders; all symbols still warming after14:10 continuity.
 - [ ] Inspect the next actual rejected-buy price receipt without forcing a signal. First-fill watch
   remains active; no new-build rejection or complete preflight/submission qualification is claimed.
-  The15:10 first-strong candidate loses persistence support on15:15; no confirmed buy or price pair.
+  At15:23 the tracked15:10 candidate has movement support alone on15:20; a different usable symbol
+  has three supportive groups and its first strong reading. Consecutive confirmation/buy checks remain.
 - [x] Complete Joseph's requested15:17 checkpoint: exact tracked candidate falls from three to two
   supportive groups, resetting strong confirmation. Real1667 consumes/evaluates40 fresh symbols
   through15:15, NoRecommendation/no failure/empty orders.15:17 broker remains empty/history unchanged.

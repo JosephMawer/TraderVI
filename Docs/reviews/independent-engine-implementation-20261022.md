@@ -8,7 +8,9 @@ follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol
 no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
 stays active and the price guard is unchanged. The requested15:17 checkpoint verifies real1667 consuming
 15:15: the new15:10 first-strong candidate loses persistence support, leaving two supportive groups
-and resetting confirmation. No buy preflight or new price receipt/fill;26 mature,14 warming/unavailable.**
+and resetting confirmation. At15:23 real1694 consumes15:20: the tracked candidate has movement support
+alone; another usable symbol has three supportive groups and its first strong reading. No confirmed
+buy, new price receipt or fill;26 mature,14 warming/unavailable.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -175,6 +177,26 @@ one target-date risk event, zero Broker/Global holds and eight Paper restriction
 Broker capture6b3bbca7-c18f-4b94-b88a-d817f6ece6d8 at15:17:47 has zero holdings/pending and unchanged
 37-order history with matching holdings/history. Requested milestone is complete and reported once;
 the first-fill/material-blocker/new-price watch continues through16:05. No operational change.
+
+At Joseph's next comparison question, reviewed candidates1523.sql tracks the same unique15:10 symbol
+and compares only other valid/mature/Normal/no-veto usable candidates. SHA256
+91C6BB1F1C7B18515731D8848C8A3452CA359F94C8BBB233DEDC25D6C902FC1A matches receipt
+result-20261023T192337285Z-ccc262a36aaf4f859f11d051d733429d.json. The15:20 tracked candidate has
+neutral persistence (score0), nondirectional volume, negative-leaning structure and movement support
+carried by its one-hour window; one supportive group and zero consecutive strong observations.
+Its current observation is valid/mature/Normal/no veto. Exactly one other usable candidate is closer
+by confirmation progress: persistence, volume and structure are supportive, movement remains neutral,
+three supportive groups and consecutive strong1. It is above the previous close and breaks the prior
+20-minute range. It still needs the next consecutive valid strong observation before buy checks.
+
+Real1694 evaluates at15:23:20 with40 supplied/evaluated/fresh symbols through15:20, NoRecommendation,
+empty entry/risk/quote blocks, no failure and inline empty orders. Publication has40 matching-policy
+inputs,34 valid/on-time,26 mature and zero confirmations. Head/projection/checkpoint and exact decision/
+build/market-trace hashes pass; one target-date risk event, zero Broker/Global holds, eight Paper
+restrictions. Old1267 remains the latest preflight rejection with no new price evidence. No broker
+call is made for this question;15:17:47 remains the latest broker evidence. A strong15:25 observation
+could confirm around scheduled15:27 publication, leaving about18 minutes before the15:45 entry cutoff;
+this is conditional, not a signal or trade promise. The existing watch and all controls are unchanged.
 
 ## October 23 buy-preflight account-lock correction
 
