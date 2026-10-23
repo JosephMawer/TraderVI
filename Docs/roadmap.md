@@ -56,6 +56,9 @@ qualifying a new entry. Native recovery of the lock/risk-read path is now observ
 preflight and order/protection acceptance remain open.
 Retain the unresolved price comparison and native order/protection qualification without weakening
 existing controls or erasing source gaps; no first-fill watch remains scheduled for another session.
+The requested Monday readiness assessment proposes a saved-receipt coverage audit and independently
+observable quote comparison before selecting any repair/source change. This is proposed next work,
+not implementation or operational authority. [Scope and acceptance](reviews/independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
 Track the unavailable candidate's persistent stock-bar gap separately from momentum weakening:
 its retained two-vote state is not fresh support. The authorized three-request comparison confirms
 sparse raw TMX coverage and exact installed-adapter preservation; no correction is indicated by this

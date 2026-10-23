@@ -138,6 +138,10 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Inspect an actual rejected-buy price receipt without forcing a signal in a separately authorized
   future session. October23 ends without a new-build rejection or price pair; full preflight/submission/
   protection and an attributable first fill remain unqualified. Preserve existing guards and gaps.
+- [ ] Resolve the proposed October26 data/price qualification work: classify saved raw/normalized/
+  published/consumed coverage and review a bounded independent quote comparison before choosing any
+  repair or source change. Assessment only; no implementation or new live probe is authorized.
+  [Acceptance criteria](reviews/independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
 - [x] Complete the October23 first-fill/material-blocker watch at16:05 and delete its heartbeat.
   Broker has zero holdings/pending and unchanged history; real1865 evaluates40 fresh symbols through
   15:55, NoRecommendation/no failure/empty orders. Final16:00 publication is distinct from consumption.

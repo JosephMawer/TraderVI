@@ -2,6 +2,11 @@
 
 ## Independent engine — October 23 watch complete; price capture and first fill unqualified
 
+**Post-close readiness assessment:** proposed October26 work separates host-continuity/raw-source gaps
+from adapter defects and qualifies the TMX-reference/broker-ask comparison before changing either source.
+No price pair or fresh operational evidence is added by this assessment; implementation and further
+external probes are unstarted. [Findings and proposed acceptance criteria](reviews/independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
+
 **October 23,16:05 closing check:** diagnostic43424435 remains installed in standard
 Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
 The installation's128 candidate/122 retained hashes passed; the exact Core hash is unchanged at16:05.

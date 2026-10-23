@@ -5,6 +5,17 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### Monday Delphi data and price qualification — October 23, 2026
+
+- Joseph requests a readiness assessment for October26, preserving safeguards. Proposed work is an
+  offline saved-receipt coverage audit and a bounded quote comparison independent of buy signals,
+  using a reviewed broker-helper extension. No new implementation, source change, external probe,
+  financial permission or monitor is authorized by this assessment.
+- Determine whether missing endpoints reflect collection defects or upstream absence, and whether
+  AskAboveDecisionReference reflects fallback/timing/mapping or a genuine price move. Preserve exact
+  bars, quote provenance/unknown source age and the strict price guard. Source replacement remains a
+  decision only if evidence establishes the need. [Evidence and acceptance criteria](independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
+
 ### Real recovery to next-session operation — October 22, 2026
 
 - Real recovery completes independently; the15:59read confirms unchanged relevant heads and identifies

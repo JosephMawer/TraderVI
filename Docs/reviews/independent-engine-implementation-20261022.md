@@ -10,6 +10,57 @@ without renewal. Price comparison and complete native preflight/submission/prote
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
+## October 26 readiness assessment — October 23
+
+Joseph asks what must be fixed before Monday, focusing on missing data and the price mismatch
+without weakening safeguards. This is a source/evidence assessment and proposed work, not authority
+to implement, install, probe external services, enable execution or schedule a new watch. The goal
+is to let a naturally qualified signal reach safe execution; neither repairing data nor qualifying
+quotes guarantees a signal or a fill. The final16:05 evidence below remains the operational baseline.
+
+**Missing data:** separate process-continuity gaps from missing raw source bars. Intraday cutovers
+reset ordinary rolling evidence; full-session VWAP requires every exact five-minute interval from
+open. The authorized13:24 single-symbol comparison preserved all15 aligned raw bars exactly and
+found insufficient one-minute components for all nine examined intervals. That sample establishes
+upstream absence, not its cause, a universe-wide adapter defect or permission to reconstruct bars.
+At close,40 current valid/on-time inputs coexist with only29 mature symbols. A current clean pair
+does not repair its earlier rolling window. Missing VWAP alone is not a universal entry blocker:
+the existing two-reference structure rule can use previous close and the complete prior range.
+
+Recommended preparation is an offline coverage audit of available saved receipts for all subscribed
+stocks and XIU: identify each required endpoint, original arrival deadline, raw presence, normalized
+presence, publication and actual Real consumption. Mark unavailable receipts as unknown. Fix only
+demonstrated request/alignment/transport/publication defects, replaying the original receipts in tests.
+If upstream coverage cannot satisfy the existing contract, separately qualify a suitable source and
+review that source change. Keep the installed owner available before Monday's open and avoid planned
+intraday cutovers. Acceptance requires exact consecutive on-time stock/benchmark inputs and successful
+Real consumption, preserving gaps, conflicts and original timing. No fill-forward, invented zero-volume
+bars, shortened windows or retrospective promotion to on-time evidence is proposed.
+
+**Price mismatch:** the recommendation uses positive TMX Ask, otherwise Price; native preflight
+separately reads the broker ask and rejects it when greater than that unchanged reference. A last-trade
+fallback, old quote, feed timing difference or genuine price move could explain the mismatch. None is
+established as the cause of old rejection1267: its prices were not retained. The1.581s receipt-to-failure
+interval does not establish the underlying quote's age. Installed diagnostic43424435 has not yet been
+exercised by another rejected buy. The existing bounded TMX timing diagnostic explicitly treats its
+last-trade time as distinct from bid/ask time and its fields as non-atomic, unqualified observations.
+
+Recommended next evidence is a bounded read-only comparison independent of buy eligibility, combining
+that diagnostic with a reviewed extension of the fixed broker helper for quote reads. The present
+helper does not authorize quote probes. Capture the same instrument/currency/venue identities, exact
+Ask-or-Price provenance, both compared prices, request/receipt/comparison times and available provider
+times. Preserve unknown TMX ask time; broker quotedAsOf is not automatically an exchange-update time.
+Use the result to fix only proven mapping/fallback/source-timing defects, or qualify an appropriate
+reference source through review. Never raise the reference to the broker ask, add a tolerance or
+weaken the rejection merely to permit an order. A genuine rise above a trustworthy reference remains
+a valid rejection. Source changes are proposals, not accepted behavior changes.
+
+Offline replay and boundary tests can be prepared before Monday; market-hours freshness and complete
+native preflight/submission/protection still need prospective qualification. Monday requires its own
+current daily/models/account/source/build checks and Joseph's dated review/approval plus separate
+enable under ADR-0105. Friday's permission expired; the15:45 entry cutoff,16:00 outer expiry, two
+consecutive strong observations and all risk/cash/order/protection controls remain unchanged.
+
 ## October 23 final 16:05 watch report
 
 The final authorized read-only check uses the unchanged reviewed watch-and-rejected-prices.sql,
