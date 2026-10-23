@@ -2,8 +2,9 @@
 
 Status: **Lock correction ba3ece6a is installed12:09:37 after524 focused/3,105 full Core passes
 (nine native SQL skips) and Release/260 existing warnings. Joseph's approval898 at12:17:33 and separate
-enable are verified. Native12:18 checks show Connected/Running and real consumption/evaluation through
-12:15, no current entry or failure. Rolling signals are warming after the restart. Native preflight
+enable are verified. The requested12:37 checkpoint consumes fresh12:35 inputs at revision1000, with
+27 Watching,one dismissed for weakening and12 warming/unavailable; no entry/failure/order.12:38 controls
+remain Connected/Running, hashes/holds are unchanged and broker history has no new order. Native preflight
 progress awaits the next qualified entry; no first fill. The existing watch stays active.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
@@ -79,10 +80,22 @@ and one WeakeningConfirmationStarted among the29 mature. None reaches three supp
 (17 have zero supportive votes,10 have one,one has two; the weakening symbol has zero).
 Thus warm-up progresses, but the corrected native preflight remains unexercised. The earlier12:37
 earliest confirmation was conditional on strong12:30/12:35 readings; the first condition does not occur.
-This answers the operator's question asked before12:37; the requested after12:37 checkpoint stays pending.
+This establishes the pre-checkpoint state; the completed12:37 checkpoint follows below.
 Read-only receipts: result-20261023T163307349Z-ab7b6f53a27a43c6ac7d7b23efe48912.json (normal watch hash)
 and result-20261023T163328327Z-6bf209d45ec04e38892786cfe48af4de.json (signal query hash
 D5CD22848538F84CB0FC8C8E2BB64DD66C4A82ADAB8CC8FC9346CB35BC0E124E). Normal mailbox restored.
+
+The requested12:37 checkpoint completes: collection settles all41 slots at12:37:07; publication writes40
+matching-policy inputs through12:35 (30 valid/on-time,28 mature,zero producer confirmations).
+Real revision1000 evaluates at12:37:26 with80 supplied observations,40 evaluated/fresh symbols and
+the12:35 consumed bar. It records NoRecommendation,empty entry/risk/quote blocks,no failure and inline
+empty orders.27 symbols are Watching,one is dismissed after weakening confirmation and12 remain
+warming/unavailable. The corrected buy preflight is not reached. Head/projection/checkpoint and exact
+decision/build/market-trace hashes pass; one target-date risk event,zero Broker/Global holds and eight
+Paper restrictions remain.12:38 controls are Connected/Running; broker capture7461077a-f83d-4738-84a8-b66e319e34bc
+has zero holdings/pending orders,unchanged37-order history and matching holdings/history. Receipt
+result-20261023T163755258Z-4c22c0f7206e4db1b1a66008b7356909.json matches the normal watch hash.
+This completes Joseph's explicit12:37 report; the first-fill/material-blocker watch continues through16:05.
 
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;

@@ -2,7 +2,7 @@
 
 ## Independent engine — account-lock correction installed and enabled; fresh evaluation verified
 
-**Evidence through October 23, 12:18 Toronto:** the preceding installed 5144535c publishes and consumes fresh
+**Evidence through October 23, 12:38 Toronto:** the preceding installed 5144535c publishes and consumes fresh
 inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
 SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
 separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
@@ -17,9 +17,10 @@ read confirms zero holdings/pending orders and unchanged history. The new engine
 through 12:10 at 12:12:12, 33 valid/on-time, all warming after the honest 12:10 continuity boundary.
 Joseph's build approval saves revision898 at12:17:33, followed by his separate host enable. Native
 12:18 checks confirm Connected/Running and revision904 evaluating40 supplied/evaluated/fresh symbols
-through12:15, with no entry/risk/quote block or failure. Latest publication has34 valid/on-time pairs;
-The12:33 follow-up verifies real revision976 consuming the12:30 bar:29 symbols are now mature,
-11 remain warming/unavailable, and none has a first strong confirmation. No recommendation or failure.
+through12:15, with no entry/risk/quote block or failure. The requested12:37 checkpoint verifies revision1000
+consuming40 fresh symbols through12:35:30 valid/on-time inputs,27 Watching,one dismissed for weakening,
+and12 warming/unavailable. No confirmed entry, recommendation, failure or order.12:38 controls remain
+Connected/Running; broker history is unchanged with zero holdings/pending orders, hashes pass and scoped holds are unchanged.
 Native preflight progression awaits the next qualified entry;
 fresh evaluation alone does not prove SQL51501 recovery. No first trade is confirmed. NuGet audit/full
 SSDT solution and native SQL concurrency qualification are not requalified.

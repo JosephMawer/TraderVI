@@ -124,7 +124,9 @@ The overnight target was missed. Completed source work is separate from installe
   the account lock through submission. Fresh evaluation alone does not verify SQL51501 recovery.
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
-  remain unexercised;12:37 was conditional on two consecutive strong observations, not a promised buy.
+  remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,
+  with27 Watching,one dismissed for weakening,12 warming/unavailable and no entry/failure/order.
+  12:37 was conditional on two consecutive strong observations, not a promised buy.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
