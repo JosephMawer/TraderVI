@@ -22,7 +22,10 @@ for09:30. Pre-open account/daily/model/hash and scoped-hold checks pass. The lat
 investigation finds fresh collection but no published signal inputs: the real-only source adapter
 retains the original comparison policy during admission despite a validated progressive successor.
 Joseph now authorizes correction, tests and installation. The adapter/diagnostics are implemented;
-full Core/Release validation and ADR-0107 current-session build review pass.1a790e60 installs10:58 and fresh publication/evaluation passes11:02. Finish the missed Paper-dependent review wiring, reinstall, complete operator build approval/enable and verify real consumption. The host remains Off.
+full Core/Release validation and ADR-0107 current-session build review pass.1a790e60 installs10:58;
+the real-source review follow-up5144535c installs11:10:57. Joseph's updated-build approval and separate
+enable succeed. Native11:33 checks verify fresh real consumption/evaluation and24 mature Watching
+symbols; continue the first-fill watch without weakening existing controls or erasing source gaps.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first

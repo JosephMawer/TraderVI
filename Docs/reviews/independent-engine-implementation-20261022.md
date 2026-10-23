@@ -1,9 +1,9 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Successor-admission repair1a790e60 is installed at10:58; fresh shared publication/evaluation
-is verified at11:02. Real execution is Off after normal shutdown. The operator's updated-build review
-then exposes a remaining Paper-source UI dependency; its correction passes136 focused tests.
-No updated-build approval or trade is saved; actual account input consumption remains pending.**
+Status: **Repair5144535c is installed11:10:57 after136 focused passes and Release with260 existing
+warnings. Joseph's updated-build approval saves11:17:43, followed by his separate host enable.
+Native11:33 checks confirm fresh real-account evaluation through11:30;24 symbols now have mature
+signal families and are Watching. No confirmed entry or first fill; the existing watch remains active.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -33,10 +33,58 @@ legacy Paper portfolio review/timestamp, so it rejects while direct Real publica
 uses the existing qualified ReviewExistingBrokerAsync at both preparation and approval, validating the
 saved real subscription, immutable policy/daily/model records and direct shared publication; approval
 uses shared account storage. The two-minute source/review checks are retained and the stale-source
-message now tells the operator to wait for the next scheduled checkpoint.136 focused tests pass;
-Release/reinstallation are in progress. This corrects the missed UI wiring; no fresh grant is inferred.
+message now tells the operator to wait for the next scheduled checkpoint.136 focused tests and
+Release pass.5144535c installs11:10:57 after a normal stop, with128 candidate/122 retained hashes,
+previous binaries preserved and stopped grant bytes unchanged. Engine41312/dashboard38844 run
+normally with execution Off.11:14 fixed SQL still verifies managed674 and no build approval, valid
+head/projection/checkpoints, one risk event and unchanged scoped holds. Three successive checkpoints
+publish40 inputs each; latest11:10 is saved11:12:31, with31 valid/on-time observations and all40
+warming up. This corrects the missed UI wiring; no fresh grant is inferred. Operator retry is requested
+after the11:17 publication so both source and prepared-review freshness pass. The existing heartbeat
+remains Active with installed-build/PID/source-diagnostic instructions and the same first-fill rules.
 
-### Authorized correction in progress
+### Operator approval and fresh real consumption verified
+
+Joseph confirms all three steps and supplies review, saved-approval and enabled-host screenshots.
+The saved ImplementationReviewed revision675 at11:17:43 retains the original dated permission;
+the exact referenced build-review content hash passes.11:22 and11:28 controls show Connected/Running;
+the latter reports fresh inputs evaluated with no confirmed entry. Market/real workers have no
+recorded failures in this process. Paper-only failures and all eight restrictions remain separate.
+
+The fixed SQL query now follows only the exact decision/build/market-trace content references and
+validates their UTF-8 hashes before selecting aggregate fields. This is bounded field verification,
+not a new claim of complete historical archive reconstruction. At11:26:08, revision717's11:25:47
+decision records40 supplied observations,40 evaluated symbols,40 fresh symbols and latest consumed
+bar11:20. Outcome NoRecommendation, empty entry/risk/quote-block arrays, no failure. The five published
+checkpoints11:00–11:20 contain40 matching-policy inputs each; latest has35 valid/on-time and five
+missing/stale pairs. Current head/projection/checkpoint hashes pass, no Broker/Global holds, one
+October23 risk event. Receipt result-20261023T152608047Z-34b4385dad1d4ddcb997f5a0bc3e22ed.json,
+query72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0.
+
+All latest producer results report WarmingUp. Their explicit continuity boundary is11:10 after the
+authorized restart; persistence, price movement and directional volume are NotMature. Full-session
+VWAP is MissingExactEndpoint because the original gap remains; prior-range measurements are still
+NotMature. Previous-close references and October22 volatility rulers are available for the35 current
+valid pairs. These facts explain the present wait, without promising when a valid entry will occur
+or relaxing continuity/reference rules. Monitor advancing rolling windows and any persistent missing
+evidence. A brief stale message immediately before the next scheduled publication is not by itself
+a renewed publication failure; confirm the subsequent receipt and consumed bar.
+
+The11:33:17 follow-up verifies the next stage rather than assuming recovery: revision753 evaluates
+at11:33:08 with40 supplied/evaluated/fresh symbols through11:30, no entry/risk/quote blocks or failure.
+Seven checkpoints now publish40 inputs each. Latest has33 valid/on-time pairs, seven missing/stale;
+24 mature/Normal symbols advance to Watching,16 still lack required rolling observations. No producer
+confirmation. Previous-close and prior-range references allow the24 to mature despite full-session
+VWAP remaining unavailable; no rule or gap is changed. Head/projection/checkpoint/hold checks remain
+unchanged. Receipt result-20261023T153317591Z-10d4ccb2120f4a61b2fac9cc2f1e34ca.json, same query hash.
+
+The11:24:26 fixed broker capture0fc4f394-2c7c-409a-ad77-69612690b11d confirms zero holdings/pending
+orders, unchanged37 historical orders and matching history/holdings. No first trade, order sent,
+credential write or token refresh. No agent approval/enable, SQL mutation, hold clearance, manual
+collector/nightly/model run or push. The existing watch retains its original first-fill attribution,
+quiet-unchanged and final16:05 cleanup rules; the separate Paper monitor is unchanged.
+
+### Authorized correction and validation
 
 Joseph explicitly requests fixing, testing and installing the correction, verifying fresh input
 consumption and continuing the first-fill/blocker watch. The adapter now projects the validated
@@ -64,8 +112,9 @@ ADR-0107 corrects this by binding a build review to the exact existing dated per
 Legacy hashes remain unchanged; earlier build reviews cannot override later permissions. All107
 focused build/continuation tests pass, followed by3,101 full Core passes/nine native SQL skips.
 Release WPF/engine builds pass with260 existing compiler warnings; no schema change or SSDT claim.
-Joseph's own updated-build approval and separate enable remain required. Existing runtime d8364eff
-is still running with the publication blocker while the authorized guarded installation is prepared.
+Joseph's own updated-build approval and separate enable were required after installation. Runtime
+d8364eff was still running with the publication blocker while the guarded installation was prepared;
+the later installed and operator-approved state is verified above.
 
 Pre-installation fixed reads:10:44 SQL verifies query hash, managed623 with empty orders and valid
 head/projection/checkpoints, one October23 risk event and the same eight Paper-only restrictions.

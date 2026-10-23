@@ -1,17 +1,25 @@
 # TraderVI Project Status
 
-## Independent engine — publication repaired, updated-build review pending
+## Independent engine — fresh real evaluation verified, first-fill watch active
 
-**Current evidence (October23,11:02 Toronto):** repair1a790e60 is installed in standard Release
-(engine30820/dashboard23260). All128 candidate/122 retained hashes pass. The engine is Connected;
-normal shutdown disabled execution, and the restarted host remains Off.40 matching-policy inputs
-for11:00 are published and evaluated:31 valid/on-time, nine missing/stale, all warming up. Earlier
-gaps remain recorded. Managed674/head/projection/checkpoint hashes pass; one October23 risk event,
-zero Broker/Global holds and eight Paper restrictions remain. No trade or new build approval is saved.
+**Current evidence (October23,11:33 Toronto):** repair5144535c is installed in standard Release
+(engine41312/dashboard38844); all128 candidate/122 retained hashes were verified. Joseph completes
+updated-build approval at11:17:43 (revision675), then separately enables the host. Controls confirm
+Connected/Running and fresh shared inputs evaluated. The hash-checked real decision at11:33:08
+(revision753) consumes40 observations, evaluates40 symbols and records40 fresh symbols through the
+11:30 bar. No entry, risk block, quote block or failure is recorded. Latest producer inputs have33
+valid/on-time pairs and seven missing/stale pairs.24 symbols now have mature signal families and move
+to Watching;16 still lack required rolling observations. No confirmation is present. Missing full-session
+VWAP remains unavailable; original gaps and unchanged rolling-window/reference rules still apply.
+Head/projection/checkpoint hashes pass; one October23 risk event, zero Broker/Global holds and eight
+Paper restrictions remain. The11:24 broker read confirms no holdings/pending orders and unchanged
+history. No first trade is confirmed; the existing five-minute watch remains active.
 
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.
 Both review/approval now use the qualified existing-real strategy/direct-input reader and shared
-storage.136 focused tests pass; Release/reinstallation and operator review/enable remain next.
+storage.136 focused tests/Release pass and that follow-up is installed11:10:57. Operator approval,
+separate enable and actual real consumption now pass native verification; populated order/protection
+and sustained latency qualification remain open. Original financial permission still expires16:00.
 The preceding adapter/dated-build correction passes3,101 full Core tests (nine native SQL skips),
 Release with260 existing compiler warnings and exact saved-source replay for all40 candidates.
 NuGet audit/full SSDT solution and native order/protection qualification are not requalified.
@@ -24,7 +32,7 @@ The03:52 hash-verified read confirms the original risk event and managed259 cont
 one October23 risk event, matching target-date daily/four models, valid Real/Paper recovery and checkpoint
 hashes, zero Broker/Global holds and eight retained Paper restrictions. No migration or history rewrite.
 The later operator retry recovers the original risk event and saves permission without a duplicate.
-Post-open account polling is observed, but signal-input publication fails as diagnosed above. No automatic renewal
+The earlier post-open publication failure is corrected and fresh real consumption is verified above. No automatic renewal
 follows today's16:00 expiry.
 [Morning verification and earlier diagnosis](reviews/independent-engine-implementation-20261022.md#morning-completion--operator-approved-and-armed).
 
@@ -35,8 +43,8 @@ Original Paper recovery completes at October22 23:43:48 with205,058 verified uni
 clear its restrictions or qualify capacity. The08:30 readiness follow-up is complete and its one-date
 heartbeat is removed; the original Paper monitor stays separate. No agent financial approval/enable/order.
 Joseph subsequently requests a new same-chat live watch: five-minute checks after09:30 through16:05
-for the first confirmed Delphi fill and meaningful blockers. It remains active with the diagnosed
-publication failure reported and deduplicated; ordinary no-signal status alone cannot prove readiness.
+for the first confirmed Delphi fill and meaningful blockers. It remains active with publication recovery
+verified and saved for deduplication; ordinary no-signal status alone cannot prove readiness.
 [Owning overnight evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;
@@ -67,11 +75,10 @@ Saved financial JSON/hashes are unchanged. Fourteen focused transport/client tes
 tests pass (nine native SQL skips, collection concurrency disabled). Isolated and installed WPF Release
 builds succeed with 260 existing compiler warnings. Runtime/source hashes and commit identity match.
 
-**Next session:** on October 23, including pre-open, review fresh account, daily/direct-source and
-exact-build/storage checks, explicitly approve the dated continuation after Joseph reviews the results,
-then separately enable only if authorized. The saved October21 permission remains expired. Paper completion is not
-a prerequisite. Regular-session source freshness, actual order/protection and sustained latency cannot
-be qualified by this after-hours preparation.
+**Earlier October22 preparation:** the plan required fresh October23 account, daily/direct-source and
+exact-build/storage checks, Joseph's dated approval and separate enable. These steps and later fresh
+real consumption are now verified above. Paper completion is not a prerequisite. Actual order/protection
+and sustained latency remain separate from both that after-hours preparation and the fresh-input check.
 [Owning evidence and qualification limits](reviews/independent-engine-implementation-20261022.md).
 
 Backup/copy/synchronization, migrations 047–051 and prepared checkpoints are complete. Native single

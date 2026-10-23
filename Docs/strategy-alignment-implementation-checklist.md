@@ -105,9 +105,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Observe Joseph's explicit dated approval and separate enable: screenshots and08:46 controls show
   Armed/Waiting for09:30, Connected,16:00 expiry. Broker history/holdings/pending checks pass; no
   Broker/Global holds. Complete/remove the one-date08:30 heartbeat; retain the separate Paper monitor.
-- [ ] Observe fresh regular-session account/risk/source checks and actual execution behavior.
-  Account polling works, but October23 shared signal publication is blocked. Pre-open arming and
-  an empty entry trace do not prove working signal evaluation or populated-protection qualification.
+- [x] Observe fresh regular-session account/risk/source checks and actual input evaluation after repair:
+  October23 native11:33 evidence verifies40 consumed/evaluated/fresh symbols and24 mature Watching
+  symbols; no confirmed entry. Controls confirm Running.
+- [ ] Observe actual orders/fills and qualify populated protection. Fresh evaluation and an empty
+  entry trace do not establish order-lifecycle qualification or a promised trade.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
@@ -115,8 +117,12 @@ The overnight target was missed. Completed source work is separate from installe
   exact saved-source replay,107 focused/3,101 full Core passes (nine native SQL skips), Release passes.
 - [x] Install1a790e60 under Joseph's explicit authority and verify fresh matching-policy publication/
   evaluation at11:02 (40 inputs;31 valid/on-time). Preserve all original gaps/holds.
-- [ ] Finish the discovered Paper-dependent build-review UI correction (136 focused tests/Release pass),
-  reinstall, complete operator updated-build approval/enable and verify actual account consumption.
+- [x] Correct the Paper-dependent build-review UI (136 focused tests/Release pass); install5144535c
+  at11:10:57 with128 candidate/122 retained hashes and execution Off.
+- [x] Complete operator updated-build approval/enable and verify actual account input consumption:
+  Joseph's approval675 at11:17:43, screenshots/separate enable, hash-checked decision717 at11:25:47.
+  No new risk event; original expiry, gaps and scoped holds retained. By11:33,24 symbols have matured
+  into Watching;16 still lack required observations. No confirmed entry or first fill.
 - [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
   Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove
   after today's final check. Monitoring grants no operational recovery or trading authority.
