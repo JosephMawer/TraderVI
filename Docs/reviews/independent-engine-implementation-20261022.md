@@ -1,20 +1,55 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Rejected-buy diagnostic43424435 is installed14:08:39 Toronto after491 focused/3,112 full Core
-passes (nine native SQL skips) and Release/260 existing warnings.128 candidate/122 retained hashes pass;
-Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connected/Running, exact
-approved Core hash and real1400 consumption of40 fresh symbols through14:15. The requested14:37
-follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol loses confirmation,
-no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
-stays active and the price guard is unchanged. The requested15:17 checkpoint verifies real1667 consuming
-15:15: the new15:10 first-strong candidate loses persistence support, leaving two supportive groups
-and resetting confirmation. The requested15:27 checkpoint verifies real1712 consuming15:25: the
-unique15:20 first-strong candidate loses persistence/structure support, leaving volume alone and
-resetting confirmation.15:32 real1736 consumes15:30: one other usable candidate has movement/volume
-support, but no symbol has a first strong observation. No buy preflight, new price receipt or fill;
-26 mature,14 warming/unavailable. The remaining15:35/15:40 confirmation route is conditional.**
+Status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
+its heartbeat is deleted. Diagnostic43424435 remains installed with exact Core hash unchanged;
+Joseph's approval1379 and original risk3 are retained. Connected/Running owner, execution Waiting
+outside regular hours. Final real1865 evaluates40 fresh symbols through15:55 with NoRecommendation,
+no failure/empty orders. Final16:00 publication completes16:02 with40 valid/on-time inputs,29 mature;
+account consumption of that post-close bar is not claimed. Original15:45 cutoff/16:00 expiry pass
+without renewal. Price comparison and complete native preflight/submission/protection remain open.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 23 final 16:05 watch report
+
+The final authorized read-only check uses the unchanged reviewed watch-and-rejected-prices.sql,
+SHA256437665204B0A496485D4DAF7F736075A7491A2F228DF0017F1189C6B9C3D9622. Receipt
+result-20261023T200530587Z-68618233accb42bf9878f480d060cfef.json verifies that hash. Saved real1865
+evaluates at15:59:45.076, consuming40 supplied/evaluated/fresh symbols through15:55. It records
+NoRecommendation, no failure, empty entry/risk/quote blocks and inline empty orders. Exact head,
+projection, checkpoints and decision/build/market-trace hashes pass; saved build approval1379 remains
+bound to the dated permission, with one October23 risk event, zero Broker/Global holds and eight
+Paper-only restrictions. The installed Core hash remains
+E9CF43F61E6BBABC60BA7BF521B194B4B61D7897AC77B7E233746556657CFB0B.
+
+Collection completes the16:00 bar at16:02:05 with41 settled slots and publishes40 matching-policy,
+valid/on-time inputs,29 mature and zero producer confirmations. Eleven symbols still lack required
+rolling evidence. Full-session VWAP remains MissingExactEndpoint; coverage is Incomplete/Blocked
+with the known host gap and zero evidence conflicts. These preserved source gaps are not a new Real
+hold. The real account's last consumed bar remains15:55 because execution is outside the session;
+the final publication is not proof of post-close account consumption or a persistent runtime failure.
+
+Fixed broker capture141ddc34-a481-4d5b-9bd6-a2b639da2fcb at16:05:35.905 confirms zero holdings/pending,
+unchanged37 historical orders (32 POSTED, three EXPIRED, two CANCELLED) and matching holdings/history.
+The saved managed orders are empty; no first attributable Delphi fill is confirmed. Controls at16:05:38
+show the owner Running/Connected, execution Waiting for regular hours, and zero consecutive Real,
+market, collection, connection or continuity worker failures. The15:45 entry cutoff and original16:00
+financial expiry have passed; no approval, grant renewal, host enable, restart or order action occurs.
+
+Latest preflight failure remains old1267 at13:40:54, AskAboveDecisionReference. Its price evidence is
+absent as expected for the old build. No later rejected buy exercises the new diagnostic, so the exact
+historical price gap remains unavailable. Corrected native account-risk lock progression was verified
+earlier13:27, but complete preflight/submission/populated protection and the first fill remain unqualified.
+Normal no-signal evaluations do not establish price-guard recovery. The failed broker read15:47:44
+was a SavedSessionChanged guard rejection; one inspected exact-helper retry passed15:48:57. Final
+broker reading succeeds directly. No agent token refresh or saved-credential write is performed.
+
+The normal SQL mailbox is restored. The requested first-fill/new-price/material-blocker watch is
+complete and its one-date heartbeat is deleted; the separate Paper monitor is unchanged. Diagnostic
+receipts and deduplication state remain ignored. Tracking is reconciled without runtime/code changes;
+validation is receipt/hash review and documentation diff checks, not a new build/test qualification.
+Future financial review/enable remains Joseph's own action; this completion grants no future-session
+monitor, repair, strategy/limit/guard change or operational authority.
 
 ## October 23 rejected-buy price diagnostic
 

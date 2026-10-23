@@ -135,10 +135,14 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Verify Joseph's own changed-build approval1379 at14:17:52/separate enable and exact installed
   build match.14:22 read verifies real1400 consuming/evaluating40 fresh symbols through14:15,
   NoRecommendation/no failure/empty orders; all symbols still warming after14:10 continuity.
-- [ ] Inspect the next actual rejected-buy price receipt without forcing a signal. First-fill watch
-  remains active; no new-build rejection or complete preflight/submission qualification is claimed.
-  At15:32 the previous candidate has volume alone on15:30; one other usable candidate has movement/
-  volume support, no active strong sequence. Third support and two consecutive observations remain.
+- [ ] Inspect an actual rejected-buy price receipt without forcing a signal in a separately authorized
+  future session. October23 ends without a new-build rejection or price pair; full preflight/submission/
+  protection and an attributable first fill remain unqualified. Preserve existing guards and gaps.
+- [x] Complete the October23 first-fill/material-blocker watch at16:05 and delete its heartbeat.
+  Broker has zero holdings/pending and unchanged history; real1865 evaluates40 fresh symbols through
+  15:55, NoRecommendation/no failure/empty orders. Final16:00 publication is distinct from consumption.
+  Entry cutoff15:45 and original financial expiry16:00 pass without renewal; Paper monitor unchanged.
+  [Closing evidence](reviews/independent-engine-implementation-20261022.md#october-23-final-1605-watch-report).
 - [x] Complete Joseph's requested15:27 checkpoint: exact tracked candidate falls from three to one
   supportive group, resetting confirmation. Real1712 evaluates40 fresh symbols through15:25,
   NoRecommendation/no failure/empty orders.15:28 broker remains empty/history unchanged.
@@ -176,8 +180,8 @@ The overnight target was missed. Completed source work is separate from installe
   No new risk event; original expiry, gaps and scoped holds retained. By11:33,24 symbols have matured
   into Watching;16 still lack required observations. No confirmed entry or first fill.
 - [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
-  Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove
-  after today's final check. Monitoring grants no operational recovery or trading authority.
+  Completed/removed after the October23 final check; no first fill or new diagnostic price pair.
+  Monitoring granted no operational recovery or trading authority and does not recur next session.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive

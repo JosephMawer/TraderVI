@@ -1,25 +1,26 @@
 # TraderVI Project Status
 
-## Independent engine — price diagnostic approved and running; native capture pending
+## Independent engine — October 23 watch complete; price capture and first fill unqualified
 
-**October 23,15:32 latest-candidate check:** diagnostic43424435 is installed14:08:39 in standard
+**October 23,16:05 closing check:** diagnostic43424435 remains installed in standard
 Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
-128 candidate/122 retained hashes pass; previous binaries are backed up. Engine44052/dashboard46816
-are Running/Connected at15:27; post-publication execution is Running at15:28 after Joseph's own
-approval1379 at14:17:52 and separate enable. Installed Core hash is unchanged. Revision1736 evaluates
-80 supplied observations across40 evaluated/fresh symbols through15:30 with NoRecommendation,
-no failure and empty entry/risk/quote blocks. Publication has40 inputs,39 valid/on-time,26 mature;
-14 remain warming/unavailable. The previous15:20 candidate retains volume support alone. One other
-usable valid/mature/Normal/no-veto candidate has movement/volume support, neutral persistence and
-neutral structure; no symbol has a first strong observation. The remaining conditional route is strong
-15:35 and15:40 observations, publication around15:42 and buy checks before15:45. No buy is promised.
-The requested15:27 checkpoint remains complete; no new preflight, rejected-price pair or fill is confirmed.
-[Checkpoint evidence](reviews/independent-engine-implementation-20261022.md#october-23-requested-1527-confirmation-checkpoint).
-Original dated authority/risk3 and valid head/projection/checkpoints remain; zero Broker/Global holds
-and eight Paper restrictions. The first native price receipt/fill remains pending. The guard, limits
-and16:00 expiry remain. The watch is active;15:28 broker has zero holdings/pending and
-unchanged37-order history. No new-build rejection or passed complete buy preflight is claimed.
-[Diagnostic work](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
+The installation's128 candidate/122 retained hashes passed; the exact Core hash is unchanged at16:05.
+Engine controls are Connected/Running with execution Waiting outside regular hours and no current
+Real/market/continuity worker failures. Joseph's approval1379 and original risk3 remain saved; the
+15:45 entry cutoff and original16:00 financial expiry have passed without renewal. Final broker read
+has zero holdings/pending orders and unchanged37-order history; no first Delphi fill is confirmed.
+
+Last real evaluation1865 at15:59:45 consumes40 supplied/evaluated/fresh symbols through15:55,
+NoRecommendation, no failure, empty entry/risk/quote blocks and inline empty orders. Collection
+separately publishes the16:00 bar at16:02:05:40 matching-policy valid/on-time inputs,29 mature,
+zero producer confirmations; post-close account consumption of that bar is not claimed. Eleven
+symbols still lack rolling evidence, full-session VWAP gaps remain and session coverage is incomplete.
+Head/projection/checkpoint and decision/build/trace hashes pass; zero Broker/Global holds and eight
+Paper restrictions remain. Latest buy rejection is still old1267/AskAboveDecisionReference; no
+new-build rejection captures prices, and full preflight/submission/protection remain unqualified.
+The requested one-day watch is complete and its heartbeat deleted; the separate Paper monitor is
+unchanged. Further-session financial review/enable remains Joseph's responsibility; no new watch,
+operational repair or policy change is authorized. [Closing evidence and remaining work](reviews/independent-engine-implementation-20261022.md#october-23-final-1605-watch-report).
 
 **Evidence through October 23, 13:34 Toronto:** correction ba3ece6a is installed and Joseph's own
 build approval898/separate enable are preserved. A confirmed13:25 entry reaches native buy preflight

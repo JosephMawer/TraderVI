@@ -36,30 +36,34 @@ Joseph now authorizes the private rejected-buy price comparison and installation
 3,112 full Core tests and isolated Release pass.43424435 is installed14:08:39 with hashes verified and
 fresh publication verified. Joseph's own approval1379/separate enable and exact-build real consumption
 pass14:22 verification. The requested14:37 follow-up is complete: the tracked symbol loses strong
-confirmation on14:35, so no buy preflight/price capture occurs. Continue the first natural rejected-price
-capture or attributable-fill watch; preserve the guard and unknown source timestamps. The requested
+confirmation on14:35, so no buy preflight/price capture occurs. Native rejected-price capture and an
+attributable fill remain unqualified; preserve the guard and unknown source timestamps. The requested
 15:17 follow-up is complete: the new15:10 first-strong candidate loses persistence support on15:15,
 leaving two supportive groups and resetting confirmation; no buy checks or new price pair follow.
 The requested15:27 follow-up is also complete: the unique15:20 first-strong candidate loses persistence
 and structure support on15:25, leaving volume alone and resetting confirmation. No buy checks or new
-price pair follow. The15:32 comparison finds one other usable two-group candidate but no active strong
-sequence. Strong15:35/15:40 observations could confirm around15:42, leaving a narrow conditional window
-for buy checks before15:45. Preserve the cutoff and all checks. The requested12:37 checkpoint is complete: fresh12:35
+price pair follow. The remaining conditional15:35/15:40 route produces no confirmed entry before15:45.
+The16:05 closing check confirms no first fill and no new price pair; the one-day watch is complete and
+deleted. Original financial permission expires16:00 without renewal. Any future session requires
+current evidence and Joseph's own applicable financial review/enable; no new session or repair is
+authorized here. [Closing evidence](reviews/independent-engine-implementation-20261022.md#october-23-final-1605-watch-report).
+The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only
 one supportive family. Await three-of-four support on two consecutive valid observations before
 qualifying a new entry. Native recovery of the lock/risk-read path is now observed at13:27; complete
 preflight and order/protection acceptance remain open.
-Continue the first-fill watch without weakening existing controls or erasing source gaps.
+Retain the unresolved price comparison and native order/protection qualification without weakening
+existing controls or erasing source gaps; no first-fill watch remains scheduled for another session.
 Track the unavailable candidate's persistent stock-bar gap separately from momentum weakening:
 its retained two-vote state is not fresh support. The authorized three-request comparison confirms
 sparse raw TMX coverage and exact installed-adapter preservation; no correction is indicated by this
 sample. Continue observing genuine coverage recovery without synthetic bars or retrospective repair.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
-Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first
-confirmed Delphi fill and material blockers; it changes no execution authority or recovery policy.
+Joseph's same-chat09:30–16:05 first-fill/material-blocker watch completes October23 without a fill;
+its heartbeat is deleted. The separate Paper monitor and execution/recovery policies are unchanged.
 
 Review retained Paper restrictions and complete native concurrency, market-hours latency, interruption/restore
 and weekly capacity acceptance. Preserve exact permission, freshness and financial history. Measure
