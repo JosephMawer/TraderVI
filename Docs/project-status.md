@@ -1,6 +1,6 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 save correction validated; installation pending
+## Independent engine — October 23 save correction installed; operator retry pending
 
 **Source correction validated:** ADR-0106 stores duplicated selected-session risk evidence once and
 reconstructs the exact original request/state hashes within the unchanged 256 KiB ceiling. An offline
@@ -8,7 +8,13 @@ check with the saved risk history reduces the prospective receipt from 389,240 t
 financial write. All 82 focused and 3,087 full Core tests pass (nine native skips); isolated WPF/engine
 Release succeeds with 260 existing compiler warnings. Two initial timing failures under concurrent build
 load pass separately and in the full serial rerun. Dependency security/SSDT were not requalified.
-The installed c86f375d copy still has the defect; guarded installation, restart and operator retry remain.
+Under explicit cutover authority, standard Release a090757f is installed at 02:51 Toronto after normal
+dashboard closure/engine drain. All 128 candidate files and 122 retained originals verify; old binaries
+are preserved. Engine 26564/dashboard 13308 run normally. At 03:10–11, connection, execution Off, native
+history synchronization and fresh broker checks pass; permission bytes and financial revision 259 remain
+unchanged. Real/Paper proofs and all eight Paper restrictions are retained, zero Broker/Global holds.
+October 23 daily/model checks still pass. Joseph's fresh installed review/approval and separate enable
+remain; the helper cannot click setup. No new risk event or order is saved by this task.
 
 **Current overnight evidence:** the scheduled October 23 nightly succeeds through Hermes, Delphi and
 Athena at 00:40:12 Toronto. The hash-verified 00:41 database read confirms Valid October 23 daily evidence
@@ -20,7 +26,8 @@ all receipt/checkpoint hashes pass. Completion does not clear Paper restrictions
 
 Joseph reconfirms no outside changes, opens the installed review and attempts approval himself. The
 screen reports **Account risk event exceeds the supported size; no event was saved.** Diagnosis/fix of
-that installed save path remains the immediate blocker. No financial approval or enable is claimed. The requested
+that observed failure prompted the now-installed correction; successful operator retry is unverified.
+No financial approval or enable is claimed. The requested
 early nightly start was rejected at the tool permission prompt; the normal schedule supplied this run.
 The redundant overnight follow-up is removed; the one-date 08:30 check/report before 09:15 remains.
 [Owning overnight evidence and blocker](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).

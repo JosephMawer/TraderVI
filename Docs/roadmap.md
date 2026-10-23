@@ -14,8 +14,9 @@ clearance pass, including the separately authorized post-Windows-restart proof/c
 its original recovery plan with eight restrictions retained. ADR-0105 is installed in normal mode with
 execution Off. October 23 nightly/daily/exact-model checks pass; Joseph's own continuation approval then
 fails at the account-risk event size guard. The ADR-0106 correction passes offline preservation/size,
-focused/full Core and isolated Release checks. Install through a guarded normal stop/restart, then verify
-the installed review before Joseph's own dated approval/separate enable.
+focused/full Core and Release checks and is installed through a guarded normal stop/restart in a090757f.
+Current connection/history/daily/recovery checks pass with execution Off. Next observe Joseph's fresh
+installed review and own dated approval/separate enable; no successful new financial save is claimed.
 The S54 readiness chat retains its 08:30 Toronto follow-up/report before 09:15. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 

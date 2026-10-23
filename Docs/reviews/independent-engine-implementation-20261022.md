@@ -1,15 +1,14 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release c86f375d resumed October 22 at 23:12 Toronto under explicit authority.
-Fresh Real recovery and separately authorized clearance pass; execution remains Off. October 23 nightly
-evidence passes; Joseph's attempted continuation approval is blocked by the risk-event size limit.
-ADR-0106 source correction is validated; installation and operator retry are pending.**
+Status: **standard Release a090757f installed October 23 at 02:51 Toronto under explicit cutover authority.
+ADR-0106 corrects the failed approval's duplicate risk receipt; post-start checks pass with execution Off.
+Joseph's fresh installed review/approval and separate enable remain pending.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 overnight readiness
 
-### Risk receipt correction — source validated, installation pending
+### Risk receipt correction — installed, operator retry pending
 
 [ADR-0106](../adr/0106-exact-selected-session-risk-receipt-storage.md) limits the correction to the new
 selected-session receipt's stored representation. The complete request remains once; duplicated state
@@ -35,9 +34,29 @@ full, timing-recheck, full-serial and Release logs. The original risk receipt re
 `result-20261023T050050510Z-8a1c79ffc611488baf20ac154f9f3313.json`, query SHA256
 `27DB97D332E8E75902A4A9A9FEB5585BF8B6B415BD6B2B7EA0517BCD0B4066EC`; no private payload is committed.
 
-Next install the reviewed candidate after a normal engine drain/dashboard close, verify original
-permission bytes and recovery heads, and reconnect with execution Off. Joseph must perform a fresh
-dated review/approval and separate enable himself. A successful candidate build does not prove that save.
+The committed-source Release build from a090757f also passes. Joseph authorizes the prepared guarded
+cutover: normal dashboard closure and engine drain complete, all 129 old runtime files are preserved,
+and the seven changed files install into the standard Release directory. All 128 candidate files and
+122 retained original files match their captured hashes. Engine 26564 starts 02:51:44 Toronto with
+`--run`; dashboard 13308 opens 02:51:46. Running/non-verification/execution Off and unchanged protected
+grant bytes pass. No migration, financial approval, hold clearance, nightly rerun or order is issued.
+
+The 03:10:32 controls confirm Connected and Off. The hash-verified 03:11:07 database read confirms Real
+260/260 and Paper Complete 205,058 with unchanged plans/hashes, zero Broker/Global holds, eight retained
+Paper restrictions and valid checkpoint hashes. October 23 Valid daily evidence still uses October 22
+with exact saved configuration/four models/input contract. Managed revision stays 259; latest risk event
+stays sequence 2/October 21, with zero October 23 risk events. Fresh 03:11:25 broker reads pass with zero
+holdings/pending orders and matching history. Native UI shows account/history refreshed 03:09:05 and
+broker/local-journal synchronization 03:09:06. Its setup click again fails with unavailable coordinate
+geometry; no review, approval or enable input is sent by the agent.
+
+Private cutover receipts/manifests and the previous runtime are under
+`artifacts/selected-session-risk-storage-20261023/cutover`. Post-install SQL receipt
+`result-20261023T071107043Z-a4cddf7aefa240a8b5635e054a089714.json` matches query SHA256
+`B504125457A870BB58E430F8E38938D9DBE0130C7CD58581BE734A8FBD22B5BB`; fresh broker capture is
+`4616977a-7b25-470e-9028-51e76a34a9ec`. These prove installed state/readiness checks, not a successful
+new financial save. Joseph must reopen setup, run a fresh dated review and approve/enable himself.
+The 08:30 follow-up remains and must recognize any later operator-saved permission before acting.
 
 ### Overnight operational evidence
 

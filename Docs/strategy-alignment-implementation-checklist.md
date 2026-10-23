@@ -91,8 +91,11 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Diagnose the account-risk event size rejection and verify no partial save. Implement ADR-0106 exact
   storage reconstruction; saved-history offline size/hash check, 82 focused/3,087 full Core tests (nine
   native skips) and isolated Release pass. The 256 KiB ceiling, original records and fingerprints remain.
-- [ ] Install the reviewed correction through normal stop/restart, qualify the installed reader/current
-  review, and observe Joseph's fresh approval attempt. Keep the 08:30 follow-up/report before 09:15.
+- [x] Install a090757f under explicit authority through normal dashboard closure/engine drain and restart;
+  verify runtime hashes, Connected/execution Off, native history synchronization, fresh broker/daily
+  checks and unchanged financial/recovery state. No financial approval/order is performed by this task.
+- [ ] Observe Joseph's fresh installed review/approval attempt and successful readback; desktop setup
+  clicking remains unavailable through the helper. Keep the 08:30 follow-up/report before 09:15.
 - [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
   only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
