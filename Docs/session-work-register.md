@@ -1,5 +1,14 @@
 # TraderVI session-work register
 
+**October 22 monitor update, 19:22 Toronto:** Windows restarted around 18:56; no TraderVI process remains.
+Paper's original run/plan retains 30,521 verified units, last updated 18:55:52; saved Running is not an
+active-worker proof. Installed files and receipt/checkpoint hashes pass; Real 260 remains Complete,
+Broker/Global holds remain zero and Paper restrictions remain seven. No restart, grant or clearance
+was performed. Next operator/main-session step: resume the installed engine with trading disabled,
+verify mode/ownership/continuity and saved-cursor progress, then continue independent real readiness.
+The read-only monitor records this alert once and continues watching for a documented resumption.
+[Owning restart evidence](reviews/independent-engine-implementation-20261022.md#windows-restart-interrupts-recovery--october-22-1922-toronto).
+
 **October22 architecture implementation and recovery:** ADRs0103/0104, backup/migrations047–051 and
 checkpoints are installed. Real recovery completes260/260 independently of paper. Guarded real-only
 clearance is confirmed16:47Toronto and rechecked18:22: zero Broker/Global holds, seven Paper restrictions.

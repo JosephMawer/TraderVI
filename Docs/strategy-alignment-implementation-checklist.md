@@ -60,6 +60,10 @@ The overnight target was missed. Completed source work is separate from installe
 - [ ] Complete remaining Paper recovery coverage, review and explicitly resolve relevant holds, and finish remaining
   native concurrency/latency/restore acceptance. Read-only progress supervision is active; incomplete
   coverage is not a pass. Real trading remains disabled until operator review of results.
+- [ ] After the October 22 Windows restart, resume the installed engine in the operator/main session with
+  trading disabled; verify current ownership/mode/continuity and original-cursor progress. At 19:22 Toronto
+  no TraderVI process runs; Paper retains 30,521 verified units. Hashes/Real completion/hold counts remain
+  valid, but saved Running does not prove an active worker. [Evidence](reviews/independent-engine-implementation-20261022.md#windows-restart-interrupts-recovery--october-22-1922-toronto).
 - [x] Prove native Real recovery completion while Paper remains unfinished; installed controls respond
   in198–347ms during paper work. Paper passes the former failure and its first portfolio checkpoint.
 - [x] Review unchanged real/shared heads and classify retained holds without mutation; prepare the

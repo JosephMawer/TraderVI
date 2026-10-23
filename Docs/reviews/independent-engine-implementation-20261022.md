@@ -1,8 +1,28 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **standard Release c86f375d runs normally with trading Off; Real recovery/real-only clearance,
-dashboard account synchronization and October23 setup display pass. Paper continues independently.**
+Status: **standard Release c86f375d is installed; the engine is stopped after a Windows restart.
+Real recovery/real-only clearance, dashboard synchronization and October 23 setup passed before restart.**
 The overnight target was missed. Full paper coverage and remaining native acceptance are incomplete.
+
+## Windows restart interrupts recovery — October 22, 19:22 Toronto
+
+Read-only supervision finds neither engine 49716 nor any TraderVI process running. Windows records a
+shutdown request at 18:55:54, event-log shutdown at 18:56:11 and startup at 18:56:59 Toronto; the missing
+process follows a host restart, with no new documented application cutover. The installed seven-file
+manifest still matches c86f375d. This does not establish why Windows restarted or prove engine auto-start.
+
+The 19:22:06 fixed-helper receipt has the reviewed query hash and valid audit/checkpoint hash flags.
+Paper's original run/plan remains saved as Running at 30,521 verified units, last updated 18:55:52;
+that database status is a retained cursor, not evidence of a running worker. Coverage is incomplete.
+Real remains Complete 260/260; unresolved Broker/Global=0 and Paper=7, with no new integrity incidents.
+Private evidence: `monitor-host-restart-20261022.json`, `monitor-process-observation.json`,
+`monitor-state.json` and SQL receipt `result-20261022T232206655Z-37af980347c34d0baa2837ef4d68fafa.json`.
+
+Next, use the operator/main session to start the installed engine with trading disabled, verify current
+mode/ownership/continuity and resume the original paper cursor. Do not rerun failed audits or wait for
+paper before the separate real-account readiness review. The monitor did not restart any process,
+change permissions or clear holds. Its last live execution-Off proof remains 18:21:59; no current
+running-mode proof exists after the restart. Supervision retains this alert to avoid repeat notifications.
 
 ## Normal-mode installation and dashboard transport correction
 

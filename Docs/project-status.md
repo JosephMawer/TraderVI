@@ -1,8 +1,16 @@
 # TraderVI Project Status
 
-## Independent engine — October 22 normal mode, trading off
+## Independent engine — October 22 installed, stopped after Windows restart
 
-**Requested preparation is installed and checked.** ADR-0105 next-session review and its account
+**Current blocker at 19:22 Toronto:** Windows restarted around 18:56; neither TraderVI engine nor
+dashboard is running. Paper's retained cursor is 30,521 verified units, last updated 18:55:52; its saved
+Running label does not mean a worker is active. Installed files and all audit/checkpoint hashes still
+match. Real remains Complete 260/260, with zero Broker/Global holds and seven unchanged Paper restrictions.
+Resume the installed engine in the operator/main session with trading disabled, then verify current
+mode/continuity and the original paper cursor before tomorrow's checks. The monitor made no restart
+or permission change. [Restart evidence](reviews/independent-engine-implementation-20261022.md#windows-restart-interrupts-recovery--october-22-1922-toronto).
+
+**Preparation passed before the restart.** ADR-0105 next-session review and its account
 transport correction are installed in standard Release from c86f375d (following 444026c7). Engine
 PID 49716 starts at 18:12:24 Toronto with `--run`; native mode/connection receipts prove Running,
 non-verification, broker Connected and execution Off. Dashboard PID 113392 opens at 18:21:33.
