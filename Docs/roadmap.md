@@ -11,16 +11,16 @@ and source review points; use its owning-record links when resuming work.
 **Current request — complete the revised architecture:** ADRs0103/0104 independence, shared/current
 storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
 clearance pass, including the separately authorized post-Windows-restart proof/clearance. Paper completes
-its original recovery plan with eight restrictions retained. ADR-0105 is installed in normal mode with
-execution Off. October 23 nightly/daily/exact-model checks pass; Joseph's own continuation approval then
+its original recovery plan with eight restrictions retained. ADR-0105 is installed in normal mode.
+October 23 nightly/daily/exact-model checks pass; Joseph's own continuation approval then
 fails at the account-risk event size guard. The ADR-0106 correction passes offline preservation/size,
 focused/full Core and Release checks and is installed through a guarded normal stop/restart in a090757f.
 The next operator attempt saves the October23 risk event but fails at the permission archive with SQL547.
-The tested archive correction d8364eff is installed under explicit authority; connection/execution Off
-and preservation of the original risk event and managed head are verified. Next Joseph recovers the
-original risk request through a fresh review and own approval/separate enable; no completed new
-permission is claimed.
-The S54 readiness chat retains its 08:30 Toronto follow-up/report before 09:15. Actual trades depend on
+The tested archive correction d8364eff is installed under explicit authority. Joseph's fresh approval
+and separate enable now succeed: revision260 links to unchanged risk sequence3, and the host is armed
+for09:30. Current account/daily/model/hash and scoped-hold checks pass. Next observe regular-session
+account/risk/source readiness and execution behavior; pre-open arming does not promise a trade.
+The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 Review retained Paper restrictions and complete native concurrency, market-hours latency, interruption/restore

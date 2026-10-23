@@ -1,11 +1,15 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 archive fix installed; operator recovery pending
+## Independent engine — October 23 operator-approved and armed
 
 **Current installed state:** d8364eff is installed in standard Release at 03:51 Toronto after an
 explicitly authorized normal dashboard closure/engine drain. All 128 candidate and 122 retained files
-verify; previous binaries are preserved. Engine27724/dashboard22276 run normally. At04:05 the broker
-connection is active and execution is Off; protected grant bytes are unchanged.
+verify; previous binaries are preserved. Engine27724/dashboard22276 run normally. At08:46 the broker
+connection is active and execution is Waiting for09:30 following Joseph's own approval and enable.
+The08:47 read verifies revision260 saved08:45:49, linked to unchanged original risk sequence3, one
+target-date risk event, valid head/projection hashes, matching daily/four models and no Broker/Global
+holds. Eight Paper restrictions remain. Broker history matches with no holdings/pending orders;
+all128 runtime hashes match. Screenshots confirm Active assignment, armed host and16:00 expiry.
 
 Joseph's earlier approval saved risk sequence3 at03:19, then failed SQL547 before permission revision260.
 The archive fix keeps retained text inside JSON objects/arrays accepted by SQL; full saved-checkpoint
@@ -14,16 +18,17 @@ succeeds with260 existing compiler warnings. NuGet audit/full SSDT solution heal
 The03:52 hash-verified read confirms the original risk event and managed259 content hashes unchanged,
 one October23 risk event, matching target-date daily/four models, valid Real/Paper recovery and checkpoint
 hashes, zero Broker/Global holds and eight retained Paper restrictions. No migration or history rewrite.
-Next Joseph runs a fresh dated review, recovers the original risk request through his own approval,
-and enables the reviewed host separately. Successful permission recovery is not yet observed.
-[Diagnosis, validation and installed evidence](reviews/independent-engine-implementation-20261022.md#permission-archive-rejection--risk-saved-permission-not-saved).
+The later operator retry recovers the original risk event and saves permission without a duplicate.
+Opening account/risk/fresh-source checks and actual trading remain unobserved. No automatic renewal
+follows today's16:00 expiry.
+[Morning verification and earlier diagnosis](reviews/independent-engine-implementation-20261022.md#morning-completion--operator-approved-and-armed).
 
 The normal October23 nightly succeeds through Hermes/Delphi/Athena at00:40:12; Valid target-date daily
 evidence uses October22. The earlier risk-size fix ADR-0106/a090757f passes its native risk-save step.
 The03:11 broker read finds no holdings/pending orders and matching history; fresh review rechecks it.
 Original Paper recovery completes at October22 23:43:48 with205,058 verified units; completion does not
-clear its restrictions or qualify capacity. The08:30 readiness follow-up/report before09:15 now knows
-the installed archive fix and partial-save recovery boundary. No agent financial approval/enable/order.
+clear its restrictions or qualify capacity. The08:30 readiness follow-up is complete and its one-date
+heartbeat is removed; the original Paper monitor stays separate. No agent financial approval/enable/order.
 [Owning overnight evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;

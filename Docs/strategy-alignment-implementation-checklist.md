@@ -35,8 +35,8 @@ The overnight target was missed. Completed source work is separate from installe
   three saved broker approval boundaries plus paper settings transition pass offline.
 - [x] Install representation correction0082a88a and complete native Real recovery260/260independently
   of paper; all current receipt/checkpoint hashes pass. Full Core3,032pass/nine native skips.
-- [ ] Qualify bounded sustained memory/throughput; retain disabled
-  trading until operator results review. Current broker/source/dated authority checks remain required.
+- [ ] Qualify bounded sustained memory/throughput. Current broker/source/dated authority checks remain
+  required; the later operator review/approval/enable milestone is recorded below.
 - [x] Replace temporary unconditional execution blocking with required schema/guards, continuity,
   scoped access and exact current subscription checks; retain existing account/build/dated authority.
 - [x] Validate offline:3,003Core pass/nine native skips with concurrency disabled; engine/WPF/SSDT
@@ -100,14 +100,18 @@ The overnight target was missed. Completed source work is separate from installe
 - [x] Validate/install object/array-only archive correction d8364eff (57 focused/3,092 full Core passes,
   nine native skips, Release pass). Guarded normal restart at03:51; hashes, Connected/execution Off,
   exact original risk/managed head, daily/models and unchanged recovery/holds pass after installation.
-- [ ] Observe Joseph's fresh review and original-request approval recovery/readback.
-  Keep the updated08:30 follow-up/report before09:15.
-- [ ] After readiness review, Joseph explicitly approves the dated continuation and separately enables
-  only if he authorizes trading. This readiness task may do neither; Paper completion is independent.
+- [x] Verify Joseph's original-request approval recovery/readback: revision260 at08:45:49 links to
+  unchanged risk sequence3; no duplicate event, valid head/projection hashes and current daily/model checks.
+- [x] Observe Joseph's explicit dated approval and separate enable: screenshots and08:46 controls show
+  Armed/Waiting for09:30, Connected,16:00 expiry. Broker history/holdings/pending checks pass; no
+  Broker/Global holds. Complete/remove the one-date08:30 heartbeat; retain the separate Paper monitor.
+- [ ] Observe fresh regular-session account/risk/source checks and actual execution behavior.
+  Pre-open arming is not an order, populated-protection qualification or guaranteed trade.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive
-  renewal copies. Saved permission remains expired October21; no automatic renewal is accepted.
+  renewal copies. October21 permission remains historical; October23 is separately operator-approved.
+  No automatic renewal is accepted.
 - [ ] Complete realistic whole-run/weekly capacity and live collection independence acceptance.
   Partial paper progress and dashboard availability are not trading readiness.
 - [ ] Decide build/evidence/special-backup retention before any cleanup. No old history was converted,

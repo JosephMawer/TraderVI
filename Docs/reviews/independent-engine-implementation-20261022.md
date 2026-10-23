@@ -1,13 +1,42 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **October 23 operator retry saves the risk event, then the permission archive fails with SQL547.
-Managed revision259 remains unchanged. Preserve risk sequence3 for original-request recovery.
-The archive correction d8364eff is installed at03:51 Toronto; current connection is active and execution
-remains Off. Joseph's fresh review and original-request approval recovery remain pending.**
+Status: **October23 operator approval recovery and separate host enable succeed. Managed revision260
+saves at08:45:49 Toronto, linked to original risk sequence3. The08:46 controls report Connected and
+Waiting for09:30. Fresh opening inputs/checks and actual trading remain unobserved.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 overnight readiness
+
+### Morning completion — operator-approved and armed
+
+During the requested08:30 follow-up, Joseph reports enabling the host and supplies screenshots showing
+dated continuation saved/read back, Active Portfolio rules only,16:00 expiry and then Armed for09:30
+Toronto. The no-outside-changes attestation is checked. No automatic renewal follows.
+
+The08:46:14 controls independently confirm the same normal owner27724, Connected and execution Waiting
+for regular hours, NextCheckAt09:30. Dashboard22276 remains open. All128 installed hashes match d8364eff.
+The08:46:18 fixed broker check succeeds with zero holdings/pending orders and matching history; the
+helper sends no order, refreshes no token and changes no credentials. This read does not independently
+qualify local-journal timing or the native order lifecycle.
+
+The08:47:34 hash-verified SQL read confirms `SessionContinuationApproved` revision260 saved08:45:49,
+selected permission in shared storage, valid head hash and matching current Real projection. Its
+revision identity links to original risk sequence3, whose content hash is unchanged; one October23 risk
+event remains. Original revision259 is preserved. The interrupted pair is recovered without a duplicate.
+Valid October23 OfficialPaper uses October22 and matches the saved configuration, four models, input
+contract, policy and binding checksum. Real260/260 and Paper205,058 recovery receipts remain Complete
+with valid hashes; current checkpoint hashes pass. Only eight existing Paper restrictions remain.
+The historical Real proof covers its original boundary, not a new audit of revision260.
+
+Private evidence: `artifacts/oct23-preopen-0830`; broker capture
+`649429bc-3ef2-48db-8433-53c68db3cdaa`; SQL receipt
+`result-20261023T124734594Z-efe8b10179724de0b176781beab66a61.json`, query SHA256
+`CCD9A1579A7C856A1BE8F74411D61665C121B1628AF8FB01510DEBED4AC0655E`.
+No agent approval/enable/order, restart, migration, hold clearance or nightly rerun. Joseph's own
+approval/enable is the new authority. Fresh09:30 account/risk/source checks still govern execution;
+arming does not promise trades or qualify live latency/populated protection. The one-date morning
+readiness task is complete and its heartbeat is removed; the separate Paper monitor is unchanged.
 
 ### Permission archive rejection — risk saved, permission not saved
 
