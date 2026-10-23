@@ -6,8 +6,9 @@ Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connecte
 approved Core hash and real1400 consumption of40 fresh symbols through14:15. The requested14:37
 follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol loses confirmation,
 no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
-stays active and the price guard is unchanged.14:43 follow-up consumes14:40; one other usable
-candidate has two supportive groups, with no first-strong reading or confirmed buy.**
+stays active and the price guard is unchanged.15:13 follow-up verifies real1646 consuming15:10:
+the former two-group candidate retains volume support alone; a different symbol starts strong
+confirmation, without a confirmed buy.26 symbols are mature,14 warming/unavailable.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -124,6 +125,32 @@ to supply a third supportive family while the existing two hold, then two consec
 observations and the normal buy checks. The original symbol retains volume alone. The11 unavailable/
 warming symbols cannot be treated as fresh near-buys. No policy or operational change is made; current
 price capture remains pending. This question-only read does not refresh the14:37 broker evidence.
+
+Joseph's follow-up is checked at15:13 using the exact unique usable two-group candidate from14:40,
+excluding the earlier14:30 first-strong symbol. Both identity-match counts are one; no symbol or account
+identity is exported. Reviewed candidate-followup1502.sql has SHA256
+341BE98092D139BE73B58132F0C691A2CDD65E188FE74CA8BE80C4F1BB6BF515. Receipt
+result-20261023T191349162Z-16dd9446db74482d904d794821a1ca53.json matches. At14:45 its movement improves
+but remains below the own-price threshold, so support stays at two groups. It loses both at14:50;
+volume is weakening at14:55/15:05 and neutral at15:00. At15:10 volume support returns, while persistence
+is neutral (score1 rather than the required3), movement is rising but lagging the benchmark and below
+the own-price threshold, and structure remains positive-leaning above the previous close but inside
+the prior20-minute range. All seven compared observations are valid/mature/Normal without a veto;
+this loss of support is not missing input. The full-session VWAP gap remains preserved. The candidate
+has one supportive group and zero consecutive strong observations; it needs at least three supportive
+groups on two consecutive valid observations before the ordinary buy checks.
+
+Real1646 evaluates at15:13:18 with40 supplied/evaluated/fresh symbols through15:10, NoRecommendation,
+empty entry/risk/quote blocks and no failure or inline orders. Publication has40 inputs,33 valid/on-time,
+26 mature;25 Watching plus one different symbol starting strong confirmation,14 warming/unavailable,
+zero confirmed buys. Execution is Running at15:13. Head/projection/checkpoint and decision/build/trace
+hashes pass; one target-date risk event, zero Broker/Global holds and eight Paper restrictions remain.
+Latest preflight failure is still old1267 with no new price evidence. The first15:02 read caught the
+normal publication boundary: real1592 still consumed14:55 before15:00 publication, with zero fresh
+symbols; the later15:13 receipt proves fresh consumption of15:10, not a persistent source failure.
+No broker call is made for this question; the14:58 full-watch capture174f4a68-2afc-475f-89ca-4f1bfcfc0a5c
+remains the latest broker evidence, with zero holdings/pending and unchanged37 orders. No rules,
+runtime, authority or history are changed. The existing first-fill/price-evidence watch continues.
 
 ## October 23 buy-preflight account-lock correction
 
