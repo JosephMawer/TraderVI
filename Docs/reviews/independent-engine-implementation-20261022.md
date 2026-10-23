@@ -137,6 +137,23 @@ result-20261023T170223655Z-3b7812a24fd74b839a63eaaf2e061f72.json and
 result-20261023T170325558Z-299e60e59ebe436b99c11b3dde792b89.json. Normal watch receipt
 result-20261023T170339145Z-bd564e299ad944f5a07a7ce9045d4dda.json matches its existing hash; mailbox restored.
 
+At Joseph's request,the13:09 comparison examines all40 candidates on the13:05 bar and identifies
+the original12:50 strong symbol without emitting its identity. It remains Watching with one fully
+supportive family (volume),neutral persistence and positive-leaning structure. Two other usable
+Watching candidates also have volume alone supportive: one has neutral persistence/structure;
+the other has positive-leaning persistence but negative-leaning structure. None has more than one
+supportive family among valid,mature,Normal candidates; all strong-confirmation counters are zero.
+One warming/unavailable symbol retains two supportive judgments but is MonitoringLost and cannot
+qualify. Counts:22 lifecycle Watching (including one starting weakening confirmation),one Dismissed,
+17 warming/unavailable. This is a comparison of rule support,not a formal execution ranking or a
+probability estimate. Original candidate is tied on supportive count,not a uniquely strongest choice.
+Revision1153 evaluates40 fresh symbols through13:05 at13:08:38,NoRecommendation,no failure,empty
+entry/risk/quote blocks and inline empty orders. Publication has40 matching-policy inputs,30 valid/
+on-time and23 mature; hashes/scoped holds remain unchanged. Normal watch plus bounded comparison
+query SHA256 9CA52A10A3F4B81247DC7EF2A4A50A114E5C59FC11850D00B3B737B27C6DF53B matches receipt
+result-20261023T170901729Z-03578f061ee642e9b130b8a2fd700e7e.json; normal mailbox restored.
+No new operational blocker or native preflight progression is observed; existing watch remains active.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture
