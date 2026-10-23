@@ -22,6 +22,8 @@ for09:30. Current account/daily/model/hash and scoped-hold checks pass. Next obs
 account/risk/source readiness and execution behavior; pre-open arming does not promise a trade.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
+Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first
+confirmed Delphi fill and material blockers; it changes no execution authority or recovery policy.
 
 Review retained Paper restrictions and complete native concurrency, market-hours latency, interruption/restore
 and weekly capacity acceptance. Preserve exact permission, freshness and financial history. Measure

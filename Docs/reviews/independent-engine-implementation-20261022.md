@@ -38,6 +38,17 @@ approval/enable is the new authority. Fresh09:30 account/risk/source checks stil
 arming does not promise trades or qualify live latency/populated protection. The one-date morning
 readiness task is complete and its heartbeat is removed; the separate Paper monitor is unchanged.
 
+Joseph subsequently requests monitoring after09:30 for Delphi's first actual trade or an execution
+blocker. The new same-chat heartbeat `delphi-october-23-first-trade-and-blockers` is Active, with
+five-minute checks during today's09:30–16:05 window. It alerts once on a confirmed, attributable fill
+and on meaningful blockers/recovery, stays quiet on unchanged/no-signal waits, and continues blocker
+supervision after the first fill. A final check reports the outcome and removes the heartbeat.
+Its ignored deduplication state is `artifacts/oct23-live-watch/latest.json`; the08:47 observation remains
+the baseline, not a new market-hours verification. This authorizes read-only supervision only, with no
+orders, permission changes, restarts, hold clearance or collector runs. The original Paper monitor is
+unchanged. The first attempt to create an anchored schedule was rejected before creation; the accepted
+schedule uses local wall-clock slots and suppresses polling before09:30. No duplicate watch was created.
+
 ### Permission archive rejection — risk saved, permission not saved
 
 Joseph's next installed review succeeds, but his approval reports SQL547 while saving/recovering the

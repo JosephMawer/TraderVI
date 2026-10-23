@@ -107,6 +107,9 @@ The overnight target was missed. Completed source work is separate from installe
   Broker/Global holds. Complete/remove the one-date08:30 heartbeat; retain the separate Paper monitor.
 - [ ] Observe fresh regular-session account/risk/source checks and actual execution behavior.
   Pre-open arming is not an order, populated-protection qualification or guaranteed trade.
+- [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
+  Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove
+  after today's final check. Monitoring grants no operational recovery or trading authority.
 - [x] Validate ADR-0105 selected-session continuation: Core3,070pass/nine skips; final broker847pass/
   two skips; isolated WPF Release passes. Source preserves original
   risk history and explicit dated/current-build approval, without paper-history reads or recursive

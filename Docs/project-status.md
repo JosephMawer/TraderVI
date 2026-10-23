@@ -29,6 +29,9 @@ The03:11 broker read finds no holdings/pending orders and matching history; fres
 Original Paper recovery completes at October22 23:43:48 with205,058 verified units; completion does not
 clear its restrictions or qualify capacity. The08:30 readiness follow-up is complete and its one-date
 heartbeat is removed; the original Paper monitor stays separate. No agent financial approval/enable/order.
+Joseph subsequently requests a new same-chat live watch: five-minute checks after09:30 through16:05
+for the first confirmed Delphi fill and meaningful blockers. It is scheduled, not yet an observation
+of market-hours execution; routine unchanged/no-signal waits stay quiet. See the owning review below.
 [Owning overnight evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 
 The unchanged 129-file c86f375d runtime was restarted under explicit authority at 23:12 October 22;
