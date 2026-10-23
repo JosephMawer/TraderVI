@@ -2,16 +2,19 @@
 
 ## Independent engine — price diagnostic approved and running; native capture pending
 
-**October 23,14:22 verification:** diagnostic43424435 is installed14:08:39 in standard
+**October 23,14:37 checkpoint:** diagnostic43424435 is installed14:08:39 in standard
 Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
 128 candidate/122 retained hashes pass; previous binaries are backed up. Engine44052/dashboard46816
 are normal Running and Connected with execution Running after Joseph's own approval1379 at14:17:52
-and separate enable. The saved approval matches the exact installed Core hash. Revision1400 evaluates
-40 supplied/evaluated/fresh symbols through14:15 with NoRecommendation, no failure and empty entry/
-risk/quote blocks. Publication has40 inputs,34 valid/on-time, all warming after honest14:10 continuity.
+and separate enable. The saved approval matches the exact installed Core hash. Revision1475 evaluates
+80 supplied observations across40 evaluated/fresh symbols through14:35 with NoRecommendation,
+no failure and empty entry/risk/quote blocks. Publication has40 inputs,34 valid/on-time,29 mature;
+11 remain warming/unavailable after honest14:10 continuity. The unique14:30 first-strong symbol
+loses confirmation at14:35 as supportive groups fall from three to one. No buy preflight is attempted
+and no new price pair is captured. Joseph's requested14:37 checkpoint is complete.
 Original dated authority/risk3 and valid head/projection/checkpoints remain; zero Broker/Global holds
 and eight Paper restrictions. The first native price receipt/fill remains pending. The guard, limits
-and16:00 expiry remain. The watch is updated and active;14:18 broker has zero holdings/pending and
+and16:00 expiry remain. The watch is updated and active;14:37 broker has zero holdings/pending and
 unchanged37-order history. No new-build rejection or passed complete buy preflight is claimed.
 [Diagnostic work](reviews/independent-engine-implementation-20261022.md#october-23-rejected-buy-price-diagnostic).
 

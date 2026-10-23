@@ -35,8 +35,9 @@ under unchanged limits; no price guard change is authorized.
 Joseph now authorizes the private rejected-buy price comparison and installation. Source/491 focused/
 3,112 full Core tests and isolated Release pass.43424435 is installed14:08:39 with hashes verified and
 fresh publication verified. Joseph's own approval1379/separate enable and exact-build real consumption
-pass14:22 verification; await the first natural rejected-price capture or attributable fill. Preserve
-the guard and unknown source timestamps. The requested12:37 checkpoint is complete: fresh12:35
+pass14:22 verification. The requested14:37 follow-up is complete: the tracked symbol loses strong
+confirmation on14:35, so no buy preflight/price capture occurs. Continue the first natural rejected-price
+capture or attributable-fill watch; preserve the guard and unknown source timestamps. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only

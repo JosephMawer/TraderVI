@@ -137,6 +137,9 @@ The overnight target was missed. Completed source work is separate from installe
   NoRecommendation/no failure/empty orders; all symbols still warming after14:10 continuity.
 - [ ] Inspect the next actual rejected-buy price receipt without forcing a signal. First-fill watch
   remains active; no new-build rejection or complete preflight/submission qualification is claimed.
+- [x] Complete Joseph's requested14:37 checkpoint: the unique14:30 first-strong symbol loses support
+  from three groups to one at14:35, resetting confirmation. Real1475 consumes/evaluates the new bar,
+  NoRecommendation/no failure/empty orders. No buy preflight or new price comparison; watch continues.
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,

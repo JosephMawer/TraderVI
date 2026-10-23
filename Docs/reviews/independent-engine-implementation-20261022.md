@@ -3,9 +3,10 @@
 Status: **Rejected-buy diagnostic43424435 is installed14:08:39 Toronto after491 focused/3,112 full Core
 passes (nine native SQL skips) and Release/260 existing warnings.128 candidate/122 retained hashes pass;
 Joseph's approval1379 at14:17:52 and separate enable are verified14:22: Connected/Running, exact
-approved Core hash and real1400 consumption of40 fresh symbols through14:15. All remain warming
-after14:10 continuity; first native price receipt/fill is still pending. The watch stays active and
-the price guard is unchanged.**
+approved Core hash and real1400 consumption of40 fresh symbols through14:15. The requested14:37
+follow-up verifies real1475 consumption of14:35: the tracked first-strong symbol loses confirmation,
+no buy preflight or new price receipt/fill.29 symbols are mature,11 warming/unavailable. The watch
+stays active and the price guard is unchanged.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -80,6 +81,34 @@ has zero holdings/pending, unchanged37-order history and matching holdings/histo
 rejection remains old1267 without price fields; no new-build price capture or full preflight pass
 is claimed. The normal mailbox is restored and watch state/prompt are updated to avoid obsolete
 approval-pending alerts. No further operational action or agent financial approval/enable occurs.
+
+## October 23 requested 14:37 confirmation checkpoint
+
+Joseph explicitly asks to follow the unique14:30 first-strong symbol through14:35 publication around
+14:37, report confirmation/buy-check progression, and show both prices/timestamps if rejected.
+At14:32 the14:30 publication supplies40 inputs,34 valid/on-time,30 mature:29 Watching and one
+StrongConfirmationStarted. The earlier14:31 answer identifies14:37 only as the earliest conditional
+confirmation, not a promised signal, and distinguishes the15:45 entry cutoff from16:00 permission expiry.
+
+The reviewed bounded watch1437.sql adds identity-matched14:30/14:35 lifecycle/family facts without
+exporting the symbol; SHA256026A9BF89BAD864C00A85FDE11B1745A8AD26CC67D4C78205960457DF163F67D.
+Fixed receipt result-20261023T183732326Z-f020703013234c76ae30a896fc107097.json matches that hash.
+It finds exactly one original symbol. Both observations are valid, mature, on-time, Normal confidence
+and without a safety veto. Supportive votes fall3 to1; StrongConfirmationStarted becomes
+StrongConfirmationBroken and its consecutive-strong count resets1 to0. Persistence changes from
+Supportive to PositiveLeaning, volume remains Supportive, and structure moves from NeutralConflict
+to NegativeLeaning. The symbol does not confirm a buy.
+
+The14:35 publication completes14:37:15 with40 inputs,34 valid/on-time,29 mature and zero producer
+confirmations. Real1475 evaluates14:37:27, consuming80 supplied observations across40 evaluated/fresh
+symbols through14:35, NoRecommendation, empty entry/risk/quote blocks, no failure and inline empty
+orders. Exact decision/build/market trace and head/projection/checkpoint hashes pass; one target-date
+risk event, zero Broker/Global holds and eight Paper restrictions remain. Controls are Connected/Running.
+Broker capturec0c03af9-20f5-446a-9eb6-3c3ab5d19b65 at14:37:29 has zero holdings/pending, unchanged37
+historical orders and matching holdings/history. Latest price failure remains old1267 at13:40:54,
+with no new diagnostic fields. No new-build buy preflight, price comparison or fill is claimed.
+The requested milestone is reported once; the existing session first-fill/price/blocker watch continues
+through16:05, with no control change or extra source request. Normal SQL mailbox is restored.
 
 ## October 23 buy-preflight account-lock correction
 
