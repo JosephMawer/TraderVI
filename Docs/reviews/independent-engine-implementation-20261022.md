@@ -10,7 +10,9 @@ stays active and the price guard is unchanged. The requested15:17 checkpoint ver
 15:15: the new15:10 first-strong candidate loses persistence support, leaving two supportive groups
 and resetting confirmation. The requested15:27 checkpoint verifies real1712 consuming15:25: the
 unique15:20 first-strong candidate loses persistence/structure support, leaving volume alone and
-resetting confirmation. No buy preflight, new price receipt or fill;26 mature,14 warming/unavailable.**
+resetting confirmation.15:32 real1736 consumes15:30: one other usable candidate has movement/volume
+support, but no symbol has a first strong observation. No buy preflight, new price receipt or fill;
+26 mature,14 warming/unavailable. The remaining15:35/15:40 confirmation route is conditional.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -224,6 +226,28 @@ succeeds at15:28:31: capture61e0d72d-9058-483f-9319-7e02a88d0748 has zero holdin
 the failed read is not treated as healthy evidence. The checkpoint is complete and reported once.
 The existing first-fill/new-price/material-blocker watch continues through16:05, with all controls
 unchanged and no operational repair authority added.
+
+At Joseph's next question, reviewed candidates1533.sql compares other usable candidates against the
+same unique15:20 first-strong symbol. SHA256
+6DEBC3450E000ECBB411B745637ECF327B9379747B25A1A645617200E45B8111 matches receipt
+result-20261023T193256402Z-14a6662186c0401e84ce4d3eed81bceb.json. At15:32:56 the latest15:30 bar has
+zero first-strong observations or producer confirmations. The tracked candidate retains volume alone,
+neutral persistence and positive-leaning structure. Exactly one other usable valid/mature/Normal/no-veto
+candidate has two supportive groups: movement and volume. Persistence is neutral (score0), structure
+neutral (at previous-close level and inside the prior20-minute range), consecutive strong0. It needs
+persistence or structure to provide a third supportive group while the existing support holds, then
+two consecutive valid strong observations. None of the unavailable/warming retained states is counted
+as a current qualifying candidate.
+
+Real1736 evaluates at15:32:39 with80 supplied observations across40 evaluated/fresh symbols through
+15:30, NoRecommendation, no failure, empty entry/risk/quote blocks and inline empty orders. Publication
+has40 inputs,39 valid/on-time,26 mature;25 Watching, one dismissed after confirmed weakening,14 warming/
+unavailable. Head/projection/checkpoint and exact decision/build/trace hashes pass; original risk event,
+zero Broker/Global holds and eight Paper restrictions remain. Old1267 is still the latest preflight
+rejection; no new price pair. This question does not refresh the15:28 broker observation. With no first
+strong reading at15:30, the remaining scheduled route is strong15:35 then15:40, publication around15:42
+and normal buy checks before15:45. The roughly three-minute window is conditional on timely valid data
+and completed checks; neither confirmation nor execution is promised. The watch continues unchanged.
 
 ## October 23 buy-preflight account-lock correction
 

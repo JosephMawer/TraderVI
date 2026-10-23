@@ -42,8 +42,9 @@ capture or attributable-fill watch; preserve the guard and unknown source timest
 leaving two supportive groups and resetting confirmation; no buy checks or new price pair follow.
 The requested15:27 follow-up is also complete: the unique15:20 first-strong candidate loses persistence
 and structure support on15:25, leaving volume alone and resetting confirmation. No buy checks or new
-price pair follow. Await consecutive confirmation and ordinary buy checks before the unchanged15:45
-entry cutoff. The requested12:37 checkpoint is complete: fresh12:35
+price pair follow. The15:32 comparison finds one other usable two-group candidate but no active strong
+sequence. Strong15:35/15:40 observations could confirm around15:42, leaving a narrow conditional window
+for buy checks before15:45. Preserve the cutoff and all checks. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only

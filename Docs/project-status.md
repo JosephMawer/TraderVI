@@ -2,17 +2,18 @@
 
 ## Independent engine — price diagnostic approved and running; native capture pending
 
-**October 23,15:28 checkpoint check:** diagnostic43424435 is installed14:08:39 in standard
+**October 23,15:32 latest-candidate check:** diagnostic43424435 is installed14:08:39 in standard
 Release after491 focused/3,112 full Core passes (nine native SQL skips) and Release/260 existing warnings.
 128 candidate/122 retained hashes pass; previous binaries are backed up. Engine44052/dashboard46816
 are Running/Connected at15:27; post-publication execution is Running at15:28 after Joseph's own
-approval1379 at14:17:52 and separate enable. Installed Core hash is unchanged. Revision1712 evaluates
-80 supplied observations across40 evaluated/fresh symbols through15:25 with NoRecommendation,
-no failure and empty entry/risk/quote blocks. Publication has40 inputs,36 valid/on-time,26 mature;
-14 remain warming/unavailable. Joseph's requested15:27 checkpoint is complete: the unique15:20
-first-strong candidate loses persistence and structure support on15:25, leaving volume alone and
-resetting consecutive confirmation from one to zero. Both bars are valid/mature/Normal with no veto.
-No buy preflight, new rejected-price comparison or fill follows.
+approval1379 at14:17:52 and separate enable. Installed Core hash is unchanged. Revision1736 evaluates
+80 supplied observations across40 evaluated/fresh symbols through15:30 with NoRecommendation,
+no failure and empty entry/risk/quote blocks. Publication has40 inputs,39 valid/on-time,26 mature;
+14 remain warming/unavailable. The previous15:20 candidate retains volume support alone. One other
+usable valid/mature/Normal/no-veto candidate has movement/volume support, neutral persistence and
+neutral structure; no symbol has a first strong observation. The remaining conditional route is strong
+15:35 and15:40 observations, publication around15:42 and buy checks before15:45. No buy is promised.
+The requested15:27 checkpoint remains complete; no new preflight, rejected-price pair or fill is confirmed.
 [Checkpoint evidence](reviews/independent-engine-implementation-20261022.md#october-23-requested-1527-confirmation-checkpoint).
 Original dated authority/risk3 and valid head/projection/checkpoints remain; zero Broker/Global holds
 and eight Paper restrictions. The first native price receipt/fill remains pending. The guard, limits
