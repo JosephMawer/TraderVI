@@ -119,6 +119,24 @@ At12:49 controls remain Connected/Running with no Real/market worker failure; br
 8a3e9962-7c61-4780-a595-8762703152da retains zero holdings/pending orders and unchanged37-order history.
 No policy change or operational repair is requested; corrected native preflight remains unexercised.
 
+The next bounded comparison follows the unique symbol whose12:50 reading starts strong confirmation.
+It has four fully supportive families at12:50,then only volume at12:55: persistence score falls4 to2,
+the raw20-minute price move drops below its policy threshold despite retained relative agreement,
+and prior-range Breakout becomes InsideOrAtRange,leaving only previous-close structure support.
+All observations remain valid/on-time,mature and Normal,with no safety veto; the counter resets from1
+to0 because momentum no longer qualifies. The13:00 publication retains volume alone,persistence score1,
+sub-threshold raw movement and positive-leaning structure. This symbol is farther from confirmation,
+requiring two more supportive families and two consecutive strong readings. No guaranteed timing follows.
+The temporary stale status at13:02:30 precedes13:00 publication at13:02:33; the13:03:39 read verifies
+revision1126 actually consuming80 supplied observations across40 evaluated/fresh symbols through13:00,
+NoRecommendation,no failure,empty entry/risk/quote blocks and inline empty orders. Hashes/holds and
+the original permission remain unchanged. Connection is current at13:03; no restart or repair is indicated.
+The same-symbol query omits its identity and matches exactly one source row. SHA256
+9DEDFFEA46E50EDAFBBEEBCB2444F7462C3F8F504FE709D43C97F01CA52BF5D9 matches receipts
+result-20261023T170223655Z-3b7812a24fd74b839a63eaaf2e061f72.json and
+result-20261023T170325558Z-299e60e59ebe436b99c11b3dde792b89.json. Normal watch receipt
+result-20261023T170339145Z-bd564e299ad944f5a07a7ce9045d4dda.json matches its existing hash; mailbox restored.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture

@@ -32,8 +32,9 @@ consumption through12:15. Risk reads now use the existing safety transaction. Ob
 qualified entry's native preflight and first fill. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
-The latest signal-gap diagnosis finds two Watching candidates with two supportive families; await
-three-of-four support on two consecutive valid observations before evaluating native buy-check recovery.
+The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only
+one supportive family. Await three-of-four support on two consecutive valid observations before
+evaluating native buy-check recovery.
 Continue the first-fill watch without weakening existing controls or erasing source gaps.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
