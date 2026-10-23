@@ -8,13 +8,20 @@ at13:27:40 (revision1247). The corrected same-transaction account-risk read, fre
 and account matching complete; the current ask exceeds the decision reference, so the existing
 AskAboveDecisionReference guard stops the buy before reservation/transmission. This establishes
 native progression past the former SQL51501 self-lock failure, not full preflight or order qualification.
-The same guard recurs at revision1259/13:31:36. Current execution is Blocked/backoff until13:35:37;
+The same guard recurs at revision1259/13:31:36. At13:34 execution is Blocked/backoff until13:35:37;
 no control change is made. The13:33 broker read confirms zero holdings/pending orders and unchanged
 37-order history. Head/projection/checkpoint/decision hashes pass, one target-date risk event,
 zero Broker/Global holds and eight Paper restrictions remain. No first fill is confirmed.
 
-Collection publishes40 inputs through13:30 (32 valid/on-time,20 mature,one producer confirmation).
-The latest saved account evaluation consumes40 fresh symbols through13:25 while the host is in
+The13:48 price-evidence follow-up verifies fresh TMX retrieval for the latest13:40 rejection (1.581s
+before failure save), but no upstream quote timestamp or price pair is retained. Exact cents/percent
+gap and underlying reference age remain unproven. The reference is TMX ask with last-price fallback;
+the later broker ask is a separate feed. Current SQL1279 consumes40 fresh symbols through13:45 with
+NoRecommendation/inline empty orders; this does not establish a passed price check. No control or
+source change. [Evidence limits](reviews/independent-engine-implementation-20261022.md#october-23-reference-price-freshness-and-missing-comparison-amounts).
+
+At13:34 collection has published40 inputs through13:30 (32 valid/on-time,20 mature,one producer confirmation).
+The saved account evaluation then consumes40 fresh symbols through13:25 while the host is in
 backoff; publication and account consumption remain distinct. Await a qualified entry clearing all
 remaining checks under the original limits and16:00 expiry. No price safeguard is relaxed.
 

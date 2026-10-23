@@ -124,6 +124,9 @@ The overnight target was missed. Completed source work is separate from installe
   does not recur on this path; the buy stops before reservation. Same price guard at1259/13:31:36.
 - [ ] Observe all remaining preflight checks passing and qualify actual submission/order/protection.
   Current ask-price rejection/backoff is preserved; native risk-read progression is not a full buy pass.
+  The13:48 follow-up verifies recent TMX receipt (1.581s before latest failure save), not upstream
+  quote age. The price pair is not retained; exact gap is unavailable. Same-attempt diagnostics are
+  proposed only; no source/price-rule change is agreed. [Limits](reviews/independent-engine-implementation-20261022.md#october-23-reference-price-freshness-and-missing-comparison-amounts).
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,

@@ -242,6 +242,39 @@ no future runs. Removing only the hour filter while retaining five-minute bounda
 October23 20:05 UTC end succeeds with status ACTIVE. The same heartbeat now includes these latest
 findings/dedup boundaries; no duplicate watch or Paper-monitor change is made.
 
+### October 23 reference-price freshness and missing comparison amounts
+
+The13:48 read-only follow-up answers Joseph's question about the ask/reference gap. Receipt
+result-20261023T174816953Z-234f81a33fbc49e59d1571d8772b9ee4.json matches query
+27912D8F85D00EF82EB1BB5976082E52254980D50102B00E63FE0D9851CB1E1C. Exact head, decision and
+quote-attempt hashes pass for original failure1247 and latest failure1267. The first selected TMX
+quote is requested13:27:39.311, received13:27:39.435 and the rejection saved13:27:40.978 (1.543s later).
+The latest is requested13:40:53.163, received13:40:53.305 and rejected/saved13:40:54.886 (1.581s later).
+Both record AskAboveDecisionReference and inline empty orders. This proves recent retrieval for each
+attempt, not upstream market freshness or the exact instant of the comparison.
+
+TradingRecommendationEngine uses the returned positive TMX ask, falling back to TMX's price when
+the ask is unavailable. It does not use the signal bar's close as this entry reference. The query
+GetQuotesBySymbolsAsync and TradingQuote contract contain no upstream quote timestamp; the60-second
+quote window constrains request/receipt timing only. BrokerManagedOrderTransport subsequently reads
+Wealthsimple's ask. Before comparing prices it validates broker quotedAsOf within two minutes and
+quote/account/pending receipts within30seconds. The existing parser comment and earlier source review
+explicitly do not equate quotedAsOf with an exchange update. Therefore neither stale TMX nor a fresh
+underlying price is established. Cross-feed timing, movement or ask-versus-last-price spread are
+possibilities, not findings about this attempt; which TMX field supplied the reference is not retained.
+
+ADR-0100 deliberately excludes quote prices from diagnostics. The transient recommendation/order and
+broker context are not saved before this failed preflight, so these receipts cannot recover either
+price or a cents/percentage gap. The fixed broker-read helper does not expose quote comparison. A
+private same-attempt price-pair diagnostic is a possible follow-up requiring a separately reviewed
+scope; no logging/source/policy change, additional provider probe, helper extension or installation is
+authorized or performed here. The current SQL head1279 evaluates40 fresh symbols through13:45 at
+13:47:52 with NoRecommendation and inline empty orders; hashes/dated build linkage pass and only the
+eight Paper restrictions remain. This does not prove the price guard passed. The earlier two versions
+of the diagnostic SELECT failed SQL468 without a result; resolving text through scalar variables
+avoids the collation conflict. This diagnostic query error is not an engine error. Mailbox restored;
+the first-fill/material-blocker watch and unchanged price guard remain in place.
+
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
 result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture
