@@ -28,17 +28,21 @@ enable succeed. Fresh real consumption produces a confirmed entry on the11:45 ba
 fails SQL51501 by reacquiring its held account lock through a separate risk transaction. Joseph
 authorizes a tested correction and normal restart installation. Correction ba3ece6a is installed at
 12:09:37. Joseph's build approval898 and separate enable pass; native12:18 checks verify fresh real
-consumption through12:15. Risk reads now use the existing safety transaction. Observe the next
-qualified entry's native preflight and first fill. The requested12:37 checkpoint is complete: fresh12:35
+consumption through12:15. Risk reads now use the existing safety transaction. A confirmed13:25 entry
+passes that corrected native risk read and fresh broker/account checks, then the existing ask-price
+guard blocks before reservation (1247; same cause1259). Observe remaining preflight and the first fill
+under unchanged limits; no price guard change is authorized. The requested12:37 checkpoint is complete: fresh12:35
 inputs are consumed,27 symbols are Watching,one is dismissed for weakening and12 remain warming/unavailable.
 No confirmed entry reaches the corrected buy checks; no new Real blocker is observed.
 The first post-restart strong reading at12:50 breaks confirmation at12:55; its13:00 reading has only
 one supportive family. Await three-of-four support on two consecutive valid observations before
-evaluating native buy-check recovery.
+qualifying a new entry. Native recovery of the lock/risk-read path is now observed at13:27; complete
+preflight and order/protection acceptance remain open.
 Continue the first-fill watch without weakening existing controls or erasing source gaps.
 Track the unavailable candidate's persistent stock-bar gap separately from momentum weakening:
-its retained two-vote state is not fresh support. Saved-source diagnosis is complete; any additional
-provider comparison requires separate authorization before deciding whether an adapter repair exists.
+its retained two-vote state is not fresh support. The authorized three-request comparison confirms
+sparse raw TMX coverage and exact installed-adapter preservation; no correction is indicated by this
+sample. Continue observing genuine coverage recovery without synthetic bars or retrospective repair.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first

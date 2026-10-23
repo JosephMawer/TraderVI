@@ -1,41 +1,32 @@
 # TraderVI Project Status
 
-## Independent engine — account-lock correction installed and enabled; fresh evaluation verified
+## Independent engine — corrected risk read exercised; current buy blocked by ask-price guard
 
-**Evidence through October 23, 13:14 Toronto:** the preceding installed 5144535c publishes and consumes fresh
-inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
-SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
-separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
-tests and installation with a normal restart. The correction reads risk in the already-held safety
-transaction and retains that lock through submission, preserving ADR-0086's existing contract.
-524 focused and 3,105 full Core tests pass (nine native SQL skips); Release passes with 260 existing
-compiler warnings. Correction ba3ece6a installs at 12:09:37 through a normal stop/restart (engine 32308,
-dashboard 22000), with all 128 candidate/122 retained hashes verified and old binaries preserved.
-At 12:14, Connected/execution Off and valid head/projection/checkpoint hashes are verified; one
-October 23 risk event, zero Broker/Global holds and eight Paper restrictions remain. The 12:13 broker
-read confirms zero holdings/pending orders and unchanged history. The new engine publishes 40 inputs
-through 12:10 at 12:12:12, 33 valid/on-time, all warming after the honest 12:10 continuity boundary.
-Joseph's build approval saves revision898 at12:17:33, followed by his separate host enable. Native
-12:18 checks confirm Connected/Running and revision904 evaluating40 supplied/evaluated/fresh symbols
-through12:15, with no entry/risk/quote block or failure. The requested12:37 checkpoint verifies revision1000
-consuming40 fresh symbols through12:35:30 valid/on-time inputs,27 Watching,one dismissed for weakening,
-and12 warming/unavailable. No confirmed entry, recommendation, failure or order.12:38 controls remain
-Connected/Running; broker history is unchanged with zero holdings/pending orders, hashes pass and scoped holds are unchanged.
-Native preflight progression awaits the next qualified entry;
-fresh evaluation alone does not prove SQL51501 recovery. No first trade is confirmed. NuGet audit/full
-SSDT solution and native SQL concurrency qualification are not requalified.
-One symbol reaches four supportive families at12:50,but confirmation breaks at12:55 when persistence,
-price movement and structure lose full support. At13:00 it remains Watching with volume alone
-supportive. The13:03 read verifies actual consumption at revision1126,40 fresh symbols,no entry/failure/
-order and unchanged valid hashes/holds. Valid Normal data and no safety veto distinguish this ordinary
-signal weakening from an operational failure. Native preflight still awaits a qualified entry.
-The separate unavailable two-vote candidate lacks seven on-time exact stock bars ending12:40–13:10;
-its two votes are retained from12:35, not current support. Hash-verified receipts show successful but
-stale source responses and later off-grid records, with normal benchmark coverage. Real1171 consumes
-the13:10 publication without entry/failure/order. This candidate's source gap is unresolved; no adapter
-defect or repair is established. Further provider comparison needs separate authorization.
-[Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
+**Evidence through October 23, 13:34 Toronto:** correction ba3ece6a is installed and Joseph's own
+build approval898/separate enable are preserved. A confirmed13:25 entry reaches native buy preflight
+at13:27:40 (revision1247). The corrected same-transaction account-risk read, fresh broker validation
+and account matching complete; the current ask exceeds the decision reference, so the existing
+AskAboveDecisionReference guard stops the buy before reservation/transmission. This establishes
+native progression past the former SQL51501 self-lock failure, not full preflight or order qualification.
+The same guard recurs at revision1259/13:31:36. Current execution is Blocked/backoff until13:35:37;
+no control change is made. The13:33 broker read confirms zero holdings/pending orders and unchanged
+37-order history. Head/projection/checkpoint/decision hashes pass, one target-date risk event,
+zero Broker/Global holds and eight Paper restrictions remain. No first fill is confirmed.
 
+Collection publishes40 inputs through13:30 (32 valid/on-time,20 mature,one producer confirmation).
+The latest saved account evaluation consumes40 fresh symbols through13:25 while the host is in
+backoff; publication and account consumption remain distinct. Await a qualified entry clearing all
+remaining checks under the original limits and16:00 expiry. No price safeguard is relaxed.
+
+The separate unavailable two-vote candidate retains12:35 support while exact stock bars are missing.
+Joseph's authorized three-request TMX comparison at13:24 locates those gaps in the raw source response:
+the installed adapter preserves all15 aligned five-minute bars exactly. One-minute coverage is sparse
+too; none of nine examined intervals has all five components. No adapter correction is indicated by
+this sample; upstream sparsity/no-trading cause remains unproven and historical on-time gaps remain.
+Four offline diagnostic checks and the isolated probe build pass without warnings. The installed
+lock correction's earlier validation remains524 focused/3,105 full Core passes (nine native SQL skips)
+and Release/260 existing warnings; NuGet audit/full SSDT solution and native concurrency/order/protection
+qualification are not requalified. [Evidence and remaining acceptance](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.
 Both review/approval now use the qualified existing-real strategy/direct-input reader and shared
 storage.136 focused tests/Release pass and that follow-up is installed11:10:57. Operator approval,

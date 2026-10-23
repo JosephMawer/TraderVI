@@ -119,9 +119,11 @@ The overnight target was missed. Completed source work is separate from installe
   history, head/projection/checkpoint and scoped-hold checks pass.
 - [x] Verify Joseph's changed-build approval898 at12:17:33/separate enable and actual real consumption
   on ba3ece6a: revision904 evaluates40 fresh symbols through12:15, no entry/risk/quote block or failure.
-- [ ] Observe native preflight progress on the next qualified entry. The new12:10 continuity boundary
-  requires rolling observations to mature; preserve original gaps, all financial authority/expiry and
-  the account lock through submission. Fresh evaluation alone does not verify SQL51501 recovery.
+- [x] Observe native progression through the corrected account-risk read: confirmed13:25 entry1247
+  reaches AskAboveDecisionReference at13:27:40, after risk/broker/account checks. The old SQL51501
+  does not recur on this path; the buy stops before reservation. Same price guard at1259/13:31:36.
+- [ ] Observe all remaining preflight checks passing and qualify actual submission/order/protection.
+  Current ask-price rejection/backoff is preserved; native risk-read progression is not a full buy pass.
 - [x] Verify rolling maturity after the restart:12:33 evidence confirms29 mature symbols through12:30,
   11 still warming/unavailable, no first strong confirmation or buy recommendation. Native buy checks
   remain unexercised. The requested12:37 checkpoint is complete: revision1000 consumes the12:35 bar,
@@ -130,10 +132,12 @@ The overnight target was missed. Completed source work is separate from installe
   The12:50 first strong reading breaks at12:55 as three families lose support;13:00 retains only volume
   support. Valid Normal evidence is consumed by real revision1126 at13:03,no entry/failure/order;
   native preflight remains pending. [Signal-gap evidence](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
-- [ ] Observe recovery of the unavailable candidate's exact stock-bar coverage. The13:14 saved-receipt
-  diagnosis verifies seven missing on-time endpoints through13:10 and two votes retained from12:35;
-  later source bars arrive stale and supplementary records cannot replace exact bars. No code defect
-  or repair is established. Additional provider comparisons need separate authorization; preserve gaps.
+- [x] Compare raw TMX responses with the installed adapter under Joseph's explicit read-only authority:
+  three requests at13:24, four offline harness checks and a clean probe build. All15 aligned five-minute
+  bars are retained exactly; missing bars are absent upstream in this sample. One-minute data cannot
+  supply five complete components in any of nine examined intervals. No adapter correction indicated.
+- [ ] Observe recovery of that candidate's exact stock-bar coverage. Its two votes remain12:35 memory;
+  source-coverage diagnosis does not explain upstream sparsity or repair historical receipt deadlines.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

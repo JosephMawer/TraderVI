@@ -2,10 +2,11 @@
 
 Status: **Lock correction ba3ece6a is installed12:09:37 after524 focused/3,105 full Core passes
 (nine native SQL skips) and Release/260 existing warnings. Joseph's approval898 at12:17:33 and separate
-enable are verified. The requested12:37 checkpoint consumes fresh12:35 inputs at revision1000, with
-27 Watching,one dismissed for weakening and12 warming/unavailable; no entry/failure/order.12:38 controls
-remain Connected/Running, hashes/holds are unchanged and broker history has no new order. Native preflight
-progress awaits the next qualified entry; no first fill. The existing watch stays active.**
+enable are verified. The confirmed13:25 entry passes the corrected native risk read and fresh broker/
+account checks, then AskAboveDecisionReference blocks before reservation at1247/13:27:40 and1259/
+13:31:36.13:34 execution is in backoff;13:33 broker has no new orders/fills. The separately authorized
+three-request TMX comparison confirms raw source gaps and exact installed-adapter preservation.
+Full preflight/submission/protection remain unqualified. The existing watch stays active.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
@@ -183,6 +184,63 @@ C416B4A206FF747A1752BA9F81C3AF2C1EEB29AA0E09736051CF6903BDA204CB matches
 result-20261023T171402435Z-7cbe2d6dfb734da684656cd67424b4e9.json; the normal mailbox is restored.
 The candidate-specific coverage blocker is recorded for watch deduplication without claiming a
 whole-host failure, new financial authority or first fill.
+
+Joseph explicitly authorizes the read-only TMX comparison and continued first-fill/blocker watch.
+At13:24:22–23, exactly three HTTP reads compare the single candidate's current five-minute context
+through13:24, the earlier context through13:12, and one-minute context through13:24. The isolated
+ignored harness references the installed Core binary, with matching SHA256
+7989914A4AEAE476A5C5250D6D5A38F6FFF9DA2632C41F1A43F9B2666E48877D. Its build has zero warnings/errors;
+four offline replay/transport-boundary checks pass before the online run. Each mode permits only one
+transmission; no transport retry, other stock, SQL write, production collector, runtime restart or
+operational change is part of the probe. Raw bodies and request metadata remain private and ignored.
+
+Both five-minute responses contain16 complete source records:15 aligned bars and one trailing13:01
+supplement. Their15 shared aligned bars have identical values. Replaying the same captured response
+through the installed client preserves every aligned bar exactly, drops/changes none and invents none.
+The actual exact-bar adapter reports StaleNoNewBar for the bar ending13:20, consistently with its
+absence from the raw response; the newest aligned source bar still starts12:40/ends12:45. This older
+bar appears in both retrospective reads but was absent at its original deadline; it does not repair
+on-time evidence. One-minute data contains22 complete rows through13:01, all retained exactly.
+Across nine intervals ending12:40–13:20, seven have zero minute components and two have one; none has
+all five. A wider end context reveals no additional five-minute bars. Thus this bounded sample locates
+the gap in raw TMX coverage, not adapter filtering; it does not establish why source coverage is sparse,
+a halt/no-trading claim, or feed-wide correctness. No software correction is warranted by this evidence.
+
+Private evidence: tmx-candidate-comparison-20261023/capture-20261023T172422498Z/summary.json and
+three captured response/request pairs; probe assembly hash
+AA8BA134493511EAC3FEAACD8ECD96435ED8A0AD9C7FA3AB39061CAD3E6B62E3. The isolated read-only diagnostic
+has no installation, permission, policy or historical-evidence side effects. Native preflight remains
+a separate acceptance item; a source comparison cannot qualify a buy or confirm a fill.
+
+While the comparison is completed, the watch observes a new first strong reading at13:20 and a
+confirmed entry at13:25. Publication13:27:31 has40 inputs,29 valid/on-time,21 mature and one confirmed
+entry. Real1247 records PreflightFailed/InvalidOperationException at13:27:40, with fixed check
+AskAboveDecisionReference and no SQL error. Both head and exact referenced decision hashes pass;
+orders are inline empty. Installed BrokerManagedOrderTransport's order of checks establishes that
+the corrected held-transaction risk read, risk equality, fresh broker/manual validation and account
+matching finish before this guard. This is native evidence of progression beyond the former SQL51501
+self-lock, not a complete preflight pass or broker submission. Existing current-ask-versus-decision
+reference protection is preserved. No operational repair or policy change is authorized by this read.
+
+The13:33:54 combined receipt verifies latest failure1259/13:31:36 with the same guard/no SQL error,
+valid head/projection/checkpoint/decision/build hashes, one dated risk event, zero Broker/Global holds
+and eight Paper restrictions. Latest account evaluation13:31:35 consumes40 fresh symbols through13:25;
+collection separately publishes40 through13:30 (32 valid/on-time,20 mature,one confirmation) at13:32:06.
+The13:34 owner read reports Blocked with retry backoff until13:35:37. Its13:25 connection check was
+Connected; the13:33:16 fixed broker capture1406b193-67a5-41c3-b3d2-649758f34701 independently verifies
+zero holdings/pending and unchanged37-order history with matching holdings/history. No first fill.
+Do not label the later publication consumed before the next real evaluation actually records it.
+
+Failure1247 receipt result-20261023T172922542Z-dfa25a2647cb4b048c50c7bd5ad918c4.json matches query
+ED419CBA81023A030C677B900252DE910F0E864F62C9FF9E8E8D87974ABF46B9. Latest watch/failure receipt
+result-20261023T173353419Z-d471db3561834e7da1fec5ce0a3555a7.json matches query
+31595C58F8C592A8E7B5675E5F4CE2BC060EB569EACBAF3D586695ECC2D8C2BE. The normal mailbox is restored.
+The unchanged cause is recorded once for watch deduplication. Further live actions remain outside
+the diagnostic scope; the existing first-fill/material-blocker watch remains active through16:05.
+Updating the existing heartbeat's saved evidence initially rejects its hour-filtered schedule as having
+no future runs. Removing only the hour filter while retaining five-minute boundaries and the same
+October23 20:05 UTC end succeeds with status ACTIVE. The same heartbeat now includes these latest
+findings/dedup boundaries; no duplicate watch or Paper-monitor change is made.
 
 Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
 72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
