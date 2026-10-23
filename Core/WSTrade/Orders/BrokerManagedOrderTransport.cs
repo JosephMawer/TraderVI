@@ -9,9 +9,19 @@ using System.Threading.Tasks;
 
 namespace Core.WSTrade.Orders;
 
+/// <summary>Risk must be read inside the same account fence retained through transmission.</summary>
+public interface IBrokerManagedBuySafetyLease : IManualBuySafetyLease
+{
+    Task<BrokerAccountRiskState> ReadRiskAsync(Guid baselineId, CancellationToken ct);
+}
+public interface IBrokerManagedBuySafetySource
+{
+    Task<IBrokerManagedBuySafetyLease> AcquireManagedAsync(CancellationToken ct);
+}
+
 /// <summary>Strategy intent uses the existing manual preflight, encrypted journal and one-attempt broker client.</summary>
 public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSellBroker sells,
-    IManualSellJournal journal, IManualBuySafetySource safety, IBrokerAccountRiskContinuationStore riskStore, WealthsimpleTfsaAccount account,
+    IManualSellJournal journal, IBrokerManagedBuySafetySource safety, WealthsimpleTfsaAccount account,
     SemaphoreSlim orderGate, TimeProvider? time = null, bool independentIntegrity = false) : IBrokerManagedOrderTransport
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
@@ -28,10 +38,12 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
             long revision = buys.SessionRevision;
             if (order.Side == "BUY")
             {
-                safetyLease = await safety.AcquireAsync(ct);
+                var managedSafety = await safety.AcquireManagedAsync(ct);
+                safetyLease = managedSafety;
                 if (safetyLease.BlockReason is not null) throw BrokerOrderFailureEvidence.Tag(safetyLease.BlockReason, BrokerOrderCheck.SharedSafetyBlocked);
-                // The existing shared TFSA read fence also excludes continuation writers until transmission finishes.
-                var currentRisk = await riskStore.ReadAsync(projected.Risk.BaselineId, ct);
+                // Reuse the held transaction: a separate risk-store read would request this exclusive
+                // account lock from another transaction and wait on our own lease (SQL 51501).
+                var currentRisk = await managedSafety.ReadRiskAsync(projected.Risk.BaselineId, ct);
                 if (BrokerAccountImport.Hash(currentRisk) != BrokerAccountImport.Hash(projected.Risk))
                     throw BrokerOrderFailureEvidence.Tag("Account risk advanced after evaluation. Synchronize before buying.", BrokerOrderCheck.RiskChanged);
                 var read = await buys.ReadManualBuyContextAsync(account, order.Symbol, ct);
@@ -98,7 +110,12 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                 });
             }
         }
-        catch { if (safetyLease is not null) await safetyLease.DisposeAsync(); orderGate.Release(); throw; }
+        catch
+        {
+            try { if (safetyLease is not null) await safetyLease.DisposeAsync(); }
+            finally { orderGate.Release(); }
+            throw;
+        }
     }
     private void CheckRevision(long revision)
     {

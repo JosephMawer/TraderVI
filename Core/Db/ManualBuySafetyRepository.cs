@@ -13,9 +13,12 @@ using static Core.Db.TradingRecommendationStorage;
 namespace Core.Db;
 
 /// <summary>SELECT-only manual TFSA guard. Uses existing pause and account-financial protection.</summary>
-public sealed class ManualBuySafetyRepository(bool requireIndependentIntegrity = false) : IManualBuySafetySource
+public sealed class ManualBuySafetyRepository(bool requireIndependentIntegrity = false) : IManualBuySafetySource, IBrokerManagedBuySafetySource
 {
-    public async Task<IManualBuySafetyLease> AcquireAsync(CancellationToken ct)
+    public async Task<IManualBuySafetyLease> AcquireAsync(CancellationToken ct) => await AcquireCoreAsync(ct);
+    public async Task<IBrokerManagedBuySafetyLease> AcquireManagedAsync(CancellationToken ct) => await AcquireCoreAsync(ct);
+
+    private async Task<Lease> AcquireCoreAsync(CancellationToken ct)
     {
         var connection = await Open(ct);
         SqlTransaction? transaction = null;
@@ -40,11 +43,19 @@ public sealed class ManualBuySafetyRepository(bool requireIndependentIntegrity =
             transaction?.Dispose(); await connection.DisposeAsync(); throw;
         }
     }
-    private sealed class Lease(SqlConnection connection, SqlTransaction transaction, string? reason) : IManualBuySafetyLease
+    private sealed class Lease(SqlConnection connection, SqlTransaction transaction, string? reason) : IBrokerManagedBuySafetyLease
     {
+        private int disposed;
         public string? BlockReason => reason;
+        public Task<BrokerAccountRiskState> ReadRiskAsync(Guid baselineId, CancellationToken ct)
+        {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
+            if (reason is not null) throw new InvalidOperationException(reason);
+            return BrokerAccountRiskContinuationRepository.ReadUnderAccountFenceAsync(connection, transaction, baselineId, ct);
+        }
         public async ValueTask DisposeAsync()
         {
+            if (Interlocked.Exchange(ref disposed, 1) != 0) return;
             try { await transaction.RollbackAsync(); }
             finally { await transaction.DisposeAsync(); await connection.DisposeAsync(); }
         }

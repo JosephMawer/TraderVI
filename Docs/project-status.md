@@ -1,19 +1,18 @@
 # TraderVI Project Status
 
-## Independent engine — fresh real evaluation verified, first-fill watch active
+## Independent engine — confirmed entry blocked by account-lock reentry; repair authorized
 
-**Current evidence (October23,11:33 Toronto):** repair5144535c is installed in standard Release
-(engine41312/dashboard38844); all128 candidate/122 retained hashes were verified. Joseph completes
-updated-build approval at11:17:43 (revision675), then separately enables the host. Controls confirm
-Connected/Running and fresh shared inputs evaluated. The hash-checked real decision at11:33:08
-(revision753) consumes40 observations, evaluates40 symbols and records40 fresh symbols through the
-11:30 bar. No entry, risk block, quote block or failure is recorded. Latest producer inputs have33
-valid/on-time pairs and seven missing/stale pairs.24 symbols now have mature signal families and move
-to Watching;16 still lack required rolling observations. No confirmation is present. Missing full-session
-VWAP remains unavailable; original gaps and unchanged rolling-window/reference rules still apply.
-Head/projection/checkpoint hashes pass; one October23 risk event, zero Broker/Global holds and eight
-Paper restrictions remain. The11:24 broker read confirms no holdings/pending orders and unchanged
-history. No first trade is confirmed; the existing five-minute watch remains active.
+**Current evidence (October 23, 11:48–11:50 Toronto):** installed 5144535c publishes and consumes fresh
+inputs through the 11:45 bar, which produces a confirmed entry. Revision 823 records PreflightFailed /
+SQL 51501 before order reservation. The final buy check holds the exclusive account lock, then its
+separate risk-read transaction requests the same lock. Joseph explicitly authorizes correction,
+tests and installation with a normal restart. The correction reads risk in the already-held safety
+transaction and retains that lock through submission, preserving ADR-0086's existing contract.
+524 focused and3,105 full Core tests pass (nine native SQL skips); Release, installation and native verification are pending. Any changed-build
+approval and separate host enable remain Joseph's actions. Head/projection/checkpoint hashes pass;
+one October 23 risk event, zero Broker/Global holds and eight Paper restrictions remain. The 11:49
+broker read confirms zero holdings/pending orders and unchanged history. No first trade is confirmed.
+[Lock diagnosis and correction](reviews/independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction).
 
 The operator's updated-build review exposes a missed UI dependency on the paused Paper source.
 Both review/approval now use the qualified existing-real strategy/direct-input reader and shared

@@ -1,11 +1,42 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **Repair5144535c is installed11:10:57 after136 focused passes and Release with260 existing
-warnings. Joseph's updated-build approval saves11:17:43, followed by his separate host enable.
-Native11:33 checks confirm fresh real-account evaluation through11:30;24 symbols now have mature
-signal families and are Watching. No confirmed entry or first fill; the existing watch remains active.**
+Status: **Fresh real evaluation reaches a confirmed entry on the11:45 bar, but revision823 records
+PreflightFailed/SQL51501 before reservation. Joseph authorizes a tested lock correction and normal
+restart installation.524 focused/3,105 full Core tests pass (nine native SQL skips); Release, installation and native verification
+remain. No first fill; the existing watch stays active.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 23 buy-preflight account-lock correction
+
+The11:47 publication contains40 inputs through11:45,31 valid/on-time pairs,28 mature symbols and one
+StrongConfirmationCompleted. Actual account evaluation at11:47:40 consumes that bar (40 evaluated/
+fresh symbols); revision823 at11:48:12 records PreflightFailed/SqlException51501. Referenced decision,
+head/projection/checkpoint hashes pass. Orders are explicitly inline empty; no reserved intent or
+submission is recorded.11:50 controls report Blocked/backoff. The11:49 fixed broker read confirms
+zero holdings/pending orders and unchanged37-order history. One target-date risk event and original
+risk sequence3 remain; zero Broker/Global holds and eight Paper restrictions.
+
+The managed buy transport acquires ManualBuySafetyRepository's transaction-owned exclusive TFSA
+account lock, then calls the standalone risk repository, which starts another transaction and requests
+the same lock. TradingRecommendationStorage.Fence raises51501 after that wait. The correction reads
+the identical validated risk state using the safety lease's connection/transaction. The public standalone
+risk read keeps its original lock. The managed transport requires the typed fenced-read lease and has
+no independent risk-store dependency. The lease remains held through fresh broker checks, durable
+intent and one submission attempt, exactly as ADR-0086 requires; no policy, schema, risk history,
+expiry or retry rule changes. Failed reads release ownership without reserving/submitting an order.
+
+Joseph explicitly approves fixing, testing and installing this correction with a normal restart.
+This is separate from the read-only heartbeat. Any changed-build financial review/approval and host
+enable remain his own actions.524 focused tests pass, including held-lock writer exclusion,
+single-attempt behavior, risk drift, blocked/failed/cancelled reads, unchanged cutoff and manual-buy
+tests. All3,105 full Core tests pass (nine native SQL skips) with test-collection concurrency disabled; Release and installation are pending. No native lock rehearsal or order
+submission was issued by the agent; native progression remains to be observed after operator enable.
+
+Evidence stays ignored: account-fence-fix-20261023/focused.log; watch query hash
+72682778518FBDFD52FB8B2EF89A587BFDEECAA44A80D995084E8F28BA43A8C0;
+result-20261023T154828324Z-1d45145e4ff94527a262fd430b615f4b.json and broker capture
+e71539fe-c67d-452a-b0fa-9f2a4e0f5c71. The watch records this blocker once and preserves first-fill status.
 
 ## October 23 market-input publication blocker
 

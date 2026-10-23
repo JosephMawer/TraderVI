@@ -34,10 +34,21 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
         await using var c = await open(ct);
         using var t = c.BeginTransaction(IsolationLevel.Serializable);
         await Fence(c, t, "TFSA", false);
+        var state = await ReadUnderAccountFenceAsync(c, t, baselineId, ct);
+        t.Commit();
+        return state;
+    }
+
+    // Only for callers already owning the TFSA account fence on this transaction. Do not open,
+    // reacquire, commit or release it here: managed buy preflight retains it through transmission.
+    internal static async Task<BrokerAccountRiskState> ReadUnderAccountFenceAsync(
+        SqlConnection c, SqlTransaction t, Guid baselineId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (t.Connection != c) throw new InvalidOperationException("Risk reads require the active account-fenced transaction.");
         await RequireSchema(c, t);
         var state = await State(c, t, baselineId);
         ct.ThrowIfCancellationRequested();
-        t.Commit();
         return state;
     }
 

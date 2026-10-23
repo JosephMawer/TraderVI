@@ -58,7 +58,7 @@ public static class BrokerManagedSessionComposition
         var source = new BrokerManagedAccountSource(reconcile, () => accountReads.SessionRevision, selectedAccount,
             new BrokerAccountRiskBaselineRepository(), previewRisk ?? risk, calendar, riskEvidence,
             new BrokerImportWorkflow(new BrokerAccountImportRepository()), buys, sells, sellBroker, Resolve, time, independentInputs);
-        var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety, risk,
+        var transport = new BrokerManagedOrderTransport(buyBroker, sellBroker, orders, safety,
             selectedAccount, sharedOrderGate, time, independentIntegrity: independentInputs);
         return new(new BrokerManagedSessionWorkflow(sessionStore ?? new BrokerManagedSessionRepository(calendar, sharedStorage: independentInputs), source, transport, time), source);
     }

@@ -110,6 +110,12 @@ The overnight target was missed. Completed source work is separate from installe
   symbols; no confirmed entry. Controls confirm Running.
 - [ ] Observe actual orders/fills and qualify populated protection. Fresh evaluation and an empty
   entry trace do not establish order-lifecycle qualification or a promised trade.
+- [x] Diagnose the11:45 confirmed entry's preflight failure: revision823 records SQL51501 from a
+  separate risk-read transaction reacquiring the held account lock; no order intent/submission.
+  Joseph authorizes correction, tests and normal restart installation.
+- [ ] Complete Release/install of the same-transaction risk read (524 focused/3,105 full Core pass; nine native SQL skips);
+  verify fresh source and current financial/history guards, then Joseph's build approval/enable and
+  native preflight progress. Preserve the lock through submission and all original authority/expiry.
 - [x] Diagnose fresh collection without shared evaluations; reproduce the reviewed-successor versus
   original comparison admission mismatch offline with the installed assembly and saved definitions.
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).

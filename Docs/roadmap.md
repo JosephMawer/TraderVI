@@ -24,8 +24,11 @@ retains the original comparison policy during admission despite a validated prog
 Joseph now authorizes correction, tests and installation. The adapter/diagnostics are implemented;
 full Core/Release validation and ADR-0107 current-session build review pass.1a790e60 installs10:58;
 the real-source review follow-up5144535c installs11:10:57. Joseph's updated-build approval and separate
-enable succeed. Native11:33 checks verify fresh real consumption/evaluation and24 mature Watching
-symbols; continue the first-fill watch without weakening existing controls or erasing source gaps.
+enable succeed. Fresh real consumption produces a confirmed entry on the11:45 bar, but buy preflight
+fails SQL51501 by reacquiring its held account lock through a separate risk transaction. Joseph
+authorizes a tested correction and normal restart installation. Read risk within the existing safety
+transaction, then verify the installed correction after his own build approval and separate enable.
+Continue the first-fill watch without weakening existing controls or erasing source gaps.
 The S54 one-date morning readiness check is complete and its heartbeat removed. Actual trades depend on
 qualified live inputs and existing risk/gate rules. [Current blocker and evidence](reviews/independent-engine-implementation-20261022.md#october-23-overnight-readiness).
 Joseph's subsequent request adds a separate same-chat five-minute09:30–16:05 watch for the first
