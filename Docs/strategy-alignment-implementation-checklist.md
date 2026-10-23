@@ -113,8 +113,10 @@ The overnight target was missed. Completed source work is separate from installe
   Extend the watch to inspect underlying collection/publication freshness. [Evidence](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
 - [x] Validate successor admission/missing-input diagnostics and ADR-0107 current-session build review:
   exact saved-source replay,107 focused/3,101 full Core passes (nine native SQL skips), Release passes.
-- [ ] Install under Joseph's explicit authority, complete his updated-build review/enable, and observe
-  fresh matching-policy publications consumed by real evaluation. Preserve all original gaps/holds.
+- [x] Install1a790e60 under Joseph's explicit authority and verify fresh matching-policy publication/
+  evaluation at11:02 (40 inputs;31 valid/on-time). Preserve all original gaps/holds.
+- [ ] Finish the discovered Paper-dependent build-review UI correction (136 focused tests/Release pass),
+  reinstall, complete operator updated-build approval/enable and verify actual account consumption.
 - [x] Schedule Joseph's requested same-chat five-minute09:30–16:05 first-fill/blocker watch.
   Alert only on confirmed attributable fills/material blockers, keep routine waits quiet, finish/remove
   after today's final check. Monitoring grants no operational recovery or trading authority.

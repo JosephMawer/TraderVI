@@ -29,12 +29,13 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     {
         RequireSession(prior, calendar, now);
         BrokerOctober21Continuation.RequireSameDefinition(prior.Strategy, current.Strategy);
+        if (sourceUpdatedAt > now || now - sourceUpdatedAt > TimeSpan.FromMinutes(2))
+            throw new InvalidOperationException("The latest shared market-input publication is not within the two-minute review window. Wait for the next scheduled market checkpoint, then review the updated build again.");
         if (!storageReady || !current.Blocks.IsEmpty || current.Strategy.Strategy.ImplementationIdentity != implementation ||
             implementation == prior.Strategy.Strategy.ImplementationIdentity || string.IsNullOrWhiteSpace(reviewer) || reviewer.Length > 128 ||
             current.Evidence.PaperAccountId != current.Strategy.PaperAccountId ||
             current.PreparedUtc.Kind != DateTimeKind.Utc || current.PreparedUtc > now.UtcDateTime ||
-            now.UtcDateTime - current.PreparedUtc > TimeSpan.FromMinutes(2) ||
-            sourceUpdatedAt > now || now - sourceUpdatedAt > TimeSpan.FromMinutes(2))
+            now.UtcDateTime - current.PreparedUtc > TimeSpan.FromMinutes(2))
             throw new InvalidOperationException("Review the fresh matching source, immutable storage and changed running build before approving its implementation.");
         RequireAccount(prior, account, now);
         var id = BrokerManagedStrategy.StableId($"{prior.RevisionId:D}:ImplementationReview:{implementation}");

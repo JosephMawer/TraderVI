@@ -1,12 +1,40 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **October23 approval/enable succeed, but market-hours signal publication is blocked.
-Fresh bars arrive; no shared evaluation reaches the real strategy. Installed-code offline replay
-reproduces the reviewed-successor admission mismatch. No repair is installed and no trade is observed.**
+Status: **Successor-admission repair1a790e60 is installed at10:58; fresh shared publication/evaluation
+is verified at11:02. Real execution is Off after normal shutdown. The operator's updated-build review
+then exposes a remaining Paper-source UI dependency; its correction passes136 focused tests.
+No updated-build approval or trade is saved; actual account input consumption remains pending.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
 ## October 23 market-input publication blocker
+
+### Installed publication correction and remaining review wiring
+
+The authorized normal stop completes10:54:31. Core/runtime replacement verifies, but the installer's
+unchanged-grant guard stops because EngineBrokerService.CloseAsync intentionally disables the enabled
+host. Source inspection and the stopped receipt explain that change; no old grant is restored.
+Resume verifies all installed/retained/backup files and starts normal engine30820/dashboard23260
+at10:58 under1a790e60. All128 candidate/122 retained hashes pass; the stopped grant remains unchanged
+through restart.11:00 controls confirm Connected/Running, execution Off, no market-worker failure.
+No financial approval, SQL mutation, hold clearance or agent order is performed.
+
+The11:01 fixed SQL read retains managed674, one October23 risk event, valid head/projection/checkpoint
+hashes and eight Paper-only restrictions; no Broker/Global hold.11:02:27 verifies40 matching-policy
+published/evaluated inputs for the11:00 bar, with31 valid/on-time observations and nine missing/stale
+pairs. All are WarmingUp and no producer confirmation exists.32 of41 collected instruments are usable
+(including XIU), seven stale/two missing. No evidence conflicts. Earlier gaps remain honestly recorded.
+Current query hash8F625D3A5C89F6073BBBA2A4F44A5CF2CD2EE85B03F062587588D06C9833A1CB;
+receipt result-20261023T150227666Z-270a0409d0e04a8aa3f4b64b1f7e1b14.json.
+
+Joseph initially reports approval/enable, then corrects that report with the rejected-review screenshot.
+11:03 SQL and11:04 controls confirm no build approval and execution Off. The dialog still calls the
+legacy Paper portfolio review/timestamp, so it rejects while direct Real publication works. The follow-up
+uses the existing qualified ReviewExistingBrokerAsync at both preparation and approval, validating the
+saved real subscription, immutable policy/daily/model records and direct shared publication; approval
+uses shared account storage. The two-minute source/review checks are retained and the stale-source
+message now tells the operator to wait for the next scheduled checkpoint.136 focused tests pass;
+Release/reinstallation are in progress. This corrects the missed UI wiring; no fresh grant is inferred.
 
 ### Authorized correction in progress
 

@@ -197,9 +197,10 @@ public sealed partial class BrokerManagedSessionTests
         if (change == "invalidated") prior = prior with { ReviewInvalidated = true };
         if (change == "expired") at = new(2026,10,21,20,0,0,TimeSpan.Zero);
         if (change == "next day") at = at.AddDays(1);
-        Assert.ThrowsAny<Exception>(() => BrokerImplementationReviewWorkflow.Prepare(prior, current, sourceAt,
+        var error = Assert.ThrowsAny<Exception>(() => BrokerImplementationReviewWorkflow.Prepare(prior, current, sourceAt,
             f.TransformAccount!(f.Project()), change != "no storage", f.ImplementationIdentity, "fixture",
             BrokerTrialCarryForwardTests.Calendar(), at));
+        if (change is "source stale" or "source future") Assert.Contains("shared market-input publication", error.Message);
         Assert.Null(f.Store.State!.ImplementationReview); Assert.Equal(0, f.Transport.Sent);
     }
 

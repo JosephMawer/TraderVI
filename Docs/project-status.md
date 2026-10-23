@@ -1,31 +1,21 @@
 # TraderVI Project Status
 
-## Independent engine — October 23 market-input publication blocked
+## Independent engine — publication repaired, updated-build review pending
 
-**Current blocker (10:13–10:14 Toronto):** fresh collection continues, but no shared signal evaluation
-has been published today. The 10:10 checkpoint has 35 usable instruments of 41; the only published
-shared cycle is the empty 09:35 checkpoint. Installed-code offline replay reproduces a policy-admission
-mismatch: the validated real strategy uses its reviewed progressive successor, while the independent
-collector passes the original comparison policy reference into admission. The account loop's
-"no confirmed entry signal" summary omits this missing-input condition. Joseph has now authorized
-correction, testing and installation. The adapter/diagnostic fix is implemented; exact saved-source
-offline replay reaches evaluation for all40 candidates. ADR-0107 current-session build review is
-also corrected:107 focused/3,101 full Core passes (nine native SQL skips), Release succeeds with260
-existing compiler warnings. No repair is installed yet; guarded installation and Joseph's own
-updated-build review/approval/enable precede live consumption verification.
-Broker history remains unchanged, with no holdings or pending orders; current managed revision476,
-head/projection hashes and scoped holds pass. The watch now checks collection/publication freshness.
-[Diagnosis and remaining repair](reviews/independent-engine-implementation-20261022.md#october-23-market-input-publication-blocker).
+**Current evidence (October23,11:02 Toronto):** repair1a790e60 is installed in standard Release
+(engine30820/dashboard23260). All128 candidate/122 retained hashes pass. The engine is Connected;
+normal shutdown disabled execution, and the restarted host remains Off.40 matching-policy inputs
+for11:00 are published and evaluated:31 valid/on-time, nine missing/stale, all warming up. Earlier
+gaps remain recorded. Managed674/head/projection/checkpoint hashes pass; one October23 risk event,
+zero Broker/Global holds and eight Paper restrictions remain. No trade or new build approval is saved.
 
-**Current installed state:** d8364eff is installed in standard Release at 03:51 Toronto after an
-explicitly authorized normal dashboard closure/engine drain. All 128 candidate and 122 retained files
-verify; previous binaries are preserved. Engine27724/dashboard22276 run normally. At08:46 the broker
-connection is active and execution is Waiting for09:30 following Joseph's own approval and enable.
-The08:47 read verifies revision260 saved08:45:49, linked to unchanged original risk sequence3, one
-target-date risk event, valid head/projection hashes, matching daily/four models and no Broker/Global
-holds. Eight Paper restrictions remain. Broker history matches with no holdings/pending orders;
-all128 runtime hashes match. Screenshots confirm Active assignment, armed host and16:00 expiry.
-
+The operator's updated-build review exposes a missed UI dependency on the paused Paper source.
+Both review/approval now use the qualified existing-real strategy/direct-input reader and shared
+storage.136 focused tests pass; Release/reinstallation and operator review/enable remain next.
+The preceding adapter/dated-build correction passes3,101 full Core tests (nine native SQL skips),
+Release with260 existing compiler warnings and exact saved-source replay for all40 candidates.
+NuGet audit/full SSDT solution and native order/protection qualification are not requalified.
+[Installation and remaining review wiring](reviews/independent-engine-implementation-20261022.md#installed-publication-correction-and-remaining-review-wiring).
 Joseph's earlier approval saved risk sequence3 at03:19, then failed SQL547 before permission revision260.
 The archive fix keeps retained text inside JSON objects/arrays accepted by SQL; full saved-checkpoint
 reconstruction is exact. All57 focused and3,092 Core tests pass (nine native SQL skips), and Release

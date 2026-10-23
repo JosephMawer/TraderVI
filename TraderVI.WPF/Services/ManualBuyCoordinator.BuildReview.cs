@@ -22,8 +22,8 @@ public sealed partial class ManualBuyCoordinator
         var binding=imports.Binding ?? throw new InvalidOperationException("Recover the existing account link.");
         var saved=await executionSessions.ReadAsync(binding.BindingId,ct) ?? throw new InvalidOperationException("Recover the existing assignment."); check();
         _=BrokerManagedSessionComposition.MatchAccount(saved,new[] { account });
-        stage("checking the unchanged Portfolio rules only definition and current storage for the updated build");
-        var normal=await ReadUngatedLiveAsync(ct,stage); check();
+        stage("checking the saved real strategy, direct shared market inputs and current storage for the updated build");
+        var normal=await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         var scope=saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover today's original permission.");
         var components=CreateManagedComponents(connection,connection,connection,journal,journal,
@@ -39,14 +39,16 @@ public sealed partial class ManualBuyCoordinator
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +
             $"Original permission still expires {scope.PurchaseExpiresAt?.ToLocalTime():g}. Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
             "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward.";
-        return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!),components.AccountSource,
+        return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!,sharedStorage:true),components.AccountSource,
             HostGrants(),executionCalendar!),summary);
     }
 
     private async Task ApproveBuildReviewAsync(BuildReviewPreparation prepared,CancellationToken ct,Action check,Action<string> stage)
     {
-        stage("rechecking current Portfolio rules only source and immutable storage before build approval");
-        var normal=await ReadUngatedLiveAsync(ct,stage); check();
+        stage("rechecking the saved real strategy, direct shared inputs and immutable storage before build approval");
+        var saved=await executionSessions.ReadAsync(prepared.Proposal.BindingId,ct)
+            ?? throw new InvalidOperationException("Recover the existing real-account assignment."); check();
+        var normal=await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
         if (!storage.BaselineInstalled || !storage.ContinuationInstalled || !storage.SessionInstalled || !storage.ImmutableStorageVerified ||
             !normal.Review.Blocks.IsEmpty || normal.Review.Strategy.Fingerprint != prepared.Proposal.Strategy.Fingerprint ||
