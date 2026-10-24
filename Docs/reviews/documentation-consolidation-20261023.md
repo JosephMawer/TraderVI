@@ -100,10 +100,12 @@ rules and separate confirmation, then questioning duplicate computation and "sim
 The explanation now uses **Paper trade history**: observed market data can be genuine while fills,
 cash and holdings are simulated. The Paper portfolio continues after Real approval. Shared rules
 and inputs do not imply shared mutable account state; different fills/history can yield different actions.
-The operator has not yet confirmed the clarified understanding or explained the whole approval flow.
-The operator next chose a side-by-side stock walkthrough. A fictional same-strategy/cash-only example
-now separates confirmation, account permission and fill evidence, including an assumed Paper fill
-versus a Real price-guard rejection. Its illustrative prices are not historical broker observations.
+The operator confirmed that distinction after the side-by-side stock walkthrough, then asked how
+useful Paper returns are when Real trades diverge. The system explanation now separates strategy
+evidence under Paper assumptions, execution feasibility and actual account outcomes. Source inspection
+confirms that Delphi Live's scorecard includes tagged fallback fills while separately reporting their
+count, no-fill counts and coverage. This is a clarified evidence limit, not a new performance gate
+or an implemented Paper-to-Real attribution report. The full approval/protection flow remains to cover.
 
 - [x] Inventory families, baseline volume/churn, initial local-link scan and S54 recovery.
 - [x] First orientation and workflow cleanup; preserve safety and operational evidence boundaries.

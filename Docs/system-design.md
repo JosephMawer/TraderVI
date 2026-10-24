@@ -26,11 +26,6 @@ processing incoming session observations; it does not by itself mean real-money 
 price and cost assumptions. The underlying market observations can be genuine observations captured
 during the session. "Simulated" describes the assumed execution, not fabricated market data; a
 historical replay is a separate kind of experiment and must remain labelled as such.
-Those results support comparison; they do not prove that a real order will fill at that price, that
-the broker path works, or that a strategy is statistically qualified. Recommendation-only approval
-may explicitly accept disclosed evidence gaps ([ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md)).
-The scoped supervised trial has its own exception and checks; it does not certify production
-performance ([ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md)).
 
 Approving a strategy for Real pins its rules and source identity. Real then uses its own actual
 account state and fresh observations. A Paper holding or completed confirmation is never imported
@@ -61,6 +56,36 @@ in [TradingRecommendationTests](../TraderVI.Core.Tests/TradingRecommendationTest
 `ApprovedRealDefinitionAndHeldSymbolsSurviveAbsentOrReassignedPaper` in
 [EngineRealObservationTests](../TraderVI.Core.Tests/EngineRealObservationTests.cs).
 These tests were inspected for this explanation, not rerun as operational proof.
+
+### What Paper performance tells us
+
+Paper results show how a complete strategy performed under its recorded execution assumptions.
+They can help compare rule changes across matched periods, capital, source coverage and otherwise
+consistent conditions. They do not establish what the TFSA would have earned. If gains depend on
+entries Real repeatedly cannot take, those gains are weak evidence for the deployable strategy.
+Real performance includes its actual execution and account path; it is not an isolated test of
+selection rules either. A missed purchase changes later cash, holdings and opportunities.
+
+Separate three questions: whether the rules perform under the stated assumptions; whether Real
+can execute their opportunities; and what the actual account earned. Explain disagreements using
+the applicable strategy version, observations, confirmation, account/risk/permission state and
+execution outcome. Comparing only trades both accounts completed omits missed opportunities and
+can mislead. This is interpretation guidance, not an implemented attribution report or a new gate.
+
+The [Delphi Live fill policy](../Core/Trader/DelphiLive/DelphiLiveExecutionPolicy.cs) uses a subsequent
+observed ask for buys or bid for sells, with a positive last-price fallback labelled `EstimatedFill`.
+Every Paper fill is simulated; that label specifically identifies the fallback, not the only
+simulated trades. The [portfolio scorecard](../Core/Trader/DelphiLive/DelphiLivePortfolioScorecard.cs)
+includes fallback fills in descriptive performance and reports estimated-fill counts, no-fill
+counts and observation coverage. Those disclosures do not establish broker fillability or strategy
+superiority. Different Paper families have different fill contracts; this example is Delphi Live.
+
+[ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md) requires returns to be read
+alongside downside, coverage, capital and fill/cost assumptions. [ADR-0067](adr/0067-fixed-gate-paper-comparison-pairs.md)
+defines matched Paper comparisons, not a Paper-to-Real equivalence guarantee. Recommendation-only
+approval can accept disclosed performance gaps ([ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md));
+the scoped supervised trial has its own exception/checks ([ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md)).
+Neither approval nor a successful broker fill certifies a profitable strategy.
 
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
