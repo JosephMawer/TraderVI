@@ -1174,7 +1174,8 @@ milestone are also recorded there; their remaining scope stays visible above.
 - [x] Record explicit deferral of portfolio choice; clarify one engine/three paper portfolios again.
 - [ ] Choose the exact portfolio later (operator-deferred); preserve actual account history and existing
   comparison eligibility/family/AI scope unless separately changed. This does not block UI refinement.
-- [ ] After the Trading refinement, refine the other screens' main layouts; their order is open.
+- [x] Choose Portfolios as the next main-layout refinement; acceptance is recorded below.
+- [ ] Refine the remaining Delphi and Delphi Live main layouts; their order is open.
 - [ ] Then design detailed drill-downs and preserve existing feature, source/mode, missing-data and
   consequential-action coverage before implementation. In-panel lookup for an unheld stock is provisional.
 - [x] Validate this Trading implementation offline. Other screens and full execution integration remain
@@ -1183,6 +1184,19 @@ milestone are also recorded there; their remaining scope stays visible above.
 The [existing workspace draft](concepts/trading-workspace-redesign-draft.md#october-18-visual-redesign--draft)
 owns the decision record. Detailed views are deliberately sequenced after the main visual layout;
 browser security blocked local-file preview, so layout/interaction verification remains pending.
+
+## Portfolios Strategy workspace — October 23
+
+- [x] Accept Strategy workspace as the default and Account directory as the secondary view,
+  preserving left application navigation under [ADR-0108](adr/0108-strategy-workspace-and-independent-account-evidence.md).
+- [x] Implement separate Paper and linked Real cards, source/version relationship, approval versus
+  host state, and per-stock lifecycle/check/outcome/next-action evidence with independent timestamps.
+- [x] Retain Paper trade history, existing performance periods/reference scope, exact-source TFSA
+  review eligibility and the separately labelled recommendation review. Missing facts remain unavailable.
+- [x] Verify the WPF build, focused account-evidence tests and offline XAML renders/navigation with
+  synthetic data and no binding errors. Detailed validation state is in [project status](project-status.md#portfolios-strategy-workspace--october-23-source-checkpoint).
+- [ ] Install this increment and review the running desktop at the operator's actual dimensions.
+  This source/offline checkpoint does not establish operational or broker-execution qualification.
 
 ## Authority and evidence
 

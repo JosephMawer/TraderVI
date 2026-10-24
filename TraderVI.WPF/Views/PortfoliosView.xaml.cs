@@ -16,6 +16,14 @@ public partial class PortfoliosView : UserControl
     private readonly Core.Runtime.EngineRpcClient engine = new(Core.Runtime.EnginePaths.PipeName);
     private BrokerSetupCycleBarrier? cycleBarrier;
     public void SetCycleBarrier(BrokerSetupCycleBarrier barrier) => cycleBarrier = barrier;
+    public void AttachBrokerDisplay(WealthsimpleAccountViewModel? broker) => viewModel.AttachWorkspaceBroker(broker);
+    public void SetExecutionHostStatus(Core.Trader.Promotion.BrokerExecutionHostStatus status) => viewModel.SetWorkspaceExecutionStatus(status);
+    private async void ReviewWorkspace_Click(object sender, RoutedEventArgs e)
+    {
+        if (viewModel.CanReviewWorkspace && viewModel.SelectedPortfolio?.DelphiLivePortfolioId is Guid source)
+            await RunUiActionAsync(() => (Window.GetWindow(this) as PaperDashboardWindow)?.ReviewPortfolioForRealAsync(source) ?? Task.CompletedTask);
+    }
+    private void WorkspaceReview_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = PortfoliosViewModel.StrategyReviewView;
     private void OpenTrading_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenTrading(PromotionAccount.Text);
     public async Task NavigateAsync(string account, Guid? portfolioId = null)
     {
@@ -27,11 +35,11 @@ public partial class PortfoliosView : UserControl
             var found = System.Linq.Enumerable.FirstOrDefault(viewModel.Portfolios, p => p.DelphiLivePortfolioId == portfolioId);
             if (found is null) throw new InvalidOperationException("That paper account is unavailable in the saved portfolio snapshot.");
             viewModel.SelectedPortfolio = found;
-            viewModel.SelectedView = 3;
+            viewModel.SelectedView = PortfoliosViewModel.AccountActivityView;
         }
-        else viewModel.SelectedView = 0;
+        else viewModel.SelectedView = PortfoliosViewModel.StrategyWorkspaceView;
     }
-    private void InspectAccount_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = 3;
+    private void InspectAccount_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = PortfoliosViewModel.AccountActivityView;
     private void DailySource_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenDelphi();
     private async void LiveAccount_Click(object sender, RoutedEventArgs e)
     {
@@ -43,7 +51,7 @@ public partial class PortfoliosView : UserControl
         if(!viewModel.CanReview || viewModel.SelectedPortfolio is not { } source)return;
         try
         {
-            viewModel.SelectedView=2;
+            viewModel.SelectedView=PortfoliosViewModel.StrategyReviewView;
             var family=source.SystemPortfolioId.HasValue?Core.Trader.Promotion.TradingStrategyFamily.DailyShadow:Core.Trader.Promotion.TradingStrategyFamily.DelphiLive;
             var review=await new Core.Db.TradingPromotionRepository().ReviewAsync(source.SystemPortfolioId??source.DelphiLivePortfolioId!.Value,family,PromotionAccount.Text);
             new TradingPromotionDialog(Window.GetWindow(this),review).ShowDialog();
@@ -51,7 +59,7 @@ public partial class PortfoliosView : UserControl
         }
         catch(Exception error){MessageBox.Show(Window.GetWindow(this),error.Message,"Promotion review unavailable",MessageBoxButton.OK,MessageBoxImage.Warning);}
     }
-    private void BackToCompare_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = 0;
+    private void BackToCompare_Click(object sender, RoutedEventArgs e) => viewModel.SelectedView = PortfoliosViewModel.AccountDirectoryView;
     private async void LiveHistory_Click(object sender, RoutedEventArgs e) => await RunUiActionAsync(() => viewModel.LoadLiveHistoryAsync());
     private void OlderLiveHistory_Click(object sender, RoutedEventArgs e) => viewModel.ShowEarlierLiveHistory();
     private void NewerLiveHistory_Click(object sender, RoutedEventArgs e) => viewModel.ShowNewerLiveHistory();
@@ -62,7 +70,7 @@ public partial class PortfoliosView : UserControl
         if (sender is Button { DataContext: PortfolioComparisonRow row })
         {
             viewModel.SelectedComparison = row;
-            viewModel.SelectedView = 3;
+            viewModel.SelectedView = PortfoliosViewModel.AccountActivityView;
         }
     }
     private void SettingsButton_Click(object sender, RoutedEventArgs e) => (Window.GetWindow(this) as PaperDashboardWindow)?.OpenSettings("Accounts");

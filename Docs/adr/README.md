@@ -41,6 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
+| [0108](0108-strategy-workspace-and-independent-account-evidence.md) | Strategy workspace and independent account evidence | Accepted; implemented and verified offline; desktop installation pending | user-interface |
 | [0107](0107-build-review-within-existing-dated-permission.md) | Build review within existing dated permission | Implemented, tested, installed; operator approval/enable and fresh evaluation verified October 23 | architecture, risk-management |
 | [0106](0106-exact-selected-session-risk-receipt-storage.md) | Exact selected-session risk receipt storage | Installed a090757f; original risk event recovered into operator-approved October 23 permission | architecture, risk-management |
 | [0103](0103-real-execution-independent-of-paper-research.md) | Real execution independent of paper research | Independence, verification/audits and dashboard-close lifecycle accepted; staged delivery targets tonight, feasibility unverified | architecture, data-pipeline |

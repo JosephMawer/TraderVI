@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Docs\adr\0105-reviewed-selected-session-continuation.md = Docs\adr\0105-reviewed-selected-session-continuation.md
 		Docs\adr\0106-exact-selected-session-risk-receipt-storage.md = Docs\adr\0106-exact-selected-session-risk-receipt-storage.md
 		Docs\adr\0107-build-review-within-existing-dated-permission.md = Docs\adr\0107-build-review-within-existing-dated-permission.md
+		Docs\adr\0108-strategy-workspace-and-independent-account-evidence.md = Docs\adr\0108-strategy-workspace-and-independent-account-evidence.md
 		Docs\adr\0104-scoped-recovery-and-sequential-history-audits.md = Docs\adr\0104-scoped-recovery-and-sequential-history-audits.md
 		Docs\concepts\independent-real-processing-design.md = Docs\concepts\independent-real-processing-design.md
 		Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql = Operations\ReadOnlyChecks\DelphiLiveDecisionSummary.sql

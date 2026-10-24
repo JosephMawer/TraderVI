@@ -51,7 +51,7 @@ public sealed partial class PortfoliosViewModel
     public string ReviewExplanation => SelectedPortfolio?.ComparisonPairId is not null
         ? "This account belongs to a fixed-gate paper comparison. Its paired results remain separate from recommendation approval."
         : !CanReview
-        ? "Select a funded paper strategy in All portfolios to review it against the current recommendation source. Real and operator-selected holdings are reference accounts."
+        ? "Select a funded paper strategy in Account directory to review it against the current recommendation source. Operator-reported accounts remain reference-only."
         : "This is the selected paper strategy. Its history may span earlier rule assignments. Prepare the complete review to see the exact rules being proposed; the chart alone cannot establish a return advantage for that version.";
     public string PromotionStatus => "Prepare a review to see the complete strategy, exact versions, supporting paper history and account requirements. Performance evidence is advisory; approval is your explicit decision.";
     public string MetricNotes => "Period return uses matching saved closing dates and costs already recorded by each paper engine. Maximum closing decline is the largest observed peak-to-trough fall in this window; it excludes intraday moves. Missing values are not zero. Account history can span earlier rules. These figures do not certify promotion readiness.";
@@ -184,6 +184,7 @@ public sealed partial class PortfoliosViewModel
         OnPropertyChanged(nameof(SelectedComparison));
         OnPropertyChanged(nameof(CanReview));
         OnPropertyChanged(nameof(ReviewExplanation));
+        NotifyWorkspace();
     }
 }
 

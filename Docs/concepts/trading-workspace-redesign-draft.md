@@ -5,6 +5,10 @@
 - **October 18 redesign / implementation:** Workspace, the Trading arrangement, clear decision explanations, panel Buy/Sell and **Performance first** are accepted. **Today** is default with **Overall** selectable; redundant headings/net deposits are removed. The operator now authorizes Trading-only WPF implementation, built and offline-tested below. Actual portfolio choice, daily-return qualification and execution integration remain open; operational rollout is not authorized by the UI request.
 - **October 19 layout refinement:** the selected holding is now a horizontal panel above the full-width table, superseding its right-hand placement. Implemented and verified offline; the running app has not received this layout increment.
 - **Domains:** desktop, explainability, portfolios
+- **October 23 Portfolios decision:** implement Strategy workspace as the default, Account directory second,
+  with the existing application navigation on the left. The accepted account/evidence contract is now
+  owned by [ADR-0108](../adr/0108-strategy-workspace-and-independent-account-evidence.md); implementation
+  and remaining desktop review are tracked in the [checklist](../strategy-alignment-implementation-checklist.md#portfolios-strategy-workspace--october-23).
 - **Related ADRs:** [0055](../adr/0055-independent-strategies-to-approved-live-execution.md),
   [0061](../adr/0061-portfolio-comparison-workspace.md),
   [0062](../adr/0062-complete-strategy-recommendation-promotion.md),
@@ -39,6 +43,7 @@ broker operations or trading. Earlier accepted product behavior remains authorit
 | Accepted October 18 follow-up | Choose **Workspace**: holdings/table and a persistent selection panel side by side. Focus remains a preserved initial alternative. |
 | Accepted October 19 refinement | Move the selected-holding panel above the table and arrange it horizontally, reclaiming the table's full width. This supersedes the side-by-side placement. More grid information is a later refinement; retain the four existing columns now. |
 | Accepted October 18 follow-up | Refine Trading and agree its main layout before moving to Portfolios, Delphi or Delphi Live. The order among those remaining screens is open. |
+| Accepted October 23 follow-up | Portfolios is next: Strategy workspace first, Account directory second. Preserve left application navigation and the existing performance, review and activity views. See ADR-0108 for the independent Paper/Real evidence contract. |
 | Accepted October 18 control placement | Both Buy and Sell belong in the holding panel; no top-toolbar trade buttons. |
 | Accepted Trading hierarchy | Account overview → assigned strategy → horizontal selected-holding panel → full-width holdings table; compact recent account activity below holdings. Supporting data issues stay with the affected holding. |
 | Accepted overview | **Performance first**: selected-period dollar gain and percentage lead, with its period underneath; **Today** is the default and **Overall** is selectable. Account value/cash and separately scoped recorded gains follow. Remove net deposits from this overview. Account value first remains a preserved alternative. |

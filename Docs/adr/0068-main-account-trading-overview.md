@@ -8,6 +8,10 @@ cssclasses:
 
 **Domains:** user-interface
 
+**Portfolios navigation update:** [ADR-0108](0108-strategy-workspace-and-independent-account-evidence.md)
+supersedes the initial all-account landing with Strategy workspace; Account directory retains the
+unified list. Trading's main Real account role and the application's left navigation remain unchanged.
+
 > [!summary] Decision
 > Open Trading on the operator's main real account, with earnings, account value, holdings and the
 > assigned strategy as the primary content. Keep attention items visible in a supporting role and

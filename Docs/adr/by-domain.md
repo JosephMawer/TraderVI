@@ -428,6 +428,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## user-interface
 
+- [ADR-0108](0108-strategy-workspace-and-independent-account-evidence.md) — Default Strategy workspace, secondary Account directory and independent Paper/Real evidence
+
 - [ADR-0105](0105-reviewed-selected-session-continuation.md) — Dated cash-only review, preserved references and separate trading enable
 
 - [ADR-0101](0101-october22-portfolio-rules-only-review.md) — Operator review/approval and separate pre-open arming

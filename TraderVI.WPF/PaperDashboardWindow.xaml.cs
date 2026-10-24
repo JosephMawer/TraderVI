@@ -56,7 +56,12 @@ public partial class PaperDashboardWindow : Window
         WorkspaceNavigationState.SetConnection(MainTabs, wealthsimple);
         TradingRecommendationsTabView.InitializeWealthsimple(wealthsimple, manualBuys.ReconcileForTransitionAsync,
             manualBuys.SynchronizeAccountAsync, () => !manualBuys.IsSubmitting);
-        manualBuys.ExecutionHostChanged += (_, _) => TradingRecommendationsTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
+        PortfoliosTabView.AttachBrokerDisplay(TradingRecommendationsTabView.BrokerAccountDisplay);
+        manualBuys.ExecutionHostChanged += (_, _) =>
+        {
+            TradingRecommendationsTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
+            PortfoliosTabView.SetExecutionHostStatus(manualBuys.ExecutionStatus);
+        };
         CommandBindings.Add(new CommandBinding(BrokerExecutionHostCommands.Stop,
             async (_, _) => await manualBuys.StopExecutionHostAsync(shutdown.Token),
             (_, e) => e.CanExecute = !manualBuys.IsSubmitting));
@@ -183,6 +188,7 @@ public partial class PaperDashboardWindow : Window
         try { await PortfoliosTabView.NavigateAsync(account, livePortfolio); }
         catch (Exception error) { MessageBox.Show(this, error.Message, "Portfolio view unavailable", MessageBoxButton.OK, MessageBoxImage.Information); }
     }
+    public Task ReviewPortfolioForRealAsync(Guid sourceId) => TradingRecommendationsTabView.ReviewBrokerStrategyAsync(sourceId);
     public void OpenDelphi() => SelectWorkspace(DelphiTabView);
     public async Task OpenDelphiLiveAsync(Guid? portfolioId)
     {

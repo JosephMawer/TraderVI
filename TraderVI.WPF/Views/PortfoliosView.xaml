@@ -165,7 +165,7 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="Portfolios" FontSize="28" FontWeight="SemiBold"/>
-                <TextBlock Text="Independent paper accounts · inspect their activity and review a strategy for your main account." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="Shared strategies · independent Paper and Real accounts" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Content="Open Trading" Style="{StaticResource SecondaryButton}" Click="OpenTrading_Click" Margin="0,0,8,0"/>
@@ -173,8 +173,104 @@
             </StackPanel>
         </Grid>
         <TabControl x:Name="PortfolioSections" Grid.Row="1" SelectedIndex="{Binding SelectedView}" Background="Transparent" BorderThickness="0" Padding="0,14,0,0" Foreground="#EAF0F8">
-            <TabItem Header="All portfolios">
+            <TabItem Header="Strategy workspace">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <TextBlock Text="Inspect a Paper strategy and its relationship to the linked Real account" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <ComboBox x:Name="WorkspaceStrategyPicker" ItemsSource="{Binding WorkspaceStrategies}" SelectedItem="{Binding WorkspaceSelection, Mode=TwoWay}"
+                                  DisplayMemberPath="DisplayName" HorizontalAlignment="Left" MinWidth="260" MaxWidth="600" Margin="0,0,0,14" AutomationProperties.Name="Paper strategy to inspect"/>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="STRATEGY · THE RULEBOOK" Foreground="#91C6FF" FontSize="11"/>
+                                <TextBlock Text="{Binding WorkspaceStrategyName}" Style="{StaticResource Heading}" Margin="0,6,0,3" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding WorkspaceStrategyFamily}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                <Expander Header="Rules, source and evidence" Margin="0,12,0,0">
+                                    <StackPanel Margin="12">
+                                        <TextBlock Text="{Binding SelectedComparison.GateProfileExplanation}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding SelectedComparison.ExecutionAssumptions}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        <TextBlock Text="{Binding WorkspacePaperPolicy}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
+                                        <TextBlock Text="{Binding WorkspaceRealPolicy}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0"/>
+                                        <TextBlock Text="{Binding SelectedAccountExplanation}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        <Button Content="Inspect current assignments" Click="ReviewAssignments_Click" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="{Binding WorkspaceRelationship}" TextWrapping="Wrap" Foreground="#B4C2D4" Margin="2,12"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="PAPER · OBSERVED MARKET DATA, SIMULATED ACCOUNT" Foreground="#A2BEFF" FontSize="11" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding WorkspacePaperName}" Style="{StaticResource Heading}" Margin="0,8,0,6" TextWrapping="Wrap"/>
+                                    <UniformGrid Columns="3" Margin="0,8,0,12">
+                                        <StackPanel Margin="0,0,8,0"><TextBlock Text="Account value" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspacePaperValue}" FontSize="19" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel Margin="0,0,8,0"><TextBlock Text="Cash" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspacePaperCash}" FontSize="19" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel><TextBlock Text="Holdings" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspacePaperHoldings}" FontSize="19"/></StackPanel>
+                                    </UniformGrid>
+                                    <TextBlock Text="Cash, holdings and fills are simulated. Paper retains its own confirmation and trade history after selection for Real." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                    <TextBlock Text="{Binding WorkspacePaperStatus}" TextWrapping="Wrap" Margin="0,10,0,12"/>
+                                    <Button Content="Paper holdings and trade history" Click="InspectAccount_Click" IsEnabled="{Binding HasWorkspaceSelection}" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="REAL · BROKER ACCOUNT" Foreground="#9AD6BD" FontSize="11"/>
+                                    <TextBlock Text="{Binding WorkspaceRealName}" Style="{StaticResource Heading}" Margin="0,8,0,6" TextWrapping="Wrap"/>
+                                    <UniformGrid Columns="3" Margin="0,8,0,12">
+                                        <StackPanel Margin="0,0,8,0"><TextBlock Text="Account value" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspaceRealValue}" FontSize="19" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel Margin="0,0,8,0"><TextBlock Text="Cash" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspaceRealCash}" FontSize="19" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel><TextBlock Text="Holdings" Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspaceRealHoldings}" FontSize="19"/></StackPanel>
+                                    </UniformGrid>
+                                    <TextBlock Text="{Binding WorkspaceRealStrategy}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding WorkspaceRealStatus}" Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,12"/>
+                                    <Button Content="Open Trading and broker history" Click="OpenTrading_Click" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="Real financial approval" Style="{StaticResource Label}"/>
+                        <TextBlock Text="{Binding WorkspaceApproval}" TextWrapping="Wrap"/>
+                        <TextBlock Text="Execution host · separate from approval" Style="{StaticResource Label}"/>
+                        <TextBlock Text="{Binding WorkspaceExecution}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"/>
+                        <Grid Margin="0,20,0,8">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Why are the accounts different?" Style="{StaticResource Heading}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="WorkspaceSymbolPicker" Grid.Column="1" ItemsSource="{Binding WorkspaceSymbols}" SelectedItem="{Binding WorkspaceSymbol, Mode=TwoWay}" Width="130" Margin="12,0,0,0" AutomationProperties.Name="Stock to compare"/>
+                        </Grid>
+                        <TextBlock Text="{Binding WorkspaceComparisonContext}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,10"/>
+                        <DataGrid x:Name="WorkspaceDecisions" ItemsSource="{Binding WorkspaceDecisionStages}" HeadersVisibility="Column" CanUserSortColumns="False" IsHitTestVisible="True">
+                            <DataGrid.Resources><Style x:Key="DecisionEvidenceText" TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="8,9"/></Style></DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stage" Binding="{Binding Stage}" Width="155" ElementStyle="{StaticResource DecisionEvidenceText}"/>
+                                <DataGridTextColumn Header="Paper · own saved state" Binding="{Binding Paper}" Width="*" ElementStyle="{StaticResource DecisionEvidenceText}"/>
+                                <DataGridTextColumn Header="Real · own saved state" Binding="{Binding Real}" Width="*" ElementStyle="{StaticResource DecisionEvidenceText}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Text="Calculations can agree while trades differ. A Paper assumed fill does not become a Real holding. Missing historical prices stay unavailable." TextWrapping="Wrap" Foreground="#B4C2D4" Margin="0,10,0,18"/>
+                        <WrapPanel>
+                            <Button Content="Review for Real…" Click="ReviewWorkspace_Click" IsEnabled="{Binding CanReviewWorkspace}" Margin="0,0,10,8"/>
+                            <Button Content="Strategy review and research evidence" Click="WorkspaceReview_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,0,8"/>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding WorkspaceReviewHelp}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                        <TextBlock Text="Paper results depend on recorded periods, versions and fill assumptions. Approval does not establish profitability; orders, fills and protection need separate broker evidence." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,8,0,16"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Account directory">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Foreground="#EAF0F8">
+                    <StackPanel>
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="REAL · LINKED BROKER ACCOUNT" Foreground="#9AD6BD" FontSize="11"/>
+                                <TextBlock Text="{Binding WorkspaceRealName}" Style="{StaticResource Heading}" Margin="0,6,0,4"/>
+                                <WrapPanel><TextBlock Text="Cash: " Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspaceRealCash}" Margin="0,0,20,0"/><TextBlock Text="Holdings: " Foreground="{StaticResource MutedBrush}"/><TextBlock Text="{Binding WorkspaceRealHoldings}"/></WrapPanel>
+                                <TextBlock Text="{Binding WorkspaceRealStrategy}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <TextBlock Text="{Binding WorkspaceRealStatus}" TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,6,12,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="Open Trading" Click="OpenTrading_Click" Style="{StaticResource SecondaryButton}" VerticalAlignment="Top"/>
+                        </Grid>
+                    </Border>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*" MinWidth="320"/></Grid.ColumnDefinitions>
                         <StackPanel>
@@ -182,7 +278,7 @@
                                 <StackPanel>
                                     <Grid Margin="0,0,0,8">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Strategy comparison" Style="{StaticResource Heading}" Margin="0,0,12,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Paper accounts" Style="{StaticResource Heading}" Margin="0,0,12,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <WrapPanel x:Name="ComparisonFilters" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" MaxWidth="320">
                                             <ComboBox x:Name="ComparisonPeriodPicker" ItemsSource="{Binding Periods}" SelectedIndex="{Binding SelectedPeriod}" Width="144" MinHeight="30" Height="30" FontSize="12" Margin="0,0,10,0" AutomationProperties.Name="Comparison period"/>
                                             <CheckBox x:Name="ReferencesToggle" Content="Include reference accounts" IsChecked="{Binding IncludeReferenceAccounts}" Style="{StaticResource ReferenceAccountsToggle}" FontSize="11" VerticalAlignment="Center" MinHeight="30" ToolTip="Also show operator-reported reference accounts. All paper portfolios are always listed."/>
@@ -267,7 +363,7 @@
                                 <TextBlock Text="{Binding SelectedPortfolio.FreshnessText, TargetNullValue=—}"/>
                                 <TextBlock Text="{Binding SelectedAccountExplanation}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,15,0,15"/>
                                 <Button Content="Inspect holdings and decisions" Click="InspectAccount_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,0,8"/>
-                                <Button Content="Use as main strategy…" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}"/>
+                                <Button Content="Review recommendation strategy…" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}"/>
                                 <TextBlock Text="{Binding ReviewExplanation}" Style="{StaticResource WorkspaceLabel}" Margin="0,8,0,0"/>
                                 <TextBlock Text="Opens a review for the target Real account. Paper capital and holdings stay here." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
                                 <Expander Header="Account result breakdown" Foreground="#A9B9CD" Margin="0,16,0,0">
@@ -282,6 +378,7 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="Performance">
@@ -371,7 +468,7 @@
                                     <TextBox x:Name="PromotionAccount" Text="TFSA" MaxLength="64"/>
                                     <Button Content="Prepare complete strategy review…" Click="ReviewPromotion_Click" IsEnabled="{Binding CanReview}" Margin="0,12,0,0"/>
                                     <Button Content="Review current assignments" Click="ReviewAssignments_Click" Style="{StaticResource SecondaryButton}" Margin="0,18,0,8"/>
-                                    <Button Content="Back to all portfolios" Click="BackToCompare_Click" Style="{StaticResource SecondaryButton}"/>
+                                    <Button Content="Back to account directory" Click="BackToCompare_Click" Style="{StaticResource SecondaryButton}"/>
                                     <TextBlock Text="Approval takes effect when saved; the next evaluation uses the Real account's reported state. Pause Trading and empty its holdings and outstanding orders before switching. Resume separately." Foreground="{StaticResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,18,0,0"/>
                                 </StackPanel>
                             </Border>

@@ -4,6 +4,10 @@
 **Date:** 2026-09-07
 **Domains:** user-interface, architecture
 
+**Navigation update:** [ADR-0108](0108-strategy-workspace-and-independent-account-evidence.md)
+supersedes the default Compare landing with Strategy workspace and renames the list Account directory.
+Its shared selection, performance measurement and review boundaries remain in force.
+
 ## Context
 
 The immediate problem was an overcrowded Portfolios page combining account operations with comparison.

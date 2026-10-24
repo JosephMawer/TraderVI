@@ -131,6 +131,28 @@ schedule is restored. Paper hold review, concurrency, abnormal interruption/rest
 capacity stay open. The overnight target was missed; no historical deletion, cleanup or measured disk
 saving is claimed. Dependency security and the complete SSDT solution were not requalified here.
 
+## Portfolios Strategy workspace — October 23 source checkpoint
+
+Strategy workspace is implemented as the default Portfolios view, with Account directory second and
+the application's left navigation retained. Separate Paper/Real evidence, source relationships and
+existing review routes follow [ADR-0108](adr/0108-strategy-workspace-and-independent-account-evidence.md).
+The [owning checklist](strategy-alignment-implementation-checklist.md#portfolios-strategy-workspace--october-23)
+retains installation and actual desktop review as pending.
+
+.NET 10 WPF build passes; 46 focused tests pass. The full Core suite passes **3,123 tests with nine
+native/SQL skips** using an output-local `xunit.runner.json` with test-collection parallelism disabled.
+Earlier concurrent runs hit timeouts in existing `AiReviewHostLoopTests`/`AiReviewDesktopTestTests`;
+the host-loop case passes alone and both pass in the serial suite. No production timing change was made.
+Nine synthetic offline XAML renders and navigation/selection checks pass with zero binding errors,
+including 800/1,120-pixel content widths, missing Real data and Paper holdings beside Real cash.
+The standalone renderer removes view event handlers and never starts the operational App.
+
+Initial isolated build reports 260 existing compiler warnings; the final incremental build reports
+two existing unused-variable warnings. No compiler errors; dependency-security audit was disabled,
+and the full SSDT solution was not built. No app/engine restart, database operation, market/broker
+request, assignment change or execution enable was performed. Generated validation files remain in
+ignored `artifacts/portfolio-workspace-20261023/`; this checkpoint is source/offline evidence only.
+
 ## October 21 post-open execution watch
 
 **Earlier evening request — SQL only:** operator resumes the remaining SQL timeout fix and explicitly

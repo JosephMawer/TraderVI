@@ -296,6 +296,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         Replace(Events, eventsTask.Result.Select(PortfolioEventRow.From).Concat(exits.Select(r=>
             new PortfolioEventRow(r.RequestedUtc.ToLocalTime(),"Operator exit requested",r.Reason,
                 System.Text.Json.JsonSerializer.Serialize(r)))).OrderByDescending(e=>e.TimeLocal).Take(100));
+        NotifyWorkspace();
     }
 
     public void ApplyPollResult(SystemShadowPollResult result)
@@ -348,7 +349,7 @@ public sealed partial class PortfoliosViewModel : INotifyPropertyChanged
         decimal realCash = snapshot?.AvailableAccountCash ?? generation?.AvailableAccountCash ?? 0m;
         decimal initial = generation?.TotalAccountValue ?? 0m;
         rows.Add(PortfolioOverviewRow.ForTracked(
-            "Real", "Real — Wealthsimple TFSA", "Operator", "Real",
+            "Real", "Real reference — operator-reported TFSA", "Operator", "Real reference",
             realValue, realCash,
             positions.Count(x => x.ExecutionMode == TrackedExecutionMode.Real),
             trades.Where(x => x.ExecutionMode == TrackedExecutionMode.Real).Sum(x => x.RealizedPnL ?? 0m),

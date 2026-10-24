@@ -44,6 +44,15 @@ public partial class TradingRecommendationsView : UserControl
         _ = broker.RefreshAsync();
     }
     public void StopWealthsimple() => broker?.Dispose();
+    public WealthsimpleAccountViewModel? BrokerAccountDisplay => broker;
+    public Task ReviewBrokerStrategyAsync(Guid? sourceId) => Run(async () =>
+    {
+        if (broker == null || brokerConnection?.IsConnected != true) return;
+        var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
+        var candidates = TfsaLiveStrategySelection.Rank(portfolios);
+        BrokerPanel.SetStrategyCandidates(candidates);
+        new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount, sourceId).ShowDialog();
+    });
     public Task RefreshRecordedAccountAsync() => Run(() => RefreshDisplayAsync(Account.Text));
     public Task RefreshWealthsimpleAsync() => broker?.RefreshAsync() ?? Task.CompletedTask;
     public Task PollWealthsimpleAsync() => broker?.PollAsync() ?? Task.CompletedTask;
@@ -59,14 +68,7 @@ public partial class TradingRecommendationsView : UserControl
             var selected = BrokerPanel.RequestedStrategy;
             try
             {
-                await Run(async () =>
-                {
-                    if (broker == null || brokerConnection?.IsConnected != true) return;
-                    var portfolios = await new DelphiLiveLedgerRepository().GetPortfoliosForSessionAsync(DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(DateTime.UtcNow)));
-                    var candidates = TfsaLiveStrategySelection.Rank(portfolios);
-                    BrokerPanel.SetStrategyCandidates(candidates);
-                    new TfsaTransitionReviewDialog(Window.GetWindow(this), brokerConnection, broker, candidates, reconcileAccount, selected?.Snapshot.PortfolioId).ShowDialog();
-                });
+                await ReviewBrokerStrategyAsync(selected?.Snapshot.PortfolioId);
             }
             finally { BrokerPanel.ResetStrategySelection(); }
         };

@@ -36,6 +36,7 @@
     <None Include="..\TraderDB\dbo\Triggers\BrokerAccountImportBinding_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountImport_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskBaseline_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskContinuation_Immutable.sql" Link="SqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
+    <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioStrategyWorkspace.cs" Link="Presentation\PortfolioStrategyWorkspace.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerRiskSetupDiagnostic.cs" Link="Presentation\BrokerRiskSetupDiagnostic.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerSetupCycleBarrier.cs" Link="Presentation\BrokerSetupCycleBarrier.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerFirstApprovalRunner.cs" Link="Presentation\BrokerFirstApprovalRunner.cs" />
