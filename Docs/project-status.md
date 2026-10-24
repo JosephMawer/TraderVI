@@ -870,7 +870,7 @@ history or observation blocks. Baseline/continuation/managed-revision counts rem
 the updated copy's startup and one reconciliation, not its unobserved native sale-selection dialog,
 current strategy execution or order lifecycle. The native packet/independent four-check qualification
 and actual financial setup remain unfinished. No real orders, baseline/grant, SQL rehearsal or memory
-change ran in this increment. [Switch receipt/evidence](reviews/delphi-live-morning-decisions-20261019.md#updated-copy-supervised-switch-october-19-at-1121-toronto).
+change ran in this increment. [Switch receipt/evidence](reviews/delphi-live-morning-decisions-20261019.md#updated-copy-supervised-switch--october-19-at-1121-toronto).
 
 **Native first-day qualification producer, October 19:** the operator explicitly approves the
 bounded native acceptance contract (ADR-0092), accepting disclosed performance gaps after exact
@@ -1575,7 +1575,11 @@ or incomplete information with explicit gaps is recorded, but changing rejection
 is deferred unless it blocks integration. Existing switching/history boundaries remain. This is a
 documentation decision. The subsequent coordinator increment below implements the connection without changing input policy or enabling operations.
 
-## Executive summary
+<a id="executive-summary"></a>
+## Historical September 23 summary and subsequent checkpoints
+
+This section preserves dated earlier states. Use the opening October 23 summary and its linked
+evidence for the later execution position; the September 23 NO-GO below is not a new assessment.
 
 TraderVI runs independent paper strategies and has a connected Wealthsimple TFSA with saved
 broker history. **Automatic real strategy trading is off; September 23 launch is NO-GO.** The operator

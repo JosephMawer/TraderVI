@@ -1,50 +1,75 @@
 # TraderVI
 
-TraderVI is a TSX-focused daily-stock trading system that combines market data collection, ML model training, and runtime inference to recommend trades.
+TraderVI is a TSX momentum research and trading system. Its goal is to compare complete
+strategies in independent paper portfolios, deliberately approve a strategy for the real TFSA,
+and manage that account under explicit risk and execution controls.
 
-- **Universe:** TSX constituents (from local DB)
-- **Mode (current):** advisory-only (prints recommendations; manual execution)
-- **Mode (future):** automated execution via Wealthsimple API (`Core\WSTrade`)
-- **Core strategy:** aggressive single-position rotation using multiple ML “hints” (direction, breakout probability, volatility regime), with regression used as a ranking hint
+A strategy includes selection, entry, exit, sizing, risk and data requirements. A model is
+one possible input. A paper result, recommendation or approval is not an actual broker fill.
 
-## System Overview
+## Start here
 
-High-level pipeline:
+- **Understand the system:** the map below, then [Paper and Real](Docs/system-design.md#paper-and-real-share-rules-not-account-state).
+- **See what is true now:** the opening [status summary](Docs/project-status.md), with dated evidence.
+- **Choose or resume work:** the relevant [roadmap](Docs/roadmap.md) entry and its owning checklist.
+  Use the [session register](Docs/session-work-register.md) only to recover a chat or unfinished idea.
+- **Change or operate something:** [agent rules](AGENTS.md), the task-specific
+  [behavior rules](Docs/design-rules.md) and [operating procedure](Docs/running.md).
 
-1. **Hermes** (`Hermes`) downloads historical daily OHLCV bars and stores them in SQL.
-2. **Hercules** (`ML.Train`) trains ML.NET models and registers them in `[dbo].[ModelRegistry]`.
-3. **Delphi** (`Delphi`) loads enabled models from the registry and evaluates the TSX universe to produce:
-   - best pick
-   - direction/confidence + event probabilities (breakout/volatility)
-   - ranking hints (including regression)
-   - recommended position sizing
+Read the sections needed for the task. Older milestones inside the large reference files are
+dated history; they do not override newer evidence. Their consolidation is still in progress.
 
-## Pattern Models vs Profit Models (Key Concepts)
+## System map
 
-- **Pattern models** (Pattern taxonomy):
-  - Predict whether a technical pattern is present in the latest window (trend, RSI states, MA crossover, etc.)
-  - Useful for interpretability and confirmation
+```text
+Daily market data -> Hermes -> SQL market history
+                                 |       |
+                                 |       +-> Hercules -> candidate trained models
+                                 |                        -> reviewed model selection
+                                 +------------------------------+
+                                                                v
+                                                      Delphi daily selection
+                                                                |
+Intraday market data -> shared inputs in the independent engine <-+
+                          |                      |
+                          v                      v
+                    Paper portfolios      Real approved strategy
+                    paper trade history   actual account + own confirmation
+                          |                      |
+                    research evidence     risk / permission / price checks
+                                                 |
+                                          broker order -> fill -> reconciliation
 
-- **Profit models** (Forward outcome prediction):
-  - Direction/classification models predict **Buy/Hold/Sell** as a primary trading signal + confidence
-  - Event models predict things like:
-    - breakout probability
-    - volatility expansion probability
-  - Regression (expected return) remains supported but is treated as a **ranking hint**, not the sole selection signal
+Dashboard <-> engine: reviews, controls and saved-state inspection
+```
 
-More details: see `docs/models.md`.
+Hermes collects daily market history. Hercules trains candidate models; training does not
+automatically select them. Delphi combines selected models with deterministic indicators and
+gates to produce daily candidates. Intraday rules evaluate fresh observations separately.
 
-## Documentation
+The independent engine owns background collection, Real execution, Paper processing and audit
+schedules. Closing the dashboard leaves it running; stopping the engine is a separate action.
+SQL stores market facts and durable trading/research records; protected local journals and
+continuity records also participate in recovery. The dashboard is the operator's review and
+control surface. Scheduled nightly work has separate preparation and validation procedures.
 
-- `docs/running.md` — How to run Hermes/Hercules/Delphi
-- `docs/architecture.md` — Component architecture and data/model flow
-- `docs/models.md` — Pattern vs profit models, horizons/thresholds, semantics
-- `docs/training-metrics.md` — How to interpret Hercules training output
-- `docs/strategy.md` — Single-position rotation, rotation threshold, risk rules
-- `docs/glossary.md` — Terms used throughout the system
+**Evidence boundary:** installation and automated tests do not prove a complete live trading
+lifecycle. The [October 23 closing report](Docs/reviews/independent-engine-implementation-20261022.md#october-23-final-1605-watch-report)
+records no first attributable Delphi fill. The [October 26 assessment](Docs/reviews/independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23)
+preserves unfinished data/quote qualification; it grants no operational or financial authority.
 
-## Engineering rules
+## Where information belongs
 
-Engineering/iteration constraints live in:
-- `AGENTS.md`
-- `Docs/design-rules.md`
+| Need | Authoritative home |
+|---|---|
+| Component responsibilities and relationships | [System design](Docs/system-design.md) |
+| Dated implementation, installation and operational state | [Project status](Docs/project-status.md) |
+| Priority order | [Roadmap](Docs/roadmap.md) |
+| Acceptance criteria and remaining dependencies | The task's checklist, including [strategy alignment](Docs/strategy-alignment-implementation-checklist.md) |
+| Behavior, risk constraints and decision rationale | [Design rules](Docs/design-rules.md), applicable [ADRs](Docs/adr/README.md) |
+| Commands, prerequisites and side effects | [Running guide](Docs/running.md), linked Operations instructions |
+| Detailed evidence, unresolved choices and historical context | Linked reviews, [open questions](Docs/reviews/open-questions.md), dated archives |
+
+Update a second document only when its own meaning or navigation changes. The
+[consolidation review](Docs/reviews/documentation-consolidation-20261023.md) records the initial
+inventory, remaining cleanup and workflow examples. It is a bounded review, not another backlog.

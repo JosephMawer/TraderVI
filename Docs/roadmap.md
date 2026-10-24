@@ -642,9 +642,10 @@ or completed replacement of the execution work below. See the
 
 ## Later — expand system capability
 
-- Extract a standalone pre-session engine using shared Core and one active owner; arrange Windows Task
-  Scheduler hosting and verify operation. WPF/console dependence remains until that rollout. Shadow
-  headless operation also retains its clean-session prerequisite.
+- Engine extraction and dashboard-independent worker ownership are installed under ADR-0103;
+  do not restart that implementation as future work. Unattended pre-session startup/Windows Task
+  Scheduler hosting and sustained native acceptance remain distinct follow-ups, with their original
+  readiness and clean-session requirements. See [operational follow-through](strategy-alignment-implementation-checklist.md#operational-follow-through).
 - Add useful Scorecards charts after sufficient matured cohorts; preserve Athena and optional exports.
 - Consider Hermes status/run and System Log surfaces over shared workflows, retaining explicit run authority.
 - Complete Oracle Phase 3 debate/evaluation, Granville Overdueness (#23–#24), Heavy Volume/later groups,

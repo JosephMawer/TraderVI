@@ -2,6 +2,66 @@
 
 This document describes the current state of the TraderVI trading system — what's implemented, what was tried and rejected, and where things are headed.
 
+Start with the [system map](../README.md#system-map). This reference is being reconciled: dated
+implementation notes below are historical checkpoints, not fresh runtime evidence. Current
+operational facts belong in [project status](project-status.md).
+
+## Paper and Real share rules, not account state
+
+A **strategy** is the identified rulebook: selection, entry, exit, sizing, risk and data
+requirements. A **portfolio** is an account following that rulebook, with its own cash,
+holdings, confirmation memory and history. Multiple accounts can use the same strategy.
+
+| Shared or transferred | Kept separate |
+|---|---|
+| Immutable market observations and identified daily inputs | Paper and Real cash, costs, positions, pending actions and fills |
+| Exact strategy/policy definitions approved for the target account | Account-specific confirmation and risk history |
+| Research evidence presented for human review | Permission to submit real orders and actual broker outcomes |
+
+Delphi Live is the intraday strategy family, not simply a view of the Real TFSA. Its Paper
+portfolios keep running when one of their strategies is approved for Real. Here, "Live" describes
+processing incoming session observations; it does not by itself mean real-money execution.
+
+**Paper trade history** records simulated purchases, sales and balances under documented timing,
+price and cost assumptions. The underlying market observations can be genuine observations captured
+during the session. "Simulated" describes the assumed execution, not fabricated market data; a
+historical replay is a separate kind of experiment and must remain labelled as such.
+Those results support comparison; they do not prove that a real order will fill at that price, that
+the broker path works, or that a strategy is statistically qualified. Recommendation-only approval
+may explicitly accept disclosed evidence gaps ([ADR-0062](adr/0062-complete-strategy-recommendation-promotion.md)).
+The scoped supervised trial has its own exception and checks; it does not certify production
+performance ([ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md)).
+
+Approving a strategy for Real pins its rules and source identity. Real then uses its own actual
+account state and fresh observations. A Paper holding or completed confirmation is never imported
+as a Real purchase. For example, Paper can already hold a stock while Real is still waiting for
+its own confirmation or is blocked by permission, cash or price checks. Identical rules, inputs
+and starting state should agree; different account histories can correctly produce different actions.
+For example, a Paper assumed fill can coexist with a rejected Real buy and a still-cash Real account.
+Approval and separate host enable are distinct; a recommendation is not an order, and an order is
+not a broker-confirmed fill. Reconciliation means matching saved account records to actual broker
+outcomes without inventing or duplicating holdings.
+
+For a side-by-side example, assume the same strategy, both accounts in cash, valid mature inputs
+and the required Real approval/enable. ABC is fictional; these are not Friday's missing prices.
+
+| Stage | Paper | Real |
+|---|---|---|
+| Two consecutive strong valid observations | Advances its own confirmation and considers entry | Uses the same evaluator with its own confirmation and account checks |
+| Execution price | Suppose a subsequent acceptable quote produces an assumed $10.00 fill | Suppose the unchanged reference is $10.00 and broker ask $10.02; the current guard rejects before submission |
+| Resulting state | Holds a simulated position and evaluates protection/exits | Still holds cash; no purchase is recorded |
+
+Eligibility, permission to act, and evidence of a fill are separate questions. Sharing inputs and
+policy code avoids unnecessary duplication; separate account state prevents a simulated purchase
+from becoming a false broker fact. The exact Paper fill assumptions remain part of its evidence limits.
+
+The accepted boundary is [ADR-0055](adr/0055-independent-strategies-to-approved-live-execution.md).
+Implementation checks include `LiveCannotCopyConfirmedPaperStateIntoAnUnconfirmedRealAccount`
+in [TradingRecommendationTests](../TraderVI.Core.Tests/TradingRecommendationTests.cs) and
+`ApprovedRealDefinitionAndHeldSymbolsSurviveAbsentOrReassignedPaper` in
+[EngineRealObservationTests](../TraderVI.Core.Tests/EngineRealObservationTests.cs).
+These tests were inspected for this explanation, not rerun as operational proof.
+
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 
@@ -15,13 +75,13 @@ worker lifetime; the dashboard uses asynchronous local messages. Shared inputs f
 paper and research schedules. Paper cycles use compact working state and append changed records to
 an immutable archive; dashboards request full history explicitly. Paired continuity witnesses,
 scoped holds and resumable audits preserve verification outside the ordinary trading cycle.
-Real readiness is conditional on verified storage/current state and the original exact-build/account/
-dated approval, with explicit enable. Standard Release a94c474a is installed in verification mode;
-the overnight delivery target was missed. Native ownership/close/stop/resume checks pass; complete
-recovery, concurrency and capacity acceptance remain. Broker changed appends and historical revision
-audits retain full logical-history processing. The initial global recovery hold also pauses shared
-collection and paper workers; a running dashboard/engine does not establish normal trading readiness.
-[Current architecture, limits and cutover sequence](reviews/independent-engine-implementation-20261022.md).
+Real readiness is conditional on verified storage/current state and exact-build/account/dated
+approval, with explicit enable. Broker changed appends and historical revision audits retain
+full logical-history processing. Scoped holds preserve the distinction between affected Real,
+Paper and shared work; a running dashboard/engine does not establish trading readiness.
+The earlier a94c474a verification-mode cutover is historical. See the
+[implementation and cutover evidence](reviews/independent-engine-implementation-20261022.md)
+for subsequent normal-mode installation, recovery and remaining native acceptance.
 Retention choices remain separate before cleanup; no installed space was reclaimed.
 [ADR-0103](adr/0103-real-execution-independent-of-paper-research.md) records the accepted design decisions.
 
@@ -457,7 +517,13 @@ The operational Ghost/Real ledger is deliberately separate from official Athena 
 4. If the completed policy produces an exit alert for a Ghost position, record a database-only simulated sale at the newest separately observed delayed price through the ADR-0031 serializable transaction. For Real, display a manual-action signal and leave the holding open.
 5. Refresh the WPF dashboard from SQL so explicitly labelled Ghost/Real positions, separate P/L, trades, and receipts remain visible after restarts.
 
-Automatic Ghost exits never route to a broker. ADR-0039 adds durable mode/account fields plus an immutable Ghost-to-Real reconciliation audit; all pre-migration rows default to Ghost, and Real fills are operator-reported facts only. The WPF process must remain open for its five-minute collection schedule; the decision policy still consumes completed 15-minute bars, and always-on service hosting is deferred. The tabbed shell contains Trading, Data Audit, Delphi, Scorecards, and Project Docs. The six-view Delphi workspace loads persisted picks and the matching typed presentation snapshot without evaluation; only a confirmed official action invokes its database-writing workflow. Project Docs remains file-only. Scorecards reads official calibration SQL through the same pure calculator as Athena and cannot write outcomes or alter Delphi.
+Automatic Ghost exits never route to a broker. ADR-0039's tracked ledger uses durable mode/account
+fields and an immutable Ghost-to-Real reconciliation audit; its manually reported Real fills are
+distinct from the later broker execution journal. Its decision policy consumes completed 15-minute
+bars. ADR-0103 moved scheduled tracked, Shadow and opt-in AI work into
+`IndependentAuxiliaryPaperService` under the engine lifetime; the old requirement to keep WPF open
+for those schedules is superseded. The saved Delphi workspace, Scorecards and Project Docs remain
+inspection surfaces; a confirmed official Delphi action retains its documented database effects.
 
 ## Delphi Live flow
 
@@ -465,7 +531,9 @@ Automatic Ghost exits never route to a broker. ADR-0039 adds durable mode/accoun
 `DelphiLiveMonitorWorkflow` in Core owns session scheduling, lease recovery, collection, deterministic
 evaluation and per-portfolio action sequencing behind injected stores, market data, clock/calendar and
 notifications. `DelphiLiveDesktopService` composes the first WPF host; UI selection never determines
-whether an activated monitor ticks.
+whether an activated monitor ticks. That is the original composition: ADR-0103 now splits market,
+Paper and research schedules under the independent engine; the class remains in command/legacy
+composition. See [engine construction](../TraderVI.Engine/Program.cs) for the current owners.
 
 At a regular-session boundary the session repository freezes one eligible daily source and the
 published Top-25 union, exact policy assignments and point-in-time daily baselines. The collection
@@ -709,7 +777,8 @@ architecture; do not duplicate volatile priority lists here.
 | **Hercules** | Weekly / on-demand | `[DailyBars]`, enabled code registries | model artifacts, `[ModelExperiment]`, `[ModelRegistry]` |
 | **Delphi** | Daily (pre-market) | market tables, models, strategy version, OBV/CLX | `[DailyPick]`, `[DecisionDossier]`, `[GranvilleIndicatorLog]`, narrative cleanup, console reports |
 | **TraderVI** | Manual or 15-minute console watch | picks/models/positions, delayed TMX bars | ghost positions, `[TradeLog]`, intraday receipts/evidence; no live order placement |
-| **TraderVI.WPF** | Interactive tabbed shell; thirty-second Trading refresh, explicit Ghost/Real rows, read-only official Scorecards/Data Audit, six-view saved Delphi workspace, and native Project Docs reader | operational positions/trades, official calibration evidence, shared monitor/audit/Delphi workflows, saved presentation evidence, repository Markdown | Ghost auto-exits and confirmed manual Real reconciliation write SQL; Scorecards, Data Audit, saved-Delphi refresh, and Project Docs do not; a confirmed official Delphi run has Delphi's documented SQL effects; no broker integration |
+| **TraderVI.WPF** | Interactive dashboard | Saved state, engine responses, calibration evidence and repository Markdown | Operator review/approval/control requests through the engine; confirmed daily/administrative workflows retain their documented effects. Read-only refresh is distinct from those actions. |
+| **TraderVI.Engine** | Independently scheduled background workers | Shared market inputs, approved account/strategy state, broker facts and continuity records | Collection, separate Real/Paper/research processing, broker order workflows, durable journals and scoped audit/recovery records. Dashboard closure does not stop it. |
 | **Oracle** | Manual/optional | decision dossiers | external LLM call and `[LlmNarrative]` when configured |
 | **Sentinel** | Future always-on/live-risk boundary | durable paper evidence and future explicitly authorized broker state | not implemented; ADR-0031 authorizes ghost exits only |
 

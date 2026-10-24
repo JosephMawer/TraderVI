@@ -4,9 +4,10 @@ This folder records meaningful design decisions made on TraderVI. Each ADR
 captures *why* a choice was made, what alternatives were rejected, and what
 review questions can be used to test understanding later.
 
-We use **lightweight ADRs**: any meaningful decision gets one, even
-indicator-level choices. The goal is dense review material, not formal
-architecture documentation.
+Use a lightweight ADR for a meaningful new behavior, architecture, evidence or safety decision,
+including an indicator-level choice when its rationale matters. Implementing an existing decision,
+routine troubleshooting and editorial cleanup do not automatically need another ADR. The goal is
+recoverable reasoning. Concept notes and learning cards are optional aids, not mandatory outputs.
 
 ## Conventions
 

@@ -1,0 +1,128 @@
+# Documentation consolidation and learning — October 23, 2026
+
+**In progress.** This bounded review records the documentation inventory, preservation work and
+acceptance checks for the operator's requested learning/consolidation session. It does not replace
+the project backlog. Immediate problem: the system and its documentation exceed comfortable working
+memory. Parent problem: reliable understanding and session recovery. Root goal: dependable TSX
+strategy research and deliberately approved Real management, with evidence and safeguards intact.
+
+## First increment and reading path
+
+Start at [README](../../README.md), then [Paper and Real](../system-design.md#paper-and-real-share-rules-not-account-state).
+Read only task-relevant current status, roadmap and acceptance sections. Decisions and procedures
+remain task-specific. Historical reports and the cross-chat register are retrieval destinations.
+
+The first increment corrects orientation, explains Paper/Real ownership, and changes the documentation
+workflow to update only affected authoritative owners. It does not compact every tracking file before
+the operator has explored the system. No application, database, broker, collector or training ran.
+
+Validation: exact staged diff and whitespace checks pass; 1,395 scanned local document links resolve,
+including the repaired October 19 anchor. New Markdown/code targets and the solution reference exist.
+Safety/build/change/commit/handoff sections match their prior text exactly. S53/S54 rows, the readiness
+review, strategy checklist and design rules are unchanged. Application tests/builds were not rerun
+for documentation-only changes. The unrelated Obsidian workspace edit remains outside this increment.
+
+## Inventory and measured burden
+
+Baseline: tracked Markdown at `7267acb`, measured October 23. Counts are physical lines, not reading
+time or semantic complexity. Families classify each tracked Markdown file once.
+
+| Family | Files / lines | Audience, owner and maintenance judgment |
+|---|---:|---|
+| Entry points and component guidance | 9 / 808 | New sessions and contributors. Navigation and working rules; root README was stale about execution and trained patterns. Keep entry concise; retain narrow component contracts. |
+| Current tracking | 3 / 3,726 | Returning operator/agent. Status owns facts, roadmap priorities, register source recovery. Repeated Friday narratives and old current-tense states are unjustified; retain source IDs but remove parallel reporting. |
+| Acceptance checklists | 3 / 1,716 | Implementers and reviewers. Own dependencies and completion criteria. Long installation/watch narratives duplicate evidence reports; preserve unchecked acceptance and distinguish source/test/install/native states. |
+| Explanations, rules and procedures | 15 / 4,258 | Learners, implementers and operators. Architecture/system-design/models overlap; older hosting and training descriptions conflict with later changes. Detailed thresholds, causal timing and side effects must remain; volatile state belongs elsewhere. |
+| Decisions and indexes | 109 / 12,800 | Decision reviewers. Own accepted choices, rationale, scope and supersession. Detail is valuable; dated implementation labels in indexes can become competing status. Historical ADRs must not be rewritten as if later rules always applied. |
+| Concepts and drafts | 23 / 5,240 | Design/learning discussions. Explain relationships and alternatives. Some contain accepted amendments plus old plans; audit links and status before merging. Keep unique rationale and unresolved choices. |
+| Reviews, questions and learning | 25 / 10,180 | Investigators and learners. Own detailed dated evidence, consequential questions and optional study aids. Evidence detail is justified; repeated current summaries and compulsory learning outputs are not. |
+| Tracking archives | 3 / 2,167 | Historical retrieval. Preserve earlier decisions/evidence and anchors; no routine startup or ongoing milestone updates. |
+| Operations and database guidance | 8 / 471 | Operators. Exact safe commands, scope, migration and authorization contracts justify detail. No simplification of substantive safeguards is proposed. |
+
+The five previously named startup/reference files total **5,005 lines / 64,418 whitespace-delimited
+words**: AGENTS 84, status 2,460, roadmap 676, strategy checklist 1,195, register 590 lines.
+This is a full-file footprint, not a claim that every task had to read every line. Relevant-section
+reading was already partly allowed; new rules make that explicit and make the register conditional.
+
+In the last 30 commits ending at `7267acb`, **29 touched all four tracking files**, for 117 tracking
+file touches; 24 commits changed Markdown only. This demonstrates repeated maintenance, not time
+spent or wasted. An exact normalized 20-word-window comparison finds only 20 shared sequences:
+the substantial duplication is mostly differently worded retellings, not identical copied paragraphs.
+For example, the Friday close appears in status, roadmap, checklist, register and the owning review.
+
+The initial static scan checked **1,361 local Markdown-document links** and found one unresolved
+anchor, manually confirmed in status's October 19 switch link. The scan excludes external links,
+code-fenced examples, bare/backticked paths, private artifacts and generated content; it is not a
+claim that every reference or historical statement is correct. `Delphi/Notes.md` uses legacy encoding;
+its content was read without rewriting it. Local audit outputs stay ignored under
+`artifacts/documentation-consolidation-20261023/`.
+
+## Workflow examples
+
+These counts concern substantive documentation owners, not source/tests or optional evidence files.
+The old milestone rule required four tracking updates; the old wrap-up prompt also defaulted to an
+ADR, index updates, cards and a build. The new process has no fixed per-milestone file count.
+
+| Example | Documents actually changed | Why |
+|---|---|---|
+| Question, no new finding | None (0) | No state or decision changed. |
+| Small bug fix implementing an accepted rule, no tracked milestone | Status (1), if the fix changes a recorded current limitation | Record the changed implementation/validation state; commit/tests supply routine detail. No new rule, priority or dependency means no other tracking update. An entirely internal fix may need none. |
+| Newly discovered operational blocker | Status + owning checklist (2) | Current readiness and an acceptance dependency changed. Link substantial diagnostic detail once. Roadmap changes only if priority order changes. |
+| Meaningful design decision, priority unchanged | ADR + its two indexes; design rules if affected; checklist if new dependencies | Each file serves a distinct purpose. No automatic report, concept, cards, register entry or implementation claim. Record a pending consequential choice in open questions until decided. |
+| Completed implementation milestone | Status + owning checklist (2) | Implementation/testing state and acceptance changed. Add roadmap only when completion changes priority order; installation/native acceptance stay open until evidenced. |
+
+These are worked examples, not replacement quotas. Fix a contradictory claim wherever it still
+exists. The one-time consolidation legitimately touches more files to remove those contradictions.
+
+## Preservation and corrections
+
+- Root README's outdated advisory-only/future-broker and trained-pattern summary is replaced by
+  current orientation. Legacy model taxonomy remains in `models.md` pending its own reconciliation;
+  current deterministic/trained separation stays governed by design rules and accepted decisions.
+- Agent safety/authorization, build/test, change expectations and local commit rules are preserved.
+  Only reading, learning-output and documentation-maintenance requirements are simplified. The old
+  wrap-up prompt becomes an optional checkpoint aligned with the root guide; no safety rule is removed.
+- System design's earlier verification-mode, dashboard-required and no-broker descriptions are scoped
+  or corrected using current construction in `TraderVI.Engine/Program.cs` and
+  `IndependentAuxiliaryPaperService`. Roadmap no longer lists engine extraction as unstarted.
+- Status's old executive summary is explicitly historical; its `executive-summary` anchor remains.
+  No evidence dates are advanced, and no full runtime qualification is claimed.
+- S54 remains intact. The [Friday report](independent-engine-implementation-20261022.md#october-23-final-1605-watch-report),
+  [failure chain](independent-engine-implementation-20261022.md#october-23-buy-preflight-account-lock-correction)
+  and [October 26 assessment](independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23)
+  remain in their owning review. Data/quote qualification is proposed, unstarted work; Friday's
+  expired permission is not renewed. The strategy checklist's open acceptance items are unchanged.
+
+## Learning record and remaining acceptance
+
+The operator chose Paper versus Real as the first topic, correctly identifying transferred strategy
+rules and separate confirmation, then questioning duplicate computation and "simulated histories."
+The explanation now uses **Paper trade history**: observed market data can be genuine while fills,
+cash and holdings are simulated. The Paper portfolio continues after Real approval. Shared rules
+and inputs do not imply shared mutable account state; different fills/history can yield different actions.
+The operator has not yet confirmed the clarified understanding or explained the whole approval flow.
+The operator next chose a side-by-side stock walkthrough. A fictional same-strategy/cash-only example
+now separates confirmation, account permission and fill evidence, including an assumed Paper fill
+versus a Real price-guard rejection. Its illustrative prices are not historical broker observations.
+
+- [x] Inventory families, baseline volume/churn, initial local-link scan and S54 recovery.
+- [x] First orientation and workflow cleanup; preserve safety and operational evidence boundaries.
+- [ ] Walk through daily selection, intraday confirmation, then permission/order/fill/protection.
+- [ ] Compact status, roadmap and strategy checklist after a unique-information/anchor accounting.
+  Retain Friday's failure history and Monday's active dependencies without duplicating the narratives.
+- [ ] Reduce the register to useful source/unfinished-idea pointers, or merge those pointers if a
+  separate file adds no value. Its final disposition is undecided; no source rows were discarded.
+- [ ] Reconcile architecture/models/strategy and other concept/current-decision overlaps. In particular,
+  `models.md` still describes pattern training as current, and `architecture.md` contains stale
+  promotion status. Review remaining ADR-index implementation labels and draft/current boundaries.
+- [ ] Split mixed native acceptance: the engine review's old "untested" list overlaps later observed
+  owner/close/recovery checks. Preserve remaining drain/concurrency/restore/capacity cases separately;
+  do not check off the whole group based on one observation.
+- [ ] Recheck inbound references before moves, verify remaining roles and examples, and measure the
+  actual final startup path. Full-file reading-volume reduction is not claimed by this first increment.
+- [ ] Have the operator explain the main flow and approval boundaries, then give a final consolidation handoff.
+
+Resume readiness through the [October 26 assessment](independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23)
+and [strategy checklist](../strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
+This learning/cleanup request does not start that implementation, install a build, probe a source,
+change a safeguard, enable trading or create another monitor.

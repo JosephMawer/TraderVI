@@ -1,5 +1,12 @@
 # TraderVI session-work register
 
+**R22 — Relearn the system and simplify documentation (October 23, in progress).** The operator
+authorizes documentation/process consolidation, with safeguards and S54 preserved. Start with the
+Paper/Real relationship; explanation and workflow cleanup are the first increment. The
+[bounded review](reviews/documentation-consolidation-20261023.md) owns inventory, preservation checks
+and remaining cleanup. Learning and full consolidation are not complete; no readiness implementation
+or new operational authority follows from this work.
+
 **October23 post-close assessment (S54):** Joseph asks what must be fixed for Monday without weaker
 safeguards. Proposed work separates missing-source/continuity evidence from adapter defects and
 qualifies the quote comparison independently of buy signals. No repair/source decision or new
@@ -571,20 +578,20 @@ separately. Dates in the work records use Toronto time.
 
 ## Maintenance contract
 
-1. At the start of related work, scan the relevant register rows alongside the authoritative records.
-   Resume from their owning checklist/question rather than replaying a whole chat.
-2. At each meaningful milestone and handoff, update affected rows and their source “Through” times.
-   Include newly raised unfinished ideas even if no code changed. Keep IDs stable; append new IDs.
+1. Use this register when cross-chat recovery is needed or an idea's owner is unclear; it is not
+   mandatory startup reading. Resume from the owning checklist/question rather than replaying a chat.
+2. Update a source “Through” point when that source is reviewed, or add a pointer needed to recover
+   otherwise unrecorded work. Do not repeat each milestone here. Keep IDs and explicit deferrals stable.
 3. Review unprocessed chats oldest first, then reconcile overlapping events oldest to newest.
    Read only newer turns after the recorded point, with older passages fetched only to resolve context.
    Never infer completion from silence, a thread title, recency, a commit date or a passing build.
-4. If intent, scope, placement or conflicting evidence is unclear, stop and ask the operator.
-   Record explicitly deferred choices as open; do not decide them in order to close a row.
+4. Ask the operator when consequential intent or scope remains unresolved by the evidence.
+   Routine editorial placement does not require approval. Do not decide deferred choices to close a row.
 5. Keep one concise row per continuing goal. Link superseded/continued chats to its surviving row.
    Preserve a short closed disposition and source pointer when work completes; do not erase the idea.
-6. Keep detailed dated facts in project status, priorities in roadmap, acceptance criteria in the
-   relevant checklist and unresolved behavior in open questions/ADRs. Reconcile the links together;
-   do not copy entire milestone narratives into this register.
+6. Keep current dated state in project status, priorities in roadmap, acceptance in the relevant
+   checklist, and unresolved behavior in open questions/ADRs. Detailed evidence belongs in linked
+   reviews. Change another record only when its own meaning or navigation changes.
 7. Update the file once per coherent review/checkpoint. Cache only the small working summaries
    needed during a review; keep private captures and generated review files out of commits.
    No automation, operational approval, market access or external messaging is created by this file.
