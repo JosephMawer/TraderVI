@@ -15,6 +15,24 @@ Things we punted on and need to revisit. Cleared as decisions are made
   AskAboveDecisionReference reflects fallback/timing/mapping or a genuine price move. Preserve exact
   bars, quote provenance/unknown source age and the strict price guard. Source replacement remains a
   decision only if evidence establishes the need. [Evidence and acceptance criteria](independent-engine-implementation-20261022.md#october-26-readiness-assessment--october-23).
+- **Learning-session proposals (open, not authorized behavior changes):** Joseph asks
+  whether Real should accept a higher ask and tolerate the difference, or whether faster TMX queries
+  could reduce it. Source inspection distinguishes Real's own TMX reference from a Paper fill and
+  finds that Paper's later-quote fill has no matching earlier-reference ceiling. See the
+  [fill walkthrough](../system-design.md#how-delphi-live-paper-records-a-fill). Do not assume the
+  unknown Friday gap was small, caused by delay, or a realized loss. The current market-order
+  preflight also does not guarantee the eventual fill price.
+- **Recommended resolution:** measure matched quote fields, identity and timing, then evaluate
+  reference quality, measured latency, Paper fill realism and a separately defined execution-price
+  policy. Unconditional higher-price acceptance is not recommended; a bounded allowance or limit
+  order is only an alternative for review, with cash/risk sizing, non-fill and recovery implications.
+  Evaluate whether the current zero-adverse-difference rule rejects reasonable opportunities too;
+  retaining it during investigation is not a claim that it is the optimal final policy.
+  Close this question with documented causes/remaining uncertainty and an explicit accepted or
+  rejected policy decision; diagnostics alone cannot change the guard. Prepare the investigation
+  separately from this learning/documentation session. A
+  [copyable investigation prompt](documentation-consolidation-20261023.md#separate-quote-and-fill-investigation-prompt)
+  is prepared; no new chat, external probe, implementation or operational action has started.
 
 ### Real recovery to next-session operation — October 22, 2026
 

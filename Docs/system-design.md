@@ -87,6 +87,53 @@ approval can accept disclosed performance gaps ([ADR-0062](adr/0062-complete-str
 the scoped supervised trial has its own exception/checks ([ADR-0092](adr/0092-scoped-supervised-delphi-live-tfsa-session.md)).
 Neither approval nor a successful broker fill certifies a profitable strategy.
 
+### How Delphi Live Paper records a fill
+
+This is the Delphi Live Paper path, not Daily Shadow's different bar-based contract. The
+[action workflow](../Core/Trader/DelphiLive/DelphiLiveActionWorkflow.cs) and
+[fill policy](../Core/Trader/DelphiLive/DelphiLiveExecutionPolicy.cs) implement these steps:
+
+1. Save a qualifying decision and its pending action before requesting fill evidence. The fill
+   quote must be requested after the saved decision and received strictly afterward; the signal's
+   original observation cannot simply be reused as the fill.
+2. Request a quote for that action and symbol within its allowed session/window. The V1 policy
+   permits up to three attempts within sixty seconds, with no buy fill at/after 15:45 Toronto.
+   Missing quotes do not automatically become trades: a buy expires when its allowance ends;
+   a protective sell remains pending for later valid attempts, including overnight if needed.
+3. Select a positive ask for a buy or bid for a sell. If that side is unavailable, a positive
+   `Price` may supply an explicitly tagged `EstimatedFill`. Neither label means a broker fill.
+4. Recheck buy eligibility and portfolio constraints. Size whole shares using the selected price,
+   current cash/value and policy limits; for an exit, use the holding's quantity. Record the entire
+   simulated quantity at that one price and change cash by price times quantity. Save the quote,
+   selected field, times and reason alongside the fill; no broker order is sent by this path.
+
+This preserves causal order and visible failures, but it does not model available share depth,
+partial fills, routing delay, market impact or an additional slippage/fee deduction in this fill
+transaction. Ask/bid use can include the spread; a fallback last price can omit it and appear cheaper
+to buy or dearer to sell than an executable quote. A recently received response does not establish
+the provider's quote update time. Those assumptions can overstate performance, but do not prove
+that any particular saved trade is overstated or that Real must always perform worse.
+
+### Why the Real price check can disagree
+
+Real does not compare the broker ask with Paper's recorded fill. Its own
+[recommendation](../Core/Trader/Promotion/TradingRecommendationEngine.cs) selects positive TMX Ask,
+otherwise Price, as the decision reference. The later
+[broker preflight](../Core/WSTrade/Orders/BrokerManagedOrderTransport.cs) rejects a broker ask strictly
+above that reference. Paper's fill policy has no corresponding earlier-reference ceiling; it can
+accept its later quote subject to its timing and account checks. This is a contract difference,
+not proof that TMX request speed caused Friday's rejection.
+
+The submitted broker order is a market order under [ADR-0074](adr/0074-wealthsimple-market-buy-protocol.md).
+The preflight comparison is not an exchange-enforced limit price: passing it does not guarantee
+the eventual fill price. A market order has price uncertainty; a limit order specifies a price
+boundary but may not fill ([order-type explanation](https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders)).
+Limit-order support, any bounded adverse-price allowance, reference-source changes and Paper fill
+changes require their own reviewed contracts. Faster requests may reduce measured elapsed-time
+effects; they cannot by themselves fix last-trade versus ask differences or unknown upstream age.
+The [open decision](reviews/open-questions.md#monday-delphi-data-and-price-qualification--october-23-2026)
+preserves the operator's suggestions without treating them as accepted policy.
+
 For agent-enforced implementation rules, see `Docs/design-rules.md`. For the dated operational
 snapshot and active priorities, see `Docs/project-status.md` and `Docs/roadmap.md`.
 

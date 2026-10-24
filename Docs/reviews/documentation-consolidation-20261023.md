@@ -106,6 +106,12 @@ evidence under Paper assumptions, execution feasibility and actual account outco
 confirms that Delphi Live's scorecard includes tagged fallback fills while separately reporting their
 count, no-fill counts and coverage. This is a clarified evidence limit, not a new performance gate
 or an implemented Paper-to-Real attribution report. The full approval/protection flow remains to cover.
+The next walkthrough traces how Delphi Live Paper saves a later-quote full fill and where fallback,
+quantity and timing assumptions limit realism. The operator raises higher-price acceptance and
+faster TMX requests as possibilities; they remain [open proposals](open-questions.md#monday-delphi-data-and-price-qualification--october-23-2026).
+The recommendation is to keep explanation/cleanup here and investigate quote alignment separately;
+the prompt below is prepared, not dispatched. The key correction is that Real compares its own
+reference with the broker ask, not with Paper's purchase price.
 
 - [x] Inventory families, baseline volume/churn, initial local-link scan and S54 recovery.
 - [x] First orientation and workflow cleanup; preserve safety and operational evidence boundaries.
@@ -128,3 +134,50 @@ Resume readiness through the [October 26 assessment](independent-engine-implemen
 and [strategy checklist](../strategy-alignment-implementation-checklist.md#paper-strategy-to-real-tfsa--current-checklist).
 This learning/cleanup request does not start that implementation, install a build, probe a source,
 change a safeguard, enable trading or create another monitor.
+
+## Separate quote and fill investigation prompt
+
+Copy the following into a separate TraderVI chat when ready. This is a proposed investigation scope,
+not authority created by saving this document. It deliberately leaves price-policy choices open.
+
+```text
+Investigate the realism of Delphi Live Paper fills and the mismatch between Real's TMX-derived
+decision reference and the broker ask in C:\src\TraderVI. Keep this separate from the ongoing
+learning/documentation consolidation. Do not force Paper and Real to take identical trades.
+
+Read AGENTS.md and task-relevant current status/roadmap/checklist sections. Recover S54 and:
+- Docs/reviews/independent-engine-implementation-20261022.md, especially the October 26 assessment,
+  Friday failures, final close and price-diagnostic limits.
+- Docs/system-design.md, the Paper fill walkthrough and Real price-check explanation.
+- Docs/reviews/open-questions.md, Monday data/price qualification and execution-realism research.
+- Docs/design-rules.md and governing fill/order/approval ADRs, including 0053, 0074, 0092 and 0105.
+
+Inspect code, tests and already available saved evidence. Trace Paper's saved decision, later quote,
+Ask/Bid/Price selection, sizing and full simulated fill; trace Real's own reference selection,
+broker preflight, market-order submission and reconciliation. Do not mistake a preflight ceiling
+for an exchange-enforced limit, or a recent response for a verified recent market quote.
+
+Classify possible causes: last-trade versus ask, unknown/stale provider data, mismatched instrument
+or venue, elapsed request/processing time, genuine movement, or different account/confirmation state.
+Friday's historical price pair is unavailable; do not reconstruct it from later observations or
+assume the difference was small. Existing installed diagnostics were not exercised by a later
+rejected buy that day. Preserve repaired Friday failures and remaining data/continuity gaps.
+
+Compare the current guard with evidence-backed alternatives: improve the reference source/field,
+reduce demonstrated latency, define a bounded adverse-price allowance, or a suitable limit-order
+contract. Evaluate Paper assumptions separately. Do not adopt an arbitrary tolerance, remove the
+guard, raise the reference to pass it, or copy Paper orders/holdings into Real. Explain cash/risk
+sizing, quote expiry, non-fills, partial/unknown outcomes, protection and versioned-evidence effects.
+
+Deliver a compact findings/options matrix, precise unknowns, any offline diagnostic replay that
+can use existing non-sensitive evidence, and a concrete bounded quote-capture plan independent of
+buy eligibility. Use reviewed fixed helpers where their scope suffices; broker quote reads require
+a reviewed extension. Bring back the recommended behavior decision before implementing it.
+
+This request authorizes read-only repository/existing-evidence investigation and documentation,
+with focused offline checks that do not access databases, services or private production artifacts
+outside the existing authorized scope. It does not authorize application behavior changes,
+installation/restarts, SQL writes, new external probes, credential work, hold clearance, orders,
+approval/enable or a monitor. Ask for the specific authority required by a concrete next step.
+Preserve concurrent work and private evidence; commit reviewed documentation locally, never push.
+```
