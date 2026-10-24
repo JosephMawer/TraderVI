@@ -131,13 +131,34 @@ schedule is restored. Paper hold review, concurrency, abnormal interruption/rest
 capacity stay open. The overnight target was missed; no historical deletion, cleanup or measured disk
 saving is claimed. Dependency security and the complete SSDT solution were not requalified here.
 
+## Portfolios Strategy workspace — October 24 installation
+
+Joseph explicitly requested a normal rebuild/restart and commits of all remaining changes.
+The existing dashboard was closed; engine 44052 stopped through its normal maintenance control
+with a `Stopped` receipt. Standard Release was rebuilt from `39b8b072` (including UI `266a5cce`):
+zero errors and 260 existing compiler warnings. Dependency audit remained disabled; the complete
+SSDT solution was not built. The earlier 3,123-test source validation below remains applicable.
+
+At 00:10 Toronto the normal Release dashboard 38508 is responsive and engine 23544 reports Running,
+normal mode, with execution **Off**. Before/after status retains the same nine unresolved incidents
+and three incomplete latest audits; no hold clearance, approval or trading enable was performed.
+Paper/research workers still report restrictions. Normal application startup resumes its existing
+background reads/workflows; no separate migration, data probe, training or broker order was requested.
+
+The first dashboard launch inherited a hidden/minimized window; it was closed normally and reopened
+visibly from the same standard Release output. Windows capture subsequently returned
+`window capture timed out: timed out waiting on channel`, and a navigation attempt detected user
+input, so automation stopped. Installation/process checks pass; actual Portfolios visual review
+remains with the operator. Private status receipts, build log and binary hashes are retained under
+ignored `artifacts/portfolio-workspace-restart-20261024/`.
+
 ## Portfolios Strategy workspace — October 23 source checkpoint
 
 Strategy workspace is implemented as the default Portfolios view, with Account directory second and
 the application's left navigation retained. Separate Paper/Real evidence, source relationships and
 existing review routes follow [ADR-0108](adr/0108-strategy-workspace-and-independent-account-evidence.md).
 The [owning checklist](strategy-alignment-implementation-checklist.md#portfolios-strategy-workspace--october-23)
-retains installation and actual desktop review as pending.
+retains actual desktop review as pending; installation is recorded above on October 24.
 
 .NET 10 WPF build passes; 46 focused tests pass. The full Core suite passes **3,123 tests with nine
 native/SQL skips** using an output-local `xunit.runner.json` with test-collection parallelism disabled.

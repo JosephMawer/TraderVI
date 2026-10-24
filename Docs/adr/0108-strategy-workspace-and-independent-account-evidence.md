@@ -1,7 +1,7 @@
 # ADR-0108: Strategy workspace and independent account evidence
 
 **Date:** 2026-10-23. **Status:** Accepted; WPF implementation and offline verification complete;
-installation and running-desktop review pending. **Domains:** user-interface.
+installed October 24 by explicit request; running-desktop visual review pending. **Domains:** user-interface.
 
 ## Decision and purpose
 

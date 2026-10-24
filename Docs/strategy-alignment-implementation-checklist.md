@@ -1195,8 +1195,11 @@ browser security blocked local-file preview, so layout/interaction verification 
   review eligibility and the separately labelled recommendation review. Missing facts remain unavailable.
 - [x] Verify the WPF build, focused account-evidence tests and offline XAML renders/navigation with
   synthetic data and no binding errors. Detailed validation state is in [project status](project-status.md#portfolios-strategy-workspace--october-23-source-checkpoint).
-- [ ] Install this increment and review the running desktop at the operator's actual dimensions.
-  This source/offline checkpoint does not establish operational or broker-execution qualification.
+- [x] Install this increment through the operator-requested normal Release rebuild/restart on October 24;
+  dashboard responsive, engine Running and execution Off. See [installation evidence](project-status.md#portfolios-strategy-workspace--october-24-installation).
+- [ ] Review Portfolios in the running desktop at the operator's actual dimensions. Screen capture
+  timed out during the install check; subsequent user input ended UI automation. Installation and
+  offline rendering do not establish broker-execution qualification.
 
 ## Authority and evidence
 
