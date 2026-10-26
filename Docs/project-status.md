@@ -1,5 +1,19 @@
 # TraderVI Project Status
 
+## October 26 morning — blocked by a Real history-integrity hold
+
+Read-only checks at09:09–09:23 Toronto confirm one normal-mode engine and a responding dashboard,
+with all three recorded October24 assembly hashes matching. Broker connection succeeds; execution is Off.
+Nightly succeeds00:34; today's Valid daily publication uses October23 data and matches the saved
+strategy's four models/configuration. Current head/projection/subscription and checkpoint hashes pass.
+However, a Broker ArchiveVerificationFailed incident discovered October23 at16:13 remains unresolved:
+the new-history audit stopped at revision675, after Friday's16:05 report. Eight Paper restrictions
+remain separately; the original completed Paper recovery does not clear this Real hold. The three
+incomplete-latest-audit notice includes retained failed audit records, not three running recoveries.
+Joseph confirms no outside account changes since the original cash-only baseline. No Monday permission,
+recovery verification, clearance or enable has been performed. A same-chat October26-only watch is
+scheduled through16:05. [Morning evidence, limits and proposed next action](reviews/independent-engine-implementation-20261022.md#october-26-morning-readiness-and-one-day-watch).
+
 ## Independent engine — October 23 watch complete; price capture and first fill unqualified
 
 **Post-close readiness assessment:** proposed October26 work separates host-continuity/raw-source gaps

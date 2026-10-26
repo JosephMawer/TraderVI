@@ -1,6 +1,9 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
+Current status: **October26 morning is blocked by an unresolved Broker history-integrity incident;
+normal engine/broker connection respond, execution remains Off. See the fresh assessment below.**
+
+Historical closing status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
 its heartbeat is deleted. Diagnostic43424435 remains installed with exact Core hash unchanged;
 Joseph's approval1379 and original risk3 are retained. Connected/Running owner, execution Waiting
 outside regular hours. Final real1865 evaluates40 fresh symbols through15:55 with NoRecommendation,
@@ -9,6 +12,97 @@ account consumption of that post-close bar is not claimed. Original15:45 cutoff/
 without renewal. Price comparison and complete native preflight/submission/protection remain open.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 26 morning readiness and one-day watch
+
+The requested read-only morning assessment begins before09:15 Toronto and reports a blocking verdict
+while the independent checks continue through09:23. The reviewed calendar's exact SHA256 remains
+4D9682D396D9E6B313711F5ED0CF37B8FC145364C5899AA9BDDCAAC1CD2E0976: October26 is a regular
+09:30–16:00 session and October23 is its immediately preceding session. No weekday inference is used.
+
+**What passes:** one engine23544 and dashboard38508 retain their October24 start and standard Release
+paths. All three hashes in `artifacts/portfolio-workspace-restart-20261024/release-hashes.json` match:
+WPF11180E20, CoreE46E98D9 and EngineB55B5782 (full hashes retained privately). This is the three-file
+installation manifest check, not a new all-dependency manifest. Fresh engine Status responds in normal
+mode, with current continuity, connection, collection-ownership, market-input and Real-worker completions
+and no consecutive failures in those workers. Connection says Connected; ExecutionStatus explicitly
+says Off/no enabled execution-host permission. The dashboard process responds; interactive navigation
+and today's native reconciliation are not newly qualified by that process flag. Sandbox pipe reads
+created empty receipts; those remain failed observations. Fresh, uniquely named read-only controls
+outside the sandbox succeed. No second operational engine owner is launched.
+
+The existing nightly runner succeeds00:30–00:34:34, including Hermes, Delphi and Athena. Today's one
+Valid OfficialPaper run is published00:34:23 using October23 market data. Saved daily version, model
+binding hash/input contract, policy, four exact model identities and configuration match the current
+Real subscription. These checks do not retrain/select models or make Real wait for Paper progress.
+
+At09:09 the exact fixed broker v2 helper succeeds: one eligible account, zero holdings/pending orders,
+unchanged37 historical orders (32 posted, three expired, two cancelled), and matching history/holdings.
+Daily-performance provider time is still Friday16:00; it is not a Monday valuation. The helper does
+not check the local journal, qualify cash-effective timing or grant automation authority. Saved managed
+orders/protection are empty, but the latest native AccountSynchronized record is Friday15:59:44;
+current local-journal reconciliation remains required. No first attributable Delphi fill is established.
+Joseph personally confirms in this chat no outside trades/transfers/deposits/withdrawals/other changes
+since the original October19 cash-only baseline, including the weekend; no inference from balances.
+
+**Exact blocker:** nine unresolved incidents comprise one Broker ArchiveVerificationFailed and eight
+Paper restrictions. The Broker incident was discovered October23 at16:13:43, after the16:05 closing
+report, and targets broker revision675. The NewHistory run started16:10:16, verified415 units and
+failed at that boundary. It is not a currently advancing recovery. Revision675 is ImplementationReviewed
+at11:17:43; its storage checksum and adjacent674/676 checksums pass. This does not prove historical
+transition/reconstruction validity or diagnose the failure's cause. The current head1865, matching
+projection/subscription identity, all current-state checksums, referenced decision/build/market-trace
+hashes and the checked immutable guards pass. The engine's three-incomplete-latest-audit notice
+includes historical failed receipts; original Real260 and Paper205058 recoveries remain Complete for
+their saved boundaries. Neither covers this later failure. Do not replay, erase or relabel old receipts.
+
+Saved risk sequence3 remains dated October23, with no daily-loss/capital-review hold and exact original
+session/drawdown references. The saved positive purchase ceiling is unused, with no managed orders.
+There is no October26 risk event or dated approval; Friday's permission expired. The installed dated
+flow still requires exact current-build review, approval within two minutes and separate enable by
+Joseph after readiness passes. Preserve15:45 entry cutoff and16:00 expiry. The09:11 connection display
+states session expiry09:30; check the app's normal connection at open and use normal sign-in if needed.
+The agent performs no token refresh or credential write.
+
+At09:11 no October26 collection session/stock/benchmark rows or published inputs exist yet; this is
+pre-open evidence, not a passed live-coverage check. Last Real evaluation remains Friday15:59:45
+through15:55 with NoRecommendation. Execution Off explains absent Monday consumption; do not call
+that a new stalled enabled engine. Market-open qualification must distinguish raw receipts, normalized
+bars, publications, on-time/mature stock and benchmark evidence, and actual Real consumption. Missing
+coverage and TMX-reference/broker-ask qualification remain open. No new price pair or quote probe.
+
+Bounded resource observations show about561GB decimal free on C:, engine working set about119MB,
+dashboard about576–582MB, SQL working set about1.45GB. Across roughly14 minutes, engine CPU grows
+about1.6s and dashboard about27.1s. Database allocation is unchanged between09:11 and09:23:
+23,219,666,944 data bytes and1,082,130,432 log bytes. These are allocation/sampling observations,
+not a full growth/latency qualification; SQL CPU was unavailable. Paper/research/protection workers
+continue reporting restrictions while Real/market/continuity worker wakes complete promptly.
+
+**Next decision:** authorize only installed `--control VerifyRealRecovery` with execution Off, saving
+a new private receipt, then inspect its actual progress/result. This writes durable audit/hold records
+and may rediscover the same failure; it is not a read-only check or a promised fix. If it fails, inspect
+that exact boundary before proposing a tested correction. Successful current recovery would permit
+preparing a separate, explicit Broker-only hold-clearance proposal; Paper restrictions remain intact.
+Neither recovery nor clearance grants financial approval or enables trading. No such operation has
+been run during this assessment. Current local-journal reconciliation and dated review still follow.
+
+**Watch:** `tradervi-october-26-trading-day-watch` is active in this chat on five-minute boundaries,
+with instructions to do no diagnostics before09:30, report at16:05 and delete itself afterward.
+The schedule ends20:05UTC October26. Existing recovery/nightly monitors were inspected and remain
+separate; alerts must be deduplicated against their latest evidence and this chat's observation state.
+Unchanged blockers/no-signal checks stay quiet. New exits, applicable incidents, enabled-Real stalls,
+order/fill/protection changes and material resource issues require notification. No next-day extension.
+
+Private evidence is in ignored `artifacts/monday-watch-20261026/`. Baseline SQL SHA256
+CA2ABC03F95E0CB9D0FE8980C2784916EF7A6ECD084A8C01A588E67D2672D403 matches receipt
+`result-20261026T131154180Z-486a3f7125d846558ce082c914caa507.json`; risk/boundary SQL SHA256
+B5E014C47AFDB2E3063C588402C1B659376BBBED7CF183F256BBDC4AE01AF87D matches receipt
+`result-20261026T132332989Z-63c297e027384926a863035563863874.json`. The latter corrects an ambiguous
+column query rejected with SQL209 and no published result. The concurrent recovery monitor's09:09
+receipt matches the reviewed716E6334 recovery-status query. Mailbox restoration is conditional on
+still matching this chat's submitted hash. No history-wide decoding, new historical audit, database
+mutation, restart, installation, training, order, permission renewal or enable occurs. Validation is
+receipt/hash/source review and documentation checks; no new build/test/security/SSDT qualification.
 
 ## October 26 readiness assessment — October 23
 
