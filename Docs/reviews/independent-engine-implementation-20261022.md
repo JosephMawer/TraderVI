@@ -136,6 +136,35 @@ Private per-stock breakdown and hash-verified receipt remain under `artifacts/mo
 No policy/threshold/feed/history changes are made. The diagnostic query's first collation mismatch and
 one bounded timeout publish no result; the corrected indexed, single-worker query succeeds.
 
+### October 26 whole-day qualification distinction — 15:54 review
+
+The14:40 explanation above is a snapshot, not a whole-day no-signal conclusion. A bounded read at15:52
+finds3,168 saved shared publications for44 symbols and one policy, covering09:40–15:50. Seventeen
+distinct symbols have30 confirmed publication observations between10:15 and12:35, while Real was Off
+and its Broker history restriction remained unresolved. These are shared signal confirmations, not
+Real recommendations, orders or hypothetical guaranteed fills. Earlier signals cannot be carried
+forward as fresh post-approval confirmation.
+
+The separate15:54 Real read covers140 StrategyEvaluated revisions from14:28:55 through15:54:00;
+all head hashes pass. Its748 distinct symbol/bar states cover44 symbols across17 bars14:30–15:50;
+all referenced diagnostic branches verify and none is ConfirmedLiveEligible. Three symbols reach
+one strong observation: one with four supportive families and two with three. Their immediately
+following observations fall to two, one and zero supportive families respectively, each recording
+StrongConfirmationBroken. All six observations have valid/mature data and Normal confidence. The
+closest four-family case loses persistence support (score4 to2) and range-breakout structure support;
+the other cases lose price/persistence or price/volume/structure support. These failures precede
+order preflight. The15:45 cutoff additionally applies to later entry attempts; its rejection is not
+claimed as exercised by these unconfirmed candidates.
+
+Private symbol/time/family detail remains in ignored `day-candidates-private.json`,
+`day-real-candidates-private.json` and the six-row `closest-detail.sql` receipt. Fixed-helper query
+hashes: shared `8DED7F52C09C31AFE4D5BB5BE34E660745D5F449F9A316C32A66F27FB90FA01B`, Real
+`20E5C905C0D918DAF32E568D73230B9B151C23CE11956D2379529A6A52B07B3C`. Result hashes respectively
+`5B3930ECC7F24C74F4BA6D600E32EA99FD1806F144D96541D5CF77DB51E6F30B` and
+`0B5FC1EEB139B07315A868E4F691E1F6BB5906F24BDFC2DAA9D42FD0D62DD9EE`. An initial Real query assumed
+reference-only memory and returned no symbol rows; the successful query handles inline and referenced
+memory explicitly. Mailbox restored; no policy, permission, order or operational-host changes.
+
 ## October 26 morning readiness and one-day watch
 
 The requested read-only morning assessment begins before09:15 Toronto and reports a blocking verdict

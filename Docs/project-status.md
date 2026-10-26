@@ -8,6 +8,12 @@ Real evaluation1890 at14:32:41 consumes44 supplied/evaluated/fresh symbols throu
 NoRecommendation, empty orders/entries/risk/quote blocks and no decision failure. Head/projection,
 checkpoint, decision/trace and dated permission hashes verify. The15:45 entry cutoff remains.
 
+**15:54 whole-day signal review:**17 symbols completed shared signal confirmation earlier today while
+Real was Off/blocked. Since operator activation,140 saved Real evaluations contain zero confirmed
+entries through the15:50 bar; three symbols start a strong sequence but lose support on the next bar.
+This distinguishes earlier shared signals from actual Real eligibility and corrects any whole-day
+reading of the14:40 snapshot. [Qualification and near-miss evidence](reviews/independent-engine-implementation-20261022.md#october-26-whole-day-qualification-distinction--1554-review).
+
 **14:18 repair complete:** history correction fb9cd0ad and recovery-maintenance fe295d68 are installed.
 The stable Real recovery completes14:12:53 with42,333 verified units; unchanged native clearance checks
 release the original Broker failure and three recovery holds. Zero Broker/Global holds remain; all
