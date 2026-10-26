@@ -14,6 +14,11 @@ Joseph confirms no outside account changes since the original cash-only baseline
 recovery verification, clearance or enable has been performed. A same-chat October26-only watch is
 scheduled through16:05. [Morning evidence, limits and proposed next action](reviews/independent-engine-implementation-20261022.md#october-26-morning-readiness-and-one-day-watch).
 
+At09:46 the first required stock cycle has published44 inputs:36 valid/on-time, eight unavailable,
+none yet mature; XIU is on time. Coverage is Blocked without a recorded host gap/conflict. Receipt
+metadata does not establish an upstream versus adapter cause. Execution remains Off/head1865 unchanged.
+[First stock-coverage evidence](reviews/independent-engine-implementation-20261022.md#october-26-first-stock-collection--0946-observation).
+
 ## Independent engine — October 23 watch complete; price capture and first fill unqualified
 
 **Post-close readiness assessment:** proposed October26 work separates host-continuity/raw-source gaps

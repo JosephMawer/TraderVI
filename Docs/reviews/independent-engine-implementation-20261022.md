@@ -104,6 +104,25 @@ still matching this chat's submitted hash. No history-wide decoding, new histori
 mutation, restart, installation, training, order, permission renewal or enable occurs. Validation is
 receipt/hash/source review and documentation checks; no new build/test/security/SSDT qualification.
 
+### October 26 first stock collection — 09:46 observation
+
+The09:30:19 comparison-source adoption takes effect09:35; its44 stock memberships begin at the
+09:40 bar, while XIU begins09:35. The benchmark-only09:35 collection is therefore consistent with
+the saved prospective scope, not evidence that44 required stock requests were omitted. The first
+stock cycle completes09:42:24 with all45 slots settled:36 stocks plus XIU have durable on-time bars,
+seven stocks report StaleNoNewBar and one NoCompletedBar. All44 stock evaluations are published;
+36 are valid/on-time and none yet mature. Publication is not Real consumption: execution remains Off
+and managed head1865 is unchanged. Coverage becomes Blocked with no recorded host gap or conflicts.
+The eight unavailable normalized receipts pass their hashes. Seven retain latest provider-aligned
+time09:30; the other retains09:40, which does not establish the required completed09:35–09:40 bar.
+No raw-response replay has demonstrated an upstream omission or adapter defect; cause remains unknown.
+Keep original arrival times and incomplete opening coverage. No source probe, repair or guard change.
+Single ownership, connection and critical worker wakes remain healthy; the known Broker/Paper holds
+are unchanged. Private watch receipt `result-20261026T134603766Z-0939856875b44e89abe0bbfd0b492c01.json`
+matches70657751; bounded coverage receipt `result-20261026T134656816Z-26719cf063f24aa7ad7d5de6bd738d79.json`
+matches16E6A8D7 (full query hashes retained with the scripts). This is the first observed Monday
+stock-coverage shortfall, separate from the already reported Real history-integrity blocker.
+
 ## October 26 readiness assessment — October 23
 
 Joseph asks what must be fixed before Monday, focusing on missing data and the price mismatch
