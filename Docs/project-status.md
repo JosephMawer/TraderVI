@@ -1,6 +1,12 @@
 # TraderVI Project Status
 
-## October 26 — broker history repaired; financial review and enable pending
+## October 26 — broker history repaired; operator-approved execution running
+
+**14:33 operator activation verified:** Joseph confirms review, approval and enable. Saved continuation1866
+is approved14:28:45 for October26 through16:00; one dated risk event is present. Execution reports Running.
+Real evaluation1890 at14:32:41 consumes44 supplied/evaluated/fresh symbols through14:30 with
+NoRecommendation, empty orders/entries/risk/quote blocks and no decision failure. Head/projection,
+checkpoint, decision/trace and dated permission hashes verify. The15:45 entry cutoff remains.
 
 **14:18 repair complete:** history correction fb9cd0ad and recovery-maintenance fe295d68 are installed.
 The stable Real recovery completes14:12:53 with42,333 verified units; unchanged native clearance checks
@@ -9,7 +15,7 @@ eight Paper restrictions are preserved. Normal engine64532/dashboard9288 return1
 execution Off, with healthy Real/connection/collection/continuity workers. Fresh broker history remains
 unchanged with zero holdings/pending. The14:15 collection completes45/45 slots and publishes44 stocks,
 36 valid/on-time, zero mature, no conflicts. Maintenance gaps remain recorded; no Monday Real evaluation
-is claimed. Joseph must perform the dated financial review/approval and separate enable in the app.
+was claimed at that checkpoint. Financial review/approval and enable were pending then; completion is recorded above.
 Validation:3,126 serial Core passes, nine SQL skips; Release succeeds with260 existing compiler warnings.
 [Repair, native clearance and remaining qualification limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
 

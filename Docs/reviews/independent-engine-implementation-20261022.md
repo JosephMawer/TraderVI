@@ -1,7 +1,7 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
 Current status: **October26 broker-history repair and verified Real hold clearance complete14:16;
-normal engine/broker connection respond, execution remains Off pending Joseph's financial review and enable.
+Joseph approves/enables14:28; execution is Running and Real consumes the14:30 bar at14:32.
 Eight Paper restrictions and incomplete market-data/first-fill qualification remain.**
 
 Historical closing status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
@@ -96,6 +96,18 @@ bars are preserved; historical completeness and immediate entry eligibility are 
 dated financial review/approval and separate Enable reviewed host remain Joseph's actions; no Monday
 permission or automated trading enable was performed by the agent. Original15:45 entry cutoff and
 16:00 permission expiry remain. The one-day read-only watch continues through16:05.
+
+**14:33 operator approval and first current-session consumption:** Joseph personally confirms review,
+approval and enable. Saved SessionContinuationApproved1866 is timestamped14:28:45; the hash-verified
+continuation/approval/review/scope identifies October26 and purchase expiry16:00 Toronto. One target-date
+risk event is saved. Engine execution reports Running14:29. Initial evaluations have no supplied inputs;
+by14:32:41 verified decision1890 consumes44 supplied/evaluated/fresh symbols through14:30, with
+NoRecommendation, inline empty orders, empty entries/risk/quote blocks and no failure. Head storage,
+projection and current checkpoint hashes pass; the exact referenced decision/market trace hashes pass.
+This proves native Real input consumption, not first-fill, quote-price or protection qualification.
+All eight Paper holds remain; zero Broker/Global holds. The15:45 cutoff/16:00 expiry are unchanged.
+The agent observed these actions read-only; Joseph performed the approval and enable in the app.
+Private evidence: `enabled-watch.sql`, `watch-1428-ExecutionStatus.json` and the18:32:43 fixed-helper receipt.
 
 ## October 26 morning readiness and one-day watch
 
