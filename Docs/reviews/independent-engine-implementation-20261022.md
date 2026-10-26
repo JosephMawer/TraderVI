@@ -109,6 +109,33 @@ All eight Paper holds remain; zero Broker/Global holds. The15:45 cutoff/16:00 ex
 The agent observed these actions read-only; Joseph performed the approval and enable in the app.
 Private evidence: `enabled-watch.sql`, `watch-1428-ExecutionStatus.json` and the18:32:43 fixed-helper receipt.
 
+**14:40 stock-entry explanation (read14:42:56):** bounded inspection resolves the current Real
+Memory/Symbols/LastLiveResult and exact referenced diagnostic branches, verifying every referenced
+content hash. All44 current-session results are present. The earlier14:35 result had34 mature/10
+not ready; the14:40 result has35 mature/9 not ready. Of the nine, seven lack a valid current exact
+stock/benchmark pair (two Degraded, five MonitoringLost); two have a valid current pair but missing
+rolling endpoints. All nine report MissingExactEndpoint and unavailable families. All44 have a daily
+candidate and no entry-safety veto; none has ConfirmedLiveEligible or MayCreateBuyDecision.
+
+Of the35 mature/Normal-confidence results: two are PositiveNudge (two supportive votes),27 Neutral
+(zero or one supportive vote), and six NegativeNudge (zero supportive/two weakening votes). All have
+zero consecutive strong observations. Price movement is Neutral for all35, using20mOnly while the
+one-hour reading is NotMature:22 RelativeMoveWithoutRawAgreement,12 RawMoveBelowThreshold,one MixedOrFlat.
+RelativeMoveWithoutRawAgreement means the benchmark-relative threshold is reached but neither raw
+up/down threshold is reached; it does not by itself prove opposite price directions. The20m fallback
+is allowed, so one-hour immaturity alone is not a hard veto for these35.
+
+Price structure also supplies zero supportive votes:20 PositiveLeaning,10 NegativeLeaning,three
+Neutral and two NeutralConflict. Persistence supplies two supportive votes; directional volume eight
+(and24 weakening). These are overlapping family counts, not additional disjoint stock groups. The
+unchanged combiner requires at least three Supportive family votes, and the lifecycle requires two
+consecutive eligible five-minute observations with mature/valid data, Normal confidence and no safety
+veto. No mature stock reaches the first strong observation. Current failure is before broker quote,
+price comparison or sizing checks; no such check is established as a cause by this evidence.
+Private per-stock breakdown and hash-verified receipt remain under `artifacts/monday-watch-20261026/`.
+No policy/threshold/feed/history changes are made. The diagnostic query's first collation mismatch and
+one bounded timeout publish no result; the corrected indexed, single-worker query succeeds.
+
 ## October 26 morning readiness and one-day watch
 
 The requested read-only morning assessment begins before09:15 Toronto and reports a blocking verdict
