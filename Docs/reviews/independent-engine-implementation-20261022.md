@@ -1,8 +1,9 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Current status: **October26 broker-history repair and verified Real hold clearance complete14:16;
-Joseph approves/enables14:28; execution is Running and Real consumes the14:30 bar at14:32.
-Eight Paper restrictions and incomplete market-data/first-fill qualification remain.**
+Current status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance
+completed14:16, Joseph approved/enabled14:28, last Real evaluation15:59:32. Permission expired16:00;
+execution waits outside regular hours. Eight Paper restrictions and incomplete market-data/first-fill
+qualification remain. See the closing report below.**
 
 Historical closing status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
 its heartbeat is deleted. Diagnostic43424435 remains installed with exact Core hash unchanged;
@@ -13,6 +14,46 @@ account consumption of that post-close bar is not claimed. Original15:45 cutoff/
 without renewal. Price comparison and complete native preflight/submission/protection remain open.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 26 closing report
+
+The final check completes after the scheduled16:05 reporting boundary. ExecutionStatus at16:07:30
+reports Waiting outside regular hours, explicitly withholding opening orders. Status/Connection at
+16:22 confirm normal engine operation and connection, with zero current failures in Real, market-input,
+collection, connection and continuity workers. Normal owner64532/dashboard9288 remain responsive;
+observed working sets remain bounded relative to afternoon samples. No fresh database-size claim is made.
+
+At16:08 the fixed broker v2 check confirms zero holdings, zero pending orders and unchanged37-order
+history (32POSTED, threeEXPIRED, twoCANCELLED), with broker-history/holdings agreement. No new trade
+is evidenced today. The helper neither qualifies the local journal nor cash-effective timing or
+automation. No first attributable Delphi fill/protection lifecycle has been demonstrated.
+
+The hash-verified SQL closing read at16:08 retains head2314, evaluated15:59:32, with44 supplied/evaluated/
+fresh symbols through15:55, NoRecommendation, no decision failure and empty entry/risk/quote blocks,
+orders and protection. Head/projection, current checkpoints, decision/market trace and nested dated
+permission hashes pass. The15:45 entry cutoff and16:00 purchase expiry have passed; no renewal or
+next-session financial authority is created. No16:00-bar Real consumption is claimed after close.
+
+Collection separately completes the16:00 cycle45/45 at16:02:22 and publishes44 valid/on-time inputs,
+35 mature, zero conflicts. The session closes Incomplete/Blocked with HostGapObserved retained:
+75 cycles complete, one cancelled and two deadline-exceeded cycles carry HostCoverageGap. The
+14:00/14:05/14:10 maintenance gaps and other historical timeliness/rolling-evidence gaps are preserved.
+Full-day shared publications total3,256 across44 symbols;30 confirmed observations in17 symbols all
+occur10:15–12:35 before Real activation. The earlier whole-day investigation documents the later
+three broken Real confirmation sequences. Shared confirmations are not broker recommendations/fills.
+
+The16:08 integrity snapshot retains zero Broker/Global holds and eight Paper restrictions; Paper/
+research worker restrictions remain separate. No new rejected-price pair is captured by this watch;
+receipt/provider quote-time comparison, first native fill and full protection/reconciliation remain
+qualification gaps. Existing safeguards, permission, policy, sources and historical records are unchanged.
+
+Private evidence: `close-watch.sql` query hash
+`BBB730ABF362BC413BD4E1FA5122D4E4271A384AB231F795D0233CE92B53989F`; result
+`result-20261026T200812991Z-8bf677de69a84eca8ffbe19077628700.json`, SHA256
+`23D833591B21938A29FB8E0790EF0B55EDE70B213EF13771BD71D3594F36BB84`; broker capture
+`50db277c-fac0-4449-94ba-5dc19feb85bd`; `watch-1600-ExecutionStatus.json`, `close-Status.json` and
+`close-Connection.json`. Mailbox restored. Closing work is read-only apart from private watch-state
+and reviewed documentation updates. This October26-only monitor is finished; separate monitors remain separate.
 
 ## October 26 broker history correction — operator-requested recovery
 
