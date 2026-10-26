@@ -1,7 +1,8 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Current status: **October26 morning is blocked by an unresolved Broker history-integrity incident;
-normal engine/broker connection respond, execution remains Off. See the fresh assessment below.**
+Current status: **October26 broker-history repair and verified Real hold clearance complete14:16;
+normal engine/broker connection respond, execution remains Off pending Joseph's financial review and enable.
+Eight Paper restrictions and incomplete market-data/first-fill qualification remain.**
 
 Historical closing status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
 its heartbeat is deleted. Diagnostic43424435 remains installed with exact Core hash unchanged;
@@ -63,7 +64,38 @@ verification-mode broker denial. No Paper recovery or research work is started. 
 allowed to finish, then a fresh explicit Real pass checks the stationary heads before normal verified
 clearance and return to normal mode. Maintenance validation passes459 focused tests and3,126 final
 serial Core tests (nine SQL skips); Release succeeds with260 existing warnings and zero errors. Native
-maintenance qualification and the final recovery/clearance remain pending.
+maintenance qualification and the final recovery/clearance remain pending at this validation checkpoint.
+
+**13:57 maintenance installation:** fe295d68 is installed13:57:37–13:57:51, after the command's
+approval wait. All128 candidate and122 retained hashes verify; engine57932 reports Running,
+VerificationOnly=true/RecoveryMaintenance=true, execution Off and exactly continuity/Real-audit
+workers. The saved grant hash is unchanged. Dashboard is closed during maintenance. A new Real pass
+starts13:58:15 against the paused boundary; final proof/clearance and normal restoration are pending.
+The collection interruption is deliberate and remains part of today's incomplete coverage.
+
+**14:12–14:18 verified recovery and restoration:** the stable Real pass completes14:12:53 with42,333
+verified units (plan upper bound42,344), valid plan/progress hashes
+and no bad current-checkpoint hashes. The guarded clearance invokes the unchanged native current-head,
+identity, immutable-guard and current Real-subscription checks. It resolves exactly the original Broker
+ArchiveVerificationFailed and three Broker RecoveryVerificationPending incidents; all eight original
+Paper incidents are retained. The three incomplete latest audit records are historical, not three
+running recoveries. Original failed passes and append-only resolution evidence remain intact.
+
+At14:16 normal stop/restart restores engine64532 and dashboard9288 with fe295d68. Both respond, the
+engine is normal/Running, broker connection is Connected and execution is Off. At14:17 continuity,
+connection, collection ownership, market-input, Real and audit workers have zero consecutive failures.
+The five blocked Paper/research workers remain separate retained restrictions. Broker v2 at14:17
+confirms zero holdings/pending and unchanged37-order history, matching holdings/history; no order,
+credential change or token refresh is performed. This helper still does not verify the local journal
+or qualify native order submission/protection. Managed head1865 remains Friday's last evaluation.
+
+Collection explicitly records the14:00/14:05/14:10 maintenance gaps. The resumed14:15 cycle completes
+45/45 slots at14:17:24 and publishes44 stock inputs at14:17:26:36 valid/on-time, zero mature and zero
+conflicts. Session coverage remains Blocked/HostGapObserved=true. Original arrival times and missing
+bars are preserved; historical completeness and immediate entry eligibility are not claimed. Final
+dated financial review/approval and separate Enable reviewed host remain Joseph's actions; no Monday
+permission or automated trading enable was performed by the agent. Original15:45 entry cutoff and
+16:00 permission expiry remain. The one-day read-only watch continues through16:05.
 
 ## October 26 morning readiness and one-day watch
 

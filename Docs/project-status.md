@@ -1,27 +1,31 @@
 # TraderVI Project Status
 
-## October 26 morning — blocked by a Real history-integrity hold
+## October 26 — broker history repaired; financial review and enable pending
+
+**14:18 repair complete:** history correction fb9cd0ad and recovery-maintenance fe295d68 are installed.
+The stable Real recovery completes14:12:53 with42,333 verified units; unchanged native clearance checks
+release the original Broker failure and three recovery holds. Zero Broker/Global holds remain; all
+eight Paper restrictions are preserved. Normal engine64532/dashboard9288 return14:16, connected and
+execution Off, with healthy Real/connection/collection/continuity workers. Fresh broker history remains
+unchanged with zero holdings/pending. The14:15 collection completes45/45 slots and publishes44 stocks,
+36 valid/on-time, zero mature, no conflicts. Maintenance gaps remain recorded; no Monday Real evaluation
+is claimed. Joseph must perform the dated financial review/approval and separate enable in the app.
+Validation:3,126 serial Core passes, nine SQL skips; Release succeeds with260 existing compiler warnings.
+[Repair, native clearance and remaining qualification limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
+
+Morning baseline (historical):
 
 Read-only checks at09:09–09:23 Toronto confirm one normal-mode engine and a responding dashboard,
 with all three recorded October24 assembly hashes matching. Broker connection succeeds; execution is Off.
 Nightly succeeds00:34; today's Valid daily publication uses October23 data and matches the saved
 strategy's four models/configuration. Current head/projection/subscription and checkpoint hashes pass.
-However, a Broker ArchiveVerificationFailed incident discovered October23 at16:13 remains unresolved:
+At that checkpoint, a Broker ArchiveVerificationFailed incident discovered October23 at16:13 was unresolved:
 the new-history audit stopped at revision675, after Friday's16:05 report. Eight Paper restrictions
 remain separately; the original completed Paper recovery does not clear this Real hold. The three
 incomplete-latest-audit notice includes retained failed audit records, not three running recoveries.
 Joseph confirms no outside account changes since the original cash-only baseline. At the morning
 checkpoint no Monday permission, recovery verification, clearance or enable had been performed. A same-chat October26-only watch is
 scheduled through16:05. [Morning evidence, limits and proposed next action](reviews/independent-engine-implementation-20261022.md#october-26-morning-readiness-and-one-day-watch).
-
-**13:20 repair in progress:** the historical hash reconstruction correction fb9cd0ad is installed
-at13:03, with execution Off and runtime hashes verified. Native Real recovery completes13:20 with41,428 verified units,
-passing the former revision675 failure; hold clearance remains pending. Shared inputs advanced
-during this pass, so an explicit recovery-only maintenance mode is prepared to establish a stable
-boundary without relaxing clearance checks. Final validation passes3,126 serial Core tests (nine SQL
-skips) and Release builds with260 existing warnings. Maintenance installation remains pending.
-Financial approval and enable remain Joseph's actions.
-[Repair evidence and validation limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
 
 At09:46 the first required stock cycle has published44 inputs:36 valid/on-time, eight unavailable,
 none yet mature; XIU is on time. Coverage is Blocked without a recorded host gap/conflict. Receipt
