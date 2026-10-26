@@ -33,7 +33,14 @@ internal sealed class BrokerHistoricalStateHash
             !JsonElement.DeepEquals(before.RootElement, JsonSerializer.SerializeToElement(prior)) ||
             !JsonElement.DeepEquals(after.RootElement, JsonSerializer.SerializeToElement(next)))
             throw new InvalidDataException("Historical hash evidence differs from its exact adjacent broker records.");
-        return new(prior, priorJson, RestoreMemoryRepresentation(priorJson, nextJson));
+        var evidence = new BrokerHistoricalStateHash(prior, priorJson, RestoreMemoryRepresentation(priorJson, nextJson));
+        // Archive expansion uses JSON-node escaping (including '+' inside timestamps), whereas
+        // the original approval hashed the typed serializer. Reproduce that serializer outside
+        // Memory and use only the adjacent immutable record's value-preserving Memory representation.
+        // Both stored records already matched their typed values above; the original SHA256 must
+        // still match exactly, and this evidence is never available to current approval writes.
+        evidence.representations.Add(Hash(RestoreMemoryRepresentation(JsonSerializer.Serialize(prior), nextJson)));
+        return evidence;
     }
 
     internal static bool Matches(BrokerManagedSession prior, string expected, BrokerHistoricalStateHash? evidence) =>

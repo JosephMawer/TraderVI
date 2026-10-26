@@ -64,6 +64,12 @@ approval/write validation has no historical override. Missing proof remains a fa
 timestamps accept only the established exact legacy SQL datetime projection, not a time tolerance.
 Failed audit receipts remain immutable; a corrected retry is a new explicit pass, not resumed success.
 
+October26 implementation correction: archive JSON-node escaping can differ from the typed serializer
+that produced an approval hash. After both adjacent archive records match their complete typed values,
+historical proof also tries the typed prior serialization with Memory represented by the adjacent
+immutable receipt. This preserves every value and still requires the exact original SHA256; it does
+not rewrite history or relax current approval/write validation.
+
 ## Alternatives and consequences
 
 Keeping a single global recovery proof retains the observed multi-hour coupling. Dropping fingerprints

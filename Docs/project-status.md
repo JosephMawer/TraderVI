@@ -10,9 +10,16 @@ However, a Broker ArchiveVerificationFailed incident discovered October23 at16:1
 the new-history audit stopped at revision675, after Friday's16:05 report. Eight Paper restrictions
 remain separately; the original completed Paper recovery does not clear this Real hold. The three
 incomplete-latest-audit notice includes retained failed audit records, not three running recoveries.
-Joseph confirms no outside account changes since the original cash-only baseline. No Monday permission,
-recovery verification, clearance or enable has been performed. A same-chat October26-only watch is
+Joseph confirms no outside account changes since the original cash-only baseline. At the morning
+checkpoint no Monday permission, recovery verification, clearance or enable had been performed. A same-chat October26-only watch is
 scheduled through16:05. [Morning evidence, limits and proposed next action](reviews/independent-engine-implementation-20261022.md#october-26-morning-readiness-and-one-day-watch).
+
+**11:43 repair in progress:** Joseph requests correction. Real recovery fails again at675; an offline
+comparison proves an archive-escaping/dictionary-order hash-reconstruction defect. A narrow audit-only
+correction passes458 focused and3,124 serial Core tests (nine SQL skips), plus the exact saved transition;
+Release builds with260 existing warnings. Parallel timing-test failures are recorded in the review. Installation and
+fresh recovery remain pending. Broker holdings/pending stay zero. Financial approval and enable remain
+Joseph's actions. [Repair evidence and validation limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
 
 At09:46 the first required stock cycle has published44 inputs:36 valid/on-time, eight unavailable,
 none yet mature; XIU is on time. Coverage is Blocked without a recorded host gap/conflict. Receipt

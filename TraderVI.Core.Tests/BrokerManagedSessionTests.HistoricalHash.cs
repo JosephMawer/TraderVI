@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,6 +16,37 @@ namespace TraderVI.Core.Tests;
 
 public sealed partial class BrokerManagedSessionTests
 {
+    [Fact]
+    public async Task PackedArchiveEscapingAndHistoricalMemoryOrderRetainExactApprovalHash()
+    {
+        var fixture = ContinuedFixture();
+        var prior = fixture.Close;
+        var next = await fixture.Workflow().ApproveAsync(fixture.Approval());
+        string typedPrior = JsonSerializer.Serialize(prior);
+        string archivedPrior = JsonNode.Parse(typedPrior)!.ToJsonString();
+        using var nextDocument = JsonDocument.Parse(JsonNode.Parse(JsonSerializer.Serialize(next))!.ToJsonString());
+        string memory = nextDocument.RootElement.GetProperty("Memory").GetRawText();
+        string reordered = "{" + string.Join(",", nextDocument.RootElement.GetProperty("Memory").EnumerateObject().Reverse()
+            .Select(p => JsonSerializer.Serialize(p.Name) + ":" + p.Value.GetRawText())) + "}";
+        string archivedNext = nextDocument.RootElement.GetRawText().Replace(memory, reordered, StringComparison.Ordinal);
+        string originalRepresentation = BrokerHistoricalStateHash.RestoreMemoryRepresentation(typedPrior, archivedNext);
+        string expected = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(originalRepresentation)));
+        Assert.NotEqual(typedPrior, archivedPrior); // Archive JSON escapes timestamp '+' characters.
+        Assert.NotEqual(BrokerAccountImport.Hash(prior), expected);
+        Assert.NotEqual(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+            BrokerHistoricalStateHash.RestoreMemoryRepresentation(archivedPrior, archivedNext)))), expected);
+
+        var evidence = BrokerHistoricalStateHash.Create(prior, archivedPrior, next, archivedNext);
+        var historicalApproval = fixture.Continuation with { PreviousSessionHash = expected };
+        historicalApproval.RequirePrior(prior, fixture.F.Store.Calendar!, evidence);
+        Assert.Throws<InvalidOperationException>(() => historicalApproval.RequirePrior(prior, fixture.F.Store.Calendar!));
+        Assert.False(BrokerHistoricalStateHash.Matches(prior, new string('A', 64), evidence));
+        Assert.False(BrokerHistoricalStateHash.Matches(prior with { Memory = prior.Memory with { DailyLossHold = true } }, expected, evidence));
+        Assert.Equal(typedPrior, JsonSerializer.Serialize(prior));
+        Assert.Equal(0, fixture.F.Transport.Sent);
+        Assert.Null(fixture.Grants.Value);
+    }
+
     [Fact]
     public async Task HistoricalRepresentationProvesExactOldHashWithoutChangingCurrentApprovalValidation()
     {

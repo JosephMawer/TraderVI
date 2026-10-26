@@ -13,6 +13,40 @@ without renewal. Price comparison and complete native preflight/submission/prote
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
+## October 26 broker history correction — operator-requested recovery
+
+At11:30 Joseph requests repair of the broker-history blocker and asks to enable trading. The agent
+clarifies that final financial approval and execution enable must be performed by Joseph in the app;
+technical recovery proceeds with execution Off. The original morning report had explicitly raised the
+Broker hold and requested Real-only recovery authority. Read-only supervision did not authorize repair.
+
+Fresh Real-only recovery starts11:32:04 and fails11:36:05 after675 verified units, again at broker
+revision675. Its fixed plan upper bound is39,877 units; this is not completed coverage. The failed
+run and original incident remain intact. Two adjacent saved records674/675 are fetched through the
+fixed read-only helper, with query/content hashes verified, and reconstructed offline from their
+exact referenced archive fragments. Both complete archive fingerprints pass. No broker/SQL requests
+are made by the offline comparison.
+
+The installed validator fails the build-review prior-state hash while its preserved-financial-state
+comparison passes. The exact original approval hash is reproduced using the typed prior serialization
+plus the unchanged Memory representation from the adjacent immutable record. Archive JSON-node
+escaping and process-dependent dictionary ordering had combined to defeat the existing audit-only
+representation recovery. The correction adds that proven representation; exact SHA256, typed-value,
+adjacent-identity and all financial/transition checks remain. No saved record or current approval rule
+changes. The synthetic regression fails before the fix;458 focused tests pass afterward. The corrected
+assembly also passes the actual saved674→675 transition offline. Release builds with260 existing
+compiler warnings. Full-suite serial validation passes3,124 tests with nine native SQL skips;
+installation is still pending at this checkpoint.
+
+The first full Core run has3,122 passes, nine native SQL skips and two timing-test failures while
+Release compilation ran concurrently. Both timing tests pass alone. A second parallel suite retains
+one host-loop timing failure; the full suite passes with test-collection parallelism disabled only
+in the ignored test-output runner configuration. No unrelated timing/host implementation is changed.
+NuGet audit and the full SSDT solution are not requalified.
+At11:43 the fixed broker v2 helper confirms zero holdings/pending and unchanged37-order history with
+matching holdings/history. It does not verify the local order journal or grant trading permission.
+Private evidence remains in `artifacts/monday-watch-20261026/`.
+
 ## October 26 morning readiness and one-day watch
 
 The requested read-only morning assessment begins before09:15 Toronto and reports a blocking verdict
