@@ -21,7 +21,9 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
     private DateTime nextObservation;
     public void BeginStop() => closing = true;
     public async Task DrainAsync() { await gate.WaitAsync().ConfigureAwait(false); gate.Release(); }
-    public async Task TickAsync()
+    public Task TickAsync() => TickAsync(realRecoveryOnly: false);
+    public Task TickRealRecoveryAsync() => TickAsync(realRecoveryOnly: true);
+    private async Task TickAsync(bool realRecoveryOnly)
     {
         if (!await gate.WaitAsync(0).ConfigureAwait(false)) return;
         try
@@ -43,7 +45,9 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
                 throw new InvalidOperationException("Immutable history guards are unavailable.");
             }
             await NotifyAsync(status, now).ConfigureAwait(false);
-            bool recovery = status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Status == "Running");
+            bool recovery = status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.Recovery && r.Status == "Running" &&
+                (!realRecoveryOnly || r.Plan.Scope == EngineRecoveryScope.Real));
+            if (realRecoveryOnly && !recovery) return;
             DateOnly local = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(now, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")));
             if (calendar.IsRegularSession(local))
             {
@@ -65,7 +69,8 @@ public sealed class IndependentAuditService(ReviewedTsxSessionCalendar calendar,
             if (!recovery && !status.Runs.Any(r => r.Plan.Kind == EngineAuditKind.Archive && now - r.Plan.BoundaryUtc < TimeSpan.FromDays(7)))
                 await repository.StartAsync(EngineAuditKind.Archive).ConfigureAwait(false);
             status = await repository.ReadStatusAsync().ConfigureAwait(false);
-            var run = status.Runs.Where(r => r.Status == "Running").OrderByDescending(r => r.Plan.Kind == EngineAuditKind.Recovery)
+            var run = status.Runs.Where(r => r.Status == "Running" && (!realRecoveryOnly ||
+                r.Plan.Kind == EngineAuditKind.Recovery && r.Plan.Scope == EngineRecoveryScope.Real)).OrderByDescending(r => r.Plan.Kind == EngineAuditKind.Recovery)
                 .ThenByDescending(r => r.Plan.Scope == EngineRecoveryScope.Real)
                 .ThenBy(r => r.Plan.Kind).ThenBy(r => r.Plan.BoundaryUtc).FirstOrDefault();
             if (run is null) return;

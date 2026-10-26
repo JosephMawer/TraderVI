@@ -38,6 +38,16 @@ present beside WPF. Dashboard closure does not stop the engine; use its separate
 maintenance. `ClearIntegrityHolds` additionally requires an explicit input JSON file identifying the
 completed recovery run, selected incidents and reason. Existing output files prevent command replay;
 inspect an uncertain/empty receipt before any retry. Commands confer no trading authority.
+For a recovery proof whose shared-input heads would otherwise advance during the session, the explicit
+`TraderVI.Engine --recover-real` maintenance mode runs only continuity and Real-recovery audit workers.
+Normal stop is required before switching owners. This mode disables execution, makes no broker/data
+collection calls, and rejects Paper/unscoped recovery, broker actions and enable commands. Status reports
+both VerificationOnly and RecoveryMaintenance. Allow an existing Real pass to finish, then explicitly
+start a fresh Real pass against the stable heads if the earlier boundary advanced. Clear only the
+verified Real-scope incidents through the normal control; unchanged proof/identity/guard checks apply.
+After clearance, stop normally and restart `--run`; inspect normal connection, execution Off, current
+inputs and the recorded collection gap before the operator's dated review/approval and separate enable.
+Maintenance is an explicit operational interruption, never a way to fabricate missing timely bars.
 Real-only clearance rechecks the exact proof and preserves linked paper restrictions. It can resume
 market collection even in verification mode. Normal-mode startup permits broker connection and is a
 separate operational transition; verify execution remains off until current account/source checks,

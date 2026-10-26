@@ -70,6 +70,15 @@ historical proof also tries the typed prior serialization with Memory represente
 immutable receipt. This preserves every value and still requires the exact original SHA256; it does
 not rewrite history or relax current approval/write validation.
 
+The October26 repair also exposes the need for an explicit stable recovery window: shared inputs keep
+advancing during a market-hours Real pass, and the unchanged clearance guard correctly rejects its
+older heads. The explicit `--recover-real` maintenance host schedules only continuity and Real audit
+work, uses verification-mode broker denial/execution disable, and rejects other operational commands.
+It does not start collection, Paper or AI workers. Existing audit progress is preserved; a fresh pass
+is required after completion if its boundary predates the pause. Clearance still verifies exact current
+heads and preserves Paper restrictions. Return to normal operation through a normal stop/restart,
+retain the collection interruption and original receipt times, and require operator approval/enable.
+
 ## Alternatives and consequences
 
 Keeping a single global recovery proof retains the observed multi-hour coupling. Dropping fingerprints

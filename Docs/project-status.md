@@ -14,12 +14,14 @@ Joseph confirms no outside account changes since the original cash-only baseline
 checkpoint no Monday permission, recovery verification, clearance or enable had been performed. A same-chat October26-only watch is
 scheduled through16:05. [Morning evidence, limits and proposed next action](reviews/independent-engine-implementation-20261022.md#october-26-morning-readiness-and-one-day-watch).
 
-**11:43 repair in progress:** Joseph requests correction. Real recovery fails again at675; an offline
-comparison proves an archive-escaping/dictionary-order hash-reconstruction defect. A narrow audit-only
-correction passes458 focused and3,124 serial Core tests (nine SQL skips), plus the exact saved transition;
-Release builds with260 existing warnings. Parallel timing-test failures are recorded in the review. Installation and
-fresh recovery remain pending. Broker holdings/pending stay zero. Financial approval and enable remain
-Joseph's actions. [Repair evidence and validation limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
+**13:20 repair in progress:** the historical hash reconstruction correction fb9cd0ad is installed
+at13:03, with execution Off and runtime hashes verified. Native Real recovery completes13:20 with41,428 verified units,
+passing the former revision675 failure; hold clearance remains pending. Shared inputs advanced
+during this pass, so an explicit recovery-only maintenance mode is prepared to establish a stable
+boundary without relaxing clearance checks. Final validation passes3,126 serial Core tests (nine SQL
+skips) and Release builds with260 existing warnings. Maintenance installation remains pending.
+Financial approval and enable remain Joseph's actions.
+[Repair evidence and validation limits](reviews/independent-engine-implementation-20261022.md#october-26-broker-history-correction--operator-requested-recovery).
 
 At09:46 the first required stock cycle has published44 inputs:36 valid/on-time, eight unavailable,
 none yet mature; XIU is on time. Coverage is Blocked without a recorded host gap/conflict. Receipt

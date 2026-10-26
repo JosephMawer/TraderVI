@@ -23,8 +23,9 @@ internal static class Program
             try { await EngineControlCommand.RunAsync(args[1], args[2], args.Length == 4 ? args[3] : null); return 0; }
             catch { return 1; }
         }
-        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations")) return 64;
-        bool verificationOnly = args[0] == "--verify";
+        if (args.Length != 1 || args[0] is not ("--run" or "--verify" or "--recover-real" or "--prepare-observations" or "--prepare-working-state" or "--prepare-real-observations")) return 64;
+        bool recoveryMaintenance = args[0] == "--recover-real";
+        bool verificationOnly = args[0] == "--verify" || recoveryMaintenance;
         try
         {
             using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
@@ -71,7 +72,8 @@ internal static class Program
             var liveCommands = new DelphiLiveDesktopService { OperatorExecutor = paper.ExecuteOperatorAsync, DeferResearchRecovery = true };
             bool stopping = false;
             market.ApplySessionBoundaryAsync = research.ApplyBoundaryAsync;
-            var engine = new IndependentEngine([
+            var engine = new IndependentEngine(recoveryMaintenance
+                ? EngineRecoveryMaintenance.Work(continuity.TickAsync, audits.TickRealRecoveryAsync) : [
                 new("Engine continuity", TimeSpan.FromSeconds(10), continuity.TickAsync),
                 new("Connection", TimeSpan.FromSeconds(10), broker.PollAuthenticationAsync),
                 new("Collection ownership", TimeSpan.FromSeconds(30), market.MaintainLeaseAsync),
@@ -91,7 +93,7 @@ internal static class Program
                 if (verificationOnly) await broker.StartAsync().ConfigureAwait(false); // Persist disabled grant before any worker starts.
                 await continuity.StartAsync().ConfigureAwait(false);
                 if (!verificationOnly) await broker.StartAsync().ConfigureAwait(false);
-                await auxiliary.StartAsync().ConfigureAwait(false);
+                if (!recoveryMaintenance) await auxiliary.StartAsync().ConfigureAwait(false);
             }, async () =>
             {
                 try
@@ -108,7 +110,9 @@ internal static class Program
             using var stopAccepting = new CancellationTokenSource();
             var server = new EngineRpcServer(EnginePaths.PipeName, async request =>
             {
-                if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with { Notices = market.Notices, VerificationOnly = verificationOnly };
+                if (recoveryMaintenance) EngineRecoveryMaintenance.RequireOperation(request.Operation);
+                if (request.Operation == EngineOperation.Status) return engine.ReadStatus() with
+                    { Notices = market.Notices, VerificationOnly = verificationOnly, RecoveryMaintenance = recoveryMaintenance };
                 if (request.Operation == EngineOperation.Stop)
                 {
                     stopping = true; broker.BeginStop(); paper.BeginStop(); auxiliary.BeginStop(); audits.BeginStop();
@@ -127,6 +131,7 @@ internal static class Program
                 if (request.Operation == EngineOperation.ClearIntegrityHolds)
                 {
                     var clear = request.Payload.Deserialize<EngineClearIntegrityHolds>() ?? throw new ArgumentException("Missing recovery command.");
+                    if (recoveryMaintenance) EngineRecoveryMaintenance.RequireClearScope(clear.Scope);
                     await continuity.VerifyAsync().ConfigureAwait(false);
                     await audits.ClearAsync(clear.RecoveryRunId, clear.Incidents, clear.Reason, clear.Scope).ConfigureAwait(false);
                     return true;

@@ -47,6 +47,24 @@ At11:43 the fixed broker v2 helper confirms zero holdings/pending and unchanged3
 matching holdings/history. It does not verify the local order journal or grant trading permission.
 Private evidence remains in `artifacts/monday-watch-20261026/`.
 
+**13:03 installation:** fb9cd0ad is installed through a normal stop/restart, with128 candidate and122
+retained runtime file hashes verified. Engine50136/dashboard58296 respond; execution is Off and the
+saved grant hash is unchanged. The actual cutover is13:03:38–13:03:52, after the installation command
+waited for approval; earlier preparation timestamps are not installation evidence. Fresh Real recovery
+starts13:04:39 and passes the formerly failing675 boundary, then completes13:20:40 with41,428 verified
+units. Its saved plan/progress hashes pass. This proof predates later shared inputs and cannot clear them.
+Collection resumes and records HostGapObserved=true; the13:05 window publishes38 valid/on-time stocks
+with zero mature. Original missing/late observations are not repaired.
+
+**Stable-boundary maintenance:** shared-input publication continues during this Real pass, so its
+captured heads no longer satisfy clearance's exact-current-head rule. That rule is preserved. The
+repair prepares explicit `--recover-real` maintenance, with only continuity/Real-audit workers and
+verification-mode broker denial. No Paper recovery or research work is started. An existing pass is
+allowed to finish, then a fresh explicit Real pass checks the stationary heads before normal verified
+clearance and return to normal mode. Maintenance validation passes459 focused tests and3,126 final
+serial Core tests (nine SQL skips); Release succeeds with260 existing warnings and zero errors. Native
+maintenance qualification and the final recovery/clearance remain pending.
+
 ## October 26 morning readiness and one-day watch
 
 The requested read-only morning assessment begins before09:15 Toronto and reports a blocking verdict

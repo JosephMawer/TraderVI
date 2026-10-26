@@ -20,6 +20,7 @@ public sealed record IndependentEngineStatus(Guid InstanceId, string State, Date
 {
     public ImmutableArray<EngineNotice> Notices { get; init; } = [];
     public bool VerificationOnly { get; init; }
+    public bool RecoveryMaintenance { get; init; }
 }
 public sealed record EngineNotice(DateTimeOffset ObservedAt, string Severity, string Code, string Message);
 
