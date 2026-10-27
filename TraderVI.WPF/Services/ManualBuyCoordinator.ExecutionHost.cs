@@ -303,6 +303,14 @@ public sealed partial class ManualBuyCoordinator
                         "Daily account, source, models/configuration, calendar, integrity and risk checks are automatic. No daily approval is needed for this unchanged agreement.\n" +
                         "Pause before outside account changes. A changed build/strategy or unresolved safety issue requires review.\n\n" +
                         ExecutionStatus.Message + "\n" + string.Join("\n", saved.Blocks);
+                    if (saved.Strategy.Strategy.ImplementationIdentity != BrokerManagedSessionComposition.ImplementationIdentity)
+                    {
+                        reviewingBuild = true; reviewed = null;
+                        reviewSwitch.Content = "Review updated build"; approveSwitch.Content = "Approve reviewed build";
+                        reviewSwitch.Visibility = approveSwitch.Visibility = noOutside.Visibility = Visibility.Visible;
+                        summary.Text += "\n\nThe installed build changed. Stop execution host, confirm no outside changes, then Review updated build. " +
+                            "Approval preserves this ongoing agreement, original orders, holdings and protection; resume the reviewed host afterward.";
+                    }
                 }
                 else
                 {

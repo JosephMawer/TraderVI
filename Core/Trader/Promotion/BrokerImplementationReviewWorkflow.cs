@@ -2,6 +2,7 @@
 using Core.Trader.DelphiLive;
 using Core.WSTrade.Accounts;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -94,6 +95,18 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     }
     private static void RequireSession(BrokerManagedSession prior, ITsxSessionCalendar calendar, DateTimeOffset now)
     {
+        if (prior.OngoingManagement is { } ongoing)
+        {
+            var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+            if (ongoing.ApprovedAt is null || ongoing.ApprovedAt > now || prior.ActivatedAt is null ||
+                !calendar.IsRegularSession(date) || now < calendar.GetSessionBounds(date).OpenUtc || now >= calendar.GetSessionBounds(date).CloseUtc ||
+                prior.ReviewInvalidated || prior.TrialOrderReviewRequired || prior.Memory.DailyLossHold || prior.Memory.CapitalReviewRequired ||
+                prior.Account.Risk.OngoingAuthorization != ongoing.RiskAuthorization ||
+                prior.Orders.Any(o => !o.Reconciled || o.Latest is null || o.Latest.Status is not ("FILLED" or "POSTED") || o.Latest.FilledQuantity != o.Quantity) ||
+                prior.Account.Positions.Any(p => prior.Protection.Count(s => s.PositionId == p.PositionId && s.State.PositionId == p.PositionId && s.State.LiveProtection is not null) != 1))
+                throw new InvalidOperationException("Ongoing build review needs the unchanged approved assignment, resolved full orders and saved holding protection without unresolved holds.");
+            return;
+        }
         var scope=prior.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the existing dated permission.");
         scope.Validate(calendar);
         var bounds=calendar.GetSessionBounds(scope.Session);
@@ -107,11 +120,31 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
             throw new InvalidOperationException("Build-only review requires today's unchanged cash-only continuation before 4 PM, without orders, positions or holds. Other states need separate recovery.");
     }
     private static Guid? DatedPermission(BrokerManagedSession state) =>
-        state.SessionContinuation is not null || state.October22 is not null ? state.EffectiveReview.RequestId : null;
+        state.OngoingManagement is not null || state.SessionContinuation is not null || state.October22 is not null ? state.EffectiveReview.RequestId : null;
     private static void RequireAccount(BrokerManagedSession prior, BrokerAccountProjection account, DateTimeOffset now)
     {
-        BrokerContinuationReviewPolicy.RequireCurrentAccount(account,now);
-        BrokerTrialCarryForward.RequireUnchangedBook(prior.EffectiveReview.NoTransferScope!.CashOnlyAnchor,account.Import.Plan.Observation);
+        if (prior.OngoingManagement is { } ongoing)
+        {
+            var current = account.Import.Plan.Observation;
+            var original = prior.Account.Import.Plan.Observation;
+            var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now.UtcDateTime));
+            if (account.Import.BindingId != prior.BindingId || account.Risk.BindingId != prior.BindingId ||
+                current.SnapshotAt > now || now - current.SnapshotAt > TimeSpan.FromSeconds(30) ||
+                current.CheckedAt < current.SnapshotAt || current.CheckedAt > now || !current.HoldingsMatch ||
+                account.Account.ReportedUtc > now.UtcDateTime || now.UtcDateTime - account.Account.ReportedUtc > TimeSpan.FromSeconds(30) ||
+                account.Account.TradingDate != date || account.Risk.TradingDate != date || !account.NewRiskBlocks.IsEmpty ||
+                account.Risk.DailyLossHold || account.Risk.CapitalReviewRequired || account.Account.DailyLossHold || account.Account.CapitalReviewRequired ||
+                current.Cash != original.Cash || current.Orders.Count != original.Orders.Count ||
+                original.Orders.Any(o => !current.Orders.Any(n => n.ExternalId == o.ExternalId && n.IsSameOrPostedSuccessor(o))) ||
+                !account.Positions.OrderBy(p => p.PositionId).SequenceEqual(prior.Account.Positions.OrderBy(p => p.PositionId)))
+                throw new InvalidOperationException("Refresh the unchanged invested account and resolve orders or risk blockers before build review.");
+            _ = BrokerOngoingRiskEvidenceSource.Reconcile(ongoing, current, prior.Orders);
+        }
+        else
+        {
+            BrokerContinuationReviewPolicy.RequireCurrentAccount(account,now);
+            BrokerTrialCarryForward.RequireUnchangedBook(prior.EffectiveReview.NoTransferScope!.CashOnlyAnchor,account.Import.Plan.Observation);
+        }
         if (BrokerAccountImport.Hash(account.Risk) != BrokerAccountImport.Hash(prior.Account.Risk))
             throw new InvalidOperationException("Build review cannot change risk history, references or holds.");
     }

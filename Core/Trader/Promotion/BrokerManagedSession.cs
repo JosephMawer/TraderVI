@@ -136,15 +136,17 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     {
         get
         {
-            if (OngoingManagement is not null) return OngoingManagement.Review;
-            var review = Continuation?.Approval.Review ?? Approval.Review;
-            if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
-            if (October22 is not null) review = October22.Approval.Review;
-            if (SessionContinuation is not null) review = SessionContinuation.Approval.Review;
+            var review = OngoingManagement?.Review ?? Continuation?.Approval.Review ?? Approval.Review;
+            if (OngoingManagement is null)
+            {
+                if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
+                if (October22 is not null) review = October22.Approval.Review;
+                if (SessionContinuation is not null) review = SessionContinuation.Approval.Review;
+            }
             // Later dated permissions ignore legacy/earlier build approvals. A new build approval
             // must bind this exact existing permission; it does not replace or renew that permission.
             bool applies = ImplementationReview is not null &&
-                (SessionContinuation is null && October22 is null
+                (OngoingManagement is null && SessionContinuation is null && October22 is null
                     ? ImplementationReview.PermissionRequestId is null
                     : ImplementationReview.PermissionRequestId == review.RequestId);
             return !applies ? review : review with { Strategy = review.Strategy with

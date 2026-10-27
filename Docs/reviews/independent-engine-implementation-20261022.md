@@ -25,7 +25,15 @@ serialization, six listing-identity cases and the existing managed-session/order
 installation or financial approval has been performed by this increment. Build review for an ongoing
 invested assignment is the next dependency; the legacy review requires a cash-only dated scope.
 
-Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
+The invested ongoing build-review extension is now tested: it retains the exact agreement, holding,
+orders, protection, pause, cumulative spending and risk history, while requiring fresh matching source
+and account evidence. Approval remains an explicit app action and does not enable the host. Read-only
+execution diagnostics now expose saved protection matching and latest usable bid-check timestamps.
+The full Core suite passes 3,207 tests with nine skipped; isolated WPF/Engine Release build succeeds
+with 260 compiler warnings and no errors. No new dependency-security audit or SSDT solution build
+was performed. Logs are under `artifacts/held-symbol-repair-20261027`. Installation remains pending.
+
+Historical morning status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.
 ADR-0110 corrected recovery completed10:19:36 despite

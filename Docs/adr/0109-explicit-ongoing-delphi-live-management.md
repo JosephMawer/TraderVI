@@ -42,6 +42,19 @@ This supersedes ADR-0105's dated expiry/separate enable only for the newly appro
 combined app action. Legacy trials/grants retain their limits. Activation remains Joseph's app action.
 Additive omitted-when-absent JSON fields and append-only risk events require no schema migration.
 
+## October 27 repair-build review with an existing holding
+
+The operator requests repair, installation and verification after the first managed purchase. A changed
+implementation still needs explicit app review: extend the existing append-only build review to the
+unchanged ongoing agreement with fully reconciled owned orders and saved protection for every holding.
+Require fresh matching shared inputs, model/configuration and storage checks, fresh no-transfer account
+reconciliation, unchanged cash/positions/original orders and unchanged risk history. The review cannot
+change strategy rules, reset references, clear holds, restore spent allowance or relax protection. A saved
+pause remains paused. Bind the build review to the exact ongoing permission ID; older build reviews
+cannot attach themselves to the new agreement. Approval does not enable the host or place an order.
+The operator approves the repaired build in Execution setup and resumes its reviewed host separately.
+Legacy dated/cash-only review restrictions remain intact for those scopes.
+
 ## Accepted execution-price policy
 
 Joseph approves a fresh broker ask as the fixed reference, at most 0.25% upward movement before

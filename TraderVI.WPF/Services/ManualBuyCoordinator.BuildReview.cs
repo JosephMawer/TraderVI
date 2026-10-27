@@ -25,10 +25,13 @@ public sealed partial class ManualBuyCoordinator
         stage("checking the saved real strategy, direct shared market inputs and current storage for the updated build");
         var normal=await new TradingPromotionRepository().ReviewExistingBrokerAsync(saved,executionCalendar!,DateTimeOffset.UtcNow,ct); check();
         var storage=await BrokerManagedSessionRepository.ReadStorageAsync(ct); check();
-        var scope=saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover today's original permission.");
+        var scope=saved.EffectiveReview.NoTransferScope;
+        IBrokerRiskEvidenceSource risk = saved.OngoingManagement is { } ongoing
+            ? new BrokerOngoingRiskEvidenceSource(ongoing, executionCalendar!, new BrokerOngoingBoundaryRepository().ReadAsync)
+            : new BrokerNoTransferRiskEvidenceSource(scope ?? throw new InvalidOperationException("Recover today's original permission."), executionCalendar!);
         var components=CreateManagedComponents(connection,connection,connection,journal,journal,
-            orderGate,account,executionCalendar!,new BrokerNoTransferRiskEvidenceSource(scope,executionCalendar!));
-        stage("rechecking the actual cash-only account and preserved risk history");
+            orderGate,account,executionCalendar!,risk);
+        stage("rechecking the actual account, original orders, protection and preserved risk history");
         var projected=await components.AccountSource.SynchronizeAsync(saved.Orders,ct); check();
         var proposal=BrokerImplementationReviewWorkflow.Prepare(saved,normal.Review,normal.Updated,projected,
             storage.BaselineInstalled && storage.ContinuationInstalled && storage.SessionInstalled && storage.ImmutableStorageVerified,
@@ -37,7 +40,8 @@ public sealed partial class ManualBuyCoordinator
             $"Previous build: {BrokerAccountImport.Hash(proposal.Review.PreviousImplementation)[..16]}\nNew build: {BrokerAccountImport.Hash(proposal.Review.ImplementationIdentity)[..16]}\n" +
             $"Original purchase ceiling remains {saved.EffectiveReview.PurchaseCeiling:N2} CAD. Fresh cash {projected.Import.Plan.Observation.Cash:N2} CAD.\n" +
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +
-            $"Original permission still expires {scope.PurchaseExpiresAt?.ToLocalTime():g}. Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
+            (saved.OngoingManagement is not null ? $"Ongoing agreement retained with {saved.Account.Positions.Length} holdings and their saved protection. " : $"Original permission still expires {scope!.PurchaseExpiresAt?.ToLocalTime():g}. ") +
+            "Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
             "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward.";
         return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!,sharedStorage:true),components.AccountSource,
             HostGrants(),executionCalendar!),summary);
