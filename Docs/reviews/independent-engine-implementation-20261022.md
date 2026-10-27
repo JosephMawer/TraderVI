@@ -1,6 +1,11 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
-Current status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance
+Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
+verified with financial execution Off. Explicit ongoing approval remains Joseph's action. Restart
+recovery verification is pending; one-minute confirmation is unqualified and not installed. See the
+October27 installation section below.**
+
+Historical October26 status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance
 completed14:16, Joseph approved/enabled14:28, last Real evaluation15:59:32. Permission expired16:00;
 execution waits outside regular hours. Eight Paper restrictions and incomplete market-data/first-fill
 qualification remain. The21:27 evening check below prepares October27; it does not renew permission.**
@@ -15,7 +20,80 @@ without renewal. Price comparison and complete native preflight/submission/prote
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
+## October 27 ongoing runtime installation and review
+
+Joseph authorized implementation, local commits, validation and controlled installation/restart;
+financial activation remains his app action. He explicitly accepted the bounded no-transfer agreement
+and 0.25% upward broker-ask movement / 0.50% spread. [ADR-0109](../adr/0109-explicit-ongoing-delphi-live-management.md)
+defines the scope and evidence limitations. Existing one-day authority was not extended.
+
+**Implemented/tested:** ongoing approval linked to the original risk/session, automatic calendar-ordered
+close/open recovery, unchanged cumulative spending ceiling, full-fill/original-order safeguards,
+checked restart, persistent pause-new-buys and combined initial approval/start UI. The execution policy
+saves a fixed fresh broker ask per independent confirmation episode, reserves at its 0.25% upper bound,
+checks spread/freshness/account/risk/size and never ratchets a rejected reference. Market orders still
+cannot guarantee a fill or its price. Six old rejected-price events have no saved prices/timestamps;
+their cause cannot be attributed. The selected longer indicator windows remain unchanged.
+
+**Not ready:** the requested two consecutive minute observations. Saved TMX minute data was sparse and
+23 minutes behind at capture. A new source contract needs qualification before consistent minute
+collection/storage/publication/evaluation and explicit updated-strategy review. No timer-only substitute,
+repeated-bar confirmation, source purchase or migration was performed.
+
+**Validation:** 3,159 offline tests passed, nine native/integration skips. Two unrelated AI-host timing
+tests timed out under parallel suite load, passed individually, and passed in the complete final suite
+with test-collection parallelism disabled. WPF/engine Release passes (260 existing compiler warnings,
+zero errors); no fresh NuGet security audit/full SSDT solution claim. Local commits: `9aea1c40`,
+`edff9c51`, `386163fa`, `ae427a46`. Private reproducible evidence: `artifacts/ongoing-live-20261026`.
+
+**Installed 01:26 Toronto:** guarded installer replaced seven files; all 128 candidate hashes match,
+121 remaining runtime files unchanged, previous runtime copied/hash-verified. Normal stop/restart
+disables the legacy grant; final engine1436/dashboard6864 are responsive, Running/Connected and
+Execution Off. Financial records/head hash match pre-install counts at 01:26: one baseline, four risk
+continuations, 5,530 imports, 2,315 managed revisions, last2314. No approval/order/schema mutation.
+Private cutover receipt: `artifacts/ongoing-live-20261026/cutover/completed.json`; database query hash
+970C5473F702CFD366C98F80CE51493179E99FD6601A54565BD85F4715B7B6D2. Read results at04:52/05:26 UTC
+are hash matched. A broker-helper check at23:38 could not verify login; installed connection is
+Connected at09:24. This is not a fresh independent holdings/pending verification.
+
+**Current blocker:** laptop interruption produced one Global EngineRecoveryRequired hold; eight
+historical Paper restrictions remain. Real-only recovery was requested at09:26; do not clear without
+a complete current proof and exact incident selection. The global hold blocks approval/collection.
+The native UI inspection timed out waiting for computer-use approval; no screen review is claimed.
+Nightly publication and native ongoing multi-day/first-fill/protection qualification remain separate checks.
+
+**Nightly blocker, checked 09:40:** the scheduled 00:30 run completed daily-price collection and a
+checksum-verified backup/copy, but its WM sector-metadata request returned no TMX results. The runner
+correctly classified Hermes as failed and stopped before Delphi/Athena. Joseph authorized one bounded
+WM check and a conditional normal rerun only on success. The exact production GraphQL query again
+returned HTTP 200 with the same missing-symbol error and no quote. No rerun occurred; no symbol was
+excluded, gate weakened or publication fabricated. Resolve the metadata-source failure before a
+reviewed publication recovery. Private evidence: nightly status/log and `wm-request.json`/`wm-response.json`
+under `artifacts/ongoing-live-20261026` (request SHA256
+65D31BED000D91D93916FF1A5174331145DAB051CDBA467C163775C7DE38B963).
+
+The existing 09:29 read-only monitor receipt independently confirms zero October27 official runs,
+latest official date October26, unchanged managed revision2314/hash and no ongoing approval. Its
+query hash matches the current mailbox (2960EEF2224B46C46889101BC9124496880CE9E3512D6B6A6E3D4CDFEDAEA74F).
+Saved model binding/input/configuration match that latest official run; all current-checkpoint hashes
+verify. Normal account synchronization added imports after installation, not new trading revisions.
+The mailbox was left untouched because another check had replaced this session's earlier request.
+
+**Operator procedure once checks pass:** Trading > Execution setup, truthfully confirm the bounded
+no-transfer agreement, Review ongoing management, inspect selected strategy/build, original financial
+references/remaining allowance and price policy, then Approve and start ongoing management within two
+minutes. That is the single financial activation action. No daily approval/separate enable is required
+after it for an unchanged agreement. Pause new buys retains protection; full host stop is distinct.
+An existing deliberate pause remains saved. Do not reset the baseline or repeat old liquidation trades.
+
+The October27 08:30/09:15 readiness heartbeat was updated in place to verify actual installed workflow,
+ongoing authority and pause state. Updating it does not prove either scheduled run executed.
+It was deleted after its 09:30 expiry; it will not repeat obsolete approval reminders on another day.
+
 ## October 26 evening readiness for October 27
+
+**Historical procedure:** the daily-review instructions in this section describe the pre-ADR-0109
+runtime. The installed October27 procedure above supersedes them only after explicit ongoing approval.
 
 Joseph requests a plain-language recap, pre-open blocker checks and removal of repeated daily
 review/approval/enable downtime. The accepted ongoing-management direction is already recorded in

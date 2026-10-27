@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Explicit ongoing no-transfer management and checked restart
+
 - [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Exact build approval bound to existing dated financial permission
 
 - [ADR-0106](0106-exact-selected-session-risk-receipt-storage.md) — Exact risk receipt reconstruction within the unchanged stored-event limit
@@ -231,6 +233,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## market-microstructure
 
+- [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Fixed broker ask, bounded movement/spread and pending minute-source qualification
+
 - [ADR-0092](0092-scoped-supervised-delphi-live-tfsa-session.md) — Restricted first-day scope, Live protection and recoverable opening preparation
 
 - [ADR-0086](0086-supervised-broker-strategy-session.md) — Reconciled exits before buys and one-attempt market orders
@@ -269,6 +273,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## risk-management
+
+- [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Bounded no-transfer agreement with preserved daily/cumulative risk history
 
 - [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Preserve expiry/history and require separate operator approval and enable after repair
 
@@ -427,6 +433,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0006](0006-granville-light-volume-25-28.md) — Granville Light Volume indicators
 
 ## user-interface
+
+- [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Initial ongoing approval/start and persistent pause-new-buys controls
 
 - [ADR-0108](0108-strategy-workspace-and-independent-account-evidence.md) — Default Strategy workspace, secondary Account directory and independent Paper/Real evidence
 

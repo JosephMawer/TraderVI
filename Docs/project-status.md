@@ -1,6 +1,30 @@
 # TraderVI Project Status
 
-## October 27 preparation — October 26 evening check
+## October 27 — ongoing runtime installed; activation pending
+
+Installed commit `ae427a46` at 01:26 Toronto after the operator's laptop restart: 128 file hashes
+match, seven binaries changed, 121 other files retained and the previous runtime preserved.
+Engine 1436/dashboard 6864 respond; the 09:24 check confirms normal Running/Connected with execution
+Off. No ongoing approval exists. Original baseline, four risk continuations, 5,530 imports and 2,315
+managed revisions, including revision 2314/hash, are unchanged by installation. No migration or order.
+
+ADR-0109 implements explicit ongoing no-transfer approval/start, automatic daily risk continuation,
+checked restart and persistent pause-new-buys, plus the operator-approved 0.25% broker-ask movement /
+0.50% spread policy. 3,159 offline tests pass, nine native skips; Release passes. One-minute confirmation
+is **not implemented or qualified**: saved minute data is stale/sparse. Five-minute confirmation and
+longer indicator horizons remain. Native multi-day, first fill and populated protection remain unverified.
+
+The interrupted laptop run produced a Global EngineRecoveryRequired hold, separate from eight old
+Paper holds. Real-only verification was explicitly started at 09:26 as installation recovery; its
+result/qualified clearance are pending. This blocks approval and shared collection. UI inspection
+approval timed out; no new screen was visually verified and no financial control was clicked.
+The October27 readiness monitor was updated to inspect installed ongoing authority rather than demand
+daily renewal, then deleted after its 09:30 expiry. The 00:30 nightly run failed on WM sector metadata
+and stopped before Delphi publication. The authorized single TMX recheck at 09:40 returned the same
+missing-symbol error; no conditional rerun, exclusion or weakened gate followed.
+[Installation, remaining checks and operator action](reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).
+
+## October 26 evening check — historical pre-install state
 
 At21:27 Toronto, the normal engine is Connected and execution is Waiting outside regular hours.
 Zero Broker/Global holds remain; the October26 NewHistory audit completed16:28:53 and current

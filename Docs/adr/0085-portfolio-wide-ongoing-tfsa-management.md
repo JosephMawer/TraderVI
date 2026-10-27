@@ -176,7 +176,15 @@ Their September 22 installation does not create a baseline, assignment or enable
 
 ## Open design and acceptance boundary
 
-### October 26 restart implementation increment
+### October 27 installed bounded Delphi Live scope
+
+[ADR-0109](0109-explicit-ongoing-delphi-live-management.md) implements the explicitly accepted
+no-transfer agreement, automatic daily continuation and checked host restoration for the existing
+cash-only Delphi Live assignment. This scope is tested and installed; initial financial approval and
+native multi-day/first-fill/protection verification remain pending. General invested-account adoption,
+outside transfers and cross-family replacement remain separate acceptance work.
+
+### October 26 restart implementation increment — historical checkpoint
 
 Clean independent-engine shutdown now drains the active execution cycle separately from an explicit
 operator host stop. Newly enabled, unscoped ongoing assignments record restart restoration explicitly;
@@ -184,13 +192,13 @@ legacy grants and dated no-transfer trials retain their previous shutdown behavi
 checks the exact assignment/build and fresh account/order evidence. An explicit host stop remains off,
 and stopped buying remains stopped. Blocked execution cycles are displayed as Blocked rather than Running.
 Focused offline validation: 440 broker-session tests pass, including clean shutdown, preserved buying
-mode, original permission, and waiting for an admitted cycle. This increment is not installed and
-does not complete the Delphi Live trial's transition to an ongoing no-transfer agreement.
+mode, original permission, and waiting for an admitted cycle. At this checkpoint the increment was
+not installed; the subsequent ADR-0109 checkpoint above records its installation and wider scope.
 
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes and replacement transitions. Stopping new buys and checked restart
-restoration are accepted above; Core continuation and saved UI controls are tested, while execution
-host integration, family coverage and replacement remain unfinished.
+restoration are accepted above; bounded Delphi Live host integration is installed under ADR-0109,
+while broader family coverage and replacement remain unfinished.
 Manual default ownership and the two handover entry points are accepted above. Direct-Wealthsimple
 trade ownership, automatic continuation after known in-app orders and transfer boundaries remain
 open/proposed in the draft; same-security split ownership is deferred. Do not silently extend the current blanket

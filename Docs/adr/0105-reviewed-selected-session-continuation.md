@@ -4,6 +4,10 @@
 **Domains:** architecture, risk-management, user-interface.
 **Related:** ADRs 0092, 0095–0104.
 
+**Scoped supersession:** [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) replaces dated
+expiry and separate enable only after a new explicit ongoing no-transfer approval. Existing dated
+records and authority remain unchanged; startup never converts them automatically.
+
 The immediate problem is that the installed review stops at October 22 while the last permission
 expired October 21. The parent problem is independent real-account readiness without repeated paper
 research. The root goal is timely real execution with deliberate permission and preserved risk history.

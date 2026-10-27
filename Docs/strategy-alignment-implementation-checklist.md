@@ -678,6 +678,17 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Implement/test explicitly scoped ongoing Daily Shadow assignment, checked daily continuation,
   preserved cumulative ceiling, prior-day protection/closing-exit recovery, build-identity checks and
   rejection of unsupported families before execution approval (Sep 23). Existing one-day approvals expire.
+- [x] Implement/test/install the ADR-0109 bounded Delphi Live ongoing no-transfer agreement, automatic
+  daily risk continuation, checked grant restoration, combined initial approval/start and saved pause
+  controls, preserving legacy authority and financial references/ceiling/orders/protection (October27).
+- [x] Implement/test/install the explicitly approved fixed broker-ask 0.25% movement / 0.50% spread
+  policy; durable episode reference, bounded sizing and restart/rejection preservation. Old rejected
+  events lack price/timestamp values, so the cause remains unproven.
+- [ ] Complete post-laptop-restart integrity verification/qualified resolution, current source/account
+  checks, Joseph's initial ongoing app approval and native multi-day/first-fill/protection observation.
+- [ ] Qualify genuinely fresh minute data, decide its source contract, implement consistent minute
+  collection/storage/publication/evaluation without shortening indicator horizons, then explicitly
+  review the updated strategy. Existing five-minute behavior remains; stale/repeated bars do not count.
 - [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
   refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
   This control path has no approval/order transport and starts no execution loop. The native panel's
@@ -955,18 +966,23 @@ The prerequisites below cover the broader real-account execution work and remain
   recovery are source/tested; the panel's empty state is observed, but populated real-assignment
   recovery remains unverified. Reuse the existing manual
   row sale and verify coordination with managed orders. The current
-  session invalidates even an in-app manual fill; automatic continuation remains a proposal.
+  session invalidates even an in-app manual fill; automatic adoption of those fills remains a proposal.
   Extend the current Daily Shadow execution/protection adapter to both portfolio families; verify
   cross-family handover and native multi-day recovery. No silent upgrades of one-day approvals.
 - [ ] **7. Qualify and verify automation.** Establish strategy/evidence readiness, perform separately
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate next increment:** qualify the native cash-event/boundary-book evidence producer and
+**Immediate installed Delphi Live increment:** finish ADR-0109 restart recovery and initial operator
+approval, then observe multi-day continuation/first fill/protection without weakening holds. The bounded
+no-transfer agreement is explicitly accepted; a complete native cash-flow feed remains unqualified.
+One-minute source qualification is a separate dependency before its strategy successor.
+
+**Broader portfolio follow-on:** qualify the native cash-event/boundary-book evidence producer and
 opening values, alongside baseline/continuation SQL runtime recovery. Managed-session SQL recovery is
 rehearsed; background synchronization and the TFSA panel's empty state are observed natively.
-Ongoing recovery remains source/tested; next extend family adapters and qualified
-execution-host startup without reopening deferred rare cases.
+The bounded Delphi adapter/startup is now installed; cross-family handover, general adoption/replacement
+and native qualification remain. Do not reopen deferred rare cases.
 Storage is installed; baseline/continuation runtime recovery remains distinct from the completed
 schema/immutability checks and managed-session rehearsal.
 The orchestration and production composition exist; they cannot manufacture those inputs.

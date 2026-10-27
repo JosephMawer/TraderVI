@@ -5,7 +5,24 @@ Things we punted on and need to revisit. Cleared as decisions are made
 
 ## Active
 
+### One-minute Delphi confirmation source — October 27, 2026
+
+Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator
+windows. Existing TMX minute evidence is sparse/delayed (newest event 23 minutes old in the saved
+October23 sample); current storage/slots and evaluator are five-minute contracts. Decide whether TMX
+can qualify under market-hours measurement or a different licensed real-time minute source is needed.
+No source replacement/purchase is accepted. A consistent collector/publication/storage/evaluator
+successor and explicit updated-strategy review follow qualification; timer-only changes and repeated
+bars do not satisfy the request. [ADR-0109](../adr/0109-explicit-ongoing-delphi-live-management.md).
+
 ### Monday Delphi data and price qualification — October 23, 2026
+
+**October26/27 disposition:** the earlier assessment-only scope below is historical. Joseph now
+authorized implementation/installation and accepted fixed broker ask +0.25% movement /0.50% spread;
+ADR-0109 implements that policy only for explicit new ongoing approval. Six saved price rejections
+contain no prices/timestamps, so causal attribution remains unresolved. Further matched price evidence
+must not be described as proving those historical causes. The accepted bounded policy settles the
+tolerance choice, not the underlying source-latency investigation.
 
 - Joseph requests a readiness assessment for October26, preserving safeguards. Proposed work is an
   offline saved-receipt coverage audit and a bounded quote comparison independent of buy signals,

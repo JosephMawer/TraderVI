@@ -1,6 +1,6 @@
 # ADR-0109: Explicit ongoing Delphi Live management
 
-**Date:** October 26, 2026 Toronto. **Status:** Accepted bounded no-transfer agreement; implementation in progress, not installed or activated.
+**Date:** October 26, 2026 Toronto. **Status:** Accepted; implemented/tested and installed October27 at01:26 Toronto. Financial activation and native qualification remain pending.
 **Domains:** architecture, risk-management, user-interface, market-microstructure.
 **Related:** ADRs 0079, 0081, 0083, 0085, 0105, 0107.
 
@@ -90,7 +90,7 @@ TMX minute feed can qualify under market-hours measurement or a different licens
 is necessary. Neither old sparse samples nor broker quote snapshots establish complete minute OHLCV.
 Updated-strategy approval remains required after qualification; the longer lookbacks are not shortened.
 
-## Source checkpoint
+## Source checkpoints — historical development sequence
 
 Core agreement, linked risk authorization, boundary reader and automatic risk evidence adapter are
 implemented.457 focused broker-session tests pass, including consent, legacy preservation, stopped
@@ -107,3 +107,10 @@ suite load and passed in isolation; the final complete suite with test-collectio
 passes. Isolated WPF/engine Release build passes with 260 existing compiler warnings, zero errors.
 NuGet security audit was disabled; no fresh dependency-security assessment or full SSDT solution build
 is claimed. Source evidence is under `artifacts/ongoing-live-20261026`. Installation remains pending.
+
+## Installation checkpoint — October 27
+
+Commit ae427a46 is installed with all128 runtime hashes verified, previous runtime retained and normal
+engine/dashboard responsive. Execution is Off; financial records/head hash are unchanged. The laptop
+restart created a Global integrity hold; current Real-only recovery verification was started before
+open and remains a prerequisite to initial app approval. [Current evidence and procedure](../reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).

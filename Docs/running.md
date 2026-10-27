@@ -1,6 +1,27 @@
 # Running TraderVI
 
+## Explicit ongoing Delphi Live — installed October 27
+
+ADR-0109 is installed in the standard Release runtime. Financial activation remains an explicit app
+action; legacy dated approvals never become ongoing by startup. Once integrity recovery and current
+account/source checks pass, open Trading > Execution setup, confirm the truthful no-transfer agreement,
+choose Review ongoing management and inspect the exact strategy/build, retained references/allowance,
+fixed broker-ask 0.25% movement / 0.50% spread policy and existing five-minute confirmation. Within two
+minutes choose Approve and start ongoing management. Approval is saved before host arming; if arming
+fails, refresh the saved agreement and resolve the block before Resume stopped execution host.
+
+For the unchanged approved agreement, daily account/source/model/configuration/calendar/integrity/risk
+checks and risk close/open continuation are automatic. Clean restart restores its checked host grant.
+Pause new buys persists and leaves ordinary exits/protection active; Stop execution host stops the
+whole execution loop. Neither resumes automatically after deliberate stopping. Pause before outside
+transfers or trades. Unexplained account changes, missing exact valuation evidence, uncertain orders
+or material changes require intervention. Interrupted runs still require verified integrity recovery.
+No one-minute successor is installed. [Current installation/qualification status](reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).
+
 ## Independent engine — normal mode with trading disabled, October 22
+
+The dated-permission instructions below remain historical/legacy scope; the new explicit ongoing
+agreement follows the section above. Recovery/storage maintenance safeguards still apply.
 
 The ADR-0103/0104 host and ADR-0105 selected-session flow are installed in standard Release.
 Normal mode reconnects the broker; native execution status is Off. Real recovery and authorized
