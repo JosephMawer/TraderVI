@@ -1,5 +1,81 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 27 closing signal review — selectivity, missing evidence and minute successor
+
+Joseph requests an explanation of today's unqualified signals and whether entry rules are too restrictive.
+The immediate problem is attributing missed entries correctly; the parent problem is prompt execution of
+qualified momentum; the root goal is ongoing approved management with preserved capital/order controls.
+This is a read-only analysis, not approval to change thresholds, entry hours or the installed strategy.
+
+The latest approved Real policy's shared input publications contain 952 symbol/checkpoint observations:
+28 symbols at 34 five-minute endpoints from 10:25 through 16:00 Toronto. These are repeated observations,
+not 952 independent opportunities, and shared eligibility is not actual Real account execution.
+There are 91 invalid current observations, 393 valid observations without mature families, and 468
+valid/mature observations. Of the latter, 300 have zero supportive votes, 133 have one, 28 have two,
+six have three and one has four. Thus only seven mature observations meet the three-of-four strength
+test. Six symbols start a sequence; only one completes it, consistent with the reconciled first purchase.
+No entry safety veto is saved in these observations. This does not establish that account/execution
+checks were continuously clear; the installed incident and later native diagnostics remain separate.
+
+The six sequences comprise one successful pair at 11:30/11:35; failed pairs starting at 10:45 and 11:00
+whose votes fall from three to one and four to one; an 11:35 start with no next published checkpoint;
+and two late starts at 15:50/15:55 whose next votes fall from three to zero and three to two respectively.
+The latter are different symbols, not consecutive observations of one stock. Individual symbol/reason
+details remain in ignored evidence. No publication exists for the 34 endpoints from 11:40 through 14:25;
+fresh publication resumes at 14:30. This missing interval cannot establish rejected opportunities.
+Late source recovery, collection failure and deliberate repair/restarts make this an interrupted
+engineering session, not a clean test of strategy profitability or optimal thresholds.
+
+The saved approved policy has a 09:50 entry start and **15:45 entry cutoff**. The actual recommendation
+engine checks the received quote against that cutoff. The late 15:50/15:55 first-strong observations
+never confirmed, and even hypothetical confirmation would not authorize an opening order after 15:45.
+Earlier monitoring descriptions of waiting for a signal after that time were incomplete: regular-session
+protection/evaluation continuing until close does not mean the entry window remains open. No cutoff
+change is approved here. This fact must be included in future buy-readiness explanations.
+
+Among 468 mature observations, full supportive votes occur 21 times for Persistence, 23 for Price
+Movement, 159 for Volume Support and eight for Price Structure. Positive-leaning states do not vote.
+The price-movement rule uses volatility-scaled raw and benchmark-relative agreement; its 0.25 raw-move
+setting is not the separately approved 0.25% execution-price tolerance. A rising stock can therefore lack
+a price-movement vote. Session VWAP is unavailable in all 468 mature observations; the implementation
+requires the complete accepted path from the open. With that reference missing, full structural support
+requires the other two references to be bullish without conflict. The one-hour price reason is NotMature
+in 411/468 observations. These constraints explain why ordinary warming and missing continuity affect
+selection, but do not prove that weakening thresholds would improve returns.
+
+Recommendation: first establish uninterrupted collection and evaluate the separately versioned minute
+successor with unchanged three-of-four votes and longer horizons. Treat later entry hours, counting
+leaning states, reducing required votes, or restoring qualified historical context after a restart as
+separate prospective hypotheses, not a combined relaxation or replay of missed live authority. Compare
+missed moves and false starts, achievable execution costs, turnover and downside across clean sessions;
+retain original policies and evidence. Today's counts alone cannot select a profitable threshold.
+
+**Minute successor readiness:** two offline components exist (first-arrival/deadline/conflict evidence
+and duration-preserving windows), with 60 focused tests reported. Collection/publication/runtime use is
+not implemented or installed. Qualification must settle missing-minute/no-trade semantics, venue coverage,
+corrections, first-arrival latency, capacity and usable source terms. The October 27 final bounded sample
+at 15:32 shows completed-bar response ages of 72.2, 12.7 and 13.1 seconds, with two, one and three missing
+slots in the respective latest ten-minute windows. No overlapping previously completed row changed in
+that comparison. Fresh rows exist; full source qualification does not. Long-gap backfill is not timely
+confirmation, and broker bid/ask snapshots cannot replace minute OHLCV history.
+
+Remaining implementation: reviewed minute storage/slot migration contracts; one-minute collection and
+publication with a deadline before the next minute; duplicate/gap/conflict and restart handling; an
+explicit successor evaluator/lifecycle using distinct consecutive completed minutes; unchanged elapsed
+20/60/120/180-minute indicator horizons; independent Real confirmation, protection/order safeguards and
+complete diagnostic/report output. Validate live delivery and offline fault cases before controlled
+installation and Joseph's explicit updated-strategy review. No timer-only conversion, synthetic missing
+prices or automatic upgrade of the current assignment is permitted. Source purchase is not authorized.
+
+Private evidence: `artifacts/minute-source-check-20261027/day-review.sql`, SHA256
+`9EB2CC33613A48E35A2493A2F762DF180F68177B185E073529CF982DF3F1738B`, receipt
+`result-20261027T200850125Z-f05c970ba3a94c18b12f8b6083c73d3b.json`; `day-context-review.sql`, SHA256
+`1EA7F3D21C0FAB6D6C3F7E7C8C31018154532085599DC722DAFBD9CABA629E62`, receipt
+`result-20261027T201016955Z-b4c949c856694125985e08ef828b568a.json`. Both helper hashes were verified and
+mailboxes conditionally restored. No external market calls, financial control, SQL writes or runtime
+changes were performed for this review. The day-only heartbeat was deleted at its closing checkpoint;
+its delayed tool return missed live notices for the two late starts, which are identified retrospectively.
+
 ## October 27 — first holding exposes mapping and final-evaluation failures
 
 The 13:50 read-only investigation found a broker-managed holding whose broker symbol has no

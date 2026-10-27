@@ -10,7 +10,11 @@ Things we punted on and need to revisit. Cleared as decisions are made
 Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator
 windows. The October23 sample was sparse/delayed, but twelve authorized October27 reads at10:42–10:47
 show fresh advancing minute data, with latest completed bars about9seconds old in the final sample.
-XIU/RY have complete recent ten-minute coverage; the current candidate remains sparse. Distinguish
+XIU/RY had complete recent ten-minute coverage in that early sample; later reads show gaps in both.
+At 15:32, the three sampled symbols have two/one/three missing recent minute slots; completed-bar
+response ages are 72.2/12.7/13.1 seconds. Freshness is demonstrated, sustained coverage/latency is not.
+The day-only watch has ended. See the [closing review](independent-engine-implementation-20261022.md#october-27-closing-signal-review--selectivity-missing-evidence-and-minute-successor).
+Distinguish
 no trades/venue coverage from source gaps before adopting missing-minute rules. Current storage/slots
 and evaluator are five-minute contracts. Decide whether TMX can qualify under sustained market-hours
 measurement or a different licensed real-time minute source is needed. The conditional alternative is
