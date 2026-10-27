@@ -692,9 +692,14 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Observe the approved engine evaluating fresh recovered inputs (October27 10:27:40, no confirmed
   entry signal); missing/stale candidate data is rejected individually.
 - [ ] Verify native multi-day/first-fill/protection operation; current account/source checks remain mandatory.
-- [ ] Qualify genuinely fresh minute data, decide its source contract, implement consistent minute
-  collection/storage/publication/evaluation without shortening indicator horizons, then explicitly
-  review the updated strategy. Existing five-minute behavior remains; stale/repeated bars do not count.
+- [x] Inspect current confirmation/collection contracts and perform bounded native minute-source checks
+  (October27 10:42–10:47): fresh advancing bars exist, but candidate gaps remain. Schedule the requested
+  same-day signal/source watch. [Evidence](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
+- [ ] Qualify sustained minute freshness, coverage/no-trade/correction semantics and candidate-scale
+  capacity; decide the source contract. Neither an old delayed sample nor one fresh sample settles it.
+- [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
+  timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
+- [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.
 - [x] Connect saved strategy/mode display and stop/resume to the TFSA panel; restore after linked-account
   refresh at startup and during polling. Verify stale/login/assignment changes and uncertain saves offline.
   This control path has no approval/order transport and starts no execution loop. The native panel's

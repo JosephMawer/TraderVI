@@ -90,6 +90,11 @@ TMX minute feed can qualify under market-hours measurement or a different licens
 is necessary. Neither old sparse samples nor broker quote snapshots establish complete minute OHLCV.
 Updated-strategy approval remains required after qualification; the longer lookbacks are not shortened.
 
+October27 follow-up: the authorized10:42–10:47 samples demonstrate fresh advancing TMX minute data,
+while candidate coverage remains sparse. The old sample is not proof of a universal delay. No source
+decision or strategy activation follows from the bounded check; see the
+[qualification evidence and scheduled follow-up](../reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
+
 ## Source checkpoints — historical development sequence
 
 Core agreement, linked risk authorization, boundary reader and automatic risk evidence adapter are

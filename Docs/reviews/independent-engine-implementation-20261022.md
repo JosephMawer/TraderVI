@@ -24,6 +24,82 @@ without renewal. Price comparison and complete native preflight/submission/prote
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
 
+## October 27 minute-source qualification — live samples and follow-up
+
+Joseph requests a fresh TMX check, an alternative-source assessment if needed, and a watch for emerging
+signals. This authorizes bounded read-only source checks; it does not approve a new strategy or provider
+purchase. The immediate question is timely distinct minute evidence, within the larger need for faster
+confirmation, serving the goal of promptly buying qualifying signals under unchanged financial controls.
+No buy signal is needed to test source freshness.
+
+**Current pipeline:** `TmxDelphiLiveMarketDataSource` requests interval5; durable collection/slots,
+publication and `DelphiLiveFiveMinuteSeries` carry five-minute evidence. The lifecycle requires exact
+five-minute separation between strong observations. Real evaluates its own confirmation against shared
+inputs. The current two-minute collection offset cannot serve a one-minute confirmation deadline.
+The 20-minute persistence/volume/range and 20/60/120/180-minute price windows remain separate from
+confirmation cadence. A timer change or replacing four five-minute samples with four minute samples
+would not implement the requested behavior. [Successor requirements](../adr/0109-explicit-ongoing-delphi-live-management.md#faster-confirmation-qualification-pending).
+
+**Bounded native evidence, 10:42–10:47 Toronto:** four captures, three single-attempt HTTP reads each,
+using the production TMX `getTimeSeriesData` query with interval1 and today's open-to-now context.
+Targets are XIU, liquid diagnostic stock RY, and one current approved-policy candidate selected through
+the fixed read-only SQL helper. No SQL writes, model changes, production publication or runtime restart.
+
+| Receipt time | XIU/RY latest completed minute ends | Age at receipt | Candidate result |
+|---|---|---|---|
+| 10:42:20 | 10:42 | 20.6/20.8 seconds | 10:42; latest two present, six of ten recent minute slots absent |
+| 10:43:55 | 10:43 | 55.4/55.6 seconds | Still 10:42; no new candidate timestamp |
+| 10:44:10 | 10:44 | 10.4/10.7 seconds | Still 10:42; repeated reads supply no confirmation |
+| 10:47:08–09 | 10:47 | 8.8/9.1 seconds | 10:47, age9.3seconds; latest two present, five of ten recent slots absent |
+
+XIU/RY have all ten recent minute slots in each capture. Across all twelve responses, no incomplete,
+invalid or duplicate rows were detected by the diagnostic checks. No previously completed overlapping
+OHLCV row changed. One previously forming row changed for each of XIU/RY between the first two
+captures; both are excluded from their earlier completed-bar set. The third capture has no new raw
+XIU/RY timestamp, although the previously forming minute has elapsed and is returned by a fresh HTTP
+response. Do not claim every poll brings a new bar or count that minute twice. The fourth capture adds
+four/three/two raw timestamps respectively. Response Date follows capture time; Age is absent. Those
+headers do not prove exchange latency or a provider finalization guarantee. Reported bar age is an
+observation at our poll, not a measured worst-case delivery latency.
+
+**Conclusion:** the old sparse/delayed sample does not establish that TMX is always delayed. Fresh minute
+bars are demonstrably available in this sample. Full source qualification remains open: candidate gaps
+may reflect no trades, venue coverage or missing source data; these reads cannot distinguish them.
+Do not fabricate zero-volume minutes or forward-fill prices. We have not proved full-session coverage,
+all-candidate capacity, opening/closing behavior, correction semantics or sustained sub-minute publication.
+Keep the installed five-minute strategy running unchanged while measuring.
+
+**Source decision:** first continue qualifying existing TMX rather than committing to a paid switch.
+If it fails, require licensed real-time Canadian trade OHLCV (or a timestamped trade stream from which
+completed minute bars can be constructed), XIU and candidate coverage, explicit venue/volume definitions,
+late-trade/correction and no-trade semantics, supported programmatic/automated use, and sufficient request
+or subscription capacity. TSX-only versus consolidated Canadian trading must be explicit; changing venue
+coverage can change volume/VWAP and needs strategy review. Broker ask snapshots remain execution checks,
+not a replacement for minute signal history.
+
+QuoteMedia is a conditional first supplier to assess: its official [feed overview](https://support.quotemedia.com/support/solutions/articles/13000022972-quotemedia-data-feed-overview)
+documents real-time/delayed North American streams including TSX/TSXV; its
+[Canadian packages](https://support.quotemedia.com/support/solutions/articles/5000629901-real-time-data-packages-canadian-data)
+distinguish TSX-only and consolidated quotes. Confirm actual API entitlement, minute finalization,
+automated-use terms, capacity and price before any purchase; a retail display package alone proves none
+of these. IBKR is another technical option, but its [API documentation](https://www.interactivebrokers.com/docs/tws-api/doc/md/introduction)
+requires suitable paid data permissions and warns of pacing and historical filtering differences.
+No provider account, entitlement, subscription cost or tested replacement is established here.
+
+**Follow-up:** heartbeat `tradervi-minute-source-and-signal-watch` checks saved signals/execution every
+five minutes through October27 16:05 Toronto. At most once per fifteen minutes, or on a new emerging
+signal, it may make the bounded three-symbol source capture, using the strongest current candidate
+when available. It reports meaningful changes and the closing qualification outcome, then removes
+itself. This is diagnostic supervision; the engine operates independently and the watch cannot enable,
+pause, submit, restart or change strategy. Local scheduling depends on the laptop/app remaining available.
+
+Private evidence: `artifacts/minute-source-check-20261027`, four `capture-*` directories and
+`advancement-summary.json`. Four offline measurement checks cover completed/forming bars, missing slots,
+duplicates and stale age. SQL target query SHA256
+`AE55EA0B871F1E9CA1BD39377C47838466AB1DFA93757F7F72285D8FA52167BD` matches the fixed-helper receipt;
+the original mailbox is restored. This is source diagnosis, not an installed minute collector or
+qualification of the complete strategy. Updated-strategy review is still required.
+
 ## October 27 ongoing runtime installation and review
 
 Joseph authorized implementation, local commits, validation and controlled installation/restart;

@@ -8,9 +8,14 @@ Things we punted on and need to revisit. Cleared as decisions are made
 ### One-minute Delphi confirmation source — October 27, 2026
 
 Joseph requested two consecutive genuinely fresh minute observations while preserving longer indicator
-windows. Existing TMX minute evidence is sparse/delayed (newest event 23 minutes old in the saved
-October23 sample); current storage/slots and evaluator are five-minute contracts. Decide whether TMX
-can qualify under market-hours measurement or a different licensed real-time minute source is needed.
+windows. The October23 sample was sparse/delayed, but twelve authorized October27 reads at10:42–10:47
+show fresh advancing minute data, with latest completed bars about9seconds old in the final sample.
+XIU/RY have complete recent ten-minute coverage; the current candidate remains sparse. Distinguish
+no trades/venue coverage from source gaps before adopting missing-minute rules. Current storage/slots
+and evaluator are five-minute contracts. Decide whether TMX can qualify under sustained market-hours
+measurement or a different licensed real-time minute source is needed. The conditional alternative is
+QuoteMedia, subject to API entitlement, venue definitions, automated-use terms, capacity and price;
+none is yet qualified. [Live evidence and follow-up](independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
 No source replacement/purchase is accepted. A consistent collector/publication/storage/evaluator
 successor and explicit updated-strategy review follow qualification; timer-only changes and repeated
 bars do not satisfy the request. [ADR-0109](../adr/0109-explicit-ongoing-delphi-live-management.md).

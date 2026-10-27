@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## October 27 — fresh minute data observed; qualification continues
+
+Twelve authorized TMX reads at10:42–10:47 Toronto show genuinely advancing minute timestamps for XIU,
+RY and a current candidate. At10:47, the latest completed bars were received about9seconds after close.
+XIU/RY have ten of ten recent minute slots; the candidate remains sparse. No previously completed
+overlap changed; forming bars are excluded. This disproves a blanket inference of delayed TMX data,
+but does not qualify all-candidate coverage, missing-minute semantics or production latency.
+The installed five-minute strategy is unchanged. A same-chat watch runs through today's16:05 close
+report; source selection and the explicit updated-strategy review remain open.
+[Evidence and conditional source assessment](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
+
 ## October 27 — ongoing approval saved; nightly recovery complete
 
 The authorized corrected pipeline completed10:19:36 from clean commit4c8a204c. Five unavailable ticker
