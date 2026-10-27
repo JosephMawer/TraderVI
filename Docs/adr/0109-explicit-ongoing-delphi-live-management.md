@@ -95,6 +95,16 @@ while candidate coverage remains sparse. The old sample is not proof of a univer
 decision or strategy activation follows from the bounded check; see the
 [qualification evidence and scheduled follow-up](../reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
 
+The first successor preparation is the pure `DelphiLiveMinuteEvidence` component. It pins symbol/source
+and explicit session bounds, preserves first-arrival values/times, and requires an explicit publication
+deadline strictly before the next minute. A request begun before completion cannot qualify by waiting;
+late/backfilled observations cannot become timely through rereads. Identical rereads grant no new
+minute, while changed completed values latch a conflict in the serializable evidence book. Consumers
+must recheck the original deadline at publication/use. This implements the already required causal
+input boundary; it selects no production deadline, data provider, indicator formula or assignment.
+It has no I/O and is not wired into the installed collector/evaluator. Durable storage, full successor
+integration and source qualification remain required; serialization tests alone are not native recovery.
+
 ## Source checkpoints — historical development sequence
 
 Core agreement, linked risk authorization, boundary reader and automatic risk evidence adapter are

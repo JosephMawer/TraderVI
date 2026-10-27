@@ -87,7 +87,8 @@ requires suitable paid data permissions and warns of pacing and historical filte
 No provider account, entitlement, subscription cost or tested replacement is established here.
 
 **Follow-up:** heartbeat `tradervi-minute-source-and-signal-watch` checks saved signals/execution every
-five minutes through October27 16:05 Toronto. At most once per fifteen minutes, or on a new emerging
+minute through October27 16:05 Toronto (tightened after Joseph requests immediate signal/blocker updates).
+At most once per fifteen minutes, or on a new emerging
 signal, it may make the bounded three-symbol source capture, using the strongest current candidate
 when available. It reports meaningful changes and the closing qualification outcome, then removes
 itself. This is diagnostic supervision; the engine operates independently and the watch cannot enable,
@@ -99,6 +100,24 @@ duplicates and stale age. SQL target query SHA256
 `AE55EA0B871F1E9CA1BD39377C47838466AB1DFA93757F7F72285D8FA52167BD` matches the fixed-helper receipt;
 the original mailbox is restored. This is source diagnosis, not an installed minute collector or
 qualification of the complete strategy. Updated-strategy review is still required.
+
+**Next source samples, 11:06/11:09:** both use three requests. Fresh benchmark/liquid-stock bars remain
+available within roughly6–9seconds, but each now has one absent slot in the latest ten-minute window.
+The strongest candidate sampled at11:06 has ten of ten slots. The candidate with the first strong
+11:00 observation is sampled at11:09: its latest completed end is11:08 (age69.2seconds), and starts
+11:00,11:05,11:08 are absent. Those are raw missing rows, not adapter exclusions. This strengthens the
+need to qualify missing-minute semantics: finer sampling can introduce more gaps, not merely faster
+confirmation. These retrospective reads cannot establish what an uninstalled minute strategy knew then.
+
+**First implementation increment:** `DelphiLiveMinuteEvidence` is an offline source-independent input
+boundary, with nine passing synthetic tests covering distinct arrivals, unfinished reads, gaps, late
+processing/backfill, duplicate identities, invalid times/prices, unchanged deadlines and conflict
+preservation across serialization/reload. No production source/deadline is selected. It neither collects
+nor publishes nor evaluates momentum; no installation, migration or financial control occurs. The
+existing cached dependencies restore successfully in the normal user environment; the separate sandbox
+cache lacked test packages. No network package restore/security audit or full SSDT build is claimed.
+The focused suite passes37tests (including existing five-minute lifecycle and AI minute-price adapter
+checks), zero skips. The isolated test build reports264 existing compiler warnings, none in the new files.
 
 ## October 27 ongoing runtime installation and review
 

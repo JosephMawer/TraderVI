@@ -697,6 +697,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   same-day signal/source watch. [Evidence](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
 - [ ] Qualify sustained minute freshness, coverage/no-trade/correction semantics and candidate-scale
   capacity; decide the source contract. Neither an old delayed sample nor one fresh sample settles it.
+- [x] Prepare/test source-independent minute evidence handling: original arrival/deadline, exact completed
+  timestamp selection, no reread advancement or late backfill promotion, persistent conflict across
+  serialization/reload. This pure component is not installed or connected to a collector/publication.
 - [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
   timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
 - [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.

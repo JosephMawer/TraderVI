@@ -11,6 +11,12 @@ The installed five-minute strategy is unchanged. A same-chat watch runs through 
 report; source selection and the explicit updated-strategy review remain open.
 [Evidence and conditional source assessment](reviews/independent-engine-implementation-20261022.md#october-27-minute-source-qualification--live-samples-and-follow-up).
 
+The source-independent minute first-arrival/deadline/conflict component is now implemented offline;
+37 focused tests pass, including nine new evidence tests and existing lifecycle/price-adapter tests.
+It is not connected to collection, publication or execution and has not been installed. The11:06/11:09
+source checks still show fresh bars but also missing minutes in liquid symbols. The requested watch
+now checks signals once a minute; the11:00 first strong observation did not persist at11:05.
+
 ## October 27 — ongoing approval saved; nightly recovery complete
 
 The authorized corrected pipeline completed10:19:36 from clean commit4c8a204c. Five unavailable ticker
