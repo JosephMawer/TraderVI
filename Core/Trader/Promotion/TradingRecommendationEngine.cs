@@ -370,7 +370,7 @@ public static class TradingRecommendationEngine
     }
 
     internal static TradingQuote? Quote(TradingRecommendationInput input,string symbol) => input.Quotes.LastOrDefault(q=>Same(q.Symbol,symbol)&&
-        q.SourceContract=="TmxQuoteFieldsV1" && q.RequestedUtc>=input.EvaluatedUtc && q.ReceivedUtc>=q.RequestedUtc &&
+        (q.SourceContract=="TmxQuoteFieldsV1" || q.SourceContract==BrokerHoldingQuote.Contract && Held(input,symbol)) && q.RequestedUtc>=input.EvaluatedUtc && q.ReceivedUtc>=q.RequestedUtc &&
         q.ReceivedUtc<=input.EvaluatedUtc+(input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
             ? input.Assignment.Strategy.ReadLivePolicy().QuoteAttemptWindow : ProgressiveProfitProtection.MaximumReceiptAge) && q.ReceivedUtc<input.SessionCloseUtc);
     private static bool Held(TradingRecommendationInput i,string symbol)=>i.CurrentHoldings.Any(h=>Same(h.Symbol,symbol));

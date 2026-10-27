@@ -45,6 +45,21 @@ cssclasses:
 
 ## Prospective adoption and preserved contracts
 
+### October 27 — Real holding bid source
+
+After the first Real holding, the bounded native TMX quote returned a last price but no bid or ask.
+Joseph explicitly approves the existing read-only Wealthsimple sell-context reader for held Real
+positions. Match the exact account, broker security ID, TSX listing and whole holding quantity;
+require no pending orders, fresh post-request account/quote reads, an open regular session and a
+positive bid whose broker timestamp is no more than 60 seconds old. Reject missing, stale, future or
+mismatched evidence without substituting last trade prices. The common quote-attempt deadline still
+applies. Retain the named broker-protection quote contract in saved protection diagnostics.
+
+This source is only for already-owned Real positions. Candidate entry quotes, price-movement/spread
+limits, original stop levels, adaptive polling, reconciliation and the separately rechecked broker
+sell execution remain unchanged. A quote read creates no order. The repaired build requires explicit
+app review; offline tests do not establish native protection or a fill.
+
 **October 18 rollout authorization:** the operator authorizes installation and prospective enablement
 across all active portfolios, preserving protection and deferring quote investigation. The dedicated
 save/assignment operation may run while invested only with new buys paused and only for the validated

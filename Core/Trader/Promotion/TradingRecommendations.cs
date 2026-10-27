@@ -68,6 +68,8 @@ public sealed record TradingRecommendationInput(Guid BatchId, TradingStrategyAss
     public DateTime? CandidateEffectiveUtc { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableDictionary<string, string>? BrokerMarketSymbols { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ImmutableDictionary<string, string>? BrokerHoldingSecurityIds { get; init; }
 }
 
 public sealed record TradingRecommendationResult(string Status, ImmutableArray<TradingRecommendation> Recommendations,

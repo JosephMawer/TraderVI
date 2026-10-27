@@ -90,7 +90,7 @@ public static class BrokerLiveProtection
                 through = bar.StartUtc.AddMinutes(5);
             }
             var quote = input.Quotes.LastOrDefault(q => q.Symbol.Equals(holding.Symbol, StringComparison.OrdinalIgnoreCase) &&
-                q.SourceContract == "TmxQuoteFieldsV1" && q.Bid is > 0 && q.RequestedUtc >= input.EvaluatedUtc &&
+                (q.SourceContract == "TmxQuoteFieldsV1" || q.SourceContract == BrokerHoldingQuote.Contract) && q.Bid is > 0 && q.RequestedUtc >= input.EvaluatedUtc &&
                 q.ReceivedUtc >= q.RequestedUtc && q.ReceivedUtc <= input.EvaluatedUtc + policy.QuoteAttemptWindow &&
                 q.ReceivedUtc > saved.EstablishedAt.UtcDateTime && q.ReceivedUtc < input.SessionCloseUtc);
             if (saved.CarriedFloor is { } floor && quote?.Bid <= floor)

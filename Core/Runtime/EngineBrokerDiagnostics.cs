@@ -21,12 +21,12 @@ public sealed record EngineBrokerDiagnostics(Guid BindingId, Guid SessionId, lon
                     var live = memory?.LiveProtection;
                     return new EngineBrokerHoldingProtection(p.Symbol, live?.PositionId == p.PositionId && live.AveragePurchasePrice == p.CostBasis / p.Quantity,
                         saved?.ThroughUtc, live?.Progressive?.LastBidReceivedUtc, live?.Progressive?.NextBidCheckUtc,
-                        memory?.ExitReason is not null || live?.Progressive?.ExitTriggered == true);
+                        memory?.ExitReason is not null || live?.Progressive?.ExitTriggered == true, live?.Progressive?.QuoteSourceContract);
                 }).ToImmutableArray())
         };
 }
 
 public sealed record EngineBrokerHoldingProtection(string Symbol, bool SavedProtectionMatches,
-    DateTime? BarsThroughUtc, DateTime? LastUsableBidUtc, DateTime? NextBidCheckUtc, bool ExitLatched);
+    DateTime? BarsThroughUtc, DateTime? LastUsableBidUtc, DateTime? NextBidCheckUtc, bool ExitLatched, string? BidSourceContract);
 public sealed record EngineBrokerProtectionStatus(bool NewBuysStopped, int OwnedOrders, int ReconciledOrders,
     ImmutableArray<string> AccountRiskBlocks, ImmutableArray<EngineBrokerHoldingProtection> Holdings);

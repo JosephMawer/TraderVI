@@ -60,7 +60,8 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
         var mappedBars = input.Bars.ToBuilder();
         foreach (var pair in marketSymbols)
             if (input.Bars.TryGetValue(pair.Value, out var bars)) mappedBars[pair.Key] = bars;
-        input = input with { BrokerMarketSymbols = marketSymbols, Bars = mappedBars.ToImmutable() };
+        input = input with { BrokerMarketSymbols = marketSymbols, Bars = mappedBars.ToImmutable(),
+            BrokerHoldingSecurityIds = session.Account.Positions.ToImmutableDictionary(p => p.Symbol, p => p.SecurityId, StringComparer.OrdinalIgnoreCase) };
         token.ThrowIfCancellationRequested(); t.Commit(); return input;
     }
 

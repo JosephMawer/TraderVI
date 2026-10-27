@@ -42,6 +42,7 @@ public sealed partial class ManualBuyCoordinator
             $"Original daily reference {projected.Risk.SessionReference.Value:N2} CAD; drawdown reference {projected.Risk.DrawdownReference.Value:N2} CAD; all source dates and history retained.\n" +
             (saved.OngoingManagement is not null ? $"Ongoing agreement retained with {saved.Account.Positions.Length} holdings and their saved protection. " : $"Original permission still expires {scope!.PurchaseExpiresAt?.ToLocalTime():g}. ") +
             "Gates, risk controls, memory, buying/paused mode and cumulative allowance are unchanged.\n\n" +
+            "Real holding protection now uses a fresh Wealthsimple bid matched to the account, security and quantity, with a broker timestamp no more than 60 seconds old. Missing or stale bids do not trigger an exit. Existing stop levels and broker sell checks remain unchanged.\n\n" +
             "Review these facts, then Approve reviewed build within two minutes. This saves only the explicit build review; no order, baseline reset, risk event or host enable. Enable reviewed host separately afterward.";
         return new(proposal,new(new BrokerManagedSessionRepository(executionCalendar!,sharedStorage:true),components.AccountSource,
             HostGrants(),executionCalendar!),summary);

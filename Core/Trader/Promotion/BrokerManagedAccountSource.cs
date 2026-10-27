@@ -89,13 +89,20 @@ public sealed class BrokerManagedAccountSource(IBrokerReconciliationWorkflow rec
         if (session.Strategy.Strategy.Family == TradingStrategyFamily.DailyShadow &&
             (session.Strategy.Strategy.ReadShadowPolicy().UseProgressiveProfitProtection ||
              input.PreviousMemory.Symbols.Values.Any(s => s.ShadowProtection?.Progressive is not null)))
-            input = input with { Quotes = await new TradingRecommendationQuoteSource().ReadAsync(input, ct) };
+            input = input with { Quotes = await ReadQuotesAsync(input, ct) };
         return input;
     }
-    public Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
-        new TradingRecommendationQuoteSource().ReadAsync(input, ct);
+    public async Task<ImmutableArray<TradingQuote>> ReadQuotesAsync(TradingRecommendationInput input, CancellationToken ct) =>
+        (await ReadQuoteObservationAsync(input, ct)).Quotes;
     public Task<TradingQuoteReadResult> ReadQuoteObservationAsync(TradingRecommendationInput input, CancellationToken ct) =>
-        new TradingRecommendationQuoteSource().ReadDetailedAsync(input, ct);
+        new TradingRecommendationQuoteSource().ReadDetailedAsync(input, async (symbol, requested, token) =>
+        {
+            long revision = sessionRevision();
+            var read = await broker.ReadManualSellContextAsync(brokerAccount, symbol, token);
+            if (revision != sessionRevision() || read.Status != WealthsimpleReadStatus.Success || read.Data is null)
+                throw new InvalidOperationException("The held-position broker quote could not be verified.");
+            return BrokerHoldingQuote.Validate(input, brokerAccount, symbol, requested, clock.GetUtcNow().UtcDateTime, read.Data);
+        }, ct);
     public Task<string> ResolveSecurityAsync(string symbol, CancellationToken ct) => resolveSecurity(symbol, ct);
     public async Task PreserveRiskHoldsAsync(BrokerAccountProjection account, TradingRecommendationMemory memory, CancellationToken ct)
     {

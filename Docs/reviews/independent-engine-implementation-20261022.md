@@ -55,6 +55,15 @@ constants. A hash-verified read using the corrected predicate finds four accepte
 Real holding protection, with exact account/security/quantity and regular-session/time checks; that
 source adapter and another reviewed installation remain pending.
 
+Provider correction89ac8294 passes527 focused tests plus the native read-only predicate check.
+The approved broker-held bid adapter is implemented and disclosed in build review: exact owned
+security/quantity/account, fresh quote and account reads, broker quote age at most60seconds, regular
+session and positive bid. It supplies no entry ask/last-price substitute and never submits an order.
+515 focused tests pass; the final full suite passes3,218 with nine skipped and the isolated Release
+build succeeds with260 existing compiler warnings/no errors. Installed verification of this combined
+follow-up remains pending. The watch now checks decision-level risk blocks and saved bid due times
+through qualified read-only execution diagnostics; Running status alone is not treated as readiness.
+
 Historical morning status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.

@@ -14,11 +14,17 @@ public sealed class TradingRecommendationQuoteSource : ITradingRecommendationQuo
     public async Task<ImmutableArray<TradingQuote>> ReadAsync(TradingRecommendationInput input, CancellationToken token) =>
         (await ReadDetailedAsync(input, token)).Quotes;
 
-    public async Task<TradingQuoteReadResult> ReadDetailedAsync(TradingRecommendationInput input, CancellationToken token)
+    public Task<TradingQuoteReadResult> ReadDetailedAsync(TradingRecommendationInput input, CancellationToken token) =>
+        ReadDetailedAsync(input, null, token);
+
+    internal async Task<TradingQuoteReadResult> ReadDetailedAsync(TradingRecommendationInput input,
+        Func<string, DateTime, CancellationToken, Task<TradingQuote>>? heldQuote, CancellationToken token)
     {
         using var source = new TmxDelphiLiveMarketDataSource();
         return await ObserveAsync(input, async (symbol, requested, ct) =>
         {
+            if (heldQuote is not null && input.CurrentHoldings.Any(h => string.Equals(h.Symbol, symbol, StringComparison.OrdinalIgnoreCase)))
+                return await heldQuote(symbol, requested, ct);
             var receipt = await source.GetQuoteAsync(new(Guid.NewGuid(), BrokerMarketSymbols.Market(input, symbol),
                 input.CurrentHoldings.Any(h=>string.Equals(h.Symbol,symbol,StringComparison.OrdinalIgnoreCase))?"Sell":"Buy",
                 1, requested, requested), ct);
