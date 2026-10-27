@@ -1,5 +1,16 @@
 # TraderVI Project Status
 
+## October 27 preparation — October 26 evening check
+
+At21:27 Toronto, the normal engine is Connected and execution is Waiting outside regular hours.
+Zero Broker/Global holds remain; the October26 NewHistory audit completed16:28:53 and current
+checkpoint/decision hashes pass. Eight Paper holds remain separate. Tomorrow's regular session is
+09:30–16:00, with October26 as the previous session. TraderVI Nightly is Ready for00:30:30;
+its previous run returned0. No October27 publication or permission exists yet: overnight output and
+Joseph's dated pre-open review/approval/enable remain pending. A separate October27-only readiness
+heartbeat is scheduled for08:30 and09:15 in this chat, with explicit blocker/operator-action reports.
+The October26 trading-day watch remains finished. [Evening evidence and morning procedure](reviews/independent-engine-implementation-20261022.md#october-26-evening-readiness-for-october-27).
+
 ## October 26 — closing watch complete; no new trades
 
 **Closing evidence16:07–16:22:** execution is Waiting outside regular hours, connection succeeds and

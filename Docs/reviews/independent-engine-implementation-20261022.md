@@ -3,7 +3,7 @@
 Current status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance
 completed14:16, Joseph approved/enabled14:28, last Real evaluation15:59:32. Permission expired16:00;
 execution waits outside regular hours. Eight Paper restrictions and incomplete market-data/first-fill
-qualification remain. See the closing report below.**
+qualification remain. The21:27 evening check below prepares October27; it does not renew permission.**
 
 Historical closing status: **October23 watch completes16:05 Toronto without a first fill or new diagnostic price pair;
 its heartbeat is deleted. Diagnostic43424435 remains installed with exact Core hash unchanged;
@@ -14,6 +14,59 @@ account consumption of that post-close bar is not claimed. Original15:45 cutoff/
 without renewal. Price comparison and complete native preflight/submission/protection remain open.**
 The original overnight target was missed. Paper recovery now completes its saved plan; retained Paper
 restrictions and remaining native acceptance are separate unfinished work.
+
+## October 26 evening readiness for October 27
+
+Joseph requests a plain-language recap, pre-open blocker checks and removal of repeated daily
+review/approval/enable downtime. The accepted ongoing-management direction is already recorded in
+ADR-0085; this is an unfinished Delphi Live implementation dependency, not a new decision about
+permission duration. The installed ADR-0105 path remains an explicit dated cash-only trial.
+
+At21:27 Toronto the installed Status/Connection/ExecutionStatus controls return normal Running,
+Connected and Waiting outside regular hours. Real, collection, market-input, connection and continuity
+workers have no current failure; known Paper/research restrictions remain separate. The bounded
+hash-verified SQL read finds zero Broker/Global holds, eight Paper holds, valid current checkpoint and
+decision hashes, and the October26 NewHistory audit Complete at16:28:53.954 (boundary16:10:30).
+Retained failed audits are historical. Head2314/last Real evaluation15:59:32 are still today's closing
+state, not evidence of a future evaluation. No fresh broker balance/history read is claimed tonight;
+the last broker v2 close check remains16:08.
+
+The reviewed calendar lists October27 as a regular09:30–16:00 session with October26 as its previous
+session. Scheduled task TraderVI Nightly is Ready, next runOctober27 00:30:30, previous result0;
+WakeToRun and StartWhenAvailable are true. This proves scheduling, not tomorrow's successful output.
+At21:27 there are zero October27 OfficialPaper publications and no October27 permission. Check the
+actual nightly result and Valid publication using October26 sources and the exact saved strategy's
+configuration/models before calling preparation ready. Current-day permission expired16:00.
+
+For the installed flow, Joseph should complete the October27 review before09:30, preferably08:45–09:00:
+open Trading > Execution setup; Stop execution host for review while leaving the independent engine
+and collection running; truthfully confirm no outside account changes since the original cash-only
+baseline; Review next session; inspect account/risk references, remaining allowance, exact strategy/build,
+October27 date and16:00 expiry; approve the dated continuation within two minutes; then Enable reviewed
+host separately. Pre-open review/enable is supported. Do not resave the original baseline or switch
+strategy. A matching broker balance cannot supply the personal outside-change attestation.
+
+A separate same-chat October27 readiness heartbeat is created for08:30 and09:15, with a final report
+and deletion at09:15 (late/date guards prevent later diagnostics). It must explicitly report the initial
+pending approval/enable and any other blockers, even when previously known; it remains read-only and
+cannot supply financial approval, enable, recovery, hold clearance or a host restart. Its identifier is
+`tradervi-october-27-pre-open-readiness`. No October26 monitor is extended. Local scheduling and host
+availability are prerequisites; the report is not an unconditional guarantee of pre-open readiness.
+
+The permanent direction remains one explicitly approved, pinned strategy operating until paused,
+with automatic daily source/account/risk checks and checked restart restoration. Preserve original
+loss references, cumulative purchase allowance, holds, pending-order identities and protection;
+never silently upgrade a one-day approval or adopt a changed paper policy. Complete the Delphi Live
+family adapter, qualified evidence/startup and native multi-day recovery under checklist6a/7 before
+claiming that workflow installed. First-fill/protection and rejected-price comparison qualification
+remain open; ongoing permission does not waive those requirements. No execution behavior changes here.
+
+Private evidence: `tomorrow-readiness.sql`, query SHA256
+`EEE57866B152F6774606A2CFEB234491CC0A288CEAC41150636C344D086F1205`;
+`result-20261027T012719646Z-ce2add9c146f47268a22193de3b84d1c.json`, result SHA256
+`4437E4F187017482FEB7DB5FFFCF5DFCF2511C3C64CC61FDD16084E0F120370B`;
+`tomorrow-prep-Status.json`, `tomorrow-prep-Connection.json`, `tomorrow-prep-ExecutionStatus.json`.
+Mailbox restored. This checkpoint changes documentation and the readiness schedule only.
 
 ## October 26 closing report
 

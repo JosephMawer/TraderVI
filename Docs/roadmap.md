@@ -8,6 +8,14 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
+**October26 evening priority:** prepare October27 before open, explicitly surface missing dated
+permission/enable and verify the new nightly publication rather than waiting for market-hours signals.
+Then complete the already accepted ongoing-management path for Delphi Live so unchanged approved
+strategy/risk authority can persist until paused with automatic daily checks and checked restart
+restoration. Checklist6a/7 owns the remaining evidence, adapter, startup and native multi-day acceptance;
+do not silently upgrade the installed one-day trial or weaken price, account or protection checks.
+[Current readiness and procedure](reviews/independent-engine-implementation-20261022.md#october-26-evening-readiness-for-october-27).
+
 **Current request — complete the revised architecture:** ADRs0103/0104 independence, shared/current
 storage and scoped sequential recovery are installed. Real recovery and authorized real-only hold
 clearance pass, including the separately authorized post-Windows-restart proof/clearance. Paper completes
