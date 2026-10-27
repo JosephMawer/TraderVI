@@ -12,6 +12,9 @@ public sealed record BrokerExecutionHostGrant(Guid BindingId, Guid SessionId, st
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public Guid? ContinuationId { get; init; }
+    // Explicit host scope, absent from legacy grants. A dated trial cannot gain restart authority.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RestoreAfterRestart { get; init; }
     public void Validate()
     {
         if (BindingId == Guid.Empty || SessionId == Guid.Empty || !CompleteTradingStrategy.IsHash(StrategyFingerprint) ||
@@ -71,7 +74,8 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             }
             var grant = new BrokerExecutionHostGrant(bindingId, sessionId, reviewedStrategyFingerprint,
                 implementationIdentity, clock.GetUtcNow(), reviewer, true)
-                { ContinuationId = saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId };
+                { ContinuationId = saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId,
+                    RestoreAfterRestart = saved.IsOngoing && saved.EffectiveReview.NoTransferScope is null };
             grant.Validate(); RequireMatchingAssignment(grant, saved);
             ct.ThrowIfCancellationRequested();
             grants.Write(grants.Read(), grant);
@@ -96,6 +100,26 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             if (saved?.Enabled == true) grants.Write(saved, saved with { Enabled = false });
             if (grants.Read()?.Enabled == true) throw new InvalidOperationException("Host stop was not confirmed. Read back its saved permission.");
             Present("Off", "Execution host stopped. Saved assignment, buying mode, risk history and original orders are preserved.");
+        }
+        finally { gate.Release(); }
+    }
+
+    /// <summary>Drain a process shutdown without turning an approved ongoing mode into an operator stop.</summary>
+    public async Task ShutdownAsync(CancellationToken ct = default)
+    {
+        await gate.WaitAsync(ct);
+        try
+        {
+            var grant = grants.Read();
+            if (grant?.Enabled == true && !grant.RestoreAfterRestart)
+            {
+                grants.Write(grant, grant with { Enabled = false });
+                if (grants.Read()?.Enabled == true)
+                    throw new InvalidOperationException("Legacy host shutdown was not confirmed. Recover its saved permission.");
+            }
+            Present("Off", grant is { Enabled: true, RestoreAfterRestart: true }
+                ? "Engine stopped. Ongoing permission is preserved; restart requires the same build, account, order and strategy checks."
+                : "Engine stopped. Saved operator mode and original orders are preserved.");
         }
         finally { gate.Release(); }
     }
@@ -132,7 +156,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             ct.ThrowIfCancellationRequested();
             var result = await tick(saved, ct);
             failures = 0; nextCheck = clock.GetUtcNow().AddSeconds(30);
-            Present(result.Phase == BrokerManagedPhase.Active ? "Running" : "Waiting",
+            Present(!result.Blocks.IsEmpty ? "Blocked" : result.Phase == BrokerManagedPhase.Active ? "Running" : "Waiting",
                 result.Blocks.IsEmpty ? result.NewBuysStopped
                     ? "New automatic buys are stopped; ordinary exit rules remain enabled."
                     : result.LatestDecision?.Summary ?? "Reviewed strategy cycle complete. Existing account, order and protection controls remain authoritative."
@@ -152,6 +176,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
     {
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
+            grant.RestoreAfterRestart && (!saved.IsOngoing || saved.EffectiveReview.NoTransferScope is not null) ||
             grant.ContinuationId != (saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId) ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
             saved.ImplementationReview is not null && grant.ReviewedAt < saved.ImplementationReview.ApprovedAt ||

@@ -176,6 +176,17 @@ Their September 22 installation does not create a baseline, assignment or enable
 
 ## Open design and acceptance boundary
 
+### October 26 restart implementation increment
+
+Clean independent-engine shutdown now drains the active execution cycle separately from an explicit
+operator host stop. Newly enabled, unscoped ongoing assignments record restart restoration explicitly;
+legacy grants and dated no-transfer trials retain their previous shutdown behavior. A restart still
+checks the exact assignment/build and fresh account/order evidence. An explicit host stop remains off,
+and stopped buying remains stopped. Blocked execution cycles are displayed as Blocked rather than Running.
+Focused offline validation: 440 broker-session tests pass, including clean shutdown, preserved buying
+mode, original permission, and waiting for an admitted cycle. This increment is not installed and
+does not complete the Delphi Live trial's transition to an ongoing no-transfer agreement.
+
 The [continuing draft](../concepts/strategy-promotion-and-execution.md#portfolio-wide-ongoing-management--september-22)
 tracks outside/manual changes and replacement transitions. Stopping new buys and checked restart
 restoration are accepted above; Core continuation and saved UI controls are tested, while execution

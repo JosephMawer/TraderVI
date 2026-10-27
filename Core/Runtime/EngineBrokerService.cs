@@ -77,7 +77,7 @@ public sealed class EngineBrokerService
         try
         {
             closing = true;
-            await host.DisableAsync().ConfigureAwait(false);
+            await host.ShutdownAsync().ConfigureAwait(false);
             await connection.StopAsync().ConfigureAwait(false);
             journal.Dispose(); reviews.Clear();
         }

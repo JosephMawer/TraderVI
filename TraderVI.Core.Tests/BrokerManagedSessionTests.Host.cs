@@ -93,6 +93,57 @@ public sealed partial class BrokerManagedSessionTests
     }
 
     [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task CleanShutdownRestoresExplicitOngoingGrantAndPreservesBuyingMode(bool stopped)
+    {
+        var f = new Fixture(); UseNormalLive(f); var grants = new HostGrants();
+        await f.Workflow().ApproveAsync(f.Approval(retain: true, ongoing: true));
+        if (stopped) await f.Workflow().StopNewBuysAsync(f.Binding.BindingId);
+        var host = Host(f, grants); await Enable(host, f); await host.PollAsync(true);
+        var saved = f.Store.State!; var originalGrant = grants.Value;
+        await host.ShutdownAsync();
+        Assert.True(grants.Value!.RestoreAfterRestart); Assert.Equal(originalGrant, grants.Value);
+        Assert.Equal(saved, f.Store.State);
+        f.Store.Restart(); f.Now = f.Now.AddSeconds(31);
+        var restarted = Host(f, grants); await restarted.PollAsync(true);
+        Assert.Equal(stopped, f.Store.State!.NewBuysStopped);
+        Assert.Equal(saved.SessionId, f.Store.State.SessionId);
+        Assert.Equal(saved.Approval.Fingerprint, f.Store.State.Approval.Fingerprint);
+        Assert.Equal(BrokerAccountImport.Hash(saved.Protection), BrokerAccountImport.Hash(f.Store.State.Protection));
+        Assert.Equal(0, f.Transport.Sent);
+    }
+
+    [Theory]
+    [InlineData(false)][InlineData(true)]
+    public async Task ShutdownDoesNotUpgradeLegacyGrantsOrUndoAnExplicitStop(bool stopped)
+    {
+        var f = new Fixture(); UseNormalLive(f); var grants = new HostGrants();
+        await f.Workflow().ApproveAsync(f.Approval(retain: true, ongoing: true));
+        var host = Host(f, grants); await Enable(host, f);
+        if (stopped) await host.DisableAsync();
+        else grants.Value = grants.Value! with { RestoreAfterRestart = false };
+        await host.ShutdownAsync();
+        Assert.False(grants.Value!.Enabled);
+        var restarted = Host(f, grants); await restarted.PollAsync(true);
+        Assert.Equal("Off", restarted.Status.State); Assert.Equal(0, f.Transport.Sent);
+    }
+
+    [Fact]
+    public async Task ShutdownWaitsForUncertainOrderCycleWithoutChangingItsPermission()
+    {
+        var f = new Fixture(); UseNormalLive(f); var grants = new HostGrants();
+        await f.Workflow().ApproveAsync(f.Approval(retain: true, ongoing: true));
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var host = Host(f, grants, async (saved, ct) => { started.SetResult(); await release.Task; return saved; });
+        await Enable(host, f); var permission = grants.Value;
+        var cycle = host.PollAsync(true); await started.Task;
+        var shutdown = host.ShutdownAsync(); Assert.False(shutdown.IsCompleted);
+        release.SetResult(); await cycle; await shutdown;
+        Assert.Equal(permission, grants.Value);
+    }
+
+    [Theory]
     [InlineData("build")][InlineData("assignment")][InlineData("invalidated")][InlineData("expired")][InlineData("paused")]
     public async Task HostNeverTreatsAChangedOrPausedAssignmentAsFreshAuthority(string reason)
     {
