@@ -64,6 +64,28 @@ build succeeds with260 existing compiler warnings/no errors. Installed verificat
 follow-up remains pending. The watch now checks decision-level risk blocks and saved bid due times
 through qualified read-only execution diagnostics; Running status alone is not treated as readiness.
 
+The combined follow-up 81dd33f3 installed at 15:05:44 with clean drain/restart, unchanged saved host grant,
+128 candidate/122 retained files verified and the previous runtime backed up. Connection is healthy;
+zero Broker/Global holds and nine unchanged Paper restrictions. Joseph completed the second app build
+review and resumed the ongoing host. At 15:14:12, qualified diagnostics show StrategyEvaluated revision 3044,
+one owned/reconciled order, unchanged matching holding protection, no account risk blocks and no
+entry/quote-read risk blocks. A usable BrokerProtectionBidV1 bid was saved at 15:12:59.532. The repeat
+check accepted another bid at 15:18:29.195, next due 15:23:29.195. Diagnostics at 15:20:19 (revision 3074)
+still show no account, decision or quote-read blocks; completed-bar protection advances through 15:15
+and no exit is latched. Host status at 15:14:49 is Running.
+It evaluated 28 fresh symbols with no confirmed recommendation. Protection checks and valuation are
+operationally verified; an actual protective sale/fill, sustained cadence and native multi-day continuity
+are not claimed. The 15:10 shared publication has 26 valid and two invalid observations, none mature or
+confirmed after the restart/gaps. No thresholds were relaxed or artificial signal/trade created.
+
+Receipts: cutover-broker-bid/completed.json under the repair artifact folder, qualified diagnostics
+execution-diagnostics-20261027T191440549Z.json and execution-diagnostics-20261027T192055760Z.json
+under minute-source evidence, and SQL receipt
+result-20261027T191251218Z-0c352e5930cc48a29ef518fca3483661.json (watch query SHA256 verified).
+Local code commits: 677b8100 (missing bid), 16b2cb60 (managed market symbols), 351a2a8a (invested build
+review), 89ac8294 (provider contract), 81dd33f3 (approved broker protection bids). a0660cdc preserves the
+intermediate installed checkpoint. No database migration, nightly rerun or financial activation by agent.
+
 Historical morning status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.

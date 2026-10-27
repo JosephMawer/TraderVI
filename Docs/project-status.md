@@ -1,21 +1,27 @@
 # TraderVI Project Status
 
-## October 27 14:34 — holding-symbol repair installed; app build review pending
+## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
-The first holding exposed a broker/canonical symbol mismatch and a missing-bid safety-input exception.
-Repair commits 677b8100, 16b2cb60 and 351a2a8a preserve original financial identities, use verified managed
-purchase/listing identity at market-data boundaries, and permit explicit repair-build review of the
-unchanged invested ongoing agreement. The full Core suite passes 3,207 tests (nine skipped); isolated
-Release build passes with 260 compiler warnings. No fresh security audit or full SSDT solution build.
+Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.
+Joseph completed both explicit app build reviews and resumed the existing ongoing agreement. The
+15:14 host read shows Running; qualified execution diagnostics through 15:20 show StrategyEvaluated,
+zero account or decision risk blocks,
+28 fresh evaluated symbols and no confirmed buy. The existing holding matches its saved protection;
+usable Wealthsimple bids were accepted at 15:12:59 and 15:18:29 under BrokerProtectionBidV1, with
+the next check due 15:23:29 and no exit latched. Completed-bar protection advances through 15:15. The sole owned order
+remains reconciled; no new order was forced. Indicators are rebuilding after the collection gaps.
 
-Controlled installation completed 14:29 with 128 candidate files and 122 retained files verified, the old
-runtime backed up and saved host grant unchanged. Connection and normal engine startup are verified;
-zero Broker/Global holds and nine existing Paper restrictions remain. Broker readback confirms one
-holding, zero pending orders and matching history. Fresh 14:30 inputs resumed (25 valid, three rejected),
-with no mature/confirmed entry yet after the collection gap. Saved protection matches the holding,
-but live protective bid checks and buy readiness still require Joseph's explicit app build approval and
-host resume, followed by post-approval verification. No financial approval or migration was performed.
-[Incident and validation](reviews/independent-engine-implementation-20261022.md#october-27--first-holding-exposes-mapping-and-final-evaluation-failures).
+Both controlled installations preserve the saved host grant and back up the preceding runtime;
+128 candidate files/122 retained files verify on each cutover. Connection is healthy; zero Broker/Global
+holds and nine pre-existing Paper restrictions remain. The final full Core suite passes 3,218 tests
+(nine skipped); isolated Release succeeds with 260 existing compiler warnings. No schema migration,
+nightly rerun, training, new security audit or full SSDT solution qualification. The monitor now reads
+qualified decision/protection diagnostics as well as host status and reports new blockers promptly.
+
+Native protective-sale/fill, sustained polling and multi-day continuation qualification remain open.
+Broker quote age uses the broker's timestamp; exchange-update age is not independently established.
+One-minute collection/publication/strategy integration remains uninstalled and requires its own review.
+[Repair evidence and local commits](reviews/independent-engine-implementation-20261022.md#october-27--first-holding-exposes-mapping-and-final-evaluation-failures).
 
 ## October 27 — fresh minute data observed; qualification continues
 

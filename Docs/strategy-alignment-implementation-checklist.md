@@ -990,8 +990,15 @@ The prerequisites below cover the broader real-account execution work and remain
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate installed Delphi Live increment:** observe multi-day
-continuation/first fill/protection without weakening holds. The bounded
+**Immediate installed Delphi Live increment:**
+
+- [x] October 27: first managed purchase is reconciled; the existing holding and original protection
+  survive the explicitly reviewed repair/restart. Native checks through 15:20 confirm two usable broker bids,
+  advancing completed-bar protection and no account/valuation blocks on buying.
+- [ ] Verify sustained protective bid cadence, an actual protective exit/fill and native multi-day
+  continuation without weakening holds. A passing protection check does not prove a sale or fill.
+
+The bounded
 no-transfer agreement is explicitly accepted; a complete native cash-flow feed remains unqualified.
 One-minute source qualification is a separate dependency before its strategy successor.
 
