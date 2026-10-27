@@ -1,7 +1,9 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
 Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
-verified with financial execution Off. Explicit ongoing approval remains Joseph's action. Restart
+verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
+host Running waits for current shared inputs. ADR-0110 corrects isolated ticker-source failure handling;
+native recovery publication remains pending. Restart
 recovery is complete with zero Broker/Global holds at09:52. Today's publication is blocked by the
 WM nightly metadata failure; one-minute confirmation is unqualified and not installed. See the
 October27 installation section below.**

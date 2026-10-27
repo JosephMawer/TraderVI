@@ -4,6 +4,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 
 ## architecture
 
+- [ADR-0110](0110-nightly-isolated-symbol-warnings.md) — Continue nightly stages after isolated ticker-source warnings
+
 - [ADR-0109](0109-explicit-ongoing-delphi-live-management.md) — Explicit ongoing no-transfer management and checked restart
 
 - [ADR-0107](0107-build-review-within-existing-dated-permission.md) — Exact build approval bound to existing dated financial permission
@@ -122,6 +124,8 @@ Manually maintained. Every ADR must appear under each tag declared in its header
 - [ADR-0054](0054-delphi-live-preview-and-historical-replay.md) — Delphi Live preview and historical replay
 
 ## data-pipeline
+
+- [ADR-0110](0110-nightly-isolated-symbol-warnings.md) — Individual source failures remain visible without blocking other tickers
 
 - [ADR-0103](0103-real-execution-independent-of-paper-research.md) — Shared inputs and nightly/weekly audits; checkpoint and persistence mechanisms remain draft
 - [ADR-0104](0104-scoped-recovery-and-sequential-history-audits.md) — Fresh sequential archive passes and independently qualified real recovery

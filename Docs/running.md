@@ -856,10 +856,14 @@ Read the latest status without starting any operational program:
 
 The runner writes atomic `status.json` state and per-run logs beneath
 `%LOCALAPPDATA%\TraderVI\Nightly`. `Succeeded` means the current source built and all three stages passed.
-`Attention` includes Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
+`Attention` includes explicitly marked Hermes individual daily-bar/stock-sector read warnings
+(`HermesSymbolUnavailable:`), Athena exit code 2 or a Delphi run degraded by an actual evidence limitation; a dirty
 working tree by itself remains recorded provenance and does not change the run audit state. `Failed` includes build failures,
 unstable source capture, dependency-lock failures, post-build artifact changes, timeouts, Hermes failures, invalid Delphi
-provenance, or any unexpected exit code. Hermes failure stops later stages; Delphi failure
+provenance, or any unexpected exit code. Under ADR-0110, isolated ticker-source warnings allow Delphi
+and Athena to continue, preserving existing per-stock exclusions and required benchmark checks.
+Database/processing failures, missing required shared inputs and backup failures are not downgraded.
+An attention marker cannot hide a fatal exit or timeout. Hermes failure stops later stages; Delphi failure
 does not prevent Athena from maturing earlier evidence. Only source capture and transient dependency restore may retry before any stage starts. Neither the runner
 nor Task Scheduler retries a failed operational pipeline automatically. A same-date completed run is suppressed unless an operator explicitly uses
 `-Force` after reviewing it.

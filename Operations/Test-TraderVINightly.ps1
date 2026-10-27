@@ -94,6 +94,8 @@ function New-TestStatus {
     } }
 }
 $script:Mode = 'Transient'
+$script:StageOverride = $null
+$script:StageOverrideName = 'Hermes'
 $script:Calls = @()
 function Invoke-CapturedProcess($FileName, $Arguments, $WorkingDirectory, $TimeoutMinutes, $Label, $EnvironmentOverrides=@{}) {
     $script:Calls += [pscustomobject]@{ arguments=$Arguments; workingDirectory=$WorkingDirectory; environment=$EnvironmentOverrides }
@@ -113,6 +115,7 @@ function Invoke-CapturedProcess($FileName, $Arguments, $WorkingDirectory, $Timeo
         [IO.File]::AppendAllText((Join-Path $fixture 'tracked.cs'), ' editor')
         return Result
     }
+    if ($null -ne $script:StageOverride -and $Arguments[0] -match ($script:StageOverrideName + '[.]dll$')) { return $script:StageOverride }
     return Result
 }
 $status = New-TestStatus
@@ -127,6 +130,46 @@ $stageResult = Invoke-NightlyStage $config.stages[0] $status.build.sourceDirecto
 Assert ($stageResult.state -eq 'Succeeded') 'Verified artifact starts once.'
 Assert ($script:Calls[-1].environment.TRADERVI_CODE_VERSION -eq $status.build.sourceBefore.gitCommit) 'Stage receives captured commit provenance.'
 Assert ($script:Calls[-1].environment.TRADERVI_WORKING_TREE_STATE -eq 'Dirty') 'Stage receives captured working-tree state.'
+# Exercise the same stage loop used by the scheduled runner, with no operational processes.
+foreach ($scenario in @(
+    @{ result=(Result 0 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Attention'; stages=3 },
+    @{ result=(Result 0 'HermesSymbolUnavailable: daily-bars ABC: source returned no usable data.'); expected='Attention'; stages=3 },
+    @{ result=(Result 2 'HermesSymbolUnavailable: sector-metadata WM: No results'); expected='Failed'; stages=1 },
+    @{ result=(Result 1 'HermesSymbolUnavailable: daily-bars ABC: timeout'); expected='Failed'; stages=1 },
+    @{ result=(Result 0 'HermesSymbolUnavailable: daily-bars ABC: timeout; Sector index collection failed: unavailable'); expected='Failed'; stages=1 },
+    @{ result=(Result 0 'Failed: 1'); expected='Failed'; stages=1 },
+    @{ result=([pscustomobject]@{Completed=$false; ExitCode=124; StandardOutput='HermesSymbolUnavailable: daily-bars ABC: timeout'; StandardError=''}); expected='Failed'; stages=1 }
+)) {
+    $script:StageOverride = $scenario.result
+    $pipeline = New-TestStatus
+    $pipeline.build = $status.build
+    $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
+    Assert ($pipeline.stages[0].state -eq $scenario.expected) "Hermes classifies $($scenario.expected) correctly."
+    Assert ($pipeline.stages.Count -eq $scenario.stages) 'Ticker warnings continue; fatal conditions stop later stages.'
+    Assert ($outcome.HasFailure -eq ($scenario.expected -eq 'Failed')) 'Pipeline retains fatal outcome.'
+    if ($scenario.expected -eq 'Attention') {
+        Assert $outcome.HasAttention 'Warnings remain visible in final outcome.'
+        Assert (($pipeline.stages.name -join ',') -eq 'Hermes,Delphi,Athena') 'Warning preserves all three stages in order.'
+    }
+}
+foreach ($scenario in @(
+    @{ name='Delphi'; result=(Result 0 'audit=Invalid'); expected='Failed' },
+    @{ name='Delphi'; result=(Result 0 'audit=Degraded'); expected='Attention' },
+    @{ name='Delphi'; result=(Result 1 'audit=Degraded'); expected='Failed' },
+    @{ name='Athena'; result=(Result 2); expected='Attention' }
+)) {
+    $script:StageOverrideName = $scenario.name
+    $script:StageOverride = $scenario.result
+    $pipeline = New-TestStatus
+    $pipeline.build = $status.build
+    $outcome = Invoke-NightlyStages $config $pipeline 'synthetic-dotnet' $built
+    $observed = $pipeline.stages | Where-Object name -eq $scenario.name
+    Assert ($observed.state -eq $scenario.expected) "$($scenario.name) retains its existing audit/exit contract."
+    Assert ($pipeline.stages.Count -eq 3) 'Athena still runs after a failed Delphi publication.'
+    Assert ($outcome.HasFailure -eq ($scenario.expected -eq 'Failed')) 'A rejected publication cannot become pipeline success.'
+}
+$script:StageOverride = $null
+$script:StageOverrideName = 'Hermes'
 [IO.File]::AppendAllText((Join-Path $status.build.sourceDirectory $config.stages[0].entryAssembly), 'tampered')
 $beforeCalls = $script:Calls.Count
 Assert-Throws { Invoke-NightlyStage $config.stages[0] $status.build.sourceDirectory 'synthetic-dotnet' $built.Hermes $status } 'changed after preflight'

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hermes;
 
 Console.WriteLine("=== Hermes: Market Data Collector ===\n");
 
@@ -100,56 +101,42 @@ static async Task RunBackfillAsync()
 
     foreach (var constituent in constituents)
     {
-        try
+        Console.Write($"[{processed + failed + 1}/{constituents.Count}] {constituent.Symbol,-10} ");
+
+        var latestDate = await repository.GetLatestDailyBarDateAsync(constituent.Symbol);
+
+        var startDate = latestDate.HasValue
+            ? latestDate.Value.Date.AddDays(1)
+            : defaultStartDate;
+
+        if (startDate > endDate)
         {
-            Console.Write($"[{processed + 1}/{constituents.Count}] {constituent.Symbol,-10} ");
+            Console.WriteLine("✓ Up-to-date");
+            processed++;
+            continue;
+        }
 
-            var latestDate = await repository.GetLatestDailyBarDateAsync(constituent.Symbol);
-
-            var startDate = latestDate.HasValue
-                ? latestDate.Value.Date.AddDays(1)
-                : defaultStartDate;
-
-            if (startDate > endDate)
-            {
-                Console.WriteLine("✓ Up-to-date");
-                processed++;
-                continue;
-            }
-
-            var dailyBars = await tmx.GetHistoricalTimeSeriesAsync(
+        bool collected = await SymbolCollection.CollectAsync("daily-bars", constituent.Symbol,
+            () => tmx.GetHistoricalTimeSeriesAsync(
                 symbol: constituent.Symbol,
                 freq: "day",
                 startDate: startDate.ToString("yyyy-MM-dd"),
-                endDate: endDate.ToString("yyyy-MM-dd")
-            );
-
-            if (dailyBars == null || dailyBars.Count == 0)
+                endDate: endDate.ToString("yyyy-MM-dd")),
+            dailyBars => dailyBars is { Count: > 0 },
+            async dailyBars =>
             {
-                Console.WriteLine("⚠️  No data");
-                processed++;
-                continue;
-            }
-
-            await repository.InsertDailyBarsAsync(constituent.Symbol, dailyBars);
-
-            totalBarsInserted += dailyBars.Count;
-            Console.WriteLine($"✓ {dailyBars.Count,4} bars ({startDate:yyyy-MM-dd}..{endDate:yyyy-MM-dd})");
-            processed++;
-
-            await Task.Delay(500); // 2 req/sec
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"✗ {ex.Message}");
-            failed++;
-        }
+                await repository.InsertDailyBarsAsync(constituent.Symbol, dailyBars);
+                totalBarsInserted += dailyBars.Count;
+                Console.WriteLine($"✓ {dailyBars.Count,4} bars ({startDate:yyyy-MM-dd}..{endDate:yyyy-MM-dd})");
+            }, Console.WriteLine);
+        if (collected) processed++; else failed++;
+        await Task.Delay(500); // Bound source request rate on failures too.
     }
 
     Console.WriteLine($"\n{'=',-50}");
     Console.WriteLine("Backfill Complete:");
     Console.WriteLine($"  Symbols processed: {processed}");
-    Console.WriteLine($"  Failed: {failed}");
+    Console.WriteLine($"  Unavailable symbol reads: {failed}");
     Console.WriteLine($"  Total bars inserted: {totalBarsInserted:N0}");
     Console.WriteLine($"{'=',-50}");
 
@@ -759,41 +746,37 @@ static async Task RefreshStockSectorMapAsync(TmxClient tmx)
 
     foreach (var stock in constituents)
     {
-        try
-        {
-            Console.Write($"[{processed + 1}/{constituents.Count}] {stock.Symbol,-10} ");
-
-            var detail = await tmx.GetQuoteDetailAsync(stock.Symbol);
-            var sector = detail.sector?.Trim() ?? "";
-            var industry = detail.industry?.Trim();
-
-            TsxSectorMap.TryGetSectorIndex(sector, out var sectorIndexSymbol);
-
-            mappings.Add(new StockSectorMapping(
-                Symbol: stock.Symbol,
-                Sector: string.IsNullOrEmpty(sector) ? "Unknown" : sector,
-                Industry: string.IsNullOrEmpty(industry) ? null : industry,
-                SectorIndexSymbol: sectorIndexSymbol,
-                LastUpdated: DateTime.UtcNow));
-
-            if (sectorIndexSymbol == null)
+        Console.Write($"[{processed + failed + 1}/{constituents.Count}] {stock.Symbol,-10} ");
+        bool collected = await SymbolCollection.CollectAsync("sector-metadata", stock.Symbol,
+            () => tmx.GetQuoteDetailAsync(stock.Symbol), detail => detail is not null,
+            detail =>
             {
-                Console.WriteLine($"⚠️  {sector,-25} → (unmapped)");
-                unmapped++;
-            }
-            else
-            {
-                Console.WriteLine($"✓ {sector,-25} → {sectorIndexSymbol}");
-            }
+                var sector = detail.sector?.Trim() ?? "";
+                var industry = detail.industry?.Trim();
 
-            processed++;
-            await Task.Delay(500); // respect rate limits
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"✗ {ex.Message}");
-            failed++;
-        }
+                TsxSectorMap.TryGetSectorIndex(sector, out var sectorIndexSymbol);
+
+                mappings.Add(new StockSectorMapping(
+                    Symbol: stock.Symbol,
+                    Sector: string.IsNullOrEmpty(sector) ? "Unknown" : sector,
+                    Industry: string.IsNullOrEmpty(industry) ? null : industry,
+                    SectorIndexSymbol: sectorIndexSymbol,
+                    LastUpdated: DateTime.UtcNow));
+
+                if (sectorIndexSymbol == null)
+                {
+                    Console.WriteLine($"⚠️  {sector,-25} → (unmapped)");
+                    unmapped++;
+                }
+                else
+                {
+                    Console.WriteLine($"✓ {sector,-25} → {sectorIndexSymbol}");
+                }
+
+                return Task.CompletedTask;
+            }, Console.WriteLine);
+        if (collected) processed++; else failed++;
+        await Task.Delay(500); // respect rate limits even after unavailable reads
     }
 
     if (mappings.Count > 0)
@@ -802,9 +785,9 @@ static async Task RefreshStockSectorMapAsync(TmxClient tmx)
     Console.WriteLine($"\n{'=',-60}");
     Console.WriteLine("Sector Map Refresh Complete:");
     Console.WriteLine($"  Processed: {processed}");
-    Console.WriteLine($"  Mapped:    {processed - unmapped - failed}");
+    Console.WriteLine($"  Mapped:    {processed - unmapped}");
     Console.WriteLine($"  Unmapped:  {unmapped} (sectors with no TSX index)");
-    Console.WriteLine($"  Failed:    {failed}");
+    Console.WriteLine($"  Unavailable symbol reads: {failed}");
     Console.WriteLine($"{'=',-60}\n");
 
     // Report unmapped sectors for manual review

@@ -1,6 +1,6 @@
 # ADR-0109: Explicit ongoing Delphi Live management
 
-**Date:** October 26, 2026 Toronto. **Status:** Accepted; implemented/tested and installed October27 at01:26 Toronto. Financial activation and native qualification remain pending.
+**Date:** October 26, 2026 Toronto. **Status:** Accepted; implemented/tested and installed October27 at01:26 Toronto. Initial ongoing approval confirmed09:58; current source readiness and native lifecycle qualification remain pending.
 **Domains:** architecture, risk-management, user-interface, market-microstructure.
 **Related:** ADRs 0079, 0081, 0083, 0085, 0105, 0107.
 
@@ -114,5 +114,7 @@ Commit ae427a46 is installed with all128 runtime hashes verified, previous runti
 engine/dashboard responsive. Execution is Off; financial records/head hash are unchanged. The laptop
 restart created a Global integrity hold; Real-only verification completed at09:49 and qualified scoped
 resolution leaves zero Broker/Global holds at09:52, with Paper restrictions preserved. Today's nightly
-publication is still blocked by WM metadata failure; initial financial approval remains pending.
+publication is still missing following WM metadata failure; initial financial approval was subsequently
+saved by Joseph and confirmed09:58. ADR-0110 corrects isolated ticker failure classification; source
+readiness and native lifecycle qualification remain separate.
 [Current evidence and procedure](../reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).

@@ -1,6 +1,7 @@
 # ADR-0046: Guarded nightly operations runner
 
-- **Status:** Accepted; build preparation superseded by [ADR-0078](0078-isolated-latest-source-nightly-builds.md)
+- **Status:** Accepted; build preparation superseded by [ADR-0078](0078-isolated-latest-source-nightly-builds.md);
+  isolated daily-bar/stock-sector source failure classification superseded by [ADR-0110](0110-nightly-isolated-symbol-warnings.md).
 - **Date:** 2026-09-02
 - **Domains:** architecture, data-pipeline, decision-engine, risk-management
 

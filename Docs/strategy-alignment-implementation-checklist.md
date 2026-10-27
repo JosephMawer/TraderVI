@@ -686,8 +686,9 @@ record them. A prepared migration or passing test never proves broker readiness.
   events lack price/timestamp values, so the cause remains unproven.
 - [x] Complete post-laptop-restart Real integrity verification/qualified scoped resolution and bounded
   broker history/holdings/pending checks (October27 09:52); preserve Paper restrictions and trading Off.
-- [ ] Resolve today's nightly metadata/publication failure, pass current source/account checks,
-  complete Joseph's initial ongoing app approval and native multi-day/first-fill/protection observation.
+- [x] Save Joseph's explicit initial ongoing app approval (October27, confirmed09:58).
+- [ ] Verify corrected nightly publication and current source/account checks, then native
+  multi-day/first-fill/protection observation.
 - [ ] Qualify genuinely fresh minute data, decide its source contract, implement consistent minute
   collection/storage/publication/evaluation without shortening indicator horizons, then explicitly
   review the updated strategy. Existing five-minute behavior remains; stale/repeated bars do not count.
@@ -975,8 +976,8 @@ The prerequisites below cover the broader real-account execution work and remain
   authorized native order/lifecycle tests, then explicitly authorize real execution. Recommendation-only
   approval under ADR-0062 retains its separate evidence policy; it does not qualify automation.
 
-**Immediate installed Delphi Live increment:** resolve today's source-publication blocker and initial
-operator approval, then observe multi-day continuation/first fill/protection without weakening holds. The bounded
+**Immediate installed Delphi Live increment:** verify corrected source publication and prospective
+adoption, then observe multi-day continuation/first fill/protection without weakening holds. The bounded
 no-transfer agreement is explicitly accepted; a complete native cash-flow feed remains unqualified.
 One-minute source qualification is a separate dependency before its strategy successor.
 

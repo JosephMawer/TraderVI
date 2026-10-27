@@ -298,6 +298,12 @@ function Invoke-NightlyStage {
             $stageStatus.state = 'Failed'
             $stageStatus.message = "Output matched failure pattern '$matchedFailurePattern'."
         }
+        elseif (@($Stage.successExitCodes) -notcontains $result.ExitCode -and
+                @($Stage.attentionExitCodes) -notcontains $result.ExitCode) {
+            # A warning must never hide a later crash, failed backup or other fatal exit.
+            $stageStatus.state = 'Failed'
+            $stageStatus.message = "Exited with code $($result.ExitCode)."
+        }
         elseif ($matchedAttentionPattern) {
             $stageStatus.state = 'Attention'
             $stageStatus.message = "Output matched attention pattern '$matchedAttentionPattern'."
@@ -320,6 +326,31 @@ function Invoke-NightlyStage {
     Write-JsonAtomically -Value $Status -Path $script:StatusPath
     Write-RunLog "Stage '$($Stage.name)' finished as $($stageStatus.state): $($stageStatus.message)"
     return $stageStatus
+}
+
+function Invoke-NightlyStages {
+    param($Configuration, $Status, [string] $DotnetPath, $ArtifactSnapshots)
+    $hasFailure = $false
+    $hasAttention = $false
+    foreach ($stage in $Configuration.stages) {
+        $result = Invoke-NightlyStage `
+            -Stage $stage `
+            -RepoRoot $Status.build.sourceDirectory `
+            -DotnetPath $DotnetPath `
+            -ExpectedArtifact $ArtifactSnapshots[[string] $stage.name] `
+            -Status $Status
+        if ($result.state -eq 'Attention') {
+            $hasAttention = $true
+        }
+        elseif ($result.state -eq 'Failed') {
+            $hasFailure = $true
+            if (-not [bool] $stage.continueAfterFailure) {
+                Write-RunLog "Stopping before later stages because '$($stage.name)' failed."
+                break
+            }
+        }
+    }
+    return [pscustomobject]@{ HasFailure=$hasFailure; HasAttention=$hasAttention }
 }
 
 . (Join-Path $PSScriptRoot 'NightlyBuild.ps1')
@@ -421,33 +452,14 @@ try {
         exit 0
     }
 
-    $hasFailure = $false
-    $hasAttention = $false
-    foreach ($stage in $configuration.stages) {
-        $result = Invoke-NightlyStage `
-            -Stage $stage `
-            -RepoRoot $status.build.sourceDirectory `
-            -DotnetPath $dotnetPath `
-            -ExpectedArtifact $artifactSnapshots[[string] $stage.name] `
-            -Status $status
-        if ($result.state -eq 'Attention') {
-            $hasAttention = $true
-        }
-        elseif ($result.state -eq 'Failed') {
-            $hasFailure = $true
-            if (-not [bool] $stage.continueAfterFailure) {
-                Write-RunLog "Stopping before later stages because '$($stage.name)' failed."
-                break
-            }
-        }
-    }
+    $outcome = Invoke-NightlyStages $configuration $status $dotnetPath $artifactSnapshots
 
     $status.completedUtc = [DateTimeOffset]::UtcNow.ToString('O')
-    if ($hasFailure) {
+    if ($outcome.HasFailure) {
         $status.state = 'Failed'
         $status.message = 'One or more stages failed. Review the referenced log; no automatic retry was attempted.'
     }
-    elseif ($hasAttention) {
+    elseif ($outcome.HasAttention) {
         $status.state = 'Attention'
         $status.message = 'All stages completed, but at least one stage reported an attention condition.'
     }

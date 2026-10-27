@@ -1,6 +1,19 @@
 # TraderVI Project Status
 
-## October 27 — ongoing runtime installed; activation pending
+## October 27 — ongoing approval saved; nightly warning correction
+
+At09:58 the read-only check confirms saved ongoing approval (managed revision2330, Active) and zero
+October27 official publications. The execution host subsequently reports Running while waiting for
+verified current-session shared inputs. Joseph's initial financial approval is complete; no further
+approval is requested merely because of the date. Native multi-day/first-fill qualification remains.
+
+The accepted ADR-0110 correction lets individual daily-bar/stock-sector source warnings continue to
+Delphi/Athena, retaining fatal storage/backup/process handling and existing benchmark/freshness gates.
+73 synthetic runner assertions and34 focused collection/benchmark/history tests pass; Hermes Release
+passes with259 existing warnings and zero errors. The scheduled runner reads this repository directly;
+no engine/dashboard restart or strategy/model change is needed. Native corrected recovery is pending.
+
+### Earlier installation and recovery checkpoints
 
 Installed commit `ae427a46` at 01:26 Toronto after the operator's laptop restart: 128 file hashes
 match, seven binaries changed, 121 other files retained and the previous runtime preserved.
