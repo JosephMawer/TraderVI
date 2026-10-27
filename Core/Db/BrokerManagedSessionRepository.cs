@@ -113,7 +113,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             throw new InvalidOperationException("The durable broker session is inconsistent.");
         if (prior is null)
         {
-            if (next.SessionContinuation is not null || next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
+            if (next.OngoingManagement is not null || next.SessionContinuation is not null || next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
                 next.Revision != 0 || next.PreviousRevisionId is not null || !next.Orders.IsEmpty || next.ActivatedAt is not null ||
                 next.Phase != BrokerManagedPhase.Transition)
                 throw new InvalidOperationException("A new account session starts only from reviewed transition authority.");
@@ -126,7 +126,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             (prior.NewBuysStopped || next.NewBuysStopped) && next.Orders.Skip(prior.Orders.Length).Any(o => o.Side == "BUY"))
             throw new InvalidOperationException("Only an explicit buying-control event may change the saved mode; stopped sessions cannot reserve a purchase.");
         if (prior.TrialOrderReviewRequired && (!next.TrialOrderReviewRequired || next.Orders.Length != prior.Orders.Length) ||
-            next.TrialOrderReviewRequired && next.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial != true)
+            next.TrialOrderReviewRequired && !next.RequiresFullFillReview)
             throw new InvalidOperationException("A native trial order-review hold cannot be cleared or reserve another order through ordinary recovery or buying controls.");
         if (prior.BindingId != next.BindingId || prior.SessionId != next.SessionId || prior.Approval.Fingerprint != next.Approval.Fingerprint ||
             next.Revision != prior.Revision + 1 || next.PreviousRevisionId != prior.RevisionId || next.SavedAt < prior.SavedAt ||
@@ -135,6 +135,8 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             prior.Memory.CapitalReviewRequired && !next.Memory.CapitalReviewRequired ||
             prior.Memory.TradingDate == next.Memory.TradingDate && prior.Memory.DailyLossHold && !next.Memory.DailyLossHold)
             throw new InvalidOperationException("Broker session history, authority and holds must be preserved.");
+        if (prior.OngoingManagement?.Fingerprint != next.OngoingManagement?.Fingerprint)
+            BrokerOngoingManagementWorkflow.ValidateAppend(prior, next);
         if (prior.SessionContinuation?.Fingerprint != next.SessionContinuation?.Fingerprint)
             BrokerSessionContinuationWorkflow.ValidateAppend(prior, next, calendar ??
                 throw new InvalidOperationException("A reviewed calendar is required for selected-session permission."));

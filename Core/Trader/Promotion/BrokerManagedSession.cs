@@ -125,11 +125,14 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerImplementationReview? ImplementationReview { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOngoingManagement? OngoingManagement { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerDecisionTrace? LatestDecision { get; init; }
     [JsonIgnore] public BrokerActivationReview EffectiveReview
     {
         get
         {
+            if (OngoingManagement is not null) return OngoingManagement.Review;
             var review = Continuation?.Approval.Review ?? Approval.Review;
             if (SourceSwitch is not null) review = review with { Strategy = SourceSwitch.SourceReview.Strategy };
             if (October22 is not null) review = October22.Approval.Review;
@@ -144,7 +147,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
                 { Strategy = review.Strategy.Strategy with { ImplementationIdentity = ImplementationReview!.ImplementationIdentity } } };
         }
     }
-    [JsonIgnore] public DateTime? StrategyEffectiveUtc => SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
+    [JsonIgnore] public DateTime? StrategyEffectiveUtc => OngoingManagement?.ApprovedAt?.UtcDateTime ?? SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
+    [JsonIgnore] public bool RequiresFullFillReview => OngoingManagement is not null || EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
     [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.

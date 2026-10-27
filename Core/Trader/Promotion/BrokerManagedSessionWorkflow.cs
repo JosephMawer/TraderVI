@@ -76,7 +76,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             if (clock.GetUtcNow() < open) return state; // No broker read, save, protection action or order before the open.
         }
         bool paused = state.Phase == BrokerManagedPhase.Paused;
-        bool fullFillTrial = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
+        bool fullFillTrial = state.RequiresFullFillReview;
         bool NeedsTrialReview()
         {
             try { return state.Orders.Any(o => o.Submission != WealthsimpleSubmissionStatus.Acknowledged) || source.RequiresTrialOrderReview(state.Orders); }
@@ -379,7 +379,7 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
             if (evaluatedDecision) state = DecisionFailure(state, "SubmissionOutcomeUnknown", error);
         }
         // If this save fails, the durable intent remains unresolved. Recovery only reads its original ID.
-        bool trialReview = state.EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true && result != WealthsimpleSubmissionStatus.Acknowledged;
+        bool trialReview = state.RequiresFullFillReview && result != WealthsimpleSubmissionStatus.Acknowledged;
         return await Save(lease, Outcome(state, evaluatedDecision, "Submission" + result) with { Orders = state.Orders.SetItem(state.Orders.Length - 1, order with { Submission = result }),
             TrialOrderReviewRequired = state.TrialOrderReviewRequired || trialReview,
             Phase = trialReview ? BrokerManagedPhase.Paused : state.Phase },

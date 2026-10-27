@@ -25,10 +25,12 @@ public sealed record BrokerAccountRiskState(Guid BaselineId, Guid BindingId, str
     public BrokerOctober22Continuation? October22 { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerSessionContinuation? SessionContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOngoingRiskAuthorization? OngoingAuthorization { get; init; }
     public override string ToString() => "Continuing account risk state (financial data omitted)";
 }
 
-public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows, TrialCarryForward, SupervisedContinuation, October22Continuation, ReviewedSessionContinuation }
+public enum BrokerRiskContinuationKind { Opening, Closing, HoldObservation, CashFlows, TrialCarryForward, SupervisedContinuation, October22Continuation, ReviewedSessionContinuation, OngoingAuthorization }
 
 /// <summary>
 /// A successful cash-flow reconciliation of this interval is required. This contract supports ONLY
@@ -62,6 +64,8 @@ public sealed record BrokerRiskContinuationRequest(Guid RequestId, Guid Baseline
     public BrokerOctober22Continuation? October22 { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerSessionContinuation? SessionContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerOngoingRiskAuthorization? OngoingAuthorization { get; init; }
     [JsonIgnore]
     public string RequestHash => EngineStrategySettings.Hash(JsonSerializer.Serialize(this));
     public override string ToString() => "Account risk continuation request (no order authority)";
@@ -114,6 +118,8 @@ public static class BrokerAccountRiskContinuation
                 CapitalReviewRequired = state.CapitalReviewRequired || holds.CapitalReviewRequired };
         }
 
+        if (request.Kind == BrokerRiskContinuationKind.OngoingAuthorization)
+            return request.OngoingAuthorization!.Apply(state, now);
         if (request.Kind == BrokerRiskContinuationKind.TrialCarryForward)
             return BrokerTrialCarryForward.Apply(state, request, calendar, now);
         if (request.Kind == BrokerRiskContinuationKind.ReviewedSessionContinuation)
@@ -196,6 +202,7 @@ public static class BrokerAccountRiskContinuation
             (request.Kind == BrokerRiskContinuationKind.SupervisedContinuation) != (request.Continuation is not null) ||
             (request.Kind == BrokerRiskContinuationKind.October22Continuation) != (request.October22 is not null) ||
             (request.Kind == BrokerRiskContinuationKind.ReviewedSessionContinuation) != (request.SessionContinuation is not null) ||
+            (request.Kind == BrokerRiskContinuationKind.OngoingAuthorization) != (request.OngoingAuthorization is not null) ||
             !Enum.IsDefined(request.Kind) ||
             (request.Kind switch
             {
@@ -205,7 +212,7 @@ public static class BrokerAccountRiskContinuation
                     request.Boundary is not null || request.NoFlows is not null,
                 BrokerRiskContinuationKind.TrialCarryForward => request.Holds is not null || request.CashFlows is not null ||
                     request.Boundary is not null || request.NoFlows is not null,
-                BrokerRiskContinuationKind.SupervisedContinuation or BrokerRiskContinuationKind.October22Continuation or BrokerRiskContinuationKind.ReviewedSessionContinuation => request.Holds is not null || request.CashFlows is not null ||
+                BrokerRiskContinuationKind.SupervisedContinuation or BrokerRiskContinuationKind.October22Continuation or BrokerRiskContinuationKind.ReviewedSessionContinuation or BrokerRiskContinuationKind.OngoingAuthorization => request.Holds is not null || request.CashFlows is not null ||
                     request.Boundary is not null || request.NoFlows is not null,
                 _ => request.Holds is not null || request.CashFlows is not null || request.Boundary is null || request.NoFlows is null
             }))

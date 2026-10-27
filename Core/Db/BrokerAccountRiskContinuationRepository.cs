@@ -66,7 +66,7 @@ public sealed class BrokerAccountRiskContinuationRepository : IBrokerAccountRisk
             ct.ThrowIfCancellationRequested(); t.Commit(); return saved;
         }
         var previous = await State(c, t, request.BaselineId);
-        if (request.Continuation is not null || request.October22 is not null || request.SessionContinuation is not null)
+        if (request.Continuation is not null || request.October22 is not null || request.SessionContinuation is not null || request.OngoingAuthorization is not null)
         {
             var snapshot = await c.QuerySingleOrDefaultAsync<string>("""
 SELECT TOP(1) SnapshotJson FROM dbo.BrokerManagedSessionRevision WITH(UPDLOCK,HOLDLOCK)
@@ -77,6 +77,10 @@ WHERE BindingId=@BindingId ORDER BY Revision DESC;
             request.Continuation?.RequirePrior(prior, calendar);
             request.October22?.RequirePrior(prior, calendar);
             request.SessionContinuation?.RequirePrior(prior, calendar);
+            if (request.OngoingAuthorization is { } ongoing &&
+                (BrokerSessionContinuation.StateHash(prior) != ongoing.PreviousSessionHash ||
+                 BrokerAccountImport.Hash(prior.Account.Risk) != ongoing.PreviousRiskHash || prior.OngoingManagement is not null))
+                throw new InvalidOperationException("Ongoing authorization must bind the exact existing assignment and risk history.");
         }
         if (request.TrialCarry is { } carry)
         {

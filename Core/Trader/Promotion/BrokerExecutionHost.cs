@@ -60,7 +60,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
                 ?? throw new InvalidOperationException("No approved managed assignment exists. Complete its execution review first.");
             if (saved.SessionId != sessionId || saved.Strategy.Fingerprint != reviewedStrategyFingerprint)
                 throw new InvalidOperationException("The displayed assignment changed. Review its current identity before activation.");
-            if (saved.Continuation is not null)
+            if (saved.Continuation is not null && saved.OngoingManagement is null)
             {
                 var scope = saved.EffectiveReview.NoTransferScope ?? throw new InvalidOperationException("Recover the saved continuation scope.");
                 scope.Validate(calendar);
@@ -74,7 +74,7 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
             }
             var grant = new BrokerExecutionHostGrant(bindingId, sessionId, reviewedStrategyFingerprint,
                 implementationIdentity, clock.GetUtcNow(), reviewer, true)
-                { ContinuationId = saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId,
+                { ContinuationId = saved.OngoingManagement?.RequestId ?? saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId,
                     RestoreAfterRestart = saved.IsOngoing && saved.EffectiveReview.NoTransferScope is null };
             grant.Validate(); RequireMatchingAssignment(grant, saved);
             ct.ThrowIfCancellationRequested();
@@ -177,7 +177,9 @@ public sealed class BrokerExecutionHost(IBrokerExecutionHostGrantStore grants, I
         saved.Strategy.Validate();
         if (saved.BindingId != grant.BindingId || saved.SessionId != grant.SessionId || saved.Strategy.Fingerprint != grant.StrategyFingerprint ||
             grant.RestoreAfterRestart && (!saved.IsOngoing || saved.EffectiveReview.NoTransferScope is not null) ||
-            grant.ContinuationId != (saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId) ||
+            grant.ContinuationId != (saved.OngoingManagement?.RequestId ?? saved.SessionContinuation?.Approval.Review.RequestId ?? saved.October22?.Approval.Review.RequestId ?? saved.Continuation?.Approval.Review.RequestId) ||
+            saved.OngoingManagement is { } ongoing && (ongoing.ApprovedAt is null || ongoing.ApprovedAt > grant.ReviewedAt ||
+                saved.Account.Risk.OngoingAuthorization != ongoing.RiskAuthorization) ||
             saved.Strategy.Strategy.ImplementationIdentity != implementationIdentity || saved.ReviewInvalidated ||
             saved.ImplementationReview is not null && grant.ReviewedAt < saved.ImplementationReview.ApprovedAt ||
             saved.Strategy.Strategy.Family != TradingStrategyFamily.DelphiLive ||

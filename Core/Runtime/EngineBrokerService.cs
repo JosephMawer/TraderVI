@@ -53,7 +53,9 @@ public sealed class EngineBrokerService
                     accounts.Status != WealthsimpleReadStatus.Success || accounts.Data is null)
                     throw new InvalidOperationException("The connected account could not be verified.");
                 var account = BrokerManagedSessionComposition.MatchAccount(saved, accounts.Data);
-                IBrokerRiskEvidenceSource risk = saved.EffectiveReview.NoTransferScope is { } scope
+                IBrokerRiskEvidenceSource risk = saved.OngoingManagement is { } ongoing
+                    ? new BrokerOngoingRiskEvidenceSource(ongoing, calendar, new BrokerOngoingBoundaryRepository().ReadAsync)
+                    : saved.EffectiveReview.NoTransferScope is { } scope
                     ? new BrokerNoTransferRiskEvidenceSource(scope, calendar) : new UnqualifiedBrokerRiskEvidenceSource();
                 var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal,
                     journal, orderGate, account, calendar, risk, independentInputs: true, sessionStore: sessions);
