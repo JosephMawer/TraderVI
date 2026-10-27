@@ -22,7 +22,9 @@ public sealed class BrokerManagedStrategyViewModel(IBrokerManagedSessionControls
     public string StrategyName => saved?.Strategy.Strategy.Name ?? "No approved strategy loaded";
     public string BuyingMode => saved is null ? "Refresh the linked account to restore its saved selection."
         : saved.NewBuysStopped ? "New buys stopped · existing exit rules retained" : "Buying allowed after account and risk checks";
-    public string Duration => saved is null ? "" : saved.IsOngoing ? "Ongoing strategy selection" : "One trading session only";
+    public string Duration => saved is null ? "" : saved.OngoingManagement is not null ? "Ongoing management until paused"
+        : saved.EffectiveReview.NoTransferScope is not null ? "Dated buying permission · ongoing approval still required"
+        : saved.IsOngoing ? "Ongoing strategy selection" : "One trading session only";
     public string Status { get; private set; } = "Account verification and activation review are required. See the separate execution host status.";
     public bool IsBusy => operation is not null;
     private bool CanChange => !disposed && !IsBusy && verified && saved is not null && binding == saved.BindingId &&

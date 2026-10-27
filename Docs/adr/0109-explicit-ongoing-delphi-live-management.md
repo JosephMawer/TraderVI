@@ -74,3 +74,5 @@ mode/restart, weekend continuation, invested exact boundary valuation, missing b
 cash, history changes and uncertain orders. Existing protection/ceiling tests remain. UI, final full
 validation, installation and native multi-day/first-fill qualification remain pending. Tests grant no
 operational authority.
+
+The app review/combined approve-and-start action and persistent pause-new-buys control are now implemented. WPF Debug build passes (260 existing compiler warnings, zero errors). Financial activation and installed UI verification remain pending.

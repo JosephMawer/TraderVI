@@ -132,7 +132,9 @@ public sealed partial class ManualBuyCoordinator
             accounts.Status != WealthsimpleReadStatus.Success || accounts.Data is null)
             throw new InvalidOperationException("The current owned TFSA could not be verified.");
         var account = BrokerManagedSessionComposition.MatchAccount(saved, accounts.Data);
-        IBrokerRiskEvidenceSource risk = saved.EffectiveReview.NoTransferScope is { } scope
+        IBrokerRiskEvidenceSource risk = saved.OngoingManagement is { } ongoing
+            ? new BrokerOngoingRiskEvidenceSource(ongoing, executionCalendar!, new BrokerOngoingBoundaryRepository().ReadAsync)
+            : saved.EffectiveReview.NoTransferScope is { } scope
             ? new BrokerNoTransferRiskEvidenceSource(scope, executionCalendar!)
             : new UnqualifiedBrokerRiskEvidenceSource();
         var workflow = BrokerManagedSessionComposition.Create(connection, connection, connection, journal, journal,
@@ -154,6 +156,7 @@ public sealed partial class ManualBuyCoordinator
         var previewCarry = panel.PreviewCarry; var saveCarry = panel.SaveCarry; var noOutside = panel.NoOutsideChanges;
         var approve = panel.ApproveFirst; var enable = panel.EnableHost; var stop = panel.StopHost;
         var nextSession = panel.ReviewNextSession; var approveContinuation = panel.ApproveContinuation;
+        var reviewOngoing = panel.ReviewOngoing; var approveOngoing = panel.ApproveOngoing; var pauseBuying = panel.PauseBuying;
         var reviewSwitch = panel.ReviewSourceSwitch; var approveSwitch = panel.ApproveSourceSwitch;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -167,6 +170,8 @@ public sealed partial class ManualBuyCoordinator
         SourceSwitchPreparation? sourceSwitchReview = null;
         BuildReviewPreparation? buildReview = null;
         bool reviewingBuild = false;
+        BrokerOngoingManagement? ongoingReview = null;
+        BrokerOngoingManagementWorkflow? ongoingWorkflow = null;
         CancellationTokenSource? reviewExpiry = null;
         IDisposable? reviewAdmission = null;
         void ReleaseReviewAdmission()
@@ -191,6 +196,7 @@ public sealed partial class ManualBuyCoordinator
             busy = executionEditing = true; lastDecision.IsEnabled = refresh.IsEnabled = checkpoint.IsEnabled = first.IsEnabled = approve.IsEnabled = enable.IsEnabled = stop.IsEnabled =
                 previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = nextSession.IsEnabled = approveContinuation.IsEnabled =
                 reviewSwitch.IsEnabled = approveSwitch.IsEnabled = false;
+            reviewOngoing.IsEnabled = approveOngoing.IsEnabled = pauseBuying.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try
             {
@@ -211,13 +217,14 @@ public sealed partial class ManualBuyCoordinator
                 if (journal is EngineOrderReadModel orders) await orders.RefreshAsync(lifetime.Token);
                 await action();
             }
-            catch (OperationCanceledException) { }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; }
+            catch (OperationCanceledException) { ongoingReview = null; ongoingWorkflow = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; ongoingReview = null; ongoingWorkflow = null; }
             catch (Exception error)
             {
                 if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
                     "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
                 reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null;
+                ongoingReview = null; ongoingWorkflow = null;
             }
             finally
             {
@@ -228,12 +235,17 @@ public sealed partial class ManualBuyCoordinator
                     reviewSwitch.IsEnabled = true;
                     approveSwitch.IsEnabled = (sourceSwitchReview is not null || buildReview is not null) && noOutside.IsChecked == true;
                     approveContinuation.IsEnabled = continuationReview?.Review.CanApprove == true && noOutside.IsChecked == true;
+                    reviewOngoing.IsEnabled = true;
+                    approveOngoing.IsEnabled = ongoingReview is not null && ongoingWorkflow is not null && noOutside.IsChecked == true;
+                    pauseBuying.IsEnabled = reviewed?.OngoingManagement is not null;
                     enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
                 CommandManager.InvalidateRequerySuggested();
             }
         }
         async Task Refresh()
         {
+            ongoingReview = null; ongoingWorkflow = null;
+            reviewOngoing.Visibility = approveOngoing.Visibility = pauseBuying.Visibility = Visibility.Collapsed;
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null; continuationReview = null;
             sourceSwitchReview = null;
             buildReview = null; reviewingBuild = false;
@@ -273,6 +285,36 @@ public sealed partial class ManualBuyCoordinator
             }
             // Match using broker identity, not a display label or another signed-in account.
             _ = BrokerManagedSessionComposition.MatchAccount(saved, new[] { account });
+            if (saved.OngoingManagement is not null || saved.SessionContinuation is not null)
+            {
+                _ = GetExecutionHost();
+                first.Visibility = approve.Visibility = previewCarry.Visibility = saveCarry.Visibility = checkpoint.Visibility =
+                    nextSession.Visibility = approveContinuation.Visibility = reviewSwitch.Visibility = approveSwitch.Visibility = Visibility.Collapsed;
+                ((TextBlock)noOutside.Content).Text = "I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline. I will pause management before any outside deposit, withdrawal or trade. Matching balances cannot independently prove that no offsetting transfers occurred.";
+                if (saved.OngoingManagement is { } agreement)
+                {
+                    reviewed = saved; noOutside.Visibility = Visibility.Collapsed;
+                    pauseBuying.Visibility = Visibility.Visible;
+                    pauseBuying.Content = saved.NewBuysStopped ? "Resume new buys after checks" : "Pause new buys · keep protection";
+                    enable.Content = "Resume stopped execution host";
+                    summary.Text = lines + $"Ongoing management approved {agreement.ApprovedAt:g}\nStrategy: {saved.Strategy.Strategy.Name}\n" +
+                        (saved.NewBuysStopped ? "New buys paused · existing exit/protection rules active when checks pass.\n" : "New buying allowed after all current checks.\n") +
+                        $"Remaining cumulative purchase allowance: {saved.EffectiveReview.PurchaseCeiling - saved.CommittedPurchaseCost:N2} CAD\n" +
+                        "Daily account, source, models/configuration, calendar, integrity and risk checks are automatic. No daily approval is needed for this unchanged agreement.\n" +
+                        "Pause before outside account changes. A changed build/strategy or unresolved safety issue requires review.\n\n" +
+                        ExecutionStatus.Message + "\n" + string.Join("\n", saved.Blocks);
+                }
+                else
+                {
+                    reviewed = null; noOutside.Visibility = Visibility.Visible;
+                    reviewOngoing.Visibility = approveOngoing.Visibility = Visibility.Visible;
+                    summary.Text = lines + "Initial ongoing approval is required. The previous dated permission has not been extended.\n\n" +
+                        "Confirm the no-transfer agreement, then Review ongoing management. This stops the execution host for the review and checks the exact strategy/build, account and original financial references.\n\n" +
+                        "Approve and start ongoing management saves the agreement and starts its host in one action. Buying remains subject to daily checks and regular market hours. Existing pause settings, protection and cumulative allowance are retained.\n\n" +
+                        "Signal confirmation remains five-minute until a separately reviewed minute-data successor is qualified.";
+                }
+                return;
+            }
             if (saved.Approval.Review.NoTransferScope?.TrialCarry is not null)
             {
                 _ = GetExecutionHost();
@@ -449,7 +491,36 @@ public sealed partial class ManualBuyCoordinator
             approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true;
             approveSwitch.IsEnabled = !busy && (sourceSwitchReview is not null || buildReview is not null); };
         noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = approveContinuation.IsEnabled = approveSwitch.IsEnabled = false;
-            carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; ReleaseReviewAdmission(); };
+            carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null;
+            ongoingReview = null; ongoingWorkflow = null; approveOngoing.IsEnabled = false; ReleaseReviewAdmission(); };
+        reviewOngoing.Click += async (_, _) => await Run(async () =>
+        {
+            if (noOutside.IsChecked != true) throw new InvalidOperationException("Read and confirm the ongoing no-transfer agreement first.");
+            var prepared = await PrepareOngoingAsync(account, lifetime.Token, Check, Stage);
+            ongoingReview = prepared.Review; ongoingWorkflow = prepared.Workflow;
+            summary.Text = $"Review ongoing management · {ongoingReview.Review.Strategy.Strategy.Name}\n" +
+                $"Build: {ongoingReview.Review.Strategy.Strategy.ImplementationIdentity}\n" +
+                $"Cumulative purchase ceiling: {ongoingReview.Review.PurchaseCeiling:N2} CAD. Day changes and sales do not refill it.\n\n" +
+                "Until paused, with automatic daily checks and checked restart restoration. Original account loss references and history remain. Pause new buys leaves existing protection active; full host stop is separate.\n\n" +
+                "No outside changes since the original baseline; pause before any outside deposit, withdrawal or trade. Unexplained differences block buying. Matching balances cannot detect offsetting transfers.\n\n" +
+                "Five-minute signal confirmation remains in effect. Review this exact agreement within two minutes, then Approve and start ongoing management. This enables checked automatic execution; it does not guarantee a purchase or fill.";
+        }, waitForPaperCycles: false);
+        approveOngoing.Click += async (_, _) => await Run(async () =>
+        {
+            if (noOutside.IsChecked != true || ongoingReview is null || ongoingWorkflow is null)
+                throw new InvalidOperationException("Prepare and confirm the exact ongoing review first.");
+            Check(); var saved = await ongoingWorkflow.ApproveAsync(ongoingReview, lifetime.Token); Check();
+            // Financial approval is durable before host arming. A failed arm remains visibly recoverable.
+            reviewed = saved;
+            await StartApprovedOngoingAsync(saved, lifetime.Token); Check();
+            await Refresh(); BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+        }, waitForPaperCycles: false);
+        pauseBuying.Click += async (_, _) => await Run(async () =>
+        {
+            Check(); var selected = reviewed ?? throw new InvalidOperationException("Refresh the saved assignment first.");
+            await executionSessions.SetBuyingStoppedAsync(selected.BindingId, selected.SessionId, !selected.NewBuysStopped, lifetime.Token);
+            Check(); await Refresh(); BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+        }, waitForPaperCycles: false);
         reviewSwitch.Click += async (_, _) => await Run(async () =>
         {
             Check(); reviewed = null; sourceSwitchReview = null; buildReview = null;

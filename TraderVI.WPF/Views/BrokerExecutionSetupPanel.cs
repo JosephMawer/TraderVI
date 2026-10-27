@@ -16,6 +16,9 @@ public sealed class BrokerExecutionSetupPanel : UserControl
     public Button ApproveFirst { get; } = new() { Content = "Approve reviewed assignment", IsEnabled = false };
     public Button EnableHost { get; } = new() { Content = "Enable reviewed host", IsEnabled = false };
     public Button StopHost { get; } = new() { Content = "Stop execution host" };
+    public Button ReviewOngoing { get; } = new() { Content = "Review ongoing management", Visibility = Visibility.Collapsed };
+    public Button ApproveOngoing { get; } = new() { Content = "Approve and start ongoing management", IsEnabled = false, Visibility = Visibility.Collapsed };
+    public Button PauseBuying { get; } = new() { Content = "Pause new buys · keep protection", Visibility = Visibility.Collapsed };
     public Button ReviewSourceSwitch { get; } = new() { Content = "Review Portfolio rules only", Visibility = Visibility.Collapsed };
     public Button ApproveSourceSwitch { get; } = new() { Content = "Approve reviewed source switch", IsEnabled = false, Visibility = Visibility.Collapsed };
     public Button ReviewNextSession { get; } = new() { Content = "Review next session", Visibility = Visibility.Collapsed };
@@ -40,7 +43,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
         var header = new StackPanel();
         header.Children.Add(new TextBlock { Text = "Delphi Live execution", FontSize = 26 });
-        header.Children.Add(new TextBlock { Text = "Review actual account readiness and qualifications, approve the exact assignment, then enable its host separately.",
+        header.Children.Add(new TextBlock { Text = "Review the selected strategy and actual account. Explicit ongoing approval starts its checked management until you pause it.",
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 16) });
         header.Children.Add(NoOutsideChanges);
         layout.Children.Add(header);
@@ -49,7 +52,7 @@ public sealed class BrokerExecutionSetupPanel : UserControl
         Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
         var actions = new WrapPanel();
         foreach (var button in new[] { Refresh, LastDecision, PreviewCarry, SaveCarry, CaptureNativeCheckpoint, PrepareFirst, ApproveFirst,
-            ReviewNextSession, ApproveContinuation, ReviewSourceSwitch, ApproveSourceSwitch, EnableHost, StopHost })
+            ReviewOngoing, ApproveOngoing, PauseBuying, ReviewNextSession, ApproveContinuation, ReviewSourceSwitch, ApproveSourceSwitch, EnableHost, StopHost })
         {
             button.MinWidth = 215; button.MinHeight = 44; button.Padding = new Thickness(12, 9, 12, 9); button.Margin = new Thickness(0, 0, 10, 8);
             if (TryFindResource("WorkspaceButton") is Style style) button.Style = style;
