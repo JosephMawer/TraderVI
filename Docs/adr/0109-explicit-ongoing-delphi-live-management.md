@@ -112,5 +112,7 @@ is claimed. Source evidence is under `artifacts/ongoing-live-20261026`. Installa
 
 Commit ae427a46 is installed with all128 runtime hashes verified, previous runtime retained and normal
 engine/dashboard responsive. Execution is Off; financial records/head hash are unchanged. The laptop
-restart created a Global integrity hold; current Real-only recovery verification was started before
-open and remains a prerequisite to initial app approval. [Current evidence and procedure](../reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).
+restart created a Global integrity hold; Real-only verification completed at09:49 and qualified scoped
+resolution leaves zero Broker/Global holds at09:52, with Paper restrictions preserved. Today's nightly
+publication is still blocked by WM metadata failure; initial financial approval remains pending.
+[Current evidence and procedure](../reviews/independent-engine-implementation-20261022.md#october-27-ongoing-runtime-installation-and-review).

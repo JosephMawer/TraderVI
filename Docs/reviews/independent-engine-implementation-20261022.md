@@ -2,7 +2,8 @@
 
 Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified with financial execution Off. Explicit ongoing approval remains Joseph's action. Restart
-recovery verification is pending; one-minute confirmation is unqualified and not installed. See the
+recovery is complete with zero Broker/Global holds at09:52. Today's publication is blocked by the
+WM nightly metadata failure; one-minute confirmation is unqualified and not installed. See the
 October27 installation section below.**
 
 Historical October26 status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance
@@ -56,11 +57,20 @@ Private cutover receipt: `artifacts/ongoing-live-20261026/cutover/completed.json
 are hash matched. A broker-helper check at23:38 could not verify login; installed connection is
 Connected at09:24. This is not a fresh independent holdings/pending verification.
 
-**Current blocker:** laptop interruption produced one Global EngineRecoveryRequired hold; eight
-historical Paper restrictions remain. Real-only recovery was requested at09:26; do not clear without
-a complete current proof and exact incident selection. The global hold blocks approval/collection.
-The native UI inspection timed out waiting for computer-use approval; no screen review is claimed.
+**Restart recovery completed:** requested at09:26, verified at09:49:33 (56,979 units; all three Real
+targets complete). The two eligible incidents were selected from the current receipt and resolved
+through the installed ClearIntegrityHolds command in Real scope. The repository rechecked current
+heads, database identity, immutable guards and Real observation before committing resolution. At09:52,
+zero Broker/Global holds remain; all eight old Paper restrictions remain plus the retained Paper portion
+of the restart finding (nine total). Normal engine is Running/Connected; execution remains Off.
+Private evidence: `recovery-status-0950.json`, `clear-verified-real-restart*.json`, `post-recovery-*.json`.
+The UI read attempt later also timed out capturing the window; no screen review is claimed.
 Nightly publication and native ongoing multi-day/first-fill/protection qualification remain separate checks.
+
+The fixed broker helper succeeded at09:45: history/holdings agree, zero holdings/pending orders,
+46 bounded reads, zero orders/refreshes/credential changes. It does not qualify local order journals,
+cash effective timing or automatic execution. Encrypted snapshot SHA256:
+50C59813F35FB0E8340931223602ED99B839FBDE40FA1FA3D4BCDF99F15E916C.
 
 **Nightly blocker, checked 09:40:** the scheduled 00:30 run completed daily-price collection and a
 checksum-verified backup/copy, but its WM sector-metadata request returned no TMX results. The runner

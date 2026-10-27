@@ -14,10 +14,12 @@ checked restart and persistent pause-new-buys, plus the operator-approved 0.25% 
 is **not implemented or qualified**: saved minute data is stale/sparse. Five-minute confirmation and
 longer indicator horizons remain. Native multi-day, first fill and populated protection remain unverified.
 
-The interrupted laptop run produced a Global EngineRecoveryRequired hold, separate from eight old
-Paper holds. Real-only verification was explicitly started at 09:26 as installation recovery; its
-result/qualified clearance are pending. This blocks approval and shared collection. UI inspection
-approval timed out; no new screen was visually verified and no financial control was clicked.
+The interrupted laptop run produced a Global EngineRecoveryRequired hold. Real-only verification
+completed at 09:49 (56,979 verified units); the two eligible restart/recovery incidents were resolved
+using its current proof. At 09:52, zero Broker/Global holds remain, nine Paper restrictions are retained,
+the normal engine is Connected and execution is Off. The fixed broker helper at 09:45 verified matching
+history/holdings with no holdings or pending orders; it sent no orders or credential changes.
+UI inspection/capture timed out; no new screen was visually verified and no financial control was clicked.
 The October27 readiness monitor was updated to inspect installed ongoing authority rather than demand
 daily renewal, then deleted after its 09:30 expiry. The 00:30 nightly run failed on WM sector metadata
 and stopped before Delphi publication. The authorized single TMX recheck at 09:40 returned the same

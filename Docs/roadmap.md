@@ -8,7 +8,7 @@ and source review points; use its owning-record links when resuming work.
 
 ## Accepted direction — prove strategies, then adopt one deliberately
 
-**October27 priority:** finish laptop-restart integrity recovery, resolve the WM metadata failure that
+**October27 priority:** restart integrity recovery is complete. Resolve the WM metadata failure that
 stopped nightly work before today's publication, verify the resulting source, and
 prepare Joseph's initial ADR-0109 ongoing approval in the installed runtime. Ongoing Delphi Live and
 bounded broker-ask execution are implemented/tested/installed; activation and native multi-day/first-fill
