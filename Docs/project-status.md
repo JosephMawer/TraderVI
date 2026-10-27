@@ -1,5 +1,22 @@
 # TraderVI Project Status
 
+## October 27 14:34 — holding-symbol repair installed; app build review pending
+
+The first holding exposed a broker/canonical symbol mismatch and a missing-bid safety-input exception.
+Repair commits 677b8100, 16b2cb60 and 351a2a8a preserve original financial identities, use verified managed
+purchase/listing identity at market-data boundaries, and permit explicit repair-build review of the
+unchanged invested ongoing agreement. The full Core suite passes 3,207 tests (nine skipped); isolated
+Release build passes with 260 compiler warnings. No fresh security audit or full SSDT solution build.
+
+Controlled installation completed 14:29 with 128 candidate files and 122 retained files verified, the old
+runtime backed up and saved host grant unchanged. Connection and normal engine startup are verified;
+zero Broker/Global holds and nine existing Paper restrictions remain. Broker readback confirms one
+holding, zero pending orders and matching history. Fresh 14:30 inputs resumed (25 valid, three rejected),
+with no mature/confirmed entry yet after the collection gap. Saved protection matches the holding,
+but live protective bid checks and buy readiness still require Joseph's explicit app build approval and
+host resume, followed by post-approval verification. No financial approval or migration was performed.
+[Incident and validation](reviews/independent-engine-implementation-20261022.md#october-27--first-holding-exposes-mapping-and-final-evaluation-failures).
+
 ## October 27 — fresh minute data observed; qualification continues
 
 Twelve authorized TMX reads at10:42–10:47 Toronto show genuinely advancing minute timestamps for XIU,

@@ -31,7 +31,17 @@ and account evidence. Approval remains an explicit app action and does not enabl
 execution diagnostics now expose saved protection matching and latest usable bid-check timestamps.
 The full Core suite passes 3,207 tests with nine skipped; isolated WPF/Engine Release build succeeds
 with 260 compiler warnings and no errors. No new dependency-security audit or SSDT solution build
-was performed. Logs are under `artifacts/held-symbol-repair-20261027`. Installation remains pending.
+was performed. Logs are under `artifacts/held-symbol-repair-20261027`.
+
+Controlled installation of 351a2a8a completed 14:29: 128 candidate files and 122 retained files hash-verified;
+previous runtime backed up, clean drain/restart, saved host grant unchanged, connected normal engine.
+No migration or financial approval. Integrity retains nine Paper restrictions and zero Broker/Global
+holds. Broker capture e4a9c54c confirms one holding, zero pending orders and matching history. Qualified
+diagnostics confirm saved protection matches; no last usable bid timestamp yet. Execution correctly
+requires explicit updated-build review. At 14:34 the approved policy has a fresh 14:30 publication with
+25 valid observations and three rejected inputs; none mature/confirmed after the gap. Native protection
+and buy-readiness verification remain pending Joseph app approval/resume. Private cutover, SQL and
+diagnostic receipts are retained in the repair/minute-source evidence folders.
 
 Historical morning status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
