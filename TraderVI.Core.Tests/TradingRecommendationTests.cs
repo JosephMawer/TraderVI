@@ -207,6 +207,31 @@ public sealed class TradingRecommendationTests
         Assert.Equal("Sell", exit.Action); Assert.Equal(4, exit.Quantity); Assert.Equal(94m, exit.ReferencePrice);
         Assert.Equal("Hold", Assert.Single(TradingRecommendationEngine.Evaluate(i with { Quotes = [] }).Recommendations).Action);
     }
+    [Theory]
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, 0)]
+    [InlineData(true, 0)]
+    public void LiveMissingBidDoesNotAbortProtectionAndLaterFreshBidCanExit(bool progressive, int? bid)
+    {
+        var input = LiveInput();
+        var policy = input.Assignment.Strategy.ReadLivePolicy() with { UseProgressiveProfitProtection = progressive };
+        var holding = new ReportedTradingHolding(Guid.NewGuid(), "HELD", 4, 400m, input.TradingDate);
+        input = input with { Assignment = input.Assignment with { Strategy = input.Assignment.Strategy with { LivePolicy = policy } },
+            EntriesPaused = true, CurrentHoldings = [holding], LiveInputs = [], Candidates = [],
+            Quotes = [new("HELD", Now, Now.AddSeconds(1), 100m, bid, 101m, "TmxQuoteFieldsV1")] };
+        var waiting = TradingRecommendationEngine.Evaluate(input);
+        Assert.Equal("Hold", Assert.Single(waiting.Recommendations).Action);
+        Assert.Contains(waiting.Warnings, w => w.Contains("waiting for an observed bid"));
+        var protection = waiting.Memory.Symbols["HELD"].LiveProtection!;
+        Assert.Equal(holding.PositionId, protection.PositionId);
+        Assert.Equal(100m, protection.AveragePurchasePrice);
+        var resumed = TradingRecommendationEngine.Evaluate(input with { PreviousMemory = waiting.Memory,
+            Quotes = [new("HELD", Now.AddSeconds(2), Now.AddSeconds(3), 94m, 94m, 95m, "TmxQuoteFieldsV1")] });
+        Assert.Equal("Sell", Assert.Single(resumed.Recommendations).Action);
+        Assert.Equal(holding.PositionId, Assert.Single(resumed.Recommendations).PositionId);
+    }
+
     internal static readonly DateTime Open = new(2026, 9, 8, 13, 30, 0, DateTimeKind.Utc);
     internal static readonly DateTime Now = Open.AddMinutes(32);
     internal static TradingRecommendationInput Input()

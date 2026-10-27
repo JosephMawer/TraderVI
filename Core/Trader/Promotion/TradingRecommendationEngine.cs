@@ -288,7 +288,7 @@ public static class TradingRecommendationEngine
             var safety=observed?.SafetyInput ?? new(true,true,holding.CostBasis/holding.Quantity,null,null,null,null,false,false,false,false,
                 new(DelphiLiveSignalFamily.VolumeSupport,DelphiLiveFamilyState.NotMature,"Missing live observations"),
                 new(DelphiLiveMomentumState.Neutral,DelphiLiveStrongTier.None,DelphiLiveNeutralDetail.None,0,0,0,0),false,memory.LiveProtection);
-            decimal? usableBid = quote?.Bid;
+            decimal? usableBid = quote?.Bid is > 0m ? quote.Bid : null;
             if (policy.UseProgressiveProfitProtection || memory.LiveProtection?.Progressive is not null)
             {
                 var protection = Core.Runtime.EngineStrategyReassignment.Rebase(memory.LiveProtection!, policy, input.EvaluatedUtc);
@@ -302,10 +302,10 @@ public static class TradingRecommendationEngine
                 memory = memory with { LiveProtection = protection };
             }
             var decision=DelphiLiveSafetyPolicy.Evaluate(safety with {IsHeld=true,AveragePurchasePrice=holding.CostBasis/holding.Quantity,
-                ProfitProtection=memory.LiveProtection,CurrentBid=usableBid,CurrentBidReceivedUtc=quote?.ReceivedUtc},policy);
+                ProfitProtection=memory.LiveProtection,CurrentBid=usableBid,CurrentBidReceivedUtc=usableBid.HasValue ? quote?.ReceivedUtc : null},policy);
             string? exit=memory.PositionId==holding.PositionId?memory.ExitReason:null;
             exit ??= decision.PrimaryExitRule?.ToString();
-            if(quote?.Bid is not >0m) warnings.Add($"{holding.Symbol}: bid-based protection is waiting for an observed bid.");
+            if(usableBid is null) warnings.Add($"{holding.Symbol}: bid-based protection is waiting for an observed bid.");
             if(observed is null) warnings.Add($"{holding.Symbol}: live signal protection is waiting for current persisted observations.");
             states[holding.Symbol]=memory with {PositionId=holding.PositionId,ExitReason=exit};
             rows.Add(new(holding.Symbol,exit is null?"Hold":"Sell",exit is null?0:holding.Quantity,quote?.Bid,

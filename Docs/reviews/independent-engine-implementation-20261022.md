@@ -1,5 +1,21 @@
 # Independent engine implementation and cutover review — October 22, 2026
 
+## October 27 — first holding exposes mapping and final-evaluation failures
+
+The 13:50 read-only investigation found a broker-managed holding whose broker symbol has no
+reviewed canonical alias. Collection stopped after the 11:35 publication; the 11:40 cycle is cancelled.
+The resolver also recognizes only the older `Real` owner label, omitting `BrokerManaged` and
+`BrokerPending`. Qualified execution diagnostics show `FinalEvaluationFailed / ArgumentException`;
+fresh valuation is unavailable. Saved protection preparation is not proof of working protective exits.
+Private receipts and the incident checkpoint are in `artifacts/minute-source-check-20261027`.
+
+Joseph authorizes repair, tests, installation and native protection/buy-readiness verification.
+The first offline repair pairs an absent/unusable bid with an absent receipt timestamp instead of
+throwing from the safety-input validator. Thirty recommendation tests pass, including missing/zero
+bids with and without progressive protection and a subsequent valid protective exit. Existing saved
+protection and cost/position identity survive. Installation and native verification are still pending;
+symbol resolution, valuation and owned-order reconciliation must be checked consistently first.
+
 Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.
