@@ -101,6 +101,8 @@ public sealed record BrokerStrategyOrder(Guid RequestId, Guid DecisionId, Guid? 
     bool Reconciled = false)
 {
     [JsonIgnore] public string ExternalId => "order-" + RequestId.ToString("D");
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerBuyReference? BuyReference { get; init; }
 }
 public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long Revision, Guid RevisionId,
     Guid? PreviousRevisionId, string Event, DateTimeOffset SavedAt, BrokerExecutionApproval Approval,
@@ -127,6 +129,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOngoingManagement? OngoingManagement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerBuyReference[]? BuyReferences { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerDecisionTrace? LatestDecision { get; init; }
     [JsonIgnore] public BrokerActivationReview EffectiveReview
     {
@@ -150,7 +154,7 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore] public DateTime? StrategyEffectiveUtc => OngoingManagement?.ApprovedAt?.UtcDateTime ?? SessionContinuation?.ApprovedAt?.UtcDateTime ?? October22?.ApprovedAt?.UtcDateTime ?? SourceSwitch?.ApprovedAt.UtcDateTime ?? ActivatedAt?.UtcDateTime;
     [JsonIgnore] public bool RequiresFullFillReview => OngoingManagement is not null || EffectiveReview.NoTransferScope?.FullFillOnlyNativeTrial == true;
     [JsonIgnore] public BrokerManagedStrategy Strategy => EffectiveReview.Strategy;
-    [JsonIgnore] public bool IsOngoing => Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
+    [JsonIgnore] public bool IsOngoing => OngoingManagement is not null || Approval.Review.Duration == BrokerExecutionDuration.Ongoing;
     // An ongoing assignment does not refill its explicitly approved spending ceiling at midnight.
     [JsonIgnore] public decimal CommittedPurchaseCost => Orders.Where(o => o.Side == "BUY")
         .Sum(o => o.Reconciled ? o.Latest?.NetValue ?? 0 : o.Quantity * o.ReferencePrice);
@@ -187,6 +191,8 @@ public interface IBrokerManagedAccountSource
 }
 public interface IBrokerManagedOrderTransport
 {
+    Task<ManualBuyQuote> ReadBuyReferenceAsync(string symbol, string securityId, BrokerAccountProjection account, CancellationToken ct) =>
+        throw new InvalidOperationException("Fresh broker reference capture is unavailable; no price-policy fallback is permitted.");
     // Shared manual-order checks, journal/connection leases, and broker preflight must remain held through submission.
     Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection account, CancellationToken ct);
 }

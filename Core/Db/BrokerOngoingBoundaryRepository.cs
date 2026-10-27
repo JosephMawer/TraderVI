@@ -21,11 +21,14 @@ public sealed class BrokerOngoingBoundaryRepository
 SELECT b.Symbol,b.EvidenceBarId,b.EventUtc,o.ReceivedUtc,b.[Open],b.High,b.Low,b.[Close]
 FROM dbo.IntradayEvidenceBar b JOIN dbo.IntradayPollObservation o ON o.ObservationId=b.FirstObservationId
 WHERE b.Symbol IN @Symbols AND b.EventUtc=@Start AND b.IntervalMinutes=5
- AND o.AuditState IN(N'Valid',N'Degraded') AND o.EvidenceSchemaVersion=1 AND o.Provider=N'TMX'
+ AND o.AuditState IN(N'Valid',N'Degraded') AND o.EvidenceSchemaVersion=@Schema AND o.Provider=N'TMX'
+ AND o.SourceContractVersion=@SourceContract
  AND o.ReceivedUtc<=@Now AND b.CreatedUtc<=@Now AND DATEADD(minute,5,b.EventUtc)<=o.ReceivedUtc
- AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
- WHERE sl.Symbol=b.Symbol AND sl.ExpectedBarEndUtc=DATEADD(minute,5,b.EventUtc))
-""", new { Symbols = symbols.ToArray(), Start = startUtc, Now = DateTime.UtcNow }, cancellationToken: ct));
+ AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f
+ WHERE f.Symbol=b.Symbol AND f.IntervalMinutes=b.IntervalMinutes AND f.ExistingBarEventUtc=b.EventUtc)
+""", new { Symbols = symbols.ToArray(), Start = startUtc, Now = DateTime.UtcNow,
+            Schema = Core.TMX.Models.Domain.IntradayEvidenceVersions.Schema,
+            SourceContract = Core.TMX.Models.Domain.IntradayEvidenceVersions.SourceContract }, cancellationToken: ct));
         return rows.Select(r => new BrokerRiskHoldingBar(r.Symbol, new(r.EvidenceBarId,
             DateTime.SpecifyKind(r.EventUtc, DateTimeKind.Utc), DateTime.SpecifyKind(r.ReceivedUtc, DateTimeKind.Utc),
             5, r.Open, r.High, r.Low, r.Close))).ToImmutableArray();

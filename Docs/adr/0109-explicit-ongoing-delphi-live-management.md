@@ -42,13 +42,25 @@ This supersedes ADR-0105's dated expiry/separate enable only for the newly appro
 combined app action. Legacy trials/grants retain their limits. Activation remains Joseph's app action.
 Additive omitted-when-absent JSON fields and append-only risk events require no schema migration.
 
-## Accepted execution-price policy; separate implementation increment
+## Accepted execution-price policy
 
 Joseph approves a fresh broker ask as the fixed reference, at most 0.25% upward movement before
 submission, and at most 0.50% bid/ask spread. Size/reserve against the bounded price; retain allocation,
 cash, cumulative allowance and duplicate checks. Never ratchet the reference upward to chase rejection.
 These are chosen limits, not empirical findings from the old failures. Existing regular-session market
 orders remain; preflight bounds do not guarantee fill prices. Disclose the policy in the explicit review.
+
+Implementation uses `BrokerAsk025Spread050V1`, included in the explicit ongoing approval. The first
+fresh broker ask is durably saved for the independently identified confirmation episode before
+preflight. The episode includes the Live session, symbol, daily candidate and confirmation start;
+another read or another bar in that episode cannot raise its reference. A genuinely new confirmation
+episode can establish a new reference. Restart and failed preflight preserve it. The current quote
+must still pass the existing two-minute broker-reported quote age and 30-second retrieval/account
+checks, including immediately before transmission. Spread is `(ask-bid)/ask`. Quotes from another
+regular session cannot reuse the reference. Shares never exceed the recommendation, and sizing uses
+the upper bounded price within the original allocation, actual cash and remaining cumulative ceiling.
+The durable reservation also uses that upper price. Actual reconciled fills remain financial truth.
+Legacy approvals retain their original price guard. Fixed reference/quote facts remain private.
 
 The October26 hash-verified read found six AskAboveDecisionReference failures (October23 revisions1247–1267),
 none retaining prices or quote timestamps. It cannot distinguish stale quotes, spread, feed definition
@@ -66,6 +78,18 @@ exact five-minute bars with a two-minute offset; Real owns its confirmation. Rep
 new bars. Changing only a timer or BarInterval is insufficient: evaluator, measurement, collection,
 storage and publication need consistent successor contracts and market-hours source/latency evidence.
 
+No one-minute source or behavior is selected/installed by this increment. A successor must preserve
+the 20-minute persistence/directional-volume/prior-range windows and 20-minute/one-/two-/three-hour
+price horizons; converting four five-minute samples to four minute samples would change the strategy.
+It needs an explicitly reviewed source contract, minute-aligned immutable identities, collection and
+publication deadlines shorter than the confirmation cadence, gap/duplicate/conflict rejection, and
+the same independent Real evaluator and complete diagnostic/report-builder output. SQL currently
+permits only 5/15-minute bars and slots enforce a two-minute collection offset: both need reviewed
+migrations before a minute collector can publish. The data-source decision is whether the existing
+TMX minute feed can qualify under market-hours measurement or a different licensed real-time feed
+is necessary. Neither old sparse samples nor broker quote snapshots establish complete minute OHLCV.
+Updated-strategy approval remains required after qualification; the longer lookbacks are not shortened.
+
 ## Source checkpoint
 
 Core agreement, linked risk authorization, boundary reader and automatic risk evidence adapter are
@@ -76,3 +100,10 @@ validation, installation and native multi-day/first-fill qualification remain pe
 operational authority.
 
 The app review/combined approve-and-start action and persistent pause-new-buys control are now implemented. WPF Debug build passes (260 existing compiler warnings, zero errors). Financial activation and installed UI verification remain pending.
+
+The price-policy increment and exact boundary source-contract check pass the complete offline suite:
+3,159 passed, nine native/integration skips. Two existing AI-host timeout tests failed under parallel
+suite load and passed in isolation; the final complete suite with test-collection parallelism disabled
+passes. Isolated WPF/engine Release build passes with 260 existing compiler warnings, zero errors.
+NuGet security audit was disabled; no fresh dependency-security assessment or full SSDT solution build
+is claimed. Source evidence is under `artifacts/ongoing-live-20261026`. Installation remains pending.

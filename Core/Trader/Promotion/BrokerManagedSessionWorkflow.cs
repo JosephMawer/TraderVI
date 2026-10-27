@@ -329,12 +329,42 @@ public sealed class BrokerManagedSessionWorkflow(IBrokerManagedSessionStore stor
         if (state.Orders.Any(o => o.DecisionId == decisionId))
             return await SaveDecisionOutcome(lease, state, "OriginalDecisionAlreadyReserved", ct);
         decimal price = recommendation.ReferencePrice ?? 0;
-        if (recommendation.Quantity < 1 || !sell && (price <= 0 || recommendation.Quantity * price >
+        int quantity = recommendation.Quantity;
+        BrokerBuyReference? buyReference = null;
+        if (!sell && state.OngoingManagement?.ExecutionPricePolicy == BrokerBuyReference.Contract)
+        {
+            try
+            {
+                if (!state.Memory.Symbols.TryGetValue(recommendation.Symbol, out var symbolState) ||
+                    symbolState.LastLiveResult?.ConfirmationStartedBarEndUtc is not { } started ||
+                    symbolState.LiveSessionId is not { } liveSession)
+                    throw new InvalidOperationException("The independent confirmation episode must be identified before fixing its broker ask.");
+                var episode = BrokerManagedStrategy.StableId($"{state.SessionId:D}:{liveSession:D}:{recommendation.Symbol}:{recommendation.CandidateId}:{started:O}");
+                buyReference = (state.BuyReferences ?? []).SingleOrDefault(r => r.EpisodeId == episode);
+                if (buyReference is null)
+                {
+                    var quote = await transport.ReadBuyReferenceAsync(recommendation.Symbol, security, account, ct);
+                    buyReference = new(episode, recommendation.Symbol, security, quote, clock.GetUtcNow());
+                    buyReference.Validate(clock.GetUtcNow());
+                    state = await Save(lease, state with { BuyReferences = (state.BuyReferences ?? []).Append(buyReference).ToArray() }, "BrokerBuyReferenceSaved", ct);
+                }
+                buyReference.Validate(clock.GetUtcNow());
+                // Never increase shares or target allocation when switching from the signal feed to the executable ask.
+                quantity = buyReference.Size(quantity, recommendation.PositionTarget ?? quantity * price,
+                    account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost);
+                price = buyReference.MaximumAsk;
+            }
+            catch (Exception error)
+            {
+                await RecordDecisionFailure(lease, state, "BrokerReferenceFailed", error); throw;
+            }
+        }
+        if (quantity < 1 || !sell && (price <= 0 || quantity * price >
             System.Math.Min(account.Account.AvailableCash ?? 0, state.EffectiveReview.PurchaseCeiling - state.CommittedPurchaseCost)))
-            return await SaveDecisionOutcome(lease, state, recommendation.Quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
-        return await Submit(lease, state, new(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
-            recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", recommendation.Quantity,
-            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()), ct, evaluatedDecision: true,
+            return await SaveDecisionOutcome(lease, state, quantity < 1 ? "InvalidOrderQuantity" : "PurchaseCeilingOrCashExceeded", ct);
+        return await Submit(lease, state, new BrokerStrategyOrder(BrokerManagedStrategy.StableId(decisionId.ToString("D")), decisionId,
+            recommendation.PositionId, security, recommendation.Symbol, sell ? "SELL" : "BUY", quantity,
+            price, sell ? recommendation.Reason : recommendation.Kind, recommendation.PositionTarget, clock.GetUtcNow()) { BuyReference = buyReference }, ct, evaluatedDecision: true,
             referenceQuote: !sell && input.Assignment.Strategy.Family == TradingStrategyFamily.DelphiLive
                 ? TradingRecommendationEngine.Quote(input, recommendation.Symbol) : null);
     }

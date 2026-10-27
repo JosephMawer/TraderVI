@@ -25,6 +25,24 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
     SemaphoreSlim orderGate, TimeProvider? time = null, bool independentIntegrity = false) : IBrokerManagedOrderTransport
 {
     private readonly TimeProvider clock = time ?? TimeProvider.System;
+    public async Task<ManualBuyQuote> ReadBuyReferenceAsync(string symbol, string securityId, BrokerAccountProjection projected, CancellationToken ct)
+    {
+        if (!await orderGate.WaitAsync(0, ct)) throw BrokerOrderFailureEvidence.Tag("Another broker operation owns the account.", BrokerOrderCheck.AccountOperationBusy);
+        try
+        {
+            long revision = buys.SessionRevision;
+            var read = await buys.ReadManualBuyContextAsync(account, symbol, ct);
+            CheckRevision(revision);
+            var context = read.Status == WealthsimpleReadStatus.Success ? read.Data : null;
+            if (context is null) throw BrokerOrderFailureEvidence.Tag("Fresh broker buy checks are unavailable.", BrokerOrderCheck.BrokerBuyContextUnavailable);
+            var error = ManualBuyChecks.Validate(context, clock.GetUtcNow());
+            if (error is not null) throw BrokerOrderFailureEvidence.Tag(error, BrokerOrderCheck.ManualBuyValidation, error);
+            RequireSameAccount(projected, context.Snapshot, context.Security.Id, securityId);
+            BrokerBuyReference.RequireQuote(context.Quote, clock.GetUtcNow());
+            return context.Quote;
+        }
+        finally { orderGate.Release(); }
+    }
     public async Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection projected, CancellationToken ct)
     {
         if (!await orderGate.WaitAsync(0, ct)) throw BrokerOrderFailureEvidence.Tag("Another broker operation owns the account.", BrokerOrderCheck.AccountOperationBusy);
@@ -52,6 +70,16 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                 string? error = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
                 if (error is not null) throw BrokerOrderFailureEvidence.Tag(error, BrokerOrderCheck.ManualBuyValidation, error);
                 RequireSameAccount(projected, context.Snapshot, context.Security.Id, order.SecurityId);
+                if (order.BuyReference is { } fixedQuote)
+                {
+                    fixedQuote.Validate(clock.GetUtcNow());
+                    BrokerBuyReference.RequireQuote(context.Quote, clock.GetUtcNow());
+                    if (fixedQuote.SecurityId != order.SecurityId || fixedQuote.Symbol != order.Symbol ||
+                        order.ReferencePrice != fixedQuote.MaximumAsk || context.Quote.SessionOpen != fixedQuote.Quote.SessionOpen ||
+                        order.Quantity * order.ReferencePrice > projected.Account.AvailableCash ||
+                        order.PositionTarget is { } target && order.Quantity * order.ReferencePrice > target)
+                        throw BrokerOrderFailureEvidence.Tag("The fixed broker reference or bounded allocation differs from the reviewed buy.", BrokerOrderCheck.ExecutionQuoteRejected);
+                }
                 if (context.Quote.Ask > order.ReferencePrice || order.Quantity * context.Quote.Ask > projected.Account.AvailableCash ||
                     projected.Risk.DailyLossHold || projected.Risk.CapitalReviewRequired || !projected.NewRiskBlocks.IsEmpty)
                     throw BrokerOrderFailureEvidence.Tag("The current ask or account risk no longer fits the strategy decision.",
@@ -71,11 +99,19 @@ public sealed class BrokerManagedOrderTransport(IManualBuyBroker buys, IManualSe
                     RequirePurchaseWindow(projected.Risk);
                     var recheck = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
                     if (recheck is not null) throw BrokerOrderFailureEvidence.Tag(recheck, BrokerOrderCheck.ManualBuyValidation, recheck);
+                    if (order.BuyReference is not null) BrokerBuyReference.RequireQuote(context.Quote, clock.GetUtcNow());
                     var saved = new ManualBuyRecord(intent, null, []);
                     journal.Save(saved);
                     // The durable journal write may itself cross the cutoff. Never transmit then;
                     // the original reserved intent/journal remains available for operator recovery.
                     RequirePurchaseWindow(projected.Risk);
+                    if (order.BuyReference is not null)
+                    {
+                        // A slow durable journal must not let a checked quote expire or cross the close.
+                        var finalCheck = ManualBuyChecks.Validate(context, clock.GetUtcNow(), order.Quantity);
+                        if (finalCheck is not null) throw BrokerOrderFailureEvidence.Tag(finalCheck, BrokerOrderCheck.ManualBuyValidation, finalCheck);
+                        BrokerBuyReference.RequireQuote(context.Quote, clock.GetUtcNow());
+                    }
                     WealthsimpleSubmissionStatus status;
                     try { status = (await buys.SubmitManualBuyAsync(new(account, context.Security, order.Quantity, order.RequestId), token)).Status; }
                     catch { status = WealthsimpleSubmissionStatus.OutcomeUnknown; }

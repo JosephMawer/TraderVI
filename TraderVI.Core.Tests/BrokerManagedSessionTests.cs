@@ -472,6 +472,10 @@ public sealed partial class BrokerManagedSessionTests
     }
     internal sealed class Transport : IBrokerManagedOrderTransport
     {
+        internal Func<ManualBuyQuote>? ReadReference;
+        internal int ReferenceReads;
+        public Task<ManualBuyQuote> ReadBuyReferenceAsync(string symbol, string securityId, BrokerAccountProjection account, CancellationToken ct)
+        { ReferenceReads++; return Task.FromResult(ReadReference?.Invoke() ?? throw new InvalidOperationException("No synthetic broker quote configured.")); }
         internal int Sent; internal bool ThrowOnSubmit; internal Action? BeforeSend; internal Action? BeforePrepare;
         public Task<IBrokerManagedOrderPreflight> PrepareAsync(BrokerStrategyOrder order, BrokerAccountProjection account, CancellationToken ct)
         { BeforePrepare?.Invoke(); return Task.FromResult<IBrokerManagedOrderPreflight>(new Prepared(this)); }

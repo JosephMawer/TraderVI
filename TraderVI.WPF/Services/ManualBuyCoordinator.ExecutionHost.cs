@@ -503,6 +503,7 @@ public sealed partial class ManualBuyCoordinator
                 $"Cumulative purchase ceiling: {ongoingReview.Review.PurchaseCeiling:N2} CAD. Day changes and sales do not refill it.\n\n" +
                 "Until paused, with automatic daily checks and checked restart restoration. Original account loss references and history remain. Pause new buys leaves existing protection active; full host stop is separate.\n\n" +
                 "No outside changes since the original baseline; pause before any outside deposit, withdrawal or trade. Unexplained differences block buying. Matching balances cannot detect offsetting transfers.\n\n" +
+                "Execution-price policy: fixed fresh broker ask per confirmation episode; at most 0.25% upward movement and 0.50% spread (ask minus bid, divided by ask). Shares reserve against the upper price within existing allocation/cash/allowance. Rejected references never move up. Market-order fills can exceed the checked quote.\n\n" +
                 "Five-minute signal confirmation remains in effect. Review this exact agreement within two minutes, then Approve and start ongoing management. This enables checked automatic execution; it does not guarantee a purchase or fill.";
         }, waitForPaperCycles: false);
         approveOngoing.Click += async (_, _) => await Run(async () =>

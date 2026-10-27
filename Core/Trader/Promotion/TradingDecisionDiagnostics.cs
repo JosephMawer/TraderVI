@@ -95,7 +95,8 @@ public enum BrokerOrderCheck
     BrokerBuyContextUnavailable, ManualBuyValidation, AccountOrInstrumentChanged,
     AskAboveDecisionReference, AvailableCashExceeded, AccountRiskBlocked,
     BrokerSellContextUnavailable, ManualSellValidation, LoginChanged, PurchasePermissionExpired,
-    AccountIdentityChanged, InstrumentChanged, CurrencyChanged, CashChanged, BuyingPowerChanged, HoldingsChanged
+    AccountIdentityChanged, InstrumentChanged, CurrencyChanged, CashChanged, BuyingPowerChanged, HoldingsChanged,
+    ExecutionQuoteRejected
 }
 
 // These facts explain a failed comparison; they never authorize or retry an order. BrokerQuotedAsOf

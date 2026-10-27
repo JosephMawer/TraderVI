@@ -11,7 +11,7 @@ using Xunit;
 
 namespace TraderVI.Core.Tests;
 
-public sealed class BrokerManagedTransportTests
+public sealed partial class BrokerManagedTransportTests
 {
     [Theory]
     [InlineData(false)][InlineData(true)]

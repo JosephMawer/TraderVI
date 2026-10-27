@@ -15,6 +15,7 @@ public sealed record BrokerOngoingManagement(Guid RequestId, Guid SessionId, Gui
     BrokerAccountReconciliation CashAnchor, DateTimeOffset PreparedAt, string Reviewer,
     bool NoOutsideChangesConfirmed, bool PauseBeforeOutsideChanges, DateTimeOffset? ApprovedAt = null)
 {
+    public string ExecutionPricePolicy { get; init; } = BrokerBuyReference.Contract;
     public const string Contract = "OngoingNoTransferManagementV1";
     [JsonIgnore] public string Fingerprint => BrokerAccountImport.Hash(this);
     [JsonIgnore] public BrokerOngoingRiskAuthorization RiskAuthorization => new(RequestId, Review.BindingId, Review.BaselineId,
@@ -39,7 +40,7 @@ public sealed record BrokerOngoingManagement(Guid RequestId, Guid SessionId, Gui
     {
         Review.Strategy.Validate();
         BrokerSessionContinuation.RequireSameDefinition(prior.Strategy, Review.Strategy);
-        if (RequestId == Guid.Empty || Review.RequestId != RequestId || Review.BindingId != prior.BindingId ||
+        if (ExecutionPricePolicy != BrokerBuyReference.Contract || RequestId == Guid.Empty || Review.RequestId != RequestId || Review.BindingId != prior.BindingId ||
             Review.BaselineId != prior.Account.Risk.BaselineId || SessionId != prior.SessionId ||
             PreviousRevisionId != prior.RevisionId || PreviousSessionHash != BrokerSessionContinuation.StateHash(prior) ||
             PreviousRiskHash != BrokerAccountImport.Hash(prior.Account.Risk) || prior.OngoingManagement is not null ||

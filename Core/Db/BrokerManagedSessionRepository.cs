@@ -103,6 +103,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
         Core.Trader.DelphiLive.ITsxSessionCalendar? calendar = null, BrokerHistoricalStateHash? historical = null)
     {
         next.Strategy.Validate();
+        BrokerBuyReference.ValidateAppend(prior, next);
         if (next.BindingId == Guid.Empty || next.SessionId == Guid.Empty || next.RevisionId == Guid.Empty || next.SavedAt == default ||
             next.Approval.Review.BindingId != next.BindingId || next.Account.Risk.BindingId != next.BindingId ||
             next.Account.Risk.BaselineId != next.Approval.Review.BaselineId || next.SessionId != next.Approval.Review.RequestId ||
