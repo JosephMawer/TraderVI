@@ -2,10 +2,11 @@
 
 Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
-host Running waits for current shared inputs. ADR-0110 corrects isolated ticker-source failure handling;
-native recovery publication remains pending. Restart
-recovery is complete with zero Broker/Global holds at09:52. Today's publication is blocked by the
-WM nightly metadata failure; one-minute confirmation is unqualified and not installed. See the
+host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.
+ADR-0110 corrected recovery completed10:19:36 despite
+five ticker warnings; one Valid current publication and prospective Real source adoption are verified.
+Restart recovery is complete with zero Broker/Global holds at10:20. One-minute confirmation is
+unqualified and not installed. See [nightly recovery evidence](../adr/0110-nightly-isolated-symbol-warnings.md#authorized-recovery--october-27) and the
 October27 installation section below.**
 
 Historical October26 status: **October26 watch complete: no new trades; broker-history repair/Real hold clearance

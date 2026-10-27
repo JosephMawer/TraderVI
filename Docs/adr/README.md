@@ -41,7 +41,7 @@ recoverable reasoning. Concept notes and learning cards are optional aids, not m
 
 | # | Title | Status | Domains |
 |---|---|---|---|
-| [0110](0110-nightly-isolated-symbol-warnings.md) | Continue nightly work after isolated ticker-source failures | Implemented/tested; native recovery pending | architecture, data-pipeline |
+| [0110](0110-nightly-isolated-symbol-warnings.md) | Continue nightly work after isolated ticker-source failures | Operational recovery verified October27; ticker warnings preserved, all stages complete | architecture, data-pipeline |
 | [0109](0109-explicit-ongoing-delphi-live-management.md) | Explicit ongoing Delphi Live management | Installed; ongoing approval saved October27; native lifecycle qualification pending | architecture, risk-management, user-interface, market-microstructure |
 | [0108](0108-strategy-workspace-and-independent-account-evidence.md) | Strategy workspace and independent account evidence | Installed October 24; offline verification complete; desktop visual review pending | user-interface |
 | [0107](0107-build-review-within-existing-dated-permission.md) | Build review within existing dated permission | Implemented, tested, installed; operator approval/enable and fresh evaluation verified October 23 | architecture, risk-management |

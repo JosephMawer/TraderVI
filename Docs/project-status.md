@@ -1,6 +1,19 @@
 # TraderVI Project Status
 
-## October 27 — ongoing approval saved; nightly warning correction
+## October 27 — ongoing approval saved; nightly recovery complete
+
+The authorized corrected pipeline completed10:19:36 from clean commit4c8a204c. Five unavailable ticker
+reads leave Hermes/overall Attention; Delphi and Athena succeed. Verified backup/copy completed.
+SQL confirms one Valid October27 publication using October26 data (208 candidates,416 lens evaluations,
+zero wrong observation dates). The approved Real source adopted it10:19:51, effective10:20; unchanged
+models/configuration/policy match. Zero Broker/Global holds; nine Paper restrictions remain. Fresh
+intraday confirmation still applies; no engine restart or financial control was performed. At10:27,
+the first candidate cycle published28 inputs:25 candidate slots plus XIU were usable; three candidates
+were missing/stale and rejected individually. The approved engine evaluated fresh inputs and reported
+no confirmed entry signal. Native multi-day/first-fill/protection qualification remains unfinished.
+[Contract and native recovery evidence](adr/0110-nightly-isolated-symbol-warnings.md#authorized-recovery--october-27).
+
+### Approval and source checkpoint before recovery
 
 At09:58 the read-only check confirms saved ongoing approval (managed revision2330, Active) and zero
 October27 official publications. The execution host subsequently reports Running while waiting for
@@ -11,7 +24,7 @@ The accepted ADR-0110 correction lets individual daily-bar/stock-sector source w
 Delphi/Athena, retaining fatal storage/backup/process handling and existing benchmark/freshness gates.
 73 synthetic runner assertions and34 focused collection/benchmark/history tests pass; Hermes Release
 passes with259 existing warnings and zero errors. The scheduled runner reads this repository directly;
-no engine/dashboard restart or strategy/model change is needed. Native corrected recovery is pending.
+no engine/dashboard restart or strategy/model change is needed. Native recovery subsequently passed above.
 
 ### Earlier installation and recovery checkpoints
 

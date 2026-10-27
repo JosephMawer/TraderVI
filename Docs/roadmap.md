@@ -9,9 +9,9 @@ and source review points; use its owning-record links when resuming work.
 ## Accepted direction — prove strategies, then adopt one deliberately
 
 **October27 priority:** restart integrity recovery and Joseph's initial ongoing approval are complete.
-ADR-0110 corrects the fatal classification of isolated ticker-source failures; verify an authorized
-recovery publication and its prospective adoption by the approved runtime. Ongoing Delphi Live and
-bounded broker-ask execution are implemented/tested/installed; current-input adoption and native multi-day/first-fill
+ADR-0110 corrects the fatal classification of isolated ticker-source failures; authorized recovery
+publication and prospective source adoption are verified. Ongoing Delphi Live and
+bounded broker-ask execution are implemented/tested/installed; native multi-day/first-fill
 acceptance remain. Qualify genuinely fresh minute data before implementing the consistent one-minute
 successor and updated-strategy review. Checklist6a/7 retains general portfolio handover/replacement
 and broader evidence dependencies. No silent upgrade of legacy approvals.
