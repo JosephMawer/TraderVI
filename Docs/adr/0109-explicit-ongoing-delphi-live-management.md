@@ -105,6 +105,14 @@ input boundary; it selects no production deadline, data provider, indicator form
 It has no I/O and is not wired into the installed collector/evaluator. Durable storage, full successor
 integration and source qualification remain required; serialization tests alone are not native recovery.
 
+The next offline component, `DelphiLiveMinuteWindows`, builds explicitly duration-labelled OHLCV windows
+and four five-minute legs spanning twenty minutes at a minute endpoint. Tests preserve20/60/120/180-minute
+horizons, reject missing/late/future/conflicting evidence, and never compress the opening warm-up. Past
+timely observations can supply historical context without renewing the current price deadline. These
+aggregates are not relabelled as V1's fixed-grid five-minute bars. The successor's indicator integration
+and shifted-endpoint behavior remain subject to the explicit updated-strategy review; no installed
+formula, exit cadence or source contract changes here.
+
 ## Source checkpoints — historical development sequence
 
 Core agreement, linked risk authorization, boundary reader and automatic risk evidence adapter are

@@ -119,6 +119,24 @@ cache lacked test packages. No network package restore/security audit or full SS
 The focused suite passes37tests (including existing five-minute lifecycle and AI minute-price adapter
 checks), zero skips. The isolated test build reports264 existing compiler warnings, none in the new files.
 
+**Gap comparison at11:19:** six read-only requests (minute bars, five-minute bars and25 recent trades
+for XIU and the earlier strong candidate). Across the three windows starting10:55,11:00,11:05 for each
+target, observed minute OHLCV exactly matches each returned five-minute aggregate. Four windows have
+absent minute rows. This is consistent with omitted no-trade intervals within the same provider's
+coverage; agreement between two products of that provider does not prove a complete exchange tape.
+The25-trade lists start11:15/11:17 and do not cover the earlier gaps. Within their actual completed-minute
+overlap, every trade's minute exists, but this bounded list cannot establish absence of other trades.
+No missing minute is fabricated. Private evidence: `gap-comparison-20261027T151941552Z` under the
+minute-source artifact directory, including raw request/response/receipt files and timestamp comparisons.
+
+**Second implementation increment:** the pure minute-window builder explicitly preserves elapsed
+20/60/120/180-minute horizons and can form four rolling five-minute measurement legs at a minute
+endpoint. Missing beginning/middle/end, opening immaturity, late/future/conflicting evidence and volume
+overflow cannot produce a usable aggregate. Historical context does not extend current price authority.
+It does not reinterpret V1 bars or integrate a new indicator/exit policy. Twelve new window cases plus
+the prior evidence/lifecycle/measurement/price-adapter cases pass60tests, zero skips; the isolated build
+retains264 existing warnings. No runtime installation, database migration or strategy approval.
+
 ## October 27 ongoing runtime installation and review
 
 Joseph authorized implementation, local commits, validation and controlled installation/restart;

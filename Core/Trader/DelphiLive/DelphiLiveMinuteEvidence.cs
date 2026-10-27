@@ -109,7 +109,7 @@ public static class DelphiLiveMinuteEvidence
             nowUtc >= o.CheckedUtc && nowUtc <= o.DeadlineUtc);
     }
 
-    private static void Validate(DelphiLiveMinuteEvidenceBook book)
+    internal static void Validate(DelphiLiveMinuteEvidenceBook book)
     {
         ArgumentNullException.ThrowIfNull(book);
         DelphiLiveFiveMinuteBar.RequireCanonicalSymbol(book.Symbol);

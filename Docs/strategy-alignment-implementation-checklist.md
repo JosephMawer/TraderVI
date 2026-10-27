@@ -700,6 +700,9 @@ record them. A prepared migration or passing test never proves broker readiness.
 - [x] Prepare/test source-independent minute evidence handling: original arrival/deadline, exact completed
   timestamp selection, no reread advancement or late backfill promotion, persistent conflict across
   serialization/reload. This pure component is not installed or connected to a collector/publication.
+- [x] Prepare/test explicit-duration minute window aggregates and four five-minute measurement legs;
+  preserve20/60/120/180-minute horizons, opening warm-up and causal missing/late/conflict rejection.
+  These offline components do not replace V1 bars or qualify a production indicator/source contract.
 - [ ] Implement and validate consistent minute collection/storage/publication/evaluation with immutable
   timestamp identities, no repeated/unfinished-bar confirmation and unchanged longer indicator horizons.
 - [ ] Explicitly review the updated strategy before activation. Installed five-minute behavior remains.
