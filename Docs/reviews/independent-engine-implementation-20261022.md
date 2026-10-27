@@ -43,6 +43,18 @@ requires explicit updated-build review. At 14:34 the approved policy has a fresh
 and buy-readiness verification remain pending Joseph app approval/resume. Private cutover, SQL and
 diagnostic receipts are retained in the repair/minute-source evidence folders.
 
+Joseph completed app build approval/resume by 14:43. The repaired engine evaluates fresh inputs with
+one reconciled owned order, unchanged holding protection and zero account-reconciliation blocks.
+Native evaluation exposed two further issues: valuation/protection-history readers filtered `TMX`
+although actual persisted evidence uses the canonical `TMXMoney` provider; a bounded 14:47 quote
+read also proves CAE has a last price but no bid/ask from TMX. Running status alone is insufficient:
+`NetAssetValueUnavailable` remains in the decision and no usable protective bid is saved.
+The provider fix binds all three affected readers to the existing schema/provider/source-contract
+constants. A hash-verified read using the corrected predicate finds four accepted saved bars through
+14:45. No prices are fabricated or rewritten. Joseph separately approves fresh Wealthsimple bids for
+Real holding protection, with exact account/security/quantity and regular-session/time checks; that
+source adapter and another reviewed installation remain pending.
+
 Historical morning status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.

@@ -168,7 +168,8 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     SELECT b.Symbol,b.EvidenceBarId EvidenceId,b.EventUtc StartUtc,o.ReceivedUtc,b.IntervalMinutes Minutes,b.[Open],b.High,b.Low,b.[Close]
                     FROM dbo.IntradayEvidenceBar b JOIN dbo.IntradayPollObservation o ON o.ObservationId=b.FirstObservationId
                     WHERE b.Symbol IN @Symbols AND b.EventUtc>=@ReplayFrom AND b.EventUtc<@Close AND o.ReceivedUtc<=@Now
-                        AND o.AuditState IN(N'Valid',N'Degraded') AND o.EvidenceSchemaVersion=1 AND o.Provider=N'TMX'
+                        AND o.AuditState IN(N'Valid',N'Degraded') AND o.EvidenceSchemaVersion=@Schema AND o.Provider=@Provider
+                        AND o.SourceContractVersion=@SourceContract
                         AND b.CreatedUtc<=@Now AND DATEADD(minute,b.IntervalMinutes,b.EventUtc)<=o.ReceivedUtc
                         AND NOT EXISTS(SELECT 1 FROM dbo.IntradayEvidenceConflict f JOIN dbo.IntradayCollectionSlot sl ON sl.CollectionSlotId=f.CollectionSlotId
                             WHERE sl.Symbol=b.Symbol AND sl.ExpectedBarEndUtc=DATEADD(minute,b.IntervalMinutes,b.EventUtc))
@@ -176,7 +177,10 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     """, new { Symbols = symbols,
                         ReplayFrom = protectionReplayFromUtc is { } replay && replay < bounds.OpenUtc
                             ? replay.AddMinutes(-15) : bounds.OpenUtc,
-                        Close = bounds.CloseUtc, Now = now }, t);
+                        Close = bounds.CloseUtc, Now = now,
+                        Schema = Core.TMX.Models.Domain.IntradayEvidenceVersions.Schema,
+                        Provider = Core.TMX.Models.Domain.IntradayEvidenceVersions.Provider,
+                        SourceContract = Core.TMX.Models.Domain.IntradayEvidenceVersions.SourceContract }, t);
                 foreach (var group in source.GroupBy(b => b.Symbol, StringComparer.OrdinalIgnoreCase))
                     bars[group.Key] = group.Select(b => new TradingPriceBar(b.EvidenceId, Utc(b.StartUtc), Utc(b.ReceivedUtc), b.Minutes, b.Open, b.High, b.Low, b.Close)).ToImmutableArray();
             }

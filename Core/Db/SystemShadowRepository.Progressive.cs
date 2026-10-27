@@ -77,7 +77,7 @@ CROSS APPLY(SELECT SUM(CONVERT(decimal(28,6),a.Shares)*a.AdjustedFillPrice)/SUM(
     AND a.FillUtc<=DATEADD(minute,5,b.EventUtc) AND a.UpdatedUtc<=o.ReceivedUtc) buy
 WHERE b.Symbol=@Symbol AND b.IntervalMinutes=5 AND DATEADD(minute,5,b.EventUtc)>@After
     AND b.CreatedUtc<=@Through AND o.ReceivedUtc>=DATEADD(minute,5,b.EventUtc) AND o.ReceivedUtc<=@Through
-    AND o.EvidenceSchemaVersion=1 AND o.Provider=N'TMX'
+    AND o.EvidenceSchemaVersion=@Schema AND o.Provider=@Provider AND o.SourceContractVersion=@SourceContract
     AND o.AuditState IN(N'Valid',N'Degraded') AND buy.AverageCost>0
     AND NOT EXISTS(SELECT 1 FROM dbo.IntradayPollObservation bad WHERE bad.Symbol=b.Symbol AND bad.IntervalMinutes=5
         AND bad.AuditState=N'Invalid' AND bad.ReceivedUtc<=@Through AND bad.AuditCode=N'CompletedBarConflict'
@@ -88,7 +88,10 @@ ORDER BY b.EventUtc;
         await using var q = new SqlCommand(sql, c);
         q.Parameters.AddRange([P("@PositionId", SqlDbType.UniqueIdentifier, position.PositionId),
             P("@Symbol", SqlDbType.NVarChar, position.Symbol, 20),
-            P("@After", SqlDbType.DateTime2, afterEndUtc ?? position.EntryUtc), P("@Through", SqlDbType.DateTime2, throughUtc)]);
+            P("@After", SqlDbType.DateTime2, afterEndUtc ?? position.EntryUtc), P("@Through", SqlDbType.DateTime2, throughUtc),
+            P("@Schema", SqlDbType.Int, Core.TMX.Models.Domain.IntradayEvidenceVersions.Schema),
+            P("@Provider", SqlDbType.NVarChar, Core.TMX.Models.Domain.IntradayEvidenceVersions.Provider, 80),
+            P("@SourceContract", SqlDbType.NVarChar, Core.TMX.Models.Domain.IntradayEvidenceVersions.SourceContract, 80)]);
         var rows = new List<ProgressiveHistoricalClose>();
         await using var reader = await q.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct)) rows.Add(new(Utc(reader.GetDateTime(0)), reader.GetDecimal(1), Utc(reader.GetDateTime(2)), reader.GetDecimal(3)));
