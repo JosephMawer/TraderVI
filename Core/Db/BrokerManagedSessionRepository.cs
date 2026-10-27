@@ -42,6 +42,16 @@ public sealed class BrokerManagedSessionRepository : IBrokerManagedSessionStore
     public const string RequiredMigration = "20260923_040_AddBrokerManagedSession.sql";
     public async Task<EngineBrokerDiagnostics> ReadDiagnosticsAsync(Guid binding, CancellationToken ct = default)
     {
+        var (state, shared) = await ReadVerifiedHeadAsync(binding, ct);
+        return EngineBrokerDiagnostics.From(state, shared);
+    }
+    internal async Task<EngineRealObservation> ReadMarketObservationAsync(Guid binding, CancellationToken ct)
+    {
+        var (state, _) = await ReadVerifiedHeadAsync(binding, ct);
+        return EngineRealObservation.From(state);
+    }
+    private async Task<(BrokerManagedSession State, bool Shared)> ReadVerifiedHeadAsync(Guid binding, CancellationToken ct)
+    {
         if (binding == Guid.Empty) throw new ArgumentException("Select the real account binding for diagnostics.");
         await using var c = await open(ct);
         var row = await c.QuerySingleOrDefaultAsync<Row>(new CommandDefinition("""
@@ -49,7 +59,7 @@ SELECT TOP(1) BindingId,Revision,RevisionId,PreviousRevisionId,SessionId,Baselin
 FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Binding ORDER BY Revision DESC;
 """, new { Binding = binding }, cancellationToken: ct)) ?? throw new InvalidOperationException("No saved real strategy revision is available.");
         var contents = await EngineArchiveStorage.ReadContentsAsync(c, null, row.SnapshotJson, ct);
-        return EngineBrokerDiagnostics.From(Decode(row, contents), EngineArchiveCodec.IsPacked(row.SnapshotJson));
+        return (Decode(row, contents), EngineArchiveCodec.IsPacked(row.SnapshotJson));
     }
     public static async Task<BrokerManagedStorageReadiness> ReadStorageAsync(CancellationToken ct = default)
     {

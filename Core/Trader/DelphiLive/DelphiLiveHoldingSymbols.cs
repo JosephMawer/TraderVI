@@ -19,7 +19,7 @@ internal static class DelphiLiveHoldingSymbols
         {
             string input = holding.Symbol.Trim().ToUpperInvariant();
             // Paper records already use app symbols. Broker aliases apply only to Real observations.
-            var matches = holding.Owner == "Real"
+            var matches = holding.Owner is "Real" or "BrokerManaged" or "BrokerPending"
                 ? aliases.Where(a => a.Source == "Broker" &&
                     string.Equals(a.Alias, input, StringComparison.OrdinalIgnoreCase)).ToArray()
                 : [];

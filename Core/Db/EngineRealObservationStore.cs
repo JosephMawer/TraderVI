@@ -61,7 +61,21 @@ LEFT JOIN dbo.EngineCurrentState s ON s.Kind=N'RealObservation' AND s.OwnerId=b.
             _ = DelphiLiveSessionRepository.NormalizeObservedHoldings(state.Holdings);
             return state;
         }).ToArray();
-        await t.CommitAsync(ct); return result;
+        var canonical = (await c.QueryAsync<string>(new CommandDefinition("SELECT Symbol FROM dbo.Symbols;", transaction: t, cancellationToken: ct)))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        await t.CommitAsync(ct);
+        for (int index = 0; index < result.Length; index++)
+        {
+            var prior = result[index];
+            if (prior.Holdings.All(h => canonical.Contains(h.Symbol))) continue;
+            // Older subscriptions retain broker names. Decode the immutable current head and derive
+            // observation names from the exact original managed purchase; do not rewrite its records.
+            var resolved = await new BrokerManagedSessionRepository().ReadMarketObservationAsync(prior.BindingId, ct);
+            if (resolved.Revision != prior.Revision || resolved.SessionId != prior.SessionId)
+                throw new InvalidOperationException("The broker observation advanced during symbol resolution. Retry the read.");
+            result[index] = resolved;
+        }
+        return result;
     }
 
     public async Task<int> QualifyExistingAsync(CancellationToken ct = default)

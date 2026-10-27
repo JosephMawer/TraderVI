@@ -84,7 +84,11 @@ public sealed class BrokerOngoingRiskEvidenceSource(BrokerOngoingManagement agre
             var id = BrokerManagedStrategy.StableId($"{agreement.RequestId:D}:{session:yyyy-MM-dd}:{kind}");
             var book = new BrokerRiskBoundaryBook(id, state.BindingId, at, now, cash, holdings);
             var start = kind == BrokerRiskBoundaryKind.Opening ? bounds.OpenUtc : bounds.CloseUtc.AddMinutes(-5);
-            var bars = holdings.IsEmpty ? [] : await readBars(holdings.Select(h => h.Symbol).ToImmutableArray(), start, ct);
+            var names = quantities.Where(p => p.Quantity > 0).ToDictionary(p => p.Key.Symbol,
+                p => owned.First(o => o.SecurityId == p.Key.SecurityId && o.Side == "BUY").Symbol, StringComparer.OrdinalIgnoreCase);
+            var marketBars = holdings.IsEmpty ? [] : await readBars(holdings.Select(h => names[h.Symbol]).ToImmutableArray(), start, ct);
+            var bars = holdings.SelectMany(h => marketBars.Where(b => string.Equals(b.Symbol, names[h.Symbol], StringComparison.OrdinalIgnoreCase))
+                .Select(b => b with { Symbol = h.Symbol })).ToImmutableArray();
             var valuation = BrokerAccountSessionValuation.Calculate(id, TradingStrategyFamily.DelphiLive, kind,
                 session, book, bars, calendar, now);
             if (!valuation.Complete) return null;
@@ -109,7 +113,7 @@ public sealed class BrokerOngoingRiskEvidenceSource(BrokerOngoingManagement agre
         var originalIds = anchor.Orders.Select(o => o.ExternalId).ToHashSet(StringComparer.Ordinal);
         var added = current.Orders.Where(o => !originalIds.Contains(o.ExternalId)).ToImmutableArray();
         if (added.Length != owned.Length || added.Any(o => !owned.Any(a => a.ExternalId == o.ExternalId &&
-            a.SecurityId == o.SecurityId && a.Symbol == o.Symbol && a.Side == o.Side && a.Quantity == o.SubmittedQuantity) ||
+            a.SecurityId == o.SecurityId && BrokerMarketSymbols.Matches(current, o.SecurityId, a.Symbol, o.Symbol) && a.Side == o.Side && a.Quantity == o.SubmittedQuantity) ||
             o.Status is not ("FILLED" or "POSTED") || o.FilledQuantity != o.SubmittedQuantity || o.FilledQuantity <= 0 ||
             o.NetValue is not > 0 || o.Currency != "CAD" || o.Side is not ("BUY" or "SELL") ||
             o.LastFilledAt is null || o.LastFilledAt < o.CreatedAt || o.LastFilledAt > current.SnapshotAt ||

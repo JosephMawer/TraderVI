@@ -19,7 +19,7 @@ public sealed class TradingRecommendationQuoteSource : ITradingRecommendationQuo
         using var source = new TmxDelphiLiveMarketDataSource();
         return await ObserveAsync(input, async (symbol, requested, ct) =>
         {
-            var receipt = await source.GetQuoteAsync(new(Guid.NewGuid(), symbol,
+            var receipt = await source.GetQuoteAsync(new(Guid.NewGuid(), BrokerMarketSymbols.Market(input, symbol),
                 input.CurrentHoldings.Any(h=>string.Equals(h.Symbol,symbol,StringComparison.OrdinalIgnoreCase))?"Sell":"Buy",
                 1, requested, requested), ct);
             return new TradingQuote(symbol, requested, receipt.ReceivedUtc, receipt.Price, receipt.Bid, receipt.Ask, receipt.SourceContractVersion);

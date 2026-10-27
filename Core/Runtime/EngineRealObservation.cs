@@ -16,15 +16,20 @@ public sealed record EngineRealObservation(Guid BindingId, Guid SessionId, long 
 {
     public void RequireMatches(BrokerManagedSession session)
     {
-        if (DelphiLiveLedgerJson.Serialize(this) != DelphiLiveLedgerJson.Serialize(From(session)))
+        if (DelphiLiveLedgerJson.Serialize(this) != DelphiLiveLedgerJson.Serialize(From(session)) &&
+            DelphiLiveLedgerJson.Serialize(this) != DelphiLiveLedgerJson.Serialize(Create(session, false)))
             throw new InvalidDataException("Real collection subscription differs from the verified current account state.");
     }
     public static EngineRealObservation From(BrokerManagedSession state)
+        => Create(state, true);
+
+    private static EngineRealObservation Create(BrokerManagedSession state, bool marketSymbols)
     {
         state.Strategy.Validate();
+        var symbols = marketSymbols ? BrokerMarketSymbols.From(state.Account, state.Orders) : ImmutableDictionary<string, string>.Empty;
         return new(state.BindingId, state.SessionId, state.Revision, state.Strategy,
-            state.Account.Positions.Select(p => new DelphiLiveObservedHolding(p.Symbol, "BrokerManaged", p.PositionId, false))
-            .Concat(state.Orders.Where(o => !o.Reconciled).Select(o => new DelphiLiveObservedHolding(o.Symbol, "BrokerPending", o.RequestId, false)))
+            state.Account.Positions.Select(p => new DelphiLiveObservedHolding(symbols.GetValueOrDefault(p.Symbol) ?? p.Symbol, "BrokerManaged", p.PositionId, false))
+            .Concat(state.Orders.Where(o => !o.Reconciled).Select(o => new DelphiLiveObservedHolding(symbols.GetValueOrDefault(o.Symbol) ?? o.Symbol, "BrokerPending", o.RequestId, false)))
             .Distinct().ToImmutableArray());
     }
 

@@ -53,16 +53,22 @@ public sealed class TradingRecommendationRepository : ITradingRecommendationStor
             session.Strategy.PaperAccountId, session.SessionId, null, session.StrategyEffectiveUtc!.Value,
             session.Approval.Reviewer, session.Approval.Reason);
         var account = session.Account.Account;
+        var marketSymbols = BrokerMarketSymbols.From(session.Account, session.Orders);
         var input = await BuildInput(c, t, "TFSA", assignment, account,
             new(account.LedgerFingerprint, account.Holdings, session.Account.Fills), null, session.Memory,
-            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc, independentInputs);
+            session.Strategy.GateProfile, session.Strategy.Comparison, session.ProtectionReplayFromUtc, independentInputs, marketSymbols);
+        var mappedBars = input.Bars.ToBuilder();
+        foreach (var pair in marketSymbols)
+            if (input.Bars.TryGetValue(pair.Value, out var bars)) mappedBars[pair.Key] = bars;
+        input = input with { BrokerMarketSymbols = marketSymbols, Bars = mappedBars.ToImmutable() };
         token.ThrowIfCancellationRequested(); t.Commit(); return input;
     }
 
     private static async Task<TradingRecommendationInput> BuildInput(SqlConnection c, SqlTransaction t, string account,
         TradingStrategyAssignment assignment, ReportedTradingAccount? report, FinancialState financial,
         TradingRecommendationBatch? previous, TradingRecommendationMemory? brokerMemory, PaperGateProfile gateProfile,
-        PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null, bool independentInputs = false)
+        PaperComparisonAccount? comparison = null, DateTime? protectionReplayFromUtc = null, bool independentInputs = false,
+        ImmutableDictionary<string, string>? marketSymbols = null)
     {
             var now = DateTime.UtcNow; var date = DateOnly.FromDateTime(PaperTradingMonitor.ToToronto(now));
             var warnings = ImmutableArray.CreateBuilder<string>();
@@ -154,7 +160,7 @@ AND s.TradingDate=@Date AND e.BarEndUtc>=COALESCE(
                     ? "Delphi Live needs verified shared market inputs from the independent engine. Paper progress cannot supply them."
                     : "Delphi Live needs current durable collection/evaluation inputs. Keep its existing paper monitor available; promotion does not activate it.");
             }
-            string[] symbols = financial.Holdings.Select(h => h.Symbol).Concat(candidates.Select(p => p.Symbol)).Concat(liveInputs.Select(e => e.Input.Stock.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            string[] symbols = financial.Holdings.Select(h => marketSymbols?.GetValueOrDefault(h.Symbol) ?? h.Symbol).Concat(candidates.Select(p => p.Symbol)).Concat(liveInputs.Select(e => e.Input.Stock.Symbol)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
             var bars = ImmutableDictionary.CreateBuilder<string, ImmutableArray<TradingPriceBar>>(StringComparer.OrdinalIgnoreCase);
             if (bounds is not null && symbols.Length > 0)
             {

@@ -35,6 +35,24 @@ must be verified separately; missed monitoring intervals cannot be backdated int
 
 ## Validation
 
+### October 27 managed-purchase repair
+
+The operator authorizes repair of collection/execution after the first managed purchase. For a managed
+holding, the original reconciled purchase intent already contains its market symbol and security ID.
+Use that exact identity together with the saved CAD/EQUITY/XTSE listing to recognize the broker's
+`.TO` spelling. This extends the original manual-only alias boundary for owned purchases; it does not
+strip arbitrary suffixes, discover securities or grant authority to outside holdings. Missing, conflicting,
+wrong-security or wrong-exchange evidence remains blocked. Unmanaged legacy references still require
+explicit reviewed aliases; `BrokerManaged` and `BrokerPending` now use those aliases too.
+
+Only derived collection/market-evaluation references change. Keep broker holdings, original orders,
+financial fingerprints, protection IDs, costs and historical subscriptions unchanged. Older subscriptions
+can obtain the corrected view from the verified immutable current broker head, with an unchanged-revision
+check; no migration or rewritten history is needed. New subscriptions publish the market reference.
+Valuation, quotes, independent confirmation, duplicate-position checks and close/open risk evidence use
+the same correspondence. Recommendations and owned protection return to the original broker name.
+The one-minute successor and all entry thresholds remain unchanged.
+
 Focused tests cover canonical names, aliases, ownership preservation, wrong sources, missing targets,
 conflicts and rejection of alias chains. Build/test results and installation status belong to project
 status. Authorized installation and restart on September 28 preserved the checked account records,

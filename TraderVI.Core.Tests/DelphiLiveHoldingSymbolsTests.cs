@@ -28,6 +28,15 @@ public class DelphiLiveHoldingSymbolsTests
         Assert.True(normalized[2].DelphiLiveMayAct);
     }
 
+    [Theory]
+    [InlineData("BrokerManaged")]
+    [InlineData("BrokerPending")]
+    public void IndependentBrokerOwnersUseReviewedAliasesWithoutChangingOwnership(string owner)
+    {
+        var holding = Holding("FIX.TO", owner);
+        Assert.Equal(holding with { Symbol = "FIX" }, Assert.Single(DelphiLiveHoldingSymbols.Resolve([holding], ["FIX"], [Mapping])));
+    }
+
     [Fact]
     public void CanonicalHoldingNeedsNoAlias()
     {

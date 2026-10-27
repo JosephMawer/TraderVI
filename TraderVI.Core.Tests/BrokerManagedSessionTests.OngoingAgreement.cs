@@ -124,20 +124,21 @@ public sealed partial class BrokerManagedSessionTests
     }
 
     [Theory]
-    [InlineData(true)][InlineData(false)]
-    public async Task InvestedRolloverRequiresExactCloseAndOpenWithoutReplacingMissingEvidence(bool complete)
+    [InlineData(true, false)][InlineData(false, false)][InlineData(true, true)][InlineData(false, true)]
+    public async Task InvestedRolloverRequiresExactCloseAndOpenWithoutReplacingMissingEvidence(bool complete, bool alias)
     {
         var x = await OngoingFixture(); var saved = await x.Workflow().ApproveAsync(x.Review);
         var boughtAt = new DateTimeOffset(2026,10,23,15,0,0,TimeSpan.Zero);
         var order = new BrokerStrategyOrder(Guid.NewGuid(), Guid.NewGuid(), null, "fixture-security", "FIX", "BUY", 2, 10,
             "Entry", null, boughtAt.AddSeconds(-1), global::Core.WSTrade.Orders.WealthsimpleSubmissionStatus.Acknowledged);
-        var fact = new BrokerOrderFact(order.ExternalId, order.SecurityId, order.Symbol, "BUY", "FILLED", "CAD", "EQUITY",
+        var fact = new BrokerOrderFact(order.ExternalId, order.SecurityId, alias ? "FIX.TO" : order.Symbol, "BUY", "FILLED", "CAD", "EQUITY",
             2, 2, 20, 20, 0, 0, order.CreatedAt, boughtAt);
         x.F.Now = new(2026,10,26,14,0,0,TimeSpan.Zero);
         var current = saved.Account.Import.Plan.Observation with { SnapshotAt = x.F.Now, CheckedAt = x.F.Now,
             Cash = saved.OngoingManagement!.CashAnchor.Cash - 20,
             Orders = saved.OngoingManagement.CashAnchor.Orders.Append(fact).ToArray(),
-            Holdings = [new(order.SecurityId, "FIX", 2, 2, 20, 20, boughtAt, 0)] };
+            Instruments = [new(order.SecurityId, fact.Symbol, "XTSE", "CAD", "EQUITY")],
+            Holdings = [new(order.SecurityId, fact.Symbol, 2, 2, 20, 20, boughtAt, 0)] };
         var import = saved.Account.Import with { Plan = saved.Account.Import.Plan with { Observation = current } };
         Task<ImmutableArray<BrokerRiskHoldingBar>> Bars(ImmutableArray<string> symbols, DateTime start, CancellationToken ct) =>
             Task.FromResult(complete ? ImmutableArray.Create(new BrokerRiskHoldingBar("FIX",

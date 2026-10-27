@@ -11,6 +11,9 @@ namespace Core.Trader.Promotion;
 public static class TradingRecommendationEngine
 {
     public static TradingRecommendationResult Evaluate(TradingRecommendationInput input)
+        => BrokerMarketSymbols.Evaluate(input, EvaluateCore);
+
+    private static TradingRecommendationResult EvaluateCore(TradingRecommendationInput input)
     {
         var strategy = input.Assignment.Strategy;
         strategy.Validate();

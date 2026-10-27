@@ -16,6 +16,15 @@ bids with and without progressive protection and a subsequent valid protective e
 protection and cost/position identity survive. Installation and native verification are still pending;
 symbol resolution, valuation and owned-order reconciliation must be checked consistently first.
 
+The mapping increment now derives the managed market name from the original reconciled purchase
+and matching saved TSX listing/security identity. It supplies canonical collection, valuation, quotes
+and risk-boundary reads while retaining broker names/IDs in recommendations and saved financial
+records. Legacy subscriptions are adapted from the verified current head without rewriting history.
+512 focused tests pass, including invested alias rollover, duplicate-buy prevention, protection across
+serialization, six listing-identity cases and the existing managed-session/order guards. No migration,
+installation or financial approval has been performed by this increment. Build review for an ongoing
+invested assignment is the next dependency; the legacy review requires a cash-only dated scope.
+
 Current status: **ADR-0109 runtime ae427a46 installed October27 01:26 Toronto, normal engine/connection
 verified initially with financial execution Off. Joseph's ongoing approval is now saved (confirmed09:58);
 host Running evaluated fresh recovered inputs at10:27:40 with no confirmed entry signal.
