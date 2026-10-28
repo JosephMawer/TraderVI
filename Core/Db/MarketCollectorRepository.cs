@@ -96,6 +96,14 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorBook WITH(UPDLOCK,HOLDLOCK)
             await tx.CommitAsync(ct); return saved;
         }
         var next = DelphiLiveCollectorBatches.Apply(saved, batch);
+        // Dapper's default DateTime mapping is SQL datetime (about 3.33ms precision).
+        // These values fence an exact datetime2 request and may be less than 1ms apart.
+        // Rounding could reject a genuine receipt or make validation appear in the future.
+        var receiptParameters = new DynamicParameters(new { batch.RequestId, batch.SourceContract, batch.Symbol,
+            batch.SessionOpenUtc, batch.SessionCloseUtc, batch.ExpectedEndUtc,
+            lease.OwnerId, lease.FencingToken, Hash = hash, Json = json });
+        receiptParameters.Add(nameof(batch.FetchStartedUtc), batch.FetchStartedUtc, DbType.DateTime2);
+        receiptParameters.Add(nameof(batch.ValidatedUtc), batch.ValidatedUtc, DbType.DateTime2);
         await c.ExecuteAsync(new CommandDefinition("""
 IF @ValidatedUtc>SYSUTCDATETIME() THROW 54561,'Collector validation timestamp is in the future.',1;
 IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestId
@@ -105,9 +113,7 @@ IF NOT EXISTS(SELECT 1 FROM dbo.MarketCollectorAttempt WHERE RequestId=@RequestI
  THROW 54573,'Collector receipt requires its original fenced request intent.',1;
 INSERT dbo.MarketCollectorRequest(RequestId,SourceContract,Symbol,SessionOpenUtc,OwnerId,FencingToken,ContentHash,ContentJson)
 VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@OwnerId,@FencingToken,@Hash,@Json);
-""", new { batch.RequestId, batch.SourceContract, batch.Symbol, batch.SessionOpenUtc, batch.SessionCloseUtc,
-            batch.ExpectedEndUtc, batch.FetchStartedUtc, batch.ValidatedUtc,
-            lease.OwnerId, lease.FencingToken, Hash = hash, Json = json }, tx, cancellationToken: ct));
+""", receiptParameters, tx, cancellationToken: ct));
         var savedIds = saved.Observations.Select(o => o.ObservationId).ToHashSet();
         foreach (var o in next.Observations.Where(o => !savedIds.Contains(o.ObservationId)))
         {

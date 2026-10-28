@@ -72,6 +72,21 @@ public sealed class MarketCollectorSqlTests(ITestOutputHelper output)
         Assert.Null(await new MarketCollectorRepository(connection).ReserveAsync(lease, subscriptions, "ABC", end, 3, default));
         output.WriteLine("PASS: competing owners, duplicate reservations, exact receipt retry, changed receipt rejection and crash/budget persistence.");
 
+        // SQL datetime rounds 1ms down to the second. A receipt starting after its exact
+        // datetime2 reservation must retain that precision at the production append fence.
+        var fractional = attempt with { RequestId = Guid.NewGuid(), Symbol = "FRACTION",
+            ReservedUtc = end.AddMilliseconds(1) };
+        var intent = new DynamicParameters(new { fractional.RequestId, fractional.SourceContract, fractional.Symbol,
+            fractional.SessionOpenUtc, fractional.SessionCloseUtc, fractional.ExpectedEndUtc, lease.OwnerId, lease.FencingToken });
+        intent.Add("ReservedUtc", fractional.ReservedUtc, System.Data.DbType.DateTime2);
+        await control.ExecuteAsync("""
+INSERT dbo.MarketCollectorAttempt(RequestId,SourceContract,Symbol,SessionOpenUtc,SessionCloseUtc,ExpectedEndUtc,ReservedUtc,OwnerId,FencingToken)
+VALUES(@RequestId,@SourceContract,@Symbol,@SessionOpenUtc,@SessionCloseUtc,@ExpectedEndUtc,@ReservedUtc,@OwnerId,@FencingToken);
+""", intent);
+        var exactReceipt = Batch(fractional, 12m) with { FetchStartedUtc = fractional.ReservedUtc.AddTicks(1) };
+        Assert.Single((await repository.AppendAsync(lease, exactReceipt)).Observations);
+        output.WriteLine("PASS: sub-millisecond request/receipt fence retains exact datetime2 precision.");
+
         await repository.ReleaseAsync(lease);
         var replacement = (await repository.TryAcquireAsync(source, Guid.NewGuid()))!;
         Assert.True(replacement.FencingToken > lease.FencingToken);

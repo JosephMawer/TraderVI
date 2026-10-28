@@ -35,6 +35,15 @@ source/capacity/venue qualification and Joseph's explicit updated-strategy revie
 
 The following overnight entries are historical implementation checkpoints, not current installation claims.
 
+October28 10:06: the isolated native SQL rehearsal reproduces a collector append failure when Dapper
+rounds a valid sub-millisecond fetch timestamp to SQL `datetime` before comparing it with the exact
+`datetime2` request intent. Explicit `datetime2` fetch/validation parameters preserve the strict fence;
+the same native regression now passes. Ten focused offline tests pass with one native opt-in skip;
+collector Release passes with 258 compiler warnings, no errors (dependency audit disabled). This
+correction is prepared; installation and subsequent production receipt verification remain pending.
+The broker archive fingerprint failure is separate and still unresolved; preserved state equality
+alone does not establish the missing original approval fingerprint.
+
 ## October 27 evening — collector design accepted; overnight engineering scheduled
 
 Joseph accepts ADR-0111: separate intraday collector/local consumers, preserved confirmation across
