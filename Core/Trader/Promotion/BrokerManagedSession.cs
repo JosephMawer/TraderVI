@@ -131,6 +131,8 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerOngoingManagement? OngoingManagement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BrokerMinuteStrategyAdoption? MinuteAdoption { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerBuyReference[]? BuyReferences { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BrokerDecisionTrace? LatestDecision { get; init; }
@@ -147,7 +149,10 @@ public sealed record BrokerManagedSession(Guid SessionId, Guid BindingId, long R
             }
             // Later dated permissions ignore legacy/earlier build approvals. A new build approval
             // must bind this exact existing permission; it does not replace or renew that permission.
+            if (MinuteAdoption is { } minute && minute.OngoingPermissionId == review.RequestId)
+                review = review with { Strategy = minute.Strategy };
             bool applies = ImplementationReview is not null &&
+                (MinuteAdoption is null || ImplementationReview.ApprovedAt > MinuteAdoption.ApprovedAt) &&
                 (OngoingManagement is null && SessionContinuation is null && October22 is null
                     ? ImplementationReview.PermissionRequestId is null
                     : ImplementationReview.PermissionRequestId == review.RequestId);

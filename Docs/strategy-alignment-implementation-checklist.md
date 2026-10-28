@@ -50,7 +50,10 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   Synthetic execution tests cover pause, uncertain orders, restart, expiry and protection without entry history.
 - [x] Implement local SQL book/input loading and recovered five-minute protection bars for the explicit
   minute successor. Offline tests cover missing/conflicted context, identity and admission profiles.
-- [ ] Verify native local loading and implement explicit adoption/cutover; retain independent Paper
+- [x] Implement explicit one-minute adoption review on the existing ongoing assignment, preserving
+  allowance, risk references, orders, held protection and paused mode. Qualification is separately
+  required; this source implementation does not approve or enable the installed account.
+- [ ] Verify native local loading and qualified adoption/cutover; retain independent Paper
   lifecycle, existing legacy policies and broker execution/protection reads.
 - [ ] Validate restart while collector current; collection outage recovered current pair; weak/stale pair;
   missing benchmark; gaps/conflicts; clock/revision/source changes; lease fencing/crash boundaries;

@@ -124,7 +124,7 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
             throw new InvalidOperationException("The durable broker session is inconsistent.");
         if (prior is null)
         {
-            if (next.OngoingManagement is not null || next.SessionContinuation is not null || next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
+            if (next.MinuteAdoption is not null || next.OngoingManagement is not null || next.SessionContinuation is not null || next.October22 is not null || next.ImplementationReview is not null || next.SourceSwitch is not null || next.Continuation is not null || next.Approval.Review.NoTransferScope?.Continuation is not null ||
                 next.Revision != 0 || next.PreviousRevisionId is not null || !next.Orders.IsEmpty || next.ActivatedAt is not null ||
                 next.Phase != BrokerManagedPhase.Transition)
                 throw new InvalidOperationException("A new account session starts only from reviewed transition authority.");
@@ -170,6 +170,9 @@ FROM dbo.BrokerManagedSessionRevision WHERE BindingId=@Id ORDER BY Revision DESC
         if (BrokerAccountImport.Hash(prior.ImplementationReview) != BrokerAccountImport.Hash(next.ImplementationReview))
             BrokerImplementationReviewWorkflow.ValidateAppend(prior, next, calendar ??
                 throw new InvalidOperationException("A reviewed calendar is required for an implementation review."), historical);
+        if (BrokerAccountImport.Hash(prior.MinuteAdoption) != BrokerAccountImport.Hash(next.MinuteAdoption))
+            BrokerMinuteStrategyAdoptionWorkflow.ValidateAppend(prior, next, calendar ??
+                throw new InvalidOperationException("A reviewed calendar is required for minute-strategy adoption."), historical);
         for (int i = 0; i < prior.Orders.Length; i++)
         {
             var old = prior.Orders[i]; var fresh = next.Orders[i];

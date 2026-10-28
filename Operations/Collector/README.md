@@ -71,3 +71,22 @@ new relay requests and drains/cancels accepted work. Eight offline tests verify 
 failure/no-fallback, framing, routing and in-process local-pipe behavior. Collector and isolated WPF/engine
 Release builds pass. Native installed process ownership, stopped-trader continuity and combined minute
 plus legacy provider load are still unqualified; three-symbol TMX sampling cannot establish that capacity.
+
+## Explicit strategy adoption
+
+The prepared app has separate **Review one-minute strategy** and **Approve one-minute strategy**
+actions for an existing ongoing five-minute assignment. The host must be stopped and the operator
+must confirm the existing no-transfer agreement. The two-minute review rechecks current daily strategy,
+account reconciliation, resolved orders, held protection and collector readiness. Approval appends a
+successor definition on the same agreement; it preserves cumulative allowance, risk references,
+order identities, protection and paused buying. It neither enables the host nor submits an order.
+Later build-only reviews retain the minute definition. No native adoption has been performed.
+
+Adoption requires an installed `collector-qualification.json` packet tied to the exact implementation,
+source and sub-minute deadline, reviewer/date, and absolute configuration/evidence paths with SHA256
+hashes. Its evidence attestation must mark native storage, writer ownership, legacy compatibility,
+restart recovery, source freshness and full-universe capacity qualified. Produce that attestation only
+after reviewing the corresponding saved native/live evidence; the three-symbol study alone is
+insufficient. No qualification packet or positive attestation is shipped by default. The app also
+checks the active collector lease, immutable SQL guards, a current conflict-free XIU minute and
+local routing applied at process startup. These prerequisites block premature financial adoption.

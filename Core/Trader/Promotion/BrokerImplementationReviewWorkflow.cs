@@ -93,7 +93,7 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
             proposal.StrategyPreparedAt > now || now - proposal.StrategyPreparedAt > TimeSpan.FromMinutes(2))
             throw new InvalidOperationException("The updated-build review or source expired. Review the exact current build again.");
     }
-    private static void RequireSession(BrokerManagedSession prior, ITsxSessionCalendar calendar, DateTimeOffset now)
+    internal static void RequireSession(BrokerManagedSession prior, ITsxSessionCalendar calendar, DateTimeOffset now)
     {
         if (prior.OngoingManagement is { } ongoing)
         {
@@ -121,7 +121,7 @@ public sealed class BrokerImplementationReviewWorkflow(IBrokerManagedSessionStor
     }
     private static Guid? DatedPermission(BrokerManagedSession state) =>
         state.OngoingManagement is not null || state.SessionContinuation is not null || state.October22 is not null ? state.EffectiveReview.RequestId : null;
-    private static void RequireAccount(BrokerManagedSession prior, BrokerAccountProjection account, DateTimeOffset now)
+    internal static void RequireAccount(BrokerManagedSession prior, BrokerAccountProjection account, DateTimeOffset now)
     {
         if (prior.OngoingManagement is { } ongoing)
         {

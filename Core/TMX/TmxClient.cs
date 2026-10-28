@@ -32,6 +32,7 @@ namespace Core.TMX
         private readonly Func<DateTime> _utcNow;
         private readonly ICollectorIntradayReader _intradayCollector;
         private static ICollectorIntradayReader processIntradayCollector;
+        public static bool UsesIndependentIntradayCollector => Volatile.Read(ref processIntradayCollector) is not null;
 
         // Explicit process startup switch; a failed collector never falls back to intraday HTTP.
         public static void RequireIndependentIntradayCollector()

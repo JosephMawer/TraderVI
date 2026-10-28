@@ -81,6 +81,15 @@ still open; no live collector or routing configuration has been installed. The f
 3,313 tests with ten explicitly skipped native/opt-in tests, zero failures (1m32s); this is not native
 SQL, live provider qualification or a complete solution/SSDT build.
 
+Explicit one-minute adoption is now implemented in the app and append-only session workflow. It
+preserves the existing ongoing agreement, allowance, orders, holding protection and paused state, and
+requires a separately qualified collector package plus current local evidence. Thirty focused tests
+pass; full Core passes 3,344 with ten native/opt-in skips (1m35s). A new lost-acknowledgement test initially
+compared collection identity after deserialization; corrected content/allowance assertions pass.
+Isolated WPF/engine Release passes with 260 compiler warnings, zero errors (dependency audit disabled).
+No qualification packet, native adoption, schema change, restart or runtime installation occurred.
+Native storage authorization remains pending; source freshness/full-universe capacity remain unproven.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

@@ -158,6 +158,8 @@ public sealed partial class ManualBuyCoordinator
         var nextSession = panel.ReviewNextSession; var approveContinuation = panel.ApproveContinuation;
         var reviewOngoing = panel.ReviewOngoing; var approveOngoing = panel.ApproveOngoing; var pauseBuying = panel.PauseBuying;
         var reviewSwitch = panel.ReviewSourceSwitch; var approveSwitch = panel.ApproveSourceSwitch;
+        var reviewMinute = panel.ReviewMinute; var approveMinute = panel.ApproveMinute;
+        MinuteReviewPreparation? minuteReview = null;
         using var lifetime = new CancellationTokenSource();
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         bool closed = false, busy = false, waitingForPaper = false; long revision = connection.SessionRevision;
@@ -197,6 +199,7 @@ public sealed partial class ManualBuyCoordinator
                 previewCarry.IsEnabled = saveCarry.IsEnabled = noOutside.IsEnabled = nextSession.IsEnabled = approveContinuation.IsEnabled =
                 reviewSwitch.IsEnabled = approveSwitch.IsEnabled = false;
             reviewOngoing.IsEnabled = approveOngoing.IsEnabled = pauseBuying.IsEnabled = false;
+            reviewMinute.IsEnabled = approveMinute.IsEnabled = false;
             CommandManager.InvalidateRequerySuggested();
             try
             {
@@ -217,14 +220,15 @@ public sealed partial class ManualBuyCoordinator
                 if (journal is EngineOrderReadModel orders) await orders.RefreshAsync(lifetime.Token);
                 await action();
             }
-            catch (OperationCanceledException) { ongoingReview = null; ongoingWorkflow = null; }
-            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; ongoingReview = null; ongoingWorkflow = null; }
+            catch (OperationCanceledException) { minuteReview = null; ongoingReview = null; ongoingWorkflow = null; }
+            catch (InvalidOperationException error) { if (!closed) summary.Text = error.Message; minuteReview = null; reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null; ongoingReview = null; ongoingWorkflow = null; }
             catch (Exception error)
             {
                 if (!closed) summary.Text = $"Execution readiness failed while {stage}.\nDiagnostic: {BrokerRiskSetupDiagnostic.Describe(error)}.\n" +
                     "No completed checkpoint or approval is confirmed by this result. Preserve original orders and saved references; report this diagnostic before retrying.";
                 reviewed = null; firstReview = null; firstWorkflow = null; carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null;
                 ongoingReview = null; ongoingWorkflow = null;
+                minuteReview = null;
             }
             finally
             {
@@ -236,6 +240,8 @@ public sealed partial class ManualBuyCoordinator
                     approveSwitch.IsEnabled = (sourceSwitchReview is not null || buildReview is not null) && noOutside.IsChecked == true;
                     approveContinuation.IsEnabled = continuationReview?.Review.CanApprove == true && noOutside.IsChecked == true;
                     reviewOngoing.IsEnabled = true;
+                    reviewMinute.IsEnabled = true;
+                    approveMinute.IsEnabled = minuteReview is not null && noOutside.IsChecked == true;
                     approveOngoing.IsEnabled = ongoingReview is not null && ongoingWorkflow is not null && noOutside.IsChecked == true;
                     pauseBuying.IsEnabled = reviewed?.OngoingManagement is not null;
                     enable.IsEnabled = reviewed is not null; approve.IsEnabled = firstReview?.CanApprove == true && firstWorkflow is not null; }
@@ -244,6 +250,7 @@ public sealed partial class ManualBuyCoordinator
         }
         async Task Refresh()
         {
+            minuteReview = null; reviewMinute.Visibility = approveMinute.Visibility = Visibility.Collapsed;
             ongoingReview = null; ongoingWorkflow = null;
             reviewOngoing.Visibility = approveOngoing.Visibility = pauseBuying.Visibility = Visibility.Collapsed;
             Check(); reviewed = null; firstReview = null; firstWorkflow = null; qualificationFingerprint = null; carryReview = null; continuationReview = null;
@@ -293,6 +300,8 @@ public sealed partial class ManualBuyCoordinator
                 ((TextBlock)noOutside.Content).Text = "I confirm no deposits, withdrawals, outside trades or other account changes since the original cash-only baseline. I will pause management before any outside deposit, withdrawal or trade. Matching balances cannot independently prove that no offsetting transfers occurred.";
                 if (saved.OngoingManagement is { } agreement)
                 {
+                    if (saved.Strategy.Strategy.MinuteEntry is null)
+                        reviewMinute.Visibility = approveMinute.Visibility = Visibility.Visible;
                     reviewed = saved; noOutside.Visibility = Visibility.Collapsed;
                     pauseBuying.Visibility = Visibility.Visible;
                     pauseBuying.Content = saved.NewBuysStopped ? "Resume new buys after checks" : "Pause new buys · keep protection";
@@ -498,9 +507,11 @@ public sealed partial class ManualBuyCoordinator
                     : "This revision contains no saved decision trace.");
         }, waitForPaperCycles: false);
         noOutside.Checked += (_, _) => { saveCarry.IsEnabled = !busy && carryReview is not null;
+            approveMinute.IsEnabled = !busy && minuteReview is not null;
             approveContinuation.IsEnabled = !busy && continuationReview?.Review.CanApprove == true;
             approveSwitch.IsEnabled = !busy && (sourceSwitchReview is not null || buildReview is not null); };
         noOutside.Unchecked += (_, _) => { saveCarry.IsEnabled = approveContinuation.IsEnabled = approveSwitch.IsEnabled = false;
+            minuteReview = null; approveMinute.IsEnabled = false;
             carryReview = null; continuationReview = null; sourceSwitchReview = null; buildReview = null;
             ongoingReview = null; ongoingWorkflow = null; approveOngoing.IsEnabled = false; ReleaseReviewAdmission(); };
         reviewOngoing.Click += async (_, _) => await Run(async () =>
@@ -747,6 +758,23 @@ public sealed partial class ManualBuyCoordinator
             Check(); await Refresh(); summary.Text += "\n\nExecution approval saved. No order was sent by approval; enable the reviewed host separately.";
             BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
         });
+        reviewMinute.Click += async (_, _) => await Run(async () =>
+        {
+            noOutside.Visibility = Visibility.Visible;
+            if (noOutside.IsChecked != true) throw new InvalidOperationException("Confirm no outside account changes above before reviewing the one-minute strategy.");
+            minuteReview = null;
+            minuteReview = await PrepareMinuteReviewAsync(account, lifetime.Token, Check, Stage);
+            summary.Text = minuteReview.Summary;
+        }, waitForPaperCycles: false);
+        approveMinute.Click += async (_, _) => await Run(async () =>
+        {
+            Check();
+            if (noOutside.IsChecked != true || minuteReview is null) throw new InvalidOperationException("Prepare and review the one-minute strategy with no outside changes confirmed.");
+            Stage("saving the explicit one-minute strategy approval with preserved financial history");
+            await minuteReview.Workflow.ApproveAsync(minuteReview.Proposal, lifetime.Token);
+            Check(); await Refresh(); summary.Text += "\n\nOne-minute strategy approval saved. No order was submitted. Resume the stopped execution host when ready.";
+            BrokerLedgerChanged?.Invoke(this, EventArgs.Empty);
+        }, waitForPaperCycles: false);
         enable.Click += async (_, _) => await Run(async () =>
         {
             Stage("enabling the exact operator-reviewed host assignment");
