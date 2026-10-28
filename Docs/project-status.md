@@ -1,6 +1,25 @@
 # TraderVI Project Status
 
-## October 28 morning — collector installed; execution recovery still blocked
+## October 28 — collector and execution repairs installed; Real recovery in progress
+
+Current checkpoint at 13:19 Toronto: execution repair `7430d875` was installed at 12:21:31 with 128
+runtime files verified (seven changed). The exact Real recovery run started at 13:07 and has verified
+more than 1,500 broker revisions without failure so far; it is still running, not cleared. The engine is
+in Real recovery maintenance with financial execution Off and the dashboard closed. Automatic
+holding protection and buy readiness are not yet verified. The independent collector remains running.
+The guarded completion script waits for this exact recovery proof, clears only its matching Real
+holds while preserving Paper holds, then restores normal mode and the visible app. Joseph must still
+perform the final changed-build review and resume. Private installation/recovery receipts:
+`artifacts/execution-repair-20261028/maintenance-cutover/` and `recovery-wait-*.json`.
+
+The 13:19 bounded read-only source capture covers 34 symbols with a current collector lease. BTE has 140
+conflicting completed bars; its latest accepted completed endpoint is 12:14 despite recent responses.
+Other symbols have differing missing/late intervals, which do not establish no trades. This is not a
+qualified one-minute source. First-arrival timing remains separate from recovered context, and the
+existing five-minute strategy is retained. Private receipt: `artifacts/minute-source-check-20261028/collector-summary-1319.json`
+(query SHA256 `855A33D24FDAEF2FE2915DF8CE56D2A6BCAEA87816DDD288F039E21EBB5FE9F1`).
+
+The following morning entries preserve the earlier diagnosis and validation checkpoints.
 
 Joseph approved migration052 and the collector cutover. At 09:19 Toronto the guarded installation
 started the independent collector, bounded supervisor and runtime built from `6c1e8f13`, with legacy
@@ -56,8 +75,6 @@ is needed before review; do not weaken the equality check or clear the archive h
 recovery/clearance nor financial approval/enable was performed during this diagnosis. Private
 hash-verified archive reconstruction and comparison: `artifacts/archive-review-20261028/`.
 
-The following overnight entries are historical implementation checkpoints, not current installation claims.
-
 October28 late-morning execution repair: separate stopped-session risk synchronization is implemented
 and tested, **not installed**. It replays existing closing/opening receipts, appends their exact resulting
 risk projection and preserves the original approval, orders, protection, memory and controls. Build
@@ -79,6 +96,8 @@ Collector-only recovery is still the last installed correction. Fresh native rec
 financial build approval remain pending; Real buying/protection remain unverified.
 
 ## October 27 evening — collector design accepted; overnight engineering scheduled
+
+The following overnight entries are historical implementation checkpoints, not current installation claims.
 
 Joseph accepts ADR-0111: separate intraday collector/local consumers, preserved confirmation across
 trader restarts, and two consecutive qualifying observations reconstructed from validated backfill
