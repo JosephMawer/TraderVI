@@ -68,6 +68,10 @@ Native SQL rehearsal, compatible legacy polling ownership, successor adoption an
 No migration, collector launch or installation occurred. The debug-symbol file touched by the earlier
 default-output build was restored from the hash-verified installed candidate; runtime DLLs were unchanged.
 
+An isolated native collector-storage rehearsal is prepared and compiles. Its native test is disabled by
+default (13 local-consumer tests pass; one explicit native skip). Authorization for creating its unique
+synthetic local database has been requested; no native SQL operation has run at this checkpoint.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

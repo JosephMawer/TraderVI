@@ -35,6 +35,14 @@ files outside that immutable runtime directory. It starts
 hidden, owns an exclusive supervisor lock and never clears a stop. It is not registered or launched by
 builds. Startup registration and live use are part of the guarded cutover, not these source changes.
 
+An opt-in native rehearsal is prepared in `TraderVI.Core.Tests/MarketCollectorSqlTests.cs`. With explicit
+authorization only, `TRADERVI_COLLECTOR_SQL_QUALIFICATION=1` enables its single filtered test. It creates
+and retains one uniquely named `TraderVI_CollectorQualification_<random ID>` database on localhost,
+installs only the six synthetic collector tables/five guards, and checks competing owners, request
+reservations, crash/idempotent recovery, conflicts, immutable records and transactional reader isolation.
+It never connects to TraderDB or constructs market/broker clients. Ordinary test runs skip it. This
+qualifies repository behavior, not the production migration's backup/stop preconditions.
+
 Migration052 remains unapplied and now includes immutable request intents. Native SQL concurrency,
 crash/idempotency and permissions rehearsal, native subscription/local-consumer verification,
 source qualification and compatible installation are still required. Do not launch alongside the

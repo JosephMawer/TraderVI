@@ -36,6 +36,7 @@
     <None Include="..\TraderDB\dbo\Tables\BrokerAccountImportBinding.sql;..\TraderDB\dbo\Tables\BrokerAccountImport.sql;..\TraderDB\dbo\Tables\BrokerAccountRiskBaseline.sql;..\TraderDB\dbo\Tables\BrokerAccountRiskContinuation.sql" Link="SqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\TraderDB\dbo\Triggers\BrokerAccountImportBinding_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountImport_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskBaseline_Immutable.sql;..\TraderDB\dbo\Triggers\BrokerAccountRiskContinuation_Immutable.sql" Link="SqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Fixtures\Wealthsimple\*.json" />
+    <None Include="..\TraderDB\dbo\Tables\MarketCollector*.sql;..\TraderDB\dbo\Triggers\MarketCollector*.sql" Link="CollectorSqlRehearsal\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\TradingAccountOverview.cs" Link="Presentation\TradingAccountOverview.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\PortfolioStrategyWorkspace.cs" Link="Presentation\PortfolioStrategyWorkspace.cs" />
     <Compile Include="..\TraderVI.WPF\Viewmodels\BrokerRiskSetupDiagnostic.cs" Link="Presentation\BrokerRiskSetupDiagnostic.cs" />
