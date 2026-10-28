@@ -25,6 +25,12 @@ namespace TraderVI.WPF
                 window.Show();
                 return;
             }
+            try { Core.Runtime.CollectorIntradayRouting.ApplyIfConfigured(AppContext.BaseDirectory); }
+            catch
+            {
+                MessageBox.Show("The collector routing package is invalid. Restore the reviewed package before starting TraderVI.");
+                Shutdown(3); return;
+            }
             StartupUri = new Uri("PaperDashboardWindow.xaml", UriKind.Relative);
             base.OnStartup(e);
         }

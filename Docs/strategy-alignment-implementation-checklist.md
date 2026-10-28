@@ -42,6 +42,9 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   holdings/pending orders when daily candidates are absent; native execution remains unverified.
 - [ ] Qualify native supervision/recovery, include every legacy consumer's subscriptions and prove no
   competing intraday polling owner at cutover.
+- [x] Prepare explicit local relay for frozen legacy intraday requests, with original receipt times,
+  independent Paper lifecycle/SQL publication and no trading-process HTTP fallback. Offline pipe tests
+  pass; combined provider capacity and installed ownership remain unverified.
 - [x] Wire the explicit successor into account-specific recommendation/quote/order-deadline checks and
   review descriptions, preserving legacy null serialization and independent account confirmation.
   Synthetic execution tests cover pause, uncertain orders, restart, expiry and protection without entry history.

@@ -72,6 +72,15 @@ An isolated native collector-storage rehearsal is prepared and compiles. Its nat
 default (13 local-consumer tests pass; one explicit native skip). Authorization for creating its unique
 synthetic local database has been requested; no native SQL operation has run at this checkpoint.
 
+Legacy intraday transport separation is prepared behind an explicit routing file, absent from the
+installed runtime. Eight focused tests pass, including local same-user pipes and no HTTP fallback.
+Collector Release and isolated WPF/engine Release pass (258/260 compiler warnings, no errors; dependency
+audit disabled). Frozen legacy receipt times, shared publication and independent Paper lifecycle remain
+unchanged. Combined provider capacity, native ownership/cutover and successor financial adoption are
+still open; no live collector or routing configuration has been installed. The full Core suite passes
+3,313 tests with ten explicitly skipped native/opt-in tests, zero failures (1m32s); this is not native
+SQL, live provider qualification or a complete solution/SSDT build.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

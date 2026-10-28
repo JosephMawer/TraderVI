@@ -114,6 +114,14 @@ installing a build that strands its account awaiting an unattended approval.
 
 ## Verification and implementation order
 
+Legacy compatibility at cutover uses a local same-user relay for the frozen five-/fifteen-minute source
+requests. The collector performs those network reads and returns the original bounded receipts; the
+existing consumer retains its lease, audit/publication and Paper lifecycle. This avoids representing
+minute aggregates as original legacy TMX observations or transferring Paper financial writes to the
+collector. New one-minute decisions read durable SQL books directly. The explicit routing package has
+no intraday HTTP fallback; broker execution/protection quotes remain separate. Combined legacy/minute
+transport capacity and native process ownership must be qualified before cutover.
+
 The owning implementation checklist contains progress. Implement in coherent reviewed commits:
 
 1. Recovery-aware context and confirmation core, offline tests, unchanged legacy behavior.

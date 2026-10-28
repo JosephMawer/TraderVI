@@ -47,3 +47,27 @@ Migration052 remains unapplied and now includes immutable request intents. Nativ
 crash/idempotency and permissions rehearsal, native subscription/local-consumer verification,
 source qualification and compatible installation are still required. Do not launch alongside the
 installed intraday poller. Do not replace the approved runtime until ownership/cutover checks pass.
+
+## Legacy compatibility during cutover
+
+The prepared `collector-routing.json` contract routes intraday bar calls from the desktop and trading
+engine to the same-user local collector pipe. It contains only `Contract` set to
+`IndependentIntradayCollectorRoutingV1` and `SourceContract` set to `TmxMinuteCollectorV1`. Absence keeps
+the existing runtime's behavior; an invalid present file fails startup. This file has not been installed.
+Once configured there is no direct intraday HTTP fallback, including diagnostic entrypoints.
+
+The collector's optional `LegacyIntradayConcurrency` (zero disabled; explicitly selected one through
+eight for cutover) serves the original bounded five-/fifteen-minute TMX requests. Legacy consumers retain
+their current collection lease, source contracts, publication/SQL audit and independent Paper lifecycle.
+The original provider receipt times are transported unchanged; minute aggregation is never relabeled
+as an original five-minute TMX receipt. New minute entries consume durable SQL books directly. Broker
+executable quotes/protective bids remain trading-engine responsibilities. Legacy quote operations are
+unchanged; this routing controls intraday bars only.
+
+Each relay request/response is bounded, same-user only, with cancellation and no relay retry. The old
+provider's bounded retry contract remains visible in its original attempt count. A fixed per-user process
+lock prevents separate configuration paths from starting competing collectors. Deliberate stop refuses
+new relay requests and drains/cancels accepted work. Eight offline tests verify receipt identity/times,
+failure/no-fallback, framing, routing and in-process local-pipe behavior. Collector and isolated WPF/engine
+Release builds pass. Native installed process ownership, stopped-trader continuity and combined minute
+plus legacy provider load are still unqualified; three-symbol TMX sampling cannot establish that capacity.

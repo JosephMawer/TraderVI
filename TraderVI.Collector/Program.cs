@@ -13,6 +13,8 @@ internal sealed record CollectorConfiguration(string CalendarPath, string Subscr
     string SourceContract, CollectorLimits Limits)
 {
     public bool UseVerifiedRealSubscriptions { get; init; }
+    // Zero leaves the legacy relay disabled. Cutover selects and qualifies a bounded concurrency.
+    public int LegacyIntradayConcurrency { get; init; }
 }
 
 internal static class Program
@@ -29,8 +31,12 @@ internal static class Program
                 if (!Path.IsPathFullyQualified(path)) throw new InvalidDataException("Absolute collector paths required.");
             if (config.SourceContract != TmxCollectorSource.Contract) throw new InvalidDataException("Unsupported collector source.");
             config.Limits.Validate();
+            if (config.LegacyIntradayConcurrency is < 0 or > 8) throw new InvalidDataException("Invalid legacy collector concurrency.");
             var calendar = ReviewedTsxSessionCalendar.Load(config.CalendarPath);
             if (args[0] == "--check-config") return 0;
+            // A different configuration/control directory cannot create a second transport owner.
+            using var processOwnership = new EngineOwnershipLease(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TraderVI", "Collector", "process.lock"));
             using var ownership = new EngineOwnershipLease(Path.Combine(config.ControlDirectory, "collector.lock"));
             using var source = new TmxCollectorSource();
             var worker = new IntradayCollector(new MarketCollectorRepository(), source, config.Limits);
@@ -38,11 +44,23 @@ internal static class Program
             Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Cancel(); };
             string statusPath = Path.Combine(config.ControlDirectory, "status.json");
             string stopPath = Path.Combine(config.ControlDirectory, "stop.request");
+            using var legacyProvider = config.LegacyIntradayConcurrency > 0 ? new CollectorLegacyTmxProvider() : null;
+            bool LegacyAllowed(DateTime now)
+            {
+                var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(now, ReviewedTsxSessionCalendar.Toronto));
+                if (stop.IsCancellationRequested || File.Exists(stopPath) || !calendar.IsRegularSession(date)) return false;
+                var bounds = calendar.GetSessionBounds(date);
+                return now >= bounds.OpenUtc && now < bounds.CloseUtc.AddMinutes(5);
+            }
+            var legacy = legacyProvider is not null && !File.Exists(stopPath)
+                ? new CollectorIntradayServer(legacyProvider, LegacyAllowed).RunAsync(config.LegacyIntradayConcurrency, stop.Token)
+                : Task.CompletedTask;
             DateTime nextSubscriptionRead = DateTime.MinValue;
             try
             {
                 while (!stop.IsCancellationRequested && !File.Exists(stopPath))
                 {
+                    if (legacy.IsFaulted) await legacy; // A failed listener requires a supervised restart.
                     CollectorTickResult status;
                     try
                     {
@@ -76,9 +94,14 @@ internal static class Program
             catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
             finally
             {
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-                await worker.StopAsync(timeout.Token);
-                SaveStatus(statusPath, new("Stopped", 0, 0, 0));
+                stop.Cancel();
+                try { await legacy; } catch (OperationCanceledException) { }
+                finally
+                {
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                    await worker.StopAsync(timeout.Token);
+                    SaveStatus(statusPath, new("Stopped", 0, 0, 0));
+                }
             }
             return 0;
         }

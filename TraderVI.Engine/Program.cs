@@ -28,6 +28,7 @@ internal static class Program
         bool verificationOnly = args[0] == "--verify" || recoveryMaintenance;
         try
         {
+            CollectorIntradayRouting.ApplyIfConfigured(AppContext.BaseDirectory);
             using var owner = new EngineOwnershipLease(EnginePaths.OwnershipPath);
             if (args[0] == "--prepare-real-observations")
             {

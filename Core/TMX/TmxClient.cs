@@ -1,5 +1,6 @@
 ﻿using Core.Db;
 using Core.TMX.Models.Domain;
+using Core.Runtime;
 using Core.TMX.Models.Dto;
 using GraphQL;
 using GraphQL.Client.Http;
@@ -29,6 +30,14 @@ namespace Core.TMX
         private readonly HttpClient _httpClient;
         private readonly HttpMessageHandler _handler;
         private readonly Func<DateTime> _utcNow;
+        private readonly ICollectorIntradayReader _intradayCollector;
+        private static ICollectorIntradayReader processIntradayCollector;
+
+        // Explicit process startup switch; a failed collector never falls back to intraday HTTP.
+        public static void RequireIndependentIntradayCollector()
+        {
+            Interlocked.CompareExchange(ref processIntradayCollector, new CollectorIntradayClient(), null);
+        }
         private static readonly Uri GraphQLEndpoint = new("https://app-money.tmx.com/graphql");
         private static readonly TimeZoneInfo TmxEasternTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
@@ -40,13 +49,14 @@ namespace Core.TMX
         {
             CookieContainer = new CookieContainer(),
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-        }) { }
+        }) { _intradayCollector = Volatile.Read(ref processIntradayCollector); }
 
-        internal TmxClient(HttpMessageHandler handler, Func<DateTime> utcNow = null)
+        internal TmxClient(HttpMessageHandler handler, Func<DateTime> utcNow = null, ICollectorIntradayReader intradayCollector = null)
         {
             ArgumentNullException.ThrowIfNull(handler);
             _handler = handler;
             _utcNow = utcNow ?? (() => DateTime.UtcNow);
+            _intradayCollector = intradayCollector;
 
             _httpClient = new HttpClient(_handler, disposeHandler: false)
             {
@@ -116,6 +126,9 @@ namespace Core.TMX
             string symbol, int interval, DateTime startDateTime, DateTime? endDateTime,
             CancellationToken ct, bool includeObservationContext)
         {
+            if (_intradayCollector is not null)
+                return await _intradayCollector.ReadAsync(new(Guid.NewGuid(), symbol, interval, startDateTime,
+                    endDateTime ?? _utcNow(), includeObservationContext), ct);
             var result = await GetIntradayDiagnosticCoreAsync(symbol, interval, startDateTime, endDateTime, ct,
                 null, includeObservationContext);
             if (!result.SourceDataPresent)
@@ -143,6 +156,8 @@ namespace Core.TMX
                 DateTime? endDateTime, CancellationToken ct,
                 Action<TmxIntradayTimestampInspection> inspectTimestamps, bool includeObservationContext)
         {
+            if (_intradayCollector is not null)
+                throw new InvalidOperationException("Direct intraday diagnostics are unavailable in a collector-only trading process.");
             DateTime fetchStartedUtc = _utcNow();
             DateTime providerStartUtc = IntradayProviderStart(interval, startDateTime);
             DateTime? providerEndUtc = includeObservationContext
