@@ -151,6 +151,15 @@
     <Build Include="dbo/Triggers/DelphiLiveEvaluation_RetiredWriter.sql" />
     <Build Include="dbo/Triggers/DelphiLiveEvaluation_ArchiveImmutable.sql" />
     <Build Include="dbo/Tables/EngineMarketCycle.sql" />
+    <Build Include="dbo/Tables/MarketCollectorLease.sql" />
+    <Build Include="dbo/Tables/MarketCollectorBook.sql" />
+    <Build Include="dbo/Tables/MarketCollectorRequest.sql" />
+    <Build Include="dbo/Tables/MarketCollectorObservation.sql" />
+    <Build Include="dbo/Tables/MarketCollectorConflict.sql" />
+    <Build Include="dbo/Triggers/MarketCollectorBook_Immutable.sql" />
+    <Build Include="dbo/Triggers/MarketCollectorRequest_Immutable.sql" />
+    <Build Include="dbo/Triggers/MarketCollectorObservation_Immutable.sql" />
+    <Build Include="dbo/Triggers/MarketCollectorConflict_Immutable.sql" />
     <Build Include="dbo/Tables/EngineConsumerReceipt.sql" />
     <Build Include="dbo/Triggers/EngineMarketCycle_Immutable.sql" />
     <Build Include="dbo/Triggers/EngineConsumerReceipt_Immutable.sql" />
@@ -273,5 +282,6 @@
     <None Include="Migrations/20261022_049_AddEngineConsumerHandoff.sql" />
     <None Include="Migrations/20261022_050_AddIndependentIntegrityAudits.sql" />
     <None Include="Migrations/20261022_051_AddPaperWorkingState.sql" />
+    <None Include="Migrations/20261028_052_AddIndependentCollectorEvidence.sql" />
   </ItemGroup>
 </Project>

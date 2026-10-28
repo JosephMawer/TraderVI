@@ -25,6 +25,13 @@ pass and the date guard rejects an October 27 launch before any market requests.
 270-request study and summary preserve first arrivals, gaps and completed-bar revisions privately.
 The 09:25 automation must still select tomorrow's candidate and launch it; no live qualification occurred.
 
+Second offline increment prepares the collector batch reducer, SQL repository, five additive tables
+and immutable evidence guards. First completed receipts survive repeated/backfilled reads; revised
+completed values latch conflicts. Appends fence owner/generation against the database clock and commit
+receipt/derived evidence atomically. Migration052 is prepared only. Fifty-four focused tests pass;
+SSDT Release validates/builds the database project with no warnings/errors. This is not a full solution
+build or native SQL rehearsal. No migration, collector launch, external request or installation ran.
+
 ## October 27 15:20 — holding repairs installed; protection and buy checks verified
 
 Runtime 81dd33f3 is installed after the symbol/missing-bid repairs and canonical provider correction.

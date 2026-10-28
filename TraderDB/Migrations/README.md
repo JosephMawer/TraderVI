@@ -1,5 +1,18 @@
 # Manual database migrations
 
+## Prepared independent collector storage — October 27 evening
+
+`20261028_052_AddIndependentCollectorEvidence.sql` is prepared, **not applied**. ADR-0111 adds isolated
+collector lease/session/request/first-observation/conflict tables and immutable evidence triggers.
+The runtime repository fences each append with the database clock and owner generation, commits the
+request and derived evidence atomically, and reads one coherent session boundary. These tables do not
+replace existing strategy/financial history. The script requires stopped market writers, existing
+engine schema and a fresh checksum-verified full backup. Do not use the DACPAC to deploy it.
+
+Source/SSDT validation and offline reducer tests do not prove native SQL fencing, deadlock/crash behavior
+or permissions. Rehearse in an explicitly authorized isolated database before requesting a production
+migration/cutover. Keep all evidence on binary rollback; do not delete tables or rows to simulate recovery.
+
 This directory records the exact schema scripts applied to `TraderDB` after adoption of ADR-0018. Existing top-level scripts in `TraderDB` predate this convention.
 
 ## Progressive protection rollout

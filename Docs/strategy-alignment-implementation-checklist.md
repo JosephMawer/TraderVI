@@ -27,9 +27,12 @@ and Joseph's updated-strategy financial activation cannot be claimed complete ov
   This boundary accepts deterministic evaluator judgments; it is not connected to runtime publication.
 - [ ] Connect the successor evaluator's actual four-family judgments to that recovery boundary and
   complete end-to-end data/window maturity tests; do not treat an offline pair result as order authority.
-- [ ] Implement durable evidence and request/revision/gap records, fenced collector ownership and
-  coherent committed read boundaries. Prepare individually reviewed additive SQL migration; synchronize
-  database project/runtime repositories and rehearse against isolated fixtures before production.
+- [x] Prepare durable receipt/first-observation/conflict storage, bounded multi-bar recovery reducer,
+  database-clock fenced ownership and atomic append/coherent read repository. Additive migration052
+  and database project definitions are synchronized; 54 focused tests and SSDT Release build pass.
+- [ ] Rehearse SQL ownership/takeover, transaction/crash/idempotent retry, immutable guards and reader
+  isolation in an explicitly authorized isolated database before production migration/cutover.
+  Migration052 remains unapplied; offline tests do not prove native SQL behavior or installed ownership.
 - [ ] Extract separately supervised collector host and subscription union (candidates/XIU/holdings/exits),
   bounded fresh-priority backfill and health/stop controls. Prove no competing intraday polling owner.
 - [ ] Wire local publication/Real consumers and successor strategy identity/review display; retain
